@@ -130,6 +130,7 @@ export async function POST(req: Request) {
     const { messages } = body;
 
     if (!messages || !Array.isArray(messages)) {
+      console.error('[API] Invalid messages:', { messages, body });
       return NextResponse.json(
         { error: "Missing or invalid 'messages' array." },
         { status: 400 }
@@ -137,7 +138,11 @@ export async function POST(req: Request) {
     }
 
     if (!process.env.OPENAI_API_KEY) {
-      console.error('[API] Missing OPENAI_API_KEY');
+      console.error('[API] Missing OPENAI_API_KEY - env check:', {
+        hasKey: !!process.env.OPENAI_API_KEY,
+        keyLength: process.env.OPENAI_API_KEY?.length || 0,
+        allEnvKeys: Object.keys(process.env).filter(k => k.includes('OPENAI'))
+      });
       return NextResponse.json(
         { error: "Server configuration error. Please contact support." },
         { status: 500 }

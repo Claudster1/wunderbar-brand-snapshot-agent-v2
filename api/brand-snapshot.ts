@@ -1,4 +1,4 @@
-// API/brand_snapshot.ts
+// api/brand-snapshot.ts
 
 import OpenAI from "openai";
 
@@ -52,10 +52,29 @@ export default async function handler(req: any, res: any) {
 
     res.status(200).json({ content });
   } catch (err: any) {
-    console.error("[Brand Snapshot API] error:", err?.message || err);
+    console.error("[Brand Snapshot API] error:", {
+      message: err?.message,
+      stack: err?.stack,
+      name: err?.name,
+      code: err?.code,
+      status: err?.status,
+      fullError: err
+    });
+    
+    // Provide more specific error messages
+    let errorMessage = "There was an issue reaching the Brand Snapshot specialist. Please try again in a moment.";
+    
+    if (err?.message?.includes('API key') || err?.code === 'invalid_api_key') {
+      errorMessage = "Server configuration error. Please contact support.";
+    } else if (err?.message?.includes('rate limit') || err?.status === 429) {
+      errorMessage = "Service is temporarily busy. Please try again in a moment.";
+    } else if (err?.message) {
+      // Include the actual error message for debugging (remove in production if needed)
+      errorMessage = err.message;
+    }
+    
     res.status(500).json({
-      error:
-        "There was an issue reaching the Brand Snapshot specialist. Please try again in a moment.",
+      error: errorMessage,
     });
   }
 }

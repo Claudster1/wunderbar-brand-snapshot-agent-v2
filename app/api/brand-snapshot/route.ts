@@ -58,9 +58,33 @@ Score each pillar on a scale of 1-5 based on user input + provided URLs:
 4. Credibility (1-5)
 5. Conversion (1-5)
 
-The Brand Alignment Score™ is a composite score calculated from all five pillars, on a scale of 1-100.
-
 If information is missing, score conservatively (lower scores).
+
+------------------------------------------------------
+BRAND ALIGNMENT SCORE™ CALCULATION (WEIGHTED MODEL)
+------------------------------------------------------
+The Brand Alignment Score™ is calculated using a weighted scoring model:
+
+Pillar Weights:
+- Positioning: 0.30 (30%)
+- Messaging: 0.25 (25%)
+- Conversion: 0.20 (20%)
+- Credibility: 0.15 (15%)
+- Visibility: 0.10 (10%)
+
+Formula:
+BrandAlignmentScore = Math.round(
+  (positioning * 0.30 +
+   messaging * 0.25 +
+   conversion * 0.20 +
+   credibility * 0.15 +
+   visibility * 0.10) * 20
+)
+
+This ensures the total weighted score = 100 max (scale of 1-100).
+
+Example: If all pillars score 5, the Brand Alignment Score™ = 100.
+If all pillars score 1, the Brand Alignment Score™ = 20.
 
 ------------------------------------------------------
 INTAKE QUESTIONS (ASK ONE AT A TIME)

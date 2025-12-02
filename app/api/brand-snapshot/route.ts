@@ -62,7 +62,7 @@ If information is missing, score conservatively.
 ------------------------------------------------------
 INTAKE QUESTIONS (ASK ONE AT A TIME)
 ------------------------------------------------------
-1. "Hi! I'm Wundy 👋 Ready to get your Brand Snapshot?"
+1. "Hi! I'm Wundy 👋 Ready to get your Brand Snapshot™?"
 2. "In a sentence or two, what does your business do?"
 3. "Who is your primary customer or client?"
 4. "What's the main problem or frustration you help them solve?"

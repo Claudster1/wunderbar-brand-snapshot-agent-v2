@@ -1,10 +1,9 @@
-// api/brand-snapshot.ts
+// app/api/brand-snapshot/route.ts
 
+import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 
 // -----------------------------------------
 // SYSTEM PROMPT FOR WUNDY (BRAND SNAPSHOT™)
@@ -38,7 +37,7 @@ If the user provides URLs:
 - Do NOT search the wider internet.
 - Do NOT load any pages except the exact URLs provided.
 - Do NOT assume or invent missing content.
-- If a link cannot be loaded, say: "I wasn’t able to load that page, so I’ll base your score on what you shared."
+- If a link cannot be loaded, say: "I wasn't able to load that page, so I'll base your score on what you shared."
 
 Evaluate from URLs:
 - Messaging clarity
@@ -63,17 +62,17 @@ If information is missing, score conservatively.
 ------------------------------------------------------
 INTAKE QUESTIONS (ASK ONE AT A TIME)
 ------------------------------------------------------
-1. “Hi! I’m Wundy 👋 Ready to get your Brand Snapshot?”
-2. “In a sentence or two, what does your business do?”
-3. “Who is your primary customer or client?”
-4. “What’s the main problem or frustration you help them solve?”
-5. “How do you want people to feel when they interact with your brand?”
-6. “What do you believe you do better than anyone else?”
-7. “When someone talks about your brand, what do you hope they say?”
-8. “If you'd like, share your website or any social links.”
+1. "Hi! I'm Wundy 👋 Ready to get your Brand Snapshot?"
+2. "In a sentence or two, what does your business do?"
+3. "Who is your primary customer or client?"
+4. "What's the main problem or frustration you help them solve?"
+5. "How do you want people to feel when they interact with your brand?"
+6. "What do you believe you do better than anyone else?"
+7. "When someone talks about your brand, what do you hope they say?"
+8. "If you'd like, share your website or any social links."
 
 After they answer:
-9. “Ready to see how your brand scores across the five pillars?”
+9. "Ready to see how your brand scores across the five pillars?"
 
 ------------------------------------------------------
 IMMEDIATE OUTPUT (AFTER INTAKE)
@@ -125,82 +124,21 @@ Must output JSON:
 }
 `;
 
-// -----------------------------------------
-// API ROUTE HANDLER
-// -----------------------------------------
+export async function POST(req: Request) {
+  const body = await req.json();
+  const { messages } = body;
 
-export default async function handler(req: any, res: any) {
-  if (req.method !== "POST") {
-    res.status(405).json({ error: "Method not allowed. Use POST." });
-    return;
-  }
+  const completion = await client.chat.completions.create({
+    model: "gpt-4o-mini",
+    messages: [{ role: "system", content: SYSTEM_PROMPT }, ...messages],
+    max_tokens: 800,
+    temperature: 0.6,
+  });
 
-  try {
-    let body = req.body;
+  const content =
+    completion.choices[0]?.message?.content ??
+    "Sorry, I had trouble generating a response.";
 
-    if (typeof body === "string") {
-      try {
-        body = JSON.parse(body);
-      } catch (e) {
-        console.error("[API] Failed to parse body:", e);
-      }
-    }
-
-    const { messages } = body || {};
-
-    if (!messages || !Array.isArray(messages)) {
-      res.status(400).json({ error: "Missing or invalid 'messages' array." });
-      return;
-    }
-
-    if (!process.env.OPENAI_API_KEY) {
-      console.error('[API] Missing OPENAI_API_KEY');
-      res.status(500).json({ error: "Server configuration error. Please contact support." });
-      return;
-    }
-
-    // Prepend system prompt (remove any existing system messages from frontend)
-    const userMessages = messages.filter((msg: any) => msg.role !== 'system');
-    const fullMessages = [
-      { role: "system", content: SYSTEM_PROMPT },
-      ...userMessages,
-    ];
-
-    const completion = await client.chat.completions.create({
-      model: "gpt-4o-mini",
-      temperature: 0.6,
-      max_tokens: 1800,
-      messages: fullMessages,
-    });
-
-    const content =
-      completion.choices?.[0]?.message?.content ??
-      "Sorry, I had trouble generating a response. Please try again.";
-
-    res.status(200).json({ content });
-  } catch (err: any) {
-    console.error("[Brand Snapshot API] error:", {
-      message: err?.message,
-      stack: err?.stack,
-      name: err?.name,
-      code: err?.code,
-      status: err?.status,
-      fullError: err
-    });
-    
-    // Provide more specific error messages
-    let errorMessage = "There was an issue reaching the Brand Snapshot specialist. Please try again in a moment.";
-    
-    if (err?.message?.includes('API key') || err?.code === 'invalid_api_key') {
-      errorMessage = "Server configuration error. Please contact support.";
-    } else if (err?.message?.includes('rate limit') || err?.status === 429) {
-      errorMessage = "Service is temporarily busy. Please try again in a moment.";
-    } else if (err?.message) {
-      errorMessage = err.message;
-    }
-    
-    res.status(500).json({
-      error: errorMessage,
-    });
-  }
+  return NextResponse.json({ content });
 }
+

@@ -2,7 +2,7 @@
 
 import type { BrandChatMessage } from '../types';
 
-const BRAND_SNAPSHOT_API = '/api/brand-snapshot';
+const API_URL = '/api/brand-snapshot';
 
 type ApiMessage = { role: 'system' | 'user' | 'assistant'; content: string };
 
@@ -19,7 +19,7 @@ export async function getBrandSnapshotReply(
   const payload = { messages: buildApiMessages(history) };
 
   try {
-    const response = await fetch(BRAND_SNAPSHOT_API, {
+    const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

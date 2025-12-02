@@ -17,6 +17,9 @@
 /build
 /dist
 
+# vite (legacy)
+/.vite/
+
 # misc
 .DS_Store
 *.pem

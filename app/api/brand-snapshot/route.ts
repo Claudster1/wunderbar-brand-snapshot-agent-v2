@@ -51,12 +51,14 @@ Evaluate from URLs:
 ------------------------------------------------------
 FIVE PILLARS (SCORING LOGIC)
 ------------------------------------------------------
-Score each pillar on a scale of 1-100 based on user input + provided URLs:
-1. Positioning (1-100)
-2. Messaging (1-100)
-3. Visibility (1-100)
-4. Credibility (1-100)
-5. Conversion (1-100)
+Score each pillar on a scale of 1-5 based on user input + provided URLs:
+1. Positioning (1-5)
+2. Messaging (1-5)
+3. Visibility (1-5)
+4. Credibility (1-5)
+5. Conversion (1-5)
+
+The Brand Alignment Score™ is a composite score calculated from all five pillars, on a scale of 1-100.
 
 If information is missing, score conservatively (lower scores).
 
@@ -83,13 +85,15 @@ IMMEDIATE OUTPUT (AFTER INTAKE - ONLY WHEN COMPLETE)
 IMPORTANT: Do NOT show any scores until ALL intake questions are answered and the brand snapshot is complete.
 
 Once the brand snapshot is complete, show ONLY:
-- Positioning score: [numeric score 1-100]
-- Messaging score: [numeric score 1-100]
-- Visibility score: [numeric score 1-100]
-- Credibility score: [numeric score 1-100]
-- Conversion score: [numeric score 1-100]
+- Brand Alignment Score™: [numeric score 1-100] (composite score)
+- Positioning score: [numeric score 1-5]
+- Messaging score: [numeric score 1-5]
+- Visibility score: [numeric score 1-5]
+- Credibility score: [numeric score 1-5]
+- Conversion score: [numeric score 1-5]
 
-Each score must be a specific number between 1 and 100.
+Pillar scores must be specific numbers between 1 and 5.
+Brand Alignment Score™ must be a specific number between 1 and 100.
 
 Then a short 2–3 sentence summary.
 
@@ -105,13 +109,13 @@ FULL REPORT OUTPUT (AFTER EMAIL)
 Must output JSON:
 
 {
-  "brandAlignmentScore": number (1-100),
+  "brandAlignmentScore": number (1-100, composite score from all pillars),
   "pillarScores": {
-    "positioning": number (1-100),
-    "messaging": number (1-100),
-    "visibility": number (1-100),
-    "credibility": number (1-100),
-    "conversion": number (1-100)
+    "positioning": number (1-5),
+    "messaging": number (1-5),
+    "visibility": number (1-5),
+    "credibility": number (1-5),
+    "conversion": number (1-5)
   },
   "summary": "short paragraph",
   "pillarInsights": {

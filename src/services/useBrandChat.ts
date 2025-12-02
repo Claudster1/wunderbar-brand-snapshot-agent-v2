@@ -1,10 +1,39 @@
-// src/services/openaiService.ts
+// src/services/useBrandChat.ts
 
-import type { BrandChatMessage } from '../types';
+const BRAND_SNAPSHOT_API = "/api/brand-snapshot";
 
-const BRAND_SNAPSHOT_API = '/api/brand-snapshot';
+export async function sendBrandSnapshotMessage(
+  messages: { role: "user" | "assistant"; content: string }[]
+): Promise<string> {
+  // Build message list – if you have a system prompt, prepend it here
+  const payload = {
+    messages: messages,
+  };
 
-// System prompt that defines Wundy + Brand Snapshot behavior.
+  const response = await fetch(BRAND_SNAPSHOT_API, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    console.error("[Brand Snapshot] API error status:", response.status);
+    throw new Error(
+      "There was an issue reaching the Brand Snapshot specialist. Please try again in a moment."
+    );
+  }
+
+  const data = await response.json();
+  const content: string =
+    data?.content ??
+    "Sorry, I had trouble generating a response. Please try again.";
+
+  return content;
+}
+
+// System prompt that defines Wundy + Brand Snapshot behavior
 const SYSTEM_PROMPT = `
 You are **Wundy**, an AI Brand Snapshot™ guide for Wunderbar Digital.
 
@@ -60,68 +89,54 @@ Guardrails:
 - Never ask the user to paste their API keys, passwords, or private credentials.
 `.trim();
 
-type ApiMessage = { role: 'system' | 'user' | 'assistant'; content: string };
-
-const buildApiMessages = (history: BrandChatMessage[]): ApiMessage[] => [
-  { role: 'system', content: SYSTEM_PROMPT },
-  ...history.map((message) => ({
-    role: message.role,
-    content: message.text,
-  })),
-];
-
-export async function getBrandSnapshotReply(
-  history: BrandChatMessage[]
+export async function sendBrandSnapshotMessage(
+  messages: ChatMessage[]
 ): Promise<string> {
-  const payload = { messages: buildApiMessages(history) };
-
-  try {
-    const response = await fetch(BRAND_SNAPSHOT_API, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text().catch(() => '');
-      console.error(
-        '[Brand Snapshot Agent] API error:',
-        response.status,
-        response.statusText,
-        errorText
-      );
-      
-      let errorMessage = 'There was an issue reaching the Brand Snapshot specialist. Please try again in a moment.';
-      try {
-        const errorData = JSON.parse(errorText);
-        if (errorData.error) {
-          errorMessage = errorData.error;
-        }
-      } catch {
-        // Use default error message
-      }
-      
-      throw new Error(errorMessage);
-    }
-
-    const data = await response.json();
-    const content = data?.content;
-    
-    if (!content) {
-      console.error('[Brand Snapshot Agent] No content in response:', data);
-      throw new Error('Sorry, I had trouble generating a response. Please try again.');
-    }
-    
-    return content;
-  } catch (err: any) {
-    console.error('[Brand Snapshot Agent] Fetch error:', err);
-    if (err instanceof Error) {
-      throw err;
-    }
-    throw new Error('There was an issue reaching the Brand Snapshot specialist. Please try again in a moment.');
+  if (!apiKey) {
+    throw new Error(
+      'Missing VITE_OPENAI_API_KEY. Add it to your .env file and restart the dev server.'
+    );
   }
-}
 
-export type { BrandChatMessage };
+  // Map our messages into OpenAI format
+  const openAiMessages = [
+    { role: 'system', content: SYSTEM_PROMPT },
+    ...messages.map((m) => ({
+      role: m.role,
+      content: m.content,
+    })),
+  ] as { role: 'system' | 'user' | 'assistant'; content: string }[];
+
+  const response = await fetch(OPENAI_API_URL, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'gpt-4.1-mini',
+      messages: openAiMessages,
+      temperature: 0.6,
+      max_tokens: 800,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => '');
+    console.error(
+      '[Brand Snapshot Agent] OpenAI error:',
+      response.status,
+      errorText
+    );
+    throw new Error(
+      'There was an issue reaching the Brand Snapshot agent. Please try again in a moment.'
+    );
+  }
+
+  const data = await response.json();
+  const content =
+    data.choices?.[0]?.message?.content ??
+    'Sorry, I had trouble generating a response. Please try again.';
+
+  return content;
+}

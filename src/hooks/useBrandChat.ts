@@ -17,11 +17,15 @@ const createMessage = (
 // First assistant message that appears in the chat
 const INITIAL_ASSISTANT_MESSAGE = createMessage(
   'assistant',
-  `Hi, I’m your Brand Snapshot™ guide. 
+  `Hi! I'm Wundy. I'll walk you through a short Q&A about your business so we can
 
-We’ll walk through a quick Q&A about your business, audience, and offers so I can calculate your Brand Alignment Score™ and highlight where your brand is strong—and where it’s losing momentum.
+calculate your Brand Alignment Score™.
 
-To start, tell me in a sentence or two what your business does and who you primarily serve.`
+
+
+To start, tell me in a sentence or two what your business does and who you primarily serve.
+
+`
 );
 
 export function useBrandChat() {
@@ -46,11 +50,11 @@ export function useBrandChat() {
       const assistantMessage = createMessage('assistant', replyText);
 
       setMessages((prev) => [...prev, assistantMessage]);
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      console.error('[useBrandChat] Error:', err);
       const errorMessage = createMessage(
         'assistant',
-        'I ran into an issue generating a response. Please try again.'
+        err?.message || 'I ran into an issue generating a response. Please try again.'
       );
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
@@ -69,5 +73,3 @@ export function useBrandChat() {
     reset,
   };
 }
-
-

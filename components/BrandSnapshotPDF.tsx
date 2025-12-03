@@ -71,7 +71,7 @@ export default function BrandSnapshotPDF({ data }: { data: any }) {
           <Text style={styles.subheading}>Pillar Breakdown</Text>
           {Object.entries(pillarScores).map(([key, val]: any) => (
             <Text key={key} style={styles.text}>
-              {key.charAt(0).toUpperCase() + key.slice(1)}: {val.toFixed(1)} / 5
+              {key.charAt(0).toUpperCase() + key.slice(1)}: {val.toFixed(1)} / 20
             </Text>
           ))}
         </View>

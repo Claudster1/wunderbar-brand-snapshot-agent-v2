@@ -18,11 +18,12 @@ export function ReportTemplate({ data }: { data: any }) {
   const score = brandAlignmentScore ?? 0;
 
   // Memoized tag function - stable reference
+  // Pillars are scored 1-20 (not 1-5)
   const getTag = (value: number) => {
-    if (value >= 4.5) return "bs-pillar-tag-strong";
-    if (value >= 3.7) return "bs-pillar-tag-steady";
-    if (value >= 2.8) return "bs-pillar-tag-mixed";
-    if (value >= 2.0) return "bs-pillar-tag-solid";
+    if (value >= 18) return "bs-pillar-tag-strong";      // 4.5/5 * 4 = 18/20
+    if (value >= 14.8) return "bs-pillar-tag-steady";   // 3.7/5 * 4 = 14.8/20
+    if (value >= 11.2) return "bs-pillar-tag-mixed";     // 2.8/5 * 4 = 11.2/20
+    if (value >= 8) return "bs-pillar-tag-solid";        // 2.0/5 * 4 = 8/20
     return "bs-pillar-tag-focus";
   };
 
@@ -124,7 +125,7 @@ export function ReportTemplate({ data }: { data: any }) {
                   <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-gradient-to-r from-red-400 via-yellow-300 to-green-500"
-                      style={{ width: `${(value / 5) * 100}%` }}
+                      style={{ width: `${(value / 20) * 100}%` }}
                     />
                   </div>
                 </div>

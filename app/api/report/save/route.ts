@@ -20,13 +20,6 @@ export async function POST(req: Request) {
       );
     }
 
-  if (!supabaseAdmin) {
-    return NextResponse.json(
-      { error: "Supabase admin client not configured" },
-      { status: 500 }
-    );
-  }
-
   const { error } = await supabaseAdmin
     .from("brand_snapshot_reports")
     .insert({

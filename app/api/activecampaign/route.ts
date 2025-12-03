@@ -108,28 +108,81 @@ export async function POST(req: Request) {
     if (acPayload.tags?.apply && newContactId) {
       try {
         // ActiveCampaign requires tags to be applied separately
-        for (const tag of acPayload.tags.apply) {
-          // Check if tag exists, create if not, then apply
-          const tagResponse = await fetch(
-            `${process.env.ACTIVE_CAMPAIGN_API_URL}/api/3/contactTags`,
+        // First, get or create tags, then apply them
+        for (const tagName of acPayload.tags.apply) {
+          // Try to find existing tag by name
+          let tagId: string | null = null;
+          
+          const searchTagResponse = await fetch(
+            `${process.env.ACTIVE_CAMPAIGN_API_URL}/api/3/tags?search=${encodeURIComponent(tagName)}`,
             {
-              method: "POST",
+              method: "GET",
               headers: {
                 "Api-Token": process.env.ACTIVE_CAMPAIGN_API_KEY,
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify({
-                contactTag: {
-                  contact: newContactId,
-                  tag: tag, // Tag name or ID
-                },
-              }),
             }
           );
 
-          // Don't fail if tag application fails (tag might already exist)
-          if (!tagResponse.ok) {
-            console.warn(`[ActiveCampaign] Failed to apply tag "${tag}":`, await tagResponse.text());
+          if (searchTagResponse.ok) {
+            const tagData = await searchTagResponse.json();
+            if (tagData.tags && tagData.tags.length > 0) {
+              tagId = tagData.tags[0].id;
+            }
+          }
+
+          // Create tag if it doesn't exist
+          if (!tagId) {
+            const createTagResponse = await fetch(
+              `${process.env.ACTIVE_CAMPAIGN_API_URL}/api/3/tags`,
+              {
+                method: "POST",
+                headers: {
+                  "Api-Token": process.env.ACTIVE_CAMPAIGN_API_KEY,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  tag: {
+                    tag: tagName,
+                    tagType: "contact",
+                  },
+                }),
+              }
+            );
+
+            if (createTagResponse.ok) {
+              const newTagData = await createTagResponse.json();
+              tagId = newTagData.tag.id;
+            }
+          }
+
+          // Apply tag to contact
+          if (tagId) {
+            const tagResponse = await fetch(
+              `${process.env.ACTIVE_CAMPAIGN_API_URL}/api/3/contactTags`,
+              {
+                method: "POST",
+                headers: {
+                  "Api-Token": process.env.ACTIVE_CAMPAIGN_API_KEY,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  contactTag: {
+                    contact: newContactId,
+                    tag: tagId,
+                  },
+                }),
+              }
+            );
+
+            // Don't fail if tag application fails (tag might already be applied)
+            if (!tagResponse.ok) {
+              const errorText = await tagResponse.text().catch(() => '');
+              // Check if error is due to tag already being applied
+              if (!errorText.includes('already')) {
+                console.warn(`[ActiveCampaign] Failed to apply tag "${tagName}":`, errorText);
+              }
+            }
           }
         }
       } catch (tagError) {

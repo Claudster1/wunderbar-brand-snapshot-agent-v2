@@ -146,7 +146,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  height: 100%;
+  flex: 1;
+  min-height: 0; /* Allow flex shrinking */
   max-height: 500px; /* Limit panel height */
   overflow: hidden; /* Prevent panel scroll */
 }
@@ -154,7 +155,6 @@ body {
 .chat-messages {
   flex: 1;
   min-height: 0; /* Allow flex shrinking */
-  max-height: 360px;
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;

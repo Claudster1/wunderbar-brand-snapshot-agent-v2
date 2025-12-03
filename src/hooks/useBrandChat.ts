@@ -88,9 +88,9 @@ export function useBrandChat() {
                 console.error('[useBrandChat] Failed to save/sync report:', result.error);
               }
             } else {
-              // JSON with scores but no email yet - agent will ask for email next
+              // JSON with scores but no email yet - agent will send handoff message
               // Don't add JSON to chat, just wait for next response
-              // The agent should follow up with email request
+              // The agent will direct user to the form on the parent page (no email collection in chat)
             }
           }
         } catch (parseError) {

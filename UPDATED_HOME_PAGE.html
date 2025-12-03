@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Wunderbar Digital | Brand Snapshot™</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Tailwind CDN for layout + utilities -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: [
+                "system-ui",
+                "-apple-system",
+                "BlinkMacSystemFont",
+                '"Helvetica Neue"',
+                "Arial",
+                "sans-serif",
+              ],
+            },
+            colors: {
+              brand: {
+                navy: "#021859",
+                blue: "#07B0F2",
+                blueHover: "#059BD8",
+                aqua: "#27CDF2",
+                midnight: "#0C1526",
+                gray: "#F2F2F2",
+                border: "#E0E3EA",
+              },
+            },
+          },
+        },
+      };
+    </script>
+    
+    <style>
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue",
+          Arial, sans-serif;
+        color: #0c1526;
+        background-color: #ffffff;
+      }
+      .bs-section {
+        padding: 56px 16px;
+      }
+      .bs-container {
+        max-width: 960px;
+        margin: 0 auto;
+      }
+      .bs-h1 {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #021859;
+        margin-bottom: 12px;
+      }
+      .bs-h2 {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: #021859;
+        margin-bottom: 8px;
+      }
+      .bs-lead {
+        max-width: 720px;
+        font-size: 1.05rem;
+        line-height: 1.6;
+      }
+      .bs-sub {
+        max-width: 720px;
+        margin-top: 8px;
+        line-height: 1.6;
+        font-size: 0.97rem;
+      }
+      .bs-hero {
+        padding-top: 64px;
+        padding-bottom: 40px;
+      }
+      .bs-how {
+        background-color: #f5f7fb;
+        padding-top: 40px;
+        padding-bottom: 40px;
+      }
+      .bs-how-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 24px;
+        margin-top: 24px;
+      }
+      .bs-how-card {
+        background-color: #ffffff;
+        border-radius: 16px;
+        padding: 24px 24px 22px;
+        border: 1px solid #e0e3ea;
+        box-shadow: 0 6px 18px rgba(2, 24, 89, 0.06);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 100%;
+      }
+      .bs-how-toprow {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 6px;
+      }
+      .bs-step-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #7c8ca5;
+      }
+      .bs-how-title {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #021859;
+        margin-top: 4px;
+      }
+      .bs-how-text {
+        font-size: 0.96rem;
+        line-height: 1.65;
+        color: #111827;
+      }
+      .bs-icon {
+        width: 44px;
+        height: 44px;
+        flex-shrink: 0;
+      }
+      .bs-chat-section {
+        padding-top: 48px;
+        padding-bottom: 40px;
+      }
+      .bs-chat-frame {
+        width: 100%;
+        min-height: 420px;
+        border-radius: 16px;
+        border: 1px solid #e0e3ea;
+        background-color: #ffffff;
+        box-shadow: 0 8px 24px rgba(2, 24, 89, 0.08);
+      }
+      /* ============================
+      Brand Alignment Score™ block
+      ============================ */
+      .bs-score-section {
+        padding-top: 40px;
+        padding-bottom: 40px;
+        border-top: 1px solid #e5e7eb;
+        border-bottom: 1px solid #e5e7eb;
+        background-color: #ffffff;
+      }
+      .bs-score-intro {
+        margin-top: 4px;
+        font-size: 0.97rem;
+        line-height: 1.6;
+        color: #4b5563;
+      }
+      .bs-score-card {
+        margin-top: 24px;
+        padding: 24px 24px 22px;
+        border-radius: 16px;
+        border: 1px solid #e0e3ea;
+        background-color: #ffffff;
+        box-shadow: 0 8px 24px rgba(2, 24, 89, 0.08);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 28px;
+        align-items: flex-start;
+      }
+      /* Left column: main score + RYG meter + range table */
+      .bs-score-left {
+        flex: 1 1 260px;
+        min-width: 240px;
+      }
+      .bs-score-eyebrow {
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: #7c8ca5;
+        margin-bottom: 6px;
+      }
+      .bs-score-number-wrap {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+      }
+      .bs-score-number {
+        font-size: 2.8rem;
+        font-weight: 700;
+        color: #021859;
+        line-height: 1.1;
+      }
+      .bs-score-label {
+        font-size: 0.95rem;
+        color: #4b5563;
+      }
+      .bs-meter {
+        margin-top: 16px;
+        max-width: 360px;
+      }
+      .bs-meter-track {
+        width: 100%;
+        height: 14px;
+        border-radius: 999px;
+        background-color: #e5e7eb;
+        overflow: hidden;
+      }
+      .bs-meter-fill {
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #f97373 0%, #facc15 50%, #22c55e 100%);
+      }
+      .bs-meter-scale {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 6px;
+        font-size: 0.78rem;
+        color: #6b7280;
+      }
+      /* Range table (credit-report style) */
+      .bs-range-table {
+        margin-top: 16px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        padding: 12px 14px;
+        background-color: #f9fafb;
+      }
+      .bs-range-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.86rem;
+        padding: 4px 0;
+      }
+      .bs-range-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .bs-range-chip {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+      }
+      .bs-range-chip-high {
+        background-color: #22c55e;
+      }
+      .bs-range-chip-mid {
+        background-color: #facc15;
+      }
+      .bs-range-chip-low {
+        background-color: #ef4444;
+      }
+      /* Right column: pillar breakdown */
+      .bs-score-right {
+        flex: 1.2 1 280px;
+        min-width: 260px;
+      }
+      .bs-score-summary {
+        margin-top: 4px;
+        font-size: 0.95rem;
+        color: #111827;
+      }
+      .bs-score-note {
+        margin-top: 8px;
+        font-size: 0.9rem;
+        color: #6b7280;
+      }
+      .bs-pillars {
+        margin-top: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .bs-pillar-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .bs-pillar-label-wrap {
+        min-width: 150px;
+      }
+      .bs-pillar-name {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #021859;
+      }
+      /* Base tag style */
+      .bs-pillar-tag {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin-top: 2px;
+        border: 1px solid transparent;
+      }
+      /* Pillar tags in classic red–yellow–green scoring */
+      .bs-pillar-tag-strong {
+        background-color: #dcfce7;
+        color: #166534;
+        border-color: #22c55e;
+      }
+      .bs-pillar-tag-steady {
+        background-color: #fef9c3;
+        color: #854d0e;
+        border-color: #eab308;
+      }
+      .bs-pillar-tag-mixed {
+        background-color: #fef3c7;
+        color: #92400e;
+        border-color: #facc15;
+      }
+      .bs-pillar-tag-solid {
+        background-color: #dcfce7;
+        color: #166534;
+        border-color: #22c55e;
+      }
+      .bs-pillar-tag-focus {
+        background-color: #fee2e2;
+        color: #b91c1c;
+        border-color: #ef4444;
+      }
+      .bs-pillar-meter {
+        flex: 1;
+        height: 6px;
+        border-radius: 999px;
+        background-color: #e5e7eb;
+        overflow: hidden;
+      }
+      .bs-pillar-fill {
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #f97373 0%, #facc15 50%, #22c55e 100%);
+      }
+      .bs-pillars-legend {
+        margin-top: 6px;
+        font-size: 0.78rem;
+        color: #9ca3af;
+      }
+      .bs-form-section {
+        padding-top: 40px;
+        padding-bottom: 40px;
+      }
+      .bs-cred {
+        padding-top: 24px;
+        padding-bottom: 56px;
+        font-size: 0.9rem;
+        color: #6b7280;
+        max-width: 640px;
+      }
+      .bs-primary-cta {
+        margin-top: 24px;
+      }
+      .bs-primary-cta a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 24px;
+        border-radius: 5px;
+        background-color: #07b0f2;
+        color: #ffffff;
+        font-weight: 500;
+        font-size: 0.95rem;
+        text-decoration: none;
+        box-shadow: 0 6px 18px rgba(7, 176, 242, 0.35);
+      }
+      .bs-primary-cta a:hover {
+        background-color: #059bd8;
+      }
+      .bs-optin {
+        margin-top: 12px;
+        font-size: 0.8rem;
+        line-height: 1.5;
+        color: #6b7280;
+        max-width: 520px;
+      }
+      .bs-bottom-cta {
+        padding: 56px 16px 72px;
+        background-color: #ffffff;
+      }
+      .bs-bottom-cta-inner {
+        max-width: 1120px;
+        margin: 0 auto;
+      }
+      .bs-bottom-cta-panel {
+        border-radius: 18px;
+        background-color: #e5f6ff;
+        padding: 40px 32px;
+        text-align: center;
+        box-shadow: 0 10px 28px rgba(7, 176, 242, 0.18);
+      }
+      .bs-bottom-cta-title {
+        font-size: 1.6rem;
+        font-weight: 600;
+        color: #021859;
+        margin-bottom: 12px;
+      }
+      .bs-bottom-cta-sub {
+        font-size: 1.02rem;
+        max-width: 720px;
+        margin: 0 auto 26px;
+        line-height: 1.6;
+        color: #0c1526;
+      }
+      .bs-bottom-cta-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 14px 28px;
+        border-radius: 5px;
+        background-color: #07b0f2;
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 0.98rem;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        box-shadow: 0 10px 26px rgba(7, 176, 242, 0.35);
+      }
+      .bs-bottom-cta-button span {
+        margin-left: 8px;
+        font-size: 1.05em;
+      }
+      .bs-bottom-cta-button:hover {
+        background-color: #059bd8;
+      }
+      /* Utility class for hiding elements */
+      .hidden {
+        display: none !important;
+      }
+      
+      @media (max-width: 900px) {
+        .bs-how-grid {
+          grid-template-columns: 1fr;
+        }
+        .bs-score-card {
+          flex-direction: column;
+        }
+        .bs-score-left,
+        .bs-score-right {
+          flex: 1 1 100%;
+        }
+        .bs-meter {
+          max-width: 100%;
+        }
+        .bs-bottom-cta-panel {
+          padding: 32px 20px;
+        }
+        .bs-bottom-cta-title {
+          font-size: 1.4rem;
+        }
+      }
+    </style>
+    
+    <!-- Event Listener for Score Updates from iframe -->
+    <script>
+      // Listen for messages from the iframe
+      window.addEventListener('message', function(event) {
+        // For debugging, log all messages
+        console.log('[Parent] Received message:', event.data);
+        
+        // Optional: Verify origin for security (update with your actual iframe domain)
+        // if (event.origin !== 'https://wunderbar-brand-snapshot-agent-v2-8.vercel.app') return;
+        
+        if (event.data && event.data.type === 'BRAND_SNAPSHOT_COMPLETE') {
+          console.log('[Parent] BRAND_SNAPSHOT_COMPLETE received:', event.data.data);
+          
+          const scores = event.data.data;
+          
+          // Call the existing unlockScore function
+          if (typeof unlockScore === 'function') {
+            unlockScore({
+              brandAlignmentScore: scores.brandAlignmentScore,
+              pillarScores: scores.pillarScores
+            });
+          } else {
+            console.error('[Parent] unlockScore function not found!');
+          }
+          
+          // Scroll to the score section
+          const scoreSection = document.getElementById('brand-alignment-score');
+          if (scoreSection) {
+            scoreSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+      });
+    </script>
+  </head>
+  
+  <body>
+    <main>
+      <!-- HERO -->
+      <section class="bs-section bs-hero">
+        <div class="bs-container">
+          <h1 class="bs-h1">START YOUR FREE BRAND SNAPSHOT™</h1>
+          <p class="bs-lead">
+            In just 5–7 minutes, this quick assessment will reveal your Brand Alignment Score™ and clarify whether your brand is accelerating or hindering your growth.
+          </p>
+          <div class="bs-primary-cta">
+            <a href="#brand-snapshot-agent">START YOUR FREE BRAND SNAPSHOT™ →</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- HOW IT WORKS -->
+      <section class="bs-section bs-how">
+        <div class="bs-container">
+          <h2 class="bs-h2">How the Brand Snapshot™ Works</h2>
+          <div class="bs-how-grid">
+            <!-- Step 1 -->
+            <article class="bs-how-card">
+              <div class="bs-how-toprow">
+                <svg class="bs-icon" viewBox="0 0 32 32" fill="none">
+                  <path d="M8 9.5h9c2.21 0 4 1.79 4 4v.5c0 2.21-1.79 4-4 4h-3.2L9.5 21.5v-3.5A4.5 4.5 0 0 1 5 13.5v-.5C5 11.29 6.79 9.5 9 9.5Z" stroke="#07B0F2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M17 11.5h4c2.21 0 4 1.79 4 4v.5a4.5 4.5 0 0 1-4.5 4.5H19l-2.5 2.5" stroke="#07B0F2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="12" cy="14" r="0.9" fill="#07B0F2" />
+                  <circle cx="15" cy="14" r="0.9" fill="#07B0F2" />
+                  <circle cx="18" cy="14" r="0.9" fill="#07B0F2" />
+                </svg>
+                <div>
+                  <div class="bs-step-label">STEP 1</div>
+                  <div class="bs-how-title">Answer a few guided questions</div>
+                </div>
+              </div>
+              <p class="bs-how-text">
+                Wundy, our brand specialist, will guide you through questions about your business, target customers, offers, and online presence.
+              </p>
+            </article>
+
+            <!-- Step 2 -->
+            <article class="bs-how-card">
+              <div class="bs-how-toprow">
+                <svg class="bs-icon" viewBox="0 0 32 32" fill="none">
+                  <circle cx="16" cy="16" r="9" stroke="#07B0F2" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M10 21a7 7 0 0 1 12 0" stroke="#07B0F2" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M16 15l3-5" stroke="#07B0F2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="16" cy="16" r="1.2" fill="#07B0F2" />
+                </svg>
+                <div>
+                  <div class="bs-step-label">STEP 2</div>
+                  <div class="bs-how-title">See your Brand Alignment Score™</div>
+                </div>
+              </div>
+              <p class="bs-how-text">
+                The Brand Alignment Score™ measures five key pillars that directly influence how clear your brand's presence is and how confident customers feel when making their decision.
+              </p>
+            </article>
+
+            <!-- Step 3 -->
+            <article class="bs-how-card">
+              <div class="bs-how-toprow">
+                <svg class="bs-icon" viewBox="0 0 32 32" fill="none">
+                  <circle cx="16" cy="16" r="8" stroke="#07B0F2" stroke-width="2" stroke-linecap="round"/>
+                  <circle cx="16" cy="16" r="4" stroke="#07B0F2" stroke-width="2"/>
+                  <circle cx="16" cy="16" r="1.3" fill="#07B0F2" />
+                  <path d="M20 8l3-3" stroke="#07B0F2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M21 9.5V6.5h3" stroke="#07B0F2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div>
+                  <div class="bs-step-label">STEP 3</div>
+                  <div class="bs-how-title">Turn insight into next steps</div>
+                </div>
+              </div>
+              <p class="bs-how-text">
+                Use your results to prioritize your next steps, whether you implement them yourself or explore options for deeper brand support.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- AGENT -->
+      <section id="brand-snapshot-agent" class="bs-section bs-chat-section">
+        <div class="bs-container">
+          <h2 class="bs-h2">Your Brand Snapshot™ Starts Here.</h2>
+          <p class="bs-sub"></p>
+          <div class="mt-6">
+            <iframe
+              src="https://wunderbar-brand-snapshot-agent-v2-8.vercel.app/"
+              width="100%"
+              height="700"
+              frameborder="0"
+              class="bs-chat-frame"
+              title="Brand Snapshot™ Specialist"
+            ></iframe>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCORE / METER -->
+      <section class="bs-section bs-score-section" id="brand-alignment-score">
+        <div class="bs-container">
+          <h2 class="bs-h2">Your Brand Alignment Score™</h2>
+          <p class="bs-score-intro">
+            Once you complete your Brand Snapshot™, your personalized Brand Alignment Score™ and five-pillar breakdown will appear here.
+          </p>
+
+          <!-- LOCKED STATE (default) -->
+          <div id="score-locked" class="bs-score-card">
+            <div class="flex flex-col w-full gap-4 opacity-70">
+              <!-- Locked Header -->
+              <div class="flex items-center gap-3">
+                <svg width="22" height="22" fill="none" stroke="#7c8ca5" stroke-width="2">
+                  <circle cx="11" cy="11" r="9"></circle>
+                  <path d="M11 7v4"></path>
+                  <path d="M11 13h0"></path>
+                </svg>
+                <span class="text-sm tracking-wider font-semibold text-slate-500 uppercase">Score locked</span>
+              </div>
+              <!-- Placeholder Score -->
+              <div class="flex items-baseline gap-3">
+                <div class="h-10 w-16 rounded-md bg-gray-200"></div>
+                <div class="h-4 w-32 rounded bg-gray-200"></div>
+              </div>
+              <!-- Placeholder Meter -->
+              <div class="bs-meter">
+                <div class="bs-meter-track">
+                  <div class="h-full bg-gray-300" style="width: 0%;"></div>
+                </div>
+                <div class="bs-meter-scale">
+                  <span>Low</span>
+                  <span>Medium</span>
+                  <span>High</span>
+                </div>
+              </div>
+              <!-- Placeholder Pillars -->
+              <div class="mt-6">
+                <h3 class="text-sm tracking-wider font-semibold text-slate-500 uppercase">How your score breaks down</h3>
+                <div class="flex flex-col gap-4 mt-4 opacity-60">
+                  <div class="bs-pillar-row">
+                    <div class="bs-pillar-label-wrap">
+                      <div class="h-4 w-24 bg-gray-200 rounded"></div>
+                      <span class="bs-pillar-tag bg-gray-200 text-gray-400 border-gray-300">Locked</span>
+                    </div>
+                    <div class="bs-pillar-meter">
+                      <div class="bg-gray-300 h-full" style="width: 0%;"></div>
+                    </div>
+                  </div>
+                  <div class="bs-pillar-row">
+                    <div class="bs-pillar-label-wrap">
+                      <div class="h-4 w-28 bg-gray-200 rounded"></div>
+                      <span class="bs-pillar-tag bg-gray-200 text-gray-400 border-gray-300">Locked</span>
+                    </div>
+                    <div class="bs-pillar-meter">
+                      <div class="bg-gray-300 h-full" style="width: 0%;"></div>
+                    </div>
+                  </div>
+                  <div class="bs-pillar-row">
+                    <div class="bs-pillar-label-wrap">
+                      <div class="h-4 w-20 bg-gray-200 rounded"></div>
+                      <span class="bs-pillar-tag bg-gray-200 text-gray-400 border-gray-300">Locked</span>
+                    </div>
+                    <div class="bs-pillar-meter">
+                      <div class="bg-gray-300 h-full" style="width: 0%;"></div>
+                    </div>
+                  </div>
+                  <div class="bs-pillar-row">
+                    <div class="bs-pillar-label-wrap">
+                      <div class="h-4 w-24 bg-gray-200 rounded"></div>
+                      <span class="bs-pillar-tag bg-gray-200 text-gray-400 border-gray-300">Locked</span>
+                    </div>
+                    <div class="bs-pillar-meter">
+                      <div class="bg-gray-300 h-full" style="width: 0%;"></div>
+                    </div>
+                  </div>
+                  <div class="bs-pillar-row">
+                    <div class="bs-pillar-label-wrap">
+                      <div class="h-4 w-28 bg-gray-200 rounded"></div>
+                      <span class="bs-pillar-tag bg-gray-200 text-gray-400 border-gray-300">Locked</span>
+                    </div>
+                    <div class="bs-pillar-meter">
+                      <div class="bg-gray-300 h-full" style="width: 0%;"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- UNLOCKED STATE (hidden by default, revealed via JS when results are ready) -->
+          <div id="score-unlocked" class="bs-score-card hidden">
+            <div class="bs-score-left">
+              <div class="bs-score-eyebrow">Overall score</div>
+              <div class="bs-score-number-wrap">
+                <div id="final-score-number" class="bs-score-number"></div>
+                <div id="final-score-label" class="bs-score-label"></div>
+              </div>
+              <div class="bs-meter">
+                <div class="bs-meter-track">
+                  <div id="final-meter-fill" class="bs-meter-fill"></div>
+                </div>
+                <div class="bs-meter-scale">
+                  <span>Low</span>
+                  <span>Medium</span>
+                  <span>High</span>
+                </div>
+              </div>
+              <div class="bs-range-table">
+                <div class="bs-range-row">
+                  <div class="bs-range-label">
+                    <span class="bs-range-chip bs-range-chip-high"></span>
+                    <span>80–100</span>
+                  </div>
+                  <span>Excellent alignment</span>
+                </div>
+                <div class="bs-range-row">
+                  <div class="bs-range-label">
+                    <span class="bs-range-chip bs-range-chip-mid"></span>
+                    <span>60–79</span>
+                  </div>
+                  <span>Solid foundation</span>
+                </div>
+                <div class="bs-range-row">
+                  <div class="bs-range-label">
+                    <span class="bs-range-chip bs-range-chip-low"></span>
+                    <span>0–59</span>
+                  </div>
+                  <span>Needs focused attention</span>
+                </div>
+              </div>
+            </div>
+            <div class="bs-score-right">
+              <div class="bs-score-eyebrow">How your score breaks down</div>
+              <p class="bs-score-summary">
+                Your Brand Alignment Score™ reflects your performance across the five pillars below.
+              </p>
+              <div id="final-pillars" class="bs-pillars"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FORM + EMBEDDED ACTIVE CAMPAIGN (hidden by default, shown when snapshot is complete) -->
+      <section id="form-section" class="bs-section bs-form-section hidden">
+        <div class="bs-container">
+          <h2 class="bs-h2">Your Brand Snapshot™ is Complete!</h2>
+          <p class="bs-sub">
+            Enter your contact information below to receive the full report, which includes a detailed breakdown of your scores and actionable recommendations for all five pillars.
+          </p>
+          <p class="bs-sub">
+            Your Brand Snapshot™ will be delivered to your email so you can review it, get feedback from key stakeholders, and prioritize your next steps.
+          </p>
+          <div class="mt-6">
+            <!-- ActiveCampaign embed styles -->
+            <style>
+              @import url(https://fonts.bunny.net/css?family=lato:400|roboto:500);
+            </style>
+            <style>
+              #_form_5_ {
+                position: relative;
+                text-align: left;
+                margin: 24px 0 0 0;
+                padding: 0;
+                box-sizing: border-box;
+                background: #ffffff !important;
+                border: 0;
+                max-width: 480px;
+                border-radius: 0;
+                color: #021859;
+                font-family: "Helvetica Neue", Arial, sans-serif;
+              }
+              #_form_5_ ._form_element input[type="text"],
+              #_form_5_ ._form_element input[type="phone"],
+              #_form_5_ ._form_element input[type="email"] {
+                background: #ffffff;
+                color: #021859 !important;
+                border: 1px solid #07b0f2;
+                border-radius: 5px;
+                padding: 10px 12px;
+              }
+              #_form_5_ ._form-label {
+                font-family: "Helvetica Neue", Arial, sans-serif;
+                font-size: 14px;
+                font-weight: 600;
+                color: #021859 !important;
+                margin-bottom: 4px;
+              }
+              #_form_5_ ._submit {
+                -webkit-appearance: none;
+                cursor: pointer;
+                font-family: "Helvetica Neue", Arial, sans-serif;
+                font-size: 15px;
+                font-weight: 500;
+                text-align: center;
+                background: #07b0f2 !important;
+                border: 2px solid #07b0f2 !important;
+                border-radius: 5px !important;
+                width: 100%;
+                color: #ffffff !important;
+                padding: 12px 16px !important;
+                margin-top: 8px;
+                box-shadow: 0 6px 18px rgba(7, 176, 242, 0.25);
+              }
+              #_form_5_ ._submit:hover {
+                background: #059bd8 !important;
+                border-color: #059bd8 !important;
+              }
+            </style>
+            
+            <!-- ActiveCampaign form -->
+            <form
+              method="POST"
+              action="https://wunderbardigital.activehosted.com/proc.php"
+              id="_form_5_"
+              class="_form _form_5 _inline-form _dark"
+              novalidate
+              data-styles-version="5"
+            >
+              <input type="hidden" name="u" value="5" />
+              <input type="hidden" name="f" value="5" />
+              <input type="hidden" name="s" />
+              <input type="hidden" name="c" value="0" />
+              <input type="hidden" name="m" value="0" />
+              <input type="hidden" name="act" value="sub" />
+              <input type="hidden" name="v" value="2" />
+              <input type="hidden" name="or" value="6d2e0651-f1ce-437c-bf38-f58d768777aa" />
+              
+              <!-- Hidden fields for scores (populated by JavaScript) -->
+              <input type="hidden" id="ac_brand_alignment_score" name="brand_alignment_score" />
+              <input type="hidden" id="ac_positioning_score" name="positioning_score" />
+              <input type="hidden" id="ac_messaging_score" name="messaging_score" />
+              <input type="hidden" id="ac_visibility_score" name="visibility_score" />
+              <input type="hidden" id="ac_credibility_score" name="credibility_score" />
+              <input type="hidden" id="ac_conversion_score" name="conversion_score" />
+              
+              <div class="_form-content">
+                <div class="_form_element _x25693210 _full_width">
+                  <label for="firstname" class="_form-label">
+                    First Name<span class="field-required">*</span>
+                  </label>
+                  <div class="_field-wrapper">
+                    <input type="text" id="firstname" name="firstname" placeholder="Enter your first name" required />
+                  </div>
+                </div>
+                <div class="_form_element _x75616378 _full_width">
+                  <label for="lastname" class="_form-label">
+                    Last Name<span class="field-required">*</span>
+                  </label>
+                  <div class="_field-wrapper">
+                    <input type="text" id="lastname" name="lastname" placeholder="Enter your last name" required />
+                  </div>
+                </div>
+                <div class="_form_element _x77188995 _full_width">
+                  <label for="email" class="_form-label">
+                    Email Address<span class="field-required">*</span>
+                  </label>
+                  <div class="_field-wrapper">
+                    <input type="text" id="email" name="email" placeholder="Enter your email address" required />
+                  </div>
+                </div>
+                <div class="_button-wrapper _full_width">
+                  <button id="_form_5_submit" class="_submit" type="submit">
+                    EMAIL MY COMPLETE BRAND SNAPSHOT™ →
+                  </button>
+                </div>
+                <div class="_clear-element"></div>
+              </div>
+              <div class="_form-thank-you" style="display: none"></div>
+            </form>
+            
+            <!-- Opt-in language directly under the form -->
+            <p class="bs-optin">
+              By submitting this form, you agree to receive helpful resources, tips, and occasional offers from Wunderbar Digital related to brand and AI-powered marketing. No spam — unsubscribe any time.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- BOTTOM CTA -->
+      <section class="bs-bottom-cta">
+        <div class="bs-bottom-cta-inner">
+          <div class="bs-bottom-cta-panel">
+            <h2 class="bs-bottom-cta-title">Ready to see where your brand truly stands?</h2>
+            <p class="bs-bottom-cta-sub">
+              Start your free Brand Snapshot™ to get your personalized score and action plan.
+            </p>
+            <a href="#brand-snapshot-agent" class="bs-bottom-cta-button">
+              START MY FREE BRAND SNAPSHOT™ <span>→</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- CREDIBILITY / COPYRIGHT FOOTER -->
+      <section class="bs-section pt-0">
+        <div class="bs-container">
+          <p class="bs-cred">© 2025 Wunderbar Digital. All rights reserved.</p>
+        </div>
+      </section>
+    </main>
+
+    <!-- unlockScore function and score update script -->
+    <script>
+      // Function to update scores on the page
+      function unlockScore(results) {
+        console.log('[Parent] unlockScore called with:', results);
+        
+        // Hide locked state, show unlocked state
+        const lockedEl = document.getElementById("score-locked");
+        const unlockedEl = document.getElementById("score-unlocked");
+        
+        if (lockedEl) lockedEl.classList.add("hidden");
+        if (unlockedEl) unlockedEl.classList.remove("hidden");
+
+        // Populate final score
+        const scoreEl = document.getElementById("final-score-number");
+        if (scoreEl) {
+          scoreEl.textContent = results.brandAlignmentScore;
+        }
+
+        // Customize label
+        let label = "Medium alignment";
+        if (results.brandAlignmentScore >= 80) label = "Excellent alignment";
+        else if (results.brandAlignmentScore <= 59) label = "Needs attention";
+
+        const labelEl = document.getElementById("final-score-label");
+        if (labelEl) {
+          labelEl.textContent = `${label} (out of 100)`;
+        }
+
+        // Meter fill
+        const meterFill = document.getElementById("final-meter-fill");
+        if (meterFill) {
+          meterFill.style.width = results.brandAlignmentScore + "%";
+        }
+
+        // Pillars
+        const pillarWrap = document.getElementById("final-pillars");
+        if (pillarWrap && results.pillarScores) {
+          pillarWrap.innerHTML = "";
+          
+          for (const [pillar, score] of Object.entries(results.pillarScores)) {
+            const percent = (score / 20) * 100; // Updated to /20 scale
+            const tagClass = getPillarTagClass(score);
+            
+            pillarWrap.innerHTML += `
+              <div class="bs-pillar-row">
+                <div class="bs-pillar-label-wrap">
+                  <div class="bs-pillar-name">${pillar.charAt(0).toUpperCase() + pillar.slice(1)}</div>
+                  <span class="bs-pillar-tag ${tagClass}">${score}/20</span>
+                </div>
+                <div class="bs-pillar-meter">
+                  <div class="bs-pillar-fill" style="width: ${percent}%;"></div>
+                </div>
+              </div>
+            `;
+          }
+        }
+      }
+
+      // Helper function to get tag class based on score (1-20 scale)
+      function getPillarTagClass(score) {
+        if (score >= 18) return "bs-pillar-tag-strong";
+        if (score >= 14.8) return "bs-pillar-tag-steady";
+        if (score >= 11.2) return "bs-pillar-tag-mixed";
+        if (score >= 8) return "bs-pillar-tag-solid";
+        return "bs-pillar-tag-focus";
+      }
+
+      // Function to populate hidden ActiveCampaign form fields with scores
+      window.updateBrandSnapshotScores = function(scores) {
+        console.log('[Parent] updateBrandSnapshotScores called with:', scores);
+        // Scores = { alignment, positioning, messaging, visibility, credibility, conversion }
+        const alignmentEl = document.getElementById("ac_brand_alignment_score");
+        const positioningEl = document.getElementById("ac_positioning_score");
+        const messagingEl = document.getElementById("ac_messaging_score");
+        const visibilityEl = document.getElementById("ac_visibility_score");
+        const credibilityEl = document.getElementById("ac_credibility_score");
+        const conversionEl = document.getElementById("ac_conversion_score");
+        
+        if (alignmentEl) alignmentEl.value = scores.alignment || "";
+        if (positioningEl) positioningEl.value = scores.positioning || "";
+        if (messagingEl) messagingEl.value = scores.messaging || "";
+        if (visibilityEl) visibilityEl.value = scores.visibility || "";
+        if (credibilityEl) credibilityEl.value = scores.credibility || "";
+        if (conversionEl) conversionEl.value = scores.conversion || "";
+      };
+
+      // Update the event listener to also populate hidden form fields and show form
+      window.addEventListener('message', function(event) {
+        console.log('[Parent] Received message:', event.data);
+        
+        if (event.data && event.data.type === 'BRAND_SNAPSHOT_COMPLETE') {
+          console.log('[Parent] BRAND_SNAPSHOT_COMPLETE received:', event.data.data);
+          
+          const scores = event.data.data;
+          
+          // Call unlockScore to update the visual display
+          if (typeof unlockScore === 'function') {
+            unlockScore({
+              brandAlignmentScore: scores.brandAlignmentScore,
+              pillarScores: scores.pillarScores
+            });
+          } else {
+            console.error('[Parent] unlockScore function not found!');
+          }
+          
+          // Populate hidden ActiveCampaign fields
+          if (typeof window.updateBrandSnapshotScores === 'function') {
+            window.updateBrandSnapshotScores({
+              alignment: scores.brandAlignmentScore,
+              positioning: scores.pillarScores.positioning,
+              messaging: scores.pillarScores.messaging,
+              visibility: scores.pillarScores.visibility,
+              credibility: scores.pillarScores.credibility,
+              conversion: scores.pillarScores.conversion,
+            });
+          }
+          
+          // Show the form section
+          const formSection = document.getElementById('form-section');
+          if (formSection) {
+            formSection.classList.remove('hidden');
+            console.log('[Parent] Form section revealed');
+          }
+          
+          // Scroll to the score section first, then form will be visible below
+          const scoreSection = document.getElementById('brand-alignment-score');
+          if (scoreSection) {
+            scoreSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+      });
+    </script>
+    
+    <!-- ActiveCampaign form script (your existing script continues here) -->
+    <!-- ... rest of your ActiveCampaign script ... -->
+  </body>
+</html>
+

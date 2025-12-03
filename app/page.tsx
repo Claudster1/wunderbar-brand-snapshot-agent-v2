@@ -1,6 +1,6 @@
 'use client'
 
-import { FormEvent, useState, useEffect } from "react";
+import { FormEvent, useState, useEffect, useRef } from "react";
 import { useBrandChat } from "../src/hooks/useBrandChat";
 import "./globals.css";
 
@@ -8,6 +8,7 @@ export default function Home() {
   const { messages, isLoading, sendMessage, reset } = useBrandChat();
   const [inputValue, setInputValue] = useState("");
   const [progress, setProgress] = useState(0);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isLoading) {
@@ -27,6 +28,11 @@ export default function Home() {
       return () => clearTimeout(timeout);
     }
   }, [isLoading]);
+
+  // Auto-scroll to bottom when messages change or loading state changes
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isLoading]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -76,6 +82,7 @@ export default function Home() {
                     Wundy is thinking…
                   </div>
                 )}
+                <div ref={messagesEndRef} />
               </div>
 
               <form className="chat-input-row" onSubmit={handleSubmit}>

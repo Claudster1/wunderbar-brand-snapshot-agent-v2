@@ -1,5 +1,9 @@
 /* app/globals.css */
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Page background */
 :root {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue",
@@ -291,5 +295,39 @@ body {
   .chat-reset {
     width: 100%;
   }
+}
+
+/* Report Template Styles */
+.bs-pillar-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.bs-pillar-tag-strong {
+  background-color: #10b981;
+  color: white;
+}
+
+.bs-pillar-tag-steady {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.bs-pillar-tag-mixed {
+  background-color: #f59e0b;
+  color: white;
+}
+
+.bs-pillar-tag-solid {
+  background-color: #ef4444;
+  color: white;
+}
+
+.bs-pillar-tag-focus {
+  background-color: #dc2626;
+  color: white;
 }
 

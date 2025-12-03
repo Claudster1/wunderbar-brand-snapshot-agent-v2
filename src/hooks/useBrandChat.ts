@@ -54,7 +54,7 @@ export function useBrandChat() {
           
           // Verify it has the expected structure
           if (snapshotData.scores && snapshotData.scores.brandAlignmentScore !== undefined) {
-            // Send scores to parent page via postMessage
+            // Send scores to parent page via postMessage (for visual display)
             if (window.parent && window.parent !== window) {
               window.parent.postMessage({
                 type: 'BRAND_SNAPSHOT_COMPLETE',
@@ -69,6 +69,19 @@ export function useBrandChat() {
                   }
                 }
               }, '*');
+            }
+
+            // Check if this is the final JSON (has email and optIn) - then save to DB and sync to AC
+            if (snapshotData.user?.email && snapshotData.optIn !== undefined) {
+              // Import dynamically to avoid SSR issues
+              const { saveReportAndSync } = await import('../services/reportService');
+              const result = await saveReportAndSync(snapshotData);
+              
+              if (result.success) {
+                console.log('[useBrandChat] Report saved and synced:', result.reportId);
+              } else {
+                console.error('[useBrandChat] Failed to save/sync report:', result.error);
+              }
             }
           }
         }

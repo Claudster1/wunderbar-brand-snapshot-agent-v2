@@ -22,6 +22,7 @@ interface WundyJson {
       other: string[];
     };
   };
+  reportLink?: string; // Link to the report page
   brand: {
     whatYouDo: string;
     whoYouServe: string;
@@ -141,6 +142,12 @@ export function mapWundyToAC(wundyJson: WundyJson): ActiveCampaignPayload {
     { field: process.env.AC_FIELD_CREDIBILITY_SCORE || "CREDIBILITY_SCORE_FIELD_ID", value: scores.credibility },
     { field: process.env.AC_FIELD_CONVERSION_SCORE || "CONVERSION_SCORE_FIELD_ID", value: scores.conversion },
     { field: process.env.AC_FIELD_ALIGNMENT_SCORE || "ALIGNMENT_SCORE_FIELD_ID", value: scores.brandAlignmentScore },
+    
+    // Report link (for email)
+    ...(wundyJson.reportLink ? [{ 
+      field: process.env.AC_FIELD_REPORT_LINK || "REPORT_LINK_FIELD_ID", 
+      value: wundyJson.reportLink 
+    }] : []),
   ].filter((fv) => fv.value !== "" && fv.value !== null && fv.value !== undefined);
 
   // Determine score-based tags

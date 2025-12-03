@@ -15,17 +15,10 @@ const createMessage = (
 });
 
 // First assistant message that appears in the chat
+// Must match the system prompt's first greeting exactly
 const INITIAL_ASSISTANT_MESSAGE = createMessage(
   'assistant',
-  `Hi! I'm Wundy. I'll walk you through a short Q&A about your business so we can
-
-calculate your Brand Alignment Score™.
-
-
-
-To start, tell me in a sentence or two what your business does and who you primarily serve.
-
-`
+  `Hi! I'm Wundy. I'll guide you through a few quick questions so I can learn about your business and create your personalized Brand Snapshot™.`
 );
 
 export function useBrandChat() {

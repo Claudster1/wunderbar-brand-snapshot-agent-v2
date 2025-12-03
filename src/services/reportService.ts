@@ -116,9 +116,8 @@ export async function saveReportAndSync(
 
     // Step 2: Sync to ActiveCampaign (with report link)
     // Add report link to the JSON for ActiveCampaign
-    const baseUrl = typeof window !== 'undefined' 
-      ? window.location.origin 
-      : (process.env.NEXT_PUBLIC_BASE_URL || '');
+    // Use wunderbardigital.com for report links (can be overridden with NEXT_PUBLIC_BASE_URL)
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://wunderbardigital.com';
     const reportLink = `${baseUrl}/report/${reportId}`;
     
     const acResponse = await fetch('/api/activecampaign', {

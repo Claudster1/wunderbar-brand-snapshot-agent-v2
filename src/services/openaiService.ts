@@ -4,9 +4,11 @@ import type { BrandChatMessage } from '../types';
 
 const API_URL = '/api/brand-snapshot';
 
-type ApiMessage = { role: 'system' | 'user' | 'assistant'; content: string };
+type ApiMessage = { role: 'user' | 'assistant'; content: string };
 
 // Build messages array - system prompt is added by the API handler
+// IMPORTANT: Only send user and assistant messages, never system messages
+// The BrandChatMessage type only allows 'user' | 'assistant' roles, so system messages are already prevented
 const buildApiMessages = (history: BrandChatMessage[]): ApiMessage[] => 
   history.map((message) => ({
     role: message.role,

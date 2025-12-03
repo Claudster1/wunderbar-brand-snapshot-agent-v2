@@ -42,32 +42,50 @@ export function useBrandChat() {
       const replyText = await getBrandSnapshotReply(nextHistory);
 
       // Check if the response is JSON with scores (should NOT be displayed in chat)
-      const isJsonResponse = replyText.trim().startsWith('{') && 
-                            replyText.includes('"scores"') && 
-                            replyText.includes('"brandAlignmentScore"');
+      // Try to extract JSON from the response (might have whitespace or other text)
+      const trimmedReply = replyText.trim();
+      let jsonMatch = trimmedReply.match(/\{[\s\S]*"scores"[\s\S]*"brandAlignmentScore"[\s\S]*\}/);
+      
+      // If no match, check if the whole response is JSON
+      if (!jsonMatch && trimmedReply.startsWith('{') && trimmedReply.endsWith('}')) {
+        jsonMatch = [trimmedReply];
+      }
 
-      if (isJsonResponse) {
+      if (jsonMatch && jsonMatch[0]) {
         // This is the scoring JSON - extract it and send to parent, but DON'T add to chat
         try {
-          const snapshotData = JSON.parse(replyText.trim());
+          const jsonString = jsonMatch[0];
+          const snapshotData = JSON.parse(jsonString);
+          
+          console.log('[useBrandChat] Detected JSON response with scores:', snapshotData);
           
           // Verify it has the expected structure
           if (snapshotData.scores && typeof snapshotData.scores.brandAlignmentScore === 'number') {
+            const scoresPayload = {
+              brandAlignmentScore: snapshotData.scores.brandAlignmentScore,
+              pillarScores: {
+                positioning: snapshotData.scores.positioning || 0,
+                messaging: snapshotData.scores.messaging || 0,
+                visibility: snapshotData.scores.visibility || 0,
+                credibility: snapshotData.scores.credibility || 0,
+                conversion: snapshotData.scores.conversion || 0,
+              }
+            };
+            
+            console.log('[useBrandChat] Sending scores to parent:', scoresPayload);
+            
             // Send scores to parent page via postMessage (for visual display)
-            if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
-              window.parent.postMessage({
-                type: 'BRAND_SNAPSHOT_COMPLETE',
-                data: {
-                  brandAlignmentScore: snapshotData.scores.brandAlignmentScore,
-                  pillarScores: {
-                    positioning: snapshotData.scores.positioning || 0,
-                    messaging: snapshotData.scores.messaging || 0,
-                    visibility: snapshotData.scores.visibility || 0,
-                    credibility: snapshotData.scores.credibility || 0,
-                    conversion: snapshotData.scores.conversion || 0,
-                  }
-                }
-              }, '*');
+            if (typeof window !== 'undefined') {
+              // Check if we're in an iframe
+              if (window.parent && window.parent !== window) {
+                window.parent.postMessage({
+                  type: 'BRAND_SNAPSHOT_COMPLETE',
+                  data: scoresPayload
+                }, '*');
+                console.log('[useBrandChat] postMessage sent to parent window');
+              } else {
+                console.warn('[useBrandChat] Not in an iframe - cannot send postMessage to parent');
+              }
             }
 
             // If this JSON has email, it's the final output - save to DB and sync to AC

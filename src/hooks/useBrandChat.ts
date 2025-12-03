@@ -40,13 +40,14 @@ export function useBrandChat() {
 
     try {
       const replyText = await getBrandSnapshotReply(nextHistory);
-      const assistantMessage = createMessage('assistant', replyText);
 
-      setMessages((prev) => [...prev, assistantMessage]);
+      // Check if the response is JSON with scores (should NOT be displayed in chat)
+      const isJsonResponse = replyText.trim().startsWith('{') && 
+                            replyText.includes('"scores"') && 
+                            replyText.includes('"brandAlignmentScore"');
 
-      // Check if the response contains JSON with scores (final output)
-      // Only process if response looks like JSON (starts with { and contains scores)
-      if (replyText.trim().startsWith('{') && replyText.includes('"scores"') && replyText.includes('"brandAlignmentScore"')) {
+      if (isJsonResponse) {
+        // This is the scoring JSON - extract it and send to parent, but DON'T add to chat
         try {
           const snapshotData = JSON.parse(replyText.trim());
           
@@ -69,23 +70,39 @@ export function useBrandChat() {
               }, '*');
             }
 
-            // Check if this is the final JSON (has email and optIn) - then save to DB and sync to AC
+            // If this JSON has email, it's the final output - save to DB and sync to AC
             if (snapshotData.user?.email && typeof snapshotData.optIn === 'boolean') {
-              // Import dynamically to avoid SSR issues and reduce bundle size
+              // Import dynamically to avoid SSR issues
               const { saveReportAndSync } = await import('../services/reportService');
               const result = await saveReportAndSync(snapshotData);
               
               if (result.success) {
                 console.log('[useBrandChat] Report saved and synced:', result.reportId);
+                // Add a success message to chat
+                const successMessage = createMessage(
+                  'assistant',
+                  `Perfect! I've saved your Brand Snapshot™. Check your email for your detailed report link.`
+                );
+                setMessages((prev) => [...prev, successMessage]);
               } else {
                 console.error('[useBrandChat] Failed to save/sync report:', result.error);
               }
+            } else {
+              // JSON with scores but no email yet - agent will ask for email next
+              // Don't add JSON to chat, just wait for next response
+              // The agent should follow up with email request
             }
           }
         } catch (parseError) {
-          // Not valid JSON or parsing failed - that's okay, continue normally
+          // Not valid JSON - treat as normal message
           console.debug('[useBrandChat] JSON parse failed:', parseError);
+          const assistantMessage = createMessage('assistant', replyText);
+          setMessages((prev) => [...prev, assistantMessage]);
         }
+      } else {
+        // Normal text response - add to chat as usual
+        const assistantMessage = createMessage('assistant', replyText);
+        setMessages((prev) => [...prev, assistantMessage]);
       }
     } catch (err: any) {
       console.error('[useBrandChat] Error:', err);

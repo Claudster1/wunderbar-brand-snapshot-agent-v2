@@ -20,7 +20,7 @@ import { mapWundyToAC } from "@/src/utils/activeCampaignMapper";
 
 export async function POST(req: Request) {
   try {
-    const wundyJson = await req.json();
+    const wundyJson = await req.json().catch(() => ({}));
 
     // Validate required environment variables
     if (!process.env.ACTIVE_CAMPAIGN_API_KEY) {

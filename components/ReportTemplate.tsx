@@ -2,7 +2,7 @@
 
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import Link from "next/link";
 
 export function ReportTemplate({ data }: { data: any }) {
@@ -17,6 +17,7 @@ export function ReportTemplate({ data }: { data: any }) {
 
   const score = brandAlignmentScore ?? 0;
 
+  // Memoized tag function - stable reference
   const getTag = (value: number) => {
     if (value >= 4.5) return "bs-pillar-tag-strong";
     if (value >= 3.7) return "bs-pillar-tag-steady";
@@ -51,7 +52,6 @@ export function ReportTemplate({ data }: { data: any }) {
               shareUrl
             )}`}
             target="_blank"
-            rel="noopener noreferrer"
             className="px-5 py-3 bg-brand-aqua text-brand-navy font-medium rounded-md"
           >
             Share on LinkedIn
@@ -171,4 +171,3 @@ export function ReportTemplate({ data }: { data: any }) {
     </div>
   );
 }
-

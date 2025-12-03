@@ -29,7 +29,7 @@ export function useBrandChat() {
 
   const sendMessage = async (text: string) => {
     const trimmed = text.trim();
-    if (!trimmed) return;
+    if (!trimmed || isLoading) return; // Prevent double submission
 
     const userMessage = createMessage('user', trimmed);
 
@@ -45,17 +45,15 @@ export function useBrandChat() {
       setMessages((prev) => [...prev, assistantMessage]);
 
       // Check if the response contains JSON with scores (final output)
-      try {
-        // Look for JSON in the message (could be wrapped in code blocks or plain)
-        const jsonMatch = replyText.match(/\{[\s\S]*"scores"[\s\S]*"brandAlignmentScore"[\s\S]*\}/);
-        if (jsonMatch) {
-          const jsonStr = jsonMatch[0];
-          const snapshotData = JSON.parse(jsonStr);
+      // Only process if response looks like JSON (starts with { and contains scores)
+      if (replyText.trim().startsWith('{') && replyText.includes('"scores"') && replyText.includes('"brandAlignmentScore"')) {
+        try {
+          const snapshotData = JSON.parse(replyText.trim());
           
           // Verify it has the expected structure
-          if (snapshotData.scores && snapshotData.scores.brandAlignmentScore !== undefined) {
+          if (snapshotData.scores && typeof snapshotData.scores.brandAlignmentScore === 'number') {
             // Send scores to parent page via postMessage (for visual display)
-            if (window.parent && window.parent !== window) {
+            if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
               window.parent.postMessage({
                 type: 'BRAND_SNAPSHOT_COMPLETE',
                 data: {
@@ -72,8 +70,8 @@ export function useBrandChat() {
             }
 
             // Check if this is the final JSON (has email and optIn) - then save to DB and sync to AC
-            if (snapshotData.user?.email && snapshotData.optIn !== undefined) {
-              // Import dynamically to avoid SSR issues
+            if (snapshotData.user?.email && typeof snapshotData.optIn === 'boolean') {
+              // Import dynamically to avoid SSR issues and reduce bundle size
               const { saveReportAndSync } = await import('../services/reportService');
               const result = await saveReportAndSync(snapshotData);
               
@@ -84,10 +82,10 @@ export function useBrandChat() {
               }
             }
           }
+        } catch (parseError) {
+          // Not valid JSON or parsing failed - that's okay, continue normally
+          console.debug('[useBrandChat] JSON parse failed:', parseError);
         }
-      } catch (parseError) {
-        // Not JSON or parsing failed - that's okay, continue normally
-        console.debug('[useBrandChat] No JSON found in response or parse failed:', parseError);
       }
     } catch (err: any) {
       console.error('[useBrandChat] Error:', err);

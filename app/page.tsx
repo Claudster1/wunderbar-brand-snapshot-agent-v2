@@ -31,7 +31,10 @@ export default function Home() {
 
   // Auto-scroll to bottom when messages change or loading state changes
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // Use requestAnimationFrame for better performance
+    requestAnimationFrame(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    });
   }, [messages, isLoading]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {

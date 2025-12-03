@@ -10,7 +10,7 @@ const client = new OpenAI({
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     const { messages } = body || {};
 
     if (!messages || !Array.isArray(messages)) {

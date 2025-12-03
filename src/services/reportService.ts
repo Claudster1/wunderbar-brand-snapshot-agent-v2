@@ -49,13 +49,49 @@ export async function saveReportAndSync(
   wundyJson: WundyJson
 ): Promise<{ reportId: string; success: boolean; error?: string }> {
   try {
+    // Generate report ID
+    const reportId = wundyJson.reportId || `report-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    
+    // Extract user info
+    const email = wundyJson.user?.email || '';
+    const name = wundyJson.user?.firstName && wundyJson.user?.lastName
+      ? `${wundyJson.user.firstName} ${wundyJson.user.lastName}`.trim()
+      : wundyJson.user?.firstName || 'Unknown';
+
+    // Prepare data structure for the API
+    const reportData = {
+      reportId,
+      email,
+      name,
+      data: {
+        brandAlignmentScore: wundyJson.scores?.brandAlignmentScore || 0,
+        pillarScores: {
+          positioning: wundyJson.scores?.positioning || 0,
+          messaging: wundyJson.scores?.messaging || 0,
+          visibility: wundyJson.scores?.visibility || 0,
+          credibility: wundyJson.scores?.credibility || 0,
+          conversion: wundyJson.scores?.conversion || 0,
+        },
+        pillarInsights: {
+          positioning: wundyJson.fullReport?.positioningInsight || '',
+          messaging: wundyJson.fullReport?.messagingInsight || '',
+          visibility: wundyJson.fullReport?.visibilityInsight || '',
+          credibility: wundyJson.fullReport?.credibilityInsight || '',
+          conversion: wundyJson.fullReport?.conversionInsight || '',
+        },
+        recommendations: wundyJson.fullReport?.recommendations || [],
+        websiteNotes: wundyJson.fullReport?.websiteNotes || '',
+        ...wundyJson, // Include full data
+      }
+    };
+
     // Step 1: Save to Supabase
     const saveResponse = await fetch('/api/report/save', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(wundyJson),
+      body: JSON.stringify(reportData),
     });
 
     if (!saveResponse.ok) {
@@ -68,13 +104,21 @@ export async function saveReportAndSync(
       };
     }
 
+    // Verify save was successful (API returns { success: true })
     const saveData = await saveResponse.json();
-    const reportId = saveData.reportId;
+    if (!saveData.success) {
+      return {
+        reportId: '',
+        success: false,
+        error: 'Report save returned unsuccessful',
+      };
+    }
 
     // Step 2: Sync to ActiveCampaign (with report link)
     // Add report link to the JSON for ActiveCampaign
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
-      (typeof window !== 'undefined' ? window.location.origin : '');
+    const baseUrl = typeof window !== 'undefined' 
+      ? window.location.origin 
+      : (process.env.NEXT_PUBLIC_BASE_URL || '');
     const reportLink = `${baseUrl}/report/${reportId}`;
     
     const acResponse = await fetch('/api/activecampaign', {

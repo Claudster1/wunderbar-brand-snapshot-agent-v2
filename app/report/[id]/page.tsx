@@ -3,30 +3,65 @@
 import { ReportTemplate } from "@/components/ReportTemplate";
 import { notFound } from "next/navigation";
 
-// TODO: Replace with your real DB fetch (Supabase, Neon, etc.)
 async function getReportData(id: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.VERCEL_URL 
-    ? `https://${process.env.VERCEL_URL}` 
-    : 'http://localhost:3000';
+  // Use absolute URL for server-side fetch
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
 
-  const response = await fetch(
-    `${baseUrl}/api/report/get?id=${id}`,
-    { cache: "no-store" }
-  );
+  try {
+    const response = await fetch(
+      `${baseUrl}/api/report/get?id=${id}`,
+      { 
+        cache: "no-store",
+        next: { revalidate: 0 } // Ensure fresh data
+      }
+    );
 
-  if (!response.ok) return null;
+    if (!response.ok) {
+      console.error(`[Report Page] Failed to fetch report: ${response.status}`);
+      return null;
+    }
 
-  return response.json();
+    return await response.json();
+  } catch (error) {
+    console.error('[Report Page] Error fetching report:', error);
+    return null;
+  }
 }
 
 export default async function ReportPage({ params }: { params: { id: string } }) {
-  const report = await getReportData(params.id);
+  const reportData = await getReportData(params.id);
 
-  if (!report) return notFound();
+  if (!reportData) return notFound();
+
+  // Transform the full_report data to match ReportTemplate expectations
+  const transformedData = {
+    reportId: params.id,
+    userName: reportData.user?.firstName && reportData.user?.lastName
+      ? `${reportData.user.firstName} ${reportData.user.lastName}`.trim()
+      : reportData.user?.firstName || 'User',
+    brandAlignmentScore: reportData.brandAlignmentScore || reportData.scores?.brandAlignmentScore || 0,
+    pillarScores: reportData.pillarScores || {
+      positioning: reportData.scores?.positioning || 0,
+      messaging: reportData.scores?.messaging || 0,
+      visibility: reportData.scores?.visibility || 0,
+      credibility: reportData.scores?.credibility || 0,
+      conversion: reportData.scores?.conversion || 0,
+    },
+    pillarInsights: reportData.pillarInsights || {
+      positioning: reportData.fullReport?.positioningInsight || '',
+      messaging: reportData.fullReport?.messagingInsight || '',
+      visibility: reportData.fullReport?.visibilityInsight || '',
+      credibility: reportData.fullReport?.credibilityInsight || '',
+      conversion: reportData.fullReport?.conversionInsight || '',
+    },
+    recommendations: reportData.recommendations || reportData.fullReport?.recommendations || [],
+    websiteNotes: reportData.websiteNotes || reportData.fullReport?.websiteNotes || null,
+  };
 
   return (
     <main className="bg-white min-h-screen">
-      <ReportTemplate data={report} />
+      <ReportTemplate data={transformedData} />
     </main>
   );
 }

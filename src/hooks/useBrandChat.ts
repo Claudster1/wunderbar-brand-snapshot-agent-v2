@@ -65,17 +65,42 @@ export function useBrandChat() {
           
           console.log('[useBrandChat] Detected JSON response with scores:', snapshotData);
           
-          // Verify it has the expected structure
+          // Verify it has the expected structure (new format without nested "scores" object)
+          // Support both old format (with nested "scores") and new format (flat structure)
+          let brandAlignmentScore: number;
+          let pillarScores: any;
+          let pillarInsights: any = {};
+          
           if (snapshotData.scores && typeof snapshotData.scores.brandAlignmentScore === 'number') {
+            // Old format with nested "scores" object
+            brandAlignmentScore = snapshotData.scores.brandAlignmentScore;
+            pillarScores = {
+              positioning: snapshotData.scores.positioning || 0,
+              messaging: snapshotData.scores.messaging || 0,
+              visibility: snapshotData.scores.visibility || 0,
+              credibility: snapshotData.scores.credibility || 0,
+              conversion: snapshotData.scores.conversion || 0,
+            };
+          } else if (typeof snapshotData.brandAlignmentScore === 'number' && snapshotData.pillarScores) {
+            // New format with flat structure
+            brandAlignmentScore = snapshotData.brandAlignmentScore;
+            pillarScores = {
+              positioning: snapshotData.pillarScores.positioning || 0,
+              messaging: snapshotData.pillarScores.messaging || 0,
+              visibility: snapshotData.pillarScores.visibility || 0,
+              credibility: snapshotData.pillarScores.credibility || 0,
+              conversion: snapshotData.pillarScores.conversion || 0,
+            };
+            pillarInsights = snapshotData.pillarInsights || {};
+          } else {
+            throw new Error('Invalid JSON structure');
+          }
+          
+          if (brandAlignmentScore !== undefined && pillarScores) {
             const scoresPayload = {
-              brandAlignmentScore: snapshotData.scores.brandAlignmentScore,
-              pillarScores: {
-                positioning: snapshotData.scores.positioning || 0,
-                messaging: snapshotData.scores.messaging || 0,
-                visibility: snapshotData.scores.visibility || 0,
-                credibility: snapshotData.scores.credibility || 0,
-                conversion: snapshotData.scores.conversion || 0,
-              }
+              brandAlignmentScore,
+              pillarScores,
+              pillarInsights
             };
             
             console.log('[useBrandChat] Sending scores to parent:', scoresPayload);

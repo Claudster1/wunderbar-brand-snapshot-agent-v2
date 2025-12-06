@@ -523,14 +523,25 @@
           </p>
           <div class="mt-6">
             <iframe
+              id="snapshot-agent"
               src="https://wunderbar-brand-snapshot-agent-v2-8.vercel.app/"
               width="100%"
               height="680"
               frameborder="0"
-              class="bs-chat-frame"
+              class="bs-chat-frame w-full border-0"
               title="Brand Snapshot™ Specialist"
             ></iframe>
           </div>
+          <script>
+            window.addEventListener("message", function (event) {
+              if (event.data?.type === "RESIZE_IFRAME" || event.data?.type === "BS_IFRAME_HEIGHT") {
+                const iframe = document.getElementById("snapshot-agent");
+                if (iframe && event.data.height) {
+                  iframe.style.height = event.data.height + "px";
+                }
+              }
+            });
+          </script>
         </div>
       </section>
 

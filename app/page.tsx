@@ -66,33 +66,35 @@ export default function Home() {
     }, 100);
   };
 
-  // Report iframe height to parent window for auto-expanding
-  useEffect(() => {
-    function reportHeight() {
-      if (typeof window !== 'undefined' && window.parent !== window) {
-        const height = document.documentElement.scrollHeight;
-        window.parent.postMessage({ type: "BS_IFRAME_HEIGHT", height }, "*");
-      }
-    }
+              // Report iframe height to parent window for auto-expanding
+              useEffect(() => {
+                function reportHeight() {
+                  if (typeof window !== 'undefined' && window.parent !== window) {
+                    const height = document.documentElement.scrollHeight;
+                    // Support both message types for compatibility
+                    window.parent.postMessage({ type: "BS_IFRAME_HEIGHT", height }, "*");
+                    window.parent.postMessage({ type: "RESIZE_IFRAME", height }, "*");
+                  }
+                }
 
-    // Report initial height
-    reportHeight();
+                // Report initial height
+                reportHeight();
 
-    // Watch for size changes
-    const resizeObserver = new ResizeObserver(() => {
-      reportHeight();
-    });
+                // Watch for size changes
+                const resizeObserver = new ResizeObserver(() => {
+                  reportHeight();
+                });
 
-    resizeObserver.observe(document.body);
+                resizeObserver.observe(document.body);
 
-    // Also report on messages/loading changes
-    const timeoutId = setTimeout(reportHeight, 100);
+                // Also report on messages/loading changes
+                const timeoutId = setTimeout(reportHeight, 100);
 
-    return () => {
-      resizeObserver.disconnect();
-      clearTimeout(timeoutId);
-    };
-  }, [messages, isLoading]);
+                return () => {
+                  resizeObserver.disconnect();
+                  clearTimeout(timeoutId);
+                };
+              }, [messages, isLoading]);
 
   const handleReset = () => {
     reset();

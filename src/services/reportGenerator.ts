@@ -280,23 +280,33 @@ function generateOverallInterpretation(brandAlignmentScore: number): string {
   }
 }
 
-// Generate opportunities summary
+// Generate opportunities summary with dynamic analysis
 function generateOpportunitiesSummary(
   brandAlignmentScore: number,
   pillarScores: PillarScores
 ): string {
+  const weakest = findWeakestPillar(pillarScores);
+  const strongPillars = findStrongPillars(pillarScores);
   const range = getOverallScoreRange(brandAlignmentScore);
-  const sortedPillars = Object.entries(pillarScores)
-    .sort(([, a], [, b]) => b - a)
-    .map(([name]) => name);
 
-  const strengths = sortedPillars.slice(0, 2);
-  const opportunities = sortedPillars.slice(-2).reverse();
+  const pillarName = weakest.pillar.charAt(0).toUpperCase() + weakest.pillar.slice(1);
 
   if (range === 'excellent' || range === 'strong') {
-    return `Your brand shines in ${strengths[0]} and ${strengths[1]}, which creates a solid foundation for growth. To maximize your momentum, consider how you can strengthen ${opportunities[0]} and ${opportunities[1]}—even small improvements in these areas can create outsized impact on clarity, trust, and conversion. The goal isn't perfection, but consistent progress toward a brand that communicates clearly at every touchpoint.`;
+    if (strongPillars.length > 0) {
+      const strengthList = strongPillars
+        .map(p => p.charAt(0).toUpperCase() + p.slice(1))
+        .join(' and ');
+      return `Your brand shines in ${strengthList}, which creates a solid foundation for growth. Your biggest opportunity right now is strengthening ${pillarName} (${weakest.score}/20). Even small improvements here can create outsized impact on clarity, trust, and conversion. The goal isn't perfection, but consistent progress toward a brand that communicates clearly at every touchpoint.`;
+    }
+    return `Your brand has a strong foundation. Your biggest opportunity right now is strengthening ${pillarName} (${weakest.score}/20). Even small improvements here can create outsized impact on clarity, trust, and conversion.`;
   } else {
-    return `Your brand shows promise in ${strengths[0]}, which is a great starting point. The biggest opportunities for impact lie in strengthening ${opportunities[0]} and ${opportunities[1]}—these pillars, when improved, create a ripple effect that enhances clarity, builds trust, and drives conversion. Focus on one area at a time, and you'll see meaningful progress toward a more aligned brand.`;
+    if (strongPillars.length > 0) {
+      const strengthList = strongPillars
+        .map(p => p.charAt(0).toUpperCase() + p.slice(1))
+        .join(' and ');
+      return `Your brand shows promise in ${strengthList}, which is a great starting point. The biggest opportunity for impact lies in strengthening ${pillarName} (${weakest.score}/20)—this pillar, when improved, creates a ripple effect that enhances clarity, builds trust, and drives conversion. Focus on this area first, and you'll see meaningful progress toward a more aligned brand.`;
+    }
+    return `Your biggest opportunity for impact lies in strengthening ${pillarName} (${weakest.score}/20). This pillar, when improved, creates a ripple effect that enhances clarity, builds trust, and drives conversion. Focus on this area first, and you'll see meaningful progress toward a more aligned brand.`;
   }
 }
 

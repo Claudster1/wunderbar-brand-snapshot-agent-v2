@@ -1,0 +1,218 @@
+{
+  "questions": [
+    {
+      "id": "company_name",
+      "text": "Before we dive in, what's your company name?",
+      "type": "open_text",
+      "next": { "default": "what_you_do" }
+    },
+    {
+      "id": "what_you_do",
+      "text": "Got it! In a sentence or two, what do you do?",
+      "type": "open_text",
+      "next": { "default": "industry" }
+    },
+    {
+      "id": "industry",
+      "text": "What industry are you in?",
+      "type": "open_text",
+      "next": { "default": "primary_customer" }
+    },
+    {
+      "id": "primary_customer",
+      "text": "Who's your primary customer? A quick description works perfectly.",
+      "type": "open_text",
+      "next": { "default": "main_goal" }
+    },
+    {
+      "id": "main_goal",
+      "text": "What's your main goal for the next 6–12 months? Growth, rebrand, new market, something else?",
+      "type": "open_text",
+      "next": { "default": "has_website" }
+    },
+    {
+      "id": "has_website",
+      "text": "Do you have a website?",
+      "type": "yes_no",
+      "next": { "yes": "website_url", "no": "no_website_followup" }
+    },
+    {
+      "id": "website_url",
+      "text": "What's the URL? I'd love to take a look.",
+      "type": "url",
+      "next": { "default": "social_presence" }
+    },
+    {
+      "id": "no_website_followup",
+      "text": "No worries! Are you planning to launch one soon, or focusing on other channels for now?",
+      "type": "open_text",
+      "next": { "default": "social_presence" }
+    },
+    {
+      "id": "social_presence",
+      "text": "Do you have any social profiles where people can learn about your brand?",
+      "type": "yes_no",
+      "next": { "yes": "social_platforms", "no": "differentiator" }
+    },
+    {
+      "id": "social_platforms",
+      "text": "Which platforms are you active on? You can select multiple: Instagram, Facebook, LinkedIn, TikTok, YouTube, X (Twitter), Bluesky, or others?",
+      "type": "multi_select",
+      "options": ["Instagram", "Facebook", "LinkedIn", "TikTok", "YouTube", "X (Twitter)", "Bluesky", "Other"],
+      "next": { "default": "social_urls" }
+    },
+    {
+      "id": "social_urls",
+      "text": "Perfect! Share the links to any profiles you'd like me to look at.",
+      "type": "open_text",
+      "next": { "default": "differentiator" }
+    },
+    {
+      "id": "differentiator",
+      "text": "What makes you different from others in your space? What's your unique angle?",
+      "type": "open_text",
+      "next": { "default": "competition" }
+    },
+    {
+      "id": "competition",
+      "text": "Who do you see as your main competitors? (This helps me understand your positioning better.)",
+      "type": "open_text",
+      "next": { "default": "brand_feeling" }
+    },
+    {
+      "id": "brand_feeling",
+      "text": "How do you want people to feel when they interact with your brand? Trusted? Excited? Inspired?",
+      "type": "open_text",
+      "next": { "default": "problem_solve" }
+    },
+    {
+      "id": "problem_solve",
+      "text": "What problem do you solve, and who do you solve it for?",
+      "type": "open_text",
+      "next": { "default": "elevator_pitch" }
+    },
+    {
+      "id": "elevator_pitch",
+      "text": "Do you have a clear elevator pitch—something you can say in 30 seconds that makes people immediately understand what you do?",
+      "type": "yes_no",
+      "next": { "yes": "tone_of_voice", "no": "tone_of_voice" }
+    },
+    {
+      "id": "tone_of_voice",
+      "text": "How would you describe your brand's tone of voice? Professional? Friendly? Playful? Authoritative?",
+      "type": "open_text",
+      "next": { "default": "messaging_consistency" }
+    },
+    {
+      "id": "messaging_consistency",
+      "text": "Does your messaging feel consistent across your website, social, emails, and other touchpoints?",
+      "type": "yes_no",
+      "next": { "default": "customers_get_it" }
+    },
+    {
+      "id": "customers_get_it",
+      "text": "When someone first discovers your brand, do they immediately 'get' what you do, or does it take some explaining?",
+      "type": "yes_no",
+      "next": { "default": "logo_origin" }
+    },
+    {
+      "id": "logo_origin",
+      "text": "Tell me a little about how your logo came to be. Did you design it, hire someone, use a template?",
+      "type": "open_text",
+      "next": { "default": "brand_colors" }
+    },
+    {
+      "id": "brand_colors",
+      "text": "Do you use consistent brand colors across your materials, or does it vary?",
+      "type": "yes_no",
+      "next": { "default": "visual_feel" }
+    },
+    {
+      "id": "visual_feel",
+      "text": "How would you describe the overall feel of your visuals? Modern, classic, premium, playful, minimalist?",
+      "type": "open_text",
+      "next": { "default": "active_channels" }
+    },
+    {
+      "id": "active_channels",
+      "text": "Which marketing channels are you actively using today? You can select multiple.",
+      "type": "multi_select",
+      "options": ["Email", "Social media", "Website/blog", "Paid ads", "Referrals/word of mouth", "Events/workshops", "Video/YouTube", "Other"],
+      "next": { "default": "content_publishing" }
+    },
+    {
+      "id": "content_publishing",
+      "text": "What kind of content do you publish? Blog posts, social updates, videos, newsletters?",
+      "type": "open_text",
+      "next": { "default": "content_system" }
+    },
+    {
+      "id": "content_system",
+      "text": "Do you have a content system or schedule, or is it more sporadic?",
+      "type": "yes_no",
+      "next": { "default": "email_list" }
+    },
+    {
+      "id": "email_list",
+      "text": "Do you have an email list?",
+      "type": "yes_no",
+      "next": { "yes": "email_campaigns", "no": "testimonials" }
+    },
+    {
+      "id": "email_campaigns",
+      "text": "How often do you send email campaigns? Weekly, monthly, or just when you have something to share?",
+      "type": "open_text",
+      "next": { "default": "testimonials" }
+    },
+    {
+      "id": "testimonials",
+      "text": "Do you have testimonials, case studies, press mentions, or awards that showcase your credibility?",
+      "type": "yes_no",
+      "next": { "default": "work_examples" }
+    },
+    {
+      "id": "work_examples",
+      "text": "Can visitors quickly see examples of your work or results on your website?",
+      "type": "yes_no",
+      "next": { "default": "website_ctas" }
+    },
+    {
+      "id": "website_ctas",
+      "text": "Does your website have clear calls-to-action—like 'Get Started,' 'Book a Call,' or 'Download'?",
+      "type": "yes_no",
+      "next": { "default": "next_step_clarity" }
+    },
+    {
+      "id": "next_step_clarity",
+      "text": "When someone visits your site, is it obvious what the next step is?",
+      "type": "yes_no",
+      "next": { "default": "lead_magnets" }
+    },
+    {
+      "id": "lead_magnets",
+      "text": "Do you have lead magnets, forms, or nurture sequences to capture and follow up with visitors?",
+      "type": "yes_no",
+      "next": { "default": "ready_for_scores" }
+    },
+    {
+      "id": "ready_for_scores",
+      "text": "Perfect! Ready to see your Brand Alignment Score™?",
+      "type": "yes_no",
+      "next": { "yes": "calculate_scores", "no": "calculate_scores" }
+    },
+    {
+      "id": "calculate_scores",
+      "text": "",
+      "type": "action",
+      "action": "calculate_scores",
+      "next": { "default": "handoff_message" }
+    },
+    {
+      "id": "handoff_message",
+      "text": "Perfect! I've completed your Brand Snapshot™ analysis. Your scores are ready below — enter your details to receive your complete Brand Snapshot™ report with detailed insights and recommendations.",
+      "type": "message",
+      "next": { "default": "output_json" }
+    }
+  ]
+}
+

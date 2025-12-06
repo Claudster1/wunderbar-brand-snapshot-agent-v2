@@ -44,14 +44,26 @@ export default function Home() {
     // 1. Component mounts (initial focus)
     // 2. Loading finishes (after assistant responds)
     // 3. New assistant message arrives
-    if (!isLoading && inputRef.current) {
-      // Small delay to ensure DOM is ready
+    if (!isLoading && inputRef.current && !inputRef.current.disabled) {
+      // Small delay to ensure DOM is ready and scroll completes
       const timeoutId = setTimeout(() => {
         inputRef.current?.focus();
-      }, 100);
+      }, 300);
       return () => clearTimeout(timeoutId);
     }
   }, [isLoading, messages]);
+
+  // Also focus after form submission (when input is cleared)
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!inputValue.trim()) return;
+    await sendMessage(inputValue);
+    setInputValue("");
+    // Focus input after message is sent and cleared
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
+  };
 
   // Report iframe height to parent window for auto-expanding
   useEffect(() => {
@@ -80,13 +92,6 @@ export default function Home() {
       clearTimeout(timeoutId);
     };
   }, [messages, isLoading]);
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!inputValue.trim()) return;
-    await sendMessage(inputValue);
-    setInputValue("");
-  };
 
   const handleReset = () => {
     reset();

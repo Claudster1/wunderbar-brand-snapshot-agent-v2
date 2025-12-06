@@ -418,16 +418,16 @@
             <!-- STEP 3 -->
             <article class="bs-how-card">
               <div class="bs-how-toprow">
-                <!-- BULLSEYE ICON — EVEN RING SPACING -->
+                <!-- BULLSEYE ICON — PROPER CONCENTRIC RINGS -->
                 <svg class="bs-icon" xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#07B0F2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <!-- OUTER RING -->
                   <circle cx="12" cy="12" r="10" />
                   <!-- MIDDLE RING -->
-                  <circle cx="12" cy="12" r="6" />
+                  <circle cx="12" cy="12" r="7" />
                   <!-- INNER RING -->
-                  <circle cx="12" cy="12" r="2" />
+                  <circle cx="12" cy="12" r="4" />
                   <!-- CENTER DOT -->
-                  <circle cx="12" cy="12" r="1.4" fill="#07B0F2" stroke="none" />
+                  <circle cx="12" cy="12" r="1.5" fill="#07B0F2" stroke="none" />
                 </svg>
                 <div>
                   <div class="bs-step-label">STEP 3</div>
@@ -627,29 +627,90 @@
         </div>
       </section>
 
-      <!-- BOTTOM CTA — CLEAN & ON-BRAND -->
-      <section class="bs-bottom-cta" style="padding:56px 16px 72px; background:#ffffff;">
-        <div class="bs-bottom-cta-inner" style="max-width:1120px; margin:0 auto;">
-          <div class="bs-bottom-cta-panel" style="border-radius:18px; background-color:#e5f6ff; padding:40px 32px; text-align:center; box-shadow:0 10px 26px rgba(7,176,242,0.18);">
-            <h2 class="bs-bottom-cta-title" style="font-size:1.6rem; font-weight:600; color:#021859; margin-bottom:12px;">Ready to strengthen your brand's advantage?</h2>
-            <p class="bs-bottom-cta-sub" style="font-size:1.02rem; max-width:720px; margin:0 auto 26px; line-height:1.6; color:#0c1526;">
-              Start your free Brand Snapshot™ and get immediate clarity on where your brand stands — and the fastest steps to elevate trust, clarity, and conversion.
-            </p>
-            <a href="#brand-snapshot-agent" class="bs-bottom-cta-button" style="display:inline-flex; align-items:center; justify-content:center; padding:14px 28px; border-radius:5px; background-color:#07b0f2; color:#ffffff; font-weight:600; font-size:0.98rem; letter-spacing:0.02em; text-transform:uppercase; border:none; cursor:pointer; text-decoration:none; box-shadow:0 10px 26px rgba(7,176,242,0.35);">
-              START MY FREE BRAND SNAPSHOT™ <span style="margin-left:8px; font-size:1.05em;">→</span>
-            </a>
-          </div>
+      <!-- =====================================
+      BOLD BLUE CTA FOOTER — UPDATED
+      (no underline + smooth scroll to chat)
+      ====================================== -->
+      <style>
+        .wb-footer-cta {
+          background-color: #07B0F2;
+          padding: 56px 16px;
+          text-align: center;
+          color: #ffffff;
+        }
+        .wb-footer-container {
+          max-width: 960px;
+          margin: 0 auto;
+        }
+        .wb-footer-title {
+          font-size: 1.8rem;
+          font-weight: 600;
+          margin-bottom: 14px;
+          color: #ffffff;
+        }
+        .wb-footer-sub {
+          font-size: 1.05rem;
+          line-height: 1.65;
+          max-width: 720px;
+          margin: 0 auto 28px;
+          opacity: 0.95;
+        }
+        .wb-footer-button {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 13px 26px;
+          background-color: #ffffff;
+          color: #021859;
+          border-radius: 6px;
+          font-weight: 600;
+          font-size: 0.95rem;
+          text-decoration: none !important; /* <-- removes underline */
+          box-shadow: 0 6px 20px rgba(255, 255, 255, 0.25);
+          transition: all 0.22s ease;
+        }
+        .wb-footer-button:hover {
+          background-color: #F2F2F2;
+          transform: translateY(-1px);
+          text-decoration: none !important; /* <-- ensure hover doesn't reapply underline */
+        }
+        .wb-footer-bottom {
+          background-color: #ffffff;
+          padding: 22px 16px;
+          text-align: center;
+          border-top: 1px solid #E0E3EA;
+        }
+        .wb-footer-bottom p {
+          margin: 0;
+          font-size: 0.9rem;
+          color: #0C1526;
+          opacity: 0.85;
+        }
+
+        /* Smooth scroll for anchor links */
+        html {
+          scroll-behavior: smooth;
+        }
+      </style>
+
+      <section class="wb-footer-cta">
+        <div class="wb-footer-container">
+          <h2 class="wb-footer-title">
+            Your next stage of growth starts with clarity.
+          </h2>
+          <p class="wb-footer-sub">
+            Get your free Brand Snapshot™ and see exactly where your brand stands today —
+            and the steps that will make the biggest impact next.
+          </p>
+          <a href="#brand-snapshot-agent" class="wb-footer-button">
+            START FREE BRAND SNAPSHOT™ →
+          </a>
         </div>
       </section>
 
-      <!-- FOOTER -->
-      <footer class="bs-section pt-0" style="padding:0 16px 56px;">
-        <div class="bs-container" style="max-width:960px; margin:0 auto;">
-          <p class="bs-cred" style="font-size:0.9rem; color:#6b7280; margin-top:24px;">
-            © 2025 Wunderbar Digital. All rights reserved.
-          </p>
-        </div>
-      </footer>
+      <div class="wb-footer-bottom">
+        <p>© 2025 Wunderbar Digital. All rights reserved.</p>
+      </div>
     </main>
 
     <!-- BRAND SNAPSHOT SCORE + FORM LOGIC -->

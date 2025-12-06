@@ -18,7 +18,7 @@ const createMessage = (
 // Must match the system prompt's first greeting exactly
 const INITIAL_ASSISTANT_MESSAGE = createMessage(
   'assistant',
-  `Hi! I'm Wundy 👋 I'll walk you through a few guided questions to build your personalized Brand Snapshot™. Ready when you are.`
+  `Hi! I'm Wundy 🐾 I'll walk you through a few guided questions to build your personalized Brand Snapshot™. Ready when you are.`
 );
 
 export function useBrandChat() {

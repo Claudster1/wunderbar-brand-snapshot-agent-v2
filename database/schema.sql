@@ -1,23 +1,20 @@
 -- Brand Snapshot Reports Database Schema
 -- Run this in Supabase SQL Editor
 
+-- Brand Snapshot Reports Database Schema
+-- Run this in Supabase SQL Editor
+
 CREATE TABLE IF NOT EXISTS brand_snapshot_reports (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   report_id TEXT UNIQUE NOT NULL,
   user_name TEXT,
-  user_email TEXT,
-  company_name TEXT,
-  website TEXT,
-  industry TEXT,
+  email TEXT,
+  company TEXT,
   brand_alignment_score INTEGER,
   pillar_scores JSONB,
-  insights JSONB,
+  pillar_insights JSONB,
   recommendations JSONB,
   website_notes TEXT,
-  summary TEXT,
-  overall_interpretation TEXT,
-  opportunities_summary TEXT,
-  upgrade_cta TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
 

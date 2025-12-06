@@ -105,36 +105,63 @@ export function useBrandChat() {
             
             console.log('[useBrandChat] Sending scores to parent:', scoresPayload);
             
-            // Generate full report and save to database
-            // This will extract user context from conversation and generate complete report
-            const { generateAndSaveSnapshot } = await import('../services/snapshotService');
-            
-            const saveResult = await generateAndSaveSnapshot(
-              brandAlignmentScore,
-              pillarScores,
-              pillarInsights,
-              nextHistory
-            );
+            // Extract user context from conversation for report generation
+            const { extractUserContext, extractCompanyInfo } = await import('../services/snapshotService');
+            const userContext = extractUserContext(nextHistory);
+            const companyInfo = extractCompanyInfo(nextHistory);
 
-            // Send scores to parent page via postMessage (for visual display)
-            if (typeof window !== 'undefined') {
-              // Check if we're in an iframe
-              if (window.parent && window.parent !== window) {
+            // Save report and get redirect URL
+            try {
+              const saveResponse = await fetch('/api/save-report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  brandAlignmentScore,
+                  pillarScores,
+                  pillarInsights,
+                  userContext,
+                  userName: companyInfo.company_name, // Will be updated when form is submitted
+                  company: companyInfo.company_name,
+                  websiteNotes: companyInfo.website,
+                }),
+              });
+
+              if (saveResponse.ok) {
+                const saveResult = await saveResponse.json();
+                
+                // Send scores to parent page via postMessage (for visual display)
+                if (typeof window !== 'undefined') {
+                  // Check if we're in an iframe
+                  if (window.parent && window.parent !== window) {
+                    window.parent.postMessage({
+                      type: 'BRAND_SNAPSHOT_COMPLETE',
+                      data: {
+                        ...scoresPayload,
+                        report_id: saveResult.reportId,
+                        redirectUrl: saveResult.redirectUrl,
+                      }
+                    }, '*');
+                    console.log('[useBrandChat] postMessage sent to parent window with redirectUrl:', saveResult.redirectUrl);
+                  } else {
+                    console.warn('[useBrandChat] Not in an iframe - cannot send postMessage to parent');
+                  }
+                  
+                  // Store redirect URL for potential redirect
+                  if (saveResult.success && saveResult.redirectUrl) {
+                    (window as any).__snapshotRedirectUrl = saveResult.redirectUrl;
+                  }
+                }
+              } else {
+                console.error('[useBrandChat] Failed to save report:', await saveResponse.text());
+              }
+            } catch (saveError) {
+              console.error('[useBrandChat] Error saving report:', saveError);
+              // Still send scores to parent even if save fails
+              if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
                 window.parent.postMessage({
                   type: 'BRAND_SNAPSHOT_COMPLETE',
-                  data: {
-                    ...scoresPayload,
-                    report_id: saveResult.report_id, // Include report_id for redirect
-                  }
+                  data: scoresPayload
                 }, '*');
-                console.log('[useBrandChat] postMessage sent to parent window with report_id:', saveResult.report_id);
-              } else {
-                console.warn('[useBrandChat] Not in an iframe - cannot send postMessage to parent');
-              }
-              
-              // Store report_id for potential redirect
-              if (saveResult.success && saveResult.report_id) {
-                (window as any).__snapshotReportId = saveResult.report_id;
               }
             }
 

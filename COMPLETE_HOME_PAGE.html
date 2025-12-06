@@ -910,9 +910,12 @@
         const scores = event.data.data;
         console.log("[Brand Snapshot] Data received:", scores);
 
-        // Store report_id for redirect after form submission
+        // Store report_id and redirectUrl for redirect after form submission
         if (scores.report_id) {
           window.__snapshotReportId = scores.report_id;
+        }
+        if (scores.redirectUrl) {
+          window.__snapshotRedirectUrl = scores.redirectUrl;
         }
 
         // 1️⃣ Show Score
@@ -967,12 +970,18 @@
         thank_you.focus();
         
         // Redirect to results page after form submission
-        // Get report_id from the BRAND_SNAPSHOT_COMPLETE event data
+        // Use redirectUrl if available, otherwise construct from report_id
+        var redirectUrl = window.__snapshotRedirectUrl;
         var reportId = window.__snapshotReportId;
-        if (reportId) {
+        
+        if (redirectUrl) {
           setTimeout(function() {
-            window.location.href = "/brand-snapshot/results/" + reportId;
+            window.location.href = redirectUrl;
           }, 2000); // 2 second delay to show thank you message
+        } else if (reportId) {
+          setTimeout(function() {
+            window.location.href = "/report/" + reportId;
+          }, 2000);
         }
       };
       window._show_unsubscribe = function (id, message, trackcmp_url, email) {

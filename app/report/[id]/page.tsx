@@ -1,67 +1,165 @@
 // app/report/[id]/page.tsx
+// Dynamic Brand Snapshot report page with full Wunderbar branding
 
-import { ReportTemplate } from "@/components/ReportTemplate";
+import { WundyHero } from "@/components/WundyHero";
+import { ScoreMeter } from "@/components/ScoreMeter";
+import { PillarBreakdown } from "@/components/PillarBreakdown";
+import { RecommendationsBlock } from "@/components/RecommendationsBlock";
+import { SnapshotUpgradePanel } from "@/components/SnapshotUpgradePanel";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 
-async function getReportData(id: string) {
-  // Use absolute URL for server-side fetch
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
-
+async function getReport(id: string) {
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  
   try {
-    const response = await fetch(
-      `${baseUrl}/api/report/get?id=${id}`,
-      { 
-        cache: "no-store",
-        next: { revalidate: 0 } // Ensure fresh data
-      }
-    );
+    const res = await fetch(`${baseUrl}/api/snapshot/get?id=${id}`, {
+      cache: "no-store",
+    });
 
-    if (!response.ok) {
-      console.error(`[Report Page] Failed to fetch report: ${response.status}`);
+    if (!res.ok) {
       return null;
     }
 
-    return await response.json();
+    return await res.json();
   } catch (error) {
-    console.error('[Report Page] Error fetching report:', error);
+    console.error("[Report Page] Error fetching report:", error);
     return null;
   }
 }
 
-export default async function ReportPage({ params }: { params: { id: string } }) {
-  const reportData = await getReportData(params.id);
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: string };
+}): Promise<Metadata> {
+  const report = await getReport(params.id);
 
-  if (!reportData) return notFound();
+  if (!report) {
+    return {
+      title: "Brand Snapshot™ Not Found | Wunderbar Digital",
+    };
+  }
 
-  // Transform the full_report data to match ReportTemplate expectations
-  const transformedData = {
-    reportId: params.id,
-    userName: reportData.user?.firstName && reportData.user?.lastName
-      ? `${reportData.user.firstName} ${reportData.user.lastName}`.trim()
-      : reportData.user?.firstName || 'User',
-    brandAlignmentScore: reportData.brandAlignmentScore || reportData.scores?.brandAlignmentScore || 0,
-    pillarScores: reportData.pillarScores || {
-      positioning: reportData.scores?.positioning || 0,
-      messaging: reportData.scores?.messaging || 0,
-      visibility: reportData.scores?.visibility || 0,
-      credibility: reportData.scores?.credibility || 0,
-      conversion: reportData.scores?.conversion || 0,
+  const score = report.brand_alignment_score || 0;
+  const scoreLabel =
+    score >= 80
+      ? "Excellent"
+      : score >= 60
+      ? "Strong"
+      : score >= 40
+      ? "Developing"
+      : "Needs Focus";
+
+  return {
+    title: `Brand Snapshot™ Results - ${scoreLabel} (${score}/100) | Wunderbar Digital`,
+    description: `Your Brand Alignment Score™ is ${score}/100. View your complete Brand Snapshot™ with pillar insights and recommendations.`,
+    openGraph: {
+      title: `Brand Snapshot™ - ${scoreLabel} (${score}/100)`,
+      description: `Your Brand Alignment Score™ is ${score}/100. View your complete Brand Snapshot™.`,
+      images: [
+        {
+          url: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/og/${params.id}`,
+          width: 1200,
+          height: 630,
+          alt: "Brand Snapshot™ Results",
+        },
+      ],
     },
-    pillarInsights: reportData.pillarInsights || {
-      positioning: reportData.fullReport?.positioningInsight || '',
-      messaging: reportData.fullReport?.messagingInsight || '',
-      visibility: reportData.fullReport?.visibilityInsight || '',
-      credibility: reportData.fullReport?.credibilityInsight || '',
-      conversion: reportData.fullReport?.conversionInsight || '',
-    },
-    recommendations: reportData.recommendations || reportData.fullReport?.recommendations || [],
-    websiteNotes: reportData.websiteNotes || reportData.fullReport?.websiteNotes || null,
   };
+}
+
+export default async function ReportPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const report = await getReport(params.id);
+
+  if (!report || report.error) {
+    return notFound();
+  }
+
+  const {
+    user_name,
+    company_name,
+    brand_alignment_score,
+    pillar_scores,
+    pillar_insights,
+    insights,
+    recommendations,
+    summary,
+    opportunities_summary,
+    upgrade_cta,
+  } = report;
+
+  // Use pillar_insights if available, otherwise fall back to insights
+  const displayInsights = pillar_insights || insights || {};
 
   return (
-    <main className="bg-white min-h-screen">
-      <ReportTemplate data={transformedData} />
+    <main className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
+      <div className="max-w-5xl mx-auto py-12 px-6">
+        {/* Hero Section */}
+        <WundyHero userName={user_name} companyName={company_name} />
+
+        {/* Score Meter */}
+        <ScoreMeter score={brand_alignment_score || 0} />
+
+        {/* Pillar Breakdown */}
+        <PillarBreakdown
+          pillars={pillar_scores || {}}
+          insights={displayInsights}
+        />
+
+        {/* Recommendations Block */}
+        <RecommendationsBlock
+          recommendations={recommendations}
+          summary={summary}
+          opportunitiesSummary={opportunities_summary}
+        />
+
+        {/* Upgrade Panel */}
+        <SnapshotUpgradePanel upgradeCTA={upgrade_cta} />
+
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+          <a
+            href={`/api/pdf/${params.id}`}
+            className="inline-block bg-brand-blue text-white px-8 py-3 rounded-lg shadow-lg hover:bg-brand-blueHover transition font-semibold w-full sm:w-auto text-center"
+          >
+            Download PDF Snapshot →
+          </a>
+          <button
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                navigator.share({
+                  title: "My Brand Snapshot™ Results",
+                  text: `Check out my Brand Alignment Score™: ${brand_alignment_score}/100`,
+                  url: window.location.href,
+                });
+              }
+            }}
+            className="inline-block bg-white text-brand-blue border-2 border-brand-blue px-8 py-3 rounded-lg hover:bg-blue-50 transition font-semibold w-full sm:w-auto text-center"
+          >
+            Share Results
+          </button>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center text-sm text-slate-500 pt-8 border-t border-slate-200">
+          <p>
+            Generated by{" "}
+            <a
+              href="https://wunderbardigital.com"
+              className="text-brand-blue hover:underline"
+            >
+              Wunderbar Digital
+            </a>{" "}
+            • Brand Snapshot™
+          </p>
+        </div>
+      </div>
     </main>
   );
 }

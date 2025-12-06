@@ -99,6 +99,7 @@ interface SnapshotPdfTemplateProps {
   report: {
     user_name?: string;
     company_name?: string;
+    company?: string;
     brand_alignment_score?: number;
     pillar_scores?: {
       positioning?: number;
@@ -108,6 +109,13 @@ interface SnapshotPdfTemplateProps {
       conversion?: number;
     };
     insights?: {
+      positioning?: string;
+      messaging?: string;
+      visibility?: string;
+      credibility?: string;
+      conversion?: string;
+    };
+    pillar_insights?: {
       positioning?: string;
       messaging?: string;
       visibility?: string;
@@ -128,15 +136,20 @@ export default function SnapshotPdfTemplate({
   const {
     user_name,
     company_name,
+    company,
     brand_alignment_score,
     pillar_scores,
     insights,
+    pillar_insights,
     recommendations,
     summary,
     overall_interpretation,
     opportunities_summary,
     upgrade_cta,
   } = report;
+
+  const displayCompany = company || company_name;
+  const displayInsights = pillar_insights || insights || {};
 
   return (
     <Document>
@@ -145,7 +158,7 @@ export default function SnapshotPdfTemplate({
         <Text style={styles.header}>Your Brand Snapshot™</Text>
         <Text style={styles.subtitle}>
           {user_name && `Prepared for: ${user_name}`}
-          {company_name && ` • Company: ${company_name}`}
+          {displayCompany && ` • Company: ${displayCompany}`}
         </Text>
 
         {/* Brand Alignment Score */}
@@ -168,13 +181,13 @@ export default function SnapshotPdfTemplate({
         </View>
 
         {/* Pillar Insights */}
-        {pillar_scores && insights && (
+        {pillar_scores && displayInsights && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Pillar Insights</Text>
             {Object.keys(pillar_scores).map((pillar) => {
               const score = pillar_scores[pillar as keyof typeof pillar_scores];
               const insight =
-                insights[pillar as keyof typeof insights] || "No insight available.";
+                displayInsights[pillar as keyof typeof displayInsights] || "No insight available.";
 
               return (
                 <View key={pillar} style={styles.pillarRow}>

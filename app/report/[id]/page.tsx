@@ -101,7 +101,7 @@ export default async function ReportPage({
     <main className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
       <div className="max-w-5xl mx-auto py-12 px-6">
         {/* Hero Section */}
-        <WundyHero userName={user_name} companyName={company_name} />
+        <WundyHero userName={user_name} companyName={displayCompany} />
 
         {/* Score Meter */}
         <ScoreMeter score={brand_alignment_score || 0} />

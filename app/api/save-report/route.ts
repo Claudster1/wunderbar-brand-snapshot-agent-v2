@@ -67,7 +67,7 @@ export async function POST(req: Request) {
         brand_alignment_score: brandAlignmentScore,
         pillar_scores: pillarScores,
         pillar_insights: insights,
-        recommendations: fullReport.opportunitiesSummary ? [fullReport.opportunitiesSummary] : [],
+        recommendations: recommendations || (fullReport.opportunitiesSummary ? [fullReport.opportunitiesSummary] : []),
         website_notes: websiteNotes || null,
       });
 

@@ -159,7 +159,7 @@ export function generateUpsellCopy(pillars: PillarScores): string {
   
   return `Your biggest opportunity right now is:
 
-🎯 **${pillarName}**  
+🎯 ${pillarName}
 Score: ${weakest.score}/20
 
 ${dynamicInsight}

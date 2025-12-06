@@ -37,6 +37,34 @@ export default function Home() {
     });
   }, [messages, isLoading]);
 
+  // Report iframe height to parent window for auto-expanding
+  useEffect(() => {
+    function reportHeight() {
+      if (typeof window !== 'undefined' && window.parent !== window) {
+        const height = document.documentElement.scrollHeight;
+        window.parent.postMessage({ type: "BS_IFRAME_HEIGHT", height }, "*");
+      }
+    }
+
+    // Report initial height
+    reportHeight();
+
+    // Watch for size changes
+    const resizeObserver = new ResizeObserver(() => {
+      reportHeight();
+    });
+
+    resizeObserver.observe(document.body);
+
+    // Also report on messages/loading changes
+    const timeoutId = setTimeout(reportHeight, 100);
+
+    return () => {
+      resizeObserver.disconnect();
+      clearTimeout(timeoutId);
+    };
+  }, [messages, isLoading]);
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!inputValue.trim()) return;

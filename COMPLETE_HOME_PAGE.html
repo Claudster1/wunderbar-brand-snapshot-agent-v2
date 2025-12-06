@@ -322,6 +322,18 @@
         display: none !important;
       }
       
+      /* Fade-in animation for unlocked score + form */
+      .bs-fade-in {
+        opacity: 0;
+        transform: translateY(12px);
+        animation: fadeInUp 0.6s ease-out forwards;
+      }
+      
+      @keyframes fadeInUp {
+        0% { opacity: 0; transform: translateY(12px); }
+        100% { opacity: 1; transform: translateY(0); }
+      }
+      
       @media (max-width: 900px) {
         .bs-how-grid {
           grid-template-columns: 1fr;
@@ -644,7 +656,10 @@
         const scoreSection = document.getElementById("brand-alignment-score");
         const unlocked = document.getElementById("score-unlocked");
         if (scoreSection) scoreSection.classList.remove("hidden");
-        if (unlocked) unlocked.classList.remove("hidden");
+        if (unlocked) {
+          unlocked.classList.remove("hidden");
+          unlocked.classList.add("bs-fade-in");
+        }
 
         // MAIN SCORE
         document.getElementById("final-score-number").textContent = results.brandAlignmentScore;
@@ -718,7 +733,9 @@
         });
 
         // 3️⃣ Reveal Form
-        document.getElementById("form-section").classList.remove("hidden");
+        const formSection = document.getElementById("form-section");
+        formSection.classList.remove("hidden");
+        formSection.classList.add("bs-fade-in");
 
         // 4️⃣ Scroll to Score
         document.getElementById("brand-alignment-score").scrollIntoView({
@@ -1166,6 +1183,21 @@
         };
         addEvent(form_to_submit, "submit", form_submit);
       })();
+    </script>
+    
+    <!-- Auto-expand the Brand Snapshot agent iframe -->
+    <script>
+      window.addEventListener("message", function (event) {
+        if (!event.data) return;
+
+        // Match message format from agent
+        if (event.data.type === "BS_IFRAME_HEIGHT") {
+          const iframe = document.querySelector(".bs-chat-frame");
+          if (iframe && event.data.height) {
+            iframe.style.height = event.data.height + "px";
+          }
+        }
+      });
     </script>
   </body>
 </html>

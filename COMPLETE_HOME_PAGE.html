@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Wunderbar Digital | Brand Snapshot™</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: [
+                "system-ui",
+                "-apple-system",
+                "BlinkMacSystemFont",
+                '"Helvetica Neue"',
+                "Arial",
+                "sans-serif",
+              ],
+            },
+            colors: {
+              brand: {
+                navy: "#021859",
+                blue: "#07B0F2",
+                blueHover: "#059BD8",
+                aqua: "#27CDF2",
+                midnight: "#0C1526",
+                gray: "#F2F2F2",
+                border: "#E0E3EA",
+              },
+            },
+          },
+        },
+      };
+    </script>
+    
+    <style>
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue",
+          Arial, sans-serif;
+        color: #0c1526;
+        background-color: #ffffff;
+      }
+      .bs-section {
+        padding: 56px 16px;
+      }
+      .bs-container {
+        max-width: 960px;
+        margin: 0 auto;
+      }
+      /* TYPOGRAPHY */
+      .bs-h1 {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #021859;
+        margin-bottom: 14px;
+      }
+      .bs-h2 {
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: #021859;
+        margin-bottom: 8px;
+      }
+      .bs-lead {
+        max-width: 720px;
+        font-size: 1.05rem;
+        line-height: 1.6;
+        color: #0c1526;
+      }
+      .bs-sub {
+        max-width: 720px;
+        margin-top: 8px;
+        line-height: 1.6;
+        font-size: 0.97rem;
+        color: #0c1526;
+      }
+      /* HERO */
+      .bs-hero {
+        padding-top: 64px;
+        padding-bottom: 40px;
+      }
+      .bs-primary-cta {
+        margin-top: 26px;
+      }
+      .bs-primary-cta a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 24px;
+        border-radius: 5px;
+        background-color: #07b0f2;
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
+        box-shadow: 0 6px 18px rgba(7, 176, 242, 0.35);
+      }
+      .bs-primary-cta a:hover {
+        background-color: #059bd8;
+      }
+      /* HOW IT WORKS */
+      .bs-how {
+        background-color: #f5f7fb;
+        padding-top: 40px;
+        padding-bottom: 40px;
+      }
+      .bs-how-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 24px;
+        margin-top: 24px;
+      }
+      .bs-how-card {
+        background-color: #ffffff;
+        border-radius: 16px;
+        padding: 22px 22px 20px;
+        border: 1px solid #e0e3ea;
+        box-shadow: 0 6px 18px rgba(2, 24, 89, 0.06);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        height: 100%;
+      }
+      .bs-how-toprow {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 4px;
+      }
+      .bs-step-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #7c8ca5;
+      }
+      .bs-how-title {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #021859;
+        margin-top: 2px;
+      }
+      .bs-how-text {
+        font-size: 0.96rem;
+        line-height: 1.65;
+        color: #111827;
+      }
+      .bs-icon {
+        width: 44px;
+        height: 44px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      /* CHAT SECTION */
+      .bs-chat-section {
+        padding-top: 48px;
+        padding-bottom: 40px;
+      }
+      .bs-chat-frame {
+        width: 100%;
+        min-height: 420px;
+        border-radius: 16px;
+        border: 1px solid #e0e3ea;
+        background-color: #ffffff;
+        box-shadow: 0 8px 24px rgba(2, 24, 89, 0.08);
+      }
+      /* SCORE SECTION */
+      .bs-score-section {
+        padding-top: 40px;
+        padding-bottom: 40px;
+        border-top: 1px solid #e5e7eb;
+        border-bottom: 1px solid #e5e7eb;
+        background-color: #ffffff;
+      }
+      .bs-score-intro {
+        margin-top: 4px;
+        font-size: 0.97rem;
+        line-height: 1.6;
+        color: #4b5563;
+      }
+      .bs-score-card {
+        margin-top: 24px;
+        padding: 24px 24px 22px;
+        border-radius: 16px;
+        border: 1px solid #e0e3ea;
+        background-color: #ffffff;
+        box-shadow: 0 8px 24px rgba(2, 24, 89, 0.08);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 28px;
+        align-items: flex-start;
+      }
+      .bs-score-left {
+        flex: 1 1 260px;
+        min-width: 240px;
+      }
+      .bs-score-eyebrow {
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: #7c8ca5;
+        margin-bottom: 6px;
+      }
+      .bs-score-number {
+        font-size: 2.8rem;
+        font-weight: 700;
+        color: #021859;
+        line-height: 1.1;
+      }
+      .bs-meter {
+        margin-top: 16px;
+        max-width: 360px;
+      }
+      .bs-meter-track {
+        width: 100%;
+        height: 14px;
+        border-radius: 999px;
+        background-color: #e5e7eb;
+        overflow: hidden;
+      }
+      .bs-meter-fill {
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #f97373 0%, #facc15 50%, #22c55e 100%);
+      }
+      .bs-score-right {
+        flex: 1.2 1 280px;
+        min-width: 260px;
+      }
+      .bs-score-note {
+        margin-top: 8px;
+        font-size: 0.9rem;
+        color: #6b7280;
+      }
+      .bs-pillars {
+        margin-top: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .bs-pillar-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .bs-pillar-label-wrap {
+        min-width: 150px;
+      }
+      .bs-pillar-name {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #021859;
+      }
+      .bs-pillar-tag {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin-top: 2px;
+        border: 1px solid transparent;
+      }
+      .bs-pillar-tag-strong {
+        background-color: #dcfce7;
+        color: #166534;
+        border-color: #22c55e;
+      }
+      .bs-pillar-tag-steady {
+        background-color: #fef9c3;
+        color: #854d0e;
+        border-color: #eab308;
+      }
+      .bs-pillar-tag-mixed {
+        background-color: #fef3c7;
+        color: #92400e;
+        border-color: #facc15;
+      }
+      .bs-pillar-tag-solid {
+        background-color: #dcfce7;
+        color: #166534;
+        border-color: #22c55e;
+      }
+      .bs-pillar-tag-focus {
+        background-color: #fee2e2;
+        color: #b91c1c;
+        border-color: #ef4444;
+      }
+      .bs-pillar-meter {
+        flex: 1;
+        height: 6px;
+        border-radius: 999px;
+        background-color: #e5e7eb;
+        overflow: hidden;
+      }
+      .bs-pillar-fill {
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #f97373 0%, #facc15 50%, #22c55e 100%);
+      }
+      .bs-form-section {
+        padding-top: 40px;
+        padding-bottom: 40px;
+      }
+      .bs-optin {
+        margin-top: 12px;
+        font-size: 0.8rem;
+        line-height: 1.5;
+        color: #6b7280;
+        max-width: 520px;
+      }
+      /* Utility class for hiding elements */
+      .hidden {
+        display: none !important;
+      }
+      
+      @media (max-width: 900px) {
+        .bs-how-grid {
+          grid-template-columns: 1fr;
+        }
+        .bs-score-card {
+          flex-direction: column;
+        }
+        .bs-score-left,
+        .bs-score-right {
+          flex: 1 1 100%;
+        }
+        .bs-meter {
+          max-width: 100%;
+        }
+      }
+    </style>
+  </head>
+  
+  <body>
+    <main>
+      <!-- HERO SECTION -->
+      <section class="bs-section bs-hero">
+        <div class="bs-container">
+          <h1 class="bs-h1">START YOUR FREE BRAND SNAPSHOT™</h1>
+          <p class="bs-lead">
+            In a few guided minutes, Wundy — our brand mascot and strategic assistant —
+            will help you uncover how confidently and consistently your brand is showing up
+            in the market today. Your Brand Alignment Score™ reveals where your foundation
+            is strong and where small refinements could meaningfully improve trust,
+            clarity, and conversion.
+          </p>
+          <div class="bs-primary-cta">
+            <a href="#brand-snapshot-agent">START YOUR FREE BRAND SNAPSHOT™ →</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- HOW THE BRAND SNAPSHOT WORKS -->
+      <section class="bs-section bs-how">
+        <div class="bs-container">
+          <h2 class="bs-h2">How the Brand Snapshot™ Works</h2>
+          <div class="bs-how-grid">
+            <!-- STEP 1 -->
+            <article class="bs-how-card">
+              <div class="bs-how-toprow">
+                <!-- CHAT BUBBLE ICON -->
+                <svg class="bs-icon" xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#07B0F2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 8a5 5 0 0 1 5-5h8a5 5 0 0 1 5 5v3a5 5 0 0 1-5 5h-3l-3 3v-3H8a5 5 0 0 1-5-5V8z"/>
+                </svg>
+                <div>
+                  <div class="bs-step-label">STEP 1</div>
+                  <div class="bs-how-title">Answer a few guided questions</div>
+                </div>
+              </div>
+              <p class="bs-how-text">
+                Wundy learns about your business, customers, brand presence, and goals —
+                just enough to establish a meaningful baseline for your Brand Alignment Score™.
+              </p>
+            </article>
+
+            <!-- STEP 2 -->
+            <article class="bs-how-card">
+              <div class="bs-how-toprow">
+                <!-- GAUGE ICON -->
+                <svg class="bs-icon" xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#07B0F2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 3a9 9 0 0 1 9 9v1"/>
+                  <path d="M3 13v-1a9 9 0 0 1 9-9"/>
+                  <path d="M12 12l4-4"/>
+                  <circle cx="12" cy="12" r="1.2" fill="#07B0F2"/>
+                </svg>
+                <div>
+                  <div class="bs-step-label">STEP 2</div>
+                  <div class="bs-how-title">Get your Brand Alignment Score™</div>
+                </div>
+              </div>
+              <p class="bs-how-text">
+                Your score reveals how clearly your brand communicates its value across
+                positioning, messaging, visibility, credibility, and conversion.
+              </p>
+            </article>
+
+            <!-- STEP 3 -->
+            <article class="bs-how-card">
+              <div class="bs-how-toprow">
+                <!-- BULLSEYE ICON -->
+                <svg class="bs-icon" xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#07B0F2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="8"/>
+                  <circle cx="12" cy="12" r="4"/>
+                  <circle cx="12" cy="12" r="4" fill="#07B0F2"/>
+                </svg>
+                <div>
+                  <div class="bs-step-label">STEP 3</div>
+                  <div class="bs-how-title">Turn insight into next steps</div>
+                </div>
+              </div>
+              <p class="bs-how-text">
+                You'll see where your brand is strong — and where small refinements could
+                dramatically increase clarity, trust, and performance.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- BRAND SNAPSHOT AGENT -->
+      <section id="brand-snapshot-agent" class="bs-section bs-chat-section">
+        <div class="bs-container">
+          <h2 class="bs-h2">Your Brand Snapshot™ Starts Here</h2>
+          <p class="bs-sub">
+            Wundy will guide you through a brief conversation to learn how your brand shows up today —
+            online, in your messaging, and with your customers. Once you finish, your personalized scores
+            will unlock below.
+          </p>
+          <div class="mt-6">
+            <iframe
+              src="https://wunderbar-brand-snapshot-agent-v2-8.vercel.app/"
+              width="100%"
+              height="680"
+              frameborder="0"
+              class="bs-chat-frame"
+              title="Brand Snapshot™ Specialist"
+            ></iframe>
+          </div>
+        </div>
+      </section>
+
+      <!-- BRAND ALIGNMENT SCORE — HIDDEN INITIAL -->
+      <section class="bs-section bs-score-section hidden" id="brand-alignment-score">
+        <div class="bs-container">
+          <h2 class="bs-h2">Your Brand Alignment Score™</h2>
+          <p class="bs-score-intro">
+            Based on your responses, Wundy analyzed your positioning, messaging, visibility, credibility,
+            and conversion foundation. Your score reflects how confidently and consistently your brand shows
+            up in the market today.
+          </p>
+
+          <!-- LOCKED STATE: Completely hidden by default -->
+          <div id="score-locked" class="hidden"></div>
+
+          <!-- UNLOCKED SCORE CARD -->
+          <div id="score-unlocked" class="bs-score-card hidden">
+            <!-- LEFT — MAIN SCORE -->
+            <div class="bs-score-left">
+              <div class="bs-score-eyebrow">Overall Score</div>
+              <div class="flex items-baseline gap-3">
+                <div id="final-score-number" class="bs-score-number"></div>
+                <div id="final-score-label" class="text-sm text-slate-600"></div>
+              </div>
+              <!-- Main meter -->
+              <div class="bs-meter">
+                <div class="bs-meter-track">
+                  <div id="final-meter-fill" class="bs-meter-fill"></div>
+                </div>
+              </div>
+            </div>
+            <!-- RIGHT — PILLARS -->
+            <div class="bs-score-right">
+              <div class="bs-score-eyebrow">How Your Score Breaks Down</div>
+              <div id="final-pillars" class="bs-pillars"></div>
+              <!-- PILLAR SUMMARY -->
+              <p class="bs-score-note" id="pillar-summary-text">
+                These five pillars show where your brand is performing well — and where small improvements
+                could strengthen clarity, trust, and conversion across your entire customer experience.
+              </p>
+              <p class="bs-score-note">
+                Enter your details below to receive your complete Brand Snapshot™, including deeper insights
+                and your personalized recommendations.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FORM SECTION (HIDDEN UNTIL SCORE IS UNLOCKED) -->
+      <section id="form-section" class="bs-section bs-form-section hidden">
+        <div class="bs-container">
+          <h2 class="bs-h2">Get Your Complete Brand Snapshot™</h2>
+          <p class="bs-sub">
+            Enter your information below and your full report — including pillar-by-pillar insights and
+            recommended next steps — will be delivered to your inbox.
+          </p>
+
+          <!-- ActiveCampaign Form Styles -->
+          <style>
+            #_form_5_ {
+              position: relative;
+              margin-top: 24px;
+              max-width: 480px;
+              background: #ffffff !important;
+              border: 0;
+              color: #021859;
+              font-family: "Helvetica Neue", Arial, sans-serif;
+            }
+            #_form_5_ ._form_element input[type="text"],
+            #_form_5_ ._form_element input[type="email"] {
+              background: #ffffff;
+              color: #021859 !important;
+              border: 1px solid #07b0f2;
+              border-radius: 5px;
+              padding: 10px 12px;
+            }
+            #_form_5_ ._form-label {
+              font-size: 14px;
+              font-weight: 600;
+              color: #021859 !important;
+              margin-bottom: 4px;
+            }
+            #_form_5_ ._submit {
+              cursor: pointer;
+              font-size: 15px;
+              font-weight: 600;
+              background: #07b0f2 !important;
+              border-radius: 5px !important;
+              border: 2px solid #07b0f2 !important;
+              width: 100%;
+              color: #ffffff !important;
+              padding: 12px 16px !important;
+              margin-top: 8px;
+              box-shadow: 0 6px 18px rgba(7, 176, 242, 0.25);
+              text-decoration: none !important;
+            }
+            #_form_5_ ._submit:hover {
+              background: #059bd8 !important;
+              border-color: #059bd8 !important;
+            }
+          </style>
+
+          <!-- ACTIVE CAMPAIGN FORM -->
+          <form
+            method="POST"
+            action="https://wunderbardigital.activehosted.com/proc.php"
+            id="_form_5_"
+            class="_form _form_5 _inline-form"
+            novalidate
+            data-styles-version="5"
+          >
+            <!-- AC Hidden Fields -->
+            <input type="hidden" name="u" value="5" />
+            <input type="hidden" name="f" value="5" />
+            <input type="hidden" name="s" />
+            <input type="hidden" name="c" value="0" />
+            <input type="hidden" name="m" value="0" />
+            <input type="hidden" name="act" value="sub" />
+            <input type="hidden" name="v" value="2" />
+            
+            <!-- Dynamically populated fields -->
+            <input type="hidden" id="ac_brand_alignment_score" name="brand_alignment_score" />
+            <input type="hidden" id="ac_positioning_score" name="positioning_score" />
+            <input type="hidden" id="ac_messaging_score" name="messaging_score" />
+            <input type="hidden" id="ac_visibility_score" name="visibility_score" />
+            <input type="hidden" id="ac_credibility_score" name="credibility_score" />
+            <input type="hidden" id="ac_conversion_score" name="conversion_score" />
+            
+            <!-- FORM FIELDS -->
+            <div class="_form-content">
+              <div class="_form_element _full_width">
+                <label class="_form-label">First Name *</label>
+                <div class="_field-wrapper">
+                  <input type="text" id="firstname" name="firstname" required />
+                </div>
+              </div>
+              <div class="_form_element _full_width">
+                <label class="_form-label">Last Name *</label>
+                <div class="_field-wrapper">
+                  <input type="text" id="lastname" name="lastname" required />
+                </div>
+              </div>
+              <div class="_form_element _full_width">
+                <label class="_form-label">Email Address *</label>
+                <div class="_field-wrapper">
+                  <input type="email" id="email" name="email" required />
+                </div>
+              </div>
+              <div class="_button-wrapper _full_width">
+                <button id="_form_5_submit" class="_submit" type="submit">
+                  EMAIL MY COMPLETE BRAND SNAPSHOT™ →
+                </button>
+              </div>
+            </div>
+            <div class="_form-thank-you" style="display: none"></div>
+          </form>
+
+          <p class="bs-optin mt-3 text-sm text-slate-600">
+            By submitting this form, you agree to receive helpful resources, tips, and occasional
+            offers related to branding and AI-powered marketing. No spam — unsubscribe anytime.
+          </p>
+        </div>
+      </section>
+
+      <!-- BOTTOM CTA — CLEAN & ON-BRAND -->
+      <section class="bs-bottom-cta" style="padding:56px 16px 72px; background:#ffffff;">
+        <div class="bs-bottom-cta-inner" style="max-width:1120px; margin:0 auto;">
+          <div class="bs-bottom-cta-panel" style="border-radius:18px; background-color:#e5f6ff; padding:40px 32px; text-align:center; box-shadow:0 10px 26px rgba(7,176,242,0.18);">
+            <h2 class="bs-bottom-cta-title" style="font-size:1.6rem; font-weight:600; color:#021859; margin-bottom:12px;">Ready to strengthen your brand's advantage?</h2>
+            <p class="bs-bottom-cta-sub" style="font-size:1.02rem; max-width:720px; margin:0 auto 26px; line-height:1.6; color:#0c1526;">
+              Start your free Brand Snapshot™ and get immediate clarity on where your brand stands — and the fastest steps to elevate trust, clarity, and conversion.
+            </p>
+            <a href="#brand-snapshot-agent" class="bs-bottom-cta-button" style="display:inline-flex; align-items:center; justify-content:center; padding:14px 28px; border-radius:5px; background-color:#07b0f2; color:#ffffff; font-weight:600; font-size:0.98rem; letter-spacing:0.02em; text-transform:uppercase; border:none; cursor:pointer; text-decoration:none; box-shadow:0 10px 26px rgba(7,176,242,0.35);">
+              START MY FREE BRAND SNAPSHOT™ <span style="margin-left:8px; font-size:1.05em;">→</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- FOOTER -->
+      <footer class="bs-section pt-0" style="padding:0 16px 56px;">
+        <div class="bs-container" style="max-width:960px; margin:0 auto;">
+          <p class="bs-cred" style="font-size:0.9rem; color:#6b7280; margin-top:24px;">
+            © 2025 Wunderbar Digital. All rights reserved.
+          </p>
+        </div>
+      </footer>
+    </main>
+
+    <!-- BRAND SNAPSHOT SCORE + FORM LOGIC -->
+    <script>
+      /* Unlock Score UI */
+      function unlockScore(results) {
+        console.log("[Brand Snapshot] unlockScore:", results);
+        const scoreSection = document.getElementById("brand-alignment-score");
+        const unlocked = document.getElementById("score-unlocked");
+        if (scoreSection) scoreSection.classList.remove("hidden");
+        if (unlocked) unlocked.classList.remove("hidden");
+
+        // MAIN SCORE
+        document.getElementById("final-score-number").textContent = results.brandAlignmentScore;
+        let label = "Strong foundation";
+        if (results.brandAlignmentScore >= 80) label = "Excellent alignment";
+        else if (results.brandAlignmentScore <= 59) label = "Needs focused attention";
+        document.getElementById("final-score-label").textContent = label;
+
+        // METER
+        document.getElementById("final-meter-fill").style.width = results.brandAlignmentScore + "%";
+
+        // PILLARS
+        const container = document.getElementById("final-pillars");
+        container.innerHTML = "";
+        for (const [pillar, score] of Object.entries(results.pillarScores)) {
+          const percent = (score / 20) * 100;
+          const tagClass = getPillarTagClass(score);
+          container.innerHTML += `
+            <div class="bs-pillar-row">
+              <div class="bs-pillar-label-wrap">
+                <div class="bs-pillar-name">${pillar.charAt(0).toUpperCase() + pillar.slice(1)}</div>
+                <span class="bs-pillar-tag ${tagClass}">${score}/20</span>
+              </div>
+              <div class="bs-pillar-meter">
+                <div class="bs-pillar-fill" style="width: ${percent}%"></div>
+              </div>
+            </div>
+          `;
+        }
+      }
+
+      /* Pillar Tag Styling Logic */
+      function getPillarTagClass(score) {
+        if (score >= 18) return "bs-pillar-tag-strong";
+        if (score >= 15) return "bs-pillar-tag-steady";
+        if (score >= 11) return "bs-pillar-tag-mixed";
+        if (score >= 8) return "bs-pillar-tag-solid";
+        return "bs-pillar-tag-focus";
+      }
+
+      /* Push Scores → ActiveCampaign Hidden Fields */
+      window.updateBrandSnapshotScores = function (scores) {
+        document.getElementById("ac_brand_alignment_score").value = scores.alignment;
+        document.getElementById("ac_positioning_score").value = scores.positioning;
+        document.getElementById("ac_messaging_score").value = scores.messaging;
+        document.getElementById("ac_visibility_score").value = scores.visibility;
+        document.getElementById("ac_credibility_score").value = scores.credibility;
+        document.getElementById("ac_conversion_score").value = scores.conversion;
+      };
+
+      /* Agent → Parent Listener */
+      window.addEventListener("message", function (event) {
+        if (!event.data || event.data.type !== "BRAND_SNAPSHOT_COMPLETE") return;
+        const scores = event.data.data;
+        console.log("[Brand Snapshot] Data received:", scores);
+
+        // 1️⃣ Show Score
+        unlockScore({
+          brandAlignmentScore: scores.brandAlignmentScore,
+          pillarScores: scores.pillarScores,
+        });
+
+        // 2️⃣ Populate AC
+        updateBrandSnapshotScores({
+          alignment: scores.brandAlignmentScore,
+          positioning: scores.pillarScores.positioning,
+          messaging: scores.pillarScores.messaging,
+          visibility: scores.pillarScores.visibility,
+          credibility: scores.pillarScores.credibility,
+          conversion: scores.pillarScores.conversion,
+        });
+
+        // 3️⃣ Reveal Form
+        document.getElementById("form-section").classList.remove("hidden");
+
+        // 4️⃣ Scroll to Score
+        document.getElementById("brand-alignment-score").scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      });
+    </script>
+
+    <!-- ActiveCampaign form script -->
+    <script>
+      window.cfields = [];
+      window._show_thank_you = function (id, message, trackcmp_url, email) {
+        var form = document.getElementById("_form_" + id + "_"),
+            thank_you = form.querySelector("._form-thank-you");
+        form.querySelector("._form-content").style.display = "none";
+        thank_you.innerHTML = message;
+        thank_you.style.display = "block";
+        const vgoAlias = typeof visitorGlobalObjectAlias === "undefined" ? "vgo" : visitorGlobalObjectAlias;
+        var visitorObject = window[vgoAlias];
+        if (email && typeof visitorObject !== "undefined") {
+          visitorObject("setEmail", email);
+          visitorObject("update");
+        } else if (typeof trackcmp_url != "undefined" && trackcmp_url) {
+          _load_script(trackcmp_url);
+        }
+        if (typeof window._form_callback !== "undefined") window._form_callback(id);
+        thank_you.setAttribute("tabindex", "-1");
+        thank_you.focus();
+      };
+      window._show_unsubscribe = function (id, message, trackcmp_url, email) {
+        var form = document.getElementById("_form_" + id + "_"),
+            unsub = form.querySelector("._form-thank-you");
+        var branding = form.querySelector("._form-branding");
+        if (branding) {
+          branding.style.display = "none";
+        }
+        form.querySelector("._form-content").style.display = "none";
+        unsub.style.display = "block";
+        form.insertAdjacentHTML("afterend", message);
+        const vgoAlias = typeof visitorGlobalObjectAlias === "undefined" ? "vgo" : visitorGlobalObjectAlias;
+        var visitorObject = window[vgoAlias];
+        if (email && typeof visitorObject !== "undefined") {
+          visitorObject("setEmail", email);
+          visitorObject("update");
+        } else if (typeof trackcmp_url != "undefined" && trackcmp_url) {
+          _load_script(trackcmp_url);
+        }
+        if (typeof window._form_callback !== "undefined") window._form_callback(id);
+      };
+      window._show_error = function (id, message, html) {
+        var form = document.getElementById("_form_" + id + "_"),
+            err = document.createElement("div"),
+            button = form.querySelector('button[type="submit"]'),
+            old_error = form.querySelector("._form_error");
+        if (old_error) old_error.parentNode.removeChild(old_error);
+        err.innerHTML = message;
+        err.className = "_error-inner _form_error _no_arrow";
+        var wrapper = document.createElement("div");
+        wrapper.className = "_form-inner _show_be_error";
+        wrapper.appendChild(err);
+        button.parentNode.insertBefore(wrapper, button);
+        var submitButton = form.querySelector('[id^="_form"][id$="_submit"]');
+        submitButton.disabled = false;
+        submitButton.classList.remove("processing");
+        if (html) {
+          var div = document.createElement("div");
+          div.className = "_error-html";
+          div.innerHTML = html;
+          err.appendChild(div);
+        }
+      };
+      window._show_pc_confirmation = function (id, header, detail, show, email) {
+        var form = document.getElementById("_form_" + id + "_"),
+            pc_confirmation = form.querySelector("._form-pc-confirmation");
+        if (pc_confirmation.style.display === "none") {
+          form.querySelector("._form-content").style.display = "none";
+          pc_confirmation.innerHTML =
+            "<div class='_form-title'>" +
+            header +
+            "</div>" +
+            "<p>" +
+            detail +
+            "</p>" +
+            "<button class='_submit' id='hideButton'>Manage preferences</button>";
+          pc_confirmation.style.display = "block";
+          var mp = document.querySelector('input[name="mp"]');
+          mp.value = "0";
+        } else {
+          form.querySelector("._form-content").style.display = "inline";
+          pc_confirmation.style.display = "none";
+        }
+        var hideButton = document.getElementById("hideButton");
+        hideButton.addEventListener("click", function () {
+          var submitButton = document.querySelector("#_form_5_submit");
+          submitButton.disabled = false;
+          submitButton.classList.remove("processing");
+          var mp = document.querySelector('input[name="mp"]');
+          mp.value = "1";
+          const cacheBuster = new URL(window.location.href);
+          cacheBuster.searchParams.set("v", new Date().getTime());
+          window.location.href = cacheBuster.toString();
+        });
+        const vgoAlias = typeof visitorGlobalObjectAlias === "undefined" ? "vgo" : visitorGlobalObjectAlias;
+        var visitorObject = window[vgoAlias];
+        if (email && typeof visitorObject !== "undefined") {
+          visitorObject("setEmail", email);
+          visitorObject("update");
+        } else if (typeof trackcmp_url != "undefined" && trackcmp_url) {
+          _load_script(trackcmp_url);
+        }
+        if (typeof window._form_callback !== "undefined") window._form_callback(id);
+      };
+      window._load_script = function (url, callback, isSubmit) {
+        var head = document.querySelector("head"),
+            script = document.createElement("script"),
+            r = false;
+        var submitButton = document.querySelector("#_form_5_submit");
+        script.charset = "utf-8";
+        script.src = url;
+        if (callback) {
+          script.onload = script.onreadystatechange = function () {
+            if (!r && (!this.readyState || this.readyState == "complete")) {
+              r = true;
+              callback();
+            }
+          };
+        }
+        script.onerror = function () {
+          if (isSubmit) {
+            if (script.src.length > 10000) {
+              _show_error("5", "Sorry, your submission failed. Please shorten your responses and try again.");
+            } else {
+              _show_error("5", "Sorry, your submission failed. Please try again.");
+            }
+            submitButton.disabled = false;
+            submitButton.classList.remove("processing");
+          }
+        };
+        head.appendChild(script);
+      };
+      (function () {
+        if (window.location.search.search("excludeform") !== -1) return false;
+        var addEvent = function (element, event, func) {
+          if (element.addEventListener) {
+            element.addEventListener(event, func);
+          } else {
+            var oldFunc = element["on" + event];
+            element["on" + event] = function () {
+              oldFunc && oldFunc.apply(this, arguments);
+              func.apply(this, arguments);
+            };
+          }
+        };
+        var form_to_submit = document.getElementById("_form_5_");
+        var allInputs = form_to_submit.querySelectorAll("input, select, textarea"),
+            tooltips = [],
+            submitted = false;
+        var needs_validate = function (el) {
+          if (el.getAttribute("required") !== null) return true;
+          if ((el.name === "email" || el.id === "phone" || el.id === "sms_consent") && el.value !== "") return true;
+          return false;
+        };
+        var remove_tooltips = function () {
+          for (var i = 0; i < tooltips.length; i++) {
+            tooltips[i].tip.parentNode.removeChild(tooltips[i].tip);
+          }
+          tooltips = [];
+        };
+        var remove_tooltip = function (elem) {
+          for (var i = 0; i < tooltips.length; i++) {
+            if (tooltips[i].elem === elem) {
+              tooltips[i].tip.parentNode.removeChild(tooltips[i].tip);
+              tooltips.splice(i, 1);
+              return;
+            }
+          }
+        };
+        var create_tooltip = function (elem, text) {
+          var tooltip = document.createElement("div"),
+              arrow = document.createElement("div"),
+              inner = document.createElement("div"),
+              new_tooltip = {};
+          tooltip.id = elem.id + "-error";
+          tooltip.setAttribute("role", "alert");
+          if (elem.type != "radio" && (elem.type != "checkbox" || elem.name === "sms_consent")) {
+            tooltip.className = "_error";
+            arrow.className = "_error-arrow";
+            inner.className = "_error-inner";
+            inner.innerHTML = text;
+            tooltip.appendChild(arrow);
+            tooltip.appendChild(inner);
+            elem.parentNode.appendChild(tooltip);
+          } else {
+            tooltip.className = "_error-inner _no_arrow";
+            tooltip.innerHTML = text;
+            elem.parentNode.insertBefore(tooltip, elem);
+            new_tooltip.no_arrow = true;
+          }
+          new_tooltip.tip = tooltip;
+          new_tooltip.elem = elem;
+          tooltips.push(new_tooltip);
+          return new_tooltip;
+        };
+        var resize_tooltip = function (tooltip) {
+          var rect = tooltip.elem.getBoundingClientRect();
+          var doc = document.documentElement,
+              scrollPosition = rect.top - ((window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0));
+          if (scrollPosition < 40) {
+            tooltip.tip.className = tooltip.tip.className.replace(/ ?(_above|_below) ?/g, "") + " _below";
+          } else {
+            tooltip.tip.className = tooltip.tip.className.replace(/ ?(_above|_below) ?/g, "") + " _above";
+          }
+        };
+        var resize_tooltips = function () {
+          for (var i = 0; i < tooltips.length; i++) {
+            if (!tooltips[i].no_arrow) resize_tooltip(tooltips[i]);
+          }
+        };
+        var validate_field = function (elem, remove) {
+          var tooltip = null,
+              value = elem.value,
+              no_error = true;
+          remove ? remove_tooltip(elem) : false;
+          elem.removeAttribute("aria-invalid");
+          elem.removeAttribute("aria-describedby");
+          if (elem.type != "checkbox") elem.className = elem.className.replace(/ ?_has_error ?/g, "");
+          if (elem.getAttribute("required") !== null) {
+            if (elem.type == "radio" || (elem.type == "checkbox" && /any/.test(elem.className))) {
+              var elems = form_to_submit.elements[elem.name];
+              if (!(elems instanceof NodeList || elems instanceof HTMLCollection || elems.length <= 1)) {
+                no_error = elem.checked;
+              } else {
+                no_error = false;
+                for (var i = 0; i < elems.length; i++) {
+                  if (elems[i].checked) no_error = true;
+                }
+              }
+              if (!no_error) {
+                tooltip = create_tooltip(elem, "Please select an option.");
+              }
+            } else if (elem.type == "checkbox") {
+              var elems = form_to_submit.elements[elem.name],
+                  found = false,
+                  err = [];
+              no_error = true;
+              for (var i = 0; i < elems.length; i++) {
+                if (elems[i].getAttribute("required") === null) continue;
+                if (!found && elems[i] !== elem) return true;
+                found = true;
+                elems[i].className = elems[i].className.replace(/ ?_has_error ?/g, "");
+                if (!elems[i].checked) {
+                  no_error = false;
+                  elems[i].className = elems[i].className + " _has_error";
+                  err.push("Checking %s is required".replace("%s", elems[i].value));
+                }
+              }
+              if (!no_error) {
+                tooltip = create_tooltip(elem, err.join("<br/>"));
+              }
+            } else if (elem.tagName == "SELECT") {
+              var selected = true;
+              if (elem.multiple) {
+                selected = false;
+                for (var i = 0; i < elem.options.length; i++) {
+                  if (elem.options[i].selected) {
+                    selected = true;
+                    break;
+                  }
+                }
+              } else {
+                for (var i = 0; i < elem.options.length; i++) {
+                  if (elem.options[i].selected && (!elem.options[i].value || elem.options[i].value.match(/\n/g))) {
+                    selected = false;
+                  }
+                }
+              }
+              if (!selected) {
+                elem.className = elem.className + " _has_error";
+                no_error = false;
+                tooltip = create_tooltip(elem, "Please select an option.");
+              }
+            } else if (value === undefined || value === null || value === "") {
+              elem.className = elem.className + " _has_error";
+              no_error = false;
+              tooltip = create_tooltip(elem, "This field is required.");
+            }
+          }
+          if (no_error && elem.name == "email") {
+            if (!value.match(/^[\+_a-z0-9-'&=]+(\.[\+_a-z0-9-']+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/i)) {
+              elem.className = elem.className + " _has_error";
+              no_error = false;
+              tooltip = create_tooltip(elem, "Enter a valid email address.");
+            }
+          }
+          tooltip ? resize_tooltip(tooltip) : false;
+          if (!no_error && elem.hasAttribute("id")) {
+            elem.setAttribute("aria-invalid", "true");
+            elem.setAttribute("aria-describedby", elem.id + "-error");
+          }
+          return no_error;
+        };
+        var validate_form = function (e) {
+          var no_error = true;
+          if (!submitted) {
+            submitted = true;
+            for (var i = 0, len = allInputs.length; i < len; i++) {
+              var input = allInputs[i];
+              if (needs_validate(input)) {
+                if (input.type == "text" || input.type == "number" || input.type == "time" || input.type == "tel") {
+                  addEvent(input, "blur", function () {
+                    this.value = this.value.trim();
+                    validate_field(this, true);
+                  });
+                  addEvent(input, "input", function () {
+                    validate_field(this, true);
+                  });
+                } else if (input.type == "radio" || input.type == "checkbox") {
+                  (function (el) {
+                    function getElementsArray(name) {
+                      const value = form_to_submit.elements[name];
+                      if (Array.isArray(value)) {
+                        return value;
+                      }
+                      return [value];
+                    }
+                    var radios = getElementsArray(el.name);
+                    for (var i = 0; i < radios.length; i++) {
+                      addEvent(radios[i], "change", function () {
+                        validate_field(el, true);
+                      });
+                    }
+                  })(input);
+                } else if (input.tagName == "SELECT") {
+                  addEvent(input, "change", function () {
+                    validate_field(this, true);
+                  });
+                } else if (input.type == "textarea") {
+                  addEvent(input, "input", function () {
+                    validate_field(this, true);
+                  });
+                }
+              }
+            }
+          }
+          remove_tooltips();
+          for (var i = 0, len = allInputs.length; i < len; i++) {
+            var elem = allInputs[i];
+            if (needs_validate(elem)) {
+              if (elem.tagName.toLowerCase() !== "select") {
+                elem.value = elem.value.trim();
+              }
+              validate_field(elem) ? true : (no_error = false);
+            }
+          }
+          if (!no_error && e) {
+            e.preventDefault();
+          }
+          if (!no_error) {
+            const firstFocusableError = form_to_submit.querySelector("._has_error:not([disabled])");
+            if (firstFocusableError && typeof firstFocusableError.focus === "function") {
+              firstFocusableError.focus();
+            }
+          }
+          resize_tooltips();
+          return no_error;
+        };
+        addEvent(window, "resize", resize_tooltips);
+        addEvent(window, "scroll", resize_tooltips);
+        var _form_serialize = function (form) {
+          if (!form || form.nodeName !== "FORM") return;
+          var i, j, q = [];
+          for (i = 0; i < form.elements.length; i++) {
+            if (form.elements[i].name === "") continue;
+            switch (form.elements[i].nodeName) {
+              case "INPUT":
+                switch (form.elements[i].type) {
+                  case "text":
+                  case "number":
+                  case "date":
+                  case "time":
+                  case "hidden":
+                  case "password":
+                  case "button":
+                  case "reset":
+                  case "submit":
+                    q.push(form.elements[i].name + "=" + encodeURIComponent(form.elements[i].value));
+                    break;
+                  case "checkbox":
+                  case "radio":
+                    if (form.elements[i].checked) {
+                      q.push(form.elements[i].name + "=" + encodeURIComponent(form.elements[i].value));
+                    }
+                    break;
+                  case "file":
+                    break;
+                }
+                break;
+              case "TEXTAREA":
+                q.push(form.elements[i].name + "=" + encodeURIComponent(form.elements[i].value));
+                break;
+              case "SELECT":
+                switch (form.elements[i].type) {
+                  case "select-one":
+                    q.push(form.elements[i].name + "=" + encodeURIComponent(form.elements[i].value));
+                    break;
+                  case "select-multiple":
+                    for (j = 0; j < form.elements[i].options.length; j++) {
+                      if (form.elements[i].options[j].selected) {
+                        q.push(form.elements[i].name + "=" + encodeURIComponent(form.elements[i].options[j].value));
+                      }
+                    }
+                    break;
+                }
+                break;
+              case "BUTTON":
+                switch (form.elements[i].type) {
+                  case "reset":
+                  case "submit":
+                  case "button":
+                    q.push(form.elements[i].name + "=" + encodeURIComponent(form.elements[i].value));
+                    break;
+                }
+                break;
+            }
+          }
+          return q.join("&");
+        };
+        var form_submit = function (e) {
+          e.preventDefault();
+          if (validate_form(e)) {
+            var submitButton = e.target.querySelector("#_form_5_submit");
+            submitButton.disabled = true;
+            submitButton.classList.add("processing");
+            var serialized = _form_serialize(document.getElementById("_form_5_")).replace(/%0A/g, "\\n");
+            var err = form_to_submit.querySelector("._form_error");
+            err ? err.parentNode.removeChild(err) : false;
+            _load_script(
+              "https://wunderbardigital.activehosted.com/proc.php?" + serialized + "&jsonp=true",
+              null,
+              true
+            );
+          }
+          return false;
+        };
+        addEvent(form_to_submit, "submit", form_submit);
+      })();
+    </script>
+  </body>
+</html>
+

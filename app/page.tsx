@@ -9,6 +9,7 @@ export default function Home() {
   const [inputValue, setInputValue] = useState("");
   const [progress, setProgress] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isLoading) {
@@ -36,6 +37,21 @@ export default function Home() {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     });
   }, [messages, isLoading]);
+
+  // Auto-focus input field when ready for next question
+  useEffect(() => {
+    // Focus input when:
+    // 1. Component mounts (initial focus)
+    // 2. Loading finishes (after assistant responds)
+    // 3. New assistant message arrives
+    if (!isLoading && inputRef.current) {
+      // Small delay to ensure DOM is ready
+      const timeoutId = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isLoading, messages]);
 
   // Report iframe height to parent window for auto-expanding
   useEffect(() => {
@@ -121,12 +137,14 @@ export default function Home() {
                   Send a message to Wundy
                 </label>
                 <input
+                  ref={inputRef}
                   id="brand-message"
                   name="brand-message"
                   value={inputValue}
                   onChange={(event) => setInputValue(event.target.value)}
                   placeholder="Type your reply…"
                   disabled={isLoading}
+                  autoFocus
                 />
                 <button
                   type="submit"

@@ -209,11 +209,51 @@
         margin-bottom: 6px;
       }
       .bs-score-number {
-        font-size: 2.8rem;
+        font-size: 4rem;
         font-weight: 700;
         color: #021859;
         line-height: 1.1;
       }
+      /* Circular Gauge for Overall Score */
+      .bs-gauge-container {
+        margin-top: 24px;
+        position: relative;
+        width: 200px;
+        height: 200px;
+      }
+      .bs-gauge-svg {
+        transform: rotate(-90deg);
+      }
+      .bs-gauge-track {
+        fill: none;
+        stroke: #e5e7eb;
+        stroke-width: 12;
+      }
+      .bs-gauge-fill {
+        fill: none;
+        stroke-linecap: round;
+        stroke-width: 12;
+        transition: stroke-dashoffset 0.6s ease;
+      }
+      .bs-gauge-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+      }
+      .bs-gauge-score {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #021859;
+        line-height: 1;
+      }
+      .bs-gauge-label {
+        font-size: 0.9rem;
+        color: #6b7280;
+        margin-top: 4px;
+      }
+      /* Meter for pillars (kept as is) */
       .bs-meter {
         margin-top: 16px;
         max-width: 360px;
@@ -305,6 +345,36 @@
         height: 100%;
         border-radius: 999px;
         background: linear-gradient(90deg, #f97373 0%, #facc15 50%, #22c55e 100%);
+      }
+      /* Pillar Insights */
+      .bs-pillar-insights {
+        margin-top: 32px;
+        padding-top: 32px;
+        border-top: 1px solid #e5e7eb;
+      }
+      .bs-insights-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      .bs-insight-item {
+        padding: 16px 20px;
+        background-color: #f9fafb;
+        border-radius: 8px;
+        border-left: 3px solid #07b0f2;
+      }
+      .bs-insight-pillar-name {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #021859;
+        margin-bottom: 8px;
+        text-transform: capitalize;
+      }
+      .bs-insight-text {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: #111827;
+        margin: 0;
       }
       .bs-form-section {
         padding-top: 40px;
@@ -479,17 +549,34 @@
 
           <!-- UNLOCKED SCORE CARD -->
           <div id="score-unlocked" class="bs-score-card hidden">
-            <!-- LEFT — MAIN SCORE -->
+            <!-- LEFT — MAIN SCORE WITH GAUGE -->
             <div class="bs-score-left">
               <div class="bs-score-eyebrow">Overall Score</div>
-              <div class="flex items-baseline gap-3">
-                <div id="final-score-number" class="bs-score-number"></div>
-                <div id="final-score-label" class="text-sm text-slate-600"></div>
-              </div>
-              <!-- Main meter -->
-              <div class="bs-meter">
-                <div class="bs-meter-track">
-                  <div id="final-meter-fill" class="bs-meter-fill"></div>
+              <!-- Circular Gauge -->
+              <div class="bs-gauge-container">
+                <svg class="bs-gauge-svg" width="200" height="200" viewBox="0 0 200 200">
+                  <circle class="bs-gauge-track" cx="100" cy="100" r="85" />
+                  <circle
+                    id="bs-gauge-fill"
+                    class="bs-gauge-fill"
+                    cx="100"
+                    cy="100"
+                    r="85"
+                    stroke-dasharray="534"
+                    stroke-dashoffset="534"
+                    stroke="url(#gaugeGradient)"
+                  />
+                  <defs>
+                    <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" style="stop-color:#f97373;stop-opacity:1" />
+                      <stop offset="50%" style="stop-color:#facc15;stop-opacity:1" />
+                      <stop offset="100%" style="stop-color:#22c55e;stop-opacity:1" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div class="bs-gauge-center">
+                  <div id="final-score-number" class="bs-gauge-score"></div>
+                  <div id="final-score-label" class="bs-gauge-label"></div>
                 </div>
               </div>
             </div>
@@ -497,17 +584,20 @@
             <div class="bs-score-right">
               <div class="bs-score-eyebrow">How Your Score Breaks Down</div>
               <div id="final-pillars" class="bs-pillars"></div>
-              <!-- PILLAR SUMMARY -->
-              <p class="bs-score-note" id="pillar-summary-text">
-                These five pillars show where your brand is performing well — and where small improvements
-                could strengthen clarity, trust, and conversion across your entire customer experience.
-              </p>
-              <p class="bs-score-note">
-                Enter your details below to receive your complete Brand Snapshot™, including deeper insights
-                and your personalized recommendations.
-              </p>
             </div>
           </div>
+          
+          <!-- PILLAR INSIGHTS SECTION -->
+          <div id="pillar-insights" class="bs-pillar-insights hidden">
+            <div class="bs-score-eyebrow" style="margin-top: 32px; margin-bottom: 16px;">Insights</div>
+            <div id="insights-container" class="bs-insights-container"></div>
+          </div>
+          
+          <!-- PILLAR SUMMARY -->
+          <p class="bs-score-note" style="margin-top: 24px;">
+            Enter your details below to receive your complete Brand Snapshot™, including deeper insights
+            and your personalized recommendations.
+          </p>
         </div>
       </section>
 
@@ -728,15 +818,20 @@
           unlocked.classList.add("bs-fade-in");
         }
 
-        // MAIN SCORE
+        // MAIN SCORE - Update gauge
         document.getElementById("final-score-number").textContent = results.brandAlignmentScore;
         let label = "Strong foundation";
         if (results.brandAlignmentScore >= 80) label = "Excellent alignment";
         else if (results.brandAlignmentScore <= 59) label = "Needs focused attention";
         document.getElementById("final-score-label").textContent = label;
 
-        // METER
-        document.getElementById("final-meter-fill").style.width = results.brandAlignmentScore + "%";
+        // GAUGE - Calculate stroke-dashoffset (534 is circumference, 0-100% maps to 534-0)
+        const gaugeFill = document.getElementById("bs-gauge-fill");
+        if (gaugeFill) {
+          const circumference = 2 * Math.PI * 85; // r=85
+          const offset = circumference - (results.brandAlignmentScore / 100) * circumference;
+          gaugeFill.style.strokeDashoffset = offset;
+        }
 
         // PILLARS
         const container = document.getElementById("final-pillars");
@@ -755,6 +850,27 @@
               </div>
             </div>
           `;
+        }
+        
+        // PILLAR INSIGHTS
+        if (results.pillarInsights) {
+          const insightsContainer = document.getElementById("insights-container");
+          const insightsSection = document.getElementById("pillar-insights");
+          if (insightsContainer && insightsSection) {
+            insightsSection.classList.remove("hidden");
+            insightsContainer.innerHTML = "";
+            
+            for (const [pillar, insight] of Object.entries(results.pillarInsights)) {
+              if (insight && insight.trim()) {
+                insightsContainer.innerHTML += `
+                  <div class="bs-insight-item">
+                    <div class="bs-insight-pillar-name">${pillar.charAt(0).toUpperCase() + pillar.slice(1)}</div>
+                    <p class="bs-insight-text">${insight}</p>
+                  </div>
+                `;
+              }
+            }
+          }
         }
       }
 

@@ -18,9 +18,9 @@ export function SnapshotUpgradePanel({
       <div className="bg-gradient-to-br from-brand-blue via-brand-aqua to-brand-blue rounded-2xl p-8 shadow-xl border border-blue-300">
         <div className="text-white">
           <h2 className="text-2xl font-semibold mb-3">Upgrade to Snapshot+</h2>
-          <p className="text-blue-50 leading-relaxed mb-6">
+          <div className="text-blue-50 leading-relaxed mb-6 whitespace-pre-line">
             {upgradeCTA || defaultCTA}
-          </p>
+          </div>
           <a
             href="#"
             className="inline-block bg-white text-brand-blue px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition shadow-lg hover:shadow-xl"

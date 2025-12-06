@@ -2,6 +2,13 @@
 // Brand Snapshot™ Report Generation Engine
 
 import pillarInsightsData from '../prompts/pillarInsights.json';
+import {
+  generateAllPillarInsights,
+  generateUpsellCopy,
+  findWeakestPillar,
+  findStrongPillars,
+  type GapSeverity,
+} from './dynamicInsights';
 
 // Type assertion for JSON import
 const pillarInsights = pillarInsightsData as {
@@ -209,28 +216,26 @@ function getModifiers(pillar: keyof PillarScores, userContext?: UserContext): st
   return selectedModifiers.slice(0, 3);
 }
 
-// Generate pillar insight by combining base + modifiers
+// Generate pillar insight using dynamic severity-based logic + modifiers
 function generatePillarInsight(
   pillar: keyof PillarScores,
   score: number,
   userContext?: UserContext
 ): string {
-  const baseInsight = getBaseInsight(pillar, score);
+  // Use dynamic insights based on severity
+  const dynamicInsight = generateAllPillarInsights({ [pillar]: score } as PillarScores)[pillar];
+  
+  // Get contextual modifiers
   const modifiers = getModifiers(pillar, userContext);
 
   if (modifiers.length === 0) {
-    return baseInsight;
+    return dynamicInsight;
   }
 
-  // Combine base insight with modifiers, ensuring smooth flow
-  let combined = baseInsight;
-  modifiers.forEach((modifier, index) => {
-    // Add modifier with appropriate connector
-    if (index === 0) {
-      combined += ' ' + modifier;
-    } else {
-      combined += ' ' + modifier;
-    }
+  // Combine dynamic insight with modifiers, ensuring smooth flow
+  let combined = dynamicInsight;
+  modifiers.forEach((modifier) => {
+    combined += ' ' + modifier;
   });
 
   return combined;
@@ -295,15 +300,18 @@ function generateOpportunitiesSummary(
   }
 }
 
-// Generate upgrade CTA
-function generateUpgradeCTA(brandAlignmentScore: number): string {
-  const range = getOverallScoreRange(brandAlignmentScore);
+// Generate upgrade CTA with dynamic opportunity detection
+function generateUpgradeCTA(
+  brandAlignmentScore: number,
+  pillarScores: PillarScores
+): string {
+  // Use dynamic upsell copy based on weakest pillar
+  const dynamicUpsell = generateUpsellCopy(pillarScores);
+  
+  // Add closing CTA
+  return `${dynamicUpsell}
 
-  if (range === 'excellent' || range === 'strong') {
-    return `Ready to take your brand to the next level? Snapshot+ unlocks a complete Brand Blueprint with detailed positioning frameworks, messaging templates, content strategies, and conversion optimization roadmaps—all tailored to your specific brand and goals. You'll get done-for-you recommendations, step-by-step implementation guides, and ongoing support to turn insights into action. Upgrade to Snapshot+ and transform your strong foundation into a competitive advantage.`;
-  } else {
-    return `Want a clear roadmap to strengthen your brand? Snapshot+ provides a complete Brand Blueprint with detailed frameworks, templates, and step-by-step guides tailored to your specific situation. You'll get actionable recommendations for each pillar, implementation support, and a strategic plan that turns insights into results. Upgrade to Snapshot+ and build the brand clarity and consistency that drives growth.`;
-  }
+Ready to get started? Upgrade to Snapshot+ and receive your complete Brand Blueprint with personalized recommendations, examples, and step-by-step guides tailored to your specific brand.`;
 }
 
 // Main report generation function
@@ -336,7 +344,7 @@ export function generateReport(data: ReportData): BrandSnapshotReport {
       },
     },
     opportunitiesSummary: generateOpportunitiesSummary(brandAlignmentScore, pillarScores),
-    upgradeCTA: generateUpgradeCTA(brandAlignmentScore),
+    upgradeCTA: generateUpgradeCTA(brandAlignmentScore, pillarScores),
   };
 }
 

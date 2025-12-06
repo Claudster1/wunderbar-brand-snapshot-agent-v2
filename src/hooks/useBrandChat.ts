@@ -41,12 +41,18 @@ export function useBrandChat() {
     try {
       const replyText = await getBrandSnapshotReply(nextHistory);
 
-      // Check if the response is JSON with scores (should NOT be displayed in chat)
-      // Try to extract JSON from the response (might have whitespace or other text)
+      // Check if the response contains JSON with scores (should NOT be displayed in chat)
       const trimmedReply = replyText.trim();
+      
+      // Try multiple patterns to find JSON
       let jsonMatch = trimmedReply.match(/\{[\s\S]*"scores"[\s\S]*"brandAlignmentScore"[\s\S]*\}/);
       
-      // If no match, check if the whole response is JSON
+      // If no match, try finding any JSON object
+      if (!jsonMatch) {
+        jsonMatch = trimmedReply.match(/\{[\s\S]*"brandAlignmentScore"[\s\S]*\}/);
+      }
+      
+      // If still no match, check if the whole response is JSON
       if (!jsonMatch && trimmedReply.startsWith('{') && trimmedReply.endsWith('}')) {
         jsonMatch = [trimmedReply];
       }
@@ -88,28 +94,36 @@ export function useBrandChat() {
               }
             }
 
-            // If this JSON has email, it's the final output - save to DB and sync to AC
-            if (snapshotData.user?.email && typeof snapshotData.optIn === 'boolean') {
-              // Import dynamically to avoid SSR issues
-              const { saveReportAndSync } = await import('../services/reportService');
-              const result = await saveReportAndSync(snapshotData);
-              
-              if (result.success) {
-                console.log('[useBrandChat] Report saved and synced:', result.reportId);
-                // Add a success message to chat
-                const successMessage = createMessage(
-                  'assistant',
-                  `Perfect! I've saved your Brand Snapshot™. Check your email for your detailed report link.`
-                );
-                setMessages((prev) => [...prev, successMessage]);
-              } else {
-                console.error('[useBrandChat] Failed to save/sync report:', result.error);
-              }
-            } else {
-              // JSON with scores but no email yet - agent will send handoff message
-              // Don't add JSON to chat, just wait for next response
-              // The agent will direct user to the form on the parent page (no email collection in chat)
+            // Extract any text before the JSON (handoff message) - but filter out score text
+            const textBeforeJson = trimmedReply.substring(0, jsonMatch.index || 0).trim();
+            
+            // Filter out score-related text patterns
+            const scorePatterns = [
+              /Brand Alignment Score[™]?:?\s*\d+/i,
+              /Pillar Breakdown/i,
+              /Positioning:\s*\d+/i,
+              /Messaging:\s*\d+/i,
+              /Visibility:\s*\d+/i,
+              /Credibility:\s*\d+/i,
+              /Conversion:\s*\d+/i,
+              /\d+\/100/i,
+              /\d+\/20/i,
+            ];
+            
+            let cleanText = textBeforeJson;
+            scorePatterns.forEach(pattern => {
+              cleanText = cleanText.replace(pattern, '');
+            });
+            cleanText = cleanText.trim();
+            
+            // Only add handoff message if it exists and doesn't contain scores
+            if (cleanText && cleanText.length > 0 && !/\d+/.test(cleanText)) {
+              const handoffMessage = createMessage('assistant', cleanText);
+              setMessages((prev) => [...prev, handoffMessage]);
             }
+            
+            // Don't add JSON to chat - it's only for the parent page
+            // The scores will appear below the chatbox via postMessage
           }
         } catch (parseError) {
           // Not valid JSON - treat as normal message
@@ -118,9 +132,23 @@ export function useBrandChat() {
           setMessages((prev) => [...prev, assistantMessage]);
         }
       } else {
-        // Normal text response - add to chat as usual
-        const assistantMessage = createMessage('assistant', replyText);
-        setMessages((prev) => [...prev, assistantMessage]);
+        // Check if response contains score numbers but no JSON (should also be filtered)
+        const hasScoreNumbers = /\b\d+\/100\b|\b\d+\/20\b|Brand Alignment Score[™]?:?\s*\d+/i.test(replyText);
+        
+        if (hasScoreNumbers) {
+          // This looks like scores displayed as text - don't add to chat
+          console.log('[useBrandChat] Detected score text in response - filtering out');
+          // Try to extract just a handoff message if present
+          const handoffMatch = replyText.match(/(?:Perfect!|Great!|Here's|Your).*?(?:form|below|details|enter)/i);
+          if (handoffMatch) {
+            const handoffMessage = createMessage('assistant', handoffMatch[0]);
+            setMessages((prev) => [...prev, handoffMessage]);
+          }
+        } else {
+          // Normal text response - add to chat as usual
+          const assistantMessage = createMessage('assistant', replyText);
+          setMessages((prev) => [...prev, assistantMessage]);
+        }
       }
     } catch (err: any) {
       console.error('[useBrandChat] Error:', err);

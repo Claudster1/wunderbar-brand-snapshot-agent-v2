@@ -105,17 +105,36 @@ export function useBrandChat() {
             
             console.log('[useBrandChat] Sending scores to parent:', scoresPayload);
             
+            // Generate full report and save to database
+            // This will extract user context from conversation and generate complete report
+            const { generateAndSaveSnapshot } = await import('../services/snapshotService');
+            
+            const saveResult = await generateAndSaveSnapshot(
+              brandAlignmentScore,
+              pillarScores,
+              pillarInsights,
+              nextHistory
+            );
+
             // Send scores to parent page via postMessage (for visual display)
             if (typeof window !== 'undefined') {
               // Check if we're in an iframe
               if (window.parent && window.parent !== window) {
                 window.parent.postMessage({
                   type: 'BRAND_SNAPSHOT_COMPLETE',
-                  data: scoresPayload
+                  data: {
+                    ...scoresPayload,
+                    report_id: saveResult.report_id, // Include report_id for redirect
+                  }
                 }, '*');
-                console.log('[useBrandChat] postMessage sent to parent window');
+                console.log('[useBrandChat] postMessage sent to parent window with report_id:', saveResult.report_id);
               } else {
                 console.warn('[useBrandChat] Not in an iframe - cannot send postMessage to parent');
+              }
+              
+              // Store report_id for potential redirect
+              if (saveResult.success && saveResult.report_id) {
+                (window as any).__snapshotReportId = saveResult.report_id;
               }
             }
 

@@ -899,6 +899,11 @@
         const scores = event.data.data;
         console.log("[Brand Snapshot] Data received:", scores);
 
+        // Store report_id for redirect after form submission
+        if (scores.report_id) {
+          window.__snapshotReportId = scores.report_id;
+        }
+
         // 1️⃣ Show Score
         unlockScore({
           brandAlignmentScore: scores.brandAlignmentScore,
@@ -949,6 +954,15 @@
         if (typeof window._form_callback !== "undefined") window._form_callback(id);
         thank_you.setAttribute("tabindex", "-1");
         thank_you.focus();
+        
+        // Redirect to results page after form submission
+        // Get report_id from the BRAND_SNAPSHOT_COMPLETE event data
+        var reportId = window.__snapshotReportId;
+        if (reportId) {
+          setTimeout(function() {
+            window.location.href = "/brand-snapshot/results/" + reportId;
+          }, 2000); // 2 second delay to show thank you message
+        }
       };
       window._show_unsubscribe = function (id, message, trackcmp_url, email) {
         var form = document.getElementById("_form_" + id + "_"),

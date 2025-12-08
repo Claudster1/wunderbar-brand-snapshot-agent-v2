@@ -96,31 +96,44 @@ export default async function ReportPage({
 
   // Use pillar_insights if available, otherwise fall back to insights
   const displayInsights = pillar_insights || insights || {};
+  
+  // Get snapshot_upsell from report if available
+  const snapshotUpsell = (report as any).snapshot_upsell || upgrade_cta;
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
       <div className="max-w-5xl mx-auto py-12 px-6">
         {/* Hero Section */}
-        <WundyHero userName={user_name} companyName={displayCompany} />
+        <div className="fadein">
+          <WundyHero userName={user_name} companyName={company_name} />
+        </div>
 
         {/* Score Meter */}
-        <ScoreMeter score={brand_alignment_score || 0} />
+        <div className="fadein" style={{ animationDelay: '100ms' }}>
+          <ScoreMeter score={brand_alignment_score || 0} />
+        </div>
 
         {/* Pillar Breakdown */}
-        <PillarBreakdown
-          pillars={pillar_scores || {}}
-          insights={displayInsights}
-        />
+        <div className="fadein" style={{ animationDelay: '200ms' }}>
+          <PillarBreakdown
+            pillars={pillar_scores || {}}
+            insights={displayInsights}
+          />
+        </div>
 
         {/* Recommendations Block */}
-        <RecommendationsBlock
-          recommendations={recommendations}
-          summary={summary}
-          opportunitiesSummary={opportunities_summary}
-        />
+        <div className="fadein" style={{ animationDelay: '300ms' }}>
+          <RecommendationsBlock
+            recommendations={recommendations}
+            summary={summary}
+            opportunitiesSummary={opportunities_summary}
+          />
+        </div>
 
         {/* Upgrade Panel */}
-        <SnapshotUpgradePanel upgradeCTA={upgrade_cta} />
+        <div className="fadein" style={{ animationDelay: '400ms' }}>
+          <SnapshotUpgradePanel upgradeCTA={snapshotUpsell} />
+        </div>
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">

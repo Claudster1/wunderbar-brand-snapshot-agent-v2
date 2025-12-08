@@ -1,7 +1,7 @@
 // src/services/snapshotService.ts
 // Service to handle Brand Snapshot report generation and saving
 
-import { generateReport, type ReportData, type UserContext } from './reportGenerator';
+import { calculateScores } from '../lib/brandSnapshotEngine';
 import type { BrandChatMessage } from '../types';
 
 /**
@@ -198,7 +198,7 @@ export function extractCompanyInfo(messages: BrandChatMessage[]): {
 }
 
 /**
- * Generate full report and save to database
+ * Generate full report and save to database using centralized engine
  */
 export async function generateAndSaveSnapshot(
   brandAlignmentScore: number,
@@ -225,49 +225,27 @@ export async function generateAndSaveSnapshot(
   }
 ): Promise<{ report_id: string; success: boolean; error?: string }> {
   try {
-    // Extract user context from conversation
-    const userContext = extractUserContext(messages);
+    // Extract company info from conversation
     const companyInfo = extractCompanyInfo(messages);
 
-    // Generate full report using reportGenerator
-    const reportData: ReportData = {
-      brandAlignmentScore,
-      pillarScores,
-      userContext,
-    };
-
-    const fullReport = generateReport(reportData);
-
-    // Prepare insights object (use generated insights or provided ones)
-    const insights = {
-      positioning: pillarInsights.positioning || fullReport.pillars.positioning.insight,
-      messaging: pillarInsights.messaging || fullReport.pillars.messaging.insight,
-      visibility: pillarInsights.visibility || fullReport.pillars.visibility.insight,
-      credibility: pillarInsights.credibility || fullReport.pillars.credibility.insight,
-      conversion: pillarInsights.conversion || fullReport.pillars.conversion.insight,
-    };
+    // Use centralized engine to calculate scores and generate all insights
+    const engineResults = calculateScores(pillarScores);
 
     // Generate unique report ID
     const report_id = crypto.randomUUID();
 
-    // Save to database
-    const saveResponse = await fetch('/api/snapshot/save', {
+    // Save to database using save-report API
+    const saveResponse = await fetch('/api/save-report', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        report_id,
-        user_name: userInfo?.user_name || null,
-        company_name: userInfo?.company_name || companyInfo.company_name || null,
-        website: userInfo?.website || companyInfo.website || null,
-        industry: userInfo?.industry || companyInfo.industry || null,
-        brand_alignment_score: brandAlignmentScore,
-        pillar_scores: pillarScores,
-        insights,
-        recommendations: [], // Can be populated from fullReport if needed
-        summary: fullReport.summary,
-        overall_interpretation: fullReport.overallInterpretation,
-        opportunities_summary: fullReport.opportunitiesSummary,
-        upgrade_cta: fullReport.upgradeCTA,
+        brandAlignmentScore: engineResults.brandAlignmentScore,
+        pillarScores: engineResults.pillarScores,
+        pillarInsights: pillarInsights, // Use provided insights if available
+        userName: userInfo?.user_name || null,
+        company: userInfo?.company_name || companyInfo.company_name || null,
+        email: null, // Email collected via form on parent page
+        websiteNotes: userInfo?.website || companyInfo.website || null,
       }),
     });
 
@@ -276,7 +254,9 @@ export async function generateAndSaveSnapshot(
       throw new Error(errorData.error || 'Failed to save snapshot');
     }
 
-    return { report_id, success: true };
+    const result = await saveResponse.json();
+
+    return { report_id: result.reportId || report_id, success: true };
   } catch (error: any) {
     console.error('[Snapshot Service] Error:', error);
     return {

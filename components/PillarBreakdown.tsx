@@ -3,6 +3,15 @@
 
 "use client";
 
+interface PillarInsight {
+  score?: number;
+  severity?: string;
+  tier?: string;
+  strength?: string;
+  opportunity?: string;
+  action?: string;
+}
+
 interface PillarBreakdownProps {
   pillars: {
     positioning?: number;
@@ -12,11 +21,11 @@ interface PillarBreakdownProps {
     conversion?: number;
   };
   insights: {
-    positioning?: string;
-    messaging?: string;
-    visibility?: string;
-    credibility?: string;
-    conversion?: string;
+    positioning?: string | PillarInsight;
+    messaging?: string | PillarInsight;
+    visibility?: string | PillarInsight;
+    credibility?: string | PillarInsight;
+    conversion?: string | PillarInsight;
   };
 }
 
@@ -56,15 +65,23 @@ export function PillarBreakdown({
       <div className="space-y-6">
         {pillarList.map((pillar, index) => {
           const score = pillars[pillar.key as keyof typeof pillars] || 0;
-          const insight =
-            insights[pillar.key as keyof typeof insights] ||
-            "No insight available.";
+          const insightData = insights[pillar.key as keyof typeof insights];
+          
+          // Handle both old format (string) and new format (object with strength, opportunity, action)
+          const isNewFormat = insightData && typeof insightData === 'object' && 'strength' in insightData;
+          
+          const strength = isNewFormat ? (insightData as PillarInsight).strength : null;
+          const opportunity = isNewFormat ? (insightData as PillarInsight).opportunity : null;
+          const action = isNewFormat ? (insightData as PillarInsight).action : null;
+          const fallbackInsight = typeof insightData === 'string' ? insightData : "No insight available.";
+          
           const percent = (score / 20) * 100;
 
           return (
             <div
               key={pillar.key}
-              className={`animate-fade-in-up bg-white rounded-xl p-6 shadow-md border-l-4 border-brand-blue animation-delay-${index * 100}`}
+              className={`fadein bg-white rounded-xl p-6 shadow-md border-l-4 border-brand-blue`}
+              style={{ animationDelay: `${index * 100}ms` }}
             >
               {/* Pillar Header */}
               <div className="flex items-center justify-between mb-4">
@@ -92,8 +109,31 @@ export function PillarBreakdown({
                 />
               </div>
 
-              {/* Insight */}
-              <p className="text-sm text-slate-700 leading-relaxed">{insight}</p>
+              {/* Dynamic Insights */}
+              {isNewFormat && strength && opportunity && action ? (
+                <div className="space-y-3">
+                  {strength && (
+                    <div>
+                      <p className="text-xs font-semibold text-green-700 mb-1">Strength</p>
+                      <p className="text-sm text-slate-700 leading-relaxed">{strength}</p>
+                    </div>
+                  )}
+                  {opportunity && (
+                    <div>
+                      <p className="text-xs font-semibold text-brand-blue mb-1">Opportunity</p>
+                      <p className="text-sm text-slate-700 leading-relaxed">{opportunity}</p>
+                    </div>
+                  )}
+                  {action && (
+                    <div>
+                      <p className="text-xs font-semibold text-amber-700 mb-1">Next Step</p>
+                      <p className="text-sm text-slate-700 leading-relaxed">{action}</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p className="text-sm text-slate-700 leading-relaxed">{fallbackInsight}</p>
+              )}
             </div>
           );
         })}

@@ -140,30 +140,56 @@ export function mapWundyToAC(wundyJson: WundyJson): ActiveCampaignPayload {
     { field: process.env.AC_FIELD_TESTIMONIALS || "TESTIMONIALS_FIELD_ID", value: credibility.testimonials },
     { field: process.env.AC_FIELD_CTA_CLARITY || "CTA_CLARITY_FIELD_ID", value: conversion.ctaClarity },
 
-    // Scores
+    // Brand Alignment Score™ and Pillar Scores
+    { field: process.env.AC_FIELD_BRAND_ALIGNMENT_SCORE || "BRAND_ALIGNMENT_SCORE_FIELD_ID", value: scores.brandAlignmentScore },
     { field: process.env.AC_FIELD_POSITIONING_SCORE || "POSITIONING_SCORE_FIELD_ID", value: scores.positioning },
     { field: process.env.AC_FIELD_MESSAGING_SCORE || "MESSAGING_SCORE_FIELD_ID", value: scores.messaging },
     { field: process.env.AC_FIELD_VISIBILITY_SCORE || "VISIBILITY_SCORE_FIELD_ID", value: scores.visibility },
     { field: process.env.AC_FIELD_CREDIBILITY_SCORE || "CREDIBILITY_SCORE_FIELD_ID", value: scores.credibility },
     { field: process.env.AC_FIELD_CONVERSION_SCORE || "CONVERSION_SCORE_FIELD_ID", value: scores.conversion },
-    { field: process.env.AC_FIELD_ALIGNMENT_SCORE || "ALIGNMENT_SCORE_FIELD_ID", value: scores.brandAlignmentScore },
     
-    // Dynamic Insights (if available from engine)
-    ...(wundyJson.weakestPillar ? [{ 
-      field: process.env.AC_FIELD_WEAKEST_PILLAR || "WEAKEST_PILLAR_FIELD_ID", 
-      value: wundyJson.weakestPillar 
+    // Pillar Insights (from fullReport or dynamic insights)
+    ...(wundyJson.fullReport?.positioningInsight ? [{ 
+      field: process.env.AC_FIELD_POSITIONING_INSIGHT || "POSITIONING_INSIGHT_FIELD_ID", 
+      value: wundyJson.fullReport.positioningInsight 
     }] : []),
-    ...(wundyJson.topStrength ? [{ 
-      field: process.env.AC_FIELD_TOP_STRENGTH || "TOP_STRENGTH_FIELD_ID", 
-      value: wundyJson.topStrength 
+    ...(wundyJson.fullReport?.messagingInsight ? [{ 
+      field: process.env.AC_FIELD_MESSAGING_INSIGHT || "MESSAGING_INSIGHT_FIELD_ID", 
+      value: wundyJson.fullReport.messagingInsight 
     }] : []),
-    ...(wundyJson.topOpportunity ? [{ 
-      field: process.env.AC_FIELD_TOP_OPPORTUNITY || "TOP_OPPORTUNITY_FIELD_ID", 
-      value: wundyJson.topOpportunity 
+    ...(wundyJson.fullReport?.visibilityInsight ? [{ 
+      field: process.env.AC_FIELD_VISIBILITY_INSIGHT || "VISIBILITY_INSIGHT_FIELD_ID", 
+      value: wundyJson.fullReport.visibilityInsight 
     }] : []),
+    ...(wundyJson.fullReport?.credibilityInsight ? [{ 
+      field: process.env.AC_FIELD_CREDIBILITY_INSIGHT || "CREDIBILITY_INSIGHT_FIELD_ID", 
+      value: wundyJson.fullReport.credibilityInsight 
+    }] : []),
+    ...(wundyJson.fullReport?.conversionInsight ? [{ 
+      field: process.env.AC_FIELD_CONVERSION_INSIGHT || "CONVERSION_INSIGHT_FIELD_ID", 
+      value: wundyJson.fullReport.conversionInsight 
+    }] : []),
+    
+    // Top Opportunities and Recommendations
+    ...(wundyJson.fullReport?.recommendations ? [{ 
+      field: process.env.AC_FIELD_TOP_OPPORTUNITIES || "TOP_OPPORTUNITIES_FIELD_ID", 
+      value: wundyJson.fullReport.recommendations.slice(0, 3).join('\n') 
+    }] : []),
+    ...(wundyJson.fullReport?.recommendations ? [{ 
+      field: process.env.AC_FIELD_PERSONALIZED_RECOMMENDATIONS || "PERSONALIZED_RECOMMENDATIONS_FIELD_ID", 
+      value: wundyJson.fullReport.recommendations.join('\n') 
+    }] : []),
+    
+    // Snapshot+™ Upsell
     ...(wundyJson.snapshotUpsell ? [{ 
-      field: process.env.AC_FIELD_UPSELL_COPY || "UPSELL_COPY_FIELD_ID", 
+      field: process.env.AC_FIELD_SNAPSHOT_PLUS_PITCH || "SNAPSHOT_PLUS_PITCH_FIELD_ID", 
       value: wundyJson.snapshotUpsell 
+    }] : []),
+    
+    // Brand URL and Company Info
+    ...(u.website ? [{ 
+      field: process.env.AC_FIELD_BRAND_URL || "BRAND_URL_FIELD_ID", 
+      value: u.website 
     }] : []),
     
     // Report link (for email)

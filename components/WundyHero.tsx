@@ -36,16 +36,14 @@ export function WundyHero({ userName, companyName }: WundyHeroProps) {
         </div>
 
         {/* Heading */}
-        <h1 className="text-4xl md:text-5xl font-semibold text-brand-navy mb-3">
-          Your Brand Snapshot™ is Ready
+        <h1 className="text-3xl font-semibold text-brand-navy mb-2">
+          Your Brand Alignment Score™
         </h1>
 
         {/* Subheading */}
-        <p className="text-lg text-slate-600 max-w-2xl">
-          {userName && `Hi ${userName}, `}
-          here's your personalized Brand Snapshot™
-          {companyName && ` for ${companyName}`}. Your scores and insights are
-          ready below.
+        <p className="mt-2 text-slate-600 max-w-2xl">
+          Below is your personalized Brand Snapshot™ summary.  
+          These insights were generated based on your inputs and online presence.
         </p>
       </div>
     </div>

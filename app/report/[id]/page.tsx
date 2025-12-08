@@ -132,7 +132,10 @@ export default async function ReportPage({
 
         {/* Upgrade Panel */}
         <div className="fadein" style={{ animationDelay: '400ms' }}>
-          <SnapshotUpgradePanel upgradeCTA={snapshotUpsell} />
+          <SnapshotUpgradePanel 
+            upgradeCTA={snapshotUpsell}
+            snapshotPlusCheckoutUrl={process.env.NEXT_PUBLIC_SNAPSHOT_PLUS_URL || "#"}
+          />
         </div>
 
         {/* Action Buttons */}

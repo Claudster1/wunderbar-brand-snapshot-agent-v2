@@ -70,6 +70,11 @@ interface WundyJson {
     recommendations: string[];
     websiteNotes: string;
   };
+  // Dynamic fields from engine
+  weakestPillar?: string;
+  topStrength?: string;
+  topOpportunity?: string;
+  snapshotUpsell?: string;
 }
 
 interface ActiveCampaignPayload {
@@ -142,6 +147,24 @@ export function mapWundyToAC(wundyJson: WundyJson): ActiveCampaignPayload {
     { field: process.env.AC_FIELD_CREDIBILITY_SCORE || "CREDIBILITY_SCORE_FIELD_ID", value: scores.credibility },
     { field: process.env.AC_FIELD_CONVERSION_SCORE || "CONVERSION_SCORE_FIELD_ID", value: scores.conversion },
     { field: process.env.AC_FIELD_ALIGNMENT_SCORE || "ALIGNMENT_SCORE_FIELD_ID", value: scores.brandAlignmentScore },
+    
+    // Dynamic Insights (if available from engine)
+    ...(wundyJson.weakestPillar ? [{ 
+      field: process.env.AC_FIELD_WEAKEST_PILLAR || "WEAKEST_PILLAR_FIELD_ID", 
+      value: wundyJson.weakestPillar 
+    }] : []),
+    ...(wundyJson.topStrength ? [{ 
+      field: process.env.AC_FIELD_TOP_STRENGTH || "TOP_STRENGTH_FIELD_ID", 
+      value: wundyJson.topStrength 
+    }] : []),
+    ...(wundyJson.topOpportunity ? [{ 
+      field: process.env.AC_FIELD_TOP_OPPORTUNITY || "TOP_OPPORTUNITY_FIELD_ID", 
+      value: wundyJson.topOpportunity 
+    }] : []),
+    ...(wundyJson.snapshotUpsell ? [{ 
+      field: process.env.AC_FIELD_UPSELL_COPY || "UPSELL_COPY_FIELD_ID", 
+      value: wundyJson.snapshotUpsell 
+    }] : []),
     
     // Report link (for email)
     ...(wundyJson.reportLink ? [{ 

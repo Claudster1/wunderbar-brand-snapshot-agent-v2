@@ -2,7 +2,7 @@
 // Dynamic Open Graph image generation for Brand Snapshot reports
 // Usage: /api/og/report?score=78
 
-import { ImageResponse } from "next/og";
+import { ImageResponse } from "@vercel/og";
 
 export const runtime = "edge";
 

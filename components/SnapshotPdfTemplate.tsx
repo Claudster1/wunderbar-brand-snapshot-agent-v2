@@ -186,8 +186,15 @@ export default function SnapshotPdfTemplate({
             <Text style={styles.sectionTitle}>Pillar Insights</Text>
             {Object.keys(pillar_scores).map((pillar) => {
               const score = pillar_scores[pillar as keyof typeof pillar_scores];
-              const insight =
-                displayInsights[pillar as keyof typeof displayInsights] || "No insight available.";
+              const insightData = displayInsights[pillar as keyof typeof displayInsights];
+              
+              // Handle both old format (string) and new format (object with strength, opportunity, action)
+              const isNewFormat = insightData && typeof insightData === 'object' && 'strength' in insightData;
+              
+              const strength = isNewFormat ? (insightData as any).strength : null;
+              const opportunity = isNewFormat ? (insightData as any).opportunity : null;
+              const action = isNewFormat ? (insightData as any).action : null;
+              const fallbackInsight = typeof insightData === 'string' ? insightData : "No insight available.";
 
               return (
                 <View key={pillar} style={styles.pillarRow}>
@@ -195,7 +202,36 @@ export default function SnapshotPdfTemplate({
                     {pillar.charAt(0).toUpperCase() + pillar.slice(1)}
                   </Text>
                   <Text style={styles.pillarScore}>Score: {score}/20</Text>
-                  <Text style={styles.pillarInsight}>{insight}</Text>
+                  {isNewFormat && strength && opportunity && action ? (
+                    <View>
+                      {strength && (
+                        <View style={{ marginBottom: 6 }}>
+                          <Text style={[styles.pillarInsight, { fontWeight: 'bold', color: '#059669' }]}>
+                            Strength: 
+                          </Text>
+                          <Text style={styles.pillarInsight}>{strength}</Text>
+                        </View>
+                      )}
+                      {opportunity && (
+                        <View style={{ marginBottom: 6 }}>
+                          <Text style={[styles.pillarInsight, { fontWeight: 'bold', color: '#07b0f2' }]}>
+                            Opportunity: 
+                          </Text>
+                          <Text style={styles.pillarInsight}>{opportunity}</Text>
+                        </View>
+                      )}
+                      {action && (
+                        <View>
+                          <Text style={[styles.pillarInsight, { fontWeight: 'bold', color: '#d97706' }]}>
+                            Next Step: 
+                          </Text>
+                          <Text style={styles.pillarInsight}>{action}</Text>
+                        </View>
+                      )}
+                    </View>
+                  ) : (
+                    <Text style={styles.pillarInsight}>{fallbackInsight}</Text>
+                  )}
                 </View>
               );
             })}

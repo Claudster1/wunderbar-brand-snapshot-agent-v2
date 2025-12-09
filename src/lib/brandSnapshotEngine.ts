@@ -20,11 +20,11 @@ export type { GapSeverity };
  * Pillar weights for Brand Alignment Score calculation
  */
 const PILLAR_WEIGHTS = {
-  positioning: 0.30,
+  positioning: 0.25,
   messaging: 0.25,
-  credibility: 0.20,
-  visibility: 0.15,
-  conversion: 0.10,
+  visibility: 0.20,
+  credibility: 0.15,
+  conversion: 0.15,
 } as const;
 
 /**
@@ -48,15 +48,15 @@ export function normalizeTo1_20(score: number): number {
  * Returns score 0-100
  */
 export function calculateBrandAlignmentScore(pillarScores: PillarScores): number {
-  const weightedSum =
+  const total =
     pillarScores.positioning * PILLAR_WEIGHTS.positioning +
     pillarScores.messaging * PILLAR_WEIGHTS.messaging +
-    pillarScores.credibility * PILLAR_WEIGHTS.credibility +
     pillarScores.visibility * PILLAR_WEIGHTS.visibility +
+    pillarScores.credibility * PILLAR_WEIGHTS.credibility +
     pillarScores.conversion * PILLAR_WEIGHTS.conversion;
 
   // Scale from 0-20 to 0-100
-  return Math.round(weightedSum * 5);
+  return Math.round((total / 20) * 100);
 }
 
 /**
@@ -192,10 +192,10 @@ export function generateColorPalette(archetype: string): Array<{
   }>> = {
     "Sage": [
       { name: "Deep Blue", hex: "#021859", role: "Primary", meaning: "Wisdom, depth, clarity" },
-      { name: "Aqua Glow", hex: "#27CDF2", role: "Secondary", meaning: "Modernity, innovation, freshness" },
-      { name: "Warm Amber", hex: "#FFB45E", role: "Accent", meaning: "Optimism, energy, momentum" },
-      { name: "Soft Gray", hex: "#F2F2F2", role: "Neutral", meaning: "Balance, calm, spaciousness" },
-      { name: "Midnight", hex: "#0C1526", role: "Neutral Deep", meaning: "Sophistication, premium depth" }
+      { name: "Aqua Glow", hex: "#27CDF2", role: "Secondary", meaning: "Freshness, agility, innovation" },
+      { name: "Warm Amber", hex: "#FFB45E", role: "Accent", meaning: "Momentum, optimism" },
+      { name: "Soft Gray", hex: "#F2F2F2", role: "Neutral", meaning: "Balance, calm" },
+      { name: "Midnight", hex: "#0C1526", role: "Neutral Deep", meaning: "Premium depth, sophistication" }
     ],
     "Hero": [
       { name: "Bold Navy", hex: "#021859", role: "Primary", meaning: "Authority, trust, strength" },

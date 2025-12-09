@@ -234,18 +234,18 @@ You must output a JSON object that will be sent to the parent page. This JSON wi
     "conversion": [number 1-20]
   },
   "pillarInsights": {
-    "positioning": "[2-3 sentence personalized insight based on score and user inputs]",
-    "messaging": "[2-3 sentence personalized insight based on score and user inputs]",
-    "visibility": "[2-3 sentence personalized insight based on score and user inputs]",
-    "credibility": "[2-3 sentence personalized insight based on score and user inputs]",
-    "conversion": "[2-3 sentence personalized insight based on score and user inputs]"
+    "positioning": "[Personalized insight specific to the user's business and audience, based on branding best practices]",
+    "messaging": "[Personalized insight specific to the user's business and audience, based on branding best practices]",
+    "visibility": "[Personalized insight specific to the user's business and audience, based on branding best practices]",
+    "credibility": "[Personalized insight specific to the user's business and audience, based on branding best practices]",
+    "conversion": "[Personalized insight specific to the user's business and audience, based on branding best practices]"
   },
   "recommendations": {
-    "positioning": "[1-2 actionable recommendations specific to this pillar]",
-    "messaging": "[1-2 actionable recommendations specific to this pillar]",
-    "visibility": "[1-2 actionable recommendations specific to this pillar]",
-    "credibility": "[1-2 actionable recommendations specific to this pillar]",
-    "conversion": "[1-2 actionable recommendations specific to this pillar]"
+    "positioning": "[Meaningful and actionable recommendation specific to this pillar]",
+    "messaging": "[Meaningful and actionable recommendation specific to this pillar]",
+    "visibility": "[Meaningful and actionable recommendation specific to this pillar]",
+    "credibility": "[Meaningful and actionable recommendation specific to this pillar]",
+    "conversion": "[Meaningful and actionable recommendation specific to this pillar]"
   }
 }
 
@@ -273,26 +273,8 @@ When generating Snapshot+™ output, include these additional fields:
       "hex": "[Hex code - e.g., '#021859']",
       "role": "[Role - e.g., 'Primary', 'Secondary', 'Accent', 'Neutral']",
       "meaning": "[Meaning - describe what this color means for the brand, NOT 'what it communicates']"
-    },
-    {
-      "name": "[Color name]",
-      "hex": "[Hex code]",
-      "role": "[Role]",
-      "meaning": "[Meaning]"
     }
-  ],
-  "snapshotPlusOutline": {
-    "page1": "[Cover page content]",
-    "page2": "[Executive Summary]",
-    "page3": "[Brand Alignment Score™ Deep Dive]",
-    "page4": "[Positioning Deep Dive]",
-    "page5": "[Messaging Deep Dive]",
-    "page6": "[Visibility Deep Dive]",
-    "page7": "[Credibility Deep Dive]",
-    "page8": "[Conversion Deep Dive]",
-    "page9": "[Brand Opportunities Map]",
-    "page10": "[What to Do Next]"
-  }
+  ]
 }
 
 ### Color Palette Requirements:

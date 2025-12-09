@@ -175,6 +175,83 @@ export function generateSnapshotUpsell(pillarScores: PillarScores): string {
 }
 
 /**
+ * Generate color palette based on brand archetype
+ * Uses "Meaning" (not "what it communicates") for color psychology
+ */
+export function generateColorPalette(archetype: string): Array<{
+  name: string;
+  hex: string;
+  role: string;
+  meaning: string;
+}> {
+  const palettes: Record<string, Array<{
+    name: string;
+    hex: string;
+    role: string;
+    meaning: string;
+  }>> = {
+    "Sage": [
+      { name: "Deep Blue", hex: "#021859", role: "Primary", meaning: "Wisdom, depth, clarity" },
+      { name: "Aqua Glow", hex: "#27CDF2", role: "Secondary", meaning: "Modernity, innovation, freshness" },
+      { name: "Warm Amber", hex: "#FFB45E", role: "Accent", meaning: "Optimism, energy, momentum" },
+      { name: "Soft Gray", hex: "#F2F2F2", role: "Neutral", meaning: "Balance, calm, spaciousness" },
+      { name: "Midnight", hex: "#0C1526", role: "Neutral Deep", meaning: "Sophistication, premium depth" }
+    ],
+    "Hero": [
+      { name: "Bold Navy", hex: "#021859", role: "Primary", meaning: "Authority, trust, strength" },
+      { name: "Electric Blue", hex: "#07B0F2", role: "Secondary", meaning: "Action, confidence, forward motion" },
+      { name: "Crimson", hex: "#DC2626", role: "Accent", meaning: "Passion, urgency, impact" },
+      { name: "Light Gray", hex: "#F5F5F5", role: "Neutral", meaning: "Clarity, focus, precision" },
+      { name: "Charcoal", hex: "#1F2937", role: "Neutral Deep", meaning: "Grounded, professional, reliable" }
+    ],
+    "Explorer": [
+      { name: "Forest Green", hex: "#065F46", role: "Primary", meaning: "Growth, adventure, natural authenticity" },
+      { name: "Sky Blue", hex: "#0EA5E9", role: "Secondary", meaning: "Freedom, possibility, open horizons" },
+      { name: "Sunset Orange", hex: "#F97316", role: "Accent", meaning: "Energy, discovery, boldness" },
+      { name: "Sand", hex: "#FEF3C7", role: "Neutral", meaning: "Warmth, approachability, earthiness" },
+      { name: "Deep Teal", hex: "#0F766E", role: "Neutral Deep", meaning: "Depth, exploration, wisdom" }
+    ],
+    "Creator": [
+      { name: "Royal Purple", hex: "#6B21A8", role: "Primary", meaning: "Creativity, innovation, imagination" },
+      { name: "Vibrant Pink", hex: "#EC4899", role: "Secondary", meaning: "Expression, boldness, artistic flair" },
+      { name: "Golden Yellow", hex: "#FBBF24", role: "Accent", meaning: "Optimism, inspiration, brilliance" },
+      { name: "Lavender", hex: "#E9D5FF", role: "Neutral", meaning: "Dreaminess, creativity, softness" },
+      { name: "Deep Plum", hex: "#581C87", role: "Neutral Deep", meaning: "Sophistication, depth, artistic vision" }
+    ],
+    "Caregiver": [
+      { name: "Sage Green", hex: "#10B981", role: "Primary", meaning: "Nurturing, growth, harmony" },
+      { name: "Soft Blue", hex: "#60A5FA", role: "Secondary", meaning: "Trust, calm, care" },
+      { name: "Warm Peach", hex: "#FB923C", role: "Accent", meaning: "Compassion, warmth, approachability" },
+      { name: "Cream", hex: "#FFFBEB", role: "Neutral", meaning: "Gentleness, comfort, safety" },
+      { name: "Olive", hex: "#84CC16", role: "Neutral Deep", meaning: "Stability, natural care, groundedness" }
+    ],
+    "Ruler": [
+      { name: "Navy Blue", hex: "#021859", role: "Primary", meaning: "Authority, leadership, excellence" },
+      { name: "Gold", hex: "#F59E0B", role: "Secondary", meaning: "Prestige, value, achievement" },
+      { name: "Silver", hex: "#94A3B8", role: "Accent", meaning: "Refinement, sophistication, quality" },
+      { name: "Ivory", hex: "#FFFEF7", role: "Neutral", meaning: "Elegance, luxury, space" },
+      { name: "Charcoal", hex: "#1F2937", role: "Neutral Deep", meaning: "Power, stability, command" }
+    ],
+    "Innocent": [
+      { name: "Sky Blue", hex: "#0EA5E9", role: "Primary", meaning: "Purity, simplicity, clarity" },
+      { name: "Soft Pink", hex: "#F9A8D4", role: "Secondary", meaning: "Gentleness, optimism, joy" },
+      { name: "Sunshine Yellow", hex: "#FCD34D", role: "Accent", meaning: "Happiness, positivity, light" },
+      { name: "Cloud White", hex: "#FFFFFF", role: "Neutral", meaning: "Simplicity, cleanliness, openness" },
+      { name: "Baby Blue", hex: "#BFDBFE", role: "Neutral Deep", meaning: "Trust, innocence, peace" }
+    ],
+    "Magician": [
+      { name: "Deep Purple", hex: "#6B21A8", role: "Primary", meaning: "Transformation, mystery, innovation" },
+      { name: "Electric Cyan", hex: "#06B6D4", role: "Secondary", meaning: "Magic, possibility, breakthrough" },
+      { name: "Vibrant Magenta", hex: "#D946EF", role: "Accent", meaning: "Energy, transformation, boldness" },
+      { name: "Misty Gray", hex: "#E5E7EB", role: "Neutral", meaning: "Mystery, depth, sophistication" },
+      { name: "Midnight Blue", hex: "#0C1526", role: "Neutral Deep", meaning: "Depth, wisdom, transformation" }
+    ],
+  };
+
+  return palettes[archetype] || palettes["Sage"];
+}
+
+/**
  * Main function: Calculate scores and generate all insights
  */
 export function calculateScores(rawPillarScores: Partial<PillarScores>): {

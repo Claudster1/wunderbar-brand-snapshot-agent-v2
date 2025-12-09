@@ -75,6 +75,15 @@ interface WundyJson {
   topStrength?: string;
   topOpportunity?: string;
   snapshotUpsell?: string;
+  // Snapshot+ fields
+  persona?: string;
+  archetype?: string;
+  colorPalette?: Array<{
+    name: string;
+    hex: string;
+    role: string;
+    meaning: string;
+  }>;
 }
 
 interface ActiveCampaignPayload {
@@ -197,6 +206,37 @@ export function mapWundyToAC(wundyJson: WundyJson): ActiveCampaignPayload {
       field: process.env.AC_FIELD_REPORT_LINK || "REPORT_LINK_FIELD_ID", 
       value: wundyJson.reportLink 
     }] : []),
+    
+    // Snapshot+ fields (persona, archetype, color palette)
+    ...(wundyJson.persona ? [{ 
+      field: process.env.AC_FIELD_PERSONA || "PERSONA_FIELD_ID", 
+      value: wundyJson.persona 
+    }] : []),
+    ...(wundyJson.archetype ? [{ 
+      field: process.env.AC_FIELD_ARCHETYPE || "ARCHETYPE_FIELD_ID", 
+      value: wundyJson.archetype 
+    }] : []),
+    
+    // Color Palette fields (using "Meaning" terminology)
+    ...(wundyJson.colorPalette && wundyJson.colorPalette.length > 0 ? [
+      { 
+        field: process.env.AC_FIELD_COLOR_PALETTE || "COLOR_PALETTE_FIELD_ID", 
+        value: wundyJson.colorPalette.map(c => `${c.name} (${c.hex}): ${c.role} - Meaning: ${c.meaning}`).join('\n')
+      },
+      // Individual color meanings for merge tags
+      ...(wundyJson.colorPalette[0] ? [{ 
+        field: process.env.AC_FIELD_COLOR_MEANING_1 || "COLOR_MEANING_1_FIELD_ID", 
+        value: `${wundyJson.colorPalette[0].name}: ${wundyJson.colorPalette[0].meaning}` 
+      }] : []),
+      ...(wundyJson.colorPalette[1] ? [{ 
+        field: process.env.AC_FIELD_COLOR_MEANING_2 || "COLOR_MEANING_2_FIELD_ID", 
+        value: `${wundyJson.colorPalette[1].name}: ${wundyJson.colorPalette[1].meaning}` 
+      }] : []),
+      ...(wundyJson.colorPalette[2] ? [{ 
+        field: process.env.AC_FIELD_COLOR_MEANING_3 || "COLOR_MEANING_3_FIELD_ID", 
+        value: `${wundyJson.colorPalette[2].name}: ${wundyJson.colorPalette[2].meaning}` 
+      }] : []),
+    ] : []),
   ].filter((fv) => fv.value !== "" && fv.value !== null && fv.value !== undefined);
 
   // Determine score-based tags

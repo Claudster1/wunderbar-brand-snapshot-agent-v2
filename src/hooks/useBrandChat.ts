@@ -122,6 +122,7 @@ export function useBrandChat() {
                   brandAlignmentScore,
                   pillarScores,
                   pillarInsights,
+                  recommendations,
                   userContext,
                   userName: companyInfo.company_name, // Will be updated when form is submitted
                   company: companyInfo.company_name,

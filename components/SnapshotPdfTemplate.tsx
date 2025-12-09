@@ -84,6 +84,37 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     paddingLeft: 8,
   },
+  paletteRow: {
+    flexDirection: "row",
+    marginBottom: 8,
+    paddingBottom: 8,
+    borderBottom: "1px solid #e5e7eb",
+    alignItems: "center",
+  },
+  colName: {
+    fontSize: 10,
+    fontWeight: 600,
+    color: "#021859",
+    width: "25%",
+  },
+  swatch: {
+    width: 30,
+    height: 30,
+    borderRadius: 4,
+    border: "1px solid #e5e7eb",
+    marginRight: 12,
+  },
+  colRole: {
+    fontSize: 10,
+    color: "#6b7280",
+    width: "20%",
+  },
+  colMeaning: {
+    fontSize: 10,
+    color: "#111827",
+    width: "45%",
+    lineHeight: 1.4,
+  },
   footer: {
     position: "absolute",
     bottom: 30,
@@ -127,6 +158,14 @@ interface SnapshotPdfTemplateProps {
     overall_interpretation?: string;
     opportunities_summary?: string;
     upgrade_cta?: string;
+    color_palette?: Array<{
+      name: string;
+      hex: string;
+      role: string;
+      meaning: string;
+    }>;
+    persona?: string;
+    archetype?: string;
   };
 }
 
@@ -146,6 +185,9 @@ export default function SnapshotPdfTemplate({
     overall_interpretation,
     opportunities_summary,
     upgrade_cta,
+    color_palette,
+    persona,
+    archetype,
   } = report;
 
   const displayCompany = company || company_name;
@@ -259,6 +301,46 @@ export default function SnapshotPdfTemplate({
                 • {rec}
               </Text>
             ))}
+          </View>
+        )}
+
+        {/* Brand Persona & Archetype (Snapshot+ only) */}
+        {(persona || archetype) && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Brand Persona & Archetype</Text>
+            {archetype && (
+              <Text style={styles.pillarInsight}>
+                <Text style={{ fontWeight: 'bold' }}>Archetype: </Text>
+                {archetype}
+              </Text>
+            )}
+            {persona && (
+              <Text style={styles.pillarInsight}>
+                <Text style={{ fontWeight: 'bold' }}>Persona: </Text>
+                {persona}
+              </Text>
+            )}
+          </View>
+        )}
+
+        {/* Color Palette (Snapshot+ only) */}
+        {color_palette && color_palette.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Recommended Brand Color Palette</Text>
+            <Text style={[styles.pillarInsight, { marginBottom: 12 }]}>
+              Each color plays a role in how your brand is perceived. Here's the palette WUNDY™ generated for you, with the meaning behind each choice:
+            </Text>
+            {color_palette.map((color, index) => (
+              <View key={index} style={styles.paletteRow}>
+                <Text style={styles.colName}>{color.name}</Text>
+                <View style={[styles.swatch, { backgroundColor: color.hex }]} />
+                <Text style={styles.colRole}>{color.role}</Text>
+                <Text style={styles.colMeaning}>{color.meaning}</Text>
+              </View>
+            ))}
+            <Text style={[styles.pillarInsight, { marginTop: 12, fontSize: 9, color: '#6b7280' }]}>
+              If you'd like WUNDY™ to turn this into a fully realized visual identity system—including brand pillars, persona, archetype, typography, and a polished brand guide—you're a perfect fit for Snapshot+™.
+            </Text>
           </View>
         )}
 

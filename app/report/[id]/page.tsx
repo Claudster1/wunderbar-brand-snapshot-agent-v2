@@ -6,6 +6,7 @@ import { ScoreMeter } from "@/components/ScoreMeter";
 import { PillarBreakdown } from "@/components/PillarBreakdown";
 import { RecommendationsBlock } from "@/components/RecommendationsBlock";
 import { SnapshotUpgradePanel } from "@/components/SnapshotUpgradePanel";
+import { ColorPaletteSection } from "@/components/ColorPaletteSection";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
@@ -92,6 +93,9 @@ export default async function ReportPage({
     summary,
     opportunities_summary,
     upgrade_cta,
+    color_palette,
+    persona,
+    archetype,
   } = report;
 
   // Use pillar_insights if available, otherwise fall back to insights
@@ -129,6 +133,18 @@ export default async function ReportPage({
             opportunitiesSummary={opportunities_summary}
           />
         </div>
+
+        {/* Color Palette Section (Snapshot+ only) */}
+        {color_palette && Array.isArray(color_palette) && color_palette.length > 0 && (
+          <ColorPaletteSection
+            palette={color_palette.map((c: any) => ({
+              label: c.name,
+              swatch: c.hex,
+              role: c.role,
+              meaning: c.meaning
+            }))}
+          />
+        )}
 
         {/* Upgrade Panel */}
         <div className="fadein" style={{ animationDelay: '400ms' }}>

@@ -14,12 +14,12 @@ export async function POST(req: Request) {
       brandAlignmentScore,
       pillarScores,
       pillarInsights,
+      recommendations, // Pillar-specific recommendations object
       userContext,
       userName,
       email,
       company,
       websiteNotes,
-      recommendations,
     } = body;
 
     if (!brandAlignmentScore || !pillarScores) {
@@ -62,7 +62,7 @@ export async function POST(req: Request) {
         brand_alignment_score: engineResults.brandAlignmentScore,
         pillar_scores: engineResults.pillarScores,
         pillar_insights: engineResults.pillarInsights, // Full insights with strength, opportunity, action
-        recommendations: recommendations || [engineResults.opportunities.map(o => `${o.pillar}: ${o.score}/20`).join(', ')],
+        recommendations: recommendations || {}, // Pillar-specific recommendations object
         website_notes: websiteNotes || null,
         weakest_pillar: engineResults.weakestPillar.pillar,
         strengths: engineResults.strengths,

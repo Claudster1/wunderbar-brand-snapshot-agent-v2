@@ -1,86 +1,289 @@
-/* app/report/report.css */
-/* Animations and styling overrides for Brand Snapshot report page */
-
-/* Brand Colors */
+/* ===============================
+   GLOBAL LAYOUT + TYPE
+   =============================== */
 :root {
-  --brand-navy: #021859;
-  --brand-blue: #07B0F2;
-  --brand-blueHover: #0599d6;
-  --brand-aqua: #27CDF2;
-  --brand-midnight: #0C1526;
-  --brand-gray: #F2F2F2;
-  --brand-border: #E5E7EB;
+  --navy: #021859;
+  --blue: #07B0F2;
+  --blue-hover: #059BD8;
+  --aqua: #27CDF2;
+  --midnight: #0C1526;
+  --gray: #F2F2F2;
+  --border: #E0E3EA;
 }
 
-/* Animation Classes */
+body {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  background: #ffffff;
+  color: var(--midnight);
+  margin: 0;
+  padding: 0;
+}
+
+.results-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 48px 16px;
+}
+
+/* ===============================
+   HEADINGS
+   =============================== */
+.results-title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 12px;
+}
+
+.results-subtitle {
+  max-width: 720px;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--midnight);
+  margin-bottom: 32px;
+}
+
+/* ===============================
+   FADE-IN ANIMATIONS
+   =============================== */
+.fade-in {
+  opacity: 0;
+  transform: translateY(12px);
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-.fade-in {
-  animation: fadeIn 0.6s ease-out forwards;
-  opacity: 0;
+/* Stagger helpers */
+.delay-1 { animation-delay: 0.15s; }
+.delay-2 { animation-delay: 0.3s; }
+.delay-3 { animation-delay: 0.45s; }
+
+/* ===============================
+   SCORE PANEL
+   =============================== */
+.score-box {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px;
+  margin-bottom: 48px;
+  box-shadow: 0 6px 24px rgba(2, 24, 89, 0.06);
 }
 
+.score-number {
+  font-size: 3.4rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.score-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #708099;
+}
+
+/* Meter */
+.score-meter {
+  margin-top: 14px;
+  height: 14px;
+  background: #E5EAF1;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.score-meter-fill {
+  height: 100%;
+  background: var(--blue);
+  width: 0;
+  transition: width 0.6s ease;
+}
+
+/* ===============================
+   PILLARS
+   =============================== */
+.pillar-item {
+  margin-bottom: 24px;
+}
+
+.pillar-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+
+.pillar-meter {
+  height: 10px;
+  background: #E5EAF1;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.pillar-fill {
+  height: 100%;
+  background: var(--blue);
+  width: 0;
+  transition: width 0.6s ease;
+}
+
+/* Pillar tags */
+.pillar-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 50px;
+  margin-left: 6px;
+  color: #ffffff;
+}
+
+.pillar-strong { background: #0A9F57; }
+.pillar-steady { background: #4CBF70; }
+.pillar-mixed  { background: #FFC247; color: #000; }
+.pillar-solid  { background: #FF914D; }
+.pillar-focus  { background: #E63946; }
+
+/* ===============================
+   COLOR PALETTE TABLE
+   =============================== */
+.palette-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 32px;
+}
+
+.palette-table th {
+  text-align: left;
+  padding: 10px 6px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--navy);
+  border-bottom: 2px solid var(--border);
+}
+
+.palette-table td {
+  padding: 10px 6px;
+  font-size: 0.9rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.color-swatch {
+  width: 42px;
+  height: 42px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+/* ===============================
+   SNAPSHOT+ CTA
+   =============================== */
+.snapshotplus-panel {
+  background: linear-gradient(180deg, #F5F8FF 0%, #EDF4FF 100%);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  margin-top: 56px;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(2, 24, 89, 0.06);
+}
+
+.snapshotplus-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 12px;
+}
+
+.snapshotplus-body {
+  font-size: 1rem;
+  max-width: 620px;
+  margin: 0 auto 24px auto;
+  line-height: 1.55;
+}
+
+.snapshotplus-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 28px;
+  font-size: 1rem;
+  font-weight: 600;
+  background: var(--blue);
+  color: #ffffff;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.25s ease;
+}
+
+.snapshotplus-button:hover {
+  background: var(--blue-hover);
+}
+
+/* ===============================
+   FOOTER
+   =============================== */
+.results-footer {
+  margin-top: 70px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  color: #7C8CA5;
+  font-size: 0.9rem;
+}
+
+/* ===============================
+   ADDITIONAL UTILITIES (for compatibility)
+   =============================== */
 .fade-in-up {
-  animation: fadeInUp 0.6s ease-out forwards;
   opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.6s ease-out forwards;
 }
 
-/* Staggered animation delays */
-.fade-in-up:nth-child(1) { animation-delay: 0ms; }
-.fade-in-up:nth-child(2) { animation-delay: 100ms; }
-.fade-in-up:nth-child(3) { animation-delay: 200ms; }
-.fade-in-up:nth-child(4) { animation-delay: 300ms; }
-.fade-in-up:nth-child(5) { animation-delay: 400ms; }
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-/* Brand Color Utilities */
+/* Brand Color Utilities (for Tailwind compatibility) */
 .text-brand-navy {
-  color: var(--brand-navy);
+  color: var(--navy);
 }
 
 .text-brand-midnight {
-  color: var(--brand-midnight);
+  color: var(--midnight);
 }
 
 .text-brand-blue {
-  color: var(--brand-blue);
+  color: var(--blue);
 }
 
 .bg-brand-blue {
-  background-color: var(--brand-blue);
+  background-color: var(--blue);
 }
 
 .bg-brand-blueHover:hover {
-  background-color: var(--brand-blueHover);
+  background-color: var(--blue-hover);
 }
 
 .bg-brand-gray {
-  background-color: var(--brand-gray);
+  background-color: var(--gray);
 }
 
 .border-brand-border {
-  border-color: var(--brand-border);
+  border-color: var(--border);
 }
 
 .border-brand-blue {
-  border-color: var(--brand-blue);
+  border-color: var(--blue);
 }
 
 .bg-brand-blue\/5 {

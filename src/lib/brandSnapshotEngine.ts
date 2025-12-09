@@ -79,6 +79,58 @@ export function classifyPillarSeverity(score: number): {
 }
 
 /**
+ * Generate insight for a pillar based on score
+ * Uses a simple threshold: score >= 15 is strong, < 15 is opportunity
+ */
+function makeInsight(
+  score: number,
+  strongMsg: string,
+  opportunityMsg: string
+): string {
+  return score >= 15 ? strongMsg : opportunityMsg;
+}
+
+/**
+ * Generate simple insights for all pillars (alternative to full dynamic insights)
+ * Uses the makeInsight helper with predefined messages
+ */
+export function generateInsights(pillarScores: PillarScores): {
+  positioning: string;
+  messaging: string;
+  visibility: string;
+  credibility: string;
+  conversion: string;
+} {
+  return {
+    positioning: makeInsight(
+      pillarScores.positioning,
+      "Your positioning has strong clarity and direction. Customers should quickly understand who you serve and why you're different.",
+      "Strengthening your differentiation and refining your audience focus would help customers understand your value more quickly."
+    ),
+    messaging: makeInsight(
+      pillarScores.messaging,
+      "Your messaging is cohesive and communicates Meaning effectively.",
+      "Your messaging framework could better communicate your Meaning and value to your ideal audience."
+    ),
+    visibility: makeInsight(
+      pillarScores.visibility,
+      "Your brand is gaining meaningful visibility across channels.",
+      "Increasing consistency across your website, social platforms, and search visibility will uplift overall brand strength."
+    ),
+    credibility: makeInsight(
+      pillarScores.credibility,
+      "You have indicators of trust that reinforce credibility.",
+      "Investing in more trust signals (social proof, certifications, reviews) could dramatically strengthen customer confidence."
+    ),
+    conversion: makeInsight(
+      pillarScores.conversion,
+      "Your conversion path is solid and clearly guided.",
+      "Your customer journey can benefit from clearer CTAs, simplified steps, and messaging aligned to buyer intent."
+    ),
+  };
+}
+
+/**
  * Generate strength insight for a pillar
  */
 function generateStrengthInsight(

@@ -1,0 +1,89 @@
+/* app/report/report.css */
+/* Animations and styling overrides for Brand Snapshot report page */
+
+/* Brand Colors */
+:root {
+  --brand-navy: #021859;
+  --brand-blue: #07B0F2;
+  --brand-blueHover: #0599d6;
+  --brand-aqua: #27CDF2;
+  --brand-midnight: #0C1526;
+  --brand-gray: #F2F2F2;
+  --brand-border: #E5E7EB;
+}
+
+/* Animation Classes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+/* Staggered animation delays */
+.fade-in-up:nth-child(1) { animation-delay: 0ms; }
+.fade-in-up:nth-child(2) { animation-delay: 100ms; }
+.fade-in-up:nth-child(3) { animation-delay: 200ms; }
+.fade-in-up:nth-child(4) { animation-delay: 300ms; }
+.fade-in-up:nth-child(5) { animation-delay: 400ms; }
+
+/* Brand Color Utilities */
+.text-brand-navy {
+  color: var(--brand-navy);
+}
+
+.text-brand-midnight {
+  color: var(--brand-midnight);
+}
+
+.text-brand-blue {
+  color: var(--brand-blue);
+}
+
+.bg-brand-blue {
+  background-color: var(--brand-blue);
+}
+
+.bg-brand-blueHover:hover {
+  background-color: var(--brand-blueHover);
+}
+
+.bg-brand-gray {
+  background-color: var(--brand-gray);
+}
+
+.border-brand-border {
+  border-color: var(--brand-border);
+}
+
+.border-brand-blue {
+  border-color: var(--brand-blue);
+}
+
+.bg-brand-blue\/5 {
+  background-color: rgba(7, 176, 242, 0.05);
+}
+

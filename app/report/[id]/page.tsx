@@ -1,198 +1,254 @@
-// app/report/[id]/page.tsx
-// Dynamic Brand Snapshot report page with full Wunderbar branding
+"use client";
 
-import { WundyHero } from "@/components/WundyHero";
-import { ScoreMeter } from "@/components/ScoreMeter";
-import { PillarBreakdown } from "@/components/PillarBreakdown";
-import { RecommendationsBlock } from "@/components/RecommendationsBlock";
-import { SnapshotUpgradePanel } from "@/components/SnapshotUpgradePanel";
-import { ColorPaletteSection } from "@/components/ColorPaletteSection";
-import { notFound } from "next/navigation";
-import type { Metadata } from "next";
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import supabase from "@/lib/supabaseClient";
+import "@/app/report/report.css"; // animations + styling overrides
 
-async function getReport(id: string) {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  
-  try {
-    const res = await fetch(`${baseUrl}/api/snapshot/get?id=${id}`, {
-      cache: "no-store",
-    });
+export default function BrandSnapshotReport({ params }: { params: { id: string } }) {
+  const [report, setReport] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-    if (!res.ok) {
-      return null;
+  useEffect(() => {
+    async function load() {
+      const { data, error } = await supabase
+        .from("brand_snapshot_reports")
+        .select("*")
+        .eq("report_id", params.id)
+        .single();
+
+      if (!error && data) setReport(data);
+      setLoading(false);
     }
+    load();
+  }, [params.id]);
 
-    return await res.json();
-  } catch (error) {
-    console.error("[Report Page] Error fetching report:", error);
-    return null;
+  if (loading) {
+    return (
+      <div className="w-full min-h-[50vh] flex items-center justify-center text-brand-navy text-lg">
+        Loading your report…
+      </div>
+    );
   }
-}
-
-export async function generateMetadata({
-  params,
-}: {
-  params: { id: string };
-}): Promise<Metadata> {
-  const report = await getReport(params.id);
 
   if (!report) {
-    return {
-      title: "Brand Snapshot™ Not Found | Wunderbar Digital",
-    };
+    return (
+      <div className="w-full min-h-[50vh] flex items-center justify-center text-brand-navy text-lg">
+        Report not found.
+      </div>
+    );
   }
 
-  const score = report.brand_alignment_score || 0;
-  const scoreLabel =
-    score >= 80
-      ? "Excellent"
-      : score >= 60
-      ? "Strong"
-      : score >= 40
-      ? "Developing"
-      : "Needs Focus";
-
-  return {
-    title: `Brand Snapshot™ Results - ${scoreLabel} (${score}/100) | Wunderbar Digital`,
-    description: `Your Brand Alignment Score™ is ${score}/100. View your complete Brand Snapshot™ with pillar insights and recommendations.`,
-    openGraph: {
-      title: `Brand Snapshot™ - ${scoreLabel} (${score}/100)`,
-      description: `Your Brand Alignment Score™ is ${score}/100. View your complete Brand Snapshot™.`,
-      images: [
-        {
-          url: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/og/${params.id}`,
-          width: 1200,
-          height: 630,
-          alt: "Brand Snapshot™ Results",
-        },
-      ],
-    },
-  };
-}
-
-export default async function ReportPage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  const report = await getReport(params.id);
-
-  if (!report || report.error) {
-    return notFound();
-  }
-
+  // Extract data from full_report JSONB field or fallback to direct fields
+  const fullReport = report.full_report || report;
   const {
-    user_name,
-    company_name,
-    brand_alignment_score,
-    pillar_scores,
-    pillar_insights,
-    insights,
-    recommendations,
-    summary,
-    opportunities_summary,
-    upgrade_cta,
-    color_palette,
-    persona,
-    archetype,
-  } = report;
-
-  // Use pillar_insights if available, otherwise fall back to insights
-  const displayInsights = pillar_insights || insights || {};
-  
-  // Get snapshot_upsell from report if available
-  const snapshotUpsell = (report as any).snapshot_upsell || upgrade_cta;
+    brand_alignment_score = report.brand_alignment_score || 0,
+    pillar_scores = report.pillar_scores || {},
+    pillar_insights = report.pillar_insights || {},
+    recommendations = report.recommendations || {},
+    persona = report.persona || null,
+    archetype = report.archetype || null,
+    brand_pillars = report.brand_pillars || null,
+    color_palette = report.color_palette || null,
+  } = fullReport;
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
-      <div className="max-w-5xl mx-auto py-12 px-6">
-        {/* Hero Section */}
-        <div className="fadein">
-          <WundyHero userName={user_name} companyName={company_name} />
+    <main className="min-h-screen bg-white text-brand-midnight pb-32">
+      {/* ==============================
+          HEADER / HERO 
+      =============================== */}
+      <section className="max-w-4xl mx-auto px-6 pt-20 fade-in">
+        <h1 className="text-4xl font-semibold text-brand-navy">
+          Your Brand Snapshot™ Results
+        </h1>
+        <p className="text-lg text-brand-midnight mt-3 max-w-2xl leading-relaxed">
+          Based on your inputs, WUNDY™ analyzed your positioning, messaging,
+          visibility, credibility, and conversion foundation. This report
+          summarizes where your brand is strong — and where small refinements
+          could create meaningful momentum.
+        </p>
+      </section>
+
+      {/* ==============================
+          SCORE CARD 
+      =============================== */}
+      <section className="max-w-4xl mx-auto mt-10 px-6 fade-in-up">
+        <div className="rounded-2xl border border-brand-border shadow-lg p-8 bg-white">
+          <h2 className="text-xl font-semibold text-brand-navy">Brand Alignment Score™</h2>
+          <div className="flex items-center gap-6 mt-6">
+            <div className="text-6xl font-bold text-brand-navy">
+              {brand_alignment_score}
+            </div>
+            <div className="flex-1">
+              <div className="w-full h-4 rounded-full bg-gray-200 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-brand-blue transition-all duration-500"
+                  style={{ width: `${brand_alignment_score}%` }}
+                ></div>
+              </div>
+              <p className="text-sm text-slate-600 mt-2">
+                Higher scores indicate stronger clarity, trust, and conversion potential.
+              </p>
+            </div>
+          </div>
         </div>
+      </section>
 
-        {/* Score Meter */}
-        <div className="fadein" style={{ animationDelay: '100ms' }}>
-          <ScoreMeter score={brand_alignment_score || 0} />
+      {/* ==============================
+          PILLAR BREAKDOWN
+      =============================== */}
+      <section className="max-w-4xl mx-auto mt-16 px-6 fade-in-up">
+        <h2 className="text-2xl font-semibold text-brand-navy">Your Five Pillars</h2>
+        <p className="text-base mt-2 text-slate-700">
+          Each pillar influences how confidently your brand shows up in the market.
+        </p>
+        <div className="mt-8 space-y-8">
+          {Object.entries(pillar_scores).map(([pillar, score]: [string, any]) => {
+            // Handle both old format (string) and new format (object with strength, opportunity, action)
+            const insightData = pillar_insights[pillar];
+            const insight = typeof insightData === 'string' 
+              ? insightData 
+              : insightData?.opportunity || insightData?.strength || "No insight available.";
+            
+            const recommendationData = recommendations[pillar];
+            const recommendation = typeof recommendationData === 'string'
+              ? recommendationData
+              : recommendationData || "No recommendation available.";
+
+            const percent = (score / 20) * 100;
+
+            return (
+              <div key={pillar} className="border border-brand-border rounded-xl p-6 bg-white fade-in-up">
+                <div className="flex justify-between">
+                  <h3 className="text-lg font-semibold text-brand-navy capitalize">
+                    {pillar}
+                  </h3>
+                  <span className="font-bold text-brand-blue">
+                    {score}/20
+                  </span>
+                </div>
+                <div className="w-full h-3 bg-gray-200 rounded-full mt-4">
+                  <div
+                    className="h-full rounded-full bg-brand-blue transition-all duration-500"
+                    style={{ width: `${percent}%` }}
+                  ></div>
+                </div>
+                <p className="mt-4 text-sm text-slate-700">{insight}</p>
+                <div className="mt-4 bg-brand-gray rounded-lg p-4">
+                  <h4 className="text-sm font-semibold text-brand-navy">
+                    Recommendation
+                  </h4>
+                  <p className="text-sm text-slate-700 mt-1">{recommendation}</p>
+                </div>
+              </div>
+            );
+          })}
         </div>
+      </section>
 
-        {/* Pillar Breakdown */}
-        <div className="fadein" style={{ animationDelay: '200ms' }}>
-          <PillarBreakdown
-            pillars={pillar_scores || {}}
-            insights={displayInsights}
-          />
-        </div>
-
-        {/* Recommendations Block */}
-        <div className="fadein" style={{ animationDelay: '300ms' }}>
-          <RecommendationsBlock
-            recommendations={recommendations}
-            summary={summary}
-            opportunitiesSummary={opportunities_summary}
-          />
-        </div>
-
-        {/* Color Palette Section (Snapshot+ only) */}
-        {color_palette && Array.isArray(color_palette) && color_palette.length > 0 && (
-          <ColorPaletteSection
-            palette={color_palette.map((c: any) => ({
-              label: c.name,
-              swatch: c.hex,
-              role: c.role,
-              meaning: c.meaning
-            }))}
-          />
-        )}
-
-        {/* Upgrade Panel */}
-        <div className="fadein" style={{ animationDelay: '400ms' }}>
-          <SnapshotUpgradePanel 
-            upgradeCTA={snapshotUpsell}
-            snapshotPlusCheckoutUrl={process.env.NEXT_PUBLIC_SNAPSHOT_PLUS_URL || "#"}
-          />
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-          <a
-            href={`/api/pdf/${params.id}`}
-            className="inline-block bg-brand-blue text-white px-8 py-3 rounded-lg shadow-lg hover:bg-brand-blueHover transition font-semibold w-full sm:w-auto text-center"
-          >
-            Download PDF Snapshot →
-          </a>
-          <button
-            onClick={() => {
-              if (typeof window !== "undefined") {
-                navigator.share({
-                  title: "My Brand Snapshot™ Results",
-                  text: `Check out my Brand Alignment Score™: ${brand_alignment_score}/100`,
-                  url: window.location.href,
-                });
-              }
-            }}
-            className="inline-block bg-white text-brand-blue border-2 border-brand-blue px-8 py-3 rounded-lg hover:bg-blue-50 transition font-semibold w-full sm:w-auto text-center"
-          >
-            Share Results
-          </button>
-        </div>
-
-        {/* Footer */}
-        <div className="text-center text-sm text-slate-500 pt-8 border-t border-slate-200">
-          <p>
-            Generated by{" "}
-            <a
-              href="https://wunderbardigital.com"
-              className="text-brand-blue hover:underline"
-            >
-              Wunderbar Digital
-            </a>{" "}
-            • Brand Snapshot™
+      {/* ==============================
+          BRAND PERSONA & ARCHETYPE
+      =============================== */}
+      {(persona || archetype) && (
+        <section className="max-w-4xl mx-auto mt-20 px-6 fade-in-up">
+          <h2 className="text-2xl font-semibold text-brand-navy">Brand Persona & Archetype</h2>
+          <p className="text-base text-slate-700 mt-2">
+            These shape your tone, visual direction, and how customers emotionally connect with your brand.
           </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
+            {persona && (
+              <div className="border border-brand-border p-6 rounded-xl bg-white">
+                <h3 className="text-lg font-semibold text-brand-navy">Persona</h3>
+                <p className="text-slate-700 mt-2">{persona}</p>
+              </div>
+            )}
+            {archetype && (
+              <div className="border border-brand-border p-6 rounded-xl bg-white">
+                <h3 className="text-lg font-semibold text-brand-navy">Archetype</h3>
+                <p className="text-slate-700 mt-2">{archetype}</p>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* ==============================
+          BRAND PILLARS (from Snapshot+)
+      =============================== */}
+      {brand_pillars && Array.isArray(brand_pillars) && brand_pillars.length > 0 && (
+        <section className="max-w-4xl mx-auto mt-20 px-6 fade-in-up">
+          <h2 className="text-2xl font-semibold text-brand-navy">Brand Pillars</h2>
+          <p className="text-base text-slate-700 mt-2">
+            These define your strategic foundation — the core truths your brand stands on.
+          </p>
+          <ul className="mt-6 space-y-3">
+            {brand_pillars.map((p: string, i: number) => (
+              <li
+                key={i}
+                className="p-4 border border-brand-border rounded-lg bg-white text-slate-700"
+              >
+                {p}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* ==============================
+          COLOR PALETTE WITH MEANING
+      =============================== */}
+      {color_palette && Array.isArray(color_palette) && color_palette.length > 0 && (
+        <section className="max-w-4xl mx-auto mt-20 px-6 fade-in-up">
+          <h2 className="text-2xl font-semibold text-brand-navy">Recommended Color Palette</h2>
+          <p className="mt-2 text-base text-slate-700">
+            Based on your persona and archetype, WUNDY™ recommends this palette for clarity,
+            emotional resonance, and consistent visual identity.
+          </p>
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+            {color_palette.map((c: any, i: number) => (
+              <div
+                key={i}
+                className="border border-brand-border p-6 rounded-xl bg-white fade-in-up"
+              >
+                <div
+                  className="w-full h-14 rounded-md border border-brand-border"
+                  style={{ backgroundColor: c.hex }}
+                ></div>
+                <p className="mt-3 font-semibold text-brand-navy">{c.name}</p>
+                <p className="text-sm text-slate-700">{c.hex}</p>
+                <p className="mt-2 text-sm text-brand-midnight">
+                  <strong>Role:</strong> {c.role}
+                </p>
+                <p className="mt-1 text-sm text-brand-midnight">
+                  <strong>Meaning:</strong> {c.meaning}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ==============================
+          SNAPSHOT+™ UPGRADE PANEL
+      =============================== */}
+      <section className="max-w-4xl mx-auto mt-24 px-6 fade-in-up">
+        <div className="border border-brand-blue rounded-2xl p-10 bg-brand-blue/5 shadow-md text-center">
+          <h2 className="text-2xl font-semibold text-brand-navy">
+            Want the full strategic treatment?
+          </h2>
+          <p className="text-base text-slate-700 mt-3 max-w-2xl mx-auto">
+            Upgrade to <strong>Brand Snapshot+™</strong> and receive a fully built brand
+            platform including brand pillars, persona, archetype, color palette,
+            messaging frameworks, and actionable strategic recommendations.
+          </p>
+          <a
+            href={process.env.NEXT_PUBLIC_SNAPSHOT_PLUS_URL || "/purchase/snapshot-plus"}
+            className="inline-block px-8 py-4 mt-6 rounded-md bg-brand-blue text-white font-semibold shadow-lg hover:bg-brand-blueHover transition"
+          >
+            Upgrade to Brand Snapshot+™ →
+          </a>
         </div>
-      </div>
+      </section>
     </main>
   );
 }
-

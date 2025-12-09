@@ -70,6 +70,7 @@ export function useBrandChat() {
           let brandAlignmentScore: number;
           let pillarScores: any;
           let pillarInsights: any = {};
+          let recommendations: any = {};
           
           if (snapshotData.scores && typeof snapshotData.scores.brandAlignmentScore === 'number') {
             // Old format with nested "scores" object
@@ -92,6 +93,7 @@ export function useBrandChat() {
               conversion: snapshotData.pillarScores.conversion || 0,
             };
             pillarInsights = snapshotData.pillarInsights || {};
+            recommendations = snapshotData.recommendations || {};
           } else {
             throw new Error('Invalid JSON structure');
           }
@@ -100,7 +102,8 @@ export function useBrandChat() {
             const scoresPayload = {
               brandAlignmentScore,
               pillarScores,
-              pillarInsights
+              pillarInsights,
+              recommendations
             };
             
             console.log('[useBrandChat] Sending scores to parent:', scoresPayload);

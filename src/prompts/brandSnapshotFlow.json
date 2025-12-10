@@ -1,0 +1,271 @@
+{
+  "flow_name": "brand_snapshot",
+  "version": "3.0",
+  "description": "Conversational interactive flow for calculating Brand Alignment Score™",
+  "start": "q_business_name",
+
+  "nodes": {
+    "q_business_name": {
+      "type": "text",
+      "prompt": "Great — let's get started. What's the name of your business?",
+      "save_as": "business_name",
+      "next": "q_has_website"
+    },
+
+    "q_has_website": {
+      "type": "single_select",
+      "prompt": "Do you currently have a website?",
+      "options": [
+        { "label": "Yes", "value": "yes", "next": "q_website_url" },
+        { "label": "No", "value": "no", "next": "q_industry" }
+      ],
+      "save_as": "has_website"
+    },
+
+    "q_website_url": {
+      "type": "text",
+      "prompt": "Perfect — what's your website URL?",
+      "save_as": "website_url",
+      "next": "q_industry"
+    },
+
+    "q_industry": {
+      "type": "text",
+      "prompt": "What industry are you in? A rough category is totally fine.",
+      "save_as": "industry",
+      "next": "q_audience"
+    },
+
+    "q_audience": {
+      "type": "text",
+      "prompt": "Who is your primary customer or audience?",
+      "save_as": "audience_description",
+      "next": "q_offer"
+    },
+
+    "q_offer": {
+      "type": "text",
+      "prompt": "Describe your main offer in one sentence. What do you want people to instantly understand you do?",
+      "save_as": "core_offer_sentence",
+      "next": "q_logo_background"
+    },
+
+    "q_logo_background": {
+      "type": "text",
+      "prompt": "Tell me a little about your logo — how did you get it made?",
+      "save_as": "logo_background",
+      "next": "q_social_active"
+    },
+
+    "q_social_active": {
+      "type": "single_select",
+      "prompt": "Are you active on social media?",
+      "options": [
+        { "label": "Yes", "value": "yes", "next": "q_social_channels" },
+        { "label": "No", "value": "no", "next": "q_lead_sources" }
+      ],
+      "save_as": "social_active"
+    },
+
+    "q_social_channels": {
+      "type": "multi_select",
+      "prompt": "Which platforms are you active on?",
+      "options": [
+        { "label": "Instagram", "value": "instagram" },
+        { "label": "LinkedIn", "value": "linkedin" },
+        { "label": "Facebook", "value": "facebook" },
+        { "label": "TikTok", "value": "tiktok" },
+        { "label": "X", "value": "x" },
+        { "label": "Bluesky", "value": "bluesky" },
+        { "label": "Pinterest", "value": "pinterest" },
+        { "label": "YouTube", "value": "youtube" },
+        { "label": "Other", "value": "other" }
+      ],
+      "save_as": "social_channels",
+      "next": {
+        "if_selected": {
+          "other": "q_social_other"
+        },
+        "default": "q_lead_sources"
+      }
+    },
+
+    "q_social_other": {
+      "type": "text",
+      "prompt": "Which platform did we miss?",
+      "save_as": "social_channels_other",
+      "next": "q_lead_sources"
+    },
+
+    "q_lead_sources": {
+      "type": "multi_select",
+      "prompt": "How do customers typically find you today?",
+      "options": [
+        { "label": "Social media", "value": "social" },
+        { "label": "Google search", "value": "google" },
+        { "label": "Word of mouth", "value": "word_of_mouth" },
+        { "label": "Email marketing", "value": "email" },
+        { "label": "Paid ads", "value": "paid_ads" },
+        { "label": "Events / networking", "value": "events" },
+        { "label": "Partnerships", "value": "partnerships" },
+        { "label": "Other", "value": "other" }
+      ],
+      "save_as": "lead_sources",
+      "next": {
+        "if_selected": {
+          "social": "q_lead_social_channels",
+          "other": "q_lead_other"
+        },
+        "default": "q_messaging_clarity"
+      }
+    },
+
+    "q_lead_social_channels": {
+      "type": "multi_select",
+      "prompt": "Which social channels drive the most awareness?",
+      "options": [
+        { "label": "Instagram", "value": "instagram" },
+        { "label": "LinkedIn", "value": "linkedin" },
+        { "label": "TikTok", "value": "tiktok" },
+        { "label": "X", "value": "x" },
+        { "label": "Facebook", "value": "facebook" },
+        { "label": "YouTube", "value": "youtube" },
+        { "label": "Pinterest", "value": "pinterest" },
+        { "label": "Other", "value": "other" }
+      ],
+      "save_as": "top_social_channels",
+      "next": "q_messaging_clarity"
+    },
+
+    "q_lead_other": {
+      "type": "text",
+      "prompt": "What other lead source do you use?",
+      "save_as": "lead_source_other",
+      "next": "q_messaging_clarity"
+    },
+
+    "q_messaging_clarity": {
+      "type": "single_select",
+      "prompt": "How clear and consistent do you feel your messaging is?",
+      "options": [
+        { "label": "Very clear & consistent", "value": "very_clear" },
+        { "label": "Mostly clear", "value": "mostly_clear" },
+        { "label": "Somewhat inconsistent", "value": "somewhat_inconsistent" },
+        { "label": "Very inconsistent", "value": "very_inconsistent" }
+      ],
+      "save_as": "messaging_clarity",
+      "next": "q_brand_personality"
+    },
+
+    "q_brand_personality": {
+      "type": "text",
+      "prompt": "If you had to describe your brand's personality in a few words, what comes to mind?",
+      "save_as": "brand_personality",
+      "next": "q_conversion_confidence"
+    },
+
+    "q_conversion_confidence": {
+      "type": "single_select",
+      "prompt": "How confident do you feel that your website and marketing channels convert?",
+      "options": [
+        { "label": "Very confident", "value": "very_confident" },
+        { "label": "Somewhat confident", "value": "somewhat_confident" },
+        { "label": "Not very confident", "value": "not_confident" },
+        { "label": "Not confident at all", "value": "none" }
+      ],
+      "save_as": "conversion_confidence",
+      "next": "q_growth_priority"
+    },
+
+    "q_growth_priority": {
+      "type": "single_select",
+      "prompt": "What's your biggest growth priority over the next 6 months?",
+      "options": [
+        { "label": "Increase brand awareness", "value": "awareness" },
+        { "label": "Improve messaging", "value": "messaging" },
+        { "label": "Strengthen credibility", "value": "credibility" },
+        { "label": "Get more leads", "value": "leads" },
+        { "label": "Improve conversions", "value": "conversion" },
+        { "label": "Launch a new offer", "value": "new_offer" },
+        { "label": "Other", "value": "other" }
+      ],
+      "save_as": "growth_priority",
+      "next": {
+        "if_value": {
+          "other": "q_growth_priority_other"
+        },
+        "default": "q_additional_links"
+      }
+    },
+
+    "q_growth_priority_other": {
+      "type": "text",
+      "prompt": "What else are you focusing on?",
+      "save_as": "growth_priority_other",
+      "next": "q_additional_links"
+    },
+
+    "q_additional_links": {
+      "type": "single_select",
+      "prompt": "Before I calculate your Brand Alignment Score™, would you like to add any additional links for analysis?",
+      "options": [
+        { "label": "Add website link", "value": "website", "next": "q_add_link_website" },
+        { "label": "Add social links", "value": "social", "next": "q_add_link_social" },
+        { "label": "Add marketing assets", "value": "assets", "next": "q_add_link_assets" },
+        { "label": "No, continue", "value": "none", "next": "q_ready_generate" }
+      ],
+      "save_as": "additional_link_choice"
+    },
+
+    "q_add_link_website": {
+      "type": "text",
+      "prompt": "Drop the link(s) below.",
+      "save_as": "additional_website_links",
+      "next": "q_additional_links"
+    },
+
+    "q_add_link_social": {
+      "type": "text",
+      "prompt": "Drop any social links you want analyzed.",
+      "save_as": "additional_social_links",
+      "next": "q_additional_links"
+    },
+
+    "q_add_link_assets": {
+      "type": "text",
+      "prompt": "Drop any marketing materials or assets you'd like included.",
+      "save_as": "additional_asset_links",
+      "next": "q_additional_links"
+    },
+
+    "q_ready_generate": {
+      "type": "single_select",
+      "prompt": "Ready for me to calculate your Brand Alignment Score™?",
+      "options": [
+        { "label": "Yes — generate my score", "value": "yes", "next": "action_generate_score" },
+        { "label": "Wait, I want to add more", "value": "back", "next": "q_additional_links" }
+      ]
+    },
+
+    "action_generate_score": {
+      "type": "action",
+      "action": "generate_brand_snapshot_score",
+      "next": "end"
+    }
+  },
+
+  "end": {
+    "type": "complete",
+    "emit_event": "BRAND_SNAPSHOT_COMPLETE",
+    "payload": {
+      "brandAlignmentScore": "{{computed.brandAlignmentScore}}",
+      "pillarScores": "{{computed.pillarScores}}",
+      "pillarInsights": "{{computed.pillarInsights}}",
+      "recommendations": "{{computed.recommendations}}",
+      "persona": "{{computed.persona}}",
+      "archetype": "{{computed.archetype}}",
+      "colorPalette": "{{computed.colorPalette}}"
+    }
+  }
+}
+

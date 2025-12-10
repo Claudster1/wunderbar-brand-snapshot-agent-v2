@@ -9,6 +9,7 @@ import {
   Document,
   StyleSheet,
   Font,
+  Image,
 } from "@react-pdf/renderer";
 
 /* ------------------------------------------------------
@@ -82,7 +83,6 @@ const styles = StyleSheet.create({
   },
 
   table: {
-    display: "table",
     width: "auto",
     marginTop: 10,
     borderStyle: "solid",
@@ -169,6 +169,7 @@ interface BrandSnapshotReportProps {
     visibility?: string;
     credibility?: string;
     conversion?: string;
+    [key: string]: string | undefined;
   };
   recommendations: Array<{
     title: string;
@@ -230,14 +231,18 @@ export const BrandSnapshotReport = ({
 
       <Text style={styles.h2}>How Your Score Breaks Down</Text>
 
-      {Object.entries(pillars).map(([pillar, score]) => (
-        <View style={styles.pillarRow} key={pillar}>
-          <Text style={styles.h3}>
-            {pillar.charAt(0).toUpperCase() + pillar.slice(1)} — {score}/20
-          </Text>
-          <Text style={styles.paragraph}>{insights[pillar]}</Text>
-        </View>
-      ))}
+      {Object.entries(pillars).map(([pillar, score]) => {
+        const pillarKey = pillar as keyof typeof insights;
+        const insight = insights[pillarKey] || "No insight available.";
+        return (
+          <View style={styles.pillarRow} key={pillar}>
+            <Text style={styles.h3}>
+              {pillar.charAt(0).toUpperCase() + pillar.slice(1)} — {score}/20
+            </Text>
+            <Text style={styles.paragraph}>{insight}</Text>
+          </View>
+        );
+      })}
 
       <View style={styles.footer}>
         Brand Snapshot™ and Brand Alignment Score™ are trademarks of Wunderbar
@@ -299,8 +304,8 @@ export const BrandSnapshotReport = ({
         {colorSystem.map((c, i) => (
           <View style={styles.tableRow} key={i}>
             <Text style={styles.tableCol}>{c.name}</Text>
-            <View style={[styles.tableCol, { flexDirection: "row", alignItems: "center" }]}>
-              <View style={[styles.colorSwatch, { backgroundColor: c.hex, marginRight: 6 }]} />
+            <View style={[styles.tableCol, { flexDirection: "row", gap: 6 }]}>
+              <View style={[styles.colorSwatch, { backgroundColor: c.hex }]} />
               <Text>{c.hex}</Text>
             </View>
             <Text style={styles.tableCol}>{c.role}</Text>

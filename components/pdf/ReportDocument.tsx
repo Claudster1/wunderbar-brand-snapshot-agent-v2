@@ -127,6 +127,15 @@ export const ReportDocument = ({
   pillarInsights,
   recommendations,
   suggestedPalette,
+  isPlus = false,
+  report,
+  persona,
+  archetype,
+  brandVoice,
+  opportunitiesMap,
+  roadmap30,
+  roadmap60,
+  roadmap90,
 }: any) => {
   const percent = brandAlignmentScore;
 

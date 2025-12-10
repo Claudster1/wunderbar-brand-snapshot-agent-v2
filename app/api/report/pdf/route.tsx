@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
-import BrandSnapshotPDF from "@/components/BrandSnapshotPDF";
+import ReportDocument from "@/components/pdf/ReportDocument";
 
 /**
  * Transform database report format to PDF component format
@@ -104,7 +104,7 @@ export async function GET(request: Request) {
 
     // Generate PDF
     const pdfBuffer = await renderToBuffer(
-      React.createElement(BrandSnapshotPDF, { reportData: transformedData }) as any
+      React.createElement(ReportDocument, { data: transformedData }) as any
     );
 
     // Return PDF as response
@@ -172,7 +172,7 @@ export async function POST(request: Request) {
 
     // ---------- 3. Generate PDF Buffer ----------
     const pdfBuffer = await renderToBuffer(
-      React.createElement(BrandSnapshotPDF, { reportData: transformedData }) as any
+      React.createElement(ReportDocument, { data: transformedData }) as any
     );
 
     // ---------- 4. Return PDF buffer ----------

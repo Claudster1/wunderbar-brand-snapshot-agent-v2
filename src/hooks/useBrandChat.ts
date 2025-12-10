@@ -1,9 +1,11 @@
 // src/hooks/useBrandChat.ts
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   BrandChatMessage,
   getBrandSnapshotReply,
 } from '../services/openaiService';
+import { useGenerateReport } from './useGenerateReport';
 
 const createMessage = (
   role: BrandChatMessage['role'],
@@ -26,6 +28,8 @@ export function useBrandChat() {
     INITIAL_ASSISTANT_MESSAGE,
   ]);
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const { generateReport, loading: pdfLoading } = useGenerateReport();
 
   const sendMessage = async (text: string) => {
     const trimmed = text.trim();
@@ -133,6 +137,25 @@ export function useBrandChat() {
               if (saveResponse.ok) {
                 const saveResult = await saveResponse.json();
                 
+                // Generate PDF and get report ID
+                const pdfPayload = {
+                  userName: userContext.firstName || companyInfo.company_name || 'User',
+                  businessName: companyInfo.company_name || '',
+                  brandAlignmentScore,
+                  pillarScores,
+                  pillarInsights,
+                  recommendations: Array.isArray(recommendations) 
+                    ? recommendations 
+                    : Object.values(recommendations).filter((r: any) => typeof r === 'string'),
+                  suggestedPalette: snapshotData.suggestedPalette || snapshotData.colorPalette || snapshotData.color_palette || [],
+                };
+
+                const pdfResult = await generateReport(pdfPayload);
+                
+                // Use PDF report ID if available, otherwise use save report ID
+                const finalReportId = pdfResult?.reportId || saveResult.reportId;
+                const redirectUrl = saveResult.redirectUrl || `/report/${finalReportId}`;
+                
                 // Send scores to parent page via postMessage (for visual display)
                 if (typeof window !== 'undefined') {
                   // Check if we're in an iframe
@@ -141,18 +164,22 @@ export function useBrandChat() {
                       type: 'BRAND_SNAPSHOT_COMPLETE',
                       data: {
                         ...scoresPayload,
-                        report_id: saveResult.reportId,
-                        redirectUrl: saveResult.redirectUrl,
+                        report_id: finalReportId,
+                        redirectUrl,
                       }
                     }, '*');
-                    console.log('[useBrandChat] postMessage sent to parent window with redirectUrl:', saveResult.redirectUrl);
+                    console.log('[useBrandChat] postMessage sent to parent window with redirectUrl:', redirectUrl);
                   } else {
                     console.warn('[useBrandChat] Not in an iframe - cannot send postMessage to parent');
+                    // If not in iframe, redirect directly
+                    if (finalReportId) {
+                      router.push(`/report/${finalReportId}`);
+                    }
                   }
                   
                   // Store redirect URL for potential redirect
-                  if (saveResult.success && saveResult.redirectUrl) {
-                    (window as any).__snapshotRedirectUrl = saveResult.redirectUrl;
+                  if (saveResult.success && redirectUrl) {
+                    (window as any).__snapshotRedirectUrl = redirectUrl;
                   }
                 }
               } else {

@@ -3,25 +3,40 @@
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 
-export const revalidate = 0;
+export const dynamic = "force-dynamic";
 
 export default async function SnapshotPlusPage({ params }: { params: { id: string } }) {
   const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false } }
   );
 
+  const reportId = params.id;
+
+  if (!reportId) {
+    return (
+      <div className="p-10 text-red-600 text-center">
+        Missing report ID.
+      </div>
+    );
+  }
+
+  // 🧠 Fetch the report from Supabase
   const { data: report, error } = await supabase
     .from("brand_snapshot_plus_reports")
     .select("*")
-    .eq("report_id", params.id)
+    .eq("report_id", reportId)
     .single();
 
   if (error || !report) {
+    console.error("Error fetching report:", error);
     return (
-      <div style={{ padding: "40px", fontFamily: "Helvetica Neue, sans-serif" }}>
-        <h1 style={{ color: "#021859" }}>Snapshot+™ Report Not Found</h1>
-        <p>Please verify your link.</p>
+      <div className="p-10 text-center">
+        <h1 className="text-xl font-semibold mb-2">Report Not Found</h1>
+        <p className="text-slate-600">
+          This Brand Snapshot+™ report does not exist or is no longer available.
+        </p>
       </div>
     );
   }

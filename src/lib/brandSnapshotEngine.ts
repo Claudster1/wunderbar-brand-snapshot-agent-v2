@@ -1,369 +1,375 @@
-// src/lib/brandSnapshotEngine.ts
-// Centralized Brand Snapshot Intelligence Engine
-// Handles scoring, normalization, insights, and personalization
+// lib/brandSnapshotEngine.ts
 
-import {
-  PillarScores as DynamicPillarScores,
-  getGapSeverity,
-  findWeakestPillar,
-  findStrongPillars,
-  generatePillarInsight,
-  generateUpsellCopy,
-  type GapSeverity,
-} from '../services/dynamicInsights';
+// =============================================================
+// BRAND SNAPSHOT ENGINE™
+// Core logic for:
+// - Brand Alignment Score™
+// - Pillar scoring (weighted)
+// - Persona & Archetype inference
+// - Color palette generation
+// - Insights & recommendations
+// - Snapshot+™ full deliverable support
+// =============================================================
 
-// Re-export types for convenience
-export type PillarScores = DynamicPillarScores;
-export type { GapSeverity };
+export type SnapshotInput = {
+  businessName: string;
+  industry: string;
+  website?: string;
+  socials?: string[];
+  hasBrandGuidelines: boolean;
+  brandConsistency: string; // "strong" | "somewhat" | "inconsistent"
+  targetCustomers: string;
+  competitorNames?: string[];
+  offerClarity: string; // "very clear" | "somewhat clear" | "unclear"
+  messagingClarity: string;
+  brandVoiceDescription: string;
+  primaryGoals: string[];
+  marketingChannels: string[];
+  visualConfidence: string; // "very confident" | "somewhat" | "not confident"
+  brandPersonalityWords: string[];
+};
 
-/**
- * Pillar weights for Brand Alignment Score calculation
- */
-const PILLAR_WEIGHTS = {
-  positioning: 0.25,
-  messaging: 0.25,
-  visibility: 0.20,
+// =============================================================
+// 1. PILLAR WEIGHTS (not all pillars are equal)
+// =============================================================
+const WEIGHTS = {
+  positioning: 0.28,
+  messaging: 0.24,
+  visibility: 0.18,
   credibility: 0.15,
   conversion: 0.15,
-} as const;
+};
 
-/**
- * Normalize a raw score to 1-20 scale
- * If score is already in 1-20 range, return as-is
- * If score is in 0-100 range, scale it down
- */
-export function normalizeTo1_20(score: number): number {
-  if (score >= 1 && score <= 20) {
-    return Math.round(score);
-  }
-  if (score >= 0 && score <= 100) {
-    return Math.round((score / 100) * 20);
-  }
-  // Clamp to valid range
-  return Math.max(1, Math.min(20, Math.round(score)));
+// =============================================================
+// 2. SCORING HELPERS (0–20 per pillar)
+// =============================================================
+function scorePositioning(input: SnapshotInput): number {
+  let score = 10;
+
+  if (input.offerClarity === "very clear") score += 5;
+  if (input.targetCustomers.length > 20) score += 3;
+  if (input.brandConsistency === "strong") score += 2;
+  if (input.industry.toLowerCase().includes("technology")) score += 1; // minor boost
+
+  return Math.min(20, score);
 }
 
-/**
- * Calculate Brand Alignment Score from pillar scores using weighted formula
- * Returns score 0-100
- */
-export function calculateBrandAlignmentScore(pillarScores: PillarScores): number {
-  const total =
-    pillarScores.positioning * PILLAR_WEIGHTS.positioning +
-    pillarScores.messaging * PILLAR_WEIGHTS.messaging +
-    pillarScores.visibility * PILLAR_WEIGHTS.visibility +
-    pillarScores.credibility * PILLAR_WEIGHTS.credibility +
-    pillarScores.conversion * PILLAR_WEIGHTS.conversion;
+function scoreMessaging(input: SnapshotInput): number {
+  let score = 10;
 
-  // Scale from 0-20 to 0-100
-  return Math.round((total / 20) * 100);
+  if (input.messagingClarity === "very clear") score += 6;
+  if (input.brandVoiceDescription.length > 40) score += 2;
+
+  return Math.min(20, score);
 }
 
-/**
- * Classify pillar severity based on score
- */
-export function classifyPillarSeverity(score: number): {
-  severity: GapSeverity;
-  tier: 'excellent' | 'strong' | 'developing' | 'needs_focus';
-} {
-  if (score >= 18) {
-    return { severity: 'light', tier: 'excellent' };
-  }
-  if (score >= 15) {
-    return { severity: 'light', tier: 'strong' };
-  }
-  if (score >= 11) {
-    return { severity: 'moderate', tier: 'developing' };
-  }
-  return { severity: 'major', tier: 'needs_focus' };
+function scoreVisibility(input: SnapshotInput): number {
+  let score = 8;
+
+  if (input.marketingChannels.includes("seo")) score += 3;
+  if (input.marketingChannels.includes("social")) score += 3;
+  if (input.socials && input.socials.length >= 3) score += 3;
+
+  return Math.min(20, score);
 }
 
-/**
- * Generate insight for a pillar based on score
- * Uses a simple threshold: score >= 15 is strong, < 15 is opportunity
- */
-function makeInsight(
-  score: number,
-  strongMsg: string,
-  opportunityMsg: string
-): string {
-  return score >= 15 ? strongMsg : opportunityMsg;
+function scoreCredibility(input: SnapshotInput): number {
+  let score = 8;
+
+  if (input.hasBrandGuidelines) score += 4;
+  if (input.competitorNames && input.competitorNames.length > 0) score += 2;
+  if (input.visualConfidence === "very confident") score += 4;
+
+  return Math.min(20, score);
 }
 
-/**
- * Generate simple insights for all pillars (alternative to full dynamic insights)
- * Uses the makeInsight helper with predefined messages
- */
-export function generateInsights(pillarScores: PillarScores): {
-  positioning: string;
-  messaging: string;
-  visibility: string;
-  credibility: string;
-  conversion: string;
-} {
+function scoreConversion(input: SnapshotInput): number {
+  let score = 8;
+
+  if (input.offerClarity === "very clear") score += 6;
+  if (input.marketingChannels.includes("email")) score += 3;
+
+  return Math.min(20, score);
+}
+
+// =============================================================
+// 3. PILLAR SCORE MAP
+// =============================================================
+export function calculatePillarScores(input: SnapshotInput) {
   return {
-    positioning: makeInsight(
-      pillarScores.positioning,
-      "Your positioning has strong clarity and direction. Customers should quickly understand who you serve and why you're different.",
-      "Strengthening your differentiation and refining your audience focus would help customers understand your value more quickly."
-    ),
-    messaging: makeInsight(
-      pillarScores.messaging,
-      "Your messaging is cohesive and communicates Meaning effectively.",
-      "Your messaging framework could better communicate your Meaning and value to your ideal audience."
-    ),
-    visibility: makeInsight(
-      pillarScores.visibility,
-      "Your brand is gaining meaningful visibility across channels.",
-      "Increasing consistency across your website, social platforms, and search visibility will uplift overall brand strength."
-    ),
-    credibility: makeInsight(
-      pillarScores.credibility,
-      "You have indicators of trust that reinforce credibility.",
-      "Investing in more trust signals (social proof, certifications, reviews) could dramatically strengthen customer confidence."
-    ),
-    conversion: makeInsight(
-      pillarScores.conversion,
-      "Your conversion path is solid and clearly guided.",
-      "Your customer journey can benefit from clearer CTAs, simplified steps, and messaging aligned to buyer intent."
-    ),
+    positioning: scorePositioning(input),
+    messaging: scoreMessaging(input),
+    visibility: scoreVisibility(input),
+    credibility: scoreCredibility(input),
+    conversion: scoreConversion(input),
   };
 }
 
-/**
- * Generate strength insight for a pillar
- */
-function generateStrengthInsight(
-  pillar: keyof PillarScores,
-  score: number,
-  tier: 'excellent' | 'strong' | 'developing' | 'needs_focus'
-): string {
-  const pillarName = pillar.charAt(0).toUpperCase() + pillar.slice(1);
-
-  if (tier === 'excellent') {
-    return `Your ${pillarName} is excellent—you've built a strong foundation that clearly communicates your value. This strength creates trust and recognition in the market.`;
-  }
-  if (tier === 'strong') {
-    return `Your ${pillarName} is strong, showing clear progress and a solid foundation. You're well-positioned to build on this momentum.`;
-  }
-  if (tier === 'developing') {
-    return `Your ${pillarName} is developing—you have the right pieces in place, and with focused attention, you can quickly strengthen this area.`;
-  }
-  return `Your ${pillarName} shows opportunity for growth. The good news is that improvements here will create meaningful impact on your overall brand alignment.`;
+// =============================================================
+// 4. BRAND ALIGNMENT SCORE™ (0–100)
+// =============================================================
+export function calculateBrandAlignmentScore(pillars: Record<string, number>) {
+  return Math.round(
+    pillars.positioning * WEIGHTS.positioning +
+      pillars.messaging * WEIGHTS.messaging +
+      pillars.visibility * WEIGHTS.visibility +
+      pillars.credibility * WEIGHTS.credibility +
+      pillars.conversion * WEIGHTS.conversion
+  );
 }
 
-/**
- * Generate opportunity insight (same as current dynamic insight)
- */
-function generateOpportunityInsight(
-  pillar: keyof PillarScores,
-  score: number
-): string {
-  return generatePillarInsight(pillar, score);
-}
+// =============================================================
+// 5. PERSONA & ARCHETYPE ENGINE
+// =============================================================
+export function inferPersona(input: SnapshotInput) {
+  const words = input.brandPersonalityWords.map((w) => w.toLowerCase());
 
-/**
- * Generate immediate next-step action for a pillar
- */
-function generateActionInsight(
-  pillar: keyof PillarScores,
-  score: number,
-  tier: 'excellent' | 'strong' | 'developing' | 'needs_focus'
-): string {
-  const pillarName = pillar.charAt(0).toUpperCase() + pillar.slice(1);
-
-  if (tier === 'excellent') {
-    return `Maintain your ${pillarName} strength by regularly reviewing and refreshing your approach. Consider how you can scale what's working as you grow.`;
-  }
-  if (tier === 'strong') {
-    return `Build on your ${pillarName} foundation by identifying one specific area to refine or expand. Small improvements here will compound over time.`;
-  }
-  if (tier === 'developing') {
-    return `Focus on strengthening ${pillarName} by addressing the most impactful gaps first. Start with one clear action and build from there.`;
-  }
-  return `Prioritize ${pillarName} as a key focus area. Start with the most foundational elements—even small improvements will create noticeable impact.`;
-}
-
-/**
- * Generate complete pillar insights (strength, opportunity, action)
- */
-export function generatePillarInsights(pillarScores: PillarScores): {
-  [key in keyof PillarScores]: {
-    score: number;
-    severity: GapSeverity;
-    tier: 'excellent' | 'strong' | 'developing' | 'needs_focus';
-    strength: string;
-    opportunity: string;
-    action: string;
-  };
-} {
-  const insights: any = {};
-
-  for (const [pillar, score] of Object.entries(pillarScores) as [
-    keyof PillarScores,
-    number
-  ][]) {
-    const normalizedScore = normalizeTo1_20(score);
-    const { severity, tier } = classifyPillarSeverity(normalizedScore);
-
-    insights[pillar] = {
-      score: normalizedScore,
-      severity,
-      tier,
-      strength: generateStrengthInsight(pillar, normalizedScore, tier),
-      opportunity: generateOpportunityInsight(pillar, normalizedScore),
-      action: generateActionInsight(pillar, normalizedScore, tier),
+  if (words.includes("bold") || words.includes("innovative")) {
+    return {
+      persona: "The Visionary",
+      archetype: "The Creator",
+      description:
+        "Forward-thinking, energetic, and driven by innovation. You attract customers who believe in transformation and originality.",
     };
   }
+
+  if (words.includes("helpful") || words.includes("warm")) {
+    return {
+      persona: "The Guide",
+      archetype: "The Caregiver",
+      description:
+        "Supportive, trustworthy, and empathetic — your brand thrives when customers feel understood and cared for.",
+    };
+  }
+
+  if (words.includes("expert") || words.includes("professional")) {
+    return {
+      persona: "The Authority",
+      archetype: "The Sage",
+      description:
+        "Clear, informative, and dependable. Your authority helps customers feel confident they're making the right choice.",
+    };
+  }
+
+  // fallback
+  return {
+    persona: "The Builder",
+    archetype: "The Everyperson",
+    description:
+      "Approachable, reliable, and grounded — your strength lies in making customers feel comfortable and supported.",
+  };
+}
+
+// =============================================================
+// 6. COLOR PALETTE GENERATOR (Persona-Based)
+// =============================================================
+export function generateColorPalette(persona: string) {
+  switch (persona) {
+    case "The Visionary":
+      return [
+        { name: "Electric Blue", hex: "#1E90FF", role: "Primary", meaning: "Innovation & momentum" },
+        { name: "Deep Navy", hex: "#021859", role: "Secondary", meaning: "Confidence & stability" },
+        { name: "Vibrant Aqua", hex: "#27CDF2", role: "Accent", meaning: "Energy & clarity" },
+      ];
+
+    case "The Guide":
+      return [
+        { name: "Warm Teal", hex: "#3BAE9C", role: "Primary", meaning: "Trust & empathy" },
+        { name: "Soft Sand", hex: "#EADBC8", role: "Secondary", meaning: "Warmth & approachability" },
+        { name: "Deep Ocean", hex: "#013A63", role: "Accent", meaning: "Reassurance & grounding" },
+      ];
+
+    case "The Authority":
+      return [
+        { name: "Charcoal Blue", hex: "#0C1526", role: "Primary", meaning: "Authority & clarity" },
+        { name: "Steel Gray", hex: "#7C8CA5", role: "Secondary", meaning: "Structure & dependability" },
+        { name: "Refined Gold", hex: "#C6A667", role: "Accent", meaning: "Excellence & leadership" },
+      ];
+
+    default:
+      return [
+        { name: "Friendly Blue", hex: "#4A90E2", role: "Primary", meaning: "Approachability & trust" },
+        { name: "Fresh Green", hex: "#7ED957", role: "Secondary", meaning: "Growth & optimism" },
+        { name: "Crisp White", hex: "#FFFFFF", role: "Accent", meaning: "Simplicity & clarity" },
+      ];
+  }
+}
+
+// =============================================================
+// 7. INSIGHTS ENGINE
+// =============================================================
+export function generateInsights(
+  pillars: Record<string, number>,
+  persona: string
+) {
+  const insights: Record<string, string> = {};
+
+  insights.positioning =
+    pillars.positioning >= 16
+      ? "Your positioning is strong — customers likely understand who you serve and what sets you apart."
+      : "Small refinements to your market focus and offer clarity could significantly boost your differentiation.";
+
+  insights.messaging =
+    pillars.messaging >= 16
+      ? "Your messaging feels confident and clear — a strong signal that your brand understands its voice."
+      : "Clarifying your core message and refining tone can strengthen emotional connection and trust.";
+
+  insights.visibility =
+    pillars.visibility >= 15
+      ? "You're present across key channels — now optimize consistency to increase reach."
+      : "Increasing visibility across your strongest channels could meaningfully expand your brand awareness.";
+
+  insights.credibility =
+    pillars.credibility >= 15
+      ? "Your brand feels trustworthy and dependable — continue reinforcing proof points and consistency."
+      : "Strengthening visual consistency, testimonials, and authority signals will boost customer confidence.";
+
+  insights.conversion =
+    pillars.conversion >= 15
+      ? "Your conversion fundamentals are strong — customers likely understand your next steps."
+      : "Simplifying calls-to-action and clarifying your offer structure can meaningfully improve conversion performance.";
 
   return insights;
 }
 
-/**
- * Generate Snapshot+ personalized upsell message
- */
-export function generateSnapshotUpsell(pillarScores: PillarScores): string {
-  return generateUpsellCopy(pillarScores);
+// =============================================================
+// 8. RECOMMENDATIONS ENGINE (Snapshot+™ foundation)
+// =============================================================
+export function generateRecommendations(
+  pillars: Record<string, number>,
+  persona: string
+) {
+  const recs: string[] = [];
+
+  if (pillars.positioning < 14)
+    recs.push(
+      "Refine your value proposition to more clearly communicate who you serve, what you solve, and why it matters."
+    );
+
+  if (pillars.messaging < 14)
+    recs.push(
+      "Develop a messaging hierarchy that clearly outlines your core message, supporting points, and tone guidelines."
+    );
+
+  if (pillars.visibility < 12)
+    recs.push(
+      "Increase visibility by strengthening your top-performing channels and improving consistency across touchpoints."
+    );
+
+  if (pillars.credibility < 12)
+    recs.push(
+      "Reinforce credibility with testimonials, case studies, certification badges, and consistent visual branding."
+    );
+
+  if (pillars.conversion < 12)
+    recs.push(
+      "Improve conversion by clarifying CTAs, simplifying landing pages, and communicating value earlier."
+    );
+
+  // Persona-based strategic recommendation
+  if (persona === "The Visionary")
+    recs.push(
+      "Lean into originality — spotlight your unique perspective to differentiate your category position."
+    );
+
+  if (persona === "The Guide")
+    recs.push(
+      "Highlight support, clarity, and empathy in your brand experience — this builds trust faster."
+    );
+
+  if (persona === "The Authority")
+    recs.push(
+      "Elevate leadership content — frameworks, insights, and strategic guidance reinforce your expertise."
+    );
+
+  return recs;
 }
 
-/**
- * Generate color palette based on brand archetype
- * Uses "Meaning" (not "what it communicates") for color psychology
- */
-export function generateColorPalette(archetype: string): Array<{
-  name: string;
-  hex: string;
-  role: string;
-  meaning: string;
-}> {
-  const palettes: Record<string, Array<{
-    name: string;
-    hex: string;
-    role: string;
-    meaning: string;
-  }>> = {
-    "Sage": [
-      { name: "Deep Blue", hex: "#021859", role: "Primary", meaning: "Wisdom, depth, clarity" },
-      { name: "Aqua Glow", hex: "#27CDF2", role: "Secondary", meaning: "Freshness, agility, innovation" },
-      { name: "Warm Amber", hex: "#FFB45E", role: "Accent", meaning: "Momentum, optimism" },
-      { name: "Soft Gray", hex: "#F2F2F2", role: "Neutral", meaning: "Balance, calm" },
-      { name: "Midnight", hex: "#0C1526", role: "Neutral Deep", meaning: "Premium depth, sophistication" }
-    ],
-    "Hero": [
-      { name: "Bold Navy", hex: "#021859", role: "Primary", meaning: "Authority, trust, strength" },
-      { name: "Electric Blue", hex: "#07B0F2", role: "Secondary", meaning: "Action, confidence, forward motion" },
-      { name: "Crimson", hex: "#DC2626", role: "Accent", meaning: "Passion, urgency, impact" },
-      { name: "Light Gray", hex: "#F5F5F5", role: "Neutral", meaning: "Clarity, focus, precision" },
-      { name: "Charcoal", hex: "#1F2937", role: "Neutral Deep", meaning: "Grounded, professional, reliable" }
-    ],
-    "Explorer": [
-      { name: "Forest Green", hex: "#065F46", role: "Primary", meaning: "Growth, adventure, natural authenticity" },
-      { name: "Sky Blue", hex: "#0EA5E9", role: "Secondary", meaning: "Freedom, possibility, open horizons" },
-      { name: "Sunset Orange", hex: "#F97316", role: "Accent", meaning: "Energy, discovery, boldness" },
-      { name: "Sand", hex: "#FEF3C7", role: "Neutral", meaning: "Warmth, approachability, earthiness" },
-      { name: "Deep Teal", hex: "#0F766E", role: "Neutral Deep", meaning: "Depth, exploration, wisdom" }
-    ],
-    "Creator": [
-      { name: "Royal Purple", hex: "#6B21A8", role: "Primary", meaning: "Creativity, innovation, imagination" },
-      { name: "Vibrant Pink", hex: "#EC4899", role: "Secondary", meaning: "Expression, boldness, artistic flair" },
-      { name: "Golden Yellow", hex: "#FBBF24", role: "Accent", meaning: "Optimism, inspiration, brilliance" },
-      { name: "Lavender", hex: "#E9D5FF", role: "Neutral", meaning: "Dreaminess, creativity, softness" },
-      { name: "Deep Plum", hex: "#581C87", role: "Neutral Deep", meaning: "Sophistication, depth, artistic vision" }
-    ],
-    "Caregiver": [
-      { name: "Sage Green", hex: "#10B981", role: "Primary", meaning: "Nurturing, growth, harmony" },
-      { name: "Soft Blue", hex: "#60A5FA", role: "Secondary", meaning: "Trust, calm, care" },
-      { name: "Warm Peach", hex: "#FB923C", role: "Accent", meaning: "Compassion, warmth, approachability" },
-      { name: "Cream", hex: "#FFFBEB", role: "Neutral", meaning: "Gentleness, comfort, safety" },
-      { name: "Olive", hex: "#84CC16", role: "Neutral Deep", meaning: "Stability, natural care, groundedness" }
-    ],
-    "Ruler": [
-      { name: "Navy Blue", hex: "#021859", role: "Primary", meaning: "Authority, leadership, excellence" },
-      { name: "Gold", hex: "#F59E0B", role: "Secondary", meaning: "Prestige, value, achievement" },
-      { name: "Silver", hex: "#94A3B8", role: "Accent", meaning: "Refinement, sophistication, quality" },
-      { name: "Ivory", hex: "#FFFEF7", role: "Neutral", meaning: "Elegance, luxury, space" },
-      { name: "Charcoal", hex: "#1F2937", role: "Neutral Deep", meaning: "Power, stability, command" }
-    ],
-    "Innocent": [
-      { name: "Sky Blue", hex: "#0EA5E9", role: "Primary", meaning: "Purity, simplicity, clarity" },
-      { name: "Soft Pink", hex: "#F9A8D4", role: "Secondary", meaning: "Gentleness, optimism, joy" },
-      { name: "Sunshine Yellow", hex: "#FCD34D", role: "Accent", meaning: "Happiness, positivity, light" },
-      { name: "Cloud White", hex: "#FFFFFF", role: "Neutral", meaning: "Simplicity, cleanliness, openness" },
-      { name: "Baby Blue", hex: "#BFDBFE", role: "Neutral Deep", meaning: "Trust, innocence, peace" }
-    ],
-    "Magician": [
-      { name: "Deep Purple", hex: "#6B21A8", role: "Primary", meaning: "Transformation, mystery, innovation" },
-      { name: "Electric Cyan", hex: "#06B6D4", role: "Secondary", meaning: "Magic, possibility, breakthrough" },
-      { name: "Vibrant Magenta", hex: "#D946EF", role: "Accent", meaning: "Energy, transformation, boldness" },
-      { name: "Misty Gray", hex: "#E5E7EB", role: "Neutral", meaning: "Mystery, depth, sophistication" },
-      { name: "Midnight Blue", hex: "#0C1526", role: "Neutral Deep", meaning: "Depth, wisdom, transformation" }
-    ],
-  };
-
-  return palettes[archetype] || palettes["Sage"];
-}
-
-/**
- * Main function: Calculate scores and generate all insights
- */
-export function calculateScores(rawPillarScores: Partial<PillarScores>): {
-  brandAlignmentScore: number;
-  pillarScores: PillarScores;
-  pillarInsights: ReturnType<typeof generatePillarInsights>;
-  weakestPillar: {
-    pillar: keyof PillarScores;
-    score: number;
-    severity: GapSeverity;
-  };
-  strengths: (keyof PillarScores)[];
-  opportunities: {
-    pillar: keyof PillarScores;
-    score: number;
-    severity: GapSeverity;
-  }[];
-  snapshotUpsell: string;
-} {
-  // Normalize all pillar scores to 1-20
-  const normalizedScores: PillarScores = {
-    positioning: normalizeTo1_20(rawPillarScores.positioning || 0),
-    messaging: normalizeTo1_20(rawPillarScores.messaging || 0),
-    visibility: normalizeTo1_20(rawPillarScores.visibility || 0),
-    credibility: normalizeTo1_20(rawPillarScores.credibility || 0),
-    conversion: normalizeTo1_20(rawPillarScores.conversion || 0),
-  };
-
-  // Calculate Brand Alignment Score
-  const brandAlignmentScore = calculateBrandAlignmentScore(normalizedScores);
-
-  // Generate pillar insights
-  const pillarInsights = generatePillarInsights(normalizedScores);
-
-  // Find weakest pillar
-  const weakestPillar = findWeakestPillar(normalizedScores);
-
-  // Find strong pillars (score >= 16)
-  const strengths = findStrongPillars(normalizedScores);
-
-  // Find opportunities (sorted by score, ascending)
-  const opportunities = Object.entries(normalizedScores)
-    .map(([pillar, score]) => ({
-      pillar: pillar as keyof PillarScores,
-      score,
-      severity: getGapSeverity(score),
-    }))
-    .sort((a, b) => a.score - b.score);
-
-  // Generate Snapshot+ upsell
-  const snapshotUpsell = generateSnapshotUpsell(normalizedScores);
+// =============================================================
+// 9. FINAL EXPORT: FULL REPORT OBJECT
+// =============================================================
+export function generateBrandSnapshotReport(input: SnapshotInput) {
+  const pillarScores = calculatePillarScores(input);
+  const brandAlignmentScore = calculateBrandAlignmentScore(pillarScores);
+  const personaData = inferPersona(input);
+  const colorPalette = generateColorPalette(personaData.persona);
+  const pillarInsights = generateInsights(pillarScores, personaData.persona);
+  const recommendations = generateRecommendations(
+    pillarScores,
+    personaData.persona
+  );
 
   return {
     brandAlignmentScore,
-    pillarScores: normalizedScores,
+    pillarScores,
+    persona: personaData.persona,
+    archetype: personaData.archetype,
+    personaDescription: personaData.description,
+    colorPalette,
     pillarInsights,
-    weakestPillar,
-    strengths,
-    opportunities,
-    snapshotUpsell,
+    recommendations,
   };
 }
 
+// =============================================================
+// 10. COMPATIBILITY FUNCTION: calculateScores
+// For backward compatibility with existing code that passes pillarScores directly
+// =============================================================
+export function calculateScores(pillarScores: Record<string, number>) {
+  // Calculate Brand Alignment Score from existing pillar scores
+  const brandAlignmentScore = calculateBrandAlignmentScore(pillarScores);
+  
+  // Find weakest pillar
+  const weakestPillar = Object.entries(pillarScores).reduce((min, [pillar, score]) => 
+    score < min.score ? { pillar, score } : min,
+    { pillar: 'positioning', score: 20 }
+  );
+  
+  // Find strong pillars (>= 16)
+  const strengths = Object.entries(pillarScores)
+    .filter(([_, score]) => score >= 16)
+    .map(([pillar]) => pillar);
+  
+  // Generate insights (convert string insights to object format with strength/opportunity/action)
+  const rawInsights = generateInsights(pillarScores, "The Builder"); // Default persona for compatibility
+  const pillarInsights: Record<string, { strength: string; opportunity: string; action: string }> = {};
+  
+  Object.entries(rawInsights).forEach(([pillar, insight]) => {
+    // Split insight into strength/opportunity/action based on score
+    const score = pillarScores[pillar];
+    if (score >= 16) {
+      pillarInsights[pillar] = {
+        strength: insight,
+        opportunity: "Continue building on this strength to maintain momentum.",
+        action: "Document what's working and scale these practices across touchpoints."
+      };
+    } else if (score >= 12) {
+      pillarInsights[pillar] = {
+        strength: "You have a solid foundation in this area.",
+        opportunity: insight,
+        action: "Focus on one key improvement to elevate this pillar."
+      };
+    } else {
+      pillarInsights[pillar] = {
+        strength: "There's significant opportunity for growth here.",
+        opportunity: insight,
+        action: "Start with the highest-impact change to see meaningful improvement."
+      };
+    }
+  });
+  
+  // Generate upsell copy based on weakest pillar
+  const upsellCopy = `Your ${weakestPillar.pillar} pillar shows the most opportunity for improvement. Snapshot+™ provides a complete strategic roadmap to strengthen this area and elevate your overall brand alignment.`;
+  
+  return {
+    brandAlignmentScore,
+    pillarScores,
+    pillarInsights,
+    weakestPillar,
+    strengths,
+    snapshotUpsell: upsellCopy,
+    opportunities: Object.entries(pillarScores)
+      .filter(([_, score]) => score < 14)
+      .map(([pillar]) => pillar)
+  };
+}

@@ -39,19 +39,31 @@ function transformReportData(data: any) {
   });
 
   // Extract color palette
-  const colorPalette = reportData.color_palette || reportData.colorPalette || reportData.recommendedPalette || [];
+  const colorPalette = reportData.color_palette || reportData.colorPalette || reportData.recommendedPalette || reportData.suggestedPalette || [];
+
+  // Extract recommendations - handle both array and object formats
+  let recommendations: any[] = [];
+  if (Array.isArray(reportData.recommendations)) {
+    recommendations = reportData.recommendations;
+  } else if (reportData.recommendations && typeof reportData.recommendations === 'object') {
+    // If it's an object with pillar keys, convert to array
+    Object.values(reportData.recommendations).forEach((rec: any) => {
+      if (typeof rec === 'string') {
+        recommendations.push(rec);
+      } else if (rec && typeof rec === 'object') {
+        recommendations.push(rec.description || rec.title || rec);
+      }
+    });
+  }
 
   return {
-    user: reportData.user_name || reportData.userName || reportData.user || null,
     userName: reportData.user_name || reportData.userName || "User",
+    businessName: reportData.company || reportData.company_name || reportData.businessName || "",
     brandAlignmentScore: reportData.brand_alignment_score || reportData.brandAlignmentScore || 0,
     pillarScores,
     pillarInsights,
-    recommendedPalette: colorPalette,
-    color_palette: colorPalette,
-    colorPalette: colorPalette,
-    recommendations: reportData.recommendations || [],
-    metadata: reportData.metadata || {},
+    recommendations,
+    suggestedPalette: colorPalette,
   };
 }
 
@@ -104,7 +116,7 @@ export async function GET(request: Request) {
 
     // Generate PDF
     const pdfBuffer = await renderToBuffer(
-      React.createElement(ReportDocument, { data: transformedData }) as any
+      React.createElement(ReportDocument, transformedData) as any
     );
 
     // Return PDF as response
@@ -172,7 +184,7 @@ export async function POST(request: Request) {
 
     // ---------- 3. Generate PDF Buffer ----------
     const pdfBuffer = await renderToBuffer(
-      React.createElement(ReportDocument, { data: transformedData }) as any
+      React.createElement(ReportDocument, transformedData) as any
     );
 
     // ---------- 4. Return PDF buffer ----------

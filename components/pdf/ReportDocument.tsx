@@ -1,290 +1,334 @@
-// ---------------------------------------------
 // components/pdf/ReportDocument.tsx
-// React-PDF template for Brand Snapshot™ Report
-// ---------------------------------------------
+
+import React from "react";
 
 import {
+  Document,
   Page,
   Text,
   View,
-  Document,
   StyleSheet,
-  Image,
   Font,
+  Image,
 } from "@react-pdf/renderer";
 
-// ---------------------------------------------
-// REGISTER FONTS (Helvetica-like system fonts)
-// ---------------------------------------------
+// ---------------------------
+// FONT REGISTRATION
+// ---------------------------
 Font.register({
-  family: "Helvetica",
-  src: "https://fonts.cdnfonts.com/s/14165/Helvetica.ttf",
+  family: "HelveticaNeue",
+  fonts: [
+    { src: "/fonts/HelveticaNeue-Regular.ttf" },
+    { src: "/fonts/HelveticaNeue-Medium.ttf", fontWeight: 500 },
+    { src: "/fonts/HelveticaNeue-Bold.ttf", fontWeight: 700 },
+  ],
 });
 
-// ---------------------------------------------
-// ASSETS (from existing /src/assets folder)
-// ---------------------------------------------
-import WundyHero from "@/assets/wundy-hero.png";
-import BrandLogo from "@/assets/logo-blue.png";
-
-// ---------------------------------------------
-// BRAND COLORS
-// ---------------------------------------------
-const colors = {
-  navy: "#021859",
-  blue: "#07B0F2",
-  aqua: "#27CDF2",
-  midnight: "#0C1526",
-  gray: "#F2F2F2",
-};
-
-// ---------------------------------------------
-// PDF STYLES
-// ---------------------------------------------
+// ---------------------------
+// STYLES
+// ---------------------------
 const styles = StyleSheet.create({
   page: {
-    padding: 36,
-    fontFamily: "Helvetica",
-    color: colors.midnight,
+    padding: 40,
+    fontFamily: "HelveticaNeue",
+    color: "#0C1526",
+    fontSize: 12,
+    lineHeight: 1.5,
   },
 
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 24,
-  },
-
-  logo: {
-    width: 120,
-  },
-
-  wundy: {
-    width: 80,
-  },
-
-  title: {
-    fontSize: 22,
+  h1: {
+    fontSize: 26,
     fontWeight: 700,
-    color: colors.navy,
+    color: "#021859",
     marginBottom: 12,
   },
 
-  sectionTitle: {
-    fontSize: 16,
+  h2: {
+    fontSize: 18,
     fontWeight: 700,
-    color: colors.navy,
-    marginTop: 24,
-    marginBottom: 8,
+    color: "#021859",
+    marginTop: 20,
+    marginBottom: 6,
   },
 
-  paragraph: {
-    fontSize: 11,
-    lineHeight: 1.5,
-    marginBottom: 8,
+  h3: {
+    fontSize: 14,
+    fontWeight: 600,
+    marginTop: 16,
+    marginBottom: 4,
+    color: "#021859",
+  },
+
+  section: {
+    marginTop: 18,
+    marginBottom: 12,
   },
 
   scoreBox: {
-    backgroundColor: colors.gray,
     padding: 16,
-    borderRadius: 6,
+    borderRadius: 8,
+    backgroundColor: "#F5F7FB",
+    border: "1px solid #E0E3EA",
+    marginBottom: 14,
+  },
+
+  meterTrack: {
+    width: "100%",
+    height: 8,
+    borderRadius: 10,
+    backgroundColor: "#E5E7EB",
     marginTop: 8,
-    marginBottom: 16,
-  },
-
-  scoreNumber: {
-    fontSize: 32,
-    fontWeight: 700,
-    color: colors.blue,
-  },
-
-  table: {
-    width: "auto",
-    marginTop: 12,
+    marginBottom: 4,
   },
 
   tableRow: {
     flexDirection: "row",
-    borderBottomColor: "#DDD",
-    borderBottomWidth: 1,
+    borderBottom: "1px solid #E5E7EB",
     paddingVertical: 6,
   },
 
-  tableHeader: {
-    fontSize: 11,
-    fontWeight: 700,
-    flex: 1,
-  },
-
-  tableCell: {
-    fontSize: 10,
-    flex: 1,
-  },
-
-  swatch: {
-    width: 14,
-    height: 14,
-    borderRadius: 2,
-    marginRight: 6,
-  },
-
-  swatchCell: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
-
   footer: {
-    marginTop: 36,
-    fontSize: 9,
-    color: "#555",
+    marginTop: 40,
+    fontSize: 10,
     textAlign: "center",
+    color: "#6B7280",
   },
 });
 
-// ---------------------------------------------
-// TYPES
-// ---------------------------------------------
-interface ReportDocumentProps {
-  data: {
-    user?: string | null;
-    userName?: string;
-    brandAlignmentScore?: number;
-    scores?: {
-      brandAlignmentScore?: number;
-      pillarScores?: Record<string, number>;
-    };
-    pillarScores?: Record<string, number>;
-    pillarInsights?: Record<string, string | { strength?: string; opportunity?: string; action?: string }>;
-    insights?: Record<string, string>;
-    recommendedPalette?: Array<{
-      name: string;
-      hex: string;
-      role: string;
-      meaning: string;
-    }>;
-    color_palette?: Array<{
-      name: string;
-      hex: string;
-      role: string;
-      meaning: string;
-    }>;
-    colorPalette?: Array<{
-      name: string;
-      hex: string;
-      role: string;
-      meaning: string;
-    }>;
-    recommendations?: string[] | Array<{ title: string; description: string }>;
-    metadata?: Record<string, any>;
-  };
-}
+// Helper functions for dynamic styles
+const getMeterFill = (percent: number) => ({
+  width: `${percent}%`,
+  height: 8,
+  borderRadius: 10,
+  backgroundColor:
+    percent >= 80 ? "#22C55E" : percent >= 60 ? "#FACC15" : "#EF4444",
+});
 
-// ---------------------------------------------
-// MAIN PDF DOCUMENT
-// ---------------------------------------------
-export default function ReportDocument({ data }: ReportDocumentProps) {
-  // Extract and normalize data
-  const brandAlignmentScore = data.brandAlignmentScore || data.scores?.brandAlignmentScore || 0;
-  const pillarScores = data.pillarScores || data.scores?.pillarScores || {};
-  const pillarInsights = data.pillarInsights || data.insights || {};
-  
-  // Use recommendedPalette, color_palette, or colorPalette
-  const palette = data.recommendedPalette || data.color_palette || data.colorPalette || [];
+const getCol = (width: string) => ({
+  width,
+  paddingRight: 6,
+});
+
+const getColorSwatch = (hex: string) => ({
+  width: 24,
+  height: 24,
+  borderRadius: 4,
+  backgroundColor: hex,
+});
+
+// -----------------------------------
+// MAIN DOCUMENT COMPONENT
+// -----------------------------------
+export const ReportDocument = ({
+  userName,
+  businessName,
+  brandAlignmentScore,
+  pillarScores,
+  pillarInsights,
+  recommendations,
+  suggestedPalette,
+}: any) => {
+  const percent = brandAlignmentScore;
+
+  const scoreLabel =
+    percent >= 80
+      ? "Excellent Alignment"
+      : percent >= 60
+      ? "Strong Foundation"
+      : "Needs Focused Attention";
 
   return (
     <Document>
-      {/* ====== PAGE 1 ====== */}
-      <Page size="A4" style={styles.page}>
-        {/* HEADER */}
-        <View style={styles.header}>
-          {BrandLogo && (
-            <Image style={styles.logo} src={BrandLogo} />
-          )}
-          {WundyHero && (
-            <Image style={styles.wundy} src={WundyHero} />
-          )}
-        </View>
+      {/* ============================================================
+          PAGE 1 — COVER PAGE
+      ============================================================ */}
+      <Page style={styles.page}>
+        <Text style={styles.h1}>Your Brand Snapshot™ Report</Text>
+        <Text>Prepared for {userName || "you"}</Text>
+        <Text>{businessName}</Text>
 
-        {/* TITLE */}
-        <Text style={styles.title}>Your Brand Snapshot™ Report</Text>
+        <View style={{ marginTop: 30 }}>
+          <Text style={styles.h2}>Brand Alignment Score™</Text>
 
-        <Text style={styles.paragraph}>
-          Here's your personalized Brand Alignment Score™ and a high-level read
-          on how clearly and consistently your brand is currently showing up
-          across the five foundational pillars.
-        </Text>
+          <View style={styles.scoreBox}>
+            <Text style={{ fontSize: 28, fontWeight: 700, color: "#021859" }}>
+              {brandAlignmentScore}/100
+            </Text>
+            <Text style={{ fontSize: 12, marginTop: 4 }}>{scoreLabel}</Text>
 
-        {/* SCORE SECTION */}
-        <Text style={styles.sectionTitle}>Brand Alignment Score™</Text>
-        <View style={styles.scoreBox}>
-          <Text style={styles.scoreNumber}>{brandAlignmentScore}</Text>
-        </View>
-
-        {/* PILLAR SCORES TABLE */}
-        <Text style={styles.sectionTitle}>Pillar Breakdown</Text>
-
-        <View style={styles.table}>
-          {/* HEADER ROW */}
-          <View style={styles.tableRow}>
-            <Text style={styles.tableHeader}>Pillar</Text>
-            <Text style={styles.tableHeader}>Score</Text>
-            <Text style={styles.tableHeader}>Insight</Text>
+            <View style={styles.meterTrack}>
+              <View style={getMeterFill(percent)} />
+            </View>
           </View>
 
-          {Object.entries(pillarScores).map(([pillar, score]) => {
-            // Handle both old format (string) and new format (object)
-            const insightData = pillarInsights[pillar];
-            const insight = typeof insightData === 'string' 
-              ? insightData 
-              : insightData?.opportunity || insightData?.strength || "No insight available.";
-
-            return (
-              <View style={styles.tableRow} key={pillar}>
-                <Text style={styles.tableCell}>
-                  {pillar.charAt(0).toUpperCase() + pillar.slice(1)}
-                </Text>
-                <Text style={styles.tableCell}>{score}/20</Text>
-                <Text style={styles.tableCell}>{insight}</Text>
-              </View>
-            );
-          })}
+          <Text style={styles.h3}>How Your Score Is Calculated</Text>
+          <Text>
+            Your Brand Alignment Score™ reflects how clearly, consistently, and
+            confidently your brand shows up across five key pillars:
+          </Text>
+          <Text>
+            Positioning, Messaging, Visibility, Credibility, and Conversion.
+          </Text>
         </View>
 
-        {/* COLOR SYSTEM */}
-        {palette && palette.length > 0 && (
-          <>
-            <Text style={styles.sectionTitle}>Recommended Color Palette</Text>
+        <Text
+          style={{
+            marginTop: 40,
+            fontSize: 10,
+            textAlign: "center",
+            color: "#6B7280",
+          }}
+        >
+          © 2025 Wunderbar Digital. All rights reserved.
+        </Text>
+      </Page>
 
-            <View style={styles.table}>
-              <View style={styles.tableRow}>
-                <Text style={styles.tableHeader}>Color Name</Text>
-                <Text style={styles.tableHeader}>Swatch</Text>
-                <Text style={styles.tableHeader}>Role</Text>
-                <Text style={styles.tableHeader}>Meaning</Text>
-              </View>
+      {/* ============================================================
+          PAGE 2 — PILLAR BREAKDOWN
+      ============================================================ */}
+      <Page style={styles.page}>
+        <Text style={styles.h1}>Your Pillar Breakdown</Text>
 
-              {palette.map((color: any, index: number) => (
-                <View style={styles.tableRow} key={color.name || index}>
-                  <Text style={styles.tableCell}>{color.name || 'Color'}</Text>
-                  <View style={styles.swatchCell}>
-                    <View style={[styles.swatch, { backgroundColor: color.hex || '#000000' }]} />
-                    <Text style={styles.tableCell}>{color.hex || ''}</Text>
-                  </View>
-                  <Text style={styles.tableCell}>{color.role || 'Primary'}</Text>
-                  <Text style={styles.tableCell}>{color.meaning || 'No meaning specified'}</Text>
+        {Object.keys(pillarScores).map((pillar) => {
+          const score = pillarScores[pillar];
+          const pct = (score / 20) * 100;
+
+          // Handle both old format (string) and new format (object)
+          const insightData = pillarInsights[pillar];
+          const insight = typeof insightData === 'string' 
+            ? insightData 
+            : insightData?.opportunity || insightData?.strength || "No insight available.";
+
+          return (
+            <View key={pillar} style={styles.section}>
+              <Text style={styles.h2}>
+                {pillar.charAt(0).toUpperCase() + pillar.slice(1)}
+              </Text>
+
+              <View style={styles.scoreBox}>
+                <Text style={{ fontSize: 20, fontWeight: 700 }}>
+                  {score}/20
+                </Text>
+
+                <View style={styles.meterTrack}>
+                  <View style={getMeterFill(pct)} />
                 </View>
-              ))}
-            </View>
-          </>
-        )}
 
-        {/* FOOTER */}
+                <Text style={{ marginTop: 6 }}>{insight}</Text>
+              </View>
+            </View>
+          );
+        })}
+
         <Text style={styles.footer}>
-          © {new Date().getFullYear()} Wunderbar Digital. All rights reserved.
+          © 2025 Wunderbar Digital. Brand Snapshot™ is a trademark of Wunderbar
+          Digital.
+        </Text>
+      </Page>
+
+      {/* ============================================================
+          PAGE 3 — BRAND COLOR PALETTE
+      ============================================================ */}
+      <Page style={styles.page}>
+        <Text style={styles.h1}>Recommended Brand Color Palette</Text>
+
+        <Text style={{ marginTop: 6 }}>
+          Based on your brand persona, archetype, tone, and strategic goals,
+          Wundy recommends the following palette:
+        </Text>
+
+        {/* TABLE HEADER */}
+        <View style={[styles.tableRow, { fontWeight: 700 }]}>
+          <Text style={getCol("25%")}>Color Name</Text>
+          <Text style={getCol("20%")}>Swatch</Text>
+          <Text style={getCol("20%")}>Role</Text>
+          <Text style={getCol("35%")}>Meaning</Text>
+        </View>
+
+        {(suggestedPalette || []).map((color: any, i: number) => (
+          <View key={i} style={styles.tableRow}>
+            <Text style={getCol("25%")}>{color.name || 'Color'}</Text>
+
+            <View style={[getCol("20%"), { flexDirection: "row" }]}>
+              <View style={getColorSwatch(color.hex || '#000000')} />
+            </View>
+
+            <Text style={getCol("20%")}>{color.role || 'Primary'}</Text>
+            <Text style={getCol("35%")}>{color.meaning || 'No meaning specified'}</Text>
+          </View>
+        ))}
+
+        <Text style={styles.footer}>
+          Custom palette generated dynamically for your brand.
+        </Text>
+      </Page>
+
+      {/* ============================================================
+          PAGE 4 — RECOMMENDATIONS
+      ============================================================ */}
+      <Page style={styles.page}>
+        <Text style={styles.h1}>Your Custom Recommendations</Text>
+
+        <Text>
+          These recommendations are tailored to your inputs and reflect the
+          highest-impact next steps Wundy suggests for strengthening your
+          brand's clarity, trust, and performance.
+        </Text>
+
+        {(recommendations || []).map((rec: any, i: number) => {
+          // Handle both string and object formats
+          const recText = typeof rec === 'string' ? rec : rec.description || rec.title || 'No recommendation';
+          
+          return (
+            <View key={i} style={styles.section}>
+              <Text style={styles.h2}>Recommendation {i + 1}</Text>
+              <Text>{recText}</Text>
+            </View>
+          );
+        })}
+
+        <Text style={styles.footer}>
+          Want a deeper transformation? Upgrade to Snapshot+™ for full brand
+          guidance.
+        </Text>
+      </Page>
+
+      {/* ============================================================
+          PAGE 5 — SNAPSHOT+™ UPGRADE INVITE
+      ============================================================ */}
+      <Page style={styles.page}>
+        <Text style={styles.h1}>Upgrade to Snapshot+™</Text>
+
+        <Text style={{ marginBottom: 16 }}>
+          Snapshot+™ takes your Brand Snapshot™ foundation and elevates it into
+          a complete strategic brand toolkit — crafted uniquely for your
+          business.
+        </Text>
+
+        <Text style={styles.h2}>Snapshot+™ Includes:</Text>
+
+        <View style={{ marginTop: 10 }}>
+          <Text>• Brand Persona & Archetype Development</Text>
+          <Text>• Messaging Framework + Value Proposition</Text>
+          <Text>• Homepage Copy Outline</Text>
+          <Text>• Visual Identity Direction + Palette Expansion</Text>
+          <Text>• Brand Voice Guide</Text>
+          <Text>• Priority Roadmap for the Next 90 Days</Text>
+        </View>
+
+        <Text style={{ marginTop: 18 }}>
+          Want Wundy to take your brand from "clearer" to "powerfully
+          unmistakable"?  
+          Upgrade now at WunderbarDigital.com.
+        </Text>
+
+        <Text style={styles.footer}>
+          © 2025 Wunderbar Digital. Snapshot+™ is a trademark of Wunderbar
+          Digital.
         </Text>
       </Page>
     </Document>
   );
-}
+};
 
+export default ReportDocument;

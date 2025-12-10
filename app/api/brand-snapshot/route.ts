@@ -10,12 +10,17 @@ const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// ⛑️ Supabase client for saving reports
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { persistSession: false } }
-);
+// ⛑️ Supabase client for saving reports (created lazily to avoid errors if env vars missing)
+function getSupabaseClient() {
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!supabaseUrl || !serviceRoleKey) {
+    return null;
+  }
+  
+  return createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
+}
 
 export async function POST(req: Request) {
   try {
@@ -65,6 +70,15 @@ export async function POST(req: Request) {
         return NextResponse.json(
           { error: "Missing required fields: brand_alignment_score and pillar_scores" },
           { status: 400 }
+        );
+      }
+
+      // Check if Supabase is configured
+      const supabase = getSupabaseClient();
+      if (!supabase) {
+        return NextResponse.json(
+          { error: "Database not configured. Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY." },
+          { status: 500 }
         );
       }
 

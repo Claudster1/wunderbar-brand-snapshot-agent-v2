@@ -1,113 +1,262 @@
-// components/BrandSnapshotPDF.tsx
+// ---------------------------------------------
+// BrandSnapshotPDF.tsx
+// React-PDF template for Brand Snapshot™ Report
+// ---------------------------------------------
 
-import { Page, Text, View, Document, StyleSheet } from "@react-pdf/renderer";
+import {
+  Page,
+  Text,
+  View,
+  Document,
+  StyleSheet,
+  Image,
+  Font,
+} from "@react-pdf/renderer";
 
-const styles = StyleSheet.create({
-  page: {
-    padding: 32,
-    fontSize: 12,
-    fontFamily: "Helvetica"
-  },
-  heading: {
-    fontSize: 22,
-    color: "#021859",
-    marginBottom: 8,
-    fontWeight: 700
-  },
-  subheading: {
-    fontSize: 14,
-    marginTop: 20,
-    marginBottom: 6,
-    color: "#021859",
-    fontWeight: 600
-  },
-  section: {
-    marginBottom: 14
-  },
-  label: {
-    fontSize: 12,
-    fontWeight: 600,
-    color: "#021859",
-    marginBottom: 4
-  },
-  text: {
-    fontSize: 12,
-    lineHeight: 1.5
-  },
-  divider: {
-    height: 1,
-    backgroundColor: "#e5e7eb",
-    marginVertical: 12
-  }
+// ---------------------------------------------
+// REGISTER FONTS (Helvetica-like system fonts)
+// ---------------------------------------------
+Font.register({
+  family: "Helvetica",
+  src: "https://fonts.cdnfonts.com/s/14165/Helvetica.ttf",
 });
 
-export default function BrandSnapshotPDF({ data }: { data: any }) {
+// ---------------------------------------------
+// ASSETS (from existing /src/assets folder)
+// ---------------------------------------------
+import WundyHero from "@/assets/wundy-hero.png";
+import BrandLogo from "@/assets/logo-blue.png";
+
+// ---------------------------------------------
+// BRAND COLORS
+// ---------------------------------------------
+const colors = {
+  navy: "#021859",
+  blue: "#07B0F2",
+  aqua: "#27CDF2",
+  midnight: "#0C1526",
+  gray: "#F2F2F2",
+};
+
+// ---------------------------------------------
+// PDF STYLES
+// ---------------------------------------------
+const styles = StyleSheet.create({
+  page: {
+    padding: 36,
+    fontFamily: "Helvetica",
+    color: colors.midnight,
+  },
+
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 24,
+  },
+
+  logo: {
+    width: 120,
+  },
+
+  wundy: {
+    width: 80,
+  },
+
+  title: {
+    fontSize: 22,
+    fontWeight: 700,
+    color: colors.navy,
+    marginBottom: 12,
+  },
+
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: 700,
+    color: colors.navy,
+    marginTop: 24,
+    marginBottom: 8,
+  },
+
+  paragraph: {
+    fontSize: 11,
+    lineHeight: 1.5,
+    marginBottom: 8,
+  },
+
+  scoreBox: {
+    backgroundColor: colors.gray,
+    padding: 16,
+    borderRadius: 6,
+    marginTop: 8,
+    marginBottom: 16,
+  },
+
+  scoreNumber: {
+    fontSize: 32,
+    fontWeight: 700,
+    color: colors.blue,
+  },
+
+  table: {
+    width: "auto",
+    marginTop: 12,
+  },
+
+  tableRow: {
+    flexDirection: "row",
+    borderBottomColor: "#DDD",
+    borderBottomWidth: 1,
+    paddingVertical: 6,
+  },
+
+  tableHeader: {
+    fontSize: 11,
+    fontWeight: 700,
+    flex: 1,
+  },
+
+  tableCell: {
+    fontSize: 10,
+    flex: 1,
+  },
+
+  swatch: {
+    width: 14,
+    height: 14,
+    borderRadius: 2,
+    marginRight: 6,
+  },
+
+  swatchCell: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+
+  footer: {
+    marginTop: 36,
+    fontSize: 9,
+    color: "#555",
+    textAlign: "center",
+  },
+});
+
+// ---------------------------------------------
+// MAIN PDF DOCUMENT
+// ---------------------------------------------
+export const BrandSnapshotPDF = ({ reportData, data }: { reportData?: any; data?: any }) => {
+  // Support both prop names for backward compatibility
+  const source = reportData || data || {};
+  
   const {
+    user,
     userName,
     brandAlignmentScore,
     pillarScores,
     pillarInsights,
-    recommendations,
-    websiteNotes
-  } = data;
+    recommendedPalette,
+    color_palette,
+    colorPalette,
+  } = source;
+  
+  // Use recommendedPalette, color_palette, or colorPalette
+  const palette = recommendedPalette || color_palette || colorPalette || [];
 
   return (
     <Document>
+      {/* ====== PAGE 1 ====== */}
       <Page size="A4" style={styles.page}>
-        
-        <Text style={styles.heading}>Brand Snapshot™ Report</Text>
-        <Text style={styles.text}>Prepared for: {userName}</Text>
-
-        <View style={styles.divider} />
-
-        {/* Overall Score */}
-        <View style={styles.section}>
-          <Text style={styles.subheading}>Brand Alignment Score™</Text>
-          <Text style={styles.text}>{brandAlignmentScore} / 100</Text>
+        {/* HEADER */}
+        <View style={styles.header}>
+          {BrandLogo && (
+            <Image style={styles.logo} src={BrandLogo} />
+          )}
+          {WundyHero && (
+            <Image style={styles.wundy} src={WundyHero} />
+          )}
         </View>
 
-        {/* Pillar Scores */}
-        <View style={styles.section}>
-          <Text style={styles.subheading}>Pillar Breakdown</Text>
-          {Object.entries(pillarScores).map(([key, val]: any) => (
-            <Text key={key} style={styles.text}>
-              {key.charAt(0).toUpperCase() + key.slice(1)}: {val.toFixed(1)} / 20
-            </Text>
-          ))}
+        {/* TITLE */}
+        <Text style={styles.title}>Your Brand Snapshot™ Report</Text>
+
+        <Text style={styles.paragraph}>
+          Here's your personalized Brand Alignment Score™ and a high-level read
+          on how clearly and consistently your brand is currently showing up
+          across the five foundational pillars.
+        </Text>
+
+        {/* SCORE SECTION */}
+        <Text style={styles.sectionTitle}>Brand Alignment Score™</Text>
+        <View style={styles.scoreBox}>
+          <Text style={styles.scoreNumber}>{brandAlignmentScore}</Text>
         </View>
 
-        {/* Insights */}
-        <View style={styles.section}>
-          <Text style={styles.subheading}>Insights</Text>
-          {Object.entries(pillarInsights).map(([key, insight]: any) => (
-            <View key={key} style={{ marginBottom: 8 }}>
-              <Text style={styles.label}>
-                {key.charAt(0).toUpperCase() + key.slice(1)}
-              </Text>
-              <Text style={styles.text}>{insight}</Text>
-            </View>
-          ))}
-        </View>
+        {/* PILLAR SCORES TABLE */}
+        <Text style={styles.sectionTitle}>Pillar Breakdown</Text>
 
-        {/* Recommendations */}
-        <View style={styles.section}>
-          <Text style={styles.subheading}>Top Recommendations</Text>
-          {recommendations.map((rec: string, i: number) => (
-            <Text key={i} style={styles.text}>
-              • {rec}
-            </Text>
-          ))}
-        </View>
-
-        {/* Website Notes */}
-        {websiteNotes && (
-          <View style={styles.section}>
-            <Text style={styles.subheading}>Website Notes</Text>
-            <Text style={styles.text}>{websiteNotes}</Text>
+        <View style={styles.table}>
+          {/* HEADER ROW */}
+          <View style={styles.tableRow}>
+            <Text style={styles.tableHeader}>Pillar</Text>
+            <Text style={styles.tableHeader}>Score</Text>
+            <Text style={styles.tableHeader}>Insight</Text>
           </View>
+
+          {Object.entries(pillarScores).map(([pillar, score]) => {
+            // Handle both old format (string) and new format (object)
+            const insightData = pillarInsights[pillar];
+            const insight = typeof insightData === 'string' 
+              ? insightData 
+              : insightData?.opportunity || insightData?.strength || "No insight available.";
+
+            return (
+              <View style={styles.tableRow} key={pillar}>
+                <Text style={styles.tableCell}>
+                  {pillar.charAt(0).toUpperCase() + pillar.slice(1)}
+                </Text>
+                <Text style={styles.tableCell}>{score}/20</Text>
+                <Text style={styles.tableCell}>{insight}</Text>
+              </View>
+            );
+          })}
+        </View>
+
+        {/* COLOR SYSTEM */}
+        {palette && palette.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>Recommended Color Palette</Text>
+
+            <View style={styles.table}>
+              <View style={styles.tableRow}>
+                <Text style={styles.tableHeader}>Color Name</Text>
+                <Text style={styles.tableHeader}>Swatch</Text>
+                <Text style={styles.tableHeader}>Role</Text>
+                <Text style={styles.tableHeader}>Meaning</Text>
+              </View>
+
+              {palette.map((color: any, index: number) => (
+                <View style={styles.tableRow} key={color.name || index}>
+                  <Text style={styles.tableCell}>{color.name || 'Color'}</Text>
+                  <View style={styles.swatchCell}>
+                    <View style={[styles.swatch, { backgroundColor: color.hex || '#000000' }]} />
+                    <Text style={styles.tableCell}>{color.hex || ''}</Text>
+                  </View>
+                  <Text style={styles.tableCell}>{color.role || 'Primary'}</Text>
+                  <Text style={styles.tableCell}>{color.meaning || 'No meaning specified'}</Text>
+                </View>
+              ))}
+            </View>
+          </>
         )}
 
+        {/* FOOTER */}
+        <Text style={styles.footer}>
+          © {new Date().getFullYear()} Wunderbar Digital. All rights reserved.
+        </Text>
       </Page>
     </Document>
   );
-}
+};
+
+export default BrandSnapshotPDF;

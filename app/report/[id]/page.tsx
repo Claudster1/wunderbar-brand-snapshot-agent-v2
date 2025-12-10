@@ -3,18 +3,30 @@
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 
-export const revalidate = 0;
+export const dynamic = "force-dynamic";
 
 export default async function ReportPage({ params }: { params: { id: string } }) {
   const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { persistSession: false } }
   );
 
+  const reportId = params.id;
+
+  if (!reportId) {
+    return (
+      <div className="p-10 text-red-600 text-center">
+        Missing report ID.
+      </div>
+    );
+  }
+
+  // 🧠 Fetch the report from Supabase
   const { data: report, error } = await supabase
     .from("brand_snapshot_reports")
     .select("*")
-    .eq("report_id", params.id)
+    .eq("report_id", reportId)
     .single();
 
   if (error || !report) {

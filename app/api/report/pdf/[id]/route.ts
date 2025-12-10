@@ -2,7 +2,7 @@
 
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { pdf } from "@react-pdf/renderer";
+import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
 import ReportDocument from "@/components/pdf/ReportDocument";
 
@@ -79,20 +79,21 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
     const pdfData = transformReportForPdf(report, plus);
 
-    // Render PDF using pdf() function
-    const pdfFile = await pdf(
+    // Render PDF using renderToBuffer
+    const pdfBuffer = await renderToBuffer(
       React.createElement(ReportDocument, { ...pdfData, report, isPlus: plus })
-    ).toBuffer();
+    );
 
     const filename = plus
       ? `SnapshotPlus_Report_${params.id}.pdf`
       : `BrandSnapshot_Report_${params.id}.pdf`;
 
-    return new NextResponse(pdfFile, {
+    return new NextResponse(pdfBuffer as any, {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="${filename}"`,
+        "Content-Length": pdfBuffer.length.toString(),
       },
     });
   } catch (err: any) {

@@ -20,9 +20,7 @@ const createMessage = (
 // Must match the system prompt's first greeting exactly
 const INITIAL_ASSISTANT_MESSAGE = createMessage(
   'assistant',
-  `Hi, I'm Wundy 👋  
-
-I'll guide you through a few quick questions so Wunderbar Digital's Brand Intelligence Engine can create your personalized Brand Snapshot™.  
+  `Hi, I'm Wundy. I'll guide you through a few questions to build your Brand Snapshot™.
 
 Ready to begin?`
 );

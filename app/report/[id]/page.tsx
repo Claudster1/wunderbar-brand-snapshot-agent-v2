@@ -1,267 +1,271 @@
 // app/report/[id]/page.tsx
 
-"use client";
+import { createClient } from "@supabase/supabase-js";
+import Link from "next/link";
 
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+export const revalidate = 0;
 
-export default function ReportPage() {
-  const params = useParams();
-  const reportId = params.id;
+export default async function ReportPage({ params }: { params: { id: string } }) {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
-  const [loading, setLoading] = useState(true);
-  const [report, setReport] = useState<any>(null);
-  const [error, setError] = useState("");
+  const { data: report, error } = await supabase
+    .from("brand_snapshot_reports")
+    .select("*")
+    .eq("report_id", params.id)
+    .single();
 
-  useEffect(() => {
-    async function fetchReport() {
-      const { data, error } = await supabase
-        .from("brand_snapshot_reports")
-        .select("*")
-        .eq("report_id", reportId)
-        .single();
-
-      if (error) {
-        setError("We couldn't load your Brand Snapshot™.");
-      } else {
-        setReport(data);
-      }
-      setLoading(false);
-    }
-    fetchReport();
-  }, [reportId]);
-
-  if (loading) {
+  if (error || !report) {
     return (
-      <main className="p-10 text-center text-brand-navy">
-        <p>Loading your Brand Snapshot™…</p>
-      </main>
-    );
-  }
-
-  if (!report) {
-    return (
-      <main className="p-10 text-center text-brand-navy">
-        <p>Sorry — we couldn't find this report.</p>
-      </main>
+      <div style={{ padding: "40px", fontFamily: "Helvetica Neue, sans-serif" }}>
+        <h1 style={{ fontSize: "24px", color: "#021859" }}>Report not found</h1>
+        <p>Please check your link or contact support.</p>
+      </div>
     );
   }
 
   const {
-    user_name,
     brand_alignment_score,
     pillar_scores,
     pillar_insights,
-    pdf_url,
+    recommendations,
+    full_report,
   } = report;
 
+  /* ------------------------------------------------------------------
+     INLINE STYLES (Deal.ai compatible)
+  ------------------------------------------------------------------ */
+  const css = `
+    .page-wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 48px 20px;
+      font-family: Helvetica Neue, sans-serif;
+      color: #0C1526;
+    }
+    h1,h2,h3 { color: #021859; margin-bottom: 8px; }
+    .score-card {
+      margin-top: 32px;
+      padding: 28px;
+      border-radius: 10px;
+      border: 1px solid #E0E3EA;
+      background: #FFFFFF;
+      box-shadow: 0 8px 24px rgba(2,24,89,0.06);
+      opacity: 0;
+      animation: fadeIn 0.8s ease forwards;
+    }
+    .big-score {
+      font-size: 64px;
+      font-weight: 700;
+      color: #021859;
+    }
+    .meter-track {
+      width: 100%;
+      height: 10px;
+      background: #E0E3EA;
+      border-radius: 6px;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+    .meter-fill {
+      height: 10px;
+      background: #07B0F2;
+      width: 0%;
+      animation: growMeter 1.4s ease forwards;
+    }
+    .pillars-grid {
+      margin-top: 32px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+    .pillar-card {
+      padding: 18px 22px;
+      border-radius: 8px;
+      border: 1px solid #E0E3EA;
+      background: #FAFBFF;
+      opacity: 0;
+      animation: fadeInUp 0.65s ease forwards;
+    }
+    .pillar-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #021859;
+      margin-bottom: 6px;
+    }
+    .pillar-meter {
+      width: 100%;
+      height: 8px;
+      background: #E0E3EA;
+      border-radius: 4px;
+      margin: 10px 0;
+      overflow: hidden;
+    }
+    .pillar-fill {
+      height: 8px;
+      background: #07B0F2;
+      width: 0%;
+      animation: growMeter 1.3s ease forwards;
+    }
+    .insight-text {
+      font-size: 15px;
+      line-height: 1.55;
+      margin-top: 8px;
+      color: #333;
+    }
+    .recommend-box {
+      margin-top: 42px;
+      padding: 26px;
+      border-radius: 10px;
+      background: #FFFFFF;
+      border: 1px solid #E0E3EA;
+      box-shadow: 0 8px 24px rgba(2,24,89,0.06);
+      opacity: 0;
+      animation: fadeIn 1s ease forwards;
+    }
+    .recommend-box ul {
+      margin-top: 12px;
+      padding-left: 20px;
+    }
+    .snapshot-plus {
+      margin-top: 48px;
+      padding: 36px;
+      border-radius: 10px;
+      background: #021859;
+      color: #FFFFFF;
+      text-align: center;
+      opacity: 0;
+      animation: fadeIn 1.1s ease forwards;
+    }
+    .plus-btn {
+      display: inline-block;
+      margin-top: 18px;
+      padding: 14px 24px;
+      background: #07B0F2;
+      border-radius: 6px;
+      font-weight: 600;
+      text-decoration: none;
+      color: #FFFFFF;
+      box-shadow: 0 6px 18px rgba(7,176,242,0.28);
+    }
+    .plus-btn:hover {
+      background: #059BD8;
+    }
+    @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes growMeter {
+      from { width: 0%; }
+      to { width: 100%; }
+    }
+  `;
+
+  // Handle both old (string) and new (object) insight formats
+  const getInsightText = (insight: any): string => {
+    if (typeof insight === 'string') {
+      return insight;
+    }
+    if (insight && typeof insight === 'object') {
+      return insight.opportunity || insight.strength || insight.action || "No insight available.";
+    }
+    return "No insight available.";
+  };
+
+  // Handle recommendations - can be array or object
+  const recommendationsList = Array.isArray(recommendations) 
+    ? recommendations 
+    : recommendations && typeof recommendations === 'object'
+    ? Object.values(recommendations).filter((r: any) => typeof r === 'string')
+    : [];
+
   return (
-    <main className="min-h-screen flex flex-col items-center px-4 py-10 bg-white text-brand-navy">
+    <div className="page-wrap">
+      <style>{css}</style>
 
-      {/* ============================
-          INLINE CSS FOR DEAL.AI
-      ============================ */}
-      <style>{`
-        :root {
-          --navy: #021859;
-          --blue: #07B0F2;
-          --aqua: #27CDF2;
-          --midnight: #0C1526;
-          --gray: #F2F2F2;
-        }
-
-        .fade-in {
-          animation: fadeIn 0.8s ease-out forwards;
-          opacity: 0;
-        }
-        @keyframes fadeIn {
-          to { opacity: 1; transform: translateY(0); }
-          from { opacity: 0; transform: translateY(10px); }
-        }
-
-        .score-card {
-          border: 1px solid #E0E3EA;
-          border-radius: 18px;
-          padding: 28px;
-          box-shadow: 0 10px 26px rgba(7,176,242,0.15);
-          background: #ffffff;
-        }
-
-        .meter-track {
-          width: 100%;
-          height: 14px;
-          border-radius: 999px;
-          background: #E5E7EB;
-          overflow: hidden;
-        }
-
-        .meter-fill {
-          height: 100%;
-          border-radius: 999px;
-          background: linear-gradient(90deg, #f97373, #facc15, #22c55e);
-        }
-
-        .pillar-row {
-          display: flex;
-          gap: 12px;
-          margin-bottom: 12px;
-        }
-
-        .tag {
-          padding: 2px 8px;
-          border-radius: 999px;
-          font-size: 0.75rem;
-          font-weight: 500;
-          display: inline-block;
-        }
-
-        .tag-strong { background: #dcfce7; color: #166534; }
-        .tag-steady { background: #fef9c3; color: #854d0e; }
-        .tag-mixed  { background: #fef3c7; color: #92400e; }
-        .tag-focus  { background: #fee2e2; color: #b91c1c; }
-
-        .cta-panel {
-          border-radius: 18px;
-          padding: 32px;
-          text-align: center;
-          background: #e5f6ff;
-          box-shadow: 0 10px 26px rgba(7,176,242,0.25);
-        }
-
-        .cta-button {
-          display: inline-block;
-          margin-top: 16px;
-          padding: 14px 28px;
-          background: var(--blue);
-          color: #ffffff;
-          font-weight: 600;
-          border-radius: 5px;
-          text-decoration: none;
-          box-shadow: 0 8px 22px rgba(7,176,242,0.35);
-        }
-        .cta-button:hover {
-          background: #059BD8;
-        }
-      `}</style>
-
-      {/* ============================
-          HEADER
-      ============================ */}
-      <h1 className="text-3xl font-semibold mb-2 fade-in">
-        Your Brand Snapshot™ Results
-      </h1>
-      <p className="text-lg text-slate-600 mb-10 fade-in">
-        Here's your personalized Brand Alignment Score™ and insights, {user_name}.
+      {/* HEADER */}
+      <h1>Your Brand Snapshot™ Results</h1>
+      <p>
+        This report is based on your inputs and analyzed through the Brand Alignment Score™ framework.  
+        Your results highlight strengths, opportunities, and the most impactful next steps for your brand.
       </p>
 
-      {/* ============================
-          SCORE CARD
-      ============================ */}
-      <section className="score-card w-full max-w-3xl fade-in mb-10">
-        <h2 className="text-xl font-semibold mb-4">Brand Alignment Score™</h2>
+      {/* SCORE CARD */}
+      <div className="score-card">
+        <h2>Brand Alignment Score™</h2>
+        <div className="big-score">{brand_alignment_score || 0}</div>
 
-        <div className="flex items-baseline gap-3 mb-4">
-          <span className="text-5xl font-bold">{brand_alignment_score}</span>
-          <span className="text-slate-600 text-sm">out of 100</span>
-        </div>
-
-        <div className="meter-track mb-4">
+        <div className="meter-track">
           <div
             className="meter-fill"
-            style={{ width: `${brand_alignment_score}%` }}
-          ></div>
+            style={{ width: `${brand_alignment_score || 0}%` }}
+          />
         </div>
+      </div>
 
-        {/* Pillars */}
-        <h3 className="text-lg font-semibold mt-6 mb-3">How your score breaks down</h3>
-
-        {Object.entries(pillar_scores || {}).map(([pillar, score]: [string, any]) => {
-          const percent = (score / 20) * 100;
-
-          let tagClass = "tag-focus";
-          if (score >= 18) tagClass = "tag-strong";
-          else if (score >= 15) tagClass = "tag-steady";
-          else if (score >= 11) tagClass = "tag-mixed";
-
-          // Handle both old format (string) and new format (object)
-          const insightData = pillar_insights?.[pillar];
-          const insight = typeof insightData === 'string' 
-            ? insightData 
-            : insightData?.opportunity || insightData?.strength || "No insight available.";
-
+      {/* PILLARS */}
+      <div className="pillars-grid">
+        {Object.entries(pillar_scores || {}).map(([pillar, value]: [string, any], index) => {
+          const insight = pillar_insights?.[pillar];
+          const insightText = getInsightText(insight);
+          
           return (
-            <div key={pillar} className="pillar-row">
-              <div className="w-40">
-                <strong className="capitalize">{pillar}</strong><br />
-                <span className={`tag ${tagClass}`}>{score}/20</span>
+            <div className="pillar-card" key={pillar} style={{ animationDelay: `${index * 0.15}s` }}>
+              <div className="pillar-title">
+                {pillar.charAt(0).toUpperCase() + pillar.slice(1)}
               </div>
-              <div className="flex-1 meter-track">
-                <div className="meter-fill" style={{ width: `${percent}%` }} />
+
+              <div className="pillar-meter">
+                <div
+                  className="pillar-fill"
+                  style={{ width: `${(value / 20) * 100}%` }}
+                />
               </div>
+
+              <div className="insight-text">{insightText}</div>
             </div>
           );
         })}
+      </div>
 
-        {/* Insights */}
-        <h3 className="text-lg font-semibold mt-8 mb-3">Key Insights</h3>
-        <div className="space-y-3">
-          {pillar_insights &&
-            Object.entries(pillar_insights).map(([pillar, insight]: [string, any]) => {
-              // Handle both old format (string) and new format (object)
-              const insightText = typeof insight === 'string' 
-                ? insight 
-                : insight?.opportunity || insight?.strength || "No insight available.";
-
-              return (
-                <p key={pillar} className="text-slate-700 leading-relaxed">
-                  <strong className="capitalize">{pillar}:</strong> {insightText}
-                </p>
-              );
-            })}
+      {/* RECOMMENDATIONS */}
+      {recommendationsList.length > 0 && (
+        <div className="recommend-box">
+          <h2>Top Recommendations</h2>
+          <ul>
+            {recommendationsList.map((r: string, i: number) => (
+              <li key={i}>{r}</li>
+            ))}
+          </ul>
         </div>
-      </section>
-
-      {/* ============================
-          DOWNLOAD PDF BUTTON
-      ============================ */}
-      {pdf_url && (
-        <a
-          href={pdf_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="cta-button fade-in mb-10"
-        >
-          Download Full Brand Snapshot™ PDF →
-        </a>
       )}
 
-      {/* ============================
-          SNAPSHOT+ UPGRADE PANEL
-      ============================ */}
-      <section className="cta-panel w-full max-w-3xl fade-in">
-        <h2 className="text-2xl font-semibold mb-3">
-          Want deeper insights + your full brand foundation?
-        </h2>
-
-        <p className="text-slate-700 leading-relaxed mb-6">
-          Upgrade to <strong>Brand Snapshot+™</strong> for your complete 10-page brand
-          analysis — including your Brand Archetype™, Brand Persona™, tone and messaging
-          guidance, visual direction, strategic priorities, and a 90-day roadmap.
+      {/* SNAPSHOT+ PANEL */}
+      <div className="snapshot-plus">
+        <h2>Unlock Your Full Brand Strategy with Snapshot+™</h2>
+        <p style={{ maxWidth: "600px", margin: "0 auto", lineHeight: "1.6" }}>
+          Take your insights further with a deeper analysis of messaging, audience clarity,  
+          brand voice refinement, visual direction, and a personalized roadmap.  
+          Upgrade to Snapshot+™ for a complete brand clarity experience.
         </p>
 
-        <a href="/plans" className="cta-button">
+        <Link href="/upgrade/snapshot-plus" className="plus-btn">
           Upgrade to Snapshot+™ →
+        </Link>
+      </div>
+
+      {/* DOWNLOAD PDF */}
+      <p style={{ marginTop: "32px" }}>
+        <a
+          href={`/api/report/pdf?id=${params.id}`}
+          style={{ textDecoration: "underline", color: "#021859" }}
+        >
+          Download PDF →
         </a>
-      </section>
-
-      {/* ============================
-          FOOTER
-      ============================ */}
-      <footer className="mt-16 text-slate-500 text-sm fade-in">
-        © 2025 Wunderbar Digital. All rights reserved.
-      </footer>
-
-    </main>
+      </p>
+    </div>
   );
 }

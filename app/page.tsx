@@ -1,7 +1,9 @@
 'use client'
 
 import { FormEvent, useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { useBrandChat } from "../src/hooks/useBrandChat";
+import WundyLogo from "@/assets/wundy-logo.jpeg";
 import "./globals.css";
 
 export default function Home() {
@@ -157,10 +159,12 @@ export default function Home() {
         <section className="app-card" aria-labelledby="wundy-heading">
           <header className="app-card-header">
             <div className="app-card-avatar-wrap">
-              <img
-                src="/assets/wundy-logo.jpeg"
+              <Image
+                src={WundyLogo}
                 alt="Wundy, brand specialist"
                 className="app-card-avatar"
+                width={64}
+                height={64}
               />
             </div>
 

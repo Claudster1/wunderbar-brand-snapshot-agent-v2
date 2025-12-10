@@ -3,6 +3,8 @@
 
 "use client";
 
+import Image from "next/image";
+
 interface SnapshotUpgradePanelProps {
   upgradeCTA?: string;
   snapshotPlusCheckoutUrl?: string;
@@ -16,11 +18,10 @@ export function SnapshotUpgradePanel({
     <div className="mt-16 rounded-xl border border-brand-border bg-white shadow-md p-8 fade-in">
       <div className="flex items-start gap-6">
         {/* Wundy Illustration */}
-        <img 
-          src="/wundy/wundy-smile.png" 
-          alt="Wundy" 
-          className="w-20 h-20 object-contain"
-        />
+        {/* TODO: Add wundy-smile.png to src/assets when available */}
+        <div className="w-20 h-20 flex items-center justify-center bg-brand-gray rounded-lg">
+          <span className="text-4xl">🐾</span>
+        </div>
 
         <div className="flex-1">
           <h2 className="text-2xl font-semibold text-brand-navy mb-2">

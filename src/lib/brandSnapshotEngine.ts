@@ -149,3 +149,76 @@ function generateRecommendations(pillars: PillarScores): string[] {
 
   return recs;
 }
+
+// =============================================================
+// BACKWARD COMPATIBILITY: calculateScores function
+// For existing code that passes pillarScores directly
+// =============================================================
+export function calculateScores(pillarScores: PillarScores) {
+  // Calculate Brand Alignment Score from existing pillar scores
+  const brandAlignmentScore = Math.round(
+    (pillarScores.positioning +
+      pillarScores.messaging +
+      pillarScores.visibility +
+      pillarScores.credibility +
+      pillarScores.conversion) /
+      5
+  );
+  
+  // Find weakest pillar
+  const weakestPillar = Object.entries(pillarScores).reduce((min, [pillar, score]) => 
+    score < min.score ? { pillar, score } : min,
+    { pillar: 'positioning' as keyof PillarScores, score: 25 }
+  );
+  
+  // Find strong pillars (>= 20)
+  const strengths = Object.entries(pillarScores)
+    .filter(([_, score]) => score >= 20)
+    .map(([pillar]) => pillar);
+  
+  // Generate insights (convert to object format with strength/opportunity/action)
+  const rawInsights = generateInsights(pillarScores);
+  const pillarInsights: Record<string, { strength: string; opportunity: string; action: string }> = {};
+  
+  Object.entries(pillarScores).forEach(([pillar, score]) => {
+    const insight = rawInsights.find((ins) => ins.toLowerCase().includes(pillar)) || "";
+    if (score >= 20) {
+      pillarInsights[pillar] = {
+        strength: `Your ${pillar} is strong — continue building on this foundation.`,
+        opportunity: "Maintain momentum and scale these practices.",
+        action: "Document what's working and replicate across touchpoints."
+      };
+    } else if (score >= 14) {
+      pillarInsights[pillar] = {
+        strength: "You have a solid foundation in this area.",
+        opportunity: insight || "There's room to elevate this pillar further.",
+        action: "Focus on one key improvement to see meaningful growth."
+      };
+    } else {
+      pillarInsights[pillar] = {
+        strength: "There's significant opportunity for growth here.",
+        opportunity: insight || "This area needs focused attention.",
+        action: "Start with the highest-impact change to see improvement."
+      };
+    }
+  });
+  
+  // Generate upsell copy based on weakest pillar
+  const upsellCopy = `Your ${weakestPillar.pillar} pillar shows the most opportunity for improvement. Snapshot+™ provides a complete strategic roadmap to strengthen this area and elevate your overall brand alignment.`;
+  
+  return {
+    brandAlignmentScore,
+    pillarScores,
+    pillarInsights,
+    weakestPillar: {
+      pillar: weakestPillar.pillar,
+      score: weakestPillar.score,
+      severity: weakestPillar.score < 10 ? "major" : weakestPillar.score < 14 ? "moderate" : "light"
+    },
+    strengths,
+    snapshotUpsell: upsellCopy,
+    opportunities: Object.entries(pillarScores)
+      .filter(([_, score]) => score < 14)
+      .map(([pillar]) => pillar)
+  };
+}

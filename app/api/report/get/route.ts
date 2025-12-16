@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { supabaseServer } from "@/lib/supabase";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -9,12 +9,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Missing report ID" }, { status: 400 });
   }
 
-  if (!supabase) {
-    return NextResponse.json(
-      { error: "Supabase not configured" },
-      { status: 500 }
-    );
-  }
+  const supabase = supabaseServer();
 
   const { data, error } = await supabase
     .from("brand_snapshot_reports")

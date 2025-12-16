@@ -1,14 +1,7 @@
 // lib/supabase.ts
-// Unified Supabase client (server-side)
-import { createClient } from "@supabase/supabase-js";
+// Backward-compatible entrypoint for server-side Supabase usage.
+// IMPORTANT: Do not import this file from client components.
+import "server-only";
 
-export function supabaseServer() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    {
-      auth: { persistSession: false },
-    }
-  );
-}
+export { supabaseServer } from "./supabase/server";
 

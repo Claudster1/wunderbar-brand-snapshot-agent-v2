@@ -1,16 +1,18 @@
 // lib/supabase/server.ts
-import { createServerClient } from "@supabase/ssr";
-import { Database } from "@/supabase/types";
+// Server-only Supabase client (service role). Do NOT import from client components.
+import "server-only";
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "@/supabase/types";
 
 export function supabaseServer() {
-  return createServerClient<Database>(
+  return createClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     {
-      cookies: {
-        get(name: string) {
-          return undefined; // no cookies needed for backend calls
-        },
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
       },
     }
   );

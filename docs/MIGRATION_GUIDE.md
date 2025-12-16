@@ -59,7 +59,8 @@ Create `.env.local` in the project root:
 NEXT_PUBLIC_SUPABASE_URL=https://YOUR-PROJECT.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_publishable_key_here
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key_here # fallback (older setups)
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
+SUPABASE_SECRET_KEY=your_secret_key_here # Supabase "Secret" key (server-only)
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here # fallback alias (older setups)
 SUPABASE_URL=https://YOUR-PROJECT.supabase.co
 
 # OpenAI Configuration

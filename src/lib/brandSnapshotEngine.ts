@@ -166,7 +166,8 @@ export function calculateScores(pillarScores: PillarScores) {
   );
   
   // Find weakest pillar
-  const weakestPillar = Object.entries(pillarScores).reduce((min, [pillar, score]) => 
+  const entries = Object.entries(pillarScores) as [keyof PillarScores, number][];
+  const weakestPillar = entries.reduce((min, [pillar, score]) => 
     score < min.score ? { pillar, score } : min,
     { pillar: 'positioning' as keyof PillarScores, score: 25 }
   );

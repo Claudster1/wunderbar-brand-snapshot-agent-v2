@@ -1,52 +1,39 @@
-// app/brand-snapshot/page.tsx
-// Entry page for the Brand Snapshot™ experience (kept minimal to avoid disrupting existing flow).
+\"use client\";
 
-import Link from "next/link";
-
-export const dynamic = "force-dynamic";
+import { useState } from \"react\";
+import SnapshotModal from \"@/components/SnapshotModal\";
 
 export default function BrandSnapshotPage() {
-  return (
-    <main style={{ padding: 40, fontFamily: "Helvetica Neue, Arial, sans-serif" }}>
-      <h1 style={{ color: "#021859", fontSize: 28, marginBottom: 12 }}>
-        Brand Snapshot™
-      </h1>
-      <p style={{ maxWidth: 720, lineHeight: 1.6, color: "#0C1526" }}>
-        Start your Brand Snapshot™ experience. If you already have a report link, you can
-        view results immediately.
-      </p>
+  const [open, setOpen] = useState(false);
 
-      <div style={{ marginTop: 20, display: "flex", gap: 12, flexWrap: "wrap" }}>
-        <Link
-          href="/"
-          style={{
-            display: "inline-block",
-            padding: "12px 16px",
-            borderRadius: 8,
-            background: "#07B0F2",
-            color: "white",
-            textDecoration: "none",
-            fontWeight: 600,
-          }}
-        >
-          Launch Brand Snapshot™ →
-        </Link>
-        <Link
-          href="/brand-snapshot/plus"
-          style={{
-            display: "inline-block",
-            padding: "12px 16px",
-            borderRadius: 8,
-            border: "1px solid #E1E5EE",
-            color: "#021859",
-            textDecoration: "none",
-            fontWeight: 600,
-          }}
-        >
-          Learn about Snapshot+™ →
-        </Link>
-      </div>
-    </main>
+  return (
+    <>
+      <SnapshotModal isOpen={open} onClose={() => setOpen(false)} />
+
+      <main className=\"w-full min-h-screen bg-white\">
+        <section className=\"px-6 py-20 max-w-3xl mx-auto text-left\">
+          <h1 className=\"text-4xl font-semibold text-brand-navy\">
+            Start Your Free Brand Snapshot™
+          </h1>
+
+          <p className=\"text-lg text-slate-700 mt-4 leading-relaxed\">
+            In a few guided minutes, our strategic assistant will help you assess how clearly,
+            consistently, and confidently your brand shows up in the market today.
+            Your Brand Alignment Score™ is the first step toward stronger messaging, deeper trust,
+            and higher conversion.
+          </p>
+
+          <button
+            onClick={() => setOpen(true)}
+            className=\"mt-8 inline-flex items-center px-6 py-3 rounded-md bg-brand-blue text-white font-semibold shadow-lg hover:bg-brand-blueHover transition\"
+          >
+            Start Your Free Brand Snapshot™ →
+          </button>
+        </section>
+
+        {/* TODO: Add feature grid, pillars, visuals, trust markers */}
+      </main>
+    </>
   );
 }
 

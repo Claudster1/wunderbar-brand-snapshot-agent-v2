@@ -18,7 +18,8 @@ export async function generateMetadata({
       description: "Personalized brand clarity powered by WUNDY™.",
       images: [
         {
-          url: `${baseUrl}/api/og?report=${params.id}`,
+          // Use the report-specific OG route (uses report_id)
+          url: `${baseUrl}/api/og/${params.id}`,
           width: 1200,
           height: 630,
           alt: "Brand Snapshot™ Results",

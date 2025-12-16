@@ -2,6 +2,7 @@
 
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
+import SnapshotPlusUpsell from "@/components/SnapshotPlusUpsell";
 
 export const dynamic = "force-dynamic";
 
@@ -241,17 +242,14 @@ export default async function ReportPage({ params }: { params: { id: string } })
           })}
         </div>
 
-        <div className="upgrade-box">
-          <h2>Unlock Your Full Brand Snapshot+™ Report</h2>
-          <p style={{ maxWidth: "640px", margin: "0 auto" }}>
-            {typeof snapshot_upsell === "string" && snapshot_upsell.trim().length > 0
+        <SnapshotPlusUpsell
+          href="/checkout/snapshot-plus"
+          copy={
+            typeof snapshot_upsell === "string" && snapshot_upsell.trim().length > 0
               ? snapshot_upsell
-              : "Get a complete strategic breakdown of your brand — including refined messaging, narrative frameworks, visual guidance, audience insights, and AI-ready prompt libraries tailored specifically to your business."}
-          </p>
-          <Link href="/upgrade/snapshot-plus" className="upgrade-btn">
-            Upgrade to Brand Snapshot+™ →
-          </Link>
-        </div>
+              : undefined
+          }
+        />
 
         <p style={{ marginTop: "24px" }}>
           <a

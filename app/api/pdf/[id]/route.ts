@@ -1,9 +1,13 @@
 // app/api/pdf/[id]/route.ts
-// API route to generate PDF for a report
+// Secure PDF generation route
+// - Generates PDF buffer (free or plus via ?plus=1)
+// - Optionally uploads to Supabase Storage (via ?upload=1) and returns URL
 
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase-admin";
-import { generateSnapshotPdf } from "@/lib/generateSnapshotPdf";
+import { supabaseServer } from "@/lib/supabase";
+import { renderReportPDF } from "@/lib/pdf/renderReportPDF";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(
   req: Request,
@@ -11,43 +15,78 @@ export async function GET(
 ) {
   try {
     const { id } = params;
+    const url = new URL(req.url);
+    const plus = url.searchParams.get("plus") === "1";
+    const upload = url.searchParams.get("upload") === "1";
 
     if (!id) {
-      return NextResponse.json(
-        { error: "Missing report ID" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing report ID" }, { status: 400 });
     }
 
-    if (!supabaseAdmin) {
-      return NextResponse.json(
-        { error: "Supabase admin client not configured" },
-        { status: 500 }
-      );
-    }
+    const supabase = supabaseServer();
 
-    // Fetch report from database
-    const { data: report, error } = await supabaseAdmin
-      .from("brand_snapshot_reports")
+    const table = plus ? "brand_snapshot_plus_reports" : "brand_snapshot_reports";
+
+    const { data: report, error } = await supabase
+      .from(table as any)
       .select("*")
       .eq("report_id", id)
       .single();
 
     if (error || !report) {
-      return NextResponse.json(
-        { error: "Report not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Report not found" }, { status: 404 });
     }
 
-    // Generate PDF
-    const pdfBuffer = await generateSnapshotPdf(report);
+    // Generate PDF buffer
+    const pdfBuffer = await renderReportPDF(report, plus);
 
-    // Return PDF as response
+    // If upload requested: upload and return URL JSON
+    if (upload) {
+      const bucket = process.env.REPORT_STORAGE_BUCKET || "brand-snapshot-reports";
+      const fileName = `reports/${id}${plus ? "-plus" : ""}.pdf`;
+
+      const { error: uploadError } = await supabase.storage
+        .from(bucket)
+        .upload(fileName, pdfBuffer, {
+          contentType: "application/pdf",
+          upsert: true,
+        });
+
+      if (uploadError) {
+        console.error("[PDF Upload] Error:", uploadError);
+        return NextResponse.json(
+          { error: "Failed to upload PDF" },
+          { status: 500 }
+        );
+      }
+
+      // Prefer public URL if bucket is public; otherwise provide a signed URL.
+      const { data: publicUrlData } = supabase.storage.from(bucket).getPublicUrl(fileName);
+      const publicUrl = publicUrlData?.publicUrl;
+
+      let signedUrl: string | null = null;
+      try {
+        const { data: signed } = await supabase.storage
+          .from(bucket)
+          .createSignedUrl(fileName, 60 * 60 * 24 * 7);
+        signedUrl = signed?.signedUrl || null;
+      } catch {
+        // ignore
+      }
+
+      return NextResponse.json({ url: publicUrl, signedUrl });
+    }
+
+    const filename = plus
+      ? `SnapshotPlus_Report_${id}.pdf`
+      : `BrandSnapshot_Report_${id}.pdf`;
+
+    // Default: return PDF download
     return new NextResponse(pdfBuffer as any, {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="Brand-Snapshot-${id}.pdf"`,
+        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Content-Length": pdfBuffer.length.toString(),
       },
     });
   } catch (err: any) {

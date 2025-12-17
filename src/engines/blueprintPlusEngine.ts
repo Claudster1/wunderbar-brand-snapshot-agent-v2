@@ -8,4 +8,9 @@ export function generateBlueprintPlusReport(input: BlueprintPlusInput): Blueprin
   return { ...input };
 }
 
+// Backward-friendly name used by route templates
+export function buildBlueprintPlus(input: BlueprintPlusInput): BlueprintPlusResult {
+  return generateBlueprintPlusReport(input);
+}
+
 

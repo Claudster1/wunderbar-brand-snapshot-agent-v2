@@ -1,6 +1,8 @@
 \"use client\";
 
 import { useCallback, useEffect, useMemo, useState } from \"react\";
+import ModalShell from \"@/components/ui/ModalShell\";
+import ScoreRevealModal from \"@/components/ui/ScoreRevealModal\";
 
 export type SnapshotModalProps = {
   isOpen: boolean;
@@ -18,6 +20,17 @@ export default function SnapshotModal({
   resultsPathBase = \"/brand-snapshot/results\",
 }: SnapshotModalProps) {
   const [iframeHeight, setIframeHeight] = useState(\"700px\");
+  const [showScoreReveal, setShowScoreReveal] = useState(false);
+  const [finalScore, setFinalScore] = useState<number>(0);
+  const [pillarScores, setPillarScores] = useState({
+    positioning: 0,
+    messaging: 0,
+    visibility: 0,
+    credibility: 0,
+    conversion: 0,
+  });
+  const [pendingRedirectUrl, setPendingRedirectUrl] = useState<string | null>(null);
+  const [pendingReportId, setPendingReportId] = useState<string | null>(null);
 
   const iframeOrigin = useMemo(() => {
     try {
@@ -28,28 +41,30 @@ export default function SnapshotModal({
   }, [iframeSrc]);
 
   const closeModal = useCallback(() => {
-    document.body.style.overflow = \"auto\";
+    setShowScoreReveal(false);
+    setPendingRedirectUrl(null);
+    setPendingReportId(null);
     onClose();
   }, [onClose]);
 
-  // Lock scrolling while modal is open
-  useEffect(() => {
-    if (!isOpen) return;
-    document.body.style.overflow = \"hidden\";
-    return () => {
-      document.body.style.overflow = \"auto\";
-    };
-  }, [isOpen]);
+  const continueToResults = useCallback(() => {
+    const redirectUrl = pendingRedirectUrl;
+    const reportId = pendingReportId;
 
-  // Close on Escape
-  useEffect(() => {
-    if (!isOpen) return;
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === \"Escape\") closeModal();
-    };
-    window.addEventListener(\"keydown\", onKeyDown);
-    return () => window.removeEventListener(\"keydown\", onKeyDown);
-  }, [isOpen, closeModal]);
+    setShowScoreReveal(false);
+
+    if (typeof redirectUrl === \"string\" && redirectUrl.length > 0) {
+      window.location.href = redirectUrl;
+      return;
+    }
+
+    if (typeof reportId === \"string\" && reportId.length > 0) {
+      window.location.href = `${resultsPathBase}/${reportId}`;
+      return;
+    }
+
+    closeModal();
+  }, [pendingRedirectUrl, pendingReportId, resultsPathBase, closeModal]);
 
   // Listen for messages from the Agent
   useEffect(() => {
@@ -70,17 +85,33 @@ export default function SnapshotModal({
           msg.data?.report_id;
 
         const redirectUrl = msg.redirectUrl || msg.data?.redirectUrl;
+        const score =
+          msg.finalScore ||
+          msg.brandAlignmentScore ||
+          msg.data?.finalScore ||
+          msg.data?.brandAlignmentScore ||
+          msg.data?.data?.brandAlignmentScore ||
+          0;
 
-        closeModal();
+        const pillars =
+          msg.pillars ||
+          msg.pillarScores ||
+          msg.data?.pillars ||
+          msg.data?.pillarScores ||
+          msg.data?.data?.pillarScores ||
+          {};
 
-        if (typeof redirectUrl === \"string\" && redirectUrl.length > 0) {
-          window.location.href = redirectUrl;
-          return;
-        }
-
-        if (typeof reportId === \"string\" && reportId.length > 0) {
-          window.location.href = `${resultsPathBase}/${reportId}`;
-        }
+        setPendingRedirectUrl(typeof redirectUrl === \"string\" ? redirectUrl : null);
+        setPendingReportId(typeof reportId === \"string\" ? reportId : null);
+        setFinalScore(typeof score === \"number\" ? score : Number(score) || 0);
+        setPillarScores({
+          positioning: Number(pillars.positioning) || 0,
+          messaging: Number(pillars.messaging) || 0,
+          visibility: Number(pillars.visibility) || 0,
+          credibility: Number(pillars.credibility) || 0,
+          conversion: Number(pillars.conversion) || 0,
+        });
+        setShowScoreReveal(true);
         return;
       }
 
@@ -107,29 +138,36 @@ export default function SnapshotModal({
   if (!isOpen) return null;
 
   return (
-    <div
-      className=\"fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm transition-opacity duration-300\"
-      aria-modal=\"true\"
-      role=\"dialog\"
-    >
-      <div className=\"relative w-full max-w-4xl bg-white rounded-lg shadow-xl overflow-hidden animate-fadeInUp\">
-        <button
-          className=\"absolute top-4 right-4 text-slate-600 hover:text-slate-800 transition\"
-          onClick={closeModal}
-          aria-label=\"Close\"
-        >
-          ✕
-        </button>
+    <>
+      <ModalShell isOpen={isOpen && !showScoreReveal} onClose={closeModal} width=\"max-w-4xl\">
+        <div className=\"relative\">
+          <button
+            className=\"absolute top-0 right-0 text-slate-600 hover:text-slate-800 transition\"
+            onClick={closeModal}
+            aria-label=\"Close\"
+          >
+            ✕
+          </button>
 
-        <iframe
-          src={iframeSrc}
-          title=\"Brand Snapshot™ Agent\"
-          style={{ width: \"100%\", height: iframeHeight }}
-          className=\"border-0 w-full\"
-          allow=\"clipboard-write; fullscreen\"
-        />
-      </div>
-    </div>
+          <div className=\"mt-6\">
+            <iframe
+              src={iframeSrc}
+              title=\"Brand Snapshot™ Agent\"
+              style={{ width: \"100%\", height: iframeHeight }}
+              className=\"border-0 w-full\"
+              allow=\"clipboard-write; fullscreen\"
+            />
+          </div>
+        </div>
+      </ModalShell>
+
+      <ScoreRevealModal
+        isOpen={isOpen && showScoreReveal}
+        onClose={continueToResults}
+        finalScore={finalScore}
+        pillars={pillarScores}
+      />
+    </>
   );
 }
 

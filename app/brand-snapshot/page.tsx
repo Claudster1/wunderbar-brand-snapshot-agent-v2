@@ -1,14 +1,14 @@
 \"use client\";
 
 import { useState } from \"react\";
-import SnapshotModal from \"@/components/SnapshotModal\";
+import StartSnapshotModal from \"@/components/ui/StartSnapshotModal\";
 
 export default function BrandSnapshotPage() {
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      <SnapshotModal isOpen={open} onClose={() => setOpen(false)} />
+      <StartSnapshotModal isOpen={open} onClose={() => setOpen(false)} />
 
       <main className=\"w-full min-h-screen bg-white\">
         <section className=\"px-6 py-20 max-w-3xl mx-auto text-left\">

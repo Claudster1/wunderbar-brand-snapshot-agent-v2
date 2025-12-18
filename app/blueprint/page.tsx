@@ -106,11 +106,7 @@ function DetailBlock({
   title,
   body,
   items,
-}: {
-  title: string;
-  body: string;
-  items: string[];
-}) {
+}: any) {
   return (
     <div>
       <h3 className="text-2xl font-semibold text-brand-navy">{title}</h3>

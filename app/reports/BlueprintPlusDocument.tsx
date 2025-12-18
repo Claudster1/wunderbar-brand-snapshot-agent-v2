@@ -1,5 +1,11 @@
-import React from "react";
-import { Document, Page, Text, View, StyleSheet, Font } from "@react-pdf/renderer";
+import {
+  Document,
+  Page,
+  Text,
+  View,
+  StyleSheet,
+  Font,
+} from "@react-pdf/renderer";
 
 Font.register({
   family: "Inter",
@@ -47,9 +53,9 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
 
         <Text>Hello {data.userName},</Text>
         <Text style={{ marginTop: 12 }}>
-          Your Brand Blueprint+™ synthesizes deeper customer insights, narrative frameworks,
-          positioning strategy, and execution plans into a single, actionable system designed for
-          clarity, alignment, and growth.
+          Your Brand Blueprint+™ synthesizes deeper customer insights, narrative
+          frameworks, positioning strategy, and execution plans into a single,
+          actionable system designed for clarity, alignment, and growth.
         </Text>
       </Page>
 
@@ -57,12 +63,12 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
       <Page size="A4" style={styles.page}>
         <Text style={styles.sectionTitle}>Brand Story Framework</Text>
         <View style={styles.block}>
-          <Text>{data?.brandStory?.long}</Text>
+          <Text>{data.brandStory.long}</Text>
         </View>
 
         <Text style={styles.sectionTitle}>Elevator Pitch</Text>
         <View style={styles.block}>
-          <Text>{data?.brandStory?.short}</Text>
+          <Text>{data.brandStory.short}</Text>
         </View>
       </Page>
 
@@ -70,11 +76,11 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
       <Page size="A4" style={styles.page}>
         <Text style={styles.sectionTitle}>Positioning Statement</Text>
         <View style={styles.block}>
-          <Text>{data?.positioning?.statement}</Text>
+          <Text>{data.positioning.statement}</Text>
         </View>
 
         <Text style={styles.sectionTitle}>Differentiation Matrix</Text>
-        {data?.positioning?.differentiators?.map((d: any, idx: number) => (
+        {data.positioning.differentiators.map((d: any, idx: number) => (
           <View key={idx} style={styles.block}>
             <Text style={{ fontWeight: 600 }}>{d.name}</Text>
             <Text>{d.detail}</Text>
@@ -85,7 +91,7 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
       {/* PAGE 4 — CUSTOMER JOURNEY */}
       <Page size="A4" style={styles.page}>
         <Text style={styles.sectionTitle}>Customer Journey Map</Text>
-        {data?.journey?.map((stage: any, idx: number) => (
+        {data.journey.map((stage: any, idx: number) => (
           <View key={idx} style={styles.block}>
             <Text style={{ fontWeight: 600 }}>{stage.stage}</Text>
             <Text>Goal: {stage.goal}</Text>
@@ -98,7 +104,7 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
       {/* PAGE 5 — CONTENT STRATEGY */}
       <Page size="A4" style={styles.page}>
         <Text style={styles.sectionTitle}>12-Month Content Roadmap</Text>
-        {data?.contentRoadmap?.map((m: any, idx: number) => (
+        {data.contentRoadmap.map((m: any, idx: number) => (
           <View key={idx} style={styles.block}>
             <Text style={{ fontWeight: 600 }}>{m.month}</Text>
             <Text>{m.theme}</Text>
@@ -109,7 +115,7 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
       {/* PAGE 6 — VISUAL DIRECTION */}
       <Page size="A4" style={styles.page}>
         <Text style={styles.sectionTitle}>Visual Direction</Text>
-        {data?.visualDirection?.map((v: any, idx: number) => (
+        {data.visualDirection.map((v: any, idx: number) => (
           <View key={idx} style={styles.block}>
             <Text style={{ fontWeight: 600 }}>{v.category}</Text>
             <Text>{v.description}</Text>
@@ -121,11 +127,11 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
       <Page size="A4" style={styles.page}>
         <Text style={styles.sectionTitle}>Brand Personality</Text>
         <View style={styles.block}>
-          <Text>{data?.personality}</Text>
+          <Text>{data.personality}</Text>
         </View>
 
         <Text style={styles.sectionTitle}>Decision Filters</Text>
-        {data?.decisionFilters?.map((f: any, idx: number) => (
+        {data.decisionFilters.map((f: any, idx: number) => (
           <View key={idx} style={styles.block}>
             <Text>• {f}</Text>
           </View>
@@ -135,7 +141,7 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
       {/* PAGE 8 — PROMPTS */}
       <Page size="A4" style={styles.page}>
         <Text style={styles.sectionTitle}>AI Prompt Library — Extended</Text>
-        {data?.aiPrompts?.map((p: any, idx: number) => (
+        {data.aiPrompts.map((p: any, idx: number) => (
           <View key={idx} style={styles.block}>
             <Text style={{ fontWeight: 600 }}>{p.name}</Text>
             <Text>{p.prompt}</Text>
@@ -144,7 +150,7 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
       </Page>
 
       {/* ADDITIONAL PAGES auto-expand */}
-      {data?.additionalSections?.map((section: any, idx: number) => (
+      {data.additionalSections?.map((section: any, idx: number) => (
         <Page key={idx} size="A4" style={styles.page}>
           <Text style={styles.sectionTitle}>{section.title}</Text>
           <View style={styles.block}>

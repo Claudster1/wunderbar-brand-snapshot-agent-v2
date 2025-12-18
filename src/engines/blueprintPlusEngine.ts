@@ -9,8 +9,34 @@ export function generateBlueprintPlusReport(input: BlueprintPlusInput): Blueprin
 }
 
 // Backward-friendly name used by route templates
-export function buildBlueprintPlus(input: BlueprintPlusInput): BlueprintPlusResult {
-  return generateBlueprintPlusReport(input);
+export function buildBlueprintPlus(data: any) {
+  return {
+    userName: data.userName,
+
+    brandStory: {
+      short: data.brandStoryShort,
+      long: data.brandStoryLong,
+    },
+
+    positioning: {
+      statement: data.positioningStatement,
+      differentiators: data.differentiators,
+    },
+
+    journey: data.customerJourney,
+
+    contentRoadmap: data.contentRoadmap,
+
+    visualDirection: data.visualDirection,
+
+    personality: data.personality,
+
+    decisionFilters: data.decisionFilters,
+
+    aiPrompts: data.aiPrompts,
+
+    additionalSections: data.additionalSections || [],
+  };
 }
 
 

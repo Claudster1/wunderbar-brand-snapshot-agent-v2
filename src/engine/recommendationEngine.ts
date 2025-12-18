@@ -1,23 +1,10 @@
 // src/engine/recommendationEngine.ts
 // Recommendation engine for Brand Snapshot / Blueprint flows.
 
-export type Recommendation = {
-  title: string;
-  detail: string;
-};
+export function generateRecommendations(scores: any) {
+  const recs: any[] = [];
 
-export type ScoreInput = {
-  positioning?: number;
-  messaging?: number;
-  visibility?: number;
-  credibility?: number;
-  conversion?: number;
-};
-
-export function generateRecommendations(scores: ScoreInput): Recommendation[] {
-  const recs: Recommendation[] = [];
-
-  if ((scores.positioning ?? 20) < 14) {
+  if (scores.positioning < 14) {
     recs.push({
       title: "Strengthen Your Positioning",
       detail:
@@ -25,7 +12,7 @@ export function generateRecommendations(scores: ScoreInput): Recommendation[] {
     });
   }
 
-  if ((scores.visibility ?? 20) < 14) {
+  if (scores.visibility < 14) {
     recs.push({
       title: "Increase Market Visibility",
       detail:
@@ -33,20 +20,11 @@ export function generateRecommendations(scores: ScoreInput): Recommendation[] {
     });
   }
 
-  if ((scores.credibility ?? 20) < 14) {
+  if (scores.credibility < 14) {
     recs.push({
       title: "Boost Social Proof",
       detail:
         "Consider adding testimonials, case studies, press mentions, or trust indicators to your website and social profiles.",
-    });
-  }
-
-  // Optional conversion flag
-  if ((scores.conversion ?? 20) < 14) {
-    recs.push({
-      title: "Improve Conversion Clarity",
-      detail:
-        "Tighten your calls-to-action and reduce friction: simplify the next step, clarify outcomes, and align landing pages with the promise you make in your messaging.",
     });
   }
 

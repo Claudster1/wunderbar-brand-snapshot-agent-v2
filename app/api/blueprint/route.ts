@@ -2,15 +2,17 @@ import { NextResponse } from "next/server";
 import React from "react";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { BlueprintDocument } from "@/app/reports/BlueprintDocument";
+import { buildBlueprint } from "@/src/engine/blueprintEngine";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+    const blueprint = buildBlueprint(body);
 
     const pdfBuffer = await renderToBuffer(
-      React.createElement(BlueprintDocument, { data: body }) as any
+      React.createElement(BlueprintDocument, { data: blueprint }) as any
     );
 
     return new NextResponse(pdfBuffer as any, {

@@ -13,6 +13,8 @@ module.exports = {
         'brand-blue': '#07B0F2',
         'brand-blueHover': '#059BD8',
         'brand-aqua': '#27CDF2',
+        'brand-midnight': '#0C1526',
+        'brand-gray': '#F2F2F2',
         'brand-border': '#E0E3EA',
       },
     },

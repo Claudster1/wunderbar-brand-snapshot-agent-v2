@@ -131,6 +131,31 @@ After migration, verify:
 - [ ] Database queries work (test a report fetch)
 - [ ] PDF generation works (if fonts are installed)
 - [ ] Environment variables are loaded correctly
+- [ ] Supabase Storage bucket exists for report PDFs (see Storage setup below)
+
+## 🗄️ Supabase Storage Setup (PDF Buckets)
+
+This app expects a Supabase Storage bucket for generated PDFs.
+
+### Create the `reports` bucket + RLS policies
+
+Run the SQL in:
+
+- `database/storage_reports_bucket.sql`
+
+This creates a **private** bucket named `reports` and adds RLS policies so an authenticated user can only access objects stored under their own folder.
+
+### Expected PDF object key format
+
+Store PDFs using:
+
+`{user_id}/{product}/{report_id}.pdf`
+
+Examples:
+- `USER_UUID/snapshot/REPORT_ID.pdf`
+- `USER_UUID/snapshot-plus/REPORT_ID.pdf`
+- `USER_UUID/blueprint/REPORT_ID.pdf`
+- `USER_UUID/blueprint-plus/REPORT_ID.pdf`
 
 ## 🐛 Common Issues & Solutions
 

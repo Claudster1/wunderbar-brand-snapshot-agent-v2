@@ -180,6 +180,40 @@ CREATE INDEX IF NOT EXISTS idx_blueprint_results_user_id ON brand_blueprint_resu
 CREATE INDEX IF NOT EXISTS idx_blueprint_results_blueprint_id ON brand_blueprint_results(blueprint_id);
 
 -- ============================================
+-- 7b. BRAND BLUEPRINT+ REPORTS
+-- Blueprint+™ expanded deliverable (saved output)
+-- ============================================
+CREATE TABLE IF NOT EXISTS brand_blueprint_plus_reports (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  report_id TEXT UNIQUE NOT NULL,
+  base_blueprint_id TEXT,
+
+  -- Ownership / retrieval
+  user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  user_email TEXT,
+  user_name TEXT,
+
+  -- Normalized content (matches BlueprintPlusDocument shape)
+  brand_story JSONB,
+  positioning JSONB,
+  journey JSONB,
+  content_roadmap JSONB,
+  visual_direction JSONB,
+  personality TEXT,
+  decision_filters JSONB,
+  ai_prompts JSONB,
+  additional_sections JSONB,
+
+  full_report JSONB,
+  pdf_url TEXT,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_blueprint_plus_reports_user_id ON brand_blueprint_plus_reports(user_id);
+CREATE INDEX IF NOT EXISTS idx_blueprint_plus_reports_report_id ON brand_blueprint_plus_reports(report_id);
+
+-- ============================================
 -- 8. USER PURCHASES
 -- Plan access + Stripe info
 -- ============================================
@@ -268,6 +302,10 @@ CREATE TRIGGER update_brand_blueprint_sessions_updated_at
 
 CREATE TRIGGER update_brand_blueprint_results_updated_at 
   BEFORE UPDATE ON brand_blueprint_results 
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_brand_blueprint_plus_reports_updated_at 
+  BEFORE UPDATE ON brand_blueprint_plus_reports 
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_user_purchases_updated_at 

@@ -3,6 +3,7 @@
 
 import { calculateScores } from '../lib/brandSnapshotEngine';
 import type { BrandChatMessage } from '../types';
+import type { UserContext } from './reportGenerator';
 
 /**
  * Extract user context from conversation history
@@ -242,7 +243,7 @@ export async function generateAndSaveSnapshot(
         brandAlignmentScore: engineResults.brandAlignmentScore,
         pillarScores: engineResults.pillarScores,
         pillarInsights: pillarInsights, // Use provided insights if available
-        recommendations: recommendations || {}, // Pillar-specific recommendations
+        recommendations: {}, // Pillar-specific recommendations
         userName: userInfo?.user_name || null,
         company: userInfo?.company_name || companyInfo.company_name || null,
         email: null, // Email collected via form on parent page

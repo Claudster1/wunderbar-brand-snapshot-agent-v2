@@ -9,8 +9,10 @@ import { SnapshotUpgradePanel } from "@/components/SnapshotUpgradePanel";
 import type { Metadata } from "next";
 
 async function getReport(id: string) {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  // Use NEXT_PUBLIC_BASE_URL if set, otherwise try Vercel's automatic URL, then fallback to localhost
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL 
+    || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
+    || "http://localhost:3000";
   const res = await fetch(`${baseUrl}/api/snapshot/get?id=${id}`, {
     cache: "no-store",
   });

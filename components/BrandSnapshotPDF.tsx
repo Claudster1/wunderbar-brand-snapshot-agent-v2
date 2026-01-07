@@ -170,10 +170,10 @@ export const BrandSnapshotPDF = ({ reportData, data }: { reportData?: any; data?
         {/* HEADER */}
         <View style={styles.header}>
           {BrandLogo && (
-            <Image style={styles.logo} src={BrandLogo} />
+            <Image style={styles.logo} src={typeof BrandLogo === 'string' ? BrandLogo : (BrandLogo as any).src || BrandLogo} />
           )}
           {WundyHero && (
-            <Image style={styles.wundy} src={WundyHero} />
+            <Image style={styles.wundy} src={typeof WundyHero === 'string' ? WundyHero : (WundyHero as any).src || WundyHero} />
           )}
         </View>
 
@@ -209,13 +209,14 @@ export const BrandSnapshotPDF = ({ reportData, data }: { reportData?: any; data?
             const insight = typeof insightData === 'string' 
               ? insightData 
               : insightData?.opportunity || insightData?.strength || "No insight available.";
+            const scoreValue = typeof score === 'number' ? score : Number(score) || 0;
 
             return (
               <View style={styles.tableRow} key={pillar}>
                 <Text style={styles.tableCell}>
                   {pillar.charAt(0).toUpperCase() + pillar.slice(1)}
                 </Text>
-                <Text style={styles.tableCell}>{score}/20</Text>
+                <Text style={styles.tableCell}>{scoreValue}/20</Text>
                 <Text style={styles.tableCell}>{insight}</Text>
               </View>
             );

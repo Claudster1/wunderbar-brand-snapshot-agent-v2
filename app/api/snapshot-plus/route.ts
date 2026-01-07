@@ -56,7 +56,7 @@ export async function POST(req: Request) {
       );
     }
 
-    return NextResponse.json({ plusReportId: data.report_id });
+    return NextResponse.json({ plusReportId: (data as any).report_id });
   } catch (err: any) {
     console.error("[Snapshot+ API] Error:", err);
     return NextResponse.json(

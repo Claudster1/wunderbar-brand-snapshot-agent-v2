@@ -21,6 +21,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Report not found" }, { status: 404 });
   }
 
-  return NextResponse.json(data.full_report, { status: 200 });
+  return NextResponse.json((data as any).full_report || data, { status: 200 });
 }
 

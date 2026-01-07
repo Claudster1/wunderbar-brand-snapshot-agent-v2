@@ -1,4 +1,4 @@
-export function buildBlueprint(data) {
+export function buildBlueprint(data: any) {
   return {
     userName: data.userName,
 

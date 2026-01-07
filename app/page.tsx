@@ -104,13 +104,9 @@ export default function Home() {
     setSelectedOptions([]);
   };
 
-  // Parse multi-select options from assistant message
-  const parseMultiSelectOptions = (text: string): string[] | null => {
-    // Check if message contains "select multiple" or similar indicators
-    const isMultiSelect = /select multiple|you can select|multiple options/i.test(text);
-    if (!isMultiSelect) return null;
-
-    // Extract options (lines starting with - or •)
+  // Parse select options from assistant message (multi-select or single-select)
+  const parseSelectOptions = (text: string): { options: string[], isMultiSelect: boolean } | null => {
+    // Check if message contains bullet points (indicating a list of options)
     const lines = text.split('\n');
     const options: string[] = [];
     
@@ -123,16 +119,29 @@ export default function Home() {
       }
     }
 
-    return options.length > 0 ? options : null;
+    // If we found options, determine if it's multi-select or single-select
+    if (options.length > 0) {
+      // Check for multi-select indicators
+      const hasMultiSelectIndicator = /select multiple|you can select|multiple options|select all that apply/i.test(text);
+      
+      // Determine selection type:
+      // - If explicit multi-select indicator, use checkboxes (multi-select)
+      // - Otherwise, use radio buttons (single-select) for any list of options
+      const isMultiSelect = hasMultiSelectIndicator;
+      
+      return { options, isMultiSelect };
+    }
+
+    return null;
   };
 
-  // Get the last assistant message to check for multi-select
+  // Get the last assistant message to check for select options
   const lastAssistantMessage = messages.filter(m => m.role === 'assistant').pop();
-  const multiSelectOptions = lastAssistantMessage 
-    ? parseMultiSelectOptions(lastAssistantMessage.text)
+  const selectOptions = lastAssistantMessage 
+    ? parseSelectOptions(lastAssistantMessage.text)
     : null;
 
-  // Handle checkbox toggle
+  // Handle checkbox toggle (multi-select)
   const handleCheckboxToggle = (option: string) => {
     setSelectedOptions(prev => 
       prev.includes(option)
@@ -141,7 +150,12 @@ export default function Home() {
     );
   };
 
-  // Handle submit with checkboxes
+  // Handle radio button selection (single-select)
+  const handleRadioSelect = (option: string) => {
+    setSelectedOptions([option]);
+  };
+
+  // Handle submit with checkboxes/radio buttons
   const handleSubmitWithOptions = async () => {
     if (selectedOptions.length === 0) return;
     const response = selectedOptions.join(', ');
@@ -177,16 +191,18 @@ export default function Home() {
             <div className="chat-panel">
               <div className="chat-messages" aria-live="polite">
                 {messages.map((message) => {
-                  // Check if this is a multi-select question
-                  const options = message.role === 'assistant' 
-                    ? parseMultiSelectOptions(message.text)
+                  // Check if this is a select question (multi-select or single-select)
+                  const selectData = message.role === 'assistant' 
+                    ? parseSelectOptions(message.text)
                     : null;
                   
-                  if (options && options.length > 0) {
-                    // Render message with checkboxes
+                  if (selectData && selectData.options.length > 0) {
+                    // Render message with checkboxes (multi-select) or radio buttons (single-select)
                     const questionText = message.text.split('\n').find(line => 
                       !line.trim().match(/^[-•]\s/)
                     ) || message.text.split('\n')[0];
+                    
+                    const isMultiSelect = selectData.isMultiSelect;
                     
                     return (
                       <div
@@ -194,13 +210,20 @@ export default function Home() {
                         className={`chat-bubble chat-bubble-${message.role}`}
                       >
                         <p>{questionText}</p>
-                        <div className="chat-checkboxes">
-                          {options.map((option, idx) => (
-                            <label key={idx} className="chat-checkbox-label">
+                        <div className={isMultiSelect ? "chat-checkboxes" : "chat-radio-buttons"}>
+                          {selectData.options.map((option, idx) => (
+                            <label key={idx} className={isMultiSelect ? "chat-checkbox-label" : "chat-radio-label"}>
                               <input
-                                type="checkbox"
-                                checked={selectedOptions.includes(option)}
-                                onChange={() => handleCheckboxToggle(option)}
+                                type={isMultiSelect ? "checkbox" : "radio"}
+                                name={isMultiSelect ? undefined : `radio-${message.id}`}
+                                checked={isMultiSelect 
+                                  ? selectedOptions.includes(option)
+                                  : selectedOptions[0] === option
+                                }
+                                onChange={() => isMultiSelect 
+                                  ? handleCheckboxToggle(option)
+                                  : handleRadioSelect(option)
+                                }
                                 disabled={isLoading}
                               />
                               <span>{option}</span>
@@ -231,7 +254,7 @@ export default function Home() {
                 <div ref={messagesEndRef} />
               </div>
 
-              {multiSelectOptions && multiSelectOptions.length > 0 ? (
+              {selectOptions && selectOptions.options.length > 0 ? (
                 // Show submit button for checkboxes
                 <div className="chat-input-row">
                   <button

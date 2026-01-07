@@ -3,7 +3,10 @@ import { ImageResponse } from "next/og";
 export const runtime = "edge";
 
 function baseUrl() {
-  const url = process.env.NEXT_PUBLIC_BASE_URL || "https://brand-snapshot.vercel.app";
+  // Use NEXT_PUBLIC_BASE_URL if set, otherwise try Vercel's automatic URL, then fallback
+  const url = process.env.NEXT_PUBLIC_BASE_URL 
+    || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
+    || "https://brand-snapshot.vercel.app";
   return url.replace(/\/$/, "");
 }
 

@@ -112,7 +112,7 @@ function DetailBlock({
       <h3 className="text-2xl font-semibold text-brand-navy">{title}</h3>
       <p className="mt-3 text-[15px] leading-relaxed">{body}</p>
       <ul className="mt-4 space-y-2 text-[15px] text-brand-midnight">
-        {items.map((item, idx) => (
+        {items.map((item: string, idx: number) => (
           <li key={idx}>• {item}</li>
         ))}
       </ul>

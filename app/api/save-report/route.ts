@@ -78,7 +78,10 @@ export async function POST(req: Request) {
     }
 
     // Return report ID and redirect URL
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    // Use NEXT_PUBLIC_BASE_URL if set, otherwise try Vercel's automatic URL, then fallback to localhost
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL 
+      || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
+      || "http://localhost:3000";
     const redirectUrl = `${baseUrl}/report/${reportId}`;
 
     return NextResponse.json({

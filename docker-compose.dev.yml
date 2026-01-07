@@ -1,0 +1,49 @@
+version: '3.8'
+
+# Development Docker Compose configuration
+# Use: docker compose -f docker-compose.dev.yml up
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: brand-snapshot-app-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      # Mount source code for hot reload
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      # Supabase Configuration
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - SUPABASE_SECRET_KEY=${SUPABASE_SECRET_KEY}
+      - SUPABASE_URL=${SUPABASE_URL:-${NEXT_PUBLIC_SUPABASE_URL}}
+      
+      # OpenAI Configuration
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      
+      # Replicate Configuration (optional)
+      - REPLICATE_API_KEY=${REPLICATE_API_KEY:-}
+      
+      # Base URL
+      - NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL:-http://localhost:3000}
+      
+      # ActiveCampaign (optional)
+      - ACTIVE_CAMPAIGN_API_KEY=${ACTIVE_CAMPAIGN_API_KEY:-}
+      - ACTIVE_CAMPAIGN_API_URL=${ACTIVE_CAMPAIGN_API_URL:-}
+      
+      # Storage (optional)
+      - REPORT_STORAGE_BUCKET=${REPORT_STORAGE_BUCKET:-brand-snapshot-reports}
+      
+      # Node Environment
+      - NODE_ENV=development
+    env_file:
+      - .env.local
+    command: npm run dev
+    restart: unless-stopped

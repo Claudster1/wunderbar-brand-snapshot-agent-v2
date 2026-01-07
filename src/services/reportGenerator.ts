@@ -223,7 +223,7 @@ function generatePillarInsight(
   userContext?: UserContext
 ): string {
   // Use dynamic insights based on severity
-  const dynamicInsight = generateAllPillarInsights({ [pillar]: score } as PillarScores)[pillar];
+  const dynamicInsight = generateAllPillarInsights({ [pillar]: score } as unknown as PillarScores)[pillar];
   
   // Get contextual modifiers
   const modifiers = getModifiers(pillar, userContext);

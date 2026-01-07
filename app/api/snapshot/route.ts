@@ -73,7 +73,7 @@ export async function POST(req: Request) {
           scores,
           insights: scores.insights,
         },
-      })
+      } as any)
       .select("report_id")
       .single();
 
@@ -85,7 +85,7 @@ export async function POST(req: Request) {
       );
     }
 
-    return NextResponse.json({ reportId: data.report_id });
+    return NextResponse.json({ reportId: (data as any).report_id });
   } catch (err: any) {
     console.error("[Snapshot API] Error:", err);
     return NextResponse.json(

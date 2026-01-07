@@ -1,8 +1,8 @@
-\"use client\";
+"use client";
 
-import { useCallback, useEffect, useMemo, useState } from \"react\";
-import ModalShell from \"@/components/ui/ModalShell\";
-import ScoreRevealModal from \"@/components/ui/ScoreRevealModal\";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import ModalShell from "@/components/ui/ModalShell";
+import ScoreRevealModal from "@/components/ui/ScoreRevealModal";
 
 export type SnapshotModalProps = {
   isOpen: boolean;
@@ -16,10 +16,10 @@ export type SnapshotModalProps = {
 export default function SnapshotModal({
   isOpen,
   onClose,
-  iframeSrc = \"https://wunderbar-brand-snapshot-agent-v2-8.vercel.app/\",
-  resultsPathBase = \"/brand-snapshot/results\",
+  iframeSrc = "https://wunderbar-brand-snapshot-agent-v2-8.vercel.app/",
+  resultsPathBase = "/brand-snapshot/results",
 }: SnapshotModalProps) {
-  const [iframeHeight, setIframeHeight] = useState(\"700px\");
+  const [iframeHeight, setIframeHeight] = useState("700px");
   const [showScoreReveal, setShowScoreReveal] = useState(false);
   const [finalScore, setFinalScore] = useState<number>(0);
   const [pillarScores, setPillarScores] = useState({
@@ -53,12 +53,12 @@ export default function SnapshotModal({
 
     setShowScoreReveal(false);
 
-    if (typeof redirectUrl === \"string\" && redirectUrl.length > 0) {
+    if (typeof redirectUrl === "string" && redirectUrl.length > 0) {
       window.location.href = redirectUrl;
       return;
     }
 
-    if (typeof reportId === \"string\" && reportId.length > 0) {
+    if (typeof reportId === "string" && reportId.length > 0) {
       window.location.href = `${resultsPathBase}/${reportId}`;
       return;
     }
@@ -77,7 +77,7 @@ export default function SnapshotModal({
       const msg: any = event.data;
 
       // Completion (support multiple payload shapes)
-      if (msg.type === \"BRAND_SNAPSHOT_COMPLETE\") {
+      if (msg.type === "BRAND_SNAPSHOT_COMPLETE") {
         const reportId =
           msg.reportId ||
           msg.report_id ||
@@ -101,9 +101,9 @@ export default function SnapshotModal({
           msg.data?.data?.pillarScores ||
           {};
 
-        setPendingRedirectUrl(typeof redirectUrl === \"string\" ? redirectUrl : null);
-        setPendingReportId(typeof reportId === \"string\" ? reportId : null);
-        setFinalScore(typeof score === \"number\" ? score : Number(score) || 0);
+        setPendingRedirectUrl(typeof redirectUrl === "string" ? redirectUrl : null);
+        setPendingReportId(typeof reportId === "string" ? reportId : null);
+        setFinalScore(typeof score === "number" ? score : Number(score) || 0);
         setPillarScores({
           positioning: Number(pillars.positioning) || 0,
           messaging: Number(pillars.messaging) || 0,
@@ -117,45 +117,45 @@ export default function SnapshotModal({
 
       // Auto-resize (support multiple message types used across the repo)
       if (
-        msg.type === \"IFRAME_HEIGHT\" ||
-        msg.type === \"BS_IFRAME_HEIGHT\" ||
-        msg.type === \"RESIZE_IFRAME\" ||
-        msg.type === \"AGENT_RESIZE\"
+        msg.type === "IFRAME_HEIGHT" ||
+        msg.type === "BS_IFRAME_HEIGHT" ||
+        msg.type === "RESIZE_IFRAME" ||
+        msg.type === "AGENT_RESIZE"
       ) {
         const heightVal = msg.height ?? msg.payload?.height;
-        if (typeof heightVal === \"number\" && Number.isFinite(heightVal)) {
+        if (typeof heightVal === "number" && Number.isFinite(heightVal)) {
           setIframeHeight(`${Math.max(300, heightVal)}px`);
-        } else if (typeof heightVal === \"string\" && heightVal.length > 0) {
-          setIframeHeight(heightVal.includes(\"px\") ? heightVal : `${heightVal}px`);
+        } else if (typeof heightVal === "string" && heightVal.length > 0) {
+          setIframeHeight(heightVal.includes("px") ? heightVal : `${heightVal}px`);
         }
       }
     }
 
-    window.addEventListener(\"message\", handleMessage);
-    return () => window.removeEventListener(\"message\", handleMessage);
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
   }, [isOpen, closeModal, iframeOrigin, resultsPathBase]);
 
   if (!isOpen) return null;
 
   return (
     <>
-      <ModalShell isOpen={isOpen && !showScoreReveal} onClose={closeModal} width=\"max-w-4xl\">
-        <div className=\"relative\">
+      <ModalShell isOpen={isOpen && !showScoreReveal} onClose={closeModal} width="max-w-4xl">
+        <div className="relative">
           <button
-            className=\"absolute top-0 right-0 text-slate-600 hover:text-slate-800 transition\"
+            className="absolute top-0 right-0 text-slate-600 hover:text-slate-800 transition"
             onClick={closeModal}
-            aria-label=\"Close\"
+            aria-label="Close"
           >
             ✕
           </button>
 
-          <div className=\"mt-6\">
+          <div className="mt-6">
             <iframe
               src={iframeSrc}
-              title=\"Brand Snapshot™ Agent\"
-              style={{ width: \"100%\", height: iframeHeight }}
-              className=\"border-0 w-full\"
-              allow=\"clipboard-write; fullscreen\"
+              title="Brand Snapshot™ Agent"
+              style={{ width: "100%", height: iframeHeight }}
+              className="border-0 w-full"
+              allow="clipboard-write; fullscreen"
             />
           </div>
         </div>

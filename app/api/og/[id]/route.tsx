@@ -5,7 +5,6 @@ import { ImageResponse } from "next/og";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export const runtime = "edge";
-export const alt = "Brand Snapshot™ Results";
 
 export async function GET(
   request: Request,

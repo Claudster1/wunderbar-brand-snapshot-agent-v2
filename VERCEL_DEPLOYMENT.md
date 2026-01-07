@@ -17,16 +17,15 @@ This guide covers everything you need to know for deploying this Next.js app to 
 Add these environment variables in your Vercel project dashboard:
 
 **Required:**
-- `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase project URL
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Your Supabase anonymous key
-- `SUPABASE_SERVICE_ROLE_KEY` - Your Supabase service role key (server-only)
-- `OPENAI_API_KEY` - Your OpenAI API key
-- `NEXT_PUBLIC_BASE_URL` - Your Vercel deployment URL (e.g., `https://your-app.vercel.app`)
+- `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase project URL (e.g., `https://your-project.supabase.co`)
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Your Supabase anonymous/public key (get from Supabase dashboard)
+- `SUPABASE_SERVICE_ROLE_KEY` - Your Supabase service role key (server-only, get from Supabase dashboard)
+- `OPENAI_API_KEY` - Your OpenAI API key (get from https://platform.openai.com/api-keys)
+- `NEXT_PUBLIC_BASE_URL` - Your Vercel deployment URL or custom domain (e.g., `https://www.brandsnapshot.ai`)
 
 **Optional:**
-- `REPLICATE_API_KEY` - If using Replicate features
-- `ACTIVE_CAMPAIGN_API_KEY` - If using ActiveCampaign integration
-- `ACTIVE_CAMPAIGN_API_URL` - If using ActiveCampaign integration
+- `ACTIVE_CAMPAIGN_API_KEY` - Your ActiveCampaign API token (get from ActiveCampaign dashboard)
+- `ACTIVE_CAMPAIGN_API_URL` - Your ActiveCampaign API URL (e.g., `https://YOUR-ACCOUNT.api-us1.com`)
 - `REPORT_STORAGE_BUCKET` - Supabase storage bucket name (defaults to `brand-snapshot-reports`)
 
 ### 2. Setting Environment Variables in Vercel
@@ -53,7 +52,7 @@ For `NEXT_PUBLIC_BASE_URL`, you have two options:
 
 **Option B: Use a custom domain**
 ```bash
-NEXT_PUBLIC_BASE_URL=https://yourdomain.com
+NEXT_PUBLIC_BASE_URL=https://www.brandsnapshot.ai
 ```
 
 The code automatically falls back to `https://brand-snapshot.vercel.app` if not set, but you should set your actual domain.

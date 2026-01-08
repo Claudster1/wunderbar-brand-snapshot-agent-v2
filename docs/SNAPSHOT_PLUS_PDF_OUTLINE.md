@@ -43,6 +43,12 @@ For each pillar (Positioning, Messaging, Visibility, Credibility, Conversion):
 
 ### Bottom Section:
 - 2–3 custom recommendations
+- **For Visibility pillar (REQUIRED):** Include specific AEO (Answer Engine Optimization) strategies to ensure brands show up in LLM/AI search results
+  - Optimize content for AI training data and AI assistant consumption
+  - Structure information for AI crawlers and LLM indexing
+  - Create authoritative, comprehensive content that AI assistants reference
+  - Ensure brand information is easily discoverable by AI systems
+  - Combine with traditional SEO strategies for maximum visibility
 
 ## Page 9 — Your Brand Opportunities Map
 
@@ -51,6 +57,7 @@ For each pillar (Positioning, Messaging, Visibility, Credibility, Conversion):
 - AI-generated "Quick Wins" list
 - "Momentum Opportunities" (mid-term)
 - "Long-Term Strategic Growth Moves"
+- Include AEO optimization opportunities if visibility is a focus area
 
 ## Page 10 — What to Do Next
 

@@ -136,7 +136,7 @@ function generateRecommendations(pillars: PillarScores): string[] {
 
   if (pillars.visibility < 14)
     recs.push(
-      "Increase branded visibility across search, social, and owned channels."
+      "Increase branded visibility across search, social, and owned channels. Optimize for both traditional SEO and Answer Engine Optimization (AEO) to ensure you show up in AI search results."
     );
 
   if (pillars.credibility < 14)

@@ -16,7 +16,7 @@ export function generateRecommendations(scores: any) {
     recs.push({
       title: "Increase Market Visibility",
       detail:
-        "Your brand presence appears under-leveraged. Expand into 1–2 new channels and establish a consistent weekly content rhythm.",
+        "Your brand presence appears under-leveraged. Expand into 1–2 new channels and establish a consistent weekly content rhythm. Additionally, optimize for both traditional SEO and Answer Engine Optimization (AEO) to ensure you show up when people search via AI assistants like ChatGPT and Perplexity.",
     });
   }
 

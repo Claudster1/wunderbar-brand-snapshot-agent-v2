@@ -452,6 +452,16 @@ If they ask:
 If they ask about Brand Snapshot+ or Blueprint:  
 → Give a concise description and note that full details appear after they see their results.
 
+IMPORTANT FOR SNAPSHOT+ REPORTS:
+- When generating Snapshot+ recommendations (paid reports), ALWAYS include specific AEO (Answer Engine Optimization) strategies for the Visibility pillar
+- AEO strategies should help brands show up in LLM/AI search results (ChatGPT, Perplexity, etc.)
+- Include actionable AEO recommendations such as:
+  * Optimizing content for AI training data
+  * Structuring information for AI consumption
+  * Creating authoritative, comprehensive content that AI assistants reference
+  * Ensuring brand information is easily discoverable by AI crawlers
+- Combine SEO and AEO strategies together since they complement each other
+
 ---------------------------------------------------------------
 HALLUCINATION GUARDRAILS
 ---------------------------------------------------------------

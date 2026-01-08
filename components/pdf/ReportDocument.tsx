@@ -322,6 +322,7 @@ export const ReportDocument = ({
           <Text>• Homepage Copy Outline</Text>
           <Text>• Visual Identity Direction + Palette Expansion</Text>
           <Text>• Brand Voice Guide</Text>
+          <Text>• SEO & AEO Optimization Strategies (AI search optimization)</Text>
           <Text>• Priority Roadmap for the Next 90 Days</Text>
         </View>
 

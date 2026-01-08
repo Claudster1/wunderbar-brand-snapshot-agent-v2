@@ -296,17 +296,17 @@ function generateOpportunitiesSummary(
       const strengthList = strongPillars
         .map(p => p.charAt(0).toUpperCase() + p.slice(1))
         .join(' and ');
-      return `Your brand shines in ${strengthList}, which creates a solid foundation for growth. Your biggest opportunity right now is strengthening ${pillarName} (${weakest.score}/20). Even small improvements here can create outsized impact on clarity, trust, and conversion. The goal isn't perfection, but consistent progress toward a brand that communicates clearly at every touchpoint.`;
+      return `Your brand shines in ${strengthList}, which creates a solid foundation for growth. Your biggest opportunity right now is strengthening ${pillarName} (${weakest.score}/20). Even small improvements here can create outsized impact on clarity, trust, and conversion. As AI search becomes more common, consider optimizing for both traditional SEO and Answer Engine Optimization (AEO) to ensure you're discoverable when people ask AI assistants about your industry. The goal isn't perfection, but consistent progress toward a brand that communicates clearly at every touchpoint.`;
     }
-    return `Your brand has a strong foundation. Your biggest opportunity right now is strengthening ${pillarName} (${weakest.score}/20). Even small improvements here can create outsized impact on clarity, trust, and conversion.`;
+    return `Your brand has a strong foundation. Your biggest opportunity right now is strengthening ${pillarName} (${weakest.score}/20). Even small improvements here can create outsized impact on clarity, trust, and conversion. As AI search grows, optimizing for both traditional search engines and AI assistants (AEO) is becoming essential—Snapshot+ includes AI-optimization strategies to help you show up in the age of AI search.`;
   } else {
     if (strongPillars.length > 0) {
       const strengthList = strongPillars
         .map(p => p.charAt(0).toUpperCase() + p.slice(1))
         .join(' and ');
-      return `Your brand shows promise in ${strengthList}, which is a great starting point. The biggest opportunity for impact lies in strengthening ${pillarName} (${weakest.score}/20)—this pillar, when improved, creates a ripple effect that enhances clarity, builds trust, and drives conversion. Focus on this area first, and you'll see meaningful progress toward a more aligned brand.`;
+      return `Your brand shows promise in ${strengthList}, which is a great starting point. The biggest opportunity for impact lies in strengthening ${pillarName} (${weakest.score}/20)—this pillar, when improved, creates a ripple effect that enhances clarity, builds trust, and drives conversion. As AI search becomes more common, optimizing for both traditional SEO and Answer Engine Optimization (AEO) will help ensure you're discoverable when people ask AI assistants about your industry. Focus on this area first, and you'll see meaningful progress toward a more aligned brand.`;
     }
-    return `Your biggest opportunity for impact lies in strengthening ${pillarName} (${weakest.score}/20). This pillar, when improved, creates a ripple effect that enhances clarity, builds trust, and drives conversion. Focus on this area first, and you'll see meaningful progress toward a more aligned brand.`;
+    return `Your biggest opportunity for impact lies in strengthening ${pillarName} (${weakest.score}/20). This pillar, when improved, creates a ripple effect that enhances clarity, builds trust, and drives conversion. As AI search grows, optimizing for both traditional search engines and AI assistants (AEO) is becoming essential—Snapshot+ includes AI-optimization strategies to help you show up in the age of AI search. Focus on this area first, and you'll see meaningful progress toward a more aligned brand.`;
   }
 }
 
@@ -321,7 +321,7 @@ function generateUpgradeCTA(
   // Add closing CTA
   return `${dynamicUpsell}
 
-Ready to get started? Upgrade to Snapshot+ and receive your complete Brand Blueprint with personalized recommendations, examples, and step-by-step guides tailored to your specific brand.`;
+Ready to get started? Upgrade to Snapshot+ and receive your complete Brand Blueprint with personalized recommendations, examples, step-by-step guides, and AI-optimization strategies (including SEO & AEO) tailored to your specific brand.`;
 }
 
 // Main report generation function

@@ -164,7 +164,7 @@ Score: ${weakest.score}/20
 
 ${dynamicInsight}
 
-Snapshot+ gives you the full roadmap to strengthen this area with personalized recommendations, examples, and next steps.`;
+Snapshot+ gives you the full roadmap to strengthen this area with personalized recommendations, examples, next steps, and AI-optimization strategies (including SEO & AEO) to ensure you're discoverable in the age of AI search.`;
 }
 
 /**

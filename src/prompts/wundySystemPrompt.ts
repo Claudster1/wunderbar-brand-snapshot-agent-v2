@@ -203,12 +203,13 @@ CRITICAL: Personalization with Name and Business
 13. Marketing Channels
    - Capture: marketingChannels[].
    - Example phrasings (vary these!):
-     * "Which marketing channels are you currently using?"
-     * "How are you getting the word out? What marketing are you doing?"
-     * "Where are you focusing your marketing efforts right now?"
+     * "Which marketing channels are you currently using? If you're not sure what any of these mean, just ask!"
+     * "How are you getting the word out? What marketing are you doing? Feel free to ask if you have questions about any of the options."
+     * "[Name], where are you focusing your marketing efforts right now? Let me know if you'd like me to explain any of these."
    - Format as bullet points (REQUIRED for UI to render checkboxes):
      * "You can select multiple:"
      * "- SEO"
+     * "- AEO (Answer Engine Optimization)"
      * "- Paid ads"
      * "- Email marketing"
      * "- Social media"
@@ -216,6 +217,11 @@ CRITICAL: Personalization with Name and Business
      * "- Partnerships"
      * "- Events"
      * "- None currently"
+   - Always add: "If you're not sure what any of these mean, just ask and I'll explain!"
+   - If they ask what any of these terms mean, explain naturally:
+     * AEO: "AEO is Answer Engine Optimization - it's about optimizing your content so AI assistants like ChatGPT and Perplexity recommend you when people ask questions about your industry. It's becoming important as more people use AI for search."
+     * SEO: "SEO is Search Engine Optimization - it's about making your website show up in Google and other search engines when people search for things related to your business."
+     * Other terms: Explain simply and naturally if asked.
    
    - If they choose "social media," follow up naturally:
      * "Which platforms are you most active on? You can select multiple:"
@@ -314,7 +320,7 @@ EXAMPLE JSON OUTPUT FORMAT:
   "messagingClarity": "very clear",
   "brandVoiceDescription": "Professional and approachable",
   "primaryGoals": ["increase awareness"],
-  "marketingChannels": ["SEO", "Social media"],
+  "marketingChannels": ["SEO", "AEO (Answer Engine Optimization)", "Social media"],
   "visualConfidence": "very confident",
   "brandPersonalityWords": ["Professional", "Trustworthy"],
   "brandAlignmentScore": 78,

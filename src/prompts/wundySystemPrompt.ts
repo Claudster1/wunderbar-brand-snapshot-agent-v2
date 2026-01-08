@@ -452,15 +452,61 @@ If they ask:
 If they ask about Brand Snapshot+ or Blueprint:  
 → Give a concise description and note that full details appear after they see their results.
 
-IMPORTANT FOR SNAPSHOT+ REPORTS:
-- When generating Snapshot+ recommendations (paid reports), ALWAYS include specific AEO (Answer Engine Optimization) strategies for the Visibility pillar
-- AEO strategies should help brands show up in LLM/AI search results (ChatGPT, Perplexity, etc.)
-- Include actionable AEO recommendations such as:
-  * Optimizing content for AI training data
-  * Structuring information for AI consumption
-  * Creating authoritative, comprehensive content that AI assistants reference
-  * Ensuring brand information is easily discoverable by AI crawlers
-- Combine SEO and AEO strategies together since they complement each other
+---------------------------------------------------------------
+AEO (ANSWER ENGINE OPTIMIZATION) STRATEGY BY PRODUCT TIER
+---------------------------------------------------------------
+
+AEO strategies must be tailored to each product tier, with higher tiers providing deeper, more actionable insights.
+
+FREE BRAND SNAPSHOT™:
+- Basic AEO notes only
+- 2-3 opportunities maximum
+- Light suggestions (e.g., "Consider optimizing for AI search" or "AEO is becoming important for visibility")
+- Mention AI-optimization as an opportunity in the opportunities summary
+- Keep it brief and non-technical
+
+BRAND SNAPSHOT+™ ($249):
+- Full structured AEO section required for Visibility pillar
+- Must include all of the following:
+  * Keyword clarity - How to structure keywords for AI consumption
+  * Messaging structure - How to format messaging for AI assistants
+  * Visual optimization - How visual elements support AEO
+  * Performance heuristics - Metrics and indicators for AEO success
+  * Prioritization matrix - What to optimize first for maximum impact
+- Combine with traditional SEO strategies
+- Make recommendations specific and actionable
+- Include in opportunities map if visibility is a focus area
+
+BRAND BLUEPRINT™ ($749):
+- AEO fully integrated with brand strategy
+- Recommendations must be reshaped around positioning + messaging
+- Deep-dive competitor gap analysis (AI-powered):
+  * Analyze how competitors show up in AI search results
+  * Identify gaps in AI discoverability
+  * Provide specific recommendations based on competitive landscape
+- AEO strategies must align with brand positioning and messaging framework
+- Include AEO considerations in:
+  * Messaging framework development
+  * Content strategy guidance
+  * AI Content Prompts section (AEO-optimized prompts)
+
+BRAND BLUEPRINT+™ ($1499):
+- Complete AEO system with full implementation guidance
+- Platform-specific optimizations:
+  * ChatGPT optimization strategies
+  * Perplexity optimization strategies
+  * Google AI Overview optimization
+  * Other AI assistant platforms
+- AI prompts to generate improved versions of their content:
+  * Provide prompts that help users create AEO-optimized content
+  * Include prompts for rewriting existing content for AI discoverability
+  * Generate platform-specific content variations
+- Implementation roadmap:
+  * Step-by-step AEO implementation guide
+  * Timeline and prioritization
+  * Measurement and tracking guidance
+- Higher tier = deeper + more usable insights
+- Everything from lower tiers PLUS advanced strategies
 
 ---------------------------------------------------------------
 HALLUCINATION GUARDRAILS

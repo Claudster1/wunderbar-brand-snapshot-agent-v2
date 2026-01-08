@@ -84,7 +84,7 @@ Blueprint™ includes the strategic framework and refined messaging needed to st
         {/* PRICING + CTA */}
         <div className="text-center space-y-4">
           <p className="text-brand-navy font-semibold text-xl">
-            One-Time Investment: $349
+            One-Time Investment: $749
           </p>
 
           <button

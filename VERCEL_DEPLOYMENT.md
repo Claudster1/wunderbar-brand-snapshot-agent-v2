@@ -177,9 +177,31 @@ Vercel provides:
    - OG image generation
 
 2. **Set up custom domain** (if needed):
+   
+   **Step 1: Add Domain in Vercel**
    - Go to **Settings** → **Domains**
-   - Add your custom domain
-   - Update `NEXT_PUBLIC_BASE_URL` to match
+   - Click **Add Domain**
+   - Enter your domain (e.g., `www.brandsnapshot.ai`)
+   - Click **Add**
+   
+   **Step 2: Configure DNS Records**
+   - Vercel will show you the DNS records to add
+   - Go to your domain registrar (Namecheap, GoDaddy, Cloudflare, etc.)
+   - Add the CNAME record Vercel provides:
+     - Type: `CNAME`
+     - Name: `www`
+     - Value: `cname.vercel-dns.com` (or what Vercel shows)
+   - For root domain (optional): Add A record pointing to Vercel's IP
+   
+   **Step 3: Update Environment Variable**
+   - Go to **Settings** → **Environment Variables**
+   - Update `NEXT_PUBLIC_BASE_URL` to: `https://www.brandsnapshot.ai`
+   - Save and redeploy
+   
+   **Step 4: Wait for DNS Propagation**
+   - DNS changes can take 5-60 minutes
+   - Check domain status in Vercel dashboard
+   - Once it shows "Valid Configuration", your domain is live!
 
 3. **Configure preview deployments:**
    - Preview deployments automatically use preview environment variables

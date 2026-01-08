@@ -31,7 +31,7 @@
 
     "q_industry": {
       "type": "text",
-      "prompt": "What industry are you in? A rough category is totally fine.",
+      "prompt": "What industry are you in? A general category is totally fine.",
       "save_as": "industry",
       "next": "q_audience"
     },

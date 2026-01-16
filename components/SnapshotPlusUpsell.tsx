@@ -1,12 +1,20 @@
 // components/SnapshotPlusUpsell.tsx
 
+import { snapshotPlusCopy } from "@/src/content/snapshotPlus.copy";
+
 export default function SnapshotPlusUpsell({
   href = "/checkout/snapshot-plus",
   copy,
+  businessName,
 }: {
   href?: string;
   copy?: string;
+  businessName?: string;
 }) {
+  const ctaText = businessName
+    ? snapshotPlusCopy.cta.getPlan(businessName)
+    : snapshotPlusCopy.cta.primary;
+
   return (
     <div
       style={{
@@ -41,7 +49,7 @@ export default function SnapshotPlusUpsell({
           boxShadow: "0 6px 22px rgba(7,176,242,0.45)",
         }}
       >
-        Get Brand Snapshot+™ →
+        {ctaText} →
       </a>
     </div>
   );

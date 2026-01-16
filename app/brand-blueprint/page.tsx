@@ -29,7 +29,7 @@ export default function BrandBlueprintPage() {
             fontWeight: 600,
           }}
         >
-          Explore Blueprint™ →
+          Explore Brand Blueprint™ →
         </Link>
         <Link
           href="/brand-blueprint-plus"

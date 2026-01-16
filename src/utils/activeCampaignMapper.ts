@@ -7,6 +7,8 @@
  * You'll need to create these fields in ActiveCampaign and get their numeric IDs
  */
 
+import { mapRolePhrase } from "@/src/lib/activeCampaign/mapRolePhrase";
+
 interface WundyJson {
   user: {
     firstName: string;
@@ -15,6 +17,7 @@ interface WundyJson {
     companyName: string;
     industry: string;
     website: string;
+    role?: string; // User role context (operator, strategic_lead, marketing_lead, founder, other)
     socialLinks: {
       linkedin: string;
       instagram: string;
@@ -115,6 +118,11 @@ export function mapWundyToAC(wundyJson: WundyJson): ActiveCampaignPayload {
     { field: process.env.AC_FIELD_COMPANY_NAME || "COMPANY_NAME_FIELD_ID", value: u.companyName },
     { field: process.env.AC_FIELD_INDUSTRY || "INDUSTRY_FIELD_ID", value: u.industry },
     { field: process.env.AC_FIELD_WEBSITE || "WEBSITE_FIELD_ID", value: u.website },
+    // Role Phrase (for personalized messaging)
+    ...(u.role ? [{
+      field: process.env.AC_FIELD_ROLE_PHRASE || "ROLE_PHRASE_FIELD_ID",
+      value: mapRolePhrase(u.role)
+    }] : []),
     { field: process.env.AC_FIELD_LINKEDIN || "LINKEDIN_FIELD_ID", value: u.socialLinks.linkedin },
     { field: process.env.AC_FIELD_INSTAGRAM || "INSTAGRAM_FIELD_ID", value: u.socialLinks.instagram },
     { field: process.env.AC_FIELD_FACEBOOK || "FACEBOOK_FIELD_ID", value: u.socialLinks.facebook },
@@ -156,6 +164,11 @@ export function mapWundyToAC(wundyJson: WundyJson): ActiveCampaignPayload {
     { field: process.env.AC_FIELD_VISIBILITY_SCORE || "VISIBILITY_SCORE_FIELD_ID", value: scores.visibility },
     { field: process.env.AC_FIELD_CREDIBILITY_SCORE || "CREDIBILITY_SCORE_FIELD_ID", value: scores.credibility },
     { field: process.env.AC_FIELD_CONVERSION_SCORE || "CONVERSION_SCORE_FIELD_ID", value: scores.conversion },
+    // Primary Pillar
+    ...(scores.primaryPillar ? [{
+      field: process.env.AC_FIELD_PRIMARY_PILLAR || "PRIMARY_PILLAR_FIELD_ID",
+      value: scores.primaryPillar
+    }] : []),
     
     // Pillar Insights (from fullReport or dynamic insights)
     ...(wundyJson.fullReport?.positioningInsight ? [{ 

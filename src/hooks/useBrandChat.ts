@@ -1,5 +1,7 @@
 // src/hooks/useBrandChat.ts
-import { useState } from 'react';
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   BrandChatMessage,
@@ -22,6 +24,8 @@ const INITIAL_ASSISTANT_MESSAGE = createMessage(
   'assistant',
   `Hi, I'm Wundy. I'll guide you through a few questions to build your Brand Snapshot™.
 
+Before we continue — quick note: this will only take a few minutes, and there's no right or wrong answer. The clearer your answers, the more useful your Brand Snapshot™ will be.
+
 Ready to begin?`
 );
 
@@ -30,8 +34,109 @@ export function useBrandChat() {
     INITIAL_ASSISTANT_MESSAGE,
   ]);
   const [isLoading, setIsLoading] = useState(false);
+  const [reportId, setReportId] = useState<string | null>(null);
   const router = useRouter();
   const { generateReport, loading: pdfLoading } = useGenerateReport();
+  const isInitialized = useRef(false);
+
+  // Initialize: create draft report or load resume
+  useEffect(() => {
+    if (isInitialized.current || typeof window === 'undefined') return;
+    isInitialized.current = true;
+
+    // Check for resume query param
+    const urlParams = new URLSearchParams(window.location.search);
+    const resumeId = urlParams.get('resume');
+    
+    if (resumeId) {
+      // Load existing progress
+      fetch(`/api/snapshot/resume?reportId=${resumeId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.reportId && data.progress) {
+            setReportId(data.reportId);
+            // Restore messages from progress if available
+            if (data.progress.messages && Array.isArray(data.progress.messages)) {
+              setMessages(data.progress.messages);
+            }
+          }
+        })
+        .catch((err) => {
+          console.error('[useBrandChat] Error loading resume:', err);
+        });
+    } else {
+      // Create new draft report
+      fetch('/api/snapshot/draft', { method: 'POST' })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.reportId) {
+            setReportId(data.reportId);
+          }
+        })
+        .catch((err) => {
+          console.error('[useBrandChat] Error creating draft:', err);
+        });
+    }
+  }, []);
+
+  // Extract answers from conversation history
+  const extractAnswers = (history: BrandChatMessage[]): Record<string, any> => {
+    const answers: Record<string, any> = {};
+    const userMessages = history.filter((m) => m.role === 'user');
+    
+    // Extract key information from conversation
+    userMessages.forEach((msg, index) => {
+      // Store user responses
+      answers[`response_${index}`] = msg.text;
+    });
+    
+    // Extract structured data if available
+    const conversationText = userMessages.map((m) => m.text).join(' ').toLowerCase();
+    
+    // Business name
+    const businessNameMatch = conversationText.match(/business.*?name[:\s]+([^\n,\.]+)/i);
+    if (businessNameMatch) {
+      answers.businessName = businessNameMatch[1].trim();
+    }
+    
+    // Website
+    if (conversationText.includes('website') && conversationText.includes('yes')) {
+      answers.hasWebsite = true;
+    }
+    
+    // Industry
+    const industryMatch = conversationText.match(/industry[:\s]+([^\n,\.]+)/i);
+    if (industryMatch) {
+      answers.industry = industryMatch[1].trim();
+    }
+    
+    return answers;
+  };
+
+  // Save progress after assistant responds
+  const saveProgress = async (step: string, history: BrandChatMessage[]) => {
+    if (!reportId) return;
+    
+    const answers = extractAnswers(history);
+    
+    try {
+      await fetch('/api/snapshot/progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          reportId,
+          lastStep: step,
+          progress: {
+            ...answers,
+            messages: history,
+            lastUpdated: new Date().toISOString(),
+          },
+        }),
+      });
+    } catch (err) {
+      console.error('[useBrandChat] Error saving progress:', err);
+    }
+  };
 
   const sendMessage = async (text: string) => {
     const trimmed = text.trim();
@@ -118,6 +223,37 @@ export function useBrandChat() {
             const { extractUserContext, extractCompanyInfo } = await import('../services/snapshotService');
             const userContext = extractUserContext(nextHistory);
             const companyInfo = extractCompanyInfo(nextHistory);
+
+            // Update draft report status to completed
+            if (reportId) {
+              try {
+                await fetch('/api/snapshot/progress', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    reportId,
+                    lastStep: 'completed',
+                    progress: {
+                      ...extractAnswers(nextHistory),
+                      completed: true,
+                      completedAt: new Date().toISOString(),
+                    },
+                  }),
+                });
+                
+                // Update report status to completed
+                await fetch('/api/snapshot/complete', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    reportId,
+                    status: 'completed',
+                  }),
+                });
+              } catch (err) {
+                console.error('[useBrandChat] Error updating report status:', err);
+              }
+            }
 
             // Save report and get redirect URL
             try {
@@ -223,7 +359,14 @@ export function useBrandChat() {
             // Only add handoff message if it exists and doesn't contain scores
             if (cleanText && cleanText.length > 0 && !/\d+/.test(cleanText)) {
               const handoffMessage = createMessage('assistant', cleanText);
-              setMessages((prev) => [...prev, handoffMessage]);
+              const finalHistory = [...nextHistory, handoffMessage];
+              setMessages(finalHistory);
+              
+              // Save progress with completion step
+              saveProgress('handoff', finalHistory);
+            } else {
+              // Save progress even if no handoff message
+              saveProgress('completed', nextHistory);
             }
             
             // Don't add JSON to chat - it's only for the parent page
@@ -251,7 +394,13 @@ export function useBrandChat() {
         } else {
           // Normal text response - add to chat as usual
           const assistantMessage = createMessage('assistant', replyText);
-          setMessages((prev) => [...prev, assistantMessage]);
+          const updatedHistory = [...nextHistory, assistantMessage];
+          setMessages(updatedHistory);
+          
+          // Save progress after assistant responds
+          // Use message count as step identifier
+          const step = `step_${updatedHistory.filter(m => m.role === 'assistant').length}`;
+          saveProgress(step, updatedHistory);
         }
       }
     } catch (err: any) {

@@ -42,6 +42,7 @@ Create these fields in ActiveCampaign and note their Field IDs for environment v
 | Brand URL | Text | `%BRAND_URL%` | Provided by user |
 | Industry | Text | `%INDUSTRY%` | Provided |
 | Company Name | Text | `%COMPANY_NAME%` | Provided |
+| Role Phrase | Text | `%ROLE_PHRASE%` | Personalized role description (e.g., "running and growing the business day-to-day") |
 
 ## Environment Variables
 
@@ -72,6 +73,7 @@ AC_FIELD_SNAPSHOT_PLUS_PITCH=14
 AC_FIELD_BRAND_URL=15
 AC_FIELD_INDUSTRY=16
 AC_FIELD_COMPANY_NAME=17
+AC_FIELD_ROLE_PHRASE=18
 ```
 
 ## Usage in Email Templates
@@ -86,6 +88,8 @@ Positioning Score: %POSITIONING_SCORE% / 20
 
 Top Opportunities:
 %TOP_OPPORTUNITIES%
+
+This report was designed to support you in %ROLE_PHRASE%.
 
 %SNAPSHOT_PLUS_PITCH%
 ```

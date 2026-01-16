@@ -15,6 +15,7 @@ module.exports = {
         'brand-aqua': '#27CDF2',
         'brand-midnight': '#0C1526',
         'brand-gray': '#F2F2F2',
+        'brand-light': '#F8F9FA',
         'brand-border': '#E0E3EA',
       },
     },

@@ -299,7 +299,7 @@ export default async function SnapshotPlusPage({ params }: { params: { id: strin
         </p>
 
         <Link href="/upgrade/blueprint" className="blueprint-btn">
-          Explore Blueprint™ →
+          Explore Brand Blueprint™ →
         </Link>
       </div>
 

@@ -212,7 +212,7 @@
         { "label": "Add website link", "value": "website", "next": "q_add_link_website" },
         { "label": "Add social links", "value": "social", "next": "q_add_link_social" },
         { "label": "Add marketing assets", "value": "assets", "next": "q_add_link_assets" },
-        { "label": "No, continue", "value": "none", "next": "q_ready_generate" }
+        { "label": "No, continue", "value": "none", "next": "q_user_role_context" }
       ],
       "save_as": "additional_link_choice"
     },
@@ -236,6 +236,20 @@
       "prompt": "Drop any marketing materials or assets you'd like included.",
       "save_as": "additional_asset_links",
       "next": "q_additional_links"
+    },
+
+    "q_user_role_context": {
+      "type": "single_select",
+      "prompt": "Before I wrap this up, one quick thing.\n\nHow do you think about your role at {{business_name}}?\n\nSelect one:",
+      "options": [
+        { "label": "I run the business day-to-day", "value": "operator" },
+        { "label": "I lead strategy and growth", "value": "strategic_lead" },
+        { "label": "I oversee marketing or brand", "value": "marketing_lead" },
+        { "label": "I'm a founder / co-founder", "value": "founder" },
+        { "label": "Something else", "value": "other" }
+      ],
+      "save_as": "userRoleContext",
+      "next": "q_ready_generate"
     },
 
     "q_ready_generate": {

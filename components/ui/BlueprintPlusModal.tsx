@@ -52,7 +52,7 @@ export default function BlueprintPlusModal({ isOpen, onClose }: BlueprintPlusMod
             </li>
             <li>
               <strong>Your Brand Operating Manual:</strong> A polished 20–30 page document you can
-              share with teams, partners, or agencies.
+              use across your tools and workflows.
             </li>
           </ul>
         </div>

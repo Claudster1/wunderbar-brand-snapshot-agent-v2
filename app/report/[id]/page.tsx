@@ -48,6 +48,12 @@ export default async function ReportPage({ params }: { params: { id: string } })
     snapshot_upsell,
   } = report;
 
+  // Extract business name from report or full_report
+  const businessName = (report as any).business_name || 
+                       (report as any).businessName || 
+                       (full_report as any)?.businessName || 
+                       (full_report as any)?.business_name;
+
   /* ------------------------------------------------------------------
      INLINE STYLES (Deal.ai compatible)
   ------------------------------------------------------------------ */
@@ -249,6 +255,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
               ? snapshot_upsell
               : undefined
           }
+          businessName={businessName}
         />
 
         <p style={{ marginTop: "24px" }}>

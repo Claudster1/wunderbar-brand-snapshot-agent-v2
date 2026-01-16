@@ -76,7 +76,7 @@ Blueprint™ includes the strategic framework and refined messaging needed to st
             <li>• Brand personality, tone, and communication guidelines</li>
             <li>• AI-ready prompts for writing on-brand content across platforms</li>
             <li>• Messaging frameworks for your website, campaigns, and sales content</li>
-            <li>• A clarity-first structure your team (and AI tools) can use instantly</li>
+            <li>• A clarity-first structure you (and AI tools) can use instantly</li>
             <li>• Delivered as a polished, presentation-ready PDF</li>
           </ul>
         </div>
@@ -95,7 +95,7 @@ Blueprint™ includes the strategic framework and refined messaging needed to st
               px-10 py-3 shadow-md shadow-brand-blue/30 transition
             "
           >
-            Upgrade to Blueprint™ →
+            Activate your Snapshot+™ priorities →
           </button>
 
           <button

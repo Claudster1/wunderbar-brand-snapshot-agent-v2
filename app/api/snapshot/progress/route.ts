@@ -1,0 +1,58 @@
+// app/api/snapshot/progress/route.ts
+// API route for saving and loading snapshot progress
+
+import { NextResponse } from "next/server";
+import { saveSnapshotProgress } from "@/lib/saveSnapshotProgress";
+import { loadSnapshotProgress } from "@/lib/loadSnapshotProgress";
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const { reportId, lastStep, progress } = body;
+
+    if (!reportId || !lastStep) {
+      return NextResponse.json(
+        { error: "Missing required fields: reportId, lastStep" },
+        { status: 400 }
+      );
+    }
+
+    await saveSnapshotProgress({
+      reportId,
+      lastStep,
+      progress: progress || {},
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (err: any) {
+    console.error("[Snapshot Progress API] Error:", err);
+    return NextResponse.json(
+      { error: "Failed to save progress" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const reportId = searchParams.get("reportId");
+
+    if (!reportId) {
+      return NextResponse.json(
+        { error: "Missing reportId parameter" },
+        { status: 400 }
+      );
+    }
+
+    const data = await loadSnapshotProgress(reportId);
+
+    return NextResponse.json({ data });
+  } catch (err: any) {
+    console.error("[Snapshot Progress API] Error:", err);
+    return NextResponse.json(
+      { error: "Failed to load progress" },
+      { status: 500 }
+    );
+  }
+}

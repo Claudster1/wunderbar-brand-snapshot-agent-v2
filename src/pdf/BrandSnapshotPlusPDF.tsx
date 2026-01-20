@@ -14,7 +14,7 @@ import { PdfHeader } from "./components/PdfHeader";
 import { PdfFooter } from "./components/PdfFooter";
 import { PageTitle } from "./components/PageTitle";
 import { Section } from "./components/Section";
-import { PillarScoreBar } from "./components/PillarScoreBar";
+import { PillarScoreRow } from "./components/PillarScoreRow";
 import { InsightBlock } from "./components/InsightBlock";
 import { RecommendationBlock } from "./components/RecommendationBlock";
 import { ColorSwatch } from "./components/ColorSwatch";
@@ -137,12 +137,7 @@ export const BrandSnapshotPlusPDF = ({
 
           {/* Brand Alignment Score Gauge */}
           <View style={{ marginTop: pdfTheme.spacing.lg, alignItems: "center" }}>
-            <ScoreGauge
-              score={brandAlignmentScore}
-              max={100}
-              label="Brand Alignment Score™"
-              size={100}
-            />
+            <ScoreGauge value={brandAlignmentScore} size={100} />
           </View>
 
           {/* Primary Pillar Highlight */}
@@ -186,13 +181,21 @@ export const BrandSnapshotPlusPDF = ({
         />
 
         <Section>
-          <PillarScoreBar label="Positioning" score={pillarScores.positioning} />
+          <PillarScoreRow
+            label="Positioning"
+            score={pillarScores.positioning}
+            emphasis={primaryPillar === "positioning"}
+          />
           <InsightBlock title="Positioning Insight" text={pillarInsights.positioning} />
           <RecommendationBlock title="Positioning Opportunity" text={recommendations.positioning} />
         </Section>
 
         <Section>
-          <PillarScoreBar label="Messaging" score={pillarScores.messaging} />
+          <PillarScoreRow
+            label="Messaging"
+            score={pillarScores.messaging}
+            emphasis={primaryPillar === "messaging"}
+          />
           <InsightBlock title="Messaging Insight" text={pillarInsights.messaging} />
           <RecommendationBlock 
             title="Messaging Opportunity" 
@@ -201,7 +204,11 @@ export const BrandSnapshotPlusPDF = ({
         </Section>
 
         <Section>
-          <PillarScoreBar label="Visibility" score={pillarScores.visibility} />
+          <PillarScoreRow
+            label="Visibility"
+            score={pillarScores.visibility}
+            emphasis={primaryPillar === "visibility"}
+          />
           <InsightBlock title="Visibility Insight" text={pillarInsights.visibility} />
           <RecommendationBlock 
             title="Visibility Opportunity" 
@@ -217,13 +224,21 @@ export const BrandSnapshotPlusPDF = ({
         <PdfHeader title="Pillar Deep-Dive (Cont.)" />
 
         <Section>
-          <PillarScoreBar label="Credibility" score={pillarScores.credibility} />
+          <PillarScoreRow
+            label="Credibility"
+            score={pillarScores.credibility}
+            emphasis={primaryPillar === "credibility"}
+          />
           <InsightBlock title="Credibility Insight" text={pillarInsights.credibility} />
           <RecommendationBlock title="Credibility Opportunity" text={recommendations.credibility} />
         </Section>
 
         <Section>
-          <PillarScoreBar label="Conversion" score={pillarScores.conversion} />
+          <PillarScoreRow
+            label="Conversion"
+            score={pillarScores.conversion}
+            emphasis={primaryPillar === "conversion"}
+          />
           <InsightBlock title="Conversion Insight" text={pillarInsights.conversion} />
           <RecommendationBlock title="Conversion Opportunity" text={recommendations.conversion} />
         </Section>

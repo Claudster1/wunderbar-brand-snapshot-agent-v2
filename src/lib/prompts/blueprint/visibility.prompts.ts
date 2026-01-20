@@ -1,53 +1,54 @@
 // src/lib/prompts/blueprint/visibility.prompts.ts
 
-import type { PillarPromptPack } from "../types";
+import type { BlueprintPromptPack } from "../types";
 
-export const visibilityPromptPack: PillarPromptPack = {
+export const visibilityPromptPack: BlueprintPromptPack = {
   pillar: "Visibility",
   description:
-    "Improves discoverability across search engines, AI answer engines, and social platforms.",
-  archetypes: {
-    Explorer: {
-      early: [
-        {
-          id: "vis-exp-early-1",
-          title: "Baseline Discoverability",
-          intent: "Ensure the brand can be found where prospects look",
-          prompt: `Create a visibility strategy for an early-stage Explorer brand.
-Include:
-- SEO basics
-- Social presence alignment
-- Introductory AEO (Answer Engine Optimization) signals`,
-        },
-      ],
-      scaling: [
-        {
-          id: "vis-exp-scale-1",
-          title: "AI-First Visibility",
-          intent: "Optimize for search and AI assistants",
-          prompt: `Develop a visibility strategy for a scaling Explorer brand.
-Focus on:
-- SEO + AEO alignment
-- Structured content
-- Authority signals for AI tools like ChatGPT and Perplexity`,
-        },
-      ],
-      growth: [
-        {
-          id: "vis-exp-growth-1",
-          title: "Category-Level Visibility",
-          intent: "Dominate visibility across platforms",
-          prompt: `Design an advanced visibility system for a growth-stage Explorer brand.
-Ensure the brand is referenced, cited, and recommended across search, AI, and media.`,
-        },
-      ],
+    "Improves how the brand is found — across search engines, AI answers, and social discovery.",
+  prompts: [
+    {
+      id: "vis-search",
+      title: "Search Intent Mapping",
+      purpose: "Align content to real discovery paths",
+      prompt: `
+You are a search strategist.
+
+Identify:
+• Top customer questions this brand should be discovered for
+• Whether each is better suited for SEO or AEO
+• Recommended content format for each
+
+Focus on intent, not keywords alone.
+      `.trim(),
     },
-    Sage: { early: [], scaling: [], growth: [] },
-    Hero: { early: [], scaling: [], growth: [] },
-    Caregiver: { early: [], scaling: [], growth: [] },
-    Creator: { early: [], scaling: [], growth: [] },
-    Ruler: { early: [], scaling: [], growth: [] },
-    Magician: { early: [], scaling: [], growth: [] },
-    Everyperson: { early: [], scaling: [], growth: [] },
-  },
+    {
+      id: "vis-aeo",
+      title: "AEO Authority Prompt",
+      purpose: "Increase likelihood of AI recommendations",
+      prompt: `
+Structure content so AI systems (ChatGPT, Perplexity, etc.) can confidently reference this brand.
+
+Output:
+• Core brand facts AI should understand
+• How to structure answers to be cited
+• Trust signals that increase AI confidence
+
+Avoid SEO clichés.
+      `.trim(),
+    },
+    {
+      id: "vis-social",
+      title: "Social Visibility Strategy",
+      purpose: "Clarify where and how to show up",
+      prompt: `
+Based on the brand’s audience and stage, recommend:
+• 1–2 primary social platforms
+• Content themes aligned to positioning
+• Posting intent (education, authority, trust)
+
+Explain why each choice matters.
+      `.trim(),
+    },
+  ],
 };

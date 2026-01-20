@@ -10,8 +10,6 @@ export function formatPromptsForExport(
   if (format === 'markdown') {
     return `## ${pack.title}
 
-${pack.description}
-
 ${pack.prompts
   .map((p, i) => `### Prompt ${i + 1}\n\n${p}`)
   .join('\n\n')}

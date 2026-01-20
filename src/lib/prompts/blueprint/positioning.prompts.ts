@@ -1,94 +1,67 @@
 // src/lib/prompts/blueprint/positioning.prompts.ts
 
-import type { PillarPromptPack } from "../types";
+import type { BlueprintPromptPack } from "../types";
 
-export const positioningPromptPack: PillarPromptPack = {
+export const positioningPromptPack: BlueprintPromptPack = {
   pillar: "Positioning",
   description:
-    "Clarifies what the brand stands for, who it serves, and why it wins — without overcomplicating or over-narrowing.",
-  archetypes: {
-    Explorer: {
-      early: [
-        {
-          id: "pos-exp-early-1",
-          title: "Core Position Clarity",
-          intent: "Establish a clear position without boxing the brand in too early",
-          prompt: `You are a senior brand strategist helping an early-stage Explorer brand.
-Clarify the brand's core positioning by defining:
-- Who the brand is for
-- The core problem it helps solve
-- What makes its approach distinct
-Avoid over-specialization. Keep flexibility while creating clarity.`,
-        },
-      ],
-      scaling: [
-        {
-          id: "pos-exp-scale-1",
-          title: "Differentiated Expansion",
-          intent: "Refine positioning while expanding market reach",
-          prompt: `Act as a brand consultant for a scaling Explorer brand.
-Refine the brand's positioning to emphasize differentiation while supporting growth.
-Identify:
-- Primary audience segments
-- Distinct value signals
-- What must remain consistent as the brand expands`,
-        },
-      ],
-      growth: [
-        {
-          id: "pos-exp-growth-1",
-          title: "Category Leadership Positioning",
-          intent: "Anchor the brand as a category leader without losing its edge",
-          prompt: `You are advising a mature Explorer brand.
-Reposition the brand as a category leader while preserving innovation and curiosity.
-Define:
-- Category ownership
-- Strategic boundaries
-- Long-term positioning narrative`,
-        },
-      ],
+    "Clarifies what your brand stands for, who it’s for, and why it wins — in language you can actually use.",
+  prompts: [
+    {
+      id: "pos-core",
+      title: "Core Positioning Statement",
+      purpose: "Define a clear, defensible positioning foundation",
+      prompt: `
+You are a senior brand strategist.
+
+Using the following context:
+- Business overview
+- Target audience
+- Competitive landscape
+- Primary customer problem
+
+Create a concise positioning statement that clearly answers:
+• Who this brand is for
+• What problem it solves
+• Why it’s meaningfully different
+
+Avoid generic language. If this could apply to a competitor, rewrite it.
+
+Output:
+1. One-sentence positioning statement
+2. One paragraph explaining why this position is defensible
+      `.trim(),
     },
-    Sage: {
-      early: [
-        {
-          id: "pos-sage-early-1",
-          title: "Authority Foundation",
-          intent: "Establish credibility without sounding academic",
-          prompt: `Help an early-stage Sage brand define its positioning.
-Focus on:
-- Expertise without arrogance
-- Clear value of insight
-- Who benefits most from this knowledge`,
-        },
-      ],
-      scaling: [
-        {
-          id: "pos-sage-scale-1",
-          title: "Trusted Advisor Position",
-          intent: "Strengthen authority as demand grows",
-          prompt: `Refine positioning for a scaling Sage brand.
-Emphasize trust, clarity, and guidance.
-Define how the brand differentiates from louder, less credible competitors.`,
-        },
-      ],
-      growth: [
-        {
-          id: "pos-sage-growth-1",
-          title: "Institutional Authority",
-          intent: "Codify leadership and long-term trust",
-          prompt: `Position a growth-stage Sage brand as a definitive authority.
-Clarify:
-- Institutional credibility
-- Thought leadership ownership
-- Strategic influence`,
-        },
-      ],
+    {
+      id: "pos-market",
+      title: "Market Category Framing",
+      purpose: "Clarify how the brand should be mentally categorized",
+      prompt: `
+Based on the brand’s positioning, determine the most effective market category framing.
+
+Answer:
+• Should the brand lead, reframe, or niche-down its category?
+• What mental shortcut should customers use to understand this brand?
+
+Provide:
+1. Recommended category framing
+2. One-sentence explanation customers would intuitively grasp
+      `.trim(),
     },
-    Hero: { early: [], scaling: [], growth: [] },
-    Caregiver: { early: [], scaling: [], growth: [] },
-    Creator: { early: [], scaling: [], growth: [] },
-    Ruler: { early: [], scaling: [], growth: [] },
-    Magician: { early: [], scaling: [], growth: [] },
-    Everyperson: { early: [], scaling: [], growth: [] },
-  },
+    {
+      id: "pos-contrast",
+      title: "Competitive Contrast Map",
+      purpose: "Make differentiation obvious, not implied",
+      prompt: `
+Create a contrast-based comparison between this brand and its closest competitors.
+
+For each competitor:
+• Identify one strength they emphasize
+• Explain how this brand intentionally differs
+
+Output in plain language, not tables.
+Focus on strategic contrast, not feature lists.
+      `.trim(),
+    },
+  ],
 };

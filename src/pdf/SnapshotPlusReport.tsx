@@ -12,14 +12,19 @@ import {
 import { ScoreGaugePDF } from "./components/ScoreGaugePDF";
 import { ContextCoverageMeterPDF } from "./components/ContextCoverageMeterPDF";
 import { PillarSectionPDF } from "./components/PillarSectionPDF";
+import { ContextCoverageSection } from "./components/ContextCoverageSection";
 
 import { determinePrimaryPillar } from "@/src/lib/scoring/determinePrimaryPillar";
 import { computeContextCoverage } from "@/src/lib/context/coverage";
 import { rolePhrase } from "@/src/lib/roleLanguage";
+import { buildContextCoverageMap } from "@/lib/enrichment/coverage";
 
 export function SnapshotPlusReport({ report }: { report: any }) {
   const primaryPillar = determinePrimaryPillar(report.pillarScores);
   const coverage = computeContextCoverage(report);
+  const snapshotInput =
+    report?.snapshotInput || report?.full_report?.answers || report?.answers || report;
+  const contextCoverage = buildContextCoverageMap(snapshotInput);
 
   return (
     <Document>
@@ -38,6 +43,10 @@ export function SnapshotPlusReport({ report }: { report: any }) {
         <View style={styles.section}>
           <Text style={styles.h1}>Brand Alignment Score™</Text>
           <ScoreGaugePDF score={report.brandAlignmentScore} />
+        </View>
+
+        <View style={styles.section}>
+          <ContextCoverageSection coverage={contextCoverage} />
         </View>
 
         {/* 3️⃣ Pillars: Pillar Analysis (Primary Expanded, Secondary Collapsed) */}

@@ -1,53 +1,42 @@
 // src/lib/prompts/blueprint/credibility.prompts.ts
 
-import type { PillarPromptPack } from "../types";
+import type { BlueprintPromptPack } from "../types";
 
-export const credibilityPromptPack: PillarPromptPack = {
+export const credibilityPromptPack: BlueprintPromptPack = {
   pillar: "Credibility",
   description:
-    "Builds trust through consistency, proof, and professional signals.",
-  archetypes: {
-    Explorer: {
-      early: [
-        {
-          id: "cred-exp-early-1",
-          title: "Trust Signals",
-          intent: "Establish baseline trust quickly",
-          prompt: `Identify credibility signals for an early-stage Explorer brand.
-Focus on:
-- Consistency
-- Proof points
-- Visual trust markers`,
-        },
-      ],
-      scaling: [
-        {
-          id: "cred-exp-scale-1",
-          title: "Authority Reinforcement",
-          intent: "Reinforce trust as reach expands",
-          prompt: `Strengthen credibility for a scaling Explorer brand.
-Include:
-- Case studies
-- Testimonials
-- Visual consistency`,
-        },
-      ],
-      growth: [
-        {
-          id: "cred-exp-growth-1",
-          title: "Institutional Trust",
-          intent: "Codify credibility at scale",
-          prompt: `Create a credibility framework for a growth-stage Explorer brand.
-Ensure trust is unmistakable across every touchpoint.`,
-        },
-      ],
+    "Builds trust through consistency, proof, and professional presence.",
+  prompts: [
+    {
+      id: "cred-signals",
+      title: "Trust Signal Audit",
+      purpose: "Identify credibility gaps",
+      prompt: `
+Audit the brand for credibility signals.
+
+Evaluate:
+• Visual consistency
+• Language confidence
+• Proof elements (social proof, authority)
+
+List:
+1. Signals that are strong
+2. Signals that are missing
+3. Priority fixes
+      `.trim(),
     },
-    Sage: { early: [], scaling: [], growth: [] },
-    Hero: { early: [], scaling: [], growth: [] },
-    Caregiver: { early: [], scaling: [], growth: [] },
-    Creator: { early: [], scaling: [], growth: [] },
-    Ruler: { early: [], scaling: [], growth: [] },
-    Magician: { early: [], scaling: [], growth: [] },
-    Everyperson: { early: [], scaling: [], growth: [] },
-  },
+    {
+      id: "cred-voice",
+      title: "Voice Alignment Check",
+      purpose: "Ensure brand sounds intentional",
+      prompt: `
+Assess whether the brand’s tone reinforces trust.
+
+Output:
+• 3 tone attributes to emphasize
+• 3 to avoid
+• Example rewrite of a weak sentence into a credible one
+      `.trim(),
+    },
+  ],
 };

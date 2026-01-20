@@ -22,6 +22,36 @@ export const CTA_BY_PILLAR: Record<PillarKey, string> = {
     "Optimize your conversion paths to turn interest into action more effectively.",
 };
 
-export function getUpgradeCTA(pillar: string, brandName: string) {
-  return `Strengthen ${brandName}'s ${pillar} foundation with Brand Snapshot+™`;
+export function getUpgradeCTA({
+  pillar,
+  stage,
+}: {
+  pillar: string;
+  stage: "early" | "scaling";
+}) {
+  const base = {
+    Positioning: {
+      early: "Clarify your positioning before you scale further.",
+      scaling: "Tighten positioning to support growth.",
+    },
+    Messaging: {
+      early: "Turn clarity into confident messaging.",
+      scaling: "Align messaging across channels.",
+    },
+    Visibility: {
+      early: "Build visibility where it matters most.",
+      scaling: "Expand visibility with intent.",
+    },
+    Credibility: {
+      early: "Strengthen trust signals early.",
+      scaling: "Reinforce credibility at scale.",
+    },
+    Conversion: {
+      early: "Remove friction from your conversion path.",
+      scaling: "Optimize conversion with precision.",
+    },
+  } as const;
+
+  const key = pillar.charAt(0).toUpperCase() + pillar.slice(1);
+  return base[key as keyof typeof base]?.[stage] ?? "";
 }

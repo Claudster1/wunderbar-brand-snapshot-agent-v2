@@ -7,6 +7,14 @@ export { credibilityPromptPack } from "./credibility.prompts";
 export { conversionPromptPack } from "./conversion.prompts";
 export { blueprintPlusAdvancedPrompts } from "./blueprintPlus.prompts";
 
+export const blueprintPromptPacks = [
+  positioningPromptPack,
+  messagingPromptPack,
+  visibilityPromptPack,
+  credibilityPromptPack,
+  conversionPromptPack,
+];
+
 // Flattened prompt pack structure
 export {
   BLUEPRINT_PROMPT_PACKS,

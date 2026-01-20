@@ -4,7 +4,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { trackEvent } from "@/lib/activeCampaignTracking";
+import { trackEvent } from "@/lib/analytics";
 
 export function ResultsPageViewTracker({
   brandAlignmentScore,
@@ -14,11 +14,11 @@ export function ResultsPageViewTracker({
   primaryPillar: string;
 }) {
   useEffect(() => {
-    trackEvent("results_page_viewed", {
-      brandAlignmentScore,
+    trackEvent("RESULTS_VIEWED", {
+      score: brandAlignmentScore,
       primaryPillar,
     });
-  }, [brandAlignmentScore, primaryPillar]);
+  }, []);
 
   return null;
 }

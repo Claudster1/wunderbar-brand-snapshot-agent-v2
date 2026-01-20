@@ -1,0 +1,1 @@
+export { pdfStyles } from "./pdfStyles";

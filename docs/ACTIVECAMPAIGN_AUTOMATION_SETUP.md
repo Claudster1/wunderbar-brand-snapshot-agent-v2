@@ -88,6 +88,34 @@ When `snapshot_plus_purchased` tag is added:
 - Exit automation immediately
 - Prevents redundant upsell emails
 
+## Upgrade Nudge Click Automation
+
+**Trigger:** Webhook event = `UPGRADE_NUDGE_CLICKED`
+
+```
+START
+  ↓
+Apply tag: viewed-upgrade-[pillar]
+  ↓
+Wait 1 day
+  ↓
+IF contact does NOT have tag: snapshot_plus_purchased
+  ↓
+  Send pillar-specific Snapshot+™ upgrade email
+  ↓
+  Wait 2 days
+  ↓
+  IF contact does NOT have tag: snapshot_plus_purchased
+    ↓
+    Send Blueprint™ upsell email
+ELSE
+  → End automation
+```
+
+**Notes:**
+- Use the `viewed-upgrade-[pillar]` tag (e.g., `viewed-upgrade-positioning`) for segmentation.
+- Ensure purchase tagging happens before the 1-day and 3-day checks.
+
 ## Email Templates
 
 See separate files:

@@ -4,7 +4,7 @@
 "use client";
 
 import { getUpgradeCTAVariant } from "@/lib/abTest";
-import { track } from "@/lib/analytics";
+import { trackEvent } from "@/lib/analytics";
 import { useState, useEffect } from "react";
 
 export function UpgradeCTA({
@@ -23,18 +23,33 @@ export function UpgradeCTA({
       : `Activate your complete brand system with Brand Blueprint+™`;
 
   useEffect(() => {
-    track("upgrade_cta_viewed", { productKey, variant });
+    trackEvent("RESULTS_VIEWED", {
+      source: "upgrade_cta",
+      productKey,
+      variant,
+    });
   }, [productKey, variant]);
 
   async function handleClick() {
-    track("upgrade_cta_clicked", { productKey, variant });
+    trackEvent("UPGRADE_CLICKED", {
+      target: "Snapshot+",
+      primaryPillar,
+      variant,
+    });
 
     setLoading(true);
     try {
       const res = await fetch("/api/stripe/createCheckout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productKey }),
+        body: JSON.stringify({
+          productKey,
+          metadata: {
+            source: "snapshot-results",
+            primary_pillar: primaryPillar,
+            variant,
+          },
+        }),
       });
 
       if (!res.ok) {

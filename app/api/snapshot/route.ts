@@ -8,7 +8,10 @@
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase";
 import { calculateBrandSnapshotScores } from "@/lib/brandSnapshotEngine";
+import { buildContextCoverageMap } from "@/lib/enrichment/coverage";
+import { triggerUpgradeEmails } from "@/lib/triggerUpgradeEmails";
 import { randomUUID } from "crypto";
+import { getPrimaryPillar } from "@/lib/pillars/getPrimaryPillar";
 
 export const dynamic = "force-dynamic";
 
@@ -48,7 +51,8 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    const scores = calculateBrandSnapshotScores(body.answers || {});
+    const snapshotInput = body.answers || {};
+    const scores = calculateBrandSnapshotScores(snapshotInput);
     const supabase = supabaseServer();
 
     // Use report_id (string) as the public identifier everywhere in the app
@@ -83,6 +87,19 @@ export async function POST(req: Request) {
         { error: "Failed to save snapshot" },
         { status: 500 }
       );
+    }
+
+    const userEmail = body.email?.toLowerCase?.();
+    if (userEmail && process.env.ACTIVE_CAMPAIGN_WEBHOOK) {
+      const coverage = buildContextCoverageMap(snapshotInput);
+
+      const primaryPillar = getPrimaryPillar(scores.pillarScores as any);
+
+      await triggerUpgradeEmails({
+        email: userEmail,
+        coverage,
+        primaryPillar,
+      });
     }
 
     return NextResponse.json({ reportId: (data as any).report_id });

@@ -37,7 +37,12 @@ export function SnapshotPlusDocument({
 
         {/* SCORE GAUGE */}
         <View style={{ marginBottom: 24 }}>
-          <ScoreGauge score={Object.values(pillarScores).reduce((a, b) => a + b, 0) / Object.keys(pillarScores).length} />
+          <ScoreGauge
+            value={
+              Object.values(pillarScores).reduce((a, b) => a + b, 0) /
+              Object.keys(pillarScores).length
+            }
+          />
         </View>
 
         {/* COVERAGE METER */}
@@ -50,6 +55,7 @@ export function SnapshotPlusDocument({
             pillar={pillar}
             score={score}
             isPrimary={pillar === primaryPillar}
+            pillarInsight={insights[pillar]}
           />
         ))}
       </Page>

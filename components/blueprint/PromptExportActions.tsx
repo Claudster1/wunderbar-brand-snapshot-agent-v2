@@ -7,6 +7,11 @@ import { PromptPack } from '@/src/lib/prompts/blueprint/promptPacks';
 import { formatPromptsForExport } from '@/src/lib/prompts/blueprint/formatPrompts';
 
 export function PromptExportActions({ pack }: { pack: PromptPack }) {
+  const filenameBase = `${pack.pillar}-${pack.title}`
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
   function copy(format: 'plain' | 'markdown') {
     navigator.clipboard.writeText(
       formatPromptsForExport(pack, format)
@@ -20,7 +25,7 @@ export function PromptExportActions({ pack }: { pack: PromptPack }) {
 
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${pack.id}.${format === 'markdown' ? 'md' : 'txt'}`;
+    a.download = `${filenameBase}.${format === 'markdown' ? 'md' : 'txt'}`;
     a.click();
     URL.revokeObjectURL(url);
   }

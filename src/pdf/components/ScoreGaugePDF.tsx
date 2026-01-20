@@ -8,5 +8,5 @@ interface ScoreGaugePDFProps {
 }
 
 export function ScoreGaugePDF({ score }: ScoreGaugePDFProps) {
-  return <ScoreGauge score={score} max={100} />;
+  return <ScoreGauge value={score} />;
 }

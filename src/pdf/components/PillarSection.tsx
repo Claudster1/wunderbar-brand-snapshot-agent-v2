@@ -2,50 +2,30 @@
 
 import { View, Text } from "@react-pdf/renderer";
 
-type PillarSectionProps = {
-  pillar: string;
-  score: number;
-  isPrimary: boolean;
-};
-
 export function PillarSection({
-  pillar,
+  title,
   score,
   isPrimary,
-}: PillarSectionProps) {
+  insight,
+}: {
+  title: string;
+  score: number;
+  isPrimary: boolean;
+  insight: string;
+}) {
   return (
-    <View style={{ marginBottom: 24 }}>
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <Text style={{ fontSize: 14, fontWeight: 600 }}>
-          {pillar.toUpperCase()}
-        </Text>
-
-        <Text style={{ fontSize: 12 }}>{score}/20</Text>
-      </View>
-
-      {isPrimary && (
-        <View
-          style={{
-            marginTop: 6,
-            backgroundColor: "#E6F2FF",
-            padding: 6,
-            borderRadius: 4,
-            width: "fit-content",
-          }}
-        >
-          <Text style={{ fontSize: 10, fontWeight: 600, color: "#0070F3" }}>
-            PRIMARY FOCUS AREA
-          </Text>
-        </View>
-      )}
-
-      {/* Insights + recommendations */}
+    <View
+      style={{
+        marginBottom: isPrimary ? 20 : 10,
+        padding: isPrimary ? 12 : 6,
+        backgroundColor: isPrimary ? "#F8FAFC" : "transparent",
+        borderRadius: 6,
+      }}
+    >
+      <Text style={{ fontSize: isPrimary ? 14 : 11, fontWeight: 600 }}>
+        {title} — {score}/20
+      </Text>
+      <Text style={{ fontSize: 10, marginTop: 4 }}>{insight}</Text>
     </View>
   );
 }

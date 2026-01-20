@@ -3,6 +3,7 @@
 import { PillarResults } from "@/src/components/results/PillarResults";
 import { BrandScoreGauge } from "@/src/components/results/BrandScoreGauge";
 import { ResultsUpgradeCTA } from "@/components/results/ResultsUpgradeCTA";
+import { UpgradeNudge } from "@/components/results/UpgradeNudge";
 import { SuiteCTA } from "@/src/components/results/SuiteCTA";
 import { ContextCoverageMeter } from "@/src/components/results/ContextCoverageMeter";
 import { ChatCompletion } from "@/src/components/results/ChatCompletion";
@@ -19,11 +20,15 @@ interface BrandSnapshotResult {
   contextCoverage?: number; // 0-100, optional
   userRoleContext?: string; // optional user role context
   userEmail?: string; // optional user email for access check
+  user?: {
+    hasSnapshotPlus: boolean;
+  };
 }
 
 export default function ResultsPage({ data }: { data: BrandSnapshotResult }) {
   const primaryPillar = calculatePrimaryPillar(data.pillarScores);
   const stage = data.stage; // inferred by engine
+  const user = data.user ?? { hasSnapshotPlus: false };
 
   return (
     <main className="max-w-5xl mx-auto px-6 py-16 space-y-16">
@@ -52,6 +57,11 @@ export default function ResultsPage({ data }: { data: BrandSnapshotResult }) {
       {data.contextCoverage !== undefined && (
         <ContextCoverageMeter coveragePercent={data.contextCoverage} />
       )}
+
+      <UpgradeNudge
+        primaryPillar={primaryPillar}
+        hasSnapshotPlus={user.hasSnapshotPlus}
+      />
 
       {/* UPGRADE CTA (mirrors History logic) */}
       <ResultsUpgradeCTA

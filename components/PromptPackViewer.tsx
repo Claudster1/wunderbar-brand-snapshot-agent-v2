@@ -57,7 +57,7 @@ function PromptCard({ prompt }: { prompt: any }) {
         {prompt.title}
       </h3>
       <p className="text-sm text-brand-midnight mb-3">
-        {prompt.intent}
+        {prompt.purpose}
       </p>
 
       <pre className="text-sm whitespace-pre-wrap bg-white border rounded p-4">

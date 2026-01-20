@@ -12,7 +12,7 @@ export const blueprintPlusAdvancedPrompts: PillarPromptPack = {
         {
           id: "bpplus-exp-scale-1",
           title: "Campaign System Design",
-          intent: "Create a scalable campaign system",
+          purpose: "Create a scalable campaign system",
           prompt: `Design a multi-channel campaign framework aligned to the brand's positioning.
 Include:
 - Campaign themes
@@ -24,7 +24,7 @@ Include:
         {
           id: "bpplus-exp-growth-1",
           title: "Brand Ecosystem Expansion",
-          intent: "Extend the brand across products and audiences",
+          purpose: "Extend the brand across products and audiences",
           prompt: `Design a long-term brand ecosystem.
 Include:
 - Sub-brand logic

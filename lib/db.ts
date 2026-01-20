@@ -59,3 +59,24 @@ export async function saveProgress(sessionId: string, data: any) {
     updated_at: new Date().toISOString(),
   });
 }
+
+export async function upsertSnapshotReportSummary({
+  snapshotId,
+  brandName,
+  score,
+}: {
+  snapshotId: string;
+  brandName: string;
+  score: number;
+}) {
+  const supabase = supabaseServer();
+
+  await supabase
+    .from("brand_snapshot_reports")
+    .upsert({
+      id: snapshotId,
+      brand_name: brandName,
+      brand_alignment_score: score,
+      has_snapshot_plus: false,
+    });
+}

@@ -1,33 +1,23 @@
 // app/blueprint-plus/page.tsx
-// Blueprint+™ page displaying the advanced layers
+// Blueprint+™ prompt pack page
 
-import { BLUEPRINT_PLUS_LAYERS } from "@/lib/blueprintPlus/layers";
+import { advancedPromptPacks } from "@/blueprintPlus/advancedPromptPacks";
+import { PromptPackGrid } from "@/components/blueprintPlus/PromptPackGrid";
 
 export default function BlueprintPlusPage() {
   return (
-    <div className="max-w-6xl mx-auto px-6 py-20 space-y-12">
-      <h1 className="text-3xl font-semibold">
-        Brand Blueprint+™
-      </h1>
+    <main className="max-w-6xl mx-auto px-6 py-12">
+      <header className="mb-10">
+        <h1 className="text-3xl font-semibold text-brand-navy">
+          Blueprint+™ Activation
+        </h1>
+        <p className="mt-3 text-brand-midnight max-w-3xl">
+          Blueprint+™ expands your brand system with advanced prompt packs that
+          deepen activation across audience, campaign, and channel.
+        </p>
+      </header>
 
-      <p className="text-slate-700 max-w-3xl">
-        Blueprint+™ extends Blueprint™ into a full strategic operating
-        system — designed for teams, campaigns, and scale.
-      </p>
-
-      <div className="grid md:grid-cols-2 gap-8">
-        {Object.values(BLUEPRINT_PLUS_LAYERS).map((layer) => (
-          <div
-            key={layer.title}
-            className="border rounded-xl p-6 bg-white"
-          >
-            <h3 className="font-semibold mb-2">{layer.title}</h3>
-            <p className="text-sm text-slate-700">
-              {layer.description}
-            </p>
-          </div>
-        ))}
-      </div>
-    </div>
+      <PromptPackGrid packs={advancedPromptPacks} />
+    </main>
   );
 }

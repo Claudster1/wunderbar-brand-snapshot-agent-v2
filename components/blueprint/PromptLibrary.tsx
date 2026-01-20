@@ -46,7 +46,10 @@ export function PromptLibrary() {
 
       <div className="grid gap-6">
         {visible.map((pack) => (
-          <PromptPackRenderer key={pack.id} pack={pack} />
+          <PromptPackRenderer
+            key={`${pack.pillar}-${pack.title}`}
+            pack={pack}
+          />
         ))}
       </div>
     </div>

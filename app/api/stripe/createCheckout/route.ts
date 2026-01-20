@@ -10,7 +10,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function POST(req: Request) {
   try {
-    const { productKey, userId } = await req.json();
+    const { productKey, userId, metadata } = await req.json();
 
     const product = PRICING[productKey as keyof typeof PRICING];
     if (!product) {
@@ -28,7 +28,8 @@ export async function POST(req: Request) {
       ],
       metadata: {
         product_key: productKey,
-        user_id: userId
+        user_id: userId,
+        ...(metadata ?? {}),
       },
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?upgrade=success`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard`

@@ -1,53 +1,39 @@
 // components/blueprint/BlueprintActivationPanel.tsx
 
-import { buildBlueprintActivationSections } from "@/src/lib/blueprint/blueprintActivation";
-import { BlueprintActivationInput } from "@/types/blueprint";
-
-const pillarDisplayNames: Record<string, string> = {
-  positioning: "Positioning",
-  messaging: "Messaging",
-  visibility: "Visibility",
-  credibility: "Credibility",
-  conversion: "Conversion",
+type BlueprintActivationProps = {
+  brandName: string;
+  resolvedPillars: string[];
 };
 
 export function BlueprintActivationPanel({
-  input,
-}: {
-  input: BlueprintActivationInput;
-}) {
-  const sections = buildBlueprintActivationSections(input);
-
+  brandName,
+  resolvedPillars,
+}: BlueprintActivationProps) {
   return (
-    <div className="space-y-6">
-      {sections.map((section) => {
-        const pillarName = pillarDisplayNames[section.pillar] || section.pillar;
-        
-        return (
-          <div
-            key={section.pillar}
-            className={`rounded-lg border p-6 ${
-              section.isPrimary
-                ? "border-brand-blue bg-blue-50"
-                : "border-gray-200"
-            }`}
-          >
-            <h3 className="text-lg font-semibold mb-2">
-              {section.title}
-            </h3>
+    <section className="rounded-xl border p-8 bg-white">
+      <h2 className="text-2xl font-semibold mb-4">
+        Activate your brand strategy
+      </h2>
 
-            <p className="text-sm text-gray-700 mb-3">
-              This section activates the {pillarName} priorities identified in your Snapshot+™.
-            </p>
+      <p className="mb-6">
+        Your Brand Snapshot™ highlighted key opportunities.
+        Blueprint™ turns those insights into usable systems for {brandName}.
+      </p>
 
-            {section.body.map((line, i) => (
-              <p key={i} className="text-sm text-gray-700 mb-2">
-                {line}
-              </p>
-            ))}
-          </div>
-        );
-      })}
-    </div>
+      <ul className="space-y-3 mb-6">
+        {resolvedPillars.map((pillar) => (
+          <li key={pillar} className="flex items-start gap-2">
+            <span className="mt-1 h-2 w-2 rounded-full bg-brand-blue" />
+            <span>
+              This Blueprint™ section strengthens your {pillar.toLowerCase()} foundation
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      <a href="/blueprint" className="btn-primary">
+        Activate Blueprint™ →
+      </a>
+    </section>
   );
 }

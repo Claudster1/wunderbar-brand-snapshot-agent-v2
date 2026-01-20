@@ -1,53 +1,61 @@
 // src/lib/prompts/blueprint/messaging.prompts.ts
 
-import type { PillarPromptPack } from "../types";
+import type { BlueprintPromptPack } from "../types";
 
-export const messagingPromptPack: PillarPromptPack = {
+export const messagingPromptPack: BlueprintPromptPack = {
   pillar: "Messaging",
   description:
-    "Translates positioning into clear, consistent language that resonates across channels.",
-  archetypes: {
-    Explorer: {
-      early: [
-        {
-          id: "msg-exp-early-1",
-          title: "Clear, Flexible Messaging",
-          intent: "Create simple messaging that evolves with the brand",
-          prompt: `Develop messaging for an early-stage Explorer brand.
-Ensure language is:
-- Clear, not vague
-- Inspiring without hype
-- Flexible enough to evolve`,
-        },
-      ],
-      scaling: [
-        {
-          id: "msg-exp-scale-1",
-          title: "Message Consistency at Scale",
-          intent: "Maintain clarity across growing channels",
-          prompt: `Refine messaging for a scaling Explorer brand.
-Define:
-- Core message pillars
-- Language that scales
-- Messaging guardrails`,
-        },
-      ],
-      growth: [
-        {
-          id: "msg-exp-growth-1",
-          title: "Signature Voice System",
-          intent: "Codify a recognizable brand voice",
-          prompt: `Create a messaging system for a growth-stage Explorer brand.
-Ensure consistency, tone ownership, and long-term recognizability.`,
-        },
-      ],
+    "Creates consistent language your brand can reuse across pages, campaigns, and content.",
+  prompts: [
+    {
+      id: "msg-core",
+      title: "Core Message Architecture",
+      purpose: "Establish message hierarchy",
+      prompt: `
+Act as a brand messaging strategist.
+
+Using the brand’s positioning, create:
+• One primary message
+• Three supporting messages
+• One proof point per message
+
+Ensure:
+• Each message has a distinct job
+• No overlap or redundancy
+• Language is clear, not clever
+
+Output should be directly usable in marketing copy.
+      `.trim(),
     },
-    Sage: { early: [], scaling: [], growth: [] },
-    Hero: { early: [], scaling: [], growth: [] },
-    Caregiver: { early: [], scaling: [], growth: [] },
-    Creator: { early: [], scaling: [], growth: [] },
-    Ruler: { early: [], scaling: [], growth: [] },
-    Magician: { early: [], scaling: [], growth: [] },
-    Everyperson: { early: [], scaling: [], growth: [] },
-  },
+    {
+      id: "msg-homepage",
+      title: "Homepage Message Flow",
+      purpose: "Apply messaging to a real surface",
+      prompt: `
+Using the core messaging framework, map messaging to a homepage structure:
+
+• Hero headline
+• Subhead
+• Value section headers
+• CTA framing
+
+Ensure the flow builds clarity progressively, not all at once.
+      `.trim(),
+    },
+    {
+      id: "msg-consistency",
+      title: "Messaging Consistency Guardrails",
+      purpose: "Prevent drift as content scales",
+      prompt: `
+Define 5 messaging guardrails this brand must follow.
+
+For each:
+• What to emphasize
+• What to avoid
+• Example of correct usage
+
+Write these as internal guidance, not marketing copy.
+      `.trim(),
+    },
+  ],
 };

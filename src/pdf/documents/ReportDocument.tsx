@@ -15,6 +15,7 @@ import { ContextCoverageMeter } from '../components/ContextCoverageMeter';
 import { PrimaryPillar } from '../components/PrimaryPillar';
 import { PillarSummaryRow, Score, Text as PillarText } from '../components/PillarSummaryRow';
 import { SectionHeader } from '../components/SectionHeader';
+import { BlueprintPlusSection } from '../components/BlueprintPlusSection';
 import { resolvePillarPriority } from '@/src/lib/pillars/pillarPriority';
 import { rolePhrase } from '@/src/lib/roleLanguage';
 import { pillarCopy, PillarKey } from '@/src/copy/pillars';
@@ -139,8 +140,12 @@ export type ReportProps = {
   primaryPillar: string;
   stageLabel: string;
   pillars: Pillar[];
-  contextCoverage?: number; // Optional context coverage (0-100)
+  contextCoverage?: number | { percentage: number }; // Optional context coverage
   userRoleContext?: string; // Optional user role context
+  isBlueprintPlus?: boolean;
+  blueprintPlusInsights?: {
+    visibility?: string[];
+  };
 };
 
 /* ----------------------------
@@ -154,6 +159,8 @@ export function ReportDocument({
   pillars,
   contextCoverage,
   userRoleContext,
+  isBlueprintPlus,
+  blueprintPlusInsights,
 }: ReportProps) {
   // Determine primary and secondary pillars
   const pillarScores = pillars.reduce((acc, p) => {
@@ -170,7 +177,10 @@ export function ReportDocument({
   );
   
   // Calculate context coverage if not provided
-  const coverage = contextCoverage ?? 70; // Default if not provided
+  const coverage =
+    typeof contextCoverage === "number"
+      ? contextCoverage
+      : contextCoverage?.percentage ?? 70;
   
   // Get resolved pillars (primary + secondary) with proper names
   const resolvedPillars = [primary, ...secondary]
@@ -203,10 +213,7 @@ export function ReportDocument({
         <SectionHeader>Brand Alignment Score™</SectionHeader>
 
         <View style={styles.scoreBlock}>
-          <ScoreGauge
-            score={brandAlignmentScore}
-            max={100}
-          />
+          <ScoreGauge value={brandAlignmentScore} />
 
           <Text style={styles.paragraph}>
             Your Brand Alignment Score™ reflects how effectively your positioning, 
@@ -219,6 +226,14 @@ export function ReportDocument({
         <View style={styles.section}>
           <ContextCoverageMeter percent={coverage} />
         </View>
+
+        {isBlueprintPlus && blueprintPlusInsights?.visibility?.length && (
+          <BlueprintPlusSection
+            pillar="Visibility"
+            insights={blueprintPlusInsights.visibility}
+            contextCoverage={coverage}
+          />
+        )}
 
         {/* 4️⃣ PRIMARY PILLAR (Expanded) */}
         {primaryPillarData && (

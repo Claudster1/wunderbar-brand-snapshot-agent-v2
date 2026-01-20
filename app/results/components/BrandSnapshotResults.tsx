@@ -14,15 +14,18 @@ interface BrandSnapshotResultsProps {
   brandName: string;
   brandAlignmentScore: number; // 0-100
   pillarScores: Record<PillarKey, number>;
+  stage?: "early" | "scaling";
 }
 
 export function BrandSnapshotResults({
   brandName,
   brandAlignmentScore,
   pillarScores,
+  stage = "early",
 }: BrandSnapshotResultsProps) {
   const { primary, secondary } = resolvePillarPriority(pillarScores);
   const [expandedPillar, setExpandedPillar] = useState<PillarKey | null>(primary);
+  const ctaCopy = getUpgradeCTA({ pillar: primary, stage });
 
   // Calculate average score for display
   const averageScore = Math.round(
@@ -77,7 +80,7 @@ export function BrandSnapshotResults({
       <section className="mt-12">
         <div className="rounded-xl bg-brand-navy text-white p-8">
           <h2 className="text-2xl font-semibold mb-3">
-            {getUpgradeCTA(primary, brandName)}
+            {ctaCopy}
           </h2>
           <p className="text-slate-200 mb-6 max-w-2xl">
             Snapshot+™ expands on your {primary} results with deeper analysis,

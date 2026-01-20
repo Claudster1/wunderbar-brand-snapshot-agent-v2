@@ -10,9 +10,6 @@ export function PromptPackRenderer({ pack }: { pack: PromptPack }) {
         <h3 className="text-lg font-semibold text-brand-navy">
           {pack.title}
         </h3>
-        <p className="text-sm text-brand-midnight">
-          {pack.description}
-        </p>
       </header>
 
       <ul className="space-y-3">

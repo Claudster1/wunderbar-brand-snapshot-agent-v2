@@ -1,22 +1,36 @@
 // src/components/context/ContextCoverageMeter.tsx
-// Visual meter component for displaying context coverage percentage
+// Visual meter component for displaying context coverage
 
-export function ContextCoverageMeter({ percent }: { percent: number }) {
+import { ContextCoverage } from "@/lib/context/contextCoverage";
+
+export function ContextCoverageMeter({
+  coverage,
+}: {
+  coverage: ContextCoverage;
+}) {
   return (
-    <div className="mt-6">
-      <div className="flex justify-between text-sm mb-1">
-        <span>Context Coverage</span>
-        <span>{percent}%</span>
+    <div className="border rounded-xl p-6 bg-white shadow-sm">
+      <div className="flex justify-between items-center mb-2">
+        <h4 className="font-semibold text-brand-navy">Context Coverage</h4>
+        <span className="text-sm text-slate-600">
+          {coverage.completed}/{coverage.total}
+        </span>
       </div>
-      <div className="w-full h-2 bg-gray-200 rounded">
+
+      <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden mb-3">
         <div
-          className="h-2 rounded bg-brand-blue"
-          style={{ width: `${percent}%` }}
+          className="h-full bg-brand-blue transition-all"
+          style={{ width: `${coverage.percentage}%` }}
         />
       </div>
-      {percent < 80 && (
-        <p className="text-xs text-gray-500 mt-2">
-          Deeper inputs unlock sharper insights in Snapshot+™
+
+      <p className="text-sm text-slate-600">
+        {coverage.percentage}% of context captured
+      </p>
+
+      {coverage.missing.length > 0 && (
+        <p className="text-xs text-slate-500 mt-2">
+          More detail unlocks deeper insights.
         </p>
       )}
     </div>

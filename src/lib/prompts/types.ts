@@ -12,12 +12,12 @@ export type BrandArchetype =
   | "Magician"
   | "Everyperson";
 
-export interface BlueprintPrompt {
+export type BlueprintPrompt = {
   id: string;
   title: string;
-  intent: string;
+  purpose: string;
   prompt: string;
-}
+};
 
 export interface ArchetypePromptMap {
   early: BlueprintPrompt[];
@@ -30,6 +30,12 @@ export interface PillarPromptPack {
   description: string;
   archetypes: Record<BrandArchetype, ArchetypePromptMap>;
 }
+
+export type BlueprintPromptPack = {
+  pillar: string;
+  description: string;
+  prompts: BlueprintPrompt[];
+};
 
 export interface PromptItem {
   id: string;

@@ -1,7 +1,7 @@
 // app/history/page.tsx
 
 import { getSnapshots } from "@/lib/getSnapshots";
-import SnapshotHistoryCard from "@/components/SnapshotHistoryCard";
+import { HistorySection } from "@/components/dashboard/HistorySection";
 
 export default async function HistoryPage() {
   const snapshots = await getSnapshots();
@@ -12,11 +12,7 @@ export default async function HistoryPage() {
         Your Brand Snapshot™ History
       </h1>
 
-      <div className="grid gap-4">
-        {snapshots.map((snap) => (
-          <SnapshotHistoryCard key={snap.id} snapshot={snap} />
-        ))}
-      </div>
+      <HistorySection snapshots={snapshots} />
     </div>
   );
 }

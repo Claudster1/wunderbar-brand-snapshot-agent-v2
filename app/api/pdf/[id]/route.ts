@@ -11,10 +11,10 @@ export const dynamic = "force-dynamic";
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const url = new URL(req.url);
     const plus = url.searchParams.get("plus") === "1";
     const upload = url.searchParams.get("upload") === "1";

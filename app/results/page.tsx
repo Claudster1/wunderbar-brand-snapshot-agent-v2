@@ -30,11 +30,12 @@ interface BrandSnapshotResult {
 }
 
 interface ResultsPageProps {
-  searchParams?: { [key: string]: string | string[] | undefined };
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function ResultsPage({ searchParams }: ResultsPageProps) {
-  const resolved = searchParams ?? {};
+  const raw = await searchParams;
+  const resolved = raw ?? {};
   const reportId = (typeof resolved.reportId === "string" ? resolved.reportId : resolved.reportId?.[0])
     ?? (typeof resolved.id === "string" ? resolved.id : resolved.id?.[0]);
 

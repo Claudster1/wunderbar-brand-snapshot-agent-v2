@@ -27,9 +27,10 @@ async function getReport(id: string) {
 export async function generateMetadata({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }): Promise<Metadata> {
-  const report = await getReport(params.id);
+  const { id } = await params;
+  const report = await getReport(id);
 
   if (!report) {
     return {
@@ -55,7 +56,7 @@ export async function generateMetadata({
       description: `Your Brand Alignment Score™ is ${score}/100. View your complete Brand Snapshot™.`,
       images: [
         {
-          url: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/og/${params.id}`,
+          url: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/og/${id}`,
           width: 1200,
           height: 630,
           alt: "Brand Snapshot™ Results",
@@ -68,9 +69,10 @@ export async function generateMetadata({
 export default async function SnapshotResultPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const report = await getReport(params.id);
+  const { id } = await params;
+  const report = await getReport(id);
 
   if (!report || report.error) {
     return (

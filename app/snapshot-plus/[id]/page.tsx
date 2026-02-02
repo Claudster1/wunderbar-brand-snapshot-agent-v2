@@ -5,14 +5,13 @@ import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
-export default async function SnapshotPlusPage({ params }: { params: { id: string } }) {
+export default async function SnapshotPlusPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id: reportId } = await params;
   const supabase = createClient(
     process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL!,
     (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY)!,
     { auth: { persistSession: false } }
   );
-
-  const reportId = params.id;
 
   if (!reportId) {
     return (
@@ -306,7 +305,7 @@ export default async function SnapshotPlusPage({ params }: { params: { id: strin
       {/* PDF DOWNLOAD */}
       <p style={{ marginTop: "32px" }}>
         <a
-          href={`/api/report/pdf?id=${params.id}&plus=1`}
+          href={`/api/report/pdf?id=${reportId}&plus=1`}
           style={{ textDecoration: "underline", color: "#021859" }}
         >
           Download Snapshot+™ PDF →

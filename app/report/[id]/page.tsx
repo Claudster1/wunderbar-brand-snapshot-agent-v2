@@ -6,14 +6,13 @@ import SnapshotPlusUpsell from "@/components/SnapshotPlusUpsell";
 
 export const dynamic = "force-dynamic";
 
-export default async function ReportPage({ params }: { params: { id: string } }) {
+export default async function ReportPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id: reportId } = await params;
   const supabase = createClient(
     process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL!,
     (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY)!,
     { auth: { persistSession: false } }
   );
-
-  const reportId = params.id;
 
   if (!reportId) {
     return (
@@ -260,7 +259,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
 
         <p style={{ marginTop: "24px" }}>
           <a
-            href={`/api/report/pdf?id=${params.id}`}
+            href={`/api/report/pdf?id=${reportId}`}
             style={{ textDecoration: "underline", color: "#021859" }}
           >
             Download PDF →

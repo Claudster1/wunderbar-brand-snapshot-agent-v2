@@ -8,8 +8,9 @@ import ReportDocument from "@/components/pdf/ReportDocument";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const url = new URL(req.url);
     const plus = url.searchParams.get("plus") === "1";
 
@@ -23,7 +24,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     const { data: report, error } = await supabase
       .from(table)
       .select("*")
-      .eq("report_id", params.id)
+      .eq("report_id", id)
       .single();
 
     if (error || !report) {
@@ -85,8 +86,8 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     );
 
     const filename = plus
-      ? `SnapshotPlus_Report_${params.id}.pdf`
-      : `BrandSnapshot_Report_${params.id}.pdf`;
+      ? `SnapshotPlus_Report_${id}.pdf`
+      : `BrandSnapshot_Report_${id}.pdf`;
 
     return new NextResponse(pdfBuffer as any, {
       status: 200,

@@ -1,5 +1,5 @@
-const AC_API_URL = process.env.ACTIVECAMPAIGN_API_URL!;
-const AC_API_KEY = process.env.ACTIVECAMPAIGN_API_KEY!;
+const AC_API_URL = process.env.ACTIVE_CAMPAIGN_API_URL!;
+const AC_API_KEY = process.env.ACTIVE_CAMPAIGN_API_KEY!;
 
 async function fetchJson(url: string, init: RequestInit) {
   const res = await fetch(url, init);

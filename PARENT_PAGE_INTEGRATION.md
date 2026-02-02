@@ -115,12 +115,13 @@ Replace your existing copy in the FORM + EMBEDDED ACTIVE CAMPAIGN section with t
         
         <!-- Hidden fields for dynamic scores - ADD THESE INSIDE YOUR FORM -->
         <!-- Place them right after your other hidden fields -->
-        <input type="hidden" id="ac_brand_alignment_score" name="brand_alignment_score" />
-        <input type="hidden" id="ac_positioning_score" name="positioning_score" />
-        <input type="hidden" id="ac_messaging_score" name="messaging_score" />
-        <input type="hidden" id="ac_visibility_score" name="visibility_score" />
-        <input type="hidden" id="ac_credibility_score" name="credibility_score" />
-        <input type="hidden" id="ac_conversion_score" name="conversion_score" />
+        <!-- NOTE: ActiveCampaign requires custom fields to use name="field[ID]" -->
+        <input type="hidden" id="ac_brand_alignment_score" data-ac-field="brand_alignment_score" />
+        <input type="hidden" id="ac_positioning_score" data-ac-field="positioning_score" />
+        <input type="hidden" id="ac_messaging_score" data-ac-field="messaging_score" />
+        <input type="hidden" id="ac_visibility_score" data-ac-field="visibility_score" />
+        <input type="hidden" id="ac_credibility_score" data-ac-field="credibility_score" />
+        <input type="hidden" id="ac_conversion_score" data-ac-field="conversion_score" />
       </form>
     </div>
 
@@ -187,10 +188,29 @@ Add this script **BELOW your form section** (but inside the same section) to pop
 
 ```html
 <script>
+  // ActiveCampaign field IDs (replace with your numeric custom field IDs)
+  const AC_FIELD_ID_MAP = {
+    brand_alignment_score: "REPLACE_WITH_FIELD_ID",
+    positioning_score: "REPLACE_WITH_FIELD_ID",
+    messaging_score: "REPLACE_WITH_FIELD_ID",
+    visibility_score: "REPLACE_WITH_FIELD_ID",
+    credibility_score: "REPLACE_WITH_FIELD_ID",
+    conversion_score: "REPLACE_WITH_FIELD_ID",
+  };
+
+  function applyActiveCampaignFieldNames() {
+    Object.entries(AC_FIELD_ID_MAP).forEach(([key, fieldId]) => {
+      const input = document.querySelector(`[data-ac-field="${key}"]`);
+      if (!input) return;
+      if (!fieldId || fieldId === "REPLACE_WITH_FIELD_ID") return;
+      input.setAttribute("name", `field[${fieldId}]`);
+    });
+  }
+
   // Function that your brand snapshot agent calls when scores are ready
   window.updateBrandSnapshotScores = function(scores) {
     // Scores = { brandAlignmentScore, positioning, messaging, visibility, credibility, conversion }
-    
+    applyActiveCampaignFieldNames();
     document.getElementById("ac_brand_alignment_score").value = scores.brandAlignmentScore || "";
     document.getElementById("ac_positioning_score").value = scores.positioning || "";
     document.getElementById("ac_messaging_score").value = scores.messaging || "";

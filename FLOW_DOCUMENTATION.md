@@ -151,7 +151,7 @@ CREATE TABLE brand_snapshot_reports (
 1. Create custom fields for all data points
 2. Set up email automation that:
    - Triggers when contact receives `brand_snapshot_completed` tag
-   - Includes report link in email: `{{REPORT_LINK_FIELD}}`
+  - Includes report link in email: `%BRANDSNAPSHOTREPORTLINK%`
    - Personalizes content based on score tags
 
 ## Testing the Flow

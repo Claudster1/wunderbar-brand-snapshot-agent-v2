@@ -4,6 +4,8 @@ import {
   applyActiveCampaignTags,
   removeActiveCampaignTags,
 } from "@/lib/applyActiveCampaignTags";
+import { grantAccess } from "@/lib/grantAccess";
+import { recordStripePurchase } from "@/lib/recordStripePurchase";
 
 // ❗ Stripe requires raw body for signature verification
 export const runtime = "nodejs";
@@ -11,6 +13,18 @@ export const runtime = "nodejs";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2023-10-16",
 });
+
+type ProductKey = "snapshot_plus" | "blueprint" | "blueprint_plus";
+
+const METADATA_PRODUCT_KEYS = ["product_key", "product_tier", "product"];
+
+function normalizeProductKey(raw: string): ProductKey | null {
+  const lower = String(raw).toLowerCase().trim();
+  if (lower === "snapshot_plus" || lower.includes("snapshot")) return "snapshot_plus";
+  if (lower === "blueprint_plus" || lower.includes("blueprint+")) return "blueprint_plus";
+  if (lower === "blueprint") return "blueprint";
+  return null;
+}
 
 export async function POST(req: NextRequest) {
   const sig = req.headers.get("stripe-signature");
@@ -42,32 +56,40 @@ export async function POST(req: NextRequest) {
         const customerEmail = session.customer_details?.email;
         const metadata = session.metadata || {};
 
-        /**
-         * 🔐 PRODUCT UNLOCK LOGIC
-         * These metadata keys come from the Stripe product / price
-         */
-        const productTier =
-          metadata.product_tier || metadata.product_key || metadata.product || "";
-        const snapshotId = metadata.snapshot_id;
+        const rawProduct =
+          METADATA_PRODUCT_KEYS.map((k) => metadata[k]).find(Boolean) ?? "";
+        const productKey = normalizeProductKey(rawProduct);
+        const snapshotId = metadata.snapshot_id as string | undefined;
+        const userId = metadata.user_id as string | undefined;
 
-        if (!customerEmail || !productTier) {
-          console.warn("⚠️ Missing email or product tier");
+        if (!customerEmail || !productKey) {
+          console.warn("⚠️ Stripe webhook: missing email or product", {
+            email: !!customerEmail,
+            productKey: rawProduct,
+          });
           break;
         }
 
-        /**
-         * TODO: Replace these with your real services
-         */
-        await unlockProductAccess({
+        await recordStripePurchase({
           email: customerEmail,
-          productTier,
-          snapshotId,
+          sessionId: session.id,
+          productKey,
+          amountTotal: session.amount_total ?? undefined,
+          currency: session.currency ?? undefined,
+          reportId: snapshotId,
         });
+
+        if (userId) {
+          try {
+            await grantAccess(userId, productKey);
+          } catch (e) {
+            console.warn("⚠️ grantAccess failed (user_purchases may not exist)", e);
+          }
+        }
 
         await triggerActiveCampaign({
           email: customerEmail,
-          productTier,
-          snapshotId,
+          productKey,
         });
 
         break;
@@ -89,60 +111,41 @@ export async function POST(req: NextRequest) {
   }
 }
 
-/* -------------------------------------------------------------------------- */
-/*                            PLACEHOLDER SERVICES                              */
-/* -------------------------------------------------------------------------- */
-
-async function unlockProductAccess({
-  email,
-  productTier,
-  snapshotId,
-}: {
-  email: string;
-  productTier: string;
-  snapshotId?: string;
-}) {
-  /**
-   * Example:
-   * - Update user record
-   * - Unlock dashboard features
-   * - Attach Blueprint / Snapshot+ permissions
-   */
-  console.log("🔓 Unlocking product", { email, productTier, snapshotId });
-}
-
+/**
+ * Nurture flow:
+ * - Purchase Snapshot+ → exit Snapshot+ nurture, enter Blueprint nurture (intent:upgrade-blueprint).
+ * - Purchase Blueprint → exit Blueprint nurture, enter Blueprint+ nurture (intent:upgrade-blueprint-plus).
+ * - Purchase Blueprint+ → exit Blueprint+ nurture, enter "other services" nurture (managed marketing, AI consulting).
+ */
 async function triggerActiveCampaign({
   email,
-  productTier,
-  snapshotId,
+  productKey,
 }: {
   email: string;
-  productTier: string;
-  snapshotId?: string;
+  productKey: ProductKey;
 }) {
-  /**
-   * Example:
-   * - Apply AC tags
-   * - Trigger upgrade automations
-   */
-  const normalizedTier = String(productTier).toLowerCase();
-  if (normalizedTier.includes("snapshot")) {
-    await applyActiveCampaignTags({
-      email,
-      tags: ["purchased:snapshot-plus"],
-    });
+  const applyTags: string[] = [];
+  const removeTags: string[] = [];
 
-    await removeActiveCampaignTags({
-      email,
-      tags: ["intent:upgrade-snapshot-plus"],
-    });
-
-    return;
+  switch (productKey) {
+    case "snapshot_plus":
+      applyTags.push("purchased:snapshot-plus", "intent:upgrade-blueprint");
+      removeTags.push("intent:upgrade-snapshot-plus");
+      break;
+    case "blueprint":
+      applyTags.push("purchased:blueprint", "intent:upgrade-blueprint-plus");
+      removeTags.push("intent:upgrade-blueprint");
+      break;
+    case "blueprint_plus":
+      applyTags.push("purchased:blueprint-plus", "nurture:other-services");
+      removeTags.push("intent:upgrade-blueprint-plus");
+      break;
   }
 
-  console.log("📨 Triggering ActiveCampaign", {
-    email,
-    productTier,
-    snapshotId,
-  });
+  if (removeTags.length) {
+    await removeActiveCampaignTags({ email, tags: removeTags });
+  }
+  if (applyTags.length) {
+    await applyActiveCampaignTags({ email, tags: applyTags });
+  }
 }

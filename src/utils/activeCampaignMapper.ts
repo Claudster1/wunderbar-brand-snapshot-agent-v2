@@ -61,6 +61,7 @@ interface WundyJson {
     credibility: number;
     conversion: number;
     brandAlignmentScore: number;
+    primaryPillar?: string;
   };
   summary: string;
   optIn: boolean;
@@ -268,6 +269,38 @@ export function mapWundyToAC(wundyJson: WundyJson): ActiveCampaignPayload {
   } else {
     scoreTags.push("brand_snapshot_no_opt_in");
   }
+
+  // Pillar score tiers (0-9 low, 10-14 mid, 15-20 high) for personalized email flows
+  const PILLARS = ["positioning", "messaging", "visibility", "credibility", "conversion"] as const;
+  const pillarScores: Record<string, number> = {
+    positioning: scores.positioning,
+    messaging: scores.messaging,
+    visibility: scores.visibility,
+    credibility: scores.credibility,
+    conversion: scores.conversion,
+  };
+  for (const pillar of PILLARS) {
+    const score = pillarScores[pillar] ?? 0;
+    if (score <= 9) scoreTags.push(`pillar:${pillar}_low`);
+    else if (score <= 14) scoreTags.push(`pillar:${pillar}_mid`);
+    else scoreTags.push(`pillar:${pillar}_high`);
+  }
+
+  // Weakest pillar (lowest score) for “focus on this pillar” personalization
+  const weakestPillarName =
+    wundyJson.weakestPillar?.toLowerCase() ||
+    (scores as Record<string, unknown>).primaryPillar?.toString().toLowerCase() ||
+    PILLARS.reduce(
+      (min, p) => (pillarScores[p] < pillarScores[min] ? p : min),
+      "positioning"
+    );
+  const normalizedWeakest = PILLARS.includes(weakestPillarName as typeof PILLARS[number])
+    ? weakestPillarName
+    : PILLARS.reduce(
+        (min, p) => (pillarScores[p] < pillarScores[min] ? p : min),
+        "positioning"
+      );
+  scoreTags.push(`weakest_pillar:${normalizedWeakest}`);
 
   return {
     contact: {

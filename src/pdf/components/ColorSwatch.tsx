@@ -1,3 +1,4 @@
+
 // src/pdf/components/ColorSwatch.tsx
 // Reusable color swatch component for PDF documents (used in Blueprint+™)
 

@@ -74,14 +74,17 @@ export async function POST(req: Request) {
       }
     }
 
-    // Create or update contact
+    // Create or update contact (AC expects a "contact" wrapper)
+    const contactPayload = contactId
+      ? { ...acPayload.contact, id: contactId }
+      : acPayload.contact;
     const acResponse = await fetch(acApiUrl, {
       method: contactId ? "PUT" : "POST",
       headers: {
         "Api-Token": process.env.ACTIVE_CAMPAIGN_API_KEY,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(acPayload.contact),
+      body: JSON.stringify({ contact: contactPayload }),
     });
 
     if (!acResponse.ok) {

@@ -825,12 +825,13 @@
               <input type="hidden" name="or" value="6d2e0651-f1ce-437c-bf38-f58d768777aa" />
               
               <!-- Hidden fields for scores (populated by JavaScript) -->
-              <input type="hidden" id="ac_brand_alignment_score" name="brand_alignment_score" />
-              <input type="hidden" id="ac_positioning_score" name="positioning_score" />
-              <input type="hidden" id="ac_messaging_score" name="messaging_score" />
-              <input type="hidden" id="ac_visibility_score" name="visibility_score" />
-              <input type="hidden" id="ac_credibility_score" name="credibility_score" />
-              <input type="hidden" id="ac_conversion_score" name="conversion_score" />
+              <!-- NOTE: ActiveCampaign requires custom fields to use name="field[ID]" -->
+              <input type="hidden" id="ac_brand_alignment_score" data-ac-field="brand_alignment_score" />
+              <input type="hidden" id="ac_positioning_score" data-ac-field="positioning_score" />
+              <input type="hidden" id="ac_messaging_score" data-ac-field="messaging_score" />
+              <input type="hidden" id="ac_visibility_score" data-ac-field="visibility_score" />
+              <input type="hidden" id="ac_credibility_score" data-ac-field="credibility_score" />
+              <input type="hidden" id="ac_conversion_score" data-ac-field="conversion_score" />
               
               <div class="_form-content">
                 <div class="_form_element _x25693210 _full_width">
@@ -966,10 +967,30 @@
         return "bs-pillar-tag-focus";
       }
 
+      // ActiveCampaign field IDs (replace with your numeric custom field IDs)
+      const AC_FIELD_ID_MAP = {
+        brand_alignment_score: "REPLACE_WITH_FIELD_ID",
+        positioning_score: "REPLACE_WITH_FIELD_ID",
+        messaging_score: "REPLACE_WITH_FIELD_ID",
+        visibility_score: "REPLACE_WITH_FIELD_ID",
+        credibility_score: "REPLACE_WITH_FIELD_ID",
+        conversion_score: "REPLACE_WITH_FIELD_ID",
+      };
+
+      function applyActiveCampaignFieldNames() {
+        Object.entries(AC_FIELD_ID_MAP).forEach(([key, fieldId]) => {
+          const input = document.querySelector(`[data-ac-field="${key}"]`);
+          if (!input) return;
+          if (!fieldId || fieldId === "REPLACE_WITH_FIELD_ID") return;
+          input.setAttribute("name", `field[${fieldId}]`);
+        });
+      }
+
       // Function to populate hidden ActiveCampaign form fields with scores
       window.updateBrandSnapshotScores = function(scores) {
         console.log('[Parent] updateBrandSnapshotScores called with:', scores);
         // Scores = { alignment, positioning, messaging, visibility, credibility, conversion }
+        applyActiveCampaignFieldNames();
         const alignmentEl = document.getElementById("ac_brand_alignment_score");
         const positioningEl = document.getElementById("ac_positioning_score");
         const messagingEl = document.getElementById("ac_messaging_score");

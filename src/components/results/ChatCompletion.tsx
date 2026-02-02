@@ -9,12 +9,12 @@ interface ChatCompletionProps {
 
 export function ChatCompletion({ userRoleContext }: ChatCompletionProps) {
   return (
-    <div className="text-center py-6 space-y-4">
-      <p className="text-lg text-slate-600">
-        Excellent — your Brand Snapshot™ is complete.
+    <div className="text-center py-4 sm:py-6 space-y-2">
+      <p className="bs-h2 text-brand-navy">
+        Your Brand Snapshot™ is complete.
       </p>
-      <p className="text-base text-slate-700 max-w-2xl mx-auto">
-        This Brand Snapshot™ gives you a clear view of how your brand is showing up today
+      <p className="bs-body-sm text-brand-muted max-w-xl mx-auto">
+        This snapshot gives you a clear view of how your brand is showing up today
         {userRoleContext ? (
           <> — specifically to support you in {rolePhrase(userRoleContext as import("@/src/types/snapshot").UserRoleContext)}.</>
         ) : (

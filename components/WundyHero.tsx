@@ -11,18 +11,16 @@ interface WundyHeroProps {
 export function WundyHero({ userName, companyName }: WundyHeroProps) {
   return (
     <div className="animate-fade-in-up">
-      <div className="flex flex-col items-center text-center mb-12">
-        {/* Wundy Illustration Placeholder */}
-        <div className="w-24 h-24 mb-6 rounded-full bg-gradient-to-br from-brand-blue to-brand-aqua flex items-center justify-center shadow-lg">
+      <div className="flex flex-col items-center text-center">
+        <div className="w-20 h-20 mb-6 rounded-full bg-brand-blue flex items-center justify-center shadow-[0_4px_24px_rgba(7,176,242,0.25)]">
           <svg
-            width="64"
-            height="64"
+            width="48"
+            height="48"
             viewBox="0 0 64 64"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
             className="text-white"
           >
-            {/* Simple Wundy face placeholder - replace with actual illustration */}
             <circle cx="32" cy="32" r="30" fill="white" opacity="0.2" />
             <circle cx="24" cy="26" r="3" fill="white" />
             <circle cx="40" cy="26" r="3" fill="white" />
@@ -34,15 +32,11 @@ export function WundyHero({ userName, companyName }: WundyHeroProps) {
             />
           </svg>
         </div>
-
-        {/* Heading */}
-        <h1 className="text-3xl font-semibold text-brand-navy mb-2">
+        <h1 className="bs-h1 mb-3">
           Your Brand Alignment Score™
         </h1>
-
-        {/* Subheading */}
-        <p className="mt-2 text-slate-600 max-w-2xl">
-          Below is your personalized Brand Snapshot™ summary.  
+        <p className="bs-body-sm text-brand-muted max-w-xl">
+          Below is your personalized Brand Snapshot™ summary.
           These insights were generated based on your inputs and online presence.
         </p>
       </div>

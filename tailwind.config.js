@@ -8,6 +8,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        brand: ['var(--font-lato)', 'Lato', 'system-ui', 'sans-serif'],
+      },
       colors: {
         'brand-navy': '#021859',
         'brand-blue': '#07B0F2',
@@ -17,6 +20,16 @@ module.exports = {
         'brand-gray': '#F2F2F2',
         'brand-light': '#F8F9FA',
         'brand-border': '#E0E3EA',
+        'brand-muted': '#5a6c8a',
+        'brand-bg': '#f5f7fb',
+      },
+      maxWidth: {
+        'brand-narrow': '700px',
+        'brand-medium': '900px',
+        'brand-wide': '960px',
+      },
+      transitionTimingFunction: {
+        brand: 'cubic-bezier(0.25, 0.1, 0.25, 1)',
       },
     },
   },

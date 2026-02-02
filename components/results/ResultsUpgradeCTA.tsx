@@ -75,17 +75,17 @@ export function ResultsUpgradeCTA({
   };
 
   return (
-    <section className="mt-16 rounded-xl border border-brand-border p-8 bg-white">
-      <h3 className="text-2xl font-semibold mb-2">{copy.headline}</h3>
-      <p className="text-brand-midnight mb-6 max-w-xl">{copy.body}</p>
+    <section className="mt-16 bs-card rounded-xl p-6 sm:p-8">
+      <h3 className="bs-h2 mb-2">{copy.headline}</h3>
+      <p className="bs-body text-brand-midnight mb-6 max-w-xl">{copy.body}</p>
 
       <div className="flex flex-wrap gap-4">
-        <button onClick={onPrimaryClick} className="btn-primary">
+        <button type="button" onClick={onPrimaryClick} className="btn-primary">
           {copy.primaryCta}
         </button>
 
         {presence === "dual" && (
-          <button onClick={onSecondaryClick} className="btn-secondary">
+          <button type="button" onClick={onSecondaryClick} className="btn-secondary">
             {copy.secondaryCta}
           </button>
         )}

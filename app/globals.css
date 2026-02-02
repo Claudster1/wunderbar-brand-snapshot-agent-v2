@@ -4,13 +4,126 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Brand Colors */
+/* Brand Colors — Wunderbar Digital palette */
 :root {
   --brand-navy: #021859;
   --brand-blue: #07B0F2;
   --brand-aqua: #27CDF2;
   --brand-midnight: #0C1526;
   --brand-gray: #F2F2F2;
+  --brand-muted: #5a6c8a;
+  --brand-bg: #f5f7fb;
+  /* Font: Lato loaded via next/font in layout (--font-lato) */
+  --font-brand: var(--font-lato, "Lato"), system-ui, -apple-system, sans-serif;
+}
+
+/* Wunderbar Brand Typography Hierarchy */
+.bs-h1 {
+  font-family: var(--font-brand);
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--brand-navy);
+}
+.bs-h2 {
+  font-family: var(--font-brand);
+  font-size: clamp(1.5rem, 3vw, 1.875rem);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--brand-navy);
+}
+.bs-h3 {
+  font-family: var(--font-brand);
+  font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0;
+  color: var(--brand-navy);
+}
+.bs-h4 {
+  font-family: var(--font-brand);
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: 0;
+  color: var(--brand-navy);
+}
+.bs-body {
+  font-family: var(--font-brand);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: 0;
+  color: var(--brand-midnight);
+}
+.bs-body-sm {
+  font-family: var(--font-brand);
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.55;
+  color: var(--brand-midnight);
+}
+.bs-small {
+  font-family: var(--font-brand);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--brand-muted);
+}
+.bs-eyebrow {
+  font-family: var(--font-brand);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--brand-muted);
+}
+
+/* Brand layout & spacing (mobile-first) */
+.bs-container-narrow { max-width: 700px; margin-left: auto; margin-right: auto; }
+.bs-container-medium { max-width: 900px; margin-left: auto; margin-right: auto; }
+.bs-container-wide { max-width: 960px; margin-left: auto; margin-right: auto; }
+.bs-section {
+  padding-top: 60px;
+  padding-bottom: 60px;
+}
+@media (min-width: 768px) {
+  .bs-section {
+    padding-top: 80px;
+    padding-bottom: 80px;
+  }
+}
+
+/* Brand card */
+.bs-card {
+  background-color: #fff;
+  border-radius: 8px;
+  border: 1px solid #E0E3EA;
+  box-shadow: 0 2px 8px rgba(2, 24, 89, 0.06);
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+.bs-card:hover {
+  box-shadow: 0 8px 24px rgba(2, 24, 89, 0.1);
+}
+.bs-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-family: var(--font-brand);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Icon wrapper (brand sizing) */
+.bs-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
 }
 
 /* Animation Classes */
@@ -86,12 +199,11 @@
   animation-delay: 1000ms;
 }
 
-/* Page background */
+/* Page background & base font */
 :root {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue",
-    Arial, sans-serif;
-  color: #0c1526;
-  background-color: #f5f7fb;
+  font-family: var(--font-brand);
+  color: var(--brand-midnight);
+  background-color: var(--brand-bg);
 }
 
 body {
@@ -103,16 +215,17 @@ body {
 }
 
 @layer components {
+  /* Wunderbar buttons: 54px height, padding, hover transform + shadow */
   .btn-primary {
-    @apply px-6 py-3 bg-brand-blue text-white font-semibold rounded-md shadow-lg hover:bg-brand-blueHover transition;
+    @apply inline-flex items-center justify-center h-[54px] min-h-[54px] px-6 bg-brand-blue text-white font-bold rounded-md shadow-md hover:bg-brand-blueHover hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2;
   }
 
   .btn-secondary {
-    @apply px-6 py-3 border border-brand-blue text-brand-blue font-semibold rounded-md hover:bg-brand-gray transition;
+    @apply inline-flex items-center justify-center h-[54px] min-h-[54px] px-6 border-2 border-brand-blue text-brand-blue font-bold rounded-md bg-transparent hover:bg-brand-gray hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2;
   }
 
   .btn-primary-inverse {
-    @apply px-6 py-3 bg-brand-blue text-white font-semibold rounded-md shadow hover:bg-brand-blueHover transition;
+    @apply inline-flex items-center justify-center h-[54px] min-h-[54px] px-6 bg-brand-blue text-white font-bold rounded-md shadow hover:bg-brand-blueHover hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2;
   }
 }
 

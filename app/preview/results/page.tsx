@@ -1,10 +1,9 @@
 // app/preview/results/page.tsx
 // Dev preview: see results UI with mock data (no DB or completed snapshot required).
 
-import { PillarResults } from "@/src/components/results/PillarResults";
-import { BrandScoreGauge } from "@/src/components/results/BrandScoreGauge";
+import { ResultsHeroSection } from "@/src/components/results/ResultsHeroSection";
+import { PillarCardGrid } from "@/src/components/results/PillarCardGrid";
 import { ResultsUpgradeCTA } from "@/components/results/ResultsUpgradeCTA";
-import { UpgradeNudge } from "@/components/results/UpgradeNudge";
 import { SuiteCTA } from "@/src/components/results/SuiteCTA";
 import { ContextCoverageMeter } from "@/src/components/results/ContextCoverageMeter";
 import { ChatCompletion } from "@/src/components/results/ChatCompletion";
@@ -56,30 +55,28 @@ export default function PreviewResultsPage() {
   const user = data.user;
 
   return (
-    <main className="max-w-5xl mx-auto px-6 py-16 space-y-16">
-      <div className="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-amber-800 text-sm">
-        <strong>Preview mode</strong> — Mock data. Real results: complete a Brand Snapshot or open{" "}
-        <code className="bg-amber-100 px-1 rounded">/report/[report_id]</code> with a real ID.
-      </div>
+    <main className="min-h-screen bg-brand-bg font-brand">
+      <div className="bs-container-wide bs-section px-4 sm:px-6 md:px-8 space-y-12 md:space-y-14">
+        <div className="bs-card rounded-xl bg-[#fff9e6] border-2 border-[#f5e6b3] px-5 py-4 bs-body-sm text-[#8b6914]">
+          <strong>Preview mode</strong> — Mock data. Real results: complete a Brand Snapshot or open{" "}
+          <code className="bg-white/60 px-1.5 py-0.5 rounded">/report/[report_id]</code> with a real ID.
+        </div>
 
-      <ChatCompletion userRoleContext={data.userRoleContext ?? undefined} />
+        <ChatCompletion userRoleContext={data.userRoleContext ?? undefined} />
 
-      <BrandScoreGauge score={data.brandAlignmentScore} />
+        <ResultsHeroSection
+          score={data.brandAlignmentScore}
+          primaryPillar={primaryPillar}
+          hasSnapshotPlus={user.hasSnapshotPlus}
+          userRoleContext={undefined}
+        />
 
-      <PillarResults
-        pillarScores={data.pillarScores}
-        pillarInsights={data.pillarInsights}
-        primaryPillar={primaryPillar}
-        stage={stage}
-        businessName={data.businessName}
-      />
+        <PillarCardGrid
+          pillarScores={data.pillarScores}
+          pillarInsights={data.pillarInsights}
+        />
 
-      <ContextCoverageMeter coveragePercent={data.contextCoverage ?? 0} />
-
-      <UpgradeNudge
-        primaryPillar={primaryPillar}
-        hasSnapshotPlus={user.hasSnapshotPlus}
-      />
+        <ContextCoverageMeter coveragePercent={data.contextCoverage ?? 0} />
 
       <ResultsUpgradeCTA
         primaryPillar={primaryPillar}
@@ -90,7 +87,8 @@ export default function PreviewResultsPage() {
 
       <ImplementationIntro />
 
-      <SuiteCTA />
+        <SuiteCTA />
+      </div>
     </main>
   );
 }

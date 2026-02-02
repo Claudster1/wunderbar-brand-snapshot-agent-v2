@@ -52,31 +52,25 @@ export function ScoreMeter({ score }: ScoreMeterProps) {
   };
 
   return (
-    <div className="animate-fade-in-up animation-delay-200 mb-12">
-      <div className="bg-white rounded-2xl p-8 shadow-lg border border-slate-200">
-        {/* Score Number */}
+    <div className="animate-fade-in-up animation-delay-200">
+      <div className="bs-card rounded-xl p-6 sm:p-8">
         <div className="text-center mb-6">
-          <div className="text-6xl md:text-7xl font-bold text-brand-navy mb-2">
+          <div className="text-5xl sm:text-[64px] font-bold tracking-tight text-brand-navy mb-2 tabular-nums">
             {animatedScore}
           </div>
-          <div className="text-xl text-slate-600 font-medium">
+          <div className="bs-body-sm font-bold text-brand-muted">
             {getScoreLabel(score)}
           </div>
-          <div className="text-sm text-slate-500 mt-1">Brand Alignment Score™</div>
+          <div className="bs-small text-brand-muted mt-1">Brand Alignment Score™</div>
         </div>
-
-        {/* Animated Meter */}
         <div className="relative">
-          <div className="w-full h-6 bg-slate-100 rounded-full overflow-hidden">
+          <div className="w-full h-3 bg-brand-border rounded-full overflow-hidden">
             <div
-              className={`h-full bg-gradient-to-r ${getScoreColor(
-                score
-              )} rounded-full transition-all duration-1000 ease-out`}
+              className={`h-full bg-gradient-to-r ${getScoreColor(score)} rounded-full transition-all duration-1000 ease-out`}
               style={{ width: `${meterWidth}%` }}
             />
           </div>
-          {/* Meter Labels */}
-          <div className="flex justify-between mt-2 text-xs text-slate-500">
+          <div className="flex justify-between mt-2 bs-small text-brand-muted tabular-nums">
             <span>0</span>
             <span>25</span>
             <span>50</span>

@@ -1,5 +1,13 @@
 import type { Metadata } from 'next'
+import { Lato } from 'next/font/google'
 import './globals.css'
+
+const lato = Lato({
+  weight: ['300', '400', '700', '900'],
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-lato',
+})
 
 export const metadata: Metadata = {
   title: 'Wunderbar Brand Snapshot Agent',
@@ -12,8 +20,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className={lato.variable}>
+      <body className="font-brand antialiased">
         <script
           dangerouslySetInnerHTML={{
             __html: `

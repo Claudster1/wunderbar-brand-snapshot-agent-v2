@@ -2,10 +2,9 @@
 // Next.js page: accepts searchParams (e.g. reportId). With no reportId, prompts to complete a snapshot or redirect.
 
 import Link from "next/link";
-import { PillarResults } from "@/src/components/results/PillarResults";
-import { BrandScoreGauge } from "@/src/components/results/BrandScoreGauge";
+import { ResultsHeroSection } from "@/src/components/results/ResultsHeroSection";
+import { PillarCardGrid } from "@/src/components/results/PillarCardGrid";
 import { ResultsUpgradeCTA } from "@/components/results/ResultsUpgradeCTA";
-import { UpgradeNudge } from "@/components/results/UpgradeNudge";
 import { SuiteCTA } from "@/src/components/results/SuiteCTA";
 import { ContextCoverageMeter } from "@/src/components/results/ContextCoverageMeter";
 import { ChatCompletion } from "@/src/components/results/ChatCompletion";
@@ -13,6 +12,7 @@ import { ResultsPageViewTracker } from "@/components/results/ResultsPageViewTrac
 import { ImplementationIntro } from "@/components/SnapshotPlus/ImplementationIntro";
 import { getPrimaryPillar } from "@/lib/upgrade/primaryPillar";
 import { PillarKey } from "@/src/types/pillars";
+import type { UserRoleContext } from "@/src/types/snapshot";
 
 interface BrandSnapshotResult {
   businessName: string;
@@ -41,17 +41,16 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   // No reportId: redirect to brand-snapshot results entry or show prompt
   if (!reportId || reportId === "preview-mock") {
     return (
-      <main className="max-w-2xl mx-auto px-6 py-16 text-center">
-        <h1 className="text-2xl font-semibold text-brand-navy mb-3">Your results</h1>
-        <p className="text-brand-midnight mb-6">
-          Complete a Brand Snapshot™ to see your results here, or open your report from the link we sent you.
-        </p>
-        <Link
-          href="/brand-snapshot"
-          className="inline-block bg-brand-blue text-white px-6 py-3 rounded-lg font-semibold hover:bg-brand-blueHover transition"
-        >
-          Start Brand Snapshot™
-        </Link>
+      <main className="min-h-screen bg-brand-bg font-brand flex flex-col items-center justify-center px-4 py-16">
+        <div className="bs-container-narrow max-w-[700px] mx-auto text-center">
+          <h1 className="bs-h1 mb-3">Your results</h1>
+          <p className="bs-body mb-6 text-brand-midnight">
+            Complete a Brand Snapshot™ to see your results here, or open your report from the link we sent you.
+          </p>
+          <Link href="/brand-snapshot" className="btn-primary">
+            Start Brand Snapshot™
+          </Link>
+        </div>
       </main>
     );
   }
@@ -61,10 +60,12 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   const res = await fetch(`${baseUrl}/api/snapshot/get?id=${encodeURIComponent(reportId)}`, { cache: "no-store" });
   if (!res.ok) {
     return (
-      <main className="max-w-2xl mx-auto px-6 py-16 text-center">
-        <h1 className="text-2xl font-semibold text-brand-navy mb-3">Report not found</h1>
-        <p className="text-brand-midnight mb-6">This report may have been removed or the link is incorrect.</p>
-        <Link href="/brand-snapshot" className="text-brand-blue font-medium hover:underline">Start a new Brand Snapshot™</Link>
+      <main className="min-h-screen bg-brand-bg font-brand flex flex-col items-center justify-center px-4 py-16">
+        <div className="bs-container-narrow max-w-[700px] mx-auto text-center">
+          <h1 className="bs-h1 mb-3">Report not found</h1>
+          <p className="bs-body mb-6 text-brand-midnight">This report may have been removed or the link is incorrect.</p>
+          <Link href="/brand-snapshot" className="text-brand-blue font-bold hover:underline focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 rounded">Start a new Brand Snapshot™</Link>
+        </div>
       </main>
     );
   }
@@ -103,7 +104,8 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   const user = data.user ?? { hasSnapshotPlus: false };
 
   return (
-    <main className="max-w-5xl mx-auto px-6 py-16 space-y-16">
+    <main className="min-h-screen bg-brand-bg font-brand">
+      <div className="bs-container-wide bs-section px-4 sm:px-6 md:px-8 space-y-12 md:space-y-14">
       {/* Track page view */}
       <ResultsPageViewTracker
         brandAlignmentScore={data.brandAlignmentScore}
@@ -118,27 +120,24 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       {/* Chat (completed) */}
       <ChatCompletion userRoleContext={data.userRoleContext} />
 
-      {/* Brand Alignment Score™ (large gauge) */}
-      <BrandScoreGauge score={data.brandAlignmentScore} />
+      {/* Hero: two-column — gauge + rating (left) | recommendation card (right) */}
+      <ResultsHeroSection
+        score={data.brandAlignmentScore}
+        primaryPillar={primaryPillarStr}
+        hasSnapshotPlus={user.hasSnapshotPlus}
+        userRoleContext={data.userRoleContext as UserRoleContext | undefined}
+      />
 
-      {/* Primary Pillar (auto-expanded) + Secondary Pillars (collapsed) */}
-      <PillarResults
+      {/* Score breakdown: grid of pillar cards */}
+      <PillarCardGrid
         pillarScores={data.pillarScores}
         pillarInsights={data.pillarInsights}
-        primaryPillar={primaryPillarStr}
-        stage={stage}
-        businessName={data.businessName}
       />
 
       {/* Context Coverage Meter */}
       {data.contextCoverage !== undefined && (
         <ContextCoverageMeter coveragePercent={data.contextCoverage} />
       )}
-
-      <UpgradeNudge
-        primaryPillar={primaryPillarStr}
-        hasSnapshotPlus={user.hasSnapshotPlus}
-      />
 
       <ResultsUpgradeCTA
         primaryPillar={primaryPillarStr}
@@ -151,6 +150,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 
       {/* Optional secondary CTA */}
       <SuiteCTA />
+      </div>
     </main>
   );
 }

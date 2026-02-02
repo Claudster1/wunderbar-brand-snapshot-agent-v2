@@ -27,14 +27,14 @@ export function UpgradeNudge({
   const copy = getUpgradeNudgeCopy({ primaryPillar });
 
   return (
-    <div className="mt-8 border border-brand-blue bg-blue-50 p-6 rounded-lg">
-      <h3 className="font-semibold mb-2">{copy.headline}</h3>
+    <div className="mt-8 bs-card rounded-xl border-2 border-brand-blue bg-brand-light/80 p-6">
+      <h3 className="bs-h4 mb-2">{copy.headline}</h3>
 
-      <p className="text-sm mb-3">{copy.body}</p>
+      <p className="bs-body-sm mb-3 text-brand-midnight">{copy.body}</p>
 
-      <p className="text-sm mb-4">{copy.detail}</p>
+      <p className="bs-body-sm mb-4 text-brand-midnight">{copy.detail}</p>
 
-      <p className="text-xs text-slate-600 mb-4">{copy.note}</p>
+      <p className="bs-small mb-4 text-brand-muted">{copy.note}</p>
 
       <a
         href={`/snapshot-plus?focus=${primaryPillar}`}
@@ -45,7 +45,7 @@ export function UpgradeNudge({
           });
           trackUpgradeNudgeClick(primaryPillar);
         }}
-        className="inline-block text-sm text-white bg-brand-blue px-4 py-2 rounded"
+        className="btn-primary"
       >
         {copy.ctaLabel}
       </a>

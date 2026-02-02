@@ -7,7 +7,7 @@ import {
   StyleSheet,
 } from "@react-pdf/renderer";
 import { PILLARS, BrandStage, PillarKey } from "@/lib/pillars";
-import { registerPdfFonts } from "../../registerFonts";
+import { registerPdfFonts } from "../registerFonts";
 import { PdfHeader } from "../components/PdfHeader";
 import { PdfFooter } from "../components/PdfFooter";
 import { pdfTheme } from "../theme";

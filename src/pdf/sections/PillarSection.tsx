@@ -73,7 +73,7 @@ export function PillarSection({
 
   return (
     <View style={styles.section}>
-      <View style={[styles.card, isPrimary && styles.primaryCard]}>
+      <View style={[styles.card, ...(isPrimary ? [styles.primary] : [])]}>
         <Text style={styles.label}>
           {copy.label}
         </Text>
@@ -113,7 +113,7 @@ export function PillarPDFSection(context: SnapshotContext) {
         return (
           <View
             key={pillar}
-            style={[styles.card, isPrimary && styles.primary]}
+            style={[styles.card, ...(isPrimary ? [styles.primary] : [])]}
           >
             <View style={styles.header}>
               <ScoreGauge score={score} />

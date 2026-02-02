@@ -66,6 +66,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#F7FAFC',
     borderRadius: 6,
   },
+  section: {
+    marginTop: 20,
+    marginBottom: 12,
+  },
   pillarBlock: {
     marginTop: 20,
     paddingTop: 14,
@@ -204,7 +208,7 @@ export function ReportDocument({
 
         <Text style={styles.paragraph}>
           This Snapshot+™ was generated to support you in{" "}
-          {userRoleContext ? rolePhrase(userRoleContext) : "your brand leadership"} — 
+          {userRoleContext ? rolePhrase(userRoleContext as import("@/src/types/snapshot").UserRoleContext) : "your brand leadership"} — 
           based on the inputs you provided and the areas where focused alignment 
           will have the greatest impact.
         </Text>
@@ -213,7 +217,7 @@ export function ReportDocument({
         <SectionHeader>Brand Alignment Score™</SectionHeader>
 
         <View style={styles.scoreBlock}>
-          <ScoreGauge value={brandAlignmentScore} />
+          <ScoreGauge score={brandAlignmentScore} />
 
           <Text style={styles.paragraph}>
             Your Brand Alignment Score™ reflects how effectively your positioning, 

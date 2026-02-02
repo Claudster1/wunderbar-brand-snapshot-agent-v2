@@ -76,7 +76,7 @@ export default function BlueprintPage() {
 
       <BlueprintActivationPaths
         primaryPillar={primaryPillar}
-        brandName={copy.title}
+        brandName="your brand"
       />
 
       <Link

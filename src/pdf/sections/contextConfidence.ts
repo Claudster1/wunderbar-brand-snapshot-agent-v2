@@ -2,7 +2,7 @@
 // Context confidence section builder
 
 import { SnapshotPDFSection } from "@/types/snapshotPDF";
-import { ContextCoverageResult } from "@/engine/contextCoverage";
+import { ContextCoverageResult } from "@/src/engine/contextCoverage";
 
 export function buildContextConfidenceSection(
   context: ContextCoverageResult

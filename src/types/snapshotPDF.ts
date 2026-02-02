@@ -1,7 +1,7 @@
 // src/types/snapshotPDF.ts
 // Type definitions for Snapshot PDF generation
 
-import { ContextCoverageResult } from "@/engine/contextCoverage";
+import { ContextCoverageResult } from "@/src/engine/contextCoverage";
 import { PillarKey } from "@/types/pillars";
 
 export interface SnapshotPDFSection {

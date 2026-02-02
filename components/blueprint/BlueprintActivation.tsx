@@ -4,6 +4,7 @@
 import { blueprintPromptPacks } from "@/lib/blueprintPrompts";
 import { PromptBlock } from "./PromptBlock";
 import { rolePhrase } from "@/src/lib/roleLanguage";
+import type { UserRoleContext } from "@/src/types/snapshot";
 
 interface BlueprintActivationProps {
   primaryPillar: string;
@@ -39,7 +40,7 @@ export function BlueprintActivation({
         Blueprint™ builds on your Snapshot+™ {primaryPillar} insights,
         activating them into a system designed to support you in{" "}
         {userRoleContext ? (
-          <strong>{rolePhrase(userRoleContext)}</strong>
+          <strong>{rolePhrase(userRoleContext as UserRoleContext)}</strong>
         ) : (
           <strong>leading your brand forward</strong>
         )}{" "}

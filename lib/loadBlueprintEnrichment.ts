@@ -9,5 +9,6 @@ export async function loadBlueprintEnrichment(reportId: string) {
     .eq("report_id", reportId)
     .single();
 
-  return data?.data ?? null;
+  const row = data as { data?: unknown } | null;
+  return row?.data ?? null;
 }

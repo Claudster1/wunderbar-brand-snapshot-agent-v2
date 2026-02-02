@@ -1,7 +1,7 @@
 // src/lib/blueprint/blueprintActivation.ts
 // Blueprint activation section builder
 
-import { BlueprintActivationInput } from "@/types/blueprint";
+import { BlueprintActivationInput } from "@/src/types/blueprint";
 import { blueprintActivationCopy } from "@/src/content/blueprintActivation.copy";
 
 export interface BlueprintActivationSection {

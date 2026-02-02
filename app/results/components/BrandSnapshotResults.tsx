@@ -6,7 +6,7 @@
 import { useState } from "react";
 import { ScoreGauge } from "@/src/components/ScoreGauge";
 import { resolvePillarPriority } from "@/src/lib/pillars/pillarPriority";
-import { PillarKey } from "@/types/pillars";
+import { PillarKey } from "@/src/types/pillars";
 import { PillarPanel } from "@/components/pillars/PillarPanel";
 import { getUpgradeCTA } from "@/lib/cta";
 
@@ -41,7 +41,7 @@ export function BrandSnapshotResults({
           Brand Alignment Score™
         </h1>
         <div className="flex justify-center mb-4">
-          <ScoreGauge score={brandAlignmentScore} />
+          <ScoreGauge value={brandAlignmentScore} />
         </div>
         <p className="text-lg text-slate-600 max-w-2xl mx-auto">
           Your brand's overall alignment across positioning, messaging, visibility,

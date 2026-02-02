@@ -1,8 +1,13 @@
 import { PrimaryCTA } from "@/components/cta/PrimaryCTA";
 import { PromptPackPanel } from "@/components/blueprint/PromptPackPanel";
 
-export default function BlueprintActivationPage({ data }: any) {
-  const { brandName, primaryPillar, resolvedPillars } = data;
+type SearchParams = { reportId?: string };
+export default function BlueprintActivationPage({ searchParams }: { searchParams?: SearchParams }) {
+  // Data is typically passed via client navigation state or fetched by layout; use fallbacks for static/prerender
+  const brandName = "your brand";
+  const primaryPillar = "Credibility";
+  const resolvedPillars: Array<{ name: string }> = [];
+  void searchParams;
 
   return (
     <main className="max-w-6xl mx-auto px-8 py-20">

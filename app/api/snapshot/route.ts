@@ -111,7 +111,7 @@ export async function POST(req: Request) {
     const primaryResult = getPrimaryPillar(scores.pillarScores as any);
     const primaryPillar =
       primaryResult.type === "tie"
-        ? primaryResult.pillars[0]
+        ? primaryResult.pillars?.[0] ?? primaryResult.pillar
         : primaryResult.pillar;
 
     const summary = buildSummary(
@@ -123,7 +123,7 @@ export async function POST(req: Request) {
       scores.recommendations,
       scores.pillarScores as Record<string, number>
     );
-    const upgrade_cta = buildUpgradeCta(primaryPillar, companyName);
+    const upgrade_cta = buildUpgradeCta(primaryPillar ?? "positioning", companyName);
 
     const { data, error } = await supabase
       .from("brand_snapshot_reports")
@@ -169,7 +169,7 @@ export async function POST(req: Request) {
         visibility_score: scores.pillarScores.visibility ?? 0,
         credibility_score: scores.pillarScores.credibility ?? 0,
         conversion_score: scores.pillarScores.conversion ?? 0,
-        primary_pillar: primaryPillar,
+        primary_pillar: primaryPillar ?? "positioning",
       };
       if (process.env.AC_FIELD_REPORT_LINK) {
         acFields[process.env.AC_FIELD_REPORT_LINK] = reportLink;

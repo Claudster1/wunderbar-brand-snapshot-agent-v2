@@ -43,12 +43,12 @@ export function RenderPillarSection({
         </>
       ) : null}
 
-      {uncoveredPillars(coverage).length ? (
+      {uncoveredPillars(Array.isArray(coverage) ? coverage : [coverage]).length ? (
         <>
           <Text style={{ marginTop: 8, fontWeight: 600 }}>
             What we could go deeper on
           </Text>
-          {uncoveredPillars(coverage).map((item, i) => (
+          {uncoveredPillars(Array.isArray(coverage) ? coverage : [coverage]).map((item, i) => (
             <Text key={i}>• {item}</Text>
           ))}
         </>

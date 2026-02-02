@@ -23,11 +23,13 @@ export async function getUserProductAccess(userEmail: string): Promise<ProductAc
     };
   }
 
+  const userId = (user as { id: string }).id;
+
   // Then get product access
   const { data, error } = await supabase
     .from("user_purchases")
     .select("has_brand_snapshot_plus, has_blueprint, has_blueprint_plus")
-    .eq("user_id", user.id)
+    .eq("user_id", userId)
     .single();
 
   if (error || !data) {
@@ -39,9 +41,14 @@ export async function getUserProductAccess(userEmail: string): Promise<ProductAc
     };
   }
 
+  const row = data as {
+    has_brand_snapshot_plus?: boolean;
+    has_blueprint?: boolean;
+    has_blueprint_plus?: boolean;
+  };
   return {
-    hasSnapshotPlus: data.has_brand_snapshot_plus === true,
-    hasBlueprint: data.has_blueprint === true,
-    hasBlueprintPlus: data.has_blueprint_plus === true,
+    hasSnapshotPlus: row.has_brand_snapshot_plus === true,
+    hasBlueprint: row.has_blueprint === true,
+    hasBlueprintPlus: row.has_blueprint_plus === true,
   };
 }

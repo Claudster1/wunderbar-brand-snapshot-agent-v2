@@ -110,7 +110,7 @@ export function SnapshotPlusReportDocument({
         <View style={styles.alignmentBlock}>
           <Text>Brand Alignment Score™</Text>
           <Text style={styles.alignmentScore}>{brandAlignmentScore}</Text>
-          <ScoreGauge value={brandAlignmentScore} />
+          <ScoreGauge score={brandAlignmentScore} />
         </View>
 
         {sorted.map((pillar) => (

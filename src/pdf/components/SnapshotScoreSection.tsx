@@ -14,7 +14,7 @@ export function SnapshotScoreSection({
         Brand Alignment Score™
       </Text>
 
-      <ScoreGauge value={brandAlignmentScore} size={150} />
+      <ScoreGauge score={brandAlignmentScore} size={150} />
 
       <Text style={{ fontSize: 11, marginTop: 10 }}>
         Primary focus area: {primaryPillar}

@@ -115,7 +115,7 @@ export async function generatePdfResponse(
     const pdfBuffer = await generatePdf(options);
     const filename = options.filename || `${options.documentType}-report.pdf`;
 
-    return new Response(pdfBuffer, {
+    return new Response(new Uint8Array(pdfBuffer), {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="${filename}"`,
@@ -197,7 +197,7 @@ export function transformReportDataForPdf(
           report?.color_palette ||
           report?.enriched_color_palette ||
           [],
-      } as BrandSnapshotReport;
+      } as unknown as BrandSnapshotReport;
 
     case "snapshot-plus":
       return {

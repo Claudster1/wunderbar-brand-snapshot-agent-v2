@@ -5,7 +5,7 @@ import { SnapshotPDFSection, SnapshotPlusPDFPayload } from "@/types/snapshotPDF"
 import { buildContextConfidenceSection } from "./sections/contextConfidence";
 import { buildPillarSection } from "./sections/pillarSectionBuilder";
 
-export { SnapshotPDFSection, SnapshotPlusPDFPayload };
+export type { SnapshotPDFSection, SnapshotPlusPDFPayload };
 
 export function buildSnapshotPlusPDF(payload: SnapshotPlusPDFPayload) {
   const {

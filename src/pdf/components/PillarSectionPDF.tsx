@@ -13,7 +13,7 @@ export function PillarSectionPDF({
   isPrimary: boolean;
 }) {
   return (
-    <View style={[styles.card, isPrimary && styles.primary]}>
+    <View style={[styles.card, ...(isPrimary ? [styles.primary] : [])]}>
       <Text style={styles.title}>
         {pillarKey.toUpperCase()}
         {isPrimary && " — Primary Focus Area"}

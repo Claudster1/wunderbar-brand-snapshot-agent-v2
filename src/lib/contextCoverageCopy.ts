@@ -1,7 +1,7 @@
 // src/lib/contextCoverageCopy.ts
 // Copy utilities for context coverage messaging
 
-import { ContextCoverageResult } from "@/engine/contextCoverage";
+import { ContextCoverageResult } from "@/src/engine/contextCoverage";
 
 export function getContextSummaryCopy(
   coverage: ContextCoverageResult

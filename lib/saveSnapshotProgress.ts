@@ -14,9 +14,7 @@ export async function saveSnapshotProgress({
 }) {
   const supabase = supabaseServer();
 
-  await supabase
-    .from("brand_snapshot_reports")
-    .update({
+  await (supabase.from("brand_snapshot_reports") as any).update({
       last_step: lastStep,
       progress,
       updated_at: new Date().toISOString(),

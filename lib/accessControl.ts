@@ -1,8 +1,8 @@
 // lib/accessControl.ts
 // Re-export access control functions for convenience
 
-export { 
-  ProductAccess,
+export type { ProductAccess } from "./productAccess";
+export {
   canAccessBlueprintPlus,
   canAccessBlueprint,
   canAccessSnapshotPlus

@@ -1,7 +1,7 @@
 // lib/upgrade/ctaCopy.ts
 
 import { PillarKey } from "@/types/pillars";
-import { ResultsState } from "@/types/results";
+import { ResultsState } from "@/src/types/results";
 
 export function getUpgradeCopy(
   pillar: string,

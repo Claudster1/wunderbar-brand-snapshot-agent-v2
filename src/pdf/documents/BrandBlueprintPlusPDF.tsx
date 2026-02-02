@@ -31,7 +31,7 @@ interface CompleteAEOSystem {
   contentImprovementPrompts?: string[];
 }
 
-interface BrandBlueprintPlusPDFProps {
+export interface BrandBlueprintPlusPDFProps {
   userName?: string;
   businessName?: string;
   brandStory?: {

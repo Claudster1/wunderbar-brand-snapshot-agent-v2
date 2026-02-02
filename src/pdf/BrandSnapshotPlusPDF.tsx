@@ -24,6 +24,7 @@ import { pdfTheme } from "./theme";
 import { registerPdfFonts } from "./registerFonts";
 import { getPrimaryPillar } from "@/src/lib/pillars/getPrimaryPillar";
 import { PILLAR_COPY } from "@/lib/pillars/pillarCopy";
+import type { PillarKey } from "@/src/types/pillars";
 
 // Types
 import { BrandSnapshotReport } from "./BrandSnapshotPDF";
@@ -114,8 +115,9 @@ export const BrandSnapshotPlusPDF = ({
 
   const primaryResult = getPrimaryPillar(pillarScores);
   const primaryPillar =
-    primaryResult.type === "tie" ? primaryResult.pillars[0] : primaryResult.pillar;
-  const primaryPillarCopy = PILLAR_COPY[primaryPillar];
+    primaryResult.type === "tie" ? primaryResult.pillars?.[0] ?? primaryResult.pillar : primaryResult.pillar;
+  const primaryPillarKey = primaryPillar ?? "positioning";
+  const primaryPillarCopy = PILLAR_COPY[primaryPillarKey as PillarKey];
 
   return (
     <Document>
@@ -139,7 +141,7 @@ export const BrandSnapshotPlusPDF = ({
 
           {/* Brand Alignment Score Gauge */}
           <View style={{ marginTop: pdfTheme.spacing.lg, alignItems: "center" }}>
-            <ScoreGauge value={brandAlignmentScore} size={100} />
+            <ScoreGauge score={brandAlignmentScore} size={100} />
           </View>
 
           {/* Primary Pillar Highlight */}

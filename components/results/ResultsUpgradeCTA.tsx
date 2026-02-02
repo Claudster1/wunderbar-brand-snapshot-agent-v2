@@ -21,8 +21,8 @@ export function ResultsUpgradeCTA({
   const [presence, setPresence] = useState<"single" | "dual">("single");
 
   useEffect(() => {
-    setVariant(getOrAssignVariant("results_cta_variant", ["A", "B"]));
-    setPresence(getOrAssignVariant("results_cta_presence", ["single", "dual"]));
+    setVariant(getOrAssignVariant<"A" | "B">("results_cta_variant", ["A", "B"]));
+    setPresence(getOrAssignVariant<"single" | "dual">("results_cta_presence", ["single", "dual"]));
   }, []);
 
   // Only show to non-buyers

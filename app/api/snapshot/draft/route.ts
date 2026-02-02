@@ -40,7 +40,8 @@ export async function POST(req: Request) {
       );
     }
 
-    return NextResponse.json({ reportId: data?.id });
+    const row = data as { id?: string; report_id?: string } | null;
+    return NextResponse.json({ reportId: row?.report_id ?? row?.id ?? reportId });
   } catch (err: any) {
     console.error("[Snapshot Draft API] Error:", err);
     return NextResponse.json(

@@ -49,9 +49,9 @@ export default function PreviewResultsPage() {
 
   const primaryResult = getPrimaryPillar(data.pillarScores);
   const primaryPillar =
-    (primaryResult.type === "tie" && primaryResult.pillars?.length
+    ((primaryResult.type === "tie" && primaryResult.pillars?.length
       ? primaryResult.pillars[0]
-      : primaryResult.pillar) ?? "positioning";
+      : primaryResult.pillar) ?? "positioning") as PillarKey;
   const stage = data.stage;
   const user = data.user;
 

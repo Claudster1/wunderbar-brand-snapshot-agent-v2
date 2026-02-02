@@ -31,16 +31,13 @@ export async function saveRefinementRequest(payload: {
 }) {
   const supabase = supabaseServer();
 
-  const { error } = await supabase
-    .from("snapshot_refinement_requests")
-    .insert({
-      report_id: payload.report_id?.toString() || "",
-      pillar: payload.pillar?.toString() || null,
-      note: payload.context?.toString() || "",
-      status: "open",
-      // Store scope and type in note or as metadata if needed
-      // Note: You may want to add these fields to the database schema
-    });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.from("snapshot_refinement_requests") as any).insert({
+    report_id: payload.report_id?.toString() || "",
+    pillar: payload.pillar?.toString() || null,
+    note: payload.context?.toString() || "",
+    status: "open",
+  });
 
   if (error) {
     console.error("Error saving refinement request:", error);
@@ -53,7 +50,7 @@ export async function saveRefinementRequest(payload: {
 export async function saveProgress(sessionId: string, data: any) {
   const supabase = supabaseServer();
 
-  await supabase.from("brand_snapshot_sessions").upsert({
+  await (supabase.from("brand_snapshot_sessions") as any).upsert({
     session_id: sessionId,
     payload: data,
     updated_at: new Date().toISOString(),
@@ -71,12 +68,10 @@ export async function upsertSnapshotReportSummary({
 }) {
   const supabase = supabaseServer();
 
-  await supabase
-    .from("brand_snapshot_reports")
-    .upsert({
-      id: snapshotId,
-      brand_name: brandName,
-      brand_alignment_score: score,
-      has_snapshot_plus: false,
-    });
+  await (supabase.from("brand_snapshot_reports") as any).upsert({
+    id: snapshotId,
+    brand_name: brandName,
+    brand_alignment_score: score,
+    has_snapshot_plus: false,
+  });
 }

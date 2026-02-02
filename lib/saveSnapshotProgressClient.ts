@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabaseServer } from "@/lib/supabase";
 
 export async function saveSnapshotProgress(payload: {
   email: string;
@@ -7,11 +7,12 @@ export async function saveSnapshotProgress(payload: {
   primaryPillar?: string;
   score?: number;
 }) {
-  await supabase.from("brand_snapshots").insert({
+  const supabase = supabaseServer();
+  await (supabase.from("brand_snapshot_reports") as any).insert({
     user_email: payload.email,
-    brand_name: payload.brandName,
-    stage: payload.stage,
-    primary_pillar: payload.primaryPillar,
-    brand_alignment_score: payload.score,
+    company_name: payload.brandName,
+    snapshot_stage: payload.stage,
+    primary_pillar: payload.primaryPillar ?? null,
+    brand_alignment_score: payload.score ?? 0,
   });
 }

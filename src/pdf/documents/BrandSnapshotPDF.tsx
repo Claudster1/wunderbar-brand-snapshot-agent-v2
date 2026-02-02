@@ -98,9 +98,10 @@ export const BrandSnapshotPDF = ({
         {Object.entries(pillarScores).map(([pillar, score]) => {
           const pct = (score / 20) * 100;
           const insightData = pillarInsights[pillar as keyof typeof pillarInsights];
+          const obj = insightData as { opportunity?: string; strength?: string } | undefined;
           const insight = typeof insightData === 'string' 
             ? insightData 
-            : insightData?.opportunity || insightData?.strength || "No insight available.";
+            : obj?.opportunity || obj?.strength || "No insight available.";
 
           return (
             <View key={pillar} style={stylePresets.section}>

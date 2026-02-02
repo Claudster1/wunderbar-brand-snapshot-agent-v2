@@ -14,42 +14,32 @@ Font.register({
     },
     {
       src: "/fonts/Inter-Medium.ttf",
-      fontWeight: "500",
+      fontWeight: "medium",
     },
     {
       src: "/fonts/Inter-SemiBold.ttf",
-      fontWeight: "600",
+      fontWeight: "semibold",
     },
     {
       src: "/fonts/Inter-Bold.ttf",
-      fontWeight: "700",
+      fontWeight: "bold",
     },
   ],
 });
 
-// Helvetica Neue fallback (system)
+// Helvetica Neue fallback (system) - src omitted for system font
 Font.register({
   family: "Helvetica Neue",
   fonts: [
-    {
-      src: undefined, // system font
-      fontWeight: "normal",
-    },
-    {
-      src: undefined, // system font
-      fontWeight: "bold",
-    },
+    { src: "" as unknown as string, fontWeight: "normal" },
+    { src: "" as unknown as string, fontWeight: "bold" },
   ],
 });
 
 // Generic sans fallback
 Font.register({
   family: "System Sans",
-  fonts: [
-    {
-      src: undefined,
-    },
-  ],
+  fonts: [{ src: "" as unknown as string }],
 });
 
 export const registerPdfFonts = () => true;

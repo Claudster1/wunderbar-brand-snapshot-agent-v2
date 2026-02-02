@@ -34,5 +34,6 @@ export async function createDraftReport(userEmail?: string): Promise<string> {
     throw error;
   }
 
-  return data?.id as string;
+  const row = data as { id?: string; report_id?: string } | null;
+  return row?.report_id ?? row?.id ?? reportId;
 }

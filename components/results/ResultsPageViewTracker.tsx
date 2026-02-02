@@ -42,7 +42,7 @@ export function ResultsPageViewTracker({
         brand_stage: stage,
         snapshot_score: brandAlignmentScore,
         context_coverage: contextCoverage ?? 0,
-        return_visit: isReturnVisit,
+        return_visit: isReturnVisit ? 1 : 0,
       },
     });
 

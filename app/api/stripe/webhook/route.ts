@@ -10,9 +10,7 @@ import { recordStripePurchase } from "@/lib/recordStripePurchase";
 // ❗ Stripe requires raw body for signature verification
 export const runtime = "nodejs";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2023-10-16",
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 type ProductKey = "snapshot_plus" | "blueprint" | "blueprint_plus";
 

@@ -4,6 +4,7 @@
 
 import Link from "next/link";
 import { rolePhrase } from "@/src/lib/roleLanguage";
+import type { UserRoleContext } from "@/src/types/snapshot";
 
 interface InsightDepthCTAProps {
   userRoleContext?: string;
@@ -19,7 +20,7 @@ export function InsightDepthCTA({ userRoleContext }: InsightDepthCTAProps = {}) 
       <p className="text-sm text-white/90 mb-4">
         Snapshot+™ builds directly on your results, translating them into clear priorities
         {userRoleContext ? (
-          <> designed to support you in {rolePhrase(userRoleContext)} — not abstract brand theory.</>
+          <> designed to support you in {rolePhrase(userRoleContext as UserRoleContext)} — not abstract brand theory.</>
         ) : (
           <> designed to support you — not abstract brand theory.</>
         )}

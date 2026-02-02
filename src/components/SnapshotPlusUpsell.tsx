@@ -18,7 +18,7 @@ export function SnapshotPlusUpsell({ userRoleContext }: SnapshotPlusUpsellProps 
         <p className="text-[15px] text-brand-midnight max-w-3xl mb-8">
           Snapshot+™ builds directly on your results, translating them into clear priorities
           {userRoleContext ? (
-            <> designed to support you in {rolePhrase(userRoleContext)} — not abstract brand theory.</>
+            <> designed to support you in {rolePhrase(userRoleContext as import("@/src/types/snapshot").UserRoleContext)} — not abstract brand theory.</>
           ) : (
             <> designed to support you — not abstract brand theory.</>
           )}

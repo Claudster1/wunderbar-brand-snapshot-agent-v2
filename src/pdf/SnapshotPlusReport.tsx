@@ -34,8 +34,9 @@ function Gauge({ value }: { value: number }) {
         stroke="#16A34A"
         strokeWidth={10}
         fill="none"
-        strokeDasharray={circumference}
-        strokeDashoffset={offset}
+        strokeDasharray={String(circumference)}
+        // @ts-expect-error Circle supports strokeDashoffset at runtime; types are incomplete
+        strokeDashoffset={String(offset)}
         strokeLinecap="round"
         transform="rotate(-90 60 60)"
       />

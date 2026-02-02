@@ -51,13 +51,13 @@ export function BlueprintPromptAppendix({
         Blueprint™ Prompt Appendix
       </Text>
 
-      {packs.map((pack) => (
-        <View key={pack.id} style={styles.packContainer}>
+      {packs.map((pack, index) => (
+        <View key={pack.pillar ?? index} style={styles.packContainer}>
           <Text style={styles.packTitle}>
             {pack.title}
           </Text>
           <Text style={styles.packDescription}>
-            {pack.description}
+            {(pack as { description?: string }).description ?? ""}
           </Text>
 
           {pack.prompts.map((prompt, idx) => (

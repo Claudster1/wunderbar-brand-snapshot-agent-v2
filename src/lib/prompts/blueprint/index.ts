@@ -1,5 +1,11 @@
 // src/lib/prompts/blueprint/index.ts
 
+import { positioningPromptPack } from "./positioning.prompts";
+import { messagingPromptPack } from "./messaging.prompts";
+import { visibilityPromptPack } from "./visibility.prompts";
+import { credibilityPromptPack } from "./credibility.prompts";
+import { conversionPromptPack } from "./conversion.prompts";
+
 export { positioningPromptPack } from "./positioning.prompts";
 export { messagingPromptPack } from "./messaging.prompts";
 export { visibilityPromptPack } from "./visibility.prompts";
@@ -19,12 +25,8 @@ export const blueprintPromptPacks = [
 export {
   BLUEPRINT_PROMPT_PACKS,
   type PromptPack,
-  type BrandStage,
-  type Archetype,
-  type Pillar,
 } from "./promptPacks";
 
 // Utility functions
-export { getPromptPacksForContext } from "./getPromptPacks";
 export { formatPromptsForExport } from "./formatPrompts";
 export { resolveBlueprintPromptPacks, getPromptPacksForContext } from "./selectPromptPacks";

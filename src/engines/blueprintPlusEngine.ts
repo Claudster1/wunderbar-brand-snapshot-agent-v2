@@ -42,7 +42,9 @@ export function buildEnrichedBlueprintInsights<T extends object>({
 
   return {
     stage,
-    enrichedInsights,
+    enrichedInsights: enrichedInsights as T & {
+      enrichmentCoverage: ReturnType<typeof applyEnrichmentToInsights<T>>["enrichmentCoverage"];
+    },
   };
 }
 

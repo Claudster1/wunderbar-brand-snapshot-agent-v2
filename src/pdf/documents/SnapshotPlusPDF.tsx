@@ -206,7 +206,7 @@ export const SnapshotPlusPDF = ({
                 <View style={getMeterFill(pct)} />
               </View>
               <Text style={{ marginTop: spacing.sm, ...stylePresets.body }}>
-                {typeof insight === 'string' ? insight : insight?.opportunity || insight?.strength || "Analysis available."}
+                {typeof insight === 'string' ? insight : (insight as unknown as { opportunity?: string; strength?: string })?.opportunity || (insight as unknown as { opportunity?: string; strength?: string })?.strength || "Analysis available."}
               </Text>
             </View>
 

@@ -5,7 +5,8 @@ export function shouldShowSnapshotPlusUpgrade(
   coverage: ContextCoverage,
   hasPurchased: boolean
 ) {
-  return !hasPurchased && uncoveredPillars(coverage).length > 0;
+  const list = Array.isArray(coverage) ? coverage : [coverage];
+  return !hasPurchased && uncoveredPillars(list).length > 0;
 }
 
 export function getUpgradeCopy(

@@ -29,23 +29,26 @@ export async function GET(req: Request) {
 
     // Also get full report data for context
     const supabase = supabaseServer();
-    const { data: report, error } = await supabase
+    const { data: reportRow, error } = await supabase
       .from("brand_snapshot_reports")
       .select("*")
-      .eq("id", reportId)
+      .eq("report_id", reportId)
       .single();
 
-    if (error || !report) {
+    if (error || !reportRow) {
       return NextResponse.json(
         { error: "Report not found" },
         { status: 404 }
       );
     }
 
+    const report = reportRow as { business_name?: string; brand_name?: string; user_email?: string };
+    const progress = progressData as { last_step?: string; progress?: unknown };
+
     return NextResponse.json({
       reportId,
-      lastStep: progressData.last_step,
-      progress: progressData.progress,
+      lastStep: progress.last_step,
+      progress: progress.progress,
       report: {
         business_name: report.business_name || report.brand_name,
         user_email: report.user_email,

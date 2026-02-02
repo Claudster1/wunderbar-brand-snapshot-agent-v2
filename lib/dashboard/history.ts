@@ -20,13 +20,15 @@ export function applyHistoryFilter(
   let results = [...items];
 
   if (filter.brand) {
+    const brand = filter.brand.toLowerCase();
     results = results.filter((i) =>
-      i.brandName.toLowerCase().includes(filter.brand.toLowerCase())
+      i.brandName.toLowerCase().includes(brand)
     );
   }
 
-  if (filter.minScore) {
-    results = results.filter((i) => i.brandAlignmentScore >= filter.minScore);
+  if (filter.minScore != null) {
+    const minScore = filter.minScore;
+    results = results.filter((i) => i.brandAlignmentScore >= minScore);
   }
 
   results.sort((a, b) => {

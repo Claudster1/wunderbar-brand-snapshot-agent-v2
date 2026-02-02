@@ -18,13 +18,14 @@ export async function POST(req: Request) {
 
     const supabase = supabaseServer();
 
-    const { error } = await supabase
-      .from("brand_snapshot_reports")
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase
+      .from("brand_snapshot_reports") as any)
       .update({
         status,
         updated_at: new Date().toISOString(),
       })
-      .eq("id", reportId);
+      .eq("report_id", reportId);
 
     if (error) {
       console.error("[Snapshot Complete API] Error:", error);

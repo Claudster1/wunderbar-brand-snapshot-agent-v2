@@ -16,9 +16,7 @@ export async function saveCompletedSnapshot(
 ) {
   const supabase = supabaseServer();
 
-  return supabase
-    .from("brand_snapshot_reports")
-    .update({
+  return (supabase.from("brand_snapshot_reports") as any).update({
       snapshot_stage: "completed",
       brand_alignment_score: payload.brandAlignmentScore,
       pillar_scores: payload.pillarScores,

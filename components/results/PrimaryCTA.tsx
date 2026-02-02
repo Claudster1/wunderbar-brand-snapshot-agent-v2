@@ -3,6 +3,7 @@
 
 import { PillarKey } from "@/src/lib/pillars/pillarCopy";
 import { rolePhrase } from "@/src/lib/roleLanguage";
+import type { UserRoleContext } from "@/src/types/snapshot";
 
 interface PrimaryCTAProps {
   pillar: PillarKey;
@@ -19,7 +20,7 @@ function PrimaryCTA({ pillar, userRoleContext }: PrimaryCTAProps) {
       <p className="text-sm text-slate-600 mb-4">
         Snapshot+™ builds directly on your results, translating them into clear priorities
         {userRoleContext ? (
-          <> designed to support you in {rolePhrase(userRoleContext)} — not abstract brand theory.</>
+          <> designed to support you in {rolePhrase(userRoleContext as UserRoleContext)} — not abstract brand theory.</>
         ) : (
           <> designed to support you — not abstract brand theory.</>
         )}

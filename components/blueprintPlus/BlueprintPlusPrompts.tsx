@@ -1,4 +1,4 @@
-import { blueprintPlusPrompts } from "@/lib/prompts/blueprintPlusPrompts";
+import { blueprintPlusPrompts } from "@/src/lib/prompts/blueprintPlusPrompts";
 
 type Props = {
   primaryPillar: string;

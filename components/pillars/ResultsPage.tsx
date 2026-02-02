@@ -42,13 +42,13 @@ export function ResultsPage({ report }: Props) {
         return (
           <PillarPanel
             key={pillar.key}
-            pillar={pillar}
-            brandName={report.businessName}
-            expanded={isExpanded}
+            pillar={pillar.key}
+            score={pillar.score}
+            defaultExpanded={isExpanded}
+            emphasis={isPrimary ? "primary" : "secondary"}
             onToggle={() =>
               setExpandedPillar(isExpanded ? null : pillar.key)
             }
-            stage={report.stage}
           />
         );
       })}

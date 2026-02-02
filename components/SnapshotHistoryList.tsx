@@ -13,9 +13,9 @@ export function SnapshotHistoryList({ history }: Props) {
           className="border rounded-lg p-4 flex justify-between items-center"
         >
           <div>
-            <p className="font-medium">{item.brandName}</p>
+            <p className="font-medium">{item.businessName}</p>
             <p className="text-sm text-gray-600">
-              Score: {item.score}/100
+              Score: {item.brandAlignmentScore}/100
             </p>
           </div>
 

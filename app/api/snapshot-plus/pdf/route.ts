@@ -4,19 +4,18 @@
 import { NextResponse } from 'next/server';
 import { renderToBuffer } from '@react-pdf/renderer';
 import React from 'react';
-import { SnapshotPlusReportDocument, type Pillar } from '@/src/pdf';
+import { SnapshotPlusReport } from '@/src/pdf/SnapshotPlusReport';
 import { supabaseServer } from '@/lib/supabaseServer';
 import { getPrimaryPillar, detectStage } from '@/src/utils/postStripeStrategy';
-import { PILLARS } from '@/lib/pillars';
 
 export const runtime = "nodejs";
 
 /**
- * Transform database report to ReportDocument props
+ * Transform database report to SnapshotPlusReport props
  */
 function transformReportData(report: any) {
   const r = report?.full_report || report || {};
-  
+
   const pillarScores = r.pillar_scores || r.pillarScores || {
     positioning: 0,
     messaging: 0,
@@ -25,81 +24,21 @@ function transformReportData(report: any) {
     conversion: 0,
   };
 
-  const pillarInsights = r.pillar_insights || r.pillarInsights || {};
-  const recommendations = r.recommendations || {};
-
-  // Determine primary pillar (lowest score)
-  const primaryPillarKey = getPrimaryPillar(pillarScores);
-  const primaryPillarName = PILLARS[primaryPillarKey]?.title || primaryPillarKey;
-
-  // Determine stage label
-  const stage = detectStage({
-    yearsInBusiness: r.years_in_business,
-    teamSize: r.team_size,
-    monthlyRevenue: r.monthly_revenue,
-  });
-  const stageLabels: Record<string, string> = {
-    early: "Early stage",
-    growth: "Growth stage",
-    scaling: "Scaling stage",
-  };
-  const stageLabel = stageLabels[stage] || "Your current stage";
-
-  // Transform pillars array
-  const pillars: Pillar[] = Object.entries(pillarScores).map(([key, score]) => {
-    const pillarKey = key as keyof typeof PILLARS;
-    const pillarInfo = PILLARS[pillarKey];
-    const insight = pillarInsights[pillarKey] || "";
-    const recommendation = recommendations[pillarKey] || "";
-
-    // Extract structured insight if it's an object
-    let whatWeSee = insight;
-    let whyItMatters = "";
-    let riskIfUnchanged = "";
-    let nextFocus = recommendation;
-
-    if (typeof insight === "object" && insight !== null) {
-      whatWeSee = insight.analysis || insight.headline || insight.text || "";
-      whyItMatters = insight.whyThisMatters || "";
-    } else if (typeof insight === "string") {
-      whatWeSee = insight;
-    }
-
-    // If we don't have structured data, generate defaults
-    if (!whyItMatters) {
-      whyItMatters = `At your ${stage} stage, ${pillarInfo?.summary || "this pillar"} directly impacts your ability to attract and convert customers.`;
-    }
-
-    if (!riskIfUnchanged) {
-      riskIfUnchanged = `Without addressing ${pillarInfo?.title.toLowerCase()}, you may struggle to differentiate from competitors and miss opportunities for growth.`;
-    }
-
-    if (!nextFocus && recommendation) {
-      nextFocus = Array.isArray(recommendation) 
-        ? recommendation.join(" ") 
-        : recommendation;
-    }
-
-    if (!nextFocus) {
-      nextFocus = `Focus on strengthening your ${pillarInfo?.title.toLowerCase()} to improve overall brand alignment.`;
-    }
-
-    return {
-      name: pillarInfo?.title || key,
-      score: score as number,
-      whatWeSee: whatWeSee || `Your ${pillarInfo?.title.toLowerCase()} needs attention.`,
-      whyItMatters: whyItMatters || `This pillar is critical for your brand's success.`,
-      riskIfUnchanged: riskIfUnchanged || `Continuing without improvement may limit your growth potential.`,
-      nextFocus: nextFocus || `Take action to strengthen this area.`,
-    };
-  });
-
   return {
-    companyName: r.company || r.business_name || r.company_name || "Your Company",
+    brandName: r.company || r.business_name || r.company_name || "Your Company",
+    userRolePhrase: r.userRolePhrase || r.userRoleContext,
+    stage: r.stage || detectStage({
+      yearsInBusiness: r.years_in_business,
+      teamSize: r.team_size,
+      monthlyRevenue: r.monthly_revenue,
+    }),
+    archetype: r.archetype || r.brand_archetype || "Explorer",
     brandAlignmentScore: r.brand_alignment_score || r.brandAlignmentScore || 0,
-    primaryPillar: primaryPillarName,
-    stageLabel,
-    pillars,
+    pillarScores,
+    primaryPillar: getPrimaryPillar(pillarScores),
+    pillarInsights: r.pillar_insights || r.pillarInsights || {},
+    recommendations: r.recommendations || {},
+    contextCoverage: r.contextCoverage || r.context_coverage || 0,
   };
 }
 
@@ -153,11 +92,11 @@ export async function GET(req: Request) {
     const data = transformReportData(report);
 
     // Generate PDF
-    const doc = React.createElement(SnapshotPlusReportDocument, data);
+    const doc = React.createElement(SnapshotPlusReport, data);
     const pdfBuffer = await renderToBuffer(doc);
 
     // Generate filename
-    const companyName = data.companyName.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+    const companyName = data.brandName.replace(/[^a-z0-9]/gi, '-').toLowerCase();
     const filename = `${companyName}-Brand-Snapshot+.pdf`;
 
     return new NextResponse(pdfBuffer, {

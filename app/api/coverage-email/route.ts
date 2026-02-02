@@ -3,12 +3,7 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   const { email, coverage, missing } = await req.json();
 
-  const tag =
-    coverage < 60
-      ? "Coverage:Low"
-      : coverage < 80
-      ? "Coverage:Mid"
-      : null;
+  const tag = coverage < 80 ? "snapshot:coverage-gap" : null;
 
   if (!tag) return NextResponse.json({ skipped: true });
 

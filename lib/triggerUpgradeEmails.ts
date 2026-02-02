@@ -18,9 +18,10 @@ export async function triggerUpgradeEmails({
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       email,
-      tags: gaps.map((p) => `snapshot_gap_${p}`),
+      tags: ["snapshot:coverage-gap"],
       event: "snapshot_context_gap",
       primary_pillar: primaryPillar,
+      missing_pillars: gaps,
     }),
   });
 }

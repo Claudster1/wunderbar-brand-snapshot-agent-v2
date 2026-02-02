@@ -2,23 +2,23 @@ export function getBlueprintActivationCopy(pillar: string) {
   const map: Record<string, { description: string }> = {
     Positioning: {
       description:
-        "Translate your positioning insight into a clear, defensible market stance and value narrative.",
+        "Clarify what makes {{BUSINESS_NAME}} distinct — and why it matters.",
     },
     Messaging: {
       description:
-        "Turn clarity into consistent, confident messaging across channels.",
+        "Strengthen how your brand explains its value — clearly and consistently.",
     },
     Visibility: {
       description:
-        "Activate discoverability with SEO + AEO strategies aligned to how buyers search today.",
+        "Increase how and where your brand shows up — across search and AI answers.",
     },
     Credibility: {
       description:
-        "Reinforce trust signals and brand authority where it matters most.",
+        "Build trust through consistency, confidence, and brand signals.",
     },
     Conversion: {
       description:
-        "Remove friction from the buyer journey and improve action clarity.",
+        "Turn clarity into action with stronger pathways to engagement.",
     },
   };
 

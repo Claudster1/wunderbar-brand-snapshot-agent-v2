@@ -5,9 +5,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { BlueprintModule } from "@/components/blueprint/BlueprintModule";
 import { blueprintCopyByPillar, PillarKey } from "@/lib/blueprintCopyByPillar";
+import { fireACEvent } from "@/lib/fireACEvent";
+import { BlueprintActivationPaths } from "@/components/blueprint/BlueprintActivationPaths";
 
 export default function BlueprintPage() {
   const [primaryPillar, setPrimaryPillar] = useState<PillarKey>("positioning");
+  const [email, setEmail] = useState<string | undefined>(undefined);
+  const [brandStage, setBrandStage] = useState<string>("");
 
   useEffect(() => {
     // Try to get primary pillar from localStorage or URL params
@@ -15,9 +19,31 @@ export default function BlueprintPage() {
     if (storedPillar && ["positioning", "messaging", "visibility", "credibility", "conversion"].includes(storedPillar)) {
       setPrimaryPillar(storedPillar as PillarKey);
     }
+
+    const storedEmail = localStorage.getItem("brand_snapshot_email");
+    if (storedEmail) {
+      setEmail(storedEmail);
+    }
+
+    const stage =
+      localStorage.getItem("brand_stage") ||
+      localStorage.getItem("snapshot_stage") ||
+      "";
+    setBrandStage(stage);
   }, []);
 
   const copy = blueprintCopyByPillar[primaryPillar];
+  const onBlueprintClick = () => {
+    fireACEvent({
+      email,
+      eventName: "blueprint_clicked",
+      tags: ["blueprint:clicked"],
+      fields: {
+        primary_pillar: primaryPillar,
+        brand_stage: brandStage,
+      },
+    });
+  };
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-20 space-y-10">
@@ -48,8 +74,14 @@ export default function BlueprintPage() {
         />
       </section>
 
+      <BlueprintActivationPaths
+        primaryPillar={primaryPillar}
+        brandName={copy.title}
+      />
+
       <Link
         href="/checkout/blueprint"
+        onClick={onBlueprintClick}
         className="inline-flex rounded-[10px] bg-[#07B0F2] px-6 py-3 text-sm font-semibold text-white hover:bg-[#059BD8] no-underline"
       >
         Unlock Blueprint™ →

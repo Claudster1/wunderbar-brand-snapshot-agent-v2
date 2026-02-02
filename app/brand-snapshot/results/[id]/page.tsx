@@ -96,20 +96,47 @@ export default async function SnapshotResultPage({
   const {
     user_name,
     company_name,
+    user_email,
     brand_alignment_score,
     pillar_scores,
     insights,
-    recommendations,
+    recommendations: rawRecommendations,
     summary,
     opportunities_summary,
     upgrade_cta,
   } = report;
+
+  // Normalize recommendations: array or pillar-keyed object → string[]
+  const recommendationsList = Array.isArray(rawRecommendations)
+    ? rawRecommendations
+    : rawRecommendations && typeof rawRecommendations === "object"
+      ? (Object.values(rawRecommendations).filter(
+          (r): r is string => typeof r === "string"
+        ) as string[])
+      : [];
+
+  // Weakest pillar for personalization (lowest score)
+  const pillarEntries = pillar_scores
+    ? (Object.entries(pillar_scores) as [string, number][])
+    : [];
+  const weakestPillar =
+    pillarEntries.length > 0
+      ? pillarEntries.reduce((a, b) => (a[1] <= b[1] ? a : b))[0]
+      : null;
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
       <div className="max-w-5xl mx-auto py-12 px-6">
         {/* Hero Section */}
         <WundyHero userName={user_name} companyName={company_name} />
+
+        {/* Personalized intro */}
+        {company_name && (
+          <p className="text-center text-brand-midnight text-lg mb-2 max-w-2xl mx-auto">
+            {company_name}&apos;s Brand Snapshot™ is tailored to your answers.
+            Your score and recommendations below are specific to your brand.
+          </p>
+        )}
 
         {/* Score Meter */}
         <ScoreMeter score={brand_alignment_score || 0} />
@@ -120,39 +147,62 @@ export default async function SnapshotResultPage({
           insights={insights || {}}
         />
 
-        {/* Recommendations Block */}
+        {/* Recommendations Block — personalized next steps */}
         <RecommendationsBlock
-          recommendations={recommendations}
+          recommendations={recommendationsList}
           summary={summary}
           opportunitiesSummary={opportunities_summary}
         />
 
-        {/* Upgrade Panel */}
-        <SnapshotUpgradePanel upgradeCTA={upgrade_cta} />
+        {/* Upgrade Panel — credibility + value of upgrading */}
+        <SnapshotUpgradePanel
+          upgradeCTA={upgrade_cta}
+          weakestPillar={weakestPillar}
+        />
 
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-          <a
-            href={`/api/snapshot/pdf?id=${report.report_id}`}
-            className="inline-block bg-brand-blue text-white px-8 py-3 rounded-lg shadow-lg hover:bg-brand-blueHover transition font-semibold w-full sm:w-auto text-center"
-          >
-            Download PDF Snapshot →
-          </a>
-          <button
-            onClick={() => {
-              if (typeof window !== "undefined") {
-                navigator.share({
-                  title: "My Brand Snapshot™ Results",
-                  text: `Check out my Brand Alignment Score™: ${brand_alignment_score}/100`,
-                  url: window.location.href,
-                });
-              }
-            }}
-            className="inline-block bg-white text-brand-blue border-2 border-brand-blue px-8 py-3 rounded-lg hover:bg-blue-50 transition font-semibold w-full sm:w-auto text-center"
-          >
-            Share Results
-          </button>
-        </div>
+        {/* Download report + email note */}
+        <section className="mb-12 rounded-xl border border-brand-border bg-white shadow-sm p-8">
+          <h2 className="text-xl font-semibold text-brand-navy mb-2">
+            Your report, anytime
+          </h2>
+          <p className="text-brand-midnight mb-4">
+            Download your Brand Snapshot™ below.{" "}
+            {user_email ? (
+              <>
+                We&apos;ve also sent a copy to{" "}
+                <span className="font-medium text-brand-navy">{user_email}</span>{" "}
+                so you can reference it later or share it with your team.
+              </>
+            ) : (
+              "Save the link to this page or download the PDF to keep your results."
+            )}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <a
+              href={`/api/snapshot/pdf?id=${report.report_id}`}
+              className="inline-flex items-center justify-center gap-2 bg-brand-blue text-white px-8 py-3 rounded-lg shadow-lg hover:bg-brand-blueHover transition font-semibold w-full sm:w-auto"
+            >
+              Download PDF Snapshot →
+            </a>
+            <button
+              type="button"
+              onClick={() => {
+                if (typeof window !== "undefined" && navigator.share) {
+                  navigator.share({
+                    title: "My Brand Snapshot™ Results",
+                    text: `Check out my Brand Alignment Score™: ${brand_alignment_score}/100`,
+                    url: window.location.href,
+                  });
+                } else {
+                  navigator.clipboard?.writeText(window.location.href);
+                }
+              }}
+              className="inline-flex items-center justify-center gap-2 bg-white text-brand-blue border-2 border-brand-blue px-8 py-3 rounded-lg hover:bg-blue-50 transition font-semibold w-full sm:w-auto"
+            >
+              Share results
+            </button>
+          </div>
+        </section>
 
         {/* Footer */}
         <div className="text-center text-sm text-slate-500 pt-8 border-t border-slate-200">

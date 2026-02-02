@@ -112,7 +112,9 @@ export const BrandSnapshotPlusPDF = ({
     contextCoverage,
   } = report;
 
-  const primaryPillar = getPrimaryPillar(pillarScores);
+  const primaryResult = getPrimaryPillar(pillarScores);
+  const primaryPillar =
+    primaryResult.type === "tie" ? primaryResult.pillars[0] : primaryResult.pillar;
   const primaryPillarCopy = PILLAR_COPY[primaryPillar];
 
   return (

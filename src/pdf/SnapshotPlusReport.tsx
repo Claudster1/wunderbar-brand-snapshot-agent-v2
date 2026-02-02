@@ -1,115 +1,231 @@
-// src/pdf/SnapshotPlusReport.tsx
-// Snapshot+ PDF report document
-
 import {
   Document,
   Page,
   Text,
   View,
   StyleSheet,
+  Svg,
+  Circle,
+  Rect,
 } from "@react-pdf/renderer";
 
-import { ScoreGaugePDF } from "./components/ScoreGaugePDF";
-import { ContextCoverageMeterPDF } from "./components/ContextCoverageMeterPDF";
-import { PillarSectionPDF } from "./components/PillarSectionPDF";
-import { ContextCoverageSection } from "./components/ContextCoverageSection";
+/* -----------------------------
+   SVG Gauge (PDF-safe)
+------------------------------ */
+function Gauge({ value }: { value: number }) {
+  const radius = 42;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference * (1 - value / 100);
 
-import { determinePrimaryPillar } from "@/src/lib/scoring/determinePrimaryPillar";
-import { computeContextCoverage } from "@/src/lib/context/coverage";
-import { rolePhrase } from "@/src/lib/roleLanguage";
-import { buildContextCoverageMap } from "@/lib/enrichment/coverage";
+  return (
+    <Svg width={120} height={120} viewBox="0 0 120 120">
+      <Circle
+        cx="60"
+        cy="60"
+        r={radius}
+        stroke="#E5E7EB"
+        strokeWidth={10}
+        fill="none"
+      />
+      <Circle
+        cx="60"
+        cy="60"
+        r={radius}
+        stroke="#16A34A"
+        strokeWidth={10}
+        fill="none"
+        strokeDasharray={circumference}
+        strokeDashoffset={offset}
+        strokeLinecap="round"
+        transform="rotate(-90 60 60)"
+      />
+    </Svg>
+  );
+}
 
-export function SnapshotPlusReport({ report }: { report: any }) {
-  const primaryPillar = determinePrimaryPillar(report.pillarScores);
-  const coverage = computeContextCoverage(report);
-  const snapshotInput =
-    report?.snapshotInput || report?.full_report?.answers || report?.answers || report;
-  const contextCoverage = buildContextCoverageMap(snapshotInput);
+/* -----------------------------
+   Styles
+------------------------------ */
+const styles = StyleSheet.create({
+  page: {
+    padding: 48,
+    fontSize: 11,
+    fontFamily: "Helvetica",
+    color: "#0C1526",
+  },
+  h1: {
+    fontSize: 26,
+    fontWeight: "bold",
+    marginBottom: 12,
+  },
+  h2: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginTop: 28,
+    marginBottom: 10,
+  },
+  h3: {
+    fontSize: 14,
+    fontWeight: "bold",
+    marginTop: 16,
+    marginBottom: 6,
+  },
+  body: {
+    fontSize: 11,
+    lineHeight: 1.6,
+    marginBottom: 10,
+  },
+  callout: {
+    backgroundColor: "#F5F7FB",
+    padding: 14,
+    borderRadius: 6,
+    marginVertical: 12,
+  },
+  subtle: {
+    fontSize: 11,
+    color: "#475569",
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#E0E3EA",
+    marginVertical: 24,
+  },
+  pillarCardPrimary: {
+    padding: 16,
+    border: "2 solid #16A34A",
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  pillarCard: {
+    padding: 16,
+    border: "1 solid #E5E7EB",
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  ctaBox: {
+    marginTop: 32,
+    padding: 20,
+    borderRadius: 8,
+    backgroundColor: "#021859",
+    color: "#FFFFFF",
+  },
+});
 
+/* -----------------------------
+   Document
+------------------------------ */
+export function SnapshotPlusReport({
+  brandName,
+  userRolePhrase,
+  stage,
+  archetype,
+  brandAlignmentScore,
+  pillarScores,
+  primaryPillar,
+  pillarInsights,
+  recommendations,
+  contextCoverage,
+}: any) {
   return (
     <Document>
       <Page style={styles.page}>
-        {/* 1️⃣ Overview: Your Brand Snapshot™ Summary */}
-        <View style={styles.section}>
-          <Text style={styles.h1}>Your Brand Snapshot™ Summary</Text>
-          <Text style={styles.contextNote}>
-            This Snapshot+™ was generated to support you in{" "}
-            {rolePhrase(report.userRoleContext)} — based on the inputs you provided and
-            the areas where focused alignment will have the greatest impact.
+        {/* Cover */}
+        <Text style={styles.h1}>Snapshot+™ Brand Report</Text>
+        <Text style={styles.body}>Prepared for {brandName}</Text>
+
+        <View style={{ marginTop: 24, alignItems: "center" }}>
+          <Gauge value={brandAlignmentScore} />
+          <Text style={{ fontSize: 20, fontWeight: 700, marginTop: 8 }}>
+            Brand Alignment Score™
+          </Text>
+          <Text style={styles.subtle}>
+            A composite view of how clearly and consistently {brandName} shows
+            up today
           </Text>
         </View>
 
-        {/* 2️⃣ Alignment: Brand Alignment Score™ */}
-        <View style={styles.section}>
-          <Text style={styles.h1}>Brand Alignment Score™</Text>
-          <ScoreGaugePDF score={report.brandAlignmentScore} />
-        </View>
+        <View style={styles.divider} />
 
-        <View style={styles.section}>
-          <ContextCoverageSection coverage={contextCoverage} />
-        </View>
+        {/* Context */}
+        <Text style={styles.h2}>How to Read This Report</Text>
+        <Text style={styles.body}>
+          This Snapshot+™ reflects your current brand foundation based on the
+          inputs provided and contextual signals available today. The strongest
+          opportunity is highlighted first, followed by supporting areas.
+        </Text>
 
-        {/* 3️⃣ Pillars: Pillar Analysis (Primary Expanded, Secondary Collapsed) */}
-        <View style={styles.section}>
-          <Text style={styles.h1}>Pillar Analysis</Text>
-          {Object.entries(report.pillars).map(([key, pillar]) => (
-            <PillarSectionPDF
-              key={key}
-              pillarKey={key}
-              pillar={pillar}
-              isPrimary={key === primaryPillar}
-            />
-          ))}
-        </View>
+        <Text style={styles.subtle}>
+          Brand stage detected: {stage} • Primary archetype: {archetype}
+        </Text>
 
-        {/* 4️⃣ Context Gaps: What We Could Go Deeper On */}
-        <View style={styles.section}>
-          <Text style={styles.h2}>What We Could Go Deeper On</Text>
-          <Text style={styles.body}>
-            Additional strategic context would enable more precise recommendations
-            and deeper insight into {report.businessName}'s brand opportunities.
+        <View style={styles.divider} />
+
+        {/* Pillars */}
+        <Text style={styles.h2}>Your Brand Pillars</Text>
+
+        {Object.entries(pillarScores).map(([pillar, score]: any) => {
+          const isPrimary = pillar === primaryPillar;
+
+          return (
+            <View
+              key={pillar}
+              style={isPrimary ? styles.pillarCardPrimary : styles.pillarCard}
+            >
+              <Text style={styles.h3}>
+                {pillar} {isPrimary ? "(Primary Focus Area)" : ""}
+              </Text>
+
+              <Text style={styles.subtle}>Score: {score}/20</Text>
+
+              <Text style={styles.body}>{pillarInsights[pillar]}</Text>
+
+              {isPrimary && (
+                <>
+                  <Text style={styles.body}>
+                    <Text style={{ fontWeight: 700 }}>
+                      Why this matters for {brandName}:
+                    </Text>{" "}
+                    This pillar has the greatest influence on how effectively
+                    your brand converts clarity into confidence at this stage.
+                  </Text>
+
+                  <Text style={styles.body}>
+                    <Text style={{ fontWeight: 700 }}>
+                      Strategic direction:
+                    </Text>{" "}
+                    {recommendations[pillar]}
+                  </Text>
+                </>
+              )}
+            </View>
+          );
+        })}
+
+        <View style={styles.divider} />
+
+        {/* Context Coverage */}
+        <Text style={styles.h2}>Context Coverage</Text>
+        <Text style={styles.body}>
+          This Snapshot+™ is based on the information currently available.
+          Additional inputs (channels, assets, audience depth) could further
+          sharpen future insights.
+        </Text>
+
+        <Text style={styles.subtle}>Coverage level: {contextCoverage}%</Text>
+
+        <View style={styles.divider} />
+
+        {/* Upgrade CTA */}
+        <View style={styles.ctaBox}>
+          <Text style={{ fontSize: 18, fontWeight: 700 }}>
+            Ready to turn clarity into activation?
           </Text>
-        </View>
-
-        {/* 5️⃣ Next Step: Your Strategic Next Step */}
-        <View style={styles.section}>
-          <Text style={styles.h2}>Your Strategic Next Step</Text>
-          <Text style={styles.body}>
-            Blueprint™ transforms these insights into a complete activation
-            system for {report.businessName}.
+          <Text style={{ marginTop: 8, fontSize: 12 }}>
+            Blueprint™ builds directly on your {primaryPillar} opportunity —
+            translating these insights into a complete, AI-ready brand system.
           </Text>
         </View>
       </Page>
     </Document>
   );
 }
-
-const styles = StyleSheet.create({
-  page: {
-    padding: 40,
-    fontSize: 11,
-    fontFamily: "Helvetica",
-  },
-  section: {
-    marginBottom: 24,
-  },
-  h1: {
-    fontSize: 18,
-    marginBottom: 6,
-    fontWeight: 700,
-  },
-  h2: {
-    fontSize: 14,
-    marginBottom: 6,
-    fontWeight: 600,
-  },
-  body: {
-    fontSize: 11,
-    lineHeight: 1.5,
-  },
-  contextNote: {
-    fontSize: 11,
-    lineHeight: 1.5,
-    color: "#475569",
-  },
-});

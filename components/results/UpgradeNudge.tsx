@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { trackEvent } from "@/lib/analytics";
 import { trackUpgradeNudgeClick } from "@/lib/trackUpgradeNudgeClick";
+import { getUpgradeNudgeCopy } from "@/lib/upgrade/ctaCopy";
 
 export function UpgradeNudge({
   primaryPillar,
@@ -23,16 +24,17 @@ export function UpgradeNudge({
 
   if (hasSnapshotPlus) return null;
 
+  const copy = getUpgradeNudgeCopy({ primaryPillar });
+
   return (
     <div className="mt-8 border border-brand-blue bg-blue-50 p-6 rounded-lg">
-      <h3 className="font-semibold mb-2">
-        Want deeper clarity on {primaryPillar}?
-      </h3>
+      <h3 className="font-semibold mb-2">{copy.headline}</h3>
 
-      <p className="text-sm mb-4">
-        Snapshot+™ expands this area with detailed insights, examples, and
-        prioritized actions tailored to your brand.
-      </p>
+      <p className="text-sm mb-3">{copy.body}</p>
+
+      <p className="text-sm mb-4">{copy.detail}</p>
+
+      <p className="text-xs text-slate-600 mb-4">{copy.note}</p>
 
       <a
         href={`/snapshot-plus?focus=${primaryPillar}`}
@@ -45,7 +47,7 @@ export function UpgradeNudge({
         }}
         className="inline-block text-sm text-white bg-brand-blue px-4 py-2 rounded"
       >
-        Unlock Snapshot+™ →
+        {copy.ctaLabel}
       </a>
     </div>
   );

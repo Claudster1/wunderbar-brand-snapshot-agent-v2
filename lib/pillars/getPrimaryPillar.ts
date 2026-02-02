@@ -1,11 +1,19 @@
 // lib/pillars/getPrimaryPillar.ts
-// Get the primary (lowest scoring) pillar from pillar scores
+// Get the primary pillar, with tie detection
 
-import { PillarKey } from "./pillarCopy";
+export function getPrimaryPillar(pillars: Record<string, number>) {
+  const sorted = Object.entries(pillars).sort((a, b) => b[1] - a[1]);
+  const [top, second] = sorted;
 
-export function getPrimaryPillar(
-  pillarScores: Record<PillarKey, number>
-): PillarKey {
-  return Object.entries(pillarScores)
-    .sort((a, b) => a[1] - b[1])[0][0] as PillarKey;
+  if (second && top[1] === second[1]) {
+    return {
+      type: "tie",
+      pillars: [top[0], second[0]],
+    };
+  }
+
+  return {
+    type: "single",
+    pillar: top[0],
+  };
 }

@@ -20,9 +20,9 @@ Include:
 - Measurement signals`,
         },
       ],
-      growth: [
+      established: [
         {
-          id: "bpplus-exp-growth-1",
+          id: "bpplus-exp-established-1",
           title: "Brand Ecosystem Expansion",
           purpose: "Extend the brand across products and audiences",
           prompt: `Design a long-term brand ecosystem.
@@ -35,12 +35,12 @@ Include:
       early: [],
     },
 
-    Sage: { early: [], scaling: [], growth: [] },
-    Hero: { early: [], scaling: [], growth: [] },
-    Caregiver: { early: [], scaling: [], growth: [] },
-    Creator: { early: [], scaling: [], growth: [] },
-    Ruler: { early: [], scaling: [], growth: [] },
-    Magician: { early: [], scaling: [], growth: [] },
-    Everyperson: { early: [], scaling: [], growth: [] },
+    Sage: { early: [], scaling: [], established: [] },
+    Hero: { early: [], scaling: [], established: [] },
+    Caregiver: { early: [], scaling: [], established: [] },
+    Creator: { early: [], scaling: [], established: [] },
+    Ruler: { early: [], scaling: [], established: [] },
+    Magician: { early: [], scaling: [], established: [] },
+    Everyperson: { early: [], scaling: [], established: [] },
   },
 };

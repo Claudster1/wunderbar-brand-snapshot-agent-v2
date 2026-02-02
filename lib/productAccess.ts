@@ -27,6 +27,10 @@ export function canAccessSnapshotPlus(
          access.hasBlueprintPlus === true;
 }
 
+export function hasBlueprintPlusAccess(user: { plan?: string }) {
+  return user.plan === "blueprint_plus";
+}
+
 /**
  * Get available upgrade options based on current access
  * Returns an array of product keys that the user can upgrade to

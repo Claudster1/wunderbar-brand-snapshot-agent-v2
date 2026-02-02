@@ -1,30 +1,38 @@
 // lib/abTest.ts
 // A/B testing utilities
 
+export type CTAVariant = "A" | "B";
+export type CTAPresence = "single" | "dual";
+
+export function getOrAssignVariant<T extends string>(
+  key: string,
+  variants: T[]
+): T {
+  if (typeof window === "undefined") return variants[0];
+
+  const existing = localStorage.getItem(key) as T | null;
+  if (existing && variants.includes(existing)) return existing;
+
+  const assigned = variants[Math.floor(Math.random() * variants.length)];
+  localStorage.setItem(key, assigned);
+  return assigned;
+}
+
 /**
  * Get A/B test variant for upgrade CTA
  * Returns "A" or "B" and persists the variant in localStorage
  */
-export function getUpgradeCTAVariant(): "A" | "B" {
+export function getUpgradeCTAVariant(): CTAVariant {
   if (typeof window === "undefined") return "A";
 
-  const stored = localStorage.getItem("upgrade_cta_variant");
-  if (stored === "A" || stored === "B") return stored;
-
-  const variant = Math.random() < 0.5 ? "A" : "B";
-  localStorage.setItem("upgrade_cta_variant", variant);
-  return variant;
+  return getOrAssignVariant<CTAVariant>("upgrade_cta_variant", ["A", "B"]);
 }
 
-export function getABVariant(testId: string): "A" | "B" {
+export function getABVariant(testId: string): CTAVariant {
   if (typeof window === "undefined") return "A";
 
   const key = `ab_${testId}`;
-  const existing = localStorage.getItem(key);
-
-  if (existing === "A" || existing === "B") return existing;
-
-  const variant = Math.random() < 0.5 ? "A" : "B";
-  localStorage.setItem(key, variant);
-  return variant;
+  return getOrAssignVariant<CTAVariant>(key, ["A", "B"]);
 }
+
+export { getResultsCTAVariant } from "@/lib/getResultsCTAVariant";

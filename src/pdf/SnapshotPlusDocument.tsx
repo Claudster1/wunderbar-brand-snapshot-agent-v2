@@ -4,6 +4,7 @@ import { Document, Page, View, Text } from "@react-pdf/renderer";
 import { PillarSection } from "./components/PillarSection";
 import { ScoreGauge } from "./components/ScoreGauge";
 import { ContextCoverageMeter } from "./components/ContextCoverageMeter";
+import { ImplementationNextSteps } from "./sections/ImplementationNextSteps";
 
 type Props = {
   brandName: string;
@@ -38,26 +39,31 @@ export function SnapshotPlusDocument({
         {/* SCORE GAUGE */}
         <View style={{ marginBottom: 24 }}>
           <ScoreGauge
-            value={
+            score={
               Object.values(pillarScores).reduce((a, b) => a + b, 0) /
               Object.keys(pillarScores).length
             }
+            emphasis="primary"
           />
         </View>
 
         {/* COVERAGE METER */}
         <View style={{ marginBottom: 24 }}>
           <ContextCoverageMeter percent={coverage} />
-        </View>        {/* PILLAR SECTIONS */}
+        </View>
+        {/* PILLAR SECTIONS */}
         {Object.entries(pillarScores).map(([pillar, score]) => (
           <PillarSection
             key={pillar}
-            pillar={pillar}
+            name={pillar.charAt(0).toUpperCase() + pillar.slice(1)}
             score={score}
-            isPrimary={pillar === primaryPillar}
-            pillarInsight={insights[pillar]}
+            insight={insights[pillar]}
+            recommendation={recommendations[pillar]}
+            emphasis={pillar === primaryPillar ? "primary" : "secondary"}
           />
         ))}
+
+        <ImplementationNextSteps />
       </Page>
     </Document>
   );

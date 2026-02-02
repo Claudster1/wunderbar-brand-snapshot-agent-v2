@@ -1,6 +1,6 @@
 // src/lib/prompts/types.ts
 
-export type BrandStage = "early" | "scaling" | "growth";
+export type BrandStage = "early" | "scaling" | "established";
 
 export type BrandArchetype =
   | "Explorer"
@@ -22,7 +22,7 @@ export type BlueprintPrompt = {
 export interface ArchetypePromptMap {
   early: BlueprintPrompt[];
   scaling: BlueprintPrompt[];
-  growth: BlueprintPrompt[];
+  established: BlueprintPrompt[];
 }
 
 export interface PillarPromptPack {
@@ -44,3 +44,17 @@ export interface PromptItem {
   stage: "early" | "scaling";
   content: string;
 }
+
+export type PromptContext = {
+  brandName: string;
+  primaryPillar: string;
+  archetype: string;
+  stage: BrandStage;
+};
+
+export type PromptBlock = {
+  id: string;
+  title: string;
+  description: string;
+  prompt: (ctx: PromptContext) => string;
+};

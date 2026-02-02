@@ -1,61 +1,70 @@
 // components/dashboard/DashboardHistory.tsx
 "use client";
 
-import { useState } from "react";
-import { HistoryCard } from "./HistoryCard";
+import { useEffect, useState } from "react";
+import { fetchSnapshotHistory } from "@/hooks/useSnapshotHistory";
 
-type HistoryItem = {
-  id: string;
-  brandName: string;
-  score: number;
-  primaryPillar: string;
-  createdAt: string;
-};
+export default function DashboardHistory() {
+  const [history, setHistory] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export function DashboardHistory({
-  items
-}: {
-  items: HistoryItem[];
-}) {
-  const [sort, setSort] = useState<"date" | "score">("date");
+  const email =
+    typeof window !== "undefined"
+      ? localStorage.getItem("brand_snapshot_email")
+      : null;
 
-  const sorted = [...items].sort((a, b) =>
-    sort === "date"
-      ? new Date(b.createdAt).getTime() -
-        new Date(a.createdAt).getTime()
-      : b.score - a.score
-  );
+  useEffect(() => {
+    if (!email) return;
+
+    fetchSnapshotHistory(email).then((data) => {
+      setHistory(data);
+      setLoading(false);
+    });
+  }, [email]);
+
+  if (loading) return <p>Loading your snapshots…</p>;
 
   return (
-    <section>
-      <div className="flex gap-4 mb-6">
-        <button 
-          onClick={() => setSort("date")}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition ${
-            sort === "date"
-              ? "bg-brand-blue text-white"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-          }`}
-        >
-          Most recent
-        </button>
-        <button 
-          onClick={() => setSort("score")}
-          className={`px-4 py-2 rounded-md text-sm font-medium transition ${
-            sort === "score"
-              ? "bg-brand-blue text-white"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-          }`}
-        >
-          Highest score
-        </button>
-      </div>
+    <section className="max-w-5xl mx-auto px-6 py-12">
+      <h1 className="text-2xl font-semibold mb-6">Your Brand Snapshots</h1>
 
-      <div className="space-y-4">
-        {sorted.map(item => (
-          <HistoryCard key={item.id} item={item} />
+      {history.length === 0 && (
+        <p className="text-slate-600">
+          You haven’t completed a Brand Snapshot™ yet.
+        </p>
+      )}
+
+      <ul className="space-y-4">
+        {history.map((snap) => (
+          <li
+            key={snap.id}
+            className="border border-brand-border rounded-lg p-6 bg-white"
+          >
+            <div className="flex justify-between items-start">
+              <div>
+                <h2 className="font-semibold text-lg">{snap.brand_name}</h2>
+
+                <p className="text-sm text-slate-600 mt-1">
+                  Brand Alignment Score™:{" "}
+                  <strong>{snap.brand_alignment_score}</strong>
+                </p>
+
+                <p className="text-sm mt-1">
+                  Primary focus area:{" "}
+                  <strong>{snap.primary_pillar}</strong>
+                </p>
+              </div>
+
+              <a
+                href={`/results/${snap.id}`}
+                className="text-brand-blue text-sm hover:underline"
+              >
+                View Results →
+              </a>
+            </div>
+          </li>
         ))}
-      </div>
+      </ul>
     </section>
   );
 }

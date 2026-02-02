@@ -5,6 +5,7 @@ export * from "./ReportDocument";
 // New ReportDocument (Snapshot+ focused report)
 export { ReportDocument as SnapshotPlusReportDocument } from "./documents/ReportDocument";
 export type { ReportProps, Pillar } from "./documents/ReportDocument";
+export { BlueprintReport } from "./BlueprintReport";
 
 export { default as SnapshotPlusDocument } from "./SnapshotPlusDocument";
 export * from "./SnapshotPlusDocument";

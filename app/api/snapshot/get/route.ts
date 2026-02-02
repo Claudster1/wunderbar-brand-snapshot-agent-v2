@@ -30,20 +30,6 @@ export async function GET(req: Request) {
       .eq("report_id", id)
       .single();
     
-    // Transform data to support both old and new schema
-    if (data) {
-      // Map old field names to new ones for backward compatibility
-      if (data.company_name && !data.company) {
-        data.company = data.company_name;
-      }
-      if (data.user_email && !data.email) {
-        data.email = data.user_email;
-      }
-      if (data.insights && !data.pillar_insights) {
-        data.pillar_insights = data.insights;
-      }
-    }
-
     if (error || !data) {
       return NextResponse.json(
         { error: "Report not found" },
@@ -51,7 +37,15 @@ export async function GET(req: Request) {
       );
     }
 
-    return NextResponse.json(data);
+    // Transform so the results page always receives expected keys
+    const out: Record<string, unknown> = { ...data };
+    if (!out.company_name && (data as any).company) {
+      out.company_name = (data as any).company;
+    }
+    if (!out.insights && (data as any).pillar_insights) {
+      out.insights = (data as any).pillar_insights;
+    }
+    return NextResponse.json(out);
   } catch (err: any) {
     console.error("[Snapshot Get API] Unexpected error:", err);
     return NextResponse.json(

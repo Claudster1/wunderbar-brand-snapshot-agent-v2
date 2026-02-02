@@ -1,6 +1,7 @@
 // app/api/checkout/route.ts
 import Stripe from "stripe";
 import { PRICING } from "@/lib/pricing";
+import { normalizeProductKey } from "@/lib/productIds";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2023-10-16"
@@ -9,8 +10,13 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 export async function POST(req: Request) {
   try {
     const { productKey, userId, metadata } = await req.json();
+    const normalizedKey = normalizeProductKey(productKey);
 
-    const product = PRICING[productKey as keyof typeof PRICING];
+    if (!normalizedKey) {
+      return new Response("Invalid product", { status: 400 });
+    }
+
+    const product = PRICING[normalizedKey];
     if (!product) {
       return new Response("Invalid product", { status: 400 });
     }
@@ -25,7 +31,7 @@ export async function POST(req: Request) {
         }
       ],
       metadata: {
-        product_key: productKey,
+        product_key: normalizedKey,
         user_id: userId,
         ...(metadata ?? {}),
       },

@@ -8,7 +8,8 @@ import { SuiteCTA } from "@/src/components/results/SuiteCTA";
 import { ContextCoverageMeter } from "@/src/components/results/ContextCoverageMeter";
 import { ChatCompletion } from "@/src/components/results/ChatCompletion";
 import { ResultsPageViewTracker } from "@/components/results/ResultsPageViewTracker";
-import { calculatePrimaryPillar } from "@/src/lib/scoring/primaryPillar";
+import { ImplementationIntro } from "@/components/SnapshotPlus/ImplementationIntro";
+import { getPrimaryPillar } from "@/lib/upgrade/primaryPillar";
 import { PillarKey } from "@/types/pillars";
 
 interface BrandSnapshotResult {
@@ -20,13 +21,18 @@ interface BrandSnapshotResult {
   contextCoverage?: number; // 0-100, optional
   userRoleContext?: string; // optional user role context
   userEmail?: string; // optional user email for access check
+  reportId: string;
   user?: {
     hasSnapshotPlus: boolean;
   };
 }
 
 export default function ResultsPage({ data }: { data: BrandSnapshotResult }) {
-  const primaryPillar = calculatePrimaryPillar(data.pillarScores);
+  const primaryResult = getPrimaryPillar(data.pillarScores);
+  const primaryPillar =
+    primaryResult.type === "tie"
+      ? primaryResult.pillars[0]
+      : primaryResult.pillar;
   const stage = data.stage; // inferred by engine
   const user = data.user ?? { hasSnapshotPlus: false };
 
@@ -36,6 +42,11 @@ export default function ResultsPage({ data }: { data: BrandSnapshotResult }) {
       <ResultsPageViewTracker
         brandAlignmentScore={data.brandAlignmentScore}
         primaryPillar={primaryPillar}
+        reportId={data.reportId}
+        brandName={data.businessName}
+        stage={data.stage}
+        contextCoverage={data.contextCoverage}
+        email={data.userEmail}
       />
 
       {/* Chat (completed) */}
@@ -63,15 +74,14 @@ export default function ResultsPage({ data }: { data: BrandSnapshotResult }) {
         hasSnapshotPlus={user.hasSnapshotPlus}
       />
 
-      {/* UPGRADE CTA (mirrors History logic) */}
       <ResultsUpgradeCTA
-        snapshot={{
-          brand_alignment_score: data.brandAlignmentScore,
-          primary_pillar: primaryPillar,
-          context_coverage: data.contextCoverage || 0,
-        }}
-        userEmail={data.userEmail}
+        primaryPillar={primaryPillar}
+        stage={data.stage}
+        hasPurchasedPlus={user.hasSnapshotPlus}
+        email={data.userEmail}
       />
+
+      <ImplementationIntro />
 
       {/* Optional secondary CTA */}
       <SuiteCTA />

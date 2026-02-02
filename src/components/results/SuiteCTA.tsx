@@ -7,7 +7,7 @@ export function SuiteCTA() {
         href="/brand-snapshot-suite"
         className="text-brand-blue font-medium underline-offset-4 hover:underline"
       >
-        Explore the Brand Snapshot Suite™ →
+        Explore the full Brand Snapshot Suite →
       </a>
     </div>
   );

@@ -5,20 +5,32 @@
 
 import Image from "next/image";
 
+const PILLAR_LABELS: Record<string, string> = {
+  positioning: "Positioning",
+  messaging: "Messaging",
+  visibility: "Visibility",
+  credibility: "Credibility",
+  conversion: "Conversion",
+};
+
 interface SnapshotUpgradePanelProps {
   upgradeCTA?: string;
   snapshotPlusCheckoutUrl?: string;
+  weakestPillar?: string | null;
 }
 
 export function SnapshotUpgradePanel({
   upgradeCTA,
   snapshotPlusCheckoutUrl = "#",
+  weakestPillar,
 }: SnapshotUpgradePanelProps) {
+  const pillarLabel = weakestPillar
+    ? PILLAR_LABELS[weakestPillar] || weakestPillar
+    : null;
+
   return (
     <div className="mt-16 rounded-xl border border-brand-border bg-white shadow-md p-8 fade-in">
       <div className="flex items-start gap-6">
-        {/* Wundy Illustration */}
-        {/* TODO: Add wundy-smile.png to src/assets when available */}
         <div className="w-20 h-20 flex items-center justify-center bg-brand-gray rounded-lg">
           <span className="text-4xl">🐾</span>
         </div>
@@ -28,6 +40,12 @@ export function SnapshotUpgradePanel({
             Continue Your Brand Transformation
           </h2>
 
+          {pillarLabel && (
+            <p className="text-brand-blue font-medium mb-2">
+              Your biggest opportunity right now: {pillarLabel}
+            </p>
+          )}
+
           <p className="text-brand-midnight leading-relaxed mb-4">
             Your Brand Snapshot™ results show where your brand is strong —
             and where a few thoughtful refinements could elevate clarity,
@@ -36,12 +54,13 @@ export function SnapshotUpgradePanel({
             and consistency.
           </p>
 
-          {/* Benefits List */}
+          {/* Benefits List — value of upgrading */}
           <ul className="list-disc pl-6 text-brand-midnight mb-6 space-y-2">
-            <li>Expanded breakdown of your five pillars</li>
+            <li>Expanded breakdown of your five pillars with priority actions</li>
             <li>Messaging clarity and offer positioning review</li>
             <li>Visual + verbal consistency scan</li>
             <li>Actionable recommendations tailored to your results</li>
+            <li>Credibility-building next steps you can implement right away</li>
           </ul>
 
           {/* Dynamic CTA (if provided) */}

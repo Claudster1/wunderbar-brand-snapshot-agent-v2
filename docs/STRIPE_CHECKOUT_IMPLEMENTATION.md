@@ -74,7 +74,7 @@ STRIPE_PRICE_BLUEPRINT=price_...
 STRIPE_PRICE_BLUEPRINT_PLUS=price_...
 
 # App URL
-NEXT_PUBLIC_APP_URL=https://yourdomain.com
+NEXT_PUBLIC_BASE_URL=https://yourdomain.com
 ```
 
 ### 3. Create Products in Stripe Dashboard

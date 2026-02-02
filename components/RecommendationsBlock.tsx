@@ -14,7 +14,6 @@ export function RecommendationsBlock({
   summary,
   opportunitiesSummary,
 }: RecommendationsBlockProps) {
-  // If no recommendations array, create from summary/opportunities
   const displayRecommendations = recommendations || [];
 
   return (
@@ -41,14 +40,17 @@ export function RecommendationsBlock({
         </div>
       )}
 
-      {/* Recommendations Cards */}
+      {/* Recommendations Cards — up to 6 for more value */}
       {displayRecommendations.length > 0 && (
         <div className="animate-fade-in-up animation-delay-800">
-          <h2 className="text-2xl font-semibold text-brand-navy mb-6">
+          <h2 className="text-2xl font-semibold text-brand-navy mb-2">
             Recommended Next Steps
           </h2>
+          <p className="text-brand-midnight mb-6">
+            These recommendations are tailored to your snapshot and are designed to build credibility and improve your brand alignment.
+          </p>
           <div className="grid md:grid-cols-2 gap-4">
-            {displayRecommendations.slice(0, 4).map((rec, index) => (
+            {displayRecommendations.slice(0, 6).map((rec, index) => (
               <div
                 key={index}
                 className="bg-blue-50 rounded-lg p-5 border border-blue-200 relative overflow-hidden group hover:shadow-md transition-shadow"

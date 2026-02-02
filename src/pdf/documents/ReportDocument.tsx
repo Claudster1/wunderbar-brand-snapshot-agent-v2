@@ -273,8 +273,12 @@ export function ReportDocument({
         <View style={styles.section}>
           <Text style={styles.h2}>What We Could Go Deeper On</Text>
           <Text style={styles.paragraph}>
-            Additional strategic context would enable more precise recommendations 
-            and deeper insight into {companyName}'s brand opportunities.
+            We were able to generate strong insights for {companyName}, but a few
+            areas would benefit from deeper context.
+          </Text>
+          <Text style={styles.paragraph}>
+            That’s exactly what Snapshot+™ unlocks — not more questions, just
+            clearer recommendations.
           </Text>
         </View>
 
@@ -283,23 +287,23 @@ export function ReportDocument({
           <Text style={styles.h2}>What Comes Next</Text>
 
           <Text style={styles.paragraph}>
-            Snapshot+™ provides clarity on what matters most right now. 
-            Blueprint™ transforms that clarity into a repeatable system — ensuring 
-            your brand operates with consistency, confidence, and momentum.
+            Blueprint™ builds on the clarity uncovered in Snapshot+™ — turning
+            insight into a fully aligned brand foundation.
           </Text>
 
           <Text style={styles.paragraph}>
-            Blueprint™ builds on your Snapshot+™ insights, activating them into a 
-            system designed to support you with clarity you can execute on. 
-            {resolvedPillars.length > 0 && (
-              <> It resolves your {resolvedPillars.slice(0, 2).join(' and ')} priorities 
-              identified in this report.</>
-            )}
+            If Blueprint™ feels like the right next step, it’s designed to
+            activate the same {primaryPillar} that stood out in your
+            Snapshot+™.
           </Text>
 
           <Text style={styles.paragraph}>
-            When alignment is resolved at the system level, execution becomes 
-            significantly easier — and far more effective.
+            As your brand scales, the Blueprint+™ layer adds advanced
+            activation, segmentation, and campaign-level guidance.
+          </Text>
+
+          <Text style={styles.paragraph}>
+            If not, no pressure — your Snapshot+™ remains available.
           </Text>
         </View>
 

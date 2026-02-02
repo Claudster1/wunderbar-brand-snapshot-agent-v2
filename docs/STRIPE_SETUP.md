@@ -87,7 +87,7 @@ STRIPE_PRICE_BLUEPRINT=price_xxx
 STRIPE_PRICE_BLUEPRINT_PLUS=price_xxx
 
 # Your deployed app URL (used for Checkout redirect URLs)
-NEXT_PUBLIC_APP_URL=https://your-app-domain.com
+NEXT_PUBLIC_BASE_URL=https://your-app-domain.com
 
 # Optional later (webhooks)
 # STRIPE_WEBHOOK_SECRET=whsec_xxx
@@ -131,7 +131,7 @@ NEXT_PUBLIC_APP_URL=https://your-app-domain.com
 - Check that the price ID is correct (starts with `price_...`)
 
 ### Redirect not working
-- Verify `NEXT_PUBLIC_APP_URL` is set correctly
+- Verify `NEXT_PUBLIC_BASE_URL` is set correctly
 - Check that the URL matches your deployed domain
 
 ### Checkout session not found
@@ -171,7 +171,45 @@ Or copy the SQL from `database/migration_brand_snapshot_purchases.sql` into your
    - Include PDF download link in `pdf_url` field
 
 5. **Handle refunds** (if needed)
-   - Update `status` field to `'refunded'`
+   - Update `status` field to `'refunded'`// app/results/page.tsx
+
+import { PillarResults } from "@/components/results/PillarResults";
+import { BrandScoreGauge } from "@/components/results/BrandScoreGauge";
+import { SnapshotUpgradeCTA } from "@/components/results/SnapshotUpgradeCTA";
+import { SuiteCTA } from "@/components/results/SuiteCTA";
+import { calculatePrimaryPillar } from "@/lib/scoring/primaryPillar";
+
+export default function ResultsPage({ data }: { data: BrandSnapshotResult }) {
+  const primaryPillar = calculatePrimaryPillar(data.pillarScores);
+  const stage = data.stage; // inferred by engine
+
+  return (
+    <main className="max-w-5xl mx-auto px-6 py-16 space-y-16">
+      {/* 1. Brand Alignment Score */}
+      <BrandScoreGauge score={data.brandAlignmentScore} />
+
+      {/* 2–3. Pillars */}
+      <PillarResults
+        pillarScores={data.pillarScores}
+        pillarInsights={data.pillarInsights}
+        primaryPillar={primaryPillar}
+        stage={stage}
+        businessName={data.businessName}
+      />
+
+      {/* 4. Snapshot+ CTA */}
+      <SnapshotUpgradeCTA
+        primaryPillar={primaryPillar}
+        stage={stage}
+        businessName={data.businessName}
+      />
+
+      {/* 5. Secondary CTA */}
+      <SuiteCTA />
+    </main>
+  );
+}
+
    - Revoke access to reports if needed
 
 ## Support

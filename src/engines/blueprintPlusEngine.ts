@@ -48,35 +48,51 @@ export function buildEnrichedBlueprintInsights<T extends object>({
   };
 }
 
-// Backward-friendly name used by route templates
+// Backward-friendly name used by route templates.
+// Pass through foundation + Blueprint content when provided (merged lower-tier data).
 export function buildBlueprintPlus(data: any) {
-  return {
+  const base: Record<string, unknown> = {
     userName: data.userName,
 
-    brandStory: {
+    brandStory: data.brandStory ?? {
       short: data.brandStoryShort,
       long: data.brandStoryLong,
     },
 
-    positioning: {
+    positioning: data.positioning ?? {
       statement: data.positioningStatement,
-      differentiators: data.differentiators,
+      differentiators: data.differentiators ?? [],
     },
 
-    journey: data.customerJourney,
-
-    contentRoadmap: data.contentRoadmap,
-
-    visualDirection: data.visualDirection,
-
+    journey: data.journey ?? data.customerJourney ?? [],
+    contentRoadmap: data.contentRoadmap ?? [],
+    visualDirection: data.visualDirection ?? [],
     personality: data.personality,
-
-    decisionFilters: data.decisionFilters,
-
-    aiPrompts: data.aiPrompts,
-
-    additionalSections: data.additionalSections || [],
+    decisionFilters: data.decisionFilters ?? [],
+    aiPrompts: data.aiPrompts ?? [],
+    additionalSections: data.additionalSections ?? [],
   };
+
+  // Foundation (Snapshot/Snapshot+)
+  if (typeof data.brandAlignmentScore === "number") base.brandAlignmentScore = data.brandAlignmentScore;
+  if (data.pillarScores && typeof data.pillarScores.positioning === "number") base.pillarScores = data.pillarScores;
+  if (data.pillarInsights && typeof data.pillarInsights === "object") base.pillarInsights = data.pillarInsights;
+  if (data.recommendations && typeof data.recommendations === "object") base.recommendations = data.recommendations;
+  if (data.primaryPillar != null) base.primaryPillar = data.primaryPillar;
+  if (typeof data.contextCoverage === "number") base.contextCoverage = data.contextCoverage;
+
+  // Blueprint content
+  if (data.brandEssence != null) base.brandEssence = data.brandEssence;
+  if (data.brandPromise != null) base.brandPromise = data.brandPromise;
+  if (data.differentiation != null) base.differentiation = data.differentiation;
+  if (data.persona != null) base.persona = data.persona;
+  if (data.archetype != null) base.archetype = data.archetype;
+  if (Array.isArray(data.toneOfVoice)) base.toneOfVoice = data.toneOfVoice;
+  if (Array.isArray(data.messagingPillars)) base.messagingPillars = data.messagingPillars;
+  if (Array.isArray(data.colorPalette)) base.colorPalette = data.colorPalette;
+  if (Array.isArray(data.aiPrompts)) base.aiPrompts = data.aiPrompts;
+
+  return base;
 }
 
 

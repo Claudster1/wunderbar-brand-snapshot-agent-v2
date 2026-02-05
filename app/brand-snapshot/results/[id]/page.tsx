@@ -1,6 +1,8 @@
 // app/brand-snapshot/results/[id]/page.tsx
 // Public-facing Brand Snapshot results page with full design
 
+export const dynamic = "force-dynamic";
+
 import { WundyHero } from "@/components/WundyHero";
 import { ScoreMeter } from "@/components/ScoreMeter";
 import { PillarBreakdown } from "@/components/PillarBreakdown";

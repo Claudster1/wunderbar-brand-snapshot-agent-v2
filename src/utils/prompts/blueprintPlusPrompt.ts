@@ -1,5 +1,5 @@
 // src/utils/prompts/blueprintPlusPrompt.ts
-// Placeholder prompt for Blueprint+™.
-export const blueprintPlusPrompt = "Blueprint+™ prompt placeholder.";
+// Re-export the canonical Blueprint+™ prompt from src/prompts
+export { blueprintPlusReportPrompt as blueprintPlusPrompt } from "@/src/prompts/blueprintPlusReportPrompt";
 
 

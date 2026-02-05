@@ -64,7 +64,19 @@ const styles = StyleSheet.create({
   },
 });
 
+/** Persona/archetype/voice can be string or object from Snapshot+ enrichment. */
+export type PersonaContent = string | { summary?: string; description?: string };
+export type ArchetypeContent = string | { name?: string; summary?: string; description?: string };
+export type VoiceContent = string | { summary?: string; description?: string; pillars?: string[] };
+export interface ColorPaletteItem {
+  name?: string;
+  hex?: string;
+  role?: string;
+  meaning?: string;
+}
+
 export interface BrandSnapshotPlusReport extends BrandSnapshotReport {
+  primaryPillar?: string;
   personalityWords?: string[];
   competitorNames?: string[];
   targetCustomers?: string;
@@ -74,6 +86,19 @@ export interface BrandSnapshotPlusReport extends BrandSnapshotReport {
   visualIdentityNotes?: string;
   aiPrompts?: string[];
   contextCoverage?: number; // 0-100 percentage
+  /** Brand persona (mirrors report view). */
+  persona?: PersonaContent;
+  /** Brand archetype (mirrors report view). */
+  archetype?: ArchetypeContent;
+  /** Brand voice (mirrors report view). */
+  voice?: VoiceContent;
+  /** Recommended color palette with swatches + hex# (mirrors report view). */
+  colorPalette?: ColorPaletteItem[];
+  /** 30/60/90 roadmap (mirrors report view). */
+  roadmap_30?: string;
+  roadmap_60?: string;
+  roadmap_90?: string;
+  opportunities_map?: string;
   // AEO recommendations (required for Snapshot+)
   aeoRecommendations?: {
     keywordClarity?: string;
@@ -111,6 +136,14 @@ export const BrandSnapshotPlusPDF = ({
     aiPrompts = [],
     aeoRecommendations,
     contextCoverage,
+    persona,
+    archetype,
+    voice,
+    colorPalette = [],
+    roadmap_30,
+    roadmap_60,
+    roadmap_90,
+    opportunities_map,
   } = report;
 
   const primaryResult = getPrimaryPillar(pillarScores);
@@ -133,10 +166,9 @@ export const BrandSnapshotPlusPDF = ({
         <Section>
           <Text style={styles.heading}>Executive Summary</Text>
           <Text style={styles.para}>
-            This expanded Snapshot+™ builds on your initial Brand Snapshot™, offering
-            strategic insight into how clearly, confidently, and consistently your brand
-            shows up today — and where meaningful improvements can accelerate trust,
-            differentiation, and conversion.
+            This report offers strategic insight into how clearly, confidently, and
+            consistently your brand shows up today — and where meaningful improvements
+            can accelerate trust, differentiation, and conversion.
           </Text>
 
           {/* Brand Alignment Score Gauge */}
@@ -175,7 +207,167 @@ export const BrandSnapshotPlusPDF = ({
         <PdfFooter />
       </Page>
 
-      {/* ---------------- PAGE 2 — PILLAR DEEP DIVES ---------------- */}
+      {/* ---------------- PAGE 2 — BRAND PERSONA, ARCHETYPE & VOICE ---------------- */}
+      {(persona || archetype || voice) && (
+        <Page size="A4" style={styles.page}>
+          <PdfHeader title="Brand Persona & Voice" />
+
+          <PageTitle
+            title="Brand Persona, Archetype & Voice"
+            subtitle="How your brand shows up and speaks"
+          />
+
+          {persona && (
+            <Section>
+              <Text style={styles.heading}>Brand Persona</Text>
+              <Text style={styles.para}>
+                {typeof persona === "string"
+                  ? persona
+                  : (persona as { summary?: string; description?: string }).summary ??
+                    (persona as { description?: string }).description ??
+                    ""}
+              </Text>
+            </Section>
+          )}
+
+          {archetype && (
+            <Section>
+              <Text style={styles.heading}>Brand Archetype</Text>
+              {typeof archetype === "string" ? (
+                <Text style={styles.para}>{archetype}</Text>
+              ) : (
+                <>
+                  {(archetype as { name?: string }).name && (
+                    <Text style={styles.subheading}>
+                      {(archetype as { name?: string }).name}
+                    </Text>
+                  )}
+                  <Text style={styles.para}>
+                    {(archetype as { summary?: string; description?: string }).summary ??
+                      (archetype as { description?: string }).description ??
+                      ""}
+                  </Text>
+                </>
+              )}
+            </Section>
+          )}
+
+          {voice && (
+            <Section>
+              <Text style={styles.heading}>Brand Voice</Text>
+              {typeof voice === "string" ? (
+                <Text style={styles.para}>{voice}</Text>
+              ) : (
+                <>
+                  <Text style={styles.para}>
+                    {(voice as { summary?: string; description?: string }).summary ??
+                      (voice as { description?: string }).description ??
+                      ""}
+                  </Text>
+                  {(voice as { pillars?: string[] }).pillars?.length ? (
+                    <>
+                      <Text style={styles.subheading}>Tone pillars</Text>
+                      {(voice as { pillars: string[] }).pillars.map((p, i) => (
+                        <Text key={i} style={styles.para}>• {p}</Text>
+                      ))}
+                    </>
+                  ) : null}
+                </>
+              )}
+            </Section>
+          )}
+
+          <PdfFooter />
+        </Page>
+      )}
+
+      {/* ---------------- PAGE 3 — RECOMMENDED COLOR PALETTE ---------------- */}
+      {colorPalette.length > 0 && (
+        <Page size="A4" style={styles.page}>
+          <PdfHeader title="Recommended Color Palette" />
+
+          <PageTitle
+            title="Recommended Color Palette"
+            subtitle="Swatches and hex codes for consistent visual identity"
+          />
+
+          <Section>
+            {colorPalette.map((item, i) => (
+              <ColorSwatch
+                key={i}
+                name={item.name ?? "Color"}
+                hex={item.hex ?? "#000000"}
+              />
+            ))}
+            {colorPalette.some((c) => c.role || c.meaning) && (
+              <View style={{ marginTop: pdfTheme.spacing.md }}>
+                {colorPalette.map((item, i) =>
+                  (item.role || item.meaning) ? (
+                    <Text
+                      key={i}
+                      style={{
+                        ...styles.para,
+                        fontSize: pdfTheme.fontSizes.sm,
+                        color: "#6B7280",
+                      }}
+                    >
+                      {item.name ?? "Color"}
+                      {item.role ? ` — ${item.role}` : ""}
+                      {item.meaning ? ` • ${item.meaning}` : ""}
+                    </Text>
+                  ) : null
+                )}
+              </View>
+            )}
+          </Section>
+
+          <PdfFooter />
+        </Page>
+      )}
+
+      {/* ---------------- PAGE 4 — STRATEGIC ROADMAP (30/60/90) ---------------- */}
+      {(roadmap_30 || roadmap_60 || roadmap_90 || opportunities_map) && (
+        <Page size="A4" style={styles.page}>
+          <PdfHeader title="Strategic Roadmap" />
+
+          <PageTitle
+            title="30/60/90-Day Roadmap & Opportunities"
+            subtitle="Prioritized next steps"
+          />
+
+          {opportunities_map && (
+            <Section>
+              <Text style={styles.heading}>Brand Opportunities Map</Text>
+              <Text style={styles.para}>{opportunities_map}</Text>
+            </Section>
+          )}
+
+          {roadmap_30 && (
+            <Section>
+              <Text style={styles.subheading}>Next 30 Days</Text>
+              <Text style={styles.para}>{roadmap_30}</Text>
+            </Section>
+          )}
+
+          {roadmap_60 && (
+            <Section>
+              <Text style={styles.subheading}>Next 60 Days</Text>
+              <Text style={styles.para}>{roadmap_60}</Text>
+            </Section>
+          )}
+
+          {roadmap_90 && (
+            <Section>
+              <Text style={styles.subheading}>Next 90 Days</Text>
+              <Text style={styles.para}>{roadmap_90}</Text>
+            </Section>
+          )}
+
+          <PdfFooter />
+        </Page>
+      )}
+
+      {/* ---------------- PILLAR DEEP DIVES ---------------- */}
       <Page size="A4" style={styles.page}>
         <PdfHeader title="Pillar Deep-Dive" />
 
@@ -399,9 +591,9 @@ export const BrandSnapshotPlusPDF = ({
           <Section>
             <Text style={styles.heading}>Next Steps</Text>
             <Text style={styles.para}>
-              Your Snapshot+™ gives you a strong foundation. If you'd like a complete,
-              AI-ready brand system — messaging, voice, positioning, personality, and
-              visual direction — the Brand Blueprint™ ($749) is your next step.
+            Your report gives you a strong foundation. For a complete, AI-ready brand
+            system — messaging, voice, positioning, personality, and visual direction —
+            consider upgrading to Brand Blueprint™.
             </Text>
           </Section>
 

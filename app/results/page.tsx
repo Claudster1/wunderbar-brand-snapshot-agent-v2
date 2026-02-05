@@ -2,6 +2,8 @@
 // Next.js page: accepts searchParams (e.g. reportId). With no reportId, prompts to complete a snapshot or redirect.
 
 import Link from "next/link";
+
+export const dynamic = "force-dynamic";
 import { ResultsHeroSection } from "@/src/components/results/ResultsHeroSection";
 import { PillarCardGrid } from "@/src/components/results/PillarCardGrid";
 import { ResultsUpgradeCTA } from "@/components/results/ResultsUpgradeCTA";
@@ -34,7 +36,7 @@ interface ResultsPageProps {
 }
 
 export default async function ResultsPage({ searchParams }: ResultsPageProps) {
-  const raw = await searchParams;
+  const raw = searchParams != null ? await searchParams : undefined;
   const resolved = raw ?? {};
   const reportId = (typeof resolved.reportId === "string" ? resolved.reportId : resolved.reportId?.[0])
     ?? (typeof resolved.id === "string" ? resolved.id : resolved.id?.[0]);

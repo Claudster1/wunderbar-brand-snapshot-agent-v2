@@ -1,0 +1,458 @@
+<!--
+  BODY CODE — CHECKED
+  - Load Lato in <head> (do not rely on @import in body):
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
+  - SVG: stroke-width is valid in HTML. If this is ever rendered inside React (e.g. dangerouslySetInnerHTML),
+    the SVG elements would need camelCase: strokeWidth, strokeLinecap, strokeLinejoin.
+-->
+<style>
+  /* BASE — Lato loaded via <link> in head (see comment above) */
+  .wd-home-body-wrapper {
+    font-family: 'Lato', sans-serif;
+    background: #ffffff;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wd-home-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  .wd-home-section {
+    padding: 0;
+    margin-bottom: 70px;
+  }
+  /* Eyebrow — brand spec */
+  .wd-home-eyebrow {
+    display: block;
+    font-family: 'Lato', sans-serif;
+    font-size: 14px;
+    font-weight: 900;
+    color: #07B0F2;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+  /* H2 — brand spec */
+  .wd-home-h2 {
+    font-family: 'Lato', sans-serif;
+    font-size: 32px;
+    font-weight: 300;
+    color: #021859;
+    letter-spacing: -1.2px;
+    line-height: 1.2;
+    margin: 0 0 20px 0;
+  }
+  /* Body copy — brand spec */
+  .wd-home-p {
+    font-family: 'Lato', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.7;
+    color: #404040;
+    margin-bottom: 18px;
+  }
+  .wd-home-p strong {
+    color: #021859;
+    font-weight: 700;
+  }
+  /* Lead copy — larger intro line */
+  .wd-home-p-large {
+    font-family: 'Lato', sans-serif;
+    font-size: 20px;
+    font-weight: 300;
+    line-height: 1.5;
+    color: #021859;
+    margin-bottom: 20px;
+  }
+  /* Accent blue */
+  .wd-accent-blue-bold {
+    color: #07B0F2;
+    font-weight: 700;
+  }
+  /* Buttons */
+  .wd-home-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 54px;
+    padding: 0 35px;
+    background: #07B0F2;
+    color: #ffffff !important;
+    border: 2px solid #07B0F2;
+    border-radius: 4px;
+    font-family: 'Lato', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-decoration: none;
+    transition: 0.3s;
+    white-space: nowrap;
+  }
+  .wd-home-btn-primary:hover {
+    background: #ffffff;
+    color: #07B0F2 !important;
+  }
+  .wd-home-btn-outline-blue {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 54px;
+    padding: 0 35px;
+    background: transparent;
+    color: #07B0F2 !important;
+    border: 2px solid #07B0F2;
+    border-radius: 4px;
+    font-family: 'Lato', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-decoration: none;
+    transition: 0.3s;
+    white-space: nowrap;
+  }
+  .wd-home-btn-outline-blue:hover {
+    background: #07B0F2;
+    color: #ffffff !important;
+  }
+  .wd-home-btn-text-blue {
+    font-family: 'Lato', sans-serif;
+    font-weight: 700;
+    color: #07B0F2;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 1px;
+    transition: 0.2s;
+  }
+  .wd-home-btn-text-blue:hover {
+    color: #021859;
+  }
+  .wd-home-btn-group {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    flex-wrap: wrap;
+    margin-top: 24px;
+  }
+  /* Pillars — interactive badges matching Brand Snapshot Suite page */
+  .wd-pillars {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 24px 0;
+  }
+  .wd-pillar-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: #ffffff;
+    border: 1.5px solid #07B0F2;
+    border-radius: 24px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .wd-pillar-badge:hover {
+    background: #07B0F2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(7, 176, 242, 0.2);
+  }
+  .wd-pillar-badge:hover .wd-badge-icon,
+  .wd-pillar-badge:hover .wd-badge-text {
+    color: #ffffff;
+  }
+  .wd-pillar-badge::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 12px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: #021859;
+    color: #ffffff;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-family: 'Lato', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(2, 24, 89, 0.2);
+  }
+  .wd-pillar-badge::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #021859;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s ease;
+  }
+  .wd-pillar-badge:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .wd-pillar-badge:hover::before {
+    opacity: 1;
+  }
+  .wd-badge-icon {
+    width: 18px;
+    height: 18px;
+    color: #07B0F2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+  }
+  .wd-badge-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+  .wd-badge-text {
+    font-family: 'Lato', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #021859;
+    transition: color 0.2s ease;
+  }
+  /* Suite card */
+  .wd-suite-card {
+    background: #F8FAFC;
+    border: 1px solid #E6EAF2;
+    padding: 48px;
+    border-radius: 12px;
+  }
+  /* Services grid */
+  .wd-services-grid {
+    display: flex;
+    gap: 60px;
+    flex-wrap: wrap;
+  }
+  .wd-services-content {
+    flex: 1.4;
+    min-width: 300px;
+  }
+  .wd-service-item {
+    margin-bottom: 28px;
+  }
+  .wd-service-item h3 {
+    font-family: 'Lato', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #021859;
+    margin: 0 0 8px 0;
+  }
+  .wd-service-item p {
+    font-family: 'Lato', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.7;
+    color: #404040;
+    margin: 0;
+  }
+  /* Trust sidebar */
+  .wd-trust-sidebar {
+    flex: 1;
+    min-width: 280px;
+  }
+  .wd-trust-card {
+    background: #F8FAFC;
+    border: 1px solid #E6EAF2;
+    padding: 48px;
+    border-radius: 12px;
+  }
+  .wd-trust-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .wd-trust-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 20px;
+    color: #021859;
+  }
+  .wd-trust-list li:last-child {
+    margin-bottom: 0;
+  }
+  .wd-check-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    background-color: #07B0F2;
+    color: #ffffff;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 900;
+  }
+  .wd-trust-list-title {
+    font-family: 'Lato', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #021859;
+    margin-bottom: 2px;
+  }
+  .wd-trust-list-desc {
+    font-family: 'Lato', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: #404040;
+    line-height: 1.5;
+    margin: 0;
+  }
+  @media (max-width: 768px) {
+    .wd-home-h2 {
+      font-size: 28px;
+    }
+    .wd-services-grid {
+      gap: 40px;
+    }
+    .wd-suite-card,
+    .wd-trust-card {
+      padding: 32px 28px;
+    }
+    .wd-pillars {
+      gap: 8px;
+    }
+  }
+</style>
+<div class="wd-home-body-wrapper">
+  <div style="padding: 80px 0 0;">
+    <!-- Section 1: We Help Brands Get Clear -->
+    <div class="wd-home-container">
+      <div class="wd-home-section">
+        <span class="wd-home-eyebrow">The Problem We Solve</span>
+        <h2 class="wd-home-h2">We Help Brands Get Clear — Then Grow</h2>
+        <p class="wd-home-p-large">Most marketing struggles don't come from a lack of effort — they come from a lack of clarity.</p>
+        <p class="wd-home-p">When a brand's positioning is vague, its messaging inconsistent, or its strategy disconnected from real business goals, even strong teams spin their wheels. More budget doesn't fix it. More tools don't fix it. Clarity does.</p>
+        <p class="wd-home-p">At Wunderbar Digital, we help businesses understand where their brand stands today, identify what's actually holding it back, and define a clear path forward — using a combination of brand strategy, messaging, and AI-powered insight.</p>
+        <p class="wd-home-p"><strong>Everything starts with clarity. That's why we built the Brand Snapshot Suite™.</strong></p>
+        <div class="wd-home-btn-group">
+          <a href="https://wunderbardigital.com/brand-snapshot" class="wd-home-btn-primary">Start Your Free Brand Snapshot™</a>
+        </div>
+      </div>
+    </div>
+    <!-- Section 2: The Brand Snapshot Suite -->
+    <div class="wd-home-container">
+      <div class="wd-home-section wd-suite-card">
+        <span class="wd-home-eyebrow">Our Core Product</span>
+        <h2 class="wd-home-h2">The Brand Snapshot Suite™</h2>
+        <p class="wd-home-p">The Brand Snapshot Suite™ is a complete brand clarity and strategy system designed to meet businesses wherever they are — from early-stage teams to organizations ready to scale.</p>
+        <p class="wd-home-p">Each product delivers actionable understanding across five core pillars:</p>
+        <div class="wd-pillars">
+          <div class="wd-pillar-badge" data-tooltip="Clear differentiation in your market">
+            <div class="wd-badge-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <span class="wd-badge-text">Positioning</span>
+          </div>
+          <div class="wd-pillar-badge" data-tooltip="Consistent communication that converts">
+            <div class="wd-badge-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+              </svg>
+            </div>
+            <span class="wd-badge-text">Messaging</span>
+          </div>
+          <div class="wd-pillar-badge" data-tooltip="Being found by the right audience">
+            <div class="wd-badge-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+              </svg>
+            </div>
+            <span class="wd-badge-text">Visibility</span>
+          </div>
+          <div class="wd-pillar-badge" data-tooltip="Building trust through proof and authority">
+            <div class="wd-badge-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+              </svg>
+            </div>
+            <span class="wd-badge-text">Credibility</span>
+          </div>
+          <div class="wd-pillar-badge" data-tooltip="Turning attention into action and revenue">
+            <div class="wd-badge-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+              </svg>
+            </div>
+            <span class="wd-badge-text">Conversion</span>
+          </div>
+        </div>
+        <p class="wd-home-p">Whether you need a quick clarity check or a full strategic blueprint, the Suite gives you a structured, repeatable way to evaluate and improve your brand — without guesswork.</p>
+        <div class="wd-home-btn-group">
+          <a href="https://wunderbardigital.com/brand-snapshot" class="wd-home-btn-primary">Start Your Free Brand Snapshot™</a>
+          <a href="https://wunderbardigital.com/brand-snapshot-suite" class="wd-home-btn-text-blue">Compare the Full Suite →</a>
+        </div>
+      </div>
+    </div>
+    <!-- Section 3: Beyond the Snapshot -->
+    <div class="wd-home-container">
+      <div class="wd-home-section">
+        <div class="wd-services-grid">
+          <div class="wd-services-content">
+            <span class="wd-home-eyebrow">For Teams Ready to Go Further</span>
+            <h2 class="wd-home-h2">Beyond the Snapshot</h2>
+            <p class="wd-home-p">The Snapshot gives you clarity. But some teams need more — ongoing support to turn strategy into consistent execution. That's where our hands-on services come in.</p>
+            <div class="wd-service-item">
+              <h3>Managed Marketing Services</h3>
+              <p>Ongoing execution across messaging, content, and campaigns — grounded in strategy, not guesswork. We act as an extension of your team, ensuring every effort builds on the last and your brand stays consistent as you scale.</p>
+            </div>
+            <div class="wd-service-item">
+              <h3>Marketing & AI Consulting</h3>
+              <p>Strategic advisory for organizations navigating growth and the practical application of AI. We help you identify where intelligent systems can create real leverage — and where they can't — so you invest in what actually moves the needle.</p>
+            </div>
+            <div class="wd-home-btn-group">
+              <a href="https://wunderbardigital.com/explore-services" class="wd-home-btn-outline-blue">Explore Services</a>
+              <a href="https://wunderbardigital.com/talk-to-an-expert" class="wd-home-btn-text-blue">Talk to an Expert →</a>
+            </div>
+          </div>
+          <div class="wd-trust-sidebar">
+            <div class="wd-trust-card">
+              <span class="wd-home-eyebrow">Why Wunderbar Digital</span>
+              <ul class="wd-trust-list">
+                <li>
+                  <span class="wd-check-circle">✓</span>
+                  <div>
+                    <div class="wd-trust-list-title">Strategy first, always</div>
+                    <p class="wd-trust-list-desc">Every recommendation starts with your business goals — not a template.</p>
+                  </div>
+                </li>
+                <li>
+                  <span class="wd-check-circle">✓</span>
+                  <div>
+                    <div class="wd-trust-list-title">Built for clarity</div>
+                    <p class="wd-trust-list-desc">We cut through complexity so you can act with confidence, not guesswork.</p>
+                  </div>
+                </li>
+                <li>
+                  <span class="wd-check-circle">✓</span>
+                  <div>
+                    <div class="wd-trust-list-title">AI-powered, human-guided</div>
+                    <p class="wd-trust-list-desc">Intelligent tools that support your decisions — never replace them.</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

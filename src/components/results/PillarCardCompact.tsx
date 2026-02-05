@@ -28,7 +28,7 @@ export function PillarCardCompact({
   const badgeClasses = getBadgeClassesFromScore(score);
 
   return (
-    <div className="bs-card rounded-xl p-5 h-full flex flex-col">
+    <div className="bs-card rounded-xl p-5 sm:p-6 min-h-[200px] h-full flex flex-col">
       <div className="flex items-start justify-between gap-3 mb-2">
         <h3 className="bs-h4 capitalize mb-0 flex-1 min-w-0">
           {pillarLabel}
@@ -40,15 +40,15 @@ export function PillarCardCompact({
           {band.label}
         </span>
       </div>
-      <p className="text-2xl font-bold tabular-nums text-brand-navy leading-none mb-2">
+      <p className="text-2xl font-bold tabular-nums text-brand-navy leading-none mb-3">
         {score}
         <span className="bs-body-sm font-bold text-brand-muted">/20</span>
       </p>
-      <p className="bs-small text-brand-muted flex-1 line-clamp-3">
+      <p className="bs-small text-brand-muted">
         {band.description}
       </p>
       {insight && (
-        <p className="bs-small text-brand-navy mt-2 line-clamp-2">
+        <p className="bs-small text-brand-navy mt-3 leading-relaxed">
           {insight}
         </p>
       )}

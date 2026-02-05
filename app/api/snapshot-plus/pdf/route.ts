@@ -1,44 +1,82 @@
 // app/api/snapshot-plus/pdf/route.ts
-// API route to generate Brand Snapshot+™ PDF using ReportDocument
+// API route to generate Brand Snapshot+™ PDF (content mirrors report view)
 
 import { NextResponse } from 'next/server';
 import { renderToBuffer } from '@react-pdf/renderer';
 import React from 'react';
-import { SnapshotPlusReport } from '@/src/pdf/SnapshotPlusReport';
+import { BrandSnapshotPlusPDF } from '@/src/pdf/BrandSnapshotPlusPDF';
 import { supabaseServer } from '@/lib/supabaseServer';
-import { getPrimaryPillar, detectStage } from '@/src/utils/postStripeStrategy';
+import { getPrimaryPillar } from '@/src/lib/pillars/getPrimaryPillar';
 
 export const runtime = "nodejs";
 
+const defaultPillarScores = {
+  positioning: 0,
+  messaging: 0,
+  visibility: 0,
+  credibility: 0,
+  conversion: 0,
+};
+
+const defaultPillarStrings = {
+  positioning: "",
+  messaging: "",
+  visibility: "",
+  credibility: "",
+  conversion: "",
+};
+
 /**
- * Transform database report to SnapshotPlusReport props
+ * Transform database report to BrandSnapshotPlusReport (same shape as report view).
  */
 function transformReportData(report: any) {
-  const r = report?.full_report || report || {};
+  const r = report?.full_report ?? report ?? {};
 
-  const pillarScores = r.pillar_scores || r.pillarScores || {
-    positioning: 0,
-    messaging: 0,
-    visibility: 0,
-    credibility: 0,
-    conversion: 0,
-  };
+  const pillarScores = r.pillar_scores || r.pillarScores || defaultPillarScores;
+  const primaryResult = getPrimaryPillar(pillarScores);
+  const primaryPillar =
+    primaryResult.type === "tie" && primaryResult.pillars?.length
+      ? primaryResult.pillars[0]
+      : (primaryResult as { pillar: string }).pillar;
 
   return {
-    brandName: r.company || r.business_name || r.company_name || "Your Company",
-    userRolePhrase: r.userRolePhrase || r.userRoleContext,
-    stage: r.stage || detectStage({
-      yearsInBusiness: r.years_in_business,
-      teamSize: r.team_size,
-      monthlyRevenue: r.monthly_revenue,
-    }),
-    archetype: r.archetype || r.brand_archetype || "Explorer",
-    brandAlignmentScore: r.brand_alignment_score || r.brandAlignmentScore || 0,
+    userName: r.user_name || r.userName || "User",
+    businessName: r.company || r.business_name || r.company_name || "Your Company",
+    industry: r.industry ?? "",
+    website: r.website ?? null,
+    socials: Array.isArray(r.socials) ? r.socials : [],
+    brandAlignmentScore: r.brand_alignment_score ?? r.brandAlignmentScore ?? 0,
     pillarScores,
-    primaryPillar: getPrimaryPillar(pillarScores),
-    pillarInsights: r.pillar_insights || r.pillarInsights || {},
-    recommendations: r.recommendations || {},
-    contextCoverage: r.contextCoverage || r.context_coverage || 0,
+    primaryPillar,
+    pillarInsights: r.pillar_insights || r.pillarInsights || defaultPillarStrings,
+    recommendations:
+      r.recommendations && typeof r.recommendations === "object"
+        ? {
+            positioning: r.recommendations.positioning ?? "",
+            messaging: r.recommendations.messaging ?? "",
+            visibility: r.recommendations.visibility ?? "",
+            credibility: r.recommendations.credibility ?? "",
+            conversion: r.recommendations.conversion ?? "",
+          }
+        : defaultPillarStrings,
+    contextCoverage: r.context_coverage ?? r.contextCoverage,
+    persona: r.enriched_persona ?? r.persona,
+    archetype: r.enriched_archetype ?? r.archetype ?? r.brand_archetype,
+    voice: r.enriched_voice ?? r.voice,
+    colorPalette: r.enriched_color_palette ?? r.color_palette ?? [],
+    roadmap_30: r.roadmap_30,
+    roadmap_60: r.roadmap_60,
+    roadmap_90: r.roadmap_90,
+    opportunities_map: r.opportunities_map,
+    brandOpportunities: r.brand_opportunities ?? r.brandOpportunities,
+    targetCustomers: r.target_customers ?? r.targetCustomers,
+    competitorNames: r.competitor_names ?? r.competitorNames ?? [],
+    personalityWords: r.personality_words ?? r.personalityWords ?? [],
+    messagingGaps: r.messaging_gaps ?? r.messagingGaps,
+    visibilityPlan: r.visibility_plan ?? r.visibilityPlan,
+    visualIdentityNotes: r.visual_identity_notes ?? r.visualIdentityNotes,
+    aeoRecommendations: r.aeo_recommendations ?? r.aeoRecommendations,
+    aiPrompts: r.ai_prompts ?? r.aiPrompts ?? [],
   };
 }
 
@@ -88,15 +126,15 @@ export async function GET(req: Request) {
       );
     }
 
-    // Transform report data
-    const data = transformReportData(report);
+    // Transform report data (same shape as report view)
+    const reportData = transformReportData(report);
 
-    // Generate PDF
-    const doc = React.createElement(SnapshotPlusReport, data);
-    const pdfBuffer = await renderToBuffer(doc);
+    // Generate PDF (BrandSnapshotPlusPDF mirrors report view content)
+    const doc = React.createElement(BrandSnapshotPlusPDF, { report: reportData });
+    const pdfBuffer = await renderToBuffer(doc as any);
 
     // Generate filename
-    const companyName = data.brandName.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+    const companyName = reportData.businessName.replace(/[^a-z0-9]/gi, '-').toLowerCase();
     const filename = `${companyName}-Brand-Snapshot+.pdf`;
 
     return new NextResponse(new Uint8Array(pdfBuffer), {

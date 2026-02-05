@@ -4,6 +4,7 @@
 
 import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
+import { getPrimaryPillar } from "@/src/lib/pillars/getPrimaryPillar";
 import { BrandSnapshotPDF, BrandSnapshotReport } from "./BrandSnapshotPDF";
 import { BrandSnapshotPlusPDF, BrandSnapshotPlusReport } from "./BrandSnapshotPlusPDF";
 import { BrandBlueprintPDF, BrandBlueprintReport } from "./BrandBlueprintPDF";
@@ -199,21 +200,36 @@ export function transformReportDataForPdf(
           [],
       } as unknown as BrandSnapshotReport;
 
-    case "snapshot-plus":
+    case "snapshot-plus": {
+      const pillarScores = r.pillar_scores || r.pillarScores || report?.pillar_scores || {
+        positioning: 0,
+        messaging: 0,
+        visibility: 0,
+        credibility: 0,
+        conversion: 0,
+      };
+      const primaryPillarResult =
+        typeof getPrimaryPillar === "function"
+          ? getPrimaryPillar(pillarScores)
+          : { pillar: "positioning" as const };
+      const primaryPillar =
+        "type" in primaryPillarResult &&
+        primaryPillarResult.type === "tie" &&
+        primaryPillarResult.pillars?.length
+          ? primaryPillarResult.pillars[0]
+          : primaryPillarResult.pillar;
       return {
         ...baseProps,
+        industry: r.industry ?? report?.industry ?? "",
+        website: r.website ?? report?.website ?? null,
+        socials: Array.isArray(r.socials) ? r.socials : Array.isArray(report?.socials) ? report.socials : [],
+        primaryPillar,
         brandAlignmentScore:
           r.brand_alignment_score ||
           r.brandAlignmentScore ||
           report?.brand_alignment_score ||
           0,
-        pillarScores: r.pillar_scores || r.pillarScores || report?.pillar_scores || {
-          positioning: 0,
-          messaging: 0,
-          visibility: 0,
-          credibility: 0,
-          conversion: 0,
-        },
+        pillarScores,
         pillarInsights: r.pillar_insights || r.pillarInsights || report?.pillar_insights || {
           positioning: "",
           messaging: "",
@@ -245,7 +261,17 @@ export function transformReportDataForPdf(
         visualIdentityNotes: r.visual_identity_notes || r.visualIdentityNotes || report?.visual_identity_notes,
         aiPrompts: r.ai_prompts || r.aiPrompts || report?.ai_prompts || [],
         aeoRecommendations: r.aeo_recommendations || r.aeoRecommendations || report?.aeo_recommendations,
+        contextCoverage: r.contextCoverage ?? r.context_coverage ?? report?.context_coverage,
+        persona: r.enriched_persona ?? r.persona ?? report?.enriched_persona,
+        archetype: r.enriched_archetype ?? r.archetype ?? report?.enriched_archetype,
+        voice: r.enriched_voice ?? r.voice ?? report?.enriched_voice,
+        colorPalette: r.enriched_color_palette ?? r.color_palette ?? r.colorPalette ?? report?.enriched_color_palette ?? [],
+        roadmap_30: r.roadmap_30 ?? report?.roadmap_30,
+        roadmap_60: r.roadmap_60 ?? report?.roadmap_60,
+        roadmap_90: r.roadmap_90 ?? report?.roadmap_90,
+        opportunities_map: r.opportunities_map ?? report?.opportunities_map,
       } as BrandSnapshotPlusReport;
+    }
 
     case "blueprint":
       return {

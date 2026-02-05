@@ -1,5 +1,6 @@
 // src/components/ScoreGauge.tsx
-// Semi-circular gauge matching sample: five solid segments (red → orange → yellow → light green → dark green), needle pivoted at center pointing to score.
+// Semi-circular gauge: five segments (red → orange → yellow → light green → dark green) for 0–20, 20–40, 40–60, 60–80, 80–100.
+// Segment boundaries must match rating labels: see src/lib/results/scoreBands.ts (60–80 = Strong = light green; 72 is in this band).
 
 export function ScoreGauge({ value }: { value: number }) {
   const clamped = Math.min(100, Math.max(0, value));
@@ -8,10 +9,9 @@ export function ScoreGauge({ value }: { value: number }) {
   const cy = 100;
 
   // Needle: 0% = left (180°), 50% = up (90°), 100% = right (0°). Needle drawn pointing up, then rotated.
-  // Angle from right: 180 - (score/100)*180. Needle "up" = 90°, so rotation = (180 - score*1.8) - 90 = 90 - score*1.8.
   const needleRotation = 90 - (clamped / 100) * 180;
 
-  // Arc segment endpoints (top semicircle: 180° left → 0° right). x = cx + r*cos(θ), y = cy - r*sin(θ)
+  // Arc segment endpoints (top semicircle: 180° left → 0° right). 20% per segment: 0–20→180°–144°, 20–40→144°–108°, 40–60→108°–72°, 60–80→72°–36°, 80–100→36°–0°.
   const deg = (d: number) => (d * Math.PI) / 180;
   const pt = (angle: number) => ({
     x: cx + radius * Math.cos(deg(angle)),

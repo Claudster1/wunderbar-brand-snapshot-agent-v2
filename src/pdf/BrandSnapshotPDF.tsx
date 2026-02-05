@@ -227,6 +227,19 @@ export const BrandSnapshotPDF = ({
           </Text>
         </Section>
 
+        <Section>
+          <View style={{ backgroundColor: "#F2F7FF", padding: 16, borderRadius: 8, borderLeftWidth: 4, borderLeftColor: "#07B0F2" }}>
+            <Text style={{ ...styles.smallHeading, marginBottom: 8 }}>Ready for more?</Text>
+            <Text style={styles.body}>
+              Upgrade to Brand Snapshot+™ for a deeper strategic report — including brand persona,
+              archetype, voice guidance, recommended color palette, 30/60/90 roadmap, and AI-ready prompts.
+            </Text>
+            <Text style={{ ...styles.body, marginTop: 8, fontSize: 10, color: "#5a6c8a" }}>
+              Explore at wunderbardigital.com/brand-snapshot/plus
+            </Text>
+          </View>
+        </Section>
+
         <PdfFooter />
       </Page>
     </Document>

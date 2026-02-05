@@ -1,3 +1,5 @@
+const AC_WEBHOOK_URL = process.env.ACTIVECAMPAIGN_WEBHOOK_URL ?? process.env.NEXT_PUBLIC_ACTIVECAMPAIGN_WEBHOOK_URL;
+
 export async function sendToActiveCampaign(payload: {
   email: string;
   brandName: string;
@@ -7,7 +9,9 @@ export async function sendToActiveCampaign(payload: {
   archetype: string;
   coverage: number;
 }) {
-  await fetch(process.env.ACTIVECAMPAIGN_WEBHOOK_URL!, {
+  if (!AC_WEBHOOK_URL) return;
+  try {
+    await fetch(AC_WEBHOOK_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -27,4 +31,7 @@ export async function sendToActiveCampaign(payload: {
       ].filter(Boolean),
     }),
   });
+  } catch (_) {
+    // No-op when webhook is unavailable
+  }
 }

@@ -45,6 +45,13 @@ const styles = StyleSheet.create({
 export function BlueprintDocument({ data }: { data: any }) {
   const {
     userName,
+    businessName,
+    brandAlignmentScore,
+    pillarScores,
+    pillarInsights,
+    recommendations,
+    primaryPillar,
+    contextCoverage,
     brandEssence,
     brandPromise,
     differentiation,
@@ -55,6 +62,18 @@ export function BlueprintDocument({ data }: { data: any }) {
     colorPalette,
     aiPrompts,
   } = data;
+
+  const hasFoundation =
+    typeof brandAlignmentScore === "number" &&
+    pillarScores &&
+    typeof pillarScores.positioning === "number";
+  const pillarLabels: Record<string, string> = {
+    positioning: "Positioning",
+    messaging: "Messaging",
+    visibility: "Visibility",
+    credibility: "Credibility",
+    conversion: "Conversion",
+  };
 
   return (
     <Document>
@@ -67,12 +86,54 @@ export function BlueprintDocument({ data }: { data: any }) {
 
         <Text>Hello {userName},</Text>
         <Text style={{ marginTop: 12 }}>
-          Your Brand Blueprint™ translates your brand’s essence, language, and visual direction into
+          This report translates your brand's essence, language, and visual direction into
           a unified and actionable system.
         </Text>
       </Page>
 
-      {/* PAGE 2 — Brand Essence */}
+      {/* Foundation: Brand Alignment Score + Pillars (when data provided) */}
+      {hasFoundation && (
+        <>
+          <Page size="A4" style={styles.page}>
+            <Text style={styles.sectionTitle}>Brand Alignment Score™</Text>
+            <View style={styles.block}>
+              <Text style={{ fontSize: 28, fontWeight: 700, color: "#021859" }}>
+                {brandAlignmentScore}
+              </Text>
+              <Text style={{ marginTop: 8 }}>out of 100</Text>
+            </View>
+            {primaryPillar && (
+              <View style={styles.block}>
+                <Text style={{ fontWeight: 600 }}>Primary focus area</Text>
+                <Text>{pillarLabels[primaryPillar] ?? primaryPillar}</Text>
+              </View>
+            )}
+            {typeof contextCoverage === "number" && (
+              <View style={styles.block}>
+                <Text style={{ fontWeight: 600 }}>Context coverage</Text>
+                <Text>{contextCoverage}%</Text>
+              </View>
+            )}
+          </Page>
+          <Page size="A4" style={styles.page}>
+            <Text style={styles.sectionTitle}>Brand Pillar Analysis</Text>
+            {pillarScores &&
+              Object.entries(pillarScores).map(([key, score]) => (
+                <View key={key} style={styles.block}>
+                  <Text style={{ fontWeight: 600 }}>
+                    {`${pillarLabels[key] ?? key} — ${score}/20`}
+                  </Text>
+                  {pillarInsights?.[key] && <Text style={{ marginTop: 6 }}>{pillarInsights[key]}</Text>}
+                  {recommendations?.[key] && (
+                    <Text style={{ marginTop: 6, fontStyle: "italic" }}>{recommendations[key]}</Text>
+                  )}
+                </View>
+              ))}
+          </Page>
+        </>
+      )}
+
+      {/* Brand Essence */}
       <Page size="A4" style={styles.page}>
         <Text style={styles.sectionTitle}>Brand Essence</Text>
         <View style={styles.block}>
@@ -90,16 +151,28 @@ export function BlueprintDocument({ data }: { data: any }) {
         </View>
       </Page>
 
-      {/* PAGE 3 — Persona + Archetype */}
+      {/* Persona + Archetype */}
       <Page size="A4" style={styles.page}>
         <Text style={styles.sectionTitle}>Brand Persona</Text>
         <View style={styles.block}>
-          <Text>{persona?.summary}</Text>
+          <Text>
+            {typeof persona === "string"
+              ? persona
+              : (persona && typeof persona === "object" && "summary" in persona
+                ? (persona as { summary?: string }).summary
+                : (persona as { description?: string })?.description) ?? ""}
+          </Text>
         </View>
 
         <Text style={styles.sectionTitle}>Brand Archetype</Text>
         <View style={styles.block}>
-          <Text>{archetype?.summary}</Text>
+          <Text>
+            {typeof archetype === "string"
+              ? archetype
+              : (archetype && typeof archetype === "object" && "summary" in archetype
+                ? (archetype as { summary?: string }).summary
+                : (archetype as { description?: string })?.description) ?? ""}
+          </Text>
         </View>
       </Page>
 
@@ -156,7 +229,7 @@ export function BlueprintDocument({ data }: { data: any }) {
         ))}
       </Page>
 
-      {/* PAGE 8 — Final Page */}
+      {/* Final Page — Next Steps + Upsell to Blueprint+ */}
       <Page size="A4" style={styles.page}>
         <Text style={styles.sectionTitle}>Next Steps</Text>
         <View style={styles.block}>
@@ -164,6 +237,16 @@ export function BlueprintDocument({ data }: { data: any }) {
             Your Brand Blueprint™ sets the foundation for consistent messaging, aligned marketing,
             and scalable brand growth. Use it as your core reference for all creative and
             communication decisions.
+          </Text>
+        </View>
+        <View style={[styles.block, { backgroundColor: "#F2F7FF", borderLeftWidth: 4, borderLeftColor: "#07B0F2", marginTop: 20 }]}>
+          <Text style={{ ...styles.sectionTitle, marginTop: 0 }}>Ready for more?</Text>
+          <Text>
+            For advanced strategy, execution playbooks, extended prompt libraries, and 12-month
+            content roadmaps, explore Brand Blueprint+™.
+          </Text>
+          <Text style={{ marginTop: 8, fontSize: 10, color: "#5a6c8a" }}>
+            wunderbardigital.com/brand-blueprint-plus
           </Text>
         </View>
       </Page>

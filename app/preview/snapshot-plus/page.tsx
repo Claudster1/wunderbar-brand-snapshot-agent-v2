@@ -203,8 +203,15 @@ export default function PreviewSnapshotPlusPage() {
                   </div>
                   <p className="bs-body-sm text-brand-muted mb-4">{data.interpretation}</p>
                   
-                  <div className="h-2 bg-gray-200 rounded-full mb-6">
-                    <div className="h-2 bg-brand-blue rounded-full" style={{ width: `${scorePercent}%` }} />
+                  <div className="h-2 bg-gray-200 rounded-full mb-6 overflow-hidden">
+                    <div 
+                      className="h-2 rounded-full"
+                      style={{ 
+                        width: `${scorePercent}%`,
+                        background: `linear-gradient(90deg, #ff3b30 0%, #ff9500 25%, #ffcc00 50%, #8bc34a 75%, #34c759 100%)`,
+                        backgroundSize: `${100 / (scorePercent / 100)}% 100%`,
+                      }}
+                    />
                   </div>
 
                   <div className="space-y-5">
@@ -359,7 +366,7 @@ export default function PreviewSnapshotPlusPage() {
         {/* Footer */}
         <footer className="text-center pt-8 border-t border-brand-navy/10">
           <p className="bs-small text-brand-muted">
-            Brand Snapshot+™ by Wunderbar Digital
+            Powered by Wunderbar Digital
           </p>
         </footer>
       </div>

@@ -416,7 +416,7 @@ export default function PreviewBlueprintPlusPage() {
         {/* Footer */}
         <footer className="text-center pt-8 border-t border-brand-navy/10">
           <p className="bs-small text-brand-muted">
-            Brand Blueprint+™ by Wunderbar Digital
+            Powered by Wunderbar Digital
           </p>
         </footer>
       </div>

@@ -2,8 +2,9 @@
 // Semi-circular gauge: five segments (red → orange → yellow → light green → dark green) for 0–20, 20–40, 40–60, 60–80, 80–100.
 // Segment boundaries must match rating labels: see src/lib/results/scoreBands.ts (60–80 = Strong = light green; 72 is in this band).
 
-export function ScoreGauge({ value }: { value: number }) {
-  const clamped = Math.min(100, Math.max(0, value));
+export function ScoreGauge({ value, score, size }: { value?: number; score?: number; size?: number }) {
+  const resolvedValue = value ?? score ?? 0;
+  const clamped = Math.min(100, Math.max(0, resolvedValue));
   const radius = 90;
   const cx = 100;
   const cy = 100;

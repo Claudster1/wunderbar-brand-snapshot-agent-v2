@@ -1,7 +1,6 @@
 // app/blueprint-plus/page.tsx
 // Blueprint+™ prompt pack page
 
-import Link from "next/link";
 import { advancedPromptPacks } from "@/blueprintPlus/advancedPromptPacks";
 import { PromptPackGrid } from "@/components/blueprintPlus/PromptPackGrid";
 
@@ -33,14 +32,14 @@ export default function BlueprintPlusPage() {
               We run your marketing so you can focus on your business — strategy, content,
               campaigns, and performance aligned to your brand.
             </p>
-            <Link
+            <a
               href="https://wunderbardigital.com"
               target="_blank"
               rel="noopener noreferrer"
               className="text-brand-blue font-semibold text-sm hover:underline"
             >
               Learn more →
-            </Link>
+            </a>
           </div>
           <div className="bs-card rounded-xl p-6 border border-brand-navy/10">
             <h3 className="text-lg font-semibold text-brand-navy mb-2">AI Consulting</h3>
@@ -48,14 +47,14 @@ export default function BlueprintPlusPage() {
               We help you adopt AI confidently — from brand-safe prompts and workflows to
               AI strategy and implementation so your brand stays consistent at scale.
             </p>
-            <Link
+            <a
               href="https://wunderbardigital.com"
               target="_blank"
               rel="noopener noreferrer"
               className="text-brand-blue font-semibold text-sm hover:underline"
             >
               Learn more →
-            </Link>
+            </a>
           </div>
         </div>
       </section>

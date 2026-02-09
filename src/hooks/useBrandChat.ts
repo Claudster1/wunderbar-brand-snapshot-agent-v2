@@ -22,11 +22,13 @@ const createMessage = (
 // Must match the system prompt's first greeting exactly
 const INITIAL_ASSISTANT_MESSAGE = createMessage(
   'assistant',
-  `Hi, I'm Wundy. I'll guide you through a few questions to build your Brand Snapshot™.
+  `Hi, I'm Wundy — your brand guide. I'll walk you through a short conversation to build your Brand Snapshot™.
 
-Before we continue — quick note: this will only take a few minutes, and there's no right or wrong answer. The clearer your answers, the more useful your Brand Snapshot™ will be.
+This takes about 10–15 minutes. There are no wrong answers, and you don't need anything prepared — but if you have your website, a sense of your competitors, and your target audience in mind, your results will be even sharper.
 
-Ready to begin?`
+You can skip any question and save your progress anytime if you need to step away.
+
+Ready when you are — what's your name?`
 );
 
 export function useBrandChat() {
@@ -35,6 +37,7 @@ export function useBrandChat() {
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [reportId, setReportId] = useState<string | null>(null);
+  const [lastFailedInput, setLastFailedInput] = useState<string | null>(null);
   const router = useRouter();
   const { generateReport, loading: pdfLoading } = useGenerateReport();
   const isInitialized = useRef(false);
@@ -405,9 +408,10 @@ export function useBrandChat() {
       }
     } catch (err: any) {
       console.error('[useBrandChat] Error:', err);
+      setLastFailedInput(trimmed);
       const errorMessage = createMessage(
         'assistant',
-        err?.message || 'I ran into an issue generating a response. Please try again.'
+        'I ran into a connection issue. Your progress is saved — tap "Retry" to try again, or rephrase your answer.'
       );
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
@@ -415,14 +419,39 @@ export function useBrandChat() {
     }
   };
 
+  const retry = () => {
+    if (lastFailedInput) {
+      // Remove the error message from chat
+      setMessages((prev) => prev.filter((m) => m.text !== 'I ran into a connection issue. Your progress is saved — tap "Retry" to try again, or rephrase your answer.'));
+      const inputToRetry = lastFailedInput;
+      setLastFailedInput(null);
+      sendMessage(inputToRetry);
+    }
+  };
+
   const reset = () => {
     setMessages([INITIAL_ASSISTANT_MESSAGE]);
+    setLastFailedInput(null);
   };
+
+  // Calculate assessment progress based on assistant question count
+  // The assessment has ~38 questions; each assistant turn (after the greeting) = 1 question answered
+  const TOTAL_QUESTIONS = 38;
+  const assistantTurns = messages.filter((m) => m.role === 'assistant').length;
+  // Subtract 1 for the initial greeting, clamp to 0
+  const questionsAnswered = Math.max(0, assistantTurns - 1);
+  const assessmentProgress = Math.min(Math.round((questionsAnswered / TOTAL_QUESTIONS) * 100), 99);
 
   return {
     messages,
     isLoading,
     sendMessage,
+    retry,
+    canRetry: !!lastFailedInput,
     reset,
+    reportId,
+    assessmentProgress,
+    questionsAnswered,
+    totalQuestions: TOTAL_QUESTIONS,
   };
 }

@@ -6,6 +6,12 @@ export const runtime = "nodejs";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(req: NextRequest) {
+  // ─── Security: Rate limit checkout creation ───
+  const { apiGuard } = await import("@/lib/security/apiGuard");
+  const { AUTH_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+  const guard = apiGuard(req, { routeId: "stripe-session", rateLimit: AUTH_RATE_LIMIT });
+  if (!guard.passed) return guard.errorResponse;
+
   try {
     const { priceId, snapshotId, email } = await req.json();
 
@@ -20,7 +26,8 @@ export async function POST(req: NextRequest) {
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
-      payment_method_types: ["card"],
+      // Klarna/Afterpay enabled — must also be enabled in Stripe Dashboard → Settings → Payment Methods
+      payment_method_types: ["card", "klarna", "afterpay_clearpay"],
       line_items: [
         {
           price: priceId,
@@ -28,12 +35,31 @@ export async function POST(req: NextRequest) {
         },
       ],
       customer_email: email,
-      success_url: `${baseUrl}/dashboard?success=true`,
-      cancel_url: `${baseUrl}/results?canceled=true`,
+      success_url: `${baseUrl}/checkout/success?product=snapshot-plus&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/checkout/cancel?product=snapshot-plus`,
       metadata: {
         snapshot_id: snapshotId ?? "",
       },
     });
+
+    // Fire AC event to track checkout initiation (for abandonment recovery)
+    if (email) {
+      try {
+        const { fireACEvent } = await import("@/lib/fireACEvent");
+        await fireACEvent({
+          email,
+          eventName: "checkout_initiated",
+          tags: ["checkout:initiated"],
+          fields: {
+            checkout_product: priceId,
+            checkout_session_id: session.id,
+          },
+        });
+      } catch (acErr) {
+        // Non-blocking — don't fail checkout if AC fails
+        console.warn("⚠️ AC checkout_initiated event failed:", acErr);
+      }
+    }
 
     return NextResponse.json({ url: session.url });
   } catch (err: any) {

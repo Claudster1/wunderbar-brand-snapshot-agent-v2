@@ -41,9 +41,11 @@ export async function POST(req: NextRequest) {
       sig,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
-  } catch (err: any) {
-    console.error("❌ Stripe webhook signature verification failed:", err.message);
-    return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Unknown";
+    console.error("❌ Stripe webhook signature verification failed:", msg);
+    // SECURITY: Don't leak internal error details to the client
+    return new NextResponse("Webhook signature verification failed", { status: 400 });
   }
 
   try {
@@ -88,6 +90,7 @@ export async function POST(req: NextRequest) {
         await triggerActiveCampaign({
           email: customerEmail,
           productKey,
+          reportId: snapshotId,
         });
 
         break;
@@ -98,33 +101,95 @@ export async function POST(req: NextRequest) {
         break;
       }
 
+      case "checkout.session.expired": {
+        // ─── Checkout Abandonment Recovery ───
+        // Fires when a Stripe Checkout session expires without completing payment.
+        // Triggers an ActiveCampaign event + tag so an abandonment recovery email can be sent.
+        const expiredSession = event.data.object as Stripe.Checkout.Session;
+        const abandonedEmail = expiredSession.customer_details?.email || expiredSession.customer_email;
+        const abandonedMeta = expiredSession.metadata || {};
+        const abandonedProduct =
+          METADATA_PRODUCT_KEYS.map((k) => abandonedMeta[k]).find(Boolean) ?? "";
+        const abandonedProductKey = normalizeProductKey(abandonedProduct);
+
+        if (abandonedEmail) {
+          console.log(`🛒 Checkout abandoned: ${abandonedEmail} (${abandonedProduct})`);
+          try {
+            const productName = abandonedProductKey
+              ? PRODUCT_DISPLAY_NAMES[abandonedProductKey]
+              : "Brand Snapshot Suite";
+
+            await applyActiveCampaignTags({
+              email: abandonedEmail,
+              tags: [
+                "checkout:abandoned",
+                ...(abandonedProductKey ? [`checkout:abandoned:${abandonedProductKey}`] : []),
+              ],
+            });
+
+            // Fire event for AC automation trigger
+            const { fireACEvent } = await import("@/lib/fireACEvent");
+            await fireACEvent({
+              email: abandonedEmail,
+              eventName: "checkout_abandoned",
+              fields: {
+                abandoned_product: productName,
+                abandoned_product_key: abandonedProductKey ?? "",
+              },
+            });
+          } catch (acErr) {
+            console.error("⚠️ AC abandoned checkout tagging failed:", acErr);
+          }
+        }
+        break;
+      }
+
       default:
         console.log(`ℹ️ Unhandled event type: ${event.type}`);
     }
 
     return NextResponse.json({ received: true });
-  } catch (err) {
-    console.error("❌ Webhook processing error:", err);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Unknown";
+    console.error("❌ Webhook processing error:", msg);
     return new NextResponse("Webhook handler failed", { status: 500 });
   }
 }
 
+const PRODUCT_DISPLAY_NAMES: Record<ProductKey, string> = {
+  snapshot_plus: "Brand Snapshot+™",
+  blueprint: "Brand Blueprint™",
+  blueprint_plus: "Brand Blueprint+™",
+};
+
 /**
- * Nurture flow:
- * - Purchase Snapshot+ → exit Snapshot+ nurture, enter Blueprint nurture (intent:upgrade-blueprint).
- * - Purchase Blueprint → exit Blueprint nurture, enter Blueprint+ nurture (intent:upgrade-blueprint-plus).
- * - Purchase Blueprint+ → exit Blueprint+ nurture, enter "other services" nurture (managed marketing, AI consulting).
+ * Nurture + onboarding flow:
+ *
+ * Purchase → immediately:
+ *   1. Tag "purchased:{product}" + next-tier intent tag
+ *   2. Remove previous-tier intent tag
+ *   3. Tag "onboarding:{product}" to trigger welcome/onboarding email sequence
+ *   4. Fire "report_ready" event so AC can send the "your report is ready" email
+ *   5. Blueprint+ only: tag "session:pending" so AC can send session reminder
+ *
+ * Nurture escalation:
+ *   - Snapshot+  → exit Snapshot+ nurture → enter Blueprint nurture
+ *   - Blueprint  → exit Blueprint nurture → enter Blueprint+ nurture
+ *   - Blueprint+ → exit Blueprint+ nurture → enter "other services" (Managed Marketing, AI Consulting)
  */
 async function triggerActiveCampaign({
   email,
   productKey,
+  reportId,
 }: {
   email: string;
   productKey: ProductKey;
+  reportId?: string;
 }) {
   const applyTags: string[] = [];
   const removeTags: string[] = [];
 
+  // --- Purchase + Nurture escalation tags ---
   switch (productKey) {
     case "snapshot_plus":
       applyTags.push("purchased:snapshot-plus", "intent:upgrade-blueprint");
@@ -140,10 +205,106 @@ async function triggerActiveCampaign({
       break;
   }
 
+  // --- Onboarding tag (triggers welcome sequence in AC) ---
+  applyTags.push(`onboarding:${productKey.replace("_", "-")}`);
+
+  // --- Blueprint+ Strategy Activation Session reminder ---
+  if (productKey === "blueprint_plus") {
+    applyTags.push("session:pending");
+  }
+
+  // Remove old tags first, then apply new ones
   if (removeTags.length) {
     await removeActiveCampaignTags({ email, tags: removeTags });
   }
   if (applyTags.length) {
     await applyActiveCampaignTags({ email, tags: applyTags });
+  }
+
+  // --- Fire "report_ready" event (AC automation sends email with report link) ---
+  const BASE_URL =
+    process.env.NEXT_PUBLIC_APP_URL || "https://app.brandsnapshot.ai";
+  const reportLink = reportId
+    ? `${BASE_URL}/report/${reportId}`
+    : `${BASE_URL}/access`;
+
+  const AC_WEBHOOK_URL =
+    process.env.ACTIVECAMPAIGN_WEBHOOK_URL ??
+    process.env.NEXT_PUBLIC_ACTIVECAMPAIGN_WEBHOOK_URL;
+
+  if (AC_WEBHOOK_URL) {
+    try {
+      await fetch(AC_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          event: "report_ready",
+          email,
+          tags: [`report:${productKey.replace("_", "-")}-ready`],
+          fields: {
+            product_name: PRODUCT_DISPLAY_NAMES[productKey],
+            report_link: reportLink,
+            report_id: reportId || "",
+          },
+        }),
+      });
+    } catch (err) {
+      console.error("[Stripe Webhook] report_ready AC event failed:", err);
+    }
+  }
+
+  // --- Slack notification for the team ---
+  const slackWebhook = process.env.SLACK_SALES_WEBHOOK_URL;
+  if (slackWebhook) {
+    try {
+      await fetch(slackWebhook, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: `:tada: *New Purchase* — ${PRODUCT_DISPLAY_NAMES[productKey]}`,
+          blocks: [
+            {
+              type: "header",
+              text: {
+                type: "plain_text",
+                text: `🎉 New Purchase: ${PRODUCT_DISPLAY_NAMES[productKey]}`,
+              },
+            },
+            {
+              type: "section",
+              fields: [
+                { type: "mrkdwn", text: `*Customer:*\n${email}` },
+                {
+                  type: "mrkdwn",
+                  text: `*Product:*\n${PRODUCT_DISPLAY_NAMES[productKey]}`,
+                },
+              ],
+            },
+            ...(productKey === "blueprint_plus"
+              ? [
+                  {
+                    type: "section",
+                    text: {
+                      type: "mrkdwn",
+                      text: ":calendar: Strategy Activation Session included — watch for booking.",
+                    },
+                  },
+                ]
+              : []),
+            {
+              type: "context",
+              elements: [
+                {
+                  type: "mrkdwn",
+                  text: `${new Date().toISOString()}`,
+                },
+              ],
+            },
+          ],
+        }),
+      });
+    } catch {
+      // Non-critical — don't fail the webhook
+    }
   }
 }

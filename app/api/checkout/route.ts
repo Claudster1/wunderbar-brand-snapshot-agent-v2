@@ -6,6 +6,12 @@ import { normalizeProductKey } from "@/lib/productIds";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(req: Request) {
+  // ─── Security: Rate limit checkout creation ───
+  const { apiGuard } = await import("@/lib/security/apiGuard");
+  const { AUTH_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+  const guard = apiGuard(req, { routeId: "checkout", rateLimit: AUTH_RATE_LIMIT });
+  if (!guard.passed) return guard.errorResponse;
+
   try {
     const { productKey, userId, metadata } = await req.json();
     const normalizedKey = normalizeProductKey(productKey);

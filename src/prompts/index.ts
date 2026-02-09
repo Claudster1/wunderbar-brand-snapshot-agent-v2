@@ -12,5 +12,9 @@ export { snapshotPlusReportPrompt } from "./snapshotPlusReportPrompt";
 export { blueprintReportPrompt } from "./blueprintReportPrompt";
 export { blueprintPlusReportPrompt } from "./blueprintPlusReportPrompt";
 
-// Wundy system prompt (chatbot)
+// Wundy system prompt (chatbot — original conversation flow)
 export { wundySystemPrompt } from "./wundySystemPrompt";
+
+// Wundy Guide & Companion modes (two-mode chat system)
+export { wundyGuidePrompt } from "./wundyGuidePrompt";
+export { buildWundyReportCompanionPrompt } from "./wundyReportCompanionPrompt";

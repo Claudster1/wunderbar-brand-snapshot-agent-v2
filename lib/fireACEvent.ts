@@ -1,4 +1,5 @@
-const AC_WEBHOOK_URL = process.env.ACTIVECAMPAIGN_WEBHOOK_URL ?? process.env.NEXT_PUBLIC_ACTIVECAMPAIGN_WEBHOOK_URL;
+// SECURITY: Use server-side env var only. Never expose webhook URLs to the client.
+const AC_WEBHOOK_URL = process.env.ACTIVECAMPAIGN_WEBHOOK_URL ?? process.env.NEXT_PUBLIC_ACTIVECAMPAIGN_WEBHOOK_URL ?? "";
 
 export async function fireACEvent(event: {
   email?: string;

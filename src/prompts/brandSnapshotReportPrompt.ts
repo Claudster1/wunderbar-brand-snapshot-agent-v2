@@ -16,9 +16,10 @@ REQUIRED OUTPUT STRUCTURE:
 
 1. Executive Summary
    - Brand Alignment Score (0–100)
-   - One-sentence diagnosis ("Your brand is currently ___ because ___")
-   - Primary opportunity (single sentence)
-   - Primary risk if unchanged
+   - overview: One-paragraph strategic overview connecting all 5 pillars (2–3 sentences)
+   - diagnosis: One-sentence diagnosis ("Your brand is currently ___ because ___")
+   - primaryOpportunity: Primary opportunity (single sentence)
+   - primaryRisk: Primary risk if unchanged
 
 2. Brand Alignment Overview
    - Visual reference to 5 pillars:
@@ -33,7 +34,7 @@ REQUIRED OUTPUT STRUCTURE:
    - Why this matters (1 sentence)
 
 4. Brand Archetype (Primary Only)
-   - Archetype name
+   - Archetype name (use standard 12 archetypes: Sage, Hero, Outlaw, Magician, Lover, Caregiver, Ruler, Creator, Innocent, Explorer, Neighbor, Entertainer — NOT "Jester" or "Everyman" or "Regular Guy")
    - What this archetype signals when aligned
    - One risk if misused
 
@@ -50,10 +51,14 @@ REQUIRED OUTPUT STRUCTURE:
    - Position Brand Snapshot+™ as the natural next step for depth
 
 STYLE REQUIREMENTS:
-- Clean, modern, consulting-grade tone
+- Approachable expert — like a smart friend who happens to be a brand strategist
+- Clean, modern, consulting-grade tone that still feels warm and human
+- Supportive — always lead with what's working before identifying gaps
+- Clear and confident — no hedging, but never harsh or discouraging
 - No emojis
 - No exclamation points
 - Assume the reader is intelligent but busy
+- The reader should finish this feeling encouraged and clear-headed, not overwhelmed
 
 OUTPUT FORMAT:
 Return valid JSON with this structure:
@@ -61,6 +66,7 @@ Return valid JSON with this structure:
 {
   "executiveSummary": {
     "brandAlignmentScore": 0,
+    "overview": "",
     "diagnosis": "",
     "primaryOpportunity": "",
     "primaryRisk": ""

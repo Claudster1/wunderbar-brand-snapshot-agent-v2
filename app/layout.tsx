@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { Lato } from 'next/font/google'
 import './globals.css'
+import { WunderbarHeader } from '@/components/layout/WunderbarHeader'
+import { WunderbarFooter } from '@/components/layout/WunderbarFooter'
 
 const lato = Lato({
   weight: ['300', '400', '700', '900'],
@@ -10,8 +12,36 @@ const lato = Lato({
 })
 
 export const metadata: Metadata = {
-  title: 'Wunderbar Brand Snapshot Agent',
-  description: 'Get your Brand Alignment Score™ with Wundy',
+  title: 'Brand Snapshot Suite™ | Wunderbar Digital',
+  description: 'Get your Brand Alignment Score™ — a free, AI-powered brand diagnostic across positioning, messaging, visibility, credibility, and conversion. Takes 15 minutes.',
+  icons: {
+    icon: 'https://d268zs2sdbzvo0.cloudfront.net/686d29d32ebdbfce1f9108ac_01d9e17c-ffc3-4ce2-82e7-6949834d7f2a_favicon.png',
+    shortcut: 'https://d268zs2sdbzvo0.cloudfront.net/686d29d32ebdbfce1f9108ac_01d9e17c-ffc3-4ce2-82e7-6949834d7f2a_favicon.png',
+    apple: 'https://d268zs2sdbzvo0.cloudfront.net/686d29d32ebdbfce1f9108ac_01d9e17c-ffc3-4ce2-82e7-6949834d7f2a_favicon.png',
+  },
+  openGraph: {
+    title: 'Brand Snapshot Suite™ | Wunderbar Digital',
+    description: 'Get your Brand Alignment Score™ — a free, AI-powered brand diagnostic across positioning, messaging, visibility, credibility, and conversion.',
+    url: 'https://app.brandsnapshot.ai',
+    siteName: 'Brand Snapshot Suite™',
+    type: 'website',
+    locale: 'en_US',
+    images: [
+      {
+        url: 'https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp',
+        width: 1200,
+        height: 630,
+        alt: 'Brand Snapshot Suite™ by Wunderbar Digital',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Brand Snapshot Suite™ | Wunderbar Digital',
+    description: 'Get your Brand Alignment Score™ — a free, AI-powered brand diagnostic across five core brand pillars.',
+    images: ['https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp'],
+  },
+  metadataBase: new URL('https://app.brandsnapshot.ai'),
 }
 
 export default function RootLayout({
@@ -38,6 +68,18 @@ export default function RootLayout({
                 i.parentNode.insertBefore(r,i)
               })(window,document,"https://diffuser-cdn.app-us1.com/diffuser/diffuser.js","vgo");
               
+              // Force ALL external links to open in a new window
+              document.addEventListener("click", function(e) {
+                var anchor = e.target.closest ? e.target.closest("a[href]") : null;
+                if (!anchor) return;
+                var href = anchor.getAttribute("href") || "";
+                // Check if it's an external link (starts with http and not our own domain)
+                if (href.match(/^https?:\\/\\//i) && !href.includes(window.location.hostname)) {
+                  e.preventDefault();
+                  window.open(href, "_blank", "noopener,noreferrer");
+                }
+              });
+
               // Listen for analytics events and forward to ActiveCampaign
               window.addEventListener("analytics", function(event) {
                 if (event.detail && event.detail.event && window.vgo) {
@@ -52,7 +94,9 @@ export default function RootLayout({
             `,
           }}
         />
+        <WunderbarHeader />
         {children}
+        <WunderbarFooter />
       </body>
     </html>
   )

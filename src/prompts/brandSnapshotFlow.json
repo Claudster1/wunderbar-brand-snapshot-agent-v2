@@ -161,6 +161,58 @@
       "type": "text",
       "prompt": "If you had to describe your brand's personality in a few words, what comes to mind?",
       "save_as": "brand_personality",
+      "next": "q_decision_style"
+    },
+
+    "q_decision_style": {
+      "type": "single_select",
+      "prompt": "When it comes to making decisions for your business, which feels closest?",
+      "options": [
+        { "label": "I trust my instincts and move quickly", "value": "instinctive" },
+        { "label": "I research thoroughly before acting", "value": "analytical" },
+        { "label": "I collaborate and seek alignment", "value": "collaborative" },
+        { "label": "I rely on proven systems and expertise", "value": "systematic" }
+      ],
+      "save_as": "archetypeSignals.decisionStyle",
+      "next": "q_authority_source"
+    },
+
+    "q_authority_source": {
+      "type": "single_select",
+      "prompt": "Where does your brand's authority mostly come from right now?",
+      "options": [
+        { "label": "Personal experience or story", "value": "personal_story" },
+        { "label": "Expertise and credentials", "value": "expertise" },
+        { "label": "Results and outcomes", "value": "results" },
+        { "label": "Community, relationships, or mission", "value": "community" }
+      ],
+      "save_as": "archetypeSignals.authoritySource",
+      "next": "q_risk_orientation"
+    },
+
+    "q_risk_orientation": {
+      "type": "single_select",
+      "prompt": "How does your brand typically approach risk?",
+      "options": [
+        { "label": "Bold and willing to challenge norms", "value": "bold" },
+        { "label": "Calculated and strategic", "value": "calculated" },
+        { "label": "Cautious and steady", "value": "cautious" },
+        { "label": "Values-driven over growth-driven", "value": "values_driven" }
+      ],
+      "save_as": "archetypeSignals.riskOrientation",
+      "next": "q_customer_expectation"
+    },
+
+    "q_customer_expectation": {
+      "type": "single_select",
+      "prompt": "What do customers most expect when they choose you?",
+      "options": [
+        { "label": "Innovation or fresh thinking", "value": "innovation" },
+        { "label": "Clear guidance and expertise", "value": "guidance" },
+        { "label": "Trust and reliability", "value": "trust" },
+        { "label": "Connection and shared values", "value": "connection" }
+      ],
+      "save_as": "archetypeSignals.customerExpectation",
       "next": "q_conversion_confidence"
     },
 

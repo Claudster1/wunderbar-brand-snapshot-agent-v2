@@ -13,17 +13,17 @@ const PREVIEWS = [
   },
   {
     href: "/preview/snapshot-plus",
-    title: "Brand Snapshot+™ ($349)",
+    title: "Brand Snapshot+™ ($497)",
     description: "Priority diagnosis, pillar deep dives with examples, archetype system, audience clarity, action plan.",
   },
   {
     href: "/preview/blueprint",
-    title: "Brand Blueprint™ ($699)",
+    title: "Brand Blueprint™ ($997)",
     description: "Brand foundation, messaging system, visual direction, conversion strategy, AI prompt pack.",
   },
   {
     href: "/preview/blueprint-plus",
-    title: "Brand Blueprint+™ ($1,199)",
+    title: "Brand Blueprint+™ ($1,997)",
     description: "Advanced segmentation, messaging matrix, campaign strategy, enterprise AI prompts, services CTA.",
   },
   {

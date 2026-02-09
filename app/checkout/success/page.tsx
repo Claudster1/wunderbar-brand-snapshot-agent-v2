@@ -1,18 +1,287 @@
+"use client";
+
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { persistEmail } from "@/lib/persistEmail";
+
+const NAVY = "#021859";
+const BLUE = "#07B0F2";
+const SUB = "#5A6B7E";
+const BORDER = "#D6DFE8";
+const WHITE = "#FFFFFF";
+const LIGHT_BG = "#F4F7FB";
+const GREEN = "#22C55E";
+
+const PRODUCT_NAMES: Record<string, string> = {
+  "snapshot-plus": "Brand Snapshot+™",
+  blueprint: "Brand Blueprint™",
+  "blueprint-plus": "Brand Blueprint+™",
+};
+
+const PRODUCT_DESCRIPTIONS: Record<string, string> = {
+  "snapshot-plus":
+    "Your report includes pillar-level analysis, brand persona insights, strategic action plan, and 8 AI prompts calibrated to your brand.",
+  blueprint:
+    "Your report includes a complete brand operating system, messaging framework, competitive positioning, and 16 AI prompts.",
+  "blueprint-plus":
+    "Your report includes everything in Brand Blueprint™ plus implementation guides, advanced messaging matrix, 28 AI prompts, and a complimentary 30-minute Strategy Activation Session.",
+};
+
+function SuccessContent() {
+  const searchParams = useSearchParams();
+  const product = searchParams.get("product") || "snapshot-plus";
+  const reportId = searchParams.get("reportId");
+  const emailParam = searchParams.get("email");
+  const sessionId = searchParams.get("session_id");
+  const productName = PRODUCT_NAMES[product] || "Brand Snapshot+™";
+
+  // Persist email from checkout so the dashboard can find their reports.
+  // If the URL has an email param, use it directly.
+  // Otherwise, look it up from Stripe via session_id.
+  useEffect(() => {
+    if (emailParam) {
+      persistEmail(emailParam);
+      return;
+    }
+    if (sessionId) {
+      fetch(`/api/stripe/session-email?session_id=${sessionId}`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (data?.email) persistEmail(data.email);
+        })
+        .catch(() => {});
+    }
+  }, [emailParam, sessionId]);
+
+  const productDescription = PRODUCT_DESCRIPTIONS[product] || PRODUCT_DESCRIPTIONS["snapshot-plus"];
+  const isBlueprintPlus = product === "blueprint-plus";
+
+  const [showConfetti, setShowConfetti] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => setShowConfetti(false), 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <main
+      style={{
+        maxWidth: 620,
+        margin: "0 auto",
+        padding: "48px 24px 80px",
+        fontFamily: "'Lato', system-ui, sans-serif",
+      }}
+    >
+      {/* Success icon */}
+      <div style={{ textAlign: "center", marginBottom: 32 }}>
+        <div
+          style={{
+            width: 72,
+            height: 72,
+            borderRadius: "50%",
+            background: `${GREEN}12`,
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: 20,
+            position: "relative",
+          }}
+        >
+          <svg viewBox="0 0 24 24" fill="none" style={{ width: 36, height: 36 }}>
+            <circle cx="12" cy="12" r="10" stroke={GREEN} strokeWidth="2" />
+            <path d="M8 12l3 3 5-5" stroke={GREEN} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          {showConfetti && (
+            <div style={{ position: "absolute", top: -4, right: -4, fontSize: 20, animation: "fadeIn 0.3s ease" }}>
+              ✨
+            </div>
+          )}
+        </div>
+
+        <h1 style={{ fontSize: 30, fontWeight: 700, color: NAVY, margin: "0 0 8px", letterSpacing: "-0.5px" }}>
+          You're all set
+        </h1>
+        <p style={{ fontSize: 18, color: BLUE, fontWeight: 600, margin: 0 }}>
+          {productName}
+        </p>
+      </div>
+
+      {/* What's included card */}
+      <div
+        style={{
+          background: LIGHT_BG,
+          border: `1px solid ${BORDER}`,
+          borderRadius: 10,
+          padding: "24px 28px",
+          marginBottom: 24,
+        }}
+      >
+        <h2 style={{ fontSize: 16, fontWeight: 700, color: NAVY, margin: "0 0 10px" }}>
+          What's included in your report
+        </h2>
+        <p style={{ fontSize: 14, color: SUB, lineHeight: 1.65, margin: 0 }}>
+          {productDescription}
+        </p>
+      </div>
+
+      {/* Next steps */}
+      <div
+        style={{
+          background: WHITE,
+          border: `1px solid ${BORDER}`,
+          borderRadius: 10,
+          padding: "24px 28px",
+          marginBottom: 24,
+        }}
+      >
+        <h2 style={{ fontSize: 16, fontWeight: 700, color: NAVY, margin: "0 0 16px" }}>
+          What happens next
+        </h2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {[
+            {
+              step: "1",
+              title: "Your report is being generated",
+              detail: "This usually takes less than a minute. You'll be able to access it from your dashboard.",
+            },
+            {
+              step: "2",
+              title: "Review your results",
+              detail: "Your report will walk you through your Brand Alignment Score, pillar analysis, and personalized recommendations.",
+            },
+            {
+              step: "3",
+              title: isBlueprintPlus
+                ? "Book your Strategy Activation Session"
+                : "Put your insights to work",
+              detail: isBlueprintPlus
+                ? "Your Brand Blueprint+™ includes a complimentary 30-minute session with a strategist. We recommend booking within 30 days while your diagnostic data is fresh."
+                : "Use the AI prompts in your report to start implementing your brand strategy right away.",
+            },
+          ].map((item) => (
+            <div key={item.step} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+              <div
+                style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: "50%",
+                  background: `${BLUE}12`,
+                  color: BLUE,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  flexShrink: 0,
+                }}
+              >
+                {item.step}
+              </div>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: NAVY, marginBottom: 3 }}>
+                  {item.title}
+                </div>
+                <div style={{ fontSize: 13, color: SUB, lineHeight: 1.55 }}>
+                  {item.detail}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* CTAs */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
+        {reportId && (
+          <a
+            href={`/report/${reportId}`}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "100%",
+              maxWidth: 360,
+              height: 52,
+              borderRadius: 6,
+              background: BLUE,
+              color: WHITE,
+              fontWeight: 700,
+              fontSize: 15,
+              textDecoration: "none",
+              transition: "background 0.2s",
+            }}
+          >
+            View my report →
+          </a>
+        )}
+        <a
+          href="/dashboard"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            maxWidth: 360,
+            height: 52,
+            borderRadius: 6,
+            border: `2px solid ${BORDER}`,
+            background: WHITE,
+            color: NAVY,
+            fontWeight: 700,
+            fontSize: 15,
+            textDecoration: "none",
+          }}
+        >
+          Go to my dashboard
+        </a>
+
+        {isBlueprintPlus && (
+          <a
+            href="https://calendly.com/wunderbardigital/brand-strategy-activation?utm_source=checkout_success&utm_medium=cta_button&utm_campaign=session_booking&utm_content=strategy_activation"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "100%",
+              maxWidth: 360,
+              height: 52,
+              borderRadius: 6,
+              border: `2px solid ${BLUE}`,
+              background: `${BLUE}08`,
+              color: BLUE,
+              fontWeight: 700,
+              fontSize: 15,
+              textDecoration: "none",
+              marginTop: 4,
+            }}
+          >
+            Book Strategy Activation Session →
+          </a>
+        )}
+      </div>
+
+      {/* Security note */}
+      <p
+        style={{
+          fontSize: 12,
+          color: "#5A6B7E",
+          textAlign: "center",
+          marginTop: 32,
+          lineHeight: 1.5,
+        }}
+      >
+        🔒 Your payment was processed securely. Your assessment data and report
+        contents are confidential and will not be shared with third parties.
+      </p>
+    </main>
+  );
+}
+
 export default function CheckoutSuccessPage() {
   return (
-    <main className="max-w-xl mx-auto py-24 text-center">
-      <h1 className="text-3xl font-semibold mb-4">You’re all set</h1>
-
-      <p className="text-lg mb-8">
-        Your purchase was successful. We’re preparing your access now.
-      </p>
-
-      <a
-        href="/dashboard"
-        className="inline-block px-6 py-3 rounded-md bg-brand-blue text-white"
-      >
-        Go to my dashboard →
-      </a>
-    </main>
+    <Suspense fallback={<div style={{ textAlign: "center", padding: "64px 24px", fontFamily: "'Lato', sans-serif", color: "#5A6B7E" }}>Loading...</div>}>
+      <SuccessContent />
+    </Suspense>
   );
 }

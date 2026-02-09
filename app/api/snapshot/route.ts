@@ -92,6 +92,12 @@ function buildPillarInsightsFromScores(pillarScores: Record<string, number>) {
 }
 
 export async function POST(req: Request) {
+  // ─── Security: Rate limit + request size ───
+  const { apiGuard } = await import("@/lib/security/apiGuard");
+  const { AI_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+  const guard = apiGuard(req, { routeId: "snapshot", rateLimit: AI_RATE_LIMIT, maxBodySize: 200_000 });
+  if (!guard.passed) return guard.errorResponse;
+
   try {
     const body = await req.json();
 
@@ -143,6 +149,9 @@ export async function POST(req: Request) {
           answers: body.answers || {},
           scores,
           insights: scores.insights,
+          servicesInterest: snapshotInput.servicesInterest ?? null,
+          expertConversation: snapshotInput.expertConversation ?? null,
+          contentOptIn: snapshotInput.contentOptIn ?? null,
         },
       } as any)
       .select("report_id")
@@ -154,6 +163,27 @@ export async function POST(req: Request) {
         { error: "Failed to save snapshot" },
         { status: 500 }
       );
+    }
+
+    // ─── Benchmark Collection (anonymized, non-blocking) ───
+    try {
+      const { recordBenchmarkData } = await import("@/lib/benchmarkCollector");
+      await recordBenchmarkData({
+        brandAlignmentScore: scores.brandAlignmentScore,
+        pillarScores: scores.pillarScores as any,
+        primaryPillar,
+        industry: snapshotInput.industry ?? null,
+        audienceType: snapshotInput.audienceType ?? null,
+        geographicScope: snapshotInput.geographicScope ?? null,
+        revenueRange: snapshotInput.revenueRange ?? null,
+        teamSize: snapshotInput.teamSize ?? null,
+        yearsInBusiness: snapshotInput.yearsInBusiness ?? null,
+        hasBrandGuidelines: snapshotInput.hasBrandGuidelines ?? null,
+        hasWebsite: !!snapshotInput.website,
+        previousBrandWork: snapshotInput.previousBrandWork ?? null,
+      });
+    } catch (benchErr) {
+      console.warn("[Snapshot API] Benchmark collection failed (non-blocking):", benchErr);
     }
 
     const userEmail = body.email?.toLowerCase?.();
@@ -175,10 +205,42 @@ export async function POST(req: Request) {
         acFields[process.env.AC_FIELD_REPORT_LINK] = reportLink;
       }
 
+      // Build AC tags — include services interest signals from assessment
+      const acTags: string[] = ["purchased:snapshot"];
+
+      const servicesInterest = snapshotInput.servicesInterest;
+      if (servicesInterest && servicesInterest !== "not_now") {
+        acTags.push("services:interested");
+        if (servicesInterest === "managed_marketing") {
+          acTags.push("services:managed_marketing");
+        } else if (servicesInterest === "consulting") {
+          acTags.push("services:consulting");
+        } else if (servicesInterest === "both") {
+          acTags.push("services:managed_marketing", "services:consulting");
+        }
+      }
+
+      if (snapshotInput.expertConversation === true) {
+        acTags.push("services:expert_call_requested");
+      }
+
+      // Content opt-in signals for newsletter/list segmentation
+      const contentOptIn = snapshotInput.contentOptIn;
+      if (contentOptIn && contentOptIn !== "no_thanks") {
+        acTags.push("content:opted_in");
+        if (contentOptIn === "marketing_trends") {
+          acTags.push("content:marketing_trends");
+        } else if (contentOptIn === "ai_updates") {
+          acTags.push("content:ai_updates");
+        } else if (contentOptIn === "both") {
+          acTags.push("content:marketing_trends", "content:ai_updates");
+        }
+      }
+
       await fireACEvent({
         email: userEmail,
         eventName: "snapshot_completed",
-        tags: ["purchased:snapshot"],
+        tags: acTags,
         fields: acFields,
       });
 

@@ -5,6 +5,12 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export async function GET(req: Request) {
+  // ─── Security: Rate limit ───
+  const { apiGuard } = await import("@/lib/security/apiGuard");
+  const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+  const guard = apiGuard(req, { routeId: "snapshot-get", rateLimit: GENERAL_RATE_LIMIT });
+  if (!guard.passed) return guard.errorResponse;
+
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
@@ -23,10 +29,10 @@ export async function GET(req: Request) {
       );
     }
 
-    // Try to get report with all fields, including legacy field names
+    // Fetch only the columns the results page needs (avoid SELECT *)
     const { data, error } = await supabaseAdmin
       .from("brand_snapshot_reports")
-      .select("*")
+      .select("report_id, company_name, brand_alignment_score, pillar_scores, pillar_insights, recommendations, summary, opportunities_summary, upgrade_cta, full_report, user_name, user_email, created_at")
       .eq("report_id", id)
       .single();
     
@@ -45,7 +51,12 @@ export async function GET(req: Request) {
     if (!out.insights && (data as any).pillar_insights) {
       out.insights = (data as any).pillar_insights;
     }
-    return NextResponse.json(out);
+    // Cache report data for 60 seconds (revalidate in background)
+    return NextResponse.json(out, {
+      headers: {
+        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+      },
+    });
   } catch (err: any) {
     console.error("[Snapshot Get API] Unexpected error:", err);
     return NextResponse.json(

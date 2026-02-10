@@ -1,16 +1,19 @@
 // app/api/snapshot/refine-chat/route.ts
 // API route for the refinement conversation with Wundy.
 // Uses a special system prompt that knows the user's existing report data.
+// Uses multi-provider AI abstraction with automatic fallback.
 
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
 import { buildRefinementSystemPrompt } from "@/src/prompts/refinementSystemPrompt";
-
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+import { completeWithFallback, type ChatMessage } from "@/lib/ai";
 
 export async function POST(req: Request) {
+  // ─── Security: Rate limit + request size ───
+  const { apiGuard } = await import("@/lib/security/apiGuard");
+  const { AI_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+  const guard = apiGuard(req, { routeId: "refine-chat", rateLimit: AI_RATE_LIMIT, maxBodySize: 50_000 });
+  if (!guard.passed) return guard.errorResponse;
+
   try {
     const body = await req.json();
     const { messages = [], reportContext } = body;
@@ -19,13 +22,6 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { error: "Missing reportContext" },
         { status: 400 }
-      );
-    }
-
-    if (!process.env.OPENAI_API_KEY) {
-      return NextResponse.json(
-        { error: "Server configuration error. Missing API key." },
-        { status: 500 }
       );
     }
 
@@ -38,26 +34,24 @@ export async function POST(req: Request) {
       contextCoverage: reportContext.contextCoverage || 60,
     });
 
-    const openAIMessages = [
-      { role: "system" as const, content: systemPrompt },
+    const aiMessages: ChatMessage[] = [
+      { role: "system", content: systemPrompt },
       ...messages.map((m: { role: string; content: string }) => ({
         role: m.role as "user" | "assistant",
         content: m.content,
       })),
     ];
 
-    const completion = await client.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: openAIMessages,
-      temperature: 0.6,
-      max_tokens: 2000,
+    const completion = await completeWithFallback("refine_chat", {
+      messages: aiMessages,
     });
 
-    const content =
-      completion.choices?.[0]?.message?.content ??
-      "Sorry, I had trouble processing your refinement. Please try again.";
-
-    return NextResponse.json({ content });
+    return NextResponse.json({
+      content:
+        completion.content ||
+        "Sorry, I had trouble processing your refinement. Please try again.",
+      _ai: { provider: completion.provider, model: completion.model },
+    });
   } catch (err: unknown) {
     console.error("[Refinement Chat API] Error:", err);
     const message =

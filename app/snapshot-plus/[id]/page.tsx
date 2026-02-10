@@ -2,6 +2,7 @@
 
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
+import { VocSurveyCTA } from "@/components/voc/VocSurveyCTA";
 
 export const dynamic = "force-dynamic";
 
@@ -287,6 +288,9 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
           )}
         </div>
       )}
+
+      {/* VOC Survey — Customer Perception Insights */}
+      <VocSurveyCTA reportId={reportId} businessName={business_name || "Your Business"} />
 
       {/* CTA: Upgrade to Blueprint */}
       <div className="blueprint-cta">

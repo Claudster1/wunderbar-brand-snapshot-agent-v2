@@ -13,6 +13,12 @@ type HistoryRow = {
 };
 
 export async function GET(req: Request) {
+  // ─── Security: Rate limit ───
+  const { apiGuard } = await import("@/lib/security/apiGuard");
+  const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+  const guard = apiGuard(req, { routeId: "history", rateLimit: GENERAL_RATE_LIMIT });
+  if (!guard.passed) return guard.errorResponse;
+
   const { searchParams } = new URL(req.url);
   const userId = searchParams.get("userId");
   const email = searchParams.get("email");
@@ -44,6 +50,11 @@ export async function GET(req: Request) {
       primaryPillar: r.primary_pillar,
       createdAt: r.created_at,
       completed: true,
-    }))
+    })),
+    {
+      headers: {
+        "Cache-Control": "private, s-maxage=30, stale-while-revalidate=120",
+      },
+    }
   );
 }

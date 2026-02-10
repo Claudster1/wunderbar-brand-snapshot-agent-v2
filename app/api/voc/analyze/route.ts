@@ -1,11 +1,10 @@
 // POST /api/voc/analyze — Generate VOC analysis from survey responses
+// Uses multi-provider AI abstraction with automatic fallback.
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase";
-import OpenAI from "openai";
+import { completeWithFallback } from "@/lib/ai";
 
 export const dynamic = "force-dynamic";
-
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const VOC_ANALYSIS_PROMPT = `You are a brand perception analyst. You've received anonymous customer survey responses about a business. Your job is to synthesize these into actionable brand intelligence.
 
@@ -92,18 +91,17 @@ Number of responses: ${responses.length}
 CUSTOMER RESPONSES:
 ${formattedResponses}`;
 
-    // Generate analysis
-    const completion = await client.chat.completions.create({
-      model: "gpt-4o-mini",
+    // Generate analysis (with retry + fallback)
+    const completion = await completeWithFallback("voc_analysis", {
       messages: [
         { role: "system", content: VOC_ANALYSIS_PROMPT },
         { role: "user", content: userPrompt },
       ],
       temperature: 0.4,
-      max_tokens: 2000,
+      jsonMode: true,
     });
 
-    const raw = completion.choices?.[0]?.message?.content ?? "{}";
+    const raw = completion.content || "{}";
 
     // Parse the JSON
     let analysis: any;
@@ -140,7 +138,11 @@ ${formattedResponses}`;
       .update({ analysis_generated_at: new Date().toISOString() })
       .eq("id", survey.id);
 
-    return NextResponse.json({ success: true, analysis });
+    return NextResponse.json({
+      success: true,
+      analysis,
+      _ai: { provider: completion.provider, model: completion.model },
+    });
   } catch (err: any) {
     console.error("[VOC Analyze] Error:", err);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });

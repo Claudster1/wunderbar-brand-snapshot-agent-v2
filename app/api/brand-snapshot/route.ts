@@ -1,16 +1,14 @@
 // app/api/brand-snapshot/route.ts
+// Assessment conversation + report save endpoint.
+// Uses multi-provider AI abstraction with automatic fallback.
 
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
 import { wundySystemPrompt } from "@/src/prompts/wundySystemPrompt";
 import { createClient } from "@supabase/supabase-js";
 import { randomUUID } from "crypto";
+import { completeWithFallback, type ChatMessage } from "@/lib/ai";
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-// ⛑️ Supabase client for saving reports (created lazily to avoid errors if env vars missing)
+// Supabase client for saving reports (created lazily to avoid errors if env vars missing)
 function getSupabaseClient() {
   const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey =
@@ -24,6 +22,12 @@ function getSupabaseClient() {
 }
 
 export async function POST(req: Request) {
+  // ─── Security: Rate limit + request size ───
+  const { apiGuard } = await import("@/lib/security/apiGuard");
+  const { AI_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+  const guard = apiGuard(req, { routeId: "brand-snapshot", rateLimit: AI_RATE_LIMIT, maxBodySize: 200_000 });
+  if (!guard.passed) return guard.errorResponse;
+
   try {
     const body = await req.json().catch(() => ({}));
     
@@ -59,7 +63,6 @@ export async function POST(req: Request) {
       const finalWebsiteNotes = website_notes || websiteNotes;
       const finalFullReport = full_report || fullReport || {};
 
-      // 🧪 Basic validation
       if (!finalEmail) {
         return NextResponse.json(
           { error: "Missing required field: user_email or email" },
@@ -74,7 +77,6 @@ export async function POST(req: Request) {
         );
       }
 
-      // Check if Supabase is configured
       const supabase = getSupabaseClient();
       if (!supabase) {
         return NextResponse.json(
@@ -83,10 +85,8 @@ export async function POST(req: Request) {
         );
       }
 
-      // Generate unique report ID
       const reportId = randomUUID();
 
-      // 🎯 Insert into Supabase table
       const { data, error } = await supabase
         .from("brand_snapshot_reports")
         .insert([
@@ -106,14 +106,13 @@ export async function POST(req: Request) {
         .single();
 
       if (error) {
-        console.error("❌ Insert error:", error);
+        console.error("Insert error:", error);
         return NextResponse.json(
           { error: "Database insert failed", details: error.message },
           { status: 500 }
         );
       }
 
-      // 🎉 Success — return the created report ID
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
       return NextResponse.json(
         {
@@ -135,31 +134,25 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!process.env.OPENAI_API_KEY) {
-      return NextResponse.json(
-        { error: "Server configuration error. Missing API key." },
-        { status: 500 }
-      );
-    }
-
-    // Insert system prompt at the beginning
-    const openAIMessages = [
+    // Build universal messages
+    const aiMessages: ChatMessage[] = [
       { role: "system", content: wundySystemPrompt },
-      ...messages,
+      ...messages.map((m: { role: string; content: string }) => ({
+        role: m.role as "user" | "assistant",
+        content: m.content,
+      })),
     ];
 
-    const completion = await client.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: openAIMessages,
-      temperature: 0.6,
-      max_tokens: 2000,
+    const completion = await completeWithFallback("assessment_chat", {
+      messages: aiMessages,
     });
 
-    const content =
-      completion.choices?.[0]?.message?.content ??
-      "Sorry, I had trouble creating your Brand Snapshot. Please try again.";
-
-    return NextResponse.json({ content });
+    return NextResponse.json({
+      content:
+        completion.content ||
+        "Sorry, I had trouble creating your Brand Snapshot. Please try again.",
+      _ai: { provider: completion.provider, model: completion.model },
+    });
   } catch (err: any) {
     console.error("[Brand Snapshot API] error:", err);
     return NextResponse.json(

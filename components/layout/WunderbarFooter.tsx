@@ -9,6 +9,8 @@ const HIDDEN_FOOTER_ROUTES = [
   "/results",
   "/snapshot-plus",
   "/blueprint",
+  "/report",
+  "/brand-snapshot/results",
 ];
 
 export function WunderbarFooter() {

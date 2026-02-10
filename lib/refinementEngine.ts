@@ -1,13 +1,10 @@
 // lib/refinementEngine.ts
-// Generates refined insights and recommendations for specific pillars
+// Generates refined insights and recommendations for specific pillars.
+// Uses multi-provider AI abstraction with automatic fallback.
 
 import { supabaseServer } from "./supabaseServer";
 import { PILLARS, PillarKey } from "./pillars";
-import OpenAI from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
+import { completeWithFallback } from "@/lib/ai";
 
 export type RefinementInput = {
   snapshotReportId: string;
@@ -43,7 +40,6 @@ export async function generateRefinement(
   const { snapshotReportId, pillar, additionalContext, supportingUrls } = input;
 
   // Fetch the original snapshot report
-  // snapshotReportId can be either UUID (id) or TEXT (report_id)
   const sb = supabaseServer();
   
   // Try querying by report_id first (most common)
@@ -138,8 +134,7 @@ Return as JSON with this exact structure:
 }`;
 
   try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+    const completion = await completeWithFallback("refinement_engine", {
       messages: [
         {
           role: "system",
@@ -151,11 +146,10 @@ Return as JSON with this exact structure:
           content: prompt,
         },
       ],
-      response_format: { type: "json_object" },
-      temperature: 0.7,
+      jsonMode: true,
     });
 
-    const content = completion.choices[0]?.message?.content;
+    const content = completion.content;
     if (!content) {
       throw new Error("No response from AI");
     }
@@ -164,7 +158,7 @@ Return as JSON with this exact structure:
     
     // Validate and structure the response
     const insight = parsed.insight;
-    const recommendations = parsed.recommendations;
+    const recs = parsed.recommendations;
     
     // Ensure proper structure with fallbacks
     return {
@@ -174,11 +168,11 @@ Return as JSON with this exact structure:
         whyThisMatters: insight?.whyThisMatters || "This insight helps clarify your brand's positioning and messaging strategy.",
       },
       recommendations: {
-        priority: recommendations?.priority === "high" || recommendations?.priority === "medium" 
-          ? recommendations.priority 
+        priority: recs?.priority === "high" || recs?.priority === "medium" 
+          ? recs.priority 
           : "medium",
-        actions: Array.isArray(recommendations?.actions) && recommendations.actions.length > 0
-          ? recommendations.actions
+        actions: Array.isArray(recs?.actions) && recs.actions.length > 0
+          ? recs.actions
           : originalRecommendations 
             ? [originalRecommendations]
             : ["Review and refine your brand strategy based on the new context provided."],

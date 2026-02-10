@@ -5,6 +5,12 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export async function POST(req: Request) {
+  // ─── Security: Rate limit + request size ───
+  const { apiGuard } = await import("@/lib/security/apiGuard");
+  const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+  const guard = apiGuard(req, { routeId: "snapshot-save", rateLimit: GENERAL_RATE_LIMIT, maxBodySize: 200_000 });
+  if (!guard.passed) return guard.errorResponse;
+
   try {
     const data = await req.json();
 

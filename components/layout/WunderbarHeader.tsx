@@ -10,6 +10,8 @@ const HIDDEN_HEADER_ROUTES = [
   "/results",
   "/snapshot-plus",
   "/blueprint",
+  "/report",
+  "/brand-snapshot/results",
 ];
 
 export function WunderbarHeader() {

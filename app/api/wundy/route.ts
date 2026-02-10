@@ -2,15 +2,19 @@
 // Unified Wundy chat endpoint supporting two modes:
 //   - "general": Brand education, product FAQs, concept explanations (everyone)
 //   - "report":  Report-aware companion with user's report data (paid tiers only)
-// Supports OpenAI function calling for support request submission.
+// Supports tool calling for support request submission.
+// Uses multi-provider AI abstraction with automatic fallback.
 
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
 import { createClient } from "@supabase/supabase-js";
 import { wundyGuidePrompt } from "@/src/prompts/wundyGuidePrompt";
 import { buildWundyReportCompanionPrompt } from "@/src/prompts/wundyReportCompanionPrompt";
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+import {
+  completeWithFallback,
+  completeToolFollowUp,
+  type ChatMessage,
+  type ToolDefinition,
+} from "@/lib/ai";
 
 // Tier names by product key
 const TIER_NAMES: Record<string, string> = {
@@ -27,70 +31,67 @@ function getSupabase() {
   return createClient(url, key, { auth: { persistSession: false } });
 }
 
-/* ─── OpenAI Tool: submit_support_request ─── */
-const SUPPORT_TOOL: OpenAI.Chat.Completions.ChatCompletionTool = {
-  type: "function",
-  function: {
-    name: "submit_support_request",
-    description:
-      "Submit a support request after collecting all required information from the user. " +
-      "Call this function ONLY when you have gathered: email used for purchase, company name, " +
-      "product name, and issue category.",
-    parameters: {
-      type: "object",
-      properties: {
-        emailUsedForPurchase: {
-          type: "string",
-          description: "The email address the user used for their purchase",
-        },
-        companyName: {
-          type: "string",
-          description: "The user's company name",
-        },
-        productName: {
-          type: "string",
-          enum: [
-            "Brand Snapshot",
-            "Brand Snapshot+",
-            "Brand Blueprint",
-            "Brand Blueprint+",
-          ],
-          description: "The product the user is having issues with",
-        },
-        issueCategory: {
-          type: "string",
-          enum: ["access", "download", "payment", "account"],
-          description: "The category of the issue",
-        },
-        issueDescription: {
-          type: "string",
-          description:
-            "Brief description of the issue in the user's own words",
-        },
-        purchaseTiming: {
-          type: "string",
-          enum: ["today", "yesterday", "earlier"],
-          description:
-            "When the user made their purchase, if mentioned",
-        },
-        errorMessage: {
-          type: "string",
-          description:
-            "Any error message the user reported seeing",
-        },
-        userNotes: {
-          type: "string",
-          description:
-            "Any other relevant context the user shared that doesn't fit other fields",
-        },
+/* ─── Support Request Tool (provider-agnostic format) ─── */
+const SUPPORT_TOOL: ToolDefinition = {
+  name: "submit_support_request",
+  description:
+    "Submit a support request after collecting all required information from the user. " +
+    "Call this function ONLY when you have gathered: email used for purchase, company name, " +
+    "product name, and issue category.",
+  parameters: {
+    type: "object",
+    properties: {
+      emailUsedForPurchase: {
+        type: "string",
+        description: "The email address the user used for their purchase",
       },
-      required: [
-        "emailUsedForPurchase",
-        "companyName",
-        "productName",
-        "issueCategory",
-      ],
+      companyName: {
+        type: "string",
+        description: "The user's company name",
+      },
+      productName: {
+        type: "string",
+        enum: [
+          "Brand Snapshot",
+          "Brand Snapshot+",
+          "Brand Blueprint",
+          "Brand Blueprint+",
+        ],
+        description: "The product the user is having issues with",
+      },
+      issueCategory: {
+        type: "string",
+        enum: ["access", "download", "payment", "account"],
+        description: "The category of the issue",
+      },
+      issueDescription: {
+        type: "string",
+        description:
+          "Brief description of the issue in the user's own words",
+      },
+      purchaseTiming: {
+        type: "string",
+        enum: ["today", "yesterday", "earlier"],
+        description:
+          "When the user made their purchase, if mentioned",
+      },
+      errorMessage: {
+        type: "string",
+        description:
+          "Any error message the user reported seeing",
+      },
+      userNotes: {
+        type: "string",
+        description:
+          "Any other relevant context the user shared that doesn't fit other fields",
+      },
     },
+    required: [
+      "emailUsedForPurchase",
+      "companyName",
+      "productName",
+      "issueCategory",
+    ],
   },
 };
 
@@ -174,7 +175,6 @@ async function handleSupportRequest(
     }
   }
 
-  // Log without PII — email and company name redacted for security
   console.log(
     `[Support Request] ${args.issueCategory.toUpperCase()} | ${args.productName} | ${args.emailUsedForPurchase ? "email-provided" : "no-email"}`
   );
@@ -218,13 +218,6 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { error: "Missing or invalid 'messages' array." },
         { status: 400 }
-      );
-    }
-
-    if (!process.env.OPENAI_API_KEY) {
-      return NextResponse.json(
-        { error: "Server configuration error." },
-        { status: 500 }
       );
     }
 
@@ -297,74 +290,67 @@ export async function POST(req: Request) {
       );
     }
 
-    // ─── Build OpenAI messages ──────────────────────────────────
-    const openAIMessages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] =
-      [
-        { role: "system", content: systemPrompt },
-        ...messages.map((m) => ({
-          role: m.role as "user" | "assistant",
-          content: m.content,
-        })),
-      ];
+    // ─── Build universal messages ────────────────────────────────
+    const aiMessages: ChatMessage[] = [
+      { role: "system", content: systemPrompt },
+      ...messages.map((m) => ({
+        role: m.role as "user" | "assistant",
+        content: m.content,
+      })),
+    ];
 
-    // ─── First completion (with tools) ──────────────────────────
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: openAIMessages,
+    // ─── Determine use case for routing ──────────────────────────
+    const useCase = mode === "general" ? "wundy_general" : "wundy_report";
+
+    // ─── First completion (with tools + retry + fallback) ────────
+    const completion = await completeWithFallback(useCase as any, {
+      messages: aiMessages,
       tools: [SUPPORT_TOOL],
-      temperature: 0.6,
-      max_tokens: 2000,
     });
 
-    const choice = completion.choices?.[0];
+    // ─── Handle tool calls (support request submission) ──────────
+    if (completion.hasToolCalls && completion.toolCalls.length > 0) {
+      const toolCall = completion.toolCalls[0];
 
-    // ─── Handle tool calls (support request submission) ─────────
-    if (
-      choice?.finish_reason === "tool_calls" &&
-      choice.message?.tool_calls?.length
-    ) {
-      const toolCall = choice.message.tool_calls[0] as { type: string; function: { name: string; arguments: string }; id: string };
-
-      if (toolCall.function.name === "submit_support_request") {
-        const args = JSON.parse(toolCall.function.arguments);
+      if (toolCall.name === "submit_support_request") {
+        const args = toolCall.arguments as any;
 
         // Execute the support request (inject session metadata silently)
         const result = await handleSupportRequest(args, sessionMeta);
 
         // Send the tool result back so the model can compose a confirmation
-        const followUp = await openai.chat.completions.create({
-          model: "gpt-4o-mini",
-          messages: [
-            ...openAIMessages,
-            choice.message,
+        const followUp = await completeToolFollowUp(useCase as any, {
+          messages: aiMessages,
+          originalResponse: completion,
+          toolResults: [
             {
-              role: "tool",
-              tool_call_id: toolCall.id,
+              toolCallId: toolCall.id,
               content: JSON.stringify(result),
             },
           ],
-          temperature: 0.6,
-          max_tokens: 2000,
         });
 
-        const followUpContent =
-          followUp.choices?.[0]?.message?.content ??
-          "Got it — I've passed this along to our support team. You should hear back within one business day, often sooner.";
-
         return NextResponse.json({
-          content: followUpContent,
+          content:
+            followUp.content ||
+            "Got it — I've passed this along to our support team. You should hear back within one business day, often sooner.",
           mode,
           supportRequestSubmitted: true,
+          _ai: { provider: completion.provider, model: completion.model },
         });
       }
     }
 
-    // ─── Standard response (no tool call) ───────────────────────
+    // ─── Standard response (no tool call) ────────────────────────
     const content =
-      choice?.message?.content ??
+      completion.content ||
       "Sorry, I had trouble with that. Could you try asking again?";
 
-    return NextResponse.json({ content, mode });
+    return NextResponse.json({
+      content,
+      mode,
+      _ai: { provider: completion.provider, model: completion.model },
+    });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unknown error";
     console.error("[Wundy API] Error:", message);

@@ -308,13 +308,15 @@ CRITICAL — PERSONALIZATION RULES:
 - If idealDiffersFromCurrent is true, acknowledge the gap in Positioning insights: "[BusinessName] currently serves [currentCustomers] but wants to reach [idealCustomers] — this gap is a strategic priority that shapes positioning and messaging."
 
 INDUSTRY BENCHMARKING (CRITICAL — include in every pillar insight):
-- Provide directional industry context for each pillar score. Use your knowledge of typical brand maturity patterns to give relative positioning.
+- If BENCHMARK DATA is provided below the input JSON, use those real peer percentiles and averages in your analysis. Reference the actual data: "Your positioning score places you in the 72nd percentile among [segment] brands."
+- If no BENCHMARK DATA is provided (or it says "No peer benchmark data available"), provide directional industry context using your training knowledge of typical brand maturity patterns.
 - Frame benchmarks by industry + audienceType + revenueRange + geographicScope.
-- Example patterns:
+- Example patterns (when no real data):
   - "For a [regional] [B2B] [industry] brand at [businessName]'s stage, a positioning score of 14 is above average — most companies in this space score 10-13."
   - "A credibility score of 8 is common for [pre-revenue] businesses, but it's the single biggest barrier to conversion in the [industry] space."
   - "In the [B2C] [industry] space, brands with [businessName]'s visibility profile typically see the fastest improvement from investing in [specific channel]."
-- NEVER fabricate specific percentile numbers or cite fake studies. Use directional language: "above average," "typical for your stage," "below where most [industry] brands operate," "strong relative to peers."
+- When using AI-informed estimates (no real data): NEVER fabricate specific percentile numbers or cite fake studies. Use directional language: "above average," "typical for your stage," "below where most [industry] brands operate," "strong relative to peers."
+- When using real peer data: You MAY cite specific percentiles and averages because they come from actual assessments.
 - The goal is to give the score MEANING and CONTEXT — not just a number.
 
 Voice and tone:

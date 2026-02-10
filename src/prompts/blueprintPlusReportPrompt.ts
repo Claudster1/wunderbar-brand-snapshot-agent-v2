@@ -70,7 +70,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
 3. Pillar Deep Dives (All 5: positioning, messaging, visibility, credibility, conversion)
    **BLUEPRINT+ ENHANCED** — Each pillar includes:
    - score (0–20), interpretation, whatsHappeningNow, whyItMattersCommercially
-   - industryContext: Expert-level context on how this score compares to typical [industry] [audienceType] brands at this revenue stage (directional, not fabricated percentiles)
+   - industryContext: If BENCHMARK DATA is provided, use real peer percentiles and averages (e.g., "Your positioning score places you in the 72nd percentile among B2B SaaS brands"). If no benchmark data, provide expert-level directional context on how this score compares to typical [industry] [audienceType] brands at this revenue stage.
    - financialImpact: Connect this pillar to specific business outcomes (e.g., "A credibility score of 8 for a B2B firm means longer sales cycles, higher cost of trust-building, and lost RFPs — improving this pillar alone could accelerate deal close rates by 15-25%." Use directional estimates calibrated to industry and stage.)
    - riskOfInaction: What specifically happens to [businessName] over the next 6-12 months if this pillar is NOT addressed (paint the realistic downside scenario with business language, not fearmongering)
    - concreteExample { before, after }

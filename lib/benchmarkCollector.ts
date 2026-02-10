@@ -97,8 +97,10 @@ export async function recordBenchmarkData(input: BenchmarkInput): Promise<void> 
 
 /**
  * Query benchmark percentile for a given score within a segment.
- * Returns null if insufficient data (< 20 data points in segment).
+ * Returns null if insufficient data (< MIN_SAMPLE_SIZE data points in segment).
  */
+const MIN_SAMPLE_SIZE = 20;
+
 export async function getBenchmarkPercentile(params: {
   score: number;
   industry?: string;
@@ -124,7 +126,7 @@ export async function getBenchmarkPercentile(params: {
 
     const { data, error } = await query;
 
-    if (error || !data || data.length < 20) {
+    if (error || !data || data.length < MIN_SAMPLE_SIZE) {
       // Not enough data for meaningful percentile
       return null;
     }
@@ -143,4 +145,183 @@ export async function getBenchmarkPercentile(params: {
     console.warn("[BenchmarkCollector] Failed to query percentile:", err);
     return null;
   }
+}
+
+// ─── Per-Pillar Benchmark Queries ───
+
+type PillarName = "positioning" | "messaging" | "visibility" | "credibility" | "conversion";
+
+const PILLAR_COLUMNS: Record<PillarName, string> = {
+  positioning: "positioning_score",
+  messaging: "messaging_score",
+  visibility: "visibility_score",
+  credibility: "credibility_score",
+  conversion: "conversion_score",
+};
+
+export interface PillarBenchmark {
+  pillar: PillarName;
+  percentile: number;
+  sampleSize: number;
+  avgScore: number;
+  medianScore: number;
+}
+
+/**
+ * Get benchmark data for a specific pillar within a segment.
+ * Returns null if insufficient data.
+ */
+export async function getPillarBenchmark(params: {
+  pillar: PillarName;
+  score: number;
+  industry?: string;
+  audienceType?: string;
+  revenueRange?: string;
+}): Promise<PillarBenchmark | null> {
+  try {
+    const supabase = supabaseServer();
+    const column = PILLAR_COLUMNS[params.pillar];
+
+    let query = (supabase.from("benchmark_data") as any).select(column);
+
+    if (params.industry) {
+      query = query.ilike("industry", `%${params.industry}%`);
+    }
+    if (params.audienceType) {
+      query = query.eq("audience_type", params.audienceType);
+    }
+    if (params.revenueRange) {
+      query = query.eq("revenue_range", params.revenueRange);
+    }
+
+    const { data, error } = await query;
+
+    if (error || !data || data.length < MIN_SAMPLE_SIZE) {
+      return null;
+    }
+
+    const scores = data
+      .map((d: any) => d[column])
+      .filter((s: any) => typeof s === "number")
+      .sort((a: number, b: number) => a - b);
+
+    if (scores.length < MIN_SAMPLE_SIZE) return null;
+
+    const below = scores.filter((s: number) => s < params.score).length;
+    const percentile = Math.round((below / scores.length) * 100);
+    const avgScore = Math.round(
+      scores.reduce((sum: number, s: number) => sum + s, 0) / scores.length
+    );
+    const medianScore = scores[Math.floor(scores.length / 2)];
+
+    return {
+      pillar: params.pillar,
+      percentile,
+      sampleSize: scores.length,
+      avgScore,
+      medianScore,
+    };
+  } catch (err) {
+    console.warn(`[BenchmarkCollector] Failed to query ${params.pillar} benchmark:`, err);
+    return null;
+  }
+}
+
+// ─── Full Benchmark Report ───
+
+export interface BenchmarkReport {
+  /** Overall Brand Alignment Score benchmark (null if insufficient data) */
+  overall: { percentile: number; sampleSize: number; avgScore: number } | null;
+  /** Per-pillar benchmarks (only pillars with sufficient data are included) */
+  pillars: PillarBenchmark[];
+  /** Whether real peer data is available (true) or AI-informed estimates are used (false) */
+  hasRealData: boolean;
+  /** Segment description used for the query */
+  segmentDescription: string;
+}
+
+/**
+ * Get a complete benchmark report for a brand's scores.
+ * Used by paid report generators to include industry context.
+ *
+ * If insufficient real data exists, returns hasRealData: false so the
+ * report can fall back to AI-informed directional benchmarks.
+ */
+export async function getFullBenchmarkReport(params: {
+  brandAlignmentScore: number;
+  pillarScores: Record<PillarName, number>;
+  industry?: string;
+  audienceType?: string;
+  revenueRange?: string;
+}): Promise<BenchmarkReport> {
+  const segmentParts: string[] = [];
+  if (params.audienceType) segmentParts.push(params.audienceType);
+  if (params.industry) segmentParts.push(params.industry);
+  if (params.revenueRange) segmentParts.push(params.revenueRange);
+  const segmentDescription = segmentParts.length > 0
+    ? segmentParts.join(" · ")
+    : "all industries";
+
+  const overall = await getBenchmarkPercentile({
+    score: params.brandAlignmentScore,
+    industry: params.industry,
+    audienceType: params.audienceType,
+    revenueRange: params.revenueRange,
+  });
+
+  const pillarResults = await Promise.all(
+    (Object.keys(PILLAR_COLUMNS) as PillarName[]).map((pillar) =>
+      getPillarBenchmark({
+        pillar,
+        score: params.pillarScores[pillar],
+        industry: params.industry,
+        audienceType: params.audienceType,
+        revenueRange: params.revenueRange,
+      })
+    )
+  );
+
+  const pillars = pillarResults.filter((p): p is PillarBenchmark => p !== null);
+  const hasRealData = overall !== null || pillars.length > 0;
+
+  return {
+    overall,
+    pillars,
+    hasRealData,
+    segmentDescription,
+  };
+}
+
+/**
+ * Format benchmark data into a context string for AI report prompts.
+ * Returns an empty string if no real data is available (AI falls back to
+ * its own industry knowledge).
+ */
+export function formatBenchmarkContext(report: BenchmarkReport): string {
+  if (!report.hasRealData) {
+    return "BENCHMARK DATA: No peer benchmark data available yet for this segment. Use AI-informed directional industry context based on your training knowledge. Frame as 'Based on typical patterns in [industry]...' rather than citing specific percentiles.";
+  }
+
+  const lines: string[] = [
+    `BENCHMARK DATA (real peer data from ${report.overall?.sampleSize ?? report.pillars[0]?.sampleSize ?? 0} assessments in segment: ${report.segmentDescription}):`,
+  ];
+
+  if (report.overall) {
+    lines.push(
+      `- Overall Brand Alignment Score: ${report.overall.percentile}th percentile (segment avg: ${report.overall.avgScore}/100, sample: ${report.overall.sampleSize})`
+    );
+  }
+
+  for (const p of report.pillars) {
+    lines.push(
+      `- ${p.pillar}: ${p.percentile}th percentile (segment avg: ${p.avgScore}/20, median: ${p.medianScore}/20, sample: ${p.sampleSize})`
+    );
+  }
+
+  lines.push(
+    "",
+    "Use these real benchmarks in your analysis. Reference the percentile ranking and how the brand compares to its peer segment. Frame insights around where they lead and where they lag relative to actual peers."
+  );
+
+  return lines.join("\n");
 }

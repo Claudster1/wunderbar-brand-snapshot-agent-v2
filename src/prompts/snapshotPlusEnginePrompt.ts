@@ -84,6 +84,7 @@ Every section of the Snapshot+™ report MUST be tailored using these inputs:
 
 BUSINESS NAME: Reference by name throughout. "Acme Co's positioning" not "Your positioning."
 INDUSTRY: Shape language, examples, and benchmarks to the industry. A SaaS company and a local bakery get different frameworks.
+BENCHMARK DATA: If BENCHMARK DATA is provided after the input JSON, use those real peer percentiles and averages in your industry context. If not provided, use AI-informed directional benchmarks (never fabricate specific percentiles).
 B2B vs B2C (audienceType):
   - B2B → authority-first, thought leadership, LinkedIn, case studies, longer sales cycle language, stakeholder messaging
   - B2C → emotional connection, community, visual appeal, social proof, faster conversion language

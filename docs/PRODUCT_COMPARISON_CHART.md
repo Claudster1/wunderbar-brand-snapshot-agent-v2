@@ -17,7 +17,7 @@
 | Where to focus first | ✓ | ✓ | ✓ | ✓ |
 | Additional areas to address | — | ✓ | ✓ | ✓ |
 | Gaps in your brand's story | — | ✓ | ✓ | ✓ |
-| How you compare to your industry | — | ✓ | ✓ | Percentile Ranking & Peer Comparison |
+| How you compare to your industry | — | Industry-Informed Context | Detailed Industry Benchmarks | AI-Informed Industry Benchmarks* |
 | Brand health scorecard | — | — | — | ✓ |
 | Strengths, weaknesses, opportunities & threats | — | — | — | ✓ |
 | | | | | |
@@ -107,3 +107,5 @@
 ---
 
 *Each tier includes everything from the previous tier, plus its own exclusive additions.*
+
+*\*Industry benchmarks are AI-informed using broad market intelligence. As more brands complete assessments, benchmarks will evolve to include real peer comparison data within your industry.*

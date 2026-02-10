@@ -131,6 +131,44 @@ export async function POST(req: Request) {
     );
     const upgrade_cta = buildUpgradeCta(primaryPillar ?? "positioning", companyName);
 
+    // ─── Benchmark Collection (anonymized, non-blocking) ───
+    try {
+      const { recordBenchmarkData } = await import("@/lib/benchmarkCollector");
+      await recordBenchmarkData({
+        brandAlignmentScore: scores.brandAlignmentScore,
+        pillarScores: scores.pillarScores as any,
+        primaryPillar,
+        industry: snapshotInput.industry ?? null,
+        audienceType: snapshotInput.audienceType ?? null,
+        geographicScope: snapshotInput.geographicScope ?? null,
+        revenueRange: snapshotInput.revenueRange ?? null,
+        teamSize: snapshotInput.teamSize ?? null,
+        yearsInBusiness: snapshotInput.yearsInBusiness ?? null,
+        hasBrandGuidelines: snapshotInput.hasBrandGuidelines ?? null,
+        hasWebsite: !!snapshotInput.website,
+        previousBrandWork: snapshotInput.previousBrandWork ?? null,
+      });
+    } catch (benchErr) {
+      console.warn("[Snapshot API] Benchmark collection failed (non-blocking):", benchErr);
+    }
+
+    // ─── Benchmark Query: Fetch peer data for paid reports (non-blocking) ───
+    let benchmarkContext: string | null = null;
+    try {
+      const { getFullBenchmarkReport, formatBenchmarkContext } = await import("@/lib/benchmarkCollector");
+      const benchmarkReport = await getFullBenchmarkReport({
+        brandAlignmentScore: scores.brandAlignmentScore,
+        pillarScores: scores.pillarScores as any,
+        industry: snapshotInput.industry ?? undefined,
+        audienceType: snapshotInput.audienceType ?? undefined,
+        revenueRange: snapshotInput.revenueRange ?? undefined,
+      });
+      benchmarkContext = formatBenchmarkContext(benchmarkReport);
+    } catch (benchQueryErr) {
+      console.warn("[Snapshot API] Benchmark query failed (non-blocking):", benchQueryErr);
+    }
+
+    // ─── Save Report ───
     const { data, error } = await supabase
       .from("brand_snapshot_reports")
       .insert({
@@ -152,6 +190,7 @@ export async function POST(req: Request) {
           servicesInterest: snapshotInput.servicesInterest ?? null,
           expertConversation: snapshotInput.expertConversation ?? null,
           contentOptIn: snapshotInput.contentOptIn ?? null,
+          benchmarkContext: benchmarkContext ?? null,
         },
       } as any)
       .select("report_id")
@@ -163,27 +202,6 @@ export async function POST(req: Request) {
         { error: "Failed to save snapshot" },
         { status: 500 }
       );
-    }
-
-    // ─── Benchmark Collection (anonymized, non-blocking) ───
-    try {
-      const { recordBenchmarkData } = await import("@/lib/benchmarkCollector");
-      await recordBenchmarkData({
-        brandAlignmentScore: scores.brandAlignmentScore,
-        pillarScores: scores.pillarScores as any,
-        primaryPillar,
-        industry: snapshotInput.industry ?? null,
-        audienceType: snapshotInput.audienceType ?? null,
-        geographicScope: snapshotInput.geographicScope ?? null,
-        revenueRange: snapshotInput.revenueRange ?? null,
-        teamSize: snapshotInput.teamSize ?? null,
-        yearsInBusiness: snapshotInput.yearsInBusiness ?? null,
-        hasBrandGuidelines: snapshotInput.hasBrandGuidelines ?? null,
-        hasWebsite: !!snapshotInput.website,
-        previousBrandWork: snapshotInput.previousBrandWork ?? null,
-      });
-    } catch (benchErr) {
-      console.warn("[Snapshot API] Benchmark collection failed (non-blocking):", benchErr);
     }
 
     const userEmail = body.email?.toLowerCase?.();

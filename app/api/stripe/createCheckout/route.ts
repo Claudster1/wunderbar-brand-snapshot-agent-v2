@@ -5,7 +5,11 @@ import Stripe from "stripe";
 import { PRICING } from "@/lib/pricing";
 import { normalizeProductKey } from "@/lib/productIds";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+let _stripe: Stripe | null = null;
+function getStripe() {
+  if (!_stripe) _stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+  return _stripe;
+}
 
 export async function POST(req: Request) {
   // ─── Security: Rate limit checkout creation ───
@@ -35,7 +39,7 @@ export async function POST(req: Request) {
         ? ["card", "klarna", "afterpay_clearpay"]
         : ["card", "klarna"];
 
-    const session = await stripe.checkout.sessions.create({
+    const session = await getStripe().checkout.sessions.create({
       mode: "payment",
       payment_method_types: paymentMethods,
       line_items: [

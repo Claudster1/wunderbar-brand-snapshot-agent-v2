@@ -3,7 +3,9 @@ import Stripe from "stripe";
 import { PRICING } from "@/lib/pricing";
 import { normalizeProductKey } from "@/lib/productIds";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+function getStripe() {
+  return new Stripe(process.env.STRIPE_SECRET_KEY!);
+}
 
 export async function POST(req: Request) {
   // ─── Security: Rate limit checkout creation ───
@@ -25,7 +27,7 @@ export async function POST(req: Request) {
       return new Response("Invalid product", { status: 400 });
     }
 
-    const session = await stripe.checkout.sessions.create({
+    const session = await getStripe().checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
       line_items: [

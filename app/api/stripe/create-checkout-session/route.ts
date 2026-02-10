@@ -3,7 +3,11 @@ import Stripe from "stripe";
 
 export const runtime = "nodejs";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+let _stripe: Stripe | null = null;
+function getStripe() {
+  if (!_stripe) _stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+  return _stripe;
+}
 
 export async function POST(req: NextRequest) {
   // ─── Security: Rate limit checkout creation ───
@@ -24,7 +28,7 @@ export async function POST(req: NextRequest) {
       process.env.NEXT_PUBLIC_APP_URL ||
       "http://localhost:3000";
 
-    const session = await stripe.checkout.sessions.create({
+    const session = await getStripe().checkout.sessions.create({
       mode: "payment",
       // Klarna/Afterpay enabled — must also be enabled in Stripe Dashboard → Settings → Payment Methods
       payment_method_types: ["card", "klarna", "afterpay_clearpay"],

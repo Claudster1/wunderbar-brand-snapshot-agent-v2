@@ -10,7 +10,11 @@ import { recordStripePurchase } from "@/lib/recordStripePurchase";
 // ❗ Stripe requires raw body for signature verification
 export const runtime = "nodejs";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+let _stripe: Stripe | null = null;
+function getStripe() {
+  if (!_stripe) _stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+  return _stripe;
+}
 
 type ProductKey = "snapshot_plus" | "blueprint" | "blueprint_plus";
 
@@ -36,7 +40,7 @@ export async function POST(req: NextRequest) {
   try {
     const rawBody = await req.text();
 
-    event = stripe.webhooks.constructEvent(
+    event = getStripe().webhooks.constructEvent(
       rawBody,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET!

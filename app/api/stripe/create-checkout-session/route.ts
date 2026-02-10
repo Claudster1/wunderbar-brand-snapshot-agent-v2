@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { getUpgradeCoupon } from "@/lib/upgradeCoupons";
 
 export const runtime = "nodejs";
 
@@ -7,6 +8,16 @@ let _stripe: Stripe | null = null;
 function getStripe() {
   if (!_stripe) _stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
   return _stripe;
+}
+
+// Maps Stripe price env vars back to ProductKey for upgrade lookup
+function priceIdToProductKey(
+  priceId: string
+): "snapshot_plus" | "blueprint" | "blueprint_plus" | null {
+  if (priceId === process.env.STRIPE_PRICE_SNAPSHOT_PLUS) return "snapshot_plus";
+  if (priceId === process.env.STRIPE_PRICE_BLUEPRINT) return "blueprint";
+  if (priceId === process.env.STRIPE_PRICE_BLUEPRINT_PLUS) return "blueprint_plus";
+  return null;
 }
 
 export async function POST(req: NextRequest) {
@@ -17,7 +28,7 @@ export async function POST(req: NextRequest) {
   if (!guard.passed) return guard.errorResponse;
 
   try {
-    const { priceId, snapshotId, email } = await req.json();
+    const { priceId, snapshotId, email, productKey: rawProductKey } = await req.json();
 
     if (!priceId) {
       return NextResponse.json({ error: "Missing priceId" }, { status: 400 });
@@ -28,7 +39,29 @@ export async function POST(req: NextRequest) {
       process.env.NEXT_PUBLIC_APP_URL ||
       "http://localhost:3000";
 
-    const session = await getStripe().checkout.sessions.create({
+    // ─── Upgrade Credit: Check for prior purchases ───
+    let discounts: Stripe.Checkout.SessionCreateParams.Discount[] = [];
+    let upgradeDescription: string | null = null;
+
+    if (email) {
+      const productKey = rawProductKey || priceIdToProductKey(priceId);
+      if (productKey) {
+        try {
+          const upgrade = await getUpgradeCoupon(email, productKey);
+          if (upgrade.couponId) {
+            discounts = [{ coupon: upgrade.couponId }];
+            upgradeDescription = upgrade.description;
+            console.log(
+              `✅ Upgrade credit applied for ${email}: ${upgrade.description}`
+            );
+          }
+        } catch (err) {
+          console.warn("⚠️ Upgrade coupon lookup failed:", err);
+        }
+      }
+    }
+
+    const sessionParams: Stripe.Checkout.SessionCreateParams = {
       mode: "payment",
       // Klarna/Afterpay enabled — must also be enabled in Stripe Dashboard → Settings → Payment Methods
       payment_method_types: ["card", "klarna", "afterpay_clearpay"],
@@ -43,8 +76,15 @@ export async function POST(req: NextRequest) {
       cancel_url: `${baseUrl}/checkout/cancel?product=snapshot-plus`,
       metadata: {
         snapshot_id: snapshotId ?? "",
+        ...(upgradeDescription ? { upgrade_credit: upgradeDescription } : {}),
       },
-    });
+    };
+
+    if (discounts.length > 0) {
+      sessionParams.discounts = discounts;
+    }
+
+    const session = await getStripe().checkout.sessions.create(sessionParams);
 
     // Fire AC event to track checkout initiation (for abandonment recovery)
     if (email) {
@@ -57,6 +97,7 @@ export async function POST(req: NextRequest) {
           fields: {
             checkout_product: priceId,
             checkout_session_id: session.id,
+            ...(upgradeDescription ? { upgrade_credit: upgradeDescription } : {}),
           },
         });
       } catch (acErr) {
@@ -65,7 +106,11 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    return NextResponse.json({ url: session.url });
+    return NextResponse.json({
+      url: session.url,
+      upgradeApplied: discounts.length > 0,
+      upgradeDescription,
+    });
   } catch (err: any) {
     console.error("Stripe Checkout error:", err);
     return NextResponse.json(

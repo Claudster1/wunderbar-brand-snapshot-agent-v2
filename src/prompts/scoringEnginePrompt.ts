@@ -374,16 +374,16 @@ FREE TIER (Brand Snapshot™):
 - Light suggestion in recommendations
 - Keep it brief and non-technical
 
-SNAPSHOT+™ ($249):
+SNAPSHOT+™ ($497):
 - Full structured AEO section in visibility recommendations
 - Include: keyword clarity, messaging structure, visual optimization, performance heuristics, prioritization matrix
 
-BLUEPRINT™ ($749):
+BLUEPRINT™ ($997):
 - AEO integrated with brand strategy
 - Recommendations reshaped around positioning + messaging
 - Deep-dive competitor gap analysis (AI-powered)
 
-BLUEPRINT+™ ($1499):
+BLUEPRINT+™ ($1,997):
 - Complete AEO system with implementation guidance
 - Platform-specific optimizations
 - AI prompts to generate improved content versions

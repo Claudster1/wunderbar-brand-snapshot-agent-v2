@@ -8,7 +8,7 @@ import { WundyStamp } from "@/components/wundy/WundyStamp";
 export const metadata = {
   title: "Brand Snapshot Suite™ | Wunderbar Digital",
   description:
-    "Choose the right level of brand clarity — from Brand Snapshot™ to Brand Snapshot+™, Brand Snapshot Blueprint™, and Brand Snapshot Blueprint+™.",
+    "Choose the right level of brand clarity — from Brand Snapshot™ to Brand Snapshot+™, Brand Blueprint™, and Brand Blueprint+™.",
 };
 
 export default function BrandSnapshotSuitePage() {
@@ -75,7 +75,7 @@ export default function BrandSnapshotSuitePage() {
           <PricingCard
             badge="Most popular"
             title="Brand Snapshot+™"
-            price="$149"
+            price="$497"
             priceNote="one-time"
             description="A personalized deep-dive report with prioritized clarity improvements and AI-ready prompts."
             features={[
@@ -93,8 +93,8 @@ export default function BrandSnapshotSuitePage() {
 
           <PricingCard
             badge="Strategy system"
-            title="Brand Snapshot Blueprint™"
-            price="$499"
+            title="Brand Blueprint™"
+            price="$997"
             priceNote="one-time"
             description="A complete brand foundation — messaging, narrative, voice, and direction."
             features={[
@@ -105,7 +105,7 @@ export default function BrandSnapshotSuitePage() {
               "Prompt library (pro)",
               "Downloadable PDF deliverable",
             ]}
-            ctaLabel="Get Brand Snapshot Blueprint™ →"
+            ctaLabel="Get Brand Blueprint™ →"
             ctaAction="checkout"
             checkoutProductKey="blueprint"
             variant="base"
@@ -113,8 +113,8 @@ export default function BrandSnapshotSuitePage() {
 
           <PricingCard
             badge="Most comprehensive"
-            title="Brand Snapshot Blueprint+™"
-            price="$999"
+            title="Brand Blueprint+™"
+            price="$1,997"
             priceNote="one-time"
             description="Your advanced strategic brand system — segmentation, matrices, campaign starters, and orchestration."
             features={[
@@ -126,7 +126,7 @@ export default function BrandSnapshotSuitePage() {
               "Prompt library (30+ prompts)",
               "Downloadable PDF deliverable",
             ]}
-            ctaLabel="Get Brand Snapshot Blueprint+™ →"
+            ctaLabel="Get Brand Blueprint+™ →"
             ctaAction="checkout"
             checkoutProductKey="blueprint_plus"
             variant="base"

@@ -554,6 +554,7 @@ export default function ReportNav({
             transition: "all 0.25s ease",
             fontFamily: "Lato, sans-serif",
           }}
+          aria-label={isOpen ? "Close report navigation" : "Open report navigation"}
           title={isOpen ? "Close navigation" : "Navigate report (\u2318K to search)"}
         >
           {isOpen ? (
@@ -568,14 +569,14 @@ export default function ReportNav({
         </button>
       </div>
 
-      {/* ═══ ONBOARDING TOOLTIP (bottom-LEFT, above toggle) ═══ */}
+      {/* ═══ ONBOARDING TOOLTIP (bottom-LEFT, above download button) ═══ */}
       {showTip && !tipDismissed && !isOpen && (
         <div
           className="report-nav-no-print"
           onClick={dismissTip}
           style={{
             position: "fixed",
-            bottom: 84,
+            bottom: 140,
             left: 24,
             zIndex: 10001,
             display: "flex",
@@ -648,6 +649,7 @@ export default function ReportNav({
           transition: "all 0.25s ease",
           fontFamily: "Lato, sans-serif",
         }}
+        aria-label="Download or print this report"
         title="Download or print this report"
       >
         <svg viewBox="0 0 24 24" fill="none" style={{ width: 20, height: 20 }}>

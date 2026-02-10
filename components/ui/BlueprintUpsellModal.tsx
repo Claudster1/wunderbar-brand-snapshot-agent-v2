@@ -49,7 +49,7 @@ Blueprint™ includes the strategic framework and refined messaging needed to st
         {/* HEADER */}
         <div className="text-center">
           <h2 className="text-3xl font-semibold text-brand-navy">
-            Unlock Your Brand Snapshot Blueprint™
+            Unlock Your Brand Blueprint™
           </h2>
           <p className="text-[15px] leading-relaxed text-brand-midnight mt-2 max-w-xl mx-auto">
             A complete, AI-ready brand system built from your Snapshot+™ insights — refined into
@@ -84,7 +84,7 @@ Blueprint™ includes the strategic framework and refined messaging needed to st
         {/* PRICING + CTA */}
         <div className="text-center space-y-4">
           <p className="text-brand-navy font-semibold text-xl">
-            One-Time Investment: $749
+            One-Time Investment: $997
           </p>
 
           <button

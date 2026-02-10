@@ -11,17 +11,17 @@ export interface ProductPricing {
 
 export const PRICING: Record<ProductKey, ProductPricing> = {
   snapshot_plus: {
-    price: 299,
+    price: 497,
     stripePriceId: process.env.STRIPE_PRICE_SNAPSHOT_PLUS!,
     label: "Brand Snapshot+™"
   },
   blueprint: {
-    price: 599,
+    price: 997,
     stripePriceId: process.env.STRIPE_PRICE_BLUEPRINT!,
     label: "Brand Blueprint™"
   },
   blueprint_plus: {
-    price: 1199,
+    price: 1997,
     stripePriceId: process.env.STRIPE_PRICE_BLUEPRINT_PLUS!,
     label: "Brand Blueprint+™"
   }

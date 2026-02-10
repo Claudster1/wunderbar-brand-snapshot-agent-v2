@@ -9,7 +9,7 @@ export function ExpectationsPanel() {
       </h3>
 
       <ul className="space-y-1">
-        <li>• Takes about <strong>5–7 minutes</strong></li>
+        <li>• Takes about <strong>10–15 minutes</strong></li>
         <li>• No prep or documents needed</li>
         <li>• We'll ask about your business, audience, and visibility</li>
         <li>• Your Brand Alignment Score™ appears immediately</li>

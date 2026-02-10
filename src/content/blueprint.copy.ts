@@ -1,5 +1,5 @@
 // src/content/blueprint.copy.ts
-// Copy for Brand Blueprint™ ($399)
+// Copy for Brand Blueprint™ ($997)
 
 export const blueprintCopy = {
   hero: {
@@ -35,7 +35,7 @@ export const blueprintCopy = {
 
   pricing: {
     label: "Brand Blueprint™",
-    price: "$399",
+    price: "$997",
     note: "One-time purchase. Snapshot+™ credit applies.",
   },
 

@@ -6,9 +6,9 @@ This guide explains how to set up Stripe Checkout for the Brand Snapshot Suite�
 
 1. **Stripe Account**: Create an account at [stripe.com](https://stripe.com)
 2. **Stripe Products**: Create products in your Stripe Dashboard for:
-   - Brand Snapshot+™ ($149)
-   - Brand Snapshot Blueprint™ ($499)
-   - Brand Snapshot Blueprint+™ ($999)
+   - Brand Snapshot+™ ($497)
+   - Brand Blueprint™ ($997)
+   - Brand Blueprint+™ ($1,997)
 
 ## Step 1: Install Stripe Package
 
@@ -23,20 +23,20 @@ npm install stripe
 
 ### Brand Snapshot+™
 - **Name**: Brand Snapshot+™
-- **Description**: A personalized deep-dive report with prioritized clarity improvements and AI-ready prompts.
-- **Price**: $149.00 USD (one-time)
+- **Description**: Strategic recommendations with deep pillar analysis, brand persona, messaging pillars, 90-day roadmap, and 8 calibrated AI prompts.
+- **Price**: $497.00 USD (one-time)
 - **Copy the Price ID** (starts with `price_...`)
 
-### Brand Snapshot Blueprint™
-- **Name**: Brand Snapshot Blueprint™
-- **Description**: A complete brand foundation — messaging, narrative, voice, and direction.
-- **Price**: $499.00 USD (one-time)
+### Brand Blueprint™
+- **Name**: Brand Blueprint™
+- **Description**: Complete brand operating system with positioning, messaging frameworks, buyer personas, competitive analysis, and 16 AI prompts.
+- **Price**: $997.00 USD (one-time)
 - **Copy the Price ID** (starts with `price_...`)
 
-### Brand Snapshot Blueprint+™
-- **Name**: Brand Snapshot Blueprint+™
-- **Description**: Your advanced strategic brand system — segmentation, matrices, campaign starters, and orchestration.
-- **Price**: $999.00 USD (one-time)
+### Brand Blueprint+™
+- **Name**: Brand Blueprint+™
+- **Description**: Full strategic brand playbook with implementation guides, templates, 28 AI prompts, and a complimentary 30-minute Strategy Activation Session.
+- **Price**: $1,997.00 USD (one-time)
 - **Copy the Price ID** (starts with `price_...`)
 
 ## Step 3: Get Stripe API Keys
@@ -75,30 +75,73 @@ The webhook handler will:
 - Mark purchases as `paid` with `fulfilled: false`
 - Handle refunds by updating status to `refunded`
 
-## Step 5: Environment Variables
+## Step 5: Create Upgrade Coupons
+
+When a customer upgrades from a lower tier, the system automatically deducts their previous purchase. Create these coupons in Stripe:
+
+1. Go to [Stripe Dashboard → Coupons](https://dashboard.stripe.com/coupons)
+2. Click **"+ New"** for each coupon below:
+
+### Coupon 1: Snapshot+ Credit ($497)
+- **Name:** `Brand Snapshot+™ Upgrade Credit`
+- **ID:** `SNAPSHOT_PLUS_CREDIT` (custom ID — click "Add custom ID")
+- **Type:** Amount off → `$497.00 USD`
+- **Duration:** Once
+- **Max redemptions:** Leave blank
+- **Applies to:** All products
+
+### Coupon 2: Blueprint Credit ($997)
+- **Name:** `Brand Blueprint™ Upgrade Credit`
+- **ID:** `BLUEPRINT_CREDIT`
+- **Type:** Amount off → `$997.00 USD`
+- **Duration:** Once
+
+### Coupon 3: Full Suite Credit ($1,494)
+- **Name:** `Snapshot+ & Blueprint Upgrade Credit`
+- **ID:** `SNAPSHOT_PLUS_BLUEPRINT_CREDIT`
+- **Type:** Amount off → `$1,494.00 USD`
+- **Duration:** Once
+
+**Upgrade paths:**
+| From → To | Coupon Applied | Customer Pays |
+|---|---|---|
+| Snapshot+ ($497) → Blueprint ($997) | SNAPSHOT_PLUS_CREDIT | **$500** |
+| Snapshot+ ($497) → Blueprint+ ($1,997) | SNAPSHOT_PLUS_CREDIT | **$1,500** |
+| Blueprint ($997) → Blueprint+ ($1,997) | BLUEPRINT_CREDIT | **$1,000** |
+| Snapshot+ + Blueprint → Blueprint+ | SNAPSHOT_PLUS_BLUEPRINT_CREDIT | **$503** |
+
+The system automatically detects prior purchases by email and applies the correct coupon at checkout.
+
+## Step 6: Environment Variables
 
 Add these to your `.env.local` file:
 
 ```bash
-# Stripe
+# Stripe API Keys
 STRIPE_SECRET_KEY=sk_live_xxx
 STRIPE_PRICE_SNAPSHOT_PLUS=price_xxx
 STRIPE_PRICE_BLUEPRINT=price_xxx
 STRIPE_PRICE_BLUEPRINT_PLUS=price_xxx
 
+# Stripe Upgrade Coupons (coupon IDs from Step 5)
+STRIPE_COUPON_SNAPSHOT_PLUS_CREDIT=SNAPSHOT_PLUS_CREDIT
+STRIPE_COUPON_BLUEPRINT_CREDIT=BLUEPRINT_CREDIT
+STRIPE_COUPON_FULL_SUITE_CREDIT=SNAPSHOT_PLUS_BLUEPRINT_CREDIT
+
 # Your deployed app URL (used for Checkout redirect URLs)
 NEXT_PUBLIC_BASE_URL=https://your-app-domain.com
 
-# Optional later (webhooks)
-# STRIPE_WEBHOOK_SECRET=whsec_xxx
+# Webhooks
+STRIPE_WEBHOOK_SECRET=whsec_xxx
 ```
 
 **Note**: 
 - For testing, use `sk_test_...` keys
 - For production, use `sk_live_...` keys
 - Replace `xxx` with your actual values from Stripe Dashboard
+- Coupon IDs must match exactly what you set in Stripe Dashboard
 
-## Step 6: Test Mode vs Live Mode
+## Step 7: Test Mode vs Live Mode
 
 ### Test Mode
 - Use test API keys (start with `sk_test_...` and `pk_test_...`)
@@ -111,7 +154,7 @@ NEXT_PUBLIC_BASE_URL=https://your-app-domain.com
 - Update environment variables
 - Real payments will be processed
 
-## Step 7: Verify Setup
+## Step 8: Verify Setup
 
 1. Start your development server: `npm run dev`
 2. Navigate to `/brand-snapshot-suite`
@@ -119,6 +162,11 @@ NEXT_PUBLIC_BASE_URL=https://your-app-domain.com
 4. You should be redirected to Stripe Checkout
 5. Use test card `4242 4242 4242 4242` to complete a test purchase
 6. You should be redirected to `/checkout/success`
+
+### Test Upgrade Flow
+7. After a successful Snapshot+ test purchase, click "Explore Brand Blueprint™ →"
+8. Verify the checkout page shows the $497 upgrade credit applied
+9. The customer should see $500 (not $997) as the amount due
 
 ## Troubleshooting
 

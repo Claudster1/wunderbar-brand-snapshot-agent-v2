@@ -1,10 +1,12 @@
 // components/UpgradeCTA.tsx
 // Upgrade CTA component with A/B testing and analytics
+// Passes customer email to checkout for automatic upgrade credit detection.
 
 "use client";
 
 import { getUpgradeCTAVariant } from "@/lib/abTest";
 import { trackEvent } from "@/lib/analytics";
+import { getPersistedEmail } from "@/lib/persistEmail";
 import { useState, useEffect } from "react";
 
 export function UpgradeCTA({
@@ -39,11 +41,13 @@ export function UpgradeCTA({
 
     setLoading(true);
     try {
+      const email = getPersistedEmail();
       const res = await fetch("/api/stripe/createCheckout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           productKey,
+          email,
           metadata: {
             source: "snapshot-results",
             primary_pillar: primaryPillar,

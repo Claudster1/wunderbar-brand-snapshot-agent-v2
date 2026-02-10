@@ -40,7 +40,7 @@ export default function BrandSuitePage() {
 
         <SuiteCard
           title="Brand Snapshot+™"
-          price="$249"
+          price="$497"
           description="A personalized deep-dive report with strategic insights, clarity opportunities, and a prioritized plan."
           href="/snapshot-plus"
           features={[
@@ -54,7 +54,7 @@ export default function BrandSuitePage() {
 
         <SuiteCard
           title="Brand Blueprint™"
-          price="$749"
+          price="$997"
           description="Your complete AI-powered brand foundation — messaging, narrative, voice, and visual direction."
           href="/blueprint"
           features={[
@@ -69,7 +69,7 @@ export default function BrandSuitePage() {
 
         <SuiteCard
           title="Brand Blueprint+™"
-          price="$1499"
+          price="$1,997"
           description="Our most comprehensive system for growing businesses — advanced strategy, segmentation, and brand assets."
           href="/blueprint-plus"
           features={[

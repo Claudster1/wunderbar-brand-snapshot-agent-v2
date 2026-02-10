@@ -1,5 +1,5 @@
 // src/pdf/documents/SnapshotPlusPDF.tsx
-// Brand Snapshot+™ PDF Document ($249)
+// Brand Snapshot+™ PDF Document ($497)
 // Includes full structured AEO section as required for this tier
 
 import React from "react";

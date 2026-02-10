@@ -1,5 +1,5 @@
 // src/pdf/documents/BrandBlueprintPDF.tsx
-// Brand Blueprint™ PDF Document ($749)
+// Brand Blueprint™ PDF Document ($997)
 // AEO integrated with brand strategy
 
 import React from "react";
@@ -371,7 +371,7 @@ export const BrandBlueprintPDF = ({
         <Text style={stylePresets.h3}>Upgrade to Blueprint+™</Text>
         <Text style={stylePresets.body}>
           For a complete AEO system with implementation guidance, platform-specific optimizations,
-          and AI prompts to generate improved content versions, upgrade to Blueprint+™ ($1499).
+          and AI prompts to generate improved content versions, upgrade to Brand Blueprint+™ ($1,997).
         </Text>
 
         <Text style={stylePresets.footer}>

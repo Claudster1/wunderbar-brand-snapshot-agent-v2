@@ -925,11 +925,43 @@ export default function BrandBlueprintReport() {
           [data-page-break] { page-break-before: always; break-before: page; }
           button { display: none !important; }
         }
+        @media (max-width: 640px) {
+          [data-report] { font-size: 15px; }
+          [data-header-top] { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+          [data-header-info] { flex-direction: column !important; align-items: flex-start !important; gap: 16px !important; }
+          [data-header-actions] { align-items: flex-start !important; }
+          [data-key-cards] { grid-template-columns: 1fr !important; }
+          [data-gauge-row] { flex-direction: column !important; align-items: center !important; gap: 20px !important; }
+          [data-pillar-meters] { grid-template-columns: 1fr !important; }
+          [data-pillar-detail] { grid-template-columns: 1fr !important; }
+          [data-pillar-header] { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+          [data-archetype-layout] { flex-direction: column !important; align-items: center !important; }
+          [data-archetype-content] { min-width: 0 !important; width: 100% !important; }
+          [data-section] { padding: 20px 16px !important; }
+          [data-how-to-read] { flex-direction: column !important; gap: 8px !important; }
+          [data-action-item] { flex-direction: column !important; gap: 10px !important; }
+          [data-suite-cards] { grid-template-columns: 1fr !important; }
+          [data-before-after] { grid-template-columns: 1fr !important; }
+          [data-archetype-cards] { grid-template-columns: 1fr !important; }
+          [data-focus-cards] { grid-template-columns: 1fr !important; }
+          [data-voice-traits] { flex-wrap: wrap !important; }
+          [data-two-col] { grid-template-columns: 1fr !important; }
+          [data-three-col] { grid-template-columns: 1fr !important; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+          }
+        }
       `}} />
-      <div style={{ maxWidth: 900, margin: "0 auto", padding: "0 24px", position: "relative", zIndex: 1 }}>
+      {/* ═══ HEADER ═══ */}
+      <div style={{ background: WHITE, position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: "40%", opacity: 0.04, backgroundImage: `radial-gradient(${NAVY} 1px, transparent 1px)`, backgroundSize: "16px 16px" }} />
 
-        {/* ═══ HEADER ═══ */}
-        <div data-header-top style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 0", borderBottom: `1px solid ${BORDER}` }}>
+        <div style={{ maxWidth: 900, margin: "0 auto", padding: "0 24px", position: "relative", zIndex: 1 }}>
+          <div data-header-top style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 0", borderBottom: `1px solid ${BORDER}` }}>
           <a href={UTM_BASE} target="_blank" rel="noopener noreferrer">
             <img src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp" alt="Wunderbar Digital" style={{ height: 26, objectFit: "contain" }} />
           </a>
@@ -952,9 +984,9 @@ export default function BrandBlueprintReport() {
           </div>
           <div data-header-actions style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
             <div style={{ display: "flex", gap: 8 }}>
-              <button onClick={() => window.print()} style={{
+              <button aria-label="Print report" onClick={() => window.print()} style={{
                 display: "inline-flex", alignItems: "center", gap: 5,
-                padding: "6px 12px", borderRadius: 5,
+                padding: "8px 16px", minHeight: 36, borderRadius: 5,
                 border: `1.5px solid ${BORDER}`, background: WHITE,
                 color: SUB, fontSize: 12, fontWeight: 700, cursor: "pointer",
                 fontFamily: "Lato, sans-serif",
@@ -970,7 +1002,7 @@ export default function BrandBlueprintReport() {
                 </svg>
                 Print
               </button>
-              <button onClick={() => {
+              <button aria-label="Download report" onClick={() => {
                 const el = document.querySelector('[data-report]') || document.querySelector('main') || document.body;
                 if (el) {
                   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Brand Blueprint - ${r.businessName}</title><link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet"><style>body{margin:0;font-family:Lato,sans-serif;}</style></head><body>${el.outerHTML}</body></html>`;
@@ -984,7 +1016,7 @@ export default function BrandBlueprintReport() {
                 }
               }} style={{
                 display: "inline-flex", alignItems: "center", gap: 5,
-                padding: "6px 12px", borderRadius: 5,
+                padding: "8px 16px", minHeight: 36, borderRadius: 5,
                 border: `1.5px solid ${BLUE}`, background: `${BLUE}08`,
                 color: BLUE, fontSize: 12, fontWeight: 700, cursor: "pointer",
                 fontFamily: "Lato, sans-serif",
@@ -1002,7 +1034,12 @@ export default function BrandBlueprintReport() {
             </div>
           </div>
         </div>
+        </div>
 
+        <div style={{ height: 3, background: BLUE }} />
+      </div>
+
+      <div style={{ maxWidth: 900, margin: "0 auto", padding: "0 24px", position: "relative", zIndex: 1 }}>
         <div style={{ padding: "28px 0 48px", display: "flex", flexDirection: "column", gap: 24 }}>
         {/* Preview Banner */}
         <div style={{ background: "#fff9e6", border: "2px solid #f5e6b3", borderRadius: 5, padding: "12px 16px", fontSize: 14, color: "#8b6914", display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
@@ -1019,7 +1056,7 @@ export default function BrandBlueprintReport() {
         </div>
 
         {/* ═══ 1. EXECUTIVE SUMMARY ═══ */}
-        <Section>
+        <Section id="executive-summary">
           <SectionTitle hero description="A strategic overview of your brand's alignment with prioritized focus areas.">Executive Summary</SectionTitle>
           {(() => {
             const pillarEntries = PILLARS.map(p => ({ key: p, label: PILLAR_LABELS[p], score: r.pillarDeepDives[p].score }));
@@ -1037,7 +1074,7 @@ export default function BrandBlueprintReport() {
             ];
             return (
               <>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginBottom: 24 }}>
+                <div data-key-cards style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginBottom: 24 }}>
                   {cards.map((card, i) => {
                     const tierColor = scoreColor(card.pct);
                     const tierLabel = scoreLabel(card.pct);
@@ -1162,13 +1199,13 @@ export default function BrandBlueprintReport() {
           <SectionTitle hero description="A composite score measuring how well your brand communicates across five key pillars.">Brand Alignment Score<span style={{ fontSize: 10, verticalAlign: "super", lineHeight: 0, marginLeft: 0 }}>™</span></SectionTitle>
           <MainGauge score={r.executiveSummary.brandAlignmentScore} />
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 28 }}>
-            <button onClick={() => setSelectedFocus("primary")} style={{ padding: "18px 20px", borderRadius: 5, textAlign: "left", background: selectedFocus === "primary" ? `${BLUE}12` : WHITE, border: selectedFocus === "primary" ? `2px solid ${BLUE}` : `1px solid ${BORDER}`, cursor: "pointer", transition: "all 0.2s ease", position: "relative", overflow: "hidden" }}>
+            <button aria-pressed={selectedFocus === "primary"} onClick={() => setSelectedFocus("primary")} style={{ padding: "18px 20px", borderRadius: 5, textAlign: "left", background: selectedFocus === "primary" ? `${BLUE}12` : WHITE, border: selectedFocus === "primary" ? `2px solid ${BLUE}` : `1px solid ${BORDER}`, cursor: "pointer", transition: "all 0.2s ease", position: "relative", overflow: "hidden" }}>
               {selectedFocus === "primary" && <div style={{ position: "absolute", top: 8, right: 8 }}><svg viewBox="0 0 20 20" fill="none" style={{ width: 20, height: 20 }}><circle cx="10" cy="10" r="10" fill={BLUE}/><path d="M6 10l2.5 2.5L14 7" stroke={WHITE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></div>}
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}><div style={{ width: 32, height: 32, borderRadius: "50%", background: BLUE, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 900 }}>1</div><div style={{ fontSize: 12, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.1em" }}>Primary Focus Area</div></div>
               <div style={{ fontSize: 22, fontWeight: 900, color: NAVY }}>{r.executiveSummary.primaryFocusArea}</div>
               <div style={{ fontSize: 13, color: SUB, marginTop: 6 }}>Highest leverage opportunity</div>
             </button>
-            <button onClick={() => setSelectedFocus("secondary")} style={{ padding: "18px 20px", borderRadius: 5, textAlign: "left", background: selectedFocus === "secondary" ? `${NAVY}10` : WHITE, border: selectedFocus === "secondary" ? `2px solid ${NAVY}` : `1px solid ${BORDER}`, cursor: "pointer", transition: "all 0.2s ease", position: "relative", overflow: "hidden" }}>
+            <button aria-pressed={selectedFocus === "secondary"} onClick={() => setSelectedFocus("secondary")} style={{ padding: "18px 20px", borderRadius: 5, textAlign: "left", background: selectedFocus === "secondary" ? `${NAVY}10` : WHITE, border: selectedFocus === "secondary" ? `2px solid ${NAVY}` : `1px solid ${BORDER}`, cursor: "pointer", transition: "all 0.2s ease", position: "relative", overflow: "hidden" }}>
               {selectedFocus === "secondary" && <div style={{ position: "absolute", top: 8, right: 8 }}><svg viewBox="0 0 20 20" fill="none" style={{ width: 20, height: 20 }}><circle cx="10" cy="10" r="10" fill={NAVY}/><path d="M6 10l2.5 2.5L14 7" stroke={WHITE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></div>}
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}><div style={{ width: 32, height: 32, borderRadius: "50%", background: NAVY, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 900 }}>2</div><div style={{ fontSize: 12, fontWeight: 700, color: SUB, textTransform: "uppercase", letterSpacing: "0.1em" }}>Secondary Focus Area</div></div>
               <div style={{ fontSize: 22, fontWeight: 900, color: NAVY }}>{r.executiveSummary.secondaryFocusArea}</div>
@@ -1292,13 +1329,13 @@ export default function BrandBlueprintReport() {
           <div style={{ marginBottom: 24 }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: SUB, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10, textAlign: "center" }}>Click to explore each archetype</div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
-              <button onClick={() => setSelectedArchetype("primary")} style={{ padding: "24px", borderRadius: 5, background: WHITE, border: selectedArchetype === "primary" ? `2px solid ${BLUE}` : `1px solid ${BORDER}`, display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer", transition: "all 0.2s ease", transform: selectedArchetype === "primary" ? "scale(1.02)" : "scale(1)", boxShadow: selectedArchetype === "primary" ? `0 4px 12px ${BLUE}20` : "none" }}>
+              <button aria-pressed={selectedArchetype === "primary"} onClick={() => setSelectedArchetype("primary")} style={{ padding: "24px", borderRadius: 5, background: WHITE, border: selectedArchetype === "primary" ? `2px solid ${BLUE}` : `1px solid ${BORDER}`, display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer", transition: "all 0.2s ease", transform: selectedArchetype === "primary" ? "scale(1.02)" : "scale(1)", boxShadow: selectedArchetype === "primary" ? `0 4px 12px ${BLUE}20` : "none" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}><div style={{ width: 24, height: 24, borderRadius: "50%", background: selectedArchetype === "primary" ? BLUE : LIGHT_BG, color: selectedArchetype === "primary" ? WHITE : SUB, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 900 }}>1</div><div style={{ fontSize: 10, fontWeight: 700, color: selectedArchetype === "primary" ? BLUE : SUB, textTransform: "uppercase", letterSpacing: "0.1em" }}>Primary</div></div>
                 <div style={{ width: 90, height: 90, borderRadius: 5, background: selectedArchetype === "primary" ? `${BLUE}12` : LIGHT_BG, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 12 }}><ArchetypeIcon name={r.brandArchetypeSystem.primary.name} size={65} /></div>
                 <div style={{ fontSize: 18, fontWeight: 900, color: NAVY }}>{r.brandArchetypeSystem.primary.name}</div>
                 <div style={{ fontSize: 13, fontWeight: 700, color: SUB, fontStyle: "italic", marginTop: 4, textAlign: "center" }}>&quot;{ARCHETYPE_META[r.brandArchetypeSystem.primary.name]?.tagline}&quot;</div>
               </button>
-              <button onClick={() => setSelectedArchetype("secondary")} style={{ padding: "24px", borderRadius: 5, background: WHITE, border: selectedArchetype === "secondary" ? `2px solid ${BLUE}` : `1px solid ${BORDER}`, display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer", transition: "all 0.2s ease", transform: selectedArchetype === "secondary" ? "scale(1.02)" : "scale(1)", boxShadow: selectedArchetype === "secondary" ? `0 4px 12px ${BLUE}20` : "none" }}>
+              <button aria-pressed={selectedArchetype === "secondary"} onClick={() => setSelectedArchetype("secondary")} style={{ padding: "24px", borderRadius: 5, background: WHITE, border: selectedArchetype === "secondary" ? `2px solid ${BLUE}` : `1px solid ${BORDER}`, display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer", transition: "all 0.2s ease", transform: selectedArchetype === "secondary" ? "scale(1.02)" : "scale(1)", boxShadow: selectedArchetype === "secondary" ? `0 4px 12px ${BLUE}20` : "none" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}><div style={{ width: 24, height: 24, borderRadius: "50%", background: selectedArchetype === "secondary" ? BLUE : LIGHT_BG, color: selectedArchetype === "secondary" ? WHITE : SUB, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 900 }}>2</div><div style={{ fontSize: 10, fontWeight: 700, color: selectedArchetype === "secondary" ? BLUE : SUB, textTransform: "uppercase", letterSpacing: "0.1em" }}>Secondary</div></div>
                 <div style={{ width: 90, height: 90, borderRadius: 5, background: selectedArchetype === "secondary" ? `${BLUE}12` : LIGHT_BG, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 12 }}><ArchetypeIcon name={r.brandArchetypeSystem.secondary.name} size={65} /></div>
                 <div style={{ fontSize: 18, fontWeight: 900, color: NAVY }}>{r.brandArchetypeSystem.secondary.name}</div>

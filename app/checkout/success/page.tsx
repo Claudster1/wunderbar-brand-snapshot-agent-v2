@@ -68,12 +68,13 @@ function SuccessContent() {
         maxWidth: 620,
         margin: "0 auto",
         padding: "48px 24px 80px",
-        fontFamily: "'Lato', system-ui, sans-serif",
+        fontFamily: "var(--font-brand)",
       }}
     >
       {/* Success icon */}
       <div style={{ textAlign: "center", marginBottom: 32 }}>
         <div
+          aria-hidden="true"
           style={{
             width: 72,
             height: 72,
@@ -91,7 +92,7 @@ function SuccessContent() {
             <path d="M8 12l3 3 5-5" stroke={GREEN} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           {showConfetti && (
-            <div style={{ position: "absolute", top: -4, right: -4, fontSize: 20, animation: "fadeIn 0.3s ease" }}>
+            <div aria-hidden="true" style={{ position: "absolute", top: -4, right: -4, fontSize: 20, animation: "fadeIn 0.3s ease" }}>
               ✨
             </div>
           )}
@@ -200,8 +201,8 @@ function SuccessContent() {
               justifyContent: "center",
               width: "100%",
               maxWidth: 360,
-              height: 52,
-              borderRadius: 6,
+              height: 48,
+              borderRadius: 8,
               background: BLUE,
               color: WHITE,
               fontWeight: 700,
@@ -221,8 +222,8 @@ function SuccessContent() {
             justifyContent: "center",
             width: "100%",
             maxWidth: 360,
-            height: 52,
-            borderRadius: 6,
+            height: 48,
+            borderRadius: 8,
             border: `2px solid ${BORDER}`,
             background: WHITE,
             color: NAVY,
@@ -245,8 +246,8 @@ function SuccessContent() {
               justifyContent: "center",
               width: "100%",
               maxWidth: 360,
-              height: 52,
-              borderRadius: 6,
+              height: 48,
+              borderRadius: 8,
               border: `2px solid ${BLUE}`,
               background: `${BLUE}08`,
               color: BLUE,
@@ -280,7 +281,7 @@ function SuccessContent() {
 
 export default function CheckoutSuccessPage() {
   return (
-    <Suspense fallback={<div style={{ textAlign: "center", padding: "64px 24px", fontFamily: "'Lato', sans-serif", color: "#5A6B7E" }}>Loading...</div>}>
+    <Suspense fallback={<div role="status" aria-live="polite" style={{ textAlign: "center", padding: "64px 24px", fontFamily: "var(--font-brand)", color: "#5A6B7E" }}>Loading...</div>}>
       <SuccessContent />
     </Suspense>
   );

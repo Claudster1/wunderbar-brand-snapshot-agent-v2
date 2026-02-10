@@ -27,10 +27,11 @@ function CancelContent() {
         margin: "0 auto",
         padding: "64px 24px 80px",
         textAlign: "center",
-        fontFamily: "'Lato', system-ui, sans-serif",
+        fontFamily: "var(--font-brand)",
       }}
     >
       <div
+        aria-hidden="true"
         style={{
           width: 56,
           height: 56,
@@ -96,7 +97,7 @@ function CancelContent() {
             justifyContent: "center",
             height: 48,
             padding: "0 24px",
-            borderRadius: 6,
+            borderRadius: 8,
             background: BLUE,
             color: WHITE,
             fontWeight: 700,
@@ -114,7 +115,7 @@ function CancelContent() {
             justifyContent: "center",
             height: 48,
             padding: "0 24px",
-            borderRadius: 6,
+            borderRadius: 8,
             border: `2px solid ${BORDER}`,
             background: WHITE,
             color: NAVY,
@@ -132,7 +133,7 @@ function CancelContent() {
 
 export default function CheckoutCancelPage() {
   return (
-    <Suspense fallback={<div style={{ textAlign: "center", padding: "64px 24px", fontFamily: "'Lato', sans-serif", color: "#5A6B7E" }}>Loading...</div>}>
+    <Suspense fallback={<div role="status" aria-live="polite" style={{ textAlign: "center", padding: "64px 24px", fontFamily: "var(--font-brand)", color: "#5A6B7E" }}>Loading...</div>}>
       <CancelContent />
     </Suspense>
   );

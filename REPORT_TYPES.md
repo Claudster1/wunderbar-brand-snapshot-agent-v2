@@ -32,13 +32,13 @@ This document outlines all report types in the Wunderbar Digital Brand Snapshot 
 
 ---
 
-## 2. Brand Snapshot+™ (PAID) - $249
+## 2. Brand Snapshot+™ (PAID) - $497
 
 **Type:** Paid deep-dive report  
 **Purpose:** Comprehensive brand analysis with actionable recommendations  
 **Database Table:** `brand_snapshot_plus_reports`  
 **Upgrade Path:** From Brand Snapshot™  
-**Price:** $249
+**Price:** $497
 
 ### What It Includes:
 - **10-Page PDF Report** with:
@@ -68,13 +68,13 @@ This document outlines all report types in the Wunderbar Digital Brand Snapshot 
 
 ---
 
-## 3. Brand Blueprint™ (PAID) - $749
+## 3. Brand Blueprint™ (PAID) - $997
 
 **Type:** Paid strategic brand foundation  
 **Purpose:** Complete brand strategy system  
 **Database Table:** `brand_blueprint_results`  
 **Upgrade Path:** Standalone or from Snapshot/Snapshot+  
-**Price:** $749
+**Price:** $997
 
 ### What It Includes:
 - **Brand Positioning System**
@@ -118,13 +118,13 @@ This document outlines all report types in the Wunderbar Digital Brand Snapshot 
 
 ---
 
-## 4. Brand Blueprint+™ (PAID) - $1499
+## 4. Brand Blueprint+™ (PAID) - $1,997
 
 **Type:** Paid advanced strategic foundation  
 **Purpose:** Consulting-grade brand strategy with execution roadmap  
 **Database Table:** `brand_blueprint_plus_reports`  
 **Upgrade Path:** Standalone or from Blueprint  
-**Price:** $1499
+**Price:** $1,997
 
 ### What It Includes:
 - **Narrative Strategy**
@@ -195,9 +195,9 @@ Brand Blueprint+™ (PAID) ⚠️ AEO Needed (CRITICAL - has content roadmap)
 | Report Type | Price | AEO Status | Priority |
 |------------|-------|------------|----------|
 | **Brand Snapshot™** | **FREE** | ✅ Basic AEO notes (2-3 opportunities) | ✅ Complete |
-| **Brand Snapshot+™** | **$249** | ✅ Full structured AEO section | ✅ Complete |
-| **Brand Blueprint™** | **$749** | ✅ AEO integrated with brand strategy | ✅ Complete |
-| **Brand Blueprint+™** | **$1499** | ✅ Complete AEO system with implementation | ✅ Complete |
+| **Brand Snapshot+™** | **$497** | ✅ Full structured AEO section | ✅ Complete |
+| **Brand Blueprint™** | **$997** | ✅ AEO integrated with brand strategy | ✅ Complete |
+| **Brand Blueprint+™** | **$1,997** | ✅ Complete AEO system with implementation | ✅ Complete |
 
 ---
 
@@ -206,6 +206,6 @@ Brand Blueprint+™ (PAID) ⚠️ AEO Needed (CRITICAL - has content roadmap)
 **Higher tiers = deeper + more usable insights**
 
 - **Free Snapshot™**: Basic AEO notes, 2-3 opportunities only, light suggestions
-- **Snapshot+™ ($249)**: Full structured AEO section with keyword clarity, messaging structure, visual optimization, performance heuristics, prioritization matrix
-- **Blueprint™ ($749)**: AEO integrated with brand strategy, recommendations reshaped around positioning + messaging, deep-dive competitor gap analysis (AI-powered)
-- **Blueprint+™ ($1499)**: Complete AEO system with implementation guidance, platform-specific optimizations, AI prompts to generate improved versions of their content
+- **Snapshot+™ ($497)**: Full structured AEO section with keyword clarity, messaging structure, visual optimization, performance heuristics, prioritization matrix
+- **Blueprint™ ($997)**: AEO integrated with brand strategy, recommendations reshaped around positioning + messaging, deep-dive competitor gap analysis (AI-powered)
+- **Blueprint+™ ($1,997)**: Complete AEO system with implementation guidance, platform-specific optimizations, AI prompts to generate improved versions of their content

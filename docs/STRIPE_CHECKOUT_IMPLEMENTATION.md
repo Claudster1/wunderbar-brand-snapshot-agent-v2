@@ -6,9 +6,9 @@
 - **File**: `app/api/checkout/route.ts`
 - **Function**: Creates Stripe Checkout sessions for all three paid products
 - **Products Supported**:
-  - Brand Snapshot+™ ($149) - SKU: `SNAPSHOT_PLUS`
-  - Brand Snapshot Blueprint™ ($499) - SKU: `BLUEPRINT`
-  - Brand Snapshot Blueprint+™ ($999) - SKU: `BLUEPRINT_PLUS`
+  - Brand Snapshot+™ ($497) - SKU: `SNAPSHOT_PLUS`
+  - Brand Blueprint™ ($997) - SKU: `BLUEPRINT`
+  - Brand Blueprint+™ ($1,997) - SKU: `BLUEPRINT_PLUS`
 
 ### 2. Checkout Pages
 - **Success Page**: `app/checkout/success/page.tsx`
@@ -80,9 +80,9 @@ NEXT_PUBLIC_BASE_URL=https://yourdomain.com
 ### 3. Create Products in Stripe Dashboard
 1. Go to [Stripe Dashboard → Products](https://dashboard.stripe.com/products)
 2. Create three products with prices:
-   - Brand Snapshot+™ - $149
-   - Brand Snapshot Blueprint™ - $499
-   - Brand Snapshot Blueprint+™ - $999
+   - Brand Snapshot+™ - $497
+   - Brand Blueprint™ - $997
+   - Brand Blueprint+™ - $1,997
 3. Copy the Price IDs (start with `price_...`)
 4. Add them to your `.env.local` file
 

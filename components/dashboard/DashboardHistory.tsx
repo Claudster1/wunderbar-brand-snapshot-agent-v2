@@ -158,7 +158,7 @@ export default function DashboardHistory() {
           No completed reports
         </h2>
         <p style={{ fontSize: 15, color: SUB, margin: "0 0 24px", lineHeight: 1.6 }}>
-          You haven't completed a Brand Snapshot™ assessment yet. It takes about 15 minutes.
+          You haven't completed a Brand Snapshot™ assessment yet. It takes about 10–15 minutes.
         </p>
         <a
           href="/"

@@ -1,8 +1,10 @@
 // components/pricing/PricingCard.tsx
+// Passes customer email to checkout for automatic upgrade credit detection.
 "use client";
 
 import Link from "next/link";
 import { useState } from "react";
+import { getPersistedEmail } from "@/lib/persistEmail";
 
 type Props = {
   badge?: string;
@@ -37,10 +39,11 @@ export function PricingCard({
     if (!ctaAction || !checkoutProductKey) return;
     setLoading(true);
     try {
+      const email = getPersistedEmail();
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ productKey: checkoutProductKey }),
+        body: JSON.stringify({ productKey: checkoutProductKey, email }),
       });
 
       if (!res.ok) throw new Error("Checkout failed");

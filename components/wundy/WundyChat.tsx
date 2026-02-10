@@ -63,6 +63,16 @@ export default function WundyChat({
     }
   }, [isOpen]);
 
+  // Close on Escape key
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsOpen(false);
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [isOpen]);
+
   // Auto-hide thought bubble after 10 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -81,6 +91,9 @@ export default function WundyChat({
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
+    }
+    if (e.key === "Escape") {
+      setIsOpen(false);
     }
   };
 
@@ -306,6 +319,9 @@ export default function WundyChat({
 
           {/* Messages */}
           <div
+            role="log"
+            aria-live="polite"
+            aria-label="Chat messages"
             style={{
               flex: 1,
               overflowY: "auto",
@@ -360,7 +376,7 @@ export default function WundyChat({
 
             {/* Loading indicator */}
             {isLoading && (
-              <div style={{ display: "flex", justifyContent: "flex-start", gap: 8, alignItems: "flex-end" }}>
+              <div role="status" aria-label="Wundy is typing" style={{ display: "flex", justifyContent: "flex-start", gap: 8, alignItems: "flex-end" }}>
                 <div style={{ width: 26, height: 26, borderRadius: "50%", overflow: "hidden", flexShrink: 0 }}>
                   <Image
                     src="/assets/wundy-avatar.png"
@@ -410,10 +426,13 @@ export default function WundyChat({
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ask Wundy anything..."
+              aria-label="Ask Wundy a question"
               disabled={isLoading}
               style={{
                 flex: 1,
                 padding: "10px 14px",
+                minHeight: 44,
+                boxSizing: "border-box",
                 borderRadius: 10,
                 border: `1px solid ${BORDER}`,
                 fontSize: 14,
@@ -423,15 +442,17 @@ export default function WundyChat({
               }}
             />
             <button
+              aria-label="Send message"
               onClick={handleSend}
               disabled={isLoading || !input.trim()}
               style={{
                 padding: "0 14px",
+                minHeight: 44,
                 borderRadius: 10,
                 border: "none",
                 background: input.trim() && !isLoading ? accentColor : `${accentColor}40`,
                 color: WHITE,
-                cursor: input.trim() && !isLoading ? "pointer" : "default",
+                cursor: input.trim() && !isLoading ? "pointer" : "not-allowed",
                 fontSize: 14,
                 fontWeight: 600,
                 transition: "background 0.15s",

@@ -1553,6 +1553,7 @@ export default function BrandSnapshotPlusReport() {
           <div data-focus-cards style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 28 }}>
             {/* Primary Focus Area Card */}
             <button
+              aria-pressed={selectedFocus === "primary"}
               onClick={() => setSelectedFocus("primary")}
               style={{
                 padding: "18px 20px", borderRadius: 5, textAlign: "left",
@@ -1588,6 +1589,7 @@ export default function BrandSnapshotPlusReport() {
 
             {/* Secondary Focus Area Card */}
             <button
+              aria-pressed={selectedFocus === "secondary"}
               onClick={() => setSelectedFocus("secondary")}
               style={{
                 padding: "18px 20px", borderRadius: 5, textAlign: "left",
@@ -2052,6 +2054,7 @@ export default function BrandSnapshotPlusReport() {
             <div data-archetype-cards style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
               {/* Primary Archetype */}
               <button
+                aria-pressed={selectedArchetype === "primary"}
                 onClick={() => setSelectedArchetype("primary")}
                 style={{
                   padding: "24px", borderRadius: 5, background: WHITE,
@@ -2094,6 +2097,7 @@ export default function BrandSnapshotPlusReport() {
 
               {/* Secondary Archetype */}
               <button
+                aria-pressed={selectedArchetype === "secondary"}
                 onClick={() => setSelectedArchetype("secondary")}
                 style={{
                   padding: "24px", borderRadius: 5, background: WHITE,

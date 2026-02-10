@@ -1,5 +1,5 @@
 // src/pdf/documents/BrandBlueprintPlusPDF.tsx
-// Brand Blueprint+™ PDF Document ($1499)
+// Brand Blueprint+™ PDF Document ($1,997)
 // Complete AEO system with implementation guidance
 
 import React from "react";

@@ -26,8 +26,8 @@ export function PricingComparison() {
               <th className="py-3 pr-4">Feature</th>
               <th className="py-3 pr-4">Brand Snapshot™</th>
               <th className="py-3 pr-4">Brand Snapshot+™</th>
-              <th className="py-3 pr-4">Brand Snapshot Blueprint™</th>
-              <th className="py-3">Brand Snapshot Blueprint+™</th>
+              <th className="py-3 pr-4">Brand Blueprint™</th>
+              <th className="py-3">Brand Blueprint+™</th>
             </tr>
           </thead>
           <tbody>

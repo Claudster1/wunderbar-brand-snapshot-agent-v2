@@ -52,6 +52,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={lato.variable}>
       <body className="font-brand antialiased">
+        <a href="#main-content" className="sr-only" style={{ position: "absolute", top: 0, left: 0, padding: "8px 16px", background: "#07B0F2", color: "#fff", zIndex: 100000, fontWeight: 700 }}>Skip to main content</a>
         <script
           dangerouslySetInnerHTML={{
             __html: `

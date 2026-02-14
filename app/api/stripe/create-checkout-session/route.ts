@@ -51,8 +51,8 @@ export async function POST(req: NextRequest) {
           if (upgrade.couponId) {
             discounts = [{ coupon: upgrade.couponId }];
             upgradeDescription = upgrade.description;
-            console.log(
-              `✅ Upgrade credit applied for ${email}: ${upgrade.description}`
+            console.info(
+              `[Checkout] Upgrade credit applied for ${email}: ${upgrade.description}`
             );
           }
         } catch (err) {

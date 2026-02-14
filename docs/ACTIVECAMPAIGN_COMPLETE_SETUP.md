@@ -63,7 +63,7 @@ Create these in **Settings → Fields**. After creating each field, note its **F
 
 | Field name in AC | Type | Env variable | Merge tag |
 |------------------|------|--------------|-----------|
-| Brand Alignment Score | Text | `AC_FIELD_BRAND_ALIGNMENT_SCORE` | `%BRAND_ALIGNMENT_SCORE%` |
+| WunderBrand Score™ | Text | `AC_FIELD_BRAND_ALIGNMENT_SCORE` | `%BRAND_ALIGNMENT_SCORE%` |
 | Positioning Score | Text | `AC_FIELD_POSITIONING_SCORE` | `%POSITIONING_SCORE%` |
 | Messaging Score | Text | `AC_FIELD_MESSAGING_SCORE` | `%MESSAGING_SCORE%` |
 | Visibility Score | Text | `AC_FIELD_VISIBILITY_SCORE` | `%VISIBILITY_SCORE%` |
@@ -93,7 +93,7 @@ Create these in **Settings → Fields**. After creating each field, note its **F
 
 | Field name in AC | Type | Env variable | Merge tag |
 |------------------|------|--------------|-----------|
-| **Brand Snapshot Report Link** | Text | `AC_FIELD_REPORT_LINK` | **`%BRANDSNAPSHOTREPORTLINK%`** |
+| **WunderBrand Snapshot™ Report Link** | Text | `AC_FIELD_REPORT_LINK` | **`%BRANDSNAPSHOTREPORTLINK%`** |
 | Snapshot+ Upsell Block | Long text | `AC_FIELD_SNAPSHOT_PLUS_PITCH` | `%SNAPSHOT_PLUS_PITCH%` |
 | Brand URL | Text | `AC_FIELD_BRAND_URL` | `%BRAND_URL%` |
 
@@ -114,11 +114,11 @@ Create these in **Settings → Fields**. After creating each field, note its **F
 
 Create these in **Settings → Tags**. Names must match **exactly** (including colons and lowercase).
 
-### Brand Snapshot completion (applied by `/api/activecampaign`)
+### WunderBrand Snapshot™ completion (applied by `/api/activecampaign`)
 
 | Tag name | When applied |
 |----------|--------------|
-| `brand_snapshot_completed` | When user completes Brand Snapshot |
+| `brand_snapshot_completed` | When user completes WunderBrand Snapshot™ |
 | `brand_snapshot_high_score` | Score ≥ 80 |
 | `brand_snapshot_mid_score` | Score 60–79 |
 | `brand_snapshot_low_score` | Score &lt; 60 |
@@ -127,7 +127,7 @@ Create these in **Settings → Tags**. Names must match **exactly** (including c
 
 ### Pillar score & insight tags (for personalized, educational emails)
 
-Applied when the user completes Brand Snapshot. Use these to segment and personalize emails by exact scores and situation.
+Applied when the user completes WunderBrand Snapshot™. Use these to segment and personalize emails by exact scores and situation.
 
 **Per-pillar score tier** (score 0–20: low 0–9, mid 10–14, high 15–20). Create all 15 tags:
 

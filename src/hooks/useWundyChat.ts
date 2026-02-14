@@ -1,5 +1,5 @@
 // src/hooks/useWundyChat.ts
-// Reusable hook for Wundy chat in both General Guide and Report Companion modes.
+// Reusable hook for Wundy™ chat in both General Guide and Report Companion modes.
 
 import { useState, useCallback, useRef } from "react";
 
@@ -25,7 +25,7 @@ type UseWundyChatOptions = {
   reportId?: string;
   /** Product tier — required for "report" mode */
   tier?: "snapshot-plus" | "blueprint" | "blueprint-plus";
-  /** Optional greeting message from Wundy */
+  /** Optional greeting message from Wundy™ */
   greeting?: string;
   /** Auto-collected session metadata for support requests */
   sessionMeta?: WundySessionMeta;
@@ -33,9 +33,9 @@ type UseWundyChatOptions = {
 
 const DEFAULT_GREETINGS: Record<WundyChatMode, string> = {
   general:
-    "Hi, I'm Wundy — your brand guide. I can help you understand branding concepts, learn about our products, or figure out which Brand Snapshot product is right for you. What can I help with?",
+    "Hi, I'm Wundy™ — your brand guide. I can help you understand branding concepts, learn about our products, or figure out which WunderBrand Snapshot™ product is right for you. What can I help with?",
   report:
-    "Hi, I'm Wundy — I have your report right here. I can help you understand your scores, explain any section, or help you prioritize your next steps. What would you like to know?",
+    "Hi, I'm Wundy™ — I have your report right here. I can help you understand your scores, explain any section, or help you prioritize your next steps. What would you like to know?",
 };
 
 export function useWundyChat(options: UseWundyChatOptions) {

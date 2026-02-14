@@ -9,7 +9,7 @@ export default async function HistoryPage() {
   return (
     <div className="max-w-6xl mx-auto py-12">
       <h1 className="text-2xl font-semibold mb-6">
-        Your Brand Snapshot™ History
+        Your WunderBrand Snapshot™ History
       </h1>
 
       <HistorySection snapshots={snapshots} />

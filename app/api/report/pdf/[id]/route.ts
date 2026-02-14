@@ -1,7 +1,7 @@
 // app/api/report/pdf/[id]/route.ts
 
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
 import ReportDocument from "@/components/pdf/ReportDocument";
@@ -10,18 +10,27 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { apiGuard } = await import("@/lib/security/apiGuard");
+    const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+    const guard = apiGuard(req, { routeId: "report-pdf-by-id", rateLimit: GENERAL_RATE_LIMIT });
+    if (!guard.passed) return guard.errorResponse;
+
+    const { isValidUUID } = await import("@/lib/security/inputValidation");
     const { id } = await params;
     const url = new URL(req.url);
     const plus = url.searchParams.get("plus") === "1";
 
-    const supabase = createClient(
-      process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY)!
-    );
+    if (!isValidUUID(id)) {
+      return NextResponse.json({ error: "Invalid ID format" }, { status: 400 });
+    }
+
+    if (!supabaseAdmin) {
+      return NextResponse.json({ error: "Database not configured" }, { status: 500 });
+    }
 
     const table = plus ? "brand_snapshot_plus_reports" : "brand_snapshot_reports";
 
-    const { data: report, error } = await supabase
+    const { data: report, error } = await supabaseAdmin
       .from(table)
       .select("*")
       .eq("report_id", id)

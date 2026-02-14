@@ -6,7 +6,7 @@ import { mapWundyToAC } from "@/src/utils/activeCampaignMapper";
 /**
  * ActiveCampaign API Integration
  * 
- * This endpoint receives Wundy's JSON output and syncs it to ActiveCampaign
+ * This endpoint receives Wundy™'s JSON output and syncs it to ActiveCampaign
  * 
  * Required Environment Variables:
  * - ACTIVE_CAMPAIGN_API_KEY: Your ActiveCampaign API token
@@ -20,6 +20,11 @@ import { mapWundyToAC } from "@/src/utils/activeCampaignMapper";
 
 export async function POST(req: Request) {
   try {
+    const { apiGuard } = await import("@/lib/security/apiGuard");
+    const { AUTH_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+    const guard = apiGuard(req, { routeId: "activecampaign", rateLimit: AUTH_RATE_LIMIT });
+    if (!guard.passed) return guard.errorResponse;
+
     const wundyJson = await req.json().catch(() => ({}));
 
     // Validate required environment variables
@@ -39,7 +44,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Validate required fields in Wundy JSON
+    // Validate required fields in Wundy™ JSON
     if (!wundyJson.user?.email) {
       return NextResponse.json(
         { error: "Missing required field: user.email" },
@@ -47,7 +52,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Map Wundy JSON to ActiveCampaign format
+    // Map Wundy™ JSON to ActiveCampaign format
     const acPayload = mapWundyToAC(wundyJson);
 
     // ActiveCampaign API endpoint
@@ -110,84 +115,72 @@ export async function POST(req: Request) {
     // Apply tags if contact was created/updated successfully
     if (acPayload.tags?.apply && newContactId) {
       try {
-        // ActiveCampaign requires tags to be applied separately
-        // First, get or create tags, then apply them
-        for (const tagName of acPayload.tags.apply) {
-          // Try to find existing tag by name
-          let tagId: string | null = null;
-          
-          const searchTagResponse = await fetch(
-            `${process.env.ACTIVE_CAMPAIGN_API_URL}/api/3/tags?search=${encodeURIComponent(tagName)}`,
-            {
-              method: "GET",
-              headers: {
-                "Api-Token": process.env.ACTIVE_CAMPAIGN_API_KEY,
-                "Content-Type": "application/json",
-              },
-            }
-          );
+        const acHeaders = {
+          "Api-Token": process.env.ACTIVE_CAMPAIGN_API_KEY!,
+          "Content-Type": "application/json",
+        };
+        const acBase = process.env.ACTIVE_CAMPAIGN_API_URL;
 
-          if (searchTagResponse.ok) {
-            const tagData = await searchTagResponse.json();
-            if (tagData.tags && tagData.tags.length > 0) {
-              tagId = tagData.tags[0].id;
-            }
-          }
-
-          // Create tag if it doesn't exist
-          if (!tagId) {
-            const createTagResponse = await fetch(
-              `${process.env.ACTIVE_CAMPAIGN_API_URL}/api/3/tags`,
-              {
-                method: "POST",
-                headers: {
-                  "Api-Token": process.env.ACTIVE_CAMPAIGN_API_KEY,
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  tag: {
-                    tag: tagName,
-                    tagType: "contact",
-                  },
-                }),
-              }
+        // Step 1: Search for all tags in parallel
+        const tagSearchResults = await Promise.all(
+          acPayload.tags.apply.map(async (tagName: string) => {
+            const res = await fetch(
+              `${acBase}/api/3/tags?search=${encodeURIComponent(tagName)}`,
+              { method: "GET", headers: acHeaders }
             );
-
-            if (createTagResponse.ok) {
-              const newTagData = await createTagResponse.json();
-              tagId = newTagData.tag.id;
+            if (res.ok) {
+              const data = await res.json();
+              const tagId = data.tags?.[0]?.id ?? null;
+              return { tagName, tagId };
             }
-          }
+            return { tagName, tagId: null };
+          })
+        );
 
-          // Apply tag to contact
-          if (tagId) {
-            const tagResponse = await fetch(
-              `${process.env.ACTIVE_CAMPAIGN_API_URL}/api/3/contactTags`,
-              {
-                method: "POST",
-                headers: {
-                  "Api-Token": process.env.ACTIVE_CAMPAIGN_API_KEY,
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  contactTag: {
-                    contact: newContactId,
-                    tag: tagId,
-                  },
-                }),
-              }
-            );
+        // Step 2: Create any missing tags in parallel
+        const tagsNeedingCreation = tagSearchResults.filter((t) => !t.tagId);
+        const createdTags = await Promise.all(
+          tagsNeedingCreation.map(async ({ tagName }) => {
+            const res = await fetch(`${acBase}/api/3/tags`, {
+              method: "POST",
+              headers: acHeaders,
+              body: JSON.stringify({ tag: { tag: tagName, tagType: "contact" } }),
+            });
+            if (res.ok) {
+              const data = await res.json();
+              return { tagName, tagId: data.tag?.id ?? null };
+            }
+            return { tagName, tagId: null };
+          })
+        );
 
-            // Don't fail if tag application fails (tag might already be applied)
-            if (!tagResponse.ok) {
-              const errorText = await tagResponse.text().catch(() => '');
-              // Check if error is due to tag already being applied
-              if (!errorText.includes('already')) {
+        // Merge: existing tags + newly created tags
+        const tagMap = new Map<string, string>();
+        for (const t of tagSearchResults) {
+          if (t.tagId) tagMap.set(t.tagName, t.tagId);
+        }
+        for (const t of createdTags) {
+          if (t.tagId) tagMap.set(t.tagName, t.tagId);
+        }
+
+        // Step 3: Apply all tags to contact in parallel
+        await Promise.all(
+          Array.from(tagMap.entries()).map(async ([tagName, tagId]) => {
+            const res = await fetch(`${acBase}/api/3/contactTags`, {
+              method: "POST",
+              headers: acHeaders,
+              body: JSON.stringify({
+                contactTag: { contact: newContactId, tag: tagId },
+              }),
+            });
+            if (!res.ok) {
+              const errorText = await res.text().catch(() => "");
+              if (!errorText.includes("already")) {
                 console.warn(`[ActiveCampaign] Failed to apply tag "${tagName}":`, errorText);
               }
             }
-          }
-        }
+          })
+        );
       } catch (tagError) {
         console.error("[ActiveCampaign] Tag application error:", tagError);
         // Continue even if tags fail - contact was created/updated

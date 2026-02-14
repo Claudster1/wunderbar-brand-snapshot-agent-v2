@@ -4,12 +4,12 @@
 export const snapshotPlusSections = [
   {
     id: "overview",
-    title: "Your Brand Snapshot™ Summary",
+    title: "Your WunderBrand Snapshot™ Summary",
     purpose: "Sets context and confidence"
   },
   {
     id: "alignment",
-    title: "Brand Alignment Score™",
+    title: "WunderBrand Score™",
     purpose: "High-visual, emotional anchor"
   },
   {
@@ -35,7 +35,7 @@ export const snapshotPlusSections = [
 
 // Snapshot+™ PDF section titles (simplified array)
 export const snapshotPlusPdfSections = [
-  "Brand Alignment Score™",
+  "WunderBrand Score™",
   "Primary Focus Area",
   "Supporting Pillars",
   "Context Gaps",

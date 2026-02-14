@@ -6,6 +6,11 @@ import { supabaseServer } from "@/lib/supabaseServer";
 
 export async function POST(req: Request) {
   try {
+    const { apiGuard } = await import("@/lib/security/apiGuard");
+    const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+    const guard = apiGuard(req, { routeId: "refinements", rateLimit: GENERAL_RATE_LIMIT });
+    if (!guard.passed) return guard.errorResponse;
+
     const body = await req.json();
 
     const supabase = supabaseServer();

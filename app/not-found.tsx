@@ -67,7 +67,7 @@ export default function NotFound() {
             transition: "background 0.2s",
           }}
         >
-          Start a Brand Snapshot™
+          Start a WunderBrand Snapshot™
         </Link>
         <Link
           href="https://wunderbardigital.com/brand-snapshot-suite?utm_source=brand_snapshot_app&utm_medium=404_page&utm_campaign=navigation&utm_content=explore_suite"
@@ -89,7 +89,7 @@ export default function NotFound() {
             transition: "background 0.2s, color 0.2s",
           }}
         >
-          Explore Brand Snapshot Suite™
+          Explore WunderBrand Suite™
         </Link>
       </div>
     </main>

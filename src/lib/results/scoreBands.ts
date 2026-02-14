@@ -1,5 +1,5 @@
 /**
- * Single source of truth for overall Brand Alignment Score (0–100) bands.
+ * Single source of truth for overall WunderBrand Score™ (0–100) bands.
  * Used by: gauge segments (ScoreGauge), rating label (getOverallScoreRating),
  * and any copy that references score ranges. Keep in sync so needle color and
  * "Rating: X" text always match.

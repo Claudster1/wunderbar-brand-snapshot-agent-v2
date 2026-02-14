@@ -2,7 +2,7 @@
 
 **Goals:**
 1. **Report content mirrors PDF content** — Whatever sections appear in the web report (HTML/view) for a tier must appear in the PDF for that tier, in the same logical order. No “report has X but PDF doesn’t” or vice versa.
-2. **Product name only** — Use only that tier’s product name (e.g. “Brand Snapshot+™ Report”). When including expanded content that aggregates lower-tier data (score, pillars, persona, etc.), **do not reference** other products (e.g. don’t say “from your Brand Snapshot™” or “Snapshot foundation”). Present everything as part of *this* report (e.g. “Brand Alignment Score™”, “Pillar Analysis”, “Brand Persona”).
+2. **Product name only** — Use only that tier’s product name (e.g. “WunderBrand Snapshot+™ Report”). When including expanded content that aggregates lower-tier data (score, pillars, persona, etc.), **do not reference** other products (e.g. don’t say “from your WunderBrand Snapshot™” or “Snapshot foundation”). Present everything as part of *this* report (e.g. “WunderBrand Score™”, “Pillar Analysis”, “Brand Persona”).
 3. **Expanded content by tier** — Each tier includes all content from lower tiers plus its own. The *content* is cumulative; the *naming* is only the current product.
 
 This doc defines the **canonical content per tier** (one list that applies to both report and PDF), **data shapes** you can share between report and PDF, and **how to verify** they stay in sync.
@@ -14,7 +14,7 @@ This doc defines the **canonical content per tier** (one list that applies to bo
 | Rule | Meaning |
 |------|--------|
 | **One content list per tier** | For each tier there is a single ordered list of sections. Both the **report view** and the **PDF** must include exactly these sections (same order, same data). |
-| **Product name only** | Title and intro use only that product’s name (Brand Snapshot™, Brand Snapshot+™, Brand Blueprint™, Brand Blueprint+™). Body copy does not say “from your Snapshot” or “Snapshot+ identified”; it just presents the section (e.g. “Brand Persona”, “Pillar Analysis”). |
+| **Product name only** | Title and intro use only that product’s name (WunderBrand Snapshot™, WunderBrand Snapshot+™, WunderBrand Blueprint™, WunderBrand Blueprint+™). Body copy does not say “from your Snapshot” or “Snapshot+ identified”; it just presents the section (e.g. “Brand Persona”, “Pillar Analysis”). |
 | **Shared data per tier** | Report page and PDF component for a tier should consume the **same data shape** (same interface). Build that data once (API or transform layer) and pass it to both. |
 
 ---
@@ -23,14 +23,14 @@ This doc defines the **canonical content per tier** (one list that applies to bo
 
 Each tier has one **section list**. Both report (HTML) and PDF must render these sections in this order. Section titles and content should match; only layout (web vs PDF) differs.
 
-### Tier 1: Brand Snapshot™
+### Tier 1: WunderBrand Snapshot™
 
-**Product name in UI/PDF:** “Brand Snapshot™” only (e.g. “Your Brand Snapshot™ Report”).
+**Product name in UI/PDF:** “WunderBrand Snapshot™” only (e.g. “Your WunderBrand Snapshot™ Report”).
 
 | # | Section | Data fields | Report view | PDF |
 |---|---------|-------------|-------------|-----|
 | 1 | Cover / intro | `userName`, `businessName`, optional `industry` | ✅ | ✅ |
-| 2 | Brand Alignment Score™ | `brandAlignmentScore` (0–100), score label (Excellent/Strong/Developing/Needs focus) | ✅ | ✅ |
+| 2 | WunderBrand Score™ | `brandAlignmentScore` (0–100), score label (Excellent/Strong/Developing/Needs focus) | ✅ | ✅ |
 | 3 | Strategic alignment overview | Short summary (1–2 sentences) using score + pillars | ✅ | ✅ |
 | 4 | Five-pillar framework | `pillarScores` (0–20 each), `pillarInsights` (string per pillar), `recommendations` (string per pillar) | ✅ | ✅ |
 | 5 | Business context (optional) | `website`, `socials` | optional | optional |
@@ -40,15 +40,15 @@ Each tier has one **section list**. Both report (HTML) and PDF must render these
 
 ---
 
-### Tier 2: Brand Snapshot+™
+### Tier 2: WunderBrand Snapshot+™
 
-**Product name in UI/PDF:** “Brand Snapshot+™” only.
+**Product name in UI/PDF:** “WunderBrand Snapshot+™” only.
 
-**Content:** All sections from **Brand Snapshot™** (1–5) in the same order, then the following. Do not label them as “from Snapshot”; they are just the next sections of this report.
+**Content:** All sections from **WunderBrand Snapshot™** (1–5) in the same order, then the following. Do not label them as “from Snapshot”; they are just the next sections of this report.
 
 | # | Section | Data fields | Report view | PDF |
 |---|---------|-------------|-------------|-----|
-| 1–5 | *(Same as Brand Snapshot™ above)* | *(same)* | ✅ | ✅ |
+| 1–5 | *(Same as WunderBrand Snapshot™ above)* | *(same)* | ✅ | ✅ |
 | 6 | Priority focus area | `primaryPillar`, short explanation | ✅ | ✅ |
 | 7 | Context coverage | `contextCoverage` (0–100), meter + copy | ✅ | ✅ |
 | 8 | Brand persona | `persona` (string or `{ summary }`) | ✅ | **Add to PDF** |
@@ -68,15 +68,15 @@ Each tier has one **section list**. Both report (HTML) and PDF must render these
 
 ---
 
-### Tier 3: Brand Blueprint™
+### Tier 3: WunderBrand Blueprint™
 
-**Product name in UI/PDF:** “Brand Blueprint™” only.
+**Product name in UI/PDF:** “WunderBrand Blueprint™” only.
 
-**Content:** All sections from **Brand Snapshot™** (1–5) and **Brand Snapshot+™** (6–19) in the same order, then the following. No “from Snapshot” or “from Snapshot+”; just continue with Blueprint sections.
+**Content:** All sections from **WunderBrand Snapshot™** (1–5) and **WunderBrand Snapshot+™** (6–19) in the same order, then the following. No “from Snapshot” or “from Snapshot+”; just continue with Blueprint sections.
 
 | # | Section | Data fields | Report view | PDF |
 |---|---------|-------------|-------------|-----|
-| 1–19 | *(Same as Brand Snapshot+™ above)* | *(same)* | ✅ | ✅ |
+| 1–19 | *(Same as WunderBrand Snapshot+™ above)* | *(same)* | ✅ | ✅ |
 | 20 | Brand essence | `brandEssence` | ✅ | ✅ |
 | 21 | Brand promise | `brandPromise` | ✅ | ✅ |
 | 22 | Differentiation | `differentiation` | ✅ | ✅ |
@@ -92,15 +92,15 @@ Each tier has one **section list**. Both report (HTML) and PDF must render these
 
 ---
 
-### Tier 4: Brand Blueprint+™
+### Tier 4: WunderBrand Blueprint+™
 
-**Product name in UI/PDF:** “Brand Blueprint+™” only.
+**Product name in UI/PDF:** “WunderBrand Blueprint+™” only.
 
-**Content:** All sections from **Brand Snapshot™**, **Brand Snapshot+™**, and **Brand Blueprint™** (1–29), then the following. No references to other product names.
+**Content:** All sections from **WunderBrand Snapshot™**, **WunderBrand Snapshot+™**, and **WunderBrand Blueprint™** (1–29), then the following. No references to other product names.
 
 | # | Section | Data fields | Report view | PDF |
 |---|---------|-------------|-------------|-----|
-| 1–29 | *(Same as Brand Blueprint™ above)* | *(same)* | ✅ | ✅ |
+| 1–29 | *(Same as WunderBrand Blueprint™ above)* | *(same)* | ✅ | ✅ |
 | 30 | Brand story framework | `brandStory`: `{ short, long }` | ✅ | ✅ |
 | 31 | Positioning statement | `positioning.statement` | ✅ | ✅ |
 | 32 | Differentiation matrix | `positioning.differentiators`: `Array<{ name, detail }>` | ✅ | ✅ |
@@ -140,39 +140,39 @@ In code or in this doc, keep **one ordered list of section keys** per tier (e.g.
 
 ### Step 4: Copy and product names
 
-- In report and PDF: **Title** = “Your Brand Snapshot™ Report” / “Your Brand Snapshot+™ Report” / “Your Brand Blueprint™ Report” / “Your Brand Blueprint+™ Report”.
-- **Body copy** uses section names like “Brand Alignment Score™”, “Pillar Analysis”, “Brand Persona”, “Recommended Color Palette” — no “from your Brand Snapshot™” or “Snapshot+ found”. Upgrade/next-step CTAs can mention the next product by name if needed (e.g. “Upgrade to Brand Blueprint™”), but the main content does not reference lower tiers.
+- In report and PDF: **Title** = “Your WunderBrand Snapshot™ Report” / “Your WunderBrand Snapshot+™ Report” / “Your WunderBrand Blueprint™ Report” / “Your WunderBrand Blueprint+™ Report”.
+- **Body copy** uses section names like “WunderBrand Score™”, “Pillar Analysis”, “Brand Persona”, “Recommended Color Palette” — no “from your WunderBrand Snapshot™” or “Snapshot+ found”. Upgrade/next-step CTAs can mention the next product by name if needed (e.g. “Upgrade to WunderBrand Blueprint™”), but the main content does not reference lower tiers.
 
 ### Step 5: Verification checklist (per tier)
 
 Use this each time you add or change content:
 
-**Brand Snapshot™**
+**WunderBrand Snapshot™**
 
-- [ ] Report view has: Cover/intro, Brand Alignment Score™, Strategic alignment overview, Five-pillar framework (scores + insights + recommendations), optional business context.
+- [ ] Report view has: Cover/intro, WunderBrand Score™, Strategic alignment overview, Five-pillar framework (scores + insights + recommendations), optional business context.
 - [ ] PDF has the same sections in the same order.
-- [ ] Only the product name “Brand Snapshot™” is used; no reference to other products in body content.
+- [ ] Only the product name “WunderBrand Snapshot™” is used; no reference to other products in body content.
 - [ ] Report and PDF consume the same data type.
 
-**Brand Snapshot+™**
+**WunderBrand Snapshot+™**
 
 - [ ] Report view has all Snapshot sections (1–5) plus: Priority focus area, Context coverage, Brand persona, Brand archetype, Brand voice, Recommended color palette (swatches + hex#), Core opportunities, Audience & competitors, Personality words, Messaging/visibility/visual notes, AEO section, 30/60/90 roadmap, Opportunities map, optional AI prompts.
 - [ ] PDF has the same sections in the same order (add persona, archetype, voice, color palette, roadmap, opportunities map to PDF if missing).
-- [ ] Only “Brand Snapshot+™” is used in title/intro; body copy does not reference “Snapshot” or other products.
+- [ ] Only “WunderBrand Snapshot+™” is used in title/intro; body copy does not reference “Snapshot” or other products.
 - [ ] Report and PDF consume the same extended data type.
 
-**Brand Blueprint™**
+**WunderBrand Blueprint™**
 
 - [ ] Report view has all Snapshot+ sections (1–19) plus: Brand essence, Brand promise, Differentiation, Persona, Archetype, Tone of voice, Messaging pillars, Recommended color palette (swatches + hex#), AI prompt library, Next steps.
 - [ ] PDF has the same sections in the same order; ensure color palette shows swatches + hex#.
-- [ ] Only “Brand Blueprint™” is used in title/intro; body does not reference Snapshot or Snapshot+.
+- [ ] Only “WunderBrand Blueprint™” is used in title/intro; body does not reference Snapshot or Snapshot+.
 - [ ] Report and PDF consume the same Blueprint data type (with all lower-tier fields populated).
 
-**Brand Blueprint+™**
+**WunderBrand Blueprint+™**
 
 - [ ] Report view has all Blueprint sections (1–29) plus: Brand story, Positioning statement, Differentiation matrix, Customer journey, 12-month content roadmap, Visual direction, Brand personality, Decision filters, optional Complete AEO system, AI prompt library (20+), optional Additional sections.
 - [ ] PDF has the same sections in the same order; AI prompt library is 20+ prompts (multiple pages if needed).
-- [ ] Only “Brand Blueprint+™” is used in title/intro; body does not reference other products.
+- [ ] Only “WunderBrand Blueprint+™” is used in title/intro; body does not reference other products.
 - [ ] Report and PDF consume the same Blueprint+ data type (with all lower-tier fields populated).
 
 ---

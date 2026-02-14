@@ -101,7 +101,7 @@ Industry: ${(report as any).industry || "Unknown"}
   `.trim();
 
   // Generate refined insight and recommendations
-  const prompt = `You are refining the ${pillarContent.title} pillar analysis for a Brand Snapshot+™ report.
+  const prompt = `You are refining the ${pillarContent.title} pillar analysis for a WunderBrand Snapshot+™ report.
 
 ${context}
 
@@ -139,7 +139,7 @@ Return as JSON with this exact structure:
         {
           role: "system",
           content:
-            "You are a brand strategist refining a Brand Snapshot+™ report. Provide clear, actionable insights and recommendations.",
+            "You are a brand strategist refining a WunderBrand Snapshot+™ report. Provide clear, actionable insights and recommendations.",
         },
         {
           role: "user",

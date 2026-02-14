@@ -30,11 +30,11 @@ export interface ModelRoute {
 
 /** Named use cases throughout the app */
 export type UseCase =
-  | "wundy_general"         // Wundy chat — general/FAQ mode (everyone)
-  | "wundy_report"          // Wundy chat — report companion mode (paid tiers)
-  | "assessment_chat"       // Brand Snapshot assessment conversation
+  | "wundy_general"         // Wundy™ chat — general/FAQ mode (everyone)
+  | "wundy_report"          // Wundy™ chat — report companion mode (paid tiers)
+  | "assessment_chat"       // WunderBrand Snapshot™ assessment conversation
   | "refine_chat"           // Refinement conversation
-  | "report_free"           // Free Brand Snapshot report generation
+  | "report_free"           // Free WunderBrand Snapshot™ report generation
   | "report_snapshot_plus"  // Snapshot+ report generation
   | "report_blueprint"      // Blueprint report generation
   | "report_blueprint_plus" // Blueprint+ report generation
@@ -46,12 +46,12 @@ export type UseCase =
  * Each use case maps to a provider, model, and optional fallback.
  *
  * STRATEGY:
- * - Cost-sensitive routes (free tier, Wundy general) → cheapest viable option
+ * - Cost-sensitive routes (free tier, Wundy™ general) → cheapest viable option
  * - Quality-sensitive routes (paid reports) → best writing quality
- * - Tool-calling routes (Wundy with support) → OpenAI (most mature function calling)
+ * - Tool-calling routes (Wundy™ with support) → OpenAI (most mature function calling)
  */
 const DEFAULT_ROUTES: Record<UseCase, ModelRoute> = {
-  // ─── Wundy Chat ────────────────────────────────────────────
+  // ─── Wundy™ Chat ────────────────────────────────────────────
   wundy_general: {
     provider: "openai",
     model: "gpt-4o-mini",
@@ -92,39 +92,46 @@ const DEFAULT_ROUTES: Record<UseCase, ModelRoute> = {
   },
 
   // ─── Report Generation ─────────────────────────────────────
+  // Model selection calibrated to tier pricing and content complexity:
+  // - Free: cost-efficient model for basic diagnostics
+  // - Snapshot+ ($497): high-quality model for strategic depth
+  // - Blueprint ($997): premium model for operating-system-level output
+  // - Blueprint+ ($1,997): best available model for enterprise-grade strategy
   report_free: {
     provider: "openai",
     model: "gpt-4o-mini",
-    temperature: 0.6,
-    maxTokens: 2000,
-    timeoutMs: 25_000,
+    fallbackProvider: "gemini",
+    fallbackModel: "gemini-2.0-flash",
+    temperature: 0.5,
+    maxTokens: 4000,
+    timeoutMs: 30_000,
   },
   report_snapshot_plus: {
-    provider: "openai",
-    model: "gpt-4o-mini",
-    fallbackProvider: "anthropic",
-    fallbackModel: "claude-sonnet-4-20250514",
+    provider: "anthropic",
+    model: "claude-sonnet-4-20250514",
+    fallbackProvider: "openai",
+    fallbackModel: "gpt-4o",
     temperature: 0.5,
-    maxTokens: 4000,
-    timeoutMs: 45_000,
+    maxTokens: 12000,
+    timeoutMs: 90_000,
   },
   report_blueprint: {
-    provider: "openai",
-    model: "gpt-4o-mini",
-    fallbackProvider: "anthropic",
-    fallbackModel: "claude-sonnet-4-20250514",
+    provider: "anthropic",
+    model: "claude-sonnet-4-20250514",
+    fallbackProvider: "openai",
+    fallbackModel: "gpt-4o",
     temperature: 0.5,
-    maxTokens: 4000,
-    timeoutMs: 60_000,
+    maxTokens: 16000,
+    timeoutMs: 120_000,
   },
   report_blueprint_plus: {
-    provider: "openai",
-    model: "gpt-4o-mini",
-    fallbackProvider: "anthropic",
-    fallbackModel: "claude-sonnet-4-20250514",
+    provider: "anthropic",
+    model: "claude-sonnet-4-20250514",
+    fallbackProvider: "openai",
+    fallbackModel: "gpt-4o",
     temperature: 0.5,
-    maxTokens: 4000,
-    timeoutMs: 60_000,
+    maxTokens: 16000,
+    timeoutMs: 180_000,
   },
 
   // ─── Analysis / Engine ─────────────────────────────────────

@@ -1,13 +1,10 @@
 // app/prompt-library/page.tsx
-// Prompt library page displaying all available prompts
-
-"use client";
+// Prompt library page — server-rendered content with thin client wrapper for buttons
 
 import { PROMPT_LIBRARY } from "@/lib/prompts/library";
-import { copyPrompt, downloadPrompt } from "@/src/utils/prompts/copy";
+import PromptActions from "./PromptActions";
 
 export default function PromptLibraryPage() {
-
   return (
     <div className="max-w-6xl mx-auto px-6 py-16">
       <h1 className="text-2xl font-semibold mb-6">
@@ -29,28 +26,13 @@ export default function PromptLibraryPage() {
               readOnly
               className="w-full text-sm p-4 border rounded-md"
               rows={6}
-              value={prompt.content}
+              defaultValue={prompt.content}
             />
 
-            <div className="mt-4 flex gap-4">
-              <button
-                onClick={() => copyPrompt(prompt.content)}
-                className="text-sm underline"
-              >
-                Copy
-              </button>
-              <button
-                onClick={() =>
-                  downloadPrompt(
-                    prompt.content,
-                    `${prompt.title.toLowerCase().replace(/\s+/g, "-")}.txt`
-                  )
-                }
-                className="text-sm underline"
-              >
-                Download
-              </button>
-            </div>
+            <PromptActions
+              content={prompt.content}
+              filename={`${prompt.title.toLowerCase().replace(/\s+/g, "-")}.txt`}
+            />
           </div>
         ))}
       </div>

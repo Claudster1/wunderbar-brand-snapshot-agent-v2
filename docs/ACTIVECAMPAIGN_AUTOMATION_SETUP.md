@@ -1,12 +1,12 @@
 # ActiveCampaign Automation Setup Guide
 
-Complete setup instructions for the Brand Snapshot™ email sequence.
+Complete setup instructions for the WunderBrand Snapshot™ email sequence.
 
 ## Automation Trigger
 
 **Trigger Options:**
 1. **Tag is added:** `brand_snapshot_completed` (Recommended)
-2. **Form submission:** Brand Snapshot Report Request form
+2. **Form submission:** WunderBrand Snapshot™ Report Request form
 
 **Settings:**
 - **Runs:** Once per contact
@@ -70,7 +70,7 @@ Use these merge tags in emails:
 
 | Field | AC Merge Tag | Description |
 |-------|--------------|-------------|
-| Brand Alignment Score™ | `%BRAND_ALIGNMENT_SCORE%` | Overall score (0-100) |
+| WunderBrand Score™ | `%BRAND_ALIGNMENT_SCORE%` | Overall score (0-100) |
 | Positioning Score | `%POSITIONING_SCORE%` | 0-20 |
 | Messaging Score | `%MESSAGING_SCORE%` | 0-20 |
 | Visibility Score | `%VISIBILITY_SCORE%` | 0-20 |

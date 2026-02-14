@@ -80,7 +80,7 @@ export function BlueprintDocument({ data }: { data: any }) {
       {/* PAGE 1 — Cover */}
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
-          <Text style={styles.title}>Brand Blueprint™</Text>
+          <Text style={styles.title}>WunderBrand Blueprint™</Text>
           <Text>A strategic foundation for your brand's growth</Text>
         </View>
 
@@ -91,11 +91,11 @@ export function BlueprintDocument({ data }: { data: any }) {
         </Text>
       </Page>
 
-      {/* Foundation: Brand Alignment Score + Pillars (when data provided) */}
+      {/* Foundation: WunderBrand Score™ + Pillars (when data provided) */}
       {hasFoundation && (
         <>
           <Page size="A4" style={styles.page}>
-            <Text style={styles.sectionTitle}>Brand Alignment Score™</Text>
+            <Text style={styles.sectionTitle}>WunderBrand Score™</Text>
             <View style={styles.block}>
               <Text style={{ fontSize: 28, fontWeight: 700, color: "#021859" }}>
                 {brandAlignmentScore}
@@ -234,7 +234,7 @@ export function BlueprintDocument({ data }: { data: any }) {
         <Text style={styles.sectionTitle}>Next Steps</Text>
         <View style={styles.block}>
           <Text>
-            Your Brand Blueprint™ sets the foundation for consistent messaging, aligned marketing,
+            Your WunderBrand Blueprint™ sets the foundation for consistent messaging, aligned marketing,
             and scalable brand growth. Use it as your core reference for all creative and
             communication decisions.
           </Text>
@@ -243,7 +243,7 @@ export function BlueprintDocument({ data }: { data: any }) {
           <Text style={{ ...styles.sectionTitle, marginTop: 0 }}>Ready for more?</Text>
           <Text>
             For advanced strategy, execution playbooks, extended prompt libraries, and 12-month
-            content roadmaps, explore Brand Blueprint+™.
+            content roadmaps, explore WunderBrand Blueprint+™.
           </Text>
           <Text style={{ marginTop: 8, fontSize: 10, color: "#5a6c8a" }}>
             wunderbardigital.com/brand-blueprint-plus

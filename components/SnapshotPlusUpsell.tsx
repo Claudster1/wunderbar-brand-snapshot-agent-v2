@@ -27,7 +27,7 @@ export default function SnapshotPlusUpsell({
       }}
     >
       <h2 style={{ fontSize: "1.8rem", marginBottom: 12 }}>
-        Upgrade to Brand Snapshot+™
+        Upgrade to WunderBrand Snapshot+™
       </h2>
 
       <p style={{ maxWidth: 520, margin: "0 auto", lineHeight: 1.55 }}>

@@ -1,5 +1,5 @@
 // src/pdf/documents/ReportDocument.tsx
-// Brand Snapshot+™ Report Document
+// WunderBrand Snapshot+™ Report Document
 // Focused, strategic PDF for Snapshot+ reports
 
 import {
@@ -10,7 +10,7 @@ import {
   StyleSheet,
 } from '@react-pdf/renderer';
 import { registerPdfFonts } from '../registerFonts';
-import { ScoreGauge } from '../components/ScoreGauge';
+import { BrandAlignmentScorePanel } from '../components/BrandAlignmentScorePanel';
 import { ContextCoverageMeter } from '../components/ContextCoverageMeter';
 import { PrimaryPillar } from '../components/PrimaryPillar';
 import { PillarSummaryRow, Score, Text as PillarText } from '../components/PillarSummaryRow';
@@ -200,7 +200,7 @@ export function ReportDocument({
     <Document>
       <Page size="A4" style={styles.page}>
         {/* 1️⃣ COVER & SUMMARY */}
-        <SectionHeader>Your Brand Snapshot™ Summary</SectionHeader>
+        <SectionHeader>Your WunderBrand Snapshot™ Summary</SectionHeader>
         
         <Text style={styles.paragraph}>
           Prepared for <Text style={styles.emphasis}>{companyName}</Text>
@@ -214,13 +214,13 @@ export function ReportDocument({
         </Text>
 
         {/* 2️⃣ BRAND ALIGNMENT SCORE */}
-        <SectionHeader>Brand Alignment Score™</SectionHeader>
+        <SectionHeader>WunderBrand Score™</SectionHeader>
 
         <View style={styles.scoreBlock}>
-          <ScoreGauge score={brandAlignmentScore} />
+          <BrandAlignmentScorePanel score={brandAlignmentScore} />
 
           <Text style={styles.paragraph}>
-            Your Brand Alignment Score™ reflects how effectively your positioning, 
+            Your WunderBrand Score™ reflects how effectively your positioning, 
             messaging, visibility, credibility, and conversion signals work together 
             as a unified system.
           </Text>

@@ -1,5 +1,5 @@
 // app/api/snapshot/refine-chat/route.ts
-// API route for the refinement conversation with Wundy.
+// API route for the refinement conversation with Wundy™.
 // Uses a special system prompt that knows the user's existing report data.
 // Uses multi-provider AI abstraction with automatic fallback.
 

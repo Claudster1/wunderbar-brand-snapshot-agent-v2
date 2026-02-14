@@ -8,7 +8,7 @@ export function snapshotUpgradeEmail({
   return {
     subject: `${brandName} — your ${pillar} insight deserves depth`,
     body: `
-Your Brand Snapshot™ revealed that ${pillar} is the key opportunity for ${brandName}.
+Your WunderBrand Snapshot™ revealed that ${pillar} is the key opportunity for ${brandName}.
 
 Snapshot+™ expands this into:
 • Clear root-cause analysis

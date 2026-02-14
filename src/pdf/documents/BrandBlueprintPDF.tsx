@@ -1,5 +1,5 @@
 // src/pdf/documents/BrandBlueprintPDF.tsx
-// Brand Blueprint™ PDF Document ($997)
+// WunderBrand Blueprint™ PDF Document ($997)
 // AEO integrated with brand strategy
 
 import React from "react";
@@ -71,7 +71,7 @@ export const BrandBlueprintPDF = ({
       {/* PAGE 1 — COVER */}
       <Page style={stylePresets.page}>
         <View style={{ borderBottom: `2px solid ${colors.navy}`, paddingBottom: spacing.md, marginBottom: spacing["2xl"] }}>
-          <Text style={stylePresets.h1}>Brand Blueprint™</Text>
+          <Text style={stylePresets.h1}>WunderBrand Blueprint™</Text>
           <Text style={stylePresets.body}>
             A strategic foundation for your brand's growth
           </Text>
@@ -79,13 +79,13 @@ export const BrandBlueprintPDF = ({
 
         <Text style={stylePresets.body}>Hello {userName || "there"},</Text>
         <Text style={{ marginTop: spacing.md, ...stylePresets.body }}>
-          Your Brand Blueprint™ translates your brand's essence, language, and visual direction into
+          Your WunderBrand Blueprint™ translates your brand's essence, language, and visual direction into
           a unified and actionable system. AEO (Answer Engine Optimization) is fully integrated
           throughout to ensure your brand shows up in AI-powered search results.
         </Text>
 
         <Text style={stylePresets.footer}>
-          © 2025 Wunderbar Digital. Brand Blueprint™ is a trademark of Wunderbar Digital.
+          © 2025 Wunderbar Digital. WunderBrand Blueprint™ is a trademark of Wunderbar Digital.
         </Text>
       </Page>
 
@@ -362,7 +362,7 @@ export const BrandBlueprintPDF = ({
 
         <View style={stylePresets.card}>
           <Text style={stylePresets.body}>
-            Your Brand Blueprint™ sets the foundation for consistent messaging, aligned marketing,
+            Your WunderBrand Blueprint™ sets the foundation for consistent messaging, aligned marketing,
             and scalable brand growth. Use it as your core reference for all creative and
             communication decisions.
           </Text>
@@ -371,11 +371,11 @@ export const BrandBlueprintPDF = ({
         <Text style={stylePresets.h3}>Upgrade to Blueprint+™</Text>
         <Text style={stylePresets.body}>
           For a complete AEO system with implementation guidance, platform-specific optimizations,
-          and AI prompts to generate improved content versions, upgrade to Brand Blueprint+™ ($1,997).
+          and AI prompts to generate improved content versions, upgrade to WunderBrand Blueprint+™ ($1,997).
         </Text>
 
         <Text style={stylePresets.footer}>
-          © 2025 Wunderbar Digital. Brand Blueprint™ is a trademark of Wunderbar Digital.
+          © 2025 Wunderbar Digital. WunderBrand Blueprint™ is a trademark of Wunderbar Digital.
         </Text>
       </Page>
     </Document>

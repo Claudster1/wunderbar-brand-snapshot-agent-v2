@@ -15,7 +15,7 @@ Use this checklist to ensure all Stripe integrations and ActiveCampaign triggers
 | `STRIPE_PRICE_SNAPSHOT_PLUS` | Checkout, webhook | Price ID for Snapshot+™ |
 | `STRIPE_PRICE_BLUEPRINT` | Checkout, webhook | Price ID for Blueprint™ |
 | `STRIPE_PRICE_BLUEPRINT_PLUS` | Checkout, webhook | Price ID for Blueprint+™ |
-| `NEXT_PUBLIC_BASE_URL` | Checkout success/cancel URLs | e.g. `https://app.brandsnapshot.ai` |
+| `NEXT_PUBLIC_BASE_URL` | Checkout success/cancel URLs | e.g. `https://app.wunderbrand.ai` |
 
 ### ActiveCampaign (required for webhook-triggered tags)
 
@@ -42,7 +42,7 @@ Use this checklist to ensure all Stripe integrations and ActiveCampaign triggers
   Snapshot+™, Blueprint™, Blueprint+™ created; price IDs copied into env.
 
 - [ ] **Webhook endpoint**  
-  - URL: `https://app.brandsnapshot.ai/api/stripe/webhook` (or your production URL).  
+  - URL: `https://app.wunderbrand.ai/api/stripe/webhook` (or your production URL).  
   - Event: **`checkout.session.completed`** (required).  
   - Signing secret copied into `STRIPE_WEBHOOK_SECRET`.
 
@@ -121,7 +121,7 @@ Create these tags in ActiveCampaign (Settings → Tags) so the webhook can apply
 - **Tag added: `nurture:other-services`**  
   → Nurture for managed marketing and AI consulting (for Blueprint+ purchasers only).
 
-- **Tag added: `brand_snapshot_completed`** (from Brand Snapshot flow, not Stripe)  
+- **Tag added: `brand_snapshot_completed`** (from WunderBrand Snapshot™ flow, not Stripe)  
   → Send report email with `%BRANDSNAPSHOTREPORTLINK%` CTA.
 
 ---

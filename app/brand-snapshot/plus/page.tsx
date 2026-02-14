@@ -9,10 +9,10 @@ export default function BrandSnapshotPlusPage() {
   return (
     <main style={{ padding: 40, fontFamily: "Helvetica Neue, Arial, sans-serif" }}>
       <h1 style={{ color: "#021859", fontSize: 28, marginBottom: 12 }}>
-        Brand Snapshot+™
+        WunderBrand Snapshot+™
       </h1>
       <p style={{ maxWidth: 720, lineHeight: 1.6, color: "#0C1526" }}>
-        Snapshot+™ expands your Brand Snapshot™ into a deeper, consulting-style deliverable:
+        Snapshot+™ expands your WunderBrand Snapshot™ into a deeper, consulting-style deliverable:
         richer insights, clearer priorities, and a more actionable roadmap.
       </p>
 
@@ -43,7 +43,7 @@ export default function BrandSnapshotPlusPage() {
             fontWeight: 600,
           }}
         >
-          Back to Brand Snapshot™
+          Back to WunderBrand Snapshot™
         </Link>
       </div>
     </main>

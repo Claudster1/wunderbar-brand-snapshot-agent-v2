@@ -26,7 +26,7 @@ export function getUpgradeNudge(
     }
     
     return {
-      title: "Unlock a deeper Brand Snapshot™",
+      title: "Unlock a deeper WunderBrand Snapshot™",
       body: `Your results point to meaningful opportunity in ${snapshot.primary_pillar}. Snapshot+™ expands on this with deeper analysis, examples, and next-step clarity.`,
       ctaLabel: "See how to strengthen what matters most right now",
       href: "/snapshot-plus",
@@ -42,8 +42,8 @@ export function getUpgradeNudge(
     
     return {
       title: "Turn insight into execution",
-      body: `You've identified where your brand needs clarity. Brand Blueprint™ translates these insights into a complete, usable system.`,
-      ctaLabel: "Explore Brand Blueprint™ →",
+      body: `You've identified where your brand needs clarity. WunderBrand Blueprint™ translates these insights into a complete, usable system.`,
+      ctaLabel: "Explore WunderBrand Blueprint™ →",
       href: "/blueprint",
     };
   }
@@ -58,10 +58,10 @@ export function getUpgradeNudge(
 export function getUpgradeCopy(primaryPillar: string) {
   return {
     snapshot_plus:
-      `Go deeper on your ${primaryPillar} foundation with Brand Snapshot+™`,
+      `Go deeper on your ${primaryPillar} foundation with WunderBrand Snapshot+™`,
     blueprint:
-      `Activate your ${primaryPillar} strategy across your brand with Brand Blueprint™`,
+      `Activate your ${primaryPillar} strategy across your brand with WunderBrand Blueprint™`,
     blueprint_plus:
-      `Scale your ${primaryPillar} system with Brand Blueprint+™`
+      `Scale your ${primaryPillar} system with WunderBrand Blueprint+™`
   };
 }

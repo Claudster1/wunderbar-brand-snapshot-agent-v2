@@ -26,10 +26,10 @@ export default function BrandSnapshotGetStartedPage() {
       <main className="min-h-screen bg-white px-6 py-20">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-3xl font-semibold text-brand-navy">
-            Brand Snapshot™
+            WunderBrand Snapshot™
           </h1>
           <p className="mt-4 text-slate-700">
-            Your Brand Snapshot™ is opening in a modal. If it didn’t open,{" "}
+            Your WunderBrand Snapshot™ is opening in a modal. If it didn’t open,{" "}
             <button
               className="underline text-brand-navy"
               onClick={() => setOpen(true)}

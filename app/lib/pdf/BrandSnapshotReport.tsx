@@ -1,5 +1,5 @@
 // app/lib/pdf/BrandSnapshotReport.tsx
-// Premium, consulting-style PDF layout for Brand Snapshot™
+// Premium, consulting-style PDF layout for WunderBrand Snapshot™
 
 import React from "react";
 import {
@@ -87,7 +87,7 @@ export const BrandSnapshotReport = ({
     <Document>
       <Page size="A4" style={styles.page}>
         {/* COVER */}
-        <Text style={styles.title}>Your Brand Snapshot™ Report</Text>
+        <Text style={styles.title}>Your WunderBrand Snapshot™ Report</Text>
         <Text style={styles.paragraph}>
           A personalized analysis of how confidently and consistently your brand
           shows up today — and where meaningful refinements can elevate clarity,

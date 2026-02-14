@@ -1,6 +1,6 @@
 # Parent Page Integration Guide
 
-This guide explains how to integrate the Brand Snapshot™ iframe with your parent page and update the form section.
+This guide explains how to integrate the WunderBrand Snapshot™ iframe with your parent page and update the form section.
 
 ## 1. Add Event Listener for Score Updates
 
@@ -97,7 +97,7 @@ Replace your existing copy in the FORM + EMBEDDED ACTIVE CAMPAIGN section with t
 ```html
 <section class="bs-section bs-form-section" id="full-report">
   <div class="bs-container">
-    <h2 class="bs-h2">Get Your Complete Brand Snapshot™ Report</h2>
+    <h2 class="bs-h2">Get Your Complete WunderBrand Snapshot™ Report</h2>
 
     <p class="bs-sub">
       Your personalized report includes insights for all five pillars, your biggest opportunities, 
@@ -105,7 +105,7 @@ Replace your existing copy in the FORM + EMBEDDED ACTIVE CAMPAIGN section with t
     </p>
 
     <p class="bs-sub">
-      Enter your details below and I'll send your full Brand Snapshot™ straight to your inbox.
+      Enter your details below and I'll send your full WunderBrand Snapshot™ straight to your inbox.
     </p>
 
     <div class="mt-6">
@@ -139,7 +139,7 @@ Replace your existing copy in the FORM + EMBEDDED ACTIVE CAMPAIGN section with t
         </h3>
 
         <p style="font-size: 1rem; color:#0c1526; margin-bottom:24px; max-width:580px; margin-left:auto; margin-right:auto;">
-          Upgrade to Brand Snapshot+ to unlock a full diagnostic, brand opportunities map, 
+          Upgrade to WunderBrand Snapshot+™ to unlock a full diagnostic, brand opportunities map, 
           and personalized recommendations to accelerate your growth.
         </p>
 

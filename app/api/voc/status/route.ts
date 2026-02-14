@@ -1,10 +1,16 @@
 // GET /api/voc/status?reportId=xxx — Check VOC survey status for a report
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase";
+import { apiGuard } from "@/lib/security/apiGuard";
+import { GENERAL_RATE_LIMIT } from "@/lib/security/rateLimit";
+import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
+  const guard = apiGuard(req, { routeId: "voc-status", rateLimit: GENERAL_RATE_LIMIT });
+  if (!guard.passed) return guard.errorResponse;
+
   const reportId = req.nextUrl.searchParams.get("reportId");
   if (!reportId) {
     return NextResponse.json({ error: "Missing reportId" }, { status: 400 });
@@ -23,30 +29,30 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ hasSurvey: false });
     }
 
-    // Count responses
-    const { count } = await (supabase.from("voc_responses") as any)
-      .select("id", { count: "exact", head: true })
-      .eq("survey_id", survey.id);
+    // Count responses + get analysis in parallel (both depend on survey.id)
+    const [countResult, analysisResult] = await Promise.all([
+      (supabase.from("voc_responses") as any)
+        .select("id", { count: "exact", head: true })
+        .eq("survey_id", survey.id),
+      (supabase.from("voc_analysis") as any)
+        .select("nps_score, nps_category, top_words, perception_summary, alignment_gaps, strengths_customers_see, blind_spots, response_count")
+        .eq("survey_id", survey.id)
+        .single(),
+    ]);
 
-    // Get analysis if it exists
-    const { data: analysis } = await (supabase.from("voc_analysis") as any)
-      .select("nps_score, nps_category, top_words, perception_summary, alignment_gaps, strengths_customers_see, blind_spots, response_count")
-      .eq("survey_id", survey.id)
-      .single();
-
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://app.brandsnapshot.ai";
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://app.wunderbrand.ai";
 
     return NextResponse.json({
       hasSurvey: true,
       surveyUrl: `${baseUrl}/survey/${survey.survey_token}`,
       surveyToken: survey.survey_token,
       status: survey.status,
-      responseCount: count ?? 0,
-      analysisReady: !!analysis,
-      analysis: analysis ?? null,
+      responseCount: countResult.count ?? 0,
+      analysisReady: !!analysisResult.data,
+      analysis: analysisResult.data ?? null,
     });
   } catch (err: any) {
-    console.error("[VOC Status] Error:", err);
+    logger.error("[VOC Status] Error", { error: err?.message ?? String(err) });
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }

@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
 export const PdfFooter = () => (
   <View style={styles.container} fixed>
     <Text style={styles.text}>
-      © {new Date().getFullYear()} Wunderbar Digital · Brand Snapshot Suite™
+      © {new Date().getFullYear()} Wunderbar Digital · WunderBrand Suite™
     </Text>
   </View>
 );

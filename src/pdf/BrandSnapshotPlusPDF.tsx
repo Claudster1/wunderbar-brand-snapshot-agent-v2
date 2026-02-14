@@ -1,5 +1,5 @@
 // src/pdf/BrandSnapshotPlusPDF.tsx
-// Brand Snapshot+™ PDF Document ($497)
+// WunderBrand Snapshot+™ PDF Document ($497)
 // Includes full structured AEO section as required for this tier
 
 import {
@@ -18,7 +18,7 @@ import { PillarScoreRow } from "./components/PillarScoreRow";
 import { InsightBlock } from "./components/InsightBlock";
 import { RecommendationBlock } from "./components/RecommendationBlock";
 import { ColorSwatch } from "./components/ColorSwatch";
-import { ScoreGauge } from "./components/ScoreGauge";
+import { BrandAlignmentScorePanel } from "./components/BrandAlignmentScorePanel";
 import { ContextCoverageMeter } from "./components/ContextCoverageMeter";
 import { pdfTheme } from "./theme";
 import { registerPdfFonts } from "./registerFonts";
@@ -156,10 +156,10 @@ export const BrandSnapshotPlusPDF = ({
     <Document>
       {/* ---------------- PAGE 1 — EXEC SUMMARY ---------------- */}
       <Page size="A4" style={styles.page}>
-        <PdfHeader title="Brand Snapshot+™ Report" />
+        <PdfHeader title="WunderBrand Snapshot+™ Report" />
 
         <PageTitle
-          title="Your Brand Snapshot+™"
+          title="Your WunderBrand Snapshot+™"
           subtitle="A deeper, strategic review of your brand foundation and growth opportunities"
         />
 
@@ -171,9 +171,9 @@ export const BrandSnapshotPlusPDF = ({
             can accelerate trust, differentiation, and conversion.
           </Text>
 
-          {/* Brand Alignment Score Gauge */}
-          <View style={{ marginTop: pdfTheme.spacing.lg, alignItems: "center" }}>
-            <ScoreGauge score={brandAlignmentScore} size={100} />
+          {/* WunderBrand Score™ Panel with Legend */}
+          <View style={{ marginTop: pdfTheme.spacing.lg }}>
+            <BrandAlignmentScorePanel score={brandAlignmentScore} />
           </View>
 
           {/* Primary Pillar Highlight */}
@@ -593,7 +593,7 @@ export const BrandSnapshotPlusPDF = ({
             <Text style={styles.para}>
             Your report gives you a strong foundation. For a complete, AI-ready brand
             system — messaging, voice, positioning, personality, and visual direction —
-            consider upgrading to Brand Blueprint™.
+            consider upgrading to WunderBrand Blueprint™.
             </Text>
           </Section>
 

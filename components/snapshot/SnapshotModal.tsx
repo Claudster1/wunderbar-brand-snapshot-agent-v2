@@ -152,7 +152,7 @@ export default function SnapshotModal({
           <div className="mt-6">
             <iframe
               src={iframeSrc}
-              title="Brand Snapshot™ Agent"
+              title="WunderBrand Snapshot™ Agent"
               style={{ width: "100%", height: iframeHeight }}
               className="border-0 w-full"
               allow="clipboard-write; fullscreen"

@@ -1,10 +1,10 @@
-# Email: Brand Snapshot+™ Value Proposition
+# Email: WunderBrand Snapshot+™ Value Proposition
 
 ## Purpose
 Educational email that positions Snapshot+™ as the bridge between insight and confident action, emphasizing the value of clarity and focus.
 
 ## Timing
-Recommended: 2-3 days after Brand Snapshot™ completion, or after initial Snapshot+™ invitation
+Recommended: 2-3 days after WunderBrand Snapshot™ completion, or after initial Snapshot+™ invitation
 
 ## ActiveCampaign Merge Tags
 - `{{first_name}}` - User's first name

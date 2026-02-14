@@ -87,7 +87,7 @@
 - Location: `src/pdf/SnapshotPlusReport.tsx`
 - Evidence:
   1. Summary section (line 28-34)
-  2. Brand Alignment Score with gauge (line 38-40)
+  2. WunderBrand Score™ with gauge (line 38-40)
   3. Pillar Analysis (line 44-53)
   4. Context Gaps (line 57-62)
   5. Next Step (line 66-71)

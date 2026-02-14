@@ -1,8 +1,8 @@
 // src/pdf/components/BrandAlignmentSection.tsx
-// PDF component for Brand Alignment Score section
+// PDF component for WunderBrand Score™ section with score range legend
 
 import { Text, View, StyleSheet } from "@react-pdf/renderer";
-import { ScoreGaugePDF } from "./ScoreGaugePDF";
+import { BrandAlignmentScorePanel } from "./BrandAlignmentScorePanel";
 
 interface BrandAlignmentSectionProps {
   score: number;
@@ -17,13 +17,13 @@ const styles = StyleSheet.create({
   },
   h2: {
     fontSize: 14,
-    marginBottom: 6,
+    marginBottom: 10,
     fontWeight: 600,
   },
   body: {
     fontSize: 11,
     lineHeight: 1.5,
-    marginTop: 12,
+    marginTop: 8,
   },
 });
 
@@ -34,9 +34,9 @@ export function BrandAlignmentSection({
   return (
     <View>
       <Text style={styles.h1}>{brandName}</Text>
-      <Text style={styles.h2}>Brand Alignment Score™</Text>
+      <Text style={styles.h2}>WunderBrand Score™</Text>
 
-      <ScoreGaugePDF score={score} />
+      <BrandAlignmentScorePanel score={score} />
 
       <Text style={styles.body}>
         This score reflects how aligned your positioning, messaging, visibility,

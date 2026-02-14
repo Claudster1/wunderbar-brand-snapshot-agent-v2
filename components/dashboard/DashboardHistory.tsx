@@ -119,7 +119,7 @@ export default function DashboardHistory() {
           No reports yet
         </h2>
         <p style={{ fontSize: 15, color: SUB, margin: "0 0 24px", lineHeight: 1.6 }}>
-          Complete a Brand Snapshot™ assessment to see your reports here.
+          Complete a WunderBrand Snapshot™ assessment to see your reports here.
         </p>
         <a
           href="/"
@@ -130,7 +130,7 @@ export default function DashboardHistory() {
             textDecoration: "none",
           }}
         >
-          Start a Brand Snapshot™
+          Start a WunderBrand Snapshot™
         </a>
       </div>
     );
@@ -158,7 +158,7 @@ export default function DashboardHistory() {
           No completed reports
         </h2>
         <p style={{ fontSize: 15, color: SUB, margin: "0 0 24px", lineHeight: 1.6 }}>
-          You haven't completed a Brand Snapshot™ assessment yet. It takes about 10–15 minutes.
+          You haven't completed a WunderBrand Snapshot™ assessment yet. It takes about 10–15 minutes.
         </p>
         <a
           href="/"
@@ -169,7 +169,7 @@ export default function DashboardHistory() {
             textDecoration: "none",
           }}
         >
-          Start a Brand Snapshot™
+          Start a WunderBrand Snapshot™
         </a>
       </div>
     );
@@ -198,11 +198,11 @@ export default function DashboardHistory() {
           >
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 18, fontWeight: 700, color: NAVY, marginBottom: 6 }}>
-                {snap.brand_name || "Brand Snapshot™"}
+                {snap.brand_name || "WunderBrand Snapshot™"}
               </div>
               <div style={{ display: "flex", gap: 16, flexWrap: "wrap", fontSize: 13, color: SUB }}>
                 <span>
-                  Brand Alignment Score™:{" "}
+                  WunderBrand Score™:{" "}
                   <strong style={{ color }}>{score}</strong>
                 </span>
                 {snap.primary_pillar && (

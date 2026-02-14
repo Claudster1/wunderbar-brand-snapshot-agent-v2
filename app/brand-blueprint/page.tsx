@@ -9,7 +9,7 @@ export default function BrandBlueprintPage() {
   return (
     <main style={{ padding: 40, fontFamily: "Helvetica Neue, Arial, sans-serif" }}>
       <h1 style={{ color: "#021859", fontSize: 28, marginBottom: 12 }}>
-        Brand Blueprint™
+        WunderBrand Blueprint™
       </h1>
       <p style={{ maxWidth: 720, lineHeight: 1.6, color: "#0C1526" }}>
         Blueprint™ is the next step after your Snapshot™—a complete brand foundation across
@@ -29,7 +29,7 @@ export default function BrandBlueprintPage() {
             fontWeight: 600,
           }}
         >
-          Explore Brand Blueprint™ →
+          Explore WunderBrand Blueprint™ →
         </Link>
         <Link
           href="/brand-blueprint-plus"

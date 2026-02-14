@@ -20,7 +20,7 @@ Open **http://localhost:3000** (or the port Next.js prints).
 
 - Uses mock scores and insights (e.g. 72 overall, pillar scores 13–16).
 - Shows the same layout as the real results view: gauge, pillars, context coverage, upgrade CTAs, Suite CTA.
-- No Supabase or completed Brand Snapshot required.
+- No Supabase or completed WunderBrand Snapshot™ required.
 - Use this to tweak layout, copy, and components.
 
 ---
@@ -32,12 +32,12 @@ Open **http://localhost:3000** (or the port Next.js prints).
 - Replace `[report_id]` with a real `report_id` from your `brand_snapshot_reports` table.
 - Fetches that report from Supabase and renders the report-style page (score, pillars, recommendations, upgrade box).
 - **How to get a report ID:**
-  1. **Complete a Brand Snapshot** in the app; you’ll be redirected to `/report/[report_id]` when done.
+  1. **Complete a WunderBrand Snapshot™** in the app; you’ll be redirected to `/report/[report_id]` when done.
   2. **From Supabase:** Table `brand_snapshot_reports`, column `report_id` — copy any value and open `/report/that-value`.
 
 ---
 
-## 4. Brand Snapshot results page (alternative design)
+## 4. WunderBrand Snapshot™ results page (alternative design)
 
 **URL:** **http://localhost:3000/brand-snapshot/results/[id]**
 
@@ -75,8 +75,8 @@ Open **http://localhost:3000** (or the port Next.js prints).
 |----------------------|-----|--------|
 | Results UI (gauge, pillars, CTAs) with fake data | `/preview/results` | Nothing |
 | Report page (single-report layout) | `/report/[report_id]` | Real report ID from DB or after completing snapshot |
-| Brand Snapshot results (alternate layout) | `/brand-snapshot/results/[id]` | Real report ID |
-| Brand Snapshot PDF | `/api/report/pdf?id=[report_id]` | Real report ID |
+| WunderBrand Snapshot™ results (alternate layout) | `/brand-snapshot/results/[id]` | Real report ID |
+| WunderBrand Snapshot™ PDF | `/api/report/pdf?id=[report_id]` | Real report ID |
 | Snapshot+ report page | `/snapshot-plus/[id]` | Snapshot+ report ID |
 | Snapshot+ PDF | `/api/snapshot-plus/pdf?...` | Snapshot+ report ID |
 
@@ -85,7 +85,7 @@ Open **http://localhost:3000** (or the port Next.js prints).
 ## 8. Getting a real report ID once
 
 1. Run `npm run dev` and open the app.
-2. Go through the Brand Snapshot flow (chat, complete, save).
+2. Go through the WunderBrand Snapshot™ flow (chat, complete, save).
 3. After completion you’re redirected to `/report/[report_id]` — that `report_id` is your real ID.
 4. Use that same ID for:
    - `/report/[report_id]`

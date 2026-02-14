@@ -9,7 +9,7 @@
 ## When you DON’T need it
 
 - **Reports and preview:** `/results?reportId=...`, `/preview/results`, and `/brand-snapshot/results/[id]` all work.
-- **Snapshot flow:** Users can complete a Brand Snapshot and see results.
+- **Snapshot flow:** Users can complete a WunderBrand Snapshot™ and see results.
 - **Checkout and Stripe:** Stripe webhook and purchase flows use the **ActiveCampaign API** (API URL + API key), not this webhook URL.
 
 So: **no webhook URL = app works; you just won’t send these events to ActiveCampaign.**
@@ -42,7 +42,7 @@ You have two common options.
 1. Log in to **ActiveCampaign**.
 2. Go to **Automations** → **Create Automation** (or use an existing one).
 3. **Start** the automation with the trigger **“Webhook”**.
-4. Name the webhook (e.g. “Brand Snapshot events”).
+4. Name the webhook (e.g. “WunderBrand Snapshot™ events”).
 5. **Copy the Webhook URL** ActiveCampaign shows (e.g. `https://YOUR-ACCOUNT.api-us1.com/admin/api.php?api_key=...&api_action=...` or the automation webhook URL AC provides).
 
 If your plan doesn’t expose “Webhook” as a trigger, use Option B or an HTTP Request / Custom Action that receives POSTs from your app.

@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Wunderbar Digital | Brand Snapshot™</title>
+    <title>Wunderbar Digital | WunderBrand Snapshot™</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <!-- Tailwind CDN -->
@@ -429,9 +429,9 @@
         <div class="bs-container">
           <h1 class="bs-h1">See Where Your Brand Really Stands</h1>
           <p class="bs-lead">
-            In a few guided minutes, Wundy — our brand mascot and strategic assistant —
+            In a few guided minutes, Wundy™ — our brand mascot and strategic assistant —
             will help you uncover how confidently and consistently your brand is showing up
-            in the market today. Your Brand Alignment Score™ reveals where your foundation
+            in the market today. Your WunderBrand Score™ reveals where your foundation
             is strong and where small refinements could meaningfully improve trust,
             clarity, and conversion.
           </p>
@@ -444,7 +444,7 @@
       <!-- HOW THE BRAND SNAPSHOT WORKS -->
       <section class="bs-section bs-how">
         <div class="bs-container">
-          <h2 class="bs-h2">How the Brand Snapshot™ Works</h2>
+          <h2 class="bs-h2">How the WunderBrand Snapshot™ Works</h2>
           <div class="bs-how-grid">
             <!-- STEP 1 -->
             <article class="bs-how-card">
@@ -459,8 +459,8 @@
                 </div>
               </div>
               <p class="bs-how-text">
-                Wundy learns about your business, customers, brand presence, and goals —
-                just enough to establish a meaningful baseline for your Brand Alignment Score™.
+                Wundy™ learns about your business, customers, brand presence, and goals —
+                just enough to establish a meaningful baseline for your WunderBrand Score™.
               </p>
             </article>
 
@@ -476,7 +476,7 @@
                 </svg>
                 <div>
                   <div class="bs-step-label">STEP 2</div>
-                  <div class="bs-how-title">Get your Brand Alignment Score™</div>
+                  <div class="bs-how-title">Get your WunderBrand Score™</div>
                 </div>
               </div>
               <p class="bs-how-text">
@@ -516,9 +516,9 @@
       <!-- BRAND SNAPSHOT AGENT -->
       <section id="brand-snapshot-agent" class="bs-section bs-chat-section">
         <div class="bs-container">
-          <h2 class="bs-h2">Your Brand Snapshot™ Starts Here</h2>
+          <h2 class="bs-h2">Your WunderBrand Snapshot™ Starts Here</h2>
           <p class="bs-sub">
-            Wundy will ask you a few quick questions to understand your brand today.
+            Wundy™ will ask you a few quick questions to understand your brand today.
             Once you're done, your personalized scores will unlock below.
           </p>
           <div class="mt-6">
@@ -529,7 +529,7 @@
               height="680"
               frameborder="0"
               class="bs-chat-frame w-full border-0"
-              title="Brand Snapshot™ Specialist"
+              title="WunderBrand Snapshot™ Specialist"
             ></iframe>
           </div>
           <script>
@@ -548,9 +548,9 @@
       <!-- BRAND ALIGNMENT SCORE — HIDDEN INITIAL -->
       <section class="bs-section bs-score-section hidden" id="brand-alignment-score">
         <div class="bs-container">
-          <h2 class="bs-h2">Your Brand Alignment Score™</h2>
+          <h2 class="bs-h2">Your WunderBrand Score™</h2>
           <p class="bs-score-intro">
-            Based on your responses, Wundy analyzed your positioning, messaging, visibility, credibility,
+            Based on your responses, Wundy™ analyzed your positioning, messaging, visibility, credibility,
             and conversion foundation. Your score reflects how confidently and consistently your brand shows
             up in the market today.
           </p>
@@ -606,7 +606,7 @@
           
           <!-- PILLAR SUMMARY -->
           <p class="bs-score-note" style="margin-top: 24px;">
-            Enter your details below to receive your complete Brand Snapshot™, including deeper insights
+            Enter your details below to receive your complete WunderBrand Snapshot™, including deeper insights
             and your personalized recommendations.
           </p>
         </div>
@@ -615,7 +615,7 @@
       <!-- FORM SECTION (HIDDEN UNTIL SCORE IS UNLOCKED) -->
       <section id="form-section" class="bs-section bs-form-section hidden">
         <div class="bs-container">
-          <h2 class="bs-h2">Get Your Complete Brand Snapshot™</h2>
+          <h2 class="bs-h2">Get Your Complete WunderBrand Snapshot™</h2>
           <p class="bs-sub">
             Enter your information below and your full report — including pillar-by-pillar insights and
             recommended next steps — will be delivered to your inbox.
@@ -803,7 +803,7 @@
             Your next stage of growth starts with clarity.
           </h2>
           <p class="wb-footer-sub">
-            Get your free Brand Snapshot™ and see exactly where your brand stands today —
+            Get your free WunderBrand Snapshot™ and see exactly where your brand stands today —
             and the steps that will make the biggest impact next.
           </p>
           <a href="#brand-snapshot-agent" class="wb-footer-button">
@@ -821,7 +821,7 @@
     <script>
       /* Unlock Score UI */
       function unlockScore(results) {
-        console.log("[Brand Snapshot] unlockScore:", results);
+        console.log("[WunderBrand Snapshot™] unlockScore:", results);
         const scoreSection = document.getElementById("brand-alignment-score");
         const unlocked = document.getElementById("score-unlocked");
         if (scoreSection) scoreSection.classList.remove("hidden");
@@ -929,7 +929,7 @@
       window.addEventListener("message", function (event) {
         if (!event.data || event.data.type !== "BRAND_SNAPSHOT_COMPLETE") return;
         const scores = event.data.data;
-        console.log("[Brand Snapshot] Data received:", scores);
+        console.log("[WunderBrand Snapshot™] Data received:", scores);
 
         // Store report_id and redirectUrl for redirect after form submission
         if (scores.report_id) {
@@ -1424,7 +1424,7 @@
       })();
     </script>
     
-    <!-- Auto-expand the Brand Snapshot agent iframe -->
+    <!-- Auto-expand the WunderBrand Snapshot™ agent iframe -->
     <script>
       window.addEventListener("message", function (event) {
         if (!event.data) return;

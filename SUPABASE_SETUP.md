@@ -1,6 +1,6 @@
 # Supabase Setup Guide
 
-This guide will help you get the required Supabase environment variables for the Brand Snapshot™ Agent.
+This guide will help you get the required Supabase environment variables for the WunderBrand Snapshot™ Agent.
 
 ## Required Environment Variables
 

@@ -25,7 +25,7 @@ export interface SnapshotPlusPDFPayload {
  * 
  * 1. Cover
  * 2. Executive Summary
- *    • Brand Alignment Score™ (SVG gauge)
+ *    • WunderBrand Score™ (SVG gauge)
  *    • Primary Pillar Focus
  *    • Context Coverage Meter
  * 3. Pillar Deep Dives (priority-ordered)

@@ -1,5 +1,5 @@
 // components/RecommendationsBlock.tsx
-// Recommendations cards for Brand Snapshot™ (free tier). Capped so the report stays actionable; Snapshot+™ unlocks more.
+// Recommendations cards for WunderBrand Snapshot™ (free tier). Capped so the report stays actionable; Snapshot+™ unlocks more.
 
 "use client";
 

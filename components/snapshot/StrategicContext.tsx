@@ -21,7 +21,7 @@ export function StrategicContext({
 
       <p className="text-sm text-slate-600 mb-4">
         Your Snapshot+™ insights are generated using the information provided
-        during your Brand Snapshot™.
+        during your WunderBrand Snapshot™.
       </p>
 
       <p className="text-sm text-slate-600 mb-4">

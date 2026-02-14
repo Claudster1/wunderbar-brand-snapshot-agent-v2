@@ -13,13 +13,22 @@ export type SnapshotHistoryRow = {
   snapshot_stage?: string;
 };
 
-export async function getUserSnapshots(): Promise<SnapshotHistoryRow[]> {
+/**
+ * Get snapshots for a specific user by email.
+ * If no email is provided, returns an empty array (safe default).
+ * Previously returned ALL reports — now properly scoped.
+ */
+export async function getUserSnapshots(userEmail?: string | null): Promise<SnapshotHistoryRow[]> {
+  if (!userEmail) return [];
+
   const supabase = supabaseServer();
 
   const { data } = await supabase
     .from("brand_snapshot_reports")
     .select("id, report_id, company_name, brand_name, brand_alignment_score, primary_pillar, context_coverage, snapshot_stage")
-    .order("created_at", { ascending: false });
+    .eq("user_email", userEmail.toLowerCase())
+    .order("created_at", { ascending: false })
+    .limit(50);
 
   const rows = (data ?? []) as Array<Record<string, unknown>>;
   return rows.map((r) => ({

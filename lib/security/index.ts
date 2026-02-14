@@ -1,5 +1,5 @@
 // lib/security/index.ts
-// Centralized security utilities for Brand Snapshot™
+// Centralized security utilities for WunderBrand Snapshot™
 
 export { apiGuard, safeErrorResponse } from "./apiGuard";
 export type { ApiGuardConfig, ApiGuardResult } from "./apiGuard";

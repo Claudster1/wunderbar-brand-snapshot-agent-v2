@@ -1,12 +1,12 @@
 // app/api/wundy/route.ts
-// Unified Wundy chat endpoint supporting two modes:
+// Unified Wundy™ chat endpoint supporting two modes:
 //   - "general": Brand education, product FAQs, concept explanations (everyone)
 //   - "report":  Report-aware companion with user's report data (paid tiers only)
 // Supports tool calling for support request submission.
 // Uses multi-provider AI abstraction with automatic fallback.
 
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { wundyGuidePrompt } from "@/src/prompts/wundyGuidePrompt";
 import { buildWundyReportCompanionPrompt } from "@/src/prompts/wundyReportCompanionPrompt";
 import {
@@ -15,20 +15,21 @@ import {
   type ChatMessage,
   type ToolDefinition,
 } from "@/lib/ai";
+import { apiGuard } from "@/lib/security/apiGuard";
+import { AI_RATE_LIMIT } from "@/lib/security/rateLimit";
+import { sanitizeString } from "@/lib/security/inputValidation";
+import { logger } from "@/lib/logger";
 
 // Tier names by product key
 const TIER_NAMES: Record<string, string> = {
-  "snapshot-plus": "Brand Snapshot+™",
-  "blueprint": "Brand Blueprint™",
-  "blueprint-plus": "Brand Blueprint+™",
+  "snapshot-plus": "WunderBrand Snapshot+™",
+  "blueprint": "WunderBrand Blueprint™",
+  "blueprint-plus": "WunderBrand Blueprint+™",
 };
 
-// Lazy Supabase client
+// Use shared singleton admin client
 function getSupabase() {
-  const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
-  if (!url || !key) return null;
-  return createClient(url, key, { auth: { persistSession: false } });
+  return supabaseAdmin;
 }
 
 /* ─── Support Request Tool (provider-agnostic format) ─── */
@@ -52,10 +53,10 @@ const SUPPORT_TOOL: ToolDefinition = {
       productName: {
         type: "string",
         enum: [
-          "Brand Snapshot",
-          "Brand Snapshot+",
-          "Brand Blueprint",
-          "Brand Blueprint+",
+          "WunderBrand Snapshot™",
+          "WunderBrand Snapshot+™",
+          "WunderBrand Blueprint™",
+          "WunderBrand Blueprint+™",
         ],
         description: "The product the user is having issues with",
       },
@@ -137,7 +138,7 @@ async function handleSupportRequest(
       });
 
     if (dbError) {
-      console.error("[Wundy] Support request DB error:", dbError.message);
+      logger.error("[Wundy™] Support request DB error", { error: dbError.message });
     }
   }
 
@@ -175,9 +176,11 @@ async function handleSupportRequest(
     }
   }
 
-  console.log(
-    `[Support Request] ${args.issueCategory.toUpperCase()} | ${args.productName} | ${args.emailUsedForPurchase ? "email-provided" : "no-email"}`
-  );
+  logger.debug("[Support Request]", {
+    category: args.issueCategory,
+    product: args.productName,
+    hasEmail: !!args.emailUsedForPurchase,
+  });
 
   return {
     success: true,
@@ -186,10 +189,37 @@ async function handleSupportRequest(
   };
 }
 
+// ─── Response Cache for General Mode ────────────────────────────
+// Caches identical general-mode queries to avoid redundant AI calls.
+// Short TTL (5 minutes) ensures freshness while absorbing duplicate traffic.
+const generalCache = new Map<string, { content: string; provider: string; model: string; expiresAt: number }>();
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const MAX_CACHE_SIZE = 100;
+
+function getCacheKey(messages: { role: string; content: string }[]): string {
+  // Use the last user message as the cache key (most unique identifier)
+  const lastUserMsg = messages.filter(m => m.role === "user").pop();
+  return lastUserMsg ? lastUserMsg.content.trim().toLowerCase().slice(0, 200) : "";
+}
+
+function pruneCache() {
+  if (generalCache.size <= MAX_CACHE_SIZE) return;
+  const now = Date.now();
+  for (const [key, entry] of generalCache) {
+    if (entry.expiresAt < now) generalCache.delete(key);
+  }
+  // If still over limit, remove oldest entries
+  if (generalCache.size > MAX_CACHE_SIZE) {
+    const entries = Array.from(generalCache.entries());
+    entries.sort((a, b) => a[1].expiresAt - b[1].expiresAt);
+    for (let i = 0; i < entries.length - MAX_CACHE_SIZE; i++) {
+      generalCache.delete(entries[i][0]);
+    }
+  }
+}
+
 export async function POST(req: Request) {
   // ─── Security: Rate limit + request size ───
-  const { apiGuard } = await import("@/lib/security/apiGuard");
-  const { AI_RATE_LIMIT } = await import("@/lib/security/rateLimit");
   const guard = apiGuard(req, { routeId: "wundy", rateLimit: AI_RATE_LIMIT, maxBodySize: 50_000 });
   if (!guard.passed) return guard.errorResponse;
 
@@ -220,6 +250,12 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
+
+    const sanitizedMessages = messages.map((m: { role: string; content: string }) =>
+      m.role === "user" && typeof m.content === "string"
+        ? { ...m, content: sanitizeString(m.content) }
+        : m
+    );
 
     let systemPrompt: string;
 
@@ -293,7 +329,7 @@ export async function POST(req: Request) {
     // ─── Build universal messages ────────────────────────────────
     const aiMessages: ChatMessage[] = [
       { role: "system", content: systemPrompt },
-      ...messages.map((m) => ({
+      ...sanitizedMessages.map((m) => ({
         role: m.role as "user" | "assistant",
         content: m.content,
       })),
@@ -301,6 +337,21 @@ export async function POST(req: Request) {
 
     // ─── Determine use case for routing ──────────────────────────
     const useCase = mode === "general" ? "wundy_general" : "wundy_report";
+
+    // ─── Cache check for general mode (identical questions) ──────
+    if (mode === "general") {
+      const cacheKey = getCacheKey(sanitizedMessages);
+      if (cacheKey) {
+        const cached = generalCache.get(cacheKey);
+        if (cached && cached.expiresAt > Date.now()) {
+          return NextResponse.json({
+            content: cached.content,
+            mode,
+            _ai: { provider: cached.provider, model: cached.model, cached: true },
+          });
+        }
+      }
+    }
 
     // ─── First completion (with tools + retry + fallback) ────────
     const completion = await completeWithFallback(useCase as any, {
@@ -346,6 +397,20 @@ export async function POST(req: Request) {
       completion.content ||
       "Sorry, I had trouble with that. Could you try asking again?";
 
+    // Cache general-mode responses for identical future queries
+    if (mode === "general" && content) {
+      const cacheKey = getCacheKey(sanitizedMessages);
+      if (cacheKey) {
+        pruneCache();
+        generalCache.set(cacheKey, {
+          content,
+          provider: completion.provider,
+          model: completion.model,
+          expiresAt: Date.now() + CACHE_TTL_MS,
+        });
+      }
+    }
+
     return NextResponse.json({
       content,
       mode,
@@ -353,7 +418,7 @@ export async function POST(req: Request) {
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unknown error";
-    console.error("[Wundy API] Error:", message);
+    logger.error("[Wundy™ API] Error", { error: message });
     return NextResponse.json(
       { error: "Something went wrong. Please try again." },
       { status: 500 }

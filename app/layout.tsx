@@ -12,18 +12,18 @@ const lato = Lato({
 })
 
 export const metadata: Metadata = {
-  title: 'Brand Snapshot Suite™ | Wunderbar Digital',
-  description: 'Get your Brand Alignment Score™ — a free, AI-powered brand diagnostic across positioning, messaging, visibility, credibility, and conversion. Takes 15 minutes.',
+  title: 'WunderBrand Suite™ | Wunderbar Digital',
+  description: 'Get your WunderBrand Score™ — a free, AI-powered brand diagnostic across positioning, messaging, visibility, credibility, and conversion. Takes 15 minutes.',
   icons: {
     icon: 'https://d268zs2sdbzvo0.cloudfront.net/686d29d32ebdbfce1f9108ac_01d9e17c-ffc3-4ce2-82e7-6949834d7f2a_favicon.png',
     shortcut: 'https://d268zs2sdbzvo0.cloudfront.net/686d29d32ebdbfce1f9108ac_01d9e17c-ffc3-4ce2-82e7-6949834d7f2a_favicon.png',
     apple: 'https://d268zs2sdbzvo0.cloudfront.net/686d29d32ebdbfce1f9108ac_01d9e17c-ffc3-4ce2-82e7-6949834d7f2a_favicon.png',
   },
   openGraph: {
-    title: 'Brand Snapshot Suite™ | Wunderbar Digital',
-    description: 'Get your Brand Alignment Score™ — a free, AI-powered brand diagnostic across positioning, messaging, visibility, credibility, and conversion.',
-    url: 'https://app.brandsnapshot.ai',
-    siteName: 'Brand Snapshot Suite™',
+    title: 'WunderBrand Suite™ | Wunderbar Digital',
+    description: 'Get your WunderBrand Score™ — a free, AI-powered brand diagnostic across positioning, messaging, visibility, credibility, and conversion.',
+    url: 'https://app.wunderbrand.ai',
+    siteName: 'WunderBrand Suite™',
     type: 'website',
     locale: 'en_US',
     images: [
@@ -31,17 +31,17 @@ export const metadata: Metadata = {
         url: 'https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp',
         width: 1200,
         height: 630,
-        alt: 'Brand Snapshot Suite™ by Wunderbar Digital',
+        alt: 'WunderBrand Suite™ by Wunderbar Digital',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Brand Snapshot Suite™ | Wunderbar Digital',
-    description: 'Get your Brand Alignment Score™ — a free, AI-powered brand diagnostic across five core brand pillars.',
+    title: 'WunderBrand Suite™ | Wunderbar Digital',
+    description: 'Get your WunderBrand Score™ — a free, AI-powered brand diagnostic across five core brand pillars.',
     images: ['https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp'],
   },
-  metadataBase: new URL('https://app.brandsnapshot.ai'),
+  metadataBase: new URL('https://app.wunderbrand.ai'),
 }
 
 export default function RootLayout({

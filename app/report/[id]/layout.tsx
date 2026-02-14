@@ -1,5 +1,5 @@
 // app/report/[id]/layout.tsx
-// Layout with metadata for Brand Snapshot report pages
+// Layout with metadata for WunderBrand Snapshot™ report pages
 
 import type { Metadata } from "next";
 
@@ -15,10 +15,10 @@ export async function generateMetadata({
     || "http://localhost:3000";
 
   return {
-    title: "Your Brand Snapshot™ Results",
+    title: "Your WunderBrand Snapshot™ Results",
     description: "Personalized brand clarity powered by WUNDY™.",
     openGraph: {
-      title: "Your Brand Snapshot™ Results",
+      title: "Your WunderBrand Snapshot™ Results",
       description: "Personalized brand clarity powered by WUNDY™.",
       images: [
         {
@@ -26,7 +26,7 @@ export async function generateMetadata({
           url: `${baseUrl}/api/og/${id}`,
           width: 1200,
           height: 630,
-          alt: "Brand Snapshot™ Results",
+          alt: "WunderBrand Snapshot™ Results",
         },
       ],
     },

@@ -13,9 +13,9 @@ const LIGHT_BG = "#F4F7FB";
 const GREEN = "#22C55E";
 
 const PRODUCT_NAMES: Record<string, string> = {
-  "snapshot-plus": "Brand Snapshot+™",
-  blueprint: "Brand Blueprint™",
-  "blueprint-plus": "Brand Blueprint+™",
+  "snapshot-plus": "WunderBrand Snapshot+™",
+  blueprint: "WunderBrand Blueprint™",
+  "blueprint-plus": "WunderBrand Blueprint+™",
 };
 
 const PRODUCT_DESCRIPTIONS: Record<string, string> = {
@@ -24,7 +24,7 @@ const PRODUCT_DESCRIPTIONS: Record<string, string> = {
   blueprint:
     "Your report includes a complete brand operating system, messaging framework, competitive positioning, and 16 AI prompts.",
   "blueprint-plus":
-    "Your report includes everything in Brand Blueprint™ plus implementation guides, advanced messaging matrix, 28 AI prompts, and a complimentary 30-minute Strategy Activation Session.",
+    "Your report includes everything in WunderBrand Blueprint™ plus implementation guides, advanced messaging matrix, 28 AI prompts, and a complimentary 30-minute Strategy Activation Session.",
 };
 
 function SuccessContent() {
@@ -33,7 +33,7 @@ function SuccessContent() {
   const reportId = searchParams.get("reportId");
   const emailParam = searchParams.get("email");
   const sessionId = searchParams.get("session_id");
-  const productName = PRODUCT_NAMES[product] || "Brand Snapshot+™";
+  const productName = PRODUCT_NAMES[product] || "WunderBrand Snapshot+™";
 
   // Persist email from checkout so the dashboard can find their reports.
   // If the URL has an email param, use it directly.
@@ -147,7 +147,7 @@ function SuccessContent() {
             {
               step: "2",
               title: "Review your results",
-              detail: "Your report will walk you through your Brand Alignment Score, pillar analysis, and personalized recommendations.",
+              detail: "Your report will walk you through your WunderBrand Score™, pillar analysis, and personalized recommendations.",
             },
             {
               step: "3",
@@ -155,7 +155,7 @@ function SuccessContent() {
                 ? "Book your Strategy Activation Session"
                 : "Put your insights to work",
               detail: isBlueprintPlus
-                ? "Your Brand Blueprint+™ includes a complimentary 30-minute session with a strategist. We recommend booking within 30 days while your diagnostic data is fresh."
+                ? "Your WunderBrand Blueprint+™ includes a complimentary 30-minute session with a strategist. We recommend booking within 30 days while your diagnostic data is fresh."
                 : "Use the AI prompts in your report to start implementing your brand strategy right away.",
             },
           ].map((item) => (

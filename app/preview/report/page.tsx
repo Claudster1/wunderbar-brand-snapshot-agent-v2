@@ -1,10 +1,10 @@
 // app/preview/report/page.tsx
-// Dev preview: legacy Brand Snapshot report layout with mock data (no DB).
+// Dev preview: legacy WunderBrand Snapshot™ report layout with mock data (no DB).
 
 import Link from "next/link";
 import SnapshotPlusUpsell from "@/components/SnapshotPlusUpsell";
 
-export const dynamic = "force-dynamic";
+// Static page — uses mock data only, no DB
 
 const MOCK_REPORT = {
   business_name: "Acme Co",
@@ -209,9 +209,9 @@ export default function PreviewReportPage() {
       </div>
 
       <div className="report-container">
-        <h1>Your Brand Snapshot™ Results</h1>
+        <h1>Your WunderBrand Snapshot™ Results</h1>
         <p>
-          Here’s your personalized Brand Alignment Score™ and a concise breakdown of how your brand is
+          Here’s your personalized WunderBrand Score™ and a concise breakdown of how your brand is
           performing across the five strategic pillars. Each insight is tailored to help you understand
           where you’re strong today — and where small refinements can unlock clarity, consistency, and conversion.
         </p>

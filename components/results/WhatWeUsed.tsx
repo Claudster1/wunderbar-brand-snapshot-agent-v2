@@ -10,7 +10,7 @@ export function WhatWeUsed({ contextCoverage }: { contextCoverage: number }) {
 
       <p className="text-sm text-slate-700">
         Your Snapshot+™ is based on the information you provided during your
-        Brand Snapshot™, combined with pattern analysis across similar brands.
+        WunderBrand Snapshot™, combined with pattern analysis across similar brands.
       </p>
 
       <p className="text-sm text-slate-700">

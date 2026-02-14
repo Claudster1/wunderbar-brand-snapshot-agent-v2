@@ -1,6 +1,6 @@
 -- database/migration_brand_snapshot_reports.sql
 -- Migration: Create brand_snapshot_reports table
--- Purpose: Store Brand Snapshot™ report data
+-- Purpose: Store WunderBrand Snapshot™ report data
 
 -- Enable UUID extension if not already enabled
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";

@@ -21,7 +21,7 @@ Add these environment variables in your Vercel project dashboard:
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Your Supabase anonymous/public key (get from Supabase dashboard)
 - `SUPABASE_SERVICE_ROLE_KEY` - Your Supabase service role key (server-only, get from Supabase dashboard)
 - `OPENAI_API_KEY` - Your OpenAI API key (get from https://platform.openai.com/api-keys)
-- `NEXT_PUBLIC_BASE_URL` - Your Vercel deployment URL or custom domain (e.g., `https://www.brandsnapshot.ai`)
+- `NEXT_PUBLIC_BASE_URL` - Your Vercel deployment URL or custom domain (e.g., `https://www.wunderbrand.ai`)
 
 **Optional:**
 - `ACTIVE_CAMPAIGN_API_KEY` - Your ActiveCampaign API token (get from ActiveCampaign dashboard)
@@ -52,7 +52,7 @@ For `NEXT_PUBLIC_BASE_URL`, you have two options:
 
 **Option B: Use a custom domain**
 ```bash
-NEXT_PUBLIC_BASE_URL=https://www.brandsnapshot.ai
+NEXT_PUBLIC_BASE_URL=https://www.wunderbrand.ai
 ```
 
 The code automatically falls back to `https://brand-snapshot.vercel.app` if not set, but you should set your actual domain.
@@ -171,7 +171,7 @@ Vercel provides:
 ## 🎯 Next Steps After Deployment
 
 1. **Test all functionality:**
-   - Brand Snapshot flow
+   - WunderBrand Snapshot™ flow
    - Report generation
    - PDF downloads
    - OG image generation
@@ -181,7 +181,7 @@ Vercel provides:
    **Step 1: Add Domain in Vercel**
    - Go to **Settings** → **Domains**
    - Click **Add Domain**
-   - Enter your domain (e.g., `www.brandsnapshot.ai`)
+   - Enter your domain (e.g., `www.wunderbrand.ai`)
    - Click **Add**
    
    **Step 2: Configure DNS Records**
@@ -195,7 +195,7 @@ Vercel provides:
    
    **Step 3: Update Environment Variable**
    - Go to **Settings** → **Environment Variables**
-   - Update `NEXT_PUBLIC_BASE_URL` to: `https://www.brandsnapshot.ai`
+   - Update `NEXT_PUBLIC_BASE_URL` to: `https://www.wunderbrand.ai`
    - Save and redeploy
    
    **Step 4: Wait for DNS Propagation**

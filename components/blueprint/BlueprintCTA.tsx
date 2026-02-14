@@ -26,7 +26,7 @@ export function BlueprintCTA({
         href="/blueprint"
         className="inline-block px-6 py-3 bg-brand-blue rounded-md font-semibold"
       >
-        Explore Brand Blueprint™ →
+        Explore WunderBrand Blueprint™ →
       </a>
     </div>
   );

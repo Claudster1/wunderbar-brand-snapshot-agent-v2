@@ -1,7 +1,7 @@
 // lib/pricing.ts
 // Product pricing configuration
 
-export type ProductKey = "snapshot_plus" | "blueprint" | "blueprint_plus";
+export type ProductKey = "snapshot_plus" | "blueprint" | "blueprint_plus" | "snapshot_plus_refresh" | "blueprint_refresh";
 
 export interface ProductPricing {
   price: number;
@@ -13,19 +13,41 @@ export const PRICING: Record<ProductKey, ProductPricing> = {
   snapshot_plus: {
     price: 497,
     stripePriceId: process.env.STRIPE_PRICE_SNAPSHOT_PLUS!,
-    label: "Brand Snapshot+™"
+    label: "WunderBrand Snapshot+™"
   },
   blueprint: {
     price: 997,
     stripePriceId: process.env.STRIPE_PRICE_BLUEPRINT!,
-    label: "Brand Blueprint™"
+    label: "WunderBrand Blueprint™"
   },
   blueprint_plus: {
     price: 1997,
     stripePriceId: process.env.STRIPE_PRICE_BLUEPRINT_PLUS!,
-    label: "Brand Blueprint+™"
+    label: "WunderBrand Blueprint+™"
+  },
+  snapshot_plus_refresh: {
+    price: 47,
+    stripePriceId: process.env.STRIPE_PRICE_SNAPSHOT_PLUS_REFRESH!,
+    label: "WunderBrand Snapshot+™ Quarterly Refresh"
+  },
+  blueprint_refresh: {
+    price: 97,
+    stripePriceId: process.env.STRIPE_PRICE_BLUEPRINT_REFRESH!,
+    label: "WunderBrand Blueprint™ Quarterly Refresh"
   }
 };
+
+/** Whether a product key is a quarterly refresh (not a full-tier purchase) */
+export function isRefreshProduct(key: ProductKey): boolean {
+  return key === "snapshot_plus_refresh" || key === "blueprint_refresh";
+}
+
+/** Map a refresh product to its parent tier */
+export function getRefreshParentTier(key: ProductKey): ProductKey | null {
+  if (key === "snapshot_plus_refresh") return "snapshot_plus";
+  if (key === "blueprint_refresh") return "blueprint";
+  return null;
+}
 
 /**
  * Get pricing information for a product

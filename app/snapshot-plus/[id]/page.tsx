@@ -35,7 +35,7 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
       <div className="p-10 text-center">
         <h1 className="text-xl font-semibold mb-2">Report Not Found</h1>
         <p className="text-slate-600">
-          This Brand Snapshot+™ report does not exist or is no longer available.
+          This WunderBrand Snapshot+™ report does not exist or is no longer available.
         </p>
       </div>
     );
@@ -136,13 +136,13 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
       {/* HEADER */}
       <h1>Snapshot+™ Brand Intelligence Report</h1>
       <p style={{ maxWidth: "720px", lineHeight: "1.6" }}>
-        This expanded analysis builds on your Brand Snapshot™ results and adds deeper strategic
+        This expanded analysis builds on your WunderBrand Snapshot™ results and adds deeper strategic
         insight across brand clarity, voice, visuals, audience, archetype, and next-step priorities.
       </p>
 
       {/* SCORE SECTION */}
       <div className="section">
-        <h2>Your Brand Alignment Score™</h2>
+        <h2>Your WunderBrand Score™</h2>
         <div className="score">{brand_alignment_score || 0}</div>
 
         <div className="meter-track">
@@ -302,7 +302,7 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
         </p>
 
         <Link href="/upgrade/blueprint" className="blueprint-btn">
-          Explore Brand Blueprint™ →
+          Explore WunderBrand Blueprint™ →
         </Link>
       </div>
 

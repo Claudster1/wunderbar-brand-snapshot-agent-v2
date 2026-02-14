@@ -1,5 +1,5 @@
 // components/snapshot/ExpectationsPanel.tsx
-// Component explaining what users can expect from the Brand Snapshot process
+// Component explaining what users can expect from the WunderBrand Snapshot™ process
 
 export function ExpectationsPanel() {
   return (
@@ -12,7 +12,7 @@ export function ExpectationsPanel() {
         <li>• Takes about <strong>10–15 minutes</strong></li>
         <li>• No prep or documents needed</li>
         <li>• We'll ask about your business, audience, and visibility</li>
-        <li>• Your Brand Alignment Score™ appears immediately</li>
+        <li>• Your WunderBrand Score™ appears immediately</li>
       </ul>
 
       <p className="mt-3 text-slate-600">

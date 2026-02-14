@@ -1,13 +1,16 @@
 // app/preview/blueprint/page.tsx
-// Brand Blueprint™ — Full report (Snapshot+ content + Blueprint-specific)
+// WunderBrand Blueprint™ — Full report (Snapshot+ content + Blueprint-specific)
 "use client";
 
 export const dynamic = "force-dynamic";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import ReportNav from "@/components/reports/ReportNav";
-import WundyChat from "@/components/wundy/WundyChat";
+import nextDynamic from "next/dynamic";
+
+// Lazy-load heavy interactive components to reduce initial bundle size
+const ReportNav = nextDynamic(() => import("@/components/reports/ReportNav"), { ssr: false });
+const WundyChat = nextDynamic(() => import("@/components/wundy/WundyChat"), { ssr: false });
 
 /* ─── Brand tokens (match Snapshot+) ─── */
 const NAVY = "#021859";
@@ -248,14 +251,14 @@ const REPORT = {
   businessName: "Acme Co",
   date: "February 5, 2026",
 
-  // Carried forward from Snapshot+ (Brand Alignment Score)
+  // Carried forward from Snapshot+ (WunderBrand Score™)
   executiveSummary: {
     brandAlignmentScore: 72,
     synthesis: "Acme Co has a strong internal understanding of its value but struggles to translate that clarity externally. Positioning is solid at 16/20, yet messaging (15/20) lacks the proof points needed to convert that positioning into trust. Visibility efforts (14/20) are active but unfocused, spreading resources thin. Credibility signals exist but remain hidden at key decision points (13/20). Conversion infrastructure is functional but underleveraged (14/20). The throughline: internal clarity is not reaching external audiences in a way that builds trust and drives action.",
     diagnosis: "Your brand is currently strong but inconsistent because your positioning is clear internally but not consistently reflected across customer touchpoints.",
     primaryFocusArea: "Credibility",
     secondaryFocusArea: "Messaging",
-    industryBenchmark: "For a regional B2B marketing consultancy at Acme Co\u2019s revenue stage, a Brand Alignment Score of 72 is above average \u2014 most firms in this space operate in the 58\u201368 range. Acme Co\u2019s positioning strength is a genuine competitive asset, but the credibility gap is where top-tier competitors pull ahead.",
+    industryBenchmark: "For a regional B2B marketing consultancy at Acme Co\u2019s revenue stage, a WunderBrand Score™ of 72 is above average \u2014 most firms in this space operate in the 58\u201368 range. Acme Co\u2019s positioning strength is a genuine competitive asset, but the credibility gap is where top-tier competitors pull ahead.",
   },
   priorityDiagnosis: {
     primary: { whyFocus: "Credibility is the highest-leverage pillar because your positioning and messaging are already strong — but without visible proof, prospects cannot verify your claims. Trust is the bottleneck.", downstreamIssues: "Low credibility visibility forces your messaging to work harder, makes your positioning feel like marketing speak rather than fact, and causes prospects to hesitate at conversion points. Every pillar is underperforming because proof is not doing its job.", whatImproves: "When credibility is surfaced at key touchpoints, messaging becomes believable, positioning becomes defensible, and conversion friction drops. One change unlocks momentum across the system." },
@@ -285,7 +288,7 @@ const REPORT = {
 
   // Blueprint-specific content
   blueprintOverview: {
-    whatThisEnables: "This Brand Blueprint is your operational system for consistent, strategic brand execution. It defines how your brand speaks, looks, converts, and maintains integrity across every touchpoint. Use it as the source of truth for marketing decisions, content creation, sales conversations, and team alignment.",
+    whatThisEnables: "This WunderBrand Blueprint™ is your operational system for consistent, strategic brand execution. It defines how your brand speaks, looks, converts, and maintains integrity across every touchpoint. Use it as the source of truth for marketing decisions, content creation, sales conversations, and team alignment.",
     howToUse: "Reference this document before creating any external communication. Share relevant sections with contractors, agencies, and team members. Review quarterly to ensure execution matches strategy. Update only when business fundamentals change — not based on trends or preferences.",
   },
   brandFoundation: {
@@ -442,7 +445,7 @@ Brand context from diagnostic:
 - Target Audience: B2B service company founders and marketing leaders (10–100 employees)
 - Top Strengths: Clear internal positioning (16/20), Active content presence, Strong service delivery understanding
 - Top Gaps: Credibility signals hidden at decision points (13/20), Messaging lacks proof points (15/20), Visibility efforts unfocused (14/20)
-- Brand Alignment Score: 72
+- WunderBrand Score™: 72
 
 Create a brand positioning statement using this framework:
 
@@ -766,13 +769,13 @@ Prioritize ruthlessly. A brand trying to fix everything at once fixes nothing.`,
   companyDescription: {
     oneLiner: "Acme Co helps B2B companies align their brand strategy for measurable growth.",
     shortDescription: "Acme Co is a B2B brand strategy firm that helps mid-market companies transform fragmented brand presence into cohesive, high-performing brand systems. Using a proprietary diagnostic framework, we deliver data-driven brand alignment strategies that improve marketing ROI and shorten sales cycles.",
-    fullBoilerplate: "Founded in 2018, Acme Co is a B2B brand strategy firm serving mid-market companies with $1M–$20M in revenue. The company's proprietary Brand Alignment Score™ framework diagnoses brand health across five key pillars — Positioning, Messaging, Visibility, Credibility, and Conversion — and delivers actionable strategies that drive measurable business outcomes. Acme Co's approach combines diagnostic precision with practical implementation, helping brands close the gap between what they deliver and how they're perceived. The company serves clients nationally across professional services, SaaS, and consulting industries.",
+    fullBoilerplate: "Founded in 2018, Acme Co is a B2B brand strategy firm serving mid-market companies with $1M–$20M in revenue. The company's proprietary WunderBrand Score™ framework diagnoses brand health across five key pillars — Positioning, Messaging, Visibility, Credibility, and Conversion — and delivers actionable strategies that drive measurable business outcomes. Acme Co's approach combines diagnostic precision with practical implementation, helping brands close the gap between what they deliver and how they're perceived. The company serves clients nationally across professional services, SaaS, and consulting industries.",
     proposalIntro: "Acme Co specializes in B2B brand strategy for mid-market companies. Our diagnostic-driven approach has helped 200+ businesses improve brand alignment by an average of 23 points, resulting in shorter sales cycles, higher conversion rates, and stronger market positioning.",
   },
   customerJourneyMap: {
     overview: "Acme Co's ideal customer typically moves from problem awareness to brand loyalty over 3–6 months, with key conversion windows at the consideration and decision stages.",
     stages: [
-      { stage: "Awareness", customerMindset: "I know something is off with our brand, but I can't pinpoint what.", keyQuestions: ["Why aren't our marketing efforts converting?", "Is our brand holding us back?"], touchpoints: ["Google search", "LinkedIn thought leadership", "Industry events"], messagingFocus: "Validate the problem — show you understand the pain of brand misalignment.", contentTypes: ["Blog posts", "LinkedIn articles", "Podcast appearances"], conversionTrigger: "Free Brand Snapshot diagnostic CTA", kpiToTrack: "Website traffic from branded + non-branded search" },
+      { stage: "Awareness", customerMindset: "I know something is off with our brand, but I can't pinpoint what.", keyQuestions: ["Why aren't our marketing efforts converting?", "Is our brand holding us back?"], touchpoints: ["Google search", "LinkedIn thought leadership", "Industry events"], messagingFocus: "Validate the problem — show you understand the pain of brand misalignment.", contentTypes: ["Blog posts", "LinkedIn articles", "Podcast appearances"], conversionTrigger: "Free WunderBrand Snapshot™ diagnostic CTA", kpiToTrack: "Website traffic from branded + non-branded search" },
       { stage: "Consideration", customerMindset: "I need help, but I'm comparing options and evaluating credibility.", keyQuestions: ["What makes Acme Co different from other agencies?", "Can I see proof this works?"], touchpoints: ["Website case studies", "Email nurture sequence", "Webinar replays"], messagingFocus: "Differentiate with proof — case studies, methodology, and thought leadership.", contentTypes: ["Case studies", "Comparison guides", "Webinars"], conversionTrigger: "Downloadable Brand Audit Checklist or Snapshot+ upgrade", kpiToTrack: "Lead-to-MQL conversion rate" },
       { stage: "Decision", customerMindset: "I'm ready to invest — I need confidence this is the right choice.", keyQuestions: ["What's the ROI?", "What does the process look like?", "Who will I work with?"], touchpoints: ["Proposal/pitch", "Strategy call", "Free consultation"], messagingFocus: "Remove risk — clear process, pricing transparency, guaranteed deliverables.", contentTypes: ["Proposals", "ROI calculators", "Testimonial videos"], conversionTrigger: "Strategy consultation booking or direct purchase", kpiToTrack: "Proposal-to-close rate" },
       { stage: "Onboarding", customerMindset: "I've committed — now I want to feel confident I made the right call.", keyQuestions: ["What happens first?", "How do I access my report?", "What's expected of me?"], touchpoints: ["Welcome email", "Onboarding portal", "First deliverable"], messagingFocus: "Reassure and activate — immediate value delivery and clear next steps.", contentTypes: ["Welcome sequence", "Quick-start guide", "Onboarding video"], conversionTrigger: "First 'aha moment' from the report or session", kpiToTrack: "Time-to-first-value (report delivered)" },
@@ -797,7 +800,7 @@ Prioritize ruthlessly. A brand trying to fix everything at once fixes nothing.`,
       { keyword: "brand strategy vs brand identity", searchIntent: "Clarifying concepts before investing", contentRecommendation: "Educational article establishing Acme Co's expertise" },
       { keyword: "B2B brand audit checklist free", searchIntent: "Looking for tools to self-assess", contentRecommendation: "Gated lead magnet: downloadable audit checklist" },
       { keyword: "how much does brand strategy cost", searchIntent: "Evaluating budget for brand work", contentRecommendation: "Pricing transparency page with value comparison" },
-      { keyword: "brand alignment score meaning", searchIntent: "Understanding diagnostic results", contentRecommendation: "Educational landing page tied to Brand Snapshot" },
+      { keyword: "brand alignment score meaning", searchIntent: "Understanding diagnostic results", contentRecommendation: "Educational landing page tied to WunderBrand Snapshot™" },
     ],
     technicalPriorities: [
       "Add FAQ schema to service and pricing pages",
@@ -806,7 +809,7 @@ Prioritize ruthlessly. A brand trying to fix everything at once fixes nothing.`,
       "Create XML sitemap with proper priority tags",
       "Set up canonical URLs for blog content to prevent duplicate indexing"
     ],
-    contentSEOPlaybook: "Publish 2–3 optimized blog posts per month targeting mid-funnel informational queries. Each post should include FAQ schema, internal links to service pages, and a clear CTA to the free Brand Snapshot. Prioritize long-tail keywords with low competition first to build domain authority."
+    contentSEOPlaybook: "Publish 2–3 optimized blog posts per month targeting mid-funnel informational queries. Each post should include FAQ schema, internal links to service pages, and a clear CTA to the free WunderBrand Snapshot™. Prioritize long-tail keywords with low competition first to build domain authority."
   },
   aeoStrategy: {
     overview: "As AI-powered search (ChatGPT, Perplexity, Google AI Overviews) reshapes how B2B buyers discover solutions, Acme Co must position itself as a citable authority — not just a findable website.",
@@ -859,9 +862,9 @@ Prioritize ruthlessly. A brand trying to fix everything at once fixes nothing.`,
   emailMarketingFramework: {
     overview: "Email is the highest-ROI channel for Acme Co's B2B audience — it nurtures prospects who aren't ready to buy, re-engages dormant leads, and drives upgrades from free to paid tiers.",
     welcomeSequence: {
-      description: "A 5-email sequence that builds trust, delivers immediate value, and introduces the Brand Snapshot Suite.",
+      description: "A 5-email sequence that builds trust, delivers immediate value, and introduces the WunderBrand Suite™.",
       emails: [
-        { timing: "Immediately", subject: "Your Brand Snapshot is ready — here's what it means", purpose: "Deliver value and set expectations", keyMessage: "Welcome, here's how to read your results, and what to do first." },
+        { timing: "Immediately", subject: "Your WunderBrand Snapshot™ is ready — here's what it means", purpose: "Deliver value and set expectations", keyMessage: "Welcome, here's how to read your results, and what to do first." },
         { timing: "Day 2", subject: "The #1 thing holding most B2B brands back", purpose: "Educate and build authority", keyMessage: "Most B2B brands invest in tactics before strategy — here's why that's expensive." },
         { timing: "Day 5", subject: "How [similar company] improved their brand score by 23 points", purpose: "Social proof and aspiration", keyMessage: "Case study showing the impact of brand alignment on real business metrics." },
         { timing: "Day 8", subject: "Your brand has a blind spot (and it's costing you)", purpose: "Create urgency around gap identified in their Snapshot", keyMessage: "Based on your diagnostic, here's the one area that deserves attention first." },
@@ -881,7 +884,7 @@ Prioritize ruthlessly. A brand trying to fix everything at once fixes nothing.`,
   socialMediaStrategy: {
     overview: "For a B2B brand strategy consultancy, LinkedIn is the primary platform, supplemented by YouTube for long-form thought leadership. Other platforms are lower priority given Acme Co's audience.",
     platforms: [
-      { platform: "LinkedIn", whyThisPlatform: "90% of B2B decision-makers use LinkedIn for professional content. It's where Acme Co's ideal customers already spend time and make vendor decisions.", audienceOnPlatform: "Marketing directors, CMOs, founders, and agency owners at mid-market B2B companies.", contentStrategy: "Mix of thought leadership (original insights), tactical how-tos, case study highlights, and brand strategy frameworks. Prioritize text posts and carousels over videos.", postingFrequency: "4–5x per week", contentMix: "40% educational thought leadership, 25% proof/case studies, 20% frameworks/tools, 15% personal/behind-the-scenes", examplePosts: ["Carousel: 'The 5 Pillars of Brand Alignment — A Visual Guide'", "Text post: 'I audited 50 B2B websites last month. Here's the #1 mistake I saw repeatedly...'", "Case study highlight: 'How a SaaS company went from 42 to 78 on their Brand Alignment Score in 90 days'"], kpiToTrack: "Engagement rate (likes + comments / impressions) — target 3%+" },
+      { platform: "LinkedIn", whyThisPlatform: "90% of B2B decision-makers use LinkedIn for professional content. It's where Acme Co's ideal customers already spend time and make vendor decisions.", audienceOnPlatform: "Marketing directors, CMOs, founders, and agency owners at mid-market B2B companies.", contentStrategy: "Mix of thought leadership (original insights), tactical how-tos, case study highlights, and brand strategy frameworks. Prioritize text posts and carousels over videos.", postingFrequency: "4–5x per week", contentMix: "40% educational thought leadership, 25% proof/case studies, 20% frameworks/tools, 15% personal/behind-the-scenes", examplePosts: ["Carousel: 'The 5 Pillars of Brand Alignment — A Visual Guide'", "Text post: 'I audited 50 B2B websites last month. Here's the #1 mistake I saw repeatedly...'", "Case study highlight: 'How a SaaS company went from 42 to 78 on their WunderBrand Score™ in 90 days'"], kpiToTrack: "Engagement rate (likes + comments / impressions) — target 3%+" },
       { platform: "YouTube", whyThisPlatform: "Long-form educational content builds deep trust and positions Acme Co as the go-to authority. YouTube also improves SEO and AEO visibility.", audienceOnPlatform: "B2B professionals researching brand strategy, considering consulting help, or self-educating.", contentStrategy: "Monthly deep-dive videos on brand strategy topics, case study walkthroughs, and 'brand audit' breakdowns. Optimize titles and descriptions for SEO.", postingFrequency: "2–4x per month", contentMix: "50% educational how-tos, 30% case study breakdowns, 20% industry analysis", examplePosts: ["Video: 'How to Build a Brand Messaging Framework (Step-by-Step)'", "Video: 'I Scored 100 B2B Brands — Here's What the Top 10% Do Differently'", "Video: 'Brand Strategy vs. Brand Identity: What's the Difference and Why It Matters'"], kpiToTrack: "Watch time and subscriber growth rate" },
     ],
     platformsToAvoid: {
@@ -966,7 +969,7 @@ export default function BrandBlueprintReport() {
             <img src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp" alt="Wunderbar Digital" style={{ height: 26, objectFit: "contain" }} />
           </a>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-            <span style={{ fontSize: 22, fontWeight: 700, color: NAVY, lineHeight: 1 }}>Brand Blueprint<span style={{ fontSize: 9, verticalAlign: "super", lineHeight: 0 }}>™</span></span>
+            <span style={{ fontSize: 22, fontWeight: 700, color: NAVY, lineHeight: 1 }}>WunderBrand Blueprint™<span style={{ fontSize: 9, verticalAlign: "super", lineHeight: 0 }}>™</span></span>
             <span style={{ fontSize: 12, fontWeight: 400, color: BLUE, marginTop: 3 }}>Powered by <a href={UTM_BASE} target="_blank" rel="noopener noreferrer" style={{ fontWeight: 700, color: BLUE, textDecoration: "none" }}>Wunderbar Digital</a></span>
           </div>
         </div>
@@ -1005,7 +1008,7 @@ export default function BrandBlueprintReport() {
               <button aria-label="Download report" onClick={() => {
                 const el = document.querySelector('[data-report]') || document.querySelector('main') || document.body;
                 if (el) {
-                  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Brand Blueprint - ${r.businessName}</title><link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet"><style>body{margin:0;font-family:Lato,sans-serif;}</style></head><body>${el.outerHTML}</body></html>`;
+                  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>WunderBrand Blueprint™ - ${r.businessName}</title><link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet"><style>body{margin:0;font-family:Lato,sans-serif;}</style></head><body>${el.outerHTML}</body></html>`;
                   const blob = new Blob([html], { type: 'text/html' });
                   const url = URL.createObjectURL(blob);
                   const a = document.createElement('a');
@@ -1043,7 +1046,7 @@ export default function BrandBlueprintReport() {
         <div style={{ padding: "28px 0 48px", display: "flex", flexDirection: "column", gap: 24 }}>
         {/* Preview Banner */}
         <div style={{ background: "#fff9e6", border: "2px solid #f5e6b3", borderRadius: 5, padding: "12px 16px", fontSize: 14, color: "#8b6914", display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
-          <span><strong>Preview mode</strong> — Mock data showing Brand Blueprint™ structure.</span>
+          <span><strong>Preview mode</strong> — Mock data showing WunderBrand Blueprint™ structure.</span>
           <Link href="/preview" style={{ color: NAVY, fontWeight: 600, textDecoration: "underline" }}>← All previews</Link>
         </div>
 
@@ -1196,7 +1199,7 @@ export default function BrandBlueprintReport() {
 
         {/* ═══ 2. BRAND ALIGNMENT SCORE + FOCUS TOGGLE ═══ */}
         <Section id="brand-alignment-score">
-          <SectionTitle hero description="A composite score measuring how well your brand communicates across five key pillars.">Brand Alignment Score<span style={{ fontSize: 10, verticalAlign: "super", lineHeight: 0, marginLeft: 0 }}>™</span></SectionTitle>
+          <SectionTitle hero description="A composite score measuring how well your brand communicates across five key pillars.">WunderBrand Score™<span style={{ fontSize: 10, verticalAlign: "super", lineHeight: 0, marginLeft: 0 }}>™</span></SectionTitle>
           <MainGauge score={r.executiveSummary.brandAlignmentScore} />
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 28 }}>
             <button aria-pressed={selectedFocus === "primary"} onClick={() => setSelectedFocus("primary")} style={{ padding: "18px 20px", borderRadius: 5, textAlign: "left", background: selectedFocus === "primary" ? `${BLUE}12` : WHITE, border: selectedFocus === "primary" ? `2px solid ${BLUE}` : `1px solid ${BORDER}`, cursor: "pointer", transition: "all 0.2s ease", position: "relative", overflow: "hidden" }}>
@@ -1282,7 +1285,7 @@ export default function BrandBlueprintReport() {
           <SectionTitle hero description="What this system enables and how to get maximum value from it.">
             <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <svg viewBox="0 0 24 24" fill="none" style={{ width: 24, height: 24 }}><rect x="3" y="3" width="18" height="18" rx="3" stroke={BLUE} strokeWidth="1.5"/><path d="M8 8h8M8 12h8M8 16h4" stroke={BLUE} strokeWidth="1.5" strokeLinecap="round"/></svg>
-              Brand Blueprint™ Overview
+              WunderBrand Blueprint™ Overview
             </span>
           </SectionTitle>
 
@@ -1788,7 +1791,7 @@ export default function BrandBlueprintReport() {
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ padding: "6px 12px", borderRadius: 5, background: `${BLUE}12`, fontSize: 12, fontWeight: 700, color: BLUE }}>{r.foundationalPromptPack.promptCount} Prompts</div>
-                <div style={{ padding: "6px 12px", borderRadius: 5, background: `${GREEN}12`, fontSize: 12, fontWeight: 700, color: GREEN }}>Included from Brand Snapshot+™</div>
+                <div style={{ padding: "6px 12px", borderRadius: 5, background: `${GREEN}12`, fontSize: 12, fontWeight: 700, color: GREEN }}>Included from WunderBrand Snapshot+™</div>
               </div>
             </div>
 
@@ -1828,7 +1831,7 @@ export default function BrandBlueprintReport() {
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ padding: "6px 12px", borderRadius: 5, background: `${BLUE}12`, fontSize: 12, fontWeight: 700, color: BLUE }}>{r.executionPromptPack.promptCount} Prompts</div>
-                <div style={{ padding: "6px 12px", borderRadius: 5, background: `${ORANGE}12`, fontSize: 12, fontWeight: 700, color: ORANGE }}>New in Brand Blueprint™</div>
+                <div style={{ padding: "6px 12px", borderRadius: 5, background: `${ORANGE}12`, fontSize: 12, fontWeight: 700, color: ORANGE }}>New in WunderBrand Blueprint™</div>
               </div>
             </div>
 
@@ -1865,7 +1868,7 @@ export default function BrandBlueprintReport() {
               <span style={{ fontSize: 13, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.08em" }}>Want More Prompts?</span>
             </div>
             <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.65 }}>
-              Brand Blueprint+™ unlocks the <strong>Advanced Prompt Library</strong> with 12 strategic prompts including persona messaging maps, full-funnel architecture, competitive war room analysis, launch campaign systems, and annual strategy frameworks — all calibrated to your brand.
+              WunderBrand Blueprint+™ unlocks the <strong>Advanced Prompt Library</strong> with 12 strategic prompts including persona messaging maps, full-funnel architecture, competitive war room analysis, launch campaign systems, and annual strategy frameworks — all calibrated to your brand.
             </div>
           </div>
         </Section>
@@ -2310,7 +2313,7 @@ export default function BrandBlueprintReport() {
             <div style={{ fontSize: 12, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 }}>What&apos;s Next</div>
             <h2 style={{ fontSize: 24, fontWeight: 700, color: NAVY, margin: "0 0 12px", lineHeight: 1.3 }}>Take Your Brand System Further</h2>
             <p style={{ fontSize: 16, color: SUB, lineHeight: 1.65, maxWidth: 560, margin: "0 auto" }}>
-              Brand Blueprint+™ takes this system further — with advanced audience segmentation, multi-channel messaging, campaign strategy, and a 12-prompt advanced AI library for scale.
+              WunderBrand Blueprint+™ takes this system further — with advanced audience segmentation, multi-channel messaging, campaign strategy, and a 12-prompt advanced AI library for scale.
             </p>
           </div>
 
@@ -2318,12 +2321,12 @@ export default function BrandBlueprintReport() {
             {/* Blueprint+ */}
             <div style={{ padding: "24px", borderRadius: 5, border: `2px solid ${BLUE}`, background: `${BLUE}04`, display: "flex", flexDirection: "column" }}>
               <div style={{ fontSize: 10, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>Recommended</div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: NAVY, marginBottom: 6 }}>Brand Blueprint+<span style={{ fontSize: 9, verticalAlign: "super" }}>™</span></div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: NAVY, marginBottom: 6 }}>WunderBrand Blueprint+™<span style={{ fontSize: 9, verticalAlign: "super" }}>™</span></div>
               <div style={{ fontSize: 14, color: SUB, lineHeight: 1.55, marginBottom: 16 }}>
-                Everything in Brand Blueprint™ plus advanced audience segmentation, campaign systems, and a 12-prompt AI library.
+                Everything in WunderBrand Blueprint™ plus advanced audience segmentation, campaign systems, and a 12-prompt AI library.
               </div>
               <div style={{ flex: 1, marginBottom: 18 }}>
-                {["Everything in Brand Blueprint™", "Advanced persona messaging maps", "Full-funnel messaging architecture", "Competitive war room analysis", "Campaign launch systems"].map((f, i) => (
+                {["Everything in WunderBrand Blueprint™", "Advanced persona messaging maps", "Full-funnel messaging architecture", "Competitive war room analysis", "Campaign launch systems"].map((f, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                     <svg viewBox="0 0 20 20" fill="none" style={{ width: 16, height: 16, flexShrink: 0 }}><circle cx="10" cy="10" r="9" fill={BLUE} opacity="0.15"/><path d="M6 10.5l2.5 2.5L14 7.5" stroke={BLUE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     <span style={{ fontSize: 13, color: "#1a1a2e" }}>{f}</span>
@@ -2335,7 +2338,7 @@ export default function BrandBlueprintReport() {
                 background: BLUE, color: WHITE, fontSize: 15, fontWeight: 900,
                 textAlign: "center", textDecoration: "none", fontFamily: "Lato, sans-serif",
                 boxSizing: "border-box", boxShadow: `0 4px 14px ${BLUE}40`, transition: "all 0.2s ease",
-              }}>Explore Brand Blueprint+™ →</a>
+              }}>Explore WunderBrand Blueprint+™ →</a>
             </div>
 
             {/* Services */}
@@ -2381,11 +2384,11 @@ export default function BrandBlueprintReport() {
             </a>
           </div>
           <p style={{ fontSize: 14, color: SUB, marginBottom: 4 }}>
-            Brand Blueprint™ is a product of Wunderbar Digital ·{" "}
+            WunderBrand Blueprint™ is a product of Wunderbar Digital ·{" "}
             <a href={UTM_BASE} target="_blank" rel="noopener noreferrer" style={{ color: BLUE, textDecoration: "none", fontWeight: 700 }}>wunderbardigital.com</a>
           </p>
           <p style={{ fontSize: 12, color: "#94A3B8", lineHeight: 1.6, maxWidth: 600, margin: "0 auto" }}>
-            © 2026 Wunderbar Digital. All rights reserved. Brand Blueprint™ and the Brand Alignment Score™ are trademarks of Wunderbar Digital.
+            © 2026 Wunderbar Digital. All rights reserved. WunderBrand Blueprint™ and the WunderBrand Score™ are trademarks of Wunderbar Digital.
             This report is confidential and intended solely for the use of the individual or entity to whom it is addressed.
           </p>
           <p style={{ fontSize: 9, fontWeight: 400, color: "#8A97A8", textAlign: "center", marginTop: 16 }}>
@@ -2395,10 +2398,10 @@ export default function BrandBlueprintReport() {
         </div>
       </div>
     </div>
-    <ReportNav reportTitle="Brand Blueprint" sections={[
+    <ReportNav reportTitle="WunderBrand Blueprint™" sections={[
       { id: "executive-summary", label: "Executive Summary" },
       { id: "context-coverage", label: "Context Coverage" },
-      { id: "brand-alignment-score", label: "Brand Alignment Score" },
+      { id: "brand-alignment-score", label: "WunderBrand Score™" },
       { id: "focus-area-diagnosis", label: "Focus Area Diagnosis" },
       { id: "pillar-deep-dives", label: "Pillar Deep Dives" },
       { id: "strategic-alignment", label: "Strategic Alignment" },
@@ -2429,12 +2432,12 @@ export default function BrandBlueprintReport() {
       { id: "whats-next", label: "What's Next" },
     ]} />
 
-    {/* Wundy Report Companion — Blueprint tier */}
+    {/* Wundy™ Report Companion — Blueprint tier */}
     <WundyChat
       mode="report"
       tier="blueprint"
       reportId="preview"
-      greeting={`Hi, I\u2019m Wundy \u2014 I have your Brand Blueprint\u2122 report right here. I can help you understand your results, explain any section, or help you prioritize your next steps. What would you like to know?`}
+      greeting={`Hi, I\u2019m Wundy™ \u2014 I have your WunderBrand Blueprint™\u2122 report right here. I can help you understand your results, explain any section, or help you prioritize your next steps. What would you like to know?`}
     />
     </>
   );

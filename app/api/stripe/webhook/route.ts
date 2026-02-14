@@ -6,6 +6,7 @@ import {
 } from "@/lib/applyActiveCampaignTags";
 import { grantAccess } from "@/lib/grantAccess";
 import { recordStripePurchase } from "@/lib/recordStripePurchase";
+import { logger } from "@/lib/logger";
 
 // ❗ Stripe requires raw body for signature verification
 export const runtime = "nodejs";
@@ -16,16 +17,31 @@ function getStripe() {
   return _stripe;
 }
 
-type ProductKey = "snapshot_plus" | "blueprint" | "blueprint_plus";
+type ProductKey = "snapshot_plus" | "blueprint" | "blueprint_plus" | "snapshot_plus_refresh" | "blueprint_refresh";
 
 const METADATA_PRODUCT_KEYS = ["product_key", "product_tier", "product"];
 
 function normalizeProductKey(raw: string): ProductKey | null {
   const lower = String(raw).toLowerCase().trim();
+  // Check refresh products first (more specific match)
+  if (lower === "snapshot_plus_refresh") return "snapshot_plus_refresh";
+  if (lower === "blueprint_refresh") return "blueprint_refresh";
+  // Then standard tiers
   if (lower === "snapshot_plus" || lower.includes("snapshot")) return "snapshot_plus";
   if (lower === "blueprint_plus" || lower.includes("blueprint+")) return "blueprint_plus";
   if (lower === "blueprint") return "blueprint";
   return null;
+}
+
+/** Map refresh products to their parent tier for access checks */
+function getParentTier(key: ProductKey): "snapshot_plus" | "blueprint" | "blueprint_plus" {
+  if (key === "snapshot_plus_refresh") return "snapshot_plus";
+  if (key === "blueprint_refresh") return "blueprint";
+  return key as "snapshot_plus" | "blueprint" | "blueprint_plus";
+}
+
+function isRefreshProduct(key: ProductKey): boolean {
+  return key === "snapshot_plus_refresh" || key === "blueprint_refresh";
 }
 
 export async function POST(req: NextRequest) {
@@ -47,7 +63,7 @@ export async function POST(req: NextRequest) {
     );
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Unknown";
-    console.error("❌ Stripe webhook signature verification failed:", msg);
+    logger.error("[Stripe Webhook] Signature verification failed", { error: msg });
     // SECURITY: Don't leak internal error details to the client
     return new NextResponse("Webhook signature verification failed", { status: 400 });
   }
@@ -67,9 +83,9 @@ export async function POST(req: NextRequest) {
         const userId = metadata.user_id as string | undefined;
 
         if (!customerEmail || !productKey) {
-          console.warn("⚠️ Stripe webhook: missing email or product", {
-            email: !!customerEmail,
-            productKey: rawProduct,
+          logger.warn("[Stripe Webhook] Missing email or product", {
+            hasEmail: !!customerEmail,
+            rawProduct,
           });
           break;
         }
@@ -83,19 +99,31 @@ export async function POST(req: NextRequest) {
           reportId: snapshotId,
         });
 
+        // For refresh products, grant access at the parent tier level
+        const accessTier = getParentTier(productKey);
+
         if (userId) {
           try {
-            await grantAccess(userId, productKey);
+            await grantAccess(userId, accessTier);
           } catch (e) {
-            console.warn("⚠️ grantAccess failed (user_purchases may not exist)", e);
+            logger.warn("[Stripe Webhook] grantAccess failed", { error: e instanceof Error ? e.message : String(e) });
           }
         }
 
-        await triggerActiveCampaign({
-          email: customerEmail,
-          productKey,
-          reportId: snapshotId,
-        });
+        if (isRefreshProduct(productKey)) {
+          // Refresh-specific AC tagging
+          await triggerRefreshActiveCampaign({
+            email: customerEmail,
+            productKey,
+            reportId: snapshotId,
+          });
+        } else {
+          await triggerActiveCampaign({
+            email: customerEmail,
+            productKey: productKey as "snapshot_plus" | "blueprint" | "blueprint_plus",
+            reportId: snapshotId,
+          });
+        }
 
         break;
       }
@@ -117,11 +145,11 @@ export async function POST(req: NextRequest) {
         const abandonedProductKey = normalizeProductKey(abandonedProduct);
 
         if (abandonedEmail) {
-          console.log(`🛒 Checkout abandoned: ${abandonedEmail} (${abandonedProduct})`);
+          logger.info("[Stripe Webhook] Checkout abandoned", { product: abandonedProduct });
           try {
             const productName = abandonedProductKey
               ? PRODUCT_DISPLAY_NAMES[abandonedProductKey]
-              : "Brand Snapshot Suite";
+              : "WunderBrand Suite™";
 
             await applyActiveCampaignTags({
               email: abandonedEmail,
@@ -142,28 +170,30 @@ export async function POST(req: NextRequest) {
               },
             });
           } catch (acErr) {
-            console.error("⚠️ AC abandoned checkout tagging failed:", acErr);
+            logger.error("[Stripe Webhook] AC abandoned checkout tagging failed", { error: acErr instanceof Error ? acErr.message : String(acErr) });
           }
         }
         break;
       }
 
       default:
-        console.log(`ℹ️ Unhandled event type: ${event.type}`);
+        logger.debug("[Stripe Webhook] Unhandled event type", { type: event.type });
     }
 
     return NextResponse.json({ received: true });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Unknown";
-    console.error("❌ Webhook processing error:", msg);
+    logger.error("[Stripe Webhook] Processing error", { error: msg });
     return new NextResponse("Webhook handler failed", { status: 500 });
   }
 }
 
 const PRODUCT_DISPLAY_NAMES: Record<ProductKey, string> = {
-  snapshot_plus: "Brand Snapshot+™",
-  blueprint: "Brand Blueprint™",
-  blueprint_plus: "Brand Blueprint+™",
+  snapshot_plus: "WunderBrand Snapshot+™",
+  blueprint: "WunderBrand Blueprint™",
+  blueprint_plus: "WunderBrand Blueprint+™",
+  snapshot_plus_refresh: "WunderBrand Snapshot+™ Quarterly Refresh",
+  blueprint_refresh: "WunderBrand Blueprint™ Quarterly Refresh",
 };
 
 /**
@@ -217,6 +247,9 @@ async function triggerActiveCampaign({
     applyTags.push("session:pending");
   }
 
+  // --- Quarterly Refresh eligibility tag (AC uses this to trigger 90-day reminder) ---
+  applyTags.push("refresh:eligible");
+
   // Remove old tags first, then apply new ones
   if (removeTags.length) {
     await removeActiveCampaignTags({ email, tags: removeTags });
@@ -227,7 +260,7 @@ async function triggerActiveCampaign({
 
   // --- Fire "report_ready" event (AC automation sends email with report link) ---
   const BASE_URL =
-    process.env.NEXT_PUBLIC_APP_URL || "https://app.brandsnapshot.ai";
+    process.env.NEXT_PUBLIC_APP_URL || "https://app.wunderbrand.ai";
   const reportLink = reportId
     ? `${BASE_URL}/report/${reportId}`
     : `${BASE_URL}/access`;
@@ -238,6 +271,10 @@ async function triggerActiveCampaign({
 
   if (AC_WEBHOOK_URL) {
     try {
+      // Build NPS survey link (AC automation will send this 48h after report_ready)
+      const npsTier = productKey; // already matches: snapshot_plus, blueprint, blueprint_plus
+      const npsLink = `${BASE_URL}/nps?tier=${npsTier}&reportId=${encodeURIComponent(reportId || "")}&email=${encodeURIComponent(email)}`;
+
       await fetch(AC_WEBHOOK_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -249,11 +286,17 @@ async function triggerActiveCampaign({
             product_name: PRODUCT_DISPLAY_NAMES[productKey],
             report_link: reportLink,
             report_id: reportId || "",
+            nps_survey_link: npsLink,
+            nps_tier: npsTier,
+            // Quarterly refresh info (AC uses in 90-day reminder automation)
+            refresh_price: productKey === "blueprint_plus" ? "free" : productKey === "blueprint" ? "$97" : "$47",
+            refresh_type: productKey === "blueprint_plus" ? "free" : "paid",
+            dashboard_link: `${BASE_URL}/dashboard`,
           },
         }),
       });
     } catch (err) {
-      console.error("[Stripe Webhook] report_ready AC event failed:", err);
+      logger.error("[Stripe Webhook] report_ready AC event failed", { error: err instanceof Error ? err.message : String(err) });
     }
   }
 
@@ -309,6 +352,65 @@ async function triggerActiveCampaign({
       });
     } catch {
       // Non-critical — don't fail the webhook
+    }
+  }
+}
+
+/**
+ * Simplified AC tagging for quarterly refresh purchases.
+ * Tags the customer so AC can trigger a "your updated report is ready" email.
+ */
+async function triggerRefreshActiveCampaign({
+  email,
+  productKey,
+  reportId,
+}: {
+  email: string;
+  productKey: ProductKey;
+  reportId?: string;
+}) {
+  const parentTier = getParentTier(productKey);
+
+  await applyActiveCampaignTags({
+    email,
+    tags: [
+      `purchased:${productKey.replace(/_/g, "-")}`,
+      `refresh:${parentTier.replace(/_/g, "-")}`,
+    ],
+  });
+
+  // Fire refresh-specific event for AC automation
+  const BASE_URL =
+    process.env.NEXT_PUBLIC_APP_URL || "https://app.wunderbrand.ai";
+  const reportLink = reportId
+    ? `${BASE_URL}/report/${reportId}`
+    : `${BASE_URL}/access`;
+
+  const AC_WEBHOOK_URL =
+    process.env.ACTIVECAMPAIGN_WEBHOOK_URL ??
+    process.env.NEXT_PUBLIC_ACTIVECAMPAIGN_WEBHOOK_URL;
+
+  if (AC_WEBHOOK_URL) {
+    try {
+      await fetch(AC_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          event: "refresh_report_ready",
+          email,
+          tags: [`refresh:${parentTier.replace(/_/g, "-")}-ready`],
+          fields: {
+            product_name: PRODUCT_DISPLAY_NAMES[productKey],
+            parent_tier: PRODUCT_DISPLAY_NAMES[parentTier],
+            report_link: reportLink,
+            report_id: reportId || "",
+          },
+        }),
+      });
+    } catch (err) {
+      logger.error("[Stripe Webhook] refresh AC event failed", {
+        error: err instanceof Error ? err.message : String(err),
+      });
     }
   }
 }

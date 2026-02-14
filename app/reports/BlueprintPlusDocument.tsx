@@ -69,7 +69,7 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
       {/* PAGE 1 — COVER */}
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
-          <Text style={styles.title}>Brand Blueprint+™</Text>
+          <Text style={styles.title}>WunderBrand Blueprint+™</Text>
           <Text>The advanced strategic foundation for scalable brand growth.</Text>
         </View>
 
@@ -81,11 +81,11 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
         </Text>
       </Page>
 
-      {/* Foundation: Brand Alignment Score + Pillars (when provided) */}
+      {/* Foundation: WunderBrand Score™ + Pillars (when provided) */}
       {hasFoundation && (
         <>
           <Page size="A4" style={styles.page}>
-            <Text style={styles.sectionTitle}>Brand Alignment Score™</Text>
+            <Text style={styles.sectionTitle}>WunderBrand Score™</Text>
             <View style={styles.block}>
               <Text style={{ fontSize: 28, fontWeight: 700, color: "#021859" }}>
                 {data.brandAlignmentScore}

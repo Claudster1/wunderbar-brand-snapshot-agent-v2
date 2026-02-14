@@ -1,4 +1,4 @@
-# Migration Guide: Moving Brand Snapshot App to New Computer
+# Migration Guide: Moving WunderBrand Snapshot™ App to New Computer
 
 This guide ensures a smooth migration without breaking the application.
 

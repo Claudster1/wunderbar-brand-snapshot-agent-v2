@@ -5,6 +5,54 @@
 
 import { supabaseServer } from "@/lib/supabase";
 
+// ─── In-Memory Cache ──────────────────────────────────────────
+// Benchmark data changes slowly (only when new assessments complete),
+// so caching results for 10 minutes eliminates redundant DB queries.
+const BENCHMARK_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+const MAX_CACHE_ENTRIES = 50;
+
+interface CacheEntry<T> {
+  data: T;
+  expiresAt: number;
+}
+
+const benchmarkCache = new Map<string, CacheEntry<any>>();
+
+function getCachedResult<T>(key: string): T | null {
+  const entry = benchmarkCache.get(key);
+  if (!entry) return null;
+  if (entry.expiresAt < Date.now()) {
+    benchmarkCache.delete(key);
+    return null;
+  }
+  return entry.data as T;
+}
+
+function setCachedResult<T>(key: string, data: T): void {
+  // Evict expired entries if cache is getting large
+  if (benchmarkCache.size >= MAX_CACHE_ENTRIES) {
+    const now = Date.now();
+    for (const [k, v] of benchmarkCache) {
+      if (v.expiresAt < now) benchmarkCache.delete(k);
+    }
+    // If still at limit, remove oldest
+    if (benchmarkCache.size >= MAX_CACHE_ENTRIES) {
+      const firstKey = benchmarkCache.keys().next().value;
+      if (firstKey) benchmarkCache.delete(firstKey);
+    }
+  }
+  benchmarkCache.set(key, { data, expiresAt: Date.now() + BENCHMARK_CACHE_TTL_MS });
+}
+
+function buildCacheKey(prefix: string, params: Record<string, any>): string {
+  const parts = Object.entries(params)
+    .filter(([, v]) => v != null)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([k, v]) => `${k}=${v}`)
+    .join("&");
+  return `${prefix}:${parts}`;
+}
+
 interface BenchmarkInput {
   // Scores
   brandAlignmentScore: number;
@@ -107,6 +155,15 @@ export async function getBenchmarkPercentile(params: {
   audienceType?: string;
   revenueRange?: string;
 }): Promise<{ percentile: number; sampleSize: number; avgScore: number } | null> {
+  const cacheKey = buildCacheKey("overall", {
+    score: params.score,
+    industry: params.industry,
+    audienceType: params.audienceType,
+    revenueRange: params.revenueRange,
+  });
+  const cached = getCachedResult<{ percentile: number; sampleSize: number; avgScore: number } | null>(cacheKey);
+  if (cached !== null) return cached;
+
   try {
     const supabase = supabaseServer();
 
@@ -136,11 +193,9 @@ export async function getBenchmarkPercentile(params: {
     const percentile = Math.round((below / scores.length) * 100);
     const avgScore = Math.round(scores.reduce((sum: number, s: number) => sum + s, 0) / scores.length);
 
-    return {
-      percentile,
-      sampleSize: scores.length,
-      avgScore,
-    };
+    const result = { percentile, sampleSize: scores.length, avgScore };
+    setCachedResult(cacheKey, result);
+    return result;
   } catch (err) {
     console.warn("[BenchmarkCollector] Failed to query percentile:", err);
     return null;
@@ -178,6 +233,15 @@ export async function getPillarBenchmark(params: {
   audienceType?: string;
   revenueRange?: string;
 }): Promise<PillarBenchmark | null> {
+  const cacheKey = buildCacheKey(`pillar:${params.pillar}`, {
+    score: params.score,
+    industry: params.industry,
+    audienceType: params.audienceType,
+    revenueRange: params.revenueRange,
+  });
+  const cached = getCachedResult<PillarBenchmark | null>(cacheKey);
+  if (cached !== null) return cached;
+
   try {
     const supabase = supabaseServer();
     const column = PILLAR_COLUMNS[params.pillar];
@@ -214,13 +278,15 @@ export async function getPillarBenchmark(params: {
     );
     const medianScore = scores[Math.floor(scores.length / 2)];
 
-    return {
+    const result: PillarBenchmark = {
       pillar: params.pillar,
       percentile,
       sampleSize: scores.length,
       avgScore,
       medianScore,
     };
+    setCachedResult(cacheKey, result);
+    return result;
   } catch (err) {
     console.warn(`[BenchmarkCollector] Failed to query ${params.pillar} benchmark:`, err);
     return null;
@@ -230,7 +296,7 @@ export async function getPillarBenchmark(params: {
 // ─── Full Benchmark Report ───
 
 export interface BenchmarkReport {
-  /** Overall Brand Alignment Score benchmark (null if insufficient data) */
+  /** Overall WunderBrand Score™ benchmark (null if insufficient data) */
   overall: { percentile: number; sampleSize: number; avgScore: number } | null;
   /** Per-pillar benchmarks (only pillars with sufficient data are included) */
   pillars: PillarBenchmark[];
@@ -308,7 +374,7 @@ export function formatBenchmarkContext(report: BenchmarkReport): string {
 
   if (report.overall) {
     lines.push(
-      `- Overall Brand Alignment Score: ${report.overall.percentile}th percentile (segment avg: ${report.overall.avgScore}/100, sample: ${report.overall.sampleSize})`
+      `- Overall WunderBrand Score™: ${report.overall.percentile}th percentile (segment avg: ${report.overall.avgScore}/100, sample: ${report.overall.sampleSize})`
     );
   }
 

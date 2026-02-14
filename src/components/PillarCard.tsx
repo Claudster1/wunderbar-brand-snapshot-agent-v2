@@ -20,7 +20,7 @@ export function PillarCard({ title, score, summary }: PillarProps) {
       </p>
 
       <p className="mt-4 text-xs text-brand-midnight/70">
-        This pillar contributes directly to your overall Brand Alignment Score™.
+        This pillar contributes directly to your overall WunderBrand Score™.
       </p>
     </div>
   );

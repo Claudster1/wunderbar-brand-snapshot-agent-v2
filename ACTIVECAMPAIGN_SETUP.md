@@ -1,6 +1,6 @@
 # ActiveCampaign Integration Setup Guide
 
-This guide will help you set up the ActiveCampaign integration for the Brand Snapshot™ agent.
+This guide will help you set up the ActiveCampaign integration for the WunderBrand Snapshot™ agent.
 
 ## Step 1: Get Your ActiveCampaign API Credentials
 
@@ -20,7 +20,7 @@ ACTIVE_CAMPAIGN_API_URL=https://YOUR-ACCOUNT.api-us1.com
 
 ## Step 3: Create Custom Fields in ActiveCampaign
 
-You need to create custom fields in ActiveCampaign for all the data Wundy collects. Here's the recommended list:
+You need to create custom fields in ActiveCampaign for all the data Wundy™ collects. Here's the recommended list:
 
 ### User/Company Fields
 - Company Name (Text)
@@ -63,7 +63,7 @@ You need to create custom fields in ActiveCampaign for all the data Wundy collec
 - Visibility Score (Number)
 - Credibility Score (Number)
 - Conversion Score (Number)
-- Brand Alignment Score (Number)
+- WunderBrand Score™ (Number)
 
 ## Step 4: Get Custom Field IDs
 
@@ -123,8 +123,8 @@ Create these tags in ActiveCampaign (they'll be applied automatically):
 
 ## Step 6: How It Works
 
-1. Wundy completes the conversation and generates the final JSON
-2. Your front-end calls `/api/activecampaign` with the Wundy JSON
+1. Wundy™ completes the conversation and generates the final JSON
+2. Your front-end calls `/api/activecampaign` with the Wundy™ JSON
 3. The API maps the data to ActiveCampaign format
 4. Creates or updates the contact in ActiveCampaign
 5. Applies appropriate tags based on scores and opt-in status
@@ -133,8 +133,8 @@ Create these tags in ActiveCampaign (they'll be applied automatically):
 
 To test the integration:
 
-1. Complete a Brand Snapshot conversation
-2. When Wundy outputs the final JSON, send it to `/api/activecampaign`
+1. Complete a WunderBrand Snapshot™ conversation
+2. When Wundy™ outputs the final JSON, send it to `/api/activecampaign`
 3. Check your ActiveCampaign account to verify:
    - Contact was created/updated
    - All custom fields are populated
@@ -146,7 +146,7 @@ To test the integration:
 const wundyJson = {
   user: { /* ... */ },
   brand: { /* ... */ },
-  // ... rest of Wundy's JSON output
+  // ... rest of Wundy™'s JSON output
 };
 
 const response = await fetch('/api/activecampaign', {

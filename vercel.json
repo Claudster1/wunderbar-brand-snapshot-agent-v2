@@ -1,0 +1,15 @@
+{
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "app.brandsnapshot.ai"
+        }
+      ],
+      "destination": "https://app.wunderbrand.ai/$1",
+      "permanent": true
+    }
+  ]
+}

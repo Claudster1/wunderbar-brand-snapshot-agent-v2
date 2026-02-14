@@ -32,13 +32,13 @@ export async function getBrandSnapshotReply(
     if (!response.ok) {
       const errorText = await response.text().catch(() => '');
       console.error(
-        '[Brand Snapshot Agent] API error:',
+        '[WunderBrand Snapshot™ Agent] API error:',
         response.status,
         response.statusText,
         errorText
       );
       
-      let errorMessage = 'There was an issue reaching the Brand Snapshot specialist. Please try again in a moment.';
+      let errorMessage = 'There was an issue reaching the WunderBrand Snapshot™ specialist. Please try again in a moment.';
       try {
         const errorData = JSON.parse(errorText);
         if (errorData.error) {
@@ -55,17 +55,17 @@ export async function getBrandSnapshotReply(
     const content = data?.content;
     
     if (!content) {
-      console.error('[Brand Snapshot Agent] No content in response:', data);
+      console.error('[WunderBrand Snapshot™ Agent] No content in response:', data);
       throw new Error('Sorry, I had trouble generating a response. Please try again.');
     }
     
     return content;
   } catch (err: any) {
-    console.error('[Brand Snapshot Agent] Fetch error:', err);
+    console.error('[WunderBrand Snapshot™ Agent] Fetch error:', err);
     if (err instanceof Error) {
       throw err;
     }
-    throw new Error('There was an issue reaching the Brand Snapshot specialist. Please try again in a moment.');
+    throw new Error('There was an issue reaching the WunderBrand Snapshot™ specialist. Please try again in a moment.');
   }
 }
 

@@ -1,5 +1,5 @@
 // app/api/report/generate/route.ts
-// API route to generate Brand Snapshot™ reports
+// API route to generate WunderBrand Snapshot™ reports
 
 import { NextResponse } from 'next/server';
 import { generateReport, type ReportData } from '@/src/services/reportGenerator';

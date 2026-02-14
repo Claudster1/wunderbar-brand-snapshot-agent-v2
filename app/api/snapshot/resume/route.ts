@@ -7,6 +7,12 @@ import { supabaseServer } from "@/lib/supabase";
 
 export async function GET(req: Request) {
   try {
+    const { apiGuard } = await import("@/lib/security/apiGuard");
+    const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+    const guard = apiGuard(req, { routeId: "snapshot-resume", rateLimit: GENERAL_RATE_LIMIT });
+    if (!guard.passed) return guard.errorResponse;
+
+    const { isValidUUID } = await import("@/lib/security/inputValidation");
     const { searchParams } = new URL(req.url);
     const reportId = searchParams.get("reportId");
 
@@ -15,6 +21,9 @@ export async function GET(req: Request) {
         { error: "Missing reportId parameter" },
         { status: 400 }
       );
+    }
+    if (!isValidUUID(reportId)) {
+      return NextResponse.json({ error: "Invalid ID format" }, { status: 400 });
     }
 
     // Load progress data

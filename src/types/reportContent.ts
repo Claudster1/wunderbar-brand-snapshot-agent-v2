@@ -38,7 +38,7 @@ export interface VoiceContent {
 }
 
 // ---------------------------------------------------------------------------
-// Tier 1: Brand Snapshot™
+// Tier 1: WunderBrand Snapshot™
 // ---------------------------------------------------------------------------
 
 export interface BrandSnapshotReportContent {
@@ -54,7 +54,7 @@ export interface BrandSnapshotReportContent {
 }
 
 // ---------------------------------------------------------------------------
-// Tier 2: Brand Snapshot+™ (extends Snapshot)
+// Tier 2: WunderBrand Snapshot+™ (extends Snapshot)
 // ---------------------------------------------------------------------------
 
 export interface AeoRecommendations {
@@ -90,7 +90,7 @@ export interface BrandSnapshotPlusReportContent extends BrandSnapshotReportConte
 }
 
 // ---------------------------------------------------------------------------
-// Tier 3: Brand Blueprint™ (extends Snapshot+)
+// Tier 3: WunderBrand Blueprint™ (extends Snapshot+)
 // ---------------------------------------------------------------------------
 
 export interface ToneOfVoiceItem {
@@ -116,7 +116,7 @@ export interface BrandBlueprintReportContent extends BrandSnapshotPlusReportCont
 }
 
 // ---------------------------------------------------------------------------
-// Tier 4: Brand Blueprint+™ (extends Blueprint)
+// Tier 4: WunderBrand Blueprint+™ (extends Blueprint)
 // ---------------------------------------------------------------------------
 
 export interface BrandStoryContent {

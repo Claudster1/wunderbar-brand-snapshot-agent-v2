@@ -2,8 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import ReportNav from "@/components/reports/ReportNav";
-import WundyChat from "@/components/wundy/WundyChat";
+import dynamic from "next/dynamic";
+
+// Lazy-load heavy interactive components to reduce initial bundle size
+const ReportNav = dynamic(() => import("@/components/reports/ReportNav"), { ssr: false });
+const WundyChat = dynamic(() => import("@/components/wundy/WundyChat"), { ssr: false });
 
 // ─── BRAND TOKENS ───
 const NAVY = "#021859";
@@ -481,7 +484,7 @@ const REPORT = {
     { action: "Add one customer testimonial or case study to your homepage above the fold.", pillar: "Credibility" },
     { action: "Review your last 10 social posts and identify which pillar each supports — if scattered, pick one pillar to focus on for 30 days.", pillar: "Visibility" },
   ],
-  whatsNext: "This diagnostic reveals where your brand stands today. Brand Snapshot+™ provides the deeper strategic insight needed to understand why these patterns exist and what to prioritize first — including audience clarity, archetype guidance, visual direction, and a prioritized action plan.",
+  whatsNext: "This diagnostic reveals where your brand stands today. WunderBrand Snapshot+™ provides the deeper strategic insight needed to understand why these patterns exist and what to prioritize first — including audience clarity, archetype guidance, visual direction, and a prioritized action plan.",
 };
 
 const PILLAR_LABELS: Record<string, string> = { positioning: "Positioning", messaging: "Messaging", visibility: "Visibility", credibility: "Credibility", conversion: "Conversion" };
@@ -544,13 +547,13 @@ export default function BrandSnapshotReport() {
         <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: "40%", opacity: 0.04, backgroundImage: `radial-gradient(${NAVY} 1px, transparent 1px)`, backgroundSize: "16px 16px" }} />
 
         <div style={{ maxWidth: 900, margin: "0 auto", padding: "0 24px", position: "relative", zIndex: 1 }}>
-          {/* Top bar: logo + Brand Snapshot lockup */}
+          {/* Top bar: logo + WunderBrand Snapshot™ lockup */}
           <div data-header-top style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 0", borderBottom: `1px solid ${BORDER}` }}>
             <a href="https://wunderbardigital.com/?utm_source=brand_snapshot_report&utm_medium=report_nav&utm_campaign=nav_header_logo&utm_content=snap_logo" target="_blank" rel="noopener noreferrer">
               <img src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp" alt="Wunderbar Digital" style={{ height: 26, objectFit: "contain" }} />
             </a>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-              <span style={{ fontSize: 22, fontWeight: 700, color: NAVY, lineHeight: 1 }}>Brand Snapshot<span style={{ fontSize: 9, verticalAlign: "super", lineHeight: 0 }}>™</span></span>
+              <span style={{ fontSize: 22, fontWeight: 700, color: NAVY, lineHeight: 1 }}>WunderBrand Snapshot™<span style={{ fontSize: 9, verticalAlign: "super", lineHeight: 0 }}>™</span></span>
               <span style={{ fontSize: 12, fontWeight: 400, color: BLUE, marginTop: 3 }}>Powered by <a href="https://wunderbardigital.com/?utm_source=brand_snapshot_report&utm_medium=report_nav&utm_campaign=nav_header_logo&utm_content=snap_logo" target="_blank" rel="noopener noreferrer" style={{ fontWeight: 700, color: BLUE, textDecoration: "none" }}>Wunderbar Digital</a></span>
             </div>
           </div>
@@ -589,7 +592,7 @@ export default function BrandSnapshotReport() {
                 <button onClick={() => {
                   const el = document.querySelector('[data-report]');
                   if (el) {
-                    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Brand Snapshot - ${r.businessName}</title><link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet"><style>body{margin:0;font-family:Lato,sans-serif;}</style></head><body>${el.outerHTML}</body></html>`;
+                    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>WunderBrand Snapshot™ - ${r.businessName}</title><link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet"><style>body{margin:0;font-family:Lato,sans-serif;}</style></head><body>${el.outerHTML}</body></html>`;
                     const blob = new Blob([html], { type: 'text/html' });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
@@ -652,7 +655,7 @@ export default function BrandSnapshotReport() {
             {" "}<span style={{ fontWeight: 700, color: YELLOW }}>Fair</span> (40–59),
             {" "}<span style={{ fontWeight: 700, color: GOOD_GREEN }}>Good</span> (60–79), or
             {" "}<span style={{ fontWeight: 700, color: GREEN }}>Strong</span> (80–100).
-            The Brand Alignment Score™ is the composite total out of 100.
+            The WunderBrand Score™ is the composite total out of 100.
           </div>
         </div>
 
@@ -764,7 +767,7 @@ export default function BrandSnapshotReport() {
 
         {/* ═══ 2. BRAND ALIGNMENT SCORE ═══ */}
         <Section id="brand-alignment-score">
-          <SectionTitle hero description="A composite score measuring how well your brand communicates across five key pillars. Higher scores indicate stronger, more consistent brand presence.">Brand Alignment Score<span style={{ fontSize: 10, verticalAlign: "super", lineHeight: 0, marginLeft: 0 }}>™</span></SectionTitle>
+          <SectionTitle hero description="A composite score measuring how well your brand communicates across five key pillars. Higher scores indicate stronger, more consistent brand presence.">WunderBrand Score™<span style={{ fontSize: 10, verticalAlign: "super", lineHeight: 0, marginLeft: 0 }}>™</span></SectionTitle>
 
           <MainGauge score={r.executiveSummary.brandAlignmentScore} />
 
@@ -952,7 +955,7 @@ export default function BrandSnapshotReport() {
               What&apos;s Next
             </div>
             <h2 style={{ fontSize: 24, fontWeight: 700, color: NAVY, margin: "0 0 8px", lineHeight: 1.3 }}>
-              Go Deeper with the Brand Snapshot<span style={{ fontSize: 9, verticalAlign: "super" }}>™</span> Suite
+              Go Deeper with the WunderBrand Snapshot™<span style={{ fontSize: 9, verticalAlign: "super" }}>™</span> Suite
             </h2>
             <p style={{ fontSize: 16, color: SUB, lineHeight: 1.65, maxWidth: 560, margin: "0 auto" }}>
               This diagnostic reveals where your brand stands. The next step is understanding why — and what to do about it.
@@ -969,11 +972,11 @@ export default function BrandSnapshotReport() {
             const sorted = [...pillarEntries].sort((a, b) => a.score - b.score);
             const weakest = sorted[0];
             const PILLAR_UNLOCK_MAP: Record<string, string> = {
-              positioning: "Brand Snapshot+™ includes a full positioning diagnosis with before/after examples, competitive context, and a strategic recommendation specific to your positioning gaps.",
-              messaging: "Brand Snapshot+™ delivers a complete messaging framework — brand persona, messaging pillars, tone guidelines, and concrete examples of what to say (and what to stop saying).",
-              visibility: "Brand Snapshot+™ includes AEO readiness assessment, visibility diagnosis, and a channel-specific strategy so your efforts compound instead of scatter.",
-              credibility: "Brand Snapshot+™ provides a credibility audit with specific recommendations for where to place proof points, testimonials, and trust signals for maximum impact.",
-              conversion: "Brand Snapshot+™ maps your conversion gaps with before/after CTA examples, lead magnet recommendations, and a prioritized action plan to capture more leads.",
+              positioning: "WunderBrand Snapshot+™ includes a full positioning diagnosis with before/after examples, competitive context, and a strategic recommendation specific to your positioning gaps.",
+              messaging: "WunderBrand Snapshot+™ delivers a complete messaging framework — brand persona, messaging pillars, tone guidelines, and concrete examples of what to say (and what to stop saying).",
+              visibility: "WunderBrand Snapshot+™ includes AEO readiness assessment, visibility diagnosis, and a channel-specific strategy so your efforts compound instead of scatter.",
+              credibility: "WunderBrand Snapshot+™ provides a credibility audit with specific recommendations for where to place proof points, testimonials, and trust signals for maximum impact.",
+              conversion: "WunderBrand Snapshot+™ maps your conversion gaps with before/after CTA examples, lead magnet recommendations, and a prioritized action plan to capture more leads.",
             };
             return (
               <div style={{
@@ -995,7 +998,7 @@ export default function BrandSnapshotReport() {
                     Your biggest opportunity: <span style={{ color: BLUE }}>{weakest.label}</span> ({weakest.score}/20)
                   </div>
                   <p style={{ fontSize: 13, color: "#334155", lineHeight: 1.6, margin: 0 }}>
-                    {PILLAR_UNLOCK_MAP[weakest.key] || "Brand Snapshot+™ provides a deeper analysis of this pillar with specific, actionable recommendations."}
+                    {PILLAR_UNLOCK_MAP[weakest.key] || "WunderBrand Snapshot+™ provides a deeper analysis of this pillar with specific, actionable recommendations."}
                   </p>
                 </div>
               </div>
@@ -1005,21 +1008,21 @@ export default function BrandSnapshotReport() {
           <div data-suite-cards style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 24 }}>
             {[
               {
-                name: "Brand Snapshot+",
+                name: "WunderBrand Snapshot+™",
                 description: "Deeper diagnostic with priority focus, audience insight, tagline options, and AI-ready brand assets.",
                 features: ["Pillar deep dives & focus area diagnosis", "Tagline & slogan recommendations", "Messaging pillars & brand persona", "AEO readiness & 8 AI prompts"],
                 highlight: true,
                 url: "https://wunderbardigital.com/brand-snapshot-plus?utm_source=brand_snapshot_report&utm_medium=report_cta&utm_campaign=explore_upgrade&utm_content=snap_explore_snapshot_plus",
               },
               {
-                name: "Brand Blueprint",
+                name: "WunderBrand Blueprint™",
                 description: "Complete brand operating system with SEO, AEO, email strategy, and 16 AI prompts.",
                 features: ["Brand story & customer journey map", "SEO & AEO strategy", "Email & social media frameworks", "Content pillars & 16 AI prompts"],
                 highlight: false,
                 url: "https://wunderbardigital.com/brand-blueprint?utm_source=brand_snapshot_report&utm_medium=report_cta&utm_campaign=explore_upgrade&utm_content=snap_explore_blueprint",
               },
               {
-                name: "Brand Blueprint+",
+                name: "WunderBrand Blueprint+™",
                 description: "Everything in Blueprint™ plus SWOT, content calendar, brand glossary, and a strategy session.",
                 features: ["SWOT analysis & competitive positioning", "Content calendar & brand glossary", "90-day roadmap & 28 AI prompts", "30-min Strategy Activation Session"],
                 highlight: false,
@@ -1091,11 +1094,11 @@ export default function BrandSnapshotReport() {
             </a>
           </div>
           <p style={{ fontSize: 14, color: SUB, marginBottom: 4 }}>
-            Brand Snapshot™ is a product of Wunderbar Digital ·{" "}
+            WunderBrand Snapshot™ is a product of Wunderbar Digital ·{" "}
             <a href="https://wunderbardigital.com/?utm_source=brand_snapshot_report&utm_medium=report_nav&utm_campaign=nav_header_logo&utm_content=snap_logo" target="_blank" rel="noopener noreferrer" style={{ color: BLUE, textDecoration: "none", fontWeight: 700 }}>wunderbardigital.com</a>
           </p>
           <p style={{ fontSize: 12, color: "#94A3B8", lineHeight: 1.6, maxWidth: 600, margin: "0 auto" }}>
-            © 2026 Wunderbar Digital. All rights reserved. Brand Snapshot™ and the Brand Alignment Score™ are trademarks of Wunderbar Digital.
+            © 2026 Wunderbar Digital. All rights reserved. WunderBrand Snapshot™ and the WunderBrand Score™ are trademarks of Wunderbar Digital.
             This report is confidential and intended solely for the use of the individual or entity to whom it is addressed.
             Unauthorized reproduction, distribution, or disclosure of this report is strictly prohibited.
           </p>
@@ -1105,19 +1108,19 @@ export default function BrandSnapshotReport() {
         </footer>
       </div>
     </div>
-    <ReportNav reportTitle="Brand Snapshot" sections={[
+    <ReportNav reportTitle="WunderBrand Snapshot™" sections={[
       { id: "executive-summary", label: "Executive Summary" },
-      { id: "brand-alignment-score", label: "Brand Alignment Score" },
+      { id: "brand-alignment-score", label: "WunderBrand Score™" },
       { id: "pillar-scores", label: "Brand Pillar Scores" },
       { id: "brand-archetype", label: "Brand Archetype" },
       { id: "next-steps", label: "Your Next Steps" },
       { id: "whats-next", label: "What's Next" },
     ]} />
 
-    {/* Wundy General Guide — free tier (no report data access) */}
+    {/* Wundy™ General Guide — free tier (no report data access) */}
     <WundyChat
       mode="general"
-      greeting="Hi, I\u2019m Wundy \u2014 your brand guide. I can help you understand your scores, explain branding concepts like archetypes and pillars, or tell you about our product suite. What can I help with?"
+      greeting="Hi, I\u2019m Wundy™ \u2014 your brand guide. I can help you understand your scores, explain branding concepts like archetypes and pillars, or tell you about our product suite. What can I help with?"
     />
     </>
   );

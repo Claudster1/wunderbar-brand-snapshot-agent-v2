@@ -48,10 +48,10 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         <div className="bs-container-narrow max-w-[700px] mx-auto text-center">
           <h1 className="bs-h1 mb-3">Your results</h1>
           <p className="bs-body mb-6 text-brand-midnight">
-            Complete a Brand Snapshot™ to see your results here, or open your report from the link we sent you.
+            Complete a WunderBrand Snapshot™ to see your results here, or open your report from the link we sent you.
           </p>
           <Link href="/brand-snapshot" className="btn-primary">
-            Start Brand Snapshot™
+            Start WunderBrand Snapshot™
           </Link>
         </div>
       </main>
@@ -67,7 +67,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         <div className="bs-container-narrow max-w-[700px] mx-auto text-center">
           <h1 className="bs-h1 mb-3">Report not found</h1>
           <p className="bs-body mb-6 text-brand-midnight">This report may have been removed or the link is incorrect.</p>
-          <Link href="/brand-snapshot" className="text-brand-blue font-bold hover:underline focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 rounded">Start a new Brand Snapshot™</Link>
+          <Link href="/brand-snapshot" className="text-brand-blue font-bold hover:underline focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 rounded">Start a new WunderBrand Snapshot™</Link>
         </div>
       </main>
     );

@@ -4,22 +4,22 @@ This document outlines the structure for the paid Snapshot+™ PDF deliverable.
 
 ## Page 1 — Cover
 
-- Wundy mascot variation
-- Brand Snapshot+™ title
+- Wundy™ mascot variation
+- WunderBrand Snapshot+™ title
 - Client name + company
-- Brand Alignment Score™ prominent
+- WunderBrand Score™ prominent
 - Report date
 - Wunderbar Digital branding
 
 ## Page 2 — Executive Summary
 
-- What Wundy analyzed
+- What Wundy™ analyzed
 - The brand's current maturity stage
 - Key positive themes
 - High-impact gaps/opportunities
 - CTA to schedule a Blueprint™ consultation
 
-## Page 3 — Brand Alignment Score™ Deep Dive
+## Page 3 — WunderBrand Score™ Deep Dive
 
 - Full explanation of scoring
 - Comparison to industry benchmarks
@@ -37,7 +37,7 @@ For each pillar (Positioning, Messaging, Visibility, Credibility, Conversion):
 - One-sentence summary
 
 ### Middle Section:
-- What Wundy saw in your business
+- What Wundy™ saw in your business
 - What this means for growth
 - Opportunities unique to your brand
 

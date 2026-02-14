@@ -1,5 +1,5 @@
 // src/pdf/BrandBlueprintPDF.tsx
-// Brand Blueprint™ PDF Document ($997)
+// WunderBrand Blueprint™ PDF Document ($997)
 // Includes AEO integrated with brand strategy
 
 import {
@@ -120,17 +120,17 @@ export const BrandBlueprintPDF = ({
     <Document>
       {/* ------------ PAGE 1 — EXECUTIVE SUMMARY ------------ */}
       <Page size="A4" style={styles.page}>
-        <PdfHeader title="Brand Blueprint™" />
+        <PdfHeader title="WunderBrand Blueprint™" />
 
         <PageTitle
-          title="Your Brand Blueprint™"
+          title="Your WunderBrand Blueprint™"
           subtitle="A complete, AI-ready brand foundation"
         />
 
         <Section>
           <Text style={styles.heading}>Executive Summary</Text>
           <Text style={styles.para}>
-            This Brand Blueprint™ captures the essential elements of your brand —
+            This WunderBrand Blueprint™ captures the essential elements of your brand —
             including your positioning, narrative, voice, personality, audience,
             differentiation, and visual direction. It serves as the foundation for
             consistent communication, effective marketing, and AI-powered brand application.
@@ -478,7 +478,7 @@ export const BrandBlueprintPDF = ({
 
         <Section>
           <Text style={styles.para}>
-            This Brand Blueprint™ gives you a complete foundation for your brand's
+            This WunderBrand Blueprint™ gives you a complete foundation for your brand's
             identity, communication, differentiation, and direction. If you'd like help
             applying this blueprint to your marketing, content, or website, Wunderbar
             Digital offers additional support and implementation services.
@@ -490,7 +490,7 @@ export const BrandBlueprintPDF = ({
           <Text style={styles.para}>
             For a complete AEO system with implementation guidance, platform-specific
             optimizations, and AI prompts to generate improved versions of your content,
-            consider upgrading to Brand Blueprint+™ ($1,997).
+            consider upgrading to WunderBrand Blueprint+™ ($1,997).
           </Text>
         </Section>
 

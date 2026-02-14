@@ -1,4 +1,4 @@
--- Create support_requests table for Wundy-collected support tickets
+-- Create support_requests table for Wundy™-collected support tickets
 -- Run this in Supabase SQL Editor
 
 CREATE TABLE IF NOT EXISTS support_requests (
@@ -6,10 +6,10 @@ CREATE TABLE IF NOT EXISTS support_requests (
   email         TEXT NOT NULL,
   company_name  TEXT NOT NULL,
   product_name  TEXT NOT NULL CHECK (product_name IN (
-    'Brand Snapshot',
-    'Brand Snapshot+',
-    'Brand Blueprint',
-    'Brand Blueprint+'
+    'WunderBrand Snapshot™',
+    'WunderBrand Snapshot+™',
+    'WunderBrand Blueprint™',
+    'WunderBrand Blueprint+™'
   )),
   issue_category TEXT NOT NULL CHECK (issue_category IN (
     'access',
@@ -65,4 +65,4 @@ CREATE POLICY "Service role has full access to support_requests"
   USING (true)
   WITH CHECK (true);
 
-COMMENT ON TABLE support_requests IS 'Support requests collected by Wundy chat and routed to the support team.';
+COMMENT ON TABLE support_requests IS 'Support requests collected by Wundy™ chat and routed to the support team.';

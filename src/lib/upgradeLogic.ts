@@ -11,7 +11,7 @@ export function getUpgradeRecommendation({
 }) {
   if (primaryPillar === "Positioning") {
     return {
-      product: "Brand Blueprint™",
+      product: "WunderBrand Blueprint™",
       message:
         stage === "early"
           ? "Lock in clear positioning before you scale."
@@ -21,14 +21,14 @@ export function getUpgradeRecommendation({
 
   if (primaryPillar === "Visibility") {
     return {
-      product: "Brand Blueprint+™",
+      product: "WunderBrand Blueprint+™",
       message:
         "Turn clarity into discoverability across search and AI platforms.",
     };
   }
 
   return {
-    product: "Brand Snapshot+™",
+    product: "WunderBrand Snapshot+™",
     message:
       "Translate insight into focused, prioritized brand improvements.",
   };

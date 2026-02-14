@@ -61,7 +61,7 @@ export function ScoreMeter({ score }: ScoreMeterProps) {
           <div className="bs-body-sm font-bold text-brand-muted">
             {getScoreLabel(score)}
           </div>
-          <div className="bs-small text-brand-muted mt-1">Brand Alignment Score™</div>
+          <div className="bs-small text-brand-muted mt-1">WunderBrand Score™</div>
         </div>
         <div className="relative">
           <div className="w-full h-3 bg-brand-border rounded-full overflow-hidden">

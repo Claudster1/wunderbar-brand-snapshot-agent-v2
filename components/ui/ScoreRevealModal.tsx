@@ -44,7 +44,7 @@ export default function ScoreRevealModal({
         {/* HEADER */}
         <div>
           <h2 className="text-3xl font-semibold text-brand-navy text-center">
-            Your Brand Alignment Score™
+            Your WunderBrand Score™
           </h2>
           <p className="text-[15px] leading-relaxed text-brand-midnight text-center mt-2 max-w-xl mx-auto">
             Based on your responses and the sentiment of your brand touchpoints, here’s a clear
@@ -98,7 +98,7 @@ export default function ScoreRevealModal({
           </div>
 
           <p className="text-[14px] text-slate-600 mt-4 leading-relaxed">
-            These five pillars form the foundation of your Brand Alignment Score™. Together, they
+            These five pillars form the foundation of your WunderBrand Score™. Together, they
             reveal how clearly you communicate value, how consistently your brand shows up across
             touchpoints, and how effectively your marketing converts interest into action.
           </p>
@@ -118,7 +118,7 @@ export default function ScoreRevealModal({
           </button>
 
           <p className="text-[13px] text-slate-500">
-            You’ll now be guided to unlock your complete Brand Snapshot™.
+            You’ll now be guided to unlock your complete WunderBrand Snapshot™.
           </p>
         </div>
       </div>

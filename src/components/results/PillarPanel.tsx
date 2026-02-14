@@ -104,7 +104,7 @@ export function PillarPanel({
               {" "}
               <TooltipIcon
                 content={
-                  <>This is the highest-impact area to improve for {pillar}. Focusing here will lift your overall Brand Alignment Score™.</>
+                  <>This is the highest-impact area to improve for {pillar}. Focusing here will lift your overall WunderBrand Score™.</>
                 }
               />
             </p>

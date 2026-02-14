@@ -1,10 +1,10 @@
-# Brand Snapshot™ Report Generator
+# WunderBrand Snapshot™ Report Generator
 
-Complete report generation engine for Wunderbar Digital's Brand Snapshot™ system.
+Complete report generation engine for Wunderbar Digital's WunderBrand Snapshot™ system.
 
 ## Overview
 
-The report generator transforms Brand Alignment Scores, pillar scores, and user context into fully personalized Brand Snapshot™ reports.
+The report generator transforms WunderBrand Score™s, pillar scores, and user context into fully personalized WunderBrand Snapshot™ reports.
 
 ## Features
 
@@ -69,7 +69,7 @@ const report = generateReport(data);
 
 ## Score Ranges
 
-### Overall Brand Alignment Score
+### Overall WunderBrand Score™
 - **Excellent (80-100)**: Excellent alignment across all pillars
 - **Strong (60-79)**: Strong foundation with clear opportunities
 - **Developing (40-59)**: Developing brand with potential

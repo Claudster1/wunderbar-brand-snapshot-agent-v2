@@ -52,7 +52,7 @@ export default function SnapshotPlusPage() {
             Ready to turn insight into execution?
           </h3>
           <p className="text-sm mb-4">
-            Brand Blueprint™ transforms your Snapshot+™ insights into a complete,
+            WunderBrand Blueprint™ transforms your Snapshot+™ insights into a complete,
             usable brand system.
           </p>
           <a
@@ -60,7 +60,7 @@ export default function SnapshotPlusPage() {
             onClick={() => trackEvent("blueprint_promo_clicked", {})}
             className="btn-primary"
           >
-            Explore Brand Blueprint™ →
+            Explore WunderBrand Blueprint™ →
           </a>
         </div>
       )}

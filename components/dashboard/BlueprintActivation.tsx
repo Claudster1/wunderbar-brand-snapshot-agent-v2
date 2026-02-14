@@ -17,7 +17,7 @@ export function BlueprintActivation({ report }: BlueprintActivationProps) {
   return (
     <section className="border border-[#07B0F2] rounded-xl p-8 bg-white">
       <h3 className="text-xl font-semibold text-[#021859] mb-2">
-        Activate Your Brand Blueprint™
+        Activate Your WunderBrand Blueprint™
       </h3>
 
       <p className="text-[15px] text-[#0C1526] mb-4 leading-relaxed">

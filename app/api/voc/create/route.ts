@@ -18,6 +18,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing reportId or businessName" }, { status: 400 });
     }
 
+    const { sanitizeString } = await import("@/lib/security/inputValidation");
+    const sanitizedBusinessName = sanitizeString(businessName);
+
     const supabase = supabaseServer();
 
     // Check if a survey already exists for this report
@@ -27,7 +30,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (existing?.survey_token) {
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://app.brandsnapshot.ai";
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://app.wunderbrand.ai";
       return NextResponse.json({
         surveyUrl: `${baseUrl}/survey/${existing.survey_token}`,
         surveyToken: existing.survey_token,
@@ -38,10 +41,13 @@ export async function POST(req: NextRequest) {
     // Generate a short, URL-friendly token
     const surveyToken = randomBytes(8).toString("hex");
 
+    const VOC_MAX_RESPONSES = 25;
+
     const { error } = await (supabase.from("voc_surveys") as any).insert({
       report_id: reportId,
-      business_name: businessName,
+      business_name: sanitizedBusinessName,
       survey_token: surveyToken,
+      max_responses: VOC_MAX_RESPONSES,
     });
 
     if (error) {
@@ -49,7 +55,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Failed to create survey" }, { status: 500 });
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://app.brandsnapshot.ai";
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://app.wunderbrand.ai";
 
     return NextResponse.json({
       surveyUrl: `${baseUrl}/survey/${surveyToken}`,

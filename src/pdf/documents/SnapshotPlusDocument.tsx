@@ -73,7 +73,7 @@ export function SnapshotPlusDocument({ report }: { report: SnapshotPlusReport })
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <PdfHeader title="Brand Snapshot+™ Report" />
+        <PdfHeader title="WunderBrand Snapshot+™ Report" />
 
         <Text style={styles.title}>
           Snapshot+™ for {report.businessName}

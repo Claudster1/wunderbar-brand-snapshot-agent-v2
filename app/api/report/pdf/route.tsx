@@ -1,5 +1,5 @@
 // app/api/report/pdf/route.tsx
-// API route to generate PDF for Brand Snapshot reports
+// API route to generate PDF for WunderBrand Snapshot™ reports
 // Supports both GET (with reportId) and POST (with inline data)
 
 import { NextResponse } from "next/server";
@@ -71,6 +71,11 @@ function transformReportData(data: any) {
  * GET handler - Fetch report from Supabase by reportId
  */
 export async function GET(request: Request) {
+  const { apiGuard } = await import("@/lib/security/apiGuard");
+  const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+  const guard = apiGuard(request, { routeId: "report-pdf", rateLimit: GENERAL_RATE_LIMIT });
+  if (!guard.passed) return guard.errorResponse;
+
   const { searchParams } = new URL(request.url);
   const reportId = searchParams.get("reportId") || searchParams.get("id");
 
@@ -141,6 +146,11 @@ export async function GET(request: Request) {
  */
 export async function POST(request: Request) {
   try {
+    const { apiGuard } = await import("@/lib/security/apiGuard");
+    const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+    const guard = apiGuard(request, { routeId: "report-pdf", rateLimit: GENERAL_RATE_LIMIT });
+    if (!guard.passed) return guard.errorResponse;
+
     const body = await request.json();
     const { reportId, scores, insights, recommendations, metadata, pillarScores, pillarInsights, colorPalette, recommendedPalette } = body;
 

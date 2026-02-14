@@ -1,5 +1,5 @@
 /**
- * Shared Design Tokens for Brand Snapshot Suite Reports
+ * Shared Design Tokens for WunderBrand Suite™ Reports
  * ─────────────────────────────────────────────────────
  * Single source of truth for colors, spacing, typography, and radii
  * used across all four report tiers (Snapshot, Snapshot+, Blueprint, Blueprint+).

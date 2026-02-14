@@ -186,7 +186,7 @@ export default function RefinePage() {
             </div>
             <div>
               <div style={{ fontSize: 14, fontWeight: 700, color: NAVY, marginBottom: 2 }}>
-                Current Brand Alignment Score™
+                Current WunderBrand Score™
               </div>
               <div style={{ fontSize: 13, color: SUB, lineHeight: 1.4 }}>
                 Answer a few follow-up questions to strengthen your analysis and potentially improve your score.
@@ -215,7 +215,7 @@ export default function RefinePage() {
             </div>
 
             <ScoreDelta
-              label="Brand Alignment Score™"
+              label="WunderBrand Score™"
               before={previousScores.brandAlignmentScore}
               after={updatedScores.brandAlignmentScore}
             />
@@ -268,13 +268,13 @@ export default function RefinePage() {
           }}>
             <Image
               src="/assets/wundy-logo.jpeg"
-              alt="Wundy"
+              alt="Wundy™"
               width={32}
               height={32}
               style={{ borderRadius: "50%" }}
             />
             <div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: NAVY }}>Wundy</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: NAVY }}>Wundy™</div>
               <div style={{ fontSize: 11, color: SUB }}>Brand Refinement Guide</div>
             </div>
             {isLoading && (
@@ -339,7 +339,7 @@ export default function RefinePage() {
                   fontSize: 14,
                   fontStyle: "italic",
                 }}>
-                  Wundy is thinking...
+                  Wundy™ is thinking...
                 </div>
               </div>
             )}

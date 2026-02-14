@@ -78,14 +78,14 @@ export default async function BlueprintActivationPage({ searchParams }: { search
       <section className="mt-16 rounded-xl border-2 border-brand-blue/30 bg-brand-blue/5 p-8 text-center">
         <h2 className="text-2xl font-semibold text-brand-navy mb-2">Ready for more?</h2>
         <p className="text-slate-700 max-w-2xl mx-auto mb-6">
-          Brand Blueprint+™ adds advanced strategy, execution playbooks, extended prompt libraries,
+          WunderBrand Blueprint+™ adds advanced strategy, execution playbooks, extended prompt libraries,
           and 12-month content roadmaps — so you can activate your brand at scale.
         </p>
         <Link
           href="/brand-blueprint-plus"
           className="inline-flex rounded-[10px] bg-[#07B0F2] px-6 py-3 text-sm font-semibold text-white hover:bg-[#059BD8] no-underline"
         >
-          Explore Brand Blueprint+™ →
+          Explore WunderBrand Blueprint+™ →
         </Link>
       </section>
 

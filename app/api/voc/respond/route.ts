@@ -18,6 +18,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    const { sanitizeString } = await import("@/lib/security/inputValidation");
+    const sanitizedThreeWords = threeWords.slice(0, 5).map((w: unknown) => sanitizeString(w).slice(0, 50));
+    const sanitizedDifferentiator = differentiator != null ? sanitizeString(differentiator).slice(0, 500) : null;
+    const sanitizedDiscoveryChannel = discoveryChannel != null ? sanitizeString(discoveryChannel).slice(0, 200) : null;
+    const sanitizedFriendDescription = friendDescription != null ? sanitizeString(friendDescription).slice(0, 500) : null;
+    const sanitizedImprovement = improvement != null ? sanitizeString(improvement).slice(0, 500) : null;
+    const sanitizedChooseReason = chooseReason != null ? sanitizeString(chooseReason).slice(0, 500) : null;
+    const sanitizedElevatorDescription = elevatorDescription != null ? sanitizeString(elevatorDescription).slice(0, 500) : null;
+
     const supabase = supabaseServer();
 
     // Look up the survey
@@ -46,14 +55,14 @@ export async function POST(req: NextRequest) {
     // Insert the response
     const { error: insertErr } = await (supabase.from("voc_responses") as any).insert({
       survey_id: survey.id,
-      three_words: threeWords.slice(0, 5).map((w: string) => w.trim().slice(0, 50)),
-      differentiator: differentiator?.slice(0, 500) ?? null,
-      discovery_channel: discoveryChannel?.slice(0, 200) ?? null,
-      friend_description: friendDescription?.slice(0, 500) ?? null,
-      improvement: improvement?.slice(0, 500) ?? null,
+      three_words: sanitizedThreeWords,
+      differentiator: sanitizedDifferentiator,
+      discovery_channel: sanitizedDiscoveryChannel,
+      friend_description: sanitizedFriendDescription,
+      improvement: sanitizedImprovement,
       nps_score: typeof npsScore === "number" ? Math.min(10, Math.max(0, Math.round(npsScore))) : null,
-      choose_reason: chooseReason?.slice(0, 500) ?? null,
-      elevator_description: elevatorDescription?.slice(0, 500) ?? null,
+      choose_reason: sanitizedChooseReason,
+      elevator_description: sanitizedElevatorDescription,
     });
 
     if (insertErr) {

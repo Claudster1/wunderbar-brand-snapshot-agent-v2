@@ -1,5 +1,5 @@
 // components/results/GenerationContext.tsx
-// Component explaining how the Brand Snapshot report was generated
+// Component explaining how the WunderBrand Snapshot™ report was generated
 
 type Props = {
   coveragePercent?: number;
@@ -13,7 +13,7 @@ export function GenerationContext({ coveragePercent }: Props) {
       </h4>
 
       <p className="text-slate-700 mb-3">
-        Your Brand Snapshot™ is based entirely on the information you shared.
+        Your WunderBrand Snapshot™ is based entirely on the information you shared.
         Insights reflect current brand signals — not assumptions or guesses.
       </p>
 
@@ -24,7 +24,7 @@ export function GenerationContext({ coveragePercent }: Props) {
       )}
 
       <p className="text-xs text-slate-600 mt-4">
-        You've already completed the hard part — your Brand Snapshot™.
+        You've already completed the hard part — your WunderBrand Snapshot™.
         Everything in your report reflects what you shared, and you can return anytime
         to explore deeper context or expand your strategy.
       </p>

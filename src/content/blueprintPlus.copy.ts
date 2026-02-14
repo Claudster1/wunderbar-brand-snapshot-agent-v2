@@ -1,12 +1,12 @@
 // src/content/blueprintPlus.copy.ts
-// Copy for Brand Blueprint+™ ($1,997)
+// Copy for WunderBrand Blueprint+™ ($1,997)
 
 export const blueprintPlusCopy = {
   hero: {
-    title: "Brand Blueprint+™",
+    title: "WunderBrand Blueprint+™",
     subtitle: "Turn clarity into scale — with an activation-ready brand system",
     intro:
-      "Brand Blueprint+™ extends your foundation into a scalable system — designed for growing campaigns and AI-driven marketing environments.",
+      "WunderBrand Blueprint+™ extends your foundation into a scalable system — designed for growing campaigns and AI-driven marketing environments.",
   },
 
   differentiation: [
@@ -28,14 +28,14 @@ export const blueprintPlusCopy = {
   },
 
   pricing: {
-    label: "Brand Blueprint+™",
+    label: "WunderBrand Blueprint+™",
     price: "$1,997",
     note:
       "One-time purchase. Snapshot+™ and Blueprint™ credits apply.",
   },
 
   cta: {
-    primary: "Activate Brand Blueprint+™",
+    primary: "Activate WunderBrand Blueprint+™",
     secondary: "Scale my brand with confidence",
   },
 };
@@ -92,31 +92,31 @@ export const blueprintPlusUpsellByPillar: Record<
   positioning: {
     headline: "Turn positioning clarity into market leadership",
     body:
-      "Brand Blueprint+™ expands your positioning into a defensible narrative, competitive differentiation, and category clarity — so your brand isn't just clear, it's unmistakable.",
-    cta: "Activate Brand Blueprint+™",
+      "WunderBrand Blueprint+™ expands your positioning into a defensible narrative, competitive differentiation, and category clarity — so your brand isn't just clear, it's unmistakable.",
+    cta: "Activate WunderBrand Blueprint+™",
   },
   messaging: {
     headline: "Transform messaging into a scalable system",
     body:
-      "Brand Blueprint+™ converts your messaging insights into a complete narrative framework your team and AI tools can use consistently across every channel.",
-    cta: "Unlock Brand Blueprint+™",
+      "WunderBrand Blueprint+™ converts your messaging insights into a complete narrative framework your team and AI tools can use consistently across every channel.",
+    cta: "Unlock WunderBrand Blueprint+™",
   },
   visibility: {
     headline: "Build visibility that compounds over time",
     body:
-      "Brand Blueprint+™ deepens your SEO + AEO strategy so your brand shows up where modern buyers actually search — including AI-powered discovery.",
-    cta: "Expand with Brand Blueprint+™",
+      "WunderBrand Blueprint+™ deepens your SEO + AEO strategy so your brand shows up where modern buyers actually search — including AI-powered discovery.",
+    cta: "Expand with WunderBrand Blueprint+™",
   },
   credibility: {
     headline: "Turn trust into a strategic advantage",
     body:
-      "Brand Blueprint+™ strengthens credibility through consistent voice, visual direction, and authority-building systems that scale with your growth.",
-    cta: "Strengthen with Brand Blueprint+™",
+      "WunderBrand Blueprint+™ strengthens credibility through consistent voice, visual direction, and authority-building systems that scale with your growth.",
+    cta: "Strengthen with WunderBrand Blueprint+™",
   },
   conversion: {
     headline: "Convert clarity into confident action",
     body:
-      "Brand Blueprint+™ aligns positioning, messaging, and trust signals into a conversion-ready system designed to reduce friction and increase momentum.",
-    cta: "Activate Brand Blueprint+™",
+      "WunderBrand Blueprint+™ aligns positioning, messaging, and trust signals into a conversion-ready system designed to reduce friction and increase momentum.",
+    cta: "Activate WunderBrand Blueprint+™",
   },
 };

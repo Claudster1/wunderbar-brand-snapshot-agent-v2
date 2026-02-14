@@ -1,5 +1,5 @@
 // src/lib/pillars/types.ts
-// Type definitions for Brand Snapshot context and pillars
+// Type definitions for WunderBrand Snapshot™ context and pillars
 
 import { PillarKey } from "./pillarCopy";
 

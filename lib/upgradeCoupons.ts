@@ -150,9 +150,9 @@ export async function getUpgradeCoupon(
   const priorNames = [...priorPurchases]
     .map((p) => {
       const names: Record<ProductKey, string> = {
-        snapshot_plus: "Brand Snapshot+™",
-        blueprint: "Brand Blueprint™",
-        blueprint_plus: "Brand Blueprint+™",
+        snapshot_plus: "WunderBrand Snapshot+™",
+        blueprint: "WunderBrand Blueprint™",
+        blueprint_plus: "WunderBrand Blueprint+™",
       };
       return names[p];
     })

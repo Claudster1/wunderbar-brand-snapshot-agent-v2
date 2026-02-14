@@ -1,5 +1,5 @@
 // src/pdf/documents/BrandBlueprintPlusPDF.tsx
-// Brand Blueprint+™ PDF Document ($1,997)
+// WunderBrand Blueprint+™ PDF Document ($1,997)
 // Complete AEO system with implementation guidance
 
 import React from "react";
@@ -86,7 +86,7 @@ export const BrandBlueprintPlusPDF = ({
       {/* PAGE 1 — COVER */}
       <Page style={stylePresets.page}>
         <View style={{ borderBottom: `2px solid ${colors.navy}`, paddingBottom: spacing.md, marginBottom: spacing["2xl"] }}>
-          <Text style={stylePresets.h1}>Brand Blueprint+™</Text>
+          <Text style={stylePresets.h1}>WunderBrand Blueprint+™</Text>
           <Text style={stylePresets.body}>
             The advanced strategic foundation for scalable brand growth.
           </Text>
@@ -94,14 +94,14 @@ export const BrandBlueprintPlusPDF = ({
 
         <Text style={stylePresets.body}>Hello {userName || "there"},</Text>
         <Text style={{ marginTop: spacing.md, ...stylePresets.body }}>
-          Your Brand Blueprint+™ synthesizes deeper customer insights, narrative frameworks,
+          Your WunderBrand Blueprint+™ synthesizes deeper customer insights, narrative frameworks,
           positioning strategy, and execution plans into a single, actionable system designed
           for clarity, alignment, and growth. This includes a complete AEO system with full
           implementation guidance.
         </Text>
 
         <Text style={stylePresets.footer}>
-          © 2025 Wunderbar Digital. Brand Blueprint+™ is a trademark of Wunderbar Digital.
+          © 2025 Wunderbar Digital. WunderBrand Blueprint+™ is a trademark of Wunderbar Digital.
         </Text>
       </Page>
 
@@ -471,7 +471,7 @@ export const BrandBlueprintPlusPDF = ({
 
         <View style={stylePresets.card}>
           <Text style={stylePresets.body}>
-            Your Brand Blueprint+™ provides a complete strategic foundation with AEO fully
+            Your WunderBrand Blueprint+™ provides a complete strategic foundation with AEO fully
             integrated. Use this system to guide all brand decisions, content creation, and
             marketing initiatives.
           </Text>
@@ -484,7 +484,7 @@ export const BrandBlueprintPlusPDF = ({
         </Text>
 
         <Text style={stylePresets.footer}>
-          © 2025 Wunderbar Digital. Brand Blueprint+™ is a trademark of Wunderbar Digital.
+          © 2025 Wunderbar Digital. WunderBrand Blueprint+™ is a trademark of Wunderbar Digital.
         </Text>
       </Page>
     </Document>

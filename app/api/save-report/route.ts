@@ -1,5 +1,5 @@
 // app/api/save-report/route.ts
-// API route to save Brand Snapshot report and return redirect URL
+// API route to save WunderBrand Snapshot™ report and return redirect URL
 
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
@@ -7,6 +7,11 @@ import { calculateScores } from "@/src/lib/brandSnapshotEngine";
 
 export async function POST(req: Request) {
   try {
+    const { apiGuard } = await import("@/lib/security/apiGuard");
+    const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+    const guard = apiGuard(req, { routeId: "save-report", rateLimit: GENERAL_RATE_LIMIT });
+    if (!guard.passed) return guard.errorResponse;
+
     const body = await req.json();
     
     // Extract data from request

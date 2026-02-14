@@ -34,10 +34,10 @@ export function ReportTemplate({ data }: { data: any }) {
       {/* HEADER */}
       <section>
         <h1 className="text-3xl font-semibold text-brand-navy">
-          Your Brand Snapshot™ Report
+          Your WunderBrand Snapshot™ Report
         </h1>
         <p className="mt-2 text-gray-600">
-          Hi {userName}, here's your personalized Brand Alignment Score™ and the insights that matter most for your brand right now.
+          Hi {userName}, here's your personalized WunderBrand Score™ and the insights that matter most for your brand right now.
         </p>
 
         <div className="flex flex-wrap gap-4 mt-6">
@@ -70,7 +70,7 @@ export function ReportTemplate({ data }: { data: any }) {
       {/* SCORE BLOCK */}
       <section className="mt-12 p-6 border border-brand-border rounded-xl shadow-sm bg-white">
         <h2 className="text-xl font-semibold text-brand-navy mb-4">
-          Brand Alignment Score™
+          WunderBrand Score™
         </h2>
 
         <div className="flex flex-col md:flex-row gap-8">

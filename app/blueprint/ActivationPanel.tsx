@@ -10,10 +10,10 @@ export function BlueprintActivation({
 }) {
   return (
     <section className="card">
-      <h2>Activating Your Brand Blueprint™</h2>
+      <h2>Activating Your WunderBrand Blueprint™</h2>
       <p className="mt-2">
         This Blueprint builds directly on the clarity uncovered in your
-        Brand Snapshot™ — especially around <strong>{primaryPillar}</strong>.
+        WunderBrand Snapshot™ — especially around <strong>{primaryPillar}</strong>.
       </p>
 
       <p className="mt-3">
@@ -35,7 +35,7 @@ export function BlueprintActivation({
       </p>
 
       <a href="/blueprint" className="btn-primary mt-3">
-        Build My Brand Blueprint™
+        Build My WunderBrand Blueprint™
       </a>
 
       <p className="text-sm mt-2">

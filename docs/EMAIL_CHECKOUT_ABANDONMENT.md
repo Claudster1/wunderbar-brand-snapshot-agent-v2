@@ -32,7 +32,7 @@ We also fire `checkout_initiated` when checkout begins, so you can track initiat
 >
 > **{Product-specific bullet points — pulled from comparison chart}**
 >
-> Your Brand Snapshot™ results are still saved, and your {ProductName} report will be generated instantly after purchase.
+> Your WunderBrand Snapshot™ results are still saved, and your {ProductName} report will be generated instantly after purchase.
 >
 > [Complete Your Purchase →] (link to checkout with email pre-filled)
 >
@@ -56,7 +56,7 @@ We also fire `checkout_initiated` when checkout begins, so you can track initiat
 > Was it:
 > - **Price?** Your {ProductName} delivers the same strategic depth as a $5,000–$15,000 agency engagement — at a fraction of the cost.
 > - **Timing?** Your results don't expire. Purchase when you're ready and your report generates instantly.
-> - **Uncertainty?** The free Brand Snapshot™ gives you a real taste of the depth. If you found that valuable, {ProductName} goes significantly deeper.
+> - **Uncertainty?** The free WunderBrand Snapshot™ gives you a real taste of the depth. If you found that valuable, {ProductName} goes significantly deeper.
 >
 > If you'd rather talk it through, our team is happy to help — no pressure, no pitch.
 >
@@ -77,7 +77,7 @@ We also fire `checkout_initiated` when checkout begins, so you can track initiat
 
 > Hi {firstName},
 >
-> Just a final note — your Brand Snapshot™ results are still saved, and your **{ProductName}** report is ready to generate the moment you're ready.
+> Just a final note — your WunderBrand Snapshot™ results are still saved, and your **{ProductName}** report is ready to generate the moment you're ready.
 >
 > A few things to keep in mind:
 >
@@ -87,7 +87,7 @@ We also fire `checkout_initiated` when checkout begins, so you can track initiat
 >
 > [Get Your {ProductName} →] (link to checkout)
 >
-> If the timing isn't right, that's completely fine. Your free Brand Snapshot™ is a complete diagnostic on its own.
+> If the timing isn't right, that's completely fine. Your free WunderBrand Snapshot™ is a complete diagnostic on its own.
 >
 > — The Wunderbar Digital Team
 

@@ -27,12 +27,12 @@
 - Function exists: `lib/saveSnapshotProgress.ts`
 - Need to: Call `saveSnapshotProgress()` after each step/question in the chat flow
 - Suggested locations:
-  - Chat component that handles Wundy responses
+  - Chat component that handles Wundy™ responses
   - API route that processes chat messages
   - After each question is answered in `brandSnapshotFlow.json`
 
 **Action Required:**
-1. Find the chat component/hook that processes Wundy responses
+1. Find the chat component/hook that processes Wundy™ responses
 2. Add `saveSnapshotProgress()` call after each step completion
 3. Pass: `reportId`, `lastStep` (step ID), `progress` (current answers)
 

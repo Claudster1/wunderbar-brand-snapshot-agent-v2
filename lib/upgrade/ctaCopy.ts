@@ -7,7 +7,7 @@ export function getUpgradeNudgeCopy({ primaryPillar, tiePillars }: CopyContext) 
   if (tiePillars) {
     return {
       headline: "Two areas stand out as your biggest opportunities",
-      body: `Your Brand Snapshot™ shows equal impact across ${tiePillars.join(
+      body: `Your WunderBrand Snapshot™ shows equal impact across ${tiePillars.join(
         " and "
       )}. Snapshot+™ explores both — revealing which move creates momentum fastest.`,
       detail:

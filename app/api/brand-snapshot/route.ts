@@ -4,21 +4,12 @@
 
 import { NextResponse } from "next/server";
 import { wundySystemPrompt } from "@/src/prompts/wundySystemPrompt";
-import { createClient } from "@supabase/supabase-js";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { randomUUID } from "crypto";
 import { completeWithFallback, type ChatMessage } from "@/lib/ai";
 
-// Supabase client for saving reports (created lazily to avoid errors if env vars missing)
 function getSupabaseClient() {
-  const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey =
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
-  
-  if (!supabaseUrl || !serviceRoleKey) {
-    return null;
-  }
-  
-  return createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
+  return supabaseAdmin;
 }
 
 export async function POST(req: Request) {
@@ -150,16 +141,16 @@ export async function POST(req: Request) {
     return NextResponse.json({
       content:
         completion.content ||
-        "Sorry, I had trouble creating your Brand Snapshot. Please try again.",
+        "Sorry, I had trouble creating your WunderBrand Snapshot™. Please try again.",
       _ai: { provider: completion.provider, model: completion.model },
     });
   } catch (err: any) {
-    console.error("[Brand Snapshot API] error:", err);
+    console.error("[WunderBrand Snapshot™ API] error:", err);
     return NextResponse.json(
       {
         error:
           err?.message ||
-          "There was an issue reaching the Brand Snapshot specialist. Please try again in a moment.",
+          "There was an issue reaching the WunderBrand Snapshot™ specialist. Please try again in a moment.",
       },
       { status: 500 }
     );

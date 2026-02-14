@@ -1,5 +1,5 @@
 // components/WundyHero.tsx
-// Hero section with Wundy mascot for Brand Snapshot results
+// Hero section with Wundy™ mascot for WunderBrand Snapshot™ results
 
 "use client";
 
@@ -33,10 +33,10 @@ export function WundyHero({ userName, companyName }: WundyHeroProps) {
           </svg>
         </div>
         <h1 className="bs-h1 mb-3">
-          Your Brand Alignment Score™
+          Your WunderBrand Score™
         </h1>
         <p className="bs-body-sm text-brand-muted max-w-xl">
-          Below is your personalized Brand Snapshot™ summary.
+          Below is your personalized WunderBrand Snapshot™ summary.
           These insights were generated based on your inputs and online presence.
         </p>
       </div>

@@ -35,6 +35,11 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   try {
+    const { apiGuard } = await import("@/lib/security/apiGuard");
+    const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+    const guard = apiGuard(req, { routeId: "snapshot-progress", rateLimit: GENERAL_RATE_LIMIT });
+    if (!guard.passed) return guard.errorResponse;
+
     const { searchParams } = new URL(req.url);
     const reportId = searchParams.get("reportId");
 

@@ -1,5 +1,5 @@
 // src/types/brandSnapshot.ts
-// TypeScript types for Brand Snapshot™ JSON output
+// TypeScript types for WunderBrand Snapshot™ JSON output
 
 export interface ColorPaletteItem {
   name: string;
@@ -11,7 +11,7 @@ export interface ColorPaletteItem {
 export interface SnapshotPlusOutline {
   page1: string; // Cover
   page2: string; // Executive Summary
-  page3: string; // Brand Alignment Score™ Deep Dive
+  page3: string; // WunderBrand Score™ Deep Dive
   page4: string; // Positioning Deep Dive
   page5: string; // Messaging Deep Dive
   page6: string; // Visibility Deep Dive
@@ -46,7 +46,7 @@ export interface PillarRecommendations {
 }
 
 /**
- * Standard Brand Snapshot™ JSON output
+ * Standard WunderBrand Snapshot™ JSON output
  */
 export interface BrandSnapshotOutput {
   brandAlignmentScore: number; // 0-100

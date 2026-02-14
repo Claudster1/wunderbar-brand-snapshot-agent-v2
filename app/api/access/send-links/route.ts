@@ -3,22 +3,18 @@
 // so the user receives an email with links to all their reports.
 
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { fireACEvent } from "@/lib/fireACEvent";
 
 function getSupabase() {
-  const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key =
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
-  if (!url || !key) return null;
-  return createClient(url, key, { auth: { persistSession: false } });
+  return supabaseAdmin;
 }
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_APP_URL ||
   process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
-    : "https://app.brandsnapshot.ai";
+    : "https://app.wunderbrand.ai";
 
 export async function POST(req: Request) {
   // ─── Security: Rate limit (email-sending endpoint) ───
@@ -30,7 +26,8 @@ export async function POST(req: Request) {
   try {
     const { email } = await req.json();
 
-    if (!email || typeof email !== "string" || !email.includes("@")) {
+    const { isValidEmail } = await import("@/lib/security/inputValidation");
+    if (!email || typeof email !== "string" || !isValidEmail(email)) {
       return NextResponse.json(
         { error: "Please provide a valid email address." },
         { status: 400 }
@@ -76,7 +73,7 @@ export async function POST(req: Request) {
 
     // Build report links for the email
     const reportLinks = reports.map((r: any) => ({
-      name: r.company_name || "Brand Snapshot™",
+      name: r.company_name || "WunderBrand Snapshot™",
       score: r.brand_alignment_score,
       url: `${BASE_URL}/report/${r.report_id}`,
       date: r.created_at,

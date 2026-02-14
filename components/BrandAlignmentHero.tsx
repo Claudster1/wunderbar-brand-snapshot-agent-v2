@@ -1,5 +1,5 @@
 // components/BrandAlignmentHero.tsx
-// Hero section displaying Brand Alignment Score™
+// Hero section displaying WunderBrand Score™
 
 import { ScoreGauge } from "@/src/components/ScoreGauge";
 
@@ -13,7 +13,7 @@ export function BrandAlignmentHero({
   return (
     <section className="card text-center">
       <h1 className="text-2xl font-semibold mb-2">
-        {brandName}'s Brand Alignment Score™
+        {brandName}'s WunderBrand Score™
       </h1>
 
       <ScoreGauge value={score} />

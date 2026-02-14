@@ -2,8 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import ReportNav from "@/components/reports/ReportNav";
-import WundyChat from "@/components/wundy/WundyChat";
+import dynamic from "next/dynamic";
+
+// Lazy-load heavy interactive components to reduce initial bundle size
+const ReportNav = dynamic(() => import("@/components/reports/ReportNav"), { ssr: false });
+const WundyChat = dynamic(() => import("@/components/wundy/WundyChat"), { ssr: false });
 
 // ─── BRAND TOKENS ───
 const NAVY = "#021859";
@@ -481,7 +484,7 @@ const REPORT = {
     diagnosis: "Your brand is currently strong but inconsistent because your positioning is clear internally but not consistently reflected across customer touchpoints.",
     primaryFocusArea: "Credibility",
     secondaryFocusArea: "Messaging",
-    industryBenchmark: "For a regional B2B marketing consultancy at Acme Co\u2019s revenue stage, a Brand Alignment Score of 72 is above average \u2014 most firms in this space operate in the 58\u201368 range. Acme Co\u2019s positioning strength is a genuine competitive asset, but the credibility gap is exactly where peers pull ahead. Closing that gap could move Acme Co into the top tier of its market.",
+    industryBenchmark: "For a regional B2B marketing consultancy at Acme Co\u2019s revenue stage, a WunderBrand Score™ of 72 is above average \u2014 most firms in this space operate in the 58\u201368 range. Acme Co\u2019s positioning strength is a genuine competitive asset, but the credibility gap is exactly where peers pull ahead. Closing that gap could move Acme Co into the top tier of its market.",
   },
   priorityDiagnosis: {
     primary: {
@@ -870,7 +873,7 @@ Brand context from diagnostic:
 - Target Audience: B2B service company founders and marketing leaders (10–100 employees)
 - Top Strengths: Clear internal positioning (16/20), Active content presence, Strong service delivery understanding
 - Top Gaps: Credibility signals hidden at decision points (13/20), Messaging lacks proof points (15/20), Visibility efforts unfocused (14/20)
-- Brand Alignment Score: 72
+- WunderBrand Score™: 72
 
 Create a brand positioning statement using this framework:
 
@@ -1106,7 +1109,7 @@ Prioritize ruthlessly. A brand trying to fix everything at once fixes nothing.`,
       },
     ],
   },
-  whatsNextUnlocks: "Brand Snapshot+™ diagnoses and prioritizes. Brand Blueprint™ takes these insights and turns them into an operational system — messaging frameworks, voice guidelines, visual direction, and AI prompts you can use immediately. Brand Blueprint™ is where strategy becomes implementation.",
+  whatsNextUnlocks: "WunderBrand Snapshot+™ diagnoses and prioritizes. WunderBrand Blueprint™ takes these insights and turns them into an operational system — messaging frameworks, voice guidelines, visual direction, and AI prompts you can use immediately. WunderBrand Blueprint™ is where strategy becomes implementation.",
   taglineRecommendations: [
     {
       tagline: "Strategy That Scales With You",
@@ -1122,7 +1125,7 @@ Prioritize ruthlessly. A brand trying to fix everything at once fixes nothing.`,
     },
     {
       tagline: "Your Brand, Fully Aligned",
-      rationale: "Speaks to the core Brand Snapshot value proposition — brand alignment — and positions Acme Co as the path to achieving it.",
+      rationale: "Speaks to the core WunderBrand Snapshot™ value proposition — brand alignment — and positions Acme Co as the path to achieving it.",
       bestUsedOn: "Social media bios, ad campaigns, brand collateral",
       tone: "Warm and aspirational"
     }
@@ -1199,7 +1202,7 @@ export default function BrandSnapshotPlusReport() {
               <img src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp" alt="Wunderbar Digital" style={{ height: 26, objectFit: "contain" }} />
             </a>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-              <span style={{ fontSize: 22, fontWeight: 700, color: NAVY, lineHeight: 1 }}>Brand Snapshot+<span style={{ fontSize: 9, verticalAlign: "super", lineHeight: 0 }}>™</span></span>
+              <span style={{ fontSize: 22, fontWeight: 700, color: NAVY, lineHeight: 1 }}>WunderBrand Snapshot+™<span style={{ fontSize: 9, verticalAlign: "super", lineHeight: 0 }}>™</span></span>
               <span style={{ fontSize: 12, fontWeight: 400, color: BLUE, marginTop: 3 }}>Powered by <a href="https://wunderbardigital.com/?utm_source=brand_snapshot_plus_report&utm_medium=report_nav&utm_campaign=nav_header_logo&utm_content=snap_plus_logo" target="_blank" rel="noopener noreferrer" style={{ fontWeight: 700, color: BLUE, textDecoration: "none" }}>Wunderbar Digital</a></span>
             </div>
           </div>
@@ -1237,7 +1240,7 @@ export default function BrandSnapshotPlusReport() {
                 <button onClick={() => {
                   const el = document.querySelector('[data-report]');
                   if (el) {
-                    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Brand Snapshot+ - ${r.businessName}</title><link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet"><style>body{margin:0;font-family:Lato,sans-serif;}</style></head><body>${el.outerHTML}</body></html>`;
+                    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>WunderBrand Snapshot+™ - ${r.businessName}</title><link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet"><style>body{margin:0;font-family:Lato,sans-serif;}</style></head><body>${el.outerHTML}</body></html>`;
                     const blob = new Blob([html], { type: 'text/html' });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
@@ -1279,7 +1282,7 @@ export default function BrandSnapshotPlusReport() {
           padding: "12px 16px", fontSize: 14, color: "#8b6914",
           display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8,
         }}>
-          <span><strong>Preview mode</strong> — Mock data showing Brand Snapshot+™ structure.</span>
+          <span><strong>Preview mode</strong> — Mock data showing WunderBrand Snapshot+™ structure.</span>
           <Link href="/preview" style={{ color: NAVY, fontWeight: 600, textDecoration: "underline" }}>← All previews</Link>
         </div>
 
@@ -1293,7 +1296,7 @@ export default function BrandSnapshotPlusReport() {
             <path d="M12 8v5M12 16h.01" stroke={BLUE} strokeWidth="1.8" strokeLinecap="round"/>
           </svg>
           <div style={{ fontSize: 14, color: SUB, lineHeight: 1.5 }}>
-            <span style={{ fontWeight: 700, color: NAVY }}>How to read this report:</span> Brand Snapshot+ builds on your diagnostic with deeper analysis, priority focus, and strategic recommendations. Each pillar includes concrete examples and success metrics.
+            <span style={{ fontWeight: 700, color: NAVY }}>How to read this report:</span> WunderBrand Snapshot+™ builds on your diagnostic with deeper analysis, priority focus, and strategic recommendations. Each pillar includes concrete examples and success metrics.
           </div>
         </div>
 
@@ -1545,7 +1548,7 @@ export default function BrandSnapshotPlusReport() {
 
         {/* ═══ 2. BRAND ALIGNMENT SCORE ═══ */}
         <Section id="brand-alignment-score">
-          <SectionTitle hero description="A composite score measuring how well your brand communicates across five key pillars.">Brand Alignment Score<span style={{ fontSize: 10, verticalAlign: "super", lineHeight: 0, marginLeft: 0 }}>™</span></SectionTitle>
+          <SectionTitle hero description="A composite score measuring how well your brand communicates across five key pillars.">WunderBrand Score™<span style={{ fontSize: 10, verticalAlign: "super", lineHeight: 0, marginLeft: 0 }}>™</span></SectionTitle>
 
           <MainGauge score={r.executiveSummary.brandAlignmentScore} />
 
@@ -2924,7 +2927,7 @@ export default function BrandSnapshotPlusReport() {
               <span style={{ fontSize: 13, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.08em" }}>Want More Prompts?</span>
             </div>
             <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.65 }}>
-              Brand Blueprint™ includes an <strong>Execution Prompt Pack</strong> with 8 additional prompts for campaign messaging, email sequences, social media systems, website copy auditing, and more — all calibrated to your brand voice. Brand Blueprint+™ unlocks a full <strong>Advanced Prompt Library</strong> of 12 strategic prompts including persona messaging maps, full-funnel architecture, and competitive war room analysis.
+              WunderBrand Blueprint™ includes an <strong>Execution Prompt Pack</strong> with 8 additional prompts for campaign messaging, email sequences, social media systems, website copy auditing, and more — all calibrated to your brand voice. WunderBrand Blueprint+™ unlocks a full <strong>Advanced Prompt Library</strong> of 12 strategic prompts including persona messaging maps, full-funnel architecture, and competitive war room analysis.
             </div>
           </div>
         </Section>
@@ -2982,11 +2985,11 @@ export default function BrandSnapshotPlusReport() {
             const sorted = [...pillarEntries].sort((a, b) => a.score - b.score);
             const weakest = sorted[0];
             const BLUEPRINT_UNLOCK_MAP: Record<string, string> = {
-              positioning: "Brand Blueprint™ builds your complete brand foundation — brand purpose, promise, and a positioning statement you can use across every channel. Plus a competitive positioning map so you know exactly where you stand.",
-              messaging: "Brand Blueprint™ delivers your full messaging system — core message, proof points, value propositions, and what NOT to say. Including 16 AI prompts to generate on-brand copy instantly.",
-              visibility: "Brand Blueprint™ includes SEO keyword strategy, AEO optimization, social media platform strategy, and an email marketing framework — everything you need to get discovered consistently.",
-              credibility: "Brand Blueprint™ provides a brand story and origin narrative, customer journey map, and trust-building strategy that positions your proof points at every decision point in the buyer journey.",
-              conversion: "Brand Blueprint™ maps your full customer journey with conversion triggers, email nurture frameworks, CTA hierarchy, and lead magnet strategy — turning your website into a conversion engine.",
+              positioning: "WunderBrand Blueprint™ builds your complete brand foundation — brand purpose, promise, and a positioning statement you can use across every channel. Plus a competitive positioning map so you know exactly where you stand.",
+              messaging: "WunderBrand Blueprint™ delivers your full messaging system — core message, proof points, value propositions, and what NOT to say. Including 16 AI prompts to generate on-brand copy instantly.",
+              visibility: "WunderBrand Blueprint™ includes SEO keyword strategy, AEO optimization, social media platform strategy, and an email marketing framework — everything you need to get discovered consistently.",
+              credibility: "WunderBrand Blueprint™ provides a brand story and origin narrative, customer journey map, and trust-building strategy that positions your proof points at every decision point in the buyer journey.",
+              conversion: "WunderBrand Blueprint™ maps your full customer journey with conversion triggers, email nurture frameworks, CTA hierarchy, and lead magnet strategy — turning your website into a conversion engine.",
             };
             return (
               <div style={{
@@ -3008,7 +3011,7 @@ export default function BrandSnapshotPlusReport() {
                     Your biggest opportunity: <span style={{ color: BLUE }}>{weakest.label}</span> ({weakest.score}/20)
                   </div>
                   <p style={{ fontSize: 13, color: "#334155", lineHeight: 1.6, margin: 0 }}>
-                    {BLUEPRINT_UNLOCK_MAP[weakest.key] || "Brand Blueprint™ turns this diagnosis into a complete brand operating system with step-by-step implementation."}
+                    {BLUEPRINT_UNLOCK_MAP[weakest.key] || "WunderBrand Blueprint™ turns this diagnosis into a complete brand operating system with step-by-step implementation."}
                   </p>
                 </div>
               </div>
@@ -3016,14 +3019,14 @@ export default function BrandSnapshotPlusReport() {
           })()}
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-            {/* Brand Blueprint */}
+            {/* WunderBrand Blueprint™ */}
             <div style={{
               padding: "24px", borderRadius: 5,
               border: `2px solid ${BLUE}`, background: `${BLUE}04`,
               display: "flex", flexDirection: "column",
             }}>
               <div style={{ fontSize: 10, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>Recommended</div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: NAVY, marginBottom: 6 }}>Brand Blueprint<span style={{ fontSize: 9, verticalAlign: "super" }}>™</span></div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: NAVY, marginBottom: 6 }}>WunderBrand Blueprint™<span style={{ fontSize: 9, verticalAlign: "super" }}>™</span></div>
               <div style={{ fontSize: 14, color: SUB, lineHeight: 1.55, marginBottom: 16 }}>
                 Your diagnostic turned into an operational system — messaging frameworks, voice guidelines, and AI prompts you can use immediately.
               </div>
@@ -3050,23 +3053,23 @@ export default function BrandSnapshotPlusReport() {
                   transition: "transform 0.2s ease, box-shadow 0.2s ease",
                 }}
               >
-                Explore Brand Blueprint™ →
+                Explore WunderBrand Blueprint™ →
               </a>
             </div>
 
-            {/* Brand Blueprint+ */}
+            {/* WunderBrand Blueprint+™ */}
             <div style={{
               padding: "24px", borderRadius: 5,
               border: `1px solid ${BORDER}`, background: WHITE,
               display: "flex", flexDirection: "column",
             }}>
               <div style={{ height: 18 }} />
-              <div style={{ fontSize: 18, fontWeight: 700, color: NAVY, marginBottom: 6 }}>Brand Blueprint+<span style={{ fontSize: 9, verticalAlign: "super" }}>™</span></div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: NAVY, marginBottom: 6 }}>WunderBrand Blueprint+™<span style={{ fontSize: 9, verticalAlign: "super" }}>™</span></div>
               <div style={{ fontSize: 14, color: SUB, lineHeight: 1.55, marginBottom: 16 }}>
-                Everything in Brand Blueprint™ plus visual direction, advanced AI tools, campaign strategy, and full archetype mapping.
+                Everything in WunderBrand Blueprint™ plus visual direction, advanced AI tools, campaign strategy, and full archetype mapping.
               </div>
               <div style={{ flex: 1, marginBottom: 18 }}>
-                {["Everything in Brand Blueprint™", "Visual direction & design rationale", "Campaign & content strategy", "Advanced AI prompt library"].map((f, i) => (
+                {["Everything in WunderBrand Blueprint™", "Visual direction & design rationale", "Campaign & content strategy", "Advanced AI prompt library"].map((f, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                     <svg viewBox="0 0 20 20" fill="none" style={{ width: 16, height: 16, flexShrink: 0 }}>
                       <circle cx="10" cy="10" r="9" fill={NAVY} opacity="0.1"/>
@@ -3088,7 +3091,7 @@ export default function BrandSnapshotPlusReport() {
                   transition: "all 0.2s ease",
                 }}
               >
-                Explore Brand Blueprint+™ →
+                Explore WunderBrand Blueprint+™ →
               </a>
             </div>
           </div>
@@ -3194,11 +3197,11 @@ export default function BrandSnapshotPlusReport() {
             </a>
           </div>
           <p style={{ fontSize: 14, color: SUB, marginBottom: 4 }}>
-            Brand Snapshot+™ is a product of Wunderbar Digital ·{" "}
+            WunderBrand Snapshot+™ is a product of Wunderbar Digital ·{" "}
             <a href="https://wunderbardigital.com/?utm_source=brand_snapshot_plus_report&utm_medium=report_nav&utm_campaign=nav_header_logo&utm_content=snap_plus_logo" target="_blank" rel="noopener noreferrer" style={{ color: BLUE, textDecoration: "none", fontWeight: 700 }}>wunderbardigital.com</a>
           </p>
           <p style={{ fontSize: 12, color: "#94A3B8", lineHeight: 1.6, maxWidth: 600, margin: "0 auto" }}>
-            © 2026 Wunderbar Digital. All rights reserved. Brand Snapshot+™ and the Brand Alignment Score™ are trademarks of Wunderbar Digital.
+            © 2026 Wunderbar Digital. All rights reserved. WunderBrand Snapshot+™ and the WunderBrand Score™ are trademarks of Wunderbar Digital.
             This report is confidential and intended solely for the use of the individual or entity to whom it is addressed.
           </p>
           <p style={{ fontSize: 9, fontWeight: 400, color: "#8A97A8", textAlign: "center", marginTop: 16 }}>
@@ -3208,10 +3211,10 @@ export default function BrandSnapshotPlusReport() {
 
       </div>
     </div>
-    <ReportNav reportTitle="Brand Snapshot+" sections={[
+    <ReportNav reportTitle="WunderBrand Snapshot+™" sections={[
       { id: "executive-summary", label: "Executive Summary" },
       { id: "context-coverage", label: "Context Coverage" },
-      { id: "brand-alignment-score", label: "Brand Alignment Score" },
+      { id: "brand-alignment-score", label: "WunderBrand Score™" },
       { id: "focus-area-diagnosis", label: "Focus Area Diagnosis" },
       { id: "pillar-deep-dives", label: "Pillar Deep Dives" },
       { id: "strategic-alignment", label: "Strategic Alignment" },
@@ -3227,12 +3230,12 @@ export default function BrandSnapshotPlusReport() {
       { id: "whats-next", label: "What's Next" },
     ]} />
 
-    {/* Wundy Report Companion — Snapshot+ tier */}
+    {/* Wundy™ Report Companion — Snapshot+ tier */}
     <WundyChat
       mode="report"
       tier="snapshot-plus"
       reportId="preview"
-      greeting={`Hi, I\u2019m Wundy \u2014 I have your Brand Snapshot+\u2122 report right here. I can help you understand your scores, explain any section, or help you figure out where to start. What would you like to know?`}
+      greeting={`Hi, I\u2019m Wundy™ \u2014 I have your WunderBrand Snapshot+™\u2122 report right here. I can help you understand your scores, explain any section, or help you figure out where to start. What would you like to know?`}
     />
     </>
   );

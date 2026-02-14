@@ -1,27 +1,24 @@
 // app/api/support/route.ts
-// Receives support requests collected by Wundy and stores them in Supabase.
+// Receives support requests collected by Wundy™ and stores them in Supabase.
 // Sends a notification email to support@wunderbardigital.com.
 
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 
 const SUPPORT_EMAIL = "support@wunderbardigital.com";
 
 function getSupabase() {
-  const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
-  if (!url || !key) return null;
-  return createClient(url, key, { auth: { persistSession: false } });
+  return supabaseAdmin;
 }
 
 export type SupportRequest = {
   emailUsedForPurchase: string;
   companyName: string;
   productName:
-    | "Brand Snapshot"
-    | "Brand Snapshot+"
-    | "Brand Blueprint"
-    | "Brand Blueprint+";
+    | "WunderBrand Snapshot™"
+    | "WunderBrand Snapshot+™"
+    | "WunderBrand Blueprint™"
+    | "WunderBrand Blueprint+™";
   issueCategory: "access" | "download" | "payment" | "account";
   issueDescription?: string;
   purchaseTiming?: "today" | "yesterday" | "earlier";
@@ -64,6 +61,19 @@ export async function POST(req: Request) {
       );
     }
 
+    const { sanitizeString, isValidEmail } = await import("@/lib/security/inputValidation");
+    if (!isValidEmail(emailUsedForPurchase)) {
+      return NextResponse.json(
+        { error: "Invalid email address." },
+        { status: 400 }
+      );
+    }
+    const sanitizedEmail = sanitizeString(emailUsedForPurchase);
+    const sanitizedCompanyName = sanitizeString(companyName);
+    const sanitizedIssueDescription = issueDescription != null ? sanitizeString(issueDescription) : null;
+    const sanitizedErrorMessage = errorMessage != null ? sanitizeString(errorMessage) : null;
+    const sanitizedUserNotes = userNotes != null ? sanitizeString(userNotes) : null;
+
     const supabase = getSupabase();
 
     // Store in Supabase
@@ -71,14 +81,14 @@ export async function POST(req: Request) {
       const { error: dbError } = await supabase
         .from("support_requests")
         .insert({
-          email: emailUsedForPurchase,
-          company_name: companyName,
+          email: sanitizedEmail,
+          company_name: sanitizedCompanyName,
           product_name: productName,
           issue_category: issueCategory,
-          issue_description: issueDescription || null,
+          issue_description: sanitizedIssueDescription,
           purchase_timing: purchaseTiming || null,
-          error_message: errorMessage || null,
-          user_notes: userNotes || null,
+          error_message: sanitizedErrorMessage,
+          user_notes: sanitizedUserNotes,
           user_id: userId || null,
           stripe_session_id: stripeSessionId || null,
           ac_contact_id: acContactId || null,
@@ -109,11 +119,11 @@ export async function POST(req: Request) {
           body: JSON.stringify({
             email: SUPPORT_EMAIL,
             fields: {
-              support_customer_email: emailUsedForPurchase,
-              support_company_name: companyName,
+              support_customer_email: sanitizedEmail,
+              support_company_name: sanitizedCompanyName,
               support_product: productName,
               support_category: issueCategory,
-              support_description: issueDescription || "No description provided",
+              support_description: sanitizedIssueDescription || "No description provided",
               support_source: "wundy_chat",
             },
             tags: [
@@ -154,30 +164,30 @@ export async function POST(req: Request) {
               {
                 type: "section",
                 fields: [
-                  { type: "mrkdwn", text: `*Customer:*\n${companyName}` },
-                  { type: "mrkdwn", text: `*Email:*\n${emailUsedForPurchase}` },
+                  { type: "mrkdwn", text: `*Customer:*\n${sanitizedCompanyName}` },
+                  { type: "mrkdwn", text: `*Email:*\n${sanitizedEmail}` },
                   { type: "mrkdwn", text: `*Product:*\n${productName}` },
                   { type: "mrkdwn", text: `*Category:*\n${issueCategory}` },
                 ],
               },
-              ...(issueDescription
+              ...(sanitizedIssueDescription
                 ? [
                     {
                       type: "section",
                       text: {
                         type: "mrkdwn",
-                        text: `*Description:*\n${issueDescription}`,
+                        text: `*Description:*\n${sanitizedIssueDescription}`,
                       },
                     },
                   ]
                 : []),
-              ...(errorMessage
+              ...(sanitizedErrorMessage
                 ? [
                     {
                       type: "section",
                       text: {
                         type: "mrkdwn",
-                        text: `*Error:*\n\`${errorMessage}\``,
+                        text: `*Error:*\n\`${sanitizedErrorMessage}\``,
                       },
                     },
                   ]
@@ -187,7 +197,7 @@ export async function POST(req: Request) {
                 elements: [
                   {
                     type: "mrkdwn",
-                    text: `Source: Wundy Chat | ${new Date().toISOString()}${userId ? ` | User: ${userId}` : ""}${stripeSessionId ? ` | Stripe: ${stripeSessionId}` : ""}`,
+                    text: `Source: Wundy™ Chat | ${new Date().toISOString()}${userId ? ` | User: ${userId}` : ""}${stripeSessionId ? ` | Stripe: ${stripeSessionId}` : ""}`,
                   },
                 ],
               },
@@ -200,7 +210,7 @@ export async function POST(req: Request) {
     }
 
     // Log without PII — email and company name redacted for security
-    console.log(
+    console.info(
       `[Support Request] ${issueCategory.toUpperCase()} | ${productName} | ${emailUsedForPurchase ? "email-provided" : "no-email"}`
     );
 

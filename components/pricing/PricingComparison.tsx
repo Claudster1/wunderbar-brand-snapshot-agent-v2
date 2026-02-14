@@ -1,7 +1,7 @@
 // components/pricing/PricingComparison.tsx
 export function PricingComparison() {
   const rows = [
-    { feature: "Brand Alignment Score™", free: "✓", plus: "✓", bp: "✓", bpp: "✓" },
+    { feature: "WunderBrand Score™", free: "✓", plus: "✓", bp: "✓", bpp: "✓" },
     { feature: "Pillar Scores", free: "✓", plus: "✓", bp: "✓", bpp: "✓" },
     { feature: "Expanded insights", free: "—", plus: "✓", bp: "✓", bpp: "✓" },
     { feature: "AEO opportunities", free: "Starter", plus: "Starter", bp: "Standard", bpp: "Advanced" },
@@ -24,10 +24,10 @@ export function PricingComparison() {
           <thead>
             <tr className="border-b border-[#E0E3EA] text-[#021859]">
               <th className="py-3 pr-4">Feature</th>
-              <th className="py-3 pr-4">Brand Snapshot™</th>
-              <th className="py-3 pr-4">Brand Snapshot+™</th>
-              <th className="py-3 pr-4">Brand Blueprint™</th>
-              <th className="py-3">Brand Blueprint+™</th>
+              <th className="py-3 pr-4">WunderBrand Snapshot™</th>
+              <th className="py-3 pr-4">WunderBrand Snapshot+™</th>
+              <th className="py-3 pr-4">WunderBrand Blueprint™</th>
+              <th className="py-3">WunderBrand Blueprint+™</th>
             </tr>
           </thead>
           <tbody>

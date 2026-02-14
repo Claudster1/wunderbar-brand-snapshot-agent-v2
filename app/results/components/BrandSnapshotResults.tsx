@@ -1,5 +1,5 @@
 // app/results/components/BrandSnapshotResults.tsx
-// Brand Snapshot results page with structured layout
+// WunderBrand Snapshot™ results page with structured layout
 
 "use client";
 
@@ -35,10 +35,10 @@ export function BrandSnapshotResults({
 
   return (
     <div className="max-w-5xl mx-auto px-6 py-16 space-y-12">
-      {/* 1. Brand Alignment Score™ (hero visual) */}
+      {/* 1. WunderBrand Score™ (hero visual) */}
       <section className="text-center">
         <h1 className="text-3xl font-semibold text-brand-navy mb-4">
-          Brand Alignment Score™
+          WunderBrand Score™
         </h1>
         <div className="flex justify-center mb-4">
           <ScoreGauge value={brandAlignmentScore} />
@@ -95,13 +95,13 @@ export function BrandSnapshotResults({
         </div>
       </section>
 
-      {/* 5. Secondary CTA (Explore the Brand Snapshot Suite™) */}
+      {/* 5. Secondary CTA (Explore the WunderBrand Suite™) */}
       <section className="text-center">
         <a
           href="/brand-suite"
           className="text-brand-blue hover:text-brand-blueHover font-medium underline"
         >
-          Explore the Brand Snapshot Suite™ →
+          Explore the WunderBrand Suite™ →
         </a>
       </section>
     </div>

@@ -1,6 +1,6 @@
 # ActiveCampaign Quick Setup Reference
 
-Quick reference guide for setting up the Brand Snapshot™ automation.
+Quick reference guide for setting up the WunderBrand Snapshot™ automation.
 
 ## Step-by-Step Setup
 
@@ -9,7 +9,7 @@ Quick reference guide for setting up the Brand Snapshot™ automation.
 Go to **Settings → Fields** and create these fields:
 
 **Score Fields (Text):**
-- Brand Alignment Score™
+- WunderBrand Score™
 - Positioning Pillar Score
 - Messaging Pillar Score
 - Visibility Pillar Score
@@ -36,7 +36,7 @@ Go to **Settings → Fields** and create these fields:
 ### 2. Create Automation
 
 1. Go to **Automations → Create Automation**
-2. Name: "Brand Snapshot™ Follow-Up Sequence"
+2. Name: "WunderBrand Snapshot™ Follow-Up Sequence"
 3. **Start Trigger:** Tag added `brand_snapshot_completed`
 4. **Runs:** Once per contact
 

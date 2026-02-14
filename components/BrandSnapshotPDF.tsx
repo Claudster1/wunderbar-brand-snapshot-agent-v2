@@ -1,6 +1,6 @@
 // ---------------------------------------------
 // BrandSnapshotPDF.tsx
-// React-PDF template for Brand Snapshot™ Report
+// React-PDF template for WunderBrand Snapshot™ Report
 // ---------------------------------------------
 
 import {
@@ -178,16 +178,16 @@ export const BrandSnapshotPDF = ({ reportData, data }: { reportData?: any; data?
         </View>
 
         {/* TITLE */}
-        <Text style={styles.title}>Your Brand Snapshot™ Report</Text>
+        <Text style={styles.title}>Your WunderBrand Snapshot™ Report</Text>
 
         <Text style={styles.paragraph}>
-          Here's your personalized Brand Alignment Score™ and a high-level read
+          Here's your personalized WunderBrand Score™ and a high-level read
           on how clearly and consistently your brand is currently showing up
           across the five foundational pillars.
         </Text>
 
         {/* SCORE SECTION */}
-        <Text style={styles.sectionTitle}>Brand Alignment Score™</Text>
+        <Text style={styles.sectionTitle}>WunderBrand Score™</Text>
         <View style={styles.scoreBox}>
           <Text style={styles.scoreNumber}>{brandAlignmentScore}</Text>
         </View>

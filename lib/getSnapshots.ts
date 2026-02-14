@@ -3,6 +3,6 @@
 
 import { getUserSnapshots } from "./getUserSnapshots";
 
-export async function getSnapshots() {
-  return getUserSnapshots();
+export async function getSnapshots(userEmail?: string | null) {
+  return getUserSnapshots(userEmail);
 }

@@ -1,5 +1,5 @@
 // src/types/snapshot.ts
-// Type definitions for Brand Snapshot input and context
+// Type definitions for WunderBrand Snapshot™ input and context
 
 export type UserRoleContext =
   | "operator"

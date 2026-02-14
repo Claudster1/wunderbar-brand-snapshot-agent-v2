@@ -103,12 +103,12 @@ export function SnapshotPlusReportDocument({
     <Document>
       <Page style={styles.page}>
         <View style={styles.header}>
-          <Text style={styles.title}>Brand Snapshot+™</Text>
+          <Text style={styles.title}>WunderBrand Snapshot+™</Text>
           <Text style={styles.subtitle}>Prepared for {brandName}</Text>
         </View>
 
         <View style={styles.alignmentBlock}>
-          <Text>Brand Alignment Score™</Text>
+          <Text>WunderBrand Score™</Text>
           <Text style={styles.alignmentScore}>{brandAlignmentScore}</Text>
           <ScoreGauge score={brandAlignmentScore} />
         </View>

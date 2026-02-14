@@ -152,12 +152,12 @@ export const ReportDocument = ({
           PAGE 1 — COVER PAGE
       ============================================================ */}
       <Page style={styles.page}>
-        <Text style={styles.h1}>Your Brand Snapshot™ Report</Text>
+        <Text style={styles.h1}>Your WunderBrand Snapshot™ Report</Text>
         <Text>Prepared for {userName || "you"}</Text>
         <Text>{businessName}</Text>
 
         <View style={{ marginTop: 30 }}>
-          <Text style={styles.h2}>Brand Alignment Score™</Text>
+          <Text style={styles.h2}>WunderBrand Score™</Text>
 
           <View style={styles.scoreBox}>
             <Text style={{ fontSize: 28, fontWeight: 700, color: "#021859" }}>
@@ -172,7 +172,7 @@ export const ReportDocument = ({
 
           <Text style={styles.h3}>How Your Score Is Calculated</Text>
           <Text>
-            Your Brand Alignment Score™ reflects how clearly, consistently, and
+            Your WunderBrand Score™ reflects how clearly, consistently, and
             confidently your brand shows up across five key pillars:
           </Text>
           <Text>
@@ -230,7 +230,7 @@ export const ReportDocument = ({
         })}
 
         <Text style={styles.footer}>
-          © 2025 Wunderbar Digital. Brand Snapshot™ is a trademark of Wunderbar
+          © 2025 Wunderbar Digital. WunderBrand Snapshot™ is a trademark of Wunderbar
           Digital.
         </Text>
       </Page>
@@ -243,7 +243,7 @@ export const ReportDocument = ({
 
         <Text style={{ marginTop: 6 }}>
           Based on your brand persona, archetype, tone, and strategic goals,
-          Wundy recommends the following palette:
+          Wundy™ recommends the following palette:
         </Text>
 
         {/* TABLE HEADER */}
@@ -280,7 +280,7 @@ export const ReportDocument = ({
 
         <Text>
           These recommendations are tailored to your inputs and reflect the
-          highest-impact next steps Wundy suggests for strengthening your
+          highest-impact next steps Wundy™ suggests for strengthening your
           brand's clarity, trust, and performance.
         </Text>
 
@@ -309,7 +309,7 @@ export const ReportDocument = ({
         <Text style={styles.h1}>Upgrade to Snapshot+™</Text>
 
         <Text style={{ marginBottom: 16 }}>
-          Snapshot+™ takes your Brand Snapshot™ foundation and elevates it into
+          Snapshot+™ takes your WunderBrand Snapshot™ foundation and elevates it into
           a complete strategic brand toolkit — crafted uniquely for your
           business.
         </Text>
@@ -327,7 +327,7 @@ export const ReportDocument = ({
         </View>
 
         <Text style={{ marginTop: 18 }}>
-          Want Wundy to take your brand from "clearer" to "powerfully
+          Want Wundy™ to take your brand from "clearer" to "powerfully
           unmistakable"?  
           Upgrade now at WunderbarDigital.com.
         </Text>

@@ -8,14 +8,14 @@ export default function BrandSuitePage() {
         </h1>
 
         <p className="text-lg text-brand-midnight leading-relaxed max-w-3xl mx-auto">
-          The Brand Snapshot Suite™ gives founders and small businesses a clear,
+          The WunderBrand Suite™ gives founders and small businesses a clear,
           AI-powered path to understand, elevate, and align their brand — from a
           fast diagnostic to a complete strategic system.
         </p>
 
         <div className="mt-8 flex justify-center gap-4">
           <a href="/brand-snapshot" className="btn-primary">
-            Start Your Free Brand Snapshot™ →
+            Start Your Free WunderBrand Snapshot™ →
           </a>
           <a href="#suite" className="btn-secondary">
             Explore the Suite →
@@ -26,12 +26,12 @@ export default function BrandSuitePage() {
       {/* SUITE CARDS */}
       <section id="suite" className="max-w-6xl mx-auto px-6 py-20 grid gap-12">
         <SuiteCard
-          title="Brand Snapshot™"
+          title="WunderBrand Snapshot™"
           price="Free"
-          description="A fast diagnostic that reveals your Brand Alignment Score™ and how you perform across the five core brand pillars."
+          description="A fast diagnostic that reveals your WunderBrand Score™ and how you perform across the five core brand pillars."
           href="/brand-snapshot"
           features={[
-            "Brand Alignment Score™",
+            "WunderBrand Score™",
             "Pillar Scores",
             "Brief insights",
             "Personalized summary",
@@ -39,7 +39,7 @@ export default function BrandSuitePage() {
         />
 
         <SuiteCard
-          title="Brand Snapshot+™"
+          title="WunderBrand Snapshot+™"
           price="$497"
           description="A personalized deep-dive report with strategic insights, clarity opportunities, and a prioritized plan."
           href="/snapshot-plus"
@@ -53,7 +53,7 @@ export default function BrandSuitePage() {
         />
 
         <SuiteCard
-          title="Brand Blueprint™"
+          title="WunderBrand Blueprint™"
           price="$997"
           description="Your complete AI-powered brand foundation — messaging, narrative, voice, and visual direction."
           href="/blueprint"
@@ -68,7 +68,7 @@ export default function BrandSuitePage() {
         />
 
         <SuiteCard
-          title="Brand Blueprint+™"
+          title="WunderBrand Blueprint+™"
           price="$1,997"
           description="Our most comprehensive system for growing businesses — advanced strategy, segmentation, and brand assets."
           href="/blueprint-plus"
@@ -95,7 +95,7 @@ export default function BrandSuitePage() {
         </p>
 
         <a href="/brand-snapshot" className="btn-primary-inverse">
-          Start My Free Brand Snapshot™ →
+          Start My Free WunderBrand Snapshot™ →
         </a>
       </section>
     </div>

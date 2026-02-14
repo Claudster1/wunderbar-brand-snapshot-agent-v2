@@ -1,14 +1,14 @@
 # Stripe Checkout Setup Guide
 
-This guide explains how to set up Stripe Checkout for the Brand Snapshot Suite™ products.
+This guide explains how to set up Stripe Checkout for the WunderBrand Suite™ products.
 
 ## Prerequisites
 
 1. **Stripe Account**: Create an account at [stripe.com](https://stripe.com)
 2. **Stripe Products**: Create products in your Stripe Dashboard for:
-   - Brand Snapshot+™ ($497)
-   - Brand Blueprint™ ($997)
-   - Brand Blueprint+™ ($1,997)
+   - WunderBrand Snapshot+™ ($497)
+   - WunderBrand Blueprint™ ($997)
+   - WunderBrand Blueprint+™ ($1,997)
 
 ## Step 1: Install Stripe Package
 
@@ -21,20 +21,20 @@ npm install stripe
 1. Go to [Stripe Dashboard → Products](https://dashboard.stripe.com/products)
 2. Click "Add product" for each product:
 
-### Brand Snapshot+™
-- **Name**: Brand Snapshot+™
+### WunderBrand Snapshot+™
+- **Name**: WunderBrand Snapshot+™
 - **Description**: Strategic recommendations with deep pillar analysis, brand persona, messaging pillars, 90-day roadmap, and 8 calibrated AI prompts.
 - **Price**: $497.00 USD (one-time)
 - **Copy the Price ID** (starts with `price_...`)
 
-### Brand Blueprint™
-- **Name**: Brand Blueprint™
+### WunderBrand Blueprint™
+- **Name**: WunderBrand Blueprint™
 - **Description**: Complete brand operating system with positioning, messaging frameworks, buyer personas, competitive analysis, and 16 AI prompts.
 - **Price**: $997.00 USD (one-time)
 - **Copy the Price ID** (starts with `price_...`)
 
-### Brand Blueprint+™
-- **Name**: Brand Blueprint+™
+### WunderBrand Blueprint+™
+- **Name**: WunderBrand Blueprint+™
 - **Description**: Full strategic brand playbook with implementation guides, templates, 28 AI prompts, and a complimentary 30-minute Strategy Activation Session.
 - **Price**: $1,997.00 USD (one-time)
 - **Copy the Price ID** (starts with `price_...`)
@@ -83,7 +83,7 @@ When a customer upgrades from a lower tier, the system automatically deducts the
 2. Click **"+ New"** for each coupon below:
 
 ### Coupon 1: Snapshot+ Credit ($497)
-- **Name:** `Brand Snapshot+™ Upgrade Credit`
+- **Name:** `WunderBrand Snapshot+™ Upgrade Credit`
 - **ID:** `SNAPSHOT_PLUS_CREDIT` (custom ID — click "Add custom ID")
 - **Type:** Amount off → `$497.00 USD`
 - **Duration:** Once
@@ -91,7 +91,7 @@ When a customer upgrades from a lower tier, the system automatically deducts the
 - **Applies to:** All products
 
 ### Coupon 2: Blueprint Credit ($997)
-- **Name:** `Brand Blueprint™ Upgrade Credit`
+- **Name:** `WunderBrand Blueprint™ Upgrade Credit`
 - **ID:** `BLUEPRINT_CREDIT`
 - **Type:** Amount off → `$997.00 USD`
 - **Duration:** Once
@@ -158,13 +158,13 @@ STRIPE_WEBHOOK_SECRET=whsec_xxx
 
 1. Start your development server: `npm run dev`
 2. Navigate to `/brand-snapshot-suite`
-3. Click "Get Brand Snapshot+™ →" on any paid product
+3. Click "Get WunderBrand Snapshot+™ →" on any paid product
 4. You should be redirected to Stripe Checkout
 5. Use test card `4242 4242 4242 4242` to complete a test purchase
 6. You should be redirected to `/checkout/success`
 
 ### Test Upgrade Flow
-7. After a successful Snapshot+ test purchase, click "Explore Brand Blueprint™ →"
+7. After a successful Snapshot+ test purchase, click "Explore WunderBrand Blueprint™ →"
 8. Verify the checkout page shows the $497 upgrade credit applied
 9. The customer should see $500 (not $997) as the amount due
 
@@ -233,7 +233,7 @@ export default function ResultsPage({ data }: { data: BrandSnapshotResult }) {
 
   return (
     <main className="max-w-5xl mx-auto px-6 py-16 space-y-16">
-      {/* 1. Brand Alignment Score */}
+      {/* 1. WunderBrand Score™ */}
       <BrandScoreGauge score={data.brandAlignmentScore} />
 
       {/* 2–3. Pillars */}

@@ -1,6 +1,6 @@
 # ActiveCampaign Custom Field Mapping
 
-This document lists all ActiveCampaign custom fields required for the Brand Snapshot™ system.
+This document lists all ActiveCampaign custom fields required for the WunderBrand Snapshot™ system.
 
 ## Required Custom Fields
 
@@ -10,7 +10,7 @@ Create these fields in ActiveCampaign and note their Field IDs for environment v
 
 | AC Field Name | Field Type | Merge Tag | Description |
 |---------------|------------|-----------|-------------|
-| Brand Alignment Score™ | Text | `%BRAND_ALIGNMENT_SCORE%` | User's overall score (0–100) |
+| WunderBrand Score™ | Text | `%BRAND_ALIGNMENT_SCORE%` | User's overall score (0–100) |
 | Positioning Pillar Score | Text | `%POSITIONING_SCORE%` | 0–20 (weighted) |
 | Messaging Pillar Score | Text | `%MESSAGING_SCORE%` | 0–20 |
 | Visibility Pillar Score | Text | `%VISIBILITY_SCORE%` | 0–20 |
@@ -81,7 +81,7 @@ AC_FIELD_ROLE_PHRASE=18
 Use these merge tags in ActiveCampaign email templates:
 
 ```
-Your Brand Alignment Score™: %BRAND_ALIGNMENT_SCORE%
+Your WunderBrand Score™: %BRAND_ALIGNMENT_SCORE%
 
 Positioning Score: %POSITIONING_SCORE% / 20
 %POSITIONING_INSIGHT%
@@ -96,7 +96,7 @@ This report was designed to support you in %ROLE_PHRASE%.
 
 ## Integration Flow
 
-1. User completes Brand Snapshot™
+1. User completes WunderBrand Snapshot™
 2. Scores and insights are calculated
 3. Form submission populates hidden fields
 4. ActiveCampaign receives data via API or form webhook

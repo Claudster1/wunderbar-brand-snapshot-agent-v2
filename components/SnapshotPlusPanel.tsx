@@ -8,7 +8,7 @@ export default function SnapshotPlusPanel({ score }: { score?: number }) {
       </h2>
 
       <p className="mt-3 text-brand-midnight leading-relaxed">
-        Your Brand Alignment Score™ is just the beginning. Snapshot+™ gives you personalized
+        Your WunderBrand Score™ is just the beginning. Snapshot+™ gives you personalized
         insights, strategic recommendations, a guided action plan, and AI-ready brand assets — all
         based on your unique brand data.
       </p>

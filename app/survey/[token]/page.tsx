@@ -38,6 +38,8 @@ export default function SurveyPage() {
       .then((data) => {
         if (data.businessName) {
           setBusinessName(data.businessName);
+        } else if (data.closed) {
+          setError("Thank you for your interest — this survey has reached its maximum number of responses.");
         } else {
           setError("This survey is no longer available.");
         }

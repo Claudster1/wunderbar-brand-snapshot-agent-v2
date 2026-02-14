@@ -1,4 +1,4 @@
--- Add Brand Blueprint+™ reports table
+-- Add WunderBrand Blueprint+™ reports table
 -- Run this in Supabase SQL Editor (or via migration tooling)
 
 CREATE TABLE IF NOT EXISTS brand_blueprint_plus_reports (

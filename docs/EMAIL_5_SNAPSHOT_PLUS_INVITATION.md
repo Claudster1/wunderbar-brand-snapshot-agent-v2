@@ -1,10 +1,10 @@
 # Email 5 — Snapshot+™ Invitation (Upsell #1)
 
-**Send:** Day 6 (6 days after Brand Snapshot™ completion)
+**Send:** Day 6 (6 days after WunderBrand Snapshot™ completion)
 
 ## Subject Line Options
 
-- Want deeper insights into your Brand Snapshot™?
+- Want deeper insights into your WunderBrand Snapshot™?
 - Your brand is closer than you think — here's your next step
 - Let's strengthen your brand's foundation together
 
@@ -13,7 +13,7 @@
 ```
 Hi %firstname%,
 
-Now that you've had a little time to review your Brand Snapshot™ results — including your Brand Alignment Score™ of %BRAND_ALIGNMENT_SCORE% and how you performed across the five pillars — you're in a perfect position to take the next step.
+Now that you've had a little time to review your WunderBrand Snapshot™ results — including your WunderBrand Score™ of %BRAND_ALIGNMENT_SCORE% and how you performed across the five pillars — you're in a perfect position to take the next step.
 
 What you received in the free Snapshot is the baseline.
 But there's far more depth available once we analyze your brand on a strategic level.
@@ -51,7 +51,7 @@ Founder, Wunderbar Digital
 ```html
 <p>Hi %firstname%,</p>
 
-<p>Now that you've had a little time to review your <strong>Brand Snapshot™</strong> results — including your <strong>Brand Alignment Score™</strong> of <strong>%BRAND_ALIGNMENT_SCORE%</strong> and how you performed across the five pillars — you're in a perfect position to take the next step.</p>
+<p>Now that you've had a little time to review your <strong>WunderBrand Snapshot™</strong> results — including your <strong>WunderBrand Score™</strong> of <strong>%BRAND_ALIGNMENT_SCORE%</strong> and how you performed across the five pillars — you're in a perfect position to take the next step.</p>
 
 <p>What you received in the free Snapshot is the baseline.<br>
 But there's far more depth available once we analyze your brand on a strategic level.</p>

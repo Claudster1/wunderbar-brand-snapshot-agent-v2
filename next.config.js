@@ -1,9 +1,25 @@
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   // Enable standalone output for Docker builds
   // Note: Vercel will ignore this and use its own optimized build system, so this works for both!
   output: 'standalone',
+
+  // ─── Performance Optimizations ───
+  // Enable gzip/brotli compression for responses
+  compress: true,
+  // Remove X-Powered-By header (hides Next.js from attackers)
+  poweredByHeader: false,
+  // Image optimization
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    minimumCacheTTL: 60,
+  },
 
   // ─── Security Headers ───
   async headers() {
@@ -64,5 +80,5 @@ const nextConfig = {
   },
 }
 
-module.exports = nextConfig
+module.exports = withBundleAnalyzer(nextConfig)
 

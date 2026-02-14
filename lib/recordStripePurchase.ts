@@ -5,10 +5,12 @@ import { supabaseServer } from "@/lib/supabaseServer";
 import { getStripePriceId } from "@/lib/pricing";
 import type { ProductKey } from "@/lib/pricing";
 
-const PRODUCT_SKU: Record<ProductKey, string> = {
+const PRODUCT_SKU: Record<string, string> = {
   snapshot_plus: "SNAPSHOT_PLUS",
   blueprint: "BLUEPRINT",
   blueprint_plus: "BLUEPRINT_PLUS",
+  snapshot_plus_refresh: "SNAPSHOT_PLUS_REFRESH",
+  blueprint_refresh: "BLUEPRINT_REFRESH",
 };
 
 export async function recordStripePurchase({

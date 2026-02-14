@@ -1,4 +1,4 @@
--- Supabase Database Schema for Brand Snapshot Reports
+-- Supabase Database Schema for WunderBrand Snapshot™ Reports
 -- Run this in Supabase SQL editor
 
 CREATE TABLE IF NOT EXISTS brand_snapshot_reports (

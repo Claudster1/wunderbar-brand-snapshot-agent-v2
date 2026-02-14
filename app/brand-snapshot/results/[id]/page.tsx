@@ -1,5 +1,5 @@
 // app/brand-snapshot/results/[id]/page.tsx
-// Public-facing Brand Snapshot results page with full design
+// Public-facing WunderBrand Snapshot™ results page with full design
 
 export const dynamic = "force-dynamic";
 
@@ -36,7 +36,7 @@ export async function generateMetadata({
 
   if (!report) {
     return {
-      title: "Brand Snapshot™ Not Found | Wunderbar Digital",
+      title: "WunderBrand Snapshot™ Not Found | Wunderbar Digital",
     };
   }
 
@@ -51,17 +51,17 @@ export async function generateMetadata({
       : "Needs Focus";
 
   return {
-    title: `Brand Snapshot™ Results - ${scoreLabel} (${score}/100) | Wunderbar Digital`,
-    description: `Your Brand Alignment Score™ is ${score}/100. View your complete Brand Snapshot™ with pillar insights and recommendations.`,
+    title: `WunderBrand Snapshot™ Results - ${scoreLabel} (${score}/100) | Wunderbar Digital`,
+    description: `Your WunderBrand Score™ is ${score}/100. View your complete WunderBrand Snapshot™ with pillar insights and recommendations.`,
     openGraph: {
-      title: `Brand Snapshot™ - ${scoreLabel} (${score}/100)`,
-      description: `Your Brand Alignment Score™ is ${score}/100. View your complete Brand Snapshot™.`,
+      title: `WunderBrand Snapshot™ - ${scoreLabel} (${score}/100)`,
+      description: `Your WunderBrand Score™ is ${score}/100. View your complete WunderBrand Snapshot™.`,
       images: [
         {
           url: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/og/${id}`,
           width: 1200,
           height: 630,
-          alt: "Brand Snapshot™ Results",
+          alt: "WunderBrand Snapshot™ Results",
         },
       ],
     },
@@ -84,7 +84,7 @@ export default async function SnapshotResultPage({
             Report Not Found
           </h1>
           <p className="bs-body text-brand-muted mb-6">
-            Please check your link or run a new Brand Snapshot™.
+            Please check your link or run a new WunderBrand Snapshot™.
           </p>
           <a href="/" className="btn-primary">
             Start New Snapshot
@@ -134,7 +134,7 @@ export default async function SnapshotResultPage({
         {/* Personalized intro */}
         {company_name && (
           <p className="text-center bs-body-sm text-brand-muted max-w-xl mx-auto">
-            {company_name}&apos;s Brand Snapshot™ is tailored to your answers.
+            {company_name}&apos;s WunderBrand Snapshot™ is tailored to your answers.
             Your score and recommendations below are specific to your brand.
           </p>
         )}
@@ -169,7 +169,7 @@ export default async function SnapshotResultPage({
             Your report, anytime
           </h2>
           <p className="bs-body-sm text-brand-muted mb-6">
-            Download your Brand Snapshot™ below.{" "}
+            Download your WunderBrand Snapshot™ below.{" "}
             {user_email ? (
               <>
                 We&apos;ve also sent a copy to{" "}
@@ -192,8 +192,8 @@ export default async function SnapshotResultPage({
               onClick={() => {
                 if (typeof window !== "undefined" && navigator.share) {
                   navigator.share({
-                    title: "My Brand Snapshot™ Results",
-                    text: `Check out my Brand Alignment Score™: ${brand_alignment_score}/100`,
+                    title: "My WunderBrand Snapshot™ Results",
+                    text: `Check out my WunderBrand Score™: ${brand_alignment_score}/100`,
                     url: window.location.href,
                   });
                 } else {
@@ -219,7 +219,7 @@ export default async function SnapshotResultPage({
             >
               Wunderbar Digital
             </a>{" "}
-            • Brand Snapshot™
+            • WunderBrand Snapshot™
           </p>
         </div>
       </div>

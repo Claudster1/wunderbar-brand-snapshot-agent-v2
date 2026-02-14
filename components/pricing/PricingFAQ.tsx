@@ -1,16 +1,16 @@
 // components/pricing/PricingFAQ.tsx
 const faqs = [
   {
-    q: "Do I have to start with Brand Snapshot™?",
-    a: "No — but it's the fastest way to see your Brand Alignment Score™ and confirm what level will help most.",
+    q: "Do I have to start with WunderBrand Snapshot™?",
+    a: "No — but it's the fastest way to see your WunderBrand Score™ and confirm what level will help most.",
   },
   {
     q: "Are these one-time purchases?",
     a: "Yes. Each plan is a one-time purchase for the deliverable. (Later we can add subscriptions if you want.)",
   },
   {
-    q: "Will this feel gimmicky with Wundy?",
-    a: "No. Wundy is a friendly brand mascot and facilitator — the experience remains premium and consulting-level.",
+    q: "Will this feel gimmicky with Wundy™?",
+    a: "No. Wundy™ is a friendly brand mascot and facilitator — the experience remains premium and consulting-level.",
   },
   {
     q: "What's AEO?",

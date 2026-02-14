@@ -1,13 +1,13 @@
 // src/prompts/blueprintPlusReportPrompt.ts
-// Brand Blueprint+™ ($1,997) - Report Generation Prompt
+// WunderBrand Blueprint+™ ($1,997) - Report Generation Prompt
 
 export const blueprintPlusReportPrompt = `
-You are generating the Brand Blueprint+™ for Wunderbar Digital.
+You are generating the WunderBrand Blueprint+™ for Wunderbar Digital.
 
 This is the MOST ADVANCED strategic product — a complete brand operating system with implementation-level detail.
 It must feel enterprise-grade, actionable, and immediately implementable.
 
-Brand Blueprint+™ is a SELF-CONTAINED document that includes ALL content from Brand Snapshot+™ and Brand Blueprint™, PLUS its own exclusive advanced sections. Every section must include concrete examples, step-by-step implementation guidance, ready-to-use templates, and specific recommendations tailored to this business.
+WunderBrand Blueprint+™ is a SELF-CONTAINED document that includes ALL content from WunderBrand Snapshot+™ and WunderBrand Blueprint™, PLUS its own exclusive advanced sections. Every section must include concrete examples, step-by-step implementation guidance, ready-to-use templates, and specific recommendations tailored to this business.
 
 ABSOLUTE RULES:
 - This report assumes sophistication.
@@ -19,7 +19,7 @@ ABSOLUTE RULES:
 ---------------------------------------------------------------------
 CONTEXT-AWARE PERSONALIZATION (CRITICAL — HIGHEST TIER)
 ---------------------------------------------------------------------
-Brand Blueprint+™ is a $1,997 strategic document. It must read as if a senior strategist spent days building it for THIS specific business. Generic content is unacceptable.
+WunderBrand Blueprint+™ is a $1,997 strategic document. It must read as if a senior strategist spent days building it for THIS specific business. Generic content is unacceptable.
 
 The input data includes the following contextual signals — USE ALL OF THEM:
 
@@ -62,7 +62,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
    - diagnosis: One-sentence diagnosis
    - primaryFocusArea: Highest-leverage pillar
    - secondaryFocusArea: Second priority pillar
-   - industryBenchmark: Directional context for the overall score relative to industry + audienceType + revenueRange + geographicScope. Frame as expert-level positioning (e.g., "For a regional B2B healthcare company at this stage, a Brand Alignment Score of 62 places [businessName] in the upper-middle tier — ahead of most peers, but below the market leaders who have invested in systematic brand infrastructure.")
+   - industryBenchmark: Directional context for the overall score relative to industry + audienceType + revenueRange + geographicScope. Frame as expert-level positioning (e.g., "For a regional B2B healthcare company at this stage, a WunderBrand Score™ of 62 places [businessName] in the upper-middle tier — ahead of most peers, but below the market leaders who have invested in systematic brand infrastructure.")
 
 2. Priority Diagnosis (primary + secondary)
    Each with: whyFocus, downstreamIssues, whatImproves
@@ -103,7 +103,8 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
      - donts: Array of 5 guidelines, each with { dont: "guideline", example: "concrete example" }
 
 8. Visual & Verbal Signals
-   colorPaletteDirection, colorSwatches [{ name, hex, usage }], avoidColors [{ name, hex, reason }], voiceTraits [], consistencyRisks
+   colorPaletteDirection, colorSwatches [{ name, hex, rgb, cmyk, usage }], avoidColors [{ name, hex, reason }], voiceTraits [], consistencyRisks
+   Color swatches must include all three formats: hex (web/CSS), rgb (digital/presentations), cmyk (print)
 
 9. Strategic Action Plan (5 actions)
    **BLUEPRINT+ ENHANCED** — Each action includes:
@@ -292,7 +293,8 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
     - exampleHeadlines: Array of 3 ready-to-use headlines for this pillar
 
 23. Visual Direction
-    colorPalette [{ name, hex, usage }], typographyTone, visualConsistencyPrinciples
+    colorPalette [{ name, hex, rgb, cmyk, usage }], typographyTone, visualConsistencyPrinciples
+    Color palette must include all three formats: hex (web/CSS), rgb (digital/presentations), cmyk (print)
 
 24. Conversion Strategy
     **BLUEPRINT+ ENHANCED** — Includes templates and email nurture sequence:
@@ -375,8 +377,62 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
     whatToTrack [], signalsThatMatter [], howToAdapt
     personaMetrics: For each buyer persona, which leading indicators show the messaging is resonating
 
-33. Strategic Guardrails
-    whatNeverChanges [], whatCanEvolve [], maintainingIntegrityAtScale
+33. Brand Consistency Checklist & Review Criteria
+    **BLUEPRINT+ ENHANCED** — A comprehensive brand governance system with persona-specific consistency rules, delegation frameworks, and team onboarding tools.
+    
+    This is NOT a generic checklist — it must be calibrated to [businessName]'s specific brand persona, archetype, messaging pillars, voice traits, visual direction, and buyer personas from earlier sections of this report. Blueprint+ adds audience-specific consistency rules and team scaling guidelines.
+    
+    brandConsistencyChecklist: {
+      overview: "A 2–3 sentence introduction explaining why brand consistency matters for [businessName] and how to use this checklist. Reference their specific stage, team size, and growth goals."
+      
+      prePublishChecklist: [
+        {
+          category: "The compliance area (e.g., 'Voice & Tone,' 'Visual Identity,' 'Messaging Alignment,' 'Audience Fit,' 'Channel Appropriateness,' 'Legal & Accuracy,' 'Persona Targeting,' 'Funnel Stage Alignment')"
+          checkItems: [
+            {
+              item: "A specific yes/no question to ask before publishing (e.g., 'Does the headline use one of our messaging pillars?')"
+              rationale: "Why this check matters — connected to a specific finding from this report"
+              reference: "Which section of this report defines the standard (e.g., 'See Messaging Pillars, Section 21')"
+            }
+          ] (3–5 check items per category)
+        }
+      ] (8 categories minimum — Blueprint+ adds 'Persona Targeting' and 'Funnel Stage Alignment' beyond Blueprint's 6)
+      
+      reviewCriteria: [
+        {
+          question: "A diagnostic question to evaluate whether content is on-brand (e.g., 'If our ideal customer read this, would they immediately know it was from [businessName]?')"
+          whatGoodLooksLike: "What a 'yes' answer looks like in practice"
+          whatBadLooksLike: "What a 'no' answer looks like — common mistakes to watch for"
+          personaNote: "How this criterion shifts for different buyer personas (Blueprint+ enhancement)"
+        }
+      ] (7–9 review questions)
+      
+      whatNeverChanges: [
+        {
+          element: "The non-negotiable brand element (e.g., 'Core positioning statement,' 'Primary color palette,' 'Brand archetype voice')"
+          why: "Why this element is foundational and must remain consistent"
+          example: "A specific example of this element as defined in this report"
+        }
+      ] (6–8 elements)
+      
+      whatCanEvolve: [
+        {
+          element: "The flexible brand element (e.g., 'Social media content formats,' 'Campaign-specific messaging,' 'Seasonal visual treatments')"
+          boundaries: "The limits within which this element can flex"
+          example: "An example of acceptable evolution vs. brand drift"
+        }
+      ] (5–7 elements)
+      
+      delegationGuidelines: {
+        overview: "How [businessName] should brief team members, freelancers, or agencies to maintain brand consistency"
+        briefTemplate: "A fill-in-the-blank creative brief template that references this report's key sections (brand persona, messaging pillars, voice traits, visual direction)"
+        qualityCheckProcess: "A 4–5 step review process for content created by others"
+        commonMistakes: ["4–5 specific mistakes that freelancers/agencies make when working with [businessName]'s brand"]
+        onboardingChecklist: "A checklist for onboarding new team members or agency partners — what they should read from this report, in what order, and what to do first (Blueprint+ exclusive)"
+      }
+      
+      maintainingIntegrityAtScale: "A 2–3 paragraph narrative on how [businessName] can maintain brand integrity as the team grows, channels multiply, and content volume increases. Include specific strategies calibrated to their current stage and growth trajectory."
+    }
 
 34. Competitive Positioning Map
     **BLUEPRINT+ EXCLUSIVE** — Strategic competitive intelligence.
@@ -810,6 +866,260 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       recruitingVersion: "A version optimized for job postings and employer branding — emphasizes culture, mission, and growth."
     }
 
+49. Value & Pricing Communication Framework
+    **BLUEPRINT+ ENHANCED** — Everything in Blueprint's pricing framework, plus persona-specific pricing narratives and enhanced proposal templates.
+    
+    valuePricingFramework: {
+      pricingPositioningStatement: "How [businessName] should frame their pricing relative to competitors and the value they deliver. Must reference specific differentiators."
+      
+      valueNarrative: "The story that justifies [businessName]'s price before the number ever comes up. Works across website, proposals, and sales conversations. Specific to industry, audience, and competitive context."
+      
+      priceObjectionResponses: [
+        {
+          objection: "A common pricing objection specific to [businessName]'s industry"
+          reframe: "How to reframe using [businessName]'s brand proof points and positioning"
+          exampleResponse: "Ready-to-use response language"
+          personaContext: "Which buyer persona(s) most commonly raise this objection and how the response should shift for each (Blueprint+ exclusive)"
+        }
+      ] (4–5 objections — more than Blueprint's 3–4)
+      
+      proposalLanguageGuide: "How to present pricing in written proposals — context-setting, value anchoring, outcome framing. Includes persona-specific proposal customization guidance (Blueprint+ exclusive)."
+      
+      whyUsAtThisPrice: "Copy-ready language for website pricing/services page. Tied to outcomes, methodology, and proof points."
+      
+      personaPricingNarratives: [
+        {
+          persona: "Buyer persona name (from Section 18)"
+          valueFrame: "How this persona thinks about value — what 'worth it' means to them"
+          priceSensitivity: "How price-sensitive this persona is and why"
+          messagingAngle: "The specific value angle that resonates (e.g., 'ROI-focused' vs. 'time-savings' vs. 'risk-reduction')"
+          exampleCopy: "Ready-to-use pricing language written for this persona"
+        }
+      ] (one per buyer persona — 4–6 entries, Blueprint+ exclusive)
+      
+      competitiveValueDifferentiation: "How [businessName] should position their pricing relative to competitors or alternatives — not by being cheaper, but by being different. Include specific language for the 'why us vs. them' conversation. (Blueprint+ exclusive)"
+    }
+
+50. Sales Conversation Guide
+    **BLUEPRINT+ ENHANCED** — Everything in Blueprint's sales guide, plus persona-specific conversation tracks and scenario scripts.
+    
+    salesConversationGuide: {
+      openingFramework: "How to lead with positioning, not product features. The first 60 seconds. Include specific language."
+      
+      discoveryQuestions: [
+        {
+          question: "A strategic discovery question mapped to buyer personas' decision triggers and pain points"
+          whyThisQuestion: "Which buyer persona this targets and what pain point or decision trigger it uncovers"
+          listenFor: "What the answer reveals about fit"
+        }
+      ] (7–8 questions — more than Blueprint's 5–7)
+      
+      proofPointDeployment: [
+        {
+          persona: "The buyer persona this guidance applies to"
+          stage: "Where in the conversation to deploy this proof point"
+          proofPoint: "The specific proof point from the Messaging System to use"
+          howToDeliver: "How to introduce this proof point naturally in conversation"
+        }
+      ] (one per buyer persona, covering different conversation stages)
+      
+      objectionHandlingPlaybook: [
+        {
+          objection: "A common sales objection for [businessName]'s industry"
+          response: "How to respond — connected to actual messaging pillars and proof points"
+          pillarConnection: "Which brand pillar or messaging pillar this response draws from"
+          proofPoint: "Which specific proof point to reference"
+          personaVariation: "How this response should shift depending on which buyer persona raised it (Blueprint+ exclusive)"
+        }
+      ] (6–8 objections — more than Blueprint's 5–6)
+      
+      closingLanguage: "CTAs and next-step framing matching the brand voice and conversion strategy. Include 4–5 closing phrases calibrated to the brand archetype."
+      
+      personaConversationTracks: [
+        {
+          persona: "Buyer persona name (from Section 18)"
+          openingVariation: "How the opening changes for this persona"
+          keyDiscoveryQuestions: ["2–3 persona-specific discovery questions"]
+          presentationEmphasis: "What to emphasize (e.g., 'Lead with data and ROI' vs. 'Lead with the vision')"
+          likelyObjections: ["The 1–2 objections this persona most commonly raises"]
+          closingApproach: "How to close with this persona — their decision style and what tips them over"
+          samplePitch: "A 3–4 sentence pitch written specifically for this persona"
+        }
+      ] (one per buyer persona — 4–6 entries, Blueprint+ exclusive)
+      
+      scenarioScripts: [
+        {
+          scenario: "A specific sales situation (e.g., 'Cold outreach on LinkedIn,' 'Inbound discovery call,' 'Pricing follow-up after proposal,' 'Referral introduction call')"
+          script: "A ready-to-adapt conversation script for this scenario — opening, key questions, transition to pitch, close"
+          personaNotes: "Which persona(s) this scenario is most common with"
+        }
+      ] (3–4 scenarios, Blueprint+ exclusive)
+      
+      salesEnablementTools: {
+        onePageSellSheet: "An outline for a one-page sell sheet — what goes on it, in what order, using which messaging from this report"
+        competitiveHandlingGuide: "How to handle 'why you vs. [competitor]' — connected to the Competitive Positioning section"
+        referralRequestScript: "How to ask satisfied clients for referrals in an on-brand way — include specific language"
+      }
+    }
+
+51. Measurement & KPI Framework
+    **BLUEPRINT+ ENHANCED** — Everything in Blueprint's measurement framework, plus persona metrics, quarterly review template, and corrective action guidance.
+    
+    measurementFramework: {
+      overview: "How [businessName] should think about measuring brand strategy effectiveness — what to expect in the first 30, 60, and 90 days."
+      
+      perSectionKPIs: [
+        {
+          section: "The report section this KPI ties to"
+          recommendation: "The specific strategic recommendation this metric measures"
+          kpi: "The metric to track"
+          target: "What success looks like"
+          personaImpact: "Which buyer persona(s) this metric most directly affects (Blueprint+ exclusive)"
+        }
+      ] (10–12 KPIs — more than Blueprint's 8–10)
+      
+      leadingIndicators: [
+        {
+          indicator: "An early signal the strategy is working"
+          whatItMeans: "What this signal tells [businessName] about brand health"
+          timeframe: "When to expect movement"
+          actionIfFlat: "What to do if this indicator doesn't move within the expected timeframe (Blueprint+ exclusive)"
+        }
+      ] (6–8 indicators — more than Blueprint's 5–6)
+      
+      trackingRecommendations: [
+        {
+          metric: "The metric or group of metrics"
+          tool: "The specific tool or platform to use"
+          howToSetUp: "Brief setup guidance"
+          frequency: "How often to check"
+        }
+      ] (6–8 recommendations)
+      
+      quarterlyReviewTemplate: "A structured quarterly review template — specific questions to answer, metrics to pull, and decisions to make. Should take 60–90 minutes to complete. (Blueprint+ exclusive)"
+    }
+
+52. Brand Strategy Rollout Guide
+    **BLUEPRINT+ ENHANCED** — Everything in Blueprint's rollout guide, plus presentation-ready content and team-scale tools.
+    
+    brandStrategyRollout: {
+      brandStrategyOnePager: "A single-page summary covering positioning, key messages, brand personality, visual direction, and elevator pitch. Scannable in under 2 minutes."
+      
+      howWeTalkAboutOurselves: {
+        elevatorPitch: "The approved elevator pitch"
+        approvedLanguage: ["5–7 approved phrases drawn from the messaging system and proof points"]
+        phrasesToAvoid: ["5–7 phrases to never use"]
+        companyDescriptions: "Reference to Company Description section — which version for which context"
+      }
+      
+      internalRolloutTalkingPoints: [
+        {
+          topic: "A talking point for presenting the strategy"
+          whatToSay: "2–3 sentences the founder can say"
+          whatToReference: "Which section of this report to point to"
+        }
+      ] (5–6 talking points — more than Blueprint's 4–5)
+      
+      commonMisrepresentations: [
+        {
+          incorrect: "How the company commonly gets described incorrectly"
+          correct: "The correct version"
+          why: "Why the distinction matters"
+        }
+      ] (4–5 examples — more than Blueprint's 3–4)
+      
+      presentationReadySummary: "A structured, slide-ready brand overview (not a full deck, but content that drops into any presentation) covering: positioning, audience, messaging pillars, visual direction, and voice. Organized as titled sections with bullet points — ready to paste into Google Slides, Keynote, or PowerPoint. (Blueprint+ exclusive)"
+      
+      roleSpecificBrandBriefs: [
+        {
+          role: "The team function (e.g., 'Sales,' 'Marketing,' 'Customer Success,' 'Leadership')"
+          howBrandShowsUp: "How the brand applies differently in this role — same brand, different application"
+          keyReferences: "Which report sections this role should focus on"
+          doAndDont: "1–2 do's and don'ts specific to this role's brand application"
+        }
+      ] (4 roles: Sales, Marketing, Customer Success, Leadership — Blueprint+ exclusive)
+      
+      newHireBrandOrientation: "What every new team member needs to know in their first week — structured as a checklist with references back to relevant report sections. Covers: brand positioning, who we serve, how we sound, visual standards, messaging do's and don'ts, and where to find answers. (Blueprint+ exclusive)"
+      
+      agencyContractorBrandPacket: "A self-contained reference you can hand to any external partner with everything they need to work on-brand without a meeting. Includes: positioning statement, messaging pillars, voice traits, visual direction, do's and don'ts, approved language, and a link back to the Brand Consistency Checklist. (Blueprint+ exclusive)"
+      
+      brandInFiveMinutes: "The absolute essentials compressed into a quick reference card format — positioning, voice, do's and don'ts, approved descriptions, and who to ask when unsure. Designed for speed: if someone has 5 minutes to understand the brand, this is what they read. (Blueprint+ exclusive)"
+    }
+
+53. Brand Imagery & Photography Direction
+    **BLUEPRINT+ ENHANCED** — Everything in Blueprint's imagery direction, plus platform-specific guidance, mood board descriptors, persona-based imagery, and AI image generation prompts.
+    
+    brandImageryDirection: {
+      photographyStyleDirection: "The mood, tone, and feel [businessName]'s imagery should convey — tied to archetype and personality."
+      
+      subjectMatterGuidance: {
+        show: ["5–7 types of subjects, environments, and scenarios to feature"]
+        avoid: ["4–5 types of subjects and scenarios to avoid"]
+      }
+      
+      stockPhotoSelectionCriteria: {
+        lighting: "What kind of lighting to look for"
+        composition: "How images should be composed"
+        colorTemperature: "How the brand palette connects to image selection"
+        diversity: "Guidance on representation and authenticity"
+        authenticityMarkers: "What makes an image feel authentic vs. stock-generic"
+      }
+      
+      imageDonts: [
+        {
+          dont: "A specific imagery pitfall"
+          why: "Why it hurts the brand"
+          alternative: "What to use instead"
+        }
+      ] (4–6 pitfalls — more than Blueprint's 3–5)
+      
+      colorApplicationInImagery: "How the brand palette shows up in photography, graphics, social media, and presentations."
+      
+      platformSpecificImageryGuidance: [
+        {
+          platform: "The platform or context (e.g., 'Website hero images,' 'Social media posts,' 'Email headers,' 'Ad creative,' 'Presentation decks')"
+          dimensions: "Recommended image dimensions or aspect ratios"
+          styleAdaptation: "How the brand's visual style adapts for this format — same brand, optimized for the medium"
+          examples: "2–3 specific image descriptions that would work for this platform"
+        }
+      ] (5 platforms — Blueprint+ exclusive)
+      
+      moodBoardDescriptors: {
+        adjectives: ["8–10 adjectives that describe the visual mood (e.g., 'grounded,' 'energetic,' 'refined,' 'textured')"]
+        textures: ["3–5 texture references (e.g., 'natural wood grain,' 'matte surfaces,' 'soft linen')"]
+        environments: ["4–5 environment types that feel on-brand (e.g., 'modern co-working spaces,' 'outdoor natural light,' 'clean minimalist studios')"]
+        lightingConditions: "Specific lighting descriptors (e.g., 'Golden hour warmth,' 'Overcast soft diffusion,' 'High-key bright and airy')"
+        colorMoods: "How the brand colors translate to photographic mood — warm/cool, saturated/muted, high-contrast/soft"
+        designerNote: "A 2–3 sentence brief a designer or agency could use to source or create imagery without a meeting"
+      } (Blueprint+ exclusive)
+      
+      imageryByAudience: [
+        {
+          persona: "Buyer persona name (from Section 18)"
+          visualToneShift: "How visual tone shifts when targeting this persona (e.g., 'Enterprise buyers see polished, data-forward imagery; founders see action-oriented, energetic imagery') — must stay within brand guardrails"
+          exampleImageDescriptions: ["2–3 image descriptions that would resonate with this persona"]
+        }
+      ] (one per buyer persona — Blueprint+ exclusive)
+      
+      beforeAndAfterImageAudit: [
+        {
+          context: "Where this image would appear (e.g., 'LinkedIn post header,' 'Website about page,' 'Sales deck cover')"
+          offBrand: "Description of an off-brand image choice and why it doesn't work"
+          onBrand: "Description of the on-brand alternative and why it's better"
+          rationale: "What brand principle this illustrates"
+        }
+      ] (3–4 comparisons — Blueprint+ exclusive)
+      
+      aiImageGenerationPrompts: [
+        {
+          useCase: "What the image is for (e.g., 'LinkedIn thought leadership post,' 'Website hero banner,' 'Email campaign header')"
+          prompt: "A complete AI image generation prompt pre-loaded with [businessName]'s visual direction — includes style, mood, subject, lighting, color, composition"
+          negativePrompt: "What to exclude (e.g., 'no text, no corporate clip art, no harsh shadows, no neon colors')"
+          tool: "Which AI tool this is optimized for (Midjourney, DALL-E, etc.)"
+        }
+      ] (3–5 prompts — Blueprint+ exclusive)
+    }
+
 ---------------------------------------------------------------------
 OUTPUT FORMAT
 ---------------------------------------------------------------------
@@ -865,7 +1175,7 @@ Return valid JSON with ALL these keys:
     }
   },
   "visualVerbalSignals": {
-    "colorPaletteDirection": "", "colorSwatches": [{ "name": "", "hex": "", "usage": "" }],
+    "colorPaletteDirection": "", "colorSwatches": [{ "name": "", "hex": "", "rgb": "", "cmyk": "", "usage": "" }],
     "avoidColors": [{ "name": "", "hex": "", "reason": "" }], "voiceTraits": [], "consistencyRisks": ""
   },
   "strategicActionPlan": [
@@ -927,7 +1237,7 @@ Return valid JSON with ALL these keys:
   "messagingPillars": [{ "name": "", "whatItCommunicates": "", "whyItMatters": "", "exampleMessage": "", "howToUse": "", "channelExamples": { "website": "", "social": "", "email": "" }, "audienceVariations": [{ "audience": "", "adaptation": "", "exampleCopy": "" }], "funnelStageUsage": { "awareness": "", "consideration": "", "decision": "" } }],
   "contentPillars": [{ "name": "", "description": "", "exampleTopics": [], "suggestedFormats": [], "messagingPillarConnection": "", "audienceMapping": "", "channelDistribution": { "primary": "", "secondary": "" }, "frequencyCadence": "", "exampleHeadlines": [] }],
   "messagingSystem": { "coreMessage": "", "supportingMessages": [], "proofPoints": [], "whatNotToSay": [] },
-  "visualDirection": { "colorPalette": [{ "name": "", "hex": "", "usage": "" }], "typographyTone": "", "visualConsistencyPrinciples": "" },
+  "visualDirection": { "colorPalette": [{ "name": "", "hex": "", "rgb": "", "cmyk": "", "usage": "" }], "typographyTone": "", "visualConsistencyPrinciples": "" },
   "conversionStrategy": {
     "howTrustIsBuilt": "", "howClarityDrivesAction": "",
     "ctaHierarchy": [{ "level": "Primary", "action": "", "context": "", "template": "" }],
@@ -980,7 +1290,17 @@ Return valid JSON with ALL these keys:
     "prompts": [{ "category": "", "title": "", "instruction": "", "prompt": "", "whyItMatters": "" }]
   },
   "measurementOptimization": { "whatToTrack": [], "signalsThatMatter": [], "howToAdapt": "", "personaMetrics": [{ "persona": "", "leadingIndicators": [] }] },
-  "strategicGuardrails": { "whatNeverChanges": [], "whatCanEvolve": [], "maintainingIntegrityAtScale": "" },
+  "brandConsistencyChecklist": {
+    "overview": "",
+    "prePublishChecklist": [{ "category": "", "checkItems": [{ "item": "", "rationale": "", "reference": "" }] }],
+    "reviewCriteria": [{ "question": "", "whatGoodLooksLike": "", "whatBadLooksLike": "", "personaNote": "" }],
+    "whatNeverChanges": [{ "element": "", "why": "", "example": "" }],
+    "whatCanEvolve": [{ "element": "", "boundaries": "", "example": "" }],
+    "delegationGuidelines": {
+      "overview": "", "briefTemplate": "", "qualityCheckProcess": "", "commonMistakes": [], "onboardingChecklist": ""
+    },
+    "maintainingIntegrityAtScale": ""
+  },
   "competitivePositioning": {
     "positioningAxis1": { "label": "", "lowEnd": "", "highEnd": "" },
     "positioningAxis2": { "label": "", "lowEnd": "", "highEnd": "" },
@@ -1100,6 +1420,60 @@ Return valid JSON with ALL these keys:
   },
   "companyDescription": {
     "oneLiner": "", "shortDescription": "", "fullBoilerplate": "", "proposalIntro": "", "industrySpecific": "", "recruitingVersion": ""
+  },
+  "valuePricingFramework": {
+    "pricingPositioningStatement": "",
+    "valueNarrative": "",
+    "priceObjectionResponses": [{ "objection": "", "reframe": "", "exampleResponse": "", "personaContext": "" }],
+    "proposalLanguageGuide": "",
+    "whyUsAtThisPrice": "",
+    "personaPricingNarratives": [{ "persona": "", "valueFrame": "", "priceSensitivity": "", "messagingAngle": "", "exampleCopy": "" }],
+    "competitiveValueDifferentiation": ""
+  },
+  "salesConversationGuide": {
+    "openingFramework": "",
+    "discoveryQuestions": [{ "question": "", "whyThisQuestion": "", "listenFor": "" }],
+    "proofPointDeployment": [{ "persona": "", "stage": "", "proofPoint": "", "howToDeliver": "" }],
+    "objectionHandlingPlaybook": [{ "objection": "", "response": "", "pillarConnection": "", "proofPoint": "", "personaVariation": "" }],
+    "closingLanguage": "",
+    "personaConversationTracks": [{ "persona": "", "openingVariation": "", "keyDiscoveryQuestions": [], "presentationEmphasis": "", "likelyObjections": [], "closingApproach": "", "samplePitch": "" }],
+    "scenarioScripts": [{ "scenario": "", "script": "", "personaNotes": "" }],
+    "salesEnablementTools": { "onePageSellSheet": "", "competitiveHandlingGuide": "", "referralRequestScript": "" }
+  },
+  "measurementFramework": {
+    "overview": "",
+    "perSectionKPIs": [{ "section": "", "recommendation": "", "kpi": "", "target": "", "personaImpact": "" }],
+    "leadingIndicators": [{ "indicator": "", "whatItMeans": "", "timeframe": "", "actionIfFlat": "" }],
+    "trackingRecommendations": [{ "metric": "", "tool": "", "howToSetUp": "", "frequency": "" }],
+    "quarterlyReviewTemplate": ""
+  },
+  "brandStrategyRollout": {
+    "brandStrategyOnePager": "",
+    "howWeTalkAboutOurselves": {
+      "elevatorPitch": "",
+      "approvedLanguage": [],
+      "phrasesToAvoid": [],
+      "companyDescriptions": ""
+    },
+    "internalRolloutTalkingPoints": [{ "topic": "", "whatToSay": "", "whatToReference": "" }],
+    "commonMisrepresentations": [{ "incorrect": "", "correct": "", "why": "" }],
+    "presentationReadySummary": "",
+    "roleSpecificBrandBriefs": [{ "role": "", "howBrandShowsUp": "", "keyReferences": "", "doAndDont": "" }],
+    "newHireBrandOrientation": "",
+    "agencyContractorBrandPacket": "",
+    "brandInFiveMinutes": ""
+  },
+  "brandImageryDirection": {
+    "photographyStyleDirection": "",
+    "subjectMatterGuidance": { "show": [], "avoid": [] },
+    "stockPhotoSelectionCriteria": { "lighting": "", "composition": "", "colorTemperature": "", "diversity": "", "authenticityMarkers": "" },
+    "imageDonts": [{ "dont": "", "why": "", "alternative": "" }],
+    "colorApplicationInImagery": "",
+    "platformSpecificImageryGuidance": [{ "platform": "", "dimensions": "", "styleAdaptation": "", "examples": [] }],
+    "moodBoardDescriptors": { "adjectives": [], "textures": [], "environments": [], "lightingConditions": "", "colorMoods": "", "designerNote": "" },
+    "imageryByAudience": [{ "persona": "", "visualToneShift": "", "exampleImageDescriptions": [] }],
+    "beforeAndAfterImageAudit": [{ "context": "", "offBrand": "", "onBrand": "", "rationale": "" }],
+    "aiImageGenerationPrompts": [{ "useCase": "", "prompt": "", "negativePrompt": "", "tool": "" }]
   }
 }
 
@@ -1164,7 +1538,7 @@ DESIGN & TONE
 ---------------------------------------------------------------------
 ABSOLUTE RULES
 ---------------------------------------------------------------------
-- Never reference Wundy or the chatbot.
+- Never reference Wundy™ or the chatbot.
 - Never mention internal scoring logic.
 - Never use emojis.
 - Never speculate beyond provided inputs.
@@ -1172,4 +1546,7 @@ ABSOLUTE RULES
 - Every prompt must be specific to this brand and immediately usable.
 - This document must support scale and long-term brand growth.
 - Every template and example must be ready to use, not placeholder text.
+
+REPORT DISCLAIMER (include as a "disclaimer" field in the JSON output):
+"This report provides strategic brand guidance based on the information you provided during the WunderBrand Snapshot™ assessment. It is not a substitute for legal, financial, or industry-specific regulatory advice. Recommendations should be evaluated in the context of your specific business circumstances, competitive landscape, and applicable regulations. All benchmarks, financial estimates, impact projections, and competitive positioning assessments are directional and based on industry patterns and AI-informed analysis, not guaranteed outcomes. The Brand Consistency Checklist provides operational guidelines for maintaining brand consistency — it does not constitute legal or regulatory compliance advice."
 `;

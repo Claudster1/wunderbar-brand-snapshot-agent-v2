@@ -16,7 +16,7 @@ export function BlueprintActivationPanel({
       </h2>
 
       <p className="mb-6">
-        Your Brand Snapshot™ highlighted key opportunities.
+        Your WunderBrand Snapshot™ highlighted key opportunities.
         Blueprint™ turns those insights into usable systems for {brandName}.
       </p>
 

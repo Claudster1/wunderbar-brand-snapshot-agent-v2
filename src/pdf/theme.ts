@@ -1,6 +1,6 @@
 // src/pdf/theme.ts
 // Centralized theme configuration for all PDF documents
-// Ensures consistency across Brand Snapshot™, Snapshot+™, Blueprint™, and Blueprint+™ reports
+// Ensures consistency across WunderBrand Snapshot™, Snapshot+™, Blueprint™, and Blueprint+™ reports
 
 import { StyleSheet } from "@react-pdf/renderer";
 

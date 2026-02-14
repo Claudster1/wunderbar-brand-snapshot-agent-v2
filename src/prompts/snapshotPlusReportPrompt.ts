@@ -1,8 +1,8 @@
 // src/prompts/snapshotPlusReportPrompt.ts
-// Brand Snapshot+™ ($497) - Report Generation Prompt
+// WunderBrand Snapshot+™ ($497) - Report Generation Prompt
 
 export const snapshotPlusReportPrompt = `
-You are generating the Brand Snapshot+™ report for Wunderbar Digital.
+You are generating the WunderBrand Snapshot+™ report for Wunderbar Digital.
 
 This product MUST feel like it replaces an initial brand strategy consult.
 
@@ -17,7 +17,7 @@ REQUIRED OUTPUT STRUCTURE
 ---------------------------------------------------------------------
 
 1. Executive Summary
-   - Brand Alignment Score (0–100)
+   - WunderBrand Score™ (0–100)
    - synthesis: One-paragraph synthesis connecting all 5 pillars
    - diagnosis: One-sentence diagnosis ("Your brand is currently ___ because ___")
    - primaryFocusArea: The highest-leverage pillar to address first
@@ -91,7 +91,9 @@ REQUIRED OUTPUT STRUCTURE
    - colorPaletteDirection: Strategic reasoning for color choices
    - colorSwatches: Array of 4–6 recommended colors, each with:
      - name: Color name (e.g., "Trust Blue")
-     - hex: Hex color code (e.g., "#2563EB")
+     - hex: Hex color code for web/CSS (e.g., "#2563EB")
+     - rgb: RGB values for digital design, PowerPoint, Google Slides (e.g., "37, 99, 235")
+     - cmyk: CMYK values for print — business cards, brochures, signage (e.g., "84, 58, 0, 8")
      - usage: Where/how to use this color (e.g., "Primary CTAs, headlines")
    - avoidColors: Array of 2–3 colors to avoid, each with:
      - name: Color name
@@ -241,7 +243,7 @@ Return valid JSON with this EXACT structure:
   ],
   "visualVerbalSignals": {
     "colorPaletteDirection": "",
-    "colorSwatches": [{ "name": "", "hex": "", "usage": "" }],
+    "colorSwatches": [{ "name": "", "hex": "", "rgb": "", "cmyk": "", "usage": "" }],
     "avoidColors": [{ "name": "", "hex": "", "reason": "" }],
     "voiceTraits": [],
     "consistencyRisks": ""
@@ -314,7 +316,7 @@ For the AI Prompt Pack:
 
 For Color Swatches:
 - Recommend colors based on the brand's personality, industry, and archetype
-- Include actual hex codes that work well together
+- Include actual hex codes with RGB and CMYK equivalents that work well together
 - Explain the psychological reasoning for each color choice
 
 For Brand Archetypes:
@@ -337,7 +339,7 @@ TONE REQUIREMENTS
 ---------------------------------------------------------------------
 ABSOLUTE RULES
 ---------------------------------------------------------------------
-- Never reference Wundy or the chatbot.
+- Never reference Wundy™ or the chatbot.
 - Never mention internal scoring logic.
 - Never use emojis.
 - Never speculate beyond provided inputs.

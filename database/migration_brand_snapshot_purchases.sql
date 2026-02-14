@@ -1,7 +1,7 @@
 -- Enable UUID helpers if not already
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- Purchases for Brand Snapshot Suite™ products
+-- Purchases for WunderBrand Suite™ products
 CREATE TABLE IF NOT EXISTS public.brand_snapshot_purchases (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   created_at timestamptz NOT NULL DEFAULT now(),

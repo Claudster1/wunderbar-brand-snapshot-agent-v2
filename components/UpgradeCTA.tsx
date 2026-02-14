@@ -21,8 +21,8 @@ export function UpgradeCTA({
 
   const label =
     variant === "A"
-      ? `Strengthen your ${primaryPillar} with Brand Blueprint+™`
-      : `Activate your complete brand system with Brand Blueprint+™`;
+      ? `Strengthen your ${primaryPillar} with WunderBrand Blueprint+™`
+      : `Activate your complete brand system with WunderBrand Blueprint+™`;
 
   useEffect(() => {
     trackEvent("RESULTS_VIEWED", {

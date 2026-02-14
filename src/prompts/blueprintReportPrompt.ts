@@ -1,11 +1,11 @@
 // src/prompts/blueprintReportPrompt.ts
-// Brand Blueprint™ ($997) - Report Generation Prompt
+// WunderBrand Blueprint™ ($997) - Report Generation Prompt
 
 export const blueprintReportPrompt = `
-You are generating the Brand Blueprint™ for Wunderbar Digital.
+You are generating the WunderBrand Blueprint™ for Wunderbar Digital.
 
 This is a COMPLETE brand operating system. It must feel implementation-ready, not theoretical.
-Brand Blueprint™ is a self-contained document that includes all Brand Snapshot+™ content PLUS its own Blueprint-specific sections.
+WunderBrand Blueprint™ is a self-contained document that includes all WunderBrand Snapshot+™ content PLUS its own Blueprint-specific sections.
 
 STRICT REQUIREMENTS:
 - Everything must be explicit. Do not assume prior context.
@@ -17,7 +17,7 @@ STRICT REQUIREMENTS:
 REQUIRED OUTPUT STRUCTURE
 ---------------------------------------------------------------------
 
-The output must include ALL sections from Brand Snapshot+™ (sections 1–14 below) PLUS the Blueprint-specific sections (15–22).
+The output must include ALL sections from WunderBrand Snapshot+™ (sections 1–14 below) PLUS the Blueprint-specific sections (15–22).
 
 === INHERITED FROM BRAND SNAPSHOT+™ ===
 
@@ -47,7 +47,7 @@ The output must include ALL sections from Brand Snapshot+™ (sections 1–14 be
    personaSummary, coreIdentity { whoYouAre, whatYouStandFor, howYouShowUp }, communicationStyle { tone, pace, energy }, messagingExamples { headlines, ctaButtons, socialPosts — each with avoid/use arrays }, doAndDont { do: [{ guideline, example }], dont: [{ guideline, example }] }
 
 8. Visual & Verbal Signals
-   colorPaletteDirection, colorSwatches [{ name, hex, usage }], avoidColors [{ name, hex, reason }], voiceTraits [], consistencyRisks
+   colorPaletteDirection, colorSwatches [{ name, hex, rgb, cmyk, usage }], avoidColors [{ name, hex, reason }], voiceTraits [], consistencyRisks
 
 9. Strategic Action Plan (5 actions)
    Each: action, pillar, outcome, priority, why, howTo [], example, effort, impact
@@ -98,7 +98,7 @@ The output must include ALL sections from Brand Snapshot+™ (sections 1–14 be
     - whatNotToSay: Array of 3–4 phrases/approaches to avoid
 
 20. Visual Direction (expanded from visualVerbalSignals)
-    - colorPalette: Array of colors [{ name, hex, usage }]
+    - colorPalette: Array of colors [{ name, hex, rgb, cmyk, usage }]
     - typographyTone: Typography direction and rationale
     - visualConsistencyPrinciples: Key principles for visual consistency
 
@@ -171,7 +171,7 @@ Return valid JSON with ALL these keys:
   },
   "visualVerbalSignals": {
     "colorPaletteDirection": "",
-    "colorSwatches": [{ "name": "", "hex": "", "usage": "" }],
+    "colorSwatches": [{ "name": "", "hex": "", "rgb": "", "cmyk": "", "usage": "" }],
     "avoidColors": [{ "name": "", "hex": "", "reason": "" }],
     "voiceTraits": [],
     "consistencyRisks": ""
@@ -257,7 +257,7 @@ Return valid JSON with ALL these keys:
     "whatNotToSay": []
   },
   "visualDirection": {
-    "colorPalette": [{ "name": "", "hex": "", "usage": "" }],
+    "colorPalette": [{ "name": "", "hex": "", "rgb": "", "cmyk": "", "usage": "" }],
     "typographyTone": "",
     "visualConsistencyPrinciples": ""
   },
@@ -271,6 +271,57 @@ Return valid JSON with ALL these keys:
     "description": "",
     "promptCount": 8,
     "prompts": [{ "category": "", "title": "", "instruction": "", "prompt": "", "whyItMatters": "" }]
+  },
+  "brandConsistencyChecklist": {
+    "overview": "",
+    "prePublishChecklist": [{ "category": "", "checkItems": [{ "item": "", "rationale": "", "reference": "" }] }],
+    "reviewCriteria": [{ "question": "", "whatGoodLooksLike": "", "whatBadLooksLike": "" }],
+    "whatNeverChanges": [{ "element": "", "why": "", "example": "" }],
+    "whatCanEvolve": [{ "element": "", "boundaries": "", "example": "" }],
+    "delegationGuidelines": {
+      "overview": "",
+      "briefTemplate": "",
+      "qualityCheckProcess": "",
+      "commonMistakes": []
+    }
+  },
+  "valuePricingFramework": {
+    "pricingPositioningStatement": "",
+    "valueNarrative": "",
+    "priceObjectionResponses": [{ "objection": "", "reframe": "", "exampleResponse": "" }],
+    "proposalLanguageGuide": "",
+    "whyUsAtThisPrice": ""
+  },
+  "salesConversationGuide": {
+    "openingFramework": "",
+    "discoveryQuestions": [{ "question": "", "whyThisQuestion": "", "listenFor": "" }],
+    "proofPointDeployment": [{ "persona": "", "stage": "", "proofPoint": "", "howToDeliver": "" }],
+    "objectionHandlingPlaybook": [{ "objection": "", "response": "", "pillarConnection": "", "proofPoint": "" }],
+    "closingLanguage": ""
+  },
+  "measurementFramework": {
+    "overview": "",
+    "perSectionKPIs": [{ "section": "", "recommendation": "", "kpi": "", "target": "" }],
+    "leadingIndicators": [{ "indicator": "", "whatItMeans": "", "timeframe": "" }],
+    "trackingRecommendations": [{ "metric": "", "tool": "", "howToSetUp": "", "frequency": "" }]
+  },
+  "brandStrategyRollout": {
+    "brandStrategyOnePager": "",
+    "howWeTalkAboutOurselves": {
+      "elevatorPitch": "",
+      "approvedLanguage": [],
+      "phrasesToAvoid": [],
+      "companyDescriptions": ""
+    },
+    "internalRolloutTalkingPoints": [{ "topic": "", "whatToSay": "", "whatToReference": "" }],
+    "commonMisrepresentations": [{ "incorrect": "", "correct": "", "why": "" }]
+  },
+  "brandImageryDirection": {
+    "photographyStyleDirection": "",
+    "subjectMatterGuidance": { "show": [], "avoid": [] },
+    "stockPhotoSelectionCriteria": { "lighting": "", "composition": "", "colorTemperature": "", "diversity": "", "authenticityMarkers": "" },
+    "imageDonts": [{ "dont": "", "why": "", "alternative": "" }],
+    "colorApplicationInImagery": ""
   }
 }
 
@@ -285,7 +336,7 @@ CONTENT QUALITY REQUIREMENTS
 - The Execution Prompt Pack must be MORE ADVANCED than the Foundational pack
 - Brand Archetype activation must describe specific behaviors, not generic archetypes
 - Conversion Strategy ctaHierarchy should have 3 levels: Primary, Secondary, Tertiary
-- Color swatches must include real hex codes that work together as a palette
+- Color swatches must include real hex codes, RGB values, and CMYK values that work together as a palette
 
 For Brand Archetypes:
 - Use ONLY these 12: Sage, Hero, Outlaw, Magician, Lover, Caregiver, Ruler, Creator, Innocent, Explorer, Neighbor, Entertainer
@@ -306,7 +357,7 @@ TONE REQUIREMENTS
 ---------------------------------------------------------------------
 ABSOLUTE RULES
 ---------------------------------------------------------------------
-- Never reference Wundy or the chatbot.
+- Never reference Wundy™ or the chatbot.
 - Never mention internal scoring logic.
 - Never use emojis.
 - Never speculate beyond provided inputs.

@@ -13,7 +13,7 @@ export function PrimaryPillar({ pillar }: any) {
       </SectionHeader>
 
       <Callout>
-        This pillar has the greatest impact on your overall Brand Alignment Score™
+        This pillar has the greatest impact on your overall WunderBrand Score™
         and represents the clearest opportunity for near-term improvement.
       </Callout>
 

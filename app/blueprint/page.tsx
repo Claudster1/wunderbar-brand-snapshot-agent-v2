@@ -48,7 +48,7 @@ export default function BlueprintPage() {
   return (
     <div className="max-w-5xl mx-auto px-6 py-20 space-y-10">
       <h1 className="text-4xl font-semibold text-[#021859]">
-        Brand Blueprint™
+        WunderBrand Blueprint™
       </h1>
 
       <p className="mt-4 text-lg max-w-2xl">

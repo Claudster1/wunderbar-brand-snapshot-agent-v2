@@ -44,7 +44,7 @@ export function DashboardHistoryItem({
           }
           className="text-sm font-medium text-brand-blue hover:underline underline-offset-4"
         >
-          Explore the Brand Snapshot Suite →
+          Explore the WunderBrand Suite™ →
         </a>
       </div>
     </div>

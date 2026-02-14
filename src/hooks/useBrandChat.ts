@@ -22,7 +22,7 @@ const createMessage = (
 // Must match the system prompt's first greeting exactly
 const INITIAL_ASSISTANT_MESSAGE = createMessage(
   'assistant',
-  `Hi, I'm Wundy — your brand guide. I'll walk you through a short conversation to build your Brand Snapshot™.
+  `Hi, I'm Wundy™ — your brand guide. I'll walk you through a short conversation to build your WunderBrand Snapshot™.
 
 This takes about 10–15 minutes. There are no wrong answers, and you don't need anything prepared — but if you have your website, a sense of your competitors, and your target audience in mind, your results will be even sharper.
 
@@ -342,7 +342,7 @@ export function useBrandChat() {
             
             // Filter out score-related text patterns
             const scorePatterns = [
-              /Brand Alignment Score[™]?:?\s*\d+/i,
+              /WunderBrand Score™[™]?:?\s*\d+/i,
               /Pillar Breakdown/i,
               /Positioning:\s*\d+/i,
               /Messaging:\s*\d+/i,
@@ -383,7 +383,7 @@ export function useBrandChat() {
         }
       } else {
         // Check if response contains score numbers but no JSON (should also be filtered)
-        const hasScoreNumbers = /\b\d+\/100\b|\b\d+\/20\b|Brand Alignment Score[™]?:?\s*\d+/i.test(replyText);
+        const hasScoreNumbers = /\b\d+\/100\b|\b\d+\/20\b|WunderBrand Score™[™]?:?\s*\d+/i.test(replyText);
         
         if (hasScoreNumbers) {
           // This looks like scores displayed as text - don't add to chat

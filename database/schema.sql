@@ -1,5 +1,5 @@
--- Brand Snapshot Database Schema
--- Complete schema for Brand Snapshot™, Snapshot+™, and Blueprint™ products
+-- WunderBrand Snapshot™ Database Schema
+-- Complete schema for WunderBrand Snapshot™, Snapshot+™, and Blueprint™ products
 -- Run this in Supabase SQL Editor
 
 -- ============================================
@@ -321,7 +321,7 @@ CREATE TRIGGER update_onboarding_status_updated_at
 -- ============================================
 -- 
 -- This schema supports:
--- 1. Free Brand Snapshot™ (brand_snapshot_reports)
+-- 1. Free WunderBrand Snapshot™ (brand_snapshot_reports)
 -- 2. Paid Snapshot+™ upgrade (brand_snapshot_plus_reports)
 -- 3. Blueprint™ product (brand_blueprint_sessions, brand_blueprint_results)
 -- 4. User management and purchases (users, user_purchases)

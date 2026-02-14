@@ -1,5 +1,5 @@
 // components/wundy/WundyChat.tsx
-// Floating Wundy chat widget — works in both General Guide and Report Companion modes.
+// Floating Wundy™ chat widget — works in both General Guide and Report Companion modes.
 
 "use client";
 
@@ -101,7 +101,7 @@ export default function WundyChat({
 
   return (
     <>
-      {/* ─── Floating Wundy Avatar + Speech Bubble ─── */}
+      {/* ─── Floating Wundy™ Avatar + Speech Bubble ─── */}
       {!isOpen && (
         <div
           style={{
@@ -176,11 +176,11 @@ export default function WundyChat({
                 pointerEvents: "none",
               }}
             >
-              Questions? Ask Wundy.
+              Questions? Ask Wundy™.
             </div>
           </div>
 
-          {/* Wundy avatar — no hard border */}
+          {/* Wundy™ avatar — no hard border */}
           <div
             style={{
               width: 52,
@@ -208,7 +208,7 @@ export default function WundyChat({
           >
             <Image
               src="/assets/wundy-avatar.png"
-              alt="Wundy — Ask a question"
+              alt="Wundy™ — Ask a question"
               width={44}
               height={44}
               style={{ borderRadius: "50%", objectFit: "cover" }}
@@ -266,14 +266,14 @@ export default function WundyChat({
               >
                 <Image
                   src="/assets/wundy-avatar.png"
-                  alt="Wundy"
+                  alt="Wundy™"
                   width={32}
                   height={32}
                   style={{ borderRadius: "50%", objectFit: "cover" }}
                 />
               </div>
               <div>
-                <div style={{ fontSize: 15, fontWeight: 700, lineHeight: 1.2 }}>Wundy</div>
+                <div style={{ fontSize: 15, fontWeight: 700, lineHeight: 1.2 }}>Wundy™</div>
                 <div style={{ fontSize: 12.5, lineHeight: 1.2, color: BLUE, fontWeight: 500 }}>{modeLabel}</div>
               </div>
             </div>
@@ -342,12 +342,12 @@ export default function WundyChat({
                   alignItems: "flex-end",
                 }}
               >
-                {/* Wundy avatar on assistant messages */}
+                {/* Wundy™ avatar on assistant messages */}
                 {msg.role === "assistant" && (
                   <div style={{ width: 26, height: 26, borderRadius: "50%", overflow: "hidden", flexShrink: 0 }}>
                     <Image
                       src="/assets/wundy-avatar.png"
-                      alt="Wundy"
+                      alt="Wundy™"
                       width={26}
                       height={26}
                       style={{ borderRadius: "50%", objectFit: "cover" }}
@@ -376,11 +376,11 @@ export default function WundyChat({
 
             {/* Loading indicator */}
             {isLoading && (
-              <div role="status" aria-label="Wundy is typing" style={{ display: "flex", justifyContent: "flex-start", gap: 8, alignItems: "flex-end" }}>
+              <div role="status" aria-label="Wundy™ is typing" style={{ display: "flex", justifyContent: "flex-start", gap: 8, alignItems: "flex-end" }}>
                 <div style={{ width: 26, height: 26, borderRadius: "50%", overflow: "hidden", flexShrink: 0 }}>
                   <Image
                     src="/assets/wundy-avatar.png"
-                    alt="Wundy"
+                    alt="Wundy™"
                     width={26}
                     height={26}
                     style={{ borderRadius: "50%", objectFit: "cover" }}
@@ -425,8 +425,8 @@ export default function WundyChat({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask Wundy anything..."
-              aria-label="Ask Wundy a question"
+              placeholder="Ask Wundy™ anything..."
+              aria-label="Ask Wundy™ a question"
               disabled={isLoading}
               style={{
                 flex: 1,

@@ -1,5 +1,5 @@
 // src/pdf/documents/SnapshotPlusPDF.tsx
-// Brand Snapshot+™ PDF Document ($497)
+// WunderBrand Snapshot+™ PDF Document ($497)
 // Includes full structured AEO section as required for this tier
 
 import React from "react";
@@ -76,7 +76,7 @@ export const SnapshotPlusPDF = ({
     <Document>
       {/* PAGE 1 — COVER */}
       <Page style={stylePresets.page}>
-        <Text style={stylePresets.h1}>Brand Snapshot+™</Text>
+        <Text style={stylePresets.h1}>WunderBrand Snapshot+™</Text>
         <Text style={stylePresets.body}>
           Prepared for {userName || "you"}
         </Text>
@@ -90,7 +90,7 @@ export const SnapshotPlusPDF = ({
         )}
 
         <View style={{ marginTop: spacing["3xl"] }}>
-          <Text style={stylePresets.h2}>Brand Alignment Score™</Text>
+          <Text style={stylePresets.h2}>WunderBrand Score™</Text>
           <View style={stylePresets.scoreBox}>
             <Text style={{ fontSize: fonts["5xl"], fontWeight: fonts.bold, color: colors.navy }}>
               {brandAlignmentScore}/100
@@ -105,7 +105,7 @@ export const SnapshotPlusPDF = ({
         </View>
 
         <Text style={stylePresets.footer}>
-          © 2025 Wunderbar Digital. Brand Snapshot+™ is a trademark of Wunderbar Digital.
+          © 2025 Wunderbar Digital. WunderBrand Snapshot+™ is a trademark of Wunderbar Digital.
         </Text>
       </Page>
 
@@ -118,12 +118,12 @@ export const SnapshotPlusPDF = ({
         ) : (
           <>
             <Text style={stylePresets.body}>
-              This Brand Snapshot+™ report provides a comprehensive analysis of your brand's
+              This WunderBrand Snapshot+™ report provides a comprehensive analysis of your brand's
               alignment across five foundational pillars: Positioning, Messaging, Visibility,
               Credibility, and Conversion.
             </Text>
             <Text style={{ marginTop: spacing.md, ...stylePresets.body }}>
-              Your Brand Alignment Score™ of {brandAlignmentScore}/100 indicates{" "}
+              Your WunderBrand Score™ of {brandAlignmentScore}/100 indicates{" "}
               {scoreLabel.toLowerCase()}. This report identifies specific opportunities to
               strengthen your brand's clarity, consistency, and market presence.
             </Text>
@@ -143,10 +143,10 @@ export const SnapshotPlusPDF = ({
 
       {/* PAGE 3 — BRAND ALIGNMENT SCORE DEEP DIVE */}
       <Page style={stylePresets.page}>
-        <Text style={stylePresets.h1}>Brand Alignment Score™ Deep Dive</Text>
+        <Text style={stylePresets.h1}>WunderBrand Score™ Deep Dive</Text>
 
         <Text style={stylePresets.body}>
-          Your Brand Alignment Score™ is calculated as the average of your five pillar scores,
+          Your WunderBrand Score™ is calculated as the average of your five pillar scores,
           each measured on a 0–20 scale.
         </Text>
 
@@ -391,7 +391,7 @@ export const SnapshotPlusPDF = ({
         <Text style={stylePresets.h1}>What to Do Next</Text>
 
         <Text style={{ marginBottom: spacing.lg, ...stylePresets.body }}>
-          Your Brand Snapshot+™ provides a comprehensive foundation for strengthening your brand.
+          Your WunderBrand Snapshot+™ provides a comprehensive foundation for strengthening your brand.
           Here are your options for moving forward:
         </Text>
 
@@ -419,7 +419,7 @@ export const SnapshotPlusPDF = ({
         </Text>
 
         <Text style={stylePresets.footer}>
-          © 2025 Wunderbar Digital. Brand Snapshot+™ is a trademark of Wunderbar Digital.
+          © 2025 Wunderbar Digital. WunderBrand Snapshot+™ is a trademark of Wunderbar Digital.
         </Text>
       </Page>
     </Document>

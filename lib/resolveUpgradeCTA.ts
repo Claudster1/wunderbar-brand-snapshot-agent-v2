@@ -24,7 +24,7 @@ export function resolveUpgradeCTA(ctx: UpgradeContext) {
   return {
     testId: "plus_to_blueprint",
     variantA: {
-      label: "Activate your Brand Blueprint™ →",
+      label: "Activate your WunderBrand Blueprint™ →",
       href: "/blueprint",
     },
     variantB: {

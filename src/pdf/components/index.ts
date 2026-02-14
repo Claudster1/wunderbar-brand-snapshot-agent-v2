@@ -27,3 +27,5 @@ export { RenderPillarSection } from "./RenderPillarSection";
 export { BlueprintPlusSection } from "./BlueprintPlusSection";
 export { SnapshotScoreSection } from "./SnapshotScoreSection";
 export { PillarBlock } from "./PillarBlock";
+export { ScoreRangeLegend } from "./ScoreRangeLegend";
+export { BrandAlignmentScorePanel } from "./BrandAlignmentScorePanel";

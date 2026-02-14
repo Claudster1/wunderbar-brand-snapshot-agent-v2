@@ -221,7 +221,7 @@ export const BrandSnapshotReport = ({
   <Document>
     {/* ========================= PAGE 1 ========================= */}
     <Page size="A4" style={styles.page}>
-      <Text style={styles.h1}>Your Brand Snapshot™ Report</Text>
+      <Text style={styles.h1}>Your WunderBrand Snapshot™ Report</Text>
       {businessName ? (
         <Text style={styles.paragraph}>
           Prepared for {businessName}. This report is tailored to your answers
@@ -237,7 +237,7 @@ export const BrandSnapshotReport = ({
       {/* SCORE */}
       <View style={styles.scoreBox}>
         <Text style={styles.scoreNumber}>{brandAlignmentScore}</Text>
-        <Text style={styles.scoreLabel}>Brand Alignment Score™</Text>
+        <Text style={styles.scoreLabel}>WunderBrand Score™</Text>
         <Text style={styles.paragraph}>{scoreLabel}</Text>
       </View>
 
@@ -270,7 +270,7 @@ export const BrandSnapshotReport = ({
       })}
 
       <View style={styles.footer}>
-        Brand Snapshot™ and Brand Alignment Score™ are trademarks of Wunderbar
+        WunderBrand Snapshot™ and WunderBrand Score™ are trademarks of Wunderbar
         Digital.
       </View>
     </Page>
@@ -343,7 +343,7 @@ export const BrandSnapshotReport = ({
         ))}
       </View>
 
-      <View style={styles.footer}>Brand Snapshot™ Report</View>
+      <View style={styles.footer}>WunderBrand Snapshot™ Report</View>
     </Page>
 
     {/* ========================= PAGE 5 — SNAPSHOT+ CTA ========================= */}
@@ -357,7 +357,7 @@ export const BrandSnapshotReport = ({
             <Text style={styles.ctaText}>
               Get a full strategic brand analysis, custom positioning
               recommendations, and a roadmap tailored to your goals — all built
-              from your Brand Snapshot™ data.
+              from your WunderBrand Snapshot™ data.
             </Text>
             <Text style={styles.ctaText}>
               Your report already uncovered the gaps. Snapshot+™ shows you

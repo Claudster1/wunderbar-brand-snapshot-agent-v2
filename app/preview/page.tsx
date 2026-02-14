@@ -3,27 +3,27 @@
 
 import Link from "next/link";
 
-export const dynamic = "force-dynamic";
+// Static page — no dynamic data needed
 
 const PREVIEWS = [
   {
     href: "/preview/results",
-    title: "Brand Snapshot™ (Free)",
+    title: "WunderBrand Snapshot™ (Free)",
     description: "Executive summary, pillar scores, archetype, 3 immediate actions, soft CTA to Snapshot+.",
   },
   {
     href: "/preview/snapshot-plus",
-    title: "Brand Snapshot+™ ($497)",
+    title: "WunderBrand Snapshot+™ ($497)",
     description: "Priority diagnosis, pillar deep dives with examples, archetype system, audience clarity, action plan.",
   },
   {
     href: "/preview/blueprint",
-    title: "Brand Blueprint™ ($997)",
+    title: "WunderBrand Blueprint™ ($997)",
     description: "Brand foundation, messaging system, visual direction, conversion strategy, AI prompt pack.",
   },
   {
     href: "/preview/blueprint-plus",
-    title: "Brand Blueprint+™ ($1,997)",
+    title: "WunderBrand Blueprint+™ ($1,997)",
     description: "Advanced segmentation, messaging matrix, campaign strategy, enterprise AI prompts, services CTA.",
   },
   {

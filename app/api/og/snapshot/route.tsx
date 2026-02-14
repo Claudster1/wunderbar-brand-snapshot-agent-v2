@@ -43,7 +43,7 @@ export async function GET() {
               lineHeight: 1.1,
             }}
           >
-            Brand Snapshot™
+            WunderBrand Snapshot™
           </div>
           <div
             style={{
@@ -53,7 +53,7 @@ export async function GET() {
               opacity: 0.9,
             }}
           >
-            Uncover your Brand Alignment Score™ in minutes.
+            Uncover your WunderBrand Score™ in minutes.
           </div>
         </div>
 

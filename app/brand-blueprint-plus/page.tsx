@@ -8,7 +8,7 @@ export default function BlueprintPlusPage() {
         </h1>
 
         <p className="text-lg text-brand-midnight leading-relaxed max-w-3xl mx-auto">
-          Brand Blueprint+™ transforms your Brand Snapshot™ insights into a
+          WunderBrand Blueprint+™ transforms your WunderBrand Snapshot™ insights into a
           consulting-grade brand strategy — including positioning, messaging,
           narrative frameworks, a customer journey map, and a 12-month content roadmap.
         </p>
@@ -18,7 +18,7 @@ export default function BlueprintPlusPage() {
             href="/checkout/blueprint-plus"
             className="px-6 py-3 bg-brand-blue text-white font-semibold rounded-md shadow-lg hover:bg-brand-blueHover transition"
           >
-            Unlock Brand Blueprint+™ →
+            Unlock WunderBrand Blueprint+™ →
           </a>
 
           <a
@@ -65,7 +65,7 @@ export default function BlueprintPlusPage() {
       {/* DELIVERABLES */}
       <section id="sample" className="max-w-5xl mx-auto px-6 py-20">
         <h2 className="text-3xl font-semibold text-brand-navy text-center mb-12">
-          What’s Included in Your Personalized Brand Blueprint+™
+          What’s Included in Your Personalized WunderBrand Blueprint+™
         </h2>
 
         <div className="grid md:grid-cols-2 gap-8">
@@ -135,7 +135,7 @@ export default function BlueprintPlusPage() {
           Ready to elevate your brand?
         </h2>
         <p className="max-w-2xl mx-auto mb-8">
-          Unlock your personalized Brand Blueprint+™ — your complete, strategy-first
+          Unlock your personalized WunderBrand Blueprint+™ — your complete, strategy-first
           foundation for clarity, momentum, and growth.
         </p>
 
@@ -143,7 +143,7 @@ export default function BlueprintPlusPage() {
           href="/checkout/blueprint-plus"
           className="px-8 py-4 bg-brand-blue text-white font-semibold rounded-md shadow hover:bg-brand-blueHover transition"
         >
-          Unlock Brand Blueprint+™ →
+          Unlock WunderBrand Blueprint+™ →
         </a>
       </section>
     </div>

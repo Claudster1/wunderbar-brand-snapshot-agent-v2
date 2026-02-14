@@ -196,7 +196,7 @@
     },
     {
       "id": "ready_for_scores",
-      "text": "Perfect! Ready to see your Brand Alignment Score™?",
+      "text": "Perfect! Ready to see your WunderBrand Score™?",
       "type": "yes_no",
       "next": { "yes": "calculate_scores", "no": "calculate_scores" }
     },
@@ -209,7 +209,7 @@
     },
     {
       "id": "handoff_message",
-      "text": "Perfect! I've completed your Brand Snapshot™ analysis. Your scores are ready below — enter your details to receive your complete Brand Snapshot™ report with detailed insights and recommendations.",
+      "text": "Perfect! I've completed your WunderBrand Snapshot™ analysis. Your scores are ready below — enter your details to receive your complete WunderBrand Snapshot™ report with detailed insights and recommendations.",
       "type": "message",
       "next": { "default": "output_json" }
     }

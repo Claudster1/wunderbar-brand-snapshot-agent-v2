@@ -1,6 +1,6 @@
 // src/pdf/generatePdf.ts
 // Centralized PDF generation utility for all document types
-// Handles Brand Snapshot™, Snapshot+™, Blueprint™, and Blueprint+™
+// Handles WunderBrand Snapshot™, Snapshot+™, Blueprint™, and Blueprint+™
 
 import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";

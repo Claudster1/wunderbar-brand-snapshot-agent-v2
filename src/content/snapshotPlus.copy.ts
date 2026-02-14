@@ -1,19 +1,19 @@
 // src/content/snapshotPlus.copy.ts
-// Copy for Brand Snapshot+™ ($497)
+// Copy for WunderBrand Snapshot+™ ($497)
 
 export const snapshotPlusCopy = {
   hero: {
-    title: "Brand Snapshot+™",
+    title: "WunderBrand Snapshot+™",
     subtitle: "Turn insight into focused brand momentum",
     intro:
-      "Brand Snapshot+™ expands your diagnostic into a personalized strategic report — translating scores into clarity, priorities, and actionable direction.",
+      "WunderBrand Snapshot+™ expands your diagnostic into a personalized strategic report — translating scores into clarity, priorities, and actionable direction.",
     // Personalized intro with role phrase support
     introWithRole: (rolePhrase: string) =>
-      `Brand Snapshot+™ builds directly on your results, translating them into clear priorities designed to support you in ${rolePhrase} — not abstract brand theory.`,
+      `WunderBrand Snapshot+™ builds directly on your results, translating them into clear priorities designed to support you in ${rolePhrase} — not abstract brand theory.`,
   },
 
   value: [
-    "Deeper interpretation of your Brand Alignment Score™",
+    "Deeper interpretation of your WunderBrand Score™",
     "Clear explanation of why your primary pillar matters most",
     "Context-aware insights based on your stage and inputs",
     "Prioritized recommendations you can act on immediately",
@@ -41,7 +41,7 @@ export const snapshotPlusCopy = {
   },
 
   pricing: {
-    label: "Brand Snapshot+™",
+    label: "WunderBrand Snapshot+™",
     price: "$497",
     note: "One-time purchase. Credits apply toward Blueprint™.",
   },

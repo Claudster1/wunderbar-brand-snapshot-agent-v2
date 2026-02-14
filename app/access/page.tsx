@@ -98,7 +98,7 @@ export default function AccessPage() {
             margin: "0 0 32px",
           }}
         >
-          Enter the email you used during your Brand Snapshot Suite&#8482;
+          Enter the email you used during your WunderBrand Suite™&#8482;
           assessment or purchase. We&rsquo;ll send a link to access all of your
           reports.
         </p>
@@ -230,7 +230,7 @@ export default function AccessPage() {
             href="/?utm_source=brand_snapshot_app&utm_medium=access_page&utm_campaign=start_snapshot"
             style={{ color: BLUE, fontWeight: 600, textDecoration: "none" }}
           >
-            Start a free Brand Snapshot&#8482;
+            Start a free WunderBrand Snapshot™&#8482;
           </a>
         </p>
 

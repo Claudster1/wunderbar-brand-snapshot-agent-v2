@@ -20,8 +20,8 @@ export function NextStepSection() {
     <View>
       <Text style={styles.h3}>Your Strategic Next Step</Text>
       <Text style={styles.body}>
-        Your Brand Snapshot™ revealed where clarity can be strengthened.
-        Brand Blueprint™ turns that insight into a complete system.
+        Your WunderBrand Snapshot™ revealed where clarity can be strengthened.
+        WunderBrand Blueprint™ turns that insight into a complete system.
       </Text>
     </View>
   );

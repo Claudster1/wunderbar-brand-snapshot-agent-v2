@@ -13,11 +13,11 @@ export function SnapshotToBlueprintTransition({
       <h3>Activate what matters most for {brandName}</h3>
       <p>
         Your Snapshot+™ shows that <strong>{primaryPillar}</strong> is the most
-        important area to address right now. Brand Blueprint+™ turns this
+        important area to address right now. WunderBrand Blueprint+™ turns this
         insight into a fully activated system your brand can actually use.
       </p>
       <a href="/blueprint-plus" className="btn-primary">
-        Unlock Brand Blueprint+™
+        Unlock WunderBrand Blueprint+™
       </a>
     </section>
   );

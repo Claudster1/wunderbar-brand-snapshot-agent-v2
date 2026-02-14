@@ -22,7 +22,7 @@ export default function BlueprintPlusModal({ isOpen, onClose }: BlueprintPlusMod
         {/* Heading */}
         <header>
           <h2 className="text-3xl font-semibold text-brand-navy">
-            Brand Blueprint+™
+            WunderBrand Blueprint+™
           </h2>
           <p className="text-[16px] mt-3 leading-relaxed text-brand-midnight">
             For founders and teams who want a complete, consulting-grade brand system — tailored to

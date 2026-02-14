@@ -1,5 +1,5 @@
 // lib/generateSnapshotPdf.ts
-// PDF generation utility for Brand Snapshot reports
+// PDF generation utility for WunderBrand Snapshot™ reports
 
 import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";

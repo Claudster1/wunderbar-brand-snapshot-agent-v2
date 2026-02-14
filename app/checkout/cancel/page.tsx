@@ -10,9 +10,9 @@ const BORDER = "#D6DFE8";
 const WHITE = "#FFFFFF";
 
 const PRODUCT_NAMES: Record<string, string> = {
-  "snapshot-plus": "Brand Snapshot+™",
-  blueprint: "Brand Blueprint™",
-  "blueprint-plus": "Brand Blueprint+™",
+  "snapshot-plus": "WunderBrand Snapshot+™",
+  blueprint: "WunderBrand Blueprint™",
+  "blueprint-plus": "WunderBrand Blueprint+™",
 };
 
 function CancelContent() {
@@ -105,7 +105,7 @@ function CancelContent() {
             textDecoration: "none",
           }}
         >
-          Back to Brand Snapshot™
+          Back to WunderBrand Snapshot™
         </a>
         <a
           href="/dashboard"

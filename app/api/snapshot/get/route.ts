@@ -1,13 +1,14 @@
 // app/api/snapshot/get/route.ts
-// API route to get Brand Snapshot reports
+// API route to get WunderBrand Snapshot™ reports
 
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { apiGuard } from "@/lib/security/apiGuard";
+import { GENERAL_RATE_LIMIT } from "@/lib/security/rateLimit";
+import { checkReportAccess, getUserEmailFromRequest } from "@/lib/reportAccess";
 
 export async function GET(req: Request) {
   // ─── Security: Rate limit ───
-  const { apiGuard } = await import("@/lib/security/apiGuard");
-  const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
   const guard = apiGuard(req, { routeId: "snapshot-get", rateLimit: GENERAL_RATE_LIMIT });
   if (!guard.passed) return guard.errorResponse;
 
@@ -41,6 +42,13 @@ export async function GET(req: Request) {
         { error: "Report not found" },
         { status: 404 }
       );
+    }
+
+    // ─── Authorization: verify email matches report owner ───
+    const userEmail = getUserEmailFromRequest(req);
+    const access = checkReportAccess(userEmail, (data as any).user_email);
+    if (!access.hasAccess) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
     // Transform so the results page always receives expected keys

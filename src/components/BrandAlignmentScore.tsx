@@ -1,5 +1,5 @@
 // src/components/BrandAlignmentScore.tsx
-// Brand Alignment Score display section
+// WunderBrand Score™ display section
 
 import { BrandAlignmentGauge } from "@/components/dashboard/BrandAlignmentGauge";
 
@@ -12,7 +12,7 @@ export function BrandAlignmentScore({ brandAlignmentScore }: BrandAlignmentScore
     <section className="max-w-5xl mx-auto px-6 py-16">
       <div className="bg-white border border-brand-border rounded-2xl p-10 text-center">
         <h2 className="text-xl font-semibold text-brand-navy mb-2">
-          Brand Alignment Score™
+          WunderBrand Score™
         </h2>
 
         <p className="text-sm text-brand-midnight mb-8 max-w-xl mx-auto">

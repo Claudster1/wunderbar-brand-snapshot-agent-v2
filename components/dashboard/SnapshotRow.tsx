@@ -27,7 +27,7 @@ export function SnapshotRow({ snapshot }: SnapshotRowProps) {
         <div>
           <h4 className="font-medium">{snapshot.brand_name}</h4>
           <p className="text-xs text-muted">
-            Brand Alignment Score™: {snapshot.brand_alignment_score}
+            WunderBrand Score™: {snapshot.brand_alignment_score}
           </p>
         </div>
 

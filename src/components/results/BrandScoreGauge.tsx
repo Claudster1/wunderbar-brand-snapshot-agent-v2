@@ -1,5 +1,5 @@
 // src/components/results/BrandScoreGauge.tsx
-// Brand Alignment Score hero visual component (large gauge)
+// WunderBrand Score™ hero visual component (large gauge with score range legend)
 
 import { ScoreGauge } from "@/src/components/ScoreGauge";
 import { rolePhrase } from "@/src/lib/roleLanguage";
@@ -16,7 +16,7 @@ export function BrandScoreGauge({ score, userRoleContext }: BrandScoreGaugeProps
     <section className="text-center px-4 py-6 sm:py-8">
       <div className="flex items-center justify-center gap-2 mb-4 sm:mb-5">
         <h1 className="bs-h1">
-          Brand Alignment Score™
+          WunderBrand Score™
         </h1>
         <TooltipIcon
           content={
@@ -28,7 +28,7 @@ export function BrandScoreGauge({ score, userRoleContext }: BrandScoreGaugeProps
       </div>
 
       <div className="flex justify-center mt-4 mb-5 sm:mb-6 min-h-0">
-        <ScoreGauge value={score} />
+        <ScoreGauge value={score} showLegend />
       </div>
 
       <div className="space-y-2 max-w-xl mx-auto">

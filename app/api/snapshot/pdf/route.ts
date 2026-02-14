@@ -1,5 +1,5 @@
 // app/api/snapshot/pdf/route.ts
-// API route to generate and download Brand Snapshot PDFs
+// API route to generate and download WunderBrand Snapshot™ PDFs
 
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
@@ -7,6 +7,11 @@ import { generateSnapshotPdf } from "@/lib/generateSnapshotPdf";
 
 export async function GET(req: Request) {
   try {
+    const { apiGuard } = await import("@/lib/security/apiGuard");
+    const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+    const guard = apiGuard(req, { routeId: "snapshot-pdf", rateLimit: GENERAL_RATE_LIMIT });
+    if (!guard.passed) return guard.errorResponse;
+
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
 

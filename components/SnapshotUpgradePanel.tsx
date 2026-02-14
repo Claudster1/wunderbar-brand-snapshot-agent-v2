@@ -1,5 +1,5 @@
 // components/SnapshotUpgradePanel.tsx
-// Snapshot+™ upgrade panel with Wundy illustration and benefits list
+// Snapshot+™ upgrade panel with Wundy™ illustration and benefits list
 
 "use client";
 
@@ -47,7 +47,7 @@ export function SnapshotUpgradePanel({
           )}
 
           <p className="text-brand-midnight leading-relaxed mb-4">
-            Your Brand Snapshot™ results show where your brand is strong —
+            Your WunderBrand Snapshot™ results show where your brand is strong —
             and where a few thoughtful refinements could elevate clarity,
             trust, and overall performance. Snapshot+™ gives you a deeper,
             personalized roadmap to help your brand show up with confidence

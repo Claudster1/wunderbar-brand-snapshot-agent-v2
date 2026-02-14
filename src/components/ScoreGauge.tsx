@@ -2,7 +2,61 @@
 // Semi-circular gauge: five segments (red → orange → yellow → light green → dark green) for 0–20, 20–40, 40–60, 60–80, 80–100.
 // Segment boundaries must match rating labels: see src/lib/results/scoreBands.ts (60–80 = Strong = light green; 72 is in this band).
 
-export function ScoreGauge({ value, score, size }: { value?: number; score?: number; size?: number }) {
+const SCORE_RANGES = [
+  { min: 80, max: 100, color: "#34c759", label: "Strong alignment" },
+  { min: 60, max: 79, color: "#8bc34a", label: "Moderate alignment" },
+  { min: 40, max: 59, color: "#ffcc00", label: "Partial alignment" },
+  { min: 20, max: 39, color: "#ff9500", label: "Weak alignment" },
+  { min: 0, max: 19, color: "#ff3b30", label: "Low alignment" },
+] as const;
+
+function getActiveRange(score: number) {
+  return SCORE_RANGES.find((r) => score >= r.min && score <= r.max) ?? SCORE_RANGES[4];
+}
+
+/** Score range legend — shows color swatches, ranges, labels, and highlights the active band */
+export function ScoreRangeLegend({ score }: { score: number }) {
+  const activeRange = getActiveRange(score);
+
+  return (
+    <div className="w-full max-w-[220px]">
+      <span className="block text-[11px] font-black text-[#07B0F2] uppercase tracking-[1.5px] mb-3">
+        Score Ranges
+      </span>
+      <div className="space-y-0">
+        {SCORE_RANGES.map((range) => {
+          const isActive = range === activeRange;
+          return (
+            <div
+              key={range.min}
+              className={`flex items-center gap-2.5 py-2 border-b border-[#E6EAF2] last:border-b-0 ${
+                isActive ? "bg-[rgba(139,195,74,0.1)] rounded -mx-2 px-2" : ""
+              }`}
+            >
+              <span
+                className="inline-block w-3.5 h-3.5 rounded-[3px] flex-shrink-0"
+                style={{ backgroundColor: range.color }}
+              />
+              <span className={`text-sm min-w-[48px] ${isActive ? "font-bold text-[#021859]" : "font-black text-[#021859]"}`}>
+                {range.min}–{range.max}
+              </span>
+              <span className={`text-sm ${isActive ? "font-bold text-[#021859]" : "text-[#404040]"}`}>
+                {range.label}
+              </span>
+              {isActive && (
+                <span className="text-xs font-black text-[#8bc34a] ml-auto whitespace-nowrap">
+                  ← {Math.round(score)}
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export function ScoreGauge({ value, score, size, showLegend = false }: { value?: number; score?: number; size?: number; showLegend?: boolean }) {
   const resolvedValue = value ?? score ?? 0;
   const clamped = Math.min(100, Math.max(0, resolvedValue));
   const radius = 90;
@@ -34,13 +88,13 @@ export function ScoreGauge({ value, score, size }: { value?: number; score?: num
   const scoreY = 138;
   const labelY = 156;
 
-  return (
+  const gauge = (
     <svg
       viewBox={`0 0 200 ${viewBoxHeight}`}
       width="100%"
       height="auto"
       className="mx-auto block"
-      style={{ maxWidth: "280px", aspectRatio: "200 / 175" }}
+      style={{ maxWidth: showLegend ? "220px" : "280px", aspectRatio: "200 / 175" }}
     >
       <defs>
         <filter id="needleShadow" x="-20%" y="-20%" width="140%" height="140%">
@@ -69,5 +123,16 @@ export function ScoreGauge({ value, score, size }: { value?: number; score?: num
         out of 100
       </text>
     </svg>
+  );
+
+  if (!showLegend) return gauge;
+
+  return (
+    <div className="flex items-center justify-center gap-10 sm:gap-16 bg-[#F8FAFC] border-2 border-[#07B0F2] rounded-xl p-6 sm:p-8 max-w-[600px] mx-auto">
+      <div className="flex-shrink-0 w-[200px] sm:w-[220px]">
+        {gauge}
+      </div>
+      <ScoreRangeLegend score={clamped} />
+    </div>
   );
 }

@@ -126,7 +126,7 @@ export async function GET(request: Request) {
  * 
  * {
  *   "summary": "Your brand has a strong foundation...",
- *   "overallInterpretation": "Your Brand Alignment Score™ of 72 shows...",
+ *   "overallInterpretation": "Your WunderBrand Score™ of 72 shows...",
  *   "pillars": {
  *     "positioning": {
  *       "score": 16,

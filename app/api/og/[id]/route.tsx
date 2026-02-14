@@ -1,5 +1,5 @@
 // app/api/og/[id]/route.ts
-// Open Graph image generation for Brand Snapshot results
+// Open Graph image generation for WunderBrand Snapshot™ results
 
 import { ImageResponse } from "next/og";
 import { supabaseAdmin } from "@/lib/supabase-admin";
@@ -59,7 +59,7 @@ export async function GET(
               gap: "40px",
             }}
           >
-            {/* Wundy Icon Placeholder */}
+            {/* Wundy™ Icon Placeholder */}
             <div
               style={{
                 width: "120px",
@@ -89,7 +89,7 @@ export async function GET(
                 marginBottom: "20px",
               }}
             >
-              Your Brand Snapshot™
+              Your WunderBrand Snapshot™
             </div>
 
             {/* Score */}

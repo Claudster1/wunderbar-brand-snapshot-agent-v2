@@ -1,5 +1,5 @@
 // app/api/snapshot-plus/pdf/route.ts
-// API route to generate Brand Snapshot+™ PDF (content mirrors report view)
+// API route to generate WunderBrand Snapshot+™ PDF (content mirrors report view)
 
 import { NextResponse } from 'next/server';
 import { renderToBuffer } from '@react-pdf/renderer';
@@ -83,7 +83,7 @@ function transformReportData(report: any) {
 /**
  * GET /api/snapshot-plus/pdf?id=report-id
  * 
- * Generates a Brand Snapshot+™ PDF from a report ID
+ * Generates a WunderBrand Snapshot+™ PDF from a report ID
  */
 export async function GET(req: Request) {
   try {

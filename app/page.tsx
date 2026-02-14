@@ -213,7 +213,7 @@ export default function Home() {
             <div className="app-card-avatar-wrap">
               <Image
                 src={WundyLogo}
-                alt="Wundy, brand specialist"
+                alt="Wundy™, brand specialist"
                 className="app-card-avatar"
                 width={64}
                 height={64}
@@ -251,7 +251,7 @@ export default function Home() {
 
           <div className="app-body">
             <p className="assessment-inline-confidence">
-              🔒 Your responses are confidential and won't be shared with third parties.{' '}
+              Your responses are confidential and won't be shared with third parties.{' '}
               <a
                 href="https://wunderbardigital.com/privacy-policy?utm_source=assessment_flow&utm_medium=assessment_ui&utm_campaign=confidentiality_link&utm_content=privacy_policy"
                 target="_blank"
@@ -262,30 +262,7 @@ export default function Home() {
               </a>
             </p>
 
-            {/* Social Proof / Founder Authority — visible only before user starts */}
-            {!conversationStarted && (
-              <div className="social-proof-strip fadein">
-                <div className="social-proof-stats">
-                  <div className="social-proof-stat">
-                    <span className="social-proof-stat-number">37+</span>
-                    <span className="social-proof-stat-label">Data points analyzed</span>
-                  </div>
-                  <div className="social-proof-divider" />
-                  <div className="social-proof-stat">
-                    <span className="social-proof-stat-number">5</span>
-                    <span className="social-proof-stat-label">Brand pillars scored</span>
-                  </div>
-                  <div className="social-proof-divider" />
-                  <div className="social-proof-stat">
-                    <span className="social-proof-stat-number">25+</span>
-                    <span className="social-proof-stat-label">Years of expertise</span>
-                  </div>
-                </div>
-                <p className="social-proof-founder">
-                  Built by <strong>Claudine Waters</strong> — 25+ years in brand strategy, growth marketing &amp; digital marketing, working with Fortune 500 companies and startups. The same frameworks used in $10K+ consulting engagements, now accessible to every business.
-                </p>
-              </div>
-            )}
+            
 
             {/* What to Expect card — visible only before user starts */}
             {!conversationStarted && (
@@ -382,7 +359,7 @@ export default function Home() {
                 })}
                 {isLoading && (
                   <div className="chat-bubble chat-bubble-assistant pending">
-                    Wundy is thinking…
+                    Wundy™ is thinking…
                   </div>
                 )}
                 <div ref={messagesEndRef} />
@@ -448,7 +425,7 @@ export default function Home() {
                 // Regular text input form
                 <form className="chat-input-row" onSubmit={handleSubmit}>
                   <label htmlFor="brand-message" className="sr-only">
-                    Send a message to Wundy
+                    Send a message to Wundy™
                   </label>
                   <input
                     ref={inputRef}
@@ -490,7 +467,7 @@ export default function Home() {
                   />
                 </div>
                 <p className="app-card-footer">
-                  Wundy is preparing your personalized questions and will be ready in a moment.
+                  Wundy™ is preparing your personalized questions and will be ready in a moment.
                 </p>
               </div>
             )}
@@ -563,7 +540,7 @@ export default function Home() {
                   Progress saved
                 </h3>
                 <p style={{ color: "#5A6B7E", fontSize: 14, lineHeight: 1.6, margin: "0 0 20px" }}>
-                  Check your email for a link to pick up right where you left off. Your answers are saved and Wundy will be waiting.
+                  Check your email for a link to pick up right where you left off. Your answers are saved and Wundy™ will be waiting.
                 </p>
                 <button
                   type="button"

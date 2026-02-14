@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
 export function BlueprintCover({ brandName }: { brandName: string }) {
   return (
     <View>
-      <Text style={styles.h1}>Your Brand Blueprint™</Text>
+      <Text style={styles.h1}>Your WunderBrand Blueprint™</Text>
       <Text style={styles.body}>
         This document translates the clarity you gained in Snapshot+™ into a
         structured brand system — built specifically for {brandName}.

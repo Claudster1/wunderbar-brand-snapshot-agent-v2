@@ -1,7 +1,7 @@
-# Brand Snapshot Suite — Report Content Audit
+# WunderBrand Suite™ — Report Content Audit
 
 **Reference:** Feature comparison table on `wunderbardigital.com/brand-snapshot-suite`  
-**Expectation:** Each report pulls in content from lower tiers; Brand Blueprint+™ is the highest tier and should include **20+ pages** and comprehensive "Advanced campaign prompts."  
+**Expectation:** Each report pulls in content from lower tiers; WunderBrand Blueprint+™ is the highest tier and should include **20+ pages** and comprehensive "Advanced campaign prompts."  
 **Finding:** Higher tiers do **not** aggregate lower-tier content; Blueprint+ PDF is **~8 pages** and shows only the AI prompts passed in the request (e.g. 4 prompts if that’s what’s sent).
 
 **How to keep report and PDF in sync:** See **[REPORT_AND_PDF_CONTENT_SPEC.md](./REPORT_AND_PDF_CONTENT_SPEC.md)** for:
@@ -19,7 +19,7 @@ Below is the **detailed content** that should appear in each tier, with field na
 
 | Content item | Field(s) | Format | Where it exists |
 |--------------|----------|--------|-----------------|
-| **Brand Alignment Score™** | `brandAlignmentScore` | number 0–100 | Results UI, PDF (`BrandSnapshotReport`) |
+| **WunderBrand Score™** | `brandAlignmentScore` | number 0–100 | Results UI, PDF (`BrandSnapshotReport`) |
 | **Five-Pillar Brand Framework** | `pillarScores` | `{ positioning, messaging, visibility, credibility, conversion }` — each 0–20 | Results UI, PDF |
 | **Pillar-level scoring** | `pillarScores` | Same as above | PDF: score bars / gauges per pillar |
 | **Pillar-level insights** | `pillarInsights` | `{ positioning, messaging, visibility, credibility, conversion }` — each string | Results UI, PDF: “Insight” block per pillar |
@@ -76,7 +76,7 @@ Everything in **Snapshot** plus:
 
 **Missing from Blueprint (should pull in from lower tiers):**
 
-- Brand Alignment Score™
+- WunderBrand Score™
 - Five-pillar framework (pillar names + scores)
 - Pillar-level insights and recommendations (Snapshot)
 - Strategic alignment overview
@@ -110,7 +110,7 @@ Everything in **Snapshot** plus:
 
 **Missing from Blueprint+ (should pull in from lower tiers):**
 
-- **From Snapshot:** Brand Alignment Score™, five-pillar framework, pillar scores, pillar insights, recommendations, strategic alignment overview, business context.
+- **From Snapshot:** WunderBrand Score™, five-pillar framework, pillar scores, pillar insights, recommendations, strategic alignment overview, business context.
 - **From Snapshot+:** Persona, archetype, brand voice (with tone pillars), **recommended color palette with swatches + hex#**, priority focus area, context coverage, AEO section, opportunities map, 30/60/90 roadmap, audience/competitors/personality words, visual identity notes.
 - **From Blueprint:** Brand essence, brand promise, differentiation (full), persona summary, archetype summary, tone-of-voice list, **messaging pillars**, **recommended color palette (swatches + hex#)**, Blueprint AI prompts.
 
@@ -149,7 +149,7 @@ Where **messaging pillars** or **content pillars** appear:
 
 | Content item | Snapshot | Snapshot+ | Blueprint | Blueprint+ |
 |--------------|:--------:|:---------:|:---------:|:----------:|
-| Brand Alignment Score™ (0–100) | ✅ | ✅ | should pull in | should pull in |
+| WunderBrand Score™ (0–100) | ✅ | ✅ | should pull in | should pull in |
 | Five-pillar scores (0–20 each) | ✅ | ✅ | should pull in | should pull in |
 | Pillar insights (per pillar) | ✅ | ✅ | should pull in | should pull in |
 | Pillar recommendations (per pillar) | ✅ | ✅ | should pull in | should pull in |
@@ -189,7 +189,7 @@ Use this table to verify each report tier includes every content type it should 
 
 | Feature | Snapshot (Free) | Snapshot+ | Blueprint | Blueprint+ |
 |--------|------------------|-----------|-----------|-------------|
-| **Brand Alignment Score™** | ✅ In results/PDF | ✅ In Snapshot+ report/PDF | ❌ **Missing** | ❌ **Missing** |
+| **WunderBrand Score™** | ✅ In results/PDF | ✅ In Snapshot+ report/PDF | ❌ **Missing** | ❌ **Missing** |
 | **Five-Pillar Brand Framework** | ✅ | ✅ | ❌ **Missing** | ❌ **Missing** |
 | **Pillar-Level Scoring & Insights** | ✅ | ✅ | ❌ **Missing** | ❌ **Missing** |
 | **Strategic Alignment Overview** | ✅ (score + summary) | ✅ | ❌ **Missing** | ❌ **Missing** |
@@ -255,7 +255,7 @@ Use this table to verify each report tier includes every content type it should 
 
 ## 3. Blueprint+ page count and content
 
-**Expectation:** Brand Blueprint+ is the highest tier and should include **20+ pages** of content.
+**Expectation:** WunderBrand Blueprint+™ is the highest tier and should include **20+ pages** of content.
 
 **Current implementation:**
 
@@ -297,7 +297,7 @@ Use this table to verify each report tier includes every content type it should 
 ### For “each report pulls in lower tier”
 
 1. **Blueprint PDF** should include (from Snapshot + Snapshot+):  
-   - Brand Alignment Score™  
+   - WunderBrand Score™  
    - Five-Pillar Brand Framework  
    - Pillar-Level Scoring & Insights  
    - Strategic Alignment Overview  

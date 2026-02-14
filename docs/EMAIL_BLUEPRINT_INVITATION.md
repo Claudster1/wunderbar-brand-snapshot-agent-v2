@@ -1,10 +1,10 @@
-# Email: Brand Blueprint™ Invitation
+# Email: WunderBrand Blueprint™ Invitation
 
 ## Purpose
 Upsell email that introduces Blueprint™ as the next step after Snapshot+™, positioning it as the system that turns clarity into actionable brand decisions.
 
 ## Timing
-Recommended: 3-5 days after Snapshot+™ purchase, or 7-10 days after Brand Snapshot™ completion (for users who haven't purchased Snapshot+™)
+Recommended: 3-5 days after Snapshot+™ purchase, or 7-10 days after WunderBrand Snapshot™ completion (for users who haven't purchased Snapshot+™)
 
 ## ActiveCampaign Merge Tags
 - `{{first_name}}` - User's first name
@@ -23,7 +23,7 @@ This is where positioning, messaging, and visibility stop being insights
 and start guiding real decisions — consistently.
 
 When you're ready to build on what you've already uncovered:
-→ Explore Brand Blueprint™
+→ Explore WunderBrand Blueprint™
 
 Best,  
 Claudine

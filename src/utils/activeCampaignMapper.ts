@@ -1,7 +1,7 @@
 // src/utils/activeCampaignMapper.ts
 
 /**
- * Maps Wundy's JSON output to ActiveCampaign's REST API format
+ * Maps Wundy™'s JSON output to ActiveCampaign's REST API format
  * 
  * NOTE: Replace all FIELD_ID placeholders with actual ActiveCampaign custom field IDs
  * You'll need to create these fields in ActiveCampaign and get their numeric IDs
@@ -158,7 +158,7 @@ export function mapWundyToAC(wundyJson: WundyJson): ActiveCampaignPayload {
     { field: process.env.AC_FIELD_TESTIMONIALS || "TESTIMONIALS_FIELD_ID", value: credibility.testimonials },
     { field: process.env.AC_FIELD_CTA_CLARITY || "CTA_CLARITY_FIELD_ID", value: conversion.ctaClarity },
 
-    // Brand Alignment Score™ and Pillar Scores
+    // WunderBrand Score™ and Pillar Scores
     { field: process.env.AC_FIELD_BRAND_ALIGNMENT_SCORE || "BRAND_ALIGNMENT_SCORE_FIELD_ID", value: scores.brandAlignmentScore },
     { field: process.env.AC_FIELD_POSITIONING_SCORE || "POSITIONING_SCORE_FIELD_ID", value: scores.positioning },
     { field: process.env.AC_FIELD_MESSAGING_SCORE || "MESSAGING_SCORE_FIELD_ID", value: scores.messaging },

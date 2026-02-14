@@ -1,5 +1,5 @@
 // app/api/reports/create/route.ts
-// API route to create a new Brand Snapshot report
+// API route to create a new WunderBrand Snapshot™ report
 
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
@@ -7,6 +7,11 @@ import { generateReport, type ReportData } from "@/src/services/reportGenerator"
 
 export async function POST(req: Request) {
   try {
+    const { apiGuard } = await import("@/lib/security/apiGuard");
+    const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+    const guard = apiGuard(req, { routeId: "reports-create", rateLimit: GENERAL_RATE_LIMIT });
+    if (!guard.passed) return guard.errorResponse;
+
     const body = await req.json();
     const { userId, report } = body;
 

@@ -22,14 +22,14 @@ export default function StartSnapshotModal({ isOpen, onClose }: StartSnapshotMod
         {/* HEADER */}
         <div>
           <h2 className="text-2xl font-semibold text-brand-navy">
-            Your Brand Snapshot™ Starts Here
+            Your WunderBrand Snapshot™ Starts Here
           </h2>
           <p className="text-[15px] leading-relaxed text-brand-midnight mt-2">
             In a focused, guided conversation, your strategic brand companion will help you uncover
             how clearly and confidently your brand is showing up in the market today.
             <br />
             <br />
-            You’ll receive your Brand Alignment Score™ along with a clear picture of what's working,
+            You’ll receive your WunderBrand Score™ along with a clear picture of what's working,
             what’s unclear, and where smarter refinements can create a measurable lift in trust,
             clarity, and conversion.
           </p>
@@ -39,7 +39,7 @@ export default function StartSnapshotModal({ isOpen, onClose }: StartSnapshotMod
         <div className="bg-brand-gray/60 rounded-lg p-4 border border-brand-border">
           <ul className="list-disc pl-5 space-y-1 text-[15px] text-brand-midnight">
             <li>5-pillar brand clarity analysis</li>
-            <li>Brand Alignment Score™ (your overall market-readiness rating)</li>
+            <li>WunderBrand Score™ (your overall market-readiness rating)</li>
             <li>Instant insights once completed</li>
             <li>No email required until you're ready to unlock your full report</li>
           </ul>
@@ -54,7 +54,7 @@ export default function StartSnapshotModal({ isOpen, onClose }: StartSnapshotMod
             shadow-md shadow-brand-blue/30 transition
           "
         >
-          Begin Brand Snapshot™ →
+          Begin WunderBrand Snapshot™ →
         </button>
 
         {/* SUBTEXT */}

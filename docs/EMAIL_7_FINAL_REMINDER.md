@@ -1,10 +1,10 @@
 # Email 7 — Final Reminder (Soft, Supportive)
 
-**Send:** Day 12 (12 days after Brand Snapshot™ completion)
+**Send:** Day 12 (12 days after WunderBrand Snapshot™ completion)
 
 ## Subject Line Options
 
-- Before we wrap up your Brand Snapshot™…
+- Before we wrap up your WunderBrand Snapshot™…
 - Last chance for deeper insights
 - Your Snapshot+™ invitation (final reminder)
 
@@ -13,7 +13,7 @@
 ```
 Hi %firstname%,
 
-I hope your Brand Snapshot™ has given you meaningful clarity on how your brand is showing up today. You now have a strong foundation — and a better understanding of what's working and where refinement will strengthen your presence.
+I hope your WunderBrand Snapshot™ has given you meaningful clarity on how your brand is showing up today. You now have a strong foundation — and a better understanding of what's working and where refinement will strengthen your presence.
 
 Before we close this sequence, I wanted to give you one last opportunity to upgrade to Snapshot+™.
 
@@ -50,7 +50,7 @@ Wunderbar Digital
 ```html
 <p>Hi %firstname%,</p>
 
-<p>I hope your <strong>Brand Snapshot™</strong> has given you meaningful clarity on how your brand is showing up today. You now have a strong foundation — and a better understanding of what's working and where refinement will strengthen your presence.</p>
+<p>I hope your <strong>WunderBrand Snapshot™</strong> has given you meaningful clarity on how your brand is showing up today. You now have a strong foundation — and a better understanding of what's working and where refinement will strengthen your presence.</p>
 
 <p>Before we close this sequence, I wanted to give you one last opportunity to upgrade to <strong>Snapshot+™</strong>.</p>
 

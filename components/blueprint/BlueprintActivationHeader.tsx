@@ -9,7 +9,7 @@ export function BlueprintActivationHeader({
   return (
     <section className="mb-10">
       <h1 className="text-3xl font-semibold text-brand-navy mb-3">
-        Your Brand Blueprint™ is Ready
+        Your WunderBrand Blueprint™ is Ready
       </h1>
 
       <p className="text-[17px] leading-relaxed max-w-3xl text-brand-midnight">

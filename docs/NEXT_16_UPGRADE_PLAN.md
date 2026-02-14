@@ -159,7 +159,7 @@ Run these after the upgrade and fix any failures before merging.
 
 ### 5.4 Critical user flows
 
-- [ ] Complete a Brand Snapshot (or use existing data) and open results.
+- [ ] Complete a WunderBrand Snapshot™ (or use existing data) and open results.
 - [ ] Open preview report at `/preview/results`.
 - [ ] Trigger checkout (test or real) and confirm success/cancel and webhook behavior.
 - [ ] Confirm report PDF generation if used (`/api/snapshot/pdf`, etc.).

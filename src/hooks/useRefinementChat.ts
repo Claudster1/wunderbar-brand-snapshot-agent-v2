@@ -136,7 +136,7 @@ export function useRefinementChat(reportId: string) {
         const bScore = reportData?.brandAlignmentScore || 0;
         const fallback = createMessage(
           "assistant",
-          `Welcome back! I see you've completed your Brand Snapshot™ for ${bName}.\n\nYour Brand Alignment Score™ is ${bScore}/100. I have a few focused questions that will help me give you a more precise and actionable analysis. This should only take 2–3 minutes.\n\nReady to dive in?`
+          `Welcome back! I see you've completed your WunderBrand Snapshot™ for ${bName}.\n\nYour WunderBrand Score™ is ${bScore}/100. I have a few focused questions that will help me give you a more precise and actionable analysis. This should only take 2–3 minutes.\n\nReady to dive in?`
         );
         setMessages([fallback]);
       } finally {

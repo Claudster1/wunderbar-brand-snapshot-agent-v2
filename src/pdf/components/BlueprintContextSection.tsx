@@ -19,7 +19,7 @@ export function BlueprintContextSection({
       </Text>
 
       <Text style={{ fontSize: 11, marginBottom: 6 }}>
-        In addition to your Brand Snapshot™, we incorporated the following
+        In addition to your WunderBrand Snapshot™, we incorporated the following
         context to refine your Blueprint+™ for {brandName}.
       </Text>
 

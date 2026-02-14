@@ -1,6 +1,6 @@
 # How to See PDFs and UI Results of All Four Reports
 
-The app has **four report types**: Brand Snapshot, Snapshot+, Blueprint, and Blueprint+.  
+The app has **four report types**: WunderBrand Snapshot™, Snapshot+, Blueprint, and Blueprint+.  
 UI pages and PDF endpoints are below. **PDFs and most UIs require a real report ID** from your database (from completing a flow or from history).
 
 ---
@@ -15,7 +15,7 @@ Open **http://localhost:3000**.
 
 ---
 
-## 2. Brand Snapshot (basic)
+## 2. WunderBrand Snapshot™ (basic)
 
 | What | URL | Notes |
 |------|-----|--------|
@@ -87,7 +87,7 @@ GET /api/pdf?id=[report_id]&type=[snapshot|snapshot-plus|blueprint|blueprint-plu
 
 ## 7. How to get report IDs
 
-- **Brand Snapshot:** Complete a Brand Snapshot flow, or open **Dashboard → History** (`/dashboard/history` or `/history`) and use the link/ID from each snapshot. Stored in `brand_snapshot_reports.report_id`.
+- **WunderBrand Snapshot™:** Complete a WunderBrand Snapshot™ flow, or open **Dashboard → History** (`/dashboard/history` or `/history`) and use the link/ID from each snapshot. Stored in `brand_snapshot_reports.report_id`.
 - **Snapshot+:** Complete Snapshot+ for a snapshot; ID is in `brand_snapshot_plus_reports.report_id`.
 - **Blueprint / Blueprint+:** Complete the Blueprint or Blueprint+ flow; IDs are in `brand_blueprint_results` and `brand_blueprint_plus_reports` (exact column names may be `report_id` or `id` depending on schema).
 
@@ -99,9 +99,9 @@ You can also read IDs directly from Supabase (e.g. Table Editor) from the tables
 
 | Report        | UI page (real data)              | Preview / no-ID UI        | PDF |
 |---------------|----------------------------------|----------------------------|-----|
-| Brand Snapshot| `/brand-snapshot/results/[id]`   | **`/preview/results`**     | `/api/snapshot/pdf?id=[id]` or `/api/pdf?id=[id]&type=snapshot` |
+| WunderBrand Snapshot™| `/brand-snapshot/results/[id]`   | **`/preview/results`**     | `/api/snapshot/pdf?id=[id]` or `/api/pdf?id=[id]&type=snapshot` |
 | Snapshot+     | `/snapshot-plus/[id]`           | —                          | `/api/snapshot-plus/pdf?id=[id]` or `/api/pdf?id=[id]&type=snapshot-plus` |
 | Blueprint     | `/blueprint`, `/blueprint/activation` | —                    | `/api/pdf?id=[id]&type=blueprint` |
 | Blueprint+    | `/blueprint-plus`               | —                          | `/api/pdf?id=[id]&type=blueprint-plus` |
 
-To **see all four PDFs and UIs**, run `npm run dev`, use **`/preview/results`** for Brand Snapshot UI without a DB, and for the rest open the URLs above with real `report_id` values from your database (or complete each flow once to create them).
+To **see all four PDFs and UIs**, run `npm run dev`, use **`/preview/results`** for WunderBrand Snapshot™ UI without a DB, and for the rest open the URLs above with real `report_id` values from your database (or complete each flow once to create them).

@@ -9,6 +9,12 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
+    const { apiGuard } = await import("@/lib/security/apiGuard");
+    const { AI_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+    const guard = apiGuard(req, { routeId: "snapshot-refine", rateLimit: AI_RATE_LIMIT });
+    if (!guard.passed) return guard.errorResponse;
+
+    const { isValidUUID } = await import("@/lib/security/inputValidation");
     const body = await req.json();
     const {
       reportId,
@@ -23,6 +29,9 @@ export async function POST(req: Request) {
         { error: "Missing required fields: reportId, updatedScores" },
         { status: 400 }
       );
+    }
+    if (!isValidUUID(reportId)) {
+      return NextResponse.json({ error: "Invalid ID format" }, { status: 400 });
     }
 
     const supabase = supabaseServer();

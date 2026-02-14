@@ -1,5 +1,5 @@
 // src/pdf/documents/BrandSnapshotPDF.tsx
-// Free Brand Snapshot™ PDF Document
+// Free WunderBrand Snapshot™ PDF Document
 // Uses centralized theme for consistent styling
 
 import React from "react";
@@ -52,7 +52,7 @@ export const BrandSnapshotPDF = ({
     <Document>
       {/* PAGE 1 — COVER PAGE */}
       <Page style={stylePresets.page}>
-        <Text style={stylePresets.h1}>Your Brand Snapshot™ Report</Text>
+        <Text style={stylePresets.h1}>Your WunderBrand Snapshot™ Report</Text>
         <Text style={stylePresets.body}>
           Prepared for {userName || "you"}
         </Text>
@@ -61,7 +61,7 @@ export const BrandSnapshotPDF = ({
         )}
 
         <View style={{ marginTop: spacing["3xl"] }}>
-          <Text style={stylePresets.h2}>Brand Alignment Score™</Text>
+          <Text style={stylePresets.h2}>WunderBrand Score™</Text>
 
           <View style={stylePresets.scoreBox}>
             <Text style={{ fontSize: fonts["4xl"], fontWeight: fonts.bold, color: colors.navy }}>
@@ -78,7 +78,7 @@ export const BrandSnapshotPDF = ({
 
           <Text style={stylePresets.h3}>How Your Score Is Calculated</Text>
           <Text style={stylePresets.body}>
-            Your Brand Alignment Score™ reflects how clearly, consistently, and
+            Your WunderBrand Score™ reflects how clearly, consistently, and
             confidently your brand shows up across five key pillars:
           </Text>
           <Text style={stylePresets.body}>
@@ -127,7 +127,7 @@ export const BrandSnapshotPDF = ({
         })}
 
         <Text style={stylePresets.footer}>
-          © 2025 Wunderbar Digital. Brand Snapshot™ is a trademark of Wunderbar Digital.
+          © 2025 Wunderbar Digital. WunderBrand Snapshot™ is a trademark of Wunderbar Digital.
         </Text>
       </Page>
 
@@ -167,7 +167,7 @@ export const BrandSnapshotPDF = ({
 
           <Text style={{ marginTop: spacing.sm, ...stylePresets.body }}>
             Based on your brand persona, archetype, tone, and strategic goals,
-            Wundy recommends the following palette:
+            Wundy™ recommends the following palette:
           </Text>
 
           {/* TABLE HEADER */}
@@ -214,7 +214,7 @@ export const BrandSnapshotPDF = ({
         <Text style={stylePresets.h1}>Upgrade to Snapshot+™</Text>
 
         <Text style={{ marginBottom: spacing.lg, ...stylePresets.body }}>
-          Snapshot+™ takes your Brand Snapshot™ foundation and elevates it into
+          Snapshot+™ takes your WunderBrand Snapshot™ foundation and elevates it into
           a complete strategic brand toolkit — crafted uniquely for your business.
         </Text>
 
@@ -231,7 +231,7 @@ export const BrandSnapshotPDF = ({
         </View>
 
         <Text style={{ marginTop: spacing.xl, ...stylePresets.body }}>
-          Want Wundy to take your brand from "clearer" to "powerfully unmistakable"?  
+          Want Wundy™ to take your brand from "clearer" to "powerfully unmistakable"?  
           Upgrade now at WunderbarDigital.com.
         </Text>
 

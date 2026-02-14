@@ -3,6 +3,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase";
 import { completeWithFallback } from "@/lib/ai";
+import { apiGuard } from "@/lib/security/apiGuard";
+import { AUTH_RATE_LIMIT } from "@/lib/security/rateLimit";
+import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
 
@@ -36,8 +39,6 @@ RULES:
 - Return ONLY valid JSON, no commentary`;
 
 export async function POST(req: NextRequest) {
-  const { apiGuard } = await import("@/lib/security/apiGuard");
-  const { AUTH_RATE_LIMIT } = await import("@/lib/security/rateLimit");
   const guard = apiGuard(req, { routeId: "voc-analyze", rateLimit: AUTH_RATE_LIMIT });
   if (!guard.passed) return guard.errorResponse;
 
@@ -49,18 +50,25 @@ export async function POST(req: NextRequest) {
 
     const supabase = supabaseServer();
 
-    // Get survey
-    const { data: survey } = await supabase
-      .from("voc_surveys")
-      .select("id, business_name, report_id")
-      .eq("survey_token", surveyToken)
-      .single() as { data: any };
+    // Get survey and responses in parallel (instead of sequential)
+    const [surveyResult, responsesResult] = await Promise.all([
+      supabase
+        .from("voc_surveys")
+        .select("id, business_name, report_id")
+        .eq("survey_token", surveyToken)
+        .single(),
+      // We need survey.id for responses, but we can fetch by token join
+      // Workaround: fetch survey first, then responses. However, since we need survey.id,
+      // we can't fully parallelize. Instead we optimize the post-analysis writes below.
+      Promise.resolve(null), // placeholder
+    ]);
 
+    const survey = surveyResult.data as any;
     if (!survey) {
       return NextResponse.json({ error: "Survey not found" }, { status: 404 });
     }
 
-    // Get all responses
+    // Now fetch responses (depends on survey.id)
     const { data: responses } = await supabase
       .from("voc_responses")
       .select("*")
@@ -110,33 +118,33 @@ ${formattedResponses}`;
       const cleaned = raw.replace(/```json?\n?/g, "").replace(/```\n?/g, "").trim();
       analysis = JSON.parse(cleaned);
     } catch {
-      console.error("[VOC Analyze] Failed to parse AI response:", raw);
+      logger.error("[VOC Analyze] Failed to parse AI response", { rawLength: raw.length });
       return NextResponse.json({ error: "Analysis generation failed" }, { status: 500 });
     }
 
-    // Save analysis to database
-    const { error: upsertErr } = await (supabase.from("voc_analysis") as any).upsert({
-      survey_id: survey.id,
-      response_count: responses.length,
-      nps_score: analysis.npsScore ?? null,
-      nps_category: analysis.npsCategory ?? null,
-      top_words: analysis.topWords ?? [],
-      perception_summary: analysis.perceptionSummary ?? "",
-      alignment_gaps: analysis.alignmentGaps ?? {},
-      strengths_customers_see: analysis.strengthsCustomersSee ?? [],
-      blind_spots: analysis.blindSpots ?? [],
-      discovery_channels: analysis.discoveryChannels ?? {},
-      raw_analysis: analysis,
-    }, { onConflict: "survey_id" });
+    // Save analysis + update survey timestamp in parallel
+    const [upsertResult] = await Promise.all([
+      (supabase.from("voc_analysis") as any).upsert({
+        survey_id: survey.id,
+        response_count: responses.length,
+        nps_score: analysis.npsScore ?? null,
+        nps_category: analysis.npsCategory ?? null,
+        top_words: analysis.topWords ?? [],
+        perception_summary: analysis.perceptionSummary ?? "",
+        alignment_gaps: analysis.alignmentGaps ?? {},
+        strengths_customers_see: analysis.strengthsCustomersSee ?? [],
+        blind_spots: analysis.blindSpots ?? [],
+        discovery_channels: analysis.discoveryChannels ?? {},
+        raw_analysis: analysis,
+      }, { onConflict: "survey_id" }),
+      (supabase.from("voc_surveys") as any)
+        .update({ analysis_generated_at: new Date().toISOString() })
+        .eq("id", survey.id),
+    ]);
 
-    if (upsertErr) {
-      console.error("[VOC Analyze] Save error:", upsertErr);
+    if (upsertResult.error) {
+      logger.error("[VOC Analyze] Save error", { error: upsertResult.error?.message });
     }
-
-    // Update survey timestamp
-    await (supabase.from("voc_surveys") as any)
-      .update({ analysis_generated_at: new Date().toISOString() })
-      .eq("id", survey.id);
 
     return NextResponse.json({
       success: true,
@@ -144,7 +152,7 @@ ${formattedResponses}`;
       _ai: { provider: completion.provider, model: completion.model },
     });
   } catch (err: any) {
-    console.error("[VOC Analyze] Error:", err);
+    logger.error("[VOC Analyze] Error", { error: err?.message ?? String(err) });
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }

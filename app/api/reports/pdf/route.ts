@@ -7,6 +7,11 @@ import { generateSnapshotPdf } from "@/lib/generateSnapshotPdf";
 
 export async function GET(req: Request) {
   try {
+    const { apiGuard } = await import("@/lib/security/apiGuard");
+    const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+    const guard = apiGuard(req, { routeId: "reports-pdf", rateLimit: GENERAL_RATE_LIMIT });
+    if (!guard.passed) return guard.errorResponse;
+
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
 

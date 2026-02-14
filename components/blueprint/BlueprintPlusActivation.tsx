@@ -39,7 +39,7 @@ export function BlueprintPlusActivation({
 
         <p className="mt-3 text-brand-midnight leading-relaxed max-w-3xl">
           Your Blueprint+™ activates the strategic foundations identified in your
-          Brand Snapshot™ and Snapshot+™. Each prompt pack below is purpose-built
+          WunderBrand Snapshot™ and Snapshot+™. Each prompt pack below is purpose-built
           to translate insight into action — across messaging, visibility,
           credibility, and conversion.
         </p>

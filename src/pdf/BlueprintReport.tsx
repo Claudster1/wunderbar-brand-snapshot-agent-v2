@@ -42,7 +42,7 @@ export function BlueprintReport({
     <Page size="A4" style={{ padding: 56, fontFamily: "Helvetica" }}>
       {/* Header */}
       <Text style={{ fontSize: 26, fontWeight: "bold", color: "#021859" }}>
-        {brandName} — Brand Blueprint™
+        {brandName} — WunderBrand Blueprint™
       </Text>
 
       <Text

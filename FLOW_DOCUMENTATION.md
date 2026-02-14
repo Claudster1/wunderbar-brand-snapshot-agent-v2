@@ -1,4 +1,4 @@
-# Complete Brand Snapshot™ Flow
+# Complete WunderBrand Snapshot™ Flow
 
 ## Architecture Overview
 
@@ -23,19 +23,19 @@ Optional: PDF, Blueprint CTA, Share buttons
 ## Step-by-Step Flow
 
 ### 1. User Interaction (Chat)
-- User interacts with Wundy through the chat interface
-- Wundy asks questions following the conversational flow
+- User interacts with Wundy™ through the chat interface
+- Wundy™ asks questions following the conversational flow
 - User provides answers naturally
 
 ### 2. Scoring & JSON Output
-- When all questions are answered, Wundy calculates scores
-- Wundy outputs JSON ONLY (no scores displayed in chat)
+- When all questions are answered, Wundy™ calculates scores
+- Wundy™ outputs JSON ONLY (no scores displayed in chat)
 - JSON includes:
   - User information (name, email, company, etc.)
   - Brand data (what they do, who they serve, etc.)
   - Marketing data
   - Visual brand data
-  - Scores (pillar scores + Brand Alignment Score™)
+  - Scores (pillar scores + WunderBrand Score™)
   - Full report (insights, recommendations)
 
 ### 3. Front-End Processing
@@ -70,10 +70,10 @@ Optional: PDF, Blueprint CTA, Share buttons
 - User clicks link in email
 - Navigates to `/report/[id]` page
 - Page fetches report data from Supabase via `/api/report/get`
-- Displays full Brand Snapshot™ report
+- Displays full WunderBrand Snapshot™ report
 
 ### 8. Report Display
-- Shows Brand Alignment Score™ with visual meter
+- Shows WunderBrand Score™ with visual meter
 - Displays pillar breakdown with individual scores
 - Shows insights for each pillar
 - Lists recommendations
@@ -89,11 +89,11 @@ Optional: PDF, Blueprint CTA, Share buttons
 ### `/api/brand-snapshot` (POST)
 - Handles chat messages
 - Calls OpenAI with system prompt
-- Returns Wundy's response
+- Returns Wundy™'s response
 
 ### `/api/report/save` (POST)
 - Saves report to Supabase
-- Requires: Full Wundy JSON
+- Requires: Full Wundy™ JSON
 - Returns: `{ reportId, id, success }`
 
 ### `/api/report/get` (GET)
@@ -103,7 +103,7 @@ Optional: PDF, Blueprint CTA, Share buttons
 
 ### `/api/activecampaign` (POST)
 - Syncs data to ActiveCampaign
-- Requires: Full Wundy JSON
+- Requires: Full Wundy™ JSON
 - Returns: `{ success, contactId }`
 
 ## Environment Variables Required

@@ -9,7 +9,7 @@ Replace your existing copy in the FORM + EMBEDDED ACTIVE CAMPAIGN section with t
 ```html
 <section class="bs-section bs-form-section" id="full-report">
   <div class="bs-container">
-    <h2 class="bs-h2">Get Your Complete Brand Snapshot™ Report</h2>
+    <h2 class="bs-h2">Get Your Complete WunderBrand Snapshot™ Report</h2>
 
     <p class="bs-sub">
       Your personalized report includes insights for all five pillars, your biggest opportunities, 
@@ -17,7 +17,7 @@ Replace your existing copy in the FORM + EMBEDDED ACTIVE CAMPAIGN section with t
     </p>
 
     <p class="bs-sub">
-      Enter your details below and I'll send your full Brand Snapshot™ straight to your inbox.
+      Enter your details below and I'll send your full WunderBrand Snapshot™ straight to your inbox.
     </p>
 
     <div class="mt-6">

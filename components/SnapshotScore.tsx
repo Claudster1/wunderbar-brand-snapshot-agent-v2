@@ -1,5 +1,5 @@
 // components/SnapshotScore.tsx
-// Component to display Brand Alignment Score with gauge
+// Component to display WunderBrand Score™ with gauge
 
 "use client";
 
@@ -29,7 +29,7 @@ export function SnapshotScore({ score }: SnapshotScoreProps) {
   return (
     <div className="mt-8 mb-10">
       <h2 className="text-xl font-semibold text-brand-navy mb-4">
-        Brand Alignment Score™
+        WunderBrand Score™
       </h2>
       <div className="flex items-center justify-center">
         <div className="relative w-48 h-48">

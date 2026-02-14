@@ -1,5 +1,5 @@
 // src/services/reportGenerator.ts
-// Brand Snapshot™ Report Generation Engine
+// WunderBrand Snapshot™ Report Generation Engine
 
 import pillarInsightsData from '../prompts/pillarInsights.json';
 import {
@@ -270,13 +270,13 @@ function generateOverallInterpretation(brandAlignmentScore: number): string {
   const range = getOverallScoreRange(brandAlignmentScore);
 
   if (range === 'excellent') {
-    return `Your Brand Alignment Score™ of ${brandAlignmentScore} reflects excellent alignment across positioning, messaging, visibility, credibility, and conversion. Your brand foundation is strong, and customers likely understand your value quickly. The focus now is on maintaining this clarity as you scale and identifying opportunities to deepen your competitive advantage.`;
+    return `Your WunderBrand Score™ of ${brandAlignmentScore} reflects excellent alignment across positioning, messaging, visibility, credibility, and conversion. Your brand foundation is strong, and customers likely understand your value quickly. The focus now is on maintaining this clarity as you scale and identifying opportunities to deepen your competitive advantage.`;
   } else if (range === 'strong') {
-    return `Your Brand Alignment Score™ of ${brandAlignmentScore} shows a strong foundation. You've built clarity in key areas, and your brand is communicating effectively. The opportunity is to strengthen the areas where alignment is developing, which will create more consistency and trust across every customer touchpoint.`;
+    return `Your WunderBrand Score™ of ${brandAlignmentScore} shows a strong foundation. You've built clarity in key areas, and your brand is communicating effectively. The opportunity is to strengthen the areas where alignment is developing, which will create more consistency and trust across every customer touchpoint.`;
   } else if (range === 'developing') {
-    return `Your Brand Alignment Score™ of ${brandAlignmentScore} indicates your brand is developing. You have pieces in place, and there's clear potential to build a more cohesive brand experience. With focused attention on the pillars that need strengthening, you can create the clarity and consistency that drives customer trust and conversion.`;
+    return `Your WunderBrand Score™ of ${brandAlignmentScore} indicates your brand is developing. You have pieces in place, and there's clear potential to build a more cohesive brand experience. With focused attention on the pillars that need strengthening, you can create the clarity and consistency that drives customer trust and conversion.`;
   } else {
-    return `Your Brand Alignment Score™ of ${brandAlignmentScore} shows there's significant opportunity to strengthen your brand foundation. The good news is that brand alignment can be improved systematically—by focusing on one pillar at a time, you can build clarity, consistency, and trust that transforms how customers perceive and choose your brand.`;
+    return `Your WunderBrand Score™ of ${brandAlignmentScore} shows there's significant opportunity to strengthen your brand foundation. The good news is that brand alignment can be improved systematically—by focusing on one pillar at a time, you can build clarity, consistency, and trust that transforms how customers perceive and choose your brand.`;
   }
 }
 
@@ -321,7 +321,7 @@ function generateUpgradeCTA(
   // Add closing CTA
   return `${dynamicUpsell}
 
-Ready to get started? Upgrade to Snapshot+ and receive your complete Brand Blueprint with personalized recommendations, examples, step-by-step guides, and AI-optimization strategies (including SEO & AEO) tailored to your specific brand.`;
+Ready to get started? Upgrade to Snapshot+ and receive your complete WunderBrand Blueprint™ with personalized recommendations, examples, step-by-step guides, and AI-optimization strategies (including SEO & AEO) tailored to your specific brand.`;
 }
 
 // Main report generation function

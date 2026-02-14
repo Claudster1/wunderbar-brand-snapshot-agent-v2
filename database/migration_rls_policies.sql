@@ -56,7 +56,7 @@ CREATE POLICY "Deny anon delete"
 
 ALTER TABLE IF EXISTS support_requests ENABLE ROW LEVEL SECURITY;
 
--- Anon can insert support requests (from Wundy chat)
+-- Anon can insert support requests (from Wundy™ chat)
 DROP POLICY IF EXISTS "Allow anon insert support" ON support_requests;
 CREATE POLICY "Allow anon insert support"
   ON support_requests

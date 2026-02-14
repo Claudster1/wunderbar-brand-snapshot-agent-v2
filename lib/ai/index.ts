@@ -42,6 +42,7 @@ import { getModelRoute, type UseCase } from "./config";
 import { createOpenAIProvider } from "./providers/openai";
 import { createAnthropicProvider } from "./providers/anthropic";
 import { createGeminiProvider } from "./providers/gemini";
+import { logger } from "@/lib/logger";
 
 // Re-export types for convenience
 export type {
@@ -151,14 +152,15 @@ export async function completeWithFallback(
         { maxRetries: 2, timeoutMs: route.timeoutMs ?? 25_000 }
       );
     } catch (err) {
-      console.warn(
-        `[AI] Primary provider ${route.provider}/${route.model} failed:`,
-        err instanceof Error ? err.message : err
-      );
+      logger.warn("[AI] Primary provider failed", {
+        provider: route.provider,
+        model: route.model,
+        error: err instanceof Error ? err.message : String(err),
+      });
       // Fall through to fallback
     }
   } else {
-    console.warn(`[AI] Primary provider ${route.provider} not configured, trying fallback`);
+    logger.warn("[AI] Primary provider not configured, trying fallback", { provider: route.provider });
   }
 
   // ─── Try fallback provider ─────────────────────────────────
@@ -167,20 +169,21 @@ export async function completeWithFallback(
 
     if (fallback.isConfigured) {
       try {
-        console.log(`[AI] Falling back to ${route.fallbackProvider}/${route.fallbackModel}`);
+        logger.info("[AI] Using fallback provider", { provider: route.fallbackProvider, model: route.fallbackModel });
         return await withRetry(
           () => fallback.complete(opts),
           { maxRetries: 2, timeoutMs: route.timeoutMs ?? 25_000 }
         );
       } catch (err) {
-        console.error(
-          `[AI] Fallback provider ${route.fallbackProvider}/${route.fallbackModel} also failed:`,
-          err instanceof Error ? err.message : err
-        );
+        logger.error("[AI] Fallback provider also failed", {
+          provider: route.fallbackProvider,
+          model: route.fallbackModel,
+          error: err instanceof Error ? err.message : String(err),
+        });
         throw err;
       }
     } else {
-      console.warn(`[AI] Fallback provider ${route.fallbackProvider} not configured`);
+      logger.warn("[AI] Fallback provider not configured", { provider: route.fallbackProvider });
     }
   }
 

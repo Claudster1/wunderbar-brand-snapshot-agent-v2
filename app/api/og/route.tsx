@@ -7,7 +7,7 @@ export const runtime = "edge";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const name = searchParams.get("name") || "Your Brand Snapshot™";
+  const name = searchParams.get("name") || "Your WunderBrand Snapshot™";
   const score = searchParams.get("score") || "--";
 
   return new ImageResponse(
@@ -28,7 +28,7 @@ export async function GET(req: Request) {
           {name}
         </div>
         <div style={{ fontSize: 36, margin: "20px 0", color: "#0C1526" }}>
-          Brand Alignment Score™: {score}
+          WunderBrand Score™: {score}
         </div>
         <div style={{ fontSize: 32, color: "#07B0F2" }}>
           Powered by Wunderbar Digital

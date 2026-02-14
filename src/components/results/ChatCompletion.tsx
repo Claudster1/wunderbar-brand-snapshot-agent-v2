@@ -11,7 +11,7 @@ export function ChatCompletion({ userRoleContext }: ChatCompletionProps) {
   return (
     <div className="text-center py-4 sm:py-6 space-y-2">
       <p className="bs-h2 text-brand-navy">
-        Your Brand Snapshot™ is complete.
+        Your WunderBrand Snapshot™ is complete.
       </p>
       <p className="bs-body-sm text-brand-muted max-w-xl mx-auto">
         This snapshot gives you a clear view of how your brand is showing up today

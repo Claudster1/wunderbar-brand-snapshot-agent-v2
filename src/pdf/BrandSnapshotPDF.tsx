@@ -1,5 +1,5 @@
 // src/pdf/BrandSnapshotPDF.tsx
-// Brand Snapshot™ PDF Document (Free tier)
+// WunderBrand Snapshot™ PDF Document (Free tier)
 // Uses reusable components for consistent styling
 
 import {
@@ -77,18 +77,18 @@ export const BrandSnapshotPDF = ({
     <Document>
       {/* ---------------- PAGE 1 ---------------- */}
       <Page size="A4" style={styles.page}>
-        <PdfHeader title="Brand Snapshot™ Report" />
+        <PdfHeader title="WunderBrand Snapshot™ Report" />
 
         <PageTitle
-          title="Your Brand Snapshot™"
+          title="Your WunderBrand Snapshot™"
           subtitle="A concise, insight-led overview of your brand's current alignment"
         />
 
         <Section>
-          <Text style={styles.smallHeading}>Brand Alignment Score™</Text>
+          <Text style={styles.smallHeading}>WunderBrand Score™</Text>
 
           <Text style={styles.body}>
-            Your Brand Alignment Score™ represents how clearly and consistently your
+            Your WunderBrand Score™ represents how clearly and consistently your
             brand shows up today across five core pillars: Positioning, Messaging,
             Visibility, Credibility, and Conversion.
           </Text>
@@ -231,7 +231,7 @@ export const BrandSnapshotPDF = ({
           <View style={{ backgroundColor: "#F2F7FF", padding: 16, borderRadius: 8, borderLeftWidth: 4, borderLeftColor: "#07B0F2" }}>
             <Text style={{ ...styles.smallHeading, marginBottom: 8 }}>Ready for more?</Text>
             <Text style={styles.body}>
-              Upgrade to Brand Snapshot+™ for a deeper strategic report — including brand persona,
+              Upgrade to WunderBrand Snapshot+™ for a deeper strategic report — including brand persona,
               archetype, voice guidance, recommended color palette, 30/60/90 roadmap, and AI-ready prompts.
             </Text>
             <Text style={{ ...styles.body, marginTop: 8, fontSize: 10, color: "#5a6c8a" }}>

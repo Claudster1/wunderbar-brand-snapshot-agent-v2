@@ -2,6 +2,8 @@
 "use client";
 
 import DashboardHistory from "@/components/dashboard/DashboardHistory";
+import ScoreTrendChart from "@/components/dashboard/ScoreTrendChart";
+import RetakeCTA from "@/components/dashboard/RetakeCTA";
 
 const NAVY = "#021859";
 const BLUE = "#07B0F2";
@@ -26,41 +28,13 @@ export default function DashboardPage() {
         </p>
       </div>
 
+      {/* Score trend chart — only renders when 2+ assessments exist */}
+      <ScoreTrendChart />
+
       <DashboardHistory />
 
-      {/* CTA to start a new assessment */}
-      <div
-        style={{
-          marginTop: 40,
-          padding: "24px 28px",
-          borderRadius: 10,
-          border: `1px dashed ${BLUE}40`,
-          background: `${BLUE}04`,
-          textAlign: "center",
-        }}
-      >
-        <p style={{ fontSize: 14, color: SUB, margin: "0 0 14px", lineHeight: 1.6 }}>
-          Want a fresh perspective? Retake the assessment with updated information for a new analysis.
-        </p>
-        <a
-          href="/"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            height: 44,
-            padding: "0 22px",
-            borderRadius: 6,
-            background: BLUE,
-            color: "#FFFFFF",
-            fontWeight: 700,
-            fontSize: 14,
-            textDecoration: "none",
-          }}
-        >
-          Start a new Brand Snapshot™
-        </a>
-      </div>
+      {/* Retake/Refresh CTA — adapts based on user's purchased tier */}
+      <RetakeCTA />
     </main>
   );
 }

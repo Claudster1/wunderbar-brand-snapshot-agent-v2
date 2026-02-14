@@ -28,7 +28,7 @@ export function ResultsHeroSection({
       <div className="bs-card rounded-xl p-5 sm:p-6 flex flex-col items-center text-center lg:items-center lg:text-center">
         <div className="flex items-center justify-center gap-2 mb-3">
           <h1 className="bs-h2 mb-0">
-            Brand Alignment Score™
+            WunderBrand Score™
           </h1>
           <TooltipIcon
             content={

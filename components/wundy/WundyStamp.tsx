@@ -10,7 +10,7 @@ export function WundyStamp() {
         }}
       />
       <div className="text-left">
-        <div className="text-sm font-semibold text-[#021859]">Wundy</div>
+        <div className="text-sm font-semibold text-[#021859]">Wundy™</div>
         <div className="text-xs text-slate-600">
           Brand mascot & facilitator — keeping things easy, not gimmicky.
         </div>

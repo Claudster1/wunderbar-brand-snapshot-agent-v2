@@ -1,6 +1,6 @@
 // src/pdf/registerFonts.ts
 // Centralized font registration for all PDF documents
-// Ensures consistent font usage across Brand Snapshot™, Snapshot+™, Blueprint™, and Blueprint+™
+// Ensures consistent font usage across WunderBrand Snapshot™, Snapshot+™, Blueprint™, and Blueprint+™
 
 import { Font } from "@react-pdf/renderer";
 

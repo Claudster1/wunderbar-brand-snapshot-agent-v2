@@ -1,5 +1,5 @@
 // src/engine/recommendationEngine.ts
-// Recommendation engine for Brand Snapshot / Blueprint flows.
+// Recommendation engine for WunderBrand Snapshot™ / Blueprint flows.
 
 export function generateRecommendations(scores: any) {
   const recs: any[] = [];

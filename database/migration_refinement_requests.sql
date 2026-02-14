@@ -1,4 +1,4 @@
--- Brand Snapshot Refinements Table
+-- WunderBrand Snapshot™ Refinements Table
 -- Allows users to request adjustments to their Snapshot+™ reports
 
 CREATE TABLE IF NOT EXISTS public.brand_snapshot_refinements (

@@ -1,6 +1,6 @@
 // app/api/snapshot/route.ts
 // ------------------------------------------------------
-// Processes Brand Snapshot™ responses
+// Processes WunderBrand Snapshot™ responses
 // Saves report skeleton to Supabase
 // Returns reportId for redirect
 // ------------------------------------------------------
@@ -13,10 +13,20 @@ import { triggerUpgradeEmails } from "@/lib/triggerUpgradeEmails";
 import { randomUUID } from "crypto";
 import { getPrimaryPillar } from "@/lib/pillars/getPrimaryPillar";
 import { fireACEvent } from "@/lib/fireACEvent";
+import { apiGuard } from "@/lib/security/apiGuard";
+import { AI_RATE_LIMIT } from "@/lib/security/rateLimit";
+import { sanitizeString, isValidEmail } from "@/lib/security/inputValidation";
+import {
+  recordBenchmarkData,
+  getFullBenchmarkReport,
+  formatBenchmarkContext,
+} from "@/lib/benchmarkCollector";
+import { logger } from "@/lib/logger";
+import { generateAIInsights } from "@/lib/ai/freeReportEnhancer";
 
 export const dynamic = "force-dynamic";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://app.brandsnapshot.ai";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://app.wunderbrand.ai";
 
 function buildSummary(
   scores: { brandAlignmentScore: number; pillarScores: Record<string, number> },
@@ -31,7 +41,7 @@ function buildSummary(
   if (score >= 50) {
     return `${name}brand has a solid foundation (${score}/100). Prioritizing the recommendations below will help clarify positioning, messaging, and conversion so you can grow with confidence.`;
   }
-  return `${name}Brand Alignment Score™ (${score}/100) highlights specific areas to strengthen. The recommendations below are tailored to your results and will help establish credibility and drive growth.`;
+  return `${name}WunderBrand Score™ (${score}/100) highlights specific areas to strengthen. The recommendations below are tailored to your results and will help establish credibility and drive growth.`;
 }
 
 function buildOpportunitiesSummary(
@@ -93,13 +103,20 @@ function buildPillarInsightsFromScores(pillarScores: Record<string, number>) {
 
 export async function POST(req: Request) {
   // ─── Security: Rate limit + request size ───
-  const { apiGuard } = await import("@/lib/security/apiGuard");
-  const { AI_RATE_LIMIT } = await import("@/lib/security/rateLimit");
   const guard = apiGuard(req, { routeId: "snapshot", rateLimit: AI_RATE_LIMIT, maxBodySize: 200_000 });
   if (!guard.passed) return guard.errorResponse;
 
   try {
     const body = await req.json();
+
+    // ─── Input validation & sanitization ───
+    if (body.email != null && String(body.email).trim() !== "" && !isValidEmail(body.email)) {
+      return NextResponse.json({ error: "Invalid email address." }, { status: 400 });
+    }
+    if (body.name != null) body.name = sanitizeString(body.name);
+    if (body.companyName != null) body.companyName = sanitizeString(body.companyName);
+    if (body.businessName != null) body.businessName = sanitizeString(body.businessName);
+    if (body.brandName != null) body.brandName = sanitizeString(body.brandName);
 
     const snapshotInput = body.answers || {};
     const scores = calculateBrandSnapshotScores(snapshotInput);
@@ -131,42 +148,73 @@ export async function POST(req: Request) {
     );
     const upgrade_cta = buildUpgradeCta(primaryPillar ?? "positioning", companyName);
 
-    // ─── Benchmark Collection (anonymized, non-blocking) ───
-    try {
-      const { recordBenchmarkData } = await import("@/lib/benchmarkCollector");
-      await recordBenchmarkData({
-        brandAlignmentScore: scores.brandAlignmentScore,
-        pillarScores: scores.pillarScores as any,
-        primaryPillar,
-        industry: snapshotInput.industry ?? null,
-        audienceType: snapshotInput.audienceType ?? null,
-        geographicScope: snapshotInput.geographicScope ?? null,
-        revenueRange: snapshotInput.revenueRange ?? null,
-        teamSize: snapshotInput.teamSize ?? null,
-        yearsInBusiness: snapshotInput.yearsInBusiness ?? null,
-        hasBrandGuidelines: snapshotInput.hasBrandGuidelines ?? null,
-        hasWebsite: !!snapshotInput.website,
-        previousBrandWork: snapshotInput.previousBrandWork ?? null,
-      });
-    } catch (benchErr) {
-      console.warn("[Snapshot API] Benchmark collection failed (non-blocking):", benchErr);
-    }
-
-    // ─── Benchmark Query: Fetch peer data for paid reports (non-blocking) ───
+    // ─── Benchmarks: Collection + Query in parallel (non-blocking) ───
     let benchmarkContext: string | null = null;
     try {
-      const { getFullBenchmarkReport, formatBenchmarkContext } = await import("@/lib/benchmarkCollector");
-      const benchmarkReport = await getFullBenchmarkReport({
-        brandAlignmentScore: scores.brandAlignmentScore,
-        pillarScores: scores.pillarScores as any,
-        industry: snapshotInput.industry ?? undefined,
-        audienceType: snapshotInput.audienceType ?? undefined,
-        revenueRange: snapshotInput.revenueRange ?? undefined,
-      });
-      benchmarkContext = formatBenchmarkContext(benchmarkReport);
-    } catch (benchQueryErr) {
-      console.warn("[Snapshot API] Benchmark query failed (non-blocking):", benchQueryErr);
+      const [, benchmarkReport] = await Promise.all([
+        // Fire-and-forget: record this assessment's data
+        recordBenchmarkData({
+          brandAlignmentScore: scores.brandAlignmentScore,
+          pillarScores: scores.pillarScores as any,
+          primaryPillar,
+          industry: snapshotInput.industry ?? null,
+          audienceType: snapshotInput.audienceType ?? null,
+          geographicScope: snapshotInput.geographicScope ?? null,
+          revenueRange: snapshotInput.revenueRange ?? null,
+          teamSize: snapshotInput.teamSize ?? null,
+          yearsInBusiness: snapshotInput.yearsInBusiness ?? null,
+          hasBrandGuidelines: snapshotInput.hasBrandGuidelines ?? null,
+          hasWebsite: !!snapshotInput.website,
+          previousBrandWork: snapshotInput.previousBrandWork ?? null,
+        }).catch(() => {}),
+        // Query peer benchmarks for the report
+        getFullBenchmarkReport({
+          brandAlignmentScore: scores.brandAlignmentScore,
+          pillarScores: scores.pillarScores as any,
+          industry: snapshotInput.industry ?? undefined,
+          audienceType: snapshotInput.audienceType ?? undefined,
+          revenueRange: snapshotInput.revenueRange ?? undefined,
+        }).catch(() => null),
+      ]);
+
+      if (benchmarkReport) {
+        benchmarkContext = formatBenchmarkContext(benchmarkReport);
+      }
+    } catch (benchErr) {
+      logger.warn("[Snapshot API] Benchmark operations failed (non-blocking)", { error: benchErr instanceof Error ? benchErr.message : String(benchErr) });
     }
+
+    // ─── AI-Enhanced Insights (non-blocking) ───
+    // Try to generate AI-powered personalized insights.
+    // If AI call succeeds within timeout, use those instead of generic templates.
+    // If AI call fails or times out, fall back to deterministic insights.
+    let aiInsights: Record<string, string> | null = null;
+    let aiRecommendations: Record<string, string> | null = null;
+    try {
+      const aiResult = await generateAIInsights({
+        ...snapshotInput,
+        businessName: companyName ?? undefined,
+        brandAlignmentScore: scores.brandAlignmentScore,
+        pillarScores: scores.pillarScores as Record<string, number>,
+        benchmarkContext: benchmarkContext ?? undefined,
+      });
+      if (aiResult) {
+        aiInsights = aiResult.pillarInsights ?? null;
+        aiRecommendations = aiResult.recommendations ?? null;
+        logger.info("[Snapshot API] AI insights generated successfully", {
+          model: aiResult.model,
+          businessName: companyName,
+        });
+      }
+    } catch (aiErr) {
+      logger.warn("[Snapshot API] AI insights failed (using fallback)", {
+        error: aiErr instanceof Error ? aiErr.message : String(aiErr),
+      });
+    }
+
+    // Use AI insights if available, otherwise use deterministic templates
+    const finalInsights = aiInsights ?? pillar_insights;
+    const finalRecommendations = aiRecommendations ?? scores.recommendations;
 
     // ─── Save Report ───
     const { data, error } = await supabase
@@ -178,8 +226,8 @@ export async function POST(req: Request) {
         company_name: companyName,
         brand_alignment_score: scores.brandAlignmentScore,
         pillar_scores: scores.pillarScores,
-        pillar_insights,
-        recommendations: scores.recommendations,
+        pillar_insights: finalInsights,
+        recommendations: finalRecommendations,
         summary,
         opportunities_summary,
         upgrade_cta,
@@ -187,6 +235,7 @@ export async function POST(req: Request) {
           answers: body.answers || {},
           scores,
           insights: scores.insights,
+          aiEnhanced: !!aiInsights,
           servicesInterest: snapshotInput.servicesInterest ?? null,
           expertConversation: snapshotInput.expertConversation ?? null,
           contentOptIn: snapshotInput.contentOptIn ?? null,
@@ -197,7 +246,7 @@ export async function POST(req: Request) {
       .single();
 
     if (error || !data) {
-      console.error(error);
+      logger.error("[Snapshot API] Failed to save", { error: error?.message });
       return NextResponse.json(
         { error: "Failed to save snapshot" },
         { status: 500 }
@@ -218,6 +267,8 @@ export async function POST(req: Request) {
         credibility_score: scores.pillarScores.credibility ?? 0,
         conversion_score: scores.pillarScores.conversion ?? 0,
         primary_pillar: primaryPillar ?? "positioning",
+        nps_survey_link: `${BASE_URL}/nps?tier=snapshot&reportId=${encodeURIComponent(report_id)}&email=${encodeURIComponent(userEmail)}`,
+        nps_tier: "snapshot",
       };
       if (process.env.AC_FIELD_REPORT_LINK) {
         acFields[process.env.AC_FIELD_REPORT_LINK] = reportLink;
@@ -255,23 +306,25 @@ export async function POST(req: Request) {
         }
       }
 
-      await fireACEvent({
-        email: userEmail,
-        eventName: "snapshot_completed",
-        tags: acTags,
-        fields: acFields,
-      });
-
-      await triggerUpgradeEmails({
-        email: userEmail,
-        coverage,
-        primaryPillar,
-      });
+      // Fire AC event + upgrade emails in parallel (non-blocking)
+      Promise.all([
+        fireACEvent({
+          email: userEmail,
+          eventName: "snapshot_completed",
+          tags: acTags,
+          fields: acFields,
+        }).catch((err) => logger.warn("[Snapshot API] AC event failed", { error: err instanceof Error ? err.message : String(err) })),
+        triggerUpgradeEmails({
+          email: userEmail,
+          coverage,
+          primaryPillar,
+        }).catch((err) => logger.warn("[Snapshot API] Upgrade emails failed", { error: err instanceof Error ? err.message : String(err) })),
+      ]);
     }
 
     return NextResponse.json({ reportId: (data as any).report_id });
   } catch (err: any) {
-    console.error("[Snapshot API] Error:", err);
+    logger.error("[Snapshot API] Error", { error: err?.message ?? String(err) });
     return NextResponse.json(
       { error: "Failed to process snapshot" },
       { status: 500 }

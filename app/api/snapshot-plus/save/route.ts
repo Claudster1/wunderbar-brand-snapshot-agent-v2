@@ -1,13 +1,6 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { supabaseAdmin as supabase } from "@/lib/supabase-admin";
 import { randomUUID } from "crypto";
-
-// ⛑️ Always use service-role key for server-side writes
-const supabase = createClient(
-  process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY)!,
-  { auth: { persistSession: false } }
-);
 
 export async function POST(req: Request) {
   try {
@@ -34,8 +27,23 @@ export async function POST(req: Request) {
       );
     }
 
+    const { sanitizeString, isValidEmail } = await import("@/lib/security/inputValidation");
+    if (!isValidEmail(user_email)) {
+      return NextResponse.json(
+        { error: "Invalid email address." },
+        { status: 400 }
+      );
+    }
+    const sanitizedUserEmail = sanitizeString(user_email);
+    const sanitizedUserName = user_name != null ? sanitizeString(user_name) : null;
+    const sanitizedWebsiteNotes = website_notes != null ? sanitizeString(website_notes) : null;
+
     // Generate report_id if not provided
     const finalReportId = report_id || randomUUID();
+
+    if (!supabase) {
+      return NextResponse.json({ error: "Database not configured" }, { status: 500 });
+    }
 
     // 🎯 Insert into Supabase table
     const { data, error } = await supabase
@@ -43,13 +51,13 @@ export async function POST(req: Request) {
       .insert([
         {
           report_id: finalReportId,
-          user_email,
-          user_name: user_name ?? null,
+          user_email: sanitizedUserEmail,
+          user_name: sanitizedUserName,
           brand_alignment_score,
           pillar_scores,
           pillar_insights,
           recommendations,
-          website_notes,
+          website_notes: sanitizedWebsiteNotes,
           full_report,
           base_snapshot_report_id: base_snapshot_report_id ?? null,
         }

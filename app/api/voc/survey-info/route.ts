@@ -5,12 +5,17 @@ import { supabaseServer } from "@/lib/supabase";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  const token = req.nextUrl.searchParams.get("token");
-  if (!token) {
-    return NextResponse.json({ error: "Missing token" }, { status: 400 });
-  }
-
   try {
+    const { apiGuard } = await import("@/lib/security/apiGuard");
+    const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+    const guard = apiGuard(req, { routeId: "voc-survey-info", rateLimit: GENERAL_RATE_LIMIT });
+    if (!guard.passed) return guard.errorResponse;
+
+    const token = req.nextUrl.searchParams.get("token");
+    if (!token) {
+      return NextResponse.json({ error: "Missing token" }, { status: 400 });
+    }
+
     const supabase = supabaseServer();
 
     const { data: survey } = await (supabase.from("voc_surveys") as any)

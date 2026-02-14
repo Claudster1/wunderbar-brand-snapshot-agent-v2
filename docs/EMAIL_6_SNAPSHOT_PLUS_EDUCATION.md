@@ -1,6 +1,6 @@
 # Email 6 — Snapshot+™ Educational Deep Dive
 
-**Send:** Day 9 (9 days after Brand Snapshot™ completion)
+**Send:** Day 9 (9 days after WunderBrand Snapshot™ completion)
 
 ## Subject Line Options
 
@@ -13,7 +13,7 @@
 ```
 Hi %firstname%,
 
-One of the most valuable parts of Snapshot+™ is how much clarity it brings to the why behind your Brand Alignment Score™ — and what to do next.
+One of the most valuable parts of Snapshot+™ is how much clarity it brings to the why behind your WunderBrand Score™ — and what to do next.
 
 Your current results already show your strengths, and they also reveal where small refinements can elevate your brand's presence.
 
@@ -63,7 +63,7 @@ Claudine
 ```html
 <p>Hi %firstname%,</p>
 
-<p>One of the most valuable parts of <strong>Snapshot+™</strong> is how much clarity it brings to the <em>why</em> behind your <strong>Brand Alignment Score™</strong> — and what to do next.</p>
+<p>One of the most valuable parts of <strong>Snapshot+™</strong> is how much clarity it brings to the <em>why</em> behind your <strong>WunderBrand Score™</strong> — and what to do next.</p>
 
 <p>Your current results already show your strengths, and they also reveal where small refinements can elevate your brand's presence.</p>
 

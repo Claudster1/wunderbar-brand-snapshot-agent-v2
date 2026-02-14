@@ -1,4 +1,4 @@
-# Brand Snapshot Suite — Product Comparison Chart
+# WunderBrand Suite™ — Product Comparison Chart
 
 > For use on the suite overview page (wunderbardigital.com/brand-snapshot-suite)
 
@@ -6,106 +6,95 @@
 
 ## Side-by-Side Comparison
 
-| Feature | Brand Snapshot™ | Brand Snapshot+™ | Brand Blueprint™ | Brand Blueprint+™ |
+| Feature | WunderBrand Snapshot™ | WunderBrand Snapshot+™ | WunderBrand Blueprint™ | WunderBrand Blueprint+™ |
 |---|:---:|:---:|:---:|:---:|
 | **Price** | Free | $497 | $997 | $1,997 |
 | | | | | |
 | **YOUR BRAND SCORE** | | | | |
-| Brand Alignment Score™ (0–100) | ✓ | ✓ | ✓ | ✓ |
-| 5 core brand pillar analysis (positioning, messaging, visibility, credibility, conversion) | ✓ | ✓ | ✓ | ✓ |
-| Per-pillar insights (what's working, what's unclear, why it matters) | ✓ | ✓ | ✓ | ✓ |
+| WunderBrand Score™ (0–100) | ✓ | ✓ | ✓ | ✓ |
+| Five-pillar analysis with per-pillar insights | ✓ | ✓ | ✓ | ✓ |
 | Where to focus first | ✓ | ✓ | ✓ | ✓ |
-| Additional areas to address | — | ✓ | ✓ | ✓ |
-| Gaps in your brand's story | — | ✓ | ✓ | ✓ |
-| How you compare to your industry | — | Industry-Informed Context | Detailed Industry Benchmarks | AI-Informed Industry Benchmarks* |
-| Brand health scorecard | — | — | — | ✓ |
-| Strengths, weaknesses, opportunities & threats | — | — | — | ✓ |
+| AI-Informed Industry Benchmarks | — | AI-Informed Context | AI-Informed Benchmarks | AI-Informed Benchmarks |
+| Brand Health Scorecard | — | — | — | ✓ |
+| SWOT Analysis | — | — | — | ✓ |
+| Quarterly refresh — retake and track your scores over time | Free retake | $47/refresh | $97/refresh | Unlimited (included) |
 | | | | | |
 | **DETAILED ANALYSIS** | | | | |
-| What your scores mean | Basic | Detailed | Detailed | Detailed |
-| How each gap affects your revenue | — | ✓ | ✓ | ✓ |
-| What brand gaps are costing you | — | ✓ | ✓ | Revenue Projections & Cost Modeling |
-| What happens if you don't act | — | ✓ | ✓ | 12-Month Impact Scenarios |
+| How each gap affects your business | — | ✓ | ✓ | ✓ |
+| How brand gaps connect to business outcomes | — | ✓ | ✓ | Estimated Business Impact & Financial Framing |
+| What happens if you don't act | — | ✓ | ✓ | Illustrative 12-Month Impact Scenarios |
 | Before & after examples — see the difference fixes make | — | ✓ | ✓ | Multi-Channel Examples with Copy |
-| How your brand pillars work together (or against each other) | — | ✓ | ✓ | ✓ |
-| Step-by-step guides with ready-to-use templates | — | — | — | ✓ |
+| Step-by-step guides & templates | — | — | — | ✓ |
 | | | | | |
 | **BRAND IDENTITY & PERSONALITY** | | | | |
-| Your brand's core personality type | ✓ | ✓ | ✓ | ✓ |
-| Supporting personality type | — | ✓ | ✓ | ✓ |
-| How to bring your brand personality to life | — | — | ✓ | Full Playbook (Messaging, Content, Sales, Visuals) |
-| Brand personality & communication style guide | — | ✓ | ✓ | ✓ |
-| Communication guidelines (do's & don'ts with examples) | — | ✓ | ✓ | Audience-Specific Variations |
+| Brand personality profile | Core Type | Core & Supporting | Core & Supporting | Core & Supporting |
+| Brand personality playbook | — | — | ✓ | Full Playbook (Messaging, Content, Sales, Visuals) |
+| Communication guidelines | — | ✓ | ✓ | Audience-Specific Variations |
 | Brand purpose & promise | — | — | ✓ | ✓ |
-| Positioning statement — what you do, for whom, and why | — | — | ✓ | ✓ |
-| What makes you different (and how to say it) | — | — | ✓ | Competitor Contrast Positioning |
+| Positioning statement | — | — | ✓ | ✓ |
+| Competitor contrast positioning† | — | — | ✓ | AI-Informed Competitor Contrast Positioning |
 | Brand growth & expansion strategy | — | — | — | ✓ |
 | Brand rules & terminology guide | — | — | — | ✓ |
 | | | | | |
 | **UNDERSTANDING YOUR CUSTOMERS** | | | | |
-| Who's paying attention (and why) | — | ✓ | ✓ | ✓ |
-| Ideal customer profile — who to target | — | ✓ | ✓ | ✓ |
-| Detailed customer profiles (primary & secondary) | — | — | ✓ | ✓ |
-| Buyer personas — who they are, what they need (2–3 per profile) | — | — | ✓ | Psychographic Profiles & Decision Triggers |
-| Customer journey — how people go from stranger to buyer | — | — | ✓ | Touchpoint-Specific Messaging & CTAs |
-| Audience segments — how to reach different groups | — | — | — | ✓ |
-| What drives your customers to buy (or not) | — | ✓ | ✓ | ✓ |
+| Ideal customer profile | — | ✓ | ✓ | ✓ |
+| Buyer personas (2–3 per profile) | — | — | ✓ | Enhanced with Psychographic Depth & Decision Triggers |
+| Customer journey | — | — | ✓ | Touchpoint-Specific Messaging & CTAs |
+| Audience segments | — | — | — | ✓ |
 | | | | | |
 | **WHAT TO SAY & WHERE TO SAY IT** | | | | |
-| Personalized recommendations | ✓ | ✓ | ✓ | ✓ |
-| Strategic action plan — your next moves | — | 5 Actions | 5 Actions | 5 Actions with Templates & Steps |
-| Core messages — the key themes your brand should repeat | — | 3 Pillars | 5 Pillars with Proof Points | Audience-Specific Variations |
-| Content strategy — what to post and where | — | Basic | Pillar Strategy with Channel Mapping | Full Playbook |
-| Complete message system with proof points | — | — | ✓ | ✓ |
-| Message map — what to say, to whom, on which channel | — | — | — | ✓ |
+| Strategic action plan | — | 5 Actions | 5 Actions | 5 Actions with Templates & Steps |
+| Core messages | — | 3 Pillars | 5 Pillars with Proof Points | Audience-Specific Variations |
+| Content strategy | — | Basic | Pillar Strategy with Channel Mapping | Full Playbook |
+| Message map | — | — | — | Audience × Funnel × Channel |
 | Tagline & slogan recommendations | — | 3 Options | 3 Options | 3 Options + Audience & Channel Variations |
 | Brand story & origin narrative | — | — | ✓ | Website, Pitch Deck & Social Versions |
-| Campaign strategy & storylines | — | — | — | ✓ |
+| Campaign strategy & narrative arcs | — | — | — | ✓ |
+| Company descriptions | — | — | 3 Versions | 6 Versions |
 | | | | | |
 | **VISUAL DIRECTION** | | | | |
-| Brand color palette with exact color codes | — | ✓ | ✓ | ✓ |
+| Brand color palette (HEX, RGB & CMYK) | — | ✓ | ✓ | ✓ |
 | Font & typography direction | — | — | ✓ | ✓ |
 | Rules to keep your visuals consistent | — | — | ✓ | ✓ |
+| Brand imagery & photography direction | — | — | Style, Subject, Stock Criteria & Color Application | + Platform Guidance, Mood Board, Persona Imagery & AI Image Prompts |
 | | | | | |
-| **COMPETITIVE ANALYSIS** | | | | |
-| Where you stand vs. competitors | — | — | ✓ | Strategic Moves & Counter-Positioning |
-| Market gaps your competitors are missing | — | — | ✓ | ✓ |
-| Where your competitors are weak | — | — | ✓ | Exploitation Playbook & Timing |
+| **AI-INFORMED COMPETITIVE PERSPECTIVE** | | | | |
+| Competitive positioning† | — | — | ✓ | Strategic Moves & Counter-Positioning |
+| Competitive gaps & vulnerability playbook† | — | — | ✓ | Opportunity Playbook & Sequencing |
 | Key decisions — what to prioritize and why | — | — | ✓ | ✓ |
 | | | | | |
 | **GETTING FOUND ONLINE** | | | | |
-| How people find you (and where you're invisible) | — | ✓ | ✓ | ✓ |
-| AI search readiness — how AI tools see your brand | — | ✓ | Entity & Schema Strategy | Full Implementation Roadmap |
-| Search keywords — what people type to find you | — | — | 8–10 Keywords | 15+ Keywords & Topic Clusters |
-| Email marketing framework | — | — | Welcome Sequence | Welcome + Nurture + Re-engagement |
-| Social media strategy — which platforms, what to post | — | — | 2–3 Platforms | All Platforms + Repurposing Playbook |
+| Visibility & discovery strategy | — | ✓ | ✓ | ✓ |
+| AI search readiness | — | ✓ | Entity & Schema Strategy | Full Implementation Roadmap |
+| SEO strategy† | — | — | 8–10 Keywords | 15+ Keywords & Topic Clusters |
+| Email marketing | — | — | Welcome Sequence | Welcome + Nurture + Re-engagement |
+| Social media strategy | — | — | 2–3 Platforms | All Platforms + Repurposing Playbook |
 | Content calendar | — | — | — | ✓ |
-| Conversion strategy — turning visitors into customers | — | — | ✓ | Funnel-Specific CTAs with Ready-to-Use Copy |
-| | | | | |
-| **READY-TO-USE DESCRIPTIONS** | | | | |
-| Company descriptions (one-liner, short & full versions) | — | — | ✓ | ✓ |
-| Proposal introduction paragraph | — | — | ✓ | ✓ |
-| Industry-specific & hiring-focused versions | — | — | — | ✓ |
+| Conversion strategy | — | — | ✓ | Funnel-Specific CTAs with Ready-to-Use Copy |
 | | | | | |
 | **AI PROMPT PACKS — USE AI ON-BRAND** | | | | |
-| Brand strategy prompts — build your foundation with AI | — | 8 Prompts | 8 Prompts | 8 Prompts |
-| Marketing & content prompts — create on-brand content with AI | — | — | 8 Prompts | 8 Prompts |
-| Advanced prompts — scale & optimize with AI | — | — | — | 12 Prompts |
+| 8 Brand strategy prompts | — | 8 Prompts | 8 Prompts | 8 Prompts |
+| 8 Marketing & content prompts | — | — | 8 Prompts | 8 Prompts |
+| 12 Advanced prompts (Blueprint+ exclusive) | — | — | — | 12 Prompts |
 | **Total ready-to-use AI prompts** | **—** | **8** | **16** | **28** |
 | | | | | |
+| **PRICING & SALES ENABLEMENT** | | | | |
+| Value & pricing communication framework | — | — | Pricing Narrative, Objection Responses & Proposal Language | + Persona-Specific Pricing Narratives & Competitive Differentiation |
+| Sales conversation guide | — | — | Opening, Discovery, Objection Playbook & Closing Language | + Persona Conversation Tracks, Scenario Scripts & Sales Tools |
+| | | | | |
 | **YOUR ACTION PLAN** | | | | |
-| 90-day action plan — what to do and when | — | ✓ | ✓ | Week-by-Week Deliverables & Milestones |
-| Guardrails — how to stay on track | — | ✓ | ✓ | Brand Compliance Checklist & Review Criteria |
-| How to measure if it's working | — | — | KPIs Within Each Section | Dedicated Framework with Scorecard |
-| Complete measurement & improvement guide | — | — | — | ✓ |
+| 90-day action plan | — | ✓ | ✓ | Week-by-Week Deliverables & Milestones |
+| Brand consistency checklist | — | Brand Do's & Don'ts | Checklist & Review Criteria | Checklist + Team Onboarding |
+| Measurement & KPI framework | — | — | Per-Section KPIs, Leading Indicators & Tracking Tools | + Quarterly Review Template |
+| Brand strategy rollout guide | — | — | One-Pager, Talking Points & Approved Language | + Presentation Summary, Role Briefs & Brand in 5 Minutes |
 | | | | | |
 | **DELIVERY & SUPPORT** | | | | |
 | Downloadable PDF report (print-ready) | ✓ | ✓ | ✓ | ✓ |
-| Voice of Customer survey — learn how others see your brand | — | ✓ | ✓ | ✓ |
+| Voice of Customer survey | — | — | — | ✓ |
 | 30-minute Strategy Activation Session | — | — | — | ✓ |
 
 ---
 
 *Each tier includes everything from the previous tier, plus its own exclusive additions.*
 
-*\*Industry benchmarks are AI-informed using broad market intelligence. As more brands complete assessments, benchmarks will evolve to include real peer comparison data within your industry.*
+*†AI-informed: These sections are generated using advanced AI analysis of your assessment data combined with broad market intelligence from AI training data. Competitive analysis is based on publicly available information the AI has been trained on — we recommend validating specific competitor claims. SEO keyword recommendations are strategic starting points; we recommend confirming with tools like Google Keyword Planner or SEMrush for search volume data.*

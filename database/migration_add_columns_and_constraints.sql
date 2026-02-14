@@ -78,7 +78,7 @@ ALTER TABLE public.blueprint_reports
 
 DO $$
 BEGIN
-  -- Brand Snapshot
+  -- WunderBrand Snapshot™
   IF NOT EXISTS (
     SELECT 1 FROM pg_constraint
     WHERE conname = 'chk_snapshot_email_lowercase'
@@ -124,7 +124,7 @@ CREATE INDEX IF NOT EXISTS idx_blueprint_user_email
 
 -- ===========================================
 -- 6. Grant read access only where appropriate
---    Brand Snapshot (free funnel) = public readable
+--    WunderBrand Snapshot™ (free funnel) = public readable
 --    Paid tiers remain restricted
 -- ===========================================
 

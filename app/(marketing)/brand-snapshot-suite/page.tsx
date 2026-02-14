@@ -6,9 +6,9 @@ import { PricingComparison } from "@/components/pricing/PricingComparison";
 import { WundyStamp } from "@/components/wundy/WundyStamp";
 
 export const metadata = {
-  title: "Brand Snapshot Suite™ | Wunderbar Digital",
+  title: "WunderBrand Suite™ | Wunderbar Digital",
   description:
-    "Choose the right level of brand clarity — from Brand Snapshot™ to Brand Snapshot+™, Brand Blueprint™, and Brand Blueprint+™.",
+    "Choose the right level of brand clarity — from WunderBrand Snapshot™ to WunderBrand Snapshot+™, WunderBrand Blueprint™, and WunderBrand Blueprint+™.",
 };
 
 export default function BrandSnapshotSuitePage() {
@@ -18,7 +18,7 @@ export default function BrandSnapshotSuitePage() {
       <section className="mx-auto max-w-6xl px-6 pt-20 pb-14">
         <div className="mx-auto max-w-3xl text-center">
           <p className="inline-flex items-center gap-2 rounded-full border border-[#E0E3EA] px-4 py-2 text-xs font-semibold tracking-wide text-[#021859]">
-            Brand Snapshot Suite™ <span className="text-[#07B0F2]">•</span> Powered by Wunderbar Digital
+            WunderBrand Suite™ <span className="text-[#07B0F2]">•</span> Powered by Wunderbar Digital
           </p>
 
           <h1 className="mt-6 text-4xl font-semibold leading-tight text-[#021859] md:text-5xl">
@@ -36,7 +36,7 @@ export default function BrandSnapshotSuitePage() {
               href="/brand-snapshot"
               className="rounded-[10px] bg-[#07B0F2] px-6 py-3 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(7,176,242,0.25)] transition hover:bg-[#059BD8] no-underline"
             >
-              Start Brand Snapshot™ (Free) →
+              Start WunderBrand Snapshot™ (Free) →
             </Link>
 
             <Link
@@ -58,11 +58,11 @@ export default function BrandSnapshotSuitePage() {
         <div className="grid gap-6 md:grid-cols-4">
           <PricingCard
             badge="Free"
-            title="Brand Snapshot™"
+            title="WunderBrand Snapshot™"
             price="$0"
-            description="A fast diagnostic that reveals your Brand Alignment Score™ and pillar scores."
+            description="A fast diagnostic that reveals your WunderBrand Score™ and pillar scores."
             features={[
-              "Brand Alignment Score™",
+              "WunderBrand Score™",
               "Pillar Scores (5 pillars)",
               "High-level insights",
               "Next-step recommendations (starter)",
@@ -74,7 +74,7 @@ export default function BrandSnapshotSuitePage() {
 
           <PricingCard
             badge="Most popular"
-            title="Brand Snapshot+™"
+            title="WunderBrand Snapshot+™"
             price="$497"
             priceNote="one-time"
             description="A personalized deep-dive report with prioritized clarity improvements and AI-ready prompts."
@@ -85,7 +85,7 @@ export default function BrandSnapshotSuitePage() {
               "Prompt pack (lite)",
               "Downloadable PDF report",
             ]}
-            ctaLabel="Get Brand Snapshot+™ →"
+            ctaLabel="Get WunderBrand Snapshot+™ →"
             ctaAction="checkout"
             checkoutProductKey="snapshot_plus"
             variant="featured"
@@ -93,7 +93,7 @@ export default function BrandSnapshotSuitePage() {
 
           <PricingCard
             badge="Strategy system"
-            title="Brand Blueprint™"
+            title="WunderBrand Blueprint™"
             price="$997"
             priceNote="one-time"
             description="A complete brand foundation — messaging, narrative, voice, and direction."
@@ -105,7 +105,7 @@ export default function BrandSnapshotSuitePage() {
               "Prompt library (pro)",
               "Downloadable PDF deliverable",
             ]}
-            ctaLabel="Get Brand Blueprint™ →"
+            ctaLabel="Get WunderBrand Blueprint™ →"
             ctaAction="checkout"
             checkoutProductKey="blueprint"
             variant="base"
@@ -113,7 +113,7 @@ export default function BrandSnapshotSuitePage() {
 
           <PricingCard
             badge="Most comprehensive"
-            title="Brand Blueprint+™"
+            title="WunderBrand Blueprint+™"
             price="$1,997"
             priceNote="one-time"
             description="Your advanced strategic brand system — segmentation, matrices, campaign starters, and orchestration."
@@ -126,7 +126,7 @@ export default function BrandSnapshotSuitePage() {
               "Prompt library (30+ prompts)",
               "Downloadable PDF deliverable",
             ]}
-            ctaLabel="Get Brand Blueprint+™ →"
+            ctaLabel="Get WunderBrand Blueprint+™ →"
             ctaAction="checkout"
             checkoutProductKey="blueprint_plus"
             variant="base"
@@ -138,14 +138,14 @@ export default function BrandSnapshotSuitePage() {
             Not sure where to start?
           </h2>
           <p className="mt-2 text-[15px] leading-relaxed text-[#0C1526]">
-            Start with Brand Snapshot™. You'll see your Brand Alignment Score™ first — then upgrade only if it feels worth it.
+            Start with WunderBrand Snapshot™. You'll see your WunderBrand Score™ first — then upgrade only if it feels worth it.
           </p>
           <div className="mt-4 flex flex-col gap-3 sm:flex-row">
             <Link
               href="/brand-snapshot"
               className="rounded-[10px] bg-[#07B0F2] px-6 py-3 text-sm font-semibold text-white hover:bg-[#059BD8] no-underline"
             >
-              Start Brand Snapshot™ →
+              Start WunderBrand Snapshot™ →
             </Link>
             <Link
               href="/brand-snapshot#results-preview"
@@ -174,7 +174,7 @@ export default function BrandSnapshotSuitePage() {
             <div className="flex gap-4">
               <Link href="/privacy" className="hover:text-[#021859] no-underline">Privacy</Link>
               <Link href="/terms" className="hover:text-[#021859] no-underline">Terms</Link>
-              <Link href="/brand-snapshot" className="hover:text-[#021859] no-underline">Brand Snapshot™</Link>
+              <Link href="/brand-snapshot" className="hover:text-[#021859] no-underline">WunderBrand Snapshot™</Link>
             </div>
           </div>
         </div>

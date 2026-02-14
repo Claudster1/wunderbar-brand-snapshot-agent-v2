@@ -1,7 +1,7 @@
 {
   "flow_name": "brand_snapshot",
   "version": "3.0",
-  "description": "Conversational interactive flow for calculating Brand Alignment Score™",
+  "description": "Conversational interactive flow for calculating WunderBrand Score™",
   "start": "q_business_name",
 
   "nodes": {
@@ -259,7 +259,7 @@
 
     "q_additional_links": {
       "type": "single_select",
-      "prompt": "Before I calculate your Brand Alignment Score™, would you like to add any additional links for analysis?",
+      "prompt": "Before I calculate your WunderBrand Score™, would you like to add any additional links for analysis?",
       "options": [
         { "label": "Add website link", "value": "website", "next": "q_add_link_website" },
         { "label": "Add social links", "value": "social", "next": "q_add_link_social" },
@@ -306,7 +306,7 @@
 
     "q_ready_generate": {
       "type": "single_select",
-      "prompt": "Ready for me to calculate your Brand Alignment Score™?",
+      "prompt": "Ready for me to calculate your WunderBrand Score™?",
       "options": [
         { "label": "Yes — generate my score", "value": "yes", "next": "action_generate_score" },
         { "label": "Wait, I want to add more", "value": "back", "next": "q_additional_links" }

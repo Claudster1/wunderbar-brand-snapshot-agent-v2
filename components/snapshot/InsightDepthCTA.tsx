@@ -14,7 +14,7 @@ export function InsightDepthCTA({ userRoleContext }: InsightDepthCTAProps = {}) 
   return (
     <section className="border rounded-lg p-6 bg-gradient-to-br from-brand-navy to-brand-navy/90 text-white">
       <h3 className="text-xl font-semibold mb-2">
-        Want deeper clarity on your Brand Snapshot™?
+        Want deeper clarity on your WunderBrand Snapshot™?
       </h3>
 
       <p className="text-sm text-white/90 mb-4">

@@ -137,7 +137,7 @@ export function SnapshotPlusReport({
         <View style={{ marginTop: 24, alignItems: "center" }}>
           <Gauge value={brandAlignmentScore} />
           <Text style={{ fontSize: 20, fontWeight: 700, marginTop: 8 }}>
-            Brand Alignment Score™
+            WunderBrand Score™
           </Text>
           <Text style={styles.subtle}>
             A composite view of how clearly and consistently {brandName} shows

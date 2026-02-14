@@ -1,8 +1,8 @@
 // src/prompts/brandSnapshotReportPrompt.ts
-// Brand Snapshot™ (Free) - Report Generation Prompt
+// WunderBrand Snapshot™ (Free) - Report Generation Prompt
 
 export const brandSnapshotReportPrompt = `
-You are generating the Brand Snapshot™ report for Wunderbar Digital.
+You are generating the WunderBrand Snapshot™ report for Wunderbar Digital.
 
 This is a FREE but premium-feeling diagnostic. It must feel immediately valuable while clearly stopping short of deep strategic execution.
 
@@ -15,7 +15,7 @@ STRICT RULES:
 REQUIRED OUTPUT STRUCTURE:
 
 1. Executive Summary
-   - Brand Alignment Score (0–100)
+   - WunderBrand Score™ (0–100)
    - overview: One-paragraph strategic overview connecting all 5 pillars (2–3 sentences)
    - diagnosis: One-sentence diagnosis ("Your brand is currently ___ because ___")
    - primaryOpportunity: Primary opportunity (single sentence)
@@ -48,7 +48,7 @@ REQUIRED OUTPUT STRUCTURE:
 6. What's Next (Soft CTA)
    - Explain what deeper clarity would unlock
    - Do NOT sell aggressively
-   - Position Brand Snapshot+™ as the natural next step for depth
+   - Position WunderBrand Snapshot+™ as the natural next step for depth
 
 STYLE REQUIREMENTS:
 - Approachable expert — like a smart friend who happens to be a brand strategist
@@ -126,9 +126,12 @@ Return valid JSON with this structure:
 }
 
 ABSOLUTE RULES:
-- Never reference Wundy or the chatbot.
+- Never reference Wundy™ or the chatbot.
 - Never mention internal scoring logic.
 - Never use emojis.
 - Never speculate beyond provided inputs.
 - Never fabricate details about the business.
+
+REPORT DISCLAIMER (include as a "disclaimer" field in the JSON output):
+"This report provides strategic brand guidance based on the information you provided during the WunderBrand Snapshot™ assessment. It is not a substitute for legal, financial, or industry-specific regulatory advice. Recommendations should be evaluated in the context of your specific business circumstances, competitive landscape, and applicable regulations. All benchmarks and estimates are directional and based on industry patterns, not guaranteed outcomes."
 `;

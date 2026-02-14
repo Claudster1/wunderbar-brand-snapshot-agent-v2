@@ -1,5 +1,5 @@
 // lib/generateSnapshotPdf.ts
-// PDF generation utility for Brand Snapshot reports
+// PDF generation utility for WunderBrand Snapshot™ reports
 
 import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
@@ -55,7 +55,7 @@ function transformReportForPdf(report: any) {
   if (recommendations.length === 0) {
     recommendations.push({
       title: "Next Steps",
-      description: "Review your Brand Snapshot™ results and focus on improving your weakest pillar first. Consider upgrading to Snapshot+™ for a complete strategic roadmap.",
+      description: "Review your WunderBrand Snapshot™ results and focus on improving your weakest pillar first. Consider upgrading to Snapshot+™ for a complete strategic roadmap.",
     });
   }
 

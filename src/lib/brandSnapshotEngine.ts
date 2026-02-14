@@ -1,6 +1,6 @@
 // lib/brandSnapshotEngine.ts
 // ---------------------------------------------
-// Core scoring + insights engine for Brand Snapshot™
+// Core scoring + insights engine for WunderBrand Snapshot™
 // ---------------------------------------------
 
 export type PillarScores = {
@@ -155,7 +155,7 @@ function generateRecommendations(pillars: PillarScores): string[] {
 // For existing code that passes pillarScores directly
 // =============================================================
 export function calculateScores(pillarScores: PillarScores) {
-  // Calculate Brand Alignment Score from existing pillar scores
+  // Calculate WunderBrand Score™ from existing pillar scores
   const brandAlignmentScore = Math.round(
     (pillarScores.positioning +
       pillarScores.messaging +

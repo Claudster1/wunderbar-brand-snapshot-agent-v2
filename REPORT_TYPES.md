@@ -1,17 +1,17 @@
 # Complete List of Report Types
 
-This document outlines all report types in the Wunderbar Digital Brand Snapshot system.
+This document outlines all report types in the Wunderbar Digital WunderBrand Snapshot™ system.
 
 ---
 
-## 1. Brand Snapshot™ (FREE)
+## 1. WunderBrand Snapshot™ (FREE)
 
 **Type:** Free assessment report  
 **Purpose:** Initial brand alignment assessment  
 **Database Table:** `brand_snapshot_reports`
 
 ### What It Includes:
-- **Brand Alignment Score™** (0-100) - Overall brand health score
+- **WunderBrand Score™** (0-100) - Overall brand health score
 - **Five Pillar Scores** (0-20 each):
   - Positioning
   - Messaging
@@ -32,20 +32,20 @@ This document outlines all report types in the Wunderbar Digital Brand Snapshot 
 
 ---
 
-## 2. Brand Snapshot+™ (PAID) - $497
+## 2. WunderBrand Snapshot+™ (PAID) - $497
 
 **Type:** Paid deep-dive report  
 **Purpose:** Comprehensive brand analysis with actionable recommendations  
 **Database Table:** `brand_snapshot_plus_reports`  
-**Upgrade Path:** From Brand Snapshot™  
+**Upgrade Path:** From WunderBrand Snapshot™  
 **Price:** $497
 
 ### What It Includes:
 - **10-Page PDF Report** with:
   - Executive Summary
-  - Brand Alignment Score™ Deep Dive
+  - WunderBrand Score™ Deep Dive
   - **5 Pillar Deep Dives** (1 page per pillar):
-    - What Wundy saw in your business
+    - What Wundy™ saw in your business
     - What this means for growth
     - Opportunities unique to your brand
     - **2-3 custom recommendations per pillar**
@@ -68,7 +68,7 @@ This document outlines all report types in the Wunderbar Digital Brand Snapshot 
 
 ---
 
-## 3. Brand Blueprint™ (PAID) - $997
+## 3. WunderBrand Blueprint™ (PAID) - $997
 
 **Type:** Paid strategic brand foundation  
 **Purpose:** Complete brand strategy system  
@@ -118,7 +118,7 @@ This document outlines all report types in the Wunderbar Digital Brand Snapshot 
 
 ---
 
-## 4. Brand Blueprint+™ (PAID) - $1,997
+## 4. WunderBrand Blueprint+™ (PAID) - $1,997
 
 **Type:** Paid advanced strategic foundation  
 **Purpose:** Consulting-grade brand strategy with execution roadmap  
@@ -179,13 +179,13 @@ This document outlines all report types in the Wunderbar Digital Brand Snapshot 
 ## Report Hierarchy & Upgrade Path
 
 ```
-Brand Snapshot™ (FREE)
+WunderBrand Snapshot™ (FREE)
     ↓
-Brand Snapshot+™ (PAID) ✅ AEO Included
+WunderBrand Snapshot+™ (PAID) ✅ AEO Included
     ↓
-Brand Blueprint™ (PAID) ⚠️ AEO Needed
+WunderBrand Blueprint™ (PAID) ⚠️ AEO Needed
     ↓
-Brand Blueprint+™ (PAID) ⚠️ AEO Needed (CRITICAL - has content roadmap)
+WunderBrand Blueprint+™ (PAID) ⚠️ AEO Needed (CRITICAL - has content roadmap)
 ```
 
 ---
@@ -194,10 +194,10 @@ Brand Blueprint+™ (PAID) ⚠️ AEO Needed (CRITICAL - has content roadmap)
 
 | Report Type | Price | AEO Status | Priority |
 |------------|-------|------------|----------|
-| **Brand Snapshot™** | **FREE** | ✅ Basic AEO notes (2-3 opportunities) | ✅ Complete |
-| **Brand Snapshot+™** | **$497** | ✅ Full structured AEO section | ✅ Complete |
-| **Brand Blueprint™** | **$997** | ✅ AEO integrated with brand strategy | ✅ Complete |
-| **Brand Blueprint+™** | **$1,997** | ✅ Complete AEO system with implementation | ✅ Complete |
+| **WunderBrand Snapshot™** | **FREE** | ✅ Basic AEO notes (2-3 opportunities) | ✅ Complete |
+| **WunderBrand Snapshot+™** | **$497** | ✅ Full structured AEO section | ✅ Complete |
+| **WunderBrand Blueprint™** | **$997** | ✅ AEO integrated with brand strategy | ✅ Complete |
+| **WunderBrand Blueprint+™** | **$1,997** | ✅ Complete AEO system with implementation | ✅ Complete |
 
 ---
 

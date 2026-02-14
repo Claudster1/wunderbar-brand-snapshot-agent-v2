@@ -1,5 +1,5 @@
 // app/api/snapshot/save/route.ts
-// API route to save Brand Snapshot reports
+// API route to save WunderBrand Snapshot™ reports
 
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";

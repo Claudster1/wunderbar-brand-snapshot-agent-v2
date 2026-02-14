@@ -8,7 +8,7 @@ export function HistoryCard({ item }: { item: any }) {
         {item.brandName}
       </h4>
       <p className="text-sm">
-        Brand Alignment Score™: {item.score}
+        WunderBrand Score™: {item.score}
       </p>
       <p className="text-sm text-gray-500">
         Primary focus: {item.primaryPillar}

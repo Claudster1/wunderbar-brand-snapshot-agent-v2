@@ -31,7 +31,7 @@ export function ExpectationBlock() {
 
       <Text style={styles.body}>
         This Snapshot+™ report is based on the information you provided during
-        the Brand Snapshot™. Insights reflect current brand signals and patterns.
+        the WunderBrand Snapshot™. Insights reflect current brand signals and patterns.
         Additional context can be added over time to deepen recommendations.
       </Text>
     </View>

@@ -13,6 +13,11 @@ export async function POST(req: Request) {
 
   if (!tag) return NextResponse.json({ skipped: true });
 
+  const { isValidEmail } = await import("@/lib/security/inputValidation");
+  if (email != null && String(email).trim() !== "" && !isValidEmail(email)) {
+    return NextResponse.json({ error: "Invalid email address." }, { status: 400 });
+  }
+
   await fetch(process.env.ACTIVE_CAMPAIGN_WEBHOOK!, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

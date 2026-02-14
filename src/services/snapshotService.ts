@@ -1,5 +1,5 @@
 // src/services/snapshotService.ts
-// Service to handle Brand Snapshot report generation and saving
+// Service to handle WunderBrand Snapshot™ report generation and saving
 
 import { calculateScores } from '../lib/brandSnapshotEngine';
 import type { BrandChatMessage } from '../types';

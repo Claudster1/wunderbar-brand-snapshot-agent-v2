@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  const body = await req.json();
-  const tags: string[] = [];
+  try {
+    const { apiGuard } = await import("@/lib/security/apiGuard");
+    const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+    const guard = apiGuard(req, { routeId: "analytics", rateLimit: GENERAL_RATE_LIMIT });
+    if (!guard.passed) return guard.errorResponse;
+
+    const body = await req.json();
+    const tags: string[] = [];
 
   if (body.event === "RESULTS_VIEWED") {
     tags.push("snapshot:viewed-results");
@@ -30,4 +36,11 @@ export async function POST(req: Request) {
   });
 
   return NextResponse.json({ ok: true });
+  } catch (err: any) {
+    console.error("[Analytics API] Error:", err);
+    return NextResponse.json(
+      { error: err?.message || "Analytics request failed" },
+      { status: 500 }
+    );
+  }
 }

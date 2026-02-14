@@ -1,5 +1,5 @@
 // src/utils/scoring/scoringLogic.ts
-// Thin wrapper around the existing Brand Snapshot™ score calculation.
+// Thin wrapper around the existing WunderBrand Snapshot™ score calculation.
 
 export * from "@/src/lib/brandSnapshotEngine";
 

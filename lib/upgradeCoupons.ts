@@ -8,10 +8,12 @@ import type { ProductKey } from "@/lib/pricing";
 /**
  * Tier hierarchy (higher number = higher tier)
  */
-const TIER_RANK: Record<ProductKey, number> = {
+const TIER_RANK: Record<string, number> = {
   snapshot_plus: 1,
   blueprint: 2,
   blueprint_plus: 3,
+  snapshot_plus_refresh: 0,
+  blueprint_refresh: 0,
 };
 
 /**
@@ -149,10 +151,12 @@ export async function getUpgradeCoupon(
 
   const priorNames = [...priorPurchases]
     .map((p) => {
-      const names: Record<ProductKey, string> = {
+      const names: Record<string, string> = {
         snapshot_plus: "WunderBrand Snapshot+™",
         blueprint: "WunderBrand Blueprint™",
         blueprint_plus: "WunderBrand Blueprint+™",
+        snapshot_plus_refresh: "WunderBrand Snapshot+™ Refresh",
+        blueprint_refresh: "WunderBrand Blueprint™ Refresh",
       };
       return names[p];
     })

@@ -26,11 +26,11 @@ export async function GET(req: Request) {
   try {
     const supabase = supabaseServer();
 
-    const { data } = await supabase
-      .from("brand_snapshot_purchases")
+    const { data } = await (supabase
+      .from("brand_snapshot_purchases" as any)
       .select("product_sku")
       .eq("user_email", email.toLowerCase())
-      .eq("status", "paid");
+      .eq("status", "paid") as any);
 
     if (!data || data.length === 0) {
       return NextResponse.json({ tier: "free" });

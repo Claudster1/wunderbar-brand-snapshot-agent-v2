@@ -42,8 +42,8 @@ export async function POST(req: NextRequest) {
     // ─── Save to database ───
     const supabase = supabaseServer();
 
-    const { error: dbError } = await supabase
-      .from("nps_responses")
+    const { error: dbError } = await (supabase
+      .from("nps_responses" as any)
       .upsert(
         {
           report_id: reportId,
@@ -51,9 +51,9 @@ export async function POST(req: NextRequest) {
           product_tier: tier,
           score,
           reason: sanitizedReason,
-        },
+        } as any,
         { onConflict: "report_id,user_email" }
-      );
+      ));
 
     if (dbError) {
       logger.error("[NPS] Database error", { error: dbError.message });

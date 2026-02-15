@@ -38,8 +38,8 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com data:",
               "img-src 'self' data: blob: https: http:",
-              // Connect: self + Supabase + OpenAI + Stripe + ActiveCampaign + Cloudflare + Slack
-              "connect-src 'self' https://*.supabase.co https://api.openai.com https://api.stripe.com https://*.api-us1.com https://hooks.slack.com https://*.wunderbardigital.com https://*.wunderbrand.ai https://challenges.cloudflare.com wss://*.supabase.co",
+              // Connect: self + Supabase + OpenAI + Stripe + ActiveCampaign + Cloudflare + Slack + Sentry
+              "connect-src 'self' https://*.supabase.co https://api.openai.com https://api.stripe.com https://*.api-us1.com https://hooks.slack.com https://*.wunderbardigital.com https://*.wunderbrand.ai https://challenges.cloudflare.com wss://*.supabase.co https://*.ingest.us.sentry.io",
               // Frames: Stripe + Calendly + Turnstile widget
               "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://calendly.com https://challenges.cloudflare.com",
               "frame-ancestors https://www.wunderbardigital.com https://wunderbardigital.com",

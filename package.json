@@ -11,14 +11,19 @@
         "build": "next build --webpack",
         "start": "next start",
         "lint": "eslint . --ext .ts,.tsx",
-        "types:supabase": "npx supabase gen types typescript --project-id wunderbar-digital-prod > supabase/types.ts"
+        "types:supabase": "npx supabase gen types typescript --project-id wunderbar-digital-prod > supabase/types.ts",
+        "audit": "npm audit --production",
+        "audit:fix": "npm audit fix --production",
+        "health": "curl -s http://localhost:3000/api/health | node -e \"process.stdin.on('data',d=>{const h=JSON.parse(d);console.log(h.status==='healthy'?'✅ Healthy':'⚠️ '+h.status);Object.entries(h.checks).forEach(([k,v])=>console.log('  '+k+': '+(v.ok?'✅':'❌ '+v.error)))})\""
     },
     "dependencies": {
         "@anthropic-ai/sdk": "^0.74.0",
         "@google/generative-ai": "^0.24.1",
         "@react-pdf/renderer": "^4.3.1",
+        "@sentry/nextjs": "^10.38.0",
         "@types/uuid": "^10.0.0",
         "@vercel/og": "^0.8.5",
+        "disposable-email-domains": "^1.0.62",
         "next": "^16.1.6",
         "openai": "^6.9.1",
         "react": "^19.2.4",

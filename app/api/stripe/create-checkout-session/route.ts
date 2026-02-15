@@ -34,6 +34,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing priceId" }, { status: 400 });
     }
 
+    // ─── Security: Only allow known Stripe price IDs ───
+    const ALLOWED_PRICE_IDS = new Set(
+      [
+        process.env.STRIPE_PRICE_SNAPSHOT_PLUS,
+        process.env.STRIPE_PRICE_BLUEPRINT,
+        process.env.STRIPE_PRICE_BLUEPRINT_PLUS,
+      ].filter(Boolean)
+    );
+    if (ALLOWED_PRICE_IDS.size > 0 && !ALLOWED_PRICE_IDS.has(priceId)) {
+      console.warn("[Checkout] Rejected unknown priceId:", priceId);
+      return NextResponse.json({ error: "Invalid product" }, { status: 400 });
+    }
+
     const baseUrl =
       process.env.NEXT_PUBLIC_BASE_URL ||
       process.env.NEXT_PUBLIC_APP_URL ||

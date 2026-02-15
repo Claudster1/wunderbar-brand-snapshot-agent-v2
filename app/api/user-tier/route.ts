@@ -40,7 +40,7 @@ export async function GET(req: Request) {
     let highestRank = 0;
     let highestTier = "free";
 
-    for (const row of data) {
+    for (const row of data as any[]) {
       const info = SKU_RANK[row.product_sku as string];
       if (info && info.rank > highestRank) {
         highestRank = info.rank;

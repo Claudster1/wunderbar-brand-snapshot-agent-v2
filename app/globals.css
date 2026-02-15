@@ -232,6 +232,7 @@ body {
 /* Root layout */
 .app-root {
   height: 100vh;
+  height: 100dvh; /* Dynamic viewport height — respects mobile browser chrome */
   height: -webkit-fill-available;
   display: flex;
   align-items: center;
@@ -246,6 +247,7 @@ body {
   width: 100%;
   max-width: 720px;
   max-height: 100vh;
+  max-height: 100dvh;
   overflow: hidden; /* Prevent shell scroll */
 }
 
@@ -257,6 +259,7 @@ body {
   box-shadow: 0 16px 40px rgba(2, 24, 89, 0.12);
   padding: 28px 28px 24px;
   max-height: calc(100vh - 64px); /* Account for padding */
+  max-height: calc(100dvh - 64px);
   display: flex;
   flex-direction: column;
   overflow: hidden; /* Prevent card scroll */
@@ -455,80 +458,6 @@ body {
   }
 }
 
-/* What to Expect card */
-.expect-card {
-  background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
-  border: 1px solid #D6E4F0;
-  border-radius: 10px;
-  padding: 20px 22px 16px;
-  margin-bottom: 12px;
-}
-.expect-card-title {
-  font-family: var(--font-brand);
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--brand-navy);
-  margin: 0 0 14px;
-  letter-spacing: 0.01em;
-}
-.expect-card-items {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.expect-card-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  font-size: 13.5px;
-  color: #334155;
-  line-height: 1.5;
-}
-.expect-card-item strong {
-  color: var(--brand-navy);
-  font-weight: 600;
-}
-.expect-card-icon {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  margin-top: 1px;
-}
-.expect-card-list {
-  margin: 0 0 0 42px;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.expect-card-list li {
-  font-size: 13px;
-  color: #475569;
-  line-height: 1.5;
-  position: relative;
-  padding-left: 14px;
-}
-.expect-card-list li::before {
-  content: "·";
-  position: absolute;
-  left: 0;
-  color: var(--brand-blue);
-  font-weight: 700;
-  font-size: 18px;
-  line-height: 1.1;
-}
-.expect-card-note {
-  margin: 14px 0 0 !important;
-  font-size: 12.5px;
-  color: var(--brand-muted);
-  line-height: 1.5;
-  font-style: italic;
-}
-
 .chat-panel {
   border: 1px solid #e2e8f0;
   border-radius: 5px;
@@ -539,7 +468,6 @@ body {
   gap: 16px;
   flex: 1;
   min-height: 0; /* Allow flex shrinking */
-  max-height: 500px; /* Limit panel height */
   overflow: hidden; /* Prevent panel scroll */
 }
 
@@ -555,6 +483,8 @@ body {
   border-radius: 5px;
   /* Smooth scrolling */
   scroll-behavior: smooth;
+  /* Momentum scroll on iOS */
+  -webkit-overflow-scrolling: touch;
 }
 
 .chat-bubble {
@@ -829,44 +759,135 @@ a.sr-only:focus {
   text-align: center;
 }
 
-/* Responsive */
+/* Responsive — tablets & small desktops */
 @media (max-width: 640px) {
   .app-root {
-    padding: 16px 8px;
+    padding: 12px 8px;
+    align-items: flex-start; /* Don't center vertically — maximize vertical space */
   }
 
   .app-card {
-    padding: 22px 18px 18px;
+    padding: 18px 16px 14px;
     border-radius: 5px;
-    max-height: calc(100vh - 32px); /* Account for smaller padding */
+    max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px);
   }
 
   .app-card-header {
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    text-align: center;
+    gap: 12px;
   }
 
-  .app-header-text {
-    width: 100%;
+  .app-card-avatar {
+    width: 48px;
+    height: 48px;
+  }
+
+  .app-card-eyebrow {
+    font-size: 15px;
+    letter-spacing: 0.12em;
+  }
+
+  .app-card-header p {
+    font-size: 12px !important;
+    margin-top: 4px !important;
+  }
+
+  .app-body {
+    margin-top: 10px;
   }
 
   .chat-panel {
-    padding: 12px;
-    max-height: 400px; /* Smaller on mobile */
+    padding: 10px;
   }
 
+  /* Let chat-messages fill remaining space via flexbox — no hard max-height */
   .chat-messages {
-    max-height: 280px; /* Smaller on mobile */
+    max-height: none;
   }
 
+  .chat-bubble {
+    max-width: 95%;
+    font-size: 0.9rem;
+    padding: 10px 12px;
+  }
+
+  /* Keep input row horizontal to save vertical space */
   .chat-input-row {
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
-  .chat-send,
+  .chat-input-row input {
+    flex: 1;
+    min-width: 0; /* Allow shrinking */
+    font-size: 16px; /* Prevent iOS zoom on focus */
+  }
+
+  .chat-send {
+    flex-shrink: 0;
+    padding: 10px 14px;
+  }
+
+  .chat-skip {
+    flex-basis: 100%;
+    text-align: center;
+    padding: 6px 8px;
+    font-size: 0.8rem;
+  }
+
   .chat-reset {
     width: 100%;
+  }
+
+  /* Compact progress bar on mobile */
+  .assessment-progress-wrap {
+    padding: 8px 14px 6px;
+  }
+
+  .assessment-progress-label {
+    font-size: 11px;
+  }
+
+  /* Compact confidence note */
+  .assessment-inline-confidence {
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+}
+
+/* Responsive — small phones */
+@media (max-width: 380px) {
+  .app-root {
+    padding: 8px 4px;
+  }
+
+  .app-card {
+    padding: 14px 12px 12px;
+    max-height: calc(100vh - 16px);
+    max-height: calc(100dvh - 16px);
+  }
+
+  .app-card-eyebrow {
+    font-size: 13px;
+    letter-spacing: 0.1em;
+  }
+
+  .chat-panel {
+    padding: 8px;
+    gap: 10px;
+  }
+
+  .chat-bubble {
+    font-size: 0.85rem;
+    padding: 8px 10px;
+  }
+
+  .chat-send {
+    padding: 8px 12px;
+    font-size: 0.85rem;
   }
 }
 
@@ -1549,3 +1570,190 @@ a.sr-only:focus {
   }
 }
 
+/* ─── Email Verification Gate ─── */
+.email-verification-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(2, 24, 89, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 24px;
+  animation: fadeInGate 0.3s ease;
+}
+
+@keyframes fadeInGate {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.email-verification-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(2, 24, 89, 0.25);
+  padding: 40px 36px;
+  max-width: 440px;
+  width: 100%;
+  animation: slideUpGate 0.35s ease;
+}
+
+@keyframes slideUpGate {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.email-verification-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.email-verification-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: #EBF8FF;
+  margin-bottom: 16px;
+}
+
+.email-verification-title {
+  font-family: var(--font-brand);
+  font-size: 22px;
+  font-weight: 700;
+  color: #021859;
+  margin: 0 0 8px;
+}
+
+.email-verification-subtitle {
+  font-size: 14px;
+  color: #5A6B7E;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.email-verification-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.email-verification-input {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 15px;
+  border: 1.5px solid #D6E4F0;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  color: #021859;
+  box-sizing: border-box;
+}
+
+.email-verification-input:focus {
+  border-color: #07B0F2;
+  box-shadow: 0 0 0 3px rgba(7, 176, 242, 0.15);
+}
+
+.email-verification-input::placeholder {
+  color: #94A3B8;
+}
+
+.email-verification-btn {
+  width: 100%;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  background: #07B0F2;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+}
+
+.email-verification-btn:hover:not(:disabled) {
+  background: #059CD8;
+}
+
+.email-verification-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.email-verification-error {
+  color: #DC2626;
+  font-size: 13px;
+  margin: 0;
+  text-align: center;
+}
+
+.email-verification-note {
+  font-size: 12.5px;
+  color: #94A3B8;
+  text-align: center;
+  margin: 4px 0 0;
+  line-height: 1.4;
+}
+
+.email-verification-code-inputs {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.email-verification-code-digit {
+  width: 48px;
+  height: 56px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: #021859;
+  border: 1.5px solid #D6E4F0;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.email-verification-code-digit:focus {
+  border-color: #07B0F2;
+  box-shadow: 0 0 0 3px rgba(7, 176, 242, 0.15);
+}
+
+.email-verification-actions {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
+
+.email-verification-link {
+  background: none;
+  border: none;
+  color: #07B0F2;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.email-verification-link:disabled {
+  color: #94A3B8;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+@media (max-width: 480px) {
+  .email-verification-card {
+    padding: 28px 20px;
+  }
+  .email-verification-code-digit {
+    width: 40px;
+    height: 48px;
+    font-size: 18px;
+  }
+}

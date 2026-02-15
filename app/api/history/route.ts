@@ -30,6 +30,8 @@ export async function GET(req: Request) {
   let query = supabase
     .from("brand_snapshot_reports")
     .select("id,report_id,company_name,business_name,brand_alignment_score,primary_pillar,created_at,user_email")
+    // Only return reports where the email has been verified (prevents enumeration)
+    .eq("email_verified", true)
     .order("created_at", { ascending: false });
 
   if (userId) {

@@ -1,0 +1,30 @@
+# .github/dependabot.yml
+# Automated dependency update checks.
+# Dependabot will open PRs when new versions are available.
+
+version: 2
+updates:
+  # npm dependencies
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    # Group minor/patch updates into a single PR to reduce noise
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    # Limit open PRs to avoid overwhelming
+    open-pull-requests-limit: 5
+    # Auto-assign for review
+    reviewers:
+      - "Claudster1"
+    labels:
+      - "dependencies"
+      - "automated"
+    # Security updates always get their own PR
+    # (handled automatically by GitHub Security Advisories)

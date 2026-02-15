@@ -22,6 +22,9 @@ export function WunderbarHeader() {
   // Check if header should be hidden on current route
   const shouldHideHeader = HIDDEN_HEADER_ROUTES.some(route => pathname?.startsWith(route));
 
+  // On the assessment page, hide the redundant "Start Your Free" CTA
+  const isAssessmentPage = pathname === "/";
+
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (mobileMenuOpen) {
@@ -97,10 +100,17 @@ export function WunderbarHeader() {
 
         {/* Desktop CTAs */}
         <div className="wunder-btn-container">
-          <a href="https://wunderbardigital.com/brand-snapshot" className="wunder-btn wunder-btn-solid" target="_blank" rel="noopener noreferrer">
-            Start Your Free WunderBrand Snapshot™
-          </a>
-          <a href="https://wunderbardigital.com/talk-to-an-expert" className="wunder-btn wunder-btn-outline" target="_blank" rel="noopener noreferrer">
+          {!isAssessmentPage && (
+            <a href="https://wunderbardigital.com/brand-snapshot" className="wunder-btn wunder-btn-solid" target="_blank" rel="noopener noreferrer">
+              Start Your Free WunderBrand Snapshot™
+            </a>
+          )}
+          <a
+            href="https://wunderbardigital.com/talk-to-an-expert"
+            className={`wunder-btn ${isAssessmentPage ? "wunder-btn-solid" : "wunder-btn-outline"}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Talk to an Expert
           </a>
         </div>
@@ -183,10 +193,18 @@ export function WunderbarHeader() {
 
           {/* Mobile CTAs */}
           <div className="wunder-mobile-ctas">
-            <a href="https://wunderbardigital.com/brand-snapshot" className="wunder-btn wunder-btn-solid" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
-              Start Your Free WunderBrand Snapshot™
-            </a>
-            <a href="https://wunderbardigital.com/talk-to-an-expert" className="wunder-btn wunder-btn-outline" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
+            {!isAssessmentPage && (
+              <a href="https://wunderbardigital.com/brand-snapshot" className="wunder-btn wunder-btn-solid" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
+                Start Your Free WunderBrand Snapshot™
+              </a>
+            )}
+            <a
+              href="https://wunderbardigital.com/talk-to-an-expert"
+              className={`wunder-btn ${isAssessmentPage ? "wunder-btn-solid" : "wunder-btn-outline"}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={closeMenu}
+            >
               Talk to an Expert
             </a>
           </div>

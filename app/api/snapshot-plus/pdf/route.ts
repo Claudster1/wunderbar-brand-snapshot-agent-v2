@@ -126,6 +126,14 @@ export async function GET(req: Request) {
       );
     }
 
+    // ─── Security: block PDF access for unverified reports ───
+    if (report.email_verified === false) {
+      return NextResponse.json(
+        { error: 'Email verification required before downloading your report.' },
+        { status: 403 }
+      );
+    }
+
     // Transform report data (same shape as report view)
     const reportData = transformReportData(report);
 
@@ -144,10 +152,10 @@ export async function GET(req: Request) {
         'Content-Length': pdfBuffer.length.toString(),
       },
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('[Snapshot+ PDF] Error:', err);
     return NextResponse.json(
-      { error: err?.message || 'Failed to generate PDF' },
+      { error: 'Failed to generate PDF. Please try again.' },
       { status: 500 }
     );
   }

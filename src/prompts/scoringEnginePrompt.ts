@@ -128,8 +128,8 @@ INTER-PILLAR CORRELATION:
 - If Credibility is very low (<8), Conversion gets a -2 penalty (prospects won't convert without trust).
 
 ANTI-INFLATION RULES:
-- If the user provides mostly positive/confident answers across the board, DO NOT simply give high scores. Look for SPECIFICITY and EVIDENCE, not self-assessment confidence.
-- "very clear" offer clarity with a vague whatMakesYouDifferent = inflated self-assessment. Score based on evidence, not self-reported confidence.
+- If the user provides mostly positive/confident answers across the board, DO NOT simply give high scores. Look for SPECIFICITY and EVIDENCE, not self-reported confidence.
+- "very clear" offer clarity with a vague whatMakesYouDifferent = inflated self-reporting. Score based on evidence, not self-reported confidence.
 - A business that answers everything but lacks specificity (generic answers, no names, no details) should score in the 10–13 range, not 16+.
 
 ------------------------------------------------------------
@@ -349,7 +349,7 @@ INDUSTRY BENCHMARKING (CRITICAL — include in every pillar insight):
   - "A credibility score of 8 is common for [pre-revenue] businesses, but it's the single biggest barrier to conversion in the [industry] space."
   - "In the [B2C] [industry] space, brands with [businessName]'s visibility profile typically see the fastest improvement from investing in [specific channel]."
 - When using AI-informed estimates (no real data): NEVER fabricate specific percentile numbers or cite fake studies. Use directional language: "above average," "typical for your stage," "below where most [industry] brands operate," "strong relative to peers."
-- When using real peer data: You MAY cite specific percentiles and averages because they come from actual assessments.
+- When using real peer data: You MAY cite specific percentiles and averages because they come from actual diagnostics.
 - The goal is to give the score MEANING and CONTEXT — not just a number.
 
 Voice and tone:

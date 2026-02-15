@@ -12,8 +12,39 @@ export async function POST(req: Request) {
     const guard = apiGuard(req, { routeId: "save-report", rateLimit: GENERAL_RATE_LIMIT });
     if (!guard.passed) return guard.errorResponse;
 
+    // ─── Security: Body size limit ───
+    const { checkBodySize, BODY_LIMITS } = await import("@/lib/security/bodyLimit");
+    const sizeCheck = checkBodySize(req, BODY_LIMITS.SAVE_REPORT);
+    if (sizeCheck) return sizeCheck;
+
     const body = await req.json();
+
+    // ─── Security: Verify Turnstile token (bot protection) ───
+    const { verifyTurnstileToken } = await import("@/lib/security/turnstile");
+    const turnstileResult = await verifyTurnstileToken(
+      body.turnstileToken,
+      req.headers.get("x-forwarded-for") || undefined
+    );
+    if (!turnstileResult.success) {
+      const { logSecurityEvent, getRequestContext } = await import("@/lib/security/securityEvents");
+      logSecurityEvent("turnstile_failed", { ...getRequestContext(req), meta: { errors: turnstileResult["error-codes"] } });
+      return NextResponse.json(
+        { error: "Security verification failed. Please refresh and try again." },
+        { status: 403 }
+      );
+    }
     
+    // ─── Security: Behavioral scoring enforcement ───
+    const behavioralScore = body.behavioralScore;
+    if (typeof behavioralScore === "number" && behavioralScore > 70) {
+      const { logSecurityEvent, getRequestContext } = await import("@/lib/security/securityEvents");
+      logSecurityEvent("behavioral_score_blocked", { ...getRequestContext(req), meta: { score: behavioralScore } });
+      return NextResponse.json(
+        { error: "Suspicious activity detected. Please try again." },
+        { status: 403 }
+      );
+    }
+
     // Extract data from request
     const {
       brandAlignmentScore,
@@ -77,7 +108,7 @@ export async function POST(req: Request) {
     if (insertError) {
       console.error("Supabase insert error:", insertError);
       return NextResponse.json(
-        { error: insertError.message },
+        { error: "Failed to save report. Please try again." },
         { status: 500 }
       );
     }
@@ -94,10 +125,10 @@ export async function POST(req: Request) {
       redirectUrl,
       success: true,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("[Save Report API] Error:", err);
     return NextResponse.json(
-      { error: err?.message || "Failed to save report" },
+      { error: "Failed to save report. Please try again." },
       { status: 500 }
     );
   }

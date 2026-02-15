@@ -18,6 +18,9 @@ const createMessage = (
   text,
 });
 
+// Total questions in the assessment (used for progress tracking and resume context)
+const TOTAL_QUESTIONS = 38;
+
 // First assistant message that appears in the chat
 // Must match the system prompt's first greeting exactly
 const INITIAL_ASSISTANT_MESSAGE = createMessage(
@@ -26,23 +29,110 @@ const INITIAL_ASSISTANT_MESSAGE = createMessage(
 
 This takes about 10–15 minutes. There are no wrong answers, and you don't need anything prepared — but if you have your website, a sense of your competitors, and your target audience in mind, your results will be even sharper.
 
-You can skip any question and save your progress anytime if you need to step away.
-
 Ready when you are — what's your name?`
 );
 
-export function useBrandChat() {
+// ─── Resume: Extract first name from saved conversation ───
+function extractFirstNameFromHistory(msgs: BrandChatMessage[]): string | null {
+  // The first user message is usually their name
+  const firstUserMsg = msgs.find((m) => m.role === 'user');
+  if (!firstUserMsg) return null;
+  const text = firstUserMsg.text.trim();
+  // Strip common prefixes
+  const cleaned = text
+    .replace(/^(hi[,!.]?\s*)?/i, '')
+    .replace(/^(hey[,!.]?\s*)?/i, '')
+    .replace(/^(hello[,!.]?\s*)?/i, '')
+    .replace(/^(my name is|i'?\s*m|i am|it'?\s*s|call me|they call me|you can call me)\s+/i, '')
+    .replace(/[.!,]+$/, '')
+    .trim();
+  const name = cleaned.split(/\s+/)[0] || text;
+  if (!name || name.length > 30) return null;
+  return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+}
+
+// ─── Resume: Detect what topic Wundy was discussing ───
+const TOPIC_SIGNALS: [RegExp, string][] = [
+  [/position(ing)?|unique|differentiat|stand\s*out|competitive\s+advantage/i, 'your brand positioning'],
+  [/messag(e|ing)|tagline|value\s+prop|tone|voice|headline/i, 'your brand messaging'],
+  [/visib(le|ility)|channel|social\s+media|marketing|advertis|SEO|content|audience\s+reach/i, 'your brand visibility'],
+  [/credib(le|ility)|trust|testimonial|review|proof|authority|reputation/i, 'your brand credibility'],
+  [/conver(t|sion)|funnel|leads?|sales|CTA|call.to.action|customer\s+journey|landing\s+page/i, 'your conversion strategy'],
+  [/competitor|compet(e|ition)|rival|alternative/i, 'your competitive landscape'],
+  [/audience|customer|ideal\s+client|target\s+market|buyer|persona/i, 'your target audience'],
+  [/website|online\s+presence|domain/i, 'your online presence'],
+  [/business|company|industry|what\s+you\s+do/i, 'your business'],
+];
+
+function detectLastTopic(msgs: BrandChatMessage[]): string {
+  // Look at the last 2 assistant messages for topic context
+  const assistantMsgs = msgs.filter((m) => m.role === 'assistant');
+  const recent = assistantMsgs.slice(-2);
+  for (const msg of recent.reverse()) {
+    for (const [pattern, label] of TOPIC_SIGNALS) {
+      if (pattern.test(msg.text)) return label;
+    }
+  }
+  return 'your brand';
+}
+
+// ─── Resume: Build personalized welcome-back message ───
+function buildResumeGreeting(
+  firstName: string | null,
+  lastTopic: string,
+  questionsAnswered: number,
+  totalQuestions: number
+): string {
+  const name = firstName || 'there';
+  const pctComplete = Math.round((questionsAnswered / totalQuestions) * 100);
+
+  // Contextual encouragement based on progress
+  let progressNote: string;
+  if (pctComplete < 30) {
+    progressNote = "We're just getting started — plenty of good stuff ahead.";
+  } else if (pctComplete < 60) {
+    progressNote = "We've made solid progress — the picture is already starting to come together.";
+  } else if (pctComplete < 85) {
+    progressNote = "We're in the home stretch — just a few more questions to round things out.";
+  } else {
+    progressNote = "We're almost done — just a few final details and your results will be ready.";
+  }
+
+  return `Welcome back, ${name}! Last time we were working on ${lastTopic}. ${progressNote}
+
+Let's pick up right where we left off.`;
+}
+
+interface UseBrandChatOptions {
+  /** Called when the assessment completes and report is saved. If provided, the hook will NOT auto-redirect — the caller is responsible for navigation. */
+  onComplete?: (reportId: string, redirectUrl: string) => void;
+  /** Custom greeting message (overrides the default). Used for product-tier-specific greetings. */
+  customGreeting?: string;
+  /** Welcome-back template with {firstName} placeholders. If provided, the first user message is treated as their name and the welcome-back is injected directly instead of calling the AI. */
+  welcomeBackTemplate?: string;
+}
+
+export function useBrandChat(options?: UseBrandChatOptions) {
+  const initialMessage = options?.customGreeting
+    ? createMessage('assistant', options.customGreeting)
+    : INITIAL_ASSISTANT_MESSAGE;
+
   const [messages, setMessages] = useState<BrandChatMessage[]>([
-    INITIAL_ASSISTANT_MESSAGE,
+    initialMessage,
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [reportId, setReportId] = useState<string | null>(null);
   const [lastFailedInput, setLastFailedInput] = useState<string | null>(null);
+  const hasReceivedName = useRef(false);
+  const sendingRef = useRef(false); // Synchronous guard against double-sends
   const router = useRouter();
   const { generateReport, loading: pdfLoading } = useGenerateReport();
+  const onCompleteRef = useRef(options?.onComplete);
+  useEffect(() => { onCompleteRef.current = options?.onComplete; }, [options?.onComplete]);
   const isInitialized = useRef(false);
 
   // Initialize: create draft report or load resume
+  // Also persist reportId in sessionStorage so a page refresh can recover.
   useEffect(() => {
     if (isInitialized.current || typeof window === 'undefined') return;
     isInitialized.current = true;
@@ -50,30 +140,57 @@ export function useBrandChat() {
     // Check for resume query param
     const urlParams = new URLSearchParams(window.location.search);
     const resumeId = urlParams.get('resume');
+
+    // Also check sessionStorage for a previously started session (page refresh recovery)
+    const sessionReportId = sessionStorage.getItem('wundy_report_id');
+    const effectiveResumeId = resumeId || sessionReportId;
     
-    if (resumeId) {
+    if (effectiveResumeId) {
       // Load existing progress
-      fetch(`/api/snapshot/resume?reportId=${resumeId}`)
+      fetch(`/api/snapshot/resume?reportId=${effectiveResumeId}`)
         .then((res) => res.json())
         .then((data) => {
           if (data.reportId && data.progress) {
             setReportId(data.reportId);
+            sessionStorage.setItem('wundy_report_id', data.reportId);
+
             // Restore messages from progress if available
             if (data.progress.messages && Array.isArray(data.progress.messages)) {
-              setMessages(data.progress.messages);
+              const savedMessages = data.progress.messages as BrandChatMessage[];
+
+              // Mark that we already have the name (so the welcome-back template is skipped)
+              hasReceivedName.current = true;
+
+              // Build a personalized welcome-back message
+              const firstName = extractFirstNameFromHistory(savedMessages);
+              const lastTopic = detectLastTopic(savedMessages);
+              const answeredCount = savedMessages.filter((m: BrandChatMessage) => m.role === 'user').length;
+              const resumeGreeting = buildResumeGreeting(firstName, lastTopic, answeredCount, TOTAL_QUESTIONS);
+              const resumeMessage = createMessage('assistant', resumeGreeting);
+
+              setMessages([...savedMessages, resumeMessage]);
             }
+          } else if (!resumeId) {
+            // sessionStorage had stale ID — fall through to create new draft
+            sessionStorage.removeItem('wundy_report_id');
+            createDraft();
           }
         })
         .catch((err) => {
           console.error('[useBrandChat] Error loading resume:', err);
+          if (!resumeId) createDraft();
         });
     } else {
-      // Create new draft report
+      createDraft();
+    }
+
+    function createDraft() {
       fetch('/api/snapshot/draft', { method: 'POST' })
         .then((res) => res.json())
         .then((data) => {
           if (data.reportId) {
             setReportId(data.reportId);
+            sessionStorage.setItem('wundy_report_id', data.reportId);
           }
         })
         .catch((err) => {
@@ -143,7 +260,8 @@ export function useBrandChat() {
 
   const sendMessage = async (text: string) => {
     const trimmed = text.trim();
-    if (!trimmed || isLoading) return; // Prevent double submission
+    if (!trimmed || isLoading || sendingRef.current) return; // Prevent double submission
+    sendingRef.current = true;
 
     const userMessage = createMessage('user', trimmed);
 
@@ -151,6 +269,30 @@ export function useBrandChat() {
     const nextHistory = [...messages, userMessage];
     setMessages(nextHistory);
     setIsLoading(true);
+
+    // ─── Two-message intro flow: intercept first message as name ───
+    // If a welcomeBackTemplate is provided and we haven't received the name yet,
+    // treat this message as the user's name and inject the welcome-back directly.
+    if (options?.welcomeBackTemplate && !hasReceivedName.current) {
+      hasReceivedName.current = true;
+      try {
+        const { extractFirstName, interpolateWelcomeBack } = await import('@/lib/chatTierConfig');
+        const firstName = extractFirstName(trimmed);
+        const welcomeBack = interpolateWelcomeBack(options.welcomeBackTemplate, firstName);
+        const assistantMessage = createMessage('assistant', welcomeBack);
+        const updatedHistory = [...nextHistory, assistantMessage];
+        setMessages(updatedHistory);
+        // Save progress with the name
+        saveProgress('name_received', updatedHistory);
+      } catch (err) {
+        console.error('[useBrandChat] Welcome-back interpolation error:', err);
+        // Fall through to normal API call if something goes wrong
+        hasReceivedName.current = false;
+      }
+      setIsLoading(false);
+      sendingRef.current = false;
+      if (hasReceivedName.current) return;
+    }
 
     try {
       const replyText = await getBrandSnapshotReply(nextHistory);
@@ -260,6 +402,10 @@ export function useBrandChat() {
 
             // Save report and get redirect URL
             try {
+              // Include security tokens (bot protection)
+              const turnstileToken = typeof window !== 'undefined' ? (window as any).__turnstileToken : undefined;
+              const behavioralSignals = typeof window !== 'undefined' ? (window as any).__behavioralSignals : undefined;
+
               const saveResponse = await fetch('/api/save-report', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -269,9 +415,11 @@ export function useBrandChat() {
                   pillarInsights,
                   recommendations,
                   userContext,
-                  userName: companyInfo.company_name, // Will be updated when form is submitted
+                  userName: companyInfo.company_name,
                   company: companyInfo.company_name,
                   websiteNotes: companyInfo.website,
+                  turnstileToken,
+                  behavioralScore: behavioralSignals?.riskScore ?? null,
                 }),
               });
 
@@ -310,9 +458,12 @@ export function useBrandChat() {
                       }
                     }, '*');
                     console.log('[useBrandChat] postMessage sent to parent window with redirectUrl:', redirectUrl);
+                  } else if (onCompleteRef.current) {
+                    // Caller provided onComplete callback — defer navigation to them
+                    // (used for email verification gate)
+                    onCompleteRef.current(finalReportId, redirectUrl);
                   } else {
-                    console.warn('[useBrandChat] Not in an iframe - cannot send postMessage to parent');
-                    // If not in iframe, redirect directly
+                    // No callback and not in iframe — redirect directly
                     if (finalReportId) {
                       router.push(`/report/${finalReportId}`);
                     }
@@ -416,6 +567,7 @@ export function useBrandChat() {
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
+      sendingRef.current = false;
     }
   };
 
@@ -435,8 +587,6 @@ export function useBrandChat() {
   };
 
   // Calculate assessment progress based on assistant question count
-  // The assessment has ~38 questions; each assistant turn (after the greeting) = 1 question answered
-  const TOTAL_QUESTIONS = 38;
   const assistantTurns = messages.filter((m) => m.role === 'assistant').length;
   // Subtract 1 for the initial greeting, clamp to 0
   const questionsAnswered = Math.max(0, assistantTurns - 1);

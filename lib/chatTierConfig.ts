@@ -1,0 +1,182 @@
+// lib/chatTierConfig.ts
+// Product tier configuration for the diagnostic chat page.
+// Controls heading, value-prop, Wundy's greeting (message 1), and welcome-back (message 2).
+//
+// Two-message intro flow:
+//   1. greeting  — first chat bubble, asks for their name
+//   2. welcomeBack — after user shares name, uses {firstName} interpolation
+
+export type ChatTier = "snapshot" | "snapshot-plus" | "blueprint" | "blueprint-plus";
+
+export interface ChatTierConfig {
+  /** The eyebrow heading above the chat */
+  heading: string;
+  /** The full product name (for CTAs, emails, etc.) */
+  productName: string;
+  /** The value-prop line below the heading */
+  valueProp: string;
+  /** Estimated time for the diagnostic */
+  timeEstimate: string;
+  /** Wundy's first message — asks for name */
+  greeting: string;
+  /** Wundy's second message — uses {firstName}, sets expectations. Interpolated at runtime. */
+  welcomeBack: string;
+}
+
+const TIER_CONFIGS: Record<ChatTier, ChatTierConfig> = {
+  // ─── WunderBrand Snapshot™ (Free) ───────────────────────────────
+  snapshot: {
+    heading: "WUNDERBRAND SNAPSHOT™",
+    productName: "WunderBrand Snapshot™",
+    valueProp: "See how aligned your brand really is — in about 15 minutes.",
+    timeEstimate: "about 15 minutes",
+
+    greeting: `Hi, I'm Wundy™ — your brand guide here at Wunderbar Digital.
+
+I'm going to walk you through a conversation about your brand. It's not a quiz, there are no wrong answers, and you don't need to prepare anything. We're just going to talk through your business and I'll put together a clear picture of where your brand stands today.
+
+First things first — what's your name?`,
+
+    welcomeBack: `Great to meet you, {firstName}.
+
+Here's how this works — I'll ask you a series of questions about your business, your customers, and how your brand shows up in the world. Some will be easy, some might make you think a little. If anything feels unfamiliar or you're not sure how to answer, that's completely fine — just tell me what you know and I'll work with it.
+
+For example, I might ask about your "positioning." That's really just a fancy way of saying: when someone finds you, what do you want them to think about you compared to the alternatives? If you already know that — great. If not, that's literally what we're here to figure out.
+
+The whole thing takes about 10–15 minutes. If you need to step away, just tap "Save and continue later" below the chat — we'll email you a link to pick up right where you left off.
+
+Ready when you are, {firstName}. Let's see where your brand stands.`,
+  },
+
+  // ─── WunderBrand Snapshot+™ ($497) ──────────────────────────────
+  "snapshot-plus": {
+    heading: "WUNDERBRAND SNAPSHOT+™",
+    productName: "WunderBrand Snapshot+™",
+    valueProp: "A deeper diagnostic with strategic recommendations tailored to your business.",
+    timeEstimate: "about 20–25 minutes",
+
+    greeting: `Hi, I'm Wundy™ — your brand guide here at Wunderbar Digital.
+
+Thank you for choosing WunderBrand Snapshot+™. I'm going to walk you through a conversation about your brand — and because you've chosen this tier, your results will go beyond the diagnostic into tailored strategic recommendations you can act on right away.
+
+Before we get into it — what's your name?`,
+
+    welcomeBack: `Really glad to have you here, {firstName}.
+
+Let me tell you what to expect. I'm going to ask you about your business, your audience, your competitors, and how your brand shows up across different touchpoints. We'll go a bit deeper than a standard Snapshot — that extra depth is what allows me to give you specific strategic recommendations, not just a score.
+
+Plan on about 20–25 minutes. If I ask something that feels unfamiliar — like "brand pillars" or "messaging framework" — don't worry about it. I'll explain as we go, and I'll always give you an example so it's clear what I'm looking for. There's no wrong way to answer.
+
+Your results will also include a Foundational Prompt Pack — 8 AI prompts built from your specific results that you can use in ChatGPT, Claude, or any AI tool to start building your brand platform right away.
+
+If you need to step away, just tap "Save and continue later" below the chat — we'll email you a link to pick up right where you left off. No need to rush through it, {firstName}.
+
+Let's get into it.`,
+  },
+
+  // ─── WunderBrand Blueprint™ ($997) ──────────────────────────────
+  blueprint: {
+    heading: "WUNDERBRAND BLUEPRINT™",
+    productName: "WunderBrand Blueprint™",
+    valueProp: "Your brand strategy, mapped — with an execution-ready action plan.",
+    timeEstimate: "about 25–30 minutes",
+
+    greeting: `Hi, I'm Wundy™ — your brand guide here at Wunderbar Digital.
+
+Welcome to WunderBrand Blueprint™. This is a comprehensive look at your brand — we're going to go deeper than a standard diagnostic and build you an execution-ready strategy you can put to work across your marketing.
+
+I'm looking forward to learning about your business. To start — what's your name?`,
+
+    welcomeBack: `{firstName}, welcome — this is going to be a great conversation.
+
+WunderBrand Blueprint™ is designed to give you a complete strategic picture of your brand, with an execution-ready plan you can act on across your marketing. To get there, I'll ask you some deeper questions about your positioning, messaging, competitive landscape, and how you're reaching your audience today.
+
+Plan on about 25–30 minutes. Some of these questions will be straightforward and some will ask you to think more strategically. If you're someone who lives and breathes marketing, you'll move through quickly. If some of this is newer territory, that's equally fine — I'll give you context and examples along the way. Like if I ask about your "go-to-market approach," I'm really just asking: how do people find you and what's the path from discovering you to becoming a customer?
+
+Your results will include an Execution Prompt Pack — 8 AI prompts for building campaigns, email sequences, and content systems that stay aligned with your brand.
+
+If you need to step away, just tap "Save and continue later" below the chat — we'll email you a link to pick up right where you left off. Take the time you need with the questions that matter most, {firstName} — that's where the real value comes from.
+
+Let's map your brand.`,
+  },
+
+  // ─── WunderBrand Blueprint+™ ($1,997) ──────────────────────────
+  "blueprint-plus": {
+    heading: "WUNDERBRAND BLUEPRINT+™",
+    productName: "WunderBrand Blueprint+™",
+    valueProp: "The complete strategic diagnostic — with a 1:1 Strategy Activation Session.",
+    timeEstimate: "about 30–40 minutes",
+
+    greeting: `Hi, I'm Wundy™ — your brand guide here at Wunderbar Digital.
+
+Welcome to WunderBrand Blueprint+™ — this is our most in-depth strategic experience, and I want to make sure we get the most out of it for you. Your results will include an Advanced Prompt Library and a complimentary Strategy Activation Session with our team, so everything we cover here feeds directly into your 1:1 conversation.
+
+Let's get to know each other. What's your name?`,
+
+    welcomeBack: `{firstName}, thank you for investing in this — I want to make sure the experience matches the investment.
+
+WunderBrand Blueprint+™ is the deepest strategic work we do, and the quality of your results and your Strategy Activation Session both depend on what we cover together here. I'll be asking you thoughtful questions about your positioning, messaging, audience, competitive landscape, funnel strategy, and go-to-market approach. That sounds like a lot, but we'll take it one step at a time and I'll make sure every question is clear.
+
+Plan on about 30–40 minutes. If you're a seasoned marketer, some of this will feel like second nature. If you're earlier in the journey, don't let the terminology slow you down — I'll walk you through it. For example, when I ask about "funnel strategy," I'm really asking: what happens between someone hearing about you for the first time and them deciding to buy? Even if the answer is "I'm not sure yet," that's valuable information.
+
+Your results will include an Advanced Prompt Library — 12 AI frameworks for persona-based messaging, funnel-stage campaigns, and stakeholder communications. And your complimentary 30-minute Strategy Activation Session will turn all of this into a prioritized action plan you can execute on.
+
+Take your time with this, {firstName}. If you need to step away, just tap "Save and continue later" below the chat — we'll email you a link to pick up right where you left off. The more you share, the more we can build together.
+
+It's helpful to have your website, audience info, key competitors, and any existing brand work you can reference — but work with what you have. The diagnostic meets you where you are.
+
+Let's build something strategic.`,
+  },
+};
+
+/**
+ * Parse a tier from a URL query parameter.
+ * Accepts formats like "snapshot-plus", "snapshot_plus", "blueprint", etc.
+ * Returns "snapshot" (free) as the default if unrecognized.
+ */
+export function parseTierFromParam(param: string | null | undefined): ChatTier {
+  if (!param) return "snapshot";
+  const normalized = param.toLowerCase().replace(/_/g, "-").trim();
+  if (normalized === "snapshot-plus") return "snapshot-plus";
+  if (normalized === "blueprint") return "blueprint";
+  if (normalized === "blueprint-plus") return "blueprint-plus";
+  if (normalized === "snapshot") return "snapshot";
+  return "snapshot";
+}
+
+/**
+ * Get the chat configuration for a given product tier.
+ */
+export function getChatTierConfig(tier: ChatTier): ChatTierConfig {
+  return TIER_CONFIGS[tier];
+}
+
+/**
+ * Interpolate {firstName} into the welcome-back template.
+ */
+export function interpolateWelcomeBack(template: string, firstName: string): string {
+  return template.replace(/\{firstName\}/g, firstName);
+}
+
+/**
+ * Extract a first name from the user's response to "What's your name?"
+ * Handles inputs like "John", "John Smith", "My name is John", "I'm Sarah", "It's Mike", etc.
+ */
+export function extractFirstName(input: string): string {
+  const trimmed = input.trim();
+
+  // Remove common prefixes: "My name is", "I'm", "It's", "I am", "Call me", "Hi, I'm", etc.
+  const cleaned = trimmed
+    .replace(/^(hi[,!.]?\s*)?/i, "")
+    .replace(/^(hey[,!.]?\s*)?/i, "")
+    .replace(/^(hello[,!.]?\s*)?/i, "")
+    .replace(/^(my name is|i'?\s*m|i am|it'?\s*s|call me|they call me|people call me|you can call me)\s+/i, "")
+    .replace(/[.!,]+$/, "")
+    .trim();
+
+  // Take the first word as the first name
+  const firstName = cleaned.split(/\s+/)[0] || trimmed;
+
+  // Capitalize first letter
+  return firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+}

@@ -133,5 +133,5 @@ ABSOLUTE RULES:
 - Never fabricate details about the business.
 
 REPORT DISCLAIMER (include as a "disclaimer" field in the JSON output):
-"This report provides strategic brand guidance based on the information you provided during the WunderBrand Snapshot™ assessment. It is not a substitute for legal, financial, or industry-specific regulatory advice. Recommendations should be evaluated in the context of your specific business circumstances, competitive landscape, and applicable regulations. All benchmarks and estimates are directional and based on industry patterns, not guaranteed outcomes."
+"This report provides strategic brand guidance based on the information you provided during the WunderBrand Snapshot™ diagnostic. It is not a substitute for legal, financial, or industry-specific regulatory advice. Recommendations should be evaluated in the context of your specific business circumstances, competitive landscape, and applicable regulations. All benchmarks and estimates are directional and based on industry patterns, not guaranteed outcomes."
 `;

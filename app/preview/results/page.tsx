@@ -974,7 +974,7 @@ export default function BrandSnapshotReport() {
             const PILLAR_UNLOCK_MAP: Record<string, string> = {
               positioning: "WunderBrand Snapshot+™ includes a full positioning diagnosis with before/after examples, competitive context, and a strategic recommendation specific to your positioning gaps.",
               messaging: "WunderBrand Snapshot+™ delivers a complete messaging framework — brand persona, messaging pillars, tone guidelines, and concrete examples of what to say (and what to stop saying).",
-              visibility: "WunderBrand Snapshot+™ includes AEO readiness assessment, visibility diagnosis, and a channel-specific strategy so your efforts compound instead of scatter.",
+              visibility: "WunderBrand Snapshot+™ includes AEO readiness diagnostic, visibility diagnosis, and a channel-specific strategy so your efforts compound instead of scatter.",
               credibility: "WunderBrand Snapshot+™ provides a credibility audit with specific recommendations for where to place proof points, testimonials, and trust signals for maximum impact.",
               conversion: "WunderBrand Snapshot+™ maps your conversion gaps with before/after CTA examples, lead magnet recommendations, and a prioritized action plan to capture more leads.",
             };

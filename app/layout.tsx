@@ -95,6 +95,14 @@ export default function RootLayout({
             `,
           }}
         />
+        <noscript>
+          <div style={{ padding: '40px 20px', textAlign: 'center', fontFamily: 'Lato, sans-serif', maxWidth: 600, margin: '0 auto' }}>
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: '#021859', marginBottom: 12 }}>JavaScript Required</h1>
+            <p style={{ fontSize: 15, color: '#5A6B7E', lineHeight: 1.6 }}>
+              The WunderBrand Suite™ diagnostic requires JavaScript to run. Please enable JavaScript in your browser settings and reload this page.
+            </p>
+          </div>
+        </noscript>
         <WunderbarHeader />
         {children}
         <WunderbarFooter />

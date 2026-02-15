@@ -78,10 +78,10 @@ export function formatPreviousScoresForPrompt(prev: PreviousScoreData | null): s
 
   let fragment = `
 ---------------------------------------------------------------------
-QUARTERLY COMPARISON DATA (Previous Assessment: ${date})
+QUARTERLY COMPARISON DATA (Previous Diagnostic: ${date})
 ---------------------------------------------------------------------
-This is a REFRESH assessment. The customer has completed a prior assessment.
-Include a "Progress Since Last Assessment" section in the report comparing current vs. previous scores.
+This is a REFRESH diagnostic. The customer has completed a prior diagnostic.
+Include a "Progress Since Last Diagnostic" section in the report comparing current vs. previous scores.
 
 Previous WunderBrand Score™: ${prev.brandAlignmentScore}/100
 `;
@@ -95,7 +95,7 @@ Previous WunderBrand Score™: ${prev.brandAlignmentScore}/100
 
   fragment += `
 For each pillar, note whether the score improved, declined, or stayed the same.
-For significant changes (+/- 10 points), explain what likely drove the change based on the assessment answers.
+For significant changes (+/- 10 points), explain what likely drove the change based on the diagnostic answers.
 Frame improvements positively ("Your Messaging pillar jumped 12 points — your updated website copy is working").
 Frame declines constructively ("Your Visibility score dipped 8 points — this often happens when businesses focus heavily on one area and reduce activity in another").
 

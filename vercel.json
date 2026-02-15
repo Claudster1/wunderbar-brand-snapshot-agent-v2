@@ -11,5 +11,11 @@
       "destination": "https://app.wunderbrand.ai/$1",
       "permanent": true
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/health-check",
+      "schedule": "0 9 * * *"
+    }
   ]
 }

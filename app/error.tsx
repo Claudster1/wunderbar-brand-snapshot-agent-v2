@@ -11,6 +11,10 @@ export default function Error({
 }) {
   useEffect(() => {
     console.error("[App Error Boundary]", error);
+    // Report to Sentry (if configured)
+    import("@sentry/nextjs").then((Sentry) => {
+      Sentry.captureException(error);
+    }).catch(() => {});
   }, [error]);
 
   return (

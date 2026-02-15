@@ -1450,7 +1450,7 @@ export default function BrandSnapshotPlusReport() {
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 18, fontWeight: 700, color: NAVY, marginBottom: 4 }}>Overall Context Coverage</div>
               <div style={{ fontSize: 15, color: SUB, lineHeight: 1.55 }}>
-                We had sufficient information to provide a {r.contextCoverage.overallPercent >= 80 ? "highly detailed" : r.contextCoverage.overallPercent >= 60 ? "thorough" : "foundational"} analysis. Areas with lower coverage may benefit from additional data in a follow-up assessment.
+                We had sufficient information to provide a {r.contextCoverage.overallPercent >= 80 ? "highly detailed" : r.contextCoverage.overallPercent >= 60 ? "thorough" : "foundational"} analysis. Areas with lower coverage may benefit from additional data in a follow-up diagnostic.
               </div>
             </div>
           </div>

@@ -99,7 +99,7 @@ export default function AccessPage() {
           }}
         >
           Enter the email you used during your WunderBrand Suite™&#8482;
-          assessment or purchase. We&rsquo;ll send a link to access all of your
+          diagnostic or purchase. We&rsquo;ll send a link to access all of your
           reports.
         </p>
 

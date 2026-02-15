@@ -71,7 +71,7 @@ export default function RetakeCTA() {
           </span>
         </div>
         <p style={{ fontSize: 14, color: SUB, margin: "0 0 14px", lineHeight: 1.6 }}>
-          Unlimited quarterly refreshes are included with WunderBrand Blueprint+™. Retake the assessment to see how your brand has evolved.
+          Unlimited quarterly refreshes are included with WunderBrand Blueprint+™. Retake the diagnostic to see how your brand has evolved.
         </p>
         <a
           href="/"
@@ -187,7 +187,7 @@ export default function RetakeCTA() {
       }}
     >
       <p style={{ fontSize: 14, color: SUB, margin: "0 0 14px", lineHeight: 1.6 }}>
-        Want a fresh perspective? Retake the assessment with updated information for a new analysis.
+        Want a fresh perspective? Retake the diagnostic with updated information for a new analysis.
       </p>
       <a
         href="/"

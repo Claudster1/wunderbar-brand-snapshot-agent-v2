@@ -23,10 +23,40 @@ export async function POST(req: Request) {
   if (!guard.passed) return guard.errorResponse;
 
   try {
-    const { reportId, email } = await req.json();
+    // ─── Security: Body size limit ───
+    const { checkBodySize, BODY_LIMITS } = await import("@/lib/security/bodyLimit");
+    const sizeCheck = checkBodySize(req, BODY_LIMITS.EMAIL_FORM);
+    if (sizeCheck) return sizeCheck;
+
+    const body = await req.json();
+    const { reportId, email } = body;
+
+    // ─── Security: Verify Turnstile token (bot protection) ───
+    const { verifyTurnstileToken } = await import("@/lib/security/turnstile");
+    const turnstileResult = await verifyTurnstileToken(
+      body.turnstileToken,
+      req.headers.get("x-forwarded-for") || undefined
+    );
+    if (!turnstileResult.success) {
+      console.warn("[Save-Exit] Turnstile verification failed:", turnstileResult["error-codes"]);
+      return NextResponse.json(
+        { error: "Security verification failed. Please refresh and try again." },
+        { status: 403 }
+      );
+    }
 
     if (!email || !email.includes("@")) {
       return NextResponse.json({ error: "Invalid email" }, { status: 400 });
+    }
+
+    // Enhanced email validation (disposable domain + MX check)
+    const { validateEmail } = await import("@/lib/security/emailValidation");
+    const emailCheck = await validateEmail(email);
+    if (!emailCheck.valid) {
+      return NextResponse.json(
+        { error: emailCheck.friendlyMessage, reason: emailCheck.reason },
+        { status: 422 }
+      );
     }
 
     const normalized = email.trim().toLowerCase();
@@ -35,10 +65,14 @@ export async function POST(req: Request) {
     // Update the draft report with the user's email
     const supabase = getSupabase();
     if (supabase && reportId) {
-      await supabase
+      const { error: dbError } = await supabase
         .from("brand_snapshot_reports")
         .update({ user_email: normalized })
         .eq("report_id", reportId);
+      if (dbError) {
+        console.error("[Save-Exit] Supabase update error:", dbError);
+        return NextResponse.json({ error: "Failed to save your progress." }, { status: 500 });
+      }
     }
 
     // Fire AC event to send the resume email

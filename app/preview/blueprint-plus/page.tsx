@@ -1244,7 +1244,7 @@ Prioritize ruthlessly. A brand trying to fix everything at once fixes nothing.`,
     { decision: "Pricing: Premium positioning vs. Accessible entry points", context: "This shapes everything from messaging to client expectations.", optionA: { label: "Premium Only", description: "Price above market, attract clients who value expertise over cost.", pros: ["Higher margins", "Better clients", "Stronger brand perception"], cons: ["Smaller pipeline", "Longer sales cycle", "Pressure to deliver"], bestIf: "The brand has strong enough credibility to justify premium pricing.", exampleBrand: "Pentagram charges $200K+ for brand identity work and turns away 90% of inquiries \u2014 scarcity creates demand." }, optionB: { label: "Tiered with Entry Point", description: "Offer a lower-cost entry product alongside premium services.", pros: ["Larger pipeline", "Land-and-expand opportunity", "Builds trust before big commitment"], cons: ["Potential brand dilution", "More complex operations"], bestIf: "The brand needs more pipeline volume and wants to demonstrate value before asking for premium investment.", exampleBrand: "The WunderBrand Snapshot™\u2122 suite itself is a perfect example \u2014 free entry, escalating value, premium top tier." }, recommendation: "Option B is recommended \u2014 Acme Co\u2019s own product suite demonstrates this model perfectly. Use entry-level offerings to build the pipeline, then graduate clients into premium engagements.", revisitWhen: "When Acme Co\u2019s pipeline is consistently full and the team can afford to be more selective." },
   ],
   ninetyDayRoadmap: {
-    overview: "This 90-day roadmap transforms Acme Co\u2019s assessment insights into measurable brand improvements. The sequence matters: Phase 1 builds the trust foundation (credibility), Phase 2 activates that foundation through messaging and visibility, Phase 3 optimizes the system for sustainable growth.",
+    overview: "This 90-day roadmap transforms Acme Co\u2019s diagnostic insights into measurable brand improvements. The sequence matters: Phase 1 builds the trust foundation (credibility), Phase 2 activates that foundation through messaging and visibility, Phase 3 optimizes the system for sustainable growth.",
     phase1: {
       name: "Foundation",
       objective: "Surface hidden credibility, fix the biggest conversion leak, and establish baseline metrics.",
@@ -1286,7 +1286,7 @@ Prioritize ruthlessly. A brand trying to fix everything at once fixes nothing.`,
     },
   },
   brandHealthScorecard: {
-    overview: "This scorecard transforms the one-time WunderBrand Blueprint+™\u2122 assessment into an ongoing measurement framework. Review these dimensions quarterly to track brand health, catch drift early, and make data-informed decisions about where to invest.",
+    overview: "This scorecard transforms the one-time WunderBrand Blueprint+™\u2122 diagnostic into an ongoing measurement framework. Review these dimensions quarterly to track brand health, catch drift early, and make data-informed decisions about where to invest.",
     scorecardDimensions: [
       { dimension: "Brand Awareness", currentState: "Acme Co has active LinkedIn presence but limited organic search visibility and no thought leadership platform.", targetState: "Top 3 organic search results for \u2018B2B brand strategy [region]\u2019 and consistent LinkedIn engagement (50+ reactions per post).", keyMetric: "Monthly branded search volume + LinkedIn post engagement rate", measurementMethod: "Google Search Console (branded queries) + LinkedIn Analytics", frequency: "Monthly", greenThreshold: "Branded search up 20%+ MoM; LinkedIn engagement rate above 3%", yellowThreshold: "Flat branded search; LinkedIn engagement 1\u20133%", redThreshold: "Declining branded search; LinkedIn engagement below 1%" },
       { dimension: "Lead Quality", currentState: "Leads come primarily through referrals with no systematic lead capture.", targetState: "50% of leads come through inbound channels (website, content, LinkedIn) with clear attribution.", keyMetric: "Inbound lead percentage + Lead-to-qualified-opportunity rate", measurementMethod: "CRM tracking (or spreadsheet) with source attribution", frequency: "Monthly", greenThreshold: "40%+ inbound leads; 30%+ qualification rate", yellowThreshold: "20\u201340% inbound; 15\u201330% qualification", redThreshold: "Below 20% inbound; below 15% qualification" },
@@ -1484,7 +1484,7 @@ Prioritize ruthlessly. A brand trying to fix everything at once fixes nothing.`,
     repurposingPlaybook: "1\u21925 Rule: Every YouTube video becomes a LinkedIn carousel, 3 LinkedIn text posts, a Twitter thread, and an email newsletter segment. Every blog post becomes a LinkedIn post, an email topic, and 2\u20133 social media quotes. This maximizes reach while minimizing creation time."
   },
   swotAnalysis: {
-    overview: "This SWOT analysis connects your brand diagnostic data to strategic positioning \u2014 it's not generic, it's calibrated to Acme Co's specific assessment results.",
+    overview: "This SWOT analysis connects your brand diagnostic data to strategic positioning \u2014 it's not generic, it's calibrated to Acme Co's specific diagnostic results.",
     strengths: [
       { item: "Strong positioning clarity", evidence: "Positioning scored 16/20 \u2014 the highest pillar. Acme Co has a clear sense of who they are and what they offer.", leverage: "Use this as the foundation for all marketing \u2014 lead with positioning strength in sales materials and website copy." },
       { item: "Differentiated methodology", evidence: "The diagnostic framework and 5-pillar system are unique in the market.", leverage: "Position the methodology as a thought leadership asset \u2014 publish it, speak about it, make it the brand's calling card." },
@@ -3476,7 +3476,7 @@ export default function BrandBlueprintPlusReport() {
         {/* ═══ BRAND HEALTH SCORECARD ═══ */}
         {(r as any).brandHealthScorecard && (
           <Section id="brand-health-scorecard" pageBreak>
-            <SectionTitle hero description="A living measurement framework to track brand health quarterly. This turns a one-time assessment into an ongoing operational tool.">
+            <SectionTitle hero description="A living measurement framework to track brand health quarterly. This turns a one-time diagnostic into an ongoing operational tool.">
               <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <svg viewBox="0 0 24 24" fill="none" style={{ width: 24, height: 24 }}>
                   <rect x="3" y="3" width="18" height="18" rx="2" stroke={BLUE} strokeWidth="1.5"/>

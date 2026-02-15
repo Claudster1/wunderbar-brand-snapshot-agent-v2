@@ -33,7 +33,7 @@ export async function GET(req: Request) {
     // Fetch only the columns the results page needs (avoid SELECT *)
     const { data, error } = await supabaseAdmin
       .from("brand_snapshot_reports")
-      .select("report_id, company_name, brand_alignment_score, pillar_scores, pillar_insights, recommendations, summary, opportunities_summary, upgrade_cta, full_report, user_name, user_email, created_at")
+      .select("report_id, company_name, brand_alignment_score, pillar_scores, pillar_insights, recommendations, summary, opportunities_summary, upgrade_cta, full_report, user_name, user_email, email_verified, created_at")
       .eq("report_id", id)
       .single();
     
@@ -51,6 +51,16 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
+    // ─── Enforcement: email must be verified before report data is served ───
+    // If this report has gone through the verification flow (has a non-null email_verified column)
+    // and is NOT yet verified, block access.
+    if ((data as any).email_verified === false) {
+      return NextResponse.json(
+        { error: "Email not yet verified. Please complete verification to view your results." },
+        { status: 403 }
+      );
+    }
+
     // Transform so the results page always receives expected keys
     const out: Record<string, unknown> = { ...data };
     if (!out.company_name && (data as any).company) {
@@ -65,10 +75,10 @@ export async function GET(req: Request) {
         "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
       },
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("[Snapshot Get API] Unexpected error:", err);
     return NextResponse.json(
-      { error: err?.message || "Failed to get snapshot" },
+      { error: "Failed to load report. Please try again." },
       { status: 500 }
     );
   }

@@ -1,3 +1,4 @@
+const { withSentryConfig } = require('@sentry/nextjs');
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 });
@@ -32,16 +33,21 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://www.googletagmanager.com",
+              // Scripts: self + Stripe + GTM + Cloudflare Turnstile + ActiveCampaign tracking
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://www.googletagmanager.com https://challenges.cloudflare.com https://diffuser-cdn.app-us1.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com data:",
               "img-src 'self' data: blob: https: http:",
-              "connect-src 'self' https://*.supabase.co https://api.openai.com https://api.stripe.com https://*.api-us1.com https://hooks.slack.com https://*.wunderbardigital.com wss://*.supabase.co",
-              "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://calendly.com",
+              // Connect: self + Supabase + OpenAI + Stripe + ActiveCampaign + Cloudflare + Slack
+              "connect-src 'self' https://*.supabase.co https://api.openai.com https://api.stripe.com https://*.api-us1.com https://hooks.slack.com https://*.wunderbardigital.com https://*.wunderbrand.ai https://challenges.cloudflare.com wss://*.supabase.co",
+              // Frames: Stripe + Calendly + Turnstile widget
+              "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://calendly.com https://challenges.cloudflare.com",
               "frame-ancestors https://www.wunderbardigital.com https://wunderbardigital.com",
               "object-src 'none'",
               "base-uri 'self'",
               "form-action 'self' https://checkout.stripe.com",
+              // Prevent loading as a worker from other origins
+              "worker-src 'self' blob:",
             ].join('; '),
           },
           // Prevent MIME-type sniffing
@@ -80,5 +86,19 @@ const nextConfig = {
   },
 }
 
-module.exports = withBundleAnalyzer(nextConfig)
+// Wrap with Sentry (only active when DSN is configured)
+const sentryWebpackPluginOptions = {
+  // Suppress source map upload logs in CI
+  silent: true,
+  // Upload source maps to Sentry for readable stack traces
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  // Only upload source maps in production builds
+  disableServerWebpackPlugin: !process.env.NEXT_PUBLIC_SENTRY_DSN,
+  disableClientWebpackPlugin: !process.env.NEXT_PUBLIC_SENTRY_DSN,
+};
+
+module.exports = process.env.NEXT_PUBLIC_SENTRY_DSN
+  ? withSentryConfig(withBundleAnalyzer(nextConfig), sentryWebpackPluginOptions)
+  : withBundleAnalyzer(nextConfig)
 

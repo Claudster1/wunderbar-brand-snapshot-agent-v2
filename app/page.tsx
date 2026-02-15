@@ -1,13 +1,89 @@
 'use client'
 
-import { FormEvent, useState, useEffect, useRef } from "react";
+import { FormEvent, useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import { useBrandChat } from "../src/hooks/useBrandChat";
 import WundyLogo from "@/assets/wundy-logo.jpeg";
+import { TurnstileWidget } from "@/components/security/TurnstileWidget";
+import { BehaviorTracker } from "@/lib/security/behavioralScoring";
+import { EmailVerificationGate } from "@/components/security/EmailVerificationGate";
+import { parseTierFromParam, getChatTierConfig, interpolateWelcomeBack, type ChatTier } from "@/lib/chatTierConfig";
 import "./globals.css";
 
 export default function Home() {
-  const { messages, isLoading, sendMessage, retry, canRetry, reset, reportId, assessmentProgress, questionsAnswered, totalQuestions } = useBrandChat();
+  // ─── Product tier + customer name detection ───
+  const searchParams = useSearchParams();
+  const tier = useMemo(() => parseTierFromParam(searchParams.get("tier")), [searchParams]);
+  const tierConfig = useMemo(() => getChatTierConfig(tier), [tier]);
+  // Sanitize name param: strip non-letter chars, cap at 50 chars
+  const rawName = searchParams.get("name") || null;
+  const customerName = useMemo(() => {
+    if (!rawName) return null;
+    const sanitized = rawName.replace(/[^a-zA-ZÀ-ÿ\s'-]/g, "").trim().slice(0, 50);
+    return sanitized || null;
+  }, [rawName]);
+  const tierTokenParam = searchParams.get("token") || null;
+
+  // ─── Security: Validate paid tier access ───
+  // If someone visits /?tier=blueprint without a valid token, downgrade to free tier
+  const [validatedTier, setValidatedTier] = useState(tier === "snapshot" ? "snapshot" : "pending");
+  useEffect(() => {
+    if (tier === "snapshot") {
+      setValidatedTier("snapshot");
+      return;
+    }
+    // Paid tier: validate token
+    if (!tierTokenParam) {
+      console.warn("[Tier] No token for paid tier — downgrading to snapshot");
+      setValidatedTier("snapshot");
+      return;
+    }
+    fetch(`/api/validate-tier?token=${encodeURIComponent(tierTokenParam)}&tier=${tier}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.valid) {
+          setValidatedTier(tier);
+        } else {
+          console.warn("[Tier] Token validation failed:", data.reason);
+          setValidatedTier("snapshot");
+        }
+      })
+      .catch(() => {
+        setValidatedTier("snapshot");
+      });
+  }, [tier, tierTokenParam]);
+
+  // Use the validated tier's config (paid access must be verified)
+  const activeTier = validatedTier === "pending" ? "snapshot" : validatedTier as ChatTier;
+  const activeTierConfig = useMemo(() => getChatTierConfig(activeTier), [activeTier]);
+
+  // For paid tiers with a known name from Stripe:
+  //   → Skip the "what's your name?" step entirely
+  //   → Combine a short intro + the personalized welcome-back into one opening message
+  // For the free tier (or paid without a name):
+  //   → Use the standard two-message flow: greeting asks name → user responds → welcome-back
+  const resolvedGreeting = useMemo(() => {
+    if (customerName && activeTier !== "snapshot") {
+      // Paid tier with name from Stripe — build a single personalized opening
+      const welcomeBack = interpolateWelcomeBack(activeTierConfig.welcomeBack, customerName);
+      return `Hi ${customerName}, I'm Wundy™ — your brand guide here at Wunderbar Digital.\n\n${welcomeBack}`;
+    }
+    // Standard greeting (asks for name)
+    return activeTierConfig.greeting;
+  }, [activeTier, activeTierConfig, customerName]);
+
+  // When the assessment completes, show email verification instead of auto-redirecting
+  const handleAssessmentComplete = useCallback((completedReportId: string, redirectUrl: string) => {
+    pendingRedirectRef.current = redirectUrl;
+    setShowEmailVerification(true);
+  }, []);
+
+  const { messages, isLoading, sendMessage, retry, canRetry, reset, reportId, assessmentProgress, questionsAnswered, totalQuestions } = useBrandChat({
+    onComplete: handleAssessmentComplete,
+    customGreeting: resolvedGreeting,
+    welcomeBackTemplate: (!customerName || activeTier === "snapshot") ? activeTierConfig.welcomeBack : undefined,
+  });
   const [inputValue, setInputValue] = useState("");
   const [progress, setProgress] = useState(0);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
@@ -16,6 +92,31 @@ export default function Home() {
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // ─── Security: Turnstile token ───
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const handleTurnstileToken = useCallback((token: string) => {
+    setTurnstileToken(token);
+    // Store globally so the useBrandChat hook can include it in API calls
+    if (typeof window !== "undefined") {
+      (window as any).__turnstileToken = token;
+    }
+  }, []);
+
+  // ─── Security: Honeypot field ───
+  const [honeypot, setHoneypot] = useState("");
+
+  // ─── Security: Behavioral tracking ───
+  const behaviorTrackerRef = useRef<BehaviorTracker | null>(null);
+  useEffect(() => {
+    behaviorTrackerRef.current = new BehaviorTracker();
+    return () => { behaviorTrackerRef.current?.destroy(); };
+  }, []);
+
+  // ─── Security: Email verification gate ───
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
+  const pendingRedirectRef = useRef<string | null>(null);
 
   // Skip the current question
   const handleSkip = async () => {
@@ -98,6 +199,22 @@ export default function Home() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!inputValue.trim()) return;
+
+    // ─── Security: Honeypot check (bots fill hidden fields) ───
+    if (honeypot) {
+      // Silently ignore — looks like a successful submission to the bot
+      setInputValue("");
+      return;
+    }
+
+    // Track behavioral signal for this message
+    behaviorTrackerRef.current?.recordMessage(inputValue);
+
+    // Expose behavioral signals to the save-report hook (read via window)
+    if (behaviorTrackerRef.current) {
+      (window as any).__behavioralSignals = behaviorTrackerRef.current.getSignals();
+    }
+
     await sendMessage(inputValue);
     setInputValue("");
     // Focus input after message is sent and cleared
@@ -207,6 +324,24 @@ export default function Home() {
 
   return (
     <div className="app-root">
+      {/* Invisible Cloudflare Turnstile CAPTCHA */}
+      <TurnstileWidget onToken={handleTurnstileToken} />
+
+      {/* Email verification gate — shown after assessment completes */}
+      {showEmailVerification && !emailVerified && reportId && (
+        <EmailVerificationGate
+          reportId={reportId}
+          onVerified={(verifiedEmail) => {
+            setEmailVerified(true);
+            setShowEmailVerification(false);
+            // If we have a pending redirect, navigate now
+            if (pendingRedirectRef.current) {
+              window.location.href = pendingRedirectRef.current;
+            }
+          }}
+        />
+      )}
+
       <div className="app-shell">
         <section className="app-card" aria-labelledby="wundy-heading">
           <header className="app-card-header">
@@ -221,7 +356,10 @@ export default function Home() {
             </div>
 
             <div>
-              <div className="app-card-eyebrow">BRAND SNAPSHOT™</div>
+              <div className="app-card-eyebrow">{activeTierConfig.heading}</div>
+              <p style={{ fontSize: '14px', color: '#5A6B7E', fontWeight: 400, textAlign: 'center', marginTop: '8px', marginBottom: 0 }}>
+                {activeTierConfig.valueProp}
+              </p>
             </div>
           </header>
 
@@ -251,9 +389,10 @@ export default function Home() {
 
           <div className="app-body">
             <p className="assessment-inline-confidence">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#07B0F2" width="14" height="14" style={{ display: 'inline-block', verticalAlign: '-1px', marginRight: '4px', flexShrink: 0 }}><path d="M18 10h-1V7A5 5 0 0 0 7 7v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2ZM9 7a3 3 0 1 1 6 0v3H9V7Z"/></svg>
               Your responses are confidential and won't be shared with third parties.{' '}
               <a
-                href="https://wunderbardigital.com/privacy-policy?utm_source=assessment_flow&utm_medium=assessment_ui&utm_campaign=confidentiality_link&utm_content=privacy_policy"
+                href="https://wunderbardigital.com/privacy-policy?utm_source=diagnostic_flow&utm_medium=diagnostic_ui&utm_campaign=confidentiality_link&utm_content=privacy_policy"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="assessment-privacy-link"
@@ -264,40 +403,7 @@ export default function Home() {
 
             
 
-            {/* What to Expect card — visible only before user starts */}
-            {!conversationStarted && (
-              <div className="expect-card fadein">
-                <h3 className="expect-card-title">What to Expect</h3>
-                <div className="expect-card-items">
-                  <div className="expect-card-item">
-                    <span className="expect-card-icon">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#07B0F2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    </span>
-                    <span><strong>About 10–15 minutes</strong> — or save and finish later</span>
-                  </div>
-                  <div className="expect-card-item">
-                    <span className="expect-card-icon">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#07B0F2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                    </span>
-                    <span><strong>No prep needed</strong>, but having these handy helps:</span>
-                  </div>
-                  <ul className="expect-card-list">
-                    <li>Your business name &amp; website</li>
-                    <li>Who your customers are (and your ideal customers)</li>
-                    <li>2–3 competitors</li>
-                    <li>What makes your business different</li>
-                    <li>Your current marketing channels</li>
-                  </ul>
-                  <div className="expect-card-item">
-                    <span className="expect-card-icon">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#07B0F2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-                    </span>
-                    <span>You can <strong>save your progress</strong> and continue anytime</span>
-                  </div>
-                </div>
-                <p className="expect-card-note">The more detail you share, the more personalized and actionable your report will be.</p>
-              </div>
-            )}
+            
 
             <div className="chat-panel">
               <div className="chat-messages" aria-live="polite">
@@ -427,12 +533,26 @@ export default function Home() {
                   <label htmlFor="brand-message" className="sr-only">
                     Send a message to Wundy™
                   </label>
+                  {/* Honeypot: invisible to humans, bots auto-fill it */}
+                  <input
+                    type="text"
+                    name="company_url"
+                    value={honeypot}
+                    onChange={(e) => setHoneypot(e.target.value)}
+                    tabIndex={-1}
+                    autoComplete="off"
+                    aria-hidden="true"
+                    style={{ position: "absolute", left: "-9999px", width: 0, height: 0, opacity: 0 }}
+                  />
                   <input
                     ref={inputRef}
                     id="brand-message"
                     name="brand-message"
                     value={inputValue}
-                    onChange={(event) => setInputValue(event.target.value)}
+                    onChange={(event) => {
+                      setInputValue(event.target.value);
+                      behaviorTrackerRef.current?.recordKeystroke();
+                    }}
                     placeholder="Type your reply…"
                     disabled={isLoading}
                     autoFocus

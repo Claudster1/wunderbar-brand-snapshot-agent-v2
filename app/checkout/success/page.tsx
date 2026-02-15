@@ -18,6 +18,12 @@ const PRODUCT_NAMES: Record<string, string> = {
   "blueprint-plus": "WunderBrand Blueprint+™",
 };
 
+const PRODUCT_TIME_ESTIMATES: Record<string, string> = {
+  "snapshot-plus": "20–30 minute",
+  blueprint: "20–30 minute",
+  "blueprint-plus": "20–30 minute",
+};
+
 const PRODUCT_DESCRIPTIONS: Record<string, string> = {
   "snapshot-plus":
     "Your report includes pillar-level analysis, brand persona insights, strategic action plan, and 8 AI prompts calibrated to your brand.",
@@ -34,20 +40,26 @@ function SuccessContent() {
   const emailParam = searchParams.get("email");
   const sessionId = searchParams.get("session_id");
   const productName = PRODUCT_NAMES[product] || "WunderBrand Snapshot+™";
+  const [customerFirstName, setCustomerFirstName] = useState<string | null>(null);
+  const [tierToken, setTierToken] = useState<string | null>(null);
 
-  // Persist email from checkout so the dashboard can find their reports.
-  // If the URL has an email param, use it directly.
-  // Otherwise, look it up from Stripe via session_id.
+  // Persist email and retrieve customer name + tier token from Stripe session.
   useEffect(() => {
     if (emailParam) {
       persistEmail(emailParam);
-      return;
     }
     if (sessionId) {
       fetch(`/api/stripe/session-email?session_id=${sessionId}`)
         .then((r) => (r.ok ? r.json() : null))
         .then((data) => {
           if (data?.email) persistEmail(data.email);
+          if (data?.name) {
+            const first = data.name.split(/\s+/)[0];
+            setCustomerFirstName(first);
+          }
+          if (data?.tierToken) {
+            setTierToken(data.tierToken);
+          }
         })
         .catch(() => {});
     }
@@ -141,13 +153,13 @@ function SuccessContent() {
           {[
             {
               step: "1",
-              title: "Your report is being generated",
-              detail: "This usually takes less than a minute. You'll be able to access it from your dashboard.",
+              title: "Complete your brand diagnostic",
+              detail: `Wundy™ will guide you through a ${PRODUCT_TIME_ESTIMATES[product] || "15–20 minute"} conversation about your brand, audience, and goals. No prep needed — just answer naturally.`,
             },
             {
               step: "2",
-              title: "Review your results",
-              detail: "Your report will walk you through your WunderBrand Score™, pillar analysis, and personalized recommendations.",
+              title: "Get your personalized report",
+              detail: `Your ${productName} report is generated instantly when the diagnostic is complete — including your WunderBrand Score™, pillar analysis, and personalized recommendations.`,
             },
             {
               step: "3",
@@ -190,8 +202,29 @@ function SuccessContent() {
         </div>
       </div>
 
-      {/* CTAs */}
+      {/* Primary CTA — Start Diagnostic */}
       <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
+        <a
+          href={`/?tier=${product}${customerFirstName ? `&name=${encodeURIComponent(customerFirstName)}` : ""}${tierToken ? `&token=${encodeURIComponent(tierToken)}` : ""}`}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            maxWidth: 360,
+            height: 52,
+            borderRadius: 8,
+            background: BLUE,
+            color: WHITE,
+            fontWeight: 700,
+            fontSize: 16,
+            textDecoration: "none",
+            transition: "background 0.2s",
+          }}
+        >
+          Start your {productName} →
+        </a>
+
         {reportId && (
           <a
             href={`/report/${reportId}`}
@@ -203,17 +236,18 @@ function SuccessContent() {
               maxWidth: 360,
               height: 48,
               borderRadius: 8,
-              background: BLUE,
-              color: WHITE,
+              border: `2px solid ${BORDER}`,
+              background: WHITE,
+              color: NAVY,
               fontWeight: 700,
               fontSize: 15,
               textDecoration: "none",
-              transition: "background 0.2s",
             }}
           >
-            View my report →
+            View existing report →
           </a>
         )}
+
         <a
           href="/dashboard"
           style={{
@@ -272,7 +306,7 @@ function SuccessContent() {
           lineHeight: 1.5,
         }}
       >
-        🔒 Your payment was processed securely. Your assessment data and report
+        🔒 Your payment was processed securely. Your diagnostic data and report
         contents are confidential and will not be shared with third parties.
       </p>
     </main>

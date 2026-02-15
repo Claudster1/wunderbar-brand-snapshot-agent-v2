@@ -32,17 +32,24 @@ export default function DashboardHistory() {
       return;
     }
 
-    fetch(`/api/history?email=${encodeURIComponent(email)}`)
+    const controller = new AbortController();
+
+    fetch(`/api/history?email=${encodeURIComponent(email)}`, { signal: controller.signal })
       .then((res) => res.json())
       .then((data) => {
-        setHistory(data || []);
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setHistory(data || []);
+          setLoading(false);
+        }
       })
       .catch((err) => {
+        if (controller.signal.aborted) return;
         console.error("[DashboardHistory] Error:", err);
         setError("We couldn't load your reports. Please try again.");
         setLoading(false);
       });
+
+    return () => controller.abort();
   }, [email]);
 
   if (loading) {

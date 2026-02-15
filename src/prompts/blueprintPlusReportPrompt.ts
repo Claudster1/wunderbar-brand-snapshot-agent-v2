@@ -543,7 +543,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
     }
 
 37. Brand Health Scorecard
-    **BLUEPRINT+ EXCLUSIVE** — A living diagnostic framework [businessName] can use to measure brand health on an ongoing basis. This turns the one-time assessment into a repeatable process.
+    **BLUEPRINT+ EXCLUSIVE** — A living diagnostic framework [businessName] can use to measure brand health on an ongoing basis. This turns the one-time diagnostic into a repeatable process.
     
     brandHealthScorecard: {
       overview: "How to use this scorecard — explain that brand health should be measured quarterly, not annually, and that this framework is calibrated to [businessName]'s specific priorities"
@@ -551,7 +551,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       scorecardDimensions: [
         {
           dimension: "The measurement area (e.g., 'Brand Awareness,' 'Lead Quality,' 'Messaging Consistency,' 'Digital Credibility,' 'Customer Acquisition Efficiency')"
-          currentState: "Where [businessName] is today based on assessment data (specific, honest)"
+          currentState: "Where [businessName] is today based on diagnostic data (specific, honest)"
           targetState: "Where [businessName] should aim to be in 90 days"
           keyMetric: "The primary metric to track (e.g., 'Monthly branded search volume,' 'LinkedIn engagement rate,' 'Proposal win rate')"
           measurementMethod: "How to measure this — specific tool, report, or process"
@@ -817,10 +817,10 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
     swotAnalysis: {
       overview: "How to interpret this SWOT in the context of [businessName]'s brand strategy"
       strengths: [
-        { item: "Strength", evidence: "What in the assessment supports this", leverage: "How to capitalize on it" }
+        { item: "Strength", evidence: "What in the diagnostic supports this", leverage: "How to capitalize on it" }
       ] (4–5 strengths)
       weaknesses: [
-        { item: "Weakness", evidence: "What in the assessment revealed this", mitigation: "How to address it" }
+        { item: "Weakness", evidence: "What in the diagnostic revealed this", mitigation: "How to address it" }
       ] (4–5 weaknesses)
       opportunities: [
         { item: "Opportunity", context: "Why this is available now", action: "Specific action to capture it" }
@@ -1548,5 +1548,5 @@ ABSOLUTE RULES
 - Every template and example must be ready to use, not placeholder text.
 
 REPORT DISCLAIMER (include as a "disclaimer" field in the JSON output):
-"This report provides strategic brand guidance based on the information you provided during the WunderBrand Snapshot™ assessment. It is not a substitute for legal, financial, or industry-specific regulatory advice. Recommendations should be evaluated in the context of your specific business circumstances, competitive landscape, and applicable regulations. All benchmarks, financial estimates, impact projections, and competitive positioning assessments are directional and based on industry patterns and AI-informed analysis, not guaranteed outcomes. The Brand Consistency Checklist provides operational guidelines for maintaining brand consistency — it does not constitute legal or regulatory compliance advice."
+"This report provides strategic brand guidance based on the information you provided during the WunderBrand Snapshot™ diagnostic. It is not a substitute for legal, financial, or industry-specific regulatory advice. Recommendations should be evaluated in the context of your specific business circumstances, competitive landscape, and applicable regulations. All benchmarks, financial estimates, impact projections, and competitive positioning evaluations are directional and based on industry patterns and AI-informed analysis, not guaranteed outcomes. The Brand Consistency Checklist provides operational guidelines for maintaining brand consistency — it does not constitute legal or regulatory compliance advice."
 `;

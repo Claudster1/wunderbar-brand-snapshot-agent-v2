@@ -63,7 +63,7 @@ function CancelContent() {
 
       <p style={{ fontSize: 16, color: SUB, lineHeight: 1.6, margin: "0 0 12px" }}>
         No charge was made to your account.
-        {productName && ` Your ${productName} assessment progress has been saved.`}
+        {productName && ` Your ${productName} diagnostic progress has been saved.`}
       </p>
 
       <p style={{ fontSize: 14, color: SUB, lineHeight: 1.6, margin: "0 0 32px" }}>

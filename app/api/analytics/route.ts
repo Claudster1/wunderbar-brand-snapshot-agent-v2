@@ -25,7 +25,13 @@ export async function POST(req: Request) {
     tags.push("snapshot:completed");
   }
 
-  await fetch(process.env.ACTIVE_CAMPAIGN_WEBHOOK!, {
+  const webhookUrl = process.env.ACTIVE_CAMPAIGN_WEBHOOK;
+  if (!webhookUrl) {
+    console.error("[Analytics] ACTIVE_CAMPAIGN_WEBHOOK not set");
+    return NextResponse.json({ ok: true }); // Non-blocking: don't fail for analytics
+  }
+
+  await fetch(webhookUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -36,10 +42,10 @@ export async function POST(req: Request) {
   });
 
   return NextResponse.json({ ok: true });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("[Analytics API] Error:", err);
     return NextResponse.json(
-      { error: err?.message || "Analytics request failed" },
+      { error: "Analytics request failed." },
       { status: 500 }
     );
   }

@@ -134,7 +134,7 @@ export default function ScoreTrendChart() {
             Brand Score Trend
           </h3>
           <p style={{ fontSize: 13, color: SUB, margin: 0 }}>
-            {history.length} assessments since {formatDate(history[0].createdAt)}
+            {history.length} diagnostics since {formatDate(history[0].createdAt)}
           </p>
         </div>
         {latest.brandAlignmentScore != null && previous.brandAlignmentScore != null && (

@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
       // Blueprint+ customers get free refreshes — no checkout needed
       return NextResponse.json({
         freeRefresh: true,
-        message: "As a Blueprint+ customer, your quarterly refreshes are free. Start a new assessment anytime.",
+        message: "As a Blueprint+ customer, your quarterly refreshes are free. Start a new diagnostic anytime.",
         redirectUrl: "/",
       });
     }

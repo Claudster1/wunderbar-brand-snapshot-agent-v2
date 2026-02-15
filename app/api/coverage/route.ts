@@ -13,7 +13,13 @@ export async function POST(req: Request) {
 
   if (!tag) return NextResponse.json({ skipped: true });
 
-  await fetch(process.env.ACTIVE_CAMPAIGN_WEBHOOK!, {
+  const webhookUrl = process.env.ACTIVE_CAMPAIGN_WEBHOOK;
+  if (!webhookUrl) {
+    console.error("[Coverage] ACTIVE_CAMPAIGN_WEBHOOK not set");
+    return NextResponse.json({ error: "Service unavailable." }, { status: 503 });
+  }
+
+  await fetch(webhookUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -24,10 +30,10 @@ export async function POST(req: Request) {
   });
 
   return NextResponse.json({ sent: true });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("[Coverage API] Error:", err);
     return NextResponse.json(
-      { error: err?.message || "Coverage request failed" },
+      { error: "Coverage request failed." },
       { status: 500 }
     );
   }

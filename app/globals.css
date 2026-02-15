@@ -229,26 +229,25 @@ body {
   }
 }
 
-/* Root layout */
+/* Root layout — account for sticky header (~56px) */
 .app-root {
-  height: 100vh;
-  height: 100dvh; /* Dynamic viewport height — respects mobile browser chrome */
-  height: -webkit-fill-available;
+  height: calc(100vh - 56px);
+  height: calc(100dvh - 56px);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32px 16px;
+  padding: 24px 16px;
   background: radial-gradient(circle at top, #e5f2ff 0, #f5f7fb 55%, #f5f7fb 100%);
   box-sizing: border-box;
-  overflow: hidden; /* Prevent root scroll */
+  overflow: hidden;
 }
 
 .app-shell {
   width: 100%;
   max-width: 720px;
-  max-height: 100vh;
-  max-height: 100dvh;
-  overflow: hidden; /* Prevent shell scroll */
+  max-height: calc(100vh - 56px);
+  max-height: calc(100dvh - 56px);
+  overflow: hidden;
 }
 
 /* Card */
@@ -258,11 +257,11 @@ body {
   border: 1px solid #e0e3ea;
   box-shadow: 0 16px 40px rgba(2, 24, 89, 0.12);
   padding: 28px 28px 24px;
-  max-height: calc(100vh - 64px); /* Account for padding */
-  max-height: calc(100dvh - 64px);
+  max-height: calc(100vh - 56px - 48px); /* header + padding */
+  max-height: calc(100dvh - 56px - 48px);
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* Prevent card scroll */
+  overflow: hidden;
 }
 
 /* Header / avatar */
@@ -303,11 +302,12 @@ body {
 }
 
 .app-card-eyebrow {
-  font-size: 20px;
-  letter-spacing: 0.16em;
+  font-size: 18px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #021859;
   margin: 0;
+  line-height: 1.3;
 }
 
 /* Typography */
@@ -762,47 +762,50 @@ a.sr-only:focus {
 /* Responsive — tablets & small desktops */
 @media (max-width: 640px) {
   .app-root {
-    padding: 12px 8px;
-    align-items: flex-start; /* Don't center vertically — maximize vertical space */
+    padding: 8px 6px;
+    align-items: flex-start;
+    height: calc(100vh - 56px);
+    height: calc(100dvh - 56px);
   }
 
   .app-card {
-    padding: 18px 16px 14px;
+    padding: 14px 14px 12px;
     border-radius: 5px;
-    max-height: calc(100vh - 24px);
-    max-height: calc(100dvh - 24px);
+    max-height: calc(100vh - 56px - 16px);
+    max-height: calc(100dvh - 56px - 16px);
   }
 
   .app-card-header {
     flex-direction: row;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
   }
 
-  .app-card-avatar {
-    width: 48px;
-    height: 48px;
+  .app-card-avatar-wrap {
+    display: none; /* Hide avatar on mobile to save space */
   }
 
   .app-card-eyebrow {
-    font-size: 15px;
-    letter-spacing: 0.12em;
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-align: left;
+    word-break: break-word;
   }
 
   .app-card-header p {
     font-size: 12px !important;
-    margin-top: 4px !important;
+    margin-top: 2px !important;
+    line-height: 1.4 !important;
   }
 
   .app-body {
-    margin-top: 10px;
+    margin-top: 8px;
   }
 
   .chat-panel {
     padding: 10px;
   }
 
-  /* Let chat-messages fill remaining space via flexbox — no hard max-height */
   .chat-messages {
     max-height: none;
   }
@@ -813,7 +816,6 @@ a.sr-only:focus {
     padding: 10px 12px;
   }
 
-  /* Keep input row horizontal to save vertical space */
   .chat-input-row {
     flex-direction: row;
     flex-wrap: wrap;
@@ -822,7 +824,7 @@ a.sr-only:focus {
 
   .chat-input-row input {
     flex: 1;
-    min-width: 0; /* Allow shrinking */
+    min-width: 0;
     font-size: 16px; /* Prevent iOS zoom on focus */
   }
 
@@ -842,42 +844,40 @@ a.sr-only:focus {
     width: 100%;
   }
 
-  /* Compact progress bar on mobile */
   .assessment-progress-wrap {
-    padding: 8px 14px 6px;
+    padding: 8px 12px 6px;
   }
 
   .assessment-progress-label {
     font-size: 11px;
   }
 
-  /* Compact confidence note */
   .assessment-inline-confidence {
     font-size: 11px;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
 }
 
 /* Responsive — small phones */
 @media (max-width: 380px) {
   .app-root {
-    padding: 8px 4px;
+    padding: 4px 4px;
   }
 
   .app-card {
-    padding: 14px 12px 12px;
-    max-height: calc(100vh - 16px);
-    max-height: calc(100dvh - 16px);
+    padding: 12px 10px 10px;
+    max-height: calc(100vh - 56px - 8px);
+    max-height: calc(100dvh - 56px - 8px);
   }
 
   .app-card-eyebrow {
-    font-size: 13px;
-    letter-spacing: 0.1em;
+    font-size: 12px;
+    letter-spacing: 0.06em;
   }
 
   .chat-panel {
     padding: 8px;
-    gap: 10px;
+    gap: 8px;
   }
 
   .chat-bubble {

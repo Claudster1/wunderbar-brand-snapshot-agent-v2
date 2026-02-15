@@ -14,7 +14,8 @@
         "types:supabase": "npx supabase gen types typescript --project-id wunderbar-digital-prod > supabase/types.ts",
         "audit": "npm audit --production",
         "audit:fix": "npm audit fix --production",
-        "health": "curl -s http://localhost:3000/api/health | node -e \"process.stdin.on('data',d=>{const h=JSON.parse(d);console.log(h.status==='healthy'?'✅ Healthy':'⚠️ '+h.status);Object.entries(h.checks).forEach(([k,v])=>console.log('  '+k+': '+(v.ok?'✅':'❌ '+v.error)))})\""
+        "health": "curl -s http://localhost:3000/api/health | node -e \"process.stdin.on('data',d=>{const h=JSON.parse(d);console.log(h.status==='healthy'?'✅ Healthy':'⚠️ '+h.status);Object.entries(h.checks).forEach(([k,v])=>console.log('  '+k+': '+(v.ok?'✅':'❌ '+v.error)))})\"",
+        "setup:ac": "npx tsx scripts/setup-activecampaign.ts"
     },
     "dependencies": {
         "@anthropic-ai/sdk": "^0.74.0",

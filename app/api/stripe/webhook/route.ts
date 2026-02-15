@@ -3,6 +3,8 @@ import Stripe from "stripe";
 import {
   applyActiveCampaignTags,
   removeActiveCampaignTags,
+  setContactFields,
+  getOrCreateContactId,
 } from "@/lib/applyActiveCampaignTags";
 import { grantAccess } from "@/lib/grantAccess";
 import { recordStripePurchase } from "@/lib/recordStripePurchase";
@@ -110,18 +112,23 @@ export async function POST(req: NextRequest) {
           }
         }
 
+        // Extract customer name for AC personalization
+        const customerName = session.customer_details?.name?.split(" ")[0] || "";
+
         if (isRefreshProduct(productKey)) {
-          // Refresh-specific AC tagging
           await triggerRefreshActiveCampaign({
             email: customerEmail,
             productKey,
             reportId: snapshotId,
+            customerName,
           });
         } else {
           await triggerActiveCampaign({
             email: customerEmail,
             productKey: productKey as "snapshot_plus" | "blueprint" | "blueprint_plus",
             reportId: snapshotId,
+            customerName,
+            amountPaid: session.amount_total ?? undefined,
           });
         }
 
@@ -150,6 +157,19 @@ export async function POST(req: NextRequest) {
             const productName = abandonedProductKey
               ? PRODUCT_DISPLAY_NAMES[abandonedProductKey]
               : "WunderBrand Suite™";
+            const abandonedName = expiredSession.customer_details?.name?.split(" ")[0] || "";
+
+            // Product page URLs for recovery emails
+            const PRODUCT_URLS: Record<string, string> = {
+              snapshot_plus: "https://wunderbardigital.com/brand-snapshot-plus",
+              blueprint: "https://wunderbardigital.com/brand-blueprint",
+              blueprint_plus: "https://wunderbardigital.com/brand-blueprint-plus",
+            };
+            const PRODUCT_PRICES: Record<string, string> = {
+              snapshot_plus: "$497",
+              blueprint: "$997",
+              blueprint_plus: "$1,997",
+            };
 
             await applyActiveCampaignTags({
               email: abandonedEmail,
@@ -159,14 +179,32 @@ export async function POST(req: NextRequest) {
               ],
             });
 
+            // Set contact fields for recovery email personalization
+            const abandonedFields: Record<string, string> = {
+              abandoned_product: productName,
+              abandoned_product_key: abandonedProductKey ?? "",
+              abandoned_product_url: abandonedProductKey ? (PRODUCT_URLS[abandonedProductKey] || "") : "",
+              abandoned_product_price: abandonedProductKey ? (PRODUCT_PRICES[abandonedProductKey] || "") : "",
+              abandoned_date: new Date().toISOString().split("T")[0],
+            };
+            if (abandonedName) abandonedFields.first_name_custom = abandonedName;
+
+            await setContactFields({ email: abandonedEmail, fields: abandonedFields });
+            if (abandonedName) {
+              await getOrCreateContactId(abandonedEmail, { firstName: abandonedName });
+            }
+
             // Fire event for AC automation trigger
             const { fireACEvent } = await import("@/lib/fireACEvent");
             await fireACEvent({
               email: abandonedEmail,
               eventName: "checkout_abandoned",
               fields: {
+                first_name: abandonedName,
                 abandoned_product: productName,
                 abandoned_product_key: abandonedProductKey ?? "",
+                abandoned_product_url: abandonedProductKey ? (PRODUCT_URLS[abandonedProductKey] || "") : "",
+                abandoned_product_price: abandonedProductKey ? (PRODUCT_PRICES[abandonedProductKey] || "") : "",
               },
             });
           } catch (acErr) {
@@ -215,27 +253,45 @@ async function triggerActiveCampaign({
   email,
   productKey,
   reportId,
+  customerName,
+  amountPaid,
 }: {
   email: string;
   productKey: ProductKey;
   reportId?: string;
+  customerName?: string;
+  amountPaid?: number;
 }) {
   const applyTags: string[] = [];
   const removeTags: string[] = [];
 
   // --- Purchase + Nurture escalation tags ---
+  // Determine upgrade path: what product should they upgrade to next?
+  let upgradeProductName = "";
+  let upgradeProductUrl = "";
+  let upgradePrice = "";
+
   switch (productKey) {
     case "snapshot_plus":
       applyTags.push("purchased:snapshot-plus", "intent:upgrade-blueprint");
       removeTags.push("intent:upgrade-snapshot-plus");
+      upgradeProductName = "WunderBrand Blueprint™";
+      upgradeProductUrl = "https://wunderbardigital.com/brand-blueprint";
+      upgradePrice = "$997";
       break;
     case "blueprint":
       applyTags.push("purchased:blueprint", "intent:upgrade-blueprint-plus");
       removeTags.push("intent:upgrade-blueprint");
+      upgradeProductName = "WunderBrand Blueprint+™";
+      upgradeProductUrl = "https://wunderbardigital.com/brand-blueprint-plus";
+      upgradePrice = "$1,997";
       break;
     case "blueprint_plus":
       applyTags.push("purchased:blueprint-plus", "nurture:other-services");
       removeTags.push("intent:upgrade-blueprint-plus");
+      upgradeProductName = "Managed Marketing";
+      upgradeProductUrl = "https://wunderbardigital.com/talk-to-an-expert";
+      upgradePrice = "custom";
       break;
   }
 
@@ -258,23 +314,50 @@ async function triggerActiveCampaign({
     await applyActiveCampaignTags({ email, tags: applyTags });
   }
 
-  // --- Fire "report_ready" event (AC automation sends email with report link) ---
+  // --- Set custom fields on the contact for email personalization ---
   const BASE_URL =
     process.env.NEXT_PUBLIC_APP_URL || "https://app.wunderbrand.ai";
   const reportLink = reportId
     ? `${BASE_URL}/report/${reportId}`
     : `${BASE_URL}/access`;
+  const npsTier = productKey;
+  const npsLink = `${BASE_URL}/nps?tier=${npsTier}&reportId=${encodeURIComponent(reportId || "")}&email=${encodeURIComponent(email)}`;
 
+  const contactFields: Record<string, string> = {
+    product_purchased: PRODUCT_DISPLAY_NAMES[productKey],
+    product_key: productKey,
+    report_link: reportLink,
+    report_id: reportId || "",
+    dashboard_link: `${BASE_URL}/dashboard`,
+    nps_survey_link: npsLink,
+    purchase_date: new Date().toISOString().split("T")[0],
+    refresh_price: productKey === "blueprint_plus" ? "free" : productKey === "blueprint" ? "$97" : "$47",
+    refresh_type: productKey === "blueprint_plus" ? "free" : "paid",
+    upgrade_product_name: upgradeProductName,
+    upgrade_product_url: upgradeProductUrl,
+    upgrade_price: upgradePrice,
+    services_url: "https://wunderbardigital.com/talk-to-an-expert",
+  };
+  if (customerName) contactFields.first_name_custom = customerName;
+  if (amountPaid) contactFields.amount_paid = `$${(amountPaid / 100).toFixed(0)}`;
+
+  try {
+    // Sync first name on the contact record itself
+    if (customerName) {
+      await getOrCreateContactId(email, { firstName: customerName });
+    }
+    await setContactFields({ email, fields: contactFields });
+  } catch (err) {
+    logger.error("[Stripe Webhook] AC field sync failed", { error: err instanceof Error ? err.message : String(err) });
+  }
+
+  // --- Fire "report_ready" event (AC automation sends email with report link) ---
   const AC_WEBHOOK_URL =
     process.env.ACTIVECAMPAIGN_WEBHOOK_URL ??
     process.env.NEXT_PUBLIC_ACTIVECAMPAIGN_WEBHOOK_URL;
 
   if (AC_WEBHOOK_URL) {
     try {
-      // Build NPS survey link (AC automation will send this 48h after report_ready)
-      const npsTier = productKey; // already matches: snapshot_plus, blueprint, blueprint_plus
-      const npsLink = `${BASE_URL}/nps?tier=${npsTier}&reportId=${encodeURIComponent(reportId || "")}&email=${encodeURIComponent(email)}`;
-
       await fetch(AC_WEBHOOK_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -283,15 +366,22 @@ async function triggerActiveCampaign({
           email,
           tags: [`report:${productKey.replace("_", "-")}-ready`],
           fields: {
+            first_name: customerName || "",
             product_name: PRODUCT_DISPLAY_NAMES[productKey],
+            product_key: productKey,
             report_link: reportLink,
             report_id: reportId || "",
             nps_survey_link: npsLink,
             nps_tier: npsTier,
-            // Quarterly refresh info (AC uses in 90-day reminder automation)
+            purchase_date: new Date().toISOString().split("T")[0],
+            amount_paid: amountPaid ? `$${(amountPaid / 100).toFixed(0)}` : "",
             refresh_price: productKey === "blueprint_plus" ? "free" : productKey === "blueprint" ? "$97" : "$47",
             refresh_type: productKey === "blueprint_plus" ? "free" : "paid",
             dashboard_link: `${BASE_URL}/dashboard`,
+            upgrade_product_name: upgradeProductName,
+            upgrade_product_url: upgradeProductUrl,
+            upgrade_price: upgradePrice,
+            services_url: "https://wunderbardigital.com/talk-to-an-expert",
           },
         }),
       });
@@ -364,10 +454,12 @@ async function triggerRefreshActiveCampaign({
   email,
   productKey,
   reportId,
+  customerName,
 }: {
   email: string;
   productKey: ProductKey;
   reportId?: string;
+  customerName?: string;
 }) {
   const parentTier = getParentTier(productKey);
 
@@ -375,17 +467,37 @@ async function triggerRefreshActiveCampaign({
     email,
     tags: [
       `purchased:${productKey.replace(/_/g, "-")}`,
-      `refresh:${parentTier.replace(/_/g, "-")}`,
+      `refresh:${parentTier.replace(/_/g, "-")}-ready`,
     ],
   });
 
-  // Fire refresh-specific event for AC automation
   const BASE_URL =
     process.env.NEXT_PUBLIC_APP_URL || "https://app.wunderbrand.ai";
   const reportLink = reportId
     ? `${BASE_URL}/report/${reportId}`
     : `${BASE_URL}/access`;
 
+  // Sync contact fields
+  try {
+    if (customerName) {
+      await getOrCreateContactId(email, { firstName: customerName });
+    }
+    await setContactFields({
+      email,
+      fields: {
+        product_purchased: PRODUCT_DISPLAY_NAMES[productKey],
+        product_key: productKey,
+        report_link: reportLink,
+        report_id: reportId || "",
+        dashboard_link: `${BASE_URL}/dashboard`,
+        purchase_date: new Date().toISOString().split("T")[0],
+      },
+    });
+  } catch (err) {
+    logger.error("[Stripe Webhook] refresh AC field sync failed", { error: err instanceof Error ? err.message : String(err) });
+  }
+
+  // Fire refresh-specific event for AC automation
   const AC_WEBHOOK_URL =
     process.env.ACTIVECAMPAIGN_WEBHOOK_URL ??
     process.env.NEXT_PUBLIC_ACTIVECAMPAIGN_WEBHOOK_URL;
@@ -400,10 +512,12 @@ async function triggerRefreshActiveCampaign({
           email,
           tags: [`refresh:${parentTier.replace(/_/g, "-")}-ready`],
           fields: {
+            first_name: customerName || "",
             product_name: PRODUCT_DISPLAY_NAMES[productKey],
             parent_tier: PRODUCT_DISPLAY_NAMES[parentTier],
             report_link: reportLink,
             report_id: reportId || "",
+            dashboard_link: `${BASE_URL}/dashboard`,
           },
         }),
       });

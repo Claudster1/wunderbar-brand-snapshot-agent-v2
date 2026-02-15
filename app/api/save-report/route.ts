@@ -114,11 +114,82 @@ export async function POST(req: Request) {
     }
 
     // Return report ID and redirect URL
-    // Use NEXT_PUBLIC_BASE_URL if set, otherwise try Vercel's automatic URL, then fallback to localhost
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL 
       || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
       || "http://localhost:3000";
     const redirectUrl = `${baseUrl}/report/${reportId}`;
+
+    // ─── Free tier completion: Tag contact + fire event for upgrade nurture ───
+    const tier = body.tier || "snapshot";
+    if (email && tier === "snapshot") {
+      try {
+        const { applyActiveCampaignTags, setContactFields, getOrCreateContactId } =
+          await import("@/lib/applyActiveCampaignTags");
+        const { fireACEvent } = await import("@/lib/fireACEvent");
+        const normalizedEmail = email.trim().toLowerCase();
+        const firstName = userName || "";
+
+        // Sync contact name
+        if (firstName) {
+          await getOrCreateContactId(normalizedEmail, { firstName });
+        }
+
+        // Tag as free tier completer + upgrade intent
+        await applyActiveCampaignTags({
+          email: normalizedEmail,
+          tags: [
+            "completed:snapshot",
+            "intent:upgrade-snapshot-plus",
+            "onboarding:snapshot",
+          ],
+        });
+
+        // Set custom fields for email personalization
+        const reportLink = `${baseUrl}/report/${reportId}`;
+        const npsLink = `${baseUrl}/nps?tier=snapshot&reportId=${encodeURIComponent(reportId)}&email=${encodeURIComponent(normalizedEmail)}`;
+
+        await setContactFields({
+          email: normalizedEmail,
+          fields: {
+            product_purchased: "WunderBrand Snapshot\u2122 (Free)",
+            product_key: "snapshot",
+            report_link: reportLink,
+            report_id: reportId,
+            dashboard_link: `${baseUrl}/dashboard`,
+            nps_survey_link: npsLink,
+            brand_alignment_score: String(engineResults.brandAlignmentScore),
+            weakest_pillar: engineResults.weakestPillar.pillar,
+            upgrade_product_name: "WunderBrand Snapshot+\u2122",
+            upgrade_product_url: "https://wunderbardigital.com/brand-snapshot-plus",
+            upgrade_price: "$497",
+            services_url: "https://wunderbardigital.com/talk-to-an-expert",
+            ...(firstName ? { first_name_custom: firstName } : {}),
+          },
+        });
+
+        // Fire event so AC can trigger the free-tier nurture sequence
+        await fireACEvent({
+          email: normalizedEmail,
+          eventName: "free_report_ready",
+          tags: ["report:snapshot-ready"],
+          fields: {
+            first_name: firstName,
+            product_name: "WunderBrand Snapshot\u2122",
+            report_link: reportLink,
+            report_id: reportId,
+            brand_alignment_score: engineResults.brandAlignmentScore,
+            weakest_pillar: engineResults.weakestPillar.pillar,
+            nps_survey_link: npsLink,
+            dashboard_link: `${baseUrl}/dashboard`,
+            upgrade_product_name: "WunderBrand Snapshot+\u2122",
+            upgrade_product_url: "https://wunderbardigital.com/brand-snapshot-plus",
+            upgrade_price: "$497",
+          },
+        });
+      } catch (acErr) {
+        console.error("[Save Report] AC free tier tagging failed:", acErr);
+      }
+    }
 
     return NextResponse.json({
       reportId,

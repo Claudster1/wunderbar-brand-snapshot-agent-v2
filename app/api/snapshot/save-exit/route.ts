@@ -75,14 +75,38 @@ export async function POST(req: Request) {
       }
     }
 
+    // Set contact fields for personalized resume email
+    const { setContactFields, getOrCreateContactId } = await import("@/lib/applyActiveCampaignTags");
+    const firstName = body.firstName || body.userName || "";
+    const tier = body.tier || "snapshot";
+
+    try {
+      if (firstName) {
+        await getOrCreateContactId(normalized, { firstName });
+      }
+      await setContactFields({
+        email: normalized,
+        fields: {
+          resume_link: resumeLink,
+          report_id: reportId || "",
+          product_key: tier,
+          ...(firstName ? { first_name_custom: firstName } : {}),
+        },
+      });
+    } catch (fieldErr) {
+      console.error("[Save-Exit] AC field sync failed:", fieldErr);
+    }
+
     // Fire AC event to send the resume email
     await fireACEvent({
       email: normalized,
       eventName: "assessment_paused",
       tags: ["snapshot:paused", "snapshot:resume-link-sent"],
       fields: {
+        first_name: firstName,
         resume_link: resumeLink,
         report_id: reportId || "",
+        product_tier: tier,
       },
     });
 

@@ -3026,7 +3026,7 @@ export default function BrandSnapshotPlusReport() {
               display: "flex", flexDirection: "column",
             }}>
               <div style={{ fontSize: 10, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>Recommended</div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: NAVY, marginBottom: 6 }}>WunderBrand Blueprint™<span style={{ fontSize: 9, verticalAlign: "super" }}>™</span></div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: NAVY, marginBottom: 6 }}>WunderBrand Blueprint™</div>
               <div style={{ fontSize: 14, color: SUB, lineHeight: 1.55, marginBottom: 16 }}>
                 Your diagnostic turned into an operational system — messaging frameworks, voice guidelines, and AI prompts you can use immediately.
               </div>
@@ -3064,7 +3064,7 @@ export default function BrandSnapshotPlusReport() {
               display: "flex", flexDirection: "column",
             }}>
               <div style={{ height: 18 }} />
-              <div style={{ fontSize: 18, fontWeight: 700, color: NAVY, marginBottom: 6 }}>WunderBrand Blueprint+™<span style={{ fontSize: 9, verticalAlign: "super" }}>™</span></div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: NAVY, marginBottom: 6 }}>WunderBrand Blueprint+™</div>
               <div style={{ fontSize: 14, color: SUB, lineHeight: 1.55, marginBottom: 16 }}>
                 Everything in WunderBrand Blueprint™ plus visual direction, advanced AI tools, campaign strategy, and full archetype mapping.
               </div>

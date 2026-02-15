@@ -29,7 +29,32 @@ async function tagContactForNPS(
     applyTags.push("review:eligible", "testimonial:eligible");
   }
 
+  // Detractors get retention tag for win-back automation
+  if (category === "detractor") {
+    applyTags.push("retention:at-risk");
+  }
+
   await applyActiveCampaignTags({ email, tags: applyTags });
+
+  // Set custom fields for NPS email personalization
+  const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://app.wunderbrand.ai";
+  const { setContactFields } = await import("@/lib/applyActiveCampaignTags");
+
+  try {
+    const npsFields: Record<string, string> = {
+      nps_score: String(score),
+      nps_category: category,
+      nps_tier: tier,
+      nps_date: new Date().toISOString().split("T")[0],
+    };
+    if (category === "promoter") {
+      npsFields.testimonial_link = `${BASE_URL}/nps?tier=${tier}&step=testimonial&email=${encodeURIComponent(email)}`;
+      npsFields.google_review_url = process.env.NEXT_PUBLIC_GOOGLE_REVIEW_URL || "";
+    }
+    await setContactFields({ email, fields: npsFields });
+  } catch (fieldErr) {
+    // Non-blocking
+  }
 
   // Fire event so AC automations can trigger review/case-study sequences
   await fireACEvent({
@@ -40,6 +65,9 @@ async function tagContactForNPS(
       nps_score: score,
       nps_category: category,
       nps_tier: tier,
+      nps_date: new Date().toISOString().split("T")[0],
+      testimonial_link: category === "promoter" ? `${BASE_URL}/nps?tier=${tier}&step=testimonial&email=${encodeURIComponent(email)}` : "",
+      google_review_url: category === "promoter" ? (process.env.NEXT_PUBLIC_GOOGLE_REVIEW_URL || "") : "",
     },
   });
 }

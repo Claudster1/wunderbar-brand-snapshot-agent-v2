@@ -69,15 +69,20 @@ export default function RootLayout({
                 i.parentNode.insertBefore(r,i)
               })(window,document,"https://diffuser-cdn.app-us1.com/diffuser/diffuser.js","vgo");
               
-              // Force ALL external links to open in a new window
+              // Ensure ALL external links open in a new tab (set attributes, don't block default)
               document.addEventListener("click", function(e) {
                 var anchor = e.target.closest ? e.target.closest("a[href]") : null;
                 if (!anchor) return;
                 var href = anchor.getAttribute("href") || "";
-                // Check if it's an external link (starts with http and not our own domain)
+                // If it's an external link, ensure target="_blank" is set
                 if (href.match(/^https?:\\/\\//i) && !href.includes(window.location.hostname)) {
-                  e.preventDefault();
-                  window.open(href, "_blank", "noopener,noreferrer");
+                  if (!anchor.getAttribute("target")) {
+                    anchor.setAttribute("target", "_blank");
+                  }
+                  if (!anchor.getAttribute("rel")) {
+                    anchor.setAttribute("rel", "noopener noreferrer");
+                  }
+                  // Let the browser handle navigation naturally — no preventDefault
                 }
               });
 

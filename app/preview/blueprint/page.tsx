@@ -969,7 +969,7 @@ export default function BrandBlueprintReport() {
             <img src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp" alt="Wunderbar Digital" style={{ height: 26, objectFit: "contain" }} />
           </a>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-            <span style={{ fontSize: 22, fontWeight: 700, color: NAVY, lineHeight: 1 }}>WunderBrand Blueprint™<span style={{ fontSize: 9, verticalAlign: "super", lineHeight: 0 }}>™</span></span>
+            <span style={{ fontSize: 22, fontWeight: 700, color: NAVY, lineHeight: 1 }}>WunderBrand Blueprint™</span>
             <span style={{ fontSize: 12, fontWeight: 400, color: BLUE, marginTop: 3 }}>Powered by <a href={UTM_BASE} target="_blank" rel="noopener noreferrer" style={{ fontWeight: 700, color: BLUE, textDecoration: "none" }}>Wunderbar Digital</a></span>
           </div>
         </div>
@@ -2437,7 +2437,7 @@ export default function BrandBlueprintReport() {
       mode="report"
       tier="blueprint"
       reportId="preview"
-      greeting={`Hi, I\u2019m Wundy™ \u2014 I have your WunderBrand Blueprint™\u2122 report right here. I can help you understand your results, explain any section, or help you prioritize your next steps. What would you like to know?`}
+      greeting={`Hi, I\u2019m Wundy™ \u2014 I have your WunderBrand Blueprint™ report right here. I can help you understand your results, explain any section, or help you prioritize your next steps. What would you like to know?`}
     />
     </>
   );

@@ -306,7 +306,8 @@ function SuccessContent() {
           lineHeight: 1.5,
         }}
       >
-        🔒 Your payment was processed securely. Your diagnostic data and report
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#07B0F2" width="14" height="14" style={{ display: 'inline-block', verticalAlign: '-1px', marginRight: '4px' }}><path d="M18 10h-1V7A5 5 0 0 0 7 7v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2ZM9 7a3 3 0 1 1 6 0v3H9V7Z"/></svg>
+        Your payment was processed securely. Your diagnostic data and report
         contents are confidential and will not be shared with third parties.
       </p>
     </main>

@@ -38,7 +38,7 @@
         "@next/bundle-analyzer": "^16.1.6",
         "@supabase/ssr": "^0.8.0",
         "@supabase/supabase-js": "^2.87.1",
-        "@types/node": "^20",
+        "@types/node": "^25",
         "@types/react": "^19.2.10",
         "@types/react-dom": "^19.2.3",
         "autoprefixer": "^10.4.22",

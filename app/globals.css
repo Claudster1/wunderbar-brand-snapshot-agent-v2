@@ -214,6 +214,14 @@ body {
   height: auto;
 }
 
+/* When the chat page is active, lock the body so only .chat-messages scrolls.
+   This prevents the page from scrolling past the app card to the footer. */
+body:has(.app-root) {
+  overflow: hidden;
+  height: 100vh;
+  height: 100dvh;
+}
+
 @layer components {
   /* Wunderbar buttons: 54px height, padding, hover transform + shadow */
   .btn-primary {

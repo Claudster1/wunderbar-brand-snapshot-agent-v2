@@ -99,6 +99,7 @@ function HomeContent() {
   const [saveEmail, setSaveEmail] = useState("");
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatMessagesRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // ─── Security: Turnstile token ───
@@ -180,11 +181,15 @@ function HomeContent() {
     }
   }, [isLoading]);
 
-  // Auto-scroll to bottom when messages change or loading state changes
+  // Auto-scroll to bottom when messages change or loading state changes.
+  // IMPORTANT: Scroll only the .chat-messages container — NOT scrollIntoView,
+  // which walks up the DOM and scrolls the page body (pushing content past the footer).
   useEffect(() => {
-    // Use requestAnimationFrame for better performance
     requestAnimationFrame(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      const container = chatMessagesRef.current;
+      if (container) {
+        container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+      }
     });
   }, [messages, isLoading]);
 
@@ -414,7 +419,7 @@ function HomeContent() {
             
 
             <div className="chat-panel">
-              <div className="chat-messages" aria-live="polite">
+              <div ref={chatMessagesRef} className="chat-messages" aria-live="polite">
                 {messages.map((message) => {
                   // Check if this is a select question (multi-select or single-select)
                   const selectData = message.role === 'assistant' 

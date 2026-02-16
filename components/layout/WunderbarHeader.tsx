@@ -66,15 +66,15 @@ export function WunderbarHeader() {
         {/* Desktop Navigation */}
         <nav className="wunder-nav-group">
           <div className="wunder-nav-item">
-            <a href="https://wunderbardigital.com/brand-snapshot-suite" className="wunder-nav-link" target="_blank" rel="noopener noreferrer">
+            <a href="https://wunderbardigital.com/wunderbrand-suite" className="wunder-nav-link" target="_blank" rel="noopener noreferrer">
               WunderBrand Suite™
             </a>
             <div className="wunder-dropdown">
-              <a href="https://wunderbardigital.com/brand-snapshot" target="_blank" rel="noopener noreferrer">WunderBrand Snapshot™ (Free)</a>
-              <a href="https://wunderbardigital.com/brand-snapshot-plus" target="_blank" rel="noopener noreferrer">WunderBrand Snapshot+™</a>
-              <a href="https://wunderbardigital.com/brand-blueprint" target="_blank" rel="noopener noreferrer">WunderBrand Blueprint™</a>
-              <a href="https://wunderbardigital.com/brand-blueprint-plus" target="_blank" rel="noopener noreferrer">WunderBrand Blueprint+™</a>
-              <a href="https://wunderbardigital.com/brand-snapshot-suite" className="wunder-dropdown-divider" target="_blank" rel="noopener noreferrer">
+              <a href="https://wunderbardigital.com/wunderbrand-snapshot" target="_blank" rel="noopener noreferrer">WunderBrand Snapshot™ (Free)</a>
+              <a href="https://wunderbardigital.com/wunderbrand-snapshot-plus" target="_blank" rel="noopener noreferrer">WunderBrand Snapshot+™</a>
+              <a href="https://wunderbardigital.com/wunderbrand-blueprint" target="_blank" rel="noopener noreferrer">WunderBrand Blueprint™</a>
+              <a href="https://wunderbardigital.com/wunderbrand-blueprint-plus" target="_blank" rel="noopener noreferrer">WunderBrand Blueprint+™</a>
+              <a href="https://wunderbardigital.com/wunderbrand-suite" className="wunder-dropdown-divider" target="_blank" rel="noopener noreferrer">
                 Compare All Products
               </a>
             </div>
@@ -101,7 +101,7 @@ export function WunderbarHeader() {
         {/* Desktop CTAs */}
         <div className="wunder-btn-container">
           {!isAssessmentPage && (
-            <a href="https://wunderbardigital.com/brand-snapshot" className="wunder-btn wunder-btn-solid" target="_blank" rel="noopener noreferrer">
+            <a href="https://wunderbardigital.com/wunderbrand-snapshot" className="wunder-btn wunder-btn-solid" target="_blank" rel="noopener noreferrer">
               Start Your Free WunderBrand Snapshot™
             </a>
           )}
@@ -158,11 +158,11 @@ export function WunderbarHeader() {
               <span className="wunder-mobile-arrow">▾</span>
             </button>
             <div className={`wunder-mobile-dropdown-content ${activeDropdown === "suite" ? "active" : ""}`}>
-              <a href="https://wunderbardigital.com/brand-snapshot" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>WunderBrand Snapshot™ (Free)</a>
-              <a href="https://wunderbardigital.com/brand-snapshot-plus" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>WunderBrand Snapshot+™</a>
-              <a href="https://wunderbardigital.com/brand-blueprint" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>WunderBrand Blueprint™</a>
-              <a href="https://wunderbardigital.com/brand-blueprint-plus" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>WunderBrand Blueprint+™</a>
-              <a href="https://wunderbardigital.com/brand-snapshot-suite" className="wunder-mobile-divider" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
+              <a href="https://wunderbardigital.com/wunderbrand-snapshot" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>WunderBrand Snapshot™ (Free)</a>
+              <a href="https://wunderbardigital.com/wunderbrand-snapshot-plus" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>WunderBrand Snapshot+™</a>
+              <a href="https://wunderbardigital.com/wunderbrand-blueprint" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>WunderBrand Blueprint™</a>
+              <a href="https://wunderbardigital.com/wunderbrand-blueprint-plus" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>WunderBrand Blueprint+™</a>
+              <a href="https://wunderbardigital.com/wunderbrand-suite" className="wunder-mobile-divider" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
                 Compare All Products
               </a>
             </div>
@@ -194,7 +194,7 @@ export function WunderbarHeader() {
           {/* Mobile CTAs */}
           <div className="wunder-mobile-ctas">
             {!isAssessmentPage && (
-              <a href="https://wunderbardigital.com/brand-snapshot" className="wunder-btn wunder-btn-solid" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
+              <a href="https://wunderbardigital.com/wunderbrand-snapshot" className="wunder-btn wunder-btn-solid" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
                 Start Your Free WunderBrand Snapshot™
               </a>
             )}

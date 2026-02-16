@@ -69,7 +69,7 @@ function CancelContent() {
       <p style={{ fontSize: 14, color: SUB, lineHeight: 1.6, margin: "0 0 32px" }}>
         If you have questions about which product is right for you, you can{" "}
         <a
-          href="https://wunderbardigital.com/brand-snapshot-suite?utm_source=checkout_cancel&utm_medium=text_link&utm_campaign=product_comparison&utm_content=comparison_page"
+          href="https://wunderbardigital.com/wunderbrand-suite?utm_source=checkout_cancel&utm_medium=text_link&utm_campaign=product_comparison&utm_content=comparison_page"
           target="_blank"
           rel="noopener noreferrer"
           style={{ color: BLUE, fontWeight: 700, textDecoration: "none" }}

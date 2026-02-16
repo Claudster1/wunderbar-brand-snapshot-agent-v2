@@ -70,7 +70,7 @@ export default function NotFound() {
           Start a WunderBrand Snapshot™
         </Link>
         <Link
-          href="https://wunderbardigital.com/brand-snapshot-suite?utm_source=brand_snapshot_app&utm_medium=404_page&utm_campaign=navigation&utm_content=explore_suite"
+          href="https://wunderbardigital.com/wunderbrand-suite?utm_source=brand_snapshot_app&utm_medium=404_page&utm_campaign=navigation&utm_content=explore_suite"
           target="_blank"
           rel="noopener noreferrer"
           style={{

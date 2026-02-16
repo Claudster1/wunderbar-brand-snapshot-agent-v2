@@ -52,8 +52,8 @@ export function WunderbarFooter() {
             <div className="wunder-footer-col">
               <h3>Products</h3>
               <ul>
-                <li><a href="https://wunderbardigital.com/brand-snapshot" target="_blank" rel="noopener noreferrer">The WunderBrand Snapshot™ (Free)</a></li>
-                <li><a href="https://wunderbardigital.com/brand-snapshot-suite" target="_blank" rel="noopener noreferrer">The WunderBrand Suite™</a></li>
+                <li><a href="https://wunderbardigital.com/wunderbrand-snapshot" target="_blank" rel="noopener noreferrer">WunderBrand Snapshot™ (Free)</a></li>
+                <li><a href="https://wunderbardigital.com/wunderbrand-suite" target="_blank" rel="noopener noreferrer">WunderBrand Suite™</a></li>
               </ul>
             </div>
 

@@ -235,7 +235,7 @@ export const BrandSnapshotPDF = ({
               archetype, voice guidance, recommended color palette, 30/60/90 roadmap, and AI-ready prompts.
             </Text>
             <Text style={{ ...styles.body, marginTop: 8, fontSize: 10, color: "#5a6c8a" }}>
-              Explore at wunderbardigital.com/brand-snapshot/plus
+              Explore at wunderbardigital.com/wunderbrand-snapshot-plus
             </Text>
           </View>
         </Section>

@@ -1012,21 +1012,21 @@ export default function BrandSnapshotReport() {
                 description: "Deeper diagnostic with priority focus, audience insight, tagline options, and AI-ready brand assets.",
                 features: ["Pillar deep dives & focus area diagnosis", "Tagline & slogan recommendations", "Messaging pillars & brand persona", "AEO readiness & 8 AI prompts"],
                 highlight: true,
-                url: "https://wunderbardigital.com/brand-snapshot-plus?utm_source=brand_snapshot_report&utm_medium=report_cta&utm_campaign=explore_upgrade&utm_content=snap_explore_snapshot_plus",
+                url: "https://wunderbardigital.com/wunderbrand-snapshot-plus?utm_source=brand_snapshot_report&utm_medium=report_cta&utm_campaign=explore_upgrade&utm_content=snap_explore_snapshot_plus",
               },
               {
                 name: "WunderBrand Blueprint™",
                 description: "Complete brand operating system with SEO, AEO, email strategy, and 16 AI prompts.",
                 features: ["Brand story & customer journey map", "SEO & AEO strategy", "Email & social media frameworks", "Content pillars & 16 AI prompts"],
                 highlight: false,
-                url: "https://wunderbardigital.com/brand-blueprint?utm_source=brand_snapshot_report&utm_medium=report_cta&utm_campaign=explore_upgrade&utm_content=snap_explore_blueprint",
+                url: "https://wunderbardigital.com/wunderbrand-blueprint?utm_source=brand_snapshot_report&utm_medium=report_cta&utm_campaign=explore_upgrade&utm_content=snap_explore_blueprint",
               },
               {
                 name: "WunderBrand Blueprint+™",
                 description: "Everything in Blueprint™ plus SWOT, content calendar, brand glossary, and a strategy session.",
                 features: ["SWOT analysis & competitive positioning", "Content calendar & brand glossary", "90-day roadmap & 28 AI prompts", "30-min Strategy Activation Session"],
                 highlight: false,
-                url: "https://wunderbardigital.com/brand-blueprint-plus?utm_source=brand_snapshot_report&utm_medium=report_cta&utm_campaign=explore_upgrade&utm_content=snap_explore_blueprint_plus",
+                url: "https://wunderbardigital.com/wunderbrand-blueprint-plus?utm_source=brand_snapshot_report&utm_medium=report_cta&utm_campaign=explore_upgrade&utm_content=snap_explore_blueprint_plus",
               },
             ].map((product, i) => (
               <div key={i} style={{

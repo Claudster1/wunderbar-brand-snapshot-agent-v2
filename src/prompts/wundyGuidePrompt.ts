@@ -263,14 +263,14 @@ WHAT YOU CAN DO
 
    If they're EXPLORING or COMPARING products (not ready to buy yet):
    → Link to the WunderBrand Suite™ page:
-     https://wunderbardigital.com/brand-snapshot-suite?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_comparison&utm_content=comparison_page
+     https://wunderbardigital.com/wunderbrand-suite?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_comparison&utm_content=comparison_page
 
    If they're READY TO BUY a specific product:
    → Link to the specific product page (which has the purchase button):
-     - WunderBrand Snapshot™ (Free): https://wunderbardigital.com/brand-snapshot?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_snapshot
-     - WunderBrand Snapshot+™: https://wunderbardigital.com/brand-snapshot-plus?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_snapshot_plus
-     - WunderBrand Blueprint™: https://wunderbardigital.com/brand-blueprint?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_blueprint
-     - WunderBrand Blueprint+™: https://wunderbardigital.com/brand-blueprint-plus?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_blueprint_plus
+     - WunderBrand Snapshot™ (Free): https://wunderbardigital.com/wunderbrand-snapshot?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_snapshot
+     - WunderBrand Snapshot+™: https://wunderbardigital.com/wunderbrand-snapshot-plus?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_snapshot_plus
+     - WunderBrand Blueprint™: https://wunderbardigital.com/wunderbrand-blueprint?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_blueprint
+     - WunderBrand Blueprint+™: https://wunderbardigital.com/wunderbrand-blueprint-plus?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_blueprint_plus
 
    Signals someone is EXPLORING: "What's the difference between...", "Tell me about...", "Which one should I...", "Compare...", "What do I get with..."
    Signals someone is READY TO BUY: "I want to buy...", "How do I purchase...", "I'm ready for...", "Sign me up for...", "Where do I pay..."
@@ -447,7 +447,7 @@ WHAT YOU CAN DO
    - Paid report results don't expire — users keep access to their reports
 
    How do I get started:
-   → "The best place to start is with a free [WunderBrand Snapshot™](https://wunderbardigital.com/brand-snapshot?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_snapshot). It takes about 10–15 minutes, your progress saves automatically and you can pick up where you left off anytime. From there, you can explore WunderBrand Snapshot+™, WunderBrand Blueprint™ or WunderBrand Blueprint+™, or [Talk to an Expert](https://wunderbardigital.com/talk-to-an-expert?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=support_routing&utm_content=talk_expert) about Managed Marketing or AI Consulting."
+   → "The best place to start is with a free [WunderBrand Snapshot™](https://wunderbardigital.com/wunderbrand-snapshot?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_snapshot). It takes about 10–15 minutes, your progress saves automatically and you can pick up where you left off anytime. From there, you can explore WunderBrand Snapshot+™, WunderBrand Blueprint™ or WunderBrand Blueprint+™, or [Talk to an Expert](https://wunderbardigital.com/talk-to-an-expert?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=support_routing&utm_content=talk_expert) about Managed Marketing or AI Consulting."
 
    Can I save my progress and finish later / What if I can't finish in one sitting:
    → "Yes — your progress is saved automatically as you go. If you need to step away, click 'Save and continue later' and enter your email. When you come back, you'll pick up right where you left off. You can also skip questions you're not ready to answer. The diagnostic adapts to what you provide, though more detail means a more tailored report."
@@ -746,7 +746,7 @@ Route to the FAQ page when:
 
 Route to the comparison page when:
 - The user wants to compare product tiers side by side
-→ https://wunderbardigital.com/brand-snapshot-suite?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_comparison&utm_content=comparison_page
+→ https://wunderbardigital.com/wunderbrand-suite?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_comparison&utm_content=comparison_page
 
 Route to the Contact Team page when:
 - The user has specific data/privacy questions that need a thorough answer
@@ -784,7 +784,7 @@ Complete link table:
 - Talk to an Expert: https://wunderbardigital.com/talk-to-an-expert?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=support_routing&utm_content=talk_expert
 - Strategy Activation Booking: https://calendly.com/wunderbardigital/brand-strategy-activation?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=session_booking&utm_content=strategy_activation
 - FAQ Page: https://wunderbardigital.com/faq?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=faq_reference&utm_content=faq_page
-- Compare Products: https://wunderbardigital.com/brand-snapshot-suite?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_comparison&utm_content=comparison_page
+- Compare Products: https://wunderbardigital.com/wunderbrand-suite?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_comparison&utm_content=comparison_page
 - Contact Team: https://wunderbardigital.com/connect?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=support_routing&utm_content=contact_team
 - Privacy Policy: https://wunderbardigital.com/privacy-policy?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=confidentiality&utm_content=privacy_policy
 `;

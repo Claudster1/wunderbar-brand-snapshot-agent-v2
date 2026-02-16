@@ -161,9 +161,9 @@ export async function POST(req: NextRequest) {
 
             // Product page URLs for recovery emails
             const PRODUCT_URLS: Record<string, string> = {
-              snapshot_plus: "https://wunderbardigital.com/brand-snapshot-plus",
-              blueprint: "https://wunderbardigital.com/brand-blueprint",
-              blueprint_plus: "https://wunderbardigital.com/brand-blueprint-plus",
+              snapshot_plus: "https://wunderbardigital.com/wunderbrand-snapshot-plus",
+              blueprint: "https://wunderbardigital.com/wunderbrand-blueprint",
+              blueprint_plus: "https://wunderbardigital.com/wunderbrand-blueprint-plus",
             };
             const PRODUCT_PRICES: Record<string, string> = {
               snapshot_plus: "$497",
@@ -276,14 +276,14 @@ async function triggerActiveCampaign({
       applyTags.push("purchased:snapshot-plus", "intent:upgrade-blueprint");
       removeTags.push("intent:upgrade-snapshot-plus");
       upgradeProductName = "WunderBrand Blueprint™";
-      upgradeProductUrl = "https://wunderbardigital.com/brand-blueprint";
+      upgradeProductUrl = "https://wunderbardigital.com/wunderbrand-blueprint";
       upgradePrice = "$997";
       break;
     case "blueprint":
       applyTags.push("purchased:blueprint", "intent:upgrade-blueprint-plus");
       removeTags.push("intent:upgrade-blueprint");
       upgradeProductName = "WunderBrand Blueprint+™";
-      upgradeProductUrl = "https://wunderbardigital.com/brand-blueprint-plus";
+      upgradeProductUrl = "https://wunderbardigital.com/wunderbrand-blueprint-plus";
       upgradePrice = "$1,997";
       break;
     case "blueprint_plus":

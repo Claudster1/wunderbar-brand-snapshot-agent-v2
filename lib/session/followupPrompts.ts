@@ -46,10 +46,10 @@ PRODUCT REFERENCE:
 - AI Consulting — Strategic AI implementation (custom pricing)
 
 PRODUCT URLS:
-- Snapshot: https://wunderbardigital.com/brand-snapshot
-- Snapshot+: https://wunderbardigital.com/brand-snapshot-plus
-- Blueprint: https://wunderbardigital.com/brand-blueprint
-- Blueprint+: https://wunderbardigital.com/brand-blueprint-plus
+- Snapshot: https://wunderbardigital.com/wunderbrand-snapshot
+- Snapshot+: https://wunderbardigital.com/wunderbrand-snapshot-plus
+- Blueprint: https://wunderbardigital.com/wunderbrand-blueprint
+- Blueprint+: https://wunderbardigital.com/wunderbrand-blueprint-plus
 - Talk to Expert: https://wunderbardigital.com/talk-to-an-expert
 
 FORMATTING RULES:

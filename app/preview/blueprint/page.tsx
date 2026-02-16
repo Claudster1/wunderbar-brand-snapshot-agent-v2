@@ -2333,7 +2333,7 @@ export default function BrandBlueprintReport() {
                   </div>
                 ))}
               </div>
-              <a href="https://wunderbardigital.com/brand-blueprint-plus?utm_source=brand_blueprint_report&utm_medium=report_cta&utm_campaign=explore_upgrade&utm_content=blueprint_explore_blueprint_plus" target="_blank" rel="noopener noreferrer" style={{
+              <a href="https://wunderbardigital.com/wunderbrand-blueprint-plus?utm_source=brand_blueprint_report&utm_medium=report_cta&utm_campaign=explore_upgrade&utm_content=blueprint_explore_blueprint_plus" target="_blank" rel="noopener noreferrer" style={{
                 display: "block", width: "100%", padding: "12px 24px", borderRadius: 5, border: "none",
                 background: BLUE, color: WHITE, fontSize: 15, fontWeight: 900,
                 textAlign: "center", textDecoration: "none", fontFamily: "Lato, sans-serif",

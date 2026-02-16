@@ -455,10 +455,10 @@ For WunderBrand Snapshot+™ users, when appropriate:
 - If they want implementation detail → "WunderBrand Blueprint+™ includes everything in Blueprint plus step-by-step implementation guides, ready-to-use templates, and a Strategy Activation Session."
 - If they want to talk to someone or book a session/review → Direct them to Talk to an Expert: https://wunderbardigital.com/talk-to-an-expert?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=support_routing&utm_content=talk_expert
 - Do NOT offer the Strategy Activation Session — that is exclusive to WunderBrand Blueprint+™.
-- If they're exploring upgrade options → Link to suite page: https://wunderbardigital.com/brand-snapshot-suite?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_comparison&utm_content=comparison_page
+- If they're exploring upgrade options → Link to suite page: https://wunderbardigital.com/wunderbrand-suite?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_comparison&utm_content=comparison_page
 - If they're ready to buy a specific upgrade:
-  - WunderBrand Blueprint™: https://wunderbardigital.com/brand-blueprint?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_blueprint
-  - WunderBrand Blueprint+™: https://wunderbardigital.com/brand-blueprint-plus?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_blueprint_plus
+  - WunderBrand Blueprint™: https://wunderbardigital.com/wunderbrand-blueprint?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_blueprint
+  - WunderBrand Blueprint+™: https://wunderbardigital.com/wunderbrand-blueprint-plus?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_blueprint_plus
 ` : ""}
 ${tierName === "WunderBrand Blueprint™" ? `
 For WunderBrand Blueprint™ users, when appropriate:
@@ -466,7 +466,7 @@ For WunderBrand Blueprint™ users, when appropriate:
 - If they want someone to execute → "Wunderbar Digital offers managed marketing services."
 - If they want to talk to someone or book a session/review → Direct them to Talk to an Expert: https://wunderbardigital.com/talk-to-an-expert?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=support_routing&utm_content=talk_expert
 - Do NOT offer the Strategy Activation Session — that is exclusive to WunderBrand Blueprint+™.
-- If they're ready to upgrade to Blueprint+™: https://wunderbardigital.com/brand-blueprint-plus?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_blueprint_plus
+- If they're ready to upgrade to Blueprint+™: https://wunderbardigital.com/wunderbrand-blueprint-plus?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_blueprint_plus
 ` : ""}
 ${hasActivationSession ? `
 For WunderBrand Blueprint+™ users:
@@ -516,7 +516,7 @@ Route to the FAQ page when:
 
 Route to the comparison page when:
 - The user wants to compare product tiers side by side
-→ https://wunderbardigital.com/brand-snapshot-suite?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_comparison&utm_content=comparison_page
+→ https://wunderbardigital.com/wunderbrand-suite?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_comparison&utm_content=comparison_page
 
 Route to the Contact Team page when:
 - The user has specific data/privacy questions that need a thorough answer
@@ -597,7 +597,7 @@ Complete link table:
 - Talk to an Expert: https://wunderbardigital.com/talk-to-an-expert?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=support_routing&utm_content=talk_expert
 - Strategy Activation Booking: https://calendly.com/wunderbardigital/brand-strategy-activation?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=session_booking&utm_content=strategy_activation
 - FAQ Page: https://wunderbardigital.com/faq?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=faq_reference&utm_content=faq_page
-- Compare Products: https://wunderbardigital.com/brand-snapshot-suite?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_comparison&utm_content=comparison_page
+- Compare Products: https://wunderbardigital.com/wunderbrand-suite?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_comparison&utm_content=comparison_page
 - Contact Team: https://wunderbardigital.com/connect?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=support_routing&utm_content=contact_team
 - Privacy Policy: https://wunderbardigital.com/privacy-policy?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=confidentiality&utm_content=privacy_policy
 

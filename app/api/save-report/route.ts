@@ -160,7 +160,7 @@ export async function POST(req: Request) {
             brand_alignment_score: String(engineResults.brandAlignmentScore),
             weakest_pillar: engineResults.weakestPillar.pillar,
             upgrade_product_name: "WunderBrand Snapshot+\u2122",
-            upgrade_product_url: "https://wunderbardigital.com/brand-snapshot-plus",
+            upgrade_product_url: "https://wunderbardigital.com/wunderbrand-snapshot-plus",
             upgrade_price: "$497",
             services_url: "https://wunderbardigital.com/talk-to-an-expert",
             ...(firstName ? { first_name_custom: firstName } : {}),
@@ -182,7 +182,7 @@ export async function POST(req: Request) {
             nps_survey_link: npsLink,
             dashboard_link: `${baseUrl}/dashboard`,
             upgrade_product_name: "WunderBrand Snapshot+\u2122",
-            upgrade_product_url: "https://wunderbardigital.com/brand-snapshot-plus",
+            upgrade_product_url: "https://wunderbardigital.com/wunderbrand-snapshot-plus",
             upgrade_price: "$497",
           },
         });

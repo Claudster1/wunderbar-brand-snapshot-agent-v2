@@ -246,7 +246,7 @@ export function BlueprintDocument({ data }: { data: any }) {
             content roadmaps, explore WunderBrand Blueprint+™.
           </Text>
           <Text style={{ marginTop: 8, fontSize: 10, color: "#5a6c8a" }}>
-            wunderbardigital.com/brand-blueprint-plus
+            wunderbardigital.com/wunderbrand-blueprint-plus
           </Text>
         </View>
       </Page>

@@ -4292,7 +4292,7 @@ export default function BrandBlueprintPlusReport() {
           <p style={{ fontSize: 11, color: '#8A97A8', textAlign: 'center', marginTop: 24, padding: '16px 0', borderTop: '1px solid #E6EAF2', fontFamily: 'Lato, sans-serif' }}>
             This report is licensed for internal use by the commissioning organization. Redistribution or resale is prohibited.
             {' '}&copy; {new Date().getFullYear()} Wunderbar Digital &middot;{' '}
-            <a href="https://wunderbardigital.com/terms" target="_blank" rel="noopener noreferrer" style={{ color: '#8A97A8', textDecoration: 'underline' }}>Terms of Use</a>
+            <a href="https://wunderbardigital.com/terms-of-service" target="_blank" rel="noopener noreferrer" style={{ color: '#8A97A8', textDecoration: 'underline' }}>Terms of Use</a>
           </p>
         </footer>
         </div>

@@ -1,5 +1,7 @@
 import React from "react";
-import { Document, Page, Text, View, StyleSheet, Font } from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet, Font, Image, Link } from "@react-pdf/renderer";
+
+const LOGO_URL = "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp";
 
 Font.register({
   family: "Inter",
@@ -42,6 +44,22 @@ const styles = StyleSheet.create({
   },
 });
 
+function DocFooter({ businessName }: { businessName?: string }) {
+  return (
+    <View style={{ position: "absolute", bottom: 16, left: 40, right: 40, borderTop: "0.5px solid #E5E7EB", paddingTop: 6 }} fixed>
+      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+        <Text style={{ fontSize: 7, color: "#9CA3AF" }}>© {new Date().getFullYear()} Wunderbar Digital · WunderBrand Blueprint™</Text>
+        <Link src="https://wunderbardigital.com" style={{ fontSize: 7, color: "#07B0F2", textDecoration: "none" }}>wunderbardigital.com</Link>
+      </View>
+      {businessName && (
+        <Text style={{ fontSize: 6.5, color: "#B0B8C4", textAlign: "center", marginTop: 3 }}>
+          Confidential — Prepared exclusively for {businessName}. Unauthorized distribution is prohibited.
+        </Text>
+      )}
+    </View>
+  );
+}
+
 export function BlueprintDocument({ data }: { data: any }) {
   const {
     userName,
@@ -63,6 +81,12 @@ export function BlueprintDocument({ data }: { data: any }) {
     aiPrompts,
   } = data;
 
+  const reportDate = new Date().toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
   const hasFoundation =
     typeof brandAlignmentScore === "number" &&
     pillarScores &&
@@ -79,16 +103,22 @@ export function BlueprintDocument({ data }: { data: any }) {
     <Document>
       {/* PAGE 1 — Cover */}
       <Page size="A4" style={styles.page}>
+        <Image src={LOGO_URL} style={{ width: 100, marginBottom: 16 }} />
         <View style={styles.header}>
           <Text style={styles.title}>WunderBrand Blueprint™</Text>
-          <Text>A strategic foundation for your brand's growth</Text>
+          <Text>A strategic foundation for your brand&apos;s growth</Text>
         </View>
 
-        <Text>Hello {userName},</Text>
+        <Text>Prepared for {businessName || userName || "you"}</Text>
+        <Text style={{ fontSize: 10, color: "#6B7280", marginTop: 4 }}>{reportDate}</Text>
         <Text style={{ marginTop: 12 }}>
-          This report translates your brand's essence, language, and visual direction into
+          This report translates your brand&apos;s essence, language, and visual direction into
           a unified and actionable system.
         </Text>
+        <Text style={{ fontSize: 9, color: "#9CA3AF", marginTop: 24, textAlign: "center" }}>
+          Confidential — Prepared exclusively for {businessName || userName || "you"}
+        </Text>
+        <DocFooter businessName={businessName} />
       </Page>
 
       {/* Foundation: WunderBrand Score™ + Pillars (when data provided) */}
@@ -114,6 +144,7 @@ export function BlueprintDocument({ data }: { data: any }) {
                 <Text>{contextCoverage}%</Text>
               </View>
             )}
+            <DocFooter businessName={businessName} />
           </Page>
           <Page size="A4" style={styles.page}>
             <Text style={styles.sectionTitle}>Brand Pillar Analysis</Text>
@@ -129,6 +160,7 @@ export function BlueprintDocument({ data }: { data: any }) {
                   )}
                 </View>
               ))}
+            <DocFooter businessName={businessName} />
           </Page>
         </>
       )}
@@ -149,6 +181,7 @@ export function BlueprintDocument({ data }: { data: any }) {
         <View style={styles.block}>
           <Text>{differentiation}</Text>
         </View>
+        <DocFooter businessName={businessName} />
       </Page>
 
       {/* Persona + Archetype */}
@@ -174,6 +207,7 @@ export function BlueprintDocument({ data }: { data: any }) {
                 : (archetype as { description?: string })?.description) ?? ""}
           </Text>
         </View>
+        <DocFooter businessName={businessName} />
       </Page>
 
       {/* PAGE 4 — Tone of Voice */}
@@ -185,6 +219,7 @@ export function BlueprintDocument({ data }: { data: any }) {
             <Text>{tone.detail}</Text>
           </View>
         ))}
+        <DocFooter businessName={businessName} />
       </Page>
 
       {/* PAGE 5 — Messaging Pillars */}
@@ -196,6 +231,7 @@ export function BlueprintDocument({ data }: { data: any }) {
             <Text>{pillar.detail}</Text>
           </View>
         ))}
+        <DocFooter businessName={businessName} />
       </Page>
 
       {/* PAGE 6 — Color Palette */}
@@ -216,6 +252,7 @@ export function BlueprintDocument({ data }: { data: any }) {
             />
           </View>
         ))}
+        <DocFooter businessName={businessName} />
       </Page>
 
       {/* PAGE 7 — AI Prompts */}
@@ -227,6 +264,7 @@ export function BlueprintDocument({ data }: { data: any }) {
             <Text>{p.prompt}</Text>
           </View>
         ))}
+        <DocFooter businessName={businessName} />
       </Page>
 
       {/* Final Page — Next Steps + Upsell to Blueprint+ */}
@@ -249,6 +287,7 @@ export function BlueprintDocument({ data }: { data: any }) {
             wunderbardigital.com/wunderbrand-blueprint-plus
           </Text>
         </View>
+        <DocFooter businessName={businessName} />
       </Page>
     </Document>
   );

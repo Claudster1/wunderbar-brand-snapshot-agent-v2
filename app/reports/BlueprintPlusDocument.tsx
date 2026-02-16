@@ -5,7 +5,11 @@ import {
   View,
   StyleSheet,
   Font,
+  Image,
+  Link,
 } from "@react-pdf/renderer";
+
+const LOGO_URL = "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp";
 
 Font.register({
   family: "Inter",
@@ -49,7 +53,30 @@ const pillarLabels: Record<string, string> = {
   conversion: "Conversion",
 };
 
+function DocFooter({ businessName }: { businessName?: string }) {
+  return (
+    <View style={{ position: "absolute", bottom: 16, left: 40, right: 40, borderTop: "0.5px solid #E5E7EB", paddingTop: 6 }} fixed>
+      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+        <Text style={{ fontSize: 7, color: "#9CA3AF" }}>© {new Date().getFullYear()} Wunderbar Digital · WunderBrand Blueprint+™</Text>
+        <Link src="https://wunderbardigital.com" style={{ fontSize: 7, color: "#07B0F2", textDecoration: "none" }}>wunderbardigital.com</Link>
+      </View>
+      {businessName && (
+        <Text style={{ fontSize: 6.5, color: "#B0B8C4", textAlign: "center", marginTop: 3 }}>
+          Confidential — Prepared exclusively for {businessName}. Unauthorized distribution is prohibited.
+        </Text>
+      )}
+    </View>
+  );
+}
+
 export function BlueprintPlusDocument({ data }: { data: any }) {
+  const reportDate = new Date().toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  const businessName = data.businessName;
+
   const hasFoundation =
     typeof data.brandAlignmentScore === "number" &&
     data.pillarScores &&
@@ -68,17 +95,23 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
     <Document>
       {/* PAGE 1 — COVER */}
       <Page size="A4" style={styles.page}>
+        <Image src={LOGO_URL} style={{ width: 100, marginBottom: 16 }} />
         <View style={styles.header}>
           <Text style={styles.title}>WunderBrand Blueprint+™</Text>
           <Text>The advanced strategic foundation for scalable brand growth.</Text>
         </View>
 
-        <Text>Hello {data.userName},</Text>
+        <Text>Prepared for {businessName || data.userName || "you"}</Text>
+        <Text style={{ fontSize: 10, color: "#6B7280", marginTop: 4 }}>{reportDate}</Text>
         <Text style={{ marginTop: 12 }}>
           This report synthesizes deeper customer insights, narrative frameworks,
           positioning strategy, and execution plans into a single, actionable system
           designed for clarity, alignment, and growth.
         </Text>
+        <Text style={{ fontSize: 9, color: "#9CA3AF", marginTop: 24, textAlign: "center" }}>
+          Confidential — Prepared exclusively for {businessName || data.userName || "you"}
+        </Text>
+        <DocFooter businessName={businessName} />
       </Page>
 
       {/* Foundation: WunderBrand Score™ + Pillars (when provided) */}
@@ -104,6 +137,7 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
                 <Text>{data.contextCoverage}%</Text>
               </View>
             )}
+            <DocFooter businessName={businessName} />
           </Page>
           <Page size="A4" style={styles.page}>
             <Text style={styles.sectionTitle}>Brand Pillar Analysis</Text>
@@ -119,6 +153,7 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
                   )}
                 </View>
               ))}
+            <DocFooter businessName={businessName} />
           </Page>
         </>
       )}
@@ -146,6 +181,7 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
                   <View style={styles.block}><Text>{data.differentiation}</Text></View>
                 </>
               )}
+              <DocFooter businessName={businessName} />
             </Page>
           )}
           {(data.persona ?? data.archetype) && (
@@ -174,6 +210,7 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
                   </View>
                 </>
               )}
+              <DocFooter businessName={businessName} />
             </Page>
           )}
           {Array.isArray(data.toneOfVoice) && data.toneOfVoice.length > 0 && (
@@ -185,6 +222,7 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
                   <Text>{t.detail}</Text>
                 </View>
               ))}
+              <DocFooter businessName={businessName} />
             </Page>
           )}
           {Array.isArray(data.messagingPillars) && data.messagingPillars.length > 0 && (
@@ -196,6 +234,7 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
                   <Text>{p.detail}</Text>
                 </View>
               ))}
+              <DocFooter businessName={businessName} />
             </Page>
           )}
           {Array.isArray(data.colorPalette) && data.colorPalette.length > 0 && (
@@ -207,6 +246,7 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
                   <Text>{c.name ?? ""} — {c.hex ?? ""}</Text>
                 </View>
               ))}
+              <DocFooter businessName={businessName} />
             </Page>
           )}
         </>
@@ -227,6 +267,7 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
               <View style={styles.block}><Text>{brandStory.short}</Text></View>
             </>
           )}
+          <DocFooter businessName={businessName} />
         </Page>
       )}
 
@@ -250,6 +291,7 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
               ))}
             </>
           )}
+          <DocFooter businessName={businessName} />
         </Page>
       )}
 
@@ -265,6 +307,7 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
               <Text>Opportunities: {stage.opportunities}</Text>
             </View>
           ))}
+          <DocFooter businessName={businessName} />
         </Page>
       )}
 
@@ -278,6 +321,7 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
               <Text>{m.theme}</Text>
             </View>
           ))}
+          <DocFooter businessName={businessName} />
         </Page>
       )}
 
@@ -291,6 +335,7 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
               <Text>{v.description}</Text>
             </View>
           ))}
+          <DocFooter businessName={businessName} />
         </Page>
       )}
 
@@ -311,6 +356,7 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
               ))}
             </>
           )}
+          <DocFooter businessName={businessName} />
         </Page>
       )}
 
@@ -324,6 +370,7 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
               <Text>{p.prompt}</Text>
             </View>
           ))}
+          <DocFooter businessName={businessName} />
         </Page>
       )}
 
@@ -334,6 +381,7 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
           <View style={styles.block}>
             <Text>{section.content}</Text>
           </View>
+          <DocFooter businessName={businessName} />
         </Page>
       ))}
 
@@ -360,6 +408,7 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
         <Text style={{ marginTop: 20, fontSize: 10, color: "#5a6c8a" }}>
           wunderbardigital.com — Get in touch to learn more.
         </Text>
+        <DocFooter businessName={businessName} />
       </Page>
     </Document>
   );

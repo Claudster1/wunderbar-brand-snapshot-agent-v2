@@ -116,6 +116,12 @@ export const BrandSnapshotPlusPDF = ({
 }: {
   report: BrandSnapshotPlusReport;
 }) => {
+  const reportDate = new Date().toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
   const {
     userName,
     businessName,
@@ -156,7 +162,7 @@ export const BrandSnapshotPlusPDF = ({
     <Document>
       {/* ---------------- PAGE 1 — EXEC SUMMARY ---------------- */}
       <Page size="A4" style={styles.page}>
-        <PdfHeader title="WunderBrand Snapshot+™ Report" />
+        <PdfHeader title="WunderBrand Snapshot+™ Report" businessName={businessName} date={reportDate} />
 
         <PageTitle
           title="Your WunderBrand Snapshot+™"
@@ -204,7 +210,7 @@ export const BrandSnapshotPlusPDF = ({
           </Section>
         )}
 
-        <PdfFooter />
+        <PdfFooter businessName={businessName} productName="WunderBrand Snapshot+™" />
       </Page>
 
       {/* ---------------- PAGE 2 — BRAND PERSONA, ARCHETYPE & VOICE ---------------- */}
@@ -277,7 +283,7 @@ export const BrandSnapshotPlusPDF = ({
             </Section>
           )}
 
-          <PdfFooter />
+          <PdfFooter businessName={businessName} productName="WunderBrand Snapshot+™" />
         </Page>
       )}
 
@@ -321,7 +327,7 @@ export const BrandSnapshotPlusPDF = ({
             )}
           </Section>
 
-          <PdfFooter />
+          <PdfFooter businessName={businessName} productName="WunderBrand Snapshot+™" />
         </Page>
       )}
 
@@ -363,7 +369,7 @@ export const BrandSnapshotPlusPDF = ({
             </Section>
           )}
 
-          <PdfFooter />
+          <PdfFooter businessName={businessName} productName="WunderBrand Snapshot+™" />
         </Page>
       )}
 
@@ -412,7 +418,7 @@ export const BrandSnapshotPlusPDF = ({
           />
         </Section>
 
-        <PdfFooter />
+        <PdfFooter businessName={businessName} productName="WunderBrand Snapshot+™" />
       </Page>
 
       {/* ---------------- PAGE 3 — PILLAR CONTINUED ---------------- */}
@@ -439,7 +445,7 @@ export const BrandSnapshotPlusPDF = ({
           <RecommendationBlock title="Conversion Opportunity" text={recommendations.conversion} />
         </Section>
 
-        <PdfFooter />
+        <PdfFooter businessName={businessName} productName="WunderBrand Snapshot+™" />
       </Page>
 
       {/* ---------------- PAGE 4 — AEO SECTION (REQUIRED for Visibility) ---------------- */}
@@ -505,7 +511,7 @@ export const BrandSnapshotPlusPDF = ({
             </Section>
           )}
 
-          <PdfFooter />
+          <PdfFooter businessName={businessName} productName="WunderBrand Snapshot+™" />
         </Page>
       )}
 
@@ -541,7 +547,7 @@ export const BrandSnapshotPlusPDF = ({
           </Section>
         )}
 
-        <PdfFooter />
+        <PdfFooter businessName={businessName} productName="WunderBrand Snapshot+™" />
       </Page>
 
       {/* ---------------- PAGE 6 — VISUAL IDENTITY ---------------- */}
@@ -559,7 +565,7 @@ export const BrandSnapshotPlusPDF = ({
             <Text style={styles.para}>{visualIdentityNotes}</Text>
           </Section>
 
-          <PdfFooter />
+          <PdfFooter businessName={businessName} productName="WunderBrand Snapshot+™" />
         </Page>
       )}
 
@@ -597,7 +603,7 @@ export const BrandSnapshotPlusPDF = ({
             </Text>
           </Section>
 
-          <PdfFooter />
+          <PdfFooter businessName={businessName} productName="WunderBrand Snapshot+™" />
         </Page>
       )}
 

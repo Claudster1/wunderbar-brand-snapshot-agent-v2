@@ -10,7 +10,10 @@ import {
   StyleSheet,
   Font,
   Image,
+  Link,
 } from "@react-pdf/renderer";
+
+const LOGO_URL = "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp";
 
 // ---------------------------
 // FONT REGISTRATION
@@ -93,6 +96,50 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#6B7280",
   },
+
+  pageFooter: {
+    position: "absolute",
+    bottom: 16,
+    left: 40,
+    right: 40,
+    borderTop: "0.5px solid #E5E7EB",
+    paddingTop: 6,
+  },
+  pageFooterRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  pageFooterText: {
+    fontSize: 7,
+    color: "#9CA3AF",
+  },
+  pageFooterUrl: {
+    fontSize: 7,
+    color: "#07B0F2",
+    textDecoration: "none",
+  },
+  pageFooterConfidential: {
+    fontSize: 6.5,
+    color: "#B0B8C4",
+    textAlign: "center",
+    marginTop: 3,
+  },
+  coverLogo: {
+    width: 100,
+    marginBottom: 20,
+  },
+  coverDate: {
+    fontSize: 10,
+    color: "#6B7280",
+    marginTop: 4,
+  },
+  coverConfidential: {
+    fontSize: 9,
+    color: "#9CA3AF",
+    marginTop: 24,
+    textAlign: "center",
+  },
 });
 
 // Helper functions for dynamic styles
@@ -117,6 +164,23 @@ const getColorSwatch = (hex: string) => ({
 });
 
 // -----------------------------------
+// PAGE FOOTER HELPER
+// -----------------------------------
+const DocFooter = ({ businessName, productName }: { businessName?: string; productName: string }) => (
+  <View style={styles.pageFooter} fixed>
+    <View style={styles.pageFooterRow}>
+      <Text style={styles.pageFooterText}>© {new Date().getFullYear()} Wunderbar Digital · {productName}</Text>
+      <Link src="https://wunderbardigital.com" style={styles.pageFooterUrl}>wunderbardigital.com</Link>
+    </View>
+    {businessName && (
+      <Text style={styles.pageFooterConfidential}>
+        Confidential — Prepared exclusively for {businessName}. Unauthorized distribution is prohibited.
+      </Text>
+    )}
+  </View>
+);
+
+// -----------------------------------
 // MAIN DOCUMENT COMPONENT
 // -----------------------------------
 export const ReportDocument = ({
@@ -138,6 +202,12 @@ export const ReportDocument = ({
   roadmap90,
 }: any) => {
   const percent = brandAlignmentScore;
+  const productLabel = isPlus ? "WunderBrand Snapshot+™" : "WunderBrand Snapshot™";
+  const reportDate = new Date().toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
   const scoreLabel =
     percent >= 80
@@ -152,9 +222,11 @@ export const ReportDocument = ({
           PAGE 1 — COVER PAGE
       ============================================================ */}
       <Page style={styles.page}>
-        <Text style={styles.h1}>Your WunderBrand Snapshot™ Report</Text>
+        <Image src={LOGO_URL} style={styles.coverLogo} />
+        <Text style={styles.h1}>Your {productLabel} Report</Text>
         <Text>Prepared for {userName || "you"}</Text>
         <Text>{businessName}</Text>
+        <Text style={styles.coverDate}>{reportDate}</Text>
 
         <View style={{ marginTop: 30 }}>
           <Text style={styles.h2}>WunderBrand Score™</Text>
@@ -180,16 +252,20 @@ export const ReportDocument = ({
           </Text>
         </View>
 
+        <Text style={styles.coverConfidential}>
+          Confidential — Prepared exclusively for {businessName || "you"}
+        </Text>
         <Text
           style={{
-            marginTop: 40,
+            marginTop: 12,
             fontSize: 10,
             textAlign: "center",
             color: "#6B7280",
           }}
         >
-          © 2025 Wunderbar Digital. All rights reserved.
+          © {new Date().getFullYear()} Wunderbar Digital. All rights reserved. | wunderbardigital.com
         </Text>
+        <DocFooter businessName={businessName} productName={productLabel} />
       </Page>
 
       {/* ============================================================
@@ -229,10 +305,7 @@ export const ReportDocument = ({
           );
         })}
 
-        <Text style={styles.footer}>
-          © 2025 Wunderbar Digital. WunderBrand Snapshot™ is a trademark of Wunderbar
-          Digital.
-        </Text>
+        <DocFooter businessName={businessName} productName={productLabel} />
       </Page>
 
       {/* ============================================================
@@ -267,9 +340,7 @@ export const ReportDocument = ({
           </View>
         ))}
 
-        <Text style={styles.footer}>
-          Custom palette generated dynamically for your brand.
-        </Text>
+        <DocFooter businessName={businessName} productName={productLabel} />
       </Page>
 
       {/* ============================================================
@@ -296,10 +367,7 @@ export const ReportDocument = ({
           );
         })}
 
-        <Text style={styles.footer}>
-          Want a deeper transformation? Upgrade to Snapshot+™ for full brand
-          guidance.
-        </Text>
+        <DocFooter businessName={businessName} productName={productLabel} />
       </Page>
 
       {/* ============================================================
@@ -333,9 +401,9 @@ export const ReportDocument = ({
         </Text>
 
         <Text style={styles.footer}>
-          © 2025 Wunderbar Digital. Snapshot+™ is a trademark of Wunderbar
-          Digital.
+          © {new Date().getFullYear()} Wunderbar Digital. All rights reserved.
         </Text>
+        <DocFooter businessName={businessName} productName={productLabel} />
       </Page>
     </Document>
   );

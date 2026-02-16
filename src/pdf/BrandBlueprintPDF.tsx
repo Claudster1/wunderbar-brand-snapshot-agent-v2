@@ -90,6 +90,12 @@ export const BrandBlueprintPDF = ({
 }: {
   report: BrandBlueprintReport;
 }) => {
+  const reportDate = new Date().toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
   const {
     userName,
     businessName,
@@ -120,7 +126,7 @@ export const BrandBlueprintPDF = ({
     <Document>
       {/* ------------ PAGE 1 — EXECUTIVE SUMMARY ------------ */}
       <Page size="A4" style={styles.page}>
-        <PdfHeader title="WunderBrand Blueprint™" />
+        <PdfHeader title="WunderBrand Blueprint™" businessName={businessName} date={reportDate} />
 
         <PageTitle
           title="Your WunderBrand Blueprint™"
@@ -142,7 +148,7 @@ export const BrandBlueprintPDF = ({
           </Text>
         </Section>
 
-        <PdfFooter />
+        <PdfFooter businessName={businessName} productName="WunderBrand Blueprint™" />
       </Page>
 
       {/* ------------ PAGE 2 — POSITIONING SYSTEM ------------ */}
@@ -182,7 +188,7 @@ export const BrandBlueprintPDF = ({
           </Section>
         )}
 
-        <PdfFooter />
+        <PdfFooter businessName={businessName} productName="WunderBrand Blueprint™" />
       </Page>
 
       {/* ------------ PAGE 3 — BRAND PROMISE & PROOF ------------ */}
@@ -210,7 +216,7 @@ export const BrandBlueprintPDF = ({
           </Section>
         )}
 
-        <PdfFooter />
+        <PdfFooter businessName={businessName} productName="WunderBrand Blueprint™" />
       </Page>
 
       {/* ------------ PAGE 4 — BRAND NARRATIVE ------------ */}
@@ -227,7 +233,7 @@ export const BrandBlueprintPDF = ({
             <Text style={styles.para}>{narrative}</Text>
           </Section>
 
-          <PdfFooter />
+          <PdfFooter businessName={businessName} productName="WunderBrand Blueprint™" />
         </Page>
       )}
 
@@ -263,7 +269,7 @@ export const BrandBlueprintPDF = ({
           </Section>
         )}
 
-        <PdfFooter />
+        <PdfFooter businessName={businessName} productName="WunderBrand Blueprint™" />
       </Page>
 
       {/* ------------ PAGE 6 — AUDIENCE SEGMENTS ------------ */}
@@ -283,7 +289,7 @@ export const BrandBlueprintPDF = ({
             </Section>
           ))}
 
-          <PdfFooter />
+          <PdfFooter businessName={businessName} productName="WunderBrand Blueprint™" />
         </Page>
       )}
 
@@ -317,7 +323,7 @@ export const BrandBlueprintPDF = ({
           </Section>
         )}
 
-        <PdfFooter />
+        <PdfFooter businessName={businessName} productName="WunderBrand Blueprint™" />
       </Page>
 
       {/* ------------ PAGE 8 — COMPETITIVE LANDSCAPE & AEO ------------ */}
@@ -352,7 +358,7 @@ export const BrandBlueprintPDF = ({
           </Section>
         )}
 
-        <PdfFooter />
+        <PdfFooter businessName={businessName} productName="WunderBrand Blueprint™" />
       </Page>
 
       {/* ------------ PAGE 9 — VISUAL DIRECTION ------------ */}
@@ -391,7 +397,7 @@ export const BrandBlueprintPDF = ({
           </Section>
         )}
 
-        <PdfFooter />
+        <PdfFooter businessName={businessName} productName="WunderBrand Blueprint™" />
       </Page>
 
       {/* ------------ PAGE 10 — CONTENT STRATEGY & AEO ------------ */}
@@ -428,7 +434,7 @@ export const BrandBlueprintPDF = ({
           </>
         )}
 
-        <PdfFooter />
+        <PdfFooter businessName={businessName} productName="WunderBrand Blueprint™" />
       </Page>
 
       {/* ------------ PAGE 11 — AI PROMPT PACK ------------ */}
@@ -456,7 +462,7 @@ export const BrandBlueprintPDF = ({
             ))}
           </Section>
 
-          <PdfFooter />
+          <PdfFooter businessName={businessName} productName="WunderBrand Blueprint™" />
         </Page>
       )}
 
@@ -494,7 +500,7 @@ export const BrandBlueprintPDF = ({
           </Text>
         </Section>
 
-        <PdfFooter />
+        <PdfFooter businessName={businessName} productName="WunderBrand Blueprint™" />
       </Page>
 
     </Document>

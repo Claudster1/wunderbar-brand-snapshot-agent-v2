@@ -61,6 +61,12 @@ export const BrandSnapshotPDF = ({
 }: {
   report: BrandSnapshotReport;
 }) => {
+  const reportDate = new Date().toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
   const {
     userName,
     businessName,
@@ -77,7 +83,7 @@ export const BrandSnapshotPDF = ({
     <Document>
       {/* ---------------- PAGE 1 ---------------- */}
       <Page size="A4" style={styles.page}>
-        <PdfHeader title="WunderBrand Snapshot™ Report" />
+        <PdfHeader title="WunderBrand Snapshot™ Report" businessName={businessName} date={reportDate} />
 
         <PageTitle
           title="Your WunderBrand Snapshot™"
@@ -110,7 +116,7 @@ export const BrandSnapshotPDF = ({
           <PillarScoreBar label="Conversion" score={pillarScores.conversion} />
         </Section>
 
-        <PdfFooter />
+        <PdfFooter businessName={businessName} productName="WunderBrand Snapshot™" />
       </Page>
 
       {/* ---------------- PAGE 2 ---------------- */}
@@ -154,7 +160,7 @@ export const BrandSnapshotPDF = ({
           />
         </Section>
 
-        <PdfFooter />
+        <PdfFooter businessName={businessName} productName="WunderBrand Snapshot™" />
       </Page>
 
       {/* ---------------- PAGE 3 ---------------- */}
@@ -201,7 +207,7 @@ export const BrandSnapshotPDF = ({
           />
         </Section>
 
-        <PdfFooter />
+        <PdfFooter businessName={businessName} productName="WunderBrand Snapshot™" />
       </Page>
 
       {/* ---------------- PAGE 4 ---------------- */}
@@ -240,7 +246,7 @@ export const BrandSnapshotPDF = ({
           </View>
         </Section>
 
-        <PdfFooter />
+        <PdfFooter businessName={businessName} productName="WunderBrand Snapshot™" />
       </Page>
     </Document>
   );

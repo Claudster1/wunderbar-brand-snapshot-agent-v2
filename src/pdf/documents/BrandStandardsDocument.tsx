@@ -7,9 +7,13 @@ import {
   Page,
   Text,
   View,
+  Image,
   StyleSheet,
+  Link,
 } from "@react-pdf/renderer";
 import { pdfTheme, colors, fonts, layout, spacing } from "../theme";
+
+const LOGO_URL = "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp";
 
 // ─── Types ───
 interface WorkbookData {
@@ -55,6 +59,13 @@ const s = StyleSheet.create({
   coverInner: {
     padding: 64,
     alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+  },
+  coverLogo: {
+    width: 140,
+    marginBottom: 48,
+    opacity: 0.9,
   },
   coverTitle: {
     fontSize: 36,
@@ -67,21 +78,42 @@ const s = StyleSheet.create({
     fontSize: 14,
     color: pdfTheme.colors.blue,
     textAlign: "center",
-    marginBottom: 40,
+    marginBottom: 48,
     fontWeight: 600,
+  },
+  coverPreparedLabel: {
+    fontSize: 10,
+    color: "rgba(255,255,255,0.5)",
+    textAlign: "center",
+    textTransform: "uppercase",
+    letterSpacing: 2,
+    marginBottom: 6,
   },
   coverBrand: {
-    fontSize: 20,
+    fontSize: 24,
     color: "#FFFFFF",
     textAlign: "center",
-    marginBottom: 8,
-    fontWeight: 600,
+    marginBottom: 6,
+    fontWeight: 700,
   },
-  coverWatermark: {
-    fontSize: 10,
+  coverDate: {
+    fontSize: 12,
+    color: "rgba(255,255,255,0.6)",
+    textAlign: "center",
+    marginBottom: 40,
+  },
+  coverConfidential: {
+    fontSize: 9,
     color: "rgba(255,255,255,0.4)",
     textAlign: "center",
-    marginTop: 60,
+    marginBottom: 6,
+    letterSpacing: 0.5,
+  },
+  coverUrl: {
+    fontSize: 10,
+    color: pdfTheme.colors.blue,
+    textAlign: "center",
+    textDecoration: "none",
   },
   sectionTitle: {
     fontSize: 22,
@@ -174,15 +206,41 @@ const s = StyleSheet.create({
   },
   footer: {
     position: "absolute",
-    bottom: 24,
+    bottom: 20,
     left: 48,
     right: 48,
+    borderTop: `0.5px solid ${colors.borderLight}`,
+    paddingTop: 8,
+  },
+  footerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
     fontSize: 8,
     color: "#9CA3AF",
   },
+  footerConfidential: {
+    fontSize: 7,
+    color: "#B0B8C4",
+    textAlign: "center",
+    marginTop: 4,
+  },
 });
+
+// ─── Page Footer Helper ───
+function PageFooter({ businessName }: { businessName: string }) {
+  return (
+    <View style={s.footer} fixed>
+      <View style={s.footerRow}>
+        <Text>{businessName} {"\u2014"} Brand Standards Guide</Text>
+        <Text>WunderBrand Blueprint+{"\u2122"} | wunderbardigital.com</Text>
+      </View>
+      <Text style={s.footerConfidential}>
+        Confidential {"\u2014"} Prepared exclusively for {businessName}. Unauthorized distribution is prohibited.
+      </Text>
+    </View>
+  );
+}
 
 // ─── Document ───
 export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
@@ -198,12 +256,18 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
       {/* Cover Page */}
       <Page size="A4" style={s.coverPage}>
         <View style={s.coverInner}>
+          <Image style={s.coverLogo} src={LOGO_URL} />
           <Text style={s.coverTitle}>Brand Standards Guide</Text>
-          <Text style={s.coverSubtitle}>WunderBrand Blueprint+\u2122</Text>
+          <Text style={s.coverSubtitle}>WunderBrand Blueprint+{"\u2122"}</Text>
+          <Text style={s.coverPreparedLabel}>Prepared for</Text>
           <Text style={s.coverBrand}>{businessName}</Text>
-          <Text style={s.coverWatermark}>
-            Generated {today} | Powered by WunderBrand
+          <Text style={s.coverDate}>{today}</Text>
+          <Text style={s.coverConfidential}>
+            Confidential {"\u2014"} Prepared exclusively for {businessName}
           </Text>
+          <Link src="https://wunderbardigital.com" style={s.coverUrl}>
+            wunderbardigital.com
+          </Link>
         </View>
       </Page>
 
@@ -232,10 +296,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
           </>
         ) : null}
 
-        <View style={s.footer}>
-          <Text>{businessName} — Brand Standards Guide</Text>
-          <Text>WunderBrand Blueprint+\u2122</Text>
-        </View>
+        <PageFooter businessName={businessName} />
       </Page>
 
       {/* Elevator Pitches */}
@@ -264,10 +325,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
             </View>
           ) : null}
 
-          <View style={s.footer}>
-            <Text>{businessName} — Brand Standards Guide</Text>
-            <Text>WunderBrand Blueprint+\u2122</Text>
-          </View>
+          <PageFooter businessName={businessName} />
         </Page>
       )}
 
@@ -291,10 +349,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
             </View>
           ))}
 
-          <View style={s.footer}>
-            <Text>{businessName} — Brand Standards Guide</Text>
-            <Text>WunderBrand Blueprint+\u2122</Text>
-          </View>
+          <PageFooter businessName={businessName} />
         </Page>
       )}
 
@@ -337,10 +392,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
           </View>
         ) : null}
 
-        <View style={s.footer}>
-          <Text>{businessName} — Brand Standards Guide</Text>
-          <Text>WunderBrand Blueprint+\u2122</Text>
-        </View>
+        <PageFooter businessName={businessName} />
       </Page>
 
       {/* Audience Profiles */}
@@ -374,10 +426,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
             </View>
           )}
 
-          <View style={s.footer}>
-            <Text>{businessName} — Brand Standards Guide</Text>
-            <Text>WunderBrand Blueprint+\u2122</Text>
-          </View>
+          <PageFooter businessName={businessName} />
         </Page>
       )}
 
@@ -397,10 +446,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
             );
           })}
 
-          <View style={s.footer}>
-            <Text>{businessName} — Brand Standards Guide</Text>
-            <Text>WunderBrand Blueprint+\u2122</Text>
-          </View>
+          <PageFooter businessName={businessName} />
         </Page>
       )}
 
@@ -428,10 +474,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
             </>
           ) : null}
 
-          <View style={s.footer}>
-            <Text>{businessName} — Brand Standards Guide</Text>
-            <Text>WunderBrand Blueprint+\u2122</Text>
-          </View>
+          <PageFooter businessName={businessName} />
         </Page>
       )}
     </Document>

@@ -73,6 +73,106 @@ export async function POST(req: NextRequest) {
       transcriptLength: transcript.length,
     });
 
+    // ─── Auto-enrich: look up contact's report + purchase history ───
+    let enrichedReportId = report_id || null;
+    let enrichedProductTier = product_tier || null;
+    let enrichmentContext = additional_context || "";
+
+    if (supabaseAdmin) {
+      const normalizedEmail = contact_email.trim().toLowerCase();
+
+      try {
+        // Find their most recent report
+        const { data: reportData } = await supabaseAdmin
+          .from("brand_snapshot_reports")
+          .select("report_id, company_name, brand_alignment_score, pillar_scores, user_name, created_at")
+          .eq("user_email", normalizedEmail)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (reportData) {
+          enrichedReportId = enrichedReportId || reportData.report_id;
+
+          // Build context from report data
+          const reportContext: string[] = [];
+          if (reportData.company_name) reportContext.push(`Business: ${reportData.company_name}`);
+          if (reportData.brand_alignment_score != null) reportContext.push(`WunderBrand Score: ${reportData.brand_alignment_score}/100`);
+
+          if (reportData.pillar_scores && typeof reportData.pillar_scores === "object") {
+            const scores = reportData.pillar_scores as Record<string, number>;
+            const pillarLines = Object.entries(scores)
+              .map(([pillar, score]) => `${pillar}: ${score}/20`)
+              .join(", ");
+            reportContext.push(`Pillar scores: ${pillarLines}`);
+
+            // Identify weakest pillar
+            const weakest = Object.entries(scores).sort((a, b) => a[1] - b[1])[0];
+            if (weakest) reportContext.push(`Weakest pillar: ${weakest[0]} (${weakest[1]}/20)`);
+
+            // Identify strongest pillar
+            const strongest = Object.entries(scores).sort((a, b) => b[1] - a[1])[0];
+            if (strongest) reportContext.push(`Strongest pillar: ${strongest[0]} (${strongest[1]}/20)`);
+          }
+
+          if (reportData.created_at) {
+            const reportDate = new Date(reportData.created_at).toLocaleDateString("en-AU", {
+              year: "numeric", month: "long", day: "numeric",
+            });
+            reportContext.push(`Report date: ${reportDate}`);
+          }
+
+          if (reportContext.length > 0) {
+            const enrichmentBlock = `\n\nCLIENT WUNDERBRAND REPORT DATA:\n${reportContext.join("\n")}`;
+            enrichmentContext = enrichmentContext
+              ? `${enrichmentContext}${enrichmentBlock}`
+              : enrichmentBlock.trim();
+          }
+
+          logger.info("[Session] Enriched with report data", {
+            email: normalizedEmail,
+            reportId: reportData.report_id,
+            score: reportData.brand_alignment_score,
+          });
+        }
+
+        // Find their highest product tier from purchases
+        if (!enrichedProductTier) {
+          const { data: purchases } = await supabaseAdmin
+            .from("brand_snapshot_purchases")
+            .select("product_sku, created_at")
+            .eq("user_email", normalizedEmail)
+            .eq("status", "completed")
+            .order("created_at", { ascending: false });
+
+          if (purchases && purchases.length > 0) {
+            // Rank tiers: blueprint_plus > blueprint > snapshot_plus > snapshot
+            const tierRank: Record<string, number> = {
+              BLUEPRINT_PLUS: 4, BLUEPRINT: 3, SNAPSHOT_PLUS: 2, SNAPSHOT: 1,
+            };
+            const highest = purchases.sort(
+              (a, b) => (tierRank[b.product_sku] || 0) - (tierRank[a.product_sku] || 0)
+            )[0];
+            enrichedProductTier = highest.product_sku.toLowerCase().replace("_", "-");
+
+            const allProducts = purchases.map((p) => p.product_sku).join(", ");
+            enrichmentContext += `\nProducts purchased: ${allProducts}`;
+
+            logger.info("[Session] Enriched with purchase data", {
+              email: normalizedEmail,
+              tier: enrichedProductTier,
+              totalPurchases: purchases.length,
+            });
+          }
+        }
+      } catch (enrichErr) {
+        logger.error("[Session] Enrichment lookup failed (non-blocking)", {
+          error: enrichErr instanceof Error ? enrichErr.message : String(enrichErr),
+        });
+        // Non-blocking — continue with whatever data we have
+      }
+    }
+
     // ─── Generate follow-up content via OpenAI ───
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -81,10 +181,10 @@ export async function POST(req: NextRequest) {
       transcript,
       contactName: contact_name,
       contactEmail: contact_email,
-      productTier: product_tier,
-      reportId: report_id,
+      productTier: enrichedProductTier,
+      reportId: enrichedReportId,
       teamMemberName: team_member_name,
-      additionalContext: additional_context,
+      additionalContext: enrichmentContext || undefined,
     });
 
     const completion = await withRetry(
@@ -129,8 +229,8 @@ export async function POST(req: NextRequest) {
         contact_email: contact_email.trim().toLowerCase(),
         contact_name: contact_name || null,
         session_type,
-        report_id: report_id || null,
-        product_tier: product_tier || null,
+        report_id: enrichedReportId || null,
+        product_tier: enrichedProductTier || null,
         transcript_text: transcript,
         transcript_summary: transcript_summary || null,
         transcript_source: source || (isZapier ? "otter_zapier" : "manual"),

@@ -7,6 +7,7 @@ export interface ReportSection {
   id: string;
   label: string;
   icon?: string; // emoji or short text
+  group?: string; // optional group/category for collapsible grouping
 }
 
 interface ReportNavProps {
@@ -121,8 +122,57 @@ export default function ReportNav({
   const [showTip, setShowTip] = useState(false);
   const [tipDismissed, setTipDismissed] = useState(false);
   const [showBreadcrumb, setShowBreadcrumb] = useState(false);
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
   const searchRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+
+  /* ── Build grouped section structure ── */
+  const hasGroups = sections.some((s) => s.group);
+  const groupOrder: string[] = [];
+  const groupedSections: Record<string, ReportSection[]> = {};
+  if (hasGroups) {
+    sections.forEach((s) => {
+      const g = s.group || "Other";
+      if (!groupedSections[g]) {
+        groupedSections[g] = [];
+        groupOrder.push(g);
+      }
+      groupedSections[g].push(s);
+    });
+  }
+
+  /* ── Toggle group collapse ── */
+  function toggleGroup(group: string) {
+    setCollapsedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(group)) next.delete(group);
+      else next.add(group);
+      return next;
+    });
+  }
+
+  /* ── Auto-expand group containing active section ── */
+  useEffect(() => {
+    if (!hasGroups || !activeSection) return;
+    const activeGroup = sections.find((s) => s.id === activeSection)?.group;
+    if (activeGroup && collapsedGroups.has(activeGroup)) {
+      setCollapsedGroups((prev) => {
+        const next = new Set(prev);
+        next.delete(activeGroup);
+        return next;
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeSection]);
+
+  /* ── Prev / Next section navigation ── */
+  function goToSection(direction: "prev" | "next") {
+    const idx = sections.findIndex((s) => s.id === activeSection);
+    const targetIdx = direction === "prev" ? idx - 1 : idx + 1;
+    if (targetIdx >= 0 && targetIdx < sections.length) {
+      scrollTo(sections[targetIdx].id);
+    }
+  }
 
   /* ── Inject print styles on mount ── */
   useEffect(() => {
@@ -450,8 +500,58 @@ export default function ReportNav({
           )}
         </button>
 
-        {/* Right: search hint + back to top */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        {/* Right: prev/next + search hint + back to top */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {/* Prev / Next section arrows */}
+          <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <button
+              onClick={() => goToSection("prev")}
+              disabled={activeIdx <= 0}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 28,
+                height: 28,
+                borderRadius: 6,
+                border: `1px solid ${BORDER}`,
+                background: WHITE,
+                cursor: activeIdx <= 0 ? "default" : "pointer",
+                padding: 0,
+                opacity: activeIdx <= 0 ? 0.35 : 1,
+                transition: "opacity 0.2s",
+              }}
+              title="Previous section"
+            >
+              <svg viewBox="0 0 16 16" fill="none" style={{ width: 14, height: 14 }}>
+                <path d="M10 3L5 8l5 5" stroke={SUB} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+            <button
+              onClick={() => goToSection("next")}
+              disabled={activeIdx >= sections.length - 1}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 28,
+                height: 28,
+                borderRadius: 6,
+                border: `1px solid ${BORDER}`,
+                background: WHITE,
+                cursor: activeIdx >= sections.length - 1 ? "default" : "pointer",
+                padding: 0,
+                opacity: activeIdx >= sections.length - 1 ? 0.35 : 1,
+                transition: "opacity 0.2s",
+              }}
+              title="Next section"
+            >
+              <svg viewBox="0 0 16 16" fill="none" style={{ width: 14, height: 14 }}>
+                <path d="M6 3l5 5-5 5" stroke={SUB} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </div>
+
           <button
             onClick={() => {
               setIsOpen(true);
@@ -867,75 +967,91 @@ export default function ReportNav({
                   Jump to section
                 </div>
               )}
-              {filteredSections.map((section) => {
-                const isActive = section.id === activeSection;
-                const sectionIdx = sections.findIndex((s) => s.id === section.id);
-                return (
-                  <button
-                    key={section.id}
-                    onClick={() => scrollTo(section.id)}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 10,
-                      width: "100%",
-                      textAlign: "left",
-                      padding: "8px 14px",
-                      border: "none",
-                      background: isActive ? `${accentColor}10` : "transparent",
-                      cursor: "pointer",
-                      fontSize: 13,
-                      fontWeight: isActive ? 700 : 500,
-                      color: isActive ? navyColor : "#1a1a2e",
-                      fontFamily: "Lato, sans-serif",
-                      transition: "all 0.15s ease",
-                      borderLeft: isActive ? `3px solid ${accentColor}` : "3px solid transparent",
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isActive) e.currentTarget.style.background = `${accentColor}06`;
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isActive) e.currentTarget.style.background = "transparent";
-                    }}
-                  >
-                    <span
-                      style={{
-                        width: 22,
-                        height: 22,
-                        borderRadius: "50%",
-                        background: isActive ? accentColor : `${navyColor}08`,
-                        color: isActive ? WHITE : SUB,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: 11,
-                        fontWeight: 700,
-                        flexShrink: 0,
-                      }}
-                    >
-                      {sectionIdx + 1}
-                    </span>
-                    <span style={{ flex: 1, lineHeight: 1.3 }}>
-                      {searchQuery ? (
-                        <HighlightText text={section.label} query={searchQuery} color={accentColor} />
-                      ) : (
-                        section.label
-                      )}
-                    </span>
-                    {isActive && (
-                      <div
+
+              {/* Grouped layout (for Blueprint / Blueprint+) */}
+              {hasGroups && !searchQuery ? (
+                groupOrder.map((group) => {
+                  const groupSections = groupedSections[group];
+                  const isCollapsed = collapsedGroups.has(group);
+                  const groupHasActive = groupSections.some((s) => s.id === activeSection);
+                  return (
+                    <div key={group} style={{ marginBottom: 2 }}>
+                      <button
+                        onClick={() => toggleGroup(group)}
                         style={{
-                          width: 6,
-                          height: 6,
-                          borderRadius: "50%",
-                          background: accentColor,
-                          flexShrink: 0,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                          width: "100%",
+                          textAlign: "left",
+                          padding: "7px 14px",
+                          border: "none",
+                          background: groupHasActive ? `${accentColor}06` : "transparent",
+                          cursor: "pointer",
+                          fontSize: 11,
+                          fontWeight: 800,
+                          color: groupHasActive ? accentColor : SUB,
+                          fontFamily: "Lato, sans-serif",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.06em",
+                          transition: "all 0.15s ease",
                         }}
-                      />
-                    )}
-                  </button>
-                );
-              })}
+                      >
+                        <svg
+                          viewBox="0 0 10 10"
+                          fill="none"
+                          style={{
+                            width: 8,
+                            height: 8,
+                            flexShrink: 0,
+                            transition: "transform 0.2s ease",
+                            transform: isCollapsed ? "rotate(-90deg)" : "rotate(0deg)",
+                          }}
+                        >
+                          <path d="M2 3l3 3.5L8 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        <span style={{ flex: 1 }}>{group}</span>
+                        <span style={{ fontSize: 10, fontWeight: 600, color: `${SUB}80` }}>{groupSections.length}</span>
+                      </button>
+                      {!isCollapsed && groupSections.map((section) => {
+                        const isActive = section.id === activeSection;
+                        const sectionIdx = sections.findIndex((s) => s.id === section.id);
+                        return (
+                          <SectionButton
+                            key={section.id}
+                            section={section}
+                            sectionIdx={sectionIdx}
+                            isActive={isActive}
+                            accentColor={accentColor}
+                            navyColor={navyColor}
+                            onScrollTo={scrollTo}
+                            searchQuery=""
+                            indented
+                          />
+                        );
+                      })}
+                    </div>
+                  );
+                })
+              ) : (
+                /* Flat layout (for Snapshot / Snapshot+, or during search) */
+                filteredSections.map((section) => {
+                  const isActive = section.id === activeSection;
+                  const sectionIdx = sections.findIndex((s) => s.id === section.id);
+                  return (
+                    <SectionButton
+                      key={section.id}
+                      section={section}
+                      sectionIdx={sectionIdx}
+                      isActive={isActive}
+                      accentColor={accentColor}
+                      navyColor={navyColor}
+                      onScrollTo={scrollTo}
+                      searchQuery={searchQuery}
+                    />
+                  );
+                })
+              )}
             </div>
           )}
         </div>
@@ -1025,6 +1141,92 @@ export default function ReportNav({
         </div>
       </div>
     </>
+  );
+}
+
+/* ─── Section button (used in both flat and grouped layouts) ─── */
+function SectionButton({
+  section,
+  sectionIdx,
+  isActive,
+  accentColor,
+  navyColor,
+  onScrollTo,
+  searchQuery,
+  indented,
+}: {
+  section: ReportSection;
+  sectionIdx: number;
+  isActive: boolean;
+  accentColor: string;
+  navyColor: string;
+  onScrollTo: (id: string) => void;
+  searchQuery: string;
+  indented?: boolean;
+}) {
+  return (
+    <button
+      onClick={() => onScrollTo(section.id)}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        width: "100%",
+        textAlign: "left" as const,
+        padding: indented ? "6px 14px 6px 28px" : "8px 14px",
+        border: "none",
+        background: isActive ? `${accentColor}10` : "transparent",
+        cursor: "pointer",
+        fontSize: 13,
+        fontWeight: isActive ? 700 : 500,
+        color: isActive ? navyColor : "#1a1a2e",
+        fontFamily: "Lato, sans-serif",
+        transition: "all 0.15s ease",
+        borderLeft: isActive ? `3px solid ${accentColor}` : "3px solid transparent",
+      }}
+      onMouseEnter={(e) => {
+        if (!isActive) e.currentTarget.style.background = `${accentColor}06`;
+      }}
+      onMouseLeave={(e) => {
+        if (!isActive) e.currentTarget.style.background = "transparent";
+      }}
+    >
+      <span
+        style={{
+          width: 20,
+          height: 20,
+          borderRadius: "50%",
+          background: isActive ? accentColor : `${navyColor}08`,
+          color: isActive ? "#fff" : "#5A6B7E",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 10,
+          fontWeight: 700,
+          flexShrink: 0,
+        }}
+      >
+        {sectionIdx + 1}
+      </span>
+      <span style={{ flex: 1, lineHeight: 1.3 }}>
+        {searchQuery ? (
+          <HighlightText text={section.label} query={searchQuery} color={accentColor} />
+        ) : (
+          section.label
+        )}
+      </span>
+      {isActive && (
+        <div
+          style={{
+            width: 6,
+            height: 6,
+            borderRadius: "50%",
+            background: accentColor,
+            flexShrink: 0,
+          }}
+        />
+      )}
+    </button>
   );
 }
 

@@ -553,7 +553,7 @@ export default function BrandSnapshotReport() {
               <img src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp" alt="Wunderbar Digital" style={{ height: 26, objectFit: "contain" }} />
             </a>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-              <span style={{ fontSize: 22, fontWeight: 700, color: NAVY, lineHeight: 1 }}>WunderBrand Snapshot™<span style={{ fontSize: 9, verticalAlign: "super", lineHeight: 0 }}>™</span></span>
+              <span style={{ fontSize: 22, fontWeight: 700, color: NAVY, lineHeight: 1 }}>WunderBrand Snapshot™</span>
               <span style={{ fontSize: 12, fontWeight: 400, color: BLUE, marginTop: 3 }}>Powered by <a href="https://wunderbardigital.com/?utm_source=brand_snapshot_report&utm_medium=report_nav&utm_campaign=nav_header_logo&utm_content=snap_logo" target="_blank" rel="noopener noreferrer" style={{ fontWeight: 700, color: BLUE, textDecoration: "none" }}>Wunderbar Digital</a></span>
             </div>
           </div>
@@ -767,7 +767,7 @@ export default function BrandSnapshotReport() {
 
         {/* ═══ 2. BRAND ALIGNMENT SCORE ═══ */}
         <Section id="brand-alignment-score">
-          <SectionTitle hero description="A composite score measuring how well your brand communicates across five key pillars. Higher scores indicate stronger, more consistent brand presence.">WunderBrand Score™<span style={{ fontSize: 10, verticalAlign: "super", lineHeight: 0, marginLeft: 0 }}>™</span></SectionTitle>
+          <SectionTitle hero description="A composite score measuring how well your brand communicates across five key pillars. Higher scores indicate stronger, more consistent brand presence.">WunderBrand Score™</SectionTitle>
 
           <MainGauge score={r.executiveSummary.brandAlignmentScore} />
 
@@ -955,7 +955,7 @@ export default function BrandSnapshotReport() {
               What&apos;s Next
             </div>
             <h2 style={{ fontSize: 24, fontWeight: 700, color: NAVY, margin: "0 0 8px", lineHeight: 1.3 }}>
-              Go Deeper with the WunderBrand Snapshot™<span style={{ fontSize: 9, verticalAlign: "super" }}>™</span> Suite
+              Go Deeper with the WunderBrand Snapshot™ Suite
             </h2>
             <p style={{ fontSize: 16, color: SUB, lineHeight: 1.65, maxWidth: 560, margin: "0 auto" }}>
               This diagnostic reveals where your brand stands. The next step is understanding why — and what to do about it.

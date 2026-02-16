@@ -1199,7 +1199,7 @@ export default function BrandBlueprintReport() {
 
         {/* ═══ 2. BRAND ALIGNMENT SCORE + FOCUS TOGGLE ═══ */}
         <Section id="brand-alignment-score">
-          <SectionTitle hero description="A composite score measuring how well your brand communicates across five key pillars.">WunderBrand Score™<span style={{ fontSize: 10, verticalAlign: "super", lineHeight: 0, marginLeft: 0 }}>™</span></SectionTitle>
+          <SectionTitle hero description="A composite score measuring how well your brand communicates across five key pillars.">WunderBrand Score™</SectionTitle>
           <MainGauge score={r.executiveSummary.brandAlignmentScore} />
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 28 }}>
             <button aria-pressed={selectedFocus === "primary"} onClick={() => setSelectedFocus("primary")} style={{ padding: "18px 20px", borderRadius: 5, textAlign: "left", background: selectedFocus === "primary" ? `${BLUE}12` : WHITE, border: selectedFocus === "primary" ? `2px solid ${BLUE}` : `1px solid ${BORDER}`, cursor: "pointer", transition: "all 0.2s ease", position: "relative", overflow: "hidden" }}>
@@ -2321,7 +2321,7 @@ export default function BrandBlueprintReport() {
             {/* Blueprint+ */}
             <div style={{ padding: "24px", borderRadius: 5, border: `2px solid ${BLUE}`, background: `${BLUE}04`, display: "flex", flexDirection: "column" }}>
               <div style={{ fontSize: 10, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>Recommended</div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: NAVY, marginBottom: 6 }}>WunderBrand Blueprint+™<span style={{ fontSize: 9, verticalAlign: "super" }}>™</span></div>
+              <div style={{ fontSize: 18, fontWeight: 700, color: NAVY, marginBottom: 6 }}>WunderBrand Blueprint+™</div>
               <div style={{ fontSize: 14, color: SUB, lineHeight: 1.55, marginBottom: 16 }}>
                 Everything in WunderBrand Blueprint™ plus advanced audience segmentation, campaign systems, and a 12-prompt AI library.
               </div>
@@ -2399,37 +2399,37 @@ export default function BrandBlueprintReport() {
       </div>
     </div>
     <ReportNav reportTitle="WunderBrand Blueprint™" sections={[
-      { id: "executive-summary", label: "Executive Summary" },
-      { id: "context-coverage", label: "Context Coverage" },
-      { id: "brand-alignment-score", label: "WunderBrand Score™" },
-      { id: "focus-area-diagnosis", label: "Focus Area Diagnosis" },
-      { id: "pillar-deep-dives", label: "Pillar Deep Dives" },
-      { id: "strategic-alignment", label: "Strategic Alignment" },
-      { id: "blueprint-overview", label: "Blueprint Overview" },
-      { id: "brand-foundation", label: "Brand Foundation" },
-      { id: "brand-archetypes", label: "Brand Archetypes" },
-      { id: "messaging-system", label: "Messaging System" },
-      { id: "messaging-pillars", label: "Messaging Pillars" },
-      { id: "content-pillars", label: "Content Pillars" },
-      { id: "brand-persona", label: "Your Brand Persona" },
-      { id: "audience-persona", label: "Audience & Persona" },
-      { id: "visibility-discovery", label: "Visibility & Discovery" },
-      { id: "visual-direction", label: "Visual Direction" },
-      { id: "conversion-strategy", label: "Conversion Strategy" },
-      { id: "strategic-action-plan", label: "Strategic Action Plan" },
-      { id: "prompt-library", label: "AI Prompt Library" },
-      { id: "execution-guardrails", label: "Execution Guardrails" },
-      { id: "competitive-positioning", label: "Competitive Positioning" },
-      { id: "strategic-trade-offs", label: "Strategic Trade-Offs" },
-      { id: "tagline-recommendations", label: "Tagline Recommendations" },
-      { id: "brand-story", label: "Brand Story" },
-      { id: "company-description", label: "Company Description" },
-      { id: "customer-journey", label: "Customer Journey" },
-      { id: "seo-strategy", label: "SEO & Keywords" },
-      { id: "aeo-strategy", label: "AEO & AI Search" },
-      { id: "email-framework", label: "Email Framework" },
-      { id: "social-media-strategy", label: "Social Media Strategy" },
-      { id: "whats-next", label: "What's Next" },
+      { id: "executive-summary", label: "Executive Summary", group: "Diagnostic" },
+      { id: "context-coverage", label: "Context Coverage", group: "Diagnostic" },
+      { id: "brand-alignment-score", label: "WunderBrand Score™", group: "Diagnostic" },
+      { id: "focus-area-diagnosis", label: "Focus Area Diagnosis", group: "Diagnostic" },
+      { id: "pillar-deep-dives", label: "Pillar Deep Dives", group: "Diagnostic" },
+      { id: "strategic-alignment", label: "Strategic Alignment", group: "Diagnostic" },
+      { id: "blueprint-overview", label: "Blueprint Overview", group: "Strategic Foundation" },
+      { id: "brand-foundation", label: "Brand Foundation", group: "Strategic Foundation" },
+      { id: "brand-archetypes", label: "Brand Archetypes", group: "Strategic Foundation" },
+      { id: "messaging-system", label: "Messaging System", group: "Messaging & Content" },
+      { id: "messaging-pillars", label: "Messaging Pillars", group: "Messaging & Content" },
+      { id: "content-pillars", label: "Content Pillars", group: "Messaging & Content" },
+      { id: "brand-persona", label: "Your Brand Persona", group: "Messaging & Content" },
+      { id: "audience-persona", label: "Audience & Persona", group: "Audience & Positioning" },
+      { id: "competitive-positioning", label: "Competitive Positioning", group: "Audience & Positioning" },
+      { id: "visibility-discovery", label: "Visibility & Discovery", group: "Visibility & Growth" },
+      { id: "visual-direction", label: "Visual Direction", group: "Visibility & Growth" },
+      { id: "conversion-strategy", label: "Conversion Strategy", group: "Visibility & Growth" },
+      { id: "strategic-action-plan", label: "Strategic Action Plan", group: "Implementation" },
+      { id: "prompt-library", label: "AI Prompt Library", group: "Implementation" },
+      { id: "execution-guardrails", label: "Execution Guardrails", group: "Implementation" },
+      { id: "strategic-trade-offs", label: "Strategic Trade-Offs", group: "Implementation" },
+      { id: "tagline-recommendations", label: "Tagline Recommendations", group: "Brand Assets" },
+      { id: "brand-story", label: "Brand Story", group: "Brand Assets" },
+      { id: "company-description", label: "Company Description", group: "Brand Assets" },
+      { id: "customer-journey", label: "Customer Journey", group: "Channel Strategy" },
+      { id: "seo-strategy", label: "SEO & Keywords", group: "Channel Strategy" },
+      { id: "aeo-strategy", label: "AEO & AI Search", group: "Channel Strategy" },
+      { id: "email-framework", label: "Email Framework", group: "Channel Strategy" },
+      { id: "social-media-strategy", label: "Social Media Strategy", group: "Channel Strategy" },
+      { id: "whats-next", label: "What's Next", group: "Channel Strategy" },
     ]} />
 
     {/* Wundy™ Report Companion — Blueprint tier */}

@@ -1202,7 +1202,7 @@ export default function BrandSnapshotPlusReport() {
               <img src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp" alt="Wunderbar Digital" style={{ height: 26, objectFit: "contain" }} />
             </a>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-              <span style={{ fontSize: 22, fontWeight: 700, color: NAVY, lineHeight: 1 }}>WunderBrand Snapshot+™<span style={{ fontSize: 9, verticalAlign: "super", lineHeight: 0 }}>™</span></span>
+              <span style={{ fontSize: 22, fontWeight: 700, color: NAVY, lineHeight: 1 }}>WunderBrand Snapshot+™</span>
               <span style={{ fontSize: 12, fontWeight: 400, color: BLUE, marginTop: 3 }}>Powered by <a href="https://wunderbardigital.com/?utm_source=brand_snapshot_plus_report&utm_medium=report_nav&utm_campaign=nav_header_logo&utm_content=snap_plus_logo" target="_blank" rel="noopener noreferrer" style={{ fontWeight: 700, color: BLUE, textDecoration: "none" }}>Wunderbar Digital</a></span>
             </div>
           </div>
@@ -1548,7 +1548,7 @@ export default function BrandSnapshotPlusReport() {
 
         {/* ═══ 2. BRAND ALIGNMENT SCORE ═══ */}
         <Section id="brand-alignment-score">
-          <SectionTitle hero description="A composite score measuring how well your brand communicates across five key pillars.">WunderBrand Score™<span style={{ fontSize: 10, verticalAlign: "super", lineHeight: 0, marginLeft: 0 }}>™</span></SectionTitle>
+          <SectionTitle hero description="A composite score measuring how well your brand communicates across five key pillars.">WunderBrand Score™</SectionTitle>
 
           <MainGauge score={r.executiveSummary.brandAlignmentScore} />
 
@@ -3212,22 +3212,22 @@ export default function BrandSnapshotPlusReport() {
       </div>
     </div>
     <ReportNav reportTitle="WunderBrand Snapshot+™" sections={[
-      { id: "executive-summary", label: "Executive Summary" },
-      { id: "context-coverage", label: "Context Coverage" },
-      { id: "brand-alignment-score", label: "WunderBrand Score™" },
-      { id: "focus-area-diagnosis", label: "Focus Area Diagnosis" },
-      { id: "pillar-deep-dives", label: "Pillar Deep Dives" },
-      { id: "strategic-alignment", label: "Strategic Alignment" },
-      { id: "visibility-discovery", label: "Visibility & Discovery" },
-      { id: "brand-archetypes", label: "Brand Archetypes" },
-      { id: "brand-persona", label: "Your Brand Persona" },
-      { id: "messaging-pillars", label: "Messaging Pillars" },
-      { id: "audience-signals", label: "Audience Signals" },
-      { id: "visual-verbal-signals", label: "Visual & Verbal Signals" },
-      { id: "strategic-action-plan", label: "Strategic Action Plan" },
-      { id: "prompt-pack", label: "AI Prompt Pack" },
-      { id: "tagline-recommendations", label: "Tagline Recommendations" },
-      { id: "whats-next", label: "What's Next" },
+      { id: "executive-summary", label: "Executive Summary", group: "Diagnostic" },
+      { id: "context-coverage", label: "Context Coverage", group: "Diagnostic" },
+      { id: "brand-alignment-score", label: "WunderBrand Score™", group: "Diagnostic" },
+      { id: "focus-area-diagnosis", label: "Focus Area Diagnosis", group: "Diagnostic" },
+      { id: "pillar-deep-dives", label: "Pillar Deep Dives", group: "Diagnostic" },
+      { id: "strategic-alignment", label: "Strategic Alignment", group: "Diagnostic" },
+      { id: "visibility-discovery", label: "Visibility & Discovery", group: "Brand Strategy" },
+      { id: "brand-archetypes", label: "Brand Archetypes", group: "Brand Strategy" },
+      { id: "brand-persona", label: "Your Brand Persona", group: "Brand Strategy" },
+      { id: "messaging-pillars", label: "Messaging Pillars", group: "Brand Strategy" },
+      { id: "audience-signals", label: "Audience Signals", group: "Brand Strategy" },
+      { id: "visual-verbal-signals", label: "Visual & Verbal Signals", group: "Brand Strategy" },
+      { id: "strategic-action-plan", label: "Strategic Action Plan", group: "Action & Tools" },
+      { id: "prompt-pack", label: "AI Prompt Pack", group: "Action & Tools" },
+      { id: "tagline-recommendations", label: "Tagline Recommendations", group: "Action & Tools" },
+      { id: "whats-next", label: "What's Next", group: "Action & Tools" },
     ]} />
 
     {/* Wundy™ Report Companion — Snapshot+ tier */}

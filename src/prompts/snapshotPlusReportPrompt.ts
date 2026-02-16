@@ -8,7 +8,7 @@ This product MUST feel like it replaces an initial brand strategy consult.
 
 NON-NEGOTIABLE RULES:
 - Every insight must answer: "So what?" and "What breaks if ignored?"
-- Include at least ONE concrete example per pillar (headline, phrase, structure).
+- Include at least ONE example per pillar (headline, phrase, structure).
 - Use decisive, advisory language. This is not exploratory.
 - No filler, no generic frameworks without interpretation.
 
@@ -83,9 +83,9 @@ REQUIRED OUTPUT STRUCTURE
      - headlines: { avoid: ["weak headline examples"], use: ["strong headline examples"] }
      - ctaButtons: { avoid: ["weak CTA examples"], use: ["strong CTA examples"] }
      - socialPosts: { avoid: ["weak social post examples"], use: ["strong social post examples"] }
-   - doAndDont: Communication guidelines with concrete examples:
-     - do: Array of { guideline: "what to do", example: "concrete example of doing it" }
-     - dont: Array of { guideline: "what not to do", example: "concrete example of what to avoid" }
+   - doAndDont: Communication guidelines with examples:
+     - do: Array of { guideline: "what to do", example: "example of doing it" }
+     - dont: Array of { guideline: "what not to do", example: "example of what to avoid" }
 
 8. Visual & Verbal Brand Signals
    - colorPaletteDirection: Strategic reasoning for color choices
@@ -110,7 +110,7 @@ REQUIRED OUTPUT STRUCTURE
    - priority: Number 1–5
    - why: Why this action matters (2–3 sentences)
    - howTo: Array of 2–3 step-by-step instructions
-   - example: A concrete example of executing this action
+   - example: A example of executing this action
    - effort: "Low" | "Medium" | "High"
    - impact: "Low" | "Medium" | "High"
 

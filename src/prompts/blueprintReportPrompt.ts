@@ -11,7 +11,7 @@ STRICT REQUIREMENTS:
 - Everything must be explicit. Do not assume prior context.
 - No references to "as mentioned earlier".
 - This report defines HOW the brand operates going forward.
-- Include concrete examples, specific copy, and actionable guidance throughout.
+- Include examples, specific copy, and actionable guidance throughout.
 
 ---------------------------------------------------------------------
 REQUIRED OUTPUT STRUCTURE

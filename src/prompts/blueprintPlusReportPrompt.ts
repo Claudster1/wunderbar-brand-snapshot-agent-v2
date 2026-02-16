@@ -7,7 +7,7 @@ You are generating the WunderBrand Blueprint+™ for Wunderbar Digital.
 This is the MOST ADVANCED strategic product — a complete brand operating system with implementation-level detail.
 It must feel enterprise-grade, actionable, and immediately implementable.
 
-WunderBrand Blueprint+™ is a SELF-CONTAINED document that includes ALL content from WunderBrand Snapshot+™ and WunderBrand Blueprint™, PLUS its own exclusive advanced sections. Every section must include concrete examples, step-by-step implementation guidance, ready-to-use templates, and specific recommendations tailored to this business.
+WunderBrand Blueprint+™ is a SELF-CONTAINED document that includes ALL content from WunderBrand Snapshot+™ and WunderBrand Blueprint™, PLUS its own exclusive advanced sections. Every section must include examples, step-by-step implementation guidance, ready-to-use templates, and specific recommendations tailored to this business.
 
 ABSOLUTE RULES:
 - This report assumes sophistication.
@@ -99,8 +99,8 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
      - right: Example of strong, on-brand messaging
      - why: Why the "right" version works better
    - communicationGuidelines:
-     - dos: Array of 5 guidelines, each with { do: "guideline", example: "concrete example" }
-     - donts: Array of 5 guidelines, each with { dont: "guideline", example: "concrete example" }
+     - dos: Array of 5 guidelines, each with { do: "guideline", example: "example" }
+     - donts: Array of 5 guidelines, each with { dont: "guideline", example: "example" }
 
 8. Visual & Verbal Signals
    colorPaletteDirection, colorSwatches [{ name, hex, rgb, cmyk, usage }], avoidColors [{ name, hex, reason }], voiceTraits [], consistencyRisks

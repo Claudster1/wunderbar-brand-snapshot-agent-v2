@@ -1296,7 +1296,7 @@ export default function BrandSnapshotPlusReport() {
             <path d="M12 8v5M12 16h.01" stroke={BLUE} strokeWidth="1.8" strokeLinecap="round"/>
           </svg>
           <div style={{ fontSize: 14, color: SUB, lineHeight: 1.5 }}>
-            <span style={{ fontWeight: 700, color: NAVY }}>How to read this report:</span> WunderBrand Snapshot+™ builds on your diagnostic with deeper analysis, priority focus, and strategic recommendations. Each pillar includes concrete examples and success metrics.
+            <span style={{ fontWeight: 700, color: NAVY }}>How to read this report:</span> WunderBrand Snapshot+™ builds on your diagnostic with deeper analysis, priority focus, and strategic recommendations. Each pillar includes examples and success metrics.
           </div>
         </div>
 
@@ -1703,7 +1703,7 @@ export default function BrandSnapshotPlusReport() {
 
         {/* ═══ 4. PILLAR DEEP DIVES ═══ */}
         <Section id="pillar-deep-dives" pageBreak>
-          <SectionTitle description="Strategic analysis of each pillar with concrete examples and success metrics.">Pillar Deep Dives</SectionTitle>
+          <SectionTitle description="Strategic analysis of each pillar with examples and success metrics.">Pillar Deep Dives</SectionTitle>
 
           <div data-pillar-meters style={{
             display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px 32px",
@@ -1810,9 +1810,9 @@ export default function BrandSnapshotPlusReport() {
                       </div>
                     )}
 
-                    {/* Concrete Example */}
+                    {/* Example */}
                     <div style={{ background: LIGHT_BG, borderRadius: 5, padding: "18px 20px" }}>
-                      <div style={{ fontSize: 14, fontWeight: 900, color: SUB, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14 }}>Concrete Example</div>
+                      <div style={{ fontSize: 14, fontWeight: 900, color: SUB, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 14 }}>Example</div>
                       <div data-before-after style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                         <div style={{ padding: "14px 16px", borderRadius: 5, background: `${RED_S}08`, border: `1px solid ${RED_S}20` }}>
                           <div style={{ fontSize: 12, fontWeight: 900, color: RED_S, textTransform: "uppercase", marginBottom: 6 }}>Before</div>

@@ -116,7 +116,7 @@ GOAL OF SNAPSHOT+™ ($497)
 Deliver a deeper diagnostic that:
 - Clarifies *why* the scores are what they are
 - Identifies *opportunities* the business can act on
-- Provides *strategic recommendations* with concrete examples
+- Provides *strategic recommendations* with examples
 - Connects the dots between pillars
 - Includes FULL STRUCTURED AEO SECTION for Visibility pillar (REQUIRED)
 - Provides brand persona analysis, communication style guidance

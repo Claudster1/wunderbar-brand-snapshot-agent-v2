@@ -1,6 +1,6 @@
 'use client'
 
-import { FormEvent, useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { FormEvent, useState, useEffect, useRef, useCallback, useMemo, Suspense } from "react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useBrandChat } from "../src/hooks/useBrandChat";
@@ -12,6 +12,14 @@ import { parseTierFromParam, getChatTierConfig, interpolateWelcomeBack, type Cha
 import "./globals.css";
 
 export default function Home() {
+  return (
+    <Suspense fallback={<div className="app-root"><div className="app-shell"><div className="app-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><p style={{ color: '#5A6B7E' }}>Loading...</p></div></div></div>}>
+      <HomeContent />
+    </Suspense>
+  );
+}
+
+function HomeContent() {
   // ─── Product tier + customer name detection ───
   const searchParams = useSearchParams();
   const tier = useMemo(() => parseTierFromParam(searchParams.get("tier")), [searchParams]);

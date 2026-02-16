@@ -1,5 +1,5 @@
-// app/preview/layout.tsx
-// Layout for design preview pages (mock data only). No auth or data required.
+// app/snapshot-plus/[id]/layout.tsx
+// Layout for Snapshot+ report pages — noindex
 
 import type { Metadata } from "next";
 
@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function PreviewLayout({
+export default function SnapshotPlusReportLayout({
   children,
 }: {
   children: React.ReactNode;

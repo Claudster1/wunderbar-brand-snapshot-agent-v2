@@ -28,6 +28,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 4,
   },
+  terms: {
+    fontSize: 7,
+    color: "#9CA3AF",
+    textAlign: "center",
+    marginTop: 4,
+  },
   url: {
     fontSize: pdfTheme.fontSizes.xs,
     color: "#07B0F2",
@@ -56,5 +62,8 @@ export const PdfFooter = ({ businessName, productName }: PdfFooterProps = {}) =>
         Confidential — Prepared exclusively for {businessName}. Unauthorized distribution is prohibited.
       </Text>
     )}
+    <Text style={styles.terms}>
+      Licensed for internal use. Redistribution prohibited. © {new Date().getFullYear()} Wunderbar Digital
+    </Text>
   </View>
 );

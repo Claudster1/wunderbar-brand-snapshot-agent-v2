@@ -17,6 +17,7 @@ export async function generateMetadata({
   return {
     title: "Your WunderBrand Snapshot™ Results",
     description: "Personalized brand clarity powered by WUNDY™.",
+    robots: { index: false, follow: false },
     openGraph: {
       title: "Your WunderBrand Snapshot™ Results",
       description: "Personalized brand clarity powered by WUNDY™.",

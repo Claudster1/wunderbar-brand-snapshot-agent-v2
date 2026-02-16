@@ -225,6 +225,12 @@ const s = StyleSheet.create({
     textAlign: "center",
     marginTop: 4,
   },
+  footerTerms: {
+    fontSize: 7,
+    color: "#B0B8C4",
+    textAlign: "center",
+    marginTop: 4,
+  },
 });
 
 // ─── Page Footer Helper ───
@@ -237,6 +243,9 @@ function PageFooter({ businessName }: { businessName: string }) {
       </View>
       <Text style={s.footerConfidential}>
         Confidential {"\u2014"} Prepared exclusively for {businessName}. Unauthorized distribution is prohibited.
+      </Text>
+      <Text style={s.footerTerms}>
+        Licensed for internal use. Redistribution prohibited. © {new Date().getFullYear()} Wunderbar Digital
       </Text>
     </View>
   );

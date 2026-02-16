@@ -56,6 +56,9 @@ function DocFooter({ businessName }: { businessName?: string }) {
           Confidential — Prepared exclusively for {businessName}. Unauthorized distribution is prohibited.
         </Text>
       )}
+      <Text style={{ fontSize: 6.5, color: "#B0B8C4", textAlign: "center", marginTop: 3 }}>
+        Licensed for internal use. Redistribution prohibited. © {new Date().getFullYear()} Wunderbar Digital
+      </Text>
     </View>
   );
 }

@@ -2,8 +2,13 @@
 // Next.js page: accepts searchParams (e.g. reportId). With no reportId, prompts to complete a snapshot or redirect.
 
 import Link from "next/link";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 import { ResultsHeroSection } from "@/src/components/results/ResultsHeroSection";
 import { PillarCardGrid } from "@/src/components/results/PillarCardGrid";
 import { ResultsUpgradeCTA } from "@/components/results/ResultsUpgradeCTA";

@@ -53,6 +53,7 @@ export async function generateMetadata({
   return {
     title: `WunderBrand Snapshot™ Results - ${scoreLabel} (${score}/100) | Wunderbar Digital`,
     description: `Your WunderBrand Score™ is ${score}/100. View your complete WunderBrand Snapshot™ with pillar insights and recommendations.`,
+    robots: { index: false, follow: false },
     openGraph: {
       title: `WunderBrand Snapshot™ - ${scoreLabel} (${score}/100)`,
       description: `Your WunderBrand Score™ is ${score}/100. View your complete WunderBrand Snapshot™.`,

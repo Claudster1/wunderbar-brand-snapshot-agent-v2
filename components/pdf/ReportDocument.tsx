@@ -125,6 +125,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 3,
   },
+  pageFooterTerms: {
+    fontSize: 6.5,
+    color: "#B0B8C4",
+    textAlign: "center",
+    marginTop: 3,
+  },
   coverLogo: {
     width: 100,
     marginBottom: 20,
@@ -177,6 +183,9 @@ const DocFooter = ({ businessName, productName }: { businessName?: string; produ
         Confidential — Prepared exclusively for {businessName}. Unauthorized distribution is prohibited.
       </Text>
     )}
+    <Text style={styles.pageFooterTerms}>
+      Licensed for internal use. Redistribution prohibited. © {new Date().getFullYear()} Wunderbar Digital
+    </Text>
   </View>
 );
 

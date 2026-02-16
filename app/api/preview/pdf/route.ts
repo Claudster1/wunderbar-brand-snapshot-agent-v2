@@ -232,13 +232,14 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: `Unknown type: ${type}. Use: snapshot, snapshot-plus, blueprint, blueprint-plus, brand-standards` }, { status: 400 });
     }
 
-    const buffer = await renderToBuffer(element);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const buffer = await renderToBuffer(element as any);
 
     // Check if user wants inline viewing (default) or download
     const download = url.searchParams.get("download") === "1";
     const disposition = download ? `attachment; filename="${filename}"` : `inline; filename="${filename}"`;
 
-    return new NextResponse(buffer, {
+    return new NextResponse(Buffer.from(buffer) as unknown as BodyInit, {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": disposition,

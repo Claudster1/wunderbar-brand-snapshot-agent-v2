@@ -276,7 +276,7 @@ function WorkbookContent() {
                     updated[idx] = { ...updated[idx], description: val };
                     await saveField("messaging_pillars", updated);
                   }}
-                  onRefine={() => {}}
+                  onRefine={async () => {}}
                   saving={saving}
                   refining={refining}
                   rows={3}
@@ -329,7 +329,7 @@ function WorkbookContent() {
                 const updated = { ...(workbook.primary_audience || {}), description: val };
                 await saveField("primary_audience", updated);
               }}
-              onRefine={() => {}}
+              onRefine={async () => {}}
               saving={saving}
               refining={refining}
               rows={4}
@@ -343,7 +343,7 @@ function WorkbookContent() {
                 const updated = { ...(workbook.secondary_audience || {}), description: val };
                 await saveField("secondary_audience", updated);
               }}
-              onRefine={() => {}}
+              onRefine={async () => {}}
               saving={saving}
               refining={refining}
               rows={4}
@@ -373,7 +373,7 @@ function WorkbookContent() {
                     }
                     await saveField("key_differentiators", updated);
                   }}
-                  onRefine={() => {}}
+                  onRefine={async () => {}}
                   saving={saving}
                   refining={refining}
                   rows={2}

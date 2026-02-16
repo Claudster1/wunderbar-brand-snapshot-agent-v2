@@ -42,8 +42,9 @@ export async function GET(req: NextRequest) {
     }
 
     // Render PDF
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const buffer = await renderToBuffer(
-      React.createElement(BrandStandardsDocument, { data: workbook })
+      React.createElement(BrandStandardsDocument, { data: workbook }) as any
     );
 
     // Track export
@@ -57,7 +58,7 @@ export async function GET(req: NextRequest) {
 
     const filename = `${(workbook.business_name || "Brand").replace(/[^a-zA-Z0-9]/g, "_")}_Brand_Standards_Guide.pdf`;
 
-    return new NextResponse(buffer, {
+    return new NextResponse(Buffer.from(buffer) as unknown as BodyInit, {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="${filename}"`,

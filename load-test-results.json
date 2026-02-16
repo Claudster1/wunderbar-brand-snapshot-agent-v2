@@ -1,0 +1,12 @@
+{
+  "timestamp": "2026-02-10T23:52:19.377Z",
+  "baseUrl": "http://localhost:3000",
+  "totalRequests": 85,
+  "avgDuration": 32,
+  "p95Duration": 82,
+  "errorRate": 15.384615384615385,
+  "pageLoadP95": 80,
+  "wundyP95": 16,
+  "snapshotP95": 34,
+  "reportGetP95": 0
+}

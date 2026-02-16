@@ -1,10 +1,11 @@
 // POST /api/calendly/webhook
-// Receives Calendly webhook events when someone books or cancels a session.
+// Receives Calendly webhook events when someone books, cancels, or no-shows a session.
 // Tags the contact in ActiveCampaign for the appropriate session type.
 //
 // Calendly webhook events:
-//   invitee.created  — someone booked
-//   invitee.canceled — someone canceled
+//   invitee.created    — someone booked
+//   invitee.canceled   — someone canceled
+//   invitee.no_show    — host marked invitee as a no-show
 //
 // Set CALENDLY_WEBHOOK_SECRET in env to validate the webhook signature.
 
@@ -122,8 +123,50 @@ export async function POST(req: NextRequest) {
       }
 
       if (event === "invitee.canceled") {
-        // ── Cancellation — just log, no aggressive tagging ──
+        // ── Cancellation — log and lightly tag ──
         logger.info("[Calendly Webhook] Session canceled", { email: normalizedEmail, sessionType });
+
+        const cancelTag = sessionType === "talk_to_expert"
+          ? "call:expert-canceled"
+          : "session:activation-canceled";
+        await applyActiveCampaignTags({ email: normalizedEmail, tags: [cancelTag] });
+      }
+
+      if (event === "invitee.no_show" || event === "invitee_no_show") {
+        // ── No-Show — tag + fire event for follow-up automation ──
+        const noShowTag = sessionType === "talk_to_expert"
+          ? "call:expert-no-show"
+          : "session:activation-no-show";
+
+        await applyActiveCampaignTags({
+          email: normalizedEmail,
+          tags: [noShowTag, "noshow:needs-followup"],
+        });
+
+        await setContactFields({
+          email: normalizedEmail,
+          fields: {
+            last_noshow_type: sessionType === "talk_to_expert" ? "Talk to an Expert" : "Strategy Activation Session",
+            last_noshow_date: new Date().toISOString().split("T")[0],
+          },
+        });
+
+        const eventName = sessionType === "talk_to_expert"
+          ? "expert_call_no_show"
+          : "activation_session_no_show";
+
+        await fireACEvent({
+          email: normalizedEmail,
+          eventName,
+          tags: [noShowTag],
+          fields: {
+            first_name: firstName,
+            session_type: sessionType === "talk_to_expert" ? "Talk to an Expert" : "Strategy Activation Session",
+            noshow_date: new Date().toISOString().split("T")[0],
+          },
+        });
+
+        logger.info("[Calendly Webhook] No-show processed", { email: normalizedEmail, sessionType });
       }
     } catch (acErr) {
       logger.error("[Calendly Webhook] AC tagging failed", {

@@ -133,6 +133,14 @@ const TAGS = [
   "followup:pending-review",
   "followup:sent-talk-to-expert",
   "followup:sent-activation-session",
+
+  // ── No-shows ──
+  "call:expert-no-show",
+  "call:expert-canceled",
+  "session:activation-no-show",
+  "session:activation-canceled",
+  "noshow:needs-followup",
+  "noshow:rescheduled",
 ];
 
 // ─── Custom fields to create ───
@@ -198,6 +206,10 @@ const FIELDS: FieldDef[] = [
   { title: "followup_body", type: "textarea" },
   { title: "followup_session_type", type: "text" },
   { title: "followup_sent_date", type: "text" },
+
+  // ── No-shows ──
+  { title: "last_noshow_type", type: "text" },
+  { title: "last_noshow_date", type: "text" },
 ];
 
 // ─── Create tag (idempotent) ───

@@ -11,7 +11,7 @@ const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const authHeader = req.headers.get("authorization") || "";
   const apiKey = authHeader.replace("Bearer ", "").trim();
@@ -23,7 +23,7 @@ export async function GET(
     return NextResponse.json({ error: "Database not configured." }, { status: 500 });
   }
 
-  const { id } = params;
+  const { id } = await params;
 
   const { data, error } = await supabaseAdmin
     .from("session_followups")

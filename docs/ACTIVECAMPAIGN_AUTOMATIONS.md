@@ -24,6 +24,8 @@ Complete specs for every nurture automation. Build these in the AC visual editor
 14. [Annual Re-engagement](#14-annual-re-engagement)
 15. [Talk to Expert — Post-Call Follow-up](#15-talk-to-expert--post-call-follow-up)
 16. [Strategy Activation Session — Post-Session Follow-up](#16-strategy-activation-session--post-session-follow-up)
+17. [Talk to Expert — No-Show Recovery](#17-talk-to-expert--no-show-recovery)
+18. [Activation Session — No-Show Recovery](#18-activation-session--no-show-recovery)
 
 ---
 
@@ -501,6 +503,138 @@ These are set automatically by the app when processing transcripts:
 
 ---
 
+## 17. Talk to Expert — No-Show Recovery
+
+**Purpose**: When a prospect no-shows their "Talk to an Expert" consultation, send a warm, no-guilt follow-up sequence to re-engage them and get the meeting rescheduled.
+
+### How It Works
+
+```
+1. Host marks invitee as no-show in Calendly
+   → Calendly webhook → POST /api/calendly/webhook (event: invitee.no_show)
+   → Tags: call:expert-no-show, noshow:needs-followup
+   → Fields: last_noshow_type, last_noshow_date
+   → Event: expert_call_no_show
+
+   OR: Admin manually marks via POST /api/session/no-show
+```
+
+### ActiveCampaign Automation
+
+**Trigger**: Event `expert_call_no_show`
+
+| Step | Action |
+|------|--------|
+| 1 | **Wait** 1 hour (give them a moment — they may reach out themselves) |
+| 2 | **If/Else**: Has tag `call:expert-scheduled`? (rebooked already) |
+| 3a | **Yes** → Remove tag `noshow:needs-followup`, apply `noshow:rescheduled` → End |
+| 3b | **No** → Continue |
+| 4 | **Send email**: "We missed you!" — No guilt, assume life happened. "We had time set aside for you today and want to make sure you still get the help you need. Here's a link to rebook whenever works." Include direct Calendly link. |
+| 5 | **Wait** 2 days |
+| 6 | **If/Else**: Has tag `call:expert-scheduled`? |
+| 7a | **Yes** → Remove tag `noshow:needs-followup`, apply `noshow:rescheduled` → End |
+| 7b | **No** → Continue |
+| 8 | **Send email**: "Still thinking about your brand strategy?" — Lead with value. Share a quick insight or tip related to the most common challenge prospects face. End with: "If you'd like to talk through your specific situation, I'm here:" + Calendly link. |
+| 9 | **Wait** 5 days |
+| 10 | **If/Else**: Has tag `call:expert-scheduled`? |
+| 11a | **Yes** → Remove tag `noshow:needs-followup`, apply `noshow:rescheduled` → End |
+| 11b | **No** → Continue |
+| 12 | **Send email**: "One more thought" — Final touch. Mention the free WunderBrand Snapshot as a lower-commitment entry point: "Not ready for a call? Try our free 15-minute brand diagnostic instead — it'll show you exactly where your brand stands." Link to Snapshot. |
+| 13 | Remove tag `noshow:needs-followup` |
+
+**Personalization fields**:
+- `%FIRST_NAME_CUSTOM%` — their first name
+- `%LAST_NOSHOW_DATE%` — the date they missed
+- `%LAST_NOSHOW_TYPE%` — "Talk to an Expert"
+
+**Goal**: Contact rebooks (tag `call:expert-scheduled` applied) → exit automation
+
+**Exit conditions**: Rebooks, purchases any product, or completes 3-email sequence
+
+**Tone**: Warm, zero guilt, assume positive intent. Never say "you missed" or "you didn't show up." Frame as "we had time for you" and "whenever works for you."
+
+---
+
+## 18. Activation Session — No-Show Recovery
+
+**Purpose**: When a Blueprint+ customer no-shows their Strategy Activation Session, re-engage quickly — this is a session they already paid for.
+
+### How It Works
+
+```
+Same detection as #17 but with session_type = activation_session
+→ Tags: session:activation-no-show, noshow:needs-followup
+→ Event: activation_session_no_show
+```
+
+### ActiveCampaign Automation
+
+**Trigger**: Event `activation_session_no_show`
+
+| Step | Action |
+|------|--------|
+| 1 | **Wait** 30 minutes (shorter wait — they're a paying customer) |
+| 2 | **If/Else**: Has tag `session:activation-scheduled`? (rebooked already) |
+| 3a | **Yes** → Remove tag `noshow:needs-followup`, apply `noshow:rescheduled` → End |
+| 3b | **No** → Continue |
+| 4 | **Send email**: "Your Strategy Activation Session" — Warm and helpful. "We had your session on the calendar today and I wanted to make sure we get this rescheduled. Your Blueprint+ includes this session and I don't want you to miss out on this part of your investment. Here's a link to pick a new time that works:" + Calendly link. Signed by the strategist. |
+| 5 | **Wait** 1 day |
+| 6 | **If/Else**: Has tag `session:activation-scheduled`? |
+| 7a | **Yes** → Remove tag `noshow:needs-followup`, apply `noshow:rescheduled` → End |
+| 7b | **No** → Continue |
+| 8 | **Send email**: "Your session is waiting" — Reference their Blueprint+ results: "I've reviewed your WunderBrand Blueprint+ results and have some specific ideas I'd love to share with you in your Strategy Activation Session. This is where we turn your diagnostic into a real action plan." Rebook link. |
+| 9 | **Wait** 3 days |
+| 10 | **If/Else**: Has tag `session:activation-scheduled`? |
+| 11a | **Yes** → Remove tag `noshow:needs-followup`, apply `noshow:rescheduled` → End |
+| 11b | **No** → Continue |
+| 12 | **Send email**: "Let's make sure you get the most from your Blueprint+" — Final touch. Emphasize the value: "Your Blueprint+ came with a Strategy Activation Session specifically so we can help you prioritize and plan. I'd love to help — just pick a time and we'll make it happen." Rebook link. Mention they can also reply to the email to coordinate. |
+| 13 | Remove tag `noshow:needs-followup` |
+| 14 | **Internal notification** → Notify team (Slack or email) that this customer hasn't rebooked after 3 attempts |
+
+**Personalization fields**:
+- `%FIRST_NAME_CUSTOM%` — their first name
+- `%LAST_NOSHOW_DATE%` — the date they missed
+- `%LAST_NOSHOW_TYPE%` — "Strategy Activation Session"
+- `%LAST_CALL_STRATEGIST%` — who they were supposed to meet
+- `%PRODUCT_PURCHASED%` — "WunderBrand Blueprint+™"
+
+**Goal**: Contact rebooks (tag `session:activation-scheduled` applied) → exit automation
+
+**Exit conditions**: Rebooks or completes 3-email sequence
+
+**Tone**: Supportive and service-oriented. They paid for this — your job is to make sure they use what they bought. Never punitive, always "we're here for you."
+
+**Key difference from #17**: Shorter wait times (they're a customer, not a prospect), reference their specific investment, and include internal team notification if all 3 emails go unanswered.
+
+---
+
+## New Tags (No-Shows)
+
+| Tag | Applied When |
+|-----|-------------|
+| `call:expert-no-show` | Prospect no-shows Talk to Expert |
+| `call:expert-canceled` | Prospect cancels Talk to Expert |
+| `session:activation-no-show` | Customer no-shows Activation Session |
+| `session:activation-canceled` | Customer cancels Activation Session |
+| `noshow:needs-followup` | Any no-show (removed when rescheduled or sequence completes) |
+| `noshow:rescheduled` | No-show who successfully rebooked |
+
+## New Custom Fields (No-Shows)
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `last_noshow_type` | text | "Talk to an Expert" or "Strategy Activation Session" |
+| `last_noshow_date` | text | Date of the no-show (YYYY-MM-DD) |
+
+## New Events (No-Shows)
+
+| Event | Fired By | Purpose |
+|-------|----------|---------|
+| `expert_call_no_show` | Calendly webhook or manual endpoint | Triggers Talk to Expert no-show recovery |
+| `activation_session_no_show` | Calendly webhook or manual endpoint | Triggers Activation Session no-show recovery |
+
+---
+
 ## Setup Checklist
 
 1. Run `npx tsx scripts/setup-activecampaign.ts` to create all tags + fields
@@ -510,6 +644,7 @@ These are set automatically by the app when processing transcripts:
 5. Test each flow end-to-end with a test contact
 6. Set `NEXT_PUBLIC_GOOGLE_REVIEW_URL` for the review CTA
 7. Optional: Set `SLACK_SALES_WEBHOOK_URL` for purchase notifications
-8. **NEW**: Set up Calendly webhook → `POST /api/calendly/webhook` (set `CALENDLY_WEBHOOK_SECRET`)
-9. **NEW**: Set up Otter.ai → Zapier → `POST /api/session/process-transcript` (set `ZAPIER_WEBHOOK_SECRET`)
-10. **NEW**: Set `ADMIN_API_KEY` for the follow-up review queue API
+8. Set up Calendly webhook → `POST /api/calendly/webhook` — subscribe to `invitee.created`, `invitee.canceled`, `invitee.no_show` events (set `CALENDLY_WEBHOOK_SECRET`)
+9. Set up Otter.ai → Zapier → `POST /api/session/process-transcript` (set `ZAPIER_WEBHOOK_SECRET`)
+10. Set `ADMIN_API_KEY` for the follow-up review queue and no-show marking APIs
+11. Build automations #17 and #18 (no-show recovery) in AC visual editor

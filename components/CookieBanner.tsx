@@ -696,5 +696,21 @@ function injectTracking() {
       }
     };
   }
+
+  // Google Analytics 4 (GA4)
+  const GA_ID = "G-HFNS3KRBKH";
+  if (!w.gtag) {
+    const gtagScript = document.createElement("script");
+    gtagScript.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
+    gtagScript.async = true;
+    document.head.appendChild(gtagScript);
+
+    w.dataLayer = w.dataLayer || [];
+    w.gtag = function (...args: unknown[]) {
+      w.dataLayer.push(args);
+    };
+    w.gtag("js", new Date());
+    w.gtag("config", GA_ID);
+  }
   /* eslint-enable @typescript-eslint/no-explicit-any */
 }

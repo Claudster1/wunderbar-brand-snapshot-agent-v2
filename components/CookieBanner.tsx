@@ -251,7 +251,21 @@ function PreferencesModal({
               }}
             >
               Choose which cookies you&apos;re comfortable with. You can change
-              these anytime.
+              these anytime.{" "}
+              <a
+                href="https://wunderbardigital.com/privacy-policy#pp-cookies"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: BRAND.blue,
+                  fontWeight: 700,
+                  fontSize: 13,
+                  textDecoration: "underline",
+                  textUnderlineOffset: 2,
+                }}
+              >
+                Cookie details
+              </a>
             </p>
           </div>
           <button
@@ -305,33 +319,6 @@ function PreferencesModal({
           </button>
         </div>
 
-        {/* Links */}
-        <div
-          style={{
-            padding: "0 28px 20px",
-            textAlign: "center",
-            fontSize: 11,
-            color: BRAND.muted,
-          }}
-        >
-          <a
-            href="https://wunderbardigital.com/privacy-policy"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: BRAND.blue, textDecoration: "none" }}
-          >
-            Privacy Policy
-          </a>
-          {" · "}
-          <a
-            href="https://wunderbardigital.com/terms-of-service"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: BRAND.blue, textDecoration: "none" }}
-          >
-            Terms of Service
-          </a>
-        </div>
       </div>
     </div>
   );
@@ -564,6 +551,22 @@ export function CookieBanner() {
                   >
                     We use cookies to improve your experience and understand how
                     our site is used.{" "}
+                    <a
+                      href="https://wunderbardigital.com/privacy-policy#pp-cookies"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color: BRAND.blue,
+                        fontWeight: 700,
+                        fontSize: 13,
+                        textDecoration: "underline",
+                        textUnderlineOffset: 2,
+                        fontFamily: "inherit",
+                      }}
+                    >
+                      Learn more
+                    </a>
+                    {" · "}
                     <button
                       onClick={() => setModalOpen(true)}
                       style={{

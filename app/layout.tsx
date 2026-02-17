@@ -3,6 +3,7 @@ import { Lato } from 'next/font/google'
 import './globals.css'
 import { WunderbarHeader } from '@/components/layout/WunderbarHeader'
 import { WunderbarFooter } from '@/components/layout/WunderbarFooter'
+import { CookieBanner } from '@/components/CookieBanner'
 
 const lato = Lato({
   weight: ['300', '400', '700', '900'],
@@ -56,25 +57,11 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              (function(e,t,o,n,p,r,i){
-                e.visitorGlobalObjectAlias=n;
-                e[e.visitorGlobalObjectAlias]=e[e.visitorGlobalObjectAlias]||function(){
-                  (e[e.visitorGlobalObjectAlias].q=e[e.visitorGlobalObjectAlias].q||[]).push(arguments)
-                };
-                e[e.visitorGlobalObjectAlias].l=(new Date).getTime();
-                r=t.createElement("script");
-                r.src=o;
-                r.async=true;
-                i=t.getElementsByTagName("script")[0];
-                i.parentNode.insertBefore(r,i)
-              })(window,document,"https://diffuser-cdn.app-us1.com/diffuser/diffuser.js","vgo");
-              
-              // Ensure ALL external links open in a new tab (set attributes, don't block default)
+              // Ensure ALL external links open in a new tab
               document.addEventListener("click", function(e) {
                 var anchor = e.target.closest ? e.target.closest("a[href]") : null;
                 if (!anchor) return;
                 var href = anchor.getAttribute("href") || "";
-                // If it's an external link, ensure target="_blank" is set
                 if (href.match(/^https?:\\/\\//i) && !href.includes(window.location.hostname)) {
                   if (!anchor.getAttribute("target")) {
                     anchor.setAttribute("target", "_blank");
@@ -82,11 +69,10 @@ export default function RootLayout({
                   if (!anchor.getAttribute("rel")) {
                     anchor.setAttribute("rel", "noopener noreferrer");
                   }
-                  // Let the browser handle navigation naturally — no preventDefault
                 }
               });
 
-              // Listen for analytics events and forward to ActiveCampaign
+              // Listen for analytics events and forward to ActiveCampaign (only if consented)
               window.addEventListener("analytics", function(event) {
                 if (event.detail && event.detail.event && window.vgo) {
                   try {
@@ -111,6 +97,7 @@ export default function RootLayout({
         <WunderbarHeader />
         {children}
         <WunderbarFooter />
+        <CookieBanner />
       </body>
     </html>
   )

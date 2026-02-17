@@ -1531,6 +1531,22 @@ a.sr-only:focus {
   color: #DDE8FF;
 }
 
+.wunder-footer-cookie-btn {
+  background: none;
+  border: none;
+  font-family: var(--font-brand);
+  font-size: 15px;
+  font-weight: 400;
+  color: #DDE8FF;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
+
+.wunder-footer-cookie-btn:hover {
+  text-decoration: underline;
+}
+
 .wunder-footer-bottom {
   border-top: 1px solid rgba(255, 255, 255, 0.12);
   padding-top: 24px;

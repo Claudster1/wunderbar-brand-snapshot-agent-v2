@@ -84,6 +84,8 @@ export function WunderbarFooter() {
                 <li><a href="https://wunderbardigital.com/dmca-policy" target="_blank" rel="noopener noreferrer">DMCA</a></li>
                 <li><a href="https://wunderbardigital.com/accessibility-statement" target="_blank" rel="noopener noreferrer">Accessibility</a></li>
                 <li><a href="https://wunderbardigital.com/do-not-sell-or-share-my-personal-information" target="_blank" rel="noopener noreferrer">Do Not Sell/Share</a></li>
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                <li><button onClick={() => { if (typeof window !== "undefined" && (window as any).__openCookieSettings) { (window as any).__openCookieSettings(); } }} className="wunder-footer-cookie-btn">Cookie Settings</button></li>
               </ul>
             </div>
           </nav>

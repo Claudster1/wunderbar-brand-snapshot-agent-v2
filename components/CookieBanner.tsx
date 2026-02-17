@@ -524,10 +524,9 @@ export function CookieBanner() {
                     alignItems: "center",
                     justifyContent: "center",
                     flexShrink: 0,
-                    fontSize: 18,
                   }}
                 >
-                  🍪
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={BRAND.navy} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M9 12h.01M15 12h.01M12 9h.01M12 15h.01M7.5 7.5h.01M16.5 16.5h.01"/></svg>
                 </div>
                 <div>
                   <p

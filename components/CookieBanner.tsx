@@ -1,44 +1,395 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   getConsent,
-  acceptAll,
-  declineAll,
-  setConsent,
+  setConsent as saveConsent,
   type ConsentState,
 } from "@/lib/cookieConsent";
 
-/* ─── Brand tokens ─── */
-const NAVY = "#021859";
-const BLUE = "#07B0F2";
-const WHITE = "#FFFFFF";
-const SUB = "#5A6B7E";
-const BORDER = "#D6DFE8";
-const LIGHT_BG = "#F4F7FB";
+/* ─── Brand Tokens ─── */
+const BRAND = {
+  blue: "#07B0F2",
+  blueHover: "#0599D4",
+  navy: "#0A2540",
+  muted: "#5A6B7E",
+  lightBg: "#F7F9FC",
+  border: "#E2E8F0",
+  white: "#FFFFFF",
+  accent: "#E8F7FE",
+  shadow: "0 -4px 32px rgba(10, 37, 64, 0.10)",
+  modalShadow: "0 24px 64px rgba(10, 37, 64, 0.18)",
+};
 
-/**
- * CookieBanner
- *
- * Shows on first visit. Remembers choice in a first-party cookie.
- * When analytics consent is granted, injects the AC site tracking script.
- * Also exposes a global `window.__openCookieSettings()` for the footer link.
- */
+const CATEGORIES = [
+  {
+    id: "essential" as const,
+    label: "Essential Cookies",
+    description:
+      "Required for the site to function properly — session management, authentication, and core app features.",
+    locked: true,
+    defaultOn: true,
+  },
+  {
+    id: "analytics" as const,
+    label: "Analytics Cookies",
+    description:
+      "Help us understand how visitors use our site so we can improve the experience.",
+    locked: false,
+    defaultOn: true,
+  },
+  {
+    id: "marketing" as const,
+    label: "Marketing Cookies",
+    description:
+      "Used to deliver relevant content and measure campaigns. Currently inactive — future-proofed for when we need them.",
+    locked: false,
+    defaultOn: false,
+  },
+];
+
+/* ─── Toggle Switch ─── */
+function Toggle({
+  on,
+  onChange,
+  disabled,
+}: {
+  on: boolean;
+  onChange: (v: boolean) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      role="switch"
+      aria-checked={on}
+      disabled={disabled}
+      onClick={() => !disabled && onChange(!on)}
+      style={{
+        position: "relative",
+        width: 44,
+        height: 24,
+        borderRadius: 12,
+        border: "none",
+        cursor: disabled ? "not-allowed" : "pointer",
+        background: disabled ? "#CBD5E1" : on ? BRAND.blue : "#CBD5E1",
+        transition: "background 0.25s ease",
+        flexShrink: 0,
+        opacity: disabled ? 0.6 : 1,
+        outline: "none",
+      }}
+    >
+      <span
+        style={{
+          position: "absolute",
+          top: 2,
+          left: on ? 22 : 2,
+          width: 20,
+          height: 20,
+          borderRadius: "50%",
+          background: BRAND.white,
+          boxShadow: "0 1px 4px rgba(0,0,0,0.18)",
+          transition: "left 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+        }}
+      />
+    </button>
+  );
+}
+
+/* ─── Preference Row ─── */
+function PreferenceRow({
+  category,
+  checked,
+  onChange,
+}: {
+  category: (typeof CATEGORIES)[number];
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "flex-start",
+        justifyContent: "space-between",
+        gap: 16,
+        padding: "16px 0",
+        borderBottom: `1px solid ${BRAND.border}`,
+      }}
+    >
+      <div style={{ flex: 1 }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            marginBottom: 4,
+          }}
+        >
+          <span
+            style={{
+              fontWeight: 700,
+              fontSize: 14,
+              color: BRAND.navy,
+              lineHeight: 1.3,
+            }}
+          >
+            {category.label}
+          </span>
+          {category.locked && (
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                color: BRAND.muted,
+                background: "#EDF2F7",
+                padding: "2px 8px",
+                borderRadius: 4,
+              }}
+            >
+              Always on
+            </span>
+          )}
+        </div>
+        <p
+          style={{
+            fontSize: 13,
+            color: BRAND.muted,
+            lineHeight: 1.55,
+            margin: 0,
+          }}
+        >
+          {category.description}
+        </p>
+      </div>
+      <div style={{ paddingTop: 2 }}>
+        <Toggle on={checked} onChange={onChange} disabled={category.locked} />
+      </div>
+    </div>
+  );
+}
+
+/* ─── Preferences Modal ─── */
+function PreferencesModal({
+  preferences,
+  setPreferences,
+  onSave,
+  onAcceptAll,
+  onClose,
+}: {
+  preferences: Record<string, boolean>;
+  setPreferences: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+  onSave: () => void;
+  onAcceptAll: () => void;
+  onClose: () => void;
+}) {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [onClose]);
+
+  return (
+    <div
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 10001,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "rgba(10, 37, 64, 0.45)",
+        backdropFilter: "blur(4px)",
+        animation: "cookieFadeIn 0.25s ease",
+        padding: 20,
+      }}
+    >
+      <div
+        ref={modalRef}
+        style={{
+          background: BRAND.white,
+          borderRadius: 16,
+          width: "100%",
+          maxWidth: 520,
+          maxHeight: "85vh",
+          overflow: "auto",
+          boxShadow: BRAND.modalShadow,
+          animation: "cookieSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+        }}
+      >
+        {/* Modal Header */}
+        <div
+          style={{
+            padding: "24px 28px 0",
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+          }}
+        >
+          <div>
+            <h2
+              style={{
+                margin: 0,
+                fontSize: 18,
+                fontWeight: 800,
+                color: BRAND.navy,
+                lineHeight: 1.3,
+              }}
+            >
+              Cookie Preferences
+            </h2>
+            <p
+              style={{
+                margin: "6px 0 0",
+                fontSize: 13,
+                color: BRAND.muted,
+                lineHeight: 1.5,
+              }}
+            >
+              Choose which cookies you&apos;re comfortable with. You can change
+              these anytime.
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: BRAND.muted,
+              fontSize: 22,
+              lineHeight: 1,
+              padding: "4px 0 0",
+              marginLeft: 12,
+              flexShrink: 0,
+            }}
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Toggles */}
+        <div style={{ padding: "8px 28px 4px" }}>
+          {CATEGORIES.map((cat) => (
+            <PreferenceRow
+              key={cat.id}
+              category={cat}
+              checked={preferences[cat.id]}
+              onChange={(val) =>
+                setPreferences((prev) => ({ ...prev, [cat.id]: val }))
+              }
+            />
+          ))}
+        </div>
+
+        {/* Modal Footer */}
+        <div
+          style={{
+            padding: "20px 28px 24px",
+            display: "flex",
+            gap: 10,
+            justifyContent: "flex-end",
+            flexWrap: "wrap",
+          }}
+        >
+          <button onClick={onAcceptAll} style={styles.secondaryBtn}>
+            Accept All
+          </button>
+          <button onClick={onSave} style={styles.primaryBtn}>
+            Save Preferences
+          </button>
+        </div>
+
+        {/* Links */}
+        <div
+          style={{
+            padding: "0 28px 20px",
+            textAlign: "center",
+            fontSize: 11,
+            color: BRAND.muted,
+          }}
+        >
+          <a
+            href="https://wunderbardigital.com/privacy-policy"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: BRAND.blue, textDecoration: "none" }}
+          >
+            Privacy Policy
+          </a>
+          {" · "}
+          <a
+            href="https://wunderbardigital.com/terms-of-service"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: BRAND.blue, textDecoration: "none" }}
+          >
+            Terms of Service
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Confirmation Toast ─── */
+function ConfirmToast({ message }: { message: string }) {
+  return (
+    <div
+      style={{
+        position: "fixed",
+        bottom: 32,
+        left: "50%",
+        transform: "translateX(-50%)",
+        zIndex: 10002,
+        background: BRAND.navy,
+        color: BRAND.white,
+        padding: "12px 24px",
+        borderRadius: 10,
+        fontSize: 14,
+        fontWeight: 600,
+        boxShadow: "0 8px 24px rgba(10, 37, 64, 0.25)",
+        animation: "cookieToastIn 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        fontFamily: "'Lato', sans-serif",
+      }}
+    >
+      <span style={{ fontSize: 16 }}>✓</span> {message}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════ */
+/* ─── Main CookieBanner Component ─── */
+/* ═══════════════════════════════════════════ */
 export function CookieBanner() {
   const [visible, setVisible] = useState(false);
-  const [showPrefs, setShowPrefs] = useState(false);
-  const [analytics, setAnalytics] = useState(true);
-  const [marketing, setMarketing] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
   const [consent, setConsentState] = useState<ConsentState | null>(null);
+  const [preferences, setPreferences] = useState<Record<string, boolean>>(
+    Object.fromEntries(CATEGORIES.map((c) => [c.id, c.defaultOn])),
+  );
 
-  // Check on mount
+  // Check existing consent on mount
   useEffect(() => {
     const existing = getConsent();
     if (existing) {
       setConsentState(existing);
+      setPreferences({
+        essential: true,
+        analytics: existing.analytics,
+        marketing: existing.marketing,
+      });
       if (existing.analytics) injectTracking();
     } else {
-      // Small delay so the page renders before the banner slides in
       const t = setTimeout(() => setVisible(true), 800);
       return () => clearTimeout(t);
     }
@@ -50,11 +401,13 @@ export function CookieBanner() {
     (window as any).__openCookieSettings = () => {
       const existing = getConsent();
       if (existing) {
-        setAnalytics(existing.analytics);
-        setMarketing(existing.marketing);
+        setPreferences({
+          essential: true,
+          analytics: existing.analytics,
+          marketing: existing.marketing,
+        });
       }
-      setShowPrefs(true);
-      setVisible(true);
+      setModalOpen(true);
     };
     return () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -62,255 +415,254 @@ export function CookieBanner() {
     };
   }, []);
 
+  // Auto-dismiss toast
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 2800);
+    return () => clearTimeout(t);
+  }, [toast]);
+
+  const showToast = useCallback((msg: string) => setToast(msg), []);
+
   const handleAcceptAll = useCallback(() => {
-    const state = acceptAll();
+    const state = saveConsent({ analytics: true, marketing: true });
     setConsentState(state);
+    setPreferences({ essential: true, analytics: true, marketing: true });
     setVisible(false);
-    setShowPrefs(false);
+    setModalOpen(false);
     injectTracking();
-  }, []);
+    showToast("All cookies accepted — preferences saved for 1 year");
+  }, [showToast]);
 
-  const handleDecline = useCallback(() => {
-    const state = declineAll();
+  const handleDeclineAll = useCallback(() => {
+    const state = saveConsent({ analytics: false, marketing: false });
+    setConsentState(state);
+    setPreferences({ essential: true, analytics: false, marketing: false });
+    setVisible(false);
+    setModalOpen(false);
+    showToast("Non-essential cookies declined — only essentials active");
+  }, [showToast]);
+
+  const handleSavePreferences = useCallback(() => {
+    const state = saveConsent({
+      analytics: preferences.analytics,
+      marketing: preferences.marketing,
+    });
     setConsentState(state);
     setVisible(false);
-    setShowPrefs(false);
-  }, []);
+    setModalOpen(false);
+    if (preferences.analytics) injectTracking();
+    const active = Object.entries(preferences)
+      .filter(([, v]) => v)
+      .map(([k]) => k);
+    showToast(`Preferences saved — ${active.join(", ")} cookies active`);
+  }, [preferences, showToast]);
 
-  const handleSavePrefs = useCallback(() => {
-    const state = setConsent({ analytics, marketing });
-    setConsentState(state);
-    setVisible(false);
-    setShowPrefs(false);
-    if (analytics) injectTracking();
-  }, [analytics, marketing]);
-
-  // Don't render if consent already given and banner not manually opened
-  if (!visible && consent) return null;
-  if (!visible) return null;
+  // Don't render anything if consent exists, modal not open, and no toast
+  if (!visible && !modalOpen && !toast && consent) return null;
+  if (!visible && !modalOpen && !toast) return null;
 
   return (
     <>
-      {/* Backdrop for preferences panel */}
-      {showPrefs && (
-        <div
-          onClick={() => setShowPrefs(false)}
-          style={{
-            position: "fixed", inset: 0, background: "rgba(2,24,89,0.3)",
-            zIndex: 99998, backdropFilter: "blur(2px)",
-          }}
-        />
-      )}
+      <style>{`
+        @keyframes cookieFadeIn {
+          from { opacity: 0 }
+          to { opacity: 1 }
+        }
+        @keyframes cookieSlideUp {
+          from { opacity: 0; transform: translateY(16px) }
+          to { opacity: 1; transform: translateY(0) }
+        }
+        @keyframes cookieBannerSlide {
+          from { opacity: 0; transform: translateY(100%) }
+          to { opacity: 1; transform: translateY(0) }
+        }
+        @keyframes cookieToastIn {
+          from { opacity: 0; transform: translate(-50%, 12px) }
+          to { opacity: 1; transform: translate(-50%, 0) }
+        }
+      `}</style>
 
-      <div
-        role="dialog"
-        aria-label="Cookie consent"
-        style={{
-          position: "fixed",
-          bottom: showPrefs ? "50%" : 0,
-          left: showPrefs ? "50%" : 0,
-          right: showPrefs ? "auto" : 0,
-          transform: showPrefs ? "translate(-50%, 50%)" : "none",
-          width: showPrefs ? "min(460px, calc(100vw - 32px))" : "100%",
-          background: WHITE,
-          borderTop: showPrefs ? "none" : `1px solid ${BORDER}`,
-          borderRadius: showPrefs ? 12 : 0,
-          boxShadow: "0 -4px 24px rgba(2,24,89,0.12)",
-          zIndex: 99999,
-          fontFamily: "'Lato', system-ui, sans-serif",
-          animation: "cookieSlideUp 0.4s ease",
-        }}
-      >
-        <div style={{ padding: showPrefs ? "24px" : "16px 24px", maxWidth: showPrefs ? "none" : 960, margin: "0 auto" }}>
-          {!showPrefs ? (
-            /* ─── Compact Banner ─── */
-            <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
-              <div style={{ flex: 1, minWidth: 240 }}>
-                <p style={{ margin: 0, fontSize: 13, color: NAVY, lineHeight: 1.5 }}>
-                  We use cookies to improve your experience and understand how you interact with our tools.{" "}
-                  <button
-                    onClick={() => setShowPrefs(true)}
+      {/* ─── Bottom Banner ─── */}
+      {visible && !modalOpen && (
+        <div
+          role="dialog"
+          aria-label="Cookie consent"
+          style={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: 10000,
+            fontFamily: "'Lato', sans-serif",
+            animation: "cookieBannerSlide 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+          }}
+        >
+          <div
+            style={{
+              background: BRAND.white,
+              boxShadow: BRAND.shadow,
+              borderTop: `1px solid ${BRAND.border}`,
+            }}
+          >
+            <div
+              style={{
+                maxWidth: 1120,
+                margin: "0 auto",
+                padding: "20px 28px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 24,
+                flexWrap: "wrap",
+              }}
+            >
+              {/* Left: Icon + Copy */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 14,
+                  flex: 1,
+                  minWidth: 260,
+                }}
+              >
+                <div
+                  style={{
+                    width: 38,
+                    height: 38,
+                    borderRadius: 10,
+                    background: BRAND.accent,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                    fontSize: 18,
+                  }}
+                >
+                  🍪
+                </div>
+                <div>
+                  <p
                     style={{
-                      background: "none", border: "none", color: BLUE,
-                      textDecoration: "underline", cursor: "pointer", fontSize: 13,
-                      fontFamily: "inherit", padding: 0,
+                      margin: 0,
+                      fontSize: 14,
+                      fontWeight: 700,
+                      color: BRAND.navy,
+                      lineHeight: 1.4,
                     }}
                   >
-                    Manage preferences
-                  </button>
-                </p>
+                    We value your privacy
+                  </p>
+                  <p
+                    style={{
+                      margin: "4px 0 0",
+                      fontSize: 13,
+                      color: BRAND.muted,
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    We use cookies to improve your experience and understand how
+                    our site is used.{" "}
+                    <button
+                      onClick={() => setModalOpen(true)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: BRAND.blue,
+                        fontWeight: 700,
+                        fontSize: 13,
+                        cursor: "pointer",
+                        padding: 0,
+                        textDecoration: "underline",
+                        textUnderlineOffset: 2,
+                        fontFamily: "inherit",
+                      }}
+                    >
+                      Manage Preferences
+                    </button>
+                  </p>
+                </div>
               </div>
-              <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
-                <button onClick={handleDecline} style={btnStyle(true)}>
-                  Decline
+
+              {/* Right: Buttons */}
+              <div
+                style={{ display: "flex", gap: 10, flexShrink: 0, flexWrap: "wrap" }}
+              >
+                <button onClick={handleDeclineAll} style={styles.outlineBtn}>
+                  Decline All
                 </button>
-                <button onClick={handleAcceptAll} style={btnStyle(false)}>
+                <button onClick={handleAcceptAll} style={styles.primaryBtn}>
                   Accept All
                 </button>
               </div>
             </div>
-          ) : (
-            /* ─── Preferences Panel ─── */
-            <>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: NAVY }}>
-                  Cookie Preferences
-                </h2>
-                <button
-                  onClick={() => { setShowPrefs(false); if (!consent) setVisible(true); else setVisible(false); }}
-                  aria-label="Close"
-                  style={{
-                    background: "none", border: "none", cursor: "pointer",
-                    fontSize: 18, color: SUB, lineHeight: 1, padding: "4px",
-                  }}
-                >
-                  ×
-                </button>
-              </div>
-
-              <p style={{ fontSize: 13, color: SUB, lineHeight: 1.6, margin: "0 0 20px" }}>
-                Choose which cookies you allow. Essential cookies are always active — they keep the app working.
-                You can change these settings anytime.
-              </p>
-
-              {/* Essential */}
-              <CookieCategory
-                label="Essential"
-                description="Required for the app to function. Authentication, security, and core features."
-                checked={true}
-                disabled={true}
-              />
-
-              {/* Analytics */}
-              <CookieCategory
-                label="Analytics"
-                description="Help us understand how you use WunderBrand so we can improve the experience. Includes ActiveCampaign site tracking."
-                checked={analytics}
-                onChange={setAnalytics}
-              />
-
-              {/* Marketing */}
-              <CookieCategory
-                label="Marketing"
-                description="Used for personalized content and ad targeting. We don't currently use marketing cookies, but this is here for the future."
-                checked={marketing}
-                onChange={setMarketing}
-              />
-
-              <div style={{ display: "flex", gap: 8, marginTop: 20, justifyContent: "flex-end" }}>
-                <button onClick={handleDecline} style={btnStyle(true)}>
-                  Decline All
-                </button>
-                <button onClick={handleSavePrefs} style={btnStyle(false)}>
-                  Save Preferences
-                </button>
-              </div>
-
-              <p style={{ fontSize: 11, color: SUB, marginTop: 14, textAlign: "center" }}>
-                <a
-                  href="https://wunderbardigital.com/privacy-policy"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: BLUE, textDecoration: "none" }}
-                >
-                  Privacy Policy
-                </a>
-                {" · "}
-                <a
-                  href="https://wunderbardigital.com/terms-of-service"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: BLUE, textDecoration: "none" }}
-                >
-                  Terms of Service
-                </a>
-              </p>
-            </>
-          )}
+          </div>
         </div>
-      </div>
+      )}
 
-      <style>{`
-        @keyframes cookieSlideUp {
-          from { opacity: 0; transform: ${showPrefs ? "translate(-50%, 55%)" : "translateY(100%)"}; }
-          to   { opacity: 1; transform: ${showPrefs ? "translate(-50%, 50%)" : "translateY(0)"}; }
-        }
-      `}</style>
+      {/* ─── Preferences Modal ─── */}
+      {modalOpen && (
+        <PreferencesModal
+          preferences={preferences}
+          setPreferences={setPreferences}
+          onSave={handleSavePreferences}
+          onAcceptAll={handleAcceptAll}
+          onClose={() => {
+            setModalOpen(false);
+            if (!consent) setVisible(true);
+          }}
+        />
+      )}
+
+      {/* ─── Toast ─── */}
+      {toast && <ConfirmToast message={toast} />}
     </>
   );
 }
 
-/* ─── Cookie Category Toggle ─── */
-function CookieCategory({
-  label,
-  description,
-  checked,
-  disabled,
-  onChange,
-}: {
-  label: string;
-  description: string;
-  checked: boolean;
-  disabled?: boolean;
-  onChange?: (v: boolean) => void;
-}) {
-  return (
-    <div style={{
-      display: "flex", alignItems: "flex-start", gap: 12,
-      padding: "12px 14px", background: LIGHT_BG, borderRadius: 8,
-      border: `1px solid ${BORDER}`, marginBottom: 10,
-    }}>
-      <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: NAVY, marginBottom: 2 }}>
-          {label}
-          {disabled && (
-            <span style={{ fontSize: 10, color: SUB, fontWeight: 500, marginLeft: 6 }}>
-              Always active
-            </span>
-          )}
-        </div>
-        <div style={{ fontSize: 12, color: SUB, lineHeight: 1.5 }}>{description}</div>
-      </div>
-      <label style={{
-        position: "relative", width: 40, height: 22, flexShrink: 0, marginTop: 2,
-        cursor: disabled ? "default" : "pointer",
-        opacity: disabled ? 0.5 : 1,
-      }}>
-        <input
-          type="checkbox"
-          checked={checked}
-          disabled={disabled}
-          onChange={(e) => onChange?.(e.target.checked)}
-          style={{ opacity: 0, width: 0, height: 0, position: "absolute" }}
-        />
-        <span style={{
-          position: "absolute", inset: 0, borderRadius: 11,
-          background: checked ? BLUE : "#CBD5E1",
-          transition: "background 0.2s ease",
-        }} />
-        <span style={{
-          position: "absolute", top: 2, left: checked ? 20 : 2,
-          width: 18, height: 18, borderRadius: "50%",
-          background: WHITE, boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
-          transition: "left 0.2s ease",
-        }} />
-      </label>
-    </div>
-  );
-}
-
-/* ─── Button styles ─── */
-function btnStyle(outline: boolean): React.CSSProperties {
-  return {
-    padding: "9px 18px", fontSize: 13, fontWeight: 700,
-    background: outline ? "transparent" : BLUE,
-    color: outline ? NAVY : WHITE,
-    border: outline ? `1.5px solid ${BORDER}` : `1.5px solid ${BLUE}`,
-    borderRadius: 8, cursor: "pointer",
-    fontFamily: "'Lato', system-ui, sans-serif",
-    transition: "opacity 0.15s ease",
-  };
-}
+/* ─── Shared Button Styles ─── */
+const styles: Record<string, React.CSSProperties> = {
+  primaryBtn: {
+    background: BRAND.blue,
+    color: BRAND.white,
+    border: "none",
+    borderRadius: 10,
+    padding: "10px 22px",
+    fontSize: 14,
+    fontWeight: 700,
+    cursor: "pointer",
+    fontFamily: "'Lato', sans-serif",
+    transition: "background 0.2s ease",
+    whiteSpace: "nowrap",
+  },
+  secondaryBtn: {
+    background: "transparent",
+    color: BRAND.blue,
+    border: `1.5px solid ${BRAND.blue}`,
+    borderRadius: 10,
+    padding: "10px 22px",
+    fontSize: 14,
+    fontWeight: 700,
+    cursor: "pointer",
+    fontFamily: "'Lato', sans-serif",
+    transition: "all 0.2s ease",
+    whiteSpace: "nowrap",
+  },
+  outlineBtn: {
+    background: "transparent",
+    color: BRAND.muted,
+    border: `1.5px solid ${BRAND.border}`,
+    borderRadius: 10,
+    padding: "10px 22px",
+    fontSize: 14,
+    fontWeight: 700,
+    cursor: "pointer",
+    fontFamily: "'Lato', sans-serif",
+    transition: "all 0.2s ease",
+    whiteSpace: "nowrap",
+  },
+};
 
 /* ─── Inject tracking scripts when analytics consent is given ─── */
 function injectTracking() {
@@ -328,7 +680,9 @@ function injectTracking() {
 
     w.visitorGlobalObjectAlias = "vgo";
     const vgoQueue: unknown[][] = [];
-    w.vgo = function (...args: unknown[]) { vgoQueue.push(args); };
+    w.vgo = function (...args: unknown[]) {
+      vgoQueue.push(args);
+    };
     w.vgo.q = vgoQueue;
     w.vgo.l = Date.now();
 

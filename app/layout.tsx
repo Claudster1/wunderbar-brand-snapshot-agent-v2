@@ -4,6 +4,7 @@ import './globals.css'
 import { WunderbarHeader } from '@/components/layout/WunderbarHeader'
 import { WunderbarFooter } from '@/components/layout/WunderbarFooter'
 import { CookieBanner } from '@/components/CookieBanner'
+import { AttributionCapture } from '@/components/AttributionCapture'
 
 const lato = Lato({
   weight: ['300', '400', '700', '900'],
@@ -98,6 +99,7 @@ export default function RootLayout({
         {children}
         <WunderbarFooter />
         <CookieBanner />
+        <AttributionCapture />
       </body>
     </html>
   )

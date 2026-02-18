@@ -153,17 +153,16 @@ export async function POST(req: NextRequest) {
     let ctx: BrandContext = brandContext || {};
     if (!ctx.pillarScores) {
       try {
-        const table = tier === "blueprint-plus" ? "blueprint_reports" : "blueprint_reports";
         const { data: report } = await sb
-          .from(table)
+          .from("blueprint_reports")
           .select("pillar_scores, company_name")
           .eq("user_email", email.toLowerCase())
           .order("created_at", { ascending: false })
           .limit(1)
-          .single();
+          .single() as { data: { pillar_scores: Record<string, number> | null; company_name: string | null } | null };
 
         if (report) {
-          const scores = report.pillar_scores as Record<string, number> | null;
+          const scores = report.pillar_scores;
           if (scores) {
             ctx.pillarScores = scores;
             ctx.weakestPillar = getWeakestPillar(scores);
@@ -184,7 +183,7 @@ export async function POST(req: NextRequest) {
       .select("id, file_name, file_type, file_size, storage_path, asset_category, tier")
       .eq("user_email", email.toLowerCase())
       .eq("tier", tier)
-      .is("analysis", null);
+      .is("analysis", null) as { data: AssetRow[] | null; error: unknown };
 
     if (fetchErr || !assets || assets.length === 0) {
       return NextResponse.json({
@@ -195,7 +194,7 @@ export async function POST(req: NextRequest) {
 
     const results: Array<{ id: string; file_name: string; analysis: unknown }> = [];
 
-    for (const asset of assets as AssetRow[]) {
+    for (const asset of assets!) {
       try {
         let analysis: unknown = null;
         const prompt = buildAnalysisPrompt(tier, asset.file_name, asset.asset_category, ctx);
@@ -250,8 +249,8 @@ export async function POST(req: NextRequest) {
         }
 
         if (analysis) {
-          await sb
-            .from("brand_asset_uploads")
+          await (sb
+            .from("brand_asset_uploads") as any)
             .update({ analysis, analyzed_at: new Date().toISOString() })
             .eq("id", asset.id);
 

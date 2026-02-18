@@ -21,7 +21,7 @@ export async function DELETE(req: NextRequest) {
       .select("id, storage_path")
       .eq("id", id)
       .eq("user_email", email.toLowerCase())
-      .single();
+      .single() as { data: { id: string; storage_path: string } | null; error: unknown };
 
     if (fetchErr || !asset) {
       return NextResponse.json({ error: "Asset not found." }, { status: 404 });
@@ -29,7 +29,7 @@ export async function DELETE(req: NextRequest) {
 
     await sb.storage.from("brand-assets").remove([asset.storage_path]);
 
-    await sb.from("brand_asset_uploads").delete().eq("id", id);
+    await (sb.from("brand_asset_uploads") as any).delete().eq("id", id);
 
     return NextResponse.json({ success: true });
   } catch (err) {

@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
       .from("brand_asset_uploads")
       .select("id", { count: "exact", head: true })
       .eq("user_email", email.toLowerCase())
-      .eq("tier", tier);
+      .eq("tier", tier) as { count: number | null };
 
     if ((count ?? 0) >= tierConfig.maxFiles) {
       return NextResponse.json(
@@ -117,8 +117,8 @@ export async function POST(req: NextRequest) {
 
     // Save metadata
     const category = categorizeAsset(file.name, file.type);
-    const { data: record, error: dbError } = await sb
-      .from("brand_asset_uploads")
+    const { data: record, error: dbError } = await (sb
+      .from("brand_asset_uploads") as any)
       .insert({
         user_email: email.toLowerCase(),
         session_id: sessionId,

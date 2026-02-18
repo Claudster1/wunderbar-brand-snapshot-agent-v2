@@ -124,8 +124,8 @@ function HomeContent() {
   useEffect(() => {
     if (!isUploadTier) return;
     const tryLoadEmail = async () => {
-      const { retrieveEmail } = await import("@/lib/persistEmail");
-      const email = retrieveEmail();
+      const { getPersistedEmail } = await import("@/lib/persistEmail");
+      const email = getPersistedEmail();
       if (email) setChatEmail(email);
     };
     tryLoadEmail();

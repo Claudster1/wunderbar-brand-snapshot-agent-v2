@@ -5,6 +5,7 @@ import { PillarActivation } from "../sections/PillarActivation";
 import { VisibilityAEOSection } from "../sections/VisibilityAEOSection";
 import { BlueprintPromptLibrary } from "../sections/BlueprintPromptLibrary";
 import { BlueprintPlusCTA } from "../sections/BlueprintPlusCTA";
+import { DisclaimerPage } from "../components/DisclaimerPage";
 
 const styles = StyleSheet.create({
   page: {
@@ -51,6 +52,8 @@ export function BlueprintReportDocument({
         <BlueprintPromptLibrary />
         <BlueprintPlusCTA />
       </Page>
+
+      <DisclaimerPage tier="blueprint" />
     </Document>
   );
 }

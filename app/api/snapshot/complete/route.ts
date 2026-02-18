@@ -1,5 +1,6 @@
 // app/api/snapshot/complete/route.ts
-// API route to mark snapshot as completed
+// API route to mark snapshot as completed.
+// Also increments the refresh counter if this is a refresh report (paid tier retake).
 
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase";
@@ -42,6 +43,25 @@ export async function POST(req: Request) {
         { error: "Failed to update report status" },
         { status: 500 }
       );
+    }
+
+    // ─── Track refresh usage if this is a refresh (user has an entitlement) ───
+    try {
+      // Look up the email from the report
+      const { data: reportRow } = await (supabase
+        .from("brand_snapshot_reports") as any)
+        .select("user_email")
+        .eq("report_id", reportId)
+        .limit(1);
+
+      const userEmail = reportRow?.[0]?.user_email;
+      if (userEmail) {
+        const { recordRefreshUsed } = await import("@/lib/refreshEntitlements");
+        await recordRefreshUsed(userEmail);
+      }
+    } catch (refreshErr) {
+      // Non-blocking: don't fail the completion if refresh tracking errors
+      console.warn("[Snapshot Complete] Refresh tracking error:", refreshErr);
     }
 
     return NextResponse.json({ success: true });

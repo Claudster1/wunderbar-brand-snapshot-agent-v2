@@ -8,6 +8,7 @@ import {
 } from "@/lib/applyActiveCampaignTags";
 import { grantAccess } from "@/lib/grantAccess";
 import { recordStripePurchase } from "@/lib/recordStripePurchase";
+import { createRefreshEntitlement } from "@/lib/refreshEntitlements";
 import { logger } from "@/lib/logger";
 
 // ❗ Stripe requires raw body for signature verification
@@ -109,6 +110,39 @@ export async function POST(req: NextRequest) {
             await grantAccess(userId, accessTier);
           } catch (e) {
             logger.warn("[Stripe Webhook] grantAccess failed", { error: e instanceof Error ? e.message : String(e) });
+          }
+        }
+
+        // ─── Create refresh entitlement (brand-locked, time-limited) ───
+        // Only for full-tier purchases (not refresh purchases themselves)
+        if (!isRefreshProduct(productKey)) {
+          try {
+            const { supabaseServer: supabaseSrv } = await import("@/lib/supabase");
+            const sb = supabaseSrv();
+            // Look up the brand name from the most recent report
+            const { data: reportRow } = await (sb
+              .from("brand_snapshot_reports" as any)
+              .select("brand_name")
+              .eq("user_email", customerEmail.toLowerCase())
+              .order("created_at", { ascending: false })
+              .limit(1) as any);
+            const brandName = reportRow?.[0]?.brand_name || metadata.brand_name || "Unknown";
+
+            await createRefreshEntitlement({
+              email: customerEmail,
+              productTier: productKey as "snapshot_plus" | "blueprint" | "blueprint_plus",
+              brandName,
+              purchaseId: undefined, // filled by recordStripePurchase separately
+            });
+            logger.info("[Stripe Webhook] Refresh entitlement created", {
+              email: customerEmail,
+              tier: productKey,
+              brandName,
+            });
+          } catch (entErr) {
+            logger.error("[Stripe Webhook] Failed to create refresh entitlement", {
+              error: entErr instanceof Error ? entErr.message : String(entErr),
+            });
           }
         }
 
@@ -333,6 +367,12 @@ async function triggerActiveCampaign({
     purchase_date: new Date().toISOString().split("T")[0],
     refresh_price: productKey === "blueprint_plus" ? "free" : productKey === "blueprint" ? "$97" : "$47",
     refresh_type: productKey === "blueprint_plus" ? "free" : "paid",
+    refresh_window_end: productKey === "blueprint_plus"
+      ? new Date(Date.now() + 365 * 86400000).toISOString().split("T")[0]
+      : productKey === "blueprint"
+        ? new Date(Date.now() + 90 * 86400000).toISOString().split("T")[0]
+        : "",
+    refresh_brand_name: "", // populated after entitlement creation
     upgrade_product_name: upgradeProductName,
     upgrade_product_url: upgradeProductUrl,
     upgrade_price: upgradePrice,

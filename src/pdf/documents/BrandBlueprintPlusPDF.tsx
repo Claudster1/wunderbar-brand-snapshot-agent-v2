@@ -6,6 +6,7 @@ import React from "react";
 import { Document, Page, Text, View } from "@react-pdf/renderer";
 import { stylePresets, colors, fonts, spacing } from "../theme";
 import { registerPdfFonts } from "../registerFonts";
+import { DisclaimerPage } from "../components/DisclaimerPage";
 
 // Register fonts
 registerPdfFonts();
@@ -487,6 +488,8 @@ export const BrandBlueprintPlusPDF = ({
           © 2025 Wunderbar Digital. WunderBrand Blueprint+™ is a trademark of Wunderbar Digital.
         </Text>
       </Page>
+
+      <DisclaimerPage tier="blueprint_plus" />
     </Document>
   );
 };

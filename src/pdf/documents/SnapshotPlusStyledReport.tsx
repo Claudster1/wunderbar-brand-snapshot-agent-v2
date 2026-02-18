@@ -6,6 +6,7 @@ import {
   StyleSheet,
 } from "@react-pdf/renderer";
 import { ScoreGauge } from "../components/ScoreGauge";
+import { DisclaimerPage } from "../components/DisclaimerPage";
 
 type PillarScore = {
   name: string;
@@ -143,6 +144,8 @@ export function SnapshotPlusReportDocument({
           </Text>
         </View>
       </Page>
+
+      <DisclaimerPage tier="snapshot_plus" />
     </Document>
   );
 }

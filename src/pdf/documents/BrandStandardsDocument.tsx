@@ -12,6 +12,7 @@ import {
   Link,
 } from "@react-pdf/renderer";
 import { pdfTheme, colors, fonts, layout, spacing } from "../theme";
+import { DisclaimerPage } from "../components/DisclaimerPage";
 
 const LOGO_URL = "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp";
 
@@ -486,6 +487,8 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
           <PageFooter businessName={businessName} />
         </Page>
       )}
+
+      <DisclaimerPage tier="blueprint_plus" />
     </Document>
   );
 }

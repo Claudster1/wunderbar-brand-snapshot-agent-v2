@@ -10,6 +10,7 @@ import { PILLARS, BrandStage, PillarKey } from "@/lib/pillars";
 import { registerPdfFonts } from "../registerFonts";
 import { PdfHeader } from "../components/PdfHeader";
 import { PdfFooter } from "../components/PdfFooter";
+import { DisclaimerPage } from "../components/DisclaimerPage";
 import { pdfTheme } from "../theme";
 
 // Register fonts
@@ -106,6 +107,8 @@ export function SnapshotPlusDocument({ report }: { report: SnapshotPlusReport })
 
         <PdfFooter />
       </Page>
+
+      <DisclaimerPage tier="snapshot_plus" />
     </Document>
   );
 }

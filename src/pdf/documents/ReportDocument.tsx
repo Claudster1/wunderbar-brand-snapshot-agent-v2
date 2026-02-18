@@ -16,6 +16,7 @@ import { PrimaryPillar } from '../components/PrimaryPillar';
 import { PillarSummaryRow, Score, Text as PillarText } from '../components/PillarSummaryRow';
 import { SectionHeader } from '../components/SectionHeader';
 import { BlueprintPlusSection } from '../components/BlueprintPlusSection';
+import { DisclaimerPage } from '../components/DisclaimerPage';
 import { resolvePillarPriority } from '@/src/lib/pillars/pillarPriority';
 import { rolePhrase } from '@/src/lib/roleLanguage';
 import { pillarCopy, PillarKey } from '@/src/copy/pillars';
@@ -316,6 +317,8 @@ export function ReportDocument({
         </Text>
 
       </Page>
+
+      <DisclaimerPage tier="snapshot_plus" />
     </Document>
   );
 }

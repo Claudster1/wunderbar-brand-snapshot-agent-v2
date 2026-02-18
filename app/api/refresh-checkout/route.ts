@@ -1,12 +1,17 @@
 // POST /api/refresh-checkout — Create a Stripe checkout for a quarterly refresh
-// Verifies the customer has a prior purchase at the parent tier before allowing refresh.
-// Blueprint+ customers get free refreshes (redirected to retake, no checkout needed).
+// Enforces:
+//   1. Brand locking — refreshes must be for the same company
+//   2. Free refresh limits — Blueprint gets 1 free within 90 days
+//   3. Window expiration — Blueprint+ free refreshes end after 1 year
+//   4. Blueprint+ within window → free redirect (no checkout)
+//   5. All others → Stripe checkout at tier-appropriate price
 
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { PRICING, getRefreshParentTier } from "@/lib/pricing";
 import { supabaseServer } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
+import { checkRefreshEligibility, validateBrandMatch } from "@/lib/refreshEntitlements";
 
 export const runtime = "nodejs";
 
@@ -30,7 +35,7 @@ export async function POST(req: NextRequest) {
   if (!guard.passed) return guard.errorResponse;
 
   try {
-    const { refreshKey, email } = await req.json();
+    const { refreshKey, email, brandName } = await req.json();
 
     if (!email || typeof email !== "string") {
       return NextResponse.json({ error: "Email is required." }, { status: 400 });
@@ -66,25 +71,36 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ─── Check if customer has Blueprint+ (free refreshes) ───
-    const { data: bpPlusPurchases } = await supabase
-      .from("brand_snapshot_purchases")
-      .select("id")
-      .eq("user_email", email.toLowerCase())
-      .eq("status", "paid")
-      .eq("product_sku", "BLUEPRINT_PLUS")
-      .limit(1);
+    // ─── Check refresh eligibility (brand lock + limits + window) ───
+    const eligibility = await checkRefreshEligibility(email.toLowerCase());
 
-    if (bpPlusPurchases && bpPlusPurchases.length > 0) {
-      // Blueprint+ customers get free refreshes — no checkout needed
+    // Enforce brand lock: if the user has an entitlement, the brand must match
+    if (eligibility.brandLocked && eligibility.brandName && brandName) {
+      if (!validateBrandMatch(eligibility.brandName, brandName)) {
+        return NextResponse.json(
+          {
+            error: "Brand mismatch",
+            message: `Your refresh entitlement is for "${eligibility.brandName}". Refreshes and edits apply to the assessed brand only — one company, one brand.`,
+            lockedBrand: eligibility.brandName,
+          },
+          { status: 403 }
+        );
+      }
+    }
+
+    // ─── Free refresh path (Blueprint within window + remaining, or Blueprint+ within year) ───
+    if (eligibility.isFree) {
       return NextResponse.json({
         freeRefresh: true,
-        message: "As a Blueprint+ customer, your quarterly refreshes are free. Start a new diagnostic anytime.",
+        message: eligibility.reason,
         redirectUrl: "/",
+        brandName: eligibility.brandName,
+        freeRemaining: eligibility.freeRemaining === Infinity ? "unlimited" : eligibility.freeRemaining,
+        daysRemaining: eligibility.daysRemaining,
       });
     }
 
-    // ─── Create Stripe checkout session ───
+    // ─── Paid refresh → Stripe checkout ───
     const product = PRICING[typedKey];
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || "https://app.wunderbrand.ai";
 
@@ -99,12 +115,22 @@ export async function POST(req: NextRequest) {
         product_key: typedKey,
         is_refresh: "true",
         parent_tier: parentTier,
+        brand_name: eligibility.brandName || brandName || "",
       },
     });
 
-    logger.info("[Refresh Checkout] Session created", { product: typedKey, email });
+    logger.info("[Refresh Checkout] Paid session created", {
+      product: typedKey,
+      email,
+      price: product.price,
+      brandName: eligibility.brandName,
+    });
 
-    return NextResponse.json({ url: session.url });
+    return NextResponse.json({
+      url: session.url,
+      paidPrice: eligibility.paidPrice,
+      reason: eligibility.reason,
+    });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     logger.error("[Refresh Checkout] Error", { error: msg });

@@ -5,6 +5,7 @@ import { PillarSection } from "./components/PillarSection";
 import { ScoreGauge } from "./components/ScoreGauge";
 import { ContextCoverageMeter } from "./components/ContextCoverageMeter";
 import { ImplementationNextSteps } from "./sections/ImplementationNextSteps";
+import { DisclaimerPage } from "./components/DisclaimerPage";
 
 type Props = {
   brandName: string;
@@ -65,6 +66,8 @@ export function SnapshotPlusDocument({
 
         <ImplementationNextSteps />
       </Page>
+
+      <DisclaimerPage tier="snapshot_plus" />
     </Document>
   );
 }

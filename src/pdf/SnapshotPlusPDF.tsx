@@ -4,6 +4,7 @@
 import { Document, Page, Text, View } from "@react-pdf/renderer";
 import { SnapshotPDFSection } from "./snapshotPlusSections";
 import { registerPdfFonts } from "./registerFonts";
+import { DisclaimerPage } from "./components/DisclaimerPage";
 
 // Register fonts
 registerPdfFonts();
@@ -42,6 +43,8 @@ export function SnapshotPlusPDF({
           </View>
         ))}
       </Page>
+
+      <DisclaimerPage tier="snapshot_plus" />
     </Document>
   );
 }

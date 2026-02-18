@@ -8,6 +8,7 @@ import {
   Circle,
   Rect,
 } from "@react-pdf/renderer";
+import { DisclaimerPage } from "./components/DisclaimerPage";
 
 /* -----------------------------
    SVG Gauge (PDF-safe)
@@ -227,6 +228,8 @@ export function SnapshotPlusReport({
           </Text>
         </View>
       </Page>
+
+      <DisclaimerPage tier="snapshot_plus" />
     </Document>
   );
 }

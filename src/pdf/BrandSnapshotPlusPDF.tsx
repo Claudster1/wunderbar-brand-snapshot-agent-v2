@@ -13,6 +13,7 @@ import {
 import { PdfHeader } from "./components/PdfHeader";
 import { PdfFooter } from "./components/PdfFooter";
 import { PageTitle } from "./components/PageTitle";
+import { DisclaimerPage } from "./components/DisclaimerPage";
 import { Section } from "./components/Section";
 import { PillarScoreRow } from "./components/PillarScoreRow";
 import { InsightBlock } from "./components/InsightBlock";
@@ -607,6 +608,7 @@ export const BrandSnapshotPlusPDF = ({
         </Page>
       )}
 
+      <DisclaimerPage tier="snapshot_plus" />
     </Document>
   );
 };

@@ -19,6 +19,7 @@ import { InsightBlock } from "./components/InsightBlock";
 import { RecommendationBlock } from "./components/RecommendationBlock";
 import { pdfTheme } from "./theme";
 import { registerPdfFonts } from "./registerFonts";
+import { DisclaimerPage } from "./components/DisclaimerPage";
 
 // Register fonts
 registerPdfFonts();
@@ -248,6 +249,8 @@ export const BrandSnapshotPDF = ({
 
         <PdfFooter businessName={businessName} productName="WunderBrand Snapshot™" />
       </Page>
+
+      <DisclaimerPage tier="snapshot" />
     </Document>
   );
 };

@@ -19,6 +19,7 @@ import { RecommendationBlock } from "./components/RecommendationBlock";
 import { ColorSwatch } from "./components/ColorSwatch";
 import { pdfTheme } from "./theme";
 import { registerPdfFonts } from "./registerFonts";
+import { DisclaimerPage } from "./components/DisclaimerPage";
 
 // Register fonts
 registerPdfFonts();
@@ -503,6 +504,7 @@ export const BrandBlueprintPDF = ({
         <PdfFooter businessName={businessName} productName="WunderBrand Blueprint™" />
       </Page>
 
+      <DisclaimerPage tier="blueprint" />
     </Document>
   );
 };

@@ -6,6 +6,7 @@ import React from "react";
 import { Document, Page, Text, View } from "@react-pdf/renderer";
 import { stylePresets, colors, fonts, spacing, getMeterFill, getScoreLabel, getPillarScoreLabel } from "../theme";
 import { registerPdfFonts } from "../registerFonts";
+import { DisclaimerPage } from "../components/DisclaimerPage";
 
 // Register fonts
 registerPdfFonts();
@@ -422,6 +423,8 @@ export const SnapshotPlusPDF = ({
           © 2025 Wunderbar Digital. WunderBrand Snapshot+™ is a trademark of Wunderbar Digital.
         </Text>
       </Page>
+
+      <DisclaimerPage tier="snapshot_plus" />
     </Document>
   );
 };

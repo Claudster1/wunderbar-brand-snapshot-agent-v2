@@ -60,5 +60,5 @@ ALTER TABLE session_followups ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Service role full access to session_followups"
   ON session_followups
   FOR ALL
-  USING (auth.role() = 'service_role')
-  WITH CHECK (auth.role() = 'service_role');
+  USING ((select auth.role()) = 'service_role')
+  WITH CHECK ((select auth.role()) = 'service_role');

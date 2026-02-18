@@ -71,5 +71,5 @@ ALTER TABLE brand_workbook ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Service role full access to brand_workbook"
   ON brand_workbook
   FOR ALL
-  USING (auth.role() = 'service_role')
-  WITH CHECK (auth.role() = 'service_role');
+  USING ((select auth.role()) = 'service_role')
+  WITH CHECK ((select auth.role()) = 'service_role');

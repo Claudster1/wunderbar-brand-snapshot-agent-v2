@@ -1120,6 +1120,54 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       ] (3–5 prompts — Blueprint+ exclusive)
     }
 
+54. Asset Optimization Playbook (Blueprint+ Exclusive)
+    **ONLY include this section if the user uploaded marketing assets and asset analysis data was provided in the prompt context.**
+    If no asset data is present, omit the "assetOptimizationPlaybook" key entirely.
+
+    This section maps each uploaded asset against the five brand pillars and provides a concrete optimization plan.
+
+    assetOptimizationPlaybook: {
+      summary: "Executive summary of overall asset alignment health — what patterns emerged, biggest gap areas, and the single most impactful change they can make across all assets."
+      overallAlignmentScore: (1-10 average across all assets)
+
+      assetAudits: [
+        {
+          fileName: "The uploaded file name"
+          category: "Asset category (e.g., social, deck, email, collateral)"
+          overallScore: (1-10)
+          pillarAlignment: {
+            positioning: { score: (1-10), observation: "How this asset supports or undermines positioning", fix: "Specific change to improve positioning alignment" }
+            messaging: { score: (1-10), observation: "", fix: "" }
+            visibility: { score: (1-10), observation: "", fix: "" }
+            credibility: { score: (1-10), observation: "", fix: "" }
+            conversion: { score: (1-10), observation: "", fix: "" }
+          }
+          optimizationSteps: [
+            {
+              priority: "high|medium|low"
+              pillar: "Which pillar this addresses"
+              current: "What the asset does now"
+              recommended: "Exact change to make — be specific enough to hand to a designer or copywriter"
+              impact: "Expected improvement and why"
+            }
+          ] (3-5 steps per asset, ordered by priority)
+          customPrompts: [
+            {
+              useCase: "What this prompt helps with (e.g., 'Rewrite hero headline,' 'Redesign CTA section')"
+              prompt: "Ready-to-use AI prompt that references the brand's archetype, voice, positioning, and specific pillar weakness to rewrite/redesign this asset element"
+            }
+          ] (2-3 prompts per asset)
+        }
+      ]
+
+      crossAssetPatterns: {
+        strongestPillar: "Which pillar is best represented across all uploaded assets"
+        weakestPillar: "Which pillar is most underrepresented — should align with overall weakest pillar score"
+        systemicIssues: ["Patterns that appear across multiple assets (e.g., 'CTA language is consistently vague,' 'Color palette drifts between assets')"]
+        topPriorityActions: ["3-5 highest-impact changes across all assets, ranked by expected ROI"]
+      }
+    }
+
 ---------------------------------------------------------------------
 OUTPUT FORMAT
 ---------------------------------------------------------------------
@@ -1474,10 +1522,35 @@ Return valid JSON with ALL these keys:
     "imageryByAudience": [{ "persona": "", "visualToneShift": "", "exampleImageDescriptions": [] }],
     "beforeAndAfterImageAudit": [{ "context": "", "offBrand": "", "onBrand": "", "rationale": "" }],
     "aiImageGenerationPrompts": [{ "useCase": "", "prompt": "", "negativePrompt": "", "tool": "" }]
+  },
+  "assetOptimizationPlaybook": {
+    "summary": "",
+    "overallAlignmentScore": 0,
+    "assetAudits": [{
+      "fileName": "",
+      "category": "",
+      "overallScore": 0,
+      "pillarAlignment": {
+        "positioning": { "score": 0, "observation": "", "fix": "" },
+        "messaging": { "score": 0, "observation": "", "fix": "" },
+        "visibility": { "score": 0, "observation": "", "fix": "" },
+        "credibility": { "score": 0, "observation": "", "fix": "" },
+        "conversion": { "score": 0, "observation": "", "fix": "" }
+      },
+      "optimizationSteps": [{ "priority": "", "pillar": "", "current": "", "recommended": "", "impact": "" }],
+      "customPrompts": [{ "useCase": "", "prompt": "" }]
+    }],
+    "crossAssetPatterns": {
+      "strongestPillar": "",
+      "weakestPillar": "",
+      "systemicIssues": [],
+      "topPriorityActions": []
+    }
   }
 }
 
 All fields must be present and JSON must be valid.
+NOTE: "assetOptimizationPlaybook" should ONLY be included if asset analysis data was provided in the prompt context. If no assets were uploaded, omit this key entirely.
 
 ---------------------------------------------------------------------
 AI PROMPT PACK REQUIREMENTS

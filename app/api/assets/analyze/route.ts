@@ -1,9 +1,10 @@
 // POST /api/assets/analyze
 // Analyzes uploaded marketing assets using AI vision/text extraction.
-// Called after report generation to enrich the report with asset insights.
+// Includes pillar-aligned optimization recommendations.
 //
-// Blueprint:  Visual consistency check (colors, tone, general alignment)
-// Blueprint+: Full per-asset audit (messaging, voice, visual identity, channel fit)
+// Blueprint:  Quick wins tied to weakest pillar + visual consistency check
+// Blueprint+: Full per-asset audit with pillar alignment matrix,
+//             rewrite/redesign recommendations, and custom AI prompts
 
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase";
@@ -23,56 +24,160 @@ interface AssetRow {
   tier: string;
 }
 
-function buildAnalysisPrompt(tier: string, fileName: string, category: string): string {
-  const base = `You are a brand consistency auditor. Analyze this marketing asset ("${fileName}", category: ${category}) and provide a structured assessment.`;
+interface BrandContext {
+  pillarScores?: Record<string, number>;
+  primaryPillar?: string;
+  weakestPillar?: string;
+  brandArchetype?: string;
+  positioningStatement?: string;
+  brandVoice?: string;
+  businessName?: string;
+}
+
+function getWeakestPillar(scores: Record<string, number>): string {
+  let weakest = "";
+  let lowest = Infinity;
+  for (const [pillar, score] of Object.entries(scores)) {
+    if (score < lowest) {
+      lowest = score;
+      weakest = pillar;
+    }
+  }
+  return weakest;
+}
+
+function buildPillarContext(ctx: BrandContext): string {
+  const parts: string[] = [];
+  if (ctx.businessName) parts.push(`Business: ${ctx.businessName}`);
+  if (ctx.pillarScores) {
+    const formatted = Object.entries(ctx.pillarScores)
+      .map(([k, v]) => `${k}: ${v}/20`)
+      .join(", ");
+    parts.push(`Pillar scores: ${formatted}`);
+  }
+  if (ctx.weakestPillar) parts.push(`Weakest pillar: ${ctx.weakestPillar}`);
+  if (ctx.primaryPillar) parts.push(`Primary pillar: ${ctx.primaryPillar}`);
+  if (ctx.brandArchetype) parts.push(`Brand archetype: ${ctx.brandArchetype}`);
+  if (ctx.positioningStatement) parts.push(`Positioning: ${ctx.positioningStatement}`);
+  if (ctx.brandVoice) parts.push(`Brand voice: ${ctx.brandVoice}`);
+  return parts.length > 0 ? `\n\nBrand context:\n${parts.join("\n")}` : "";
+}
+
+function buildAnalysisPrompt(
+  tier: string,
+  fileName: string,
+  category: string,
+  brandCtx: BrandContext
+): string {
+  const pillarCtx = buildPillarContext(brandCtx);
+  const weakest = brandCtx.weakestPillar || "unknown";
 
   if (tier === "blueprint-plus") {
-    return `${base}
+    return `You are a brand strategist auditing marketing assets against a brand's five pillars: Positioning, Messaging, Visibility, Credibility, and Conversion.
 
-Return a JSON object with these fields:
+Analyze this asset ("${fileName}", category: ${category}).${pillarCtx}
+
+Return a JSON object:
 {
-  "overallScore": (1-10, brand consistency rating),
+  "overallScore": (1-10),
   "visualAssessment": {
-    "colorConsistency": "assessment of color usage",
-    "typographyConsistency": "assessment of font usage and hierarchy",
-    "layoutProfessionalism": "assessment of layout quality",
-    "imageQuality": "assessment of image/graphic quality"
+    "colorConsistency": "assessment",
+    "typographyConsistency": "assessment",
+    "layoutProfessionalism": "assessment",
+    "imageQuality": "assessment"
   },
   "messagingAssessment": {
-    "voiceConsistency": "does the copy align with professional brand voice?",
-    "valueProposition": "is the value proposition clear?",
-    "callToAction": "is the CTA effective and clear?"
+    "voiceConsistency": "does copy align with the brand voice and archetype?",
+    "valueProposition": "is the value proposition clear and differentiated?",
+    "callToAction": "is the CTA effective?"
+  },
+  "pillarAlignment": {
+    "positioning": { "score": (1-10), "observation": "how this asset supports or undermines positioning", "fix": "specific change to improve" },
+    "messaging": { "score": (1-10), "observation": "", "fix": "" },
+    "visibility": { "score": (1-10), "observation": "", "fix": "" },
+    "credibility": { "score": (1-10), "observation": "", "fix": "" },
+    "conversion": { "score": (1-10), "observation": "", "fix": "" }
   },
   "channelFit": "how well does this asset fit its intended channel?",
-  "strengths": ["what works well"],
-  "improvements": ["specific actionable recommendations"],
-  "beforeAfterSuggestion": {
-    "current": "what it does now",
-    "recommended": "what it should do instead"
-  }
+  "strengths": ["what works well — tied to specific pillars"],
+  "optimizationPlaybook": [
+    {
+      "priority": "high|medium|low",
+      "pillar": "which pillar this addresses",
+      "current": "what the asset does now",
+      "recommended": "exact change to make",
+      "impact": "expected improvement"
+    }
+  ],
+  "customPrompts": [
+    {
+      "useCase": "what this prompt helps with",
+      "prompt": "ready-to-use AI prompt referencing the brand's archetype, voice, and positioning to rewrite/redesign this specific asset"
+    }
+  ]
 }`;
   }
 
-  return `${base}
+  return `You are a brand consistency auditor. Analyze this marketing asset ("${fileName}", category: ${category}).${pillarCtx}
 
-Return a JSON object with these fields:
+The brand's weakest pillar is "${weakest}". Focus your quick-win recommendations on how this asset can better support that pillar.
+
+Return a JSON object:
 {
-  "overallScore": (1-10, brand consistency rating),
-  "visualConsistency": "brief assessment of visual alignment (colors, style, professionalism)",
+  "overallScore": (1-10),
+  "visualConsistency": "brief assessment of visual alignment",
   "strengths": ["1-2 things working well"],
-  "improvements": ["1-2 key recommendations"]
+  "quickWins": [
+    {
+      "pillar": "which pillar this addresses (focus on ${weakest})",
+      "issue": "what's misaligned",
+      "fix": "specific actionable change",
+      "impact": "how this improves the pillar score"
+    }
+  ],
+  "weakestPillarNote": "1-2 sentences on how this specific asset could better support the ${weakest} pillar"
 }`;
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, tier } = await req.json();
+    const { email, tier, brandContext } = await req.json();
 
     if (!email || !tier) {
       return NextResponse.json({ error: "Missing email or tier" }, { status: 400 });
     }
 
     const sb = supabaseServer();
+
+    // Build brand context from request or fetch from latest report
+    let ctx: BrandContext = brandContext || {};
+    if (!ctx.pillarScores) {
+      try {
+        const table = tier === "blueprint-plus" ? "blueprint_reports" : "blueprint_reports";
+        const { data: report } = await sb
+          .from(table)
+          .select("pillar_scores, company_name")
+          .eq("user_email", email.toLowerCase())
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .single();
+
+        if (report) {
+          const scores = report.pillar_scores as Record<string, number> | null;
+          if (scores) {
+            ctx.pillarScores = scores;
+            ctx.weakestPillar = getWeakestPillar(scores);
+          }
+          if (report.company_name) ctx.businessName = report.company_name;
+        }
+      } catch {
+        // Continue without pillar context
+      }
+    }
+
+    if (ctx.pillarScores && !ctx.weakestPillar) {
+      ctx.weakestPillar = getWeakestPillar(ctx.pillarScores);
+    }
 
     const { data: assets, error: fetchErr } = await sb
       .from("brand_asset_uploads")
@@ -93,9 +198,9 @@ export async function POST(req: NextRequest) {
     for (const asset of assets as AssetRow[]) {
       try {
         let analysis: unknown = null;
+        const prompt = buildAnalysisPrompt(tier, asset.file_name, asset.asset_category, ctx);
 
         if (asset.file_type.startsWith("image/")) {
-          // Download the image and send to GPT-4o vision
           const { data: fileData } = await sb.storage
             .from("brand-assets")
             .download(asset.storage_path);
@@ -108,20 +213,14 @@ export async function POST(req: NextRequest) {
 
           const completion = await openai.chat.completions.create({
             model: "gpt-4o",
-            max_tokens: 1000,
+            max_tokens: 1500,
             response_format: { type: "json_object" },
             messages: [
               {
                 role: "user",
                 content: [
-                  {
-                    type: "text",
-                    text: buildAnalysisPrompt(tier, asset.file_name, asset.asset_category),
-                  },
-                  {
-                    type: "image_url",
-                    image_url: { url: dataUri, detail: "low" },
-                  },
+                  { type: "text", text: prompt },
+                  { type: "image_url", image_url: { url: dataUri, detail: "low" } },
                 ],
               },
             ],
@@ -132,17 +231,14 @@ export async function POST(req: NextRequest) {
             try { analysis = JSON.parse(raw); } catch { analysis = { raw }; }
           }
         } else {
-          // For PDFs/docs: text-based analysis (describe the file metadata)
           const completion = await openai.chat.completions.create({
             model: "gpt-4o-mini",
-            max_tokens: 600,
+            max_tokens: 1000,
             response_format: { type: "json_object" },
             messages: [
               {
                 role: "user",
-                content: `${buildAnalysisPrompt(tier, asset.file_name, asset.asset_category)}
-
-Note: This is a non-image file (${asset.file_type}, ${(asset.file_size / 1024).toFixed(0)} KB). Analyze based on the file name, type, and category. Provide general brand consistency recommendations for this type of marketing asset.`,
+                content: `${prompt}\n\nNote: This is a non-image file (${asset.file_type}, ${(asset.file_size / 1024).toFixed(0)} KB). Analyze based on the file name, type, and category. Provide pillar-aligned recommendations for this type of marketing asset.`,
               },
             ],
           });

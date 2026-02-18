@@ -657,10 +657,33 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
       colorApplicationInImagery: "How [businessName]'s brand color palette shows up in photography, graphics, social media imagery, and presentation backgrounds. Not just what the colors are (that's in Visual Direction), but HOW they're applied visually — overlays, backgrounds, accent elements, tinted photography, graphic elements. Include specific guidance for the primary and secondary palette colors."
     }
 
+42. Asset Alignment Notes (within Visual Direction / Brand Imagery section)
+    **ONLY include if the user uploaded marketing assets and asset analysis data was provided in the prompt context.**
+    If no asset data is present, omit the "assetAlignmentNotes" key entirely.
+
+    This provides quick-win recommendations showing how the user's actual uploaded assets can be improved to better align with their brand pillars — particularly their weakest pillar.
+
+    assetAlignmentNotes: {
+      summary: "1-2 sentence overview of how the uploaded assets align (or don't) with the brand strategy defined in this report."
+
+      quickWins: [
+        {
+          asset: "The uploaded file name"
+          pillar: "Which pillar this addresses (prioritize the weakest pillar)"
+          issue: "What's misaligned between this asset and the brand strategy"
+          fix: "Specific, actionable change — concrete enough to hand to a designer or copywriter"
+          impact: "How making this change improves alignment with the pillar"
+        }
+      ] (1-2 quick wins per uploaded asset, focus on the weakest pillar first)
+
+      weakestPillarGap: "A tangible, specific explanation of how the uploaded assets collectively reveal the gap in the brand's weakest pillar. This should be something the user can point to and say 'I see it now.' Reference specific assets by name."
+    }
+
 ---------------------------------------------------------------------
 OUTPUT FORMAT
 ---------------------------------------------------------------------
 Return valid JSON matching the blueprintReportPrompt output structure. All keys listed above must be present. JSON must be valid.
+NOTE: "assetAlignmentNotes" should ONLY be included within the brandImageryDirection/visualDirection section if asset analysis data was provided. If no assets were uploaded, omit this key entirely.
 
 ---------------------------------------------------------------------
 CONTENT QUALITY

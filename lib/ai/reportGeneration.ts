@@ -204,7 +204,12 @@ async function generateSingleCall(
       const email = (input as Record<string, unknown>).userEmail as string
         || (input as Record<string, unknown>).email as string;
       if (email) {
-        const assetSummary = await getAssetAnalyses(email, tierKey);
+        const brandCtx = {
+          pillarScores: input.pillarScores,
+          businessName: input.businessName,
+          brandVoice: input.brandVoiceDescription,
+        };
+        const assetSummary = await getAssetAnalyses(email, tierKey, brandCtx);
         if (assetSummary && assetSummary.analyzedAssets > 0) {
           userMessage += `\n\n${formatAssetContext(assetSummary, tierKey)}`;
           logger.info("[ReportGen] Appended asset analysis context", {
@@ -304,7 +309,7 @@ const BLUEPRINT_PLUS_SECTION_GROUPS = [
   },
   {
     name: "execution",
-    description: "Execution & Implementation (Sections 38-53: Taglines, Brand Story, Customer Journey Map, SEO Strategy, AEO Strategy, Email Marketing Framework, Social Media Strategy, Content Calendar, SWOT Analysis, Brand Glossary, Company Description, Value & Pricing Framework, Sales Conversation Guide, Brand Strategy Rollout Guide, Brand Imagery & Photography Direction)",
+    description: "Execution & Implementation (Sections 38-54: Taglines, Brand Story, Customer Journey Map, SEO Strategy, AEO Strategy, Email Marketing Framework, Social Media Strategy, Content Calendar, SWOT Analysis, Brand Glossary, Company Description, Value & Pricing Framework, Sales Conversation Guide, Brand Strategy Rollout Guide, Brand Imagery & Photography Direction, Asset Optimization Playbook — only if asset data was provided)",
     outputKeys: [
       "taglineRecommendations", "brandStory", "customerJourneyMap",
       "seoStrategy", "aeoStrategy", "emailMarketingFramework",
@@ -312,6 +317,7 @@ const BLUEPRINT_PLUS_SECTION_GROUPS = [
       "swotAnalysis", "brandGlossary", "companyDescription",
       "valuePricingFramework", "salesConversationGuide",
       "brandStrategyRollout", "brandImageryDirection",
+      "assetOptimizationPlaybook",
     ],
   },
 ];
@@ -332,13 +338,18 @@ async function generateBlueprintPlusMultiCall(
     benchmarkSection = `\n\n--- BENCHMARK DATA ---\n${input.benchmarkContext}`;
   }
 
-  // Append uploaded asset analysis context
+  // Append uploaded asset analysis context with brand context for pillar-aligned recs
   let assetSection = "";
   try {
     const email = (input as Record<string, unknown>).userEmail as string
       || (input as Record<string, unknown>).email as string;
     if (email) {
-      const assetSummary = await getAssetAnalyses(email, "blueprint-plus");
+      const brandCtx = {
+        pillarScores: input.pillarScores,
+        businessName: input.businessName,
+        brandVoice: input.brandVoiceDescription,
+      };
+      const assetSummary = await getAssetAnalyses(email, "blueprint-plus", brandCtx);
       if (assetSummary && assetSummary.analyzedAssets > 0) {
         assetSection = `\n\n${formatAssetContext(assetSummary, "blueprint-plus")}`;
         logger.info("[ReportGen] Blueprint+ multi-call: appended asset context", {

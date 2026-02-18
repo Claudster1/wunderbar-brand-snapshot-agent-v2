@@ -22,13 +22,25 @@ export interface AssetAnalysisSummary {
   }>;
 }
 
+export interface BrandContextForAssets {
+  pillarScores?: Record<string, number>;
+  primaryPillar?: string;
+  weakestPillar?: string;
+  brandArchetype?: string;
+  positioningStatement?: string;
+  brandVoice?: string;
+  businessName?: string;
+}
+
 /**
  * Fetch all asset analyses for a user/tier. If any assets haven't been
- * analyzed yet, trigger analysis via the internal API first, then re-fetch.
+ * analyzed yet, trigger analysis via the internal API first (with brand
+ * context for pillar-aligned recommendations), then re-fetch.
  */
 export async function getAssetAnalyses(
   email: string,
-  tier: string
+  tier: string,
+  brandContext?: BrandContextForAssets
 ): Promise<AssetAnalysisSummary | null> {
   const sb = supabaseServer();
 
@@ -50,10 +62,9 @@ export async function getAssetAnalyses(
       await fetch(`${baseUrl}/api/assets/analyze`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, tier }),
+        body: JSON.stringify({ email, tier, brandContext }),
       });
 
-      // Re-fetch after analysis
       const { data: refreshed } = await sb
         .from("brand_asset_uploads")
         .select("id, file_name, file_type, asset_category, analysis")
@@ -82,8 +93,13 @@ export async function getAssetAnalyses(
 }
 
 /**
- * Format asset analyses as a context string for inclusion in report prompts.
- * Blueprint gets a summary; Blueprint+ gets full per-asset detail.
+ * Format asset analyses as context for report prompts.
+ *
+ * Blueprint:  "Asset Alignment Notes" — quick wins tied to weakest pillar,
+ *             included within the Visual Direction section.
+ * Blueprint+: "Asset Optimization Playbook" — full per-asset pillar alignment
+ *             matrix, before/after recommendations, and custom AI prompts as
+ *             a dedicated report section.
  */
 export function formatAssetContext(
   summary: AssetAnalysisSummary,
@@ -98,7 +114,34 @@ export function formatAssetContext(
 
   if (tier === "blueprint-plus" || tier === "blueprint_plus") {
     lines.push(
-      "The user uploaded current marketing assets for analysis. Use these insights to provide a dedicated 'Current Asset Audit' section in the report with per-asset before/after recommendations.",
+      `The user uploaded ${summary.analyzedAssets} current marketing asset(s) for analysis. Each asset has been evaluated against the five brand pillars (Positioning, Messaging, Visibility, Credibility, Conversion).`,
+      "",
+      "INSTRUCTION: Generate a dedicated \"assetOptimizationPlaybook\" section in the report JSON with this structure:",
+      '  "assetOptimizationPlaybook": {',
+      '    "summary": "1-2 paragraph executive summary of overall asset alignment health",',
+      '    "overallAlignmentScore": (1-10 average across all assets),',
+      '    "assetAudits": [',
+      '      {',
+      '        "fileName": "",',
+      '        "category": "",',
+      '        "overallScore": (1-10),',
+      '        "pillarAlignment": {',
+      '          "positioning": { "score": 1-10, "observation": "", "fix": "" },',
+      '          "messaging": { ... }, "visibility": { ... }, "credibility": { ... }, "conversion": { ... }',
+      '        },',
+      '        "optimizationSteps": [{ "priority": "high|medium|low", "pillar": "", "current": "", "recommended": "", "impact": "" }],',
+      '        "customPrompts": [{ "useCase": "", "prompt": "ready-to-use AI prompt referencing the brand archetype, voice, and positioning to rewrite/redesign this asset" }]',
+      '      }',
+      '    ],',
+      '    "crossAssetPatterns": {',
+      '      "strongestPillar": "which pillar is best represented across assets",',
+      '      "weakestPillar": "which pillar is most underrepresented — this should align with the overall weakest pillar score",',
+      '      "systemicIssues": ["patterns that appear across multiple assets"],',
+      '      "topPriorityActions": ["3-5 highest-impact changes across all assets, ranked"]',
+      '    }',
+      '  }',
+      "",
+      "Here is the per-asset analysis data:",
       ""
     );
 
@@ -109,7 +152,18 @@ export function formatAssetContext(
     }
   } else {
     lines.push(
-      "The user uploaded current marketing assets. Incorporate these visual consistency findings into the Visual Direction section.",
+      `The user uploaded ${summary.analyzedAssets} current marketing asset(s). Each has been analyzed for brand consistency with quick-win recommendations tied to their weakest pillar.`,
+      "",
+      'INSTRUCTION: Include an "assetAlignmentNotes" field within the "visualDirection" section of the report JSON:',
+      '  "assetAlignmentNotes": {',
+      '    "summary": "1-2 sentences on overall asset alignment health",',
+      '    "quickWins": [',
+      '      { "asset": "file name", "pillar": "which pillar", "issue": "what is misaligned", "fix": "specific actionable change", "impact": "expected improvement" }',
+      '    ],',
+      '    "weakestPillarGap": "How the uploaded assets reveal the gap in their weakest pillar — make this tangible and specific"',
+      '  }',
+      "",
+      "Here is the per-asset analysis data:",
       ""
     );
 
@@ -119,7 +173,13 @@ export function formatAssetContext(
       if (a.overallScore) lines.push(`  Score: ${a.overallScore}/10`);
       if (a.visualConsistency) lines.push(`  Visual: ${a.visualConsistency}`);
       if (a.strengths) lines.push(`  Strengths: ${(a.strengths as string[]).join("; ")}`);
-      if (a.improvements) lines.push(`  Improvements: ${(a.improvements as string[]).join("; ")}`);
+      if (a.quickWins) {
+        const wins = a.quickWins as Array<Record<string, string>>;
+        for (const w of wins) {
+          lines.push(`  Quick Win (${w.pillar}): ${w.issue} → ${w.fix}`);
+        }
+      }
+      if (a.weakestPillarNote) lines.push(`  Weakest Pillar Note: ${a.weakestPillarNote}`);
       lines.push("");
     }
   }

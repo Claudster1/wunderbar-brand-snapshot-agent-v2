@@ -52,6 +52,52 @@ interface ImageryByAudience {
   example_image_descriptions?: string[];
 }
 
+interface PillarScore {
+  score: number;
+  observation: string;
+  fix: string;
+}
+
+interface OptimizationStep {
+  priority: string;
+  pillar: string;
+  current: string;
+  recommended: string;
+  impact: string;
+}
+
+interface CustomPrompt {
+  useCase: string;
+  prompt: string;
+}
+
+interface AssetAudit {
+  fileName: string;
+  category: string;
+  overallScore: number;
+  pillarAlignment: {
+    positioning?: PillarScore;
+    messaging?: PillarScore;
+    visibility?: PillarScore;
+    credibility?: PillarScore;
+    conversion?: PillarScore;
+  };
+  optimizationSteps?: OptimizationStep[];
+  customPrompts?: CustomPrompt[];
+}
+
+interface AssetOptimizationPlaybook {
+  summary?: string;
+  overallAlignmentScore?: number;
+  assetAudits?: AssetAudit[];
+  crossAssetPatterns?: {
+    strongestPillar?: string;
+    weakestPillar?: string;
+    systemicIssues?: string[];
+    topPriorityActions?: string[];
+  };
+}
+
 interface WorkbookData {
   business_name?: string;
   positioning_statement?: string;
@@ -98,6 +144,7 @@ interface WorkbookData {
     mood_board_descriptors?: MoodBoardDescriptors;
     imagery_by_audience?: ImageryByAudience[];
   };
+  asset_optimization_playbook?: AssetOptimizationPlaybook;
 }
 
 // ─── Styles ───
@@ -990,6 +1037,162 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
               <PageFooter businessName={businessName} />
             </Page>
           )}
+        </>
+      )}
+
+      {/* Asset Optimization Playbook — only rendered if user uploaded assets */}
+      {data.asset_optimization_playbook &&
+        data.asset_optimization_playbook.assetAudits &&
+        data.asset_optimization_playbook.assetAudits.length > 0 && (
+        <>
+          {/* Page 1: Executive Summary + Cross-Asset Patterns */}
+          <Page size="A4" style={s.page}>
+            <Text style={s.sectionTitle}>Asset Optimization Playbook</Text>
+
+            {data.asset_optimization_playbook.summary && (
+              <View style={s.card}>
+                <Text style={s.body}>{data.asset_optimization_playbook.summary}</Text>
+              </View>
+            )}
+
+            {data.asset_optimization_playbook.overallAlignmentScore != null && (
+              <View style={{ ...s.card, alignItems: "center" as const, paddingVertical: 12 }}>
+                <Text style={{ fontSize: 28, fontWeight: 700, color: colors.navy }}>
+                  {data.asset_optimization_playbook.overallAlignmentScore}/10
+                </Text>
+                <Text style={{ fontSize: 10, color: colors.textMuted, marginTop: 4 }}>
+                  Overall Asset-to-Brand Alignment Score
+                </Text>
+              </View>
+            )}
+
+            {data.asset_optimization_playbook.crossAssetPatterns && (() => {
+              const patterns = data.asset_optimization_playbook.crossAssetPatterns!;
+              return (
+                <>
+                  <Text style={{ ...s.subsectionTitle, marginTop: 14 }}>Cross-Asset Patterns</Text>
+
+                  {(patterns.strongestPillar || patterns.weakestPillar) && (
+                    <View style={s.twoCol}>
+                      {patterns.strongestPillar && (
+                        <View style={s.col}>
+                          <Text style={s.cardTitle}>Strongest Pillar</Text>
+                          <Text style={s.body}>{patterns.strongestPillar}</Text>
+                        </View>
+                      )}
+                      {patterns.weakestPillar && (
+                        <View style={s.col}>
+                          <Text style={s.cardTitle}>Weakest Pillar</Text>
+                          <Text style={s.body}>{patterns.weakestPillar}</Text>
+                        </View>
+                      )}
+                    </View>
+                  )}
+
+                  {patterns.systemicIssues && patterns.systemicIssues.length > 0 && (
+                    <View style={{ marginTop: 8 }}>
+                      <Text style={s.cardTitle}>Systemic Issues</Text>
+                      {patterns.systemicIssues.map((issue, i) => (
+                        <Text key={i} style={s.bullet}>• {issue}</Text>
+                      ))}
+                    </View>
+                  )}
+
+                  {patterns.topPriorityActions && patterns.topPriorityActions.length > 0 && (
+                    <View style={{ marginTop: 10 }}>
+                      <Text style={s.cardTitle}>Top Priority Actions</Text>
+                      {patterns.topPriorityActions.map((action, i) => (
+                        <Text key={i} style={s.bullet}>{i + 1}. {action}</Text>
+                      ))}
+                    </View>
+                  )}
+                </>
+              );
+            })()}
+
+            <PageFooter businessName={businessName} />
+          </Page>
+
+          {/* Per-Asset Audit Pages */}
+          {data.asset_optimization_playbook.assetAudits.map((audit, auditIdx) => (
+            <Page key={auditIdx} size="A4" style={s.page}>
+              <Text style={s.sectionTitle}>
+                Asset Audit: {audit.fileName}
+              </Text>
+              <Text style={{ fontSize: 9, color: colors.textMuted, marginBottom: 12 }}>
+                Category: {audit.category} — Score: {audit.overallScore}/10
+              </Text>
+
+              {/* Pillar Alignment Grid */}
+              <Text style={s.subsectionTitle}>Pillar Alignment</Text>
+              {Object.entries(audit.pillarAlignment).map(([pillar, data]) => {
+                if (!data) return null;
+                const p = data as PillarScore;
+                return (
+                  <View key={pillar} style={{ ...s.card, marginBottom: 6, paddingVertical: 6 }}>
+                    <View style={{ flexDirection: "row" as const, justifyContent: "space-between" as const, marginBottom: 3 }}>
+                      <Text style={{ ...s.cardTitle, textTransform: "capitalize" as const }}>{pillar}</Text>
+                      <Text style={{ fontSize: 11, fontWeight: 700, color: p.score >= 7 ? "#1a7f37" : p.score >= 4 ? "#b35900" : "#cf222e" }}>
+                        {p.score}/10
+                      </Text>
+                    </View>
+                    <Text style={{ ...s.body, fontSize: 9, marginBottom: 2 }}>{p.observation}</Text>
+                    <Text style={{ fontSize: 9, color: colors.navy, fontWeight: 600 }}>Fix: {p.fix}</Text>
+                  </View>
+                );
+              })}
+
+              {/* Optimization Steps */}
+              {audit.optimizationSteps && audit.optimizationSteps.length > 0 && (
+                <>
+                  <Text style={{ ...s.subsectionTitle, marginTop: 12 }}>Optimization Steps</Text>
+                  {audit.optimizationSteps.map((step, i) => (
+                    <View key={i} style={{ ...s.card, marginBottom: 6, paddingVertical: 6 }}>
+                      <View style={{ flexDirection: "row" as const, marginBottom: 3 }}>
+                        <Text style={{
+                          fontSize: 8,
+                          fontWeight: 700,
+                          color: "#fff",
+                          backgroundColor: step.priority === "high" ? "#cf222e" : step.priority === "medium" ? "#b35900" : "#1a7f37",
+                          paddingHorizontal: 6,
+                          paddingVertical: 2,
+                          borderRadius: 3,
+                          marginRight: 6,
+                        }}>
+                          {step.priority.toUpperCase()}
+                        </Text>
+                        <Text style={{ ...s.tag, marginRight: 0 }}>{step.pillar}</Text>
+                      </View>
+                      <Text style={{ ...s.body, fontSize: 9 }}>
+                        <Text style={{ fontWeight: 600 }}>Now: </Text>{step.current}
+                      </Text>
+                      <Text style={{ ...s.body, fontSize: 9 }}>
+                        <Text style={{ fontWeight: 600 }}>Recommended: </Text>{step.recommended}
+                      </Text>
+                      <Text style={{ fontSize: 8, color: colors.textMuted, marginTop: 2 }}>
+                        Impact: {step.impact}
+                      </Text>
+                    </View>
+                  ))}
+                </>
+              )}
+
+              {/* Custom AI Prompts */}
+              {audit.customPrompts && audit.customPrompts.length > 0 && (
+                <>
+                  <Text style={{ ...s.subsectionTitle, marginTop: 12 }}>Custom AI Prompts for This Asset</Text>
+                  {audit.customPrompts.map((cp, i) => (
+                    <View key={i} style={{ ...s.card, marginBottom: 6, paddingVertical: 6 }}>
+                      <Text style={{ ...s.cardTitle, fontSize: 10 }}>{cp.useCase}</Text>
+                      <Text style={{ ...s.body, fontSize: 9, fontStyle: "italic" as const }}>{cp.prompt}</Text>
+                    </View>
+                  ))}
+                </>
+              )}
+
+              <PageFooter businessName={businessName} />
+            </Page>
+          ))}
         </>
       )}
 

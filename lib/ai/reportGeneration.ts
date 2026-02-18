@@ -20,6 +20,7 @@ import { completeWithFallback } from "@/lib/ai";
 import type { UseCase } from "@/lib/ai/config";
 import type { ChatMessage } from "@/lib/ai/types";
 import { logger } from "@/lib/logger";
+import { getAssetAnalyses, formatAssetContext } from "@/lib/assetAnalysis";
 
 // ─── Prompt imports ──────────────────────────────────────────────
 
@@ -196,6 +197,29 @@ async function generateSingleCall(
     userMessage += `\n\n--- BENCHMARK DATA ---\n${input.benchmarkContext}`;
   }
 
+  // Append uploaded asset analysis for Blueprint/Blueprint+ tiers
+  if ((tier === "blueprint" || tier === "blueprint_plus") && input.businessName) {
+    try {
+      const tierKey = tier === "blueprint_plus" ? "blueprint-plus" : "blueprint";
+      const email = (input as Record<string, unknown>).userEmail as string
+        || (input as Record<string, unknown>).email as string;
+      if (email) {
+        const assetSummary = await getAssetAnalyses(email, tierKey);
+        if (assetSummary && assetSummary.analyzedAssets > 0) {
+          userMessage += `\n\n${formatAssetContext(assetSummary, tierKey)}`;
+          logger.info("[ReportGen] Appended asset analysis context", {
+            tier,
+            assetCount: assetSummary.analyzedAssets,
+          });
+        }
+      }
+    } catch (assetErr) {
+      logger.warn("[ReportGen] Failed to fetch asset analyses", {
+        error: assetErr instanceof Error ? assetErr.message : String(assetErr),
+      });
+    }
+  }
+
   const messages: ChatMessage[] = [
     { role: "system", content: systemPrompt },
     { role: "user", content: userMessage },
@@ -308,6 +332,26 @@ async function generateBlueprintPlusMultiCall(
     benchmarkSection = `\n\n--- BENCHMARK DATA ---\n${input.benchmarkContext}`;
   }
 
+  // Append uploaded asset analysis context
+  let assetSection = "";
+  try {
+    const email = (input as Record<string, unknown>).userEmail as string
+      || (input as Record<string, unknown>).email as string;
+    if (email) {
+      const assetSummary = await getAssetAnalyses(email, "blueprint-plus");
+      if (assetSummary && assetSummary.analyzedAssets > 0) {
+        assetSection = `\n\n${formatAssetContext(assetSummary, "blueprint-plus")}`;
+        logger.info("[ReportGen] Blueprint+ multi-call: appended asset context", {
+          assetCount: assetSummary.analyzedAssets,
+        });
+      }
+    }
+  } catch (assetErr) {
+    logger.warn("[ReportGen] Blueprint+ multi-call: asset fetch failed", {
+      error: assetErr instanceof Error ? assetErr.message : String(assetErr),
+    });
+  }
+
   const mergedContent: Record<string, unknown> = {};
   let lastProvider = "";
   let lastModel = "";
@@ -338,7 +382,7 @@ Do NOT include any other sections. Return ONLY valid JSON with the keys listed a
       { role: "system", content: systemPrompt },
       {
         role: "user",
-        content: `Here is the structured brand assessment data:\n\n${inputJson}${benchmarkSection}\n\n${sectionInstruction}`,
+        content: `Here is the structured brand assessment data:\n\n${inputJson}${benchmarkSection}${assetSection}\n\n${sectionInstruction}`,
       },
     ];
 

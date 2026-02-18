@@ -9,6 +9,7 @@ import { TurnstileWidget } from "@/components/security/TurnstileWidget";
 import { BehaviorTracker } from "@/lib/security/behavioralScoring";
 import { EmailVerificationGate } from "@/components/security/EmailVerificationGate";
 import { parseTierFromParam, getChatTierConfig, interpolateWelcomeBack, type ChatTier } from "@/lib/chatTierConfig";
+import { AssetUploadPanel } from "@/components/assets/AssetUploadPanel";
 import "./globals.css";
 
 export default function Home() {
@@ -114,6 +115,19 @@ function HomeContent() {
 
   // ─── Security: Honeypot field ───
   const [honeypot, setHoneypot] = useState("");
+
+  // ─── Asset upload (Blueprint/Blueprint+ only) ───
+  const [chatEmail, setChatEmail] = useState<string | null>(null);
+  const isUploadTier = activeTier === "blueprint" || activeTier === "blueprint-plus";
+  useEffect(() => {
+    if (!isUploadTier) return;
+    const tryLoadEmail = async () => {
+      const { retrieveEmail } = await import("@/lib/persistEmail");
+      const email = retrieveEmail();
+      if (email) setChatEmail(email);
+    };
+    tryLoadEmail();
+  }, [isUploadTier, messages.length]);
 
   // ─── Security: Behavioral tracking ───
   const behaviorTrackerRef = useRef<BehaviorTracker | null>(null);
@@ -414,9 +428,14 @@ function HomeContent() {
               </a>
             </p>
 
-            
-
-            
+            {/* Asset upload panel for Blueprint/Blueprint+ tiers */}
+            {isUploadTier && conversationStarted && chatEmail && (
+              <AssetUploadPanel
+                email={chatEmail}
+                tier={activeTier as "blueprint" | "blueprint-plus"}
+                sessionId={reportId || undefined}
+              />
+            )}
 
             <div className="chat-panel">
               <div ref={chatMessagesRef} className="chat-messages" aria-live="polite">

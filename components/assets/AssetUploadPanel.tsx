@@ -197,7 +197,7 @@ export function AssetUploadPanel({
               color: "#021859",
             }}
           >
-            Upload Marketing Assets
+            Upload Brand Materials
             {assets.length > 0 && (
               <span
                 style={{
@@ -242,9 +242,9 @@ export function AssetUploadPanel({
               margin: "0 0 10px",
             }}
           >
-            Upload samples of your current marketing materials (decks,
-            collateral, emails, social graphics) and we&apos;ll include them in
-            your brand analysis.{" "}
+            Share your existing brand materials — style guides, logos,
+            pitch decks, marketing collateral, or anything that represents
+            your brand today. We&apos;ll factor them into your report.{" "}
             <strong>
               {config.label}: up to {config.maxFiles} files
             </strong>{" "}

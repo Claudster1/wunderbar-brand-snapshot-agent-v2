@@ -47,6 +47,16 @@ REVENUE RANGE + PREVIOUS BRAND WORK:
   - Calibrate implementation complexity and resource assumptions
   - Higher revenue → more sophisticated implementation, team coordination
   - Previous agency work → build on existing assets, fill specific gaps
+BRAND FOUNDATION INPUTS (missionStatement, visionStatement, coreValues, brandOriginStory):
+  - These fields contain what the user shared conversationally — they may be polished statements OR casual descriptions of purpose and direction. Both are equally valid raw material.
+  - If missionStatement is provided, USE IT as the foundation. If it's a polished statement, refine it. If it's conversational ("I just want to help people make better decisions"), craft a professional mission statement that preserves the intent.
+  - If visionStatement is provided, USE IT as the foundation. Polish and strengthen it while keeping the user's aspirational direction.
+  - If coreValues are provided, USE THEM directly. They may be single words ("transparency") or full sentences ("always putting the client first"). Preserve the user's language and add rich descriptions.
+  - If brandOriginStory is provided, weave it into the brand story section. Enhance the narrative but keep the core facts and spirit intact.
+  - If any of these are null, generate them from scratch using the other inputs (industry, whatMakesYouDifferent, primaryGoals, brandPersonalityWords, etc.).
+WRITING & GUIDELINE CONTEXT (writingPreferences, guidelineDetails):
+  - If writingPreferences is provided, incorporate these into the Brand Standards Guide writing guidelines section — the user's stated preferences take priority.
+  - If guidelineDetails is provided, it describes what the brand already has in place. Use this to fill in existing brand elements and focus generation on what's MISSING rather than recreating what exists.
 
 ---------------------------------------------------------------------
 REQUIRED OUTPUT STRUCTURE
@@ -148,9 +158,9 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
 
 16. Brand Foundation
     brandPurpose, brandPromise, positioningStatement, differentiationNarrative,
-    mission: "A concise mission statement — what [businessName] does and for whom, every day."
-    vision: "An aspirational vision statement — the future state [businessName] is working toward."
-    values: [{ name: "Value name", description: "What this value means in practice for [businessName]" }] (4–6 core values)
+    mission: Craft from missionStatement if provided (may be polished or conversational — either way, honor the intent). If null, derive from businessName, industry, audienceType, whatMakesYouDifferent, and primaryGoals.
+    vision: Craft from visionStatement if provided (same principle). If null, generate based on primaryGoals, industry, and brand archetype.
+    values: If coreValues were provided, USE THEM as value names and add rich descriptions. The user may have shared single words or full phrases — preserve their language. If null, derive 4–6 values from brandPersonalityWords, archetypeSignals, and brand positioning.
 
 17. Audience Persona Definition & Ideal Customer Profiles
     **BLUEPRINT+ ENHANCED** — Full ICP system with buyer journey mapping:
@@ -614,11 +624,13 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
 39. Brand Story & Origin Narrative
     **BLUEPRINT+ ENHANCED** — A comprehensive brand story with multiple versions for different contexts.
     
+    IMPORTANT: If brandOriginStory was provided by the user, USE IT as the foundation. Weave their actual origin into the narrative — enhance the storytelling but preserve the facts, spirit, and personal elements they shared. If null, construct the story from other inputs (industry, whatMakesYouDifferent, brandPurpose, etc.).
+    
     brandStory: {
       headline: "A compelling one-line hook"
-      narrative: "A 3–4 paragraph brand story — origin, problem, approach, vision. Ready for About page."
+      narrative: "A 3–4 paragraph brand story — origin, problem, approach, vision. Ready for About page. If the user shared their origin story, it should be recognizable here, polished into professional narrative form."
       elevatorPitch: "30-second version — 2–3 sentences"
-      founderStory: "Founder angle if inputs suggest one"
+      founderStory: "Founder angle drawn from brandOriginStory if provided, otherwise inferred from inputs"
       pressVersion: "A 1-paragraph press-ready version for media and PR"
       investorVersion: "A 1-paragraph version emphasizing market opportunity and traction"
     }
@@ -1175,6 +1187,11 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
     This section generates content specifically for the Brand Standards & Guidelines PDF.
     These fields power the exported guide used by marketing teams, contractors, agencies, and anyone creating brand content.
     
+    IMPORTANT: If guidelineDetails was provided by the user, it describes what brand guidelines they already have (e.g., "we have logo files and brand colors but nothing about voice"). Use this to:
+    - Acknowledge and build on what exists rather than generating conflicting guidance
+    - Focus generation effort on the GAPS (what they don't have yet)
+    - Reference their existing assets where appropriate (e.g., "Use your established logo files as primary; the guidelines below govern how they're applied")
+    
     brandStandardsGuide: {
       logoGuidelines: {
         overview: "A 2–3 sentence explanation of how the logo represents the brand and why consistent usage matters. NOTE: We are providing usage guidance — the brand is responsible for providing their actual logo files."
@@ -1195,11 +1212,11 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       
       writingGuidelines: {
         overview: "A 2–3 sentence philosophy for how [businessName] approaches written communication — tied to voice and archetype."
-        grammarPreferences: ["5–7 specific grammar and punctuation preferences (e.g., 'Use the Oxford comma', 'Avoid semicolons in customer-facing copy', 'Use sentence case for headlines', 'No exclamation marks in formal contexts')]"
-        jargonRules: "How [businessName] handles industry jargon — when to use it, when to avoid it, and how to explain technical terms"
-        pointOfView: "Default point of view for brand communications (e.g., 'First person plural (we) for company communications, second person (you) for customer-facing content')"
+        grammarPreferences: ["5–7 specific grammar and punctuation preferences. IMPORTANT: If writingPreferences was provided by the user (e.g., 'we use Oxford comma,' 'always first person plural'), incorporate those FIRST, then supplement with additional recommendations. The user's stated preferences always take priority."]
+        jargonRules: "How [businessName] handles industry jargon — when to use it, when to avoid it, and how to explain technical terms. If writingPreferences mentioned jargon rules, honor those."
+        pointOfView: "Default point of view for brand communications. If writingPreferences specified POV (e.g., 'we write as we'), use that. Otherwise recommend based on audienceType and brand persona."
         inclusiveLanguage: "Guidelines for inclusive, accessible language — gender-neutral terms, avoiding ableist language, cultural sensitivity relevant to [businessName]'s audience"
-        stylePreferences: ["4–6 writing style preferences (e.g., 'Lead with the benefit, not the feature', 'Keep paragraphs under 3 sentences for web', 'Use active voice', 'Write at an 8th-grade reading level for public content')]"
+        stylePreferences: ["4–6 writing style preferences. Incorporate any user-provided writingPreferences first, then supplement with strategic recommendations based on brand voice and archetype."]
       }
       
       sampleExecutions: [

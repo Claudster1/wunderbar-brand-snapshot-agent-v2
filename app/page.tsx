@@ -119,6 +119,8 @@ function HomeContent() {
   // ─── Asset upload (Blueprint/Blueprint+ only) ───
   const [chatEmail, setChatEmail] = useState<string | null>(null);
   const isUploadTier = activeTier === "blueprint" || activeTier === "blueprint-plus";
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
   useEffect(() => {
     if (!isUploadTier) return;
     const tryLoadEmail = async () => {
@@ -128,6 +130,30 @@ function HomeContent() {
     };
     tryLoadEmail();
   }, [isUploadTier, messages.length]);
+
+  const handleFileUpload = useCallback(async (file: File) => {
+    if (!chatEmail || isUploading) return;
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("email", chatEmail);
+      formData.append("tier", activeTier === "blueprint-plus" ? "blueprint-plus" : "blueprint");
+      if (reportId) formData.append("sessionId", reportId);
+      const res = await fetch("/api/assets/upload", { method: "POST", body: formData });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        await sendMessage(`[Uploaded file: ${file.name}]`);
+      } else {
+        await sendMessage(`[Tried to upload ${file.name} but it didn't work — no worries, we can continue without it]`);
+      }
+    } catch {
+      await sendMessage(`[Tried to upload ${file.name} but hit a connection issue — no worries, we can continue without it]`);
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }, [chatEmail, isUploading, activeTier, reportId, sendMessage]);
 
   // ─── Security: Behavioral tracking ───
   const behaviorTrackerRef = useRef<BehaviorTracker | null>(null);
@@ -576,6 +602,33 @@ function HomeContent() {
                     aria-hidden="true"
                     style={{ position: "absolute", left: "-9999px", width: 0, height: 0, opacity: 0 }}
                   />
+                  {/* File upload for Blueprint-level tiers */}
+                  {isUploadTier && chatEmail && (
+                    <>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                        style={{ display: "none" }}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleFileUpload(file);
+                        }}
+                      />
+                      <button
+                        type="button"
+                        className="chat-attach"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isLoading || isUploading}
+                        title="Attach a file (brand guidelines, style guide, logo, etc.)"
+                        aria-label="Attach file"
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+                        </svg>
+                      </button>
+                    </>
+                  )}
                   <input
                     ref={inputRef}
                     id="brand-message"
@@ -585,23 +638,23 @@ function HomeContent() {
                       setInputValue(event.target.value);
                       behaviorTrackerRef.current?.recordKeystroke();
                     }}
-                    placeholder="Type your reply…"
-                    disabled={isLoading}
+                    placeholder={isUploading ? "Uploading file…" : "Type your reply…"}
+                    disabled={isLoading || isUploading}
                     autoFocus
                   />
                   <button
                     type="submit"
                     className="chat-send"
-                    disabled={isLoading || !inputValue.trim()}
+                    disabled={isLoading || isUploading || !inputValue.trim()}
                   >
-                    {isLoading ? "Sending…" : "Send"}
+                    {isUploading ? "Uploading…" : isLoading ? "Sending…" : "Send"}
                   </button>
                   {conversationStarted && (
                     <button
                       type="button"
                       className="chat-skip"
                       onClick={handleSkip}
-                      disabled={isLoading}
+                      disabled={isLoading || isUploading}
                       title="Skip this question — you can come back to it"
                     >
                       Skip

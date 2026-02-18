@@ -57,7 +57,13 @@ The JSON input contains:
     "customerExpectation": ""
   },
   "revenueRange": "",
-  "previousBrandWork": ""
+  "previousBrandWork": "",
+  "missionStatement": "",
+  "visionStatement": "",
+  "coreValues": [],
+  "brandOriginStory": "",
+  "writingPreferences": "",
+  "guidelineDetails": ""
 }
 
 You must use ONLY the data provided.
@@ -90,6 +96,16 @@ CUSTOMER ACQUISITION (customerAcquisitionSource):
 REVENUE RANGE + PREVIOUS BRAND WORK:
   - Pre-revenue / DIY → more foundational scaffolding, step-by-step implementation, budget-conscious recommendations
   - Established / agency → refinement-focused, competitive repositioning, optimization of existing assets
+BRAND FOUNDATION INPUTS (missionStatement, visionStatement, coreValues, brandOriginStory):
+  - These fields contain what the user shared conversationally — they may be polished statements OR casual descriptions. Both are equally valid raw material.
+  - If missionStatement is provided, USE IT as the foundation. If conversational, craft a professional mission statement that preserves the intent.
+  - If visionStatement is provided, USE IT as the foundation. Polish and strengthen while keeping the user's direction.
+  - If coreValues are provided, USE THEM directly. Preserve the user's language and add descriptions.
+  - If brandOriginStory is provided, weave it into the brand story section. Keep the core facts and spirit intact.
+  - If any of these are null, generate them from scratch using the other inputs.
+WRITING & GUIDELINE CONTEXT (writingPreferences, guidelineDetails):
+  - If writingPreferences is provided, reference these when generating messaging, content, and voice guidance.
+  - If guidelineDetails is provided, acknowledge what already exists and focus recommendations on filling gaps.
 
 ---------------------------------------------------------------------
 YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
@@ -151,7 +167,10 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
     whatThisEnables, howToUse
 
 16. Brand Foundation
-    brandPurpose, brandPromise, positioningStatement (fully written), differentiationNarrative
+    brandPurpose, brandPromise, positioningStatement (fully written), differentiationNarrative,
+    mission: Craft from missionStatement if provided (may be polished or conversational — honor the intent). If null, derive from the other inputs.
+    vision: Craft from visionStatement if provided (same principle). If null, generate based on primaryGoals and brand direction.
+    values: If coreValues were provided, USE THEM as value names and add descriptions. Preserve the user's language. If null, derive 4–6 values from brandPersonalityWords, archetypeSignals, and brand positioning.
 
 17. Audience Persona Definition & Ideal Customer Profiles
     Build DETAILED Ideal Customer Profiles using currentCustomers, idealCustomers, and idealDiffersFromCurrent:
@@ -320,11 +339,13 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
 29. Brand Story & Origin Narrative
     A polished brand story [businessName] can use on their About page, in pitches, and investor decks.
     
+    IMPORTANT: If brandOriginStory was provided by the user, USE IT as the foundation. Weave their actual origin into the narrative — enhance the storytelling but preserve the facts and spirit they shared. If null, construct from other inputs.
+    
     brandStory: {
       headline: "A compelling one-line hook (e.g., 'We started with a question nobody else was asking.')"
-      narrative: "A 3–4 paragraph brand story that weaves together: the founding insight or origin, the problem being solved, the approach/philosophy, and the vision. Written in a voice consistent with the brand archetype. Should be ready to paste onto an About page."
+      narrative: "A 3–4 paragraph brand story. If the user shared their origin story, it should be recognizable here, polished into professional narrative form. Ready for About page."
       elevatorPitch: "A 30-second version of the brand story — 2–3 sentences max."
-      founderStory: "If inputs suggest a founder narrative, a 1–2 sentence founder angle. Otherwise: 'Founded on the belief that [core philosophy].'"
+      founderStory: "Drawn from brandOriginStory if provided, otherwise inferred: 'Founded on the belief that [core philosophy].'"
     }
 
 30. Customer Journey Map
@@ -682,8 +703,12 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
 ---------------------------------------------------------------------
 OUTPUT FORMAT
 ---------------------------------------------------------------------
-Return valid JSON matching the blueprintReportPrompt output structure. All keys listed above must be present. JSON must be valid.
-NOTE: "assetAlignmentNotes" should ONLY be included within the brandImageryDirection/visualDirection section if asset analysis data was provided. If no assets were uploaded, omit this key entirely.
+Return valid JSON with all sections as top-level keys. All keys listed above must be present. JSON must be valid.
+
+Key structure notes:
+- "brandFoundation" must include: brandPurpose, brandPromise, positioningStatement, differentiationNarrative, mission, vision, values (array of {name, description})
+- "brandStory" must include: headline, narrative, elevatorPitch, founderStory
+- "assetAlignmentNotes" should ONLY be included if asset analysis data was provided. If no assets were uploaded, omit this key entirely.
 
 ---------------------------------------------------------------------
 CONTENT QUALITY

@@ -19,7 +19,7 @@ const createMessage = (
 });
 
 // Total questions in the assessment (used for progress tracking and resume context)
-const TOTAL_QUESTIONS = 38;
+const TOTAL_QUESTIONS = 41;
 
 // First assistant message that appears in the chat
 // Must match the system prompt's first greeting exactly

@@ -595,6 +595,33 @@ body:has(.app-root) {
   background: #F4F7FB;
 }
 
+.chat-attach {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid #D6DFE8;
+  background: #fff;
+  color: #5A6B7E;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  flex: 0 0 auto;
+  padding: 0;
+}
+
+.chat-attach:hover {
+  color: #07B0F2;
+  border-color: #07B0F2;
+  background: #F0F9FF;
+}
+
+.chat-attach:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .chat-send:disabled,
 .chat-reset:disabled,
 .chat-skip:disabled {

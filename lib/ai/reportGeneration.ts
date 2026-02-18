@@ -51,6 +51,12 @@ export interface AssessmentInput {
   offerClarity?: string;
   messagingClarity?: string;
   brandVoiceDescription?: string;
+  writingPreferences?: string;
+  missionStatement?: string;
+  visionStatement?: string;
+  coreValues?: string[];
+  brandOriginStory?: string;
+  guidelineDetails?: string;
   primaryGoals?: string[];
   biggestChallenge?: string;
   whatMakesYouDifferent?: string;

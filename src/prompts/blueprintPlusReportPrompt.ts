@@ -147,7 +147,10 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
     whatThisEnables, howToUse
 
 16. Brand Foundation
-    brandPurpose, brandPromise, positioningStatement, differentiationNarrative
+    brandPurpose, brandPromise, positioningStatement, differentiationNarrative,
+    mission: "A concise mission statement — what [businessName] does and for whom, every day."
+    vision: "An aspirational vision statement — the future state [businessName] is working toward."
+    values: [{ name: "Value name", description: "What this value means in practice for [businessName]" }] (4–6 core values)
 
 17. Audience Persona Definition & Ideal Customer Profiles
     **BLUEPRINT+ ENHANCED** — Full ICP system with buyer journey mapping:
@@ -1168,6 +1171,62 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       }
     }
 
+55. Brand Standards Guide Content (Blueprint+ Exclusive)
+    This section generates content specifically for the Brand Standards & Guidelines PDF.
+    These fields power the exported guide used by marketing teams, contractors, agencies, and anyone creating brand content.
+    
+    brandStandardsGuide: {
+      logoGuidelines: {
+        overview: "A 2–3 sentence explanation of how the logo represents the brand and why consistent usage matters. NOTE: We are providing usage guidance — the brand is responsible for providing their actual logo files."
+        clearSpace: "How much clear space should surround the logo — express as a proportion (e.g., 'Maintain clear space equal to the height of the logo mark on all sides')"
+        minimumSize: "Minimum display size for print and digital to ensure legibility (e.g., 'No smaller than 1 inch / 72px wide')"
+        placementRules: ["4–5 rules for logo placement across different formats — website headers, social profiles, print materials, email signatures, presentations"]
+        incorrectUses: ["5–6 common logo misuses to avoid — stretching, recoloring outside palette, placing on busy backgrounds, adding effects, rotating, low-resolution usage"]
+      }
+      
+      layoutGuidelines: {
+        overview: "How [businessName]'s layouts should feel — tied to archetype and personality (e.g., 'Clean, open layouts with generous white space that reflect the Sage archetype's clarity and authority')"
+        margins: "Standard margin guidance for digital and print (e.g., '40–60px for web sections, 0.75–1 inch for print')"
+        spacing: "Spacing philosophy — how spacing reinforces the brand personality"
+        gridSystem: "Recommended grid system for web and print (e.g., '12-column grid for web, 6-column for print')"
+        digitalPatterns: ["3–4 common digital layout patterns for [businessName] (e.g., 'Hero section with centered headline and CTA below fold', 'Two-column feature grid with icon + text')]"
+        printPatterns: ["3–4 common print layout patterns"]
+      }
+      
+      writingGuidelines: {
+        overview: "A 2–3 sentence philosophy for how [businessName] approaches written communication — tied to voice and archetype."
+        grammarPreferences: ["5–7 specific grammar and punctuation preferences (e.g., 'Use the Oxford comma', 'Avoid semicolons in customer-facing copy', 'Use sentence case for headlines', 'No exclamation marks in formal contexts')]"
+        jargonRules: "How [businessName] handles industry jargon — when to use it, when to avoid it, and how to explain technical terms"
+        pointOfView: "Default point of view for brand communications (e.g., 'First person plural (we) for company communications, second person (you) for customer-facing content')"
+        inclusiveLanguage: "Guidelines for inclusive, accessible language — gender-neutral terms, avoiding ableist language, cultural sensitivity relevant to [businessName]'s audience"
+        stylePreferences: ["4–6 writing style preferences (e.g., 'Lead with the benefit, not the feature', 'Keep paragraphs under 3 sentences for web', 'Use active voice', 'Write at an 8th-grade reading level for public content')]"
+      }
+      
+      sampleExecutions: [
+        {
+          channel: "The platform or medium (e.g., 'LinkedIn', 'Email', 'Website', 'Sales Deck', 'Internal Memo')"
+          format: "The specific content type (e.g., 'Thought leadership post', 'Welcome email', 'Homepage hero section', 'Investor pitch opening')"
+          description: "A detailed description of what this execution looks like when on-brand — include specific copy snippets, tone guidance, visual elements, and structure."
+          keyElements: ["3–4 specific elements that make this execution on-brand"]
+        }
+      ] (6–8 sample executions covering a mix of external marketing, sales, and internal communications)
+      
+      doAndDontPages: [
+        {
+          area: "The category (e.g., 'Social Media Copy', 'Email Subject Lines', 'Presentation Design', 'Logo Usage', 'Photography', 'Customer Communication')"
+          doExample: "A specific, concrete example of on-brand execution in this area"
+          dontExample: "A specific, concrete example of off-brand execution in this area"
+          why: "Why the distinction matters — connected to brand positioning, archetype, or audience expectations"
+        }
+      ] (8–10 do/don't comparisons covering the most common areas where brand drift happens)
+      
+      governanceTemplate: {
+        brandOwnerRole: "Suggested role title and responsibilities for brand ownership at [businessName]'s stage and team size"
+        reviewCadence: "Recommended review schedule (e.g., 'Quarterly brand audit, annual full guidelines review')"
+        exceptionProcess: "Suggested process for handling exceptions (co-branded content, partner materials, campaigns that need to break rules)"
+      }
+    }
+
 ---------------------------------------------------------------------
 OUTPUT FORMAT
 ---------------------------------------------------------------------
@@ -1251,7 +1310,7 @@ Return valid JSON with ALL these keys:
   "executionGuardrails": { "whatToMaintain": [], "whatToAvoid": [], "driftIndicators": [] },
   "whatsNextUnlocks": "",
   "blueprintOverview": { "whatThisEnables": "", "howToUse": "" },
-  "brandFoundation": { "brandPurpose": "", "brandPromise": "", "positioningStatement": "", "differentiationNarrative": "" },
+  "brandFoundation": { "brandPurpose": "", "brandPromise": "", "positioningStatement": "", "differentiationNarrative": "", "mission": "", "vision": "", "values": [{ "name": "", "description": "" }] },
   "audiencePersonaDefinition": {
     "primaryICP": { "name": "", "summary": "", "demographics": "", "psychographics": "", "painPoints": [], "goals": "", "buyingJourney": "", "languageTheyUse": "", "whereToBeFindable": "", "objections": [], "contentTopics": [], "conversionPath": "" },
     "secondaryICP": { "name": "", "summary": "", "demographics": "", "psychographics": "", "painPoints": [], "goals": "", "buyingJourney": "", "languageTheyUse": "", "whereToBeFindable": "", "objections": [], "contentTopics": [], "conversionPath": "" },
@@ -1545,6 +1604,38 @@ Return valid JSON with ALL these keys:
       "weakestPillar": "",
       "systemicIssues": [],
       "topPriorityActions": []
+    }
+  },
+  "brandStandardsGuide": {
+    "logoGuidelines": {
+      "overview": "",
+      "clearSpace": "",
+      "minimumSize": "",
+      "placementRules": [],
+      "incorrectUses": []
+    },
+    "layoutGuidelines": {
+      "overview": "",
+      "margins": "",
+      "spacing": "",
+      "gridSystem": "",
+      "digitalPatterns": [],
+      "printPatterns": []
+    },
+    "writingGuidelines": {
+      "overview": "",
+      "grammarPreferences": [],
+      "jargonRules": "",
+      "pointOfView": "",
+      "inclusiveLanguage": "",
+      "stylePreferences": []
+    },
+    "sampleExecutions": [{ "channel": "", "format": "", "description": "", "keyElements": [] }],
+    "doAndDontPages": [{ "area": "", "doExample": "", "dontExample": "", "why": "" }],
+    "governanceTemplate": {
+      "brandOwnerRole": "",
+      "reviewCadence": "",
+      "exceptionProcess": ""
     }
   }
 }

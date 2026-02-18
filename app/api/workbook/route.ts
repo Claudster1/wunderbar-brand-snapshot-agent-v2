@@ -164,6 +164,7 @@ export async function PATCH(req: NextRequest) {
       "key_differentiators",
       "brand_archetype", "archetype_description", "archetype_application",
       "custom_sections", "business_name",
+      "brand_standards_data",
     ];
 
     const safeUpdates: Record<string, unknown> = {};

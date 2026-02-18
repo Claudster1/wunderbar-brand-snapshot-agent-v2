@@ -309,7 +309,7 @@ const BLUEPRINT_PLUS_SECTION_GROUPS = [
   },
   {
     name: "execution",
-    description: "Execution & Implementation (Sections 38-54: Taglines, Brand Story, Customer Journey Map, SEO Strategy, AEO Strategy, Email Marketing Framework, Social Media Strategy, Content Calendar, SWOT Analysis, Brand Glossary, Company Description, Value & Pricing Framework, Sales Conversation Guide, Brand Strategy Rollout Guide, Brand Imagery & Photography Direction, Asset Optimization Playbook — only if asset data was provided)",
+    description: "Execution & Implementation (Sections 38-55: Taglines, Brand Story, Customer Journey Map, SEO Strategy, AEO Strategy, Email Marketing Framework, Social Media Strategy, Content Calendar, SWOT Analysis, Brand Glossary, Company Description, Value & Pricing Framework, Sales Conversation Guide, Brand Strategy Rollout Guide, Brand Imagery & Photography Direction, Asset Optimization Playbook if assets provided, Brand Standards Guide Content)",
     outputKeys: [
       "taglineRecommendations", "brandStory", "customerJourneyMap",
       "seoStrategy", "aeoStrategy", "emailMarketingFramework",
@@ -317,7 +317,7 @@ const BLUEPRINT_PLUS_SECTION_GROUPS = [
       "swotAnalysis", "brandGlossary", "companyDescription",
       "valuePricingFramework", "salesConversationGuide",
       "brandStrategyRollout", "brandImageryDirection",
-      "assetOptimizationPlaybook",
+      "assetOptimizationPlaybook", "brandStandardsGuide",
     ],
   },
 ];

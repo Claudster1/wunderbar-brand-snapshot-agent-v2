@@ -24,13 +24,13 @@ CREATE POLICY "snapshot_plus_read_own"
   ON public.brand_snapshot_plus_reports
   FOR SELECT
   TO authenticated
-  USING (user_email = ((select auth.jwt()) ->> 'email'::text));
+  USING (user_email = (select auth.jwt() ->> 'email'::text));
 
 CREATE POLICY "snapshot_plus_insert"
   ON public.brand_snapshot_plus_reports
   FOR INSERT
   TO authenticated
-  WITH CHECK (user_email = ((select auth.jwt()) ->> 'email'::text));
+  WITH CHECK (user_email = (select auth.jwt() ->> 'email'::text));
 
 -- ───────────────────────────────────────────────────────────────
 -- 2. auth_rls_initplan: blueprint_reports
@@ -44,13 +44,13 @@ CREATE POLICY "blueprint_read_own"
   ON public.blueprint_reports
   FOR SELECT
   TO authenticated
-  USING (user_email = ((select auth.jwt()) ->> 'email'::text));
+  USING (user_email = (select auth.jwt() ->> 'email'::text));
 
 CREATE POLICY "blueprint_insert"
   ON public.blueprint_reports
   FOR INSERT
   TO authenticated
-  WITH CHECK (user_email = ((select auth.jwt()) ->> 'email'::text));
+  WITH CHECK (user_email = (select auth.jwt() ->> 'email'::text));
 
 -- ───────────────────────────────────────────────────────────────
 -- 3. auth_rls_initplan: user_metadata
@@ -65,20 +65,20 @@ CREATE POLICY "metadata_read_own"
   ON public.user_metadata
   FOR SELECT
   TO authenticated
-  USING (user_email = ((select auth.jwt()) ->> 'email'::text));
+  USING (user_email = (select auth.jwt() ->> 'email'::text));
 
 CREATE POLICY "metadata_insert"
   ON public.user_metadata
   FOR INSERT
   TO authenticated
-  WITH CHECK (user_email = ((select auth.jwt()) ->> 'email'::text));
+  WITH CHECK (user_email = (select auth.jwt() ->> 'email'::text));
 
 CREATE POLICY "metadata_update_own"
   ON public.user_metadata
   FOR UPDATE
   TO authenticated
-  USING (user_email = ((select auth.jwt()) ->> 'email'::text))
-  WITH CHECK (user_email = ((select auth.jwt()) ->> 'email'::text));
+  USING (user_email = (select auth.jwt() ->> 'email'::text))
+  WITH CHECK (user_email = (select auth.jwt() ->> 'email'::text));
 
 -- ───────────────────────────────────────────────────────────────
 -- 4. auth_rls_initplan: session_followups

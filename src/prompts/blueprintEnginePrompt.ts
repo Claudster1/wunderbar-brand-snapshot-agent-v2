@@ -140,8 +140,12 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
 7. Brand Persona
    personaSummary, coreIdentity { whoYouAre, whatYouStandFor, howYouShowUp }, communicationStyle { tone, pace, energy }, messagingExamples { headlines, ctaButtons, socialPosts — each with avoid/use arrays }, doAndDont { do: [{ guideline, example }], dont: [{ guideline, example }] }
 
-8. Visual & Verbal Signals
-   colorPaletteDirection, colorSwatches [{ name, hex, rgb, cmyk, usage }], avoidColors [{ name, hex, reason }], voiceTraits [], consistencyRisks
+8. Visual & Verbal Brand Direction (inherited from Snapshot+™ foundation)
+   colorPaletteDirection, colorSwatches [{ name, hex, rgb, cmyk, usage }], avoidColors [{ name, hex, reason }],
+   typographyDirection { fontMood, headingStyle, bodyStyle, accentStyle, pairingSuggestions [{ heading, body, rationale }], typographyDonts [] },
+   imageryMoodDirection { visualMood, moodDescriptors [], visualDoAndDont { do [], dont [] } },
+   visualConsistencyPrinciples [{ principle, why, example }],
+   voiceTraits [], consistencyRisks
    Color swatches must include all three formats: hex (web/CSS), rgb (digital/presentations), cmyk (print)
 
 9. Strategic Action Plan (5 actions)
@@ -262,9 +266,11 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
     - suggestedFormats: Array of 2–3 content formats best suited for this pillar (e.g., "LinkedIn carousel," "blog post," "email newsletter")
     - messagingPillarConnection: Which messaging pillar this content pillar reinforces (connects the two systems)
 
-23. Visual Direction
-    colorPalette [{ name, hex, rgb, cmyk, usage }], typographyTone, visualConsistencyPrinciples
-    Color palette must include all three formats: hex (web/CSS), rgb (digital/presentations), cmyk (print)
+23. Visual Direction (Blueprint enhancement — extends section 8)
+    The foundational visual system is in section 8 (inherited from Snapshot+™). This section adds Blueprint-level depth:
+    - colorPalette: Refined palette with usage hierarchy [{ name, hex, rgb, cmyk, usage }]
+    - typographyTone: Expanded typography rationale connecting font choices to brand archetype and positioning
+    - visualConsistencyPrinciples: Expanded principles with team delegation and cross-channel application guidance
 
 24. Conversion Strategy
     howTrustIsBuilt, howClarityDrivesAction, ctaHierarchy [{ level, action, context }]
@@ -414,7 +420,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
       competitiveAEOGaps: "Where competitors are visible in AI search and [businessName] is not — and what to do about it"
     }
 
-33. Email Marketing Framework
+33. Email Marketing Strategy
     A foundational email strategy for [businessName] aligned with their brand voice, audience, and conversion goals.
     
     emailMarketingFramework: {
@@ -698,6 +704,98 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
       ] (1-2 quick wins per uploaded asset, focus on the weakest pillar first)
 
       weakestPillarGap: "A tangible, specific explanation of how the uploaded assets collectively reveal the gap in the brand's weakest pillar. This should be something the user can point to and say 'I see it now.' Reference specific assets by name."
+    }
+
+43. Brand Health Scorecard
+    **BLUEPRINT EXCLUSIVE** — A living diagnostic framework [businessName] can use to measure brand health on an ongoing basis.
+    
+    brandHealthScorecard: {
+      overview: "How to use this scorecard — explain that brand health should be measured quarterly, not annually, and that this framework is calibrated to [businessName]'s specific priorities"
+      
+      scorecardDimensions: [
+        {
+          dimension: "The measurement area (e.g., 'Brand Awareness,' 'Lead Quality,' 'Messaging Consistency,' 'Digital Credibility,' 'Customer Acquisition Efficiency')"
+          currentState: "Where [businessName] is today based on diagnostic data"
+          targetState: "Where [businessName] should aim to be in 90 days"
+          keyMetric: "The primary metric to track"
+          measurementMethod: "How to measure this — specific tool, report, or process"
+          frequency: "How often to measure (weekly, monthly, quarterly)"
+          greenThreshold: "What 'healthy' looks like for this metric"
+          yellowThreshold: "What 'needs attention' looks like"
+          redThreshold: "What 'urgent action needed' looks like"
+        }
+      ] (8–10 dimensions covering all 5 pillars)
+      
+      quarterlyReviewProcess: {
+        description: "A step-by-step process for conducting a quarterly brand health review"
+        steps: [
+          {
+            step: "Step title"
+            detail: "What to do — with specific instructions and tools"
+            timeEstimate: "How long this step takes"
+          }
+        ] (5–6 steps)
+        reviewTemplate: "A structured template [businessName] can fill out each quarter"
+      }
+      
+      leadingIndicators: [
+        {
+          indicator: "An early-warning signal"
+          whatItMeans: "What this signal suggests about brand health"
+          actionToTake: "What to do when this signal appears"
+        }
+      ] (5–6 leading indicators)
+      
+      laggingIndicators: [
+        {
+          indicator: "A trailing outcome metric"
+          whatItMeans: "What this reveals about brand effectiveness"
+          benchmarkContext: "How to interpret this relative to [industry] norms"
+        }
+      ] (4–5 lagging indicators)
+    }
+
+44. SWOT Analysis
+    **BLUEPRINT EXCLUSIVE** — A formal SWOT analysis connecting brand diagnostics to strategic positioning.
+    
+    swotAnalysis: {
+      overview: "How to interpret this SWOT in the context of [businessName]'s brand strategy"
+      strengths: [
+        { item: "Strength", evidence: "What in the diagnostic supports this", leverage: "How to capitalize on it" }
+      ] (4–5 strengths)
+      weaknesses: [
+        { item: "Weakness", evidence: "What in the diagnostic revealed this", mitigation: "How to address it" }
+      ] (4–5 weaknesses)
+      opportunities: [
+        { item: "Opportunity", context: "Why this is available now", action: "Specific action to capture it" }
+      ] (4–5 opportunities)
+      threats: [
+        { item: "Threat", likelihood: "High | Medium | Low", impact: "High | Medium | Low", contingency: "How to prepare" }
+      ] (3–4 threats)
+      strategicImplications: "A 2–3 sentence synthesis connecting the SWOT to [businessName]'s immediate priorities"
+    }
+
+45. Brand Glossary & Terminology Guide
+    **BLUEPRINT EXCLUSIVE** — A reference guide for brand-consistent language across all communications.
+    
+    brandGlossary: {
+      overview: "Why consistent terminology matters and how to use this glossary"
+      termsToUse: [
+        {
+          term: "The preferred term"
+          insteadOf: "What to avoid"
+          context: "When and where to use this term"
+          example: "Example sentence using the preferred term"
+        }
+      ] (8–12 terms)
+      phrasesToAvoid: [
+        { phrase: "Phrase to avoid", why: "Why it doesn't align with the brand", alternative: "What to say instead" }
+      ] (5–8 phrases)
+      industryJargonGuide: {
+        useFreely: ["Terms your audience understands and expects"],
+        defineWhenUsed: ["Terms that need brief explanation"],
+        neverUse: ["Industry jargon that alienates your audience"]
+      }
     }
 
 ---------------------------------------------------------------------

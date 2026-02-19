@@ -97,10 +97,11 @@ The output must include ALL sections from WunderBrand Snapshot+™ (sections 1�
     - proofPoints: Array of 3–4 evidence-based claims
     - whatNotToSay: Array of 3–4 phrases/approaches to avoid
 
-20. Visual Direction (expanded from visualVerbalSignals)
-    - colorPalette: Array of colors [{ name, hex, rgb, cmyk, usage }]
-    - typographyTone: Typography direction and rationale
-    - visualConsistencyPrinciples: Key principles for visual consistency
+20. Visual Direction (Blueprint enhancement — extends visualVerbalSignals from section 8)
+    The foundational visual system (color palette, typography direction, imagery mood, visual consistency) is in section 8 (inherited from Snapshot+™). This section adds Blueprint-level depth:
+    - colorPalette: Refined palette with usage hierarchy [{ name, hex, rgb, cmyk, usage }]
+    - typographyTone: Expanded typography rationale connecting font choices to brand archetype and positioning
+    - visualConsistencyPrinciples: Expanded principles with team delegation and cross-channel application guidance
 
 21. Conversion Strategy
     - howTrustIsBuilt: How the brand builds trust through the funnel
@@ -173,6 +174,20 @@ Return valid JSON with ALL these keys:
     "colorPaletteDirection": "",
     "colorSwatches": [{ "name": "", "hex": "", "rgb": "", "cmyk": "", "usage": "" }],
     "avoidColors": [{ "name": "", "hex": "", "reason": "" }],
+    "typographyDirection": {
+      "fontMood": "",
+      "headingStyle": "",
+      "bodyStyle": "",
+      "accentStyle": "",
+      "pairingSuggestions": [{ "heading": "", "body": "", "rationale": "" }],
+      "typographyDonts": []
+    },
+    "imageryMoodDirection": {
+      "visualMood": "",
+      "moodDescriptors": [],
+      "visualDoAndDont": { "do": [], "dont": [] }
+    },
+    "visualConsistencyPrinciples": [{ "principle": "", "why": "", "example": "" }],
     "voiceTraits": [],
     "consistencyRisks": ""
   },
@@ -322,6 +337,34 @@ Return valid JSON with ALL these keys:
     "stockPhotoSelectionCriteria": { "lighting": "", "composition": "", "colorTemperature": "", "diversity": "", "authenticityMarkers": "" },
     "imageDonts": [{ "dont": "", "why": "", "alternative": "" }],
     "colorApplicationInImagery": ""
+  },
+  "brandHealthScorecard": {
+    "overview": "",
+    "scorecardDimensions": [{
+      "dimension": "", "currentState": "", "targetState": "", "keyMetric": "",
+      "measurementMethod": "", "frequency": "", "greenThreshold": "", "yellowThreshold": "", "redThreshold": ""
+    }],
+    "quarterlyReviewProcess": {
+      "description": "",
+      "steps": [{ "step": "", "detail": "", "timeEstimate": "" }],
+      "reviewTemplate": ""
+    },
+    "leadingIndicators": [{ "indicator": "", "whatItMeans": "", "actionToTake": "" }],
+    "laggingIndicators": [{ "indicator": "", "whatItMeans": "", "benchmarkContext": "" }]
+  },
+  "swotAnalysis": {
+    "overview": "",
+    "strengths": [{ "item": "", "evidence": "", "leverage": "" }],
+    "weaknesses": [{ "item": "", "evidence": "", "mitigation": "" }],
+    "opportunities": [{ "item": "", "context": "", "action": "" }],
+    "threats": [{ "item": "", "likelihood": "", "impact": "", "contingency": "" }],
+    "strategicImplications": ""
+  },
+  "brandGlossary": {
+    "overview": "",
+    "termsToUse": [{ "term": "", "insteadOf": "", "context": "", "example": "" }],
+    "phrasesToAvoid": [{ "phrase": "", "why": "", "alternative": "" }],
+    "industryJargonGuide": { "useFreely": [], "defineWhenUsed": [], "neverUse": [] }
   }
 }
 

@@ -422,5 +422,40 @@ export interface BlueprintEngineOutput {
     quickWins: { asset: string; pillar: string; issue: string; fix: string; impact: string }[];
     weakestPillarGap: string;
   };
+  brandHealthScorecard?: {
+    overview: string;
+    scorecardDimensions: {
+      dimension: string;
+      currentState: string;
+      targetState: string;
+      keyMetric: string;
+      measurementMethod: string;
+      frequency: string;
+      greenThreshold: string;
+      yellowThreshold: string;
+      redThreshold: string;
+    }[];
+    quarterlyReviewProcess: {
+      description: string;
+      steps: { step: string; detail: string; timeEstimate: string }[];
+      reviewTemplate: string;
+    };
+    leadingIndicators: { indicator: string; whatItMeans: string; actionToTake: string }[];
+    laggingIndicators: { indicator: string; whatItMeans: string; benchmarkContext: string }[];
+  };
+  swotAnalysis?: {
+    overview: string;
+    strengths: { item: string; evidence: string; leverage: string }[];
+    weaknesses: { item: string; evidence: string; mitigation: string }[];
+    opportunities: { item: string; context: string; action: string }[];
+    threats: { item: string; likelihood: string; impact: string; contingency: string }[];
+    strategicImplications: string;
+  };
+  brandGlossary?: {
+    overview: string;
+    termsToUse: { term: string; insteadOf: string; context: string; example: string }[];
+    phrasesToAvoid: { phrase: string; why: string; alternative: string }[];
+    industryJargonGuide: { useFreely: string[]; defineWhenUsed: string[]; neverUse: string[] };
+  };
   disclaimer: string;
 }

@@ -112,8 +112,12 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
      - dos: Array of 5 guidelines, each with { do: "guideline", example: "example" }
      - donts: Array of 5 guidelines, each with { dont: "guideline", example: "example" }
 
-8. Visual & Verbal Signals
-   colorPaletteDirection, colorSwatches [{ name, hex, rgb, cmyk, usage }], avoidColors [{ name, hex, reason }], voiceTraits [], consistencyRisks
+8. Visual & Verbal Brand Direction (inherited from Snapshot+™ foundation)
+   colorPaletteDirection, colorSwatches [{ name, hex, rgb, cmyk, usage }], avoidColors [{ name, hex, reason }],
+   typographyDirection { fontMood, headingStyle, bodyStyle, accentStyle, pairingSuggestions [{ heading, body, rationale }], typographyDonts [] },
+   imageryMoodDirection { visualMood, moodDescriptors [], visualDoAndDont { do [], dont [] } },
+   visualConsistencyPrinciples [{ principle, why, example }],
+   voiceTraits [], consistencyRisks
    Color swatches must include all three formats: hex (web/CSS), rgb (digital/presentations), cmyk (print)
 
 9. Strategic Action Plan (5 actions)
@@ -305,8 +309,11 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
     - frequencyCadence: Suggested posting frequency (e.g., "2x per month," "weekly")
     - exampleHeadlines: Array of 3 ready-to-use headlines for this pillar
 
-23. Visual Direction
-    colorPalette [{ name, hex, rgb, cmyk, usage }], typographyTone, visualConsistencyPrinciples
+23. Visual Direction (Blueprint enhancement — extends section 8)
+    The foundational visual system (color palette, typography direction, imagery mood, visual consistency) is in section 8. This section adds Blueprint-level depth:
+    - colorPalette: Refined palette with usage hierarchy [{ name, hex, rgb, cmyk, usage }]
+    - typographyTone: Expanded typography rationale connecting font choices to brand archetype and positioning
+    - visualConsistencyPrinciples: Expanded principles with team delegation and cross-channel application guidance
     Color palette must include all three formats: hex (web/CSS), rgb (digital/presentations), cmyk (print)
 
 24. Conversion Strategy
@@ -556,7 +563,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
     }
 
 37. Brand Health Scorecard
-    **BLUEPRINT+ EXCLUSIVE** — A living diagnostic framework [businessName] can use to measure brand health on an ongoing basis. This turns the one-time diagnostic into a repeatable process.
+    **BLUEPRINT+ ENHANCED** — An advanced diagnostic framework [businessName] can use to measure brand health on an ongoing basis. Blueprint+ version includes deeper threshold calibration and extended indicators.
     
     brandHealthScorecard: {
       overview: "How to use this scorecard — explain that brand health should be measured quarterly, not annually, and that this framework is calibrated to [businessName]'s specific priorities"
@@ -730,7 +737,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       ] (3 phases)
     }
 
-43. Email Marketing Framework
+43. Email Marketing Strategy
     **BLUEPRINT+ ENHANCED** — Full email ecosystem with sequences, automation, and segmentation.
     
     emailMarketingFramework: {
@@ -827,7 +834,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
     }
 
 46. SWOT Analysis
-    **BLUEPRINT+ EXCLUSIVE** — A formal SWOT analysis connecting brand diagnostics to strategic positioning.
+    **BLUEPRINT+ ENHANCED** — A formal SWOT analysis connecting brand diagnostics to strategic positioning, with deeper strategic implications and scenario modeling.
     
     swotAnalysis: {
       overview: "How to interpret this SWOT in the context of [businessName]'s brand strategy"
@@ -847,7 +854,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
     }
 
 47. Brand Glossary & Terminology Guide
-    **BLUEPRINT+ EXCLUSIVE** — A reference guide for brand-consistent language across all communications.
+    **BLUEPRINT+ ENHANCED** — A comprehensive reference guide for brand-consistent language across all communications, with expanded industry jargon guidance.
     
     brandGlossary: {
       overview: "Why consistent terminology matters and how to use this glossary"
@@ -1299,8 +1306,14 @@ Return valid JSON with ALL these keys:
     }
   },
   "visualVerbalSignals": {
-    "colorPaletteDirection": "", "colorSwatches": [{ "name": "", "hex": "", "rgb": "", "cmyk": "", "usage": "" }],
-    "avoidColors": [{ "name": "", "hex": "", "reason": "" }], "voiceTraits": [], "consistencyRisks": ""
+    "colorPaletteDirection": "",
+    "colorSwatches": [{ "name": "", "hex": "", "rgb": "", "cmyk": "", "usage": "" }],
+    "avoidColors": [{ "name": "", "hex": "", "reason": "" }],
+    "typographyDirection": { "fontMood": "", "headingStyle": "", "bodyStyle": "", "accentStyle": "", "pairingSuggestions": [{ "heading": "", "body": "", "rationale": "" }], "typographyDonts": [] },
+    "imageryMoodDirection": { "visualMood": "", "moodDescriptors": [], "visualDoAndDont": { "do": [], "dont": [] } },
+    "visualConsistencyPrinciples": [{ "principle": "", "why": "", "example": "" }],
+    "voiceTraits": [],
+    "consistencyRisks": ""
   },
   "strategicActionPlan": [
     {

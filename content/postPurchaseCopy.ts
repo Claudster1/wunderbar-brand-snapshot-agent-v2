@@ -293,7 +293,7 @@ export const POST_PURCHASE_COPY: Record<PostPurchaseTier, PostPurchaseCopy> = {
       {
         title: "Get your results instantly",
         detail:
-          "Your WunderBrand Blueprint+\u2122 results are generated the moment the conversation is complete \u2014 including your WunderBrand Score\u2122, deep-dive analysis across all five brand pillars, advanced audience segmentation, a Messaging Matrix, Campaign Architecture, Advanced AEO strategy, and your Advanced Prompt Library.",
+          "Your WunderBrand Blueprint+\u2122 results are generated the moment the conversation is complete \u2014 including your WunderBrand Score\u2122, deep-dive analysis across all five brand pillars, advanced audience segmentation, a Messaging Matrix, Campaign Architecture, AI Answer Engine (AEO) strategy, and your Advanced Prompt Library.",
       },
       {
         title: "Book your Strategy Activation Session",

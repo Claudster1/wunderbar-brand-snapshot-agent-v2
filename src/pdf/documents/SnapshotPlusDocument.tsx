@@ -74,10 +74,10 @@ export function SnapshotPlusDocument({ report }: { report: SnapshotPlusReport })
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <PdfHeader title="WunderBrand Snapshot+™ Report" />
+        <PdfHeader title="WunderBrand Snapshot+™ — Brand Direction Summary" />
 
         <Text style={styles.title}>
-          Snapshot+™ for {report.businessName}
+          Brand Direction Summary for {report.businessName}
         </Text>
 
         {ranked.map((pillarKey) => {

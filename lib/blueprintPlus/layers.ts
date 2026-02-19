@@ -21,7 +21,7 @@ export const BLUEPRINT_PLUS_LAYERS = {
   },
 
   advancedAEO: {
-    title: "Advanced AEO Optimization",
+    title: "AI Answer Engine (AEO) Strategy",
     description:
       "Structures your brand to be cited, referenced, and surfaced by AI answer engines.",
   },

@@ -31,7 +31,7 @@ export function SnapshotPlusDocument({
       <Page size="A4" style={{ padding: 48 }}>
         {/* HEADER */}
         <Text style={{ fontSize: 22, fontWeight: 700 }}>
-          Snapshot+™ Strategic Report
+          WunderBrand Snapshot+™ — Brand Direction Summary
         </Text>
         <Text style={{ fontSize: 12, marginBottom: 24 }}>
           {brandName}

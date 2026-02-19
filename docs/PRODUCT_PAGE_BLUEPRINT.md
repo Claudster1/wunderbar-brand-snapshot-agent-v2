@@ -175,7 +175,7 @@ If Snapshot+ is the treatment plan, Blueprint is the full implementation bluepri
 - **Where You Stand vs. Competitors** — How your positioning, messaging, and approach compare to named competitors (if provided) or industry archetypes
 - **Market Gaps** — Opportunities your competitors may be missing
 - **Potential Vulnerabilities** — Where competitors may be weak and how you might differentiate
-- **Strategic Trade-offs** — Key decisions your brand faces (e.g., "Premium positioning vs. volume pricing"), each with analysis and a recommendation
+- **Strategic Trade-offs** — Where to focus & why, with analysis and a recommendation for each decision your brand faces
 
 **Why it matters:** You don't operate in a vacuum. Understanding your competitive landscape — even directionally — helps you position yourself where the opportunity is, not where the crowd is.
 
@@ -221,7 +221,7 @@ If Snapshot+ is the treatment plan, Blueprint is the full implementation bluepri
 
 ---
 
-### 15. Email Marketing Framework (Welcome Sequence)
+### 15. Email Marketing Strategy (Welcome Sequence)
 **What it is:** A launch-ready email strategy:
 - **4–5 Email Welcome Sequence** — With timing, subject lines, purpose, key messages, and CTAs for each email
 - **Segmentation Strategy** — How to categorize subscribers for targeted messaging

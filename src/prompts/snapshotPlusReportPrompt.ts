@@ -87,7 +87,9 @@ REQUIRED OUTPUT STRUCTURE
      - do: Array of { guideline: "what to do", example: "example of doing it" }
      - dont: Array of { guideline: "what not to do", example: "example of what to avoid" }
 
-8. Visual & Verbal Brand Signals
+8. Visual & Verbal Brand Direction
+   A foundational visual identity system — enough to brief a designer, maintain consistency, and make confident visual decisions.
+   
    - colorPaletteDirection: Strategic reasoning for color choices
    - colorSwatches: Array of 4–6 recommended colors, each with:
      - name: Color name (e.g., "Trust Blue")
@@ -99,6 +101,18 @@ REQUIRED OUTPUT STRUCTURE
      - name: Color name
      - hex: Hex code
      - reason: Why to avoid it
+   - typographyDirection: Object with:
+     - fontMood: The feel typography should convey — tied to archetype
+     - headingStyle: Guidance for heading fonts (weight, style, character)
+     - bodyStyle: Guidance for body text (readability, tone)
+     - accentStyle: Optional accent font for pull quotes, callouts
+     - pairingSuggestions: Array of 2–3 font pairings, each with { heading, body, rationale }
+     - typographyDonts: Array of 2–3 things to avoid
+   - imageryMoodDirection: Object with:
+     - visualMood: 2–3 sentence description of the brand's visual world
+     - moodDescriptors: Array of 4–5 words/phrases (e.g., "Warm", "Authentic", "Clean")
+     - visualDoAndDont: { do: ["3–4 guidelines"], dont: ["3–4 guidelines"] }
+   - visualConsistencyPrinciples: Array of 3–5 rules, each with { principle, why, example }
    - voiceTraits: Array of 3–5 voice trait words (e.g., "Authoritative", "Approachable")
    - consistencyRisks: What threatens brand visual/verbal consistency
 
@@ -245,6 +259,20 @@ Return valid JSON with this EXACT structure:
     "colorPaletteDirection": "",
     "colorSwatches": [{ "name": "", "hex": "", "rgb": "", "cmyk": "", "usage": "" }],
     "avoidColors": [{ "name": "", "hex": "", "reason": "" }],
+    "typographyDirection": {
+      "fontMood": "",
+      "headingStyle": "",
+      "bodyStyle": "",
+      "accentStyle": "",
+      "pairingSuggestions": [{ "heading": "", "body": "", "rationale": "" }],
+      "typographyDonts": []
+    },
+    "imageryMoodDirection": {
+      "visualMood": "",
+      "moodDescriptors": [],
+      "visualDoAndDont": { "do": [], "dont": [] }
+    },
+    "visualConsistencyPrinciples": [{ "principle": "", "why": "", "example": "" }],
     "voiceTraits": [],
     "consistencyRisks": ""
   },

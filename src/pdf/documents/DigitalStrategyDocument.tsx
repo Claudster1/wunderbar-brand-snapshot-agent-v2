@@ -112,7 +112,7 @@ export function DigitalStrategyDocument({ data, brandName }: Props) {
         {d.aeoStrategy?.faqStrategy?.priorityFAQs?.map((faq, i) => <Text key={i} style={s.bullet}>• {faq}</Text>)}
 
         {/* Email */}
-        <Text style={s.h1}>Email Marketing Framework</Text>
+        <Text style={s.h1}>Email Marketing Strategy</Text>
         <Text style={s.body}>{d.emailMarketingFramework?.overview}</Text>
         <Text style={s.h2}>Welcome Sequence</Text>
         <Text style={s.body}>{d.emailMarketingFramework?.welcomeSequence?.description}</Text>

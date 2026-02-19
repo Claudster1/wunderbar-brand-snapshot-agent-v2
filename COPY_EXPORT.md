@@ -124,7 +124,7 @@
 - **Advanced Strategic Expansion** — Deepens positioning, audience segmentation, and differentiation beyond the Snapshot+™ foundation.
 - **Messaging Matrix** — Channel-specific messaging guidance aligned to your primary and secondary pillars.
 - **Campaign Architecture** — Maps your brand strategy into campaign-level themes, narratives, and rollout logic.
-- **Advanced AEO Optimization** — Structures your brand to be cited, referenced, and surfaced by AI answer engines.
+- **AI Answer Engine (AEO) Strategy** — Structures your brand to be cited, referenced, and surfaced by AI answer engines.
 - **Advanced Prompt System** — Multi-step prompt sequences designed to operationalize your brand across tools.
 
 **Blueprint+ Upsell by Pillar:**

@@ -38,7 +38,7 @@ export function BlueprintPlusLocked({ userRole }: BlueprintPlusLockedProps = {})
       </div>
 
       <ul className="list-disc pl-5 mb-6 text-sm">
-        <li>Advanced AEO + SEO strategy</li>
+        <li>AI Answer Engine (AEO) + SEO strategy</li>
         <li>Campaign-level messaging prompts</li>
         <li>Cross-pillar orchestration</li>
         <li>AI-ready brand guardrails</li>

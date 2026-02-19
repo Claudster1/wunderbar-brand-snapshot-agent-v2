@@ -120,7 +120,7 @@ Blueprint+ is for businesses that don't just want to know what to do — they wa
 
 ---
 
-### 8. Differentiation — AI-Informed Competitor Contrast Positioning
+### 8. Differentiation Statement
 **What it is:** A differentiation narrative that directly contrasts your brand against competitive alternatives — with specific language for how to position yourself in sales conversations, proposals, marketing copy, and comparison pages.
 
 **Why it matters:** "We're the best" doesn't work. Prospects have specific alternatives they're considering. Contrast positioning gives you defensible, specific claims that explain why you're the right choice vs. the other options — without being negative or defensive.
@@ -297,7 +297,7 @@ Blueprint+ is for businesses that don't just want to know what to do — they wa
 
 ---
 
-### 21. Email Marketing — Welcome + Nurture + Re-engagement
+### 21. Email Marketing Strategy — Welcome + Nurture + Re-engagement
 **What it is:** A complete email ecosystem:
 - **Welcome Sequence** (4–5 emails) — From first opt-in to first conversion
 - **Nurture Campaign** (3–5 emails) — For subscribers who aren't ready to buy yet

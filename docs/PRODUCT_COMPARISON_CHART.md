@@ -15,8 +15,8 @@
 | Five-pillar analysis with per-pillar insights | ✓ | ✓ | ✓ | ✓ |
 | Where to focus first | ✓ | ✓ | ✓ | ✓ |
 | AI-Informed Industry Benchmarks | — | AI-Informed Context | AI-Informed Benchmarks | AI-Informed Benchmarks |
-| Brand Health Scorecard | — | — | — | ✓ |
-| SWOT Analysis | — | — | — | ✓ |
+| Brand Health Scorecard | — | — | ✓ | ✓ |
+| SWOT Analysis | — | — | ✓ | ✓ |
 | Quarterly refresh — retake and track your scores over time | Free retake | $47/refresh | $97/refresh | Unlimited (included) |
 | | | | | |
 | **DETAILED ANALYSIS** | | | | |
@@ -32,9 +32,9 @@
 | Communication guidelines | — | ✓ | ✓ | Audience-Specific Variations |
 | Brand purpose & promise | — | — | ✓ | ✓ |
 | Positioning statement | — | — | ✓ | ✓ |
-| Competitor contrast positioning† | — | — | ✓ | AI-Informed Competitor Contrast Positioning |
+| Differentiation Statement† | — | — | ✓ | ✓ |
 | Brand growth & expansion strategy | — | — | — | ✓ |
-| Brand rules & terminology guide | — | — | — | ✓ |
+| Brand Rules & Terminology Guide | — | — | ✓ | ✓ |
 | | | | | |
 | **UNDERSTANDING YOUR CUSTOMERS** | | | | |
 | Ideal customer profile | — | ✓ | ✓ | ✓ |
@@ -54,20 +54,21 @@
 | | | | | |
 | **VISUAL DIRECTION** | | | | |
 | Brand color palette (HEX, RGB & CMYK) | — | ✓ | ✓ | ✓ |
-| Font & typography direction | — | — | ✓ | ✓ |
-| Rules to keep your visuals consistent | — | — | ✓ | ✓ |
+| Typography Direction | — | ✓ | ✓ | ✓ |
+| Imagery Mood & Style Direction | — | ✓ | ✓ | ✓ |
+| Visual Consistency Rules | — | ✓ | ✓ | ✓ |
 | Brand imagery & photography direction | — | — | Style, Subject, Stock Criteria & Color Application | + Platform Guidance, Mood Board, Persona Imagery & AI Image Prompts |
 | | | | | |
 | **AI-INFORMED COMPETITIVE PERSPECTIVE** | | | | |
 | Competitive positioning† | — | — | ✓ | Strategic Moves & Counter-Positioning |
 | Competitive gaps & vulnerability playbook† | — | — | ✓ | Opportunity Playbook & Sequencing |
-| Key decisions — what to prioritize and why | — | — | ✓ | ✓ |
+| Where to Focus & Why | — | — | ✓ | ✓ |
 | | | | | |
 | **GETTING FOUND ONLINE** | | | | |
 | Visibility & discovery strategy | — | ✓ | ✓ | ✓ |
 | AI search readiness | — | ✓ | Entity & Schema Strategy | Full Implementation Roadmap |
 | SEO strategy† | — | — | 8–10 Keywords | 15+ Keywords & Topic Clusters |
-| Email marketing | — | — | Welcome Sequence | Welcome + Nurture + Re-engagement |
+| Email Marketing Strategy | — | — | Welcome Sequence | Welcome + Nurture + Re-engagement |
 | Social media strategy | — | — | 2–3 Platforms | All Platforms + Repurposing Playbook |
 | Content calendar | — | — | — | ✓ |
 | Conversion strategy | — | — | ✓ | Funnel-Specific CTAs with Ready-to-Use Copy |
@@ -82,15 +83,26 @@
 | Value & pricing communication framework | — | — | Pricing Narrative, Objection Responses & Proposal Language | + Persona-Specific Pricing Narratives & Competitive Differentiation |
 | Sales conversation guide | — | — | Opening, Discovery, Objection Playbook & Closing Language | + Persona Conversation Tracks, Scenario Scripts & Sales Tools |
 | | | | | |
+| **DOCUMENTS & DELIVERABLES** | | | | |
+| Brand Direction Summary (5–8 pages) | — | ✓ | — | — |
+| Complete WunderBrand Blueprint™ (60–80 pages) | — | — | ✓ | ✓ |
+| Executive Summary (2–4 pages) | — | — | ✓ | ✓ |
+| Brand Messaging Playbook (10–15 pages) | — | — | ✓ | ✓ |
+| AI Prompt Library Document (12–16 pages) | — | — | ✓ | ✓ |
+| 90-Day Brand Activation Plan document (12–18 pages) | — | — | — | ✓ |
+| Digital Marketing Strategy (18–24 pages) | — | — | — | ✓ |
+| Competitive Intelligence Brief (14–18 pages) | — | — | — | ✓ |
+| Brand Standards Guide (20–30 pages) | — | — | — | ✓ |
+| | | | | |
 | **YOUR ACTION PLAN** | | | | |
-| 90-day action plan | — | ✓ | ✓ | Week-by-Week Deliverables & Milestones |
-| Brand consistency checklist | — | Brand Do's & Don'ts | Checklist & Review Criteria | Checklist + Team Onboarding |
-| Measurement & KPI framework | — | — | Per-Section KPIs, Leading Indicators & Tracking Tools | + Quarterly Review Template |
-| Brand strategy rollout guide | — | — | One-Pager, Talking Points & Approved Language | + Presentation Summary, Role Briefs & Brand in 5 Minutes |
+| Priority Action Recommendations | — | ✓ | ✓ | ✓ |
+| Brand Consistency Guide | — | — | ✓ | ✓ |
+| Measurement & Improvement Guide | — | — | ✓ | ✓ |
 | | | | | |
 | **DELIVERY & SUPPORT** | | | | |
-| Downloadable PDF report (print-ready) | ✓ | ✓ | ✓ | ✓ |
-| Voice of Customer survey | — | — | — | ✓ |
+| Online Results Dashboard & Downloadable PDF | ✓ | ✓ | ✓ | ✓ |
+| Interactive Brand Workbook | — | — | 14-day review window | Always editable |
+| File Uploads During Diagnostic | — | — | Up to 3 files | Up to 10 files |
 | 30-minute Strategy Activation Session | — | — | — | ✓ |
 
 ---

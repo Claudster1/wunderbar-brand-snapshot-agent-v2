@@ -27,7 +27,7 @@ For each:
     },
     {
       id: "vis-aeo-expand",
-      title: "Advanced AEO Authority Expansion",
+      title: "AEO Authority Expansion",
       purpose: "Increase AI citation likelihood",
       prompt: `
 Expand the brand’s AEO strategy.

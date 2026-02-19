@@ -132,7 +132,7 @@ export function SnapshotPlusReport({
     <Document>
       <Page style={styles.page}>
         {/* Cover */}
-        <Text style={styles.h1}>Snapshot+™ Brand Report</Text>
+        <Text style={styles.h1}>WunderBrand Snapshot+™ — Brand Direction Summary</Text>
         <Text style={styles.body}>Prepared for {brandName}</Text>
 
         <View style={{ marginTop: 24, alignItems: "center" }}>

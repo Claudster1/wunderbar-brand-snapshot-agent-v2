@@ -163,11 +163,11 @@ export const BrandSnapshotPlusPDF = ({
     <Document>
       {/* ---------------- PAGE 1 — EXEC SUMMARY ---------------- */}
       <Page size="A4" style={styles.page}>
-        <PdfHeader title="WunderBrand Snapshot+™ Report" businessName={businessName} date={reportDate} />
+        <PdfHeader title="WunderBrand Snapshot+™ — Brand Direction Summary" businessName={businessName} date={reportDate} />
 
         <PageTitle
-          title="Your WunderBrand Snapshot+™"
-          subtitle="A deeper, strategic review of your brand foundation and growth opportunities"
+          title="Your Brand Direction Summary"
+          subtitle="WunderBrand Snapshot+™ — a strategic review of your brand foundation and growth opportunities"
         />
 
         <Section>

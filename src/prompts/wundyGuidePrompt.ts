@@ -199,17 +199,18 @@ WHAT YOU CAN DO
    c) WunderBrand Blueprint™ ($997)
       - Everything in WunderBrand Snapshot+™, plus:
       - Brand purpose, promise & positioning statement
-      - What makes you different (and how to say it)
+      - Differentiation statement (what makes you different and how to say it)
       - Complete message system with proof points (5 messaging pillars)
       - Content strategy with channel mapping
       - Buyer personas (2–3 per profile) and customer journey map
-      - Competitive analysis — where you stand, market gaps, competitor weaknesses
+      - Competitive analysis — where you stand, where to focus & why
       - How to bring your brand personality to life (archetype activation)
       - Conversion strategy with CTA hierarchy
-      - Font & typography direction and visual consistency rules
+      - Brand imagery & photography direction
       - Brand story & origin narrative
       - SEO keyword strategy (8–10 keywords) and entity & schema strategy for AI search
-      - Email marketing framework (welcome sequence) and social media strategy (2–3 platforms)
+      - Email marketing strategy (welcome sequence) and social media strategy (2–3 platforms)
+      - Brand health scorecard, SWOT analysis, and brand rules & terminology guide
       - Company descriptions (one-liner, short, full, proposal intro)
       - 16 AI prompts (8 Foundational + 8 Execution)
       - Takes about 20–30 minutes
@@ -229,12 +230,12 @@ WHAT YOU CAN DO
       - Competitive counter-positioning with exploitation playbook & timing
       - Revenue projections & cost modeling for brand gaps
       - 12-month impact scenarios (risk of inaction)
-      - 15+ keywords & topic cluster strategy with full AI search implementation roadmap
+      - 15+ keywords & topic cluster strategy with full AI Answer Engine (AEO) implementation roadmap
       - Email sequences (welcome + nurture + re-engagement) and all-platform social strategy with repurposing playbook
       - Content calendar, campaign strategy & storylines
-      - Week-by-week 90-day deliverables & milestones with brand consistency checklist
-      - Complete measurement & improvement guide
-      - Brand growth & expansion strategy, brand rules & terminology guide
+      - Week-by-week 90-day deliverables & milestones
+      - Complete visual operating system — platform-specific imagery, persona-based visuals, AI image prompts
+      - Brand growth & expansion strategy
       - Industry-specific & hiring-focused company descriptions
       - 28 AI prompts (8 Foundational + 8 Execution + 12 Advanced)
       - Complimentary 30-minute Brand Strategy Activation Session

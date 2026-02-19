@@ -200,15 +200,40 @@ SNAPSHOT+™ MUST INCLUDE:
    - whyItMatters: One sentence explaining why this theme is strategically important for [businessName]
    - exampleMessage: One concrete sentence or headline that brings this pillar to life (specific to this business)
 
-9. Visual & Verbal Signals
-   - colorPaletteDirection (strategic reasoning)
+9. Visual & Verbal Brand Direction
+   This section provides a foundational visual identity system. It should feel like a visual brief a designer or agency could use immediately.
+   
+   - colorPaletteDirection: Strategic reasoning for color choices — tied to archetype, industry, and audience
    - colorSwatches: 4–6 colors with { name, hex, rgb, cmyk, usage }
      - hex: For web design, CSS, and design tools (e.g., "#1A3C5E")
      - rgb: For digital design, screen work, PowerPoint, Google Slides (e.g., "26, 60, 94")
      - cmyk: For print — business cards, brochures, packaging, signage (e.g., "72, 36, 0, 63")
    - avoidColors: 2–3 colors with { name, hex, reason }
+   - typographyDirection: {
+       fontMood: "The feeling the typography should convey — tied to archetype and brand personality (e.g., 'modern and clean with geometric sans-serifs' or 'classic authority with transitional serifs')"
+       headingStyle: "Guidance for heading fonts — weight, style, and character (e.g., 'Bold, geometric sans-serif — Montserrat, Poppins, or similar. Use for all H1–H3 headings.')"
+       bodyStyle: "Guidance for body text — readability and tone (e.g., 'Clean, highly readable sans-serif — Inter, Source Sans Pro, or similar. Optimized for screen reading.')"
+       accentStyle: "Optional accent font for pull quotes, callouts, or signatures (e.g., 'A humanist serif like Merriweather for pull quotes and testimonials — adds warmth without losing professionalism')"
+       pairingSuggestions: Array of 2–3 specific font pairings, each with:
+         - heading: "Font name for headings"
+         - body: "Font name for body"
+         - rationale: "Why this pairing works for [businessName]'s brand"
+       typographyDonts: Array of 2–3 things to avoid (e.g., "Avoid script fonts in body copy — undermines readability and professional credibility")
+     }
+   - imageryMoodDirection: {
+       visualMood: "A 2–3 sentence description of how [businessName]'s visual world should feel — tied to archetype, personality, and audience expectations (e.g., 'Warm, confident, and approachable — natural light, real environments, and human connection. Nothing staged or sterile.')"
+       moodDescriptors: Array of 4–5 single-word or short-phrase descriptors (e.g., "Warm", "Authentic", "Clean", "People-forward", "Natural light")
+       visualDoAndDont: {
+         do: Array of 3–4 guidelines (e.g., "Use imagery showing real people in natural environments", "Choose photos with warm, natural lighting that matches the brand palette")
+         dont: Array of 3–4 guidelines (e.g., "Avoid generic stock photos with forced smiles", "No overly filtered or heavily stylized images that feel inauthentic")
+       }
+     }
+   - visualConsistencyPrinciples: Array of 3–5 rules for maintaining visual coherence across channels, each with:
+     - principle: "The rule (e.g., 'One font pair everywhere')"
+     - why: "Why this matters for [businessName]'s brand consistency"
+     - example: "A practical example of applying this principle"
    - voiceTraits: 3–5 words
-   - consistencyRisks
+   - consistencyRisks: What threatens brand visual/verbal consistency
 
 10. Strategic Action Plan (5 actions)
    Each: action, pillar, outcome, priority, why, howTo (2–3 steps), example, effort, impact

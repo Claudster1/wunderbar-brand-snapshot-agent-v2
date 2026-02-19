@@ -145,16 +145,19 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         <Text style={s.tocItem}>Customer Journey Map</Text>
         <Text style={s.tocItem}>SEO & Keyword Strategy</Text>
         <Text style={s.tocItem}>AEO & AI Search Strategy</Text>
-        <Text style={s.tocItem}>Email Marketing Framework</Text>
+        <Text style={s.tocItem}>Email Marketing Strategy</Text>
         <Text style={s.tocItem}>Social Media Platform Strategy</Text>
         <Text style={s.tocItem}>Conversion Strategy</Text>
         <Text style={s.tocItem}>Value & Pricing Communication</Text>
         <Text style={s.tocItem}>Sales Conversation Guide</Text>
 
-        <Text style={s.tocPart}>Part V — Implementation</Text>
+        <Text style={s.tocPart}>Part V — Implementation & Action Plan</Text>
         <Text style={s.tocItem}>90-Day Brand Strategy Rollout</Text>
         <Text style={s.tocItem}>Brand Consistency Checklist</Text>
         <Text style={s.tocItem}>Measurement & KPI Framework</Text>
+        <Text style={s.tocItem}>Brand Health Scorecard</Text>
+        <Text style={s.tocItem}>SWOT Analysis</Text>
+        <Text style={s.tocItem}>Brand Rules & Terminology Guide</Text>
         <Text style={s.tocItem}>Visual Direction & Brand Imagery</Text>
 
         <Text style={s.tocPart}>Part VI — AI Prompt Library</Text>
@@ -681,7 +684,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         <Text style={s.h3}>Priority FAQs</Text>
         <Bullets items={d.aeoStrategy?.faqStrategy?.priorityFAQs || []} />
 
-        <Text style={s.h1}>Email Marketing Framework</Text>
+        <Text style={s.h1}>Email Marketing Strategy</Text>
         <Text style={s.body}>{d.emailMarketingFramework?.overview}</Text>
         <Text style={s.h3}>Welcome Sequence</Text>
         {d.emailMarketingFramework?.welcomeSequence?.emails?.map((e, i) => (
@@ -847,6 +850,88 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
             <Text style={s.small}>Timeframe: {li.timeframe}</Text>
           </View>
         ))}
+
+        {/* Brand Health Scorecard */}
+        {d.brandHealthScorecard && (
+          <>
+            <Text style={s.h1}>Brand Health Scorecard</Text>
+            <Text style={s.body}>{d.brandHealthScorecard.overview}</Text>
+            <Text style={s.h3}>Scorecard Dimensions</Text>
+            {d.brandHealthScorecard.scorecardDimensions?.map((dim: any, i: number) => (
+              <View key={i} style={s.card} wrap={false}>
+                <Text style={s.cardTitle}>{dim.dimension}</Text>
+                <Text style={s.body}>Current: {dim.currentState}</Text>
+                <Text style={s.body}>Target (90 days): {dim.targetState}</Text>
+                <Text style={s.small}>Metric: {dim.keyMetric} | Frequency: {dim.frequency}</Text>
+              </View>
+            ))}
+          </>
+        )}
+
+        {/* SWOT Analysis */}
+        {d.swotAnalysis && (
+          <>
+            <Text style={s.h1}>SWOT Analysis</Text>
+            <Text style={s.body}>{d.swotAnalysis.overview}</Text>
+            <Text style={s.h3}>Strengths</Text>
+            {d.swotAnalysis.strengths?.map((s2: any, i: number) => (
+              <View key={i} style={s.card} wrap={false}>
+                <Text style={s.cardTitle}>{s2.item}</Text>
+                <Text style={s.body}>{s2.evidence}</Text>
+                <Text style={s.small}>Leverage: {s2.leverage}</Text>
+              </View>
+            ))}
+            <Text style={s.h3}>Weaknesses</Text>
+            {d.swotAnalysis.weaknesses?.map((w: any, i: number) => (
+              <View key={i} style={s.card} wrap={false}>
+                <Text style={s.cardTitle}>{w.item}</Text>
+                <Text style={s.body}>{w.evidence}</Text>
+                <Text style={s.small}>Mitigation: {w.mitigation}</Text>
+              </View>
+            ))}
+            <Text style={s.h3}>Opportunities</Text>
+            {d.swotAnalysis.opportunities?.map((o: any, i: number) => (
+              <View key={i} style={s.card} wrap={false}>
+                <Text style={s.cardTitle}>{o.item}</Text>
+                <Text style={s.body}>{o.context}</Text>
+                <Text style={s.small}>Action: {o.action}</Text>
+              </View>
+            ))}
+            <Text style={s.h3}>Threats</Text>
+            {d.swotAnalysis.threats?.map((t: any, i: number) => (
+              <View key={i} style={s.card} wrap={false}>
+                <Text style={s.cardTitle}>{t.item}</Text>
+                <Text style={s.small}>Likelihood: {t.likelihood} | Impact: {t.impact}</Text>
+                <Text style={s.body}>{t.contingency}</Text>
+              </View>
+            ))}
+            <Text style={s.body}>{d.swotAnalysis.strategicImplications}</Text>
+          </>
+        )}
+
+        {/* Brand Rules & Terminology Guide */}
+        {d.brandGlossary && (
+          <>
+            <Text style={s.h1}>Brand Rules & Terminology Guide</Text>
+            <Text style={s.body}>{d.brandGlossary.overview}</Text>
+            <Text style={s.h3}>Preferred Terms</Text>
+            {d.brandGlossary.termsToUse?.map((term: any, i: number) => (
+              <View key={i} style={s.card} wrap={false}>
+                <Text style={s.cardTitle}>Use: {term.term}</Text>
+                <Text style={s.body}>Instead of: {term.insteadOf}</Text>
+                <Text style={s.small}>{term.context}</Text>
+              </View>
+            ))}
+            <Text style={s.h3}>Phrases to Avoid</Text>
+            {d.brandGlossary.phrasesToAvoid?.map((p: any, i: number) => (
+              <View key={i} style={s.card} wrap={false}>
+                <Text style={s.cardTitle}>{p.phrase}</Text>
+                <Text style={s.body}>{p.why}</Text>
+                <Text style={s.small}>Instead: {p.alternative}</Text>
+              </View>
+            ))}
+          </>
+        )}
 
         <Text style={s.h1}>Visual Direction & Imagery</Text>
         <Text style={s.h3}>Color Palette</Text>

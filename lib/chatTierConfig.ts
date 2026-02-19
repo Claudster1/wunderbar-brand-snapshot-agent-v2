@@ -1,10 +1,11 @@
 // lib/chatTierConfig.ts
 // Product tier configuration for the diagnostic chat page.
-// Controls heading, value-prop, Wundy's greeting (message 1), and welcome-back (message 2).
+// Controls heading, value-prop, Wundy's greeting, and welcome-back.
 //
-// Two-message intro flow:
-//   1. greeting  — first chat bubble, asks for their name
-//   2. welcomeBack — after user shares name, uses {firstName} interpolation
+// Intro flow:
+//   1. greeting  — first message for new users (uses {firstName} from URL params)
+//   2. welcomeBack — message for returning users resuming a saved session
+// Both support {firstName} interpolation.
 
 export type ChatTier = "snapshot" | "snapshot-plus" | "blueprint" | "blueprint-plus";
 
@@ -17,9 +18,9 @@ export interface ChatTierConfig {
   valueProp: string;
   /** Estimated time for the diagnostic */
   timeEstimate: string;
-  /** Wundy's first message — asks for name */
+  /** Wundy's intro for first-time users — uses {firstName} interpolation */
   greeting: string;
-  /** Wundy's second message — uses {firstName}, sets expectations. Interpolated at runtime. */
+  /** Wundy's message for returning users resuming a saved session — uses {firstName} interpolation */
   welcomeBack: string;
 }
 
@@ -31,11 +32,7 @@ const TIER_CONFIGS: Record<ChatTier, ChatTierConfig> = {
     valueProp: "See how aligned your brand really is — in about 15 minutes.",
     timeEstimate: "about 15 minutes",
 
-    greeting: `Hi, I'm Wundy™ — your brand guide here at Wunderbar Digital.
-
-I'm going to walk you through a conversation about your brand. It's not a quiz, there are no wrong answers, and you don't need to prepare anything. We're just going to talk through your business and I'll put together a clear picture of where your brand stands today.
-
-First things first — what's your name?`,
+    greeting: `Hi {firstName}, I'm Wundy™ — your brand guide here at Wunderbar Digital. My job is to ask you the right questions so our diagnostic can give you a clear picture of where your brand stands today. It's a real conversation — not a quiz, no wrong answers, nothing to prepare. Just talk to me like you'd talk to a curious colleague who wants to understand your business. Ready when you are — let's get into it.`,
 
     welcomeBack: `Great to meet you, {firstName}.
 
@@ -55,11 +52,7 @@ Ready when you are, {firstName}. Let's see where your brand stands.`,
     valueProp: "A deeper diagnostic with strategic recommendations tailored to your business.",
     timeEstimate: "about 20–25 minutes",
 
-    greeting: `Hi, I'm Wundy™ — your brand guide here at Wunderbar Digital.
-
-Thank you for choosing WunderBrand Snapshot+™. I'm going to walk you through a conversation about your brand — and because you've chosen this tier, your results will go beyond the diagnostic into tailored strategic recommendations you can act on right away.
-
-Before we get into it — what's your name?`,
+    greeting: `Hi {firstName}, I'm Wundy™ — your brand guide here at Wunderbar Digital. I'm here to make sure our diagnostic gets everything it needs to give you a sharp, personalized picture of your brand — where you're strong, where there's opportunity, and what to focus on first. We're going to have a real conversation about your business, your customers, and how your brand shows up in the world. Some questions will be easy, some might make you think. Either way, I've got you — just answer naturally and we'll get where we need to go. Let's get started.`,
 
     welcomeBack: `Really glad to have you here, {firstName}.
 
@@ -81,11 +74,7 @@ Let's get into it.`,
     valueProp: "Your brand strategy, mapped — with an execution-ready action plan.",
     timeEstimate: "about 25–30 minutes",
 
-    greeting: `Hi, I'm Wundy™ — your brand guide here at Wunderbar Digital.
-
-Welcome to WunderBrand Blueprint™. This is a comprehensive look at your brand — we're going to go deeper than a standard diagnostic and build you an execution-ready strategy you can put to work across your marketing.
-
-I'm looking forward to learning about your business. To start — what's your name?`,
+    greeting: `Hi {firstName}, I'm Wundy™ — your brand guide here at Wunderbar Digital. We've got a good conversation ahead of us. My job is to get a complete picture of your business — your positioning, your audience, how your brand shows up across every channel — so our diagnostic can build you something you can actually use. We'll cover more ground than a quick check-in, so take your time with each answer. No prep needed, no wrong answers — the more honest you are, the better your results will be. Let's get into it.`,
 
     welcomeBack: `{firstName}, welcome — this is going to be a great conversation.
 
@@ -107,11 +96,7 @@ Let's map your brand.`,
     valueProp: "The complete strategic diagnostic — with a 1:1 Strategy Activation Session.",
     timeEstimate: "about 30–40 minutes",
 
-    greeting: `Hi, I'm Wundy™ — your brand guide here at Wunderbar Digital.
-
-Welcome to WunderBrand Blueprint+™ — this is our most in-depth strategic experience, and I want to make sure we get the most out of it for you. Your results will include an Advanced Prompt Library and a complimentary Strategy Activation Session with our team, so everything we cover here feeds directly into your 1:1 conversation.
-
-Let's get to know each other. What's your name?`,
+    greeting: `Hi {firstName}, I'm Wundy™ — your brand guide here at Wunderbar Digital. I want to make sure we get the most out of this conversation, because what comes out of it matters — your results feed directly into your Strategy Activation Session with our team. My job is to understand your business as thoroughly as possible — your positioning, your audience, your goals, and how your brand shows up across every touchpoint. We'll cover a lot of ground, and I'll be with you the whole way. Answer naturally, be as specific as you can, and don't worry if you don't have everything figured out — that's exactly what we're here for. Let's begin.`,
 
     welcomeBack: `{firstName}, thank you for investing in this — I want to make sure the experience matches the investment.
 
@@ -152,9 +137,17 @@ export function getChatTierConfig(tier: ChatTier): ChatTierConfig {
 }
 
 /**
- * Interpolate {firstName} into the welcome-back template.
+ * Interpolate {firstName} into any chat template (greeting or welcomeBack).
  */
 export function interpolateWelcomeBack(template: string, firstName: string): string {
+  return template.replace(/\{firstName\}/g, firstName);
+}
+
+/**
+ * Interpolate {firstName} into greeting or welcomeBack templates.
+ * Alias for interpolateWelcomeBack — works on any template string.
+ */
+export function interpolateTemplate(template: string, firstName: string): string {
   return template.replace(/\{firstName\}/g, firstName);
 }
 

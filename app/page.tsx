@@ -67,20 +67,20 @@ function HomeContent() {
   const activeTier = validatedTier === "pending" ? "snapshot" : validatedTier as ChatTier;
   const activeTierConfig = useMemo(() => getChatTierConfig(activeTier), [activeTier]);
 
-  // For paid tiers with a known name from Stripe:
-  //   → Skip the "what's your name?" step entirely
-  //   → Combine a short intro + the personalized welcome-back into one opening message
-  // For the free tier (or paid without a name):
-  //   → Use the standard two-message flow: greeting asks name → user responds → welcome-back
+  // Greeting resolution:
+  //   Name known (any tier) → interpolate {firstName} in greeting, complete intro in one message
+  //   Name NOT known (free tier) → ask for name first, then use welcomeBack after name is collected
   const resolvedGreeting = useMemo(() => {
-    if (customerName && activeTier !== "snapshot") {
-      // Paid tier with name from Stripe — build a single personalized opening
-      const welcomeBack = interpolateWelcomeBack(activeTierConfig.welcomeBack, customerName);
-      return `Hi ${customerName}, I'm Wundy™ — your brand guide here at Wunderbar Digital.\n\n${welcomeBack}`;
+    if (customerName) {
+      return interpolateWelcomeBack(activeTierConfig.greeting, customerName);
     }
-    // Standard greeting (asks for name)
-    return activeTierConfig.greeting;
-  }, [activeTier, activeTierConfig, customerName]);
+    // No name available — modify greeting to ask for name
+    return activeTierConfig.greeting
+      .replace(/\{firstName\},?\s*/g, "")
+      .replace(/let's get into it\./i, "First things first — what's your name?")
+      .replace(/let's get started\./i, "But first — what's your name?")
+      .replace(/let's begin\./i, "But first — what's your name?");
+  }, [activeTierConfig, customerName]);
 
   // When the assessment completes, show email verification instead of auto-redirecting
   const handleAssessmentComplete = useCallback((completedReportId: string, redirectUrl: string) => {
@@ -91,7 +91,7 @@ function HomeContent() {
   const { messages, isLoading, sendMessage, retry, canRetry, reset, reportId, assessmentProgress, questionsAnswered, totalQuestions } = useBrandChat({
     onComplete: handleAssessmentComplete,
     customGreeting: resolvedGreeting,
-    welcomeBackTemplate: (!customerName || activeTier === "snapshot") ? activeTierConfig.welcomeBack : undefined,
+    welcomeBackTemplate: !customerName ? activeTierConfig.welcomeBack : undefined,
   });
   const [inputValue, setInputValue] = useState("");
   const [progress, setProgress] = useState(0);

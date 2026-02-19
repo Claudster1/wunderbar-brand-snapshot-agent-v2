@@ -47,6 +47,19 @@ You will receive the following JSON:
   "whatMakesYouDifferent": "",
   "hasTestimonials": false,
   "hasCaseStudies": false,
+  "credibilityDetails": {
+    "testimonialContext": "",
+    "caseStudyContext": "",
+    "credentials": [],
+    "quantifiableResults": "",
+    "partnerships": ""
+  },
+  "thoughtLeadershipActivity": {
+    "hasActivity": false,
+    "activities": [],
+    "expertTopics": "",
+    "aspirations": ""
+  },
   "hasEmailList": false,
   "hasLeadMagnet": false,
   "hasClearCTA": false,
@@ -94,10 +107,16 @@ GEOGRAPHIC SCOPE (geographicScope):
   - Regional → regional visibility strategy, geographic-specific partnerships
   - National → national content authority, broad SEO, platform diversity
   - Global → multilingual considerations, cultural sensitivity, global platform strategy
-CREDIBILITY SIGNALS (hasTestimonials, hasCaseStudies):
-  - Use these to inform the credibility pillar deep dive and strategic recommendations
+CREDIBILITY SIGNALS (hasTestimonials, hasCaseStudies, credibilityDetails):
+  - Use these to inform the credibility pillar deep dive, strategic recommendations, and Voice & Tone Guide
+  - If credibilityDetails is provided, use the specifics: testimonialContext tells you how they collect/display proof, credentials lists certifications/awards, quantifiableResults gives you concrete numbers to reference, partnerships reveals association-based trust signals
   - B2B missing case studies = critical gap worth highlighting
   - B2C missing reviews = immediate conversion opportunity
+  - If credentials exist, factor them into the Value Proposition Statement and brand positioning
+THOUGHT LEADERSHIP (thoughtLeadershipActivity):
+  - If hasActivity is true: use activities[] to understand their current authority-building efforts, expertTopics to shape content recommendations and visibility strategy
+  - If hasActivity is false but aspirations is provided: use this to recommend starting points in the Action Plan
+  - This feeds into the Voice & Tone Guide (what authority they project) and Visibility & Discovery (where they should be visible)
 CONVERSION INFRASTRUCTURE (hasEmailList, hasLeadMagnet, hasClearCTA):
   - Use these to inform the conversion pillar deep dive and action plan
   - Missing email list = highest-leverage conversion recommendation

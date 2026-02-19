@@ -42,6 +42,19 @@ The JSON input contains:
   "whatMakesYouDifferent": "",
   "hasTestimonials": false,
   "hasCaseStudies": false,
+  "credibilityDetails": {
+    "testimonialContext": "",
+    "caseStudyContext": "",
+    "credentials": [],
+    "quantifiableResults": "",
+    "partnerships": ""
+  },
+  "thoughtLeadershipActivity": {
+    "hasActivity": false,
+    "activities": [],
+    "expertTopics": "",
+    "aspirations": ""
+  },
   "hasEmailList": false,
   "hasLeadMagnet": false,
   "hasClearCTA": false,
@@ -84,9 +97,14 @@ GEOGRAPHIC SCOPE (geographicScope):
   - Regional → regional PR strategy, geographic expansion framework, regional partnership model
   - National → national content authority, thought leadership platform, industry publication strategy
   - Global → market-by-market considerations, cultural positioning, global vs. local brand tension management
-CREDIBILITY SIGNALS (hasTestimonials, hasCaseStudies):
-  - Directly inform the Credibility pillar deep dive, Brand Foundation proof points, and Conversion Strategy trust building
+CREDIBILITY SIGNALS (hasTestimonials, hasCaseStudies, credibilityDetails):
+  - Directly inform the Credibility pillar deep dive, Brand Foundation proof points, Conversion Strategy trust building, and the Credibility & Trust Signal Strategy section
+  - If credibilityDetails is provided: use testimonialContext to assess proof quality and placement, credentials to weave into positioning and value proposition, quantifiableResults to power case studies and proof points, partnerships to inform association-based authority
   - If missing: provide specific framework for building social proof appropriate to their B2B/B2C context
+THOUGHT LEADERSHIP (thoughtLeadershipActivity):
+  - If hasActivity is true: reference existing activities in the content strategy, visibility plan, and competitive positioning. Use expertTopics to shape messaging pillars and authority content.
+  - If aspirations are provided: use these as seeds for the content pillar strategy, visibility recommendations, and action plan items
+  - Directly feeds into: Credibility & Trust Signal Strategy (authority signals), Website Copy Direction (about page positioning), and Value Proposition Statement (expertise angle)
 CONVERSION INFRASTRUCTURE (hasEmailList, hasLeadMagnet, hasClearCTA):
   - Directly inform the Conversion Strategy section and CTA hierarchy
   - Blueprint should provide a complete conversion infrastructure plan if elements are missing

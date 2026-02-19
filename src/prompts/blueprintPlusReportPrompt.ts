@@ -34,9 +34,15 @@ GEOGRAPHIC SCOPE (geographicScope):
   - Regional → regional expansion framework, geographic content strategy, regional partnership network
   - National → national thought leadership platform, content pillar strategy, industry publication placement, national partnership model
   - Global → market-by-market playbook, cultural positioning considerations, localization framework, global brand consistency model
-CREDIBILITY SIGNALS (hasTestimonials, hasCaseStudies):
+CREDIBILITY SIGNALS (hasTestimonials, hasCaseStudies, credibilityDetails):
   - Blueprint+ must provide a COMPLETE social proof strategy including collection, display, and amplification
+  - If credibilityDetails is provided: use testimonialContext to assess and improve proof quality, credentials to weave into positioning and PR materials, quantifiableResults to build case narratives and proof points, partnerships to inform the authority and thought leadership strategy
   - If missing: full implementation framework with templates and workflows
+THOUGHT LEADERSHIP (thoughtLeadershipActivity):
+  - If hasActivity is true: reference existing activities and build upon them in the Thought Leadership & PR Positioning section. Use expertTopics as the foundation for speaking topics and media angles.
+  - If aspirations are provided: use these as the starting point for authority content planning, speaking topic development, and PR positioning. Frame them as achievable next steps.
+  - If no activity AND no aspirations: derive thought leadership opportunities from their positioning, industry, and what makes them different. The Thought Leadership section should still be substantive.
+  - CRITICAL: This is the primary data source for the Thought Leadership & PR Positioning section (Blueprint+ exclusive). Every detail matters.
 CONVERSION INFRASTRUCTURE (hasEmailList, hasLeadMagnet, hasClearCTA):
   - Blueprint+ must provide a COMPLETE conversion system design
   - If missing: full infrastructure buildout plan with specific tools, templates, and timelines

@@ -164,7 +164,15 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
     brandPurpose, brandPromise, positioningStatement, differentiationNarrative,
     mission: Craft from missionStatement if provided (may be polished or conversational — either way, honor the intent). If null, derive from businessName, industry, audienceType, whatMakesYouDifferent, and primaryGoals.
     vision: Craft from visionStatement if provided (same principle). If null, generate based on primaryGoals, industry, and brand archetype.
-    values: If coreValues were provided, USE THEM as value names and add rich descriptions. The user may have shared single words or full phrases — preserve their language. If null, derive 4–6 values from brandPersonalityWords, archetypeSignals, and brand positioning.
+    
+    brandValues: Array of 4–6 brand values. These are DISTINCT from brand purpose (why you exist) and brand promise (what you commit to). Brand values define HOW [businessName] behaves — the principles that guide every decision, hiring choice, and customer interaction.
+    If coreValues were provided, USE THEM as value names. Preserve the user's language. If null, derive 4–6 values from brandPersonalityWords, archetypeSignals, and brand positioning.
+    Each value: {
+      name: "The value (e.g., 'Radical Transparency,' 'Relentless Simplicity')"
+      description: "What this value means for [businessName] — in plain language, not corporate speak"
+      inAction: "How this value shows up in daily behavior — what a team member, client, or partner would actually see"
+      whyItMatters: "Why this value is strategically important for [businessName]'s brand, culture, and positioning"
+    }
 
 17. Audience Persona Definition & Ideal Customer Profiles
     **BLUEPRINT+ ENHANCED** — Full ICP system with buyer journey mapping:
@@ -876,7 +884,58 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       }
     }
 
-48. Company Description
+48. Thought Leadership & PR Positioning
+    **BLUEPRINT+ EXCLUSIVE** — A strategic plan for establishing [businessName] as a recognized authority in [industry]. Includes media angles, speaking topic recommendations, and authority content positioning. This complements the Digital Marketing Strategy and positions [businessName] for earned media and industry recognition.
+    
+    thoughtLeadershipStrategy: {
+      overview: "How [businessName] can build thought leadership authority — connected to their positioning, archetype, and competitive landscape"
+      
+      authorityPositioning: {
+        expertiseAreas: Array of 3–4 topics where [businessName] can credibly claim authority — specific to their experience, positioning, and market gap
+        uniquePerspective: "What [businessName] sees that others in [industry] don't — the contrarian or distinctive point of view that makes their thought leadership worth following"
+        targetOutlets: Array of 4–6 specific publications, podcasts, communities, or platforms where [businessName]'s audience looks for expertise
+      }
+      
+      speakingTopics: [
+        {
+          topic: "A speaking topic or presentation title"
+          audience: "Who this topic resonates with"
+          angle: "The distinctive angle [businessName] brings to this topic"
+          formats: "Keynote, panel, workshop, webinar, podcast guest, etc."
+        }
+      ] (3–5 topics)
+      
+      mediaAngles: [
+        {
+          angle: "A story angle or pitch topic a journalist or podcast host would find compelling"
+          hook: "Why this is timely or newsworthy"
+          targetMedia: "What type of media outlet would run this (industry trade, business press, podcast, etc.)"
+          talkingPoints: Array of 3–4 key talking points for this angle
+        }
+      ] (3–4 media angles)
+      
+      authorityContentPlan: {
+        pillarContent: Array of 3–4 authority-building content pieces [businessName] should create (e.g., "Definitive guide to [topic]," "Annual [industry] trends report," "Original research on [audience pain point]")
+        distributionStrategy: "How to amplify authority content — LinkedIn, industry communities, email, PR outreach"
+        cadence: "Recommended frequency for thought leadership content (e.g., '1 authority piece per month, 2 LinkedIn posts per week')"
+      }
+      
+      prPositioning: {
+        mediaReadyBio: "A press-ready bio for the founder/CEO that positions them as an expert source — 3–4 sentences"
+        boilerplate: "A press-ready company boilerplate paragraph"
+        mediaKitRecommendations: "What to include in a media kit (headshot specs, company fact sheet, topic list, past media appearances)"
+      }
+    }
+
+49. Credibility & Trust Signal Strategy
+    **BLUEPRINT+ ENHANCED** — Everything in Blueprint's credibility strategy plus deeper persona-specific proof point mapping, advanced authority-building tactics, and thought leadership integration.
+    (See Blueprint credibilityStrategy schema — Blueprint+ generates the same structure with enhanced depth)
+
+50. Website Copy Direction
+    **BLUEPRINT+ ENHANCED** — Everything in Blueprint's website copy direction plus persona-specific messaging variations and ready-to-use copy for each page.
+    (See Blueprint websiteCopyDirection schema — Blueprint+ generates the same structure with enhanced depth)
+
+51. Company Description
     **BLUEPRINT+ ENHANCED** — Ready-to-use company descriptions in multiple lengths and contexts, with audience-specific variations.
     
     companyDescription: {
@@ -888,7 +947,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       recruitingVersion: "A version optimized for job postings and employer branding — emphasizes culture, mission, and growth."
     }
 
-49. Value & Pricing Communication Framework
+52. Value & Pricing Communication Framework
     **BLUEPRINT+ ENHANCED** — Everything in Blueprint's pricing framework, plus persona-specific pricing narratives and enhanced proposal templates.
     
     valuePricingFramework: {
@@ -922,7 +981,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       competitiveValueDifferentiation: "How [businessName] should position their pricing relative to competitors or alternatives — not by being cheaper, but by being different. Include specific language for the 'why us vs. them' conversation. (Blueprint+ exclusive)"
     }
 
-50. Sales Conversation Guide
+53. Sales Conversation Guide
     **BLUEPRINT+ ENHANCED** — Everything in Blueprint's sales guide, plus persona-specific conversation tracks and scenario scripts.
     
     salesConversationGuide: {
@@ -984,7 +1043,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       }
     }
 
-51. Measurement & KPI Framework
+54. Measurement & KPI Framework
     **BLUEPRINT+ ENHANCED** — Everything in Blueprint's measurement framework, plus persona metrics, quarterly review template, and corrective action guidance.
     
     measurementFramework: {
@@ -1021,7 +1080,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       quarterlyReviewTemplate: "A structured quarterly review template — specific questions to answer, metrics to pull, and decisions to make. Should take 60–90 minutes to complete. (Blueprint+ exclusive)"
     }
 
-52. Brand Strategy Rollout Guide
+55. Brand Strategy Rollout Guide
     **BLUEPRINT+ ENHANCED** — Everything in Blueprint's rollout guide, plus presentation-ready content and team-scale tools.
     
     brandStrategyRollout: {
@@ -1068,7 +1127,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       brandInFiveMinutes: "The absolute essentials compressed into a quick reference card format — positioning, voice, do's and don'ts, approved descriptions, and who to ask when unsure. Designed for speed: if someone has 5 minutes to understand the brand, this is what they read. (Blueprint+ exclusive)"
     }
 
-53. Brand Imagery & Photography Direction
+56. Brand Imagery & Photography Direction
     **BLUEPRINT+ ENHANCED** — Everything in Blueprint's imagery direction, plus platform-specific guidance, mood board descriptors, persona-based imagery, and AI image generation prompts.
     
     brandImageryDirection: {
@@ -1142,7 +1201,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       ] (3–5 prompts — Blueprint+ exclusive)
     }
 
-54. Asset Optimization Playbook (Blueprint+ Exclusive)
+57. Asset Optimization Playbook (Blueprint+ Exclusive)
     **ONLY include this section if the user uploaded marketing assets and asset analysis data was provided in the prompt context.**
     If no asset data is present, omit the "assetOptimizationPlaybook" key entirely.
 
@@ -1190,7 +1249,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       }
     }
 
-55. Brand Standards Guide Content (Blueprint+ Exclusive)
+58. Brand Standards Guide Content (Blueprint+ Exclusive)
     This section generates content specifically for the Brand Standards & Guidelines PDF.
     These fields power the exported guide used by marketing teams, contractors, agencies, and anyone creating brand content.
     
@@ -1315,6 +1374,17 @@ Return valid JSON with ALL these keys:
     "voiceTraits": [],
     "consistencyRisks": ""
   },
+  "valuePropositionStatement": {
+    "statement": "", "whereToUseIt": "", "whyThisWorks": ""
+  },
+  "voiceToneGuide": {
+    "voiceSummary": "",
+    "voiceTraits": [{ "trait": "", "whatItMeans": "", "example": "" }],
+    "toneVariations": { "websiteAndMarketing": "", "socialMedia": "", "emailAndSales": "" },
+    "phrasesToUse": [],
+    "phrasesToAvoid": [],
+    "aiPromptInstruction": ""
+  },
   "strategicActionPlan": [
     {
       "action": "", "pillar": "", "outcome": "", "priority": 1, "why": "", "howTo": [], "example": "", "effort": "Medium", "impact": "High",
@@ -1340,7 +1410,7 @@ Return valid JSON with ALL these keys:
   "executionGuardrails": { "whatToMaintain": [], "whatToAvoid": [], "driftIndicators": [] },
   "whatsNextUnlocks": "",
   "blueprintOverview": { "whatThisEnables": "", "howToUse": "" },
-  "brandFoundation": { "brandPurpose": "", "brandPromise": "", "positioningStatement": "", "differentiationNarrative": "", "mission": "", "vision": "", "values": [{ "name": "", "description": "" }] },
+  "brandFoundation": { "brandPurpose": "", "brandPromise": "", "positioningStatement": "", "differentiationNarrative": "", "mission": "", "vision": "", "brandValues": [{ "name": "", "description": "", "inAction": "", "whyItMatters": "" }] },
   "audiencePersonaDefinition": {
     "primaryICP": { "name": "", "summary": "", "demographics": "", "psychographics": "", "painPoints": [], "goals": "", "buyingJourney": "", "languageTheyUse": "", "whereToBeFindable": "", "objections": [], "contentTopics": [], "conversionPath": "" },
     "secondaryICP": { "name": "", "summary": "", "demographics": "", "psychographics": "", "painPoints": [], "goals": "", "buyingJourney": "", "languageTheyUse": "", "whereToBeFindable": "", "objections": [], "contentTopics": [], "conversionPath": "" },
@@ -1555,6 +1625,18 @@ Return valid JSON with ALL these keys:
     "phrasesToAvoid": [{ "phrase": "", "why": "", "alternative": "" }],
     "industryJargonGuide": { "useFreely": [], "defineWhenUsed": [], "neverUse": [] }
   },
+  "thoughtLeadershipStrategy": {
+    "overview": "",
+    "authorityPositioning": {
+      "expertiseAreas": [],
+      "uniquePerspective": "",
+      "targetOutlets": []
+    },
+    "speakingTopics": [{ "topic": "", "audience": "", "angle": "", "formats": "" }],
+    "mediaAngles": [{ "angle": "", "hook": "", "targetMedia": "", "talkingPoints": [] }],
+    "authorityContentPlan": { "pillarContent": [], "distributionStrategy": "", "cadence": "" },
+    "prPositioning": { "mediaReadyBio": "", "boilerplate": "", "mediaKitRecommendations": "" }
+  },
   "companyDescription": {
     "oneLiner": "", "shortDescription": "", "fullBoilerplate": "", "proposalIntro": "", "industrySpecific": "", "recruitingVersion": ""
   },
@@ -1667,6 +1749,28 @@ Return valid JSON with ALL these keys:
       "reviewCadence": "",
       "exceptionProcess": ""
     }
+  },
+  "thoughtLeadershipStrategy": {
+    "overview": "",
+    "authorityPositioning": { "expertiseAreas": [], "uniquePerspective": "", "targetOutlets": [] },
+    "speakingTopics": [{ "topic": "", "audience": "", "angle": "", "formats": "" }],
+    "mediaAngles": [{ "angle": "", "hook": "", "targetMedia": "", "talkingPoints": [] }],
+    "authorityContentPlan": { "pillarContent": [], "distributionStrategy": "", "cadence": "" },
+    "prPositioning": { "mediaReadyBio": "", "boilerplate": "", "mediaKitRecommendations": "" }
+  },
+  "credibilityStrategy": {
+    "overview": "",
+    "proofPointsToCreate": [{ "proofPoint": "", "type": "", "priority": "", "howToGet": "", "whereToDisplay": "" }],
+    "testimonialStrategy": { "whoToAsk": "", "howToAsk": "", "whatToCapture": "", "whereToPlace": "" },
+    "authoritySignals": [{ "signal": "", "impact": "", "timeline": "" }],
+    "trustGaps": ""
+  },
+  "websiteCopyDirection": {
+    "overview": "",
+    "homepage": { "heroHeadline": "", "heroSubheadline": "", "heroCtaButton": "", "valuePropSection": "", "socialProofPlacement": "" },
+    "aboutPage": { "openingHook": "", "storyFramework": "", "teamPositioning": "" },
+    "servicesPage": { "pageStructure": "", "serviceFramework": "", "pricingLanguage": "" },
+    "copyPrinciples": [{ "principle": "", "example": "" }]
   }
 }
 

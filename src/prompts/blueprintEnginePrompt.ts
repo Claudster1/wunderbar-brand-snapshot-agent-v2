@@ -140,7 +140,11 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
 7. Brand Persona
    personaSummary, coreIdentity { whoYouAre, whatYouStandFor, howYouShowUp }, communicationStyle { tone, pace, energy }, messagingExamples { headlines, ctaButtons, socialPosts — each with avoid/use arrays }, doAndDont { do: [{ guideline, example }], dont: [{ guideline, example }] }
 
-8. Visual & Verbal Brand Direction (inherited from Snapshot+™ foundation)
+8. Value Proposition Statement
+   valuePropositionStatement: { statement, whereToUseIt, whyThisWorks }
+   A single, ready-to-use sentence answering "What does [businessName] do, for whom, and why it matters?" — for homepage hero, LinkedIn bio, pitch deck opening. Distinct from positioningStatement (strategic/internal) and messagingPillars (thematic).
+
+9. Visual & Verbal Brand Direction (inherited from Snapshot+™ foundation)
    colorPaletteDirection, colorSwatches [{ name, hex, rgb, cmyk, usage }], avoidColors [{ name, hex, reason }],
    typographyDirection { fontMood, headingStyle, bodyStyle, accentStyle, pairingSuggestions [{ heading, body, rationale }], typographyDonts [] },
    imageryMoodDirection { visualMood, moodDescriptors [], visualDoAndDont { do [], dont [] } },
@@ -148,35 +152,47 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
    voiceTraits [], consistencyRisks
    Color swatches must include all three formats: hex (web/CSS), rgb (digital/presentations), cmyk (print)
 
-9. Strategic Action Plan (5 actions)
-   Each: action, pillar, outcome, priority, why, howTo [], example, effort, impact
+10. Voice & Tone Guide (expanded from Snapshot+™)
+    voiceToneGuide: { voiceSummary, voiceTraits [{ trait, whatItMeans, example }], toneVariations { websiteAndMarketing, socialMedia, emailAndSales }, phrasesToUse [], phrasesToAvoid [], aiPromptInstruction }
+    Blueprint™ version: Full channel-specific tone guidance with ready-to-use phrases and AI prompt instruction for on-brand writing.
 
-10. Visibility & Discovery
+11. Strategic Action Plan (5 actions)
+    Each: action, pillar, outcome, priority, why, howTo [], example, effort, impact
+
+12. Visibility & Discovery
     visibilityMode, visibilityModeExplanation, discoveryDiagnosis { whereTheyShouldFind, whereTheyActuallyFind, gap }, aeoReadiness { score, explanation, recommendations }, visibilityPriorities [{ priority, action, impact }]
 
-11. Audience Clarity
+13. Audience Clarity
     audienceSignals { primaryAudience, audienceCharacteristics, audienceLanguage }, decisionDrivers { motivators [{ driver, explanation }], hesitationFactors [{ factor, explanation }] }
 
-12. Foundational AI Prompt Pack (8 prompts)
+14. Foundational AI Prompt Pack (8 prompts)
     packName, description, promptCount: 8, prompts [{ category, title, instruction, prompt, whyItMatters }]
 
-13. Execution Guardrails
+15. Execution Guardrails
     whatToMaintain, whatToAvoid, driftIndicators
 
-14. whatsNextUnlocks
+16. whatsNextUnlocks
 
 === BLUEPRINT-SPECIFIC SECTIONS ===
 
-15. Blueprint Overview
+17. Blueprint Overview
     whatThisEnables, howToUse
 
-16. Brand Foundation
+18. Brand Foundation
     brandPurpose, brandPromise, positioningStatement (fully written), differentiationNarrative,
     mission: Craft from missionStatement if provided (may be polished or conversational — honor the intent). If null, derive from the other inputs.
     vision: Craft from visionStatement if provided (same principle). If null, generate based on primaryGoals and brand direction.
-    values: If coreValues were provided, USE THEM as value names and add descriptions. Preserve the user's language. If null, derive 4–6 values from brandPersonalityWords, archetypeSignals, and brand positioning.
+    
+    brandValues: Array of 4–6 brand values. These are DISTINCT from brand purpose (why you exist) and brand promise (what you commit to). Brand values define HOW [businessName] behaves — the principles that guide every decision, hiring choice, and customer interaction.
+    If coreValues were provided, USE THEM as value names. Preserve the user's language. If null, derive 4–6 values from brandPersonalityWords, archetypeSignals, and brand positioning.
+    Each value: {
+      name: "The value (e.g., 'Radical Transparency,' 'Relentless Simplicity')"
+      description: "What this value means for [businessName] — in plain language, not corporate speak"
+      inAction: "How this value shows up in daily behavior — what a team member, client, or partner would actually see (e.g., 'We share our process openly with clients — including timelines, tradeoffs, and mistakes. No spin.')"
+      whyItMatters: "Why this value is strategically important for [businessName]'s brand, culture, and positioning"
+    }
 
-17. Audience Persona Definition & Ideal Customer Profiles
+19. Audience Persona Definition & Ideal Customer Profiles
     Build DETAILED Ideal Customer Profiles using currentCustomers, idealCustomers, and idealDiffersFromCurrent:
     
     primaryICP {
@@ -204,7 +220,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
       timeline: Realistic timeline for the transition (phased approach)
     }
 
-18. Buyer Personas (2–3 per ICP)
+20. Buyer Personas (2–3 per ICP)
     IMPORTANT: Buyer personas are DIFFERENT from ICPs. ICPs define the ideal company/customer profile. Buyer personas represent the real PEOPLE within that profile — the individuals who discover, evaluate, and buy.
     
     For EACH ICP (primary and secondary), generate 2–3 buyer personas:
@@ -232,14 +248,14 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
 
     This section is a KEY differentiator for WunderBrand Blueprint™ — it turns abstract audience definitions into actionable marketing segments with ready-to-use messaging.
 
-19. Brand Archetype Activation
+21. Brand Archetype Activation
     How the archetype shows up in daily operations:
     primaryArchetype, secondaryArchetype, activation: { messaging, content, salesConversations, visualTone } (each a descriptive string)
 
-20. Messaging System
+22. Messaging System
     coreMessage, supportingMessages [], proofPoints [], whatNotToSay []
 
-21. Messaging Pillars
+23. Messaging Pillars
     **These are the 3 strategic themes [businessName] should consistently communicate — NOT the 5 brand diagnostic pillars.**
     Messaging pillars answer: "What are the core ideas we always come back to across every touchpoint?"
     
@@ -253,7 +269,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
     - howToUse: 2–3 sentences explaining how to apply this pillar across channels (website, social, email, sales)
     - channelExamples: { website: "...", social: "...", email: "..." } — one specific copy example per channel
 
-22. Content Pillars
+24. Content Pillars
     **These are the 4–5 topical categories that guide what content [businessName] should create.**
     Content pillars answer: "What categories of content should we consistently produce?"
     
@@ -266,19 +282,19 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
     - suggestedFormats: Array of 2–3 content formats best suited for this pillar (e.g., "LinkedIn carousel," "blog post," "email newsletter")
     - messagingPillarConnection: Which messaging pillar this content pillar reinforces (connects the two systems)
 
-23. Visual Direction (Blueprint enhancement — extends section 8)
+25. Visual Direction (Blueprint enhancement — extends section 9)
     The foundational visual system is in section 8 (inherited from Snapshot+™). This section adds Blueprint-level depth:
     - colorPalette: Refined palette with usage hierarchy [{ name, hex, rgb, cmyk, usage }]
     - typographyTone: Expanded typography rationale connecting font choices to brand archetype and positioning
     - visualConsistencyPrinciples: Expanded principles with team delegation and cross-channel application guidance
 
-24. Conversion Strategy
+26. Conversion Strategy
     howTrustIsBuilt, howClarityDrivesAction, ctaHierarchy [{ level, action, context }]
 
-25. Execution Prompt Pack (8 MORE prompts — more advanced than Foundational)
+27. Execution Prompt Pack (8 MORE prompts — more advanced than Foundational)
     packName: "Execution Prompt Pack", description, promptCount: 8, prompts [{ category, title, instruction, prompt, whyItMatters }]
 
-26. Competitive Positioning Map
+28. Competitive Positioning Map
     IMPORTANT: If competitorNames are provided, this section is CRITICAL.
     If no competitors provided, use industry archetypes (e.g., "Typical [industry] incumbent," "Low-cost disruptor," "Premium boutique").
     
@@ -299,7 +315,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
     - B2B: Specialization ↔ Generalization, Self-Serve ↔ High-Touch, Price ↔ Value, Speed ↔ Depth
     - B2C: Luxury ↔ Accessible, Niche ↔ Mass, Traditional ↔ Innovative, Local ↔ Global
 
-27. Strategic Trade-Offs
+29. Strategic Trade-Offs
     EVERY brand strategy involves trade-offs. This section makes them EXPLICIT so [businessName] can make informed decisions.
     
     strategicTradeOffs: [
@@ -330,7 +346,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
     - Content: Quality vs. frequency
     - Channel: Concentrate vs. diversify
 
-28. Tagline & Slogan Recommendations
+30. Tagline & Slogan Recommendations
     Provide 3 tagline/slogan options for [businessName] based on their positioning, archetype, and messaging pillars.
     
     taglineRecommendations: [
@@ -342,7 +358,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
       }
     ] (exactly 3)
 
-29. Brand Story & Origin Narrative
+31. Brand Story & Origin Narrative
     A polished brand story [businessName] can use on their About page, in pitches, and investor decks.
     
     IMPORTANT: If brandOriginStory was provided by the user, USE IT as the foundation. Weave their actual origin into the narrative — enhance the storytelling but preserve the facts and spirit they shared. If null, construct from other inputs.
@@ -354,7 +370,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
       founderStory: "Drawn from brandOriginStory if provided, otherwise inferred: 'Founded on the belief that [core philosophy].'"
     }
 
-30. Customer Journey Map
+32. Customer Journey Map
     Map the customer journey from first awareness to advocacy, with touchpoints, messaging, and conversion triggers at each stage.
     
     customerJourneyMap: {
@@ -373,7 +389,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
       ] (6 stages: Awareness, Consideration, Decision, Onboarding, Retention, Advocacy)
     }
 
-31. SEO & Keyword Strategy
+33. SEO & Keyword Strategy
     Provide keyword direction and SEO strategy aligned with the brand positioning and content pillars.
     
     seoStrategy: {
@@ -398,7 +414,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
       contentSEOPlaybook: "A 2–3 sentence summary of how [businessName] should approach SEO content creation — frequency, format, and optimization approach"
     }
 
-32. AEO & AI Search Strategy
+34. AEO & AI Search Strategy
     A dedicated Answer Engine Optimization strategy to ensure [businessName] is discoverable and accurately represented in AI-powered search (ChatGPT, Perplexity, Google AI Overviews, etc.).
     
     aeoStrategy: {
@@ -420,7 +436,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
       competitiveAEOGaps: "Where competitors are visible in AI search and [businessName] is not — and what to do about it"
     }
 
-33. Email Marketing Strategy
+35. Email Marketing Strategy
     A foundational email strategy for [businessName] aligned with their brand voice, audience, and conversion goals.
     
     emailMarketingFramework: {
@@ -441,7 +457,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
       sendCadence: "Recommended email frequency and best days/times based on [industry] and [audienceType]"
     }
 
-34. Social Media Platform Strategy
+36. Social Media Platform Strategy
     Platform-specific guidance for the 2–3 most relevant social channels based on [businessName]'s audience, industry, and goals.
     
     socialMediaStrategy: {
@@ -464,7 +480,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
       }
     }
 
-35. Company Description
+37. Company Description
     Ready-to-use company descriptions in multiple lengths for different contexts (directories, social bios, proposals, press).
     
     companyDescription: {
@@ -527,7 +543,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
       }
     }
 
-37. Value & Pricing Communication Framework
+39. Value & Pricing Communication Framework
     **BLUEPRINT EXCLUSIVE** — How to talk about your pricing with confidence, connected to your brand positioning and proof points.
     
     valuePricingFramework: {
@@ -548,7 +564,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
       whyUsAtThisPrice: "Copy-ready language for [businessName]'s website pricing page or services page. 2–3 paragraphs that communicate why the price is what it is — tied to outcomes, methodology, and proof points. Not salesy — confident, clear, and rooted in the brand voice defined in this report."
     }
 
-38. Sales Conversation Guide
+40. Sales Conversation Guide
     **BLUEPRINT EXCLUSIVE** — How to use this brand strategy in actual sales conversations.
     
     Every element connects back to the messaging system, proof points, and buyer personas defined earlier in this report. This is NOT generic sales advice — it's a playbook built from [businessName]'s specific brand strategy.
@@ -585,7 +601,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
       closingLanguage: "CTAs and next-step framing that match [businessName]'s brand voice and conversion strategy. Include 3–4 closing phrases calibrated to the brand archetype — a Sage closes differently than a Hero. Also include how to frame next steps when the prospect isn't ready to commit."
     }
 
-39. Measurement & KPI Framework
+41. Measurement & KPI Framework
     **BLUEPRINT EXCLUSIVE** — How to measure whether this brand strategy is working.
     
     This surfaces the specific metrics tied to each strategic recommendation in this report, with practical tracking guidance.
@@ -620,7 +636,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
       ] (5–7 recommendations covering the major tracking needs)
     }
 
-40. Brand Strategy Rollout Guide
+42. Brand Strategy Rollout Guide
     **BLUEPRINT EXCLUSIVE** — A one-page internal briefing so the founder can walk into a team meeting, present the strategy, and get everyone aligned in 30 minutes.
     
     This is NOT a training program. It's just enough structure so everyone knows what the brand stands for, what changed, and what to reference when creating anything.
@@ -652,7 +668,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
       ] (3–4 examples)
     }
 
-41. Brand Imagery & Photography Direction
+43. Brand Imagery & Photography Direction
     **BLUEPRINT EXCLUSIVE** — How imagery should look and feel across [businessName]'s brand, tied to archetype, personality, and audience.
     
     This is NOT about logo or color — it's about the photographic and visual mood that communicates the brand at a glance.
@@ -684,7 +700,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
       colorApplicationInImagery: "How [businessName]'s brand color palette shows up in photography, graphics, social media imagery, and presentation backgrounds. Not just what the colors are (that's in Visual Direction), but HOW they're applied visually — overlays, backgrounds, accent elements, tinted photography, graphic elements. Include specific guidance for the primary and secondary palette colors."
     }
 
-42. Asset Alignment Notes (within Visual Direction / Brand Imagery section)
+44. Asset Alignment Notes (within Visual Direction / Brand Imagery section)
     **ONLY include if the user uploaded marketing assets and asset analysis data was provided in the prompt context.**
     If no asset data is present, omit the "assetAlignmentNotes" key entirely.
 
@@ -706,7 +722,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
       weakestPillarGap: "A tangible, specific explanation of how the uploaded assets collectively reveal the gap in the brand's weakest pillar. This should be something the user can point to and say 'I see it now.' Reference specific assets by name."
     }
 
-43. Brand Health Scorecard
+45. Brand Health Scorecard
     **BLUEPRINT EXCLUSIVE** — A living diagnostic framework [businessName] can use to measure brand health on an ongoing basis.
     
     brandHealthScorecard: {
@@ -755,7 +771,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
       ] (4–5 lagging indicators)
     }
 
-44. SWOT Analysis
+46. SWOT Analysis
     **BLUEPRINT EXCLUSIVE** — A formal SWOT analysis connecting brand diagnostics to strategic positioning.
     
     swotAnalysis: {
@@ -775,7 +791,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
       strategicImplications: "A 2–3 sentence synthesis connecting the SWOT to [businessName]'s immediate priorities"
     }
 
-45. Brand Glossary & Terminology Guide
+47. Brand Glossary & Terminology Guide
     **BLUEPRINT EXCLUSIVE** — A reference guide for brand-consistent language across all communications.
     
     brandGlossary: {
@@ -798,13 +814,78 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
       }
     }
 
+48. Credibility & Trust Signal Strategy
+    **BLUEPRINT EXCLUSIVE** — A practical plan for building the proof points, social proof, and authority signals [businessName] needs to convert prospects into customers. Credibility is one of the five diagnostic pillars — this section turns that diagnosis into an actionable trust-building roadmap.
+    
+    credibilityStrategy: {
+      overview: "Where [businessName] currently stands on credibility and what needs to change — tied to the Credibility pillar score and diagnosis"
+      
+      proofPointsToCreate: [
+        {
+          proofPoint: "A specific proof point to develop (e.g., 'Client outcome metrics,' 'Before/after case narrative,' 'Industry recognition or award submission')"
+          type: "Testimonial | Case Study | Credential | Data Point | Association | Media Mention | Partnership | Certification"
+          priority: "High | Medium"
+          howToGet: "Specific, step-by-step guidance for how to acquire this proof point — not generic, but tailored to [businessName]'s situation"
+          whereToDisplay: "Where this proof point should appear (website, proposals, social, email signature, etc.)"
+        }
+      ] (6–8 proof points covering multiple types)
+      
+      testimonialStrategy: {
+        whoToAsk: "Which clients to request testimonials from and why — specific criteria, not generic"
+        howToAsk: "A ready-to-use email template or script for requesting testimonials"
+        whatToCapture: "What specific elements make a compelling testimonial for [businessName]'s audience (results, emotions, objections overcome)"
+        whereToPlace: "Strategic placement — not just a testimonials page, but integrated across the customer journey"
+      }
+      
+      authoritySignals: [
+        {
+          signal: "An authority-building action (e.g., 'Publish quarterly industry report,' 'Seek speaking opportunities at [industry] events,' 'Get listed in [relevant directory]')"
+          impact: "How this signal builds credibility with [businessName]'s specific audience"
+          timeline: "When to pursue this (immediate, 30 days, 90 days)"
+        }
+      ] (4–5 authority signals)
+      
+      trustGaps: "What's currently missing from [businessName]'s credibility arsenal — the specific gaps that are costing them deals or slowing conversion"
+    }
+
+49. Website Copy Direction
+    **BLUEPRINT EXCLUSIVE** — A practical copy framework for [businessName]'s core web pages. This is the most immediately actionable near-term output for most buyers.
+    
+    websiteCopyDirection: {
+      overview: "How [businessName]'s website messaging should be structured — connected to positioning, messaging pillars, and conversion strategy"
+      
+      homepage: {
+        heroHeadline: "The homepage hero headline — clear, benefit-driven, on-brand (10–15 words max)"
+        heroSubheadline: "Supporting line that adds context (15–25 words)"
+        heroCtaButton: "Primary CTA button text"
+        valuePropSection: "A 2–3 sentence description of what [businessName] does and for whom — for the section below the fold"
+        socialProofPlacement: "What social proof to feature and where on the homepage"
+      }
+      
+      aboutPage: {
+        openingHook: "The first sentence or paragraph of the About page — should establish authority and connection"
+        storyFramework: "How to structure the About page narrative — what to include, in what order"
+        teamPositioning: "How to position the team/founder in a way that builds trust"
+      }
+      
+      servicesPage: {
+        pageStructure: "How to organize the services page — hierarchy, grouping, and flow"
+        serviceFramework: "For each service: headline formula, benefit-first description, proof point, CTA"
+        pricingLanguage: "How to frame pricing on the services page — if applicable, connected to value pricing framework"
+      }
+      
+      copyPrinciples: Array of 3–5 principles for all website copy, each with:
+        - principle: "The rule (e.g., 'Lead with outcomes, not features')"
+        - example: "A before/after example specific to [businessName]"
+    }
+
 ---------------------------------------------------------------------
 OUTPUT FORMAT
 ---------------------------------------------------------------------
 Return valid JSON with all sections as top-level keys. All keys listed above must be present. JSON must be valid.
 
 Key structure notes:
-- "brandFoundation" must include: brandPurpose, brandPromise, positioningStatement, differentiationNarrative, mission, vision, values (array of {name, description})
+- "brandFoundation" must include: brandPurpose, brandPromise, positioningStatement, differentiationNarrative, mission, vision, brandValues (array of {name, description, inAction, whyItMatters})
 - "brandStory" must include: headline, narrative, elevatorPitch, founderStory
 - "assetAlignmentNotes" should ONLY be included if asset analysis data was provided. If no assets were uploaded, omit this key entirely.
 

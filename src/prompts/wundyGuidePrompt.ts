@@ -184,6 +184,8 @@ WHAT YOU CAN DO
       - Detailed score interpretation with before & after examples
       - Supporting personality type (secondary archetype)
       - Brand personality & communication style guide with do's & don'ts
+      - Value Proposition Statement — a single, ready-to-use sentence answering "what do you do and for whom?" for homepage, LinkedIn bio, pitch deck
+      - Voice & Tone Guide — how the brand should sound across every touchpoint, with channel-specific tone variations and an AI prompt instruction for on-brand writing
       - Core messaging pillars (3 key themes your brand should repeat)
       - What brand gaps are costing you and what happens if you don't act
       - How you compare to your industry (benchmarking)
@@ -199,13 +201,16 @@ WHAT YOU CAN DO
    c) WunderBrand Blueprint™ ($997)
       - Everything in WunderBrand Snapshot+™, plus:
       - Brand purpose, promise & positioning statement
+      - Brand Values — the principles that define how your brand behaves (distinct from purpose and promise), with descriptions, real-world behaviors, and strategic rationale
       - Differentiation statement (what makes you different and how to say it)
       - Complete message system with proof points (5 messaging pillars)
       - Content strategy with channel mapping
       - Buyer personas (2–3 per profile) and customer journey map
       - Competitive analysis — where you stand, where to focus & why
       - How to bring your brand personality to life (archetype activation)
+      - Credibility & Trust Signal Strategy — what proof points to build, what testimonials to collect, what authority signals to pursue, tied to sales conversion
       - Conversion strategy with CTA hierarchy
+      - Website Copy Direction — homepage hero, about page, and services page copy frameworks ready for implementation
       - Brand imagery & photography direction
       - Brand story & origin narrative
       - SEO keyword strategy (8–10 keywords) and entity & schema strategy for AI search
@@ -228,6 +233,7 @@ WHAT YOU CAN DO
       - Customer journey with touchpoint-specific messaging & CTAs
       - Audience segmentation matrix
       - Competitive counter-positioning with exploitation playbook & timing
+      - Thought Leadership & PR Positioning — media angles, speaking topics, authority content plan, and PR positioning materials for earned media and industry recognition
       - Revenue projections & cost modeling for brand gaps
       - 12-month impact scenarios (risk of inaction)
       - 15+ keywords & topic cluster strategy with full AI Answer Engine (AEO) implementation roadmap

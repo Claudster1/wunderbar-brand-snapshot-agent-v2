@@ -191,6 +191,17 @@ Return valid JSON with ALL these keys:
     "voiceTraits": [],
     "consistencyRisks": ""
   },
+  "valuePropositionStatement": {
+    "statement": "", "whereToUseIt": "", "whyThisWorks": ""
+  },
+  "voiceToneGuide": {
+    "voiceSummary": "",
+    "voiceTraits": [{ "trait": "", "whatItMeans": "", "example": "" }],
+    "toneVariations": { "websiteAndMarketing": "", "socialMedia": "", "emailAndSales": "" },
+    "phrasesToUse": [],
+    "phrasesToAvoid": [],
+    "aiPromptInstruction": ""
+  },
   "strategicActionPlan": [
     { "action": "", "pillar": "", "outcome": "", "priority": 1, "why": "", "howTo": [], "example": "", "effort": "Medium", "impact": "High" }
   ],
@@ -228,7 +239,12 @@ Return valid JSON with ALL these keys:
     "brandPurpose": "",
     "brandPromise": "",
     "positioningStatement": "",
-    "differentiationNarrative": ""
+    "differentiationNarrative": "",
+    "mission": "",
+    "vision": "",
+    "brandValues": [{
+      "name": "", "description": "", "inAction": "", "whyItMatters": ""
+    }]
   },
   "audiencePersonaDefinition": {
     "primaryAudience": "",
@@ -365,6 +381,27 @@ Return valid JSON with ALL these keys:
     "termsToUse": [{ "term": "", "insteadOf": "", "context": "", "example": "" }],
     "phrasesToAvoid": [{ "phrase": "", "why": "", "alternative": "" }],
     "industryJargonGuide": { "useFreely": [], "defineWhenUsed": [], "neverUse": [] }
+  },
+  "credibilityStrategy": {
+    "overview": "",
+    "proofPointsToCreate": [{
+      "proofPoint": "", "type": "", "priority": "", "howToGet": "", "whereToDisplay": ""
+    }],
+    "testimonialStrategy": {
+      "whoToAsk": "", "howToAsk": "", "whatToCapture": "", "whereToPlace": ""
+    },
+    "authoritySignals": [{ "signal": "", "impact": "", "timeline": "" }],
+    "trustGaps": ""
+  },
+  "websiteCopyDirection": {
+    "overview": "",
+    "homepage": {
+      "heroHeadline": "", "heroSubheadline": "", "heroCtaButton": "",
+      "valuePropSection": "", "socialProofPlacement": ""
+    },
+    "aboutPage": { "openingHook": "", "storyFramework": "", "teamPositioning": "" },
+    "servicesPage": { "pageStructure": "", "serviceFramework": "", "pricingLanguage": "" },
+    "copyPrinciples": [{ "principle": "", "example": "" }]
   }
 }
 

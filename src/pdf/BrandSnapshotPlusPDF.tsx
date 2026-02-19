@@ -110,6 +110,23 @@ export interface BrandSnapshotPlusReport extends BrandSnapshotReport {
     practicalActions?: string[];
     industryGuidance?: string;
   };
+  valuePropositionStatement?: {
+    statement: string;
+    whereToUseIt: string;
+    whyThisWorks: string;
+  };
+  voiceToneGuide?: {
+    voiceSummary: string;
+    voiceTraits: { trait: string; whatItMeans: string; example: string }[];
+    toneVariations: {
+      websiteAndMarketing: string;
+      socialMedia: string;
+      emailAndSales: string;
+    };
+    phrasesToUse: string[];
+    phrasesToAvoid: string[];
+    aiPromptInstruction: string;
+  };
 }
 
 export const BrandSnapshotPlusPDF = ({
@@ -211,6 +228,21 @@ export const BrandSnapshotPlusPDF = ({
           </Section>
         )}
 
+        {report.valuePropositionStatement?.statement && (
+          <Section>
+            <Text style={styles.heading}>Value Proposition Statement</Text>
+            <Text style={{ ...styles.para, fontWeight: 600, fontSize: pdfTheme.fontSizes.md, color: pdfTheme.colors.navy }}>
+              {report.valuePropositionStatement.statement}
+            </Text>
+            <Text style={{ ...styles.para, fontSize: pdfTheme.fontSizes.sm, color: "#6B7280", marginTop: 4 }}>
+              Where to use it: {report.valuePropositionStatement.whereToUseIt}
+            </Text>
+            <Text style={{ ...styles.para, fontSize: pdfTheme.fontSizes.sm, marginTop: 4 }}>
+              {report.valuePropositionStatement.whyThisWorks}
+            </Text>
+          </Section>
+        )}
+
         <PdfFooter businessName={businessName} productName="WunderBrand Snapshot+™" />
       </Page>
 
@@ -279,6 +311,58 @@ export const BrandSnapshotPlusPDF = ({
                       ))}
                     </>
                   ) : null}
+                </>
+              )}
+            </Section>
+          )}
+
+          {report.voiceToneGuide && (
+            <Section>
+              <Text style={styles.heading}>Voice & Tone Guide</Text>
+              <Text style={styles.para}>{report.voiceToneGuide.voiceSummary}</Text>
+
+              {report.voiceToneGuide.voiceTraits?.length > 0 && (
+                <>
+                  <Text style={styles.subheading}>Voice Traits</Text>
+                  {report.voiceToneGuide.voiceTraits.map((vt, i) => (
+                    <View key={i} style={{ marginBottom: 6 }}>
+                      <Text style={{ ...styles.para, fontWeight: 600 }}>{vt.trait}</Text>
+                      <Text style={{ ...styles.para, fontSize: pdfTheme.fontSizes.sm }}>{vt.whatItMeans}</Text>
+                      <Text style={{ ...styles.para, fontSize: pdfTheme.fontSizes.sm, fontStyle: "italic", color: "#6B7280" }}>Example: {vt.example}</Text>
+                    </View>
+                  ))}
+                </>
+              )}
+
+              <Text style={styles.subheading}>Tone by Channel</Text>
+              <Text style={styles.para}><Text style={{ fontWeight: 600 }}>Website & Marketing: </Text>{report.voiceToneGuide.toneVariations.websiteAndMarketing}</Text>
+              <Text style={styles.para}><Text style={{ fontWeight: 600 }}>Social Media: </Text>{report.voiceToneGuide.toneVariations.socialMedia}</Text>
+              <Text style={styles.para}><Text style={{ fontWeight: 600 }}>Email & Sales: </Text>{report.voiceToneGuide.toneVariations.emailAndSales}</Text>
+
+              {report.voiceToneGuide.phrasesToUse?.length > 0 && (
+                <>
+                  <Text style={styles.subheading}>Phrases to Use</Text>
+                  {report.voiceToneGuide.phrasesToUse.map((p, i) => (
+                    <Text key={i} style={{ ...styles.para, color: "#047857" }}>✓ {p}</Text>
+                  ))}
+                </>
+              )}
+
+              {report.voiceToneGuide.phrasesToAvoid?.length > 0 && (
+                <>
+                  <Text style={styles.subheading}>Phrases to Avoid</Text>
+                  {report.voiceToneGuide.phrasesToAvoid.map((p, i) => (
+                    <Text key={i} style={{ ...styles.para, color: "#DC2626" }}>✗ {p}</Text>
+                  ))}
+                </>
+              )}
+
+              {report.voiceToneGuide.aiPromptInstruction && (
+                <>
+                  <Text style={styles.subheading}>AI Prompt Instruction</Text>
+                  <Text style={{ ...styles.para, backgroundColor: "#F3F4F6", padding: 8, borderRadius: 4, fontSize: pdfTheme.fontSizes.sm }}>
+                    {report.voiceToneGuide.aiPromptInstruction}
+                  </Text>
                 </>
               )}
             </Section>

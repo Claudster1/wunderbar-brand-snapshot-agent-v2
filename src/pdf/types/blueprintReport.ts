@@ -1,5 +1,5 @@
 // src/pdf/types/blueprintReport.ts
-// Full type definitions for the Blueprint engine output (all 42 sections)
+// Full type definitions for the Blueprint engine output (all 49 sections)
 
 export interface PillarDeepDive {
   score: number;
@@ -250,6 +250,23 @@ export interface BlueprintEngineOutput {
     driftIndicators: string;
   };
   whatsNextUnlocks: string;
+  valuePropositionStatement?: {
+    statement: string;
+    whereToUseIt: string;
+    whyThisWorks: string;
+  };
+  voiceToneGuide?: {
+    voiceSummary: string;
+    voiceTraits: { trait: string; whatItMeans: string; example: string }[];
+    toneVariations: {
+      websiteAndMarketing: string;
+      socialMedia: string;
+      emailAndSales: string;
+    };
+    phrasesToUse: string[];
+    phrasesToAvoid: string[];
+    aiPromptInstruction: string;
+  };
 
   // --- Blueprint-specific ---
   blueprintOverview: { whatThisEnables: string; howToUse: string };
@@ -261,6 +278,7 @@ export interface BlueprintEngineOutput {
     mission: string;
     vision: string;
     values: { name: string; description: string }[];
+    brandValues?: { name: string; description: string; inAction: string; whyItMatters: string }[];
   };
   audiencePersonas: {
     primaryICP: ICP;
@@ -456,6 +474,37 @@ export interface BlueprintEngineOutput {
     termsToUse: { term: string; insteadOf: string; context: string; example: string }[];
     phrasesToAvoid: { phrase: string; why: string; alternative: string }[];
     industryJargonGuide: { useFreely: string[]; defineWhenUsed: string[]; neverUse: string[] };
+  };
+  credibilityStrategy?: {
+    overview: string;
+    proofPointsToCreate: {
+      proofPoint: string;
+      type: string;
+      priority: string;
+      howToGet: string;
+      whereToDisplay: string;
+    }[];
+    testimonialStrategy: {
+      whoToAsk: string;
+      howToAsk: string;
+      whatToCapture: string;
+      whereToPlace: string;
+    };
+    authoritySignals: { signal: string; impact: string; timeline: string }[];
+    trustGaps: string;
+  };
+  websiteCopyDirection?: {
+    overview: string;
+    homepage: {
+      heroHeadline: string;
+      heroSubheadline: string;
+      heroCtaButton: string;
+      valuePropSection: string;
+      socialProofPlacement: string;
+    };
+    aboutPage: { openingHook: string; storyFramework: string; teamPositioning: string };
+    servicesPage: { pageStructure: string; serviceFramework: string; pricingLanguage: string };
+    copyPrinciples: { principle: string; example: string }[];
   };
   disclaimer: string;
 }

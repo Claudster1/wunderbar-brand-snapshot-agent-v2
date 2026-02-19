@@ -247,6 +247,11 @@ Return valid JSON with this EXACT structure:
       "dont": [{ "guideline": "", "example": "" }]
     }
   },
+  "valuePropositionStatement": {
+    "statement": "",
+    "whereToUseIt": "",
+    "whyThisWorks": ""
+  },
   "messagingPillars": [
     {
       "name": "",
@@ -275,6 +280,18 @@ Return valid JSON with this EXACT structure:
     "visualConsistencyPrinciples": [{ "principle": "", "why": "", "example": "" }],
     "voiceTraits": [],
     "consistencyRisks": ""
+  },
+  "voiceToneGuide": {
+    "voiceSummary": "",
+    "voiceTraits": [{ "trait": "", "whatItMeans": "", "example": "" }],
+    "toneVariations": {
+      "websiteAndMarketing": "",
+      "socialMedia": "",
+      "emailAndSales": ""
+    },
+    "phrasesToUse": [],
+    "phrasesToAvoid": [],
+    "aiPromptInstruction": ""
   },
   "strategicActionPlan": [
     {

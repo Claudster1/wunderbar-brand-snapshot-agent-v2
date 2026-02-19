@@ -29,8 +29,11 @@
 | **BRAND IDENTITY & PERSONALITY** | | | | |
 | Brand personality profile | Core Type | Core & Supporting | Core & Supporting | Core & Supporting |
 | Brand personality playbook | — | — | ✓ | Full Playbook (Messaging, Content, Sales, Visuals) |
+| Value Proposition Statement | — | ✓ | ✓ | ✓ |
+| Voice & Tone Guide | — | ✓ | ✓ | ✓ |
 | Communication guidelines | — | ✓ | ✓ | Audience-Specific Variations |
 | Brand purpose & promise | — | — | ✓ | ✓ |
+| Brand Values | — | — | ✓ | ✓ |
 | Positioning statement | — | — | ✓ | ✓ |
 | Differentiation Statement† | — | — | ✓ | ✓ |
 | Brand growth & expansion strategy | — | — | — | ✓ |
@@ -51,6 +54,7 @@
 | Brand story & origin narrative | — | — | ✓ | Website, Pitch Deck & Social Versions |
 | Campaign strategy & narrative arcs | — | — | — | ✓ |
 | Company descriptions | — | — | 3 Versions | 6 Versions |
+| Website Copy Direction | — | — | ✓ | ✓ |
 | | | | | |
 | **VISUAL DIRECTION** | | | | |
 | Brand color palette (HEX, RGB & CMYK) | — | ✓ | ✓ | ✓ |
@@ -71,7 +75,9 @@
 | Email Marketing Strategy | — | — | Welcome Sequence | Welcome + Nurture + Re-engagement |
 | Social media strategy | — | — | 2–3 Platforms | All Platforms + Repurposing Playbook |
 | Content calendar | — | — | — | ✓ |
+| Credibility & Trust Signal Strategy | — | — | ✓ | ✓ |
 | Conversion strategy | — | — | ✓ | Funnel-Specific CTAs with Ready-to-Use Copy |
+| Thought Leadership & PR Positioning | — | — | — | ✓ |
 | | | | | |
 | **AI PROMPT PACKS — USE AI ON-BRAND** | | | | |
 | 8 Brand strategy prompts | — | 8 Prompts | 8 Prompts | 8 Prompts |

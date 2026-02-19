@@ -439,7 +439,23 @@ Blueprint+ is for businesses that don't just want to know what to do — they wa
 
 ---
 
-### 30. Advanced AI Prompt Pack (12 Prompts — 28 Total)
+### 30. Thought Leadership & PR Positioning
+**What it is:** A complete authority-building strategy for establishing your brand as a recognized expert in your industry. Includes:
+- **Authority Positioning** — The 3–4 topics where you can credibly claim expertise, your unique perspective, and target publications/platforms
+- **Speaking Topics** — 3–5 ready-to-pitch speaking topics with audience, angle, and format recommendations
+- **Media Angles** — 3–4 story angles journalists and podcast hosts would find compelling, with talking points
+- **Authority Content Plan** — Pillar content to create, distribution strategy, and recommended cadence
+- **PR Positioning** — Press-ready bio, company boilerplate, and media kit recommendations
+
+**Why it matters:** Thought leadership is increasingly expected at the premium tier and is a natural complement to the Digital Marketing Strategy. For SMBs competing against larger brands, earned media and recognized expertise create credibility that advertising cannot buy. Speaking engagements, podcast appearances, and bylined articles position your founder/CEO as the go-to expert in your space.
+
+**How it helps your business:** Stop hoping for PR opportunities and start creating them. This section gives you ready-to-pitch topics, media angles with hooks, and a content plan that systematically builds authority. The press-ready bio and boilerplate mean you're always prepared when opportunities arise.
+
+**What you'll see:** Authority positioning analysis, 3–5 speaking topics, 3–4 media angles with talking points, an authority content plan with distribution strategy, and complete PR positioning materials.
+
+---
+
+### 31. Advanced AI Prompt Pack (12 Prompts — 28 Total)
 **What it is:** Twelve advanced AI prompts focused on scaling, optimization, and sophisticated strategic tasks:
 - **Competitive Analysis Prompts** — Generate competitive intelligence and positioning arguments
 - **Market Expansion Prompts** — Explore new audience segments, geographies, or product opportunities
@@ -457,7 +473,7 @@ Combined with the 8 Foundational (Snapshot+) and 8 Execution (Blueprint) prompts
 
 ---
 
-### 31. Complimentary 30-Minute Strategy Activation Session
+### 32. Complimentary 30-Minute Strategy Activation Session
 **What it is:** A live, one-on-one, 30-minute strategy session with a brand strategist from Wunderbar Digital. During the session, we'll:
 - **Review your diagnostic results** together — ensuring you understand every section and its implications
 - **Prioritize your highest-impact next moves** — helping you decide what to tackle first based on your resources and timeline

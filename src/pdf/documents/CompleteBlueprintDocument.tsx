@@ -1,5 +1,5 @@
 // Complete WunderBrand Blueprint™ Report — Master Document
-// Renders all 42 engine sections organized into 6 parts.
+// Renders all engine sections organized into 6 parts.
 
 import React from "react";
 import { Document, Page, Text, View, Image, StyleSheet, Link } from "@react-pdf/renderer";
@@ -127,7 +127,9 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         <Text style={s.tocItem}>Strategic Action Plan</Text>
 
         <Text style={s.tocPart}>Part II — Brand Foundation</Text>
-        <Text style={s.tocItem}>Brand Foundation (Mission, Vision, Values)</Text>
+        <Text style={s.tocItem}>Value Proposition Statement</Text>
+        <Text style={s.tocItem}>Brand Foundation (Mission, Vision, Brand Values)</Text>
+        <Text style={s.tocItem}>Voice & Tone Guide</Text>
         <Text style={s.tocItem}>Brand Story & Origin Narrative</Text>
         <Text style={s.tocItem}>Brand Persona & Communication Style</Text>
         <Text style={s.tocItem}>Audience Personas & ICPs</Text>
@@ -148,6 +150,8 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         <Text style={s.tocItem}>Email Marketing Strategy</Text>
         <Text style={s.tocItem}>Social Media Platform Strategy</Text>
         <Text style={s.tocItem}>Conversion Strategy</Text>
+        <Text style={s.tocItem}>Credibility & Trust Signal Strategy</Text>
+        <Text style={s.tocItem}>Website Copy Direction</Text>
         <Text style={s.tocItem}>Value & Pricing Communication</Text>
         <Text style={s.tocItem}>Sales Conversation Guide</Text>
 
@@ -354,6 +358,23 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         <Text style={s.partDesc}>Who {brandName} is at its core — purpose, story, persona, and audience.</Text>
       </Page>
 
+      {/* Value Proposition Statement */}
+      {d.valuePropositionStatement?.statement && (
+        <Page size="A4" style={s.page} wrap>
+          <Footer brandName={brandName} />
+          <Text style={s.h1}>Value Proposition Statement</Text>
+          <View style={s.accentCard}>
+            <Text style={{ ...s.body, fontSize: 14, fontWeight: "bold", color: pdfTheme.colors.navy }}>
+              {d.valuePropositionStatement.statement}
+            </Text>
+          </View>
+          <Text style={s.label}>Where to Use It</Text>
+          <Text style={s.body}>{d.valuePropositionStatement.whereToUseIt}</Text>
+          <Text style={s.label}>Why This Works</Text>
+          <Text style={s.body}>{d.valuePropositionStatement.whyThisWorks}</Text>
+        </Page>
+      )}
+
       <Page size="A4" style={s.page} wrap>
         <Footer brandName={brandName} />
         <Text style={s.h1}>Brand Foundation</Text>
@@ -376,13 +397,22 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         <Text style={s.label}>Differentiation Narrative</Text>
         <Text style={s.body}>{d.brandFoundation?.differentiationNarrative}</Text>
 
-        <Text style={s.h2}>Core Values</Text>
-        {d.brandFoundation?.values?.map((v, i) => (
-          <View key={i} style={s.card} wrap={false}>
-            <Text style={s.cardTitle}>{v.name}</Text>
-            <Text style={s.body}>{v.description}</Text>
-          </View>
-        ))}
+        <Text style={s.h2}>Brand Values</Text>
+        {(d.brandFoundation?.brandValues ?? d.brandFoundation?.values)?.map((v, i) => {
+          const bv = v as { name: string; description: string; inAction?: string; whyItMatters?: string };
+          return (
+            <View key={i} style={s.card} wrap={false}>
+              <Text style={s.cardTitle}>{bv.name}</Text>
+              <Text style={s.body}>{bv.description}</Text>
+              {bv.inAction ? (
+                <View style={{ marginTop: 6 }}><Text style={s.h4}>In Action</Text><Text style={s.body}>{bv.inAction}</Text></View>
+              ) : null}
+              {bv.whyItMatters ? (
+                <View style={{ marginTop: 6 }}><Text style={s.h4}>Why It Matters</Text><Text style={s.body}>{bv.whyItMatters}</Text></View>
+              ) : null}
+            </View>
+          );
+        })}
 
         <Text style={s.h1}>Brand Story</Text>
         <Text style={{ ...s.h3, fontStyle: "italic", color: "#4B5563" }}>{d.brandStory?.headline}</Text>
@@ -394,6 +424,58 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         <Text style={s.label}>Founder Story</Text>
         <Text style={s.body}>{d.brandStory?.founderStory}</Text>
       </Page>
+
+      {/* Voice & Tone Guide */}
+      {d.voiceToneGuide && (
+        <Page size="A4" style={s.page} wrap>
+          <Footer brandName={brandName} />
+          <Text style={s.h1}>Voice & Tone Guide</Text>
+          <Text style={s.body}>{d.voiceToneGuide.voiceSummary}</Text>
+
+          {d.voiceToneGuide.voiceTraits?.map((vt, i) => (
+            <View key={i} style={s.card} wrap={false}>
+              <Text style={s.cardTitle}>{vt.trait}</Text>
+              <Text style={s.body}>{vt.whatItMeans}</Text>
+              <Text style={{ ...s.small, fontStyle: "italic", marginTop: 4 }}>Example: {vt.example}</Text>
+            </View>
+          ))}
+
+          <Text style={s.h2}>Tone by Channel</Text>
+          <Text style={s.label}>Website & Marketing</Text>
+          <Text style={s.body}>{d.voiceToneGuide.toneVariations?.websiteAndMarketing}</Text>
+          <Text style={s.label}>Social Media</Text>
+          <Text style={s.body}>{d.voiceToneGuide.toneVariations?.socialMedia}</Text>
+          <Text style={s.label}>Email & Sales</Text>
+          <Text style={s.body}>{d.voiceToneGuide.toneVariations?.emailAndSales}</Text>
+
+          {d.voiceToneGuide.phrasesToUse?.length > 0 && (
+            <View style={{ marginTop: 12 }}>
+              <Text style={s.h3}>Phrases to Use</Text>
+              {d.voiceToneGuide.phrasesToUse.map((p, i) => (
+                <Text key={i} style={{ ...s.body, color: "#047857" }}>✓ {p}</Text>
+              ))}
+            </View>
+          )}
+
+          {d.voiceToneGuide.phrasesToAvoid?.length > 0 && (
+            <View style={{ marginTop: 12 }}>
+              <Text style={s.h3}>Phrases to Avoid</Text>
+              {d.voiceToneGuide.phrasesToAvoid.map((p, i) => (
+                <Text key={i} style={{ ...s.body, color: "#DC2626" }}>✗ {p}</Text>
+              ))}
+            </View>
+          )}
+
+          {d.voiceToneGuide.aiPromptInstruction && (
+            <View style={{ marginTop: 12 }}>
+              <Text style={s.h3}>AI Prompt Instruction</Text>
+              <View style={s.accentCard}>
+                <Text style={s.body}>{d.voiceToneGuide.aiPromptInstruction}</Text>
+              </View>
+            </View>
+          )}
+        </Page>
+      )}
 
       {/* Brand Persona */}
       <Page size="A4" style={s.page} wrap>
@@ -728,6 +810,98 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
             <Text style={s.small}>{cta.context}</Text>
           </View>
         ))}
+
+        {/* Credibility & Trust Signal Strategy */}
+        {d.credibilityStrategy && (
+          <>
+            <Text style={s.h1}>Credibility & Trust Signal Strategy</Text>
+            <Text style={s.body}>{d.credibilityStrategy.overview}</Text>
+
+            <Text style={s.h2}>Proof Points to Create</Text>
+            {d.credibilityStrategy.proofPointsToCreate?.map((pp, i) => (
+              <View key={i} style={s.card} wrap={false}>
+                <Text style={s.cardTitle}>{pp.proofPoint}</Text>
+                <Text style={s.small}>Type: {pp.type} | Priority: {pp.priority}</Text>
+                <Text style={s.body}>{pp.howToGet}</Text>
+                <Text style={s.small}>Display: {pp.whereToDisplay}</Text>
+              </View>
+            ))}
+
+            <Text style={s.h2}>Testimonial Strategy</Text>
+            <Text style={s.label}>Who to Ask</Text>
+            <Text style={s.body}>{d.credibilityStrategy.testimonialStrategy?.whoToAsk}</Text>
+            <Text style={s.label}>How to Ask</Text>
+            <Text style={s.body}>{d.credibilityStrategy.testimonialStrategy?.howToAsk}</Text>
+            <Text style={s.label}>What to Capture</Text>
+            <Text style={s.body}>{d.credibilityStrategy.testimonialStrategy?.whatToCapture}</Text>
+            <Text style={s.label}>Where to Place</Text>
+            <Text style={s.body}>{d.credibilityStrategy.testimonialStrategy?.whereToPlace}</Text>
+
+            <Text style={s.h2}>Authority Signals</Text>
+            {d.credibilityStrategy.authoritySignals?.map((as_, i) => (
+              <View key={i} style={s.card} wrap={false}>
+                <Text style={s.cardTitle}>{as_.signal}</Text>
+                <Text style={s.body}>{as_.impact}</Text>
+                <Text style={s.small}>Timeline: {as_.timeline}</Text>
+              </View>
+            ))}
+
+            {d.credibilityStrategy.trustGaps && (
+              <>
+                <Text style={s.h2}>Trust Gaps</Text>
+                <View style={s.accentCard}><Text style={s.body}>{d.credibilityStrategy.trustGaps}</Text></View>
+              </>
+            )}
+          </>
+        )}
+
+        {/* Website Copy Direction */}
+        {d.websiteCopyDirection && (
+          <>
+            <Text style={s.h1}>Website Copy Direction</Text>
+            <Text style={s.body}>{d.websiteCopyDirection.overview}</Text>
+
+            <Text style={s.h2}>Homepage</Text>
+            <Text style={s.label}>Hero Headline</Text>
+            <View style={s.accentCard}><Text style={{ ...s.body, fontSize: 14, fontWeight: "bold" }}>{d.websiteCopyDirection.homepage?.heroHeadline}</Text></View>
+            <Text style={s.label}>Hero Subheadline</Text>
+            <Text style={s.body}>{d.websiteCopyDirection.homepage?.heroSubheadline}</Text>
+            <Text style={s.label}>CTA Button</Text>
+            <View style={s.card}><Text style={s.body}>{d.websiteCopyDirection.homepage?.heroCtaButton}</Text></View>
+            <Text style={s.label}>Value Proposition Section</Text>
+            <Text style={s.body}>{d.websiteCopyDirection.homepage?.valuePropSection}</Text>
+            <Text style={s.label}>Social Proof Placement</Text>
+            <Text style={s.body}>{d.websiteCopyDirection.homepage?.socialProofPlacement}</Text>
+
+            <Text style={s.h2}>About Page</Text>
+            <Text style={s.label}>Opening Hook</Text>
+            <View style={s.accentCard}><Text style={s.body}>{d.websiteCopyDirection.aboutPage?.openingHook}</Text></View>
+            <Text style={s.label}>Story Framework</Text>
+            <Text style={s.body}>{d.websiteCopyDirection.aboutPage?.storyFramework}</Text>
+            <Text style={s.label}>Team Positioning</Text>
+            <Text style={s.body}>{d.websiteCopyDirection.aboutPage?.teamPositioning}</Text>
+
+            <Text style={s.h2}>Services Page</Text>
+            <Text style={s.label}>Page Structure</Text>
+            <Text style={s.body}>{d.websiteCopyDirection.servicesPage?.pageStructure}</Text>
+            <Text style={s.label}>Service Framework</Text>
+            <Text style={s.body}>{d.websiteCopyDirection.servicesPage?.serviceFramework}</Text>
+            <Text style={s.label}>Pricing Language</Text>
+            <Text style={s.body}>{d.websiteCopyDirection.servicesPage?.pricingLanguage}</Text>
+
+            {d.websiteCopyDirection.copyPrinciples?.length > 0 && (
+              <>
+                <Text style={s.h2}>Copy Principles</Text>
+                {d.websiteCopyDirection.copyPrinciples.map((cp, i) => (
+                  <View key={i} style={s.card} wrap={false}>
+                    <Text style={s.cardTitle}>{cp.principle}</Text>
+                    <Text style={s.body}>{cp.example}</Text>
+                  </View>
+                ))}
+              </>
+            )}
+          </>
+        )}
 
         <Text style={s.h1}>Value & Pricing Communication</Text>
         <Text style={s.label}>Pricing Positioning</Text>

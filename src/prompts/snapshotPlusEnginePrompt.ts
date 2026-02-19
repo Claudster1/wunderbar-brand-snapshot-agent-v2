@@ -183,7 +183,18 @@ SNAPSHOT+™ MUST INCLUDE:
    - messagingExamples: { headlines, ctaButtons, socialPosts — each with avoid/use arrays }
    - doAndDont: { do: [{ guideline, example }], dont: [{ guideline, example }] }
 
-8. Messaging Pillars
+8. Value Proposition Statement
+   A single, ready-to-use sentence that answers: "What does [businessName] do, for whom, and why it matters?"
+   
+   This is NOT the positioning statement (which is internal/strategic) or the core messages (which are thematic pillars). This is the one sentence someone puts on their homepage hero, LinkedIn bio, pitch deck opening slide, and email signature.
+   
+   valuePropositionStatement: {
+     statement: "A clear, compelling one-sentence value proposition — 15–25 words max. Must include: who [businessName] serves, what they do, and the key outcome or differentiator. (e.g., 'We help growth-stage SaaS companies turn inconsistent brand messaging into a scalable system that closes deals faster.')"
+     whereToUseIt: "Homepage hero, LinkedIn headline, pitch deck opening, email signature, social bio, proposal intro"
+     whyThisWorks: "2–3 sentences explaining why this statement is strategically effective for [businessName] — what positioning, archetype, or audience insight it reflects"
+   }
+
+9. Messaging Pillars
    **These are the 3 strategic themes the brand should consistently communicate — NOT the 5 brand diagnostic pillars.**
    Messaging pillars answer: "What are the core ideas we always come back to across every touchpoint?"
    
@@ -235,16 +246,35 @@ SNAPSHOT+™ MUST INCLUDE:
    - voiceTraits: 3–5 words
    - consistencyRisks: What threatens brand visual/verbal consistency
 
-10. Strategic Action Plan (5 actions)
+11. Voice & Tone Guide
+    A practical reference for how [businessName] should sound across every touchpoint. This is the section copywriters, social media managers, and AI tools reference most.
+    
+    voiceToneGuide: {
+      voiceSummary: "A 2–3 sentence description of [businessName]'s brand voice — what it sounds like, what it feels like, and how it differs from competitors in [industry]. Ground this in the brand archetype and personality."
+      voiceTraits: Array of 3–5 voice attributes, each with:
+        - trait: "The voice trait (e.g., 'Confident', 'Warm', 'Direct')"
+        - whatItMeans: "What this trait sounds like in practice — specific enough that a copywriter could apply it"
+        - example: "A sample sentence or phrase demonstrating this trait"
+      toneVariations: {
+        websiteAndMarketing: "How the voice adjusts for website and marketing copy — slightly more polished, benefit-focused"
+        socialMedia: "How the voice adjusts for social — more conversational, shorter, personality-forward"
+        emailAndSales: "How the voice adjusts for email and sales — warmer, more personal, action-oriented"
+      }
+      phrasesToUse: Array of 5–7 on-brand phrases or sentence starters [businessName] should reach for
+      phrasesToAvoid: Array of 5–7 off-brand phrases or patterns to eliminate
+      aiPromptInstruction: "A 2–3 sentence instruction someone can paste into ChatGPT/Claude to get on-brand output — written specifically for [businessName]'s voice (e.g., 'Write in a tone that is [trait], [trait], and [trait]. Avoid [specific pattern]. The brand personality is [archetype] — sound like a trusted [role] who [behavior].')"
+    }
+
+12. Strategic Action Plan (5 actions)
    Each: action, pillar, outcome, priority, why, howTo (2–3 steps), example, effort, impact
 
-11. Visibility & Discovery
+13. Visibility & Discovery
     - visibilityMode, visibilityModeExplanation
     - discoveryDiagnosis { whereTheyShouldFind, whereTheyActuallyFind, gap }
     - aeoReadiness { score, explanation, recommendations (3–4 strings) }
     - visibilityPriorities [{ priority, action, impact }]
 
-12. Audience Clarity & Ideal Customer Profile
+14. Audience Clarity & Ideal Customer Profile
     - audienceSignals { primaryAudience, audienceCharacteristics, audienceLanguage }
     - decisionDrivers { motivators [{ driver, explanation }], hesitationFactors [{ factor, explanation }] }
     - idealCustomerProfile {
@@ -264,15 +294,15 @@ SNAPSHOT+™ MUST INCLUDE:
           transitionStrategy: 2–3 steps to begin attracting the ideal customer without abandoning the current base
         }
 
-13. Foundational AI Prompt Pack (8 prompts)
+15. Foundational AI Prompt Pack (8 prompts)
     Each: category, title, instruction, prompt (specific to this business), whyItMatters
 
-14. Execution Guardrails
+16. Execution Guardrails
     whatToMaintain, whatToAvoid, driftIndicators
 
-15. whatsNextUnlocks (soft CTA for Blueprint)
+17. whatsNextUnlocks (soft CTA for Blueprint)
 
-16. Tagline & Slogan Recommendations
+18. Tagline & Slogan Recommendations
     Provide 3 tagline/slogan options for [businessName] based on their positioning, archetype, and messaging pillars.
     Each tagline should be memorable, on-brand, and usable across website, social, and marketing materials.
     

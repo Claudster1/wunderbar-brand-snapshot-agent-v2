@@ -293,7 +293,40 @@ If Snapshot+ is the treatment plan, Blueprint is the full implementation bluepri
 
 ---
 
-### 20. Execution AI Prompt Pack (8 Additional Prompts — 16 Total)
+### 20. Brand Values — How Your Brand Behaves
+**What it is:** 4–6 clearly articulated brand values — each with a description, a real-world "in action" example, and a rationale for why it matters strategically. These are distinct from your brand purpose (why you exist) and brand promise (what you commit to). Values define how your brand behaves day to day.
+
+**Why it matters:** Brand values are increasingly important for SMBs — they inform hiring decisions, shape internal culture, signal authenticity to customers, and give AI tools concrete behavioral guidelines. Without them, your brand defaults to vague aspirations that no one can act on.
+
+**How it helps your business:** Hand these to a new hire, a freelancer, or an AI tool and they immediately know how your brand makes decisions. Values like "Radical Transparency" or "Relentless Simplicity" are actionable in a way that "We care about quality" never will be.
+
+**What you'll see:** 4–6 brand values, each with the value name, plain-language description, how it shows up in daily behavior, and why it matters for your positioning.
+
+---
+
+### 21. Credibility & Trust Signal Strategy
+**What it is:** A practical plan for building the proof points, social proof, and authority signals your brand needs to convert prospects into customers. Includes specific proof points to create, a testimonial collection strategy, authority-building signals with timelines, and a trust gap analysis.
+
+**Why it matters:** Credibility is one of the five diagnostic pillars — but diagnosis without action is just awareness. This section turns your Credibility score into a roadmap: what testimonials to collect, what credentials to pursue, what proof points to build, and where to display them. For SMBs, these signals are directly tied to sales conversion.
+
+**How it helps your business:** Stop guessing about what makes prospects trust you. This section gives you a prioritized list of proof points to build, a ready-to-use testimonial request script, and strategic guidance on which authority signals matter most for your industry and audience.
+
+**What you'll see:** 6–8 proof points to create (with type, priority, and implementation steps), a complete testimonial strategy, 4–5 authority signals with timelines, and a trust gap diagnosis.
+
+---
+
+### 22. Website Copy Direction
+**What it is:** A practical copy framework for your three most important web pages — homepage, about, and services. Includes headline formulas, copy structure, CTA language, and social proof placement specific to your brand.
+
+**Why it matters:** This is the most immediately actionable near-term output for most buyers. Within hours of receiving your report, you can update your homepage hero, tighten your about page, and restructure your services page — using copy that's aligned with your positioning, voice, and messaging pillars.
+
+**How it helps your business:** No more staring at a blank page wondering what to write. You get a hero headline, subheadline, CTA button text, and structural guidance for each core page — plus copy principles you can apply to any future page.
+
+**What you'll see:** Homepage copy framework (hero headline, subheadline, CTA, value prop section, social proof placement), about page framework (opening hook, story structure, team positioning), services page framework (structure, service descriptions, pricing language), and 3–5 universal copy principles with before/after examples.
+
+---
+
+### 23. Execution AI Prompt Pack (8 Additional Prompts — 16 Total)
 **What it is:** Eight additional AI prompts focused on execution — content creation, campaign planning, email writing, social media drafts, and ad copy — all calibrated to your brand voice, audience, and strategic priorities. Combined with the 8 Foundational Prompts from Snapshot+, you have 16 total prompts covering both strategy and execution.
 
 **Why it matters:** The Foundational Pack (Snapshot+) helped you think strategically. The Execution Pack helps you produce. Blog posts, email campaigns, ad copy, social content — each prompt generates brand-aligned content that would take a copywriter hours to produce from a blank brief.

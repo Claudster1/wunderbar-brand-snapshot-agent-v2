@@ -67,6 +67,25 @@ export interface AeoRecommendations {
   industryGuidance?: string;
 }
 
+export interface ValuePropositionStatement {
+  statement: string;
+  whereToUseIt: string;
+  whyThisWorks: string;
+}
+
+export interface VoiceToneGuide {
+  voiceSummary: string;
+  voiceTraits: { trait: string; whatItMeans: string; example: string }[];
+  toneVariations: {
+    websiteAndMarketing: string;
+    socialMedia: string;
+    emailAndSales: string;
+  };
+  phrasesToUse: string[];
+  phrasesToAvoid: string[];
+  aiPromptInstruction: string;
+}
+
 export interface BrandSnapshotPlusReportContent extends BrandSnapshotReportContent {
   primaryPillar?: keyof PillarScores;
   contextCoverage?: number;
@@ -87,6 +106,8 @@ export interface BrandSnapshotPlusReportContent extends BrandSnapshotReportConte
   roadmap_90?: string;
   opportunities_map?: string;
   aiPrompts?: string[] | Array<{ name: string; prompt: string }>;
+  valuePropositionStatement?: ValuePropositionStatement;
+  voiceToneGuide?: VoiceToneGuide;
 }
 
 // ---------------------------------------------------------------------------

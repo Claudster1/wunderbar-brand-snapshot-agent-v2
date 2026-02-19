@@ -6,6 +6,8 @@ import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import { withRetry } from "@/lib/openaiRetry";
 import { logger } from "@/lib/logger";
+import { supabaseAdmin } from "@/lib/supabase-admin";
+import { getWorkbookEditability } from "@/lib/workbookAccess";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -33,7 +35,7 @@ const SECTION_PROMPTS: Record<string, string> = {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { section, content, businessName, context } = body;
+    const { section, content, businessName, context, reportId, email } = body;
 
     if (!section || typeof section !== "string") {
       return NextResponse.json({ error: "section is required." }, { status: 400 });
@@ -43,6 +45,30 @@ export async function POST(req: NextRequest) {
     }
     if (content.length > 5000) {
       return NextResponse.json({ error: "Content too long (max 5000 chars)." }, { status: 400 });
+    }
+
+    // Check editability if reportId and email are provided
+    if (reportId && email && supabaseAdmin) {
+      const { data: workbook } = await supabaseAdmin
+        .from("brand_workbook")
+        .select("product_tier, created_at, finalized_at")
+        .eq("report_id", reportId)
+        .single();
+
+      if (workbook) {
+        const editability = getWorkbookEditability({
+          productTier: workbook.product_tier,
+          createdAt: workbook.created_at,
+          finalizedAt: workbook.finalized_at,
+        });
+
+        if (!editability.canEdit) {
+          return NextResponse.json({
+            error: "AI Refine is unavailable — this workbook is read-only.",
+            reason: editability.reason,
+          }, { status: 403 });
+        }
+      }
     }
 
     const systemPrompt = SECTION_PROMPTS[section] || `You are a brand strategist. Refine this brand content to be clearer, more compelling, and more professional. Keep the core message and intent. Return only the refined text, no explanation or preamble.`;

@@ -2,8 +2,8 @@ export const RESULTS_CTA_COPY = {
   A: {
     headline: "Expand clarity around your strongest opportunity",
     body:
-      "Your results highlight where sharper context would unlock the most momentum.",
-    primaryCta: "Unlock Snapshot+™",
+      "Your results highlight where sharper context would drive the most impact.",
+    primaryCta: "Take it further with Snapshot+™",
     secondaryCta: "Explore the WunderBrand Suite™",
   },
   B: {

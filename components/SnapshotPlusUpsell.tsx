@@ -32,7 +32,7 @@ export default function SnapshotPlusUpsell({
 
       <p style={{ maxWidth: 520, margin: "0 auto", lineHeight: 1.55 }}>
         {copy ||
-          "Unlock your fully customized strategic brand package — including tailored messaging, narrative frameworks, visual guidance, buyer insights, color palette recommendations, and AI-ready prompts that keep your brand consistent across every channel."}
+          "Get your fully customized strategic brand package — including tailored messaging, narrative frameworks, visual guidance, buyer insights, color palette recommendations, and AI-ready prompts that keep your brand consistent across every channel."}
       </p>
 
       <a

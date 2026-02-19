@@ -15,7 +15,7 @@ export function getUpgradeCopy(
 ) {
   return {
     headline: `Go deeper on ${primaryPillar}`,
-    body: `Unlock deeper, more tailored insights for ${brandName} by adding more context. This is where the real clarity comes from.`,
-    cta: "Unlock Snapshot+™",
+    body: `Go deeper on ${brandName} with more tailored insights by adding more context. This is where the real clarity comes from.`,
+    cta: "Take it further with Snapshot+™",
   };
 }

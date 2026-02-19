@@ -297,39 +297,111 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     try {
       const replyText = await getBrandSnapshotReply(nextHistory);
 
-      // Check if the response contains JSON with scores (should NOT be displayed in chat)
+      // Check if the response contains JSON (should NOT be displayed in chat).
+      // Wundy outputs either:
+      //   A) Collected inputs: { userName, businessName, industry, ... }
+      //   B) Legacy scores format: { brandAlignmentScore, pillarScores, ... }
       const trimmedReply = replyText.trim();
       
-      // Try multiple patterns to find JSON
-      let jsonMatch = trimmedReply.match(/\{[\s\S]*"scores"[\s\S]*"brandAlignmentScore"[\s\S]*\}/);
+      // Try to find a JSON object in the response
+      let jsonMatch: RegExpMatchArray | string[] | null = null;
+
+      // Pattern 1: Score-based JSON (legacy)
+      jsonMatch = trimmedReply.match(/\{[\s\S]*"brandAlignmentScore"[\s\S]*\}/);
       
-      // If no match, try finding any JSON object
+      // Pattern 2: Collected-inputs JSON (current system prompt format)
       if (!jsonMatch) {
-        jsonMatch = trimmedReply.match(/\{[\s\S]*"brandAlignmentScore"[\s\S]*\}/);
+        jsonMatch = trimmedReply.match(/\{[\s\S]*"userName"[\s\S]*"businessName"[\s\S]*\}/);
       }
       
-      // If still no match, check if the whole response is JSON
+      // Pattern 3: Any large JSON object at the end of the response (catch-all)
+      if (!jsonMatch) {
+        const jsonBlockMatch = trimmedReply.match(/\{[^{}]{200,}\}$/);
+        if (jsonBlockMatch) {
+          try {
+            JSON.parse(jsonBlockMatch[0]);
+            jsonMatch = jsonBlockMatch;
+          } catch {
+            // Not valid JSON, ignore
+          }
+        }
+      }
+
+      // Pattern 4: Whole response is JSON
       if (!jsonMatch && trimmedReply.startsWith('{') && trimmedReply.endsWith('}')) {
         jsonMatch = [trimmedReply];
       }
 
       if (jsonMatch && jsonMatch[0]) {
-        // This is the scoring JSON - extract it and send to parent, but DON'T add to chat
+        // JSON detected — extract it and send for scoring. NEVER display JSON in chat.
         try {
           const jsonString = jsonMatch[0];
           const snapshotData = JSON.parse(jsonString);
           
-          console.log('[useBrandChat] Detected JSON response with scores:', snapshotData);
+          console.log('[useBrandChat] Detected JSON response:', Object.keys(snapshotData).slice(0, 8));
           
-          // Verify it has the expected structure (new format without nested "scores" object)
-          // Support both old format (with nested "scores") and new format (flat structure)
+          // Determine format: scores-based vs collected-inputs
+          const hasScores = (snapshotData.scores && typeof snapshotData.scores.brandAlignmentScore === 'number')
+            || (typeof snapshotData.brandAlignmentScore === 'number' && snapshotData.pillarScores);
+          const isCollectedInputs = !hasScores && (snapshotData.userName || snapshotData.businessName || snapshotData.industry);
+
           let brandAlignmentScore: number;
           let pillarScores: any;
           let pillarInsights: any = {};
           let recommendations: any = {};
+
+          if (isCollectedInputs) {
+            // Collected inputs format — send to /api/snapshot for server-side scoring
+            console.log('[useBrandChat] Collected inputs detected, sending to scoring API');
+
+            const turnstileToken = typeof window !== 'undefined' ? (window as any).__turnstileToken : undefined;
+
+            const scoringRes = await fetch('/api/snapshot', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                answers: snapshotData,
+                name: snapshotData.userName,
+                companyName: snapshotData.businessName,
+                businessName: snapshotData.businessName,
+                turnstileToken,
+              }),
+            });
+
+            if (scoringRes.ok) {
+              const scoringResult = await scoringRes.json();
+              const finalReportId = scoringResult.reportId;
+
+              // Extract handoff message (text before the JSON)
+              const textBeforeJson = trimmedReply.substring(0, (jsonMatch as RegExpMatchArray).index || 0).trim();
+              if (textBeforeJson) {
+                const handoffMessage = createMessage('assistant', textBeforeJson);
+                setMessages((prev) => [...prev, handoffMessage]);
+              }
+
+              saveProgress('completed', nextHistory);
+
+              // Navigate to results
+              if (typeof window !== 'undefined') {
+                const redirectUrl = `/results?reportId=${finalReportId}`;
+                if (window.parent && window.parent !== window) {
+                  window.parent.postMessage({ type: 'BRAND_SNAPSHOT_COMPLETE', data: { report_id: finalReportId, redirectUrl } }, '*');
+                } else if (onCompleteRef.current) {
+                  onCompleteRef.current(finalReportId, redirectUrl);
+                } else {
+                  router.push(redirectUrl);
+                }
+              }
+            } else {
+              console.error('[useBrandChat] Scoring API failed:', await scoringRes.text());
+            }
+
+            setIsLoading(false);
+            sendingRef.current = false;
+            return;
+          }
           
           if (snapshotData.scores && typeof snapshotData.scores.brandAlignmentScore === 'number') {
-            // Old format with nested "scores" object
             brandAlignmentScore = snapshotData.scores.brandAlignmentScore;
             pillarScores = {
               positioning: snapshotData.scores.positioning || 0,
@@ -339,7 +411,6 @@ export function useBrandChat(options?: UseBrandChatOptions) {
               conversion: snapshotData.scores.conversion || 0,
             };
           } else if (typeof snapshotData.brandAlignmentScore === 'number' && snapshotData.pillarScores) {
-            // New format with flat structure
             brandAlignmentScore = snapshotData.brandAlignmentScore;
             pillarScores = {
               positioning: snapshotData.pillarScores.positioning || 0,
@@ -488,38 +559,30 @@ export function useBrandChat(options?: UseBrandChatOptions) {
               }
             }
 
-            // Extract any text before the JSON (handoff message) - but filter out score text
-            const textBeforeJson = trimmedReply.substring(0, jsonMatch.index || 0).trim();
+            // Extract any text before the JSON (handoff message)
+            const textBeforeJson = trimmedReply.substring(0, (jsonMatch as RegExpMatchArray).index || 0).trim();
             
-            // Filter out score-related text patterns
+            // Strip score-related text but keep the conversational handoff
             const scorePatterns = [
-              /WunderBrand Score™[™]?:?\s*\d+/i,
-              /Pillar Breakdown/i,
-              /Positioning:\s*\d+/i,
-              /Messaging:\s*\d+/i,
-              /Visibility:\s*\d+/i,
-              /Credibility:\s*\d+/i,
-              /Conversion:\s*\d+/i,
-              /\d+\/100/i,
-              /\d+\/20/i,
+              /WunderBrand Score™[™]?:?\s*\d+/gi,
+              /Pillar Breakdown:?/gi,
+              /(?:Positioning|Messaging|Visibility|Credibility|Conversion):\s*\d+(?:\/\d+)?/gi,
+              /\b\d+\/100\b/g,
+              /\b\d+\/20\b/g,
             ];
             
             let cleanText = textBeforeJson;
             scorePatterns.forEach(pattern => {
               cleanText = cleanText.replace(pattern, '');
             });
-            cleanText = cleanText.trim();
+            cleanText = cleanText.replace(/\n{3,}/g, '\n\n').trim();
             
-            // Only add handoff message if it exists and doesn't contain scores
-            if (cleanText && cleanText.length > 0 && !/\d+/.test(cleanText)) {
+            if (cleanText && cleanText.length > 10) {
               const handoffMessage = createMessage('assistant', cleanText);
               const finalHistory = [...nextHistory, handoffMessage];
               setMessages(finalHistory);
-              
-              // Save progress with completion step
               saveProgress('handoff', finalHistory);
             } else {
-              // Save progress even if no handoff message
               saveProgress('completed', nextHistory);
             }
             

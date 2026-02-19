@@ -11,6 +11,10 @@ import nextDynamic from "next/dynamic";
 // Lazy-load heavy interactive components to reduce initial bundle size
 const ReportNav = nextDynamic(() => import("@/components/reports/ReportNav"), { ssr: false });
 const WundyChat = nextDynamic(() => import("@/components/wundy/WundyChat"), { ssr: false });
+const BlueprintDocumentLibrary = nextDynamic(
+  () => import("@/components/blueprint/BlueprintDocumentLibrary").then(m => ({ default: m.BlueprintDocumentLibrary })),
+  { ssr: false }
+);
 
 /* ─── Brand tokens (match Snapshot+) ─── */
 const NAVY = "#021859";
@@ -1561,6 +1565,15 @@ export default function BrandBlueprintPlusReport() {
   const r = REPORT;
   const [selectedFocus, setSelectedFocus] = useState<"primary" | "secondary">("primary");
   const [selectedArchetype, setSelectedArchetype] = useState<"primary" | "secondary">("primary");
+  const [blueprintReportId, setBlueprintReportId] = useState<string | null>(null);
+  const [blueprintEmail, setBlueprintEmail] = useState<string | undefined>(undefined);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const rid = params.get("reportId") || params.get("id");
+    if (rid) setBlueprintReportId(rid);
+    const em = params.get("email") || localStorage.getItem("brand_snapshot_email") || undefined;
+    if (em) setBlueprintEmail(em);
+  }, []);
 
   return (
     <>
@@ -4271,6 +4284,13 @@ export default function BrandBlueprintPlusReport() {
           </div>
         </Section>
 
+        {/* ═══ DOCUMENT LIBRARY ═══ */}
+        {blueprintReportId && (
+          <Section id="document-library">
+            <BlueprintDocumentLibrary reportId={blueprintReportId} email={blueprintEmail} tier="blueprint-plus" />
+          </Section>
+        )}
+
         {/* ═══ FOOTER ═══ */}
         <footer style={{ textAlign: "center", padding: "20px 0 0", borderTop: `1px solid ${BORDER}` }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8 }}>
@@ -4343,6 +4363,7 @@ export default function BrandBlueprintPlusReport() {
       { id: "brand-glossary", label: "Brand Glossary", group: "Reference" },
       { id: "activation-session", label: "Strategy Activation Session", group: "Reference" },
       { id: "work-with-us", label: "Work with Us", group: "Reference" },
+      { id: "document-library", label: "Document Library", group: "Downloads" },
     ]} />
 
     {/* Wundy™ Report Companion — Blueprint+ tier */}

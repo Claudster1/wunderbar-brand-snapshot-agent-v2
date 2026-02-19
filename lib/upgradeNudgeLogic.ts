@@ -26,7 +26,7 @@ export function getUpgradeNudge(
     }
     
     return {
-      title: "Unlock a deeper WunderBrand Snapshot™",
+      title: "Go deeper with WunderBrand Snapshot+™",
       body: `Your results point to meaningful opportunity in ${snapshot.primary_pillar}. Snapshot+™ expands on this with deeper analysis, examples, and next-step clarity.`,
       ctaLabel: "See how to strengthen what matters most right now",
       href: "/snapshot-plus",

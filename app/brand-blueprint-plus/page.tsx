@@ -18,7 +18,7 @@ export default function BlueprintPlusPage() {
             href="/checkout/blueprint-plus"
             className="px-6 py-3 bg-brand-blue text-white font-semibold rounded-md shadow-lg hover:bg-brand-blueHover transition"
           >
-            Unlock WunderBrand Blueprint+™ →
+            Activate WunderBrand Blueprint+™ →
           </a>
 
           <a
@@ -135,7 +135,7 @@ export default function BlueprintPlusPage() {
           Ready to elevate your brand?
         </h2>
         <p className="max-w-2xl mx-auto mb-8">
-          Unlock your personalized WunderBrand Blueprint+™ — your complete, strategy-first
+          Get your personalized WunderBrand Blueprint+™ — your complete, strategy-first
           foundation for clarity, momentum, and growth.
         </p>
 
@@ -143,7 +143,7 @@ export default function BlueprintPlusPage() {
           href="/checkout/blueprint-plus"
           className="px-8 py-4 bg-brand-blue text-white font-semibold rounded-md shadow hover:bg-brand-blueHover transition"
         >
-          Unlock WunderBrand Blueprint+™ →
+          Activate WunderBrand Blueprint+™ →
         </a>
       </section>
     </div>

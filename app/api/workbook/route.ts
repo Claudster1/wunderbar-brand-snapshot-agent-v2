@@ -4,6 +4,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { logger } from "@/lib/logger";
+import { getWorkbookEditability, shouldAutoFinalize } from "@/lib/workbookAccess";
 
 export const runtime = "nodejs";
 
@@ -29,7 +30,27 @@ export async function GET(req: NextRequest) {
     .single();
 
   if (existing) {
-    return NextResponse.json({ workbook: existing });
+    // Lazy auto-finalize for Blueprint tier if review window expired
+    if (shouldAutoFinalize({
+      productTier: existing.product_tier,
+      createdAt: existing.created_at,
+      finalizedAt: existing.finalized_at,
+    })) {
+      const now = new Date().toISOString();
+      await supabaseAdmin
+        .from("brand_workbook")
+        .update({ finalized_at: now, updated_at: now })
+        .eq("report_id", reportId);
+      existing.finalized_at = now;
+    }
+
+    const editability = getWorkbookEditability({
+      productTier: existing.product_tier,
+      createdAt: existing.created_at,
+      finalizedAt: existing.finalized_at,
+    });
+
+    return NextResponse.json({ workbook: existing, editability });
   }
 
   // Auto-create from the diagnostic report
@@ -119,7 +140,13 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Failed to create workbook." }, { status: 500 });
     }
 
-    return NextResponse.json({ workbook: created, isNew: true });
+    const editability = getWorkbookEditability({
+      productTier: tier,
+      createdAt: created.created_at,
+      finalizedAt: null,
+    });
+
+    return NextResponse.json({ workbook: created, isNew: true, editability });
   } catch (err) {
     logger.error("[Workbook] Auto-create error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "Failed to load workbook." }, { status: 500 });
@@ -140,10 +167,10 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "reportId, email, and updates are required." }, { status: 400 });
     }
 
-    // Verify ownership
+    // Verify ownership and check editability
     const { data: workbook } = await supabaseAdmin
       .from("brand_workbook")
-      .select("id, email")
+      .select("id, email, product_tier, created_at, finalized_at")
       .eq("report_id", reportId)
       .single();
 
@@ -152,6 +179,20 @@ export async function PATCH(req: NextRequest) {
     }
     if (workbook.email?.toLowerCase() !== email.toLowerCase()) {
       return NextResponse.json({ error: "Unauthorized." }, { status: 403 });
+    }
+
+    const editability = getWorkbookEditability({
+      productTier: workbook.product_tier,
+      createdAt: workbook.created_at,
+      finalizedAt: workbook.finalized_at,
+    });
+
+    if (!editability.canEdit) {
+      return NextResponse.json({
+        error: "This workbook is read-only.",
+        reason: editability.reason,
+        isFinalized: editability.isFinalized,
+      }, { status: 403 });
     }
 
     // Whitelist of editable fields

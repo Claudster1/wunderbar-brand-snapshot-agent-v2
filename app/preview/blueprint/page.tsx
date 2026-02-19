@@ -11,6 +11,10 @@ import nextDynamic from "next/dynamic";
 // Lazy-load heavy interactive components to reduce initial bundle size
 const ReportNav = nextDynamic(() => import("@/components/reports/ReportNav"), { ssr: false });
 const WundyChat = nextDynamic(() => import("@/components/wundy/WundyChat"), { ssr: false });
+const BlueprintDocumentLibrary = nextDynamic(
+  () => import("@/components/blueprint/BlueprintDocumentLibrary").then(m => ({ default: m.BlueprintDocumentLibrary })),
+  { ssr: false }
+);
 
 /* ─── Brand tokens (match Snapshot+) ─── */
 const NAVY = "#021859";
@@ -917,6 +921,18 @@ export default function BrandBlueprintReport() {
   const r = REPORT;
   const [selectedFocus, setSelectedFocus] = useState<"primary" | "secondary">("primary");
   const [selectedArchetype, setSelectedArchetype] = useState<"primary" | "secondary">("primary");
+  const [blueprintReportId, setBlueprintReportId] = useState<string | null>(null);
+  const [blueprintEmail, setBlueprintEmail] = useState<string | undefined>(undefined);
+  const [blueprintTier, setBlueprintTier] = useState<"blueprint" | "blueprint-plus">("blueprint");
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const rid = params.get("reportId") || params.get("id");
+    if (rid) setBlueprintReportId(rid);
+    const em = params.get("email") || localStorage.getItem("brand_snapshot_email") || undefined;
+    if (em) setBlueprintEmail(em);
+    const t = params.get("tier");
+    if (t === "blueprint-plus") setBlueprintTier("blueprint-plus");
+  }, []);
 
   return (
     <>
@@ -2376,6 +2392,13 @@ export default function BrandBlueprintReport() {
           </div>
         </Section>
 
+        {/* ═══ DOCUMENT LIBRARY ═══ */}
+        {blueprintReportId && (
+          <Section id="document-library">
+            <BlueprintDocumentLibrary reportId={blueprintReportId} email={blueprintEmail} tier={blueprintTier} />
+          </Section>
+        )}
+
         {/* ═══ FOOTER ═══ */}
         <footer style={{ textAlign: "center", padding: "20px 0 0", borderTop: `1px solid ${BORDER}` }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8 }}>
@@ -2435,6 +2458,7 @@ export default function BrandBlueprintReport() {
       { id: "email-framework", label: "Email Framework", group: "Channel Strategy" },
       { id: "social-media-strategy", label: "Social Media Strategy", group: "Channel Strategy" },
       { id: "whats-next", label: "What's Next", group: "Channel Strategy" },
+      { id: "document-library", label: "Document Library", group: "Downloads" },
     ]} />
 
     {/* Wundy™ Report Companion — Blueprint tier */}

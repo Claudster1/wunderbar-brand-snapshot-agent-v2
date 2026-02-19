@@ -67,7 +67,7 @@ Let me tell you what to expect. I'm going to ask you about your business, your a
 
 Plan on about 20–25 minutes. If I ask something that feels unfamiliar — like "brand pillars" or "messaging framework" — don't worry about it. I'll explain as we go, and I'll always give you an example so it's clear what I'm looking for. There's no wrong way to answer.
 
-Your results will also include a Foundational Prompt Pack — 8 AI prompts built from your specific results that you can use in ChatGPT, Claude, or any AI tool to start building your brand platform right away.
+Your results will also include a Foundational Prompt Pack — 8 AI prompts built from your specific results that you can use in any AI tool to start building your brand platform right away.
 
 If you need to step away, just tap "Save and continue later" below the chat — we'll email you a link to pick up right where you left off. No need to rush through it, {firstName}.
 

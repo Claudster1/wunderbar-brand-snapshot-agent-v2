@@ -466,16 +466,19 @@ function HomeContent() {
             <div className="chat-panel">
               <div ref={chatMessagesRef} className="chat-messages" aria-live="polite">
                 {messages.map((message) => {
-                  // Check if this is a select question (multi-select or single-select)
-                  const selectData = message.role === 'assistant' 
+                  const isLastAssistant = message.role === 'assistant' && message.id === lastAssistantMessage?.id;
+
+                  // Only the LAST assistant message gets interactive options
+                  const selectData = isLastAssistant
                     ? parseSelectOptions(message.text)
                     : null;
                   
                   if (selectData && selectData.options.length > 0) {
-                    // Render message with checkboxes (multi-select) or radio buttons (single-select)
-                    const questionText = message.text.split('\n').find(line => 
-                      !line.trim().match(/^[-•]\s/)
-                    ) || message.text.split('\n')[0];
+                    // Extract ALL non-bullet text as the question context
+                    const contextLines = message.text.split('\n')
+                      .filter(line => !line.trim().match(/^[-•]\s/))
+                      .map(line => line.trim())
+                      .filter(Boolean);
                     
                     const isMultiSelect = selectData.isMultiSelect;
                     
@@ -484,7 +487,9 @@ function HomeContent() {
                         key={message.id}
                         className={`chat-bubble chat-bubble-${message.role}`}
                       >
-                        <p>{questionText}</p>
+                        {contextLines.map((line, idx) => (
+                          <p key={idx}>{line}</p>
+                        ))}
                         <div className={isMultiSelect ? "chat-checkboxes" : "chat-radio-buttons"}>
                           {selectData.options.map((option, idx) => (
                             <label key={idx} className={isMultiSelect ? "chat-checkbox-label" : "chat-radio-label"}>

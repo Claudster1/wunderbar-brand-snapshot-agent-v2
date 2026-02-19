@@ -10,6 +10,7 @@ import { grantAccess } from "@/lib/grantAccess";
 import { recordStripePurchase } from "@/lib/recordStripePurchase";
 import { createRefreshEntitlement } from "@/lib/refreshEntitlements";
 import { logger } from "@/lib/logger";
+import { POST_PURCHASE_EMAILS, type EmailTier } from "@/content/postPurchaseEmails";
 
 // ❗ Stripe requires raw body for signature verification
 export const runtime = "nodejs";
@@ -357,12 +358,36 @@ async function triggerActiveCampaign({
   const npsTier = productKey;
   const npsLink = `${BASE_URL}/nps?tier=${npsTier}&reportId=${encodeURIComponent(reportId || "")}&email=${encodeURIComponent(email)}`;
 
+  // Tier slug for URL params (snapshot-plus, blueprint, blueprint-plus)
+  const tierSlug = productKey.replace(/_/g, "-");
+  const startDiagnosticLink = `${BASE_URL}/?tier=${tierSlug}${customerName ? `&name=${encodeURIComponent(customerName)}` : ""}`;
+
+  const TIME_ESTIMATES: Record<string, string> = {
+    snapshot_plus: "20\u201325 minutes",
+    blueprint: "25\u201330 minutes",
+    blueprint_plus: "30\u201340 minutes",
+  };
+  const UPLOAD_LIMITS: Record<string, string> = {
+    snapshot_plus: "",
+    blueprint: "Up to 3 files (images and PDFs, 20 MB each)",
+    blueprint_plus: "Up to 10 files (images, PDFs, PPTX, DOCX, 20 MB each)",
+  };
+  const CHECKLIST_ITEMS: Record<string, string> = {
+    snapshot_plus: "Your website URL, social media handles, 2\u20133 competitor names, a sense of your current and ideal customers, your business goals for the next 6\u201312 months",
+    blueprint: "Your website URL, social media handles, 2\u20133 competitor names, your current and ideal customers, your business goals, plus any existing brand guidelines, logo files, or a sample marketing piece",
+    blueprint_plus: "Your website URL, social media handles, 2\u20133 competitor names, your current and ideal customers, your business goals, plus brand guidelines, logo files, marketing materials, pitch deck, email samples, case studies, and any previous brand work",
+  };
+
   const contactFields: Record<string, string> = {
     product_purchased: PRODUCT_DISPLAY_NAMES[productKey],
     product_key: productKey,
     report_link: reportLink,
     report_id: reportId || "",
     dashboard_link: `${BASE_URL}/dashboard`,
+    start_diagnostic_link: startDiagnosticLink,
+    time_estimate: TIME_ESTIMATES[productKey] || "20\u201325 minutes",
+    upload_limit: UPLOAD_LIMITS[productKey] || "",
+    checklist_summary: CHECKLIST_ITEMS[productKey] || "",
     nps_survey_link: npsLink,
     purchase_date: new Date().toISOString().split("T")[0],
     refresh_price: productKey === "blueprint_plus" ? "free" : productKey === "blueprint" ? "$97" : "$47",
@@ -372,17 +397,17 @@ async function triggerActiveCampaign({
       : productKey === "blueprint"
         ? new Date(Date.now() + 90 * 86400000).toISOString().split("T")[0]
         : "",
-    refresh_brand_name: "", // populated after entitlement creation
+    refresh_brand_name: "",
     upgrade_product_name: upgradeProductName,
     upgrade_product_url: upgradeProductUrl,
     upgrade_price: upgradePrice,
     services_url: "https://wunderbardigital.com/talk-to-an-expert",
+    email_subject: POST_PURCHASE_EMAILS[productKey as EmailTier]?.subject || "",
   };
   if (customerName) contactFields.first_name_custom = customerName;
   if (amountPaid) contactFields.amount_paid = `$${(amountPaid / 100).toFixed(0)}`;
 
   try {
-    // Sync first name on the contact record itself
     if (customerName) {
       await getOrCreateContactId(email, { firstName: customerName });
     }
@@ -391,11 +416,50 @@ async function triggerActiveCampaign({
     logger.error("[Stripe Webhook] AC field sync failed", { error: err instanceof Error ? err.message : String(err) });
   }
 
-  // --- Fire "report_ready" event (AC automation sends email with report link) ---
   const AC_WEBHOOK_URL =
     process.env.ACTIVECAMPAIGN_WEBHOOK_URL ??
     process.env.NEXT_PUBLIC_ACTIVECAMPAIGN_WEBHOOK_URL;
 
+  // --- Fire "purchase_complete" event (AC sends preparation/onboarding email) ---
+  const emailCopy = POST_PURCHASE_EMAILS[productKey as EmailTier];
+  if (AC_WEBHOOK_URL) {
+    try {
+      await fetch(AC_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          event: "purchase_complete",
+          email,
+          tags: [`onboarding:${tierSlug}`],
+          fields: {
+            first_name: customerName || "",
+            product_name: PRODUCT_DISPLAY_NAMES[productKey],
+            product_key: productKey,
+            start_diagnostic_link: startDiagnosticLink,
+            dashboard_link: `${BASE_URL}/dashboard`,
+            time_estimate: TIME_ESTIMATES[productKey] || "20\u201325 minutes",
+            upload_limit: UPLOAD_LIMITS[productKey] || "",
+            checklist_summary: CHECKLIST_ITEMS[productKey] || "",
+            purchase_date: new Date().toISOString().split("T")[0],
+            amount_paid: amountPaid ? `$${(amountPaid / 100).toFixed(0)}` : "",
+            email_subject: emailCopy?.subject || "",
+            email_opening: emailCopy?.opening || "",
+            email_checklist_intro: emailCopy?.checklistIntro || "",
+            email_checklist_items: emailCopy?.checklistItems.join("\n- ") ? `- ${emailCopy.checklistItems.join("\n- ")}` : "",
+            email_upload_note: emailCopy?.uploadNote || "",
+            email_how_it_works: emailCopy?.howItWorks || "",
+            email_session_note: emailCopy?.sessionNote || "",
+            email_button_label: emailCopy?.buttonLabel || "",
+            email_closing: emailCopy?.closing || "",
+          },
+        }),
+      });
+    } catch (err) {
+      logger.error("[Stripe Webhook] purchase_complete AC event failed", { error: err instanceof Error ? err.message : String(err) });
+    }
+  }
+
+  // --- Fire "report_ready" event (AC automation sends email with report link) ---
   if (AC_WEBHOOK_URL) {
     try {
       await fetch(AC_WEBHOOK_URL, {
@@ -404,7 +468,7 @@ async function triggerActiveCampaign({
         body: JSON.stringify({
           event: "report_ready",
           email,
-          tags: [`report:${productKey.replace("_", "-")}-ready`],
+          tags: [`report:${tierSlug}-ready`],
           fields: {
             first_name: customerName || "",
             product_name: PRODUCT_DISPLAY_NAMES[productKey],

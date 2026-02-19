@@ -10,7 +10,7 @@ export function SnapshotPlusCTA({ pillar }: { pillar: string }) {
       </p>
 
       <a href="/snapshot-plus" className="btn-primary mt-4">
-        Unlock Snapshot+™
+        Take it further with Snapshot+™
       </a>
     </section>
   );

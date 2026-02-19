@@ -13,7 +13,7 @@ export function getUpgradeNudgeCopy({ primaryPillar, tiePillars }: CopyContext) 
       detail:
         "Snapshot+™ reveals the patterns behind this score — and outlines exactly how to strengthen it with clear priorities and next steps.",
       note: "Priority is determined by impact, not surface-level scores.",
-      ctaLabel: "Unlock Snapshot+™",
+      ctaLabel: "Take it further with Snapshot+™",
     };
   }
 
@@ -23,6 +23,6 @@ export function getUpgradeNudgeCopy({ primaryPillar, tiePillars }: CopyContext) 
     detail:
       "Snapshot+™ reveals the patterns behind this score — and outlines exactly how to strengthen it with clear priorities and next steps.",
     note: "Priority is determined by impact, not surface-level scores.",
-    ctaLabel: "Unlock Snapshot+™",
+    ctaLabel: "Take it further with Snapshot+™",
   };
 }

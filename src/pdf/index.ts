@@ -33,6 +33,16 @@ export { default as SnapshotPlusPDFLegacy } from "./documents/SnapshotPlusPDF";
 export { default as BrandBlueprintPDFLegacy } from "./documents/BrandBlueprintPDF";
 export { default as BrandBlueprintPlusPDF } from "./documents/BrandBlueprintPlusPDF";
 
+// Blueprint Document Suite
+export { CompleteBlueprintDocument } from "./documents/CompleteBlueprintDocument";
+export { ExecutiveSummaryDocument } from "./documents/ExecutiveSummaryDocument";
+export { MessagingPlaybookDocument } from "./documents/MessagingPlaybookDocument";
+export { PromptLibraryDocument } from "./documents/PromptLibraryDocument";
+export { ActivationPlanDocument } from "./documents/ActivationPlanDocument";
+export { DigitalStrategyDocument } from "./documents/DigitalStrategyDocument";
+export { CompetitiveIntelDocument } from "./documents/CompetitiveIntelDocument";
+export type { BlueprintEngineOutput } from "./types/blueprintReport";
+
 // Component exports
 export * from "./components";
 

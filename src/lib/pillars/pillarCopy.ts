@@ -30,7 +30,7 @@ WunderBrand Snapshot+™ defines your positioning precisely so customers underst
     whyItMatters: (businessName) =>
       `Clear positioning reduces confusion, shortens decision time, and helps ${businessName} stand out in a crowded market.`,
     cta: {
-      label: "Unlock my full Positioning Blueprint →",
+      label: "Go deeper on Positioning →",
       href: "/snapshot-plus",
     },
   },

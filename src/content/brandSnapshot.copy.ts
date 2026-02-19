@@ -6,7 +6,7 @@ export const brandSnapshotCopy = {
     title: "WunderBrand Snapshot™",
     subtitle: "See how clearly and consistently your brand shows up today",
     intro:
-      "WunderBrand Snapshot™ is a fast, guided diagnostic that reveals how aligned your brand is across five core pillars — and where small refinements can unlock outsized impact.",
+      "WunderBrand Snapshot™ is a fast, guided diagnostic that reveals how aligned your brand is across five core pillars — and where small refinements can create outsized impact.",
   },
 
   howItWorks: [

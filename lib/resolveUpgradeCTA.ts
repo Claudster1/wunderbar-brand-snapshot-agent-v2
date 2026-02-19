@@ -11,7 +11,7 @@ export function resolveUpgradeCTA(ctx: UpgradeContext) {
     return {
       testId: "snapshot_to_plus",
       variantA: {
-        label: "Unlock deeper insight for your brand →",
+        label: "Go deeper on your brand →",
         href: "/snapshot-plus",
       },
       variantB: {

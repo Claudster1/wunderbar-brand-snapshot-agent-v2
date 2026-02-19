@@ -22,7 +22,7 @@ export function SnapshotUpgradeCTA({ primaryPillar, stage }: Props) {
         href="/snapshot-plus"
         className="inline-block rounded-md bg-white px-5 py-3 text-sm font-medium text-slate-900"
       >
-        Unlock Snapshot+™
+        Take it further with Snapshot+™
       </a>
     </div>
   );

@@ -94,12 +94,12 @@ export default function RetakeCTA() {
             ✓
           </div>
           <span style={{ fontSize: 12, fontWeight: 900, letterSpacing: 2, textTransform: "uppercase" as const, color: GREEN }}>
-            Blueprint+ Perk
+            Brand Workspace
           </span>
         </div>
 
         <p style={{ fontSize: 14, color: SUB, margin: "0 0 8px", lineHeight: 1.6 }}>
-          Unlimited quarterly refreshes are included with WunderBrand Blueprint+™. Retake the diagnostic to see how your brand has evolved.
+          Your WunderBrand Blueprint+™ includes unlimited strategy refreshes and a Brand Workspace that adapts as your brand grows. Run a fresh diagnostic anytime — your score updates to reflect where you are now.
         </p>
 
         {/* Brand lock notice */}
@@ -149,13 +149,13 @@ export default function RetakeCTA() {
               textDecoration: "none",
             }}
           >
-            Start Quarterly Refresh — Free
+            Start Strategy Refresh — Free
           </a>
         </div>
 
         {eligibility.windowEnd && (
           <p style={{ fontSize: 11, color: SUB, margin: "10px 0 0", opacity: 0.6 }}>
-            Free refreshes included through {formatDate(eligibility.windowEnd)}. Annual refresh plans available after.
+            Unlimited refreshes and workspace editing included through {formatDate(eligibility.windowEnd)}.
           </p>
         )}
       </div>
@@ -193,12 +193,12 @@ export default function RetakeCTA() {
             ✓
           </div>
           <span style={{ fontSize: 12, fontWeight: 900, letterSpacing: 2, textTransform: "uppercase" as const, color: GREEN }}>
-            Free Refresh Available
+            90-Day Strategy Check-In
           </span>
         </div>
 
         <p style={{ fontSize: 14, color: SUB, margin: "0 0 8px", lineHeight: 1.6 }}>
-          Your WunderBrand Blueprint™ includes {eligibility.freeRemaining} free strategy refresh{(eligibility.freeRemaining as number) > 1 ? "es" : ""}. See how your brand scores have changed.
+          Your WunderBrand Blueprint™ includes a complimentary strategy check-in. Re-run the diagnostic to see how your brand has evolved and get fresh recommendations.
         </p>
 
         {eligibility.brandName && (
@@ -246,16 +246,16 @@ export default function RetakeCTA() {
               textDecoration: "none",
             }}
           >
-            Use Free Refresh
+            Start Strategy Check-In — Free
           </a>
         </div>
 
         <p style={{ fontSize: 12, color: SUB, margin: "12px 0 0", lineHeight: 1.5 }}>
-          After your free refresh, additional refreshes are $97 each. Or{" "}
+          After your check-in, additional refreshes are $97 each. Or{" "}
           <a href="/checkout?product=blueprint-plus" style={{ color: BLUE, fontWeight: 700, textDecoration: "none" }}>
-            upgrade to Blueprint+™
+            take it further with WunderBrand Blueprint+™
           </a>{" "}
-          for unlimited refreshes.
+          for unlimited refreshes and a Brand Workspace that grows with you.
         </p>
       </div>
     );
@@ -344,7 +344,7 @@ export default function RetakeCTA() {
               color: SUB,
             }}
           >
-            Your free refresh window has ended. Annual refresh plans are available.
+            Your included refresh window has ended. You can purchase individual refreshes below.
           </div>
         )}
 
@@ -376,9 +376,9 @@ export default function RetakeCTA() {
           <p style={{ fontSize: 12, color: SUB, margin: "12px 0 0", lineHeight: 1.5 }}>
             Or{" "}
             <a href="/checkout?product=blueprint-plus" style={{ color: BLUE, fontWeight: 700, textDecoration: "none" }}>
-              upgrade to WunderBrand Blueprint+™
+              take it further with WunderBrand Blueprint+™
             </a>{" "}
-            for unlimited free refreshes.
+            for unlimited refreshes and a Brand Workspace that grows with you.
           </p>
         )}
       </div>

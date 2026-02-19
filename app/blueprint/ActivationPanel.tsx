@@ -27,7 +27,7 @@ export function BlueprintActivation({
       </p>
 
       <a href="/snapshot-plus" className="btn-primary mt-3">
-        Unlock My Snapshot+™
+        Take it further with Snapshot+™
       </a>
 
       <p className="text-sm mt-2">

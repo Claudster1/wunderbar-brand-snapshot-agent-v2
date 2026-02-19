@@ -17,7 +17,7 @@ export function SnapshotToBlueprintTransition({
         insight into a fully activated system your brand can actually use.
       </p>
       <a href="/blueprint-plus" className="btn-primary">
-        Unlock WunderBrand Blueprint+™
+        Activate WunderBrand Blueprint+™
       </a>
     </section>
   );

@@ -30,7 +30,7 @@ WunderBrand Snapshot+™ defines your positioning precisely so customers underst
     whyItMatters: (businessName) =>
       `Clear positioning reduces confusion, shortens decision time, and helps ${businessName} stand out in a crowded market.`,
     cta: {
-      label: "Unlock my full Positioning Blueprint →",
+      label: "Clarify my Positioning →",
       href: "/snapshot-plus",
     },
   },
@@ -60,7 +60,7 @@ WunderBrand Snapshot+™ shows where to strengthen SEO and AEO so your brand is 
     whyItMatters: () =>
       "If your brand isn't discoverable, even strong positioning and messaging go unseen.",
     cta: {
-      label: "Increase my visibility →",
+      label: "Increase my Visibility →",
       href: "/snapshot-plus",
     },
   },
@@ -90,7 +90,7 @@ WunderBrand Snapshot+™ reveals what's missing between interest and conversion.
     whyItMatters: () =>
       "Conversion issues often stem from small gaps that compound across the experience.",
     cta: {
-      label: "Improve conversions →",
+      label: "Improve my Conversion →",
       href: "/snapshot-plus",
     },
   },

@@ -29,7 +29,7 @@ export function SnapshotUpgradeCTA({
         href="/snapshot-plus"
         className="inline-block mt-4 px-8 py-4 bg-brand-blue rounded-md font-semibold"
       >
-        Unlock Snapshot+™ →
+        Take it further with Snapshot+™ →
       </a>
     </section>
   );

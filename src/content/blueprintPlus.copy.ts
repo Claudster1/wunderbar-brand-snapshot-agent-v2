@@ -99,7 +99,7 @@ export const blueprintPlusUpsellByPillar: Record<
     headline: "Transform messaging into a scalable system",
     body:
       "WunderBrand Blueprint+™ converts your messaging insights into a complete narrative framework your team and AI tools can use consistently across every channel.",
-    cta: "Unlock WunderBrand Blueprint+™",
+    cta: "Activate WunderBrand Blueprint+™",
   },
   visibility: {
     headline: "Build visibility that compounds over time",

@@ -28,6 +28,15 @@ function WorkbookContent() {
   const [activeSection, setActiveSection] = useState("positioning");
   const [refining, setRefining] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [editability, setEditability] = useState<{
+    canEdit: boolean;
+    reason: string;
+    isFinalized: boolean;
+    reviewDaysRemaining: number | null;
+    reviewWindowExpired: boolean;
+    tier: string;
+  } | null>(null);
+  const [finalizing, setFinalizing] = useState(false);
 
   // ─── Fetch workbook ───
   useEffect(() => {
@@ -45,6 +54,7 @@ function WorkbookContent() {
           return;
         }
         setWorkbook(data.workbook);
+        if (data.editability) setEditability(data.editability);
       } catch {
         setError("Failed to connect.");
       } finally {
@@ -52,6 +62,27 @@ function WorkbookContent() {
       }
     })();
   }, [reportId, email]);
+
+  // ─── Finalize workbook ───
+  const handleFinalize = useCallback(async () => {
+    if (!reportId || !email || finalizing) return;
+    if (!window.confirm("Are you sure you want to finalize? Your workbook will become read-only and your final PDFs will be generated.")) return;
+    setFinalizing(true);
+    try {
+      const res = await fetch("/api/blueprint/finalize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reportId, email }),
+      });
+      if (res.ok) {
+        setEditability((prev) => prev ? { ...prev, canEdit: false, isFinalized: true, reviewDaysRemaining: 0, reason: "Your Blueprint has been finalized." } : prev);
+        setSaveStatus("Finalized");
+        setTimeout(() => setSaveStatus(null), 3000);
+      }
+    } catch { /* silent */ } finally {
+      setFinalizing(false);
+    }
+  }, [reportId, email, finalizing]);
 
   // ─── Save a field ───
   const saveField = useCallback(
@@ -131,6 +162,10 @@ function WorkbookContent() {
 
   if (!workbook) return null;
 
+  const readOnly = editability ? !editability.canEdit : false;
+  const isBlueprint = editability?.tier === "blueprint";
+  const isBlueprintPlus = editability?.tier === "blueprint_plus";
+
   return (
     <div style={styles.container}>
       {/* Sidebar */}
@@ -138,6 +173,11 @@ function WorkbookContent() {
         <div style={styles.sidebarHeader}>
           <h2 style={styles.sidebarTitle}>Brand Workbook</h2>
           <p style={styles.sidebarBusiness}>{workbook.business_name || "Your Brand"}</p>
+          {isBlueprintPlus && (
+            <span style={{ display: "inline-block", marginTop: 6, fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase" as const, color: "#10B981", background: "rgba(16,185,129,0.12)", padding: "3px 8px", borderRadius: 4 }}>
+              Brand Workspace
+            </span>
+          )}
         </div>
         <nav style={styles.sidebarNav}>
           {SECTIONS.map((s) => (
@@ -158,8 +198,17 @@ function WorkbookContent() {
             href={`/api/workbook/export?reportId=${reportId}&email=${encodeURIComponent(email)}`}
             style={styles.exportBtn}
           >
-            Export Brand Standards PDF
+            {readOnly ? "Download Final PDF" : "Export Brand Standards PDF"}
           </a>
+          {isBlueprint && !readOnly && !editability?.isFinalized && (
+            <button
+              onClick={handleFinalize}
+              disabled={finalizing}
+              style={{ ...styles.exportBtn, background: "#10B981", marginTop: 8, border: "none", cursor: finalizing ? "default" : "pointer", opacity: finalizing ? 0.7 : 1, width: "100%", textAlign: "center" as const, display: "block", fontSize: 13, fontWeight: 700, padding: "10px 16px", borderRadius: 6, color: "#fff", textDecoration: "none" }}
+            >
+              {finalizing ? "Finalizing..." : "Finalize My Blueprint"}
+            </button>
+          )}
           <a href="/dashboard" style={styles.backLink}>← Back to Dashboard</a>
         </div>
       </aside>
@@ -170,10 +219,67 @@ function WorkbookContent() {
         {saveStatus && (
           <div style={{
             ...styles.saveIndicator,
-            background: saveStatus === "Saved" ? "#ECFDF5" : "#FEF2F2",
-            color: saveStatus === "Saved" ? "#059669" : "#DC2626",
+            background: saveStatus === "Saved" || saveStatus === "Finalized" ? "#ECFDF5" : "#FEF2F2",
+            color: saveStatus === "Saved" || saveStatus === "Finalized" ? "#059669" : "#DC2626",
           }}>
             {saveStatus}
+          </div>
+        )}
+
+        {/* Review window banner — Blueprint tier, still editable */}
+        {isBlueprint && !readOnly && editability?.reviewDaysRemaining != null && (
+          <div style={{
+            padding: "14px 20px",
+            borderRadius: 8,
+            background: editability.reviewDaysRemaining <= 3 ? "#FEF3C7" : "#EFF6FF",
+            border: `1px solid ${editability.reviewDaysRemaining <= 3 ? "#F59E0B" : "#07B0F2"}30`,
+            marginBottom: 20,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 16,
+          }}>
+            <div>
+              <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#021859" }}>
+                {editability.reviewDaysRemaining} day{editability.reviewDaysRemaining !== 1 ? "s" : ""} left in your review window
+              </p>
+              <p style={{ margin: "4px 0 0", fontSize: 12, color: "#5A6B7E", lineHeight: 1.5 }}>
+                Review and refine your brand outputs. Once finalized, your workbook becomes a read-only reference.
+              </p>
+            </div>
+            <button
+              onClick={handleFinalize}
+              disabled={finalizing}
+              style={{ flexShrink: 0, padding: "8px 16px", borderRadius: 6, background: "#10B981", color: "#fff", border: "none", fontSize: 12, fontWeight: 700, cursor: finalizing ? "default" : "pointer", opacity: finalizing ? 0.7 : 1 }}
+            >
+              {finalizing ? "..." : "Finalize Now"}
+            </button>
+          </div>
+        )}
+
+        {/* Read-only banner — finalized Blueprint */}
+        {readOnly && editability?.isFinalized && (
+          <div style={{
+            padding: "14px 20px",
+            borderRadius: 8,
+            background: "#F1F5F9",
+            border: "1px solid #E2E8F0",
+            marginBottom: 20,
+          }}>
+            <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#021859" }}>
+              Your Blueprint is finalized
+            </p>
+            <p style={{ margin: "4px 0 0", fontSize: 12, color: "#5A6B7E", lineHeight: 1.5 }}>
+              This is your read-only brand reference. Use the button above to download your final PDF.{" "}
+              <a href="/dashboard" style={{ color: "#07B0F2", fontWeight: 600, textDecoration: "none" }}>
+                Use your 90-day refresh
+              </a>{" "}
+              to update your strategy, or{" "}
+              <a href="/checkout?product=blueprint-plus" style={{ color: "#07B0F2", fontWeight: 600, textDecoration: "none" }}>
+                upgrade to Blueprint+
+              </a>{" "}
+              for a Brand Workspace that adapts as your brand grows.
+            </p>
           </div>
         )}
 
@@ -191,6 +297,7 @@ function WorkbookContent() {
               onRefine={refineField}
               saving={saving}
               refining={refining}
+              readOnly={readOnly}
               rows={4}
             />
             <EditableField
@@ -201,6 +308,7 @@ function WorkbookContent() {
               onRefine={refineField}
               saving={saving}
               refining={refining}
+              readOnly={readOnly}
               rows={3}
             />
             <EditableField
@@ -211,6 +319,7 @@ function WorkbookContent() {
               onRefine={refineField}
               saving={saving}
               refining={refining}
+              readOnly={readOnly}
               rows={4}
             />
           </section>
@@ -230,6 +339,7 @@ function WorkbookContent() {
               onRefine={refineField}
               saving={saving}
               refining={refining}
+              readOnly={readOnly}
               rows={3}
               placeholder="A concise pitch for quick introductions (aim for ~75 words)..."
             />
@@ -241,6 +351,7 @@ function WorkbookContent() {
               onRefine={refineField}
               saving={saving}
               refining={refining}
+              readOnly={readOnly}
               rows={5}
               placeholder="An expanded pitch with a story or proof point (~150 words)..."
             />
@@ -252,6 +363,7 @@ function WorkbookContent() {
               onRefine={refineField}
               saving={saving}
               refining={refining}
+              readOnly={readOnly}
               rows={4}
               placeholder="A pitch formatted for outreach emails (~100 words)..."
             />
@@ -279,6 +391,7 @@ function WorkbookContent() {
                   onRefine={async () => {}}
                   saving={saving}
                   refining={refining}
+                  readOnly={readOnly}
                   rows={3}
                 />
               </div>
@@ -309,6 +422,7 @@ function WorkbookContent() {
               onRefine={refineField}
               saving={saving}
               refining={refining}
+              readOnly={readOnly}
               rows={6}
               placeholder="Describe when and how your brand's tone shifts (e.g., more formal in proposals, more casual on social)..."
             />
@@ -332,6 +446,7 @@ function WorkbookContent() {
               onRefine={async () => {}}
               saving={saving}
               refining={refining}
+              readOnly={readOnly}
               rows={4}
               placeholder="Describe your primary audience — who they are, what they need, what drives their decisions..."
             />
@@ -346,6 +461,7 @@ function WorkbookContent() {
               onRefine={async () => {}}
               saving={saving}
               refining={refining}
+              readOnly={readOnly}
               rows={4}
               placeholder="Describe your secondary audience (if applicable)..."
             />
@@ -376,6 +492,7 @@ function WorkbookContent() {
                   onRefine={async () => {}}
                   saving={saving}
                   refining={refining}
+                  readOnly={readOnly}
                   rows={2}
                 />
               </div>
@@ -402,6 +519,7 @@ function WorkbookContent() {
               onRefine={refineField}
               saving={saving}
               refining={refining}
+              readOnly={readOnly}
               rows={4}
             />
             <EditableField
@@ -412,6 +530,7 @@ function WorkbookContent() {
               onRefine={refineField}
               saving={saving}
               refining={refining}
+              readOnly={readOnly}
               rows={5}
             />
           </section>
@@ -432,6 +551,7 @@ function EditableField({
   refining,
   rows = 3,
   placeholder,
+  readOnly = false,
 }: {
   label: string;
   value: string;
@@ -442,6 +562,7 @@ function EditableField({
   refining: string | null;
   rows?: number;
   placeholder?: string;
+  readOnly?: boolean;
 }) {
   const [localValue, setLocalValue] = useState(value);
   const [dirty, setDirty] = useState(false);
@@ -452,6 +573,7 @@ function EditableField({
   }, [value]);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (readOnly) return;
     setLocalValue(e.target.value);
     setDirty(true);
   };
@@ -468,12 +590,12 @@ function EditableField({
       <div style={styles.fieldHeader}>
         <label style={styles.fieldLabel}>{label}</label>
         <div style={styles.fieldActions}>
-          {dirty && (
+          {!readOnly && dirty && (
             <button onClick={handleSave} disabled={saving} style={styles.saveBtn}>
               {saving ? "Saving..." : "Save"}
             </button>
           )}
-          {value && value.length >= 5 && (
+          {!readOnly && value && value.length >= 5 && (
             <button
               onClick={() => onRefine(field)}
               disabled={isRefining}
@@ -487,10 +609,12 @@ function EditableField({
       <textarea
         value={localValue}
         onChange={handleChange}
+        readOnly={readOnly}
         rows={rows}
         placeholder={placeholder || `Enter your ${label.toLowerCase()}...`}
         style={{
           ...styles.textarea,
+          ...(readOnly ? { background: "#F1F5F9", cursor: "default", opacity: 0.85 } : {}),
           ...(dirty ? styles.textareaDirty : {}),
           ...(isRefining ? styles.textareaRefining : {}),
         }}

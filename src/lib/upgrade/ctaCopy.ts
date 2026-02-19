@@ -8,20 +8,21 @@ export function getUpgradeCopy(
   stage: "early" | "scaling",
   businessName: string
 ) {
+  const name = businessName?.trim() || "your brand";
   const pillarMap: Record<string, string> = {
     positioning: "clarify how your brand is positioned",
     messaging: "sharpen your core messaging",
-    visibility: "increase how your brand is discovered",
+    visibility: "improve how your brand is discovered",
     credibility: "build stronger trust signals",
     conversion: "turn interest into action",
   };
 
   return {
-    headline: `Ready to strengthen ${pillarMap[pillar]}?`,
+    headline: `Ready to ${pillarMap[pillar]}?`,
     body:
       stage === "early"
-        ? `Snapshot+™ gives ${businessName} a focused strategy to build this foundation correctly from the start.`
-        : `Snapshot+™ helps ${businessName} correct this gap before it slows your next stage of growth.`,
+        ? `Snapshot+™ gives ${name} a focused strategy to build this foundation correctly from the start.`
+        : `Snapshot+™ helps ${name} correct this gap before it slows your next stage of growth.`,
   };
 }
 
@@ -38,6 +39,6 @@ export function getSnapshotPlusCTA(
       stage === "early"
         ? `Get a deeper, prioritized roadmap to build clarity and confidence.`
         : `Turn this insight into a structured system you can scale.`,
-    button: "Unlock Snapshot+™"
+    button: "Take it further with Snapshot+™"
   };
 }

@@ -32,7 +32,7 @@ export function PdfExportGate({
         }
         className="text-brand-blue font-medium hover:underline"
       >
-        Unlock Snapshot+™ →
+        Take it further with Snapshot+™ →
       </a>
     </div>
   );

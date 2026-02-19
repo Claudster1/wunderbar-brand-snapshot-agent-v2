@@ -84,7 +84,7 @@ export default function BlueprintPage() {
         onClick={onBlueprintClick}
         className="inline-flex rounded-[10px] bg-[#07B0F2] px-6 py-3 text-sm font-semibold text-white hover:bg-[#059BD8] no-underline"
       >
-        Unlock Blueprint™ →
+        Activate Blueprint™ →
       </Link>
     </div>
   );

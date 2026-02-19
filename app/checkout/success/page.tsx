@@ -2,7 +2,11 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { persistEmail } from "@/lib/persistEmail";
+import { persistEmail, getPersistedEmail } from "@/lib/persistEmail";
+import {
+  POST_PURCHASE_COPY,
+  type PostPurchaseTier,
+} from "@/content/postPurchaseCopy";
 
 const NAVY = "#021859";
 const BLUE = "#07B0F2";
@@ -12,50 +16,43 @@ const WHITE = "#FFFFFF";
 const LIGHT_BG = "#F4F7FB";
 const GREEN = "#22C55E";
 
-const PRODUCT_NAMES: Record<string, string> = {
-  "snapshot-plus": "WunderBrand Snapshot+™",
-  blueprint: "WunderBrand Blueprint™",
-  "blueprint-plus": "WunderBrand Blueprint+™",
-};
-
-const PRODUCT_TIME_ESTIMATES: Record<string, string> = {
-  "snapshot-plus": "20–30 minute",
-  blueprint: "20–30 minute",
-  "blueprint-plus": "20–30 minute",
-};
-
-const PRODUCT_DESCRIPTIONS: Record<string, string> = {
-  "snapshot-plus":
-    "Your report includes pillar-level analysis, brand persona insights, strategic action plan, and 8 AI prompts calibrated to your brand.",
-  blueprint:
-    "Your report includes a complete brand operating system, messaging framework, competitive positioning, and 16 AI prompts.",
-  "blueprint-plus":
-    "Your report includes everything in WunderBrand Blueprint™ plus implementation guides, advanced messaging matrix, 28 AI prompts, and a complimentary 30-minute Strategy Activation Session.",
-};
+function parseTier(param: string | null): PostPurchaseTier {
+  if (param === "blueprint") return "blueprint";
+  if (param === "blueprint-plus") return "blueprint-plus";
+  return "snapshot-plus";
+}
 
 function SuccessContent() {
   const searchParams = useSearchParams();
-  const product = searchParams.get("product") || "snapshot-plus";
+  const product = parseTier(searchParams.get("product"));
   const reportId = searchParams.get("reportId");
   const emailParam = searchParams.get("email");
   const sessionId = searchParams.get("session_id");
-  const productName = PRODUCT_NAMES[product] || "WunderBrand Snapshot+™";
-  const [customerFirstName, setCustomerFirstName] = useState<string | null>(null);
-  const [tierToken, setTierToken] = useState<string | null>(null);
+  const copy = POST_PURCHASE_COPY[product];
 
-  // Persist email and retrieve customer name + tier token from Stripe session.
+  const [customerFirstName, setCustomerFirstName] = useState<string | null>(
+    null
+  );
+  const [tierToken, setTierToken] = useState<string | null>(null);
+  const [customerEmail, setCustomerEmail] = useState<string | null>(
+    emailParam || getPersistedEmail()
+  );
+
   useEffect(() => {
     if (emailParam) {
       persistEmail(emailParam);
+      setCustomerEmail(emailParam);
     }
     if (sessionId) {
       fetch(`/api/stripe/session-email?session_id=${sessionId}`)
         .then((r) => (r.ok ? r.json() : null))
         .then((data) => {
-          if (data?.email) persistEmail(data.email);
+          if (data?.email) {
+            persistEmail(data.email);
+            setCustomerEmail(data.email);
+          }
           if (data?.name) {
-            const first = data.name.split(/\s+/)[0];
-            setCustomerFirstName(first);
+            setCustomerFirstName(data.name.split(/\s+/)[0]);
           }
           if (data?.tierToken) {
             setTierToken(data.tierToken);
@@ -65,26 +62,19 @@ function SuccessContent() {
     }
   }, [emailParam, sessionId]);
 
-  const productDescription = PRODUCT_DESCRIPTIONS[product] || PRODUCT_DESCRIPTIONS["snapshot-plus"];
-  const isBlueprintPlus = product === "blueprint-plus";
-
-  const [showConfetti, setShowConfetti] = useState(true);
-  useEffect(() => {
-    const timer = setTimeout(() => setShowConfetti(false), 3000);
-    return () => clearTimeout(timer);
-  }, []);
+  const startHref = `/?tier=${product}${customerFirstName ? `&name=${encodeURIComponent(customerFirstName)}` : ""}${tierToken ? `&token=${encodeURIComponent(tierToken)}` : ""}`;
 
   return (
     <main
       style={{
-        maxWidth: 620,
+        maxWidth: 660,
         margin: "0 auto",
         padding: "48px 24px 80px",
         fontFamily: "var(--font-brand)",
       }}
     >
-      {/* Success icon */}
-      <div style={{ textAlign: "center", marginBottom: 32 }}>
+      {/* ═══ HEADER ═══ */}
+      <div style={{ textAlign: "center", marginBottom: 36 }}>
         <div
           aria-hidden="true"
           style={{
@@ -96,105 +86,252 @@ function SuccessContent() {
             alignItems: "center",
             justifyContent: "center",
             marginBottom: 20,
-            position: "relative",
           }}
         >
           <svg viewBox="0 0 24 24" fill="none" style={{ width: 36, height: 36 }}>
             <circle cx="12" cy="12" r="10" stroke={GREEN} strokeWidth="2" />
-            <path d="M8 12l3 3 5-5" stroke={GREEN} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M8 12l3 3 5-5"
+              stroke={GREEN}
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
-          {showConfetti && (
-            <div aria-hidden="true" style={{ position: "absolute", top: -4, right: -4, fontSize: 20, animation: "fadeIn 0.3s ease" }}>
-              ✨
-            </div>
-          )}
         </div>
 
-        <h1 style={{ fontSize: 30, fontWeight: 700, color: NAVY, margin: "0 0 8px", letterSpacing: "-0.5px" }}>
-          You're all set
+        <p
+          style={{
+            fontSize: 11,
+            fontWeight: 900,
+            letterSpacing: 2.5,
+            textTransform: "uppercase",
+            color: GREEN,
+            margin: "0 0 10px",
+          }}
+        >
+          {copy.eyebrow}
+        </p>
+
+        <h1
+          style={{
+            fontSize: 28,
+            fontWeight: 700,
+            color: NAVY,
+            margin: "0 0 10px",
+            letterSpacing: "-0.5px",
+          }}
+        >
+          {copy.headline}
         </h1>
-        <p style={{ fontSize: 18, color: BLUE, fontWeight: 600, margin: 0 }}>
-          {productName}
+
+        <p
+          style={{
+            fontSize: 15,
+            color: SUB,
+            lineHeight: 1.6,
+            margin: "0 auto",
+            maxWidth: 520,
+          }}
+        >
+          {copy.subhead}
         </p>
       </div>
 
-      {/* What's included card */}
+      {/* ═══ PURCHASE REINFORCEMENT ═══ */}
       <div
         style={{
           background: LIGHT_BG,
           border: `1px solid ${BORDER}`,
           borderRadius: 10,
-          padding: "24px 28px",
-          marginBottom: 24,
+          padding: "22px 26px",
+          marginBottom: 28,
         }}
       >
-        <h2 style={{ fontSize: 16, fontWeight: 700, color: NAVY, margin: "0 0 10px" }}>
-          What's included in your report
-        </h2>
-        <p style={{ fontSize: 14, color: SUB, lineHeight: 1.65, margin: 0 }}>
-          {productDescription}
+        <p
+          style={{
+            fontSize: 14,
+            color: SUB,
+            lineHeight: 1.7,
+            margin: 0,
+          }}
+        >
+          {copy.reinforcement}
         </p>
       </div>
 
-      {/* Next steps */}
+      {/* ═══ SECTION 1: WHAT TO HAVE HANDY ═══ */}
       <div
         style={{
           background: WHITE,
           border: `1px solid ${BORDER}`,
           borderRadius: 10,
-          padding: "24px 28px",
-          marginBottom: 24,
+          padding: "26px 28px",
+          marginBottom: 28,
         }}
       >
-        <h2 style={{ fontSize: 16, fontWeight: 700, color: NAVY, margin: "0 0 16px" }}>
-          What happens next
+        <h2
+          style={{
+            fontSize: 17,
+            fontWeight: 700,
+            color: NAVY,
+            margin: "0 0 8px",
+          }}
+        >
+          {copy.checklist.headline}
         </h2>
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {[
-            {
-              step: "1",
-              title: "Complete your brand diagnostic",
-              detail: `Wundy™ will guide you through a ${PRODUCT_TIME_ESTIMATES[product] || "15–20 minute"} conversation about your brand, audience, and goals. No prep needed — just answer naturally.`,
-            },
-            {
-              step: "2",
-              title: "Get your personalized report",
-              detail: `Your ${productName} report is generated instantly when the diagnostic is complete — including your WunderBrand Score™, pillar analysis, and personalized recommendations.`,
-            },
-            {
-              step: "3",
-              title: isBlueprintPlus
-                ? "Book your Strategy Activation Session"
-                : "Put your insights to work",
-              detail: isBlueprintPlus
-                ? "Your WunderBrand Blueprint+™ includes a complimentary 30-minute session with a strategist. We recommend booking within 30 days while your diagnostic data is fresh."
-                : "Use the AI prompts in your report to start implementing your brand strategy right away.",
-            },
-          ].map((item) => (
-            <div key={item.step} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+        <p
+          style={{
+            fontSize: 13,
+            color: SUB,
+            lineHeight: 1.6,
+            margin: "0 0 20px",
+          }}
+        >
+          {copy.checklist.subtext}
+        </p>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {copy.checklist.items.map((item, i) => (
+            <div
+              key={i}
+              style={{ display: "flex", gap: 12, alignItems: "flex-start" }}
+            >
               <div
                 style={{
-                  width: 28,
-                  height: 28,
+                  width: 22,
+                  height: 22,
+                  borderRadius: 4,
+                  border: `2px solid ${BORDER}`,
+                  flexShrink: 0,
+                  marginTop: 1,
+                }}
+              />
+              <div>
+                <span
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 700,
+                    color: NAVY,
+                  }}
+                >
+                  {item.bold}
+                </span>
+                <span style={{ fontSize: 14, color: NAVY }}> — </span>
+                <span
+                  style={{
+                    fontSize: 13,
+                    color: SUB,
+                    lineHeight: 1.55,
+                  }}
+                >
+                  {item.detail}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {copy.checklist.uploadNote && (
+          <div
+            style={{
+              marginTop: 18,
+              padding: "14px 16px",
+              background: `${BLUE}06`,
+              border: `1px solid ${BLUE}20`,
+              borderRadius: 8,
+            }}
+          >
+            <p
+              style={{
+                fontSize: 13,
+                color: SUB,
+                lineHeight: 1.6,
+                margin: 0,
+              }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill={BLUE}
+                width="14"
+                height="14"
+                style={{
+                  display: "inline-block",
+                  verticalAlign: "-2px",
+                  marginRight: 6,
+                }}
+              >
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6ZM14 3.5 18.5 8H14V3.5ZM6 20V4h6v6h6v10H6Z" />
+              </svg>
+              {copy.checklist.uploadNote}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* ═══ SECTION 2: HOW IT WORKS ═══ */}
+      <div
+        style={{
+          background: WHITE,
+          border: `1px solid ${BORDER}`,
+          borderRadius: 10,
+          padding: "26px 28px",
+          marginBottom: 28,
+        }}
+      >
+        <h2
+          style={{
+            fontSize: 17,
+            fontWeight: 700,
+            color: NAVY,
+            margin: "0 0 18px",
+          }}
+        >
+          How it works
+        </h2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+          {copy.steps.map((step, i) => (
+            <div
+              key={i}
+              style={{ display: "flex", gap: 14, alignItems: "flex-start" }}
+            >
+              <div
+                style={{
+                  width: 30,
+                  height: 30,
                   borderRadius: "50%",
                   background: `${BLUE}12`,
                   color: BLUE,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: 13,
+                  fontSize: 14,
                   fontWeight: 700,
                   flexShrink: 0,
                 }}
               >
-                {item.step}
+                {i + 1}
               </div>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: NAVY, marginBottom: 3 }}>
-                  {item.title}
+                <div
+                  style={{
+                    fontSize: 15,
+                    fontWeight: 700,
+                    color: NAVY,
+                    marginBottom: 4,
+                  }}
+                >
+                  {step.title}
                 </div>
-                <div style={{ fontSize: 13, color: SUB, lineHeight: 1.55 }}>
-                  {item.detail}
+                <div
+                  style={{
+                    fontSize: 13,
+                    color: SUB,
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {step.detail}
                 </div>
               </div>
             </div>
@@ -202,17 +339,69 @@ function SuccessContent() {
         </div>
       </div>
 
-      {/* Primary CTA — Start Diagnostic */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
+      {/* ═══ SECTION 3: NO RUSH ═══ */}
+      <div
+        style={{
+          background: `${GREEN}04`,
+          border: `1px solid ${GREEN}20`,
+          borderRadius: 10,
+          padding: "22px 26px",
+          marginBottom: 36,
+        }}
+      >
+        <h2
+          style={{
+            fontSize: 15,
+            fontWeight: 700,
+            color: NAVY,
+            margin: "0 0 8px",
+          }}
+        >
+          No rush — this works on your schedule
+        </h2>
+        <p
+          style={{
+            fontSize: 13,
+            color: SUB,
+            lineHeight: 1.65,
+            margin: 0,
+          }}
+        >
+          {copy.noRush.body}
+        </p>
+        {copy.noRush.extra && (
+          <p
+            style={{
+              fontSize: 13,
+              color: NAVY,
+              lineHeight: 1.6,
+              margin: "12px 0 0",
+              fontWeight: 600,
+            }}
+          >
+            {copy.noRush.extra}
+          </p>
+        )}
+      </div>
+
+      {/* ═══ CTAs ═══ */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 12,
+          alignItems: "center",
+        }}
+      >
         <a
-          href={`/?tier=${product}${customerFirstName ? `&name=${encodeURIComponent(customerFirstName)}` : ""}${tierToken ? `&token=${encodeURIComponent(tierToken)}` : ""}`}
+          href={startHref}
           style={{
             display: "inline-flex",
             alignItems: "center",
             justifyContent: "center",
             width: "100%",
-            maxWidth: 360,
-            height: 52,
+            maxWidth: 400,
+            height: 54,
             borderRadius: 8,
             background: BLUE,
             color: WHITE,
@@ -222,7 +411,7 @@ function SuccessContent() {
             transition: "background 0.2s",
           }}
         >
-          Start your {productName} →
+          {copy.primaryCta}
         </a>
 
         {reportId && (
@@ -233,7 +422,7 @@ function SuccessContent() {
               alignItems: "center",
               justifyContent: "center",
               width: "100%",
-              maxWidth: 360,
+              maxWidth: 400,
               height: 48,
               borderRadius: 8,
               border: `2px solid ${BORDER}`,
@@ -251,62 +440,57 @@ function SuccessContent() {
         <a
           href="/dashboard"
           style={{
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "100%",
-            maxWidth: 360,
-            height: 48,
-            borderRadius: 8,
-            border: `2px solid ${BORDER}`,
-            background: WHITE,
-            color: NAVY,
-            fontWeight: 700,
-            fontSize: 15,
+            fontSize: 14,
+            color: BLUE,
+            fontWeight: 600,
             textDecoration: "none",
+            padding: "10px 0",
           }}
         >
-          Go to my dashboard
+          {copy.secondaryCta}
         </a>
-
-        {isBlueprintPlus && (
-          <a
-            href="https://calendly.com/wunderbardigital/brand-strategy-activation?utm_source=checkout_success&utm_medium=cta_button&utm_campaign=session_booking&utm_content=strategy_activation"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: "100%",
-              maxWidth: 360,
-              height: 48,
-              borderRadius: 8,
-              border: `2px solid ${BLUE}`,
-              background: `${BLUE}08`,
-              color: BLUE,
-              fontWeight: 700,
-              fontSize: 15,
-              textDecoration: "none",
-              marginTop: 4,
-            }}
-          >
-            Book Strategy Activation Session →
-          </a>
-        )}
       </div>
 
-      {/* Security note */}
+      {/* ═══ REASSURANCE ═══ */}
+      {customerEmail && (
+        <p
+          style={{
+            fontSize: 13,
+            color: SUB,
+            textAlign: "center",
+            marginTop: 16,
+            lineHeight: 1.55,
+          }}
+        >
+          {copy.reassurance(customerEmail)}
+        </p>
+      )}
+
+      {/* ═══ SECURITY NOTE ═══ */}
       <p
         style={{
           fontSize: 12,
-          color: "#5A6B7E",
+          color: SUB,
           textAlign: "center",
-          marginTop: 32,
+          marginTop: 28,
           lineHeight: 1.5,
+          opacity: 0.7,
         }}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#07B0F2" width="14" height="14" style={{ display: 'inline-block', verticalAlign: '-1px', marginRight: '4px' }}><path d="M18 10h-1V7A5 5 0 0 0 7 7v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2ZM9 7a3 3 0 1 1 6 0v3H9V7Z"/></svg>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill={BLUE}
+          width="13"
+          height="13"
+          style={{
+            display: "inline-block",
+            verticalAlign: "-1px",
+            marginRight: 4,
+          }}
+        >
+          <path d="M18 10h-1V7A5 5 0 0 0 7 7v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2ZM9 7a3 3 0 1 1 6 0v3H9V7Z" />
+        </svg>
         Your payment was processed securely. Your diagnostic data and report
         contents are confidential and will not be shared with third parties.
       </p>
@@ -316,7 +500,22 @@ function SuccessContent() {
 
 export default function CheckoutSuccessPage() {
   return (
-    <Suspense fallback={<div role="status" aria-live="polite" style={{ textAlign: "center", padding: "64px 24px", fontFamily: "var(--font-brand)", color: "#5A6B7E" }}>Loading...</div>}>
+    <Suspense
+      fallback={
+        <div
+          role="status"
+          aria-live="polite"
+          style={{
+            textAlign: "center",
+            padding: "64px 24px",
+            fontFamily: "var(--font-brand)",
+            color: SUB,
+          }}
+        >
+          Loading...
+        </div>
+      }
+    >
       <SuccessContent />
     </Suspense>
   );

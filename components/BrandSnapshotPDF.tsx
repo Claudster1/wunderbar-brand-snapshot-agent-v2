@@ -22,10 +22,12 @@ Font.register({
 });
 
 // ---------------------------------------------
-// ASSETS (from existing /src/assets folder)
+// ASSETS – use the logo that ships in public/assets
 // ---------------------------------------------
-import WundyHero from "@/assets/wundy-hero.png";
-import BrandLogo from "@/assets/logo-blue.png";
+import WundyLogo from "@/src/assets/wundy-logo.jpeg";
+
+const BrandLogo = "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp";
+const WundyHero: string | null = null;
 
 // ---------------------------------------------
 // BRAND COLORS

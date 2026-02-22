@@ -41,6 +41,9 @@ const RULES: EnvRule[] = [
 
   // ─── Monitoring ───
   { key: "NEXT_PUBLIC_SENTRY_DSN", required: false, label: "Sentry DSN" },
+
+  // ─── Maintenance ───
+  { key: "NEXT_PUBLIC_MAINTENANCE_BANNER", required: false, label: "Maintenance banner message (JSON or plain text)" },
 ];
 
 export interface EnvStatus {

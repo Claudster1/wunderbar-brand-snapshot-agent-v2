@@ -9,8 +9,8 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "monday"
-      time: "09:00"
+      day: "sunday"
+      time: "04:00"
       timezone: "America/New_York"
     # Group minor/patch updates into a single PR to reduce noise
     groups:

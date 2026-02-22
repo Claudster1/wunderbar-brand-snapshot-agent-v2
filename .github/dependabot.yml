@@ -18,6 +18,16 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    # Ignore major version bumps for packages that need manual migration
+    ignore:
+      - dependency-name: "tailwindcss"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "next"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
     # Limit open PRs to avoid overwhelming
     open-pull-requests-limit: 5
     # Auto-assign for review

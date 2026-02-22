@@ -46,18 +46,18 @@ export async function POST(req: Request) {
       );
     }
 
-    // Extract data from request
-    const {
-      brandAlignmentScore,
-      pillarScores,
-      pillarInsights,
-      recommendations, // Pillar-specific recommendations object
-      userContext,
-      userName,
-      email,
-      company,
-      websiteNotes,
-    } = body;
+    const { sanitizeString, isValidEmail } = await import("@/lib/security/inputValidation");
+
+    const brandAlignmentScore = body.brandAlignmentScore;
+    const pillarScores = body.pillarScores;
+    const pillarInsights = body.pillarInsights;
+    const recommendations = body.recommendations;
+    const userContext = body.userContext;
+    const userName = body.userName ? sanitizeString(body.userName) : null;
+    const rawEmail = body.email ? sanitizeString(body.email) : null;
+    const email = rawEmail && isValidEmail(rawEmail) ? rawEmail.toLowerCase() : rawEmail;
+    const company = body.company ? sanitizeString(body.company) : null;
+    const websiteNotes = body.websiteNotes ? sanitizeString(body.websiteNotes) : null;
 
     if (!brandAlignmentScore || !pillarScores) {
       return NextResponse.json(
@@ -161,9 +161,9 @@ export async function POST(req: Request) {
             brand_alignment_score: String(engineResults.brandAlignmentScore),
             weakest_pillar: engineResults.weakestPillar.pillar,
             upgrade_product_name: "WunderBrand Snapshot+\u2122",
-            upgrade_product_url: "https://wunderbardigital.com/wunderbrand-snapshot-plus",
+            upgrade_product_url: "https://wunderbardigital.com/wunderbrand-snapshot-plus?utm_source=wunderbrand_app&utm_medium=email&utm_campaign=free_report_nurture",
             upgrade_price: "$497",
-            services_url: "https://wunderbardigital.com/talk-to-an-expert",
+            services_url: "https://wunderbardigital.com/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=email&utm_campaign=free_report_nurture",
             ...(firstName ? { first_name_custom: firstName } : {}),
           },
         });
@@ -183,7 +183,7 @@ export async function POST(req: Request) {
             experience_survey_link: experienceSurveyLink,
             dashboard_link: `${baseUrl}/dashboard`,
             upgrade_product_name: "WunderBrand Snapshot+\u2122",
-            upgrade_product_url: "https://wunderbardigital.com/wunderbrand-snapshot-plus",
+            upgrade_product_url: "https://wunderbardigital.com/wunderbrand-snapshot-plus?utm_source=wunderbrand_app&utm_medium=email&utm_campaign=free_report_nurture",
             upgrade_price: "$497",
           },
         });

@@ -13,8 +13,11 @@ export async function POST(req: Request) {
     const guard = apiGuard(req, { routeId: "snapshot-draft", rateLimit: GENERAL_RATE_LIMIT });
     if (!guard.passed) return guard.errorResponse;
 
+    const { sanitizeString, isValidEmail } = await import("@/lib/security/inputValidation");
+
     const body = await req.json().catch(() => ({}));
-    const userEmail = body.userEmail;
+    const rawEmail = body.userEmail ? sanitizeString(body.userEmail) : null;
+    const userEmail = rawEmail && isValidEmail(rawEmail) ? rawEmail.toLowerCase() : null;
 
     // Use server-side UUID generation
     const reportId = randomUUID();

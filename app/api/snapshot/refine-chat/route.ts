@@ -16,6 +16,8 @@ export async function POST(req: Request) {
   if (!guard.passed) return guard.errorResponse;
 
   try {
+    const { sanitizeString } = await import("@/lib/security/inputValidation");
+
     const body = await req.json();
     const { messages = [], reportContext } = body;
 
@@ -26,20 +28,19 @@ export async function POST(req: Request) {
       );
     }
 
-    // Build the refinement system prompt with the user's existing data
     const systemPrompt = buildRefinementSystemPrompt({
-      businessName: reportContext.businessName || "Your Business",
-      brandAlignmentScore: reportContext.brandAlignmentScore || 0,
+      businessName: sanitizeString(reportContext.businessName || "Your Business"),
+      brandAlignmentScore: Number(reportContext.brandAlignmentScore) || 0,
       pillarScores: reportContext.pillarScores || {},
-      primaryPillar: reportContext.primaryPillar || "positioning",
-      contextCoverage: reportContext.contextCoverage || 60,
+      primaryPillar: sanitizeString(reportContext.primaryPillar || "positioning"),
+      contextCoverage: Number(reportContext.contextCoverage) || 60,
     });
 
     const aiMessages: ChatMessage[] = [
       { role: "system", content: systemPrompt },
       ...messages.map((m: { role: string; content: string }) => ({
         role: m.role as "user" | "assistant",
-        content: m.content,
+        content: sanitizeString(m.content || ""),
       })),
     ];
 

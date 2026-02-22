@@ -253,7 +253,7 @@ function PreferencesModal({
               Choose which cookies you&apos;re comfortable with. You can change
               these anytime.{" "}
               <a
-                href="https://wunderbardigital.com/privacy-policy#pp-cookies"
+                href="https://wunderbardigital.com/privacy-policy?utm_source=wunderbrand_app&utm_medium=cookie_banner&utm_campaign=privacy#pp-cookies"
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
@@ -551,7 +551,7 @@ export function CookieBanner() {
                     We use cookies to improve your experience and understand how
                     our site is used.{" "}
                     <a
-                      href="https://wunderbardigital.com/privacy-policy#pp-cookies"
+                      href="https://wunderbardigital.com/privacy-policy?utm_source=wunderbrand_app&utm_medium=cookie_banner&utm_campaign=privacy#pp-cookies"
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{

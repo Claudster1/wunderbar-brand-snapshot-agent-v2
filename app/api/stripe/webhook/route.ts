@@ -280,9 +280,9 @@ export async function POST(req: NextRequest) {
 
             // Product page URLs for recovery emails
             const PRODUCT_URLS: Record<string, string> = {
-              snapshot_plus: "https://wunderbardigital.com/wunderbrand-snapshot-plus",
-              blueprint: "https://wunderbardigital.com/wunderbrand-blueprint",
-              blueprint_plus: "https://wunderbardigital.com/wunderbrand-blueprint-plus",
+              snapshot_plus: "https://wunderbardigital.com/wunderbrand-snapshot-plus?utm_source=wunderbrand_app&utm_medium=email&utm_campaign=purchase_confirmation",
+              blueprint: "https://wunderbardigital.com/wunderbrand-blueprint?utm_source=wunderbrand_app&utm_medium=email&utm_campaign=purchase_confirmation",
+              blueprint_plus: "https://wunderbardigital.com/wunderbrand-blueprint-plus?utm_source=wunderbrand_app&utm_medium=email&utm_campaign=purchase_confirmation",
             };
             const PRODUCT_PRICES: Record<string, string> = {
               snapshot_plus: "$497",
@@ -410,21 +410,21 @@ async function triggerActiveCampaign({
       applyTags.push("purchased:snapshot-plus", "intent:upgrade-blueprint");
       removeTags.push("intent:upgrade-snapshot-plus");
       upgradeProductName = "WunderBrand Blueprint™";
-      upgradeProductUrl = "https://wunderbardigital.com/wunderbrand-blueprint";
+      upgradeProductUrl = "https://wunderbardigital.com/wunderbrand-blueprint?utm_source=wunderbrand_app&utm_medium=email&utm_campaign=purchase_confirmation";
       upgradePrice = "$997";
       break;
     case "blueprint":
       applyTags.push("purchased:blueprint", "intent:upgrade-blueprint-plus");
       removeTags.push("intent:upgrade-blueprint");
       upgradeProductName = "WunderBrand Blueprint+™";
-      upgradeProductUrl = "https://wunderbardigital.com/wunderbrand-blueprint-plus";
+      upgradeProductUrl = "https://wunderbardigital.com/wunderbrand-blueprint-plus?utm_source=wunderbrand_app&utm_medium=email&utm_campaign=purchase_confirmation";
       upgradePrice = "$1,997";
       break;
     case "blueprint_plus":
       applyTags.push("purchased:blueprint-plus", "nurture:other-services");
       removeTags.push("intent:upgrade-blueprint-plus");
       upgradeProductName = "Managed Marketing";
-      upgradeProductUrl = "https://wunderbardigital.com/talk-to-an-expert";
+      upgradeProductUrl = "https://wunderbardigital.com/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=email&utm_campaign=purchase_confirmation";
       upgradePrice = "custom";
       break;
   }
@@ -506,7 +506,7 @@ async function triggerActiveCampaign({
     upgrade_product_name: upgradeProductName,
     upgrade_product_url: upgradeProductUrl,
     upgrade_price: upgradePrice,
-    services_url: "https://wunderbardigital.com/talk-to-an-expert",
+    services_url: "https://wunderbardigital.com/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=email&utm_campaign=purchase_confirmation",
     email_subject: POST_PURCHASE_EMAILS[productKey as EmailTier]?.subject || "",
   };
   if (customerName) contactFields.first_name_custom = customerName;
@@ -590,7 +590,7 @@ async function triggerActiveCampaign({
             upgrade_product_name: upgradeProductName,
             upgrade_product_url: upgradeProductUrl,
             upgrade_price: upgradePrice,
-            services_url: "https://wunderbardigital.com/talk-to-an-expert",
+            services_url: "https://wunderbardigital.com/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=email&utm_campaign=purchase_confirmation",
           },
         }),
       });

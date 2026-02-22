@@ -54,7 +54,7 @@ export function WunderbarHeader() {
   return (
     <>
       <header className="wunder-header">
-        <a href="https://wunderbardigital.com/" className="wunder-logo" target="_blank" rel="noopener noreferrer">
+        <a href="https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=site_navigation" className="wunder-logo" target="_blank" rel="noopener noreferrer">
           <img
             src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp"
             alt="Wunderbar Digital"
@@ -66,34 +66,34 @@ export function WunderbarHeader() {
         {/* Desktop Navigation */}
         <nav className="wunder-nav-group">
           <div className="wunder-nav-item">
-            <a href="https://wunderbardigital.com/wunderbrand-suite" className="wunder-nav-link" target="_blank" rel="noopener noreferrer">
+            <a href="https://wunderbardigital.com/wunderbrand-suite?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=site_navigation" className="wunder-nav-link" target="_blank" rel="noopener noreferrer">
               WunderBrand Suite™
             </a>
             <div className="wunder-dropdown">
-              <a href="https://wunderbardigital.com/wunderbrand-snapshot" target="_blank" rel="noopener noreferrer">WunderBrand Snapshot™ (Free)</a>
-              <a href="https://wunderbardigital.com/wunderbrand-snapshot-plus" target="_blank" rel="noopener noreferrer">WunderBrand Snapshot+™</a>
-              <a href="https://wunderbardigital.com/wunderbrand-blueprint" target="_blank" rel="noopener noreferrer">WunderBrand Blueprint™</a>
-              <a href="https://wunderbardigital.com/wunderbrand-blueprint-plus" target="_blank" rel="noopener noreferrer">WunderBrand Blueprint+™</a>
-              <a href="https://wunderbardigital.com/wunderbrand-suite" className="wunder-dropdown-divider" target="_blank" rel="noopener noreferrer">
+              <a href="https://wunderbardigital.com/wunderbrand-snapshot?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">WunderBrand Snapshot™ (Free)</a>
+              <a href="https://wunderbardigital.com/wunderbrand-snapshot-plus?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">WunderBrand Snapshot+™</a>
+              <a href="https://wunderbardigital.com/wunderbrand-blueprint?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">WunderBrand Blueprint™</a>
+              <a href="https://wunderbardigital.com/wunderbrand-blueprint-plus?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">WunderBrand Blueprint+™</a>
+              <a href="https://wunderbardigital.com/wunderbrand-suite?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=site_navigation" className="wunder-dropdown-divider" target="_blank" rel="noopener noreferrer">
                 Compare All Products
               </a>
             </div>
           </div>
 
           <div className="wunder-nav-item">
-            <a href="https://wunderbardigital.com/services" className="wunder-nav-link" target="_blank" rel="noopener noreferrer">
+            <a href="https://wunderbardigital.com/services?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=site_navigation" className="wunder-nav-link" target="_blank" rel="noopener noreferrer">
               Services
             </a>
             <div className="wunder-dropdown">
-              <a href="https://wunderbardigital.com/managed-marketing" target="_blank" rel="noopener noreferrer">Managed Marketing</a>
-              <a href="https://wunderbardigital.com/ai-consulting" target="_blank" rel="noopener noreferrer">AI Consulting</a>
+              <a href="https://wunderbardigital.com/managed-marketing?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">Managed Marketing</a>
+              <a href="https://wunderbardigital.com/ai-consulting?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">AI Consulting</a>
             </div>
           </div>
 
-          <a href="https://wunderbardigital.com/how-we-work" className="wunder-nav-link-simple" target="_blank" rel="noopener noreferrer">
+          <a href="https://wunderbardigital.com/how-we-work?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=site_navigation" className="wunder-nav-link-simple" target="_blank" rel="noopener noreferrer">
             How We Work
           </a>
-          <a href="https://wunderbardigital.com/insights" className="wunder-nav-link-simple" target="_blank" rel="noopener noreferrer">
+          <a href="https://wunderbardigital.com/insights?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=site_navigation" className="wunder-nav-link-simple" target="_blank" rel="noopener noreferrer">
             Insights
           </a>
         </nav>
@@ -101,12 +101,12 @@ export function WunderbarHeader() {
         {/* Desktop CTAs */}
         <div className="wunder-btn-container">
           {!isAssessmentPage && (
-            <a href="https://wunderbardigital.com/wunderbrand-snapshot" className="wunder-btn wunder-btn-solid" target="_blank" rel="noopener noreferrer">
+            <a href="https://wunderbardigital.com/wunderbrand-snapshot?utm_source=wunderbrand_app&utm_medium=header_cta&utm_campaign=site_navigation" className="wunder-btn wunder-btn-solid" target="_blank" rel="noopener noreferrer">
               Start Your Free WunderBrand Snapshot™
             </a>
           )}
           <a
-            href="https://wunderbardigital.com/talk-to-an-expert"
+            href="https://wunderbardigital.com/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=header_cta&utm_campaign=site_navigation"
             className={`wunder-btn ${isAssessmentPage ? "wunder-btn-solid" : "wunder-btn-outline"}`}
             target="_blank"
             rel="noopener noreferrer"
@@ -158,11 +158,11 @@ export function WunderbarHeader() {
               <span className="wunder-mobile-arrow">▾</span>
             </button>
             <div className={`wunder-mobile-dropdown-content ${activeDropdown === "suite" ? "active" : ""}`}>
-              <a href="https://wunderbardigital.com/wunderbrand-snapshot" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>WunderBrand Snapshot™ (Free)</a>
-              <a href="https://wunderbardigital.com/wunderbrand-snapshot-plus" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>WunderBrand Snapshot+™</a>
-              <a href="https://wunderbardigital.com/wunderbrand-blueprint" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>WunderBrand Blueprint™</a>
-              <a href="https://wunderbardigital.com/wunderbrand-blueprint-plus" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>WunderBrand Blueprint+™</a>
-              <a href="https://wunderbardigital.com/wunderbrand-suite" className="wunder-mobile-divider" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
+              <a href="https://wunderbardigital.com/wunderbrand-snapshot?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>WunderBrand Snapshot™ (Free)</a>
+              <a href="https://wunderbardigital.com/wunderbrand-snapshot-plus?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>WunderBrand Snapshot+™</a>
+              <a href="https://wunderbardigital.com/wunderbrand-blueprint?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>WunderBrand Blueprint™</a>
+              <a href="https://wunderbardigital.com/wunderbrand-blueprint-plus?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>WunderBrand Blueprint+™</a>
+              <a href="https://wunderbardigital.com/wunderbrand-suite?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=site_navigation" className="wunder-mobile-divider" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
                 Compare All Products
               </a>
             </div>
@@ -178,28 +178,28 @@ export function WunderbarHeader() {
               <span className="wunder-mobile-arrow">▾</span>
             </button>
             <div className={`wunder-mobile-dropdown-content ${activeDropdown === "services" ? "active" : ""}`}>
-              <a href="https://wunderbardigital.com/managed-marketing" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>Managed Marketing</a>
-              <a href="https://wunderbardigital.com/ai-consulting" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>AI Consulting</a>
+              <a href="https://wunderbardigital.com/managed-marketing?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>Managed Marketing</a>
+              <a href="https://wunderbardigital.com/ai-consulting?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>AI Consulting</a>
             </div>
           </div>
 
           {/* Regular Links */}
-          <a href="https://wunderbardigital.com/how-we-work" className="wunder-mobile-link" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
+          <a href="https://wunderbardigital.com/how-we-work?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=site_navigation" className="wunder-mobile-link" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
             How We Work
           </a>
-          <a href="https://wunderbardigital.com/insights" className="wunder-mobile-link" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
+          <a href="https://wunderbardigital.com/insights?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=site_navigation" className="wunder-mobile-link" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
             Insights
           </a>
 
           {/* Mobile CTAs */}
           <div className="wunder-mobile-ctas">
             {!isAssessmentPage && (
-              <a href="https://wunderbardigital.com/wunderbrand-snapshot" className="wunder-btn wunder-btn-solid" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
+              <a href="https://wunderbardigital.com/wunderbrand-snapshot?utm_source=wunderbrand_app&utm_medium=header_cta&utm_campaign=site_navigation" className="wunder-btn wunder-btn-solid" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
                 Start Your Free WunderBrand Snapshot™
               </a>
             )}
             <a
-              href="https://wunderbardigital.com/talk-to-an-expert"
+              href="https://wunderbardigital.com/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=header_cta&utm_campaign=site_navigation"
               className={`wunder-btn ${isAssessmentPage ? "wunder-btn-solid" : "wunder-btn-outline"}`}
               target="_blank"
               rel="noopener noreferrer"

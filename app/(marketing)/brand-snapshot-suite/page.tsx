@@ -172,8 +172,8 @@ export default function BrandSnapshotSuitePage() {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p>© {new Date().getFullYear()} Wunderbar Digital. All rights reserved.</p>
             <div className="flex gap-4">
-              <Link href="/privacy" className="hover:text-[#021859] no-underline">Privacy</Link>
-              <Link href="/terms" className="hover:text-[#021859] no-underline">Terms</Link>
+              <a href="https://wunderbardigital.com/privacy-policy?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=brand_snapshot_suite" target="_blank" rel="noopener noreferrer" className="hover:text-[#021859] no-underline">Privacy</a>
+              <a href="https://wunderbardigital.com/terms-of-service?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=brand_snapshot_suite" target="_blank" rel="noopener noreferrer" className="hover:text-[#021859] no-underline">Terms</a>
               <Link href="/brand-snapshot" className="hover:text-[#021859] no-underline">WunderBrand Snapshot™</Link>
             </div>
           </div>

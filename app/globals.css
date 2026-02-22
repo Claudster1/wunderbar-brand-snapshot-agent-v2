@@ -1,10 +1,23 @@
 /* app/globals.css */
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* Brand Colors — Wunderbar Digital palette */
+@theme {
+  --color-brand-navy: #021859;
+  --color-brand-blue: #07B0F2;
+  --color-brand-blueHover: #059BD8;
+  --color-brand-aqua: #27CDF2;
+  --color-brand-midnight: #0C1526;
+  --color-brand-gray: #F2F2F2;
+  --color-brand-light: #F8F9FA;
+  --color-brand-border: #E0E3EA;
+  --color-brand-muted: #5a6c8a;
+  --color-brand-bg: #f5f7fb;
+
+  --font-brand: var(--font-lato, "Lato"), system-ui, -apple-system, sans-serif;
+}
+
+/* Brand Colors — Wunderbar Digital palette (CSS custom properties) */
 :root {
   --brand-navy: #021859;
   --brand-blue: #07B0F2;
@@ -13,7 +26,6 @@
   --brand-gray: #F2F2F2;
   --brand-muted: #5a6c8a;
   --brand-bg: #f5f7fb;
-  /* Font: Lato loaded via next/font in layout (--font-lato) */
   --font-brand: var(--font-lato, "Lato"), system-ui, -apple-system, sans-serif;
 }
 

@@ -30,6 +30,7 @@
         "@google/generative-ai": "^0.24.1",
         "@react-pdf/renderer": "^4.3.1",
         "@sentry/nextjs": "^10.38.0",
+        "@tailwindcss/postcss": "^4.2.0",
         "@types/uuid": "^10.0.0",
         "@vercel/og": "^0.8.5",
         "disposable-email-domains": "^1.0.62",
@@ -56,7 +57,7 @@
         "eslint-config-next": "^16.1.6",
         "postcss": "^8.5.6",
         "supabase": "^2.65.8",
-        "tailwindcss": "^3.4.18",
+        "tailwindcss": "^4.2.0",
         "typescript": "^5.5.3",
         "vitest": "^4.0.18"
     }

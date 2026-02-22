@@ -3,10 +3,16 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase";
+import { logger } from "@/lib/logger";
+import { apiGuard } from "@/lib/security/apiGuard";
+import { GENERAL_RATE_LIMIT } from "@/lib/security/rateLimit";
 
 export const dynamic = "force-dynamic";
 
 export async function DELETE(req: NextRequest) {
+  const guard = apiGuard(req, { routeId: "assets-delete", rateLimit: GENERAL_RATE_LIMIT });
+  if (!guard.passed) return guard.errorResponse;
+
   try {
     const { id, email } = await req.json();
 
@@ -33,7 +39,7 @@ export async function DELETE(req: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("[Asset Delete]", err);
+    logger.error("[Asset Delete]", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "Failed to delete asset." }, { status: 500 });
   }
 }

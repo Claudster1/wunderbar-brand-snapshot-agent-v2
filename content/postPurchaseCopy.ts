@@ -116,7 +116,7 @@ export const POST_PURCHASE_COPY: Record<PostPurchaseTier, PostPurchaseCopy> = {
     eyebrow: "YOU\u2019RE ALL SET",
     headline: "Your WunderBrand Snapshot+\u2122 is ready.",
     subhead:
-      "In 20\u201325 minutes, Wundy\u2122 will guide you through a personalized brand conversation and generate your diagnostic results \u2014 ready the moment you\u2019re done.",
+      "In 15\u201320 minutes, Wundy\u2122 will guide you through a personalized brand conversation and generate your diagnostic results \u2014 ready the moment you\u2019re done.",
     reinforcement:
       "Wundy\u2122 will turn your answers into personalized strategic results \u2014 including your WunderBrand Score\u2122, pillar-by-pillar analysis across all five brand pillars, and a Foundational Prompt Pack you can put to work in any AI tool immediately. This is your brand, clearly assessed and ready to act on.",
 
@@ -162,7 +162,7 @@ export const POST_PURCHASE_COPY: Record<PostPurchaseTier, PostPurchaseCopy> = {
     eyebrow: "YOU\u2019RE ALL SET",
     headline: "Your WunderBrand Blueprint\u2122 is ready.",
     subhead:
-      "In about 25\u201330 minutes, Wundy\u2122 will build a complete picture of your brand \u2014 and turn it into a strategy you can execute.",
+      "In about 20\u201325 minutes, Wundy\u2122 will build a complete picture of your brand \u2014 and turn it into a strategy you can execute.",
     reinforcement:
       "What you\u2019re about to build is rare: a complete brand foundation, scored, interpreted, and mapped to an execution-ready strategy \u2014 all in one session. Your WunderBrand Score\u2122, pillar analysis, and Interactive Brand Workbook will be ready the moment you\u2019re done. The more context you bring into this conversation, the more specific and actionable your Blueprint\u2122 will be.",
 
@@ -209,7 +209,7 @@ export const POST_PURCHASE_COPY: Record<PostPurchaseTier, PostPurchaseCopy> = {
     eyebrow: "YOU\u2019RE ALL SET",
     headline: "Your WunderBrand Blueprint+\u2122 is ready.",
     subhead:
-      "Over the next 30\u201340 minutes, Wundy\u2122 will guide you through a comprehensive brand conversation \u2014 building the foundation for your Strategy Activation Session.",
+      "Over the next 25\u201335 minutes, Wundy\u2122 will guide you through a comprehensive brand conversation \u2014 building the foundation for your Strategy Activation Session.",
     reinforcement:
       "You\u2019ve made a significant investment in your brand. What you\u2019ll walk away with \u2014 your Advanced Prompt Library, a complete scalable brand strategy, and your complimentary Strategy Activation Session with our team \u2014 is the kind of clarity that typically takes months and five figures to get. The more context you give Wundy\u2122, the more precise and actionable your results will be.",
 

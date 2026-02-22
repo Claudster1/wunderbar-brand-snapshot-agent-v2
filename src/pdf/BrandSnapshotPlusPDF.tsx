@@ -180,19 +180,17 @@ export const BrandSnapshotPlusPDF = ({
     <Document>
       {/* ---------------- PAGE 1 — EXEC SUMMARY ---------------- */}
       <Page size="A4" style={styles.page}>
-        <PdfHeader title="WunderBrand Snapshot+™ — Brand Direction Summary" businessName={businessName} date={reportDate} />
+        <PdfHeader title={`WunderBrand Snapshot+\u2122 \u2014 ${businessName}`} businessName={businessName} date={reportDate} />
 
         <PageTitle
-          title="Your Brand Direction Summary"
-          subtitle="WunderBrand Snapshot+™ — a strategic review of your brand foundation and growth opportunities"
+          title={`${businessName} \u2014 Strategic Brand Diagnostic`}
+          subtitle="WunderBrand Snapshot+\u2122 \u2014 Personalized brand analysis with prioritized strategic recommendations"
         />
 
         <Section>
           <Text style={styles.heading}>Executive Summary</Text>
           <Text style={styles.para}>
-            This report offers strategic insight into how clearly, confidently, and
-            consistently your brand shows up today — and where meaningful improvements
-            can accelerate trust, differentiation, and conversion.
+            This report delivers a comprehensive analysis of how {businessName}{"\u2019"}s brand performs across five core pillars \u2014 positioning, messaging, visibility, credibility, and conversion. Each section connects diagnosis to commercial impact, with concrete examples and prioritized actions calibrated to {businessName}{"\u2019"}s industry, stage, and growth objectives.
           </Text>
 
           {/* WunderBrand Score™ Panel with Legend */}

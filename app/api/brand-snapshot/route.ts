@@ -3,6 +3,7 @@
 // Uses multi-provider AI abstraction with automatic fallback.
 
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { wundySystemPrompt } from "@/src/prompts/wundySystemPrompt";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { randomUUID } from "crypto";
@@ -97,7 +98,7 @@ export async function POST(req: Request) {
         .single();
 
       if (error) {
-        console.error("Insert error:", error);
+        logger.error("Insert error", { error: error.message });
         return NextResponse.json(
           { error: "Database insert failed", details: error.message },
           { status: 500 }
@@ -145,7 +146,7 @@ export async function POST(req: Request) {
       _ai: { provider: completion.provider, model: completion.model },
     });
   } catch (err: any) {
-    console.error("[WunderBrand Snapshot™ API] error:", err);
+    logger.error("[WunderBrand Snapshot™ API] error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
       {
         error:

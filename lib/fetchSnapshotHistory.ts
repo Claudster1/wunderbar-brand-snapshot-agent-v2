@@ -6,7 +6,8 @@ export async function fetchSnapshotHistory(email: string) {
     .from("brand_snapshot_reports")
     .select("*")
     .eq("user_email", email)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(50);
 
   if (error) throw error;
   return data;

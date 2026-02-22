@@ -1,82 +1,75 @@
-// src/content/blueprintPlus.copy.ts
-// Copy for WunderBrand Blueprint+™ ($1,997)
-
 export const blueprintPlusCopy = {
   hero: {
-    title: "WunderBrand Blueprint+™",
-    subtitle: "Turn clarity into scale — with an activation-ready brand system",
+    title: "WunderBrand Blueprint+\u2122",
+    subtitle: "The advanced brand system built for scale, AI readiness, and market leadership",
     intro:
-      "WunderBrand Blueprint+™ extends your foundation into a scalable system — designed for growing campaigns and AI-driven marketing environments.",
+      "WunderBrand Blueprint+\u2122 extends your brand foundation into a full activation system \u2014 with advanced customer journey mapping, a 12-month content roadmap, complete AEO implementation, campaign architecture, and an advanced AI prompt library. Designed for brands ready to operationalize strategy into consistent, scalable execution.",
   },
 
   differentiation: [
-    "Advanced audience segmentation",
-    "Campaign-level messaging systems",
-    "Expanded AEO strategy",
-    "Brand themes for future offerings",
-    "Execution-ready AI prompt packs",
+    "Customer journey mapping with stage-specific messaging and conversion triggers",
+    "12-month content roadmap with monthly themes, messaging angles, and AEO integration",
+    "Complete Answer Engine Optimization system with platform-specific implementation",
+    "Advanced AI Prompt Library for content improvement, competitive analysis, and strategic planning",
+    "Visual direction with photography guidance, stock photo selection criteria, and color application rules",
+    "Brand personality system with decision filters for on-brand/off-brand evaluation",
+    "30-minute Strategy Activation Session with a senior brand strategist",
   ],
 
   outcome: {
-    headline: "Why Blueprint+™ exists",
+    headline: "Why Blueprint+\u2122 exists",
     bullets: [
-      "Scale without dilution",
-      "Consistency across tools",
-      "Faster launches",
-      "Stronger discovery in AI and search",
+      "Scale your brand across new channels, campaigns, and team members without diluting what makes you distinctive",
+      "Execute a 12-month content strategy with AI-integrated workflows and clear measurement",
+      "Own the AI search conversation in your category with a complete AEO implementation system",
+      "Launch faster, iterate with confidence, and maintain brand integrity at every touchpoint",
     ],
   },
 
   pricing: {
-    label: "WunderBrand Blueprint+™",
+    label: "WunderBrand Blueprint+\u2122",
     price: "$1,997",
     note:
-      "One-time purchase. Snapshot+™ and Blueprint™ credits apply.",
+      "One-time investment. Snapshot+\u2122 and Blueprint\u2122 credits apply. Includes Strategy Activation Session.",
   },
 
   cta: {
-    primary: "Activate WunderBrand Blueprint+™",
-    secondary: "Scale my brand with confidence",
+    primary: "Get your advanced brand activation system",
+    secondary: "See what Blueprint+\u2122 delivers beyond Blueprint\u2122",
   },
 };
-
-// Blueprint+™ Layers
-// Defines the advanced components included in Blueprint+™
 
 export const BLUEPRINT_PLUS_LAYERS = {
   strategyExpansion: {
     title: "Advanced Strategic Expansion",
     description:
-      "Deepens positioning, audience segmentation, and differentiation beyond the Snapshot+™ foundation.",
+      "Extends positioning into competitive territory mapping, strategic trade-off analysis, and audience transition planning \u2014 the depth needed when markets shift and growth accelerates.",
   },
 
   messagingMatrix: {
-    title: "Messaging Matrix",
+    title: "Channel-Specific Messaging Architecture",
     description:
-      "Channel-specific messaging guidance aligned to your primary and secondary pillars.",
+      "Takes your messaging pillars and adapts them to each channel with specific copy examples \u2014 website, social, email, and sales \u2014 so consistency doesn\u2019t mean repetition.",
   },
 
   campaignArchitecture: {
-    title: "Campaign Architecture",
+    title: "12-Month Campaign Architecture",
     description:
-      "Maps your brand strategy into campaign-level themes, narratives, and rollout logic.",
+      "Maps your brand strategy into monthly execution themes with messaging angles, growth priorities, and AEO strategies \u2014 so you\u2019re never starting from a blank page.",
   },
 
   advancedAEO: {
-    title: "AI Answer Engine (AEO) Strategy",
+    title: "Complete AEO Implementation System",
     description:
-      "Structures your brand to be cited, referenced, and surfaced by AI answer engines.",
+      "Platform-specific optimization for ChatGPT, Perplexity, Google AI Overviews, and emerging AI platforms \u2014 with entity building, content structuring, and measurement guidance.",
   },
 
   systemPrompts: {
-    title: "Advanced Prompt System",
+    title: "Advanced AI Prompt Library",
     description:
-      "Multi-step prompt sequences designed to operationalize your brand across tools.",
+      "Multi-step prompt sequences designed to operationalize your brand across ChatGPT, Claude, and other AI tools \u2014 for content creation, competitive analysis, and strategic planning.",
   },
 };
-
-// Blueprint+™ Upsell Copy by Pillar
-// Pillar-specific upsell messaging for Blueprint+™
 
 export type PillarKey =
   | "positioning"
@@ -90,33 +83,33 @@ export const blueprintPlusUpsellByPillar: Record<
   { headline: string; body: string; cta: string }
 > = {
   positioning: {
-    headline: "Turn positioning clarity into market leadership",
+    headline: "Turn positioning clarity into defensible market leadership",
     body:
-      "WunderBrand Blueprint+™ expands your positioning into a defensible narrative, competitive differentiation, and category clarity — so your brand isn't just clear, it's unmistakable.",
-    cta: "Activate WunderBrand Blueprint+™",
+      "Blueprint+\u2122 extends your positioning into competitive territory mapping, strategic trade-off analysis, and a customer journey framework \u2014 so your brand doesn\u2019t just occupy a position, it owns one competitors can\u2019t replicate.",
+    cta: "Get your Blueprint+\u2122 activation system",
   },
   messaging: {
-    headline: "Transform messaging into a scalable system",
+    headline: "Scale your messaging into a 12-month execution system",
     body:
-      "WunderBrand Blueprint+™ converts your messaging insights into a complete narrative framework your team and AI tools can use consistently across every channel.",
-    cta: "Activate WunderBrand Blueprint+™",
+      "Blueprint+\u2122 transforms your messaging framework into a complete campaign architecture with monthly content themes, channel-specific copy examples, and advanced AI prompts \u2014 so consistency becomes automatic, not aspirational.",
+    cta: "Get your Blueprint+\u2122 activation system",
   },
   visibility: {
-    headline: "Build visibility that compounds over time",
+    headline: "Own the AI search conversation in your category",
     body:
-      "WunderBrand Blueprint+™ deepens your SEO + AEO strategy so your brand shows up where modern buyers actually search — including AI-powered discovery.",
-    cta: "Expand with WunderBrand Blueprint+™",
+      "Blueprint+\u2122 delivers a complete AEO implementation system with platform-specific optimization, entity building, and structured content guidance \u2014 so your brand is the one AI assistants reference and recommend.",
+    cta: "Get your Blueprint+\u2122 activation system",
   },
   credibility: {
-    headline: "Turn trust into a strategic advantage",
+    headline: "Build a credibility system that scales with your growth",
     body:
-      "WunderBrand Blueprint+™ strengthens credibility through consistent voice, visual direction, and authority-building systems that scale with your growth.",
-    cta: "Strengthen with WunderBrand Blueprint+™",
+      "Blueprint+\u2122 strengthens trust through a comprehensive credibility strategy \u2014 proof-point roadmap, authority signal plan, brand consistency checklist, and photography direction that makes every touchpoint reinforce the same level of quality.",
+    cta: "Get your Blueprint+\u2122 activation system",
   },
   conversion: {
-    headline: "Convert clarity into confident action",
+    headline: "Turn brand alignment into a measurable revenue engine",
     body:
-      "WunderBrand Blueprint+™ aligns positioning, messaging, and trust signals into a conversion-ready system designed to reduce friction and increase momentum.",
-    cta: "Activate WunderBrand Blueprint+™",
+      "Blueprint+\u2122 connects every strategic element \u2014 positioning, messaging, credibility, and visibility \u2014 into an integrated conversion system with customer journey mapping, CTA architecture, and measurement frameworks that track real business impact.",
+    cta: "Get your Blueprint+\u2122 activation system",
   },
 };

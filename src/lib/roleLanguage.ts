@@ -1,33 +1,22 @@
-// src/lib/roleLanguage.ts
-// Utility functions for converting user role context into descriptive phrases
-
 import { UserRoleContext } from "@/src/types/snapshot";
 
-/**
- * Convert user role context into a descriptive phrase
- * Used for personalizing language based on the user's role
- */
 export function rolePhrase(role?: UserRoleContext): string {
   switch (role) {
     case "operator":
-      return "running and growing the business day-to-day";
+      return "driving operations and growth execution";
     case "strategic_lead":
-      return "setting direction and shaping long-term growth";
+      return "setting strategic direction and shaping long-term brand equity";
     case "marketing_lead":
-      return "owning brand clarity, messaging, and visibility";
+      return "owning brand clarity, messaging architecture, and market visibility";
     case "founder":
-      return "building the business you set out to create";
+      return "building and scaling the business from the ground up";
     default:
       return "leading the brand and business forward";
   }
 }
 
-/**
- * Generate a personalized opening line for snapshot reports
- * Based on the user's role context
- */
 export function getSnapshotOpeningLine(
   userRoleContext?: UserRoleContext
 ): string {
-  return `Based on what you shared, this Snapshot was designed to support you in ${rolePhrase(userRoleContext)}.`;
+  return `This diagnostic was calibrated to support you in ${rolePhrase(userRoleContext)}.`;
 }

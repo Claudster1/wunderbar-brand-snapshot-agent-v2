@@ -3,6 +3,7 @@
 
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { logger } from "@/lib/logger";
 
 export async function GET(
   request: Request,
@@ -57,7 +58,7 @@ export async function GET(
 
     return NextResponse.json(data);
   } catch (err: any) {
-    console.error("[Reports Get API] Error:", err);
+    logger.error("[Reports Get API] Error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
       { error: err?.message || "Failed to get report" },
       { status: 500 }

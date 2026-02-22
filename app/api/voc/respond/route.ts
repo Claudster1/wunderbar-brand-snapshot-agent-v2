@@ -1,6 +1,7 @@
 // POST /api/voc/respond — Submit a VOC survey response (public, no auth)
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase";
+import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +13,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { surveyToken, threeWords, differentiator, discoveryChannel, friendDescription, improvement, npsScore, chooseReason, elevatorDescription } = body;
+    const { surveyToken, threeWords, differentiator, discoveryChannel, friendDescription, improvement, experienceScore, chooseReason, elevatorDescription } = body;
 
     if (!surveyToken || !threeWords || !Array.isArray(threeWords) || threeWords.length === 0) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -60,13 +61,13 @@ export async function POST(req: NextRequest) {
       discovery_channel: sanitizedDiscoveryChannel,
       friend_description: sanitizedFriendDescription,
       improvement: sanitizedImprovement,
-      nps_score: typeof npsScore === "number" ? Math.min(10, Math.max(0, Math.round(npsScore))) : null,
+      experience_score: typeof experienceScore === "number" ? Math.min(10, Math.max(0, Math.round(experienceScore))) : null,
       choose_reason: sanitizedChooseReason,
       elevator_description: sanitizedElevatorDescription,
     });
 
     if (insertErr) {
-      console.error("[VOC Respond] Insert error:", insertErr);
+      logger.error("[VOC Respond] Insert error", { error: insertErr instanceof Error ? insertErr.message : String(insertErr) });
       return NextResponse.json({ error: "Failed to save response" }, { status: 500 });
     }
 
@@ -78,7 +79,7 @@ export async function POST(req: NextRequest) {
       responseCount: newCount,
     });
   } catch (err: any) {
-    console.error("[VOC Respond] Error:", err);
+    logger.error("[VOC Respond] Error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }

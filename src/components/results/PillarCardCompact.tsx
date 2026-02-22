@@ -1,5 +1,3 @@
-// Compact pillar card for grid: title, score, grade badge, description (sample-style)
-
 import { getScoreBand } from "@/src/lib/pillars/pillarReportCopy";
 import type { PillarKey } from "@/src/types/pillars";
 
@@ -8,14 +6,14 @@ interface PillarCardCompactProps {
   pillarLabel: string;
   score: number;
   insight: string;
+  isPrimaryOpportunity?: boolean;
 }
 
-// Pill colors match the score meter: red → orange → yellow → green (0–8, 9–12, 13–16, 17–20)
 function getBadgeClassesFromScore(score: number): string {
-  if (score >= 17) return "bg-[#34c759]/15 text-[#34c759]";       // green — Strong
-  if (score >= 13) return "bg-[#ffcc00]/20 text-[#b38600]";     // yellow — Developing
-  if (score >= 9) return "bg-[#ff9500]/15 text-[#ff9500]";     // orange — Needs focus
-  return "bg-[#ff3b30]/15 text-[#ff3b30]";                      // red — Critical opportunity
+  if (score >= 17) return "bg-[#34c759]/15 text-[#34c759]";
+  if (score >= 13) return "bg-[#ffcc00]/20 text-[#b38600]";
+  if (score >= 9) return "bg-[#ff9500]/15 text-[#ff9500]";
+  return "bg-[#ff3b30]/15 text-[#ff3b30]";
 }
 
 export function PillarCardCompact({
@@ -23,12 +21,22 @@ export function PillarCardCompact({
   pillarLabel,
   score,
   insight,
+  isPrimaryOpportunity = false,
 }: PillarCardCompactProps) {
   const band = getScoreBand(score);
   const badgeClasses = getBadgeClassesFromScore(score);
 
   return (
-    <div className="bs-card rounded-xl p-5 sm:p-6 min-h-[200px] h-full flex flex-col">
+    <div
+      className={`bs-card rounded-xl p-5 sm:p-6 min-h-[200px] h-full flex flex-col relative ${
+        isPrimaryOpportunity ? "ring-2 ring-brand-blue/40 shadow-md" : ""
+      }`}
+    >
+      {isPrimaryOpportunity && (
+        <span className="absolute -top-3 left-4 bg-brand-blue text-white text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full">
+          Primary opportunity
+        </span>
+      )}
       <div className="flex items-start justify-between gap-3 mb-2">
         <h3 className="bs-h4 capitalize mb-0 flex-1 min-w-0">
           {pillarLabel}

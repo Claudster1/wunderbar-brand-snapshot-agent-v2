@@ -23,6 +23,7 @@ import {
 } from "@/lib/benchmarkCollector";
 import { logger } from "@/lib/logger";
 import { generateAIInsights } from "@/lib/ai/freeReportEnhancer";
+import { z } from "zod";
 
 export const dynamic = "force-dynamic";
 
@@ -101,6 +102,24 @@ function buildPillarInsightsFromScores(pillarScores: Record<string, number>) {
   };
 }
 
+const snapshotBodySchema = z.object({
+  email: z.string().email().optional().nullable(),
+  name: z.string().max(200).optional().nullable(),
+  companyName: z.string().max(200).optional().nullable(),
+  businessName: z.string().max(200).optional().nullable(),
+  brandName: z.string().max(200).optional().nullable(),
+  answers: z.record(z.string(), z.unknown()).refine(
+    (obj) => {
+      const meaningful = Object.values(obj).filter(
+        (v) => v !== null && v !== undefined && v !== ""
+      );
+      return meaningful.length >= 3;
+    },
+    { message: "At least 3 answered questions are required to generate a report." }
+  ),
+  pillar_insights: z.unknown().optional(),
+});
+
 export async function POST(req: Request) {
   // ─── Security: Rate limit + request size ───
   const guard = apiGuard(req, { routeId: "snapshot", rateLimit: AI_RATE_LIMIT, maxBodySize: 200_000 });
@@ -108,6 +127,13 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
+
+    // ─── Schema validation ───
+    const parsed = snapshotBodySchema.safeParse(body);
+    if (!parsed.success) {
+      const firstError = parsed.error.issues[0]?.message ?? "Invalid request body.";
+      return NextResponse.json({ error: firstError }, { status: 400 });
+    }
 
     // ─── Input validation & sanitization ───
     if (body.email != null && String(body.email).trim() !== "" && !isValidEmail(body.email)) {
@@ -253,7 +279,22 @@ export async function POST(req: Request) {
       );
     }
 
+    // Register brand in user_brands (non-blocking)
     const userEmail = body.email?.toLowerCase?.();
+    if (userEmail && companyName) {
+      import("@/lib/userBrands").then(({ registerBrand }) =>
+        registerBrand({
+          email: userEmail,
+          brandName: companyName!,
+          industry: snapshotInput.industry ?? null,
+          website: snapshotInput.website ?? null,
+          score: scores.brandAlignmentScore,
+          reportId: report_id,
+          reportTier: "snapshot",
+        })
+      ).catch(() => {});
+    }
+
     if (userEmail && process.env.ACTIVE_CAMPAIGN_WEBHOOK) {
       const coverage = buildContextCoverageMap(snapshotInput);
 
@@ -267,8 +308,8 @@ export async function POST(req: Request) {
         credibility_score: scores.pillarScores.credibility ?? 0,
         conversion_score: scores.pillarScores.conversion ?? 0,
         primary_pillar: primaryPillar ?? "positioning",
-        nps_survey_link: `${BASE_URL}/nps?tier=snapshot&reportId=${encodeURIComponent(report_id)}&email=${encodeURIComponent(userEmail)}`,
-        nps_tier: "snapshot",
+        experience_survey_link: `${BASE_URL}/experience-survey?tier=snapshot&reportId=${encodeURIComponent(report_id)}&email=${encodeURIComponent(userEmail)}`,
+        experience_tier: "snapshot",
       };
       if (process.env.AC_FIELD_REPORT_LINK) {
         acFields[process.env.AC_FIELD_REPORT_LINK] = reportLink;

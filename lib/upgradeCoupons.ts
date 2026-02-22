@@ -75,7 +75,8 @@ async function getPriorPurchases(email: string): Promise<Set<ProductKey>> {
     .from("brand_snapshot_purchases")
     .select("product_sku, status")
     .eq("user_email", email.toLowerCase())
-    .eq("status", "paid");
+    .eq("status", "paid")
+    .limit(50);
 
   if (error) {
     console.error("[upgradeCoupons] Supabase lookup failed:", error);

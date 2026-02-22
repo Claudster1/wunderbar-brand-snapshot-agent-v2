@@ -1,5 +1,3 @@
-// Score breakdown section: section title + grid of compact pillar cards (sample-style)
-
 import { PillarCardCompact } from "@/src/components/results/PillarCardCompact";
 import { TooltipIcon } from "@/components/ui/Tooltip";
 import type { PillarKey } from "@/src/types/pillars";
@@ -17,24 +15,41 @@ interface PillarCardGridProps {
   pillarInsights: Record<PillarKey, string>;
 }
 
+function getPrimaryPillarKey(scores: Record<PillarKey, number>): PillarKey {
+  let lowest: PillarKey = "positioning";
+  let lowestScore = Infinity;
+  for (const key of Object.keys(scores) as PillarKey[]) {
+    if (scores[key] < lowestScore) {
+      lowestScore = scores[key];
+      lowest = key;
+    }
+  }
+  return lowest;
+}
+
 export function PillarCardGrid({
   pillarScores,
   pillarInsights,
 }: PillarCardGridProps) {
+  const primaryOpportunity = getPrimaryPillarKey(pillarScores);
+
   return (
     <section className="space-y-4 pt-6 border-t border-brand-border">
       <div className="flex items-center gap-2">
         <h2 className="bs-h2 mb-0">
-          Score breakdown
+          Pillar-by-pillar analysis
         </h2>
         <TooltipIcon
           content={
             <>
-              Each pillar is scored 0–20. Strong (green) = strength; Critical opportunity (red) = biggest leverage. Use these to prioritize next steps.
+              Each pillar is scored 0–20 based on the inputs you provided. The pillar marked as your primary opportunity is where focused improvement will create the most cascading impact across your brand.
             </>
           }
         />
       </div>
+      <p className="bs-body-sm text-brand-muted max-w-2xl">
+        Your brand is evaluated across five interdependent pillars. Improving one often lifts the others — start with your primary opportunity for maximum leverage.
+      </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
         {PILLAR_ORDER.map(({ key, label }) => (
           <PillarCardCompact
@@ -43,6 +58,7 @@ export function PillarCardGrid({
             pillarLabel={label}
             score={pillarScores[key] ?? 0}
             insight={pillarInsights[key] ?? ""}
+            isPrimaryOpportunity={key === primaryOpportunity}
           />
         ))}
       </div>

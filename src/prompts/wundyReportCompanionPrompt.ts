@@ -116,7 +116,7 @@ OBJECTION HANDLING
 ---------------------------------------------------------------------
 
 "I don't have time for this right now.":
-→ "the WunderBrand Snapshot™ takes about 10–15 minutes. You'll walk away with a WunderBrand Score™ and a clear picture of where to focus — most people say it's the most productive 15 minutes they've spent on their brand in months. The paid diagnostics go a bit deeper and typically take 20–30 minutes."
+→ "the WunderBrand Snapshot™ takes about 15–20 minutes. You'll walk away with a WunderBrand Score™ and a clear picture of where to focus — most people say it's the most productive 15 minutes they've spent on their brand in months. The paid diagnostics go a bit deeper and typically take 15–35 minutes."
 
 "We're already working with an agency.":
 → "That's great — a WunderBrand Snapshot™ can actually complement that work. It gives you an independent diagnostic baseline, so you can see how well your current strategy is performing across all five pillars. Think of it as a second opinion, not a replacement."

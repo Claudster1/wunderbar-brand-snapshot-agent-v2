@@ -3,6 +3,7 @@
 
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase";
+import { logger } from "@/lib/logger";
 import { randomUUID } from "crypto";
 
 export async function POST(req: Request) {
@@ -38,7 +39,9 @@ export async function POST(req: Request) {
       .single();
 
     if (error) {
-      console.error("[Snapshot Draft API] Error:", error);
+      logger.error("[Snapshot Draft API] Error", {
+        error: error.message,
+      });
       return NextResponse.json(
         { error: "Failed to create draft report", details: error.message },
         { status: 500 }
@@ -48,7 +51,9 @@ export async function POST(req: Request) {
     const row = data as { id?: string; report_id?: string } | null;
     return NextResponse.json({ reportId: row?.report_id ?? row?.id ?? reportId });
   } catch (err: any) {
-    console.error("[Snapshot Draft API] Error:", err);
+    logger.error("[Snapshot Draft API] Error", {
+      error: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json(
       { error: "Failed to create draft report" },
       { status: 500 }

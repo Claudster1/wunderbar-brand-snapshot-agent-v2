@@ -54,18 +54,18 @@ function getFollowUpQuestion(cat: string): string {
 const GOOGLE_REVIEW_URL = process.env.NEXT_PUBLIC_GOOGLE_REVIEW_URL || "";
 
 // ═══════════════════════════════════════════
-// Testimonial Capture Form (shown to promoters after NPS submission)
+// Testimonial Capture Form (shown to promoters after experience survey submission)
 // ═══════════════════════════════════════════
 function TestimonialCapture({
   reportId,
   email,
   tier,
-  npsScore,
+  experienceScore,
 }: {
   reportId: string;
   email: string;
   tier: string;
-  npsScore: number;
+  experienceScore: number;
 }) {
   const [testimonial, setTestimonial] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -90,7 +90,7 @@ function TestimonialCapture({
           reportId,
           email,
           tier,
-          npsScore,
+          experienceScore,
           testimonial: testimonial.trim(),
           displayName: displayName.trim() || null,
           companyName: companyName.trim() || null,
@@ -310,9 +310,9 @@ const checkboxStyle: React.CSSProperties = {
 };
 
 // ═══════════════════════════════════════════
-// Main NPS Page
+// Main Experience Survey Page
 // ═══════════════════════════════════════════
-function NPSContent() {
+function ExperienceSurveyContent() {
   const searchParams = useSearchParams();
 
   const initialScore = searchParams.get("score");
@@ -343,7 +343,7 @@ function NPSContent() {
     setError("");
 
     try {
-      const res = await fetch("/api/nps/respond", {
+      const res = await fetch("/api/experience-survey/respond", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -428,7 +428,7 @@ function NPSContent() {
               reportId={reportId}
               email={email}
               tier={tier}
-              npsScore={selectedScore!}
+              experienceScore={selectedScore!}
             />
           </div>
 
@@ -603,7 +603,7 @@ function NPSContent() {
   }
 
   // ═══════════════════════════════════════════
-  // NPS Survey Form
+  // Experience Survey Form
   // ═══════════════════════════════════════════
   return (
     <main
@@ -640,7 +640,7 @@ function NPSContent() {
               margin: "0 0 8px",
             }}
           >
-            Quick Feedback
+            WunderBrand Experience Survey
           </p>
           <h1 style={{ fontSize: 22, fontWeight: 700, color: NAVY, margin: "0 0 8px" }}>
             How likely are you to recommend WunderBrand Suite&#8482;?
@@ -795,7 +795,7 @@ function NPSContent() {
   );
 }
 
-export default function NPSPage() {
+export default function ExperienceSurveyPage() {
   return (
     <Suspense
       fallback={
@@ -813,7 +813,7 @@ export default function NPSPage() {
         </main>
       }
     >
-      <NPSContent />
+      <ExperienceSurveyContent />
     </Suspense>
   );
 }

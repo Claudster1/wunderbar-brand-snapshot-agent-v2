@@ -1,65 +1,83 @@
 // lib/featureFlags.ts
+// Server-side feature flags / kill switch.
+// Override via environment variables: FEATURE_FLAG_<NAME>=true|false
+//
+// Usage:
+//   import { isFeatureEnabled, FEATURES } from "@/lib/featureFlags";
+//   if (!isFeatureEnabled(FEATURES.AI_INSIGHTS)) return fallbackResponse;
 
-export type SuiteCTAVariant = "clarity" | "strategy";
+import { logger } from "@/lib/logger";
 
-export function assignVariant(key: string): string {
-  if (typeof window === "undefined") return "A";
+export const FEATURES = {
+  AI_INSIGHTS: "ai_insights",
+  STRIPE_CHECKOUT: "stripe_checkout",
+  ACTIVE_CAMPAIGN: "active_campaign",
+  CALENDLY_WEBHOOK: "calendly_webhook",
+  PDF_GENERATION: "pdf_generation",
+  BENCHMARK_COLLECTION: "benchmark_collection",
+  VOC_SURVEYS: "voc_surveys",
+  BLUEPRINT_PLUS: "blueprint_plus",
+} as const;
 
-  const stored = localStorage.getItem(key);
-  if (stored) return stored;
+export type FeatureName = (typeof FEATURES)[keyof typeof FEATURES];
 
-  const variant = Math.random() > 0.5 ? "A" : "B";
-  localStorage.setItem(key, variant);
-  return variant;
-}
+const DEFAULTS: Record<FeatureName, boolean> = {
+  [FEATURES.AI_INSIGHTS]: true,
+  [FEATURES.STRIPE_CHECKOUT]: true,
+  [FEATURES.ACTIVE_CAMPAIGN]: true,
+  [FEATURES.CALENDLY_WEBHOOK]: true,
+  [FEATURES.PDF_GENERATION]: true,
+  [FEATURES.BENCHMARK_COLLECTION]: true,
+  [FEATURES.VOC_SURVEYS]: true,
+  [FEATURES.BLUEPRINT_PLUS]: true,
+};
 
-export function showSecondarySuiteCTA(): boolean {
-  if (typeof window === "undefined") return true;
+/**
+ * Check whether a feature is enabled.
+ * Resolution order:
+ *   1. Environment variable FEATURE_FLAG_<NAME> (case-insensitive "true"/"1" = on)
+ *   2. Default from DEFAULTS map
+ */
+export function isFeatureEnabled(feature: FeatureName): boolean {
+  const envKey = `FEATURE_FLAG_${feature.toUpperCase()}`;
+  const envVal = process.env[envKey];
 
-  const key = "suite_cta_variant";
-
-  let variant = localStorage.getItem(key);
-
-  if (!variant) {
-    variant = Math.random() < 0.5 ? "A" : "B";
-    localStorage.setItem(key, variant);
+  if (envVal !== undefined) {
+    const enabled = envVal === "true" || envVal === "1";
+    return enabled;
   }
 
-  return variant === "B"; // B = CTA shown
-}
-
-export function getSuiteCTAVariant(): SuiteCTAVariant {
-  if (typeof window === "undefined") return "clarity";
-
-  const key = "suite_cta_copy_variant";
-  let variant = localStorage.getItem(key) as SuiteCTAVariant | null;
-
-  if (!variant) {
-    variant = Math.random() < 0.5 ? "clarity" : "strategy";
-    localStorage.setItem(key, variant);
-  }
-
-  return variant;
-}
-
-export function shouldShowSuiteCTA(): boolean {
-  if (typeof window === "undefined") return true;
-
-  const hasPurchased = localStorage.getItem("has_paid_plan") === "true";
-  return !hasPurchased;
+  return DEFAULTS[feature] ?? true;
 }
 
 /**
- * Get A/B test variant for upgrade CTA
- * Returns "A" or "B" and persists the variant in localStorage
+ * Guard wrapper — logs a warning and returns false when a feature is disabled.
+ * Useful at the top of API routes as a kill switch.
+ *
+ * ```ts
+ * if (!featureGuard(FEATURES.AI_INSIGHTS, "generate-ai")) {
+ *   return NextResponse.json({ error: "Temporarily unavailable" }, { status: 503 });
+ * }
+ * ```
  */
-export function getUpgradeCTAVariant(): "A" | "B" {
-  if (typeof window === "undefined") return "A";
+export function featureGuard(feature: FeatureName, context?: string): boolean {
+  const enabled = isFeatureEnabled(feature);
+  if (!enabled) {
+    logger.warn(`[FeatureFlag] ${feature} is DISABLED`, {
+      feature,
+      ...(context ? { context } : {}),
+    });
+  }
+  return enabled;
+}
 
-  const stored = localStorage.getItem("upgrade_cta_variant");
-  if (stored === "A" || stored === "B") return stored;
-
-  const variant = Math.random() < 0.5 ? "A" : "B";
-  localStorage.setItem("upgrade_cta_variant", variant);
-  return variant;
+/**
+ * Get a snapshot of all feature flag states (useful for health/status endpoints).
+ */
+export function getAllFeatureFlags(): Record<FeatureName, boolean> {
+  const flags = {} as Record<FeatureName, boolean>;
+  for (const feature of Object.values(FEATURES)) {
+    flags[feature] = isFeatureEnabled(feature);
+  }
+  return flags;
 }

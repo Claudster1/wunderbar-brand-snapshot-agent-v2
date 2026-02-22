@@ -4,6 +4,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
 
@@ -38,13 +39,13 @@ export async function GET(req: NextRequest) {
         const { createTierToken } = await import("@/lib/security/tierToken");
         tierToken = createTierToken(rawProduct, email);
       } catch (err) {
-        console.warn("[Session Email] Failed to create tier token:", err);
+        logger.warn("[Session Email] Failed to create tier token", { error: err instanceof Error ? err.message : String(err) });
       }
     }
 
     return NextResponse.json({ email: email.toLowerCase(), name, tierToken });
   } catch (err) {
-    console.error("[Session Email] Stripe error:", err);
+    logger.error("[Session Email] Stripe error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "Unable to retrieve session" }, { status: 500 });
   }
 }

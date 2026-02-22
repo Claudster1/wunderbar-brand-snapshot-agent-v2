@@ -1,10 +1,7 @@
-// src/content/refinement.copy.ts
-// Refinement request copy and configuration
-
 export const refinementCopy = {
-  headline: "Refine a Key Insight",
+  headline: "Sharpen a Strategic Priority",
   description:
-    "If you'd like to deepen one specific area, you can provide additional context and regenerate that pillar with more precision.",
+    "Add deeper context to one pillar and receive a recalibrated analysis with more precise recommendations — so the insights you act on are grounded in the fullest picture of your brand.",
   allowedPillars: [
     "Positioning",
     "Messaging",
@@ -17,10 +14,10 @@ export const refinementCopy = {
 export const refinementTiers = {
   single: {
     price: 49,
-    description: "Focused refinement for one pillar"
+    description: "Deep-dive refinement on your highest-priority pillar — recalibrated scoring, updated insight, and a sharper action plan"
   },
   full: {
     price: 149,
-    description: "Re-evaluate all pillars with added context"
+    description: "Full diagnostic recalibration across all five pillars with enriched context — updated scores, cross-pillar impact analysis, and a revised strategic roadmap"
   }
 };

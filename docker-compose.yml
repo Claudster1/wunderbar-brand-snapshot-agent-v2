@@ -1,10 +1,11 @@
 version: "3.9"
 
 services:
-  app:
+  # ─── Development ───
+  app-dev:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     env_file:
       - .env.local
     ports:
@@ -13,3 +14,20 @@ services:
       - .:/app
       - /app/node_modules
     command: npm run dev
+
+  # ─── Production ───
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env.local
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 40s
+      retries: 3

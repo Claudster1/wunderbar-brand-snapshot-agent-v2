@@ -1,5 +1,3 @@
-// Two-column hero: gauge + rating (left) | recommendation card (right) — matches sample layout
-
 import { ScoreGauge } from "@/src/components/ScoreGauge";
 import { getOverallScoreRating } from "@/src/lib/results/scoreRating";
 import { RecommendationCard } from "@/src/components/results/RecommendationCard";
@@ -14,6 +12,16 @@ interface ResultsHeroSectionProps {
   userRoleContext?: UserRoleContext;
 }
 
+function getScoreInterpretation(score: number): string {
+  if (score >= 80)
+    return "Your brand demonstrates strong alignment across pillars — the focus now is refinement, consistency at scale, and protecting the competitive advantage you've built.";
+  if (score >= 60)
+    return "Your brand has a solid foundation with clear areas for strategic improvement — targeted investment in 1–2 pillars will create cascading impact across the system.";
+  if (score >= 40)
+    return "Your brand has identifiable strengths to build on, but material gaps in alignment are limiting growth — a focused, pillar-by-pillar approach will unlock the most value.";
+  return "Your brand has significant foundational work ahead — the good news is that clarity at this stage creates disproportionate returns on every dollar and hour invested.";
+}
+
 export function ResultsHeroSection({
   score,
   primaryPillar,
@@ -21,10 +29,11 @@ export function ResultsHeroSection({
   userRoleContext,
 }: ResultsHeroSectionProps) {
   const rating = getOverallScoreRating(score);
+  const interpretation = getScoreInterpretation(score);
 
   return (
     <section className="grid grid-cols-1 lg:grid-cols-[1fr,minmax(280px,360px)] gap-6 lg:gap-8 items-start">
-      {/* Left: Gauge + score + rating + metadata */}
+      {/* Left: Gauge + score + rating + interpretation */}
       <div className="bs-card rounded-xl p-5 sm:p-6 flex flex-col items-center text-center lg:items-center lg:text-center">
         <div className="flex items-center justify-center gap-2 mb-3">
           <h1 className="bs-h2 mb-0">
@@ -39,19 +48,22 @@ export function ResultsHeroSection({
           />
         </div>
         <div className="flex justify-center my-2 min-h-0 w-full">
-          <ScoreGauge value={score} />
+          <ScoreGauge value={score} showLegend />
         </div>
         <p className="bs-body-sm font-bold text-brand-navy mt-1">
-          Rating: {rating}
+          {rating}
         </p>
-        <p className="bs-small text-brand-muted mt-1">
-          {userRoleContext
-            ? `Built to support you in ${rolePhrase(userRoleContext)}.`
-            : "Your overall alignment across five pillars."}
+        <p className="bs-body-sm text-brand-midnight mt-3 leading-relaxed max-w-lg">
+          {interpretation}
         </p>
+        {userRoleContext && (
+          <p className="bs-small text-brand-muted mt-2">
+            Calibrated for your role in {rolePhrase(userRoleContext)}.
+          </p>
+        )}
       </div>
 
-      {/* Right: Recommendation card (sample-style) */}
+      {/* Right: Recommendation card */}
       {!hasSnapshotPlus && (
         <div className="lg:sticky lg:top-6">
           <RecommendationCard primaryPillar={primaryPillar} />

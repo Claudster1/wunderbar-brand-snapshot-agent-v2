@@ -1,29 +1,26 @@
-// src/content/brandSnapshot.copy.ts
-// Copy for WunderBrand Snapshot™ (free tier)
-
 export const brandSnapshotCopy = {
   hero: {
     title: "WunderBrand Snapshot™",
-    subtitle: "See how clearly and consistently your brand shows up today",
+    subtitle: "Diagnose how your brand performs across the five pillars that drive growth",
     intro:
-      "WunderBrand Snapshot™ is a fast, guided diagnostic that reveals how aligned your brand is across five core pillars — and where small refinements can create outsized impact.",
+      "WunderBrand Snapshot™ is a strategic brand diagnostic that evaluates how aligned, clear, and consistent your brand is across positioning, messaging, visibility, credibility, and conversion — and identifies where small, focused improvements create the largest business impact.",
   },
 
   howItWorks: [
     {
-      title: "Answer a few guided questions",
+      title: "Complete a guided brand diagnostic",
       description:
-        "Wundy™ guides you through a short, conversational flow to understand your business, audience, and brand presence.",
+        "Wundy™ walks you through a structured conversation designed to surface the strategic inputs that matter most — no guesswork, no filler.",
     },
     {
       title: "Receive your WunderBrand Score™",
       description:
-        "We evaluate how confidently and consistently your brand shows up across positioning, messaging, visibility, credibility, and conversion.",
+        "Your brand is evaluated across five core pillars using a calibrated scoring methodology that benchmarks clarity, consistency, and competitive readiness.",
     },
     {
-      title: "See what matters most",
+      title: "Identify your highest-leverage opportunity",
       description:
-        "Your results highlight your strongest pillar — and the one holding the most opportunity right now.",
+        "Your results pinpoint the single pillar where focused improvement will create the greatest cascading impact across your entire brand system.",
     },
   ],
 
@@ -38,10 +35,10 @@ export const brandSnapshotCopy = {
   outcome: {
     headline: "What you'll walk away with",
     bullets: [
-      "Your WunderBrand Score™",
-      "Individual scores for each pillar",
-      "Immediate clarity on your biggest opportunity",
-      "A clear next step if you want to go deeper",
+      "Your WunderBrand Score™ — an overall measure of brand alignment and readiness",
+      "Individual pillar scores with personalized, industry-contextualized insights",
+      "A clear diagnosis of your primary opportunity and what's at stake",
+      "A strategic starting point for deeper brand investment, if and when you're ready",
     ],
   },
 

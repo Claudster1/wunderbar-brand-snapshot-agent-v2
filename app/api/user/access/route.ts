@@ -6,6 +6,7 @@ import { NextResponse } from "next/server";
 import { getUserProductAccess } from "@/lib/getUserProductAccess";
 import { apiGuard } from "@/lib/security/apiGuard";
 import { AUTH_RATE_LIMIT } from "@/lib/security/rateLimit";
+import { logger } from "@/lib/logger";
 
 export async function GET(req: Request) {
   // ─── Security: Rate limit ───
@@ -30,7 +31,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ access });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Unknown error";
-    console.error("[User Access API] Error:", msg);
+    logger.error("[User Access API] Error", { error: msg });
     return NextResponse.json(
       { error: "Failed to get user access" },
       { status: 500 }

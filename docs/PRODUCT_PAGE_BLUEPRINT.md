@@ -171,7 +171,7 @@ If Snapshot+ is the treatment plan, Blueprint is the full implementation bluepri
 ---
 
 ### 12. AI-Informed Competitive Perspective
-**What it is:** An analysis of your competitive landscape based on your assessment data and AI market intelligence:
+**What it is:** An analysis of your competitive landscape based on your diagnostic data and AI market intelligence:
 - **Where You Stand vs. Competitors** — How your positioning, messaging, and approach compare to named competitors (if provided) or industry archetypes
 - **Market Gaps** — Opportunities your competitors may be missing
 - **Potential Vulnerabilities** — Where competitors may be weak and how you might differentiate
@@ -183,7 +183,7 @@ If Snapshot+ is the treatment plan, Blueprint is the full implementation bluepri
 
 **What you'll see:** A competitive perspective document with positioning analysis, gap identification, and strategic decision frameworks.
 
-> *Note: Competitive analysis is AI-informed based on publicly available information. For specific competitor intelligence, we recommend supplementing with primary research. If you provided competitor names during the assessment, the analysis will reference them directly — but AI knowledge of smaller or local businesses may be limited.*
+> *Note: Competitive analysis is AI-informed based on publicly available information. For specific competitor intelligence, we recommend supplementing with primary research. If you provided competitor names during the diagnostic, the analysis will reference them directly — but AI knowledge of smaller or local businesses may be limited.*
 
 ---
 
@@ -283,13 +283,13 @@ If Snapshot+ is the treatment plan, Blueprint is the full implementation bluepri
 ---
 
 ### 19. KPIs Within Each Section — How to Measure If It's Working
-**What it is:** Integrated key performance indicators throughout the report — each major section includes the specific metrics to track, what success looks like, and how to know when something needs adjustment. Includes a recommendation to implement Net Promoter Score (NPS) as an ongoing customer loyalty metric, with guidance on what NPS is, why it matters, and how to get started.
+**What it is:** Integrated key performance indicators throughout the report — each major section includes the specific metrics to track, what success looks like, and how to know when something needs adjustment. Includes a recommendation to implement the WunderBrand Experience Score™ as an ongoing customer loyalty metric, with guidance on what the Experience Score is, why it matters, and how to get started.
 
-**Why it matters:** Strategy without measurement is a wish. You can have the best brand foundation in the world, but if you're not tracking whether it's translating into results, you'll never know what's working and what needs to change. NPS specifically gives you a single number that tracks whether your brand strategy improvements are translating into real customer loyalty.
+**Why it matters:** Strategy without measurement is a wish. You can have the best brand foundation in the world, but if you're not tracking whether it's translating into results, you'll never know what's working and what needs to change. The WunderBrand Experience Score specifically gives you a single number that tracks whether your brand strategy improvements are translating into real customer loyalty.
 
-**How it helps your business:** No more wondering "is this working?" Every section tells you exactly what to measure, what the benchmarks should look like, and what signals a need to adjust course. The NPS recommendation gives you a proven starting point for customer sentiment tracking.
+**How it helps your business:** No more wondering "is this working?" Every section tells you exactly what to measure, what the benchmarks should look like, and what signals a need to adjust course. The experience survey recommendation gives you a proven starting point for customer sentiment tracking.
 
-**What you'll see:** KPI boxes integrated throughout the report, each with metrics, targets, and interpretation guidance — plus an NPS overview with implementation recommendations.
+**What you'll see:** KPI boxes integrated throughout the report, each with metrics, targets, and interpretation guidance — plus a WunderBrand Experience Survey overview with implementation recommendations.
 
 ---
 
@@ -369,8 +369,8 @@ If Snapshot+ is the treatment plan, Blueprint is the full implementation bluepri
 
 ## Frequently Asked Questions
 
-**How long does the assessment take?**
-About 10–15 minutes. Results are delivered instantly.
+**How long does the diagnostic take?**
+About 20–25 minutes. Results are delivered instantly.
 
 **Do I need to buy WunderBrand Snapshot+™ first?**
 No — WunderBrand Blueprint™ includes everything from WunderBrand Snapshot+™. It's a single purchase that gives you the full operating system.
@@ -378,8 +378,8 @@ No — WunderBrand Blueprint™ includes everything from WunderBrand Snapshot+�
 **What if I already bought WunderBrand Snapshot+™?**
 Your $497 is credited toward your Blueprint purchase. You'll only pay the difference ($500).
 
-**Can I retake the assessment later to track my progress?**
-Yes. Quarterly refreshes are available for $97 — you'll get a fully updated WunderBrand Blueprint™ report with a side-by-side comparison showing what improved, what declined, and where to focus next. Your dashboard includes a score trend chart that updates with every assessment. (WunderBrand Blueprint+™ customers get unlimited quarterly refreshes included free.)
+**Can I retake the diagnostic later to track my progress?**
+Yes. Quarterly refreshes are available for $97 — you'll get a fully updated WunderBrand Blueprint™ report with a side-by-side comparison showing what improved, what declined, and where to focus next. Your dashboard includes a score trend chart that updates with every diagnostic. (WunderBrand Blueprint+™ customers get unlimited quarterly refreshes included free.)
 
 **Can I share the report with my team?**
 Absolutely. The report is designed to be a shared reference document — share the PDF, use the messaging system in briefs, and reference the competitive analysis in strategy meetings.

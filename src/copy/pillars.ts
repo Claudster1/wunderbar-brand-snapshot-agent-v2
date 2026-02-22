@@ -21,80 +21,80 @@ export const pillarCopy: Record<PillarKey, {
   positioning: {
     title: "Positioning",
     summary: (brand) =>
-      `${brand} has a defined offering, but clarity varies depending on where and how it shows up.`,
+      `${brand}'s market position has identifiable strengths, but the gap between what it offers and how it's understood by the right buyers represents a material growth constraint.`,
     whyItMatters:
-      "Positioning determines whether the right customers immediately understand why you matter.",
+      "Positioning is the single most leveraged strategic decision a brand makes — it determines who notices you, who self-selects, and who pays a premium.",
     expanded: {
       strong: (brand) =>
-        `${brand} communicates its value clearly and consistently, making it easy for the right customers to self-select.`,
+        `${brand} occupies a clear, defensible position that makes it easy for the right customers to choose confidently — and for the wrong ones to self-select out. This clarity compounds across every other pillar.`,
       mixed: (brand) =>
-        `${brand} has strong foundations, but the value proposition isn't always immediately obvious.`,
+        `${brand} has a recognizable presence, but the core value proposition isn't landing with the precision needed to drive confident buying decisions — which creates drag across messaging, conversion, and perceived authority.`,
       weak: (brand) =>
-        `${brand} would benefit from sharpening how its offer is framed so customers instantly understand what sets it apart.`,
+        `${brand} lacks the positioning clarity required for the market to understand what it does differently and why it matters — which means growth currently depends on effort rather than strategic leverage.`,
     },
   },
 
   messaging: {
     title: "Messaging",
     summary: (brand) =>
-      `Your core ideas are present, but they're not always expressed with the same clarity or confidence.`,
+      `${brand}'s core narrative has promising elements, but inconsistency across touchpoints is diluting impact and slowing the path from attention to trust.`,
     whyItMatters:
-      "Messaging shapes how people remember, describe, and trust your brand.",
+      "Messaging is how positioning becomes tangible — it shapes whether people remember, repeat, and recommend your brand within the first 30 seconds of contact.",
     expanded: {
       strong: (brand) =>
-        `${brand} speaks with a clear, confident voice that reinforces its positioning.`,
+        `${brand} communicates with a distinctive, consistent voice that reinforces its strategic position at every touchpoint — turning each interaction into a trust-building moment.`,
       mixed: (brand) =>
-        `${brand} has strong ideas, but consistency across channels could be improved.`,
+        `${brand} has strong messaging instincts, but the lack of a codified system means different channels tell subtly different stories — eroding the cumulative trust that drives conversion.`,
       weak: (brand) =>
-        `${brand} would benefit from tighter message alignment across touchpoints.`,
+        `${brand}'s messaging lacks the clarity and consistency needed to build recognition — which forces every new interaction to start from scratch rather than compounding previous ones.`,
     },
   },
 
   visibility: {
     title: "Visibility",
     summary: (brand) =>
-      `${brand} shows up in some channels, but discoverability can be expanded.`,
+      `${brand} has a presence in select channels, but significant discovery gaps mean qualified prospects are finding competitors — or nothing at all — where ${brand} should be appearing.`,
     whyItMatters:
-      "If the right people can't find you, even strong brands stall.",
+      "Visibility is distribution for your brand — without it, even the strongest positioning and messaging never reach the people who would value them most.",
     expanded: {
       strong: (brand) =>
-        `${brand} is discoverable across both traditional search and AI-driven discovery.`,
+        `${brand} is discoverable across both traditional search and AI-driven platforms, creating multiple pathways for qualified prospects to find and evaluate the brand organically.`,
       mixed: (brand) =>
-        `${brand} has visibility foundations but could better leverage SEO and AEO.`,
+        `${brand} has visibility foundations in place, but gaps in SEO, AEO, and channel diversification are leaving high-intent discovery opportunities on the table.`,
       weak: (brand) =>
-        `${brand} is under-represented where customers are actively looking.`,
+        `${brand} is significantly under-represented in the channels where its best customers are actively searching — which means growth is overly dependent on outbound effort and referrals.`,
     },
   },
 
   credibility: {
     title: "Credibility",
     summary: (brand) =>
-      `Trust signals are present, but not always reinforced consistently.`,
+      `${brand} has trust indicators in place, but they aren't consistently deployed where buying decisions happen — creating unnecessary friction at the most critical moments.`,
     whyItMatters:
-      "Credibility reduces friction and accelerates decisions.",
+      "Credibility is the currency of conversion — it determines whether a prospect trusts you enough to take the next step, and how much price sensitivity enters the conversation.",
     expanded: {
       strong: (brand) =>
-        `${brand} reinforces trust through consistency, clarity, and proof.`,
+        `${brand} reinforces trust through a layered system of social proof, visual consistency, and demonstrated expertise — reducing buyer hesitation and supporting premium positioning.`,
       mixed: (brand) =>
-        `${brand} shows credibility signals, but they're not always visible.`,
+        `${brand} has credibility assets that aren't working hard enough — proof points exist but aren't strategically placed where they'd reduce the friction that's slowing conversion.`,
       weak: (brand) =>
-        `${brand} would benefit from stronger proof and consistency cues.`,
+        `${brand} lacks the visible trust signals needed to compete confidently — which means prospects default to safer, more established alternatives even when ${brand}'s offering is superior.`,
     },
   },
 
   conversion: {
     title: "Conversion",
     summary: (brand) =>
-      `Opportunities exist to guide visitors more confidently to the next step.`,
+      `${brand} generates interest, but the gap between engagement and action reveals structural friction in the conversion path that's leaving revenue on the table.`,
     whyItMatters:
-      "Clear paths turn interest into action.",
+      "Conversion is where every other investment — in positioning, messaging, visibility, and credibility — either compounds into growth or leaks out through unclear next steps.",
     expanded: {
       strong: (brand) =>
-        `${brand} makes it easy for people to know what to do next.`,
+        `${brand} makes the path from interest to action clear, confident, and low-friction — with well-structured CTAs, lead capture, and nurture systems that convert attention into revenue.`,
       mixed: (brand) =>
-        `${brand} has calls-to-action, but they're not always reinforced.`,
+        `${brand} has conversion elements in place, but they aren't working as a cohesive system — which means qualified interest is being lost to unclear next steps and unoptimized flows.`,
       weak: (brand) =>
-        `${brand} would benefit from clearer, more confident conversion paths.`,
+        `${brand} lacks the conversion infrastructure needed to capitalize on the attention it generates — without clear CTAs, lead capture, and follow-up systems, growth will remain unpredictable.`,
     },
   },
 };

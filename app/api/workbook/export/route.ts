@@ -8,9 +8,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { logger } from "@/lib/logger";
-import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
-import { BrandStandardsDocument } from "@/src/pdf/documents/BrandStandardsDocument";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -234,6 +232,8 @@ export async function GET(req: NextRequest) {
       brand_standards_data: brandStandardsData,
     };
 
+    const { renderToBuffer } = await import("@react-pdf/renderer");
+    const { BrandStandardsDocument } = await import("@/src/pdf/documents/BrandStandardsDocument");
     const buffer = await renderToBuffer(
       React.createElement(BrandStandardsDocument, { data: pdfData }) as any
     );

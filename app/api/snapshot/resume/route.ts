@@ -2,6 +2,7 @@
 // API route for resuming a draft snapshot
 
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { loadSnapshotProgress } from "@/lib/loadSnapshotProgress";
 import { supabaseServer } from "@/lib/supabase";
 
@@ -64,7 +65,9 @@ export async function GET(req: Request) {
       },
     });
   } catch (err: any) {
-    console.error("[Snapshot Resume API] Error:", err);
+    logger.error("[Snapshot Resume API] Error", {
+      error: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json(
       { error: "Failed to load resume data" },
       { status: 500 }

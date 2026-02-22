@@ -3,8 +3,11 @@
 // Stores files in Supabase Storage (brand-assets bucket) and tracks metadata.
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { supabaseServer } from "@/lib/supabase";
 import { randomUUID } from "crypto";
+import { apiGuard } from "@/lib/security/apiGuard";
+import { GENERAL_RATE_LIMIT } from "@/lib/security/rateLimit";
 
 export const dynamic = "force-dynamic";
 
@@ -39,6 +42,9 @@ function categorizeAsset(fileName: string, mimeType: string): string {
 }
 
 export async function POST(req: NextRequest) {
+  const guard = apiGuard(req, { routeId: "assets-upload", rateLimit: GENERAL_RATE_LIMIT, maxBodySize: 25_000_000 });
+  if (!guard.passed) return guard.errorResponse;
+
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
@@ -108,7 +114,7 @@ export async function POST(req: NextRequest) {
       });
 
     if (uploadError) {
-      console.error("[Asset Upload] Storage error:", uploadError);
+      logger.error("[Asset Upload] Storage error", { error: uploadError instanceof Error ? uploadError.message : String(uploadError) });
       return NextResponse.json(
         { error: "Failed to upload file. Please try again." },
         { status: 500 }
@@ -133,7 +139,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (dbError) {
-      console.error("[Asset Upload] DB error:", dbError);
+      logger.error("[Asset Upload] DB error", { error: dbError instanceof Error ? dbError.message : String(dbError) });
       // Clean up the uploaded file
       await sb.storage.from("brand-assets").remove([storagePath]);
       return NextResponse.json(
@@ -148,7 +154,7 @@ export async function POST(req: NextRequest) {
       remaining: tierConfig.maxFiles - ((count ?? 0) + 1),
     });
   } catch (err) {
-    console.error("[Asset Upload] Unexpected error:", err);
+    logger.error("[Asset Upload] Unexpected error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
       { error: "Something went wrong. Please try again." },
       { status: 500 }

@@ -173,25 +173,25 @@
 - **Heading:** WUNDERBRAND SNAPSHOT™
 - **Value prop:** See how aligned your brand really is — in about 15 minutes.
 - **Greeting (new users):** Hi {firstName}, I'm Wundy™ — your brand guide here at Wunderbar Digital. My job is to ask you the right questions so our diagnostic can give you a clear picture of where your brand stands today. It's a real conversation — not a quiz, no wrong answers, nothing to prepare. Just talk to me like you'd talk to a curious colleague who wants to understand your business. Ready when you are — let's get into it.
-- **Welcome back (returning users):** Great to meet you, {firstName}. Here's how this works — I'll ask you a series of questions about your business, your customers, and how your brand shows up in the world. Some will be easy, some might make you think a little. [...] The whole thing takes about 10–15 minutes. [...] Ready when you are, {firstName}. Let's see where your brand stands.
+- **Welcome back (returning users):** Great to meet you, {firstName}. Here's how this works — I'll ask you a series of questions about your business, your customers, and how your brand shows up in the world. Some will be easy, some might make you think a little. [...] The whole thing takes about 15–20 minutes. [...] Ready when you are, {firstName}. Let's see where your brand stands.
 
 #### Snapshot+ ($497)
 - **Heading:** WUNDERBRAND SNAPSHOT+™
 - **Value prop:** A deeper diagnostic with strategic recommendations tailored to your business.
 - **Greeting (new users):** Hi {firstName}, I'm Wundy™ — your brand guide here at Wunderbar Digital. I'm here to make sure our diagnostic gets everything it needs to give you a sharp, personalized picture of your brand — where you're strong, where there's opportunity, and what to focus on first. We're going to have a real conversation about your business, your customers, and how your brand shows up in the world. Some questions will be easy, some might make you think. Either way, I've got you — just answer naturally and we'll get where we need to go. Let's get started.
-- **Welcome back (returning users):** Really glad to have you here, {firstName}. Let me tell you what to expect. [...] Plan on about 20–25 minutes. [...] Your results will also include a Foundational Prompt Pack — 8 AI prompts built from your specific results that you can use in any AI tool to start building your brand platform right away. [...]
+- **Welcome back (returning users):** Really glad to have you here, {firstName}. Let me tell you what to expect. [...] Plan on about 15–20 minutes. [...] Your results will also include a Foundational Prompt Pack — 8 AI prompts built from your specific results that you can use in any AI tool to start building your brand platform right away. [...]
 
 #### Blueprint ($997)
 - **Heading:** WUNDERBRAND BLUEPRINT™
 - **Value prop:** Your brand strategy, mapped — with an execution-ready action plan.
 - **Greeting (new users):** Hi {firstName}, I'm Wundy™ — your brand guide here at Wunderbar Digital. We've got a good conversation ahead of us. My job is to get a complete picture of your business — your positioning, your audience, how your brand shows up across every channel — so our diagnostic can build you something you can actually use. We'll cover more ground than a quick check-in, so take your time with each answer. No prep needed, no wrong answers — the more honest you are, the better your results will be. Let's get into it.
-- **Welcome back (returning users):** {firstName}, welcome — this is going to be a great conversation. WunderBrand Blueprint™ is designed to give you a complete strategic picture of your brand [...] Plan on about 25–30 minutes. [...] Your results will include an Execution Prompt Pack — 8 AI prompts for building campaigns, email sequences, and content systems that stay aligned with your brand. [...]
+- **Welcome back (returning users):** {firstName}, welcome — this is going to be a great conversation. WunderBrand Blueprint™ is designed to give you a complete strategic picture of your brand [...] Plan on about 20–25 minutes. [...] Your results will include an Execution Prompt Pack — 8 AI prompts for building campaigns, email sequences, and content systems that stay aligned with your brand. [...]
 
 #### Blueprint+ ($1,997)
 - **Heading:** WUNDERBRAND BLUEPRINT+™
 - **Value prop:** The complete strategic diagnostic — with a 1:1 Strategy Activation Session.
 - **Greeting (new users):** Hi {firstName}, I'm Wundy™ — your brand guide here at Wunderbar Digital. I want to make sure we get the most out of this conversation, because what comes out of it matters — your results feed directly into your Strategy Activation Session with our team. My job is to understand your business as thoroughly as possible — your positioning, your audience, your goals, and how your brand shows up across every touchpoint. We'll cover a lot of ground, and I'll be with you the whole way. Answer naturally, be as specific as you can, and don't worry if you don't have everything figured out — that's exactly what we're here for. Let's begin.
-- **Welcome back (returning users):** {firstName}, thank you for investing in this — I want to make sure the experience matches the investment. WunderBrand Blueprint+™ is the deepest strategic work we do [...] Plan on about 30–40 minutes. [...] Your results will include an Advanced Prompt Library — 12 AI frameworks for persona-based messaging, funnel-stage campaigns, and stakeholder communications. [...]
+- **Welcome back (returning users):** {firstName}, thank you for investing in this — I want to make sure the experience matches the investment. WunderBrand Blueprint+™ is the deepest strategic work we do [...] Plan on about 25–35 minutes. [...] Your results will include an Advanced Prompt Library — 12 AI frameworks for persona-based messaging, funnel-stage campaigns, and stakeholder communications. [...]
 
 ---
 

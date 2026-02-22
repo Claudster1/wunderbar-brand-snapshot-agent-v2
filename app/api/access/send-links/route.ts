@@ -5,6 +5,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { fireACEvent } from "@/lib/fireACEvent";
+import { logger } from "@/lib/logger";
 
 function getSupabase() {
   return supabaseAdmin;
@@ -38,7 +39,7 @@ export async function POST(req: Request) {
     const supabase = getSupabase();
 
     if (!supabase) {
-      console.error("[Access API] Supabase not configured");
+      logger.error("[Access API] Supabase not configured");
       return NextResponse.json(
         { error: "Service temporarily unavailable." },
         { status: 503 }
@@ -53,7 +54,7 @@ export async function POST(req: Request) {
       .order("created_at", { ascending: false });
 
     if (dbError) {
-      console.error("[Access API] DB error:", dbError.message);
+      logger.error("[Access API] DB error", { error: dbError.message });
       return NextResponse.json(
         { error: "Unable to look up reports." },
         { status: 500 }
@@ -92,7 +93,7 @@ export async function POST(req: Request) {
         },
       });
     } catch (acErr) {
-      console.error("[Access API] AC event failed:", acErr);
+      logger.error("[Access API] AC event failed", { error: acErr instanceof Error ? acErr.message : String(acErr) });
       // Don't fail the request — the lookup succeeded
     }
 
@@ -102,7 +103,7 @@ export async function POST(req: Request) {
         "If we have reports associated with that email, you'll receive a link shortly.",
     });
   } catch (err) {
-    console.error("[Access API] Error:", err);
+    logger.error("[Access API] Error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
       { error: "Something went wrong. Please try again." },
       { status: 500 }

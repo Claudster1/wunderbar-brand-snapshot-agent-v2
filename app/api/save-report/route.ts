@@ -2,6 +2,7 @@
 // API route to save WunderBrand Snapshot™ report and return redirect URL
 
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { calculateScores } from "@/src/lib/brandSnapshotEngine";
 
@@ -106,7 +107,7 @@ export async function POST(req: Request) {
       });
 
     if (insertError) {
-      console.error("Supabase insert error:", insertError);
+      logger.error("Supabase insert error", { error: insertError instanceof Error ? insertError.message : String(insertError) });
       return NextResponse.json(
         { error: "Failed to save report. Please try again." },
         { status: 500 }
@@ -146,7 +147,7 @@ export async function POST(req: Request) {
 
         // Set custom fields for email personalization
         const reportLink = `${baseUrl}/report/${reportId}`;
-        const npsLink = `${baseUrl}/nps?tier=snapshot&reportId=${encodeURIComponent(reportId)}&email=${encodeURIComponent(normalizedEmail)}`;
+        const experienceSurveyLink = `${baseUrl}/experience-survey?tier=snapshot&reportId=${encodeURIComponent(reportId)}&email=${encodeURIComponent(normalizedEmail)}`;
 
         await setContactFields({
           email: normalizedEmail,
@@ -156,7 +157,7 @@ export async function POST(req: Request) {
             report_link: reportLink,
             report_id: reportId,
             dashboard_link: `${baseUrl}/dashboard`,
-            nps_survey_link: npsLink,
+            experience_survey_link: experienceSurveyLink,
             brand_alignment_score: String(engineResults.brandAlignmentScore),
             weakest_pillar: engineResults.weakestPillar.pillar,
             upgrade_product_name: "WunderBrand Snapshot+\u2122",
@@ -179,7 +180,7 @@ export async function POST(req: Request) {
             report_id: reportId,
             brand_alignment_score: engineResults.brandAlignmentScore,
             weakest_pillar: engineResults.weakestPillar.pillar,
-            nps_survey_link: npsLink,
+            experience_survey_link: experienceSurveyLink,
             dashboard_link: `${baseUrl}/dashboard`,
             upgrade_product_name: "WunderBrand Snapshot+\u2122",
             upgrade_product_url: "https://wunderbardigital.com/wunderbrand-snapshot-plus",
@@ -187,7 +188,7 @@ export async function POST(req: Request) {
           },
         });
       } catch (acErr) {
-        console.error("[Save Report] AC free tier tagging failed:", acErr);
+        logger.error("[Save Report] AC free tier tagging failed", { error: acErr instanceof Error ? acErr.message : String(acErr) });
       }
     }
 
@@ -197,7 +198,7 @@ export async function POST(req: Request) {
       success: true,
     });
   } catch (err: unknown) {
-    console.error("[Save Report API] Error:", err);
+    logger.error("[Save Report API] Error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
       { error: "Failed to save report. Please try again." },
       { status: 500 }

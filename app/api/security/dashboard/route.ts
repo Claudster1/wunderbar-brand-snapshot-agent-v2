@@ -3,6 +3,7 @@
 // Protected: requires ADMIN_API_KEY header to access.
 
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -85,7 +86,7 @@ export async function GET(req: Request) {
       },
     });
   } catch (err) {
-    console.error("[Security Dashboard] Error:", err);
+    logger.error("[Security Dashboard] Error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "Failed to load dashboard" }, { status: 500 });
   }
 }

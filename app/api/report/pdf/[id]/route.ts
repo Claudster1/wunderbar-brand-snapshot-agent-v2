@@ -2,9 +2,8 @@
 
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-import { renderToBuffer } from "@react-pdf/renderer";
+import { logger } from "@/lib/logger";
 import React from "react";
-import ReportDocument from "@/components/pdf/ReportDocument";
 
 export const dynamic = "force-dynamic";
 
@@ -89,7 +88,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
     const pdfData = transformReportForPdf(report, plus);
 
-    // Render PDF using renderToBuffer
+    const { renderToBuffer } = await import("@react-pdf/renderer");
+    const ReportDocument = (await import("@/components/pdf/ReportDocument")).default;
     const pdfBuffer = await renderToBuffer(
       React.createElement(ReportDocument, { ...pdfData, report, isPlus: plus })
     );
@@ -107,7 +107,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       },
     });
   } catch (err: any) {
-    console.error("PDF generation error:", err);
+    logger.error("PDF generation error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
       { error: "Failed to generate PDF." },
       { status: 500 }

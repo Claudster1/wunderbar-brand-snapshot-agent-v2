@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin as supabase } from "@/lib/supabase-admin";
+import { logger } from "@/lib/logger";
 import { randomUUID } from "crypto";
 
 export async function POST(req: Request) {
+  const { apiGuard } = await import("@/lib/security/apiGuard");
+  const guard = apiGuard(req, { routeId: "snapshot-plus-save" });
+  if (!guard.passed) return guard.errorResponse;
+
   try {
     const body = await req.json();
 
@@ -66,26 +71,41 @@ export async function POST(req: Request) {
       .single();
 
     if (error) {
-      console.error("❌ Insert error:", error);
+      logger.error("[snapshot-plus/save] Insert error", { error: error.message });
       return NextResponse.json(
-        { error: "Database insert failed", details: error.message },
+        { error: "Database insert failed." },
         { status: 500 }
       );
     }
 
-    // 🎉 Success — return the created report ID
+    // Register brand (non-blocking)
+    const brandName = full_report?.businessName || full_report?.company_name || sanitizedUserName;
+    if (sanitizedUserEmail && brandName) {
+      import("@/lib/userBrands").then(({ registerBrand }) =>
+        registerBrand({
+          email: sanitizedUserEmail,
+          brandName,
+          industry: full_report?.industry ?? null,
+          website: full_report?.website ?? null,
+          score: brand_alignment_score ?? null,
+          reportId: finalReportId,
+          reportTier: full_report?._meta?.tier || "snapshot_plus",
+        })
+      ).catch(() => {});
+    }
+
     return NextResponse.json(
       {
         success: true,
-        report_id: data.report_id, // The report_id field (not the UUID id)
-        id: data.id, // The UUID primary key
+        report_id: data.report_id,
+        id: data.id,
       },
       { status: 200 }
     );
-  } catch (err: any) {
-    console.error("❌ API error:", err);
+  } catch (err: unknown) {
+    logger.error("[snapshot-plus/save] Error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
-      { error: "Unexpected server error", details: err.message },
+      { error: "Unexpected server error." },
       { status: 500 }
     );
   }

@@ -4,6 +4,7 @@
 
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { logger } from "@/lib/logger";
 
 const SUPPORT_EMAIL = "support@wunderbardigital.com";
 
@@ -98,11 +99,11 @@ export async function POST(req: Request) {
         });
 
       if (dbError) {
-        console.error("[Support API] Supabase insert error:", dbError.message);
+        logger.error("[Support API] Supabase insert error", { error: dbError.message });
         // Don't fail the request — we still want to try email notification
       }
     } else {
-      console.warn("[Support API] Supabase not configured — skipping DB storage.");
+      logger.warn("[Support API] Supabase not configured — skipping DB storage.");
     }
 
     // Send email notification via ActiveCampaign webhook (if available)
@@ -133,7 +134,7 @@ export async function POST(req: Request) {
           }),
         });
       } catch (emailErr) {
-        console.error("[Support API] Email notification failed:", emailErr);
+        logger.error("[Support API] Email notification failed", { error: emailErr instanceof Error ? emailErr.message : String(emailErr) });
       }
     }
 
@@ -205,14 +206,16 @@ export async function POST(req: Request) {
           }),
         });
       } catch (slackErr) {
-        console.error("[Support API] Slack notification failed:", slackErr);
+        logger.error("[Support API] Slack notification failed", { error: slackErr instanceof Error ? slackErr.message : String(slackErr) });
       }
     }
 
     // Log without PII — email and company name redacted for security
-    console.info(
-      `[Support Request] ${issueCategory.toUpperCase()} | ${productName} | ${emailUsedForPurchase ? "email-provided" : "no-email"}`
-    );
+    logger.info("[Support Request]", {
+      category: issueCategory.toUpperCase(),
+      product: productName,
+      emailProvided: Boolean(emailUsedForPurchase),
+    });
 
     return NextResponse.json({
       success: true,
@@ -220,7 +223,7 @@ export async function POST(req: Request) {
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unknown error";
-    console.error("[Support API] Error:", message);
+    logger.error("[Support API] Error", { error: message });
     return NextResponse.json(
       { error: "Failed to submit support request." },
       { status: 500 }

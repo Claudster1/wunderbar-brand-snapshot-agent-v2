@@ -3,6 +3,7 @@
 // if it's free or paid, remaining count, brand lock info, and expiration.
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { checkRefreshEligibility } from "@/lib/refreshEntitlements";
 
 export const dynamic = "force-dynamic";
@@ -25,7 +26,7 @@ export async function GET(req: NextRequest) {
       headers: { "Cache-Control": "private, max-age=60" },
     });
   } catch (err) {
-    console.error("[Refresh Eligibility]", err);
+    logger.error("[Refresh Eligibility]", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "Unable to check eligibility." }, { status: 500 });
   }
 }

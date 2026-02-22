@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export async function POST(req: Request) {
@@ -40,13 +41,15 @@ export async function POST(req: Request) {
     });
 
     if (error) {
-      console.error("Supabase insert error:", error);
+      logger.error("Supabase insert error", {
+        error: error.message,
+      });
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (err: any) {
-    console.error("[Report Save API] Unexpected error:", err);
+    logger.error("[Report Save API] Unexpected error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
       { error: err?.message || "Failed to save report" },
       { status: 500 }

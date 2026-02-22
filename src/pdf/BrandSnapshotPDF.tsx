@@ -87,28 +87,32 @@ export const BrandSnapshotPDF = ({
         <PdfHeader title="WunderBrand Snapshot™ Report" businessName={businessName} date={reportDate} />
 
         <PageTitle
-          title="Your WunderBrand Snapshot™"
-          subtitle="A concise, insight-led overview of your brand's current alignment"
+          title={`${businessName} — WunderBrand Snapshot™`}
+          subtitle="Strategic brand diagnostic across five core performance pillars"
         />
 
         <Section>
           <Text style={styles.smallHeading}>WunderBrand Score™</Text>
 
           <Text style={styles.body}>
-            Your WunderBrand Score™ represents how clearly and consistently your
-            brand shows up today across five core pillars: Positioning, Messaging,
-            Visibility, Credibility, and Conversion.
+            {businessName}&rsquo;s WunderBrand Score™ evaluates how clearly and consistently the brand performs across positioning, messaging, visibility, credibility, and conversion — the five pillars that drive growth, trust, and competitive advantage.
           </Text>
 
           <View style={styles.scoreDisplay}>
             <Text style={styles.scoreNumber}>
               {brandAlignmentScore}/100
             </Text>
+            <Text style={{ fontSize: pdfTheme.fontSizes.sm, color: "#5a6c8a", marginTop: 4 }}>
+              {brandAlignmentScore >= 80 ? "Strong alignment — focus on refinement and consistency at scale" :
+               brandAlignmentScore >= 60 ? "Solid foundation — targeted pillar investment will compound" :
+               brandAlignmentScore >= 40 ? "Clear strengths with material improvement opportunities" :
+               "Foundational work ahead — clarity now creates disproportionate returns"}
+            </Text>
           </View>
         </Section>
 
         <Section>
-          <Text style={styles.smallHeading}>Pillar Breakdown</Text>
+          <Text style={styles.smallHeading}>Pillar-by-Pillar Performance</Text>
 
           <PillarScoreBar label="Positioning" score={pillarScores.positioning} />
           <PillarScoreBar label="Messaging" score={pillarScores.messaging} />
@@ -124,7 +128,7 @@ export const BrandSnapshotPDF = ({
       <Page size="A4" style={styles.page}>
         <PdfHeader title="Pillar Insights" />
 
-        <PageTitle title="Your Brand Insights" subtitle="High-level opportunities" />
+        <PageTitle title="Diagnostic Insights" subtitle={`What the data reveals about ${businessName}\u2019s brand performance`} />
 
         <Section>
           <InsightBlock
@@ -170,7 +174,7 @@ export const BrandSnapshotPDF = ({
         
         <PageTitle
           title="Strategic Recommendations"
-          subtitle="Quick wins to strengthen alignment across your brand"
+          subtitle={`Priority actions to strengthen ${businessName}\u2019s brand performance`}
         />
 
         <Section>
@@ -216,33 +220,33 @@ export const BrandSnapshotPDF = ({
         <PdfHeader title="Brand Foundations Summary" />
 
         <PageTitle
-          title="Your Brand Foundations"
-          subtitle="A snapshot of your current brand footprint"
+          title="Brand Footprint"
+          subtitle={`${businessName}\u2019s current brand infrastructure`}
         />
 
         <Section>
-          <Text style={styles.smallHeading}>Business Overview</Text>
-          <Text style={styles.body}>
-            <Text style={{ fontWeight: 600 }}>Business Name:</Text> {businessName}
-            {"\n"}
-            <Text style={{ fontWeight: 600 }}>Industry:</Text> {industry}
-            {"\n"}
-            <Text style={{ fontWeight: 600 }}>Website:</Text> {website || "None"}
-            {"\n"}
-            <Text style={{ fontWeight: 600 }}>Social Platforms:</Text>{" "}
-            {socials?.length ? socials.join(", ") : "None"}
-          </Text>
+          <View style={{ backgroundColor: pdfTheme.colors.gray, padding: 16, borderRadius: 8, marginBottom: 16 }}>
+            <Text style={styles.body}>
+              <Text style={{ fontWeight: 700 }}>Business:</Text> {businessName}
+              {"\n"}
+              <Text style={{ fontWeight: 700 }}>Industry:</Text> {industry}
+              {"\n"}
+              <Text style={{ fontWeight: 700 }}>Website:</Text> {website || "Not provided"}
+              {"\n"}
+              <Text style={{ fontWeight: 700 }}>Active platforms:</Text>{" "}
+              {socials?.length ? socials.join(", ") : "None identified"}
+            </Text>
+          </View>
         </Section>
 
         <Section>
-          <View style={{ backgroundColor: "#F2F7FF", padding: 16, borderRadius: 8, borderLeftWidth: 4, borderLeftColor: "#07B0F2" }}>
-            <Text style={{ ...styles.smallHeading, marginBottom: 8 }}>Ready for more?</Text>
+          <View style={{ backgroundColor: "#F2F7FF", padding: 20, borderRadius: 8, borderLeftWidth: 4, borderLeftColor: "#07B0F2" }}>
+            <Text style={{ ...styles.smallHeading, marginBottom: 8 }}>Go deeper with Snapshot+™</Text>
             <Text style={styles.body}>
-              Upgrade to WunderBrand Snapshot+™ for a deeper strategic report — including brand persona,
-              archetype, voice guidance, recommended color palette, 30/60/90 roadmap, and AI-ready prompts.
+              This diagnostic identified where {businessName} stands. Snapshot+™ transforms these scores into a strategic roadmap — with brand persona analysis, archetype system, voice and tone guide, recommended color palette, a prioritized 30/60/90 action plan, and 8 AI-ready prompts calibrated to your brand.
             </Text>
-            <Text style={{ ...styles.body, marginTop: 8, fontSize: 10, color: "#5a6c8a" }}>
-              Explore at wunderbardigital.com/wunderbrand-snapshot-plus
+            <Text style={{ ...styles.body, marginTop: 12, fontWeight: 600, color: pdfTheme.colors.blue }}>
+              wunderbrand.ai/snapshot-plus
             </Text>
           </View>
         </Section>

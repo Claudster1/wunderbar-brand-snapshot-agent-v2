@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: Request) {
   // ─── Security: Rate limit (email-sending endpoint) ───
@@ -21,7 +22,7 @@ export async function POST(req: Request) {
 
     const webhookUrl = process.env.ACTIVE_CAMPAIGN_WEBHOOK;
     if (!webhookUrl) {
-      console.error("[Coverage Email] ACTIVE_CAMPAIGN_WEBHOOK not set");
+      logger.error("[Coverage Email] ACTIVE_CAMPAIGN_WEBHOOK not set");
       return NextResponse.json({ error: "Service unavailable." }, { status: 503 });
     }
 
@@ -37,7 +38,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ sent: true });
   } catch (err: unknown) {
-    console.error("[Coverage Email] Error:", err);
+    logger.error("[Coverage Email] Error", {
+      error: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json({ error: "Failed to process request." }, { status: 500 });
   }
 }

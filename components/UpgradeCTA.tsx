@@ -42,6 +42,9 @@ export function UpgradeCTA({
     setLoading(true);
     try {
       const email = getPersistedEmail();
+      const brandName = typeof window !== "undefined"
+        ? localStorage.getItem("brand_snapshot_company") || ""
+        : "";
       const res = await fetch("/api/stripe/createCheckout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -52,6 +55,7 @@ export function UpgradeCTA({
             source: "snapshot-results",
             primary_pillar: primaryPillar,
             variant,
+            brand_name: brandName,
           },
         }),
       });

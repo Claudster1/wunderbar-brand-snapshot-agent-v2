@@ -307,14 +307,31 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
       </div>
 
       {/* PDF DOWNLOAD */}
-      <p style={{ marginTop: "32px" }}>
+      <div style={{ marginTop: "32px", display: "flex", justifyContent: "center" }}>
         <a
-          href={`/api/report/pdf?id=${reportId}&plus=1`}
-          style={{ textDecoration: "underline", color: "#021859" }}
+          href={`/api/pdf?id=${reportId}&type=snapshot-plus`}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "8px",
+            padding: "14px 28px",
+            borderRadius: "8px",
+            background: "#07B0F2",
+            color: "#FFFFFF",
+            fontWeight: 700,
+            fontSize: "15px",
+            textDecoration: "none",
+            boxShadow: "0 4px 12px rgba(7,176,242,0.25)",
+          }}
         >
-          Download Snapshot+™ PDF →
+          <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 18, height: 18 }}>
+            <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+          </svg>
+          Download Snapshot+\u2122 PDF
         </a>
-      </p>
+      </div>
     </div>
   );
 }

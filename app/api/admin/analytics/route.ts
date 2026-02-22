@@ -2,6 +2,7 @@
 // Admin-only endpoint serving analytics dashboard data from Supabase.
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
@@ -42,7 +43,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ error: "Unknown view" }, { status: 400 });
   } catch (err) {
-    console.error("[Admin Analytics]", err);
+    logger.error("[Admin Analytics]", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "Query failed" }, { status: 500 });
   }
 }

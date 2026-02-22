@@ -3,6 +3,7 @@
 // Stores previous scores in score_history for version tracking.
 
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { supabaseServer } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
@@ -44,7 +45,7 @@ export async function POST(req: Request) {
       .single();
 
     if (fetchError || !existing) {
-      console.error("[Refine API] Report not found:", fetchError);
+      logger.error("[Refine API] Report not found", { error: fetchError instanceof Error ? fetchError.message : String(fetchError) });
       return NextResponse.json(
         { error: "Report not found" },
         { status: 404 }
@@ -103,7 +104,7 @@ export async function POST(req: Request) {
       .eq("report_id", reportId);
 
     if (updateError) {
-      console.error("[Refine API] Update failed:", updateError);
+      logger.error("[Refine API] Update failed", { error: updateError instanceof Error ? updateError.message : String(updateError) });
       return NextResponse.json(
         { error: "Failed to update report", details: updateError.message },
         { status: 500 }
@@ -125,7 +126,7 @@ export async function POST(req: Request) {
       });
     } catch {
       // Non-critical — refinement history is nice-to-have
-      console.warn("[Refine API] Could not save refinement history");
+      logger.warn("[Refine API] Could not save refinement history");
     }
 
     return NextResponse.json({
@@ -136,7 +137,7 @@ export async function POST(req: Request) {
       refinementCount: ((report.refinement_count as number) || 0) + 1,
     });
   } catch (err: unknown) {
-    console.error("[Refine API] Error:", err);
+    logger.error("[Refine API] Error", { error: err instanceof Error ? err.message : String(err) });
     const message = err instanceof Error ? err.message : "Failed to save refinement";
     return NextResponse.json({ error: message }, { status: 500 });
   }

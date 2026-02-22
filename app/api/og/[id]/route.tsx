@@ -3,6 +3,7 @@
 
 import { ImageResponse } from "next/og";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { logger } from "@/lib/logger";
 
 export const runtime = "edge";
 
@@ -137,7 +138,7 @@ export async function GET(
       }
     );
   } catch (error: any) {
-    console.error("[OG Image] Error:", error);
+    logger.error("[OG Image] Error", { error: error instanceof Error ? error.message : String(error) });
     return new Response("Failed to generate OG image", { status: 500 });
   }
 }

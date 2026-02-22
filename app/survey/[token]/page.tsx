@@ -9,7 +9,7 @@ const SUB = "#5A6B7E";
 const BORDER = "#D6E4F0";
 const WHITE = "#FFFFFF";
 
-const NPS_LABELS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+const SCORE_LABELS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
 
 export default function SurveyPage() {
   const params = useParams();
@@ -27,7 +27,7 @@ export default function SurveyPage() {
   const [discoveryChannel, setDiscoveryChannel] = useState("");
   const [friendDescription, setFriendDescription] = useState("");
   const [improvement, setImprovement] = useState("");
-  const [npsScore, setNpsScore] = useState<number | null>(null);
+  const [experienceScore, setExperienceScore] = useState<number | null>(null);
   const [chooseReason, setChooseReason] = useState("");
   const [elevatorDescription, setElevatorDescription] = useState("");
 
@@ -72,7 +72,7 @@ export default function SurveyPage() {
           discoveryChannel: discoveryChannel.trim() || null,
           friendDescription: friendDescription.trim() || null,
           improvement: improvement.trim() || null,
-          npsScore,
+          experienceScore,
           chooseReason: chooseReason.trim() || null,
           elevatorDescription: elevatorDescription.trim() || null,
         }),
@@ -234,20 +234,20 @@ export default function SurveyPage() {
             />
           </div>
 
-          {/* Q6: NPS */}
+          {/* Q6: Experience score */}
           <div>
             <label style={labelStyle}>How likely are you to recommend {businessName}?</label>
             <div style={{ display: "flex", gap: 4, justifyContent: "space-between", marginTop: 4 }}>
-              {NPS_LABELS.map((label, i) => (
+              {SCORE_LABELS.map((label, i) => (
                 <button
                   key={i}
                   type="button"
-                  onClick={() => setNpsScore(i)}
+                  onClick={() => setExperienceScore(i)}
                   style={{
                     width: 38, height: 38, borderRadius: 8,
-                    border: npsScore === i ? `2px solid ${BLUE}` : `1px solid ${BORDER}`,
-                    background: npsScore === i ? `${BLUE}15` : WHITE,
-                    color: npsScore === i ? BLUE : SUB,
+                    border: experienceScore === i ? `2px solid ${BLUE}` : `1px solid ${BORDER}`,
+                    background: experienceScore === i ? `${BLUE}15` : WHITE,
+                    color: experienceScore === i ? BLUE : SUB,
                     fontSize: 14, fontWeight: 700, cursor: "pointer",
                     fontFamily: "'Lato', sans-serif",
                   }}

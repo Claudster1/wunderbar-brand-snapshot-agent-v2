@@ -3,6 +3,7 @@
 // Also increments the refresh counter if this is a refresh report (paid tier retake).
 
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { supabaseServer } from "@/lib/supabase";
 
 export async function POST(req: Request) {
@@ -38,7 +39,7 @@ export async function POST(req: Request) {
       .eq("report_id", reportId);
 
     if (error) {
-      console.error("[Snapshot Complete API] Error:", error);
+      logger.error("[Snapshot Complete API] Error", { error: error instanceof Error ? error.message : String(error) });
       return NextResponse.json(
         { error: "Failed to update report status" },
         { status: 500 }
@@ -61,12 +62,12 @@ export async function POST(req: Request) {
       }
     } catch (refreshErr) {
       // Non-blocking: don't fail the completion if refresh tracking errors
-      console.warn("[Snapshot Complete] Refresh tracking error:", refreshErr);
+      logger.warn("[Snapshot Complete] Refresh tracking error", { error: refreshErr instanceof Error ? refreshErr.message : String(refreshErr) });
     }
 
     return NextResponse.json({ success: true });
   } catch (err: any) {
-    console.error("[Snapshot Complete API] Error:", err);
+    logger.error("[Snapshot Complete API] Error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
       { error: "Failed to complete snapshot" },
       { status: 500 }

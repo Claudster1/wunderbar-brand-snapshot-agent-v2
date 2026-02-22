@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { logger } from "@/lib/logger";
 import { sendFollowupViaAC } from "@/lib/activeCampaign/sendFollowup";
 
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
@@ -30,6 +31,7 @@ export async function PATCH(
     return NextResponse.json({ error: "Database not configured." }, { status: 500 });
   }
 
+  try {
   const { id } = await params;
   const body = await req.json();
 
@@ -137,8 +139,12 @@ export async function PATCH(
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: "Update failed." }, { status: 500 });
   }
 
   return NextResponse.json({ success: true, followup: data });
+  } catch (err: unknown) {
+    logger.error("[admin/followups/[id]] Error", { error: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "Internal server error." }, { status: 500 });
+  }
 }

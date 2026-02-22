@@ -1,6 +1,3 @@
-// src/lib/pillars/pillarCopy.ts
-// Pillar-specific copy for CTAs, headlines, and messaging
-
 export type PillarKey =
   | "positioning"
   | "messaging"
@@ -23,29 +20,27 @@ export const PILLAR_COPY: Record<PillarKey, PillarCopy> = {
   positioning: {
     label: "Positioning",
     headline: (businessName) =>
-      `Clarify how ${businessName} should be understood — instantly`,
+      `Define exactly how ${businessName} should be understood in the market`,
     body: (businessName) =>
-      `Your WunderBrand Snapshot™ shows that ${businessName}'s value may not be immediately clear to first-time visitors. 
-WunderBrand Snapshot+™ defines your positioning precisely so customers understand why you in seconds.`,
+      `Your diagnostic identified a gap between what ${businessName} offers and how the market perceives it. Snapshot+\u2122 translates this into a complete positioning analysis \u2014 with a value proposition statement, competitive context, and clear strategic direction so the right customers self-select with confidence.`,
     whyItMatters: (businessName) =>
-      `Clear positioning reduces confusion, shortens decision time, and helps ${businessName} stand out in a crowded market.`,
+      `Clear positioning is the single highest-leverage investment ${businessName} can make \u2014 it reduces customer acquisition cost, shortens sales cycles, and makes every downstream marketing dollar more effective.`,
     cta: {
-      label: "Go deeper on Positioning →",
+      label: "Get your positioning strategy \u2192",
       href: "/snapshot-plus",
     },
   },
 
   messaging: {
     label: "Messaging",
-    headline: () =>
-      "Align your messaging so it works everywhere",
-    body: () =>
-      `Your messaging is strong in places, but not always consistent.
-WunderBrand Snapshot+™ maps your core message once — then shows how to express it clearly across channels.`,
+    headline: (businessName) =>
+      `Build a messaging system that compounds ${businessName}\u2019s trust at every touchpoint`,
+    body: (businessName) =>
+      `${businessName}\u2019s messaging has strong elements but lacks the consistency needed to build cumulative trust. Snapshot+\u2122 maps the core narrative once \u2014 then provides messaging pillars, voice guidance, and channel-specific frameworks so every interaction reinforces the same strategic story.`,
     whyItMatters: () =>
-      "Consistent messaging builds trust and ensures your brand sounds intentional, not improvised.",
+      "Inconsistent messaging forces every new interaction to start from zero. A codified system means each touchpoint builds on the last \u2014 compounding recognition and trust over time.",
     cta: {
-      label: "Refine my messaging →",
+      label: "Get your messaging framework \u2192",
       href: "/snapshot-plus",
     },
   },
@@ -53,44 +48,41 @@ WunderBrand Snapshot+™ maps your core message once — then shows how to expre
   visibility: {
     label: "Visibility",
     headline: (businessName) =>
-      `Make ${businessName} easier to discover — everywhere people search`,
-    body: () =>
-      `Your visibility today limits how often your brand is surfaced — especially in AI-driven discovery.
-WunderBrand Snapshot+™ shows where to strengthen SEO and AEO so your brand is easier to find and reference.`,
+      `Make ${businessName} discoverable where high-intent buyers are searching`,
+    body: (businessName) =>
+      `${businessName}\u2019s current visibility gaps mean qualified prospects are finding competitors \u2014 or nothing \u2014 in the moments that matter most. Snapshot+\u2122 provides a full visibility analysis including AEO readiness, channel prioritization, and specific actions to close discovery gaps.`,
     whyItMatters: () =>
-      "If your brand isn't discoverable, even strong positioning and messaging go unseen.",
+      "Visibility is distribution for your brand. Without it, your positioning, messaging, and credibility never reach the people who would value them most \u2014 and growth stays dependent on outbound effort.",
     cta: {
-      label: "Increase my visibility →",
+      label: "Get your visibility strategy \u2192",
       href: "/snapshot-plus",
     },
   },
 
   credibility: {
     label: "Credibility",
-    headline: () =>
-      "Strengthen trust at every touchpoint",
+    headline: (businessName) =>
+      `Build the trust infrastructure that accelerates ${businessName}\u2019s conversions`,
     body: (businessName) =>
-      `Your brand shows promise, but consistency signals trust.
-WunderBrand Snapshot+™ identifies what to standardize so ${businessName} feels credible everywhere it appears.`,
+      `${businessName} has trust indicators that aren\u2019t working hard enough. Snapshot+\u2122 identifies exactly where proof points are missing, where visual consistency is creating doubt, and provides a credibility roadmap that makes the brand look as strong as the work actually is.`,
     whyItMatters: () =>
-      "Credibility reduces friction and reassures people they're making the right choice.",
+      "Credibility is the currency of conversion \u2014 it determines whether a prospect trusts you enough to take the next step, and how much price sensitivity enters the conversation.",
     cta: {
-      label: "Build stronger brand trust →",
+      label: "Get your credibility roadmap \u2192",
       href: "/snapshot-plus",
     },
   },
 
   conversion: {
     label: "Conversion",
-    headline: () =>
-      "Turn clarity into confident action",
+    headline: (businessName) =>
+      `Turn ${businessName}\u2019s brand clarity into a measurable conversion system`,
     body: (businessName) =>
-      `People may understand ${businessName} — but hesitate to act.
-WunderBrand Snapshot+™ reveals what's missing between interest and conversion.`,
+      `${businessName} generates interest but loses qualified attention before it becomes revenue. Snapshot+\u2122 diagnoses where structural friction exists in the conversion path and provides a prioritized action plan to close the gap between engagement and action.`,
     whyItMatters: () =>
-      "Conversion issues often stem from small gaps that compound across the experience.",
+      "Conversion is where every upstream investment \u2014 in positioning, messaging, visibility, and credibility \u2014 either compounds into growth or leaks out through unclear next steps.",
     cta: {
-      label: "Improve conversions →",
+      label: "Get your conversion strategy \u2192",
       href: "/snapshot-plus",
     },
   },

@@ -14,8 +14,8 @@ const VOC_ANALYSIS_PROMPT = `You are a brand perception analyst. You've received
 Analyze the responses and return a JSON object with:
 
 {
-  "npsScore": <average NPS score as number>,
-  "npsCategory": "Promoter-heavy" | "Mixed" | "Detractor-heavy",
+  "experienceScore": <average WunderBrand Experience Score as number>,
+  "experienceCategory": "Promoter-heavy" | "Mixed" | "Detractor-heavy",
   "topWords": ["top 8-10 most frequently mentioned descriptive words across all responses"],
   "perceptionSummary": "A 2-3 sentence synthesis of how customers perceive this brand — what the dominant narrative is",
   "alignmentGaps": {
@@ -35,7 +35,7 @@ RULES:
 - Be specific and actionable, not generic
 - Use direct quotes from responses when impactful
 - If alignment gaps don't exist for a pillar, set that pillar to null
-- NPS categories: 0-6 = Detractor, 7-8 = Passive, 9-10 = Promoter
+- Experience categories: 0-6 = Detractor, 7-8 = Passive, 9-10 = Promoter
 - Return ONLY valid JSON, no commentary`;
 
 export async function POST(req: NextRequest) {
@@ -87,7 +87,8 @@ export async function POST(req: NextRequest) {
       if (r.discovery_channel) parts.push(`  How they found them: ${r.discovery_channel}`);
       if (r.friend_description) parts.push(`  What they'd tell a friend: ${r.friend_description}`);
       if (r.improvement) parts.push(`  What could improve: ${r.improvement}`);
-      if (r.nps_score !== null) parts.push(`  NPS: ${r.nps_score}/10`);
+      const score = r.experience_score ?? r.nps_score;
+      if (score != null) parts.push(`  Experience score: ${score}/10`);
       if (r.choose_reason) parts.push(`  Why they chose them: ${r.choose_reason}`);
       if (r.elevator_description) parts.push(`  Elevator description: ${r.elevator_description}`);
       return parts.join("\n");
@@ -127,8 +128,8 @@ ${formattedResponses}`;
       (supabase.from("voc_analysis") as any).upsert({
         survey_id: survey.id,
         response_count: responses.length,
-        nps_score: analysis.npsScore ?? null,
-        nps_category: analysis.npsCategory ?? null,
+        experience_score: analysis.experienceScore ?? null,
+        experience_category: analysis.experienceCategory ?? null,
         top_words: analysis.topWords ?? [],
         perception_summary: analysis.perceptionSummary ?? "",
         alignment_gaps: analysis.alignmentGaps ?? {},

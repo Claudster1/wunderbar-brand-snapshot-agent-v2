@@ -122,10 +122,21 @@ export function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
   if (pathname.startsWith("/api/")) {
-    // Prevent API responses from being cached by proxies
-    response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
-    response.headers.set("Pragma", "no-cache");
-    // Prevent MIME sniffing on API responses
+    // Routes that manage their own caching (read-only, safe to cache)
+    const CACHEABLE_API_ROUTES = [
+      "/api/snapshot/get",
+      "/api/history",
+      "/api/user-tier",
+      "/api/score-history",
+      "/api/refresh-eligibility",
+    ];
+
+    const isCacheable = CACHEABLE_API_ROUTES.some((r) => pathname.startsWith(r));
+    if (!isCacheable) {
+      response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+      response.headers.set("Pragma", "no-cache");
+    }
+
     response.headers.set("X-Content-Type-Options", "nosniff");
   }
 

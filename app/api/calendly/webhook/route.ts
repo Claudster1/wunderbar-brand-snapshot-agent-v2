@@ -11,11 +11,11 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
+import { createHmac, timingSafeEqual } from "crypto";
 
 export const runtime = "nodejs";
 
 // Map Calendly event type names to our session types
-// Update these to match your actual Calendly event type slugs or names
 const EVENT_TYPE_MAP: Record<string, "talk_to_expert" | "activation_session"> = {
   "talk-to-an-expert": "talk_to_expert",
   "talk to an expert": "talk_to_expert",
@@ -26,38 +26,74 @@ const EVENT_TYPE_MAP: Record<string, "talk_to_expert" | "activation_session"> = 
 
 function detectSessionType(eventTypeName: string): "talk_to_expert" | "activation_session" | null {
   const lower = eventTypeName.toLowerCase().trim();
-  // Direct match
   if (EVENT_TYPE_MAP[lower]) return EVENT_TYPE_MAP[lower];
-  // Fuzzy match
   if (lower.includes("expert") || lower.includes("consultation")) return "talk_to_expert";
   if (lower.includes("activation") || lower.includes("blueprint")) return "activation_session";
   return null;
 }
 
+/**
+ * Verify Calendly webhook signature using HMAC-SHA256.
+ * Calendly signs the raw body and sends the signature in the
+ * `calendly-webhook-signature` header as: t=<timestamp>,v1=<signature>
+ */
+function verifyCalendlySignature(
+  rawBody: string,
+  signatureHeader: string,
+  secret: string
+): boolean {
+  try {
+    const parts = signatureHeader.split(",");
+    const timestampPart = parts.find((p) => p.startsWith("t="));
+    const signaturePart = parts.find((p) => p.startsWith("v1="));
+
+    if (!timestampPart || !signaturePart) return false;
+
+    const timestamp = timestampPart.slice(2);
+    const signature = signaturePart.slice(3);
+
+    // Reject signatures older than 5 minutes to prevent replay attacks
+    const age = Math.abs(Date.now() - parseInt(timestamp, 10) * 1000);
+    if (age > 5 * 60 * 1000) {
+      logger.warn("[Calendly Webhook] Signature too old", { ageMs: age });
+      return false;
+    }
+
+    const payload = `${timestamp}.${rawBody}`;
+    const expected = createHmac("sha256", secret).update(payload).digest("hex");
+
+    const sigBuffer = Buffer.from(signature, "hex");
+    const expectedBuffer = Buffer.from(expected, "hex");
+
+    if (sigBuffer.length !== expectedBuffer.length) return false;
+    return timingSafeEqual(sigBuffer, expectedBuffer);
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(req: NextRequest) {
-  // ─── Verify webhook secret (optional but recommended) ───
   const CALENDLY_WEBHOOK_SECRET = process.env.CALENDLY_WEBHOOK_SECRET;
+  const rawBody = await req.text();
+
+  // ─── HMAC signature verification ───
   if (CALENDLY_WEBHOOK_SECRET) {
     const sig = req.headers.get("calendly-webhook-signature") || "";
-    // Calendly uses HMAC-SHA256 in their webhook signature
-    // For now, we do a basic token check. For production, implement full HMAC validation.
-    if (!sig) {
-      logger.warn("[Calendly Webhook] Missing signature");
-      // Still process — Calendly signature validation is complex;
-      // rely on secret URL as primary protection
+    if (!sig || !verifyCalendlySignature(rawBody, sig, CALENDLY_WEBHOOK_SECRET)) {
+      logger.warn("[Calendly Webhook] Signature verification failed");
+      return new NextResponse("Invalid signature", { status: 401 });
     }
   }
 
   try {
-    const body = await req.json();
-    const event = body.event; // "invitee.created" or "invitee.canceled"
+    const body = JSON.parse(rawBody);
+    const event = body.event;
     const payload = body.payload;
 
     if (!payload) {
       return NextResponse.json({ received: true });
     }
 
-    // Extract contact info
     const email = payload.email || payload.invitee?.email;
     const name = payload.name || payload.invitee?.name || "";
     const eventTypeName = payload.event_type?.name || payload.scheduled_event?.name || "";
@@ -84,13 +120,11 @@ export async function POST(req: NextRequest) {
       const normalizedEmail = email.trim().toLowerCase();
       const firstName = name.split(" ")[0] || "";
 
-      // Sync contact
       if (firstName) {
         await getOrCreateContactId(normalizedEmail, { firstName });
       }
 
       if (event === "invitee.created") {
-        // ── Booking ──
         const tags = sessionType === "talk_to_expert"
           ? ["call:expert-scheduled"]
           : ["session:activation-scheduled", "session:booked"];
@@ -123,9 +157,7 @@ export async function POST(req: NextRequest) {
       }
 
       if (event === "invitee.canceled") {
-        // ── Cancellation — log and lightly tag ──
         logger.info("[Calendly Webhook] Session canceled", { email: normalizedEmail, sessionType });
-
         const cancelTag = sessionType === "talk_to_expert"
           ? "call:expert-canceled"
           : "session:activation-canceled";
@@ -133,7 +165,6 @@ export async function POST(req: NextRequest) {
       }
 
       if (event === "invitee.no_show" || event === "invitee_no_show") {
-        // ── No-Show — tag + fire event for follow-up automation ──
         const noShowTag = sessionType === "talk_to_expert"
           ? "call:expert-no-show"
           : "session:activation-no-show";
@@ -177,6 +208,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ received: true, processed: true });
   } catch (err) {
     logger.error("[Calendly Webhook] Error", { error: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ received: true }, { status: 200 }); // Always 200 to prevent retries
+    return NextResponse.json({ received: true }, { status: 200 });
   }
 }

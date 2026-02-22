@@ -3,6 +3,7 @@
 // an ActiveCampaign event to send them a resume link.
 
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { fireACEvent } from "@/lib/fireACEvent";
 
@@ -38,7 +39,7 @@ export async function POST(req: Request) {
       req.headers.get("x-forwarded-for") || undefined
     );
     if (!turnstileResult.success) {
-      console.warn("[Save-Exit] Turnstile verification failed:", turnstileResult["error-codes"]);
+      logger.warn("[Save-Exit] Turnstile verification failed", { errorCodes: turnstileResult["error-codes"] });
       return NextResponse.json(
         { error: "Security verification failed. Please refresh and try again." },
         { status: 403 }
@@ -70,7 +71,7 @@ export async function POST(req: Request) {
         .update({ user_email: normalized })
         .eq("report_id", reportId);
       if (dbError) {
-        console.error("[Save-Exit] Supabase update error:", dbError);
+        logger.error("[Save-Exit] Supabase update error", { error: dbError instanceof Error ? dbError.message : String(dbError) });
         return NextResponse.json({ error: "Failed to save your progress." }, { status: 500 });
       }
     }
@@ -94,7 +95,7 @@ export async function POST(req: Request) {
         },
       });
     } catch (fieldErr) {
-      console.error("[Save-Exit] AC field sync failed:", fieldErr);
+      logger.error("[Save-Exit] AC field sync failed", { error: fieldErr instanceof Error ? fieldErr.message : String(fieldErr) });
     }
 
     // Fire AC event to send the resume email
@@ -112,7 +113,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("[Save-Exit API] Error:", err);
+    logger.error("[Save-Exit API] Error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
       { error: "Failed to save progress." },
       { status: 500 }

@@ -18,7 +18,7 @@ const createMessage = (
   text,
 });
 
-// Total questions in the assessment (used for progress tracking and resume context)
+// Total questions in the diagnostic (used for progress tracking and resume context)
 const TOTAL_QUESTIONS = 41;
 
 // First assistant message that appears in the chat
@@ -27,7 +27,7 @@ const INITIAL_ASSISTANT_MESSAGE = createMessage(
   'assistant',
   `Hi, I'm Wundy™ — your brand guide. I'll walk you through a short conversation to build your WunderBrand Snapshot™.
 
-This takes about 10–15 minutes. There are no wrong answers, and you don't need anything prepared — but if you have your website, a sense of your competitors, and your target audience in mind, your results will be even sharper.
+This takes about 15–20 minutes. There are no wrong answers, and you don't need anything prepared — but if you have your website, a sense of your competitors, and your target audience in mind, your results will be even sharper.
 
 Ready when you are — what's your name?`
 );
@@ -371,6 +371,15 @@ export function useBrandChat(options?: UseBrandChatOptions) {
             if (scoringRes.ok) {
               const scoringResult = await scoringRes.json();
               const finalReportId = scoringResult.reportId;
+
+              // Persist brand name for cross-page use (checkout, dashboard, etc.)
+              if (snapshotData.businessName && typeof window !== 'undefined') {
+                try {
+                  const { persistBrandName } = await import('@/lib/persistBrand');
+                  persistBrandName(snapshotData.businessName);
+                  localStorage.setItem('brand_snapshot_company', snapshotData.businessName);
+                } catch { /* non-critical */ }
+              }
 
               // Extract handoff message (text before the JSON)
               const textBeforeJson = trimmedReply.substring(0, (jsonMatch as RegExpMatchArray).index || 0).trim();

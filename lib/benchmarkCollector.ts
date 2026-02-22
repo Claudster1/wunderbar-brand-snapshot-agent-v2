@@ -170,7 +170,6 @@ export async function getBenchmarkPercentile(params: {
     let query = (supabase.from("benchmark_data") as any)
       .select("brand_alignment_score");
 
-    // Apply segment filters if provided
     if (params.industry) {
       query = query.ilike("industry", `%${params.industry}%`);
     }
@@ -181,7 +180,7 @@ export async function getBenchmarkPercentile(params: {
       query = query.eq("revenue_range", params.revenueRange);
     }
 
-    const { data, error } = await query;
+    const { data, error } = await query.limit(5000);
 
     if (error || !data || data.length < MIN_SAMPLE_SIZE) {
       // Not enough data for meaningful percentile
@@ -258,7 +257,7 @@ export async function getPillarBenchmark(params: {
       query = query.eq("revenue_range", params.revenueRange);
     }
 
-    const { data, error } = await query;
+    const { data, error } = await query.limit(5000);
 
     if (error || !data || data.length < MIN_SAMPLE_SIZE) {
       return null;

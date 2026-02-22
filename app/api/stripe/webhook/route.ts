@@ -94,6 +94,13 @@ export async function POST(req: NextRequest) {
           break;
         }
 
+        // Idempotency: check if this session was already processed
+        const alreadyProcessed = await isSessionProcessed(session.id);
+        if (alreadyProcessed) {
+          logger.info("[Stripe Webhook] Duplicate session, skipping", { sessionId: session.id });
+          break;
+        }
+
         await recordStripePurchase({
           email: customerEmail,
           sessionId: session.id,
@@ -114,28 +121,41 @@ export async function POST(req: NextRequest) {
           }
         }
 
-        // ─── Create refresh entitlement (brand-locked, time-limited) ───
+        // ─── Create refresh entitlement + register brand access ───
         // Only for full-tier purchases (not refresh purchases themselves)
         if (!isRefreshProduct(productKey)) {
           try {
             const { supabaseServer: supabaseSrv } = await import("@/lib/supabase");
             const sb = supabaseSrv();
-            // Look up the brand name from the most recent report
+            // Look up the brand name from the most recent report or metadata
             const { data: reportRow } = await (sb
               .from("brand_snapshot_reports" as any)
-              .select("brand_name")
+              .select("brand_name, company_name")
               .eq("user_email", customerEmail.toLowerCase())
               .order("created_at", { ascending: false })
               .limit(1) as any);
-            const brandName = reportRow?.[0]?.brand_name || metadata.brand_name || "Unknown";
+            const brandName =
+              metadata.brand_name ||
+              reportRow?.[0]?.brand_name ||
+              reportRow?.[0]?.company_name ||
+              "Unknown";
 
             await createRefreshEntitlement({
               email: customerEmail,
               productTier: productKey as "snapshot_plus" | "blueprint" | "blueprint_plus",
               brandName,
-              purchaseId: undefined, // filled by recordStripePurchase separately
+              purchaseId: undefined,
             });
-            logger.info("[Stripe Webhook] Refresh entitlement created", {
+
+            // Grant brand-scoped access in user_brands
+            const { grantBrandAccess } = await import("@/lib/userBrands");
+            await grantBrandAccess({
+              email: customerEmail,
+              brandName,
+              productTier: productKey as "snapshot_plus" | "blueprint" | "blueprint_plus",
+            });
+
+            logger.info("[Stripe Webhook] Refresh entitlement + brand access created", {
               email: customerEmail,
               tier: productKey,
               brandName,
@@ -171,7 +191,71 @@ export async function POST(req: NextRequest) {
       }
 
       case "payment_intent.succeeded": {
-        // Optional: keep for logging / reconciliation
+        break;
+      }
+
+      case "charge.refunded": {
+        const charge = event.data.object as Stripe.Charge;
+        const refundEmail = charge.billing_details?.email || charge.receipt_email;
+        logger.info("[Stripe Webhook] Refund received", {
+          chargeId: charge.id,
+          email: refundEmail,
+          amount: charge.amount_refunded,
+        });
+
+        if (refundEmail) {
+          try {
+            const { supabaseServer: supabaseSrv } = await import("@/lib/supabase");
+            const sb = supabaseSrv();
+
+            // Mark the purchase as refunded by matching the payment intent
+            const paymentIntentId = typeof charge.payment_intent === "string"
+              ? charge.payment_intent
+              : charge.payment_intent?.id;
+
+            if (paymentIntentId) {
+              await (sb.from("brand_snapshot_purchases") as any)
+                .update({ status: "refunded", updated_at: new Date().toISOString() })
+                .eq("user_email", refundEmail.toLowerCase())
+                .eq("status", "paid")
+                .order("created_at", { ascending: false })
+                .limit(1);
+            }
+
+            await applyActiveCampaignTags({
+              email: refundEmail,
+              tags: ["purchase:refunded"],
+            }).catch(() => {});
+
+            logger.info("[Stripe Webhook] Refund processed", { email: refundEmail });
+          } catch (refundErr) {
+            logger.error("[Stripe Webhook] Refund processing failed", {
+              error: refundErr instanceof Error ? refundErr.message : String(refundErr),
+            });
+          }
+        }
+        break;
+      }
+
+      case "invoice.payment_failed": {
+        const invoice = event.data.object as Stripe.Invoice;
+        const failedEmail = invoice.customer_email;
+        logger.warn("[Stripe Webhook] Payment failed", {
+          invoiceId: invoice.id,
+          email: failedEmail,
+          attemptCount: invoice.attempt_count,
+        });
+
+        if (failedEmail) {
+          try {
+            await applyActiveCampaignTags({
+              email: failedEmail,
+              tags: ["payment:failed"],
+            });
+          } catch {
+            // Non-critical
+          }
+        }
         break;
       }
 
@@ -261,6 +345,21 @@ export async function POST(req: NextRequest) {
   }
 }
 
+async function isSessionProcessed(sessionId: string): Promise<boolean> {
+  try {
+    const { supabaseServer: supabaseSrv } = await import("@/lib/supabase");
+    const sb = supabaseSrv();
+    const { data } = await (sb
+      .from("brand_snapshot_purchases" as any)
+      .select("id")
+      .eq("stripe_checkout_session_id", sessionId)
+      .limit(1) as any);
+    return !!(data && data.length > 0);
+  } catch {
+    return false;
+  }
+}
+
 const PRODUCT_DISPLAY_NAMES: Record<ProductKey, string> = {
   snapshot_plus: "WunderBrand Snapshot+™",
   blueprint: "WunderBrand Blueprint™",
@@ -341,12 +440,18 @@ async function triggerActiveCampaign({
   // --- Quarterly Refresh eligibility tag (AC uses this to trigger 90-day reminder) ---
   applyTags.push("refresh:eligible");
 
-  // Remove old tags first, then apply new ones
-  if (removeTags.length) {
-    await removeActiveCampaignTags({ email, tags: removeTags });
-  }
-  if (applyTags.length) {
-    await applyActiveCampaignTags({ email, tags: applyTags });
+  // Remove old tags first, then apply new ones (non-blocking — don't fail purchase flow)
+  try {
+    if (removeTags.length) {
+      await removeActiveCampaignTags({ email, tags: removeTags });
+    }
+    if (applyTags.length) {
+      await applyActiveCampaignTags({ email, tags: applyTags });
+    }
+  } catch (acTagErr) {
+    logger.error("[Stripe Webhook] AC tagging failed (non-blocking)", {
+      error: acTagErr instanceof Error ? acTagErr.message : String(acTagErr),
+    });
   }
 
   // --- Set custom fields on the contact for email personalization ---
@@ -355,17 +460,17 @@ async function triggerActiveCampaign({
   const reportLink = reportId
     ? `${BASE_URL}/report/${reportId}`
     : `${BASE_URL}/access`;
-  const npsTier = productKey;
-  const npsLink = `${BASE_URL}/nps?tier=${npsTier}&reportId=${encodeURIComponent(reportId || "")}&email=${encodeURIComponent(email)}`;
+  const experienceTier = productKey;
+  const experienceSurveyLink = `${BASE_URL}/experience-survey?tier=${experienceTier}&reportId=${encodeURIComponent(reportId || "")}&email=${encodeURIComponent(email)}`;
 
   // Tier slug for URL params (snapshot-plus, blueprint, blueprint-plus)
   const tierSlug = productKey.replace(/_/g, "-");
   const startDiagnosticLink = `${BASE_URL}/?tier=${tierSlug}${customerName ? `&name=${encodeURIComponent(customerName)}` : ""}`;
 
   const TIME_ESTIMATES: Record<string, string> = {
-    snapshot_plus: "20\u201325 minutes",
-    blueprint: "25\u201330 minutes",
-    blueprint_plus: "30\u201340 minutes",
+    snapshot_plus: "15\u201320 minutes",
+    blueprint: "20\u201325 minutes",
+    blueprint_plus: "25\u201335 minutes",
   };
   const UPLOAD_LIMITS: Record<string, string> = {
     snapshot_plus: "",
@@ -385,10 +490,10 @@ async function triggerActiveCampaign({
     report_id: reportId || "",
     dashboard_link: `${BASE_URL}/dashboard`,
     start_diagnostic_link: startDiagnosticLink,
-    time_estimate: TIME_ESTIMATES[productKey] || "20\u201325 minutes",
+    time_estimate: TIME_ESTIMATES[productKey] || "15\u201320 minutes",
     upload_limit: UPLOAD_LIMITS[productKey] || "",
     checklist_summary: CHECKLIST_ITEMS[productKey] || "",
-    nps_survey_link: npsLink,
+    experience_survey_link: experienceSurveyLink,
     purchase_date: new Date().toISOString().split("T")[0],
     refresh_price: productKey === "blueprint_plus" ? "free" : productKey === "blueprint" ? "$97" : "$47",
     refresh_type: productKey === "blueprint_plus" ? "free" : "paid",
@@ -475,8 +580,8 @@ async function triggerActiveCampaign({
             product_key: productKey,
             report_link: reportLink,
             report_id: reportId || "",
-            nps_survey_link: npsLink,
-            nps_tier: npsTier,
+            experience_survey_link: experienceSurveyLink,
+            experience_tier: experienceTier,
             purchase_date: new Date().toISOString().split("T")[0],
             amount_paid: amountPaid ? `$${(amountPaid / 100).toFixed(0)}` : "",
             refresh_price: productKey === "blueprint_plus" ? "free" : productKey === "blueprint" ? "$97" : "$47",
@@ -567,13 +672,19 @@ async function triggerRefreshActiveCampaign({
 }) {
   const parentTier = getParentTier(productKey);
 
-  await applyActiveCampaignTags({
-    email,
-    tags: [
-      `purchased:${productKey.replace(/_/g, "-")}`,
-      `refresh:${parentTier.replace(/_/g, "-")}-ready`,
-    ],
-  });
+  try {
+    await applyActiveCampaignTags({
+      email,
+      tags: [
+        `purchased:${productKey.replace(/_/g, "-")}`,
+        `refresh:${parentTier.replace(/_/g, "-")}-ready`,
+      ],
+    });
+  } catch (acErr) {
+    logger.error("[Stripe Webhook] Refresh AC tagging failed (non-blocking)", {
+      error: acErr instanceof Error ? acErr.message : String(acErr),
+    });
+  }
 
   const BASE_URL =
     process.env.NEXT_PUBLIC_APP_URL || "https://app.wunderbrand.ai";

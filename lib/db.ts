@@ -17,7 +17,8 @@ export async function getUserReports() {
   const { data } = await supabase
     .from("brand_snapshot_reports")
     .select("*")
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(100);
 
   return data || [];
 }

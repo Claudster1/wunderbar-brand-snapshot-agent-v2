@@ -2,6 +2,7 @@
 // API route for saving and loading snapshot progress
 
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { saveSnapshotProgress } from "@/lib/saveSnapshotProgress";
 import { loadSnapshotProgress } from "@/lib/loadSnapshotProgress";
 
@@ -25,7 +26,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true });
   } catch (err: any) {
-    console.error("[Snapshot Progress API] Error:", err);
+    logger.error("[Snapshot Progress API] Error", {
+      error: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json(
       { error: "Failed to save progress" },
       { status: 500 }
@@ -54,7 +57,9 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ data });
   } catch (err: any) {
-    console.error("[Snapshot Progress API] Error:", err);
+    logger.error("[Snapshot Progress API] Error", {
+      error: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json(
       { error: "Failed to load progress" },
       { status: 500 }

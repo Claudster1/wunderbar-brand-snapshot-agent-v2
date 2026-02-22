@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 
 /** Event → category mapping for the analytics_events table. */
 const EVENT_CATEGORIES: Record<string, string> = {
@@ -54,7 +55,7 @@ export async function POST(req: Request) {
       .insert(eventRow as any);
 
     if (dbError) {
-      console.error("[Analytics] Supabase insert error:", dbError.message);
+      logger.error("[Analytics] Supabase insert error", { error: dbError.message });
     }
 
     // ── 2. Forward to ActiveCampaign webhook (existing behavior) ──
@@ -86,13 +87,13 @@ export async function POST(req: Request) {
           tags,
         }),
       }).catch((err) => {
-        console.error("[Analytics] AC webhook error:", err);
+        logger.error("[Analytics] AC webhook error", { error: err instanceof Error ? err.message : String(err) });
       });
     }
 
     return NextResponse.json({ ok: true });
   } catch (err: unknown) {
-    console.error("[Analytics API] Error:", err);
+    logger.error("[Analytics API] Error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
       { error: "Analytics request failed." },
       { status: 500 }

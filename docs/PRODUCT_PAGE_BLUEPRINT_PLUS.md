@@ -33,18 +33,18 @@ Blueprint+ is for businesses that don't just want to know what to do — they wa
 ### 2. Brand Health Scorecard & Unlimited Quarterly Refreshes
 **What it is:** Two things working together:
 1. **Brand Health Scorecard** — A structured measurement framework with metrics for each pillar, green/yellow/red thresholds, and a step-by-step quarterly review process so you always know where your brand stands.
-2. **Unlimited Quarterly Refreshes (Blueprint+ Exclusive)** — Retake the WunderBrand Snapshot™ assessment every quarter at no additional cost. Your dashboard shows a live score trend chart with your WunderBrand Score™ and all five pillar scores over time, so you can see exactly what's improving, what's declining, and what needs attention.
+2. **Unlimited Quarterly Refreshes (Blueprint+ Exclusive)** — Retake the WunderBrand Snapshot™ diagnostic every quarter at no additional cost. Your dashboard shows a live score trend chart with your WunderBrand Score™ and all five pillar scores over time, so you can see exactly what's improving, what's declining, and what needs attention.
 
 **Why it matters:** Your WunderBrand Score™ is a snapshot in time. Quarterly refreshes turn it into a trend. Are your improvements compounding? Is a pillar backsliding? Are new initiatives moving the needle? Without systematic tracking, you'll never know. Blueprint+ is the only tier where quarterly refreshes are included free — Snapshot+ and Blueprint customers pay $47 and $97 per refresh, respectively.
 
-**How it helps your business:** Turn brand strategy from a one-time project into an ongoing competitive advantage. Retake the assessment quarterly, compare against your baseline on your dashboard, and adjust your strategy based on what the data tells you. This is how the best brands stay the best.
+**How it helps your business:** Turn brand strategy from a one-time project into an ongoing competitive advantage. Retake the diagnostic quarterly, compare against your baseline on your dashboard, and adjust your strategy based on what the data tells you. This is how the best brands stay the best.
 
-**What you'll see:** A structured scorecard template with metrics for each pillar, quarterly tracking columns, and interpretation guidance — plus a live score trend chart on your dashboard that updates every time you complete a new assessment.
+**What you'll see:** A structured scorecard template with metrics for each pillar, quarterly tracking columns, and interpretation guidance — plus a live score trend chart on your dashboard that updates every time you complete a new diagnostic.
 
 ---
 
 ### 3. SWOT Analysis (Calibrated to Your Diagnostic Data)
-**What it is:** A Strengths, Weaknesses, Opportunities, and Threats analysis — but not the kind you brainstorm on a whiteboard. Every item is grounded in your actual assessment data:
+**What it is:** A Strengths, Weaknesses, Opportunities, and Threats analysis — but not the kind you brainstorm on a whiteboard. Every item is grounded in your actual diagnostic data:
 - **Strengths** are pulled from your highest-scoring pillars and the specific elements driving those scores
 - **Weaknesses** are connected to your lowest-scoring pillars and the specific gaps identified
 - **Opportunities** are derived from market context, underserved audience needs, and competitive whitespace
@@ -66,13 +66,13 @@ Blueprint+ is for businesses that don't just want to know what to do — they wa
 - **Strengths Customers See** — What you're doing right that you may be undervaluing or under-promoting
 - **Discovery Channels** — How your customers actually found you (which often contradicts assumptions)
 
-**Why it matters:** This is the only section of your report powered by **real external data from real people**. Every other section is based on your assessment answers and AI analysis. The VOC survey adds the outside perspective — and that perspective is often surprising. The gap between "what we think our brand communicates" and "what our customers actually experience" is where some of the biggest strategic opportunities live.
+**Why it matters:** This is the only section of your report powered by **real external data from real people**. Every other section is based on your diagnostic answers and AI analysis. The VOC survey adds the outside perspective — and that perspective is often surprising. The gap between "what we think our brand communicates" and "what our customers actually experience" is where some of the biggest strategic opportunities live.
 
 **How it helps your business:** You'll discover whether your brand promise matches your customer experience. If customers love your service but can't explain what you do, your Messaging pillar needs work. If they found you through referrals but you're investing in paid ads, your Visibility strategy may need adjustment. Real customer data replaces assumptions with evidence — and gives your strategy a foundation that AI analysis alone cannot provide.
 
-**What you'll see:** A shareable survey link, with AI-analyzed results that integrate directly into your report alongside your diagnostic data. Your report also includes a recommendation to implement a formal Net Promoter Score (NPS) program — with setup guidance, question templates, and benchmarks — so you can track customer loyalty at scale over time.
+**What you'll see:** A shareable survey link, with AI-analyzed results that integrate directly into your report alongside your diagnostic data. Your report also includes a recommendation to implement a formal WunderBrand Experience Survey program — with setup guidance, question templates, and benchmarks — so you can track customer loyalty at scale over time.
 
-> *Note: The VOC survey is optional but highly recommended. You can send it before or after receiving your report — results are integrated as responses come in. Minimum 3 responses needed for meaningful analysis. The VOC survey provides directional customer insight — for statistically valid measurement, we recommend implementing the NPS program described in your report.*
+> *Note: The VOC survey is optional but highly recommended. You can send it before or after receiving your report — results are integrated as responses come in. Minimum 3 responses needed for meaningful analysis. The VOC survey provides directional customer insight — for statistically valid measurement, we recommend implementing the experience survey program described in your report.*
 
 ---
 
@@ -429,13 +429,13 @@ Blueprint+ is for businesses that don't just want to know what to do — they wa
 - **How to Adapt** — Decision trees for common scenarios ("If email open rates drop below X, do Y")
 - **Quarterly Review Process** — A structured process for strategic review and adjustment
 - **Integrated Scorecard** — A single tracking tool that brings all metrics into one view
-- **NPS Implementation Guide** — A step-by-step guide to setting up a formal Net Promoter Score program, including the standard survey question, recommended tools, ideal send frequency, how to calculate and interpret your score, industry benchmarks, and how to act on the results. NPS is the gold standard for measuring customer loyalty and recommendation likelihood — and it requires a proper sample size (25+ responses minimum, 100+ for statistical validity) to be meaningful. This guide gives you everything you need to implement it as an ongoing practice.
+- **WunderBrand Experience Survey Implementation Guide** — A step-by-step guide to setting up a formal WunderBrand Experience Survey program, including the standard survey question, recommended tools, ideal send frequency, how to calculate and interpret your WunderBrand Experience Score™, industry benchmarks, and how to act on the results. The Experience Score is the gold standard for measuring customer loyalty and recommendation likelihood — and it requires a proper sample size (25+ responses minimum, 100+ for statistical validity) to be meaningful. This guide gives you everything you need to implement it as an ongoing practice.
 
-**Why it matters:** The best strategy in the world fails without measurement. This guide ensures you're tracking the right things, interpreting them correctly, and adjusting based on data — not gut feel. The NPS guide specifically gives you a proven, industry-standard metric for tracking how your brand improvements translate into customer loyalty over time.
+**Why it matters:** The best strategy in the world fails without measurement. This guide ensures you're tracking the right things, interpreting them correctly, and adjusting based on data — not gut feel. The experience survey guide specifically gives you a proven, industry-standard metric for tracking how your brand improvements translate into customer loyalty over time.
 
-**How it helps your business:** Make data-driven decisions at every level. Know what's working, know what's not, and have a clear protocol for what to do about it. This is the system that turns brand strategy from a project into a practice. The NPS program becomes your ongoing pulse check — run it quarterly and watch how your brand strategy investments translate into real customer sentiment.
+**How it helps your business:** Make data-driven decisions at every level. Know what's working, know what's not, and have a clear protocol for what to do about it. This is the system that turns brand strategy from a project into a practice. The experience survey program becomes your ongoing pulse check — run it quarterly and watch how your brand strategy investments translate into real customer sentiment.
 
-**What you'll see:** A measurement framework with metrics, interpretation guides, decision trees, an integrated scorecard template, and a complete NPS implementation guide with templates, tools, and benchmarks.
+**What you'll see:** A measurement framework with metrics, interpretation guides, decision trees, an integrated scorecard template, and a complete WunderBrand Experience Survey implementation guide with templates, tools, and benchmarks.
 
 ---
 
@@ -520,8 +520,8 @@ Combined with the 8 Foundational (Snapshot+) and 8 Execution (Blueprint) prompts
 
 ## Frequently Asked Questions
 
-**How long does the assessment take?**
-About 10–15 minutes. Results are delivered instantly.
+**How long does the diagnostic take?**
+About 25–35 minutes. Results are delivered instantly.
 
 **Do I need to buy the lower tiers first?**
 No — Blueprint+ includes everything from all lower tiers. It's a single purchase that gives you the complete system.
@@ -538,8 +538,8 @@ Absolutely. The report is designed to be a shared reference document. Share the 
 **Is the VOC survey required?**
 No — it's optional but highly recommended. It's the only way to incorporate real customer feedback into your report. You can send it before or after receiving your results, and the analysis integrates as responses come in. Minimum 3 responses for meaningful analysis.
 
-**Can I retake the assessment to track progress over time?**
-Yes — and with Blueprint+, quarterly refreshes are unlimited and free. Retake the assessment every quarter, and your dashboard shows a live score trend chart comparing your WunderBrand Score™ and all five pillar scores over time. Other tiers pay $47–$97 per refresh; this is included with your purchase.
+**Can I retake the diagnostic to track progress over time?**
+Yes — and with Blueprint+, quarterly refreshes are unlimited and free. Retake the diagnostic every quarter, and your dashboard shows a live score trend chart comparing your WunderBrand Score™ and all five pillar scores over time. Other tiers pay $47–$97 per refresh; this is included with your purchase.
 
 **What if I need ongoing support beyond the session?**
 Our team offers managed marketing services and AI consulting engagements. We'll discuss options during your strategy session if you're interested.
@@ -558,6 +558,6 @@ Our team offers managed marketing services and AI consulting engagements. We'll 
 
 ## Still Exploring?
 
-Not sure which tier is right for you? **Start with the free WunderBrand Snapshot™** — it takes about 10–15 minutes, requires no credit card, and gives you a scored diagnostic of your brand's strengths and gaps. You can always upgrade later, and every dollar you spend on a lower tier is credited toward higher tiers.
+Not sure which tier is right for you? **Start with the free WunderBrand Snapshot™** — it takes about 15–20 minutes, requires no credit card, and gives you a scored diagnostic of your brand's strengths and gaps. You can always upgrade later, and every dollar you spend on a lower tier is credited toward higher tiers.
 
 [Start Your Free WunderBrand Snapshot™ →]

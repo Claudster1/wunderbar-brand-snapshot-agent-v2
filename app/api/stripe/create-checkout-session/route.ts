@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { logger } from "@/lib/logger";
 import { getUpgradeCoupon } from "@/lib/upgradeCoupons";
 
 export const runtime = "nodejs";
@@ -43,7 +44,7 @@ export async function POST(req: NextRequest) {
       ].filter(Boolean)
     );
     if (ALLOWED_PRICE_IDS.size > 0 && !ALLOWED_PRICE_IDS.has(priceId)) {
-      console.warn("[Checkout] Rejected unknown priceId:", priceId);
+      logger.warn("[Checkout] Rejected unknown priceId", { priceId });
       return NextResponse.json({ error: "Invalid product" }, { status: 400 });
     }
 
@@ -64,12 +65,15 @@ export async function POST(req: NextRequest) {
           if (upgrade.couponId) {
             discounts = [{ coupon: upgrade.couponId }];
             upgradeDescription = upgrade.description;
-            console.info(
-              `[Checkout] Upgrade credit applied for ${email}: ${upgrade.description}`
-            );
+            logger.info("[Checkout] Upgrade credit applied", {
+              email,
+              description: upgrade.description,
+            });
           }
         } catch (err) {
-          console.warn("⚠️ Upgrade coupon lookup failed:", err);
+          logger.warn("Upgrade coupon lookup failed", {
+            error: err instanceof Error ? err.message : String(err),
+          });
         }
       }
     }
@@ -115,7 +119,9 @@ export async function POST(req: NextRequest) {
         });
       } catch (acErr) {
         // Non-blocking — don't fail checkout if AC fails
-        console.warn("⚠️ AC checkout_initiated event failed:", acErr);
+        logger.warn("AC checkout_initiated event failed", {
+          error: acErr instanceof Error ? acErr.message : String(acErr),
+        });
       }
     }
 
@@ -125,7 +131,9 @@ export async function POST(req: NextRequest) {
       upgradeDescription,
     });
   } catch (err: any) {
-    console.error("Stripe Checkout error:", err);
+    logger.error("Stripe Checkout error", {
+      error: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json(
       { error: "Unable to create checkout session" },
       { status: 500 }

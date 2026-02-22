@@ -4,6 +4,8 @@
 import { supabaseServer } from "@/lib/supabaseServer";
 import { getStripePriceId } from "@/lib/pricing";
 import type { ProductKey } from "@/lib/pricing";
+import { withRetry } from "@/lib/supabase/withRetry";
+import { logger } from "@/lib/logger";
 
 const PRODUCT_SKU: Record<string, string> = {
   snapshot_plus: "SNAPSHOT_PLUS",
@@ -32,20 +34,28 @@ export async function recordStripePurchase({
   const stripePriceId = getStripePriceId(productKey);
   const productSku = PRODUCT_SKU[productKey];
 
-  const { error } = await supabase.from("brand_snapshot_purchases").insert({
-    user_email: email.toLowerCase(),
-    stripe_checkout_session_id: sessionId,
-    product_sku: productSku,
-    stripe_price_id: stripePriceId,
-    amount_total: amountTotal ?? null,
-    currency: currency ?? null,
-    status: "paid",
-    fulfilled: false,
-    report_id: reportId ?? null,
-  });
+  const { error } = await withRetry<{ error: { code?: string; message: string } | null }>(
+    async () =>
+      await supabase.from("brand_snapshot_purchases").insert({
+        user_email: email.toLowerCase(),
+        stripe_checkout_session_id: sessionId,
+        product_sku: productSku,
+        stripe_price_id: stripePriceId,
+        amount_total: amountTotal ?? null,
+        currency: currency ?? null,
+        status: "paid",
+        fulfilled: false,
+        report_id: reportId ?? null,
+      }),
+    "recordStripePurchase"
+  );
 
   if (error) {
-    console.error("[recordStripePurchase] Insert failed:", error);
+    if (error.code === "23505") {
+      logger.info("[recordStripePurchase] Duplicate session (idempotent skip)", { sessionId });
+      return;
+    }
+    logger.error("[recordStripePurchase] Insert failed", { error: error.message, sessionId });
     throw error;
   }
 }

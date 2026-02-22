@@ -1,7 +1,7 @@
 # WunderBrand Snapshot™ — Product Page Content (Free)
 
 > Headline: Know Where Your Brand Stands — In Minutes, Not Months
-> Subhead: Most businesses operate with a blind spot about their own brand. In about 10–15 minutes, you'll get an objective, data-driven diagnostic that shows you exactly what's working, what's not, and where to focus first. No credit card. No sales call. Just clarity.
+> Subhead: Most businesses operate with a blind spot about their own brand. In about 15–20 minutes, you'll get an objective, data-driven diagnostic that shows you exactly what's working, what's not, and where to focus first. No credit card. No sales call. Just clarity.
 
 ---
 
@@ -9,7 +9,7 @@
 
 Traditional brand audits cost $2,000–$5,000 and take 2–4 weeks. Most small business owners never get one — so they guess. They guess which marketing channel to prioritize. They guess why leads aren't converting. They guess whether their messaging is landing.
 
-WunderBrand Snapshot™ eliminates the guessing. In about 10–15 minutes, you'll answer a set of strategic questions about your business, and our AI engine will analyze your responses to produce a scored diagnostic that would take a human strategist hours to deliver.
+WunderBrand Snapshot™ eliminates the guessing. In about 15–20 minutes, you'll answer a set of strategic questions about your business, and our AI engine will analyze your responses to produce a scored diagnostic that would take a human strategist hours to deliver.
 
 It's free because we believe every business deserves to know where they stand.
 
@@ -18,7 +18,7 @@ It's free because we believe every business deserves to know where they stand.
 ## What You'll Get
 
 ### 1. WunderBrand Score™ (0–100)
-**What it is:** A single, proprietary score that measures how well your brand's five strategic pillars — Positioning, Messaging, Visibility, Credibility, and Conversion — work together as a system. Your score is calculated from your assessment answers using a deterministic scoring engine, not an arbitrary opinion.
+**What it is:** A single, proprietary score that measures how well your brand's five strategic pillars — Positioning, Messaging, Visibility, Credibility, and Conversion — work together as a system. Your score is calculated from your diagnostic answers using a deterministic scoring engine, not an arbitrary opinion.
 
 **Why it matters:** You can't improve what you can't measure. Most businesses have never quantified their brand's health. This score gives you a baseline — a number you can track over time as you make improvements. It also lets you immediately see whether your brand is creating clarity or confusion for your customers.
 
@@ -58,7 +58,7 @@ For each pillar, you'll receive three specific insights: **What's Working** (you
 ---
 
 ### 4. Your Brand's Core Personality Type (Archetype)
-**What it is:** Using the signals from your assessment — how you make decisions, where your authority comes from, your approach to risk, and what your customers expect — we map your brand to one of 12 established brand archetypes (e.g., The Sage, The Explorer, The Creator, The Ruler). You'll see which archetype best represents your brand's natural personality, including when it works, how it can backfire, and what it means for your tone of voice.
+**What it is:** Using the signals from your diagnostic — how you make decisions, where your authority comes from, your approach to risk, and what your customers expect — we map your brand to one of 12 established brand archetypes (e.g., The Sage, The Explorer, The Creator, The Ruler). You'll see which archetype best represents your brand's natural personality, including when it works, how it can backfire, and what it means for your tone of voice.
 
 **Why it matters:** Your brand archetype isn't a gimmick — it's the psychological foundation that determines how customers emotionally connect with you. Apple (The Creator), Nike (The Hero), and Patagonia (The Explorer) didn't build billion-dollar brands by accident. They built them on consistent archetypal identities.
 
@@ -69,7 +69,7 @@ For each pillar, you'll receive three specific insights: **What's Working** (you
 ---
 
 ### 5. Personalized Recommendations
-**What it is:** Three specific, prioritized actions tailored to your assessment results — not generic advice. Each recommendation is tied to a specific pillar and a specific outcome, with enough detail to understand what to do and why it matters.
+**What it is:** Three specific, prioritized actions tailored to your diagnostic results — not generic advice. Each recommendation is tied to a specific pillar and a specific outcome, with enough detail to understand what to do and why it matters.
 
 **Why it matters:** Diagnosis without a prescription is frustrating. You don't just want to know your brand has a problem — you want to know what to do about it. These recommendations bridge the gap between "here's what we found" and "here's your first three moves."
 
@@ -95,7 +95,7 @@ For each pillar, you'll receive three specific insights: **What's Working** (you
 
 **Why it matters:** Digital reports get lost in browser tabs. A PDF lives in your files — you can print it, attach it to an email, bring it to a meeting, or share it with a partner or advisor.
 
-**How it helps your business:** Use it as a reference document during strategic planning. Share it with your marketing team or agency so everyone starts from the same baseline. Keep it to compare against future assessments and track your progress.
+**How it helps your business:** Use it as a reference document during strategic planning. Share it with your marketing team or agency so everyone starts from the same baseline. Keep it to compare against future diagnostics and track your progress.
 
 **What you'll see:** A branded, multi-page PDF with all your results formatted for easy reading and sharing.
 
@@ -129,15 +129,15 @@ For each pillar, you'll receive three specific insights: **What's Working** (you
 | 2–4 weeks for delivery | **Ready in minutes** |
 | Static PDF you never look at again | **Interactive report with AI assistant** |
 | Requires an agency relationship | **No calls, no sales pitches, no strings** |
-| Subjective opinions from one consultant | **Structured, assessment-based scoring methodology** |
+| Subjective opinions from one consultant | **Structured, diagnostic-based scoring methodology** |
 | One-time snapshot with no path forward | **Clear upgrade path if you want to go deeper** |
 
 ---
 
 ## Frequently Asked Questions
 
-**How long does it take?**
-About 10–15 minutes to complete the assessment. Results are delivered instantly.
+**How long does the diagnostic take?**
+About 15–20 minutes to complete the diagnostic. Results are delivered instantly.
 
 **Is it really free?**
 Yes. No credit card required. No hidden fees. Your WunderBrand Snapshot™ is yours to keep.
@@ -146,10 +146,10 @@ Yes. No credit card required. No hidden fees. Your WunderBrand Snapshot™ is yo
 You'll receive your report immediately. If you want to go deeper, you can upgrade to WunderBrand Snapshot+™, WunderBrand Blueprint™, or WunderBrand Blueprint+™ — but there's zero pressure to do so.
 
 **Who sees my data?**
-Your assessment data is used solely to generate your report. It is never sold or shared with third parties. See our privacy policy for details.
+Your diagnostic data is used solely to generate your report. It is never sold or shared with third parties. See our privacy policy for details.
 
 **Can I retake it?**
-Yes — anytime, for free. As your brand evolves, retake the assessment and compare your scores over time. Your dashboard tracks every assessment with a score trend chart so you can see exactly what's improving.
+Yes — anytime, for free. As your brand evolves, retake the diagnostic and compare your scores over time. Your dashboard tracks every diagnostic with a score trend chart so you can see exactly what's improving.
 
 ---
 
@@ -159,4 +159,4 @@ Yes — anytime, for free. As your brand evolves, retake the assessment and comp
 
 [Start Your Free WunderBrand Snapshot™ →]
 
-*No credit card required. Takes about 10–15 minutes. Results delivered instantly.*
+*No credit card required. Takes about 15–20 minutes. Results delivered instantly.*

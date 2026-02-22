@@ -155,6 +155,10 @@ export async function GET(req: NextRequest) {
 
 // ─── PATCH: Save edits ───
 export async function PATCH(req: NextRequest) {
+  const { apiGuard } = await import("@/lib/security/apiGuard");
+  const guard = apiGuard(req, { routeId: "workbook-save" });
+  if (!guard.passed) return guard.errorResponse;
+
   if (!supabaseAdmin) {
     return NextResponse.json({ error: "Database not configured." }, { status: 500 });
   }

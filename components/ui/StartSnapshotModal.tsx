@@ -59,7 +59,7 @@ export default function StartSnapshotModal({ isOpen, onClose }: StartSnapshotMod
 
         {/* SUBTEXT */}
         <p className="text-[13px] text-slate-500 text-center">
-          Estimated time: 3–4 minutes
+          Estimated time: 15–20 minutes
         </p>
       </div>
     </ModalShell>

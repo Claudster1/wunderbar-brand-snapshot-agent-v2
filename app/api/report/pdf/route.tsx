@@ -4,9 +4,8 @@
 
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-import { renderToBuffer } from "@react-pdf/renderer";
+import { logger } from "@/lib/logger";
 import React from "react";
-import ReportDocument from "@/components/pdf/ReportDocument";
 
 /**
  * Transform database report format to PDF component format
@@ -102,7 +101,7 @@ export async function GET(request: Request) {
       .single();
 
     if (error) {
-      console.error("Supabase error:", error);
+      logger.error("Supabase error", { error: error instanceof Error ? error.message : String(error) });
       return NextResponse.json(
         { error: "Unable to fetch report." },
         { status: 500 }
@@ -119,12 +118,12 @@ export async function GET(request: Request) {
     // Transform data for PDF component
     const transformedData = transformReportData(data);
 
-    // Generate PDF
+    const { renderToBuffer } = await import("@react-pdf/renderer");
+    const ReportDocument = (await import("@/components/pdf/ReportDocument")).default;
     const pdfBuffer = await renderToBuffer(
       React.createElement(ReportDocument, transformedData) as any
     );
 
-    // Return PDF as response
     return new NextResponse(pdfBuffer as any, {
       headers: {
         "Content-Type": "application/pdf",
@@ -132,10 +131,10 @@ export async function GET(request: Request) {
         "Content-Length": pdfBuffer.length.toString(),
       },
     });
-  } catch (err: any) {
-    console.error("PDF generation error:", err);
+  } catch (err: unknown) {
+    logger.error("PDF generation error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
-      { error: "PDF generation failed.", message: err?.message },
+      { error: "PDF generation failed." },
       { status: 500 }
     );
   }
@@ -165,7 +164,7 @@ export async function POST(request: Request) {
         .single();
 
       if (error) {
-        console.error("Supabase error:", error);
+        logger.error("Supabase error", { error: error instanceof Error ? error.message : String(error) });
         // Continue with inline data if Supabase fetch fails
       } else {
         reportData = data;
@@ -192,12 +191,12 @@ export async function POST(request: Request) {
     // Transform data for PDF component
     const transformedData = transformReportData(finalData);
 
-    // ---------- 3. Generate PDF Buffer ----------
+    const { renderToBuffer } = await import("@react-pdf/renderer");
+    const ReportDocument = (await import("@/components/pdf/ReportDocument")).default;
     const pdfBuffer = await renderToBuffer(
       React.createElement(ReportDocument, transformedData) as any
     );
 
-    // ---------- 4. Return PDF buffer ----------
     return new NextResponse(pdfBuffer as any, {
       headers: {
         "Content-Type": "application/pdf",
@@ -205,10 +204,10 @@ export async function POST(request: Request) {
         "Content-Length": pdfBuffer.length.toString(),
       },
     });
-  } catch (err: any) {
-    console.error("PDF generation error:", err);
+  } catch (err: unknown) {
+    logger.error("PDF generation error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
-      { error: "PDF generation failed.", message: err?.message },
+      { error: "PDF generation failed." },
       { status: 500 }
     );
   }

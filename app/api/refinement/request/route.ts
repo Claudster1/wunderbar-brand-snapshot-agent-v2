@@ -2,6 +2,7 @@
 import { supabaseServer } from "@/lib/supabaseServer";
 import { generateRefinement } from "@/lib/refinementEngine";
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
 
@@ -71,7 +72,7 @@ export async function POST(req: Request) {
       });
 
     if (error) {
-      console.error("[Refinement] Database error:", error);
+      logger.error("[Refinement] Database error", { error: error.message });
       return NextResponse.json(
         { error: "Failed to save refinement" },
         { status: 500 }
@@ -80,7 +81,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true });
   } catch (err: any) {
-    console.error("[Refinement] Error:", err);
+    logger.error("[Refinement] Error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
       { error: "Failed to process refinement request" },
       { status: 500 }

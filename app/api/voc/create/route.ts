@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase";
 import { randomBytes } from "crypto";
+import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
 
@@ -51,7 +52,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (error) {
-      console.error("[VOC Create] Insert error:", error);
+      logger.error("[VOC Create] Insert error", { error: error instanceof Error ? error.message : String(error) });
       return NextResponse.json({ error: "Failed to create survey" }, { status: 500 });
     }
 
@@ -62,7 +63,7 @@ export async function POST(req: NextRequest) {
       surveyToken,
     });
   } catch (err: any) {
-    console.error("[VOC Create] Error:", err);
+    logger.error("[VOC Create] Error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }

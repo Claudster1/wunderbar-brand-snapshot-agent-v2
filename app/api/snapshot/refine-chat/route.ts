@@ -6,6 +6,7 @@
 import { NextResponse } from "next/server";
 import { buildRefinementSystemPrompt } from "@/src/prompts/refinementSystemPrompt";
 import { completeWithFallback, type ChatMessage } from "@/lib/ai";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: Request) {
   // ─── Security: Rate limit + request size ───
@@ -53,7 +54,7 @@ export async function POST(req: Request) {
       _ai: { provider: completion.provider, model: completion.model },
     });
   } catch (err: unknown) {
-    console.error("[Refinement Chat API] Error:", err);
+    logger.error("[Refinement Chat API] Error", { error: err instanceof Error ? err.message : String(err) });
     const message =
       err instanceof Error
         ? err.message

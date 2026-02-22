@@ -2,6 +2,7 @@
 // API route to generate and download WunderBrand Snapshot™ PDFs
 
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { generateSnapshotPdf } from "@/lib/generateSnapshotPdf";
 
@@ -54,7 +55,9 @@ export async function GET(req: Request) {
       },
     });
   } catch (err: any) {
-    console.error("[Snapshot PDF API] Unexpected error:", err);
+    logger.error("[Snapshot PDF API] Unexpected error", {
+      error: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json(
       { error: err?.message || "Failed to generate PDF" },
       { status: 500 }

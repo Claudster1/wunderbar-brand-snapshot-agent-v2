@@ -89,23 +89,36 @@ export async function createRefreshEntitlement({
 }
 
 /**
- * Check refresh eligibility for a user.
- * Returns whether they can refresh, if it's free, the price if paid,
- * remaining free refreshes, and the brand lock.
+ * Check refresh eligibility for a user, optionally scoped to a specific brand.
+ * When brandName is provided, only entitlements for that brand are checked.
+ * When omitted, returns the most recent active entitlement (legacy behavior).
  */
 export async function checkRefreshEligibility(
   email: string,
+  brandName?: string,
 ): Promise<RefreshEligibility> {
   const supabase = supabaseServer();
 
-  // Get the most recent active entitlement for this user
-  const { data, error } = await (supabase
+  let query = (supabase
     .from("refresh_entitlements" as any)
     .select("*")
     .eq("user_email", email.toLowerCase())
     .eq("status", "active")
     .order("created_at", { ascending: false })
     .limit(1) as any);
+
+  if (brandName) {
+    query = (supabase
+      .from("refresh_entitlements" as any)
+      .select("*")
+      .eq("user_email", email.toLowerCase())
+      .eq("status", "active")
+      .ilike("brand_name", brandName.trim())
+      .order("created_at", { ascending: false })
+      .limit(1) as any);
+  }
+
+  const { data, error } = await query;
 
   if (error || !data || data.length === 0) {
     // No entitlement — free tier, always allowed
@@ -229,7 +242,8 @@ export async function getExpiringEntitlements(
     .eq(reminderField, false)
     .lte("window_end", cutoff.toISOString())
     .gte("window_end", new Date().toISOString())
-    .order("window_end", { ascending: true }) as any);
+    .order("window_end", { ascending: true })
+    .limit(200) as any);
 
   return (data || []) as RefreshEntitlement[];
 }

@@ -159,19 +159,38 @@ Applied when the user completes WunderBrand Snapshot™. Use these to segment an
 | `weakest_pillar:credibility` | Credibility is their lowest-scoring pillar |
 | `weakest_pillar:conversion` | Conversion is their lowest-scoring pillar |
 
-### Stripe purchases (applied/removed by Stripe webhook)
+### Stripe purchases & upgrade intent (applied/removed by Stripe webhook)
 
 | Tag name | When applied | When removed |
 |----------|--------------|--------------|
+| `purchased:snapshot` | Free snapshot completed | — |
 | `purchased:snapshot-plus` | After Snapshot+™ purchase | — |
 | `purchased:blueprint` | After Blueprint™ purchase | — |
 | `purchased:blueprint-plus` | After Blueprint+™ purchase | — |
-| `intent:upgrade-snapshot-plus` | When you add them to Snapshot+ nurture | When they purchase Snapshot+ |
+| `purchased:refunded` | Purchase refunded | — |
+| `intent:upgrade-snapshot-plus` | After free snapshot (enter S+ nurture) | When they purchase Snapshot+ |
 | `intent:upgrade-blueprint` | After Snapshot+ purchase (enter Blueprint nurture) | When they purchase Blueprint |
 | `intent:upgrade-blueprint-plus` | After Blueprint purchase (enter Blueprint+ nurture) | When they purchase Blueprint+ |
-| `nurture:other-services` | After Blueprint+ purchase (managed marketing, AI consulting nurture) | — |
+| `intent:services` | Services interest signal (triggers Seq 13) | — |
+| `nurture:other-services` | After Blueprint+ purchase (cross-sell services) | — |
 
-### Optional (used by other app routes if you use them)
+### Content & services tags
+
+| Tag name | When applied |
+|----------|--------------|
+| `content:opt-in` | Form submit from lead magnet / blog / content download (triggers Seq 14) |
+| `content:opted_in` | After Seq 14 completes (triggers Seq 16 newsletter) |
+| `services:interested` | Expressed interest in services |
+| `services:call-booked` | Services discovery call booked |
+| `services:client-active` | Active managed services client |
+
+### Lifecycle tags
+
+| Tag name | When applied |
+|----------|--------------|
+| `evergreen:complete` | Completed Seq 15 or 17 without conversion |
+
+### Behavior tags (used by other app routes)
 
 | Tag name | When used |
 |----------|-----------|
@@ -180,6 +199,8 @@ Applied when the user completes WunderBrand Snapshot™. Use these to segment an
 | `snapshot:clicked-upgrade` | Clicked upgrade CTA |
 | `snapshot:completed` | Snapshot completed (analytics) |
 | `snapshot:coverage-gap` | Context coverage &lt; 80% |
+| `snapshot:paused` | User saved and exited mid-diagnostic |
+| `snapshot:resume-link-sent` | Resume link emailed |
 
 ---
 
@@ -197,6 +218,10 @@ Use these in **email content** (campaigns/automations). ActiveCampaign generates
 | Role phrase | `%ROLE_PHRASE%` |
 | Snapshot+ upsell copy | `%SNAPSHOT_PLUS_PITCH%` |
 | Company / brand | `%COMPANY_NAME%`, `%INDUSTRY%`, `%BRAND_URL%` |
+| Content download | `%CONTENT_DOWNLOAD_LINK%` |
+| Experience survey | `%EXPERIENCE_SURVEY_LINK%` |
+| Services page | `%SERVICES_URL%` |
+| Refresh action | `%REFRESH_ACTION_URL%` |
 
 **CTA link example:**  
 `<a href="%BRANDSNAPSHOTREPORTLINK%">View your report</a>`
@@ -342,5 +367,7 @@ Replace `...` and numbers with your actual Field IDs from ActiveCampaign.
   - **Weakest pillar:** `weakest_pillar:positioning`, `weakest_pillar:messaging`, etc.
 - [ ] **Report link** field created and `AC_FIELD_REPORT_LINK` set (used for email CTAs).
 - [ ] Email templates use **`%BRANDSNAPSHOTREPORTLINK%`** for the report CTA.
-- [ ] Pillar personalization: emails use **pillar merge tags** (`%POSITIONING_SCORE%`, `%POSITIONING_INSIGHT%`, etc.) and, where useful, **pillar/weakest-pillar tags** to branch flows (e.g. `weakest_pillar:positioning`, `pillar:positioning_low`).
-- [ ] Automations use the correct **“Tag is added”** triggers for each nurture (e.g. `brand_snapshot_completed`, `intent:upgrade-blueprint`, `nurture:other-services`).
+- [ ] Pillar personalization: emails use **pillar merge tags** (`%POSITIONING_SCORE%`, `%POSITIONING_INSIGHT%`, etc.) and **pillar/weakest-pillar tags** to branch flows.
+- [ ] **Content/Services tags** created: `content:opt-in`, `content:opted_in`, `intent:services`, `services:call-booked`, `services:client-active`
+- [ ] **Lifecycle tag** created: `evergreen:complete`
+- [ ] Automations use the correct triggers — see [NURTURE_IMPLEMENTATION_GUIDE.md](./NURTURE_IMPLEMENTATION_GUIDE.md) for the complete reference for all 19 sequences.

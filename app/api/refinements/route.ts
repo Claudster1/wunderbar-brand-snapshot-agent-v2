@@ -2,6 +2,7 @@
 // API route for creating snapshot refinement requests
 
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { supabaseServer } from "@/lib/supabaseServer";
 
 export async function POST(req: Request) {
@@ -21,7 +22,9 @@ export async function POST(req: Request) {
       .single();
 
     if (error) {
-      console.error("Error inserting refinement request:", error);
+      logger.error("Error inserting refinement request", {
+        error: error.message,
+      });
       return NextResponse.json(
         { success: false, error: error.message },
         { status: 500 }
@@ -30,7 +33,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true, data });
   } catch (err: any) {
-    console.error("Error in refinements API:", err);
+    logger.error("Error in refinements API", {
+      error: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json(
       { success: false, error: err.message || "Internal server error" },
       { status: 500 }

@@ -6,6 +6,10 @@ import { logger } from "@/lib/logger";
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
+  const { apiGuard } = await import("@/lib/security/apiGuard");
+  const guard = apiGuard(req, { routeId: "blueprint-finalize" });
+  if (!guard.passed) return guard.errorResponse;
+
   if (!supabaseAdmin) {
     return NextResponse.json({ error: "Database not configured." }, { status: 500 });
   }

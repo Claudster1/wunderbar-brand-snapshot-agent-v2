@@ -2,8 +2,8 @@
 // Generates a PDF with mock data for preview purposes.
 
 import { NextRequest, NextResponse } from "next/server";
-import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
+import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -233,6 +233,7 @@ export async function GET(req: NextRequest) {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { renderToBuffer } = await import("@react-pdf/renderer");
     const buffer = await renderToBuffer(element as any);
 
     // Check if user wants inline viewing (default) or download
@@ -247,7 +248,7 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (err) {
-    console.error("[Preview PDF] Error:", err);
+    logger.error("[Preview PDF] Error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
       { error: "PDF generation failed.", details: err instanceof Error ? err.message : String(err) },
       { status: 500 }

@@ -6,6 +6,7 @@
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase";
 import { renderReportPDF } from "@/lib/pdf/renderReportPDF";
+import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
 
@@ -53,7 +54,7 @@ export async function GET(
         });
 
       if (uploadError) {
-        console.error("[PDF Upload] Error:", uploadError);
+        logger.error("[PDF Upload] Error", { error: uploadError.message });
         return NextResponse.json(
           { error: "Failed to upload PDF" },
           { status: 500 }
@@ -90,7 +91,7 @@ export async function GET(
       },
     });
   } catch (err: any) {
-    console.error("[PDF API] Error:", err);
+    logger.error("[PDF API] Error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
       { error: err?.message || "Failed to generate PDF" },
       { status: 500 }

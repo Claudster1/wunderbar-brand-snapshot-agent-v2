@@ -1,5 +1,6 @@
 // GET /api/voc/survey-info?token=xxx — Public endpoint to get survey metadata
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { supabaseServer } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
@@ -45,7 +46,9 @@ export async function GET(req: NextRequest) {
       status: survey.status,
     });
   } catch (err: any) {
-    console.error("[VOC Survey Info] Error:", err);
+    logger.error("[VOC Survey Info] Error", {
+      error: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }

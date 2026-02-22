@@ -7,6 +7,7 @@ import Stripe from "stripe";
 import { PRICING } from "@/lib/pricing";
 import { normalizeProductKey } from "@/lib/productIds";
 import { getUpgradeCoupon } from "@/lib/upgradeCoupons";
+import { logger } from "@/lib/logger";
 
 let _stripe: Stripe | null = null;
 function getStripe() {
@@ -44,13 +45,11 @@ export async function POST(req: Request) {
         if (upgrade.couponId) {
           discounts = [{ coupon: upgrade.couponId }];
           upgradeDescription = upgrade.description;
-          console.info(
-            `[Checkout] Upgrade credit applied for ${email}: ${upgrade.description}`
-          );
+          logger.info("[Checkout] Upgrade credit applied", { email, description: upgrade.description });
         }
       } catch (err) {
         // Non-blocking — if upgrade lookup fails, charge full price
-        console.warn("⚠️ Upgrade coupon lookup failed, proceeding without discount:", err);
+        logger.warn("Upgrade coupon lookup failed, proceeding without discount", { error: err instanceof Error ? err.message : String(err) });
       }
     }
 
@@ -99,7 +98,7 @@ export async function POST(req: Request) {
       upgradeDescription,
     });
   } catch (err: any) {
-    console.error(err);
+    logger.error("Checkout session creation failed", { error: err instanceof Error ? err.message : String(err) });
     return new Response("Unable to create checkout session", { status: 500 });
   }
 }

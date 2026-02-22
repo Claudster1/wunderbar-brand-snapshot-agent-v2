@@ -1,31 +1,20 @@
 # ActiveCampaign Automation Specifications
 
-Complete specs for every nurture automation. Build these in the AC visual editor using tags and custom fields created by the setup script.
-
-> **Setup**: Run `npx tsx scripts/setup-activecampaign.ts` first to create all tags and custom fields.
+> **Nurture Sequences 1–19**: See [NURTURE_IMPLEMENTATION_GUIDE.md](./NURTURE_IMPLEMENTATION_GUIDE.md) for complete triggers, tags, merge fields, timing, and build notes for all 19 nurture sequences. Production copy lives in the batch documents.
+>
+> **This file** covers: custom field reference, session/call automations (post-call follow-ups, no-show recovery), event reference, and tag reference.
 
 ---
 
 ## Table of Contents
 
-1. [Free Snapshot Nurture](#1-free-snapshot-nurture--upgrade-to-snapshot)
-2. [Paid Onboarding — Snapshot+](#2-paid-onboarding--snapshot)
-3. [Paid Onboarding — Blueprint](#3-paid-onboarding--blueprint)
-4. [Paid Onboarding — Blueprint+](#4-paid-onboarding--blueprint)
-5. [Abandoned Cart Recovery](#5-abandoned-cart-recovery)
-6. [Quarterly Refresh Reminder](#6-quarterly-refresh-reminder)
-7. [NPS Survey Follow-up](#7-nps-survey-follow-up)
-8. [Promoter → Review & Testimonial](#8-promoter--review--testimonial)
-9. [Detractor → Win-back / Retention](#9-detractor--win-back--retention)
-10. [Save & Resume](#10-save--resume)
-11. [Blueprint+ Strategy Session Reminder](#11-blueprint-strategy-session-reminder)
-12. [Cross-sell — Services](#12-cross-sell--services)
-13. [Referral Campaign](#13-referral-campaign)
-14. [Annual Re-engagement](#14-annual-re-engagement)
-15. [Talk to Expert — Post-Call Follow-up](#15-talk-to-expert--post-call-follow-up)
-16. [Strategy Activation Session — Post-Session Follow-up](#16-strategy-activation-session--post-session-follow-up)
-17. [Talk to Expert — No-Show Recovery](#17-talk-to-expert--no-show-recovery)
-18. [Activation Session — No-Show Recovery](#18-activation-session--no-show-recovery)
+1. [Custom Field Reference](#custom-field-reference)
+2. [Nurture Sequence Overview](#nurture-sequence-overview)
+3. [Talk to Expert — Post-Call Follow-up](#talk-to-expert--post-call-follow-up)
+4. [Strategy Activation Session — Post-Session Follow-up](#strategy-activation-session--post-session-follow-up)
+5. [Event Reference](#event-reference)
+6. [Tag Quick Reference](#tag-quick-reference)
+7. [Setup Checklist](#setup-checklist)
 
 ---
 
@@ -33,331 +22,107 @@ Complete specs for every nurture automation. Build these in the AC visual editor
 
 These fields are set on contacts automatically by the app and available for email personalization:
 
+### Contact & Score Fields
+
 | Field | Description | Example |
 |---|---|---|
 | `%FIRSTNAME%` | AC built-in first name | Sarah |
-| `%first_name_custom%` | Fallback first name | Sarah |
-| `%product_purchased%` | Display name of purchased product | WunderBrand Snapshot+™ |
-| `%product_key%` | Internal product key | snapshot_plus |
-| `%report_link%` | URL to view their report | https://app.wunderbrand.ai/report/abc123 |
-| `%dashboard_link%` | URL to their dashboard | https://app.wunderbrand.ai/dashboard |
-| `%nps_survey_link%` | URL to NPS survey | https://app.wunderbrand.ai/nps?... |
-| `%purchase_date%` | Date of purchase | 2026-01-26 |
-| `%amount_paid%` | Amount paid | $497 |
-| `%brand_alignment_score%` | Their overall score | 72 |
-| `%weakest_pillar%` | Their weakest brand pillar | visibility |
-| `%upgrade_product_name%` | Next tier product name | WunderBrand Blueprint™ |
-| `%upgrade_product_url%` | URL to upgrade product page | https://wunderbardigital.com/brand-blueprint |
-| `%upgrade_price%` | Price of upgrade | $997 |
-| `%refresh_price%` | Quarterly refresh price | $47 |
-| `%refresh_type%` | Free or paid refresh | paid |
-| `%abandoned_product%` | Abandoned product name | WunderBrand Snapshot+™ |
-| `%abandoned_product_url%` | URL to abandoned product page | https://wunderbardigital.com/brand-snapshot-plus |
-| `%abandoned_product_price%` | Abandoned product price | $497 |
-| `%resume_link%` | URL to resume saved diagnostic | https://app.wunderbrand.ai/?resume=abc123 |
-| `%nps_score%` | NPS score (0-10) | 9 |
-| `%nps_category%` | Promoter / Passive / Detractor | promoter |
-| `%testimonial_link%` | Link to submit testimonial | https://app.wunderbrand.ai/nps?step=testimonial |
-| `%google_review_url%` | Google review URL | https://g.page/... |
-| `%services_url%` | Managed services page | https://wunderbardigital.com/talk-to-an-expert |
+| `%COMPANY_NAME%` | Company/brand name | Acme Consulting |
+| `%BRAND_ALIGNMENT_SCORE%` | Overall WunderBrand Score (0–100) | 72 |
+| `%POSITIONING_SCORE%` | Positioning pillar score (0–20) | 14 |
+| `%MESSAGING_SCORE%` | Messaging pillar score (0–20) | 12 |
+| `%VISIBILITY_SCORE%` | Visibility pillar score (0–20) | 15 |
+| `%CREDIBILITY_SCORE%` | Credibility pillar score (0–20) | 16 |
+| `%CONVERSION_SCORE%` | Conversion pillar score (0–20) | 15 |
+| `%PRIMARY_PILLAR%` | Weakest/primary pillar name | messaging |
 
----
+### Product & Purchase Fields
 
-## 1. Free Snapshot Nurture → Upgrade to Snapshot+
-
-**Trigger**: Tag `completed:snapshot` is added
-**Goal**: Convert free users to Snapshot+ ($497)
-
-| Step | Action | Details |
+| Field | Description | Example |
 |---|---|---|
-| 1 | **Email: "Your WunderBrand Snapshot™ results are ready"** | Use `%FIRSTNAME%`, `%report_link%`, `%brand_alignment_score%`, `%weakest_pillar%`. Show score, highlight weakest pillar, link to results. |
-| 2 | Wait 2 days | — |
-| 3 | **Email: "What your %weakest_pillar% score means"** | Educational content about their weakest pillar. Soft CTA to Snapshot+: `%upgrade_product_url%`. |
-| 4 | Wait 3 days | — |
-| 5 | **If/Else**: Has tag `purchased:snapshot-plus`? | **Yes** → End. **No** → Continue. |
-| 6 | **Email: "Go deeper with %upgrade_product_name%"** | Show what Snapshot+ includes vs. free. Use `%upgrade_price%` and `%upgrade_product_url%`. |
-| 7 | Wait 5 days | — |
-| 8 | **If/Else**: Has tag `purchased:snapshot-plus`? | **Yes** → End. **No** → Continue. |
-| 9 | **Email: "Last chance — exclusive Snapshot+ offer"** | Limited-time discount or bonus. Apply tag `nurture:snapshot-plus:final` for tracking. |
-| 10 | Wait 14 days | — |
-| 11 | **If/Else**: Has tag `purchased:snapshot-plus`? | **Yes** → End. **No** → Add tag `lifecycle:lead` and move to dormant list. |
+| `%PRODUCT_NAME%` | Display name of purchased product | WunderBrand Snapshot+™ |
+| `%PRODUCT_KEY%` | Internal product key | snapshot_plus |
+| `%PURCHASE_DATE%` | Date of purchase | 2026-01-26 |
+| `%AMOUNT_PAID%` | Amount paid | $497 |
+| `%UPGRADE_PRODUCT_NAME%` | Next tier product name | WunderBrand Blueprint™ |
+| `%UPGRADE_PRODUCT_URL%` | URL to upgrade product page | https://wunderbardigital.com/brand-blueprint |
 
-**Exit conditions**: Contact purchases Snapshot+ (tag `purchased:snapshot-plus`), or 30 days elapse.
+### Link Fields
 
----
-
-## 2. Paid Onboarding — Snapshot+
-
-**Trigger**: Tag `onboarding:snapshot-plus` is added
-**Goal**: Deliver value, collect NPS, nurture toward Blueprint
-
-| Step | Action | Details |
+| Field | Description | Used In |
 |---|---|---|
-| 1 | **Email: "Welcome! Your %product_purchased% results are ready"** | Use `%FIRSTNAME%`, `%report_link%`. Explain what they'll find, how to use it. |
-| 2 | Wait 2 days | — |
-| 3 | **Email: "How to get the most from your Snapshot+"** | Tips on using their results. Link to `%dashboard_link%`. |
-| 4 | Wait 2 days | — |
-| 5 | **Email: "Your NPS survey"** | Send `%nps_survey_link%`. Brief ask: "How likely are you to recommend?" |
-| 6 | Wait 7 days | — |
-| 7 | **If/Else**: Has tag `purchased:blueprint`? | **Yes** → End. **No** → Continue. |
-| 8 | **Email: "Ready to go deeper? Introducing %upgrade_product_name%"** | Show Blueprint value. Use `%upgrade_product_url%`, `%upgrade_price%`. |
-| 9 | Wait 7 days | — |
-| 10 | **Email: "Your brand strategy roadmap awaits"** | Case study or value proof. Final upgrade nudge. |
+| `%REPORT_LINK%` | Direct link to report/results | Seq 1, 3, 5, 12, 16, 17 |
+| `%DASHBOARD_LINK%` | Link to dashboard | Seq 4, 8, 16, 17, 18 |
+| `%START_DIAGNOSTIC_LINK%` | Link to start/resume diagnostic | Seq 4 |
+| `%RESUME_LINK%` | Link to resume paused diagnostic | Seq 9 |
+| `%EXPERIENCE_SURVEY_LINK%` | WunderBrand Experience Survey link | Seq 5 |
+| `%UPGRADE_PRODUCT_URL%` | Link to purchase next tier | Seq 1, 3, 6, 7, 17 |
+| `%SERVICES_URL%` | Link to services page | Seq 17, 18, 19 |
+| `%REFRESH_ACTION_URL%` | Link to purchase quarterly refresh | Seq 17 |
+| `%ABANDONED_PRODUCT_URL%` | Link back to checkout | Seq 2 |
+| `%CONTENT_DOWNLOAD_LINK%` | Link to download lead magnet | Seq 14 |
+| `%TESTIMONIAL_LINK%` | Link to submit testimonial | — |
+| `%GOOGLE_REVIEW_URL%` | Google review URL | — |
 
-**Exit conditions**: Contact purchases Blueprint (tag `purchased:blueprint`).
+### Experience Score Fields
 
----
-
-## 3. Paid Onboarding — Blueprint
-
-**Trigger**: Tag `onboarding:blueprint` is added
-**Goal**: Deliver value, collect NPS, nurture toward Blueprint+
-
-| Step | Action | Details |
+| Field | Description | Example |
 |---|---|---|
-| 1 | **Email: "Welcome! Your %product_purchased% is ready"** | Use `%FIRSTNAME%`, `%report_link%`. Walk through what's included. |
-| 2 | Wait 2 days | — |
-| 3 | **Email: "Implementing your Blueprint: where to start"** | Actionable first steps based on their results. |
-| 4 | Wait 2 days | — |
-| 5 | **Email: "Your NPS survey"** | Send `%nps_survey_link%`. |
-| 6 | Wait 7 days | — |
-| 7 | **If/Else**: Has tag `purchased:blueprint-plus`? | **Yes** → End. **No** → Continue. |
-| 8 | **Email: "Level up with %upgrade_product_name%"** | Highlight Blueprint+ extras (strategy session, advanced prompts). Use `%upgrade_product_url%`, `%upgrade_price%`. |
-| 9 | Wait 7 days | — |
-| 10 | **Email: "Get expert guidance with Blueprint+"** | Emphasize the strategy activation session. Final upgrade CTA. |
+| `%EXPERIENCE_SCORE%` | WunderBrand Experience Score (0–10) | 9 |
+| `%EXPERIENCE_CATEGORY%` | Promoter / Passive / Detractor | promoter |
 
-**Exit conditions**: Contact purchases Blueprint+ (tag `purchased:blueprint-plus`).
+### Abandoned Cart Fields
 
----
-
-## 4. Paid Onboarding — Blueprint+
-
-**Trigger**: Tag `onboarding:blueprint-plus` is added
-**Goal**: Maximize engagement, book strategy session, collect NPS, nurture to services
-
-| Step | Action | Details |
-|---|---|---|
-| 1 | **Email: "Welcome! Your %product_purchased% is ready"** | Use `%FIRSTNAME%`, `%report_link%`. Highlight strategy session. |
-| 2 | Wait 1 day | — |
-| 3 | **If/Else**: Has tag `session:booked`? | **Yes** → Skip to step 6. **No** → Continue. |
-| 4 | **Email: "Don't forget to book your strategy session"** | Booking link/instructions. Urgency. |
-| 5 | Wait 3 days | — |
-| 6 | **Email: "Getting the most from your Blueprint+"** | Implementation tips. Link to `%dashboard_link%`. |
-| 7 | Wait 3 days | — |
-| 8 | **Email: "Your NPS survey"** | Send `%nps_survey_link%`. |
-| 9 | Wait 14 days | — |
-| 10 | **Email: "Ready for the next step? Our managed services"** | Introduce managed marketing / AI consulting. Use `%services_url%`. |
-
-**Exit conditions**: 30 days complete (lifecycle continues with services nurture).
-
----
-
-## 5. Abandoned Cart Recovery
-
-**Trigger**: Tag `checkout:abandoned` is added
-**Goal**: Recover the sale
-
-| Step | Action | Details |
-|---|---|---|
-| 1 | Wait 1 hour | — |
-| 2 | **If/Else**: Has tag `purchased:snapshot-plus` OR `purchased:blueprint` OR `purchased:blueprint-plus`? | **Yes** → End (they completed purchase). **No** → Continue. |
-| 3 | **Email: "You left something behind"** | Use `%FIRSTNAME%`, `%abandoned_product%`, `%abandoned_product_price%`. Soft reminder with product benefits. |
-| 4 | Wait 1 day | — |
-| 5 | **If/Else**: Has any purchased tag? | **Yes** → End. **No** → Continue. |
-| 6 | **Email: "Still thinking about %abandoned_product%?"** | Address common objections. Social proof / testimonials. Link to `%abandoned_product_url%`. |
-| 7 | Wait 2 days | — |
-| 8 | **If/Else**: Has any purchased tag? | **Yes** → End. **No** → Continue. |
-| 9 | **Email: "Last chance — exclusive offer"** | Limited-time discount or bonus for `%abandoned_product%`. |
-| 10 | Remove tag `checkout:abandoned` | Clean up. |
-
-**Exit conditions**: Contact completes purchase, or 4 days elapse.
-
----
-
-## 6. Quarterly Refresh Reminder
-
-**Trigger**: Tag `refresh:eligible` is added
-**Goal**: Drive repeat purchases every 90 days
-
-| Step | Action | Details |
-|---|---|---|
-| 1 | Wait 80 days | — |
-| 2 | **Email: "Time for your quarterly brand refresh"** | Use `%FIRSTNAME%`, `%product_purchased%`. Explain why refreshing matters. Include `%refresh_price%` (or "free" for Blueprint+). |
-| 3 | Wait 5 days | — |
-| 4 | **If/Else**: Has tag `purchased:snapshot-plus-refresh` OR `purchased:blueprint-refresh`? | **Yes** → End. **No** → Continue. |
-| 5 | **Email: "Your brand has evolved — has your strategy?"** | More urgency. Market changes since their last diagnostic. |
-| 6 | Wait 5 days | — |
-| 7 | **Email: "Final reminder: refresh your brand diagnostic"** | Last touch. Show comparison opportunity (new vs. old scores). |
-| 8 | Go to step 1 | Loop: restarts the 90-day cycle. |
-
-**Note**: Blueprint+ users have free refreshes — the email should say "complimentary" not a price.
-
----
-
-## 7. NPS Survey Follow-up
-
-**Trigger**: Event `nps_submitted`
-**Goal**: Act on feedback
-
-| Step | Action | Details |
-|---|---|---|
-| 1 | **If/Else**: `%nps_category%` = "promoter" | **Yes** → Go to [Automation 8](#8-promoter--review--testimonial). **No** → Continue. |
-| 2 | **If/Else**: `%nps_category%` = "detractor" | **Yes** → Go to [Automation 9](#9-detractor--win-back--retention). **No** → Continue (passive). |
-| 3 | **Email: "Thanks for your feedback"** | For passives. Ask what would make it a 9 or 10. Offer to help. |
-
----
-
-## 8. Promoter → Review & Testimonial
-
-**Trigger**: Tag `review:eligible` is added
-**Goal**: Capture social proof
-
-| Step | Action | Details |
-|---|---|---|
-| 1 | Wait 1 day | — |
-| 2 | **Email: "We're thrilled you love it! Would you share?"** | Ask for Google review (`%google_review_url%`). Offer testimonial opportunity (`%testimonial_link%`). |
-| 3 | Wait 3 days | — |
-| 4 | **If/Else**: Has tag `testimonial:submitted`? | **Yes** → Send thank you email. **No** → Continue. |
-| 5 | **Email: "Quick reminder — your review means the world"** | Gentle nudge. Emphasize it takes 30 seconds. |
-| 6 | Wait 7 days | — |
-| 7 | **If/Else**: Has tag `case-study:interested`? | **Yes** → Notify team (internal notification). Add to case study pipeline list. |
-
----
-
-## 9. Detractor → Win-back / Retention
-
-**Trigger**: Tag `retention:at-risk` is added
-**Goal**: Recover relationship, understand issues
-
-| Step | Action | Details |
-|---|---|---|
-| 1 | **Internal notification** | Alert team via Slack or email about at-risk customer. |
-| 2 | Wait 1 day | — |
-| 3 | **Email: "We'd love to make this right"** | Personal-feeling email from founder. Ask what went wrong. Offer to help. |
-| 4 | Wait 3 days | — |
-| 5 | **Email: "Here's how we can improve your experience"** | Share resources. Offer 1:1 call via `%services_url%`. |
-
----
-
-## 10. Save & Resume
-
-**Trigger**: Event `assessment_paused`
-**Goal**: Bring user back to complete the diagnostic
-
-| Step | Action | Details |
-|---|---|---|
-| 1 | **Email: "Pick up where you left off"** | Use `%FIRSTNAME%`, `%resume_link%`. Brief, clear, single CTA. |
-| 2 | Wait 1 day | — |
-| 3 | **If/Else**: Has tag `completed:snapshot` OR any `purchased:*` tag? | **Yes** → End. **No** → Continue. |
-| 4 | **Email: "Your brand diagnostic is waiting"** | Remind them what they'll get. Use `%resume_link%`. |
-| 5 | Wait 3 days | — |
-| 6 | **If/Else**: Has any completion/purchase tag? | **Yes** → End. **No** → Continue. |
-| 7 | **Email: "Last reminder — complete your WunderBrand Snapshot™"** | Final nudge. Results take 15 minutes. |
-
----
-
-## 11. Blueprint+ Strategy Session Reminder
-
-**Trigger**: Tag `session:pending` is added
-**Goal**: Get them to book and attend their strategy session
-
-| Step | Action | Details |
-|---|---|---|
-| 1 | Wait 2 days | — |
-| 2 | **If/Else**: Has tag `session:booked`? | **Yes** → End. **No** → Continue. |
-| 3 | **Email: "Your strategy activation session is included!"** | Use `%FIRSTNAME%`. Explain value. Provide booking link. |
-| 4 | Wait 3 days | — |
-| 5 | **If/Else**: Has tag `session:booked`? | **Yes** → End. **No** → Continue. |
-| 6 | **Email: "Don't miss your complimentary strategy session"** | Urgency: sessions are limited. |
-| 7 | Wait 5 days | — |
-| 8 | **Email: "Final reminder — book your strategy session"** | Last chance before session availability expires. |
-
----
-
-## 12. Cross-sell — Services
-
-**Trigger**: Tag `nurture:other-services` is added
-**Goal**: Convert Blueprint+ buyers into managed services clients
-
-| Step | Action | Details |
-|---|---|---|
-| 1 | Wait 21 days | (After they've had time with their Blueprint+) |
-| 2 | **Email: "Ready to implement your Blueprint?"** | Introduce managed marketing services. Use `%services_url%`. |
-| 3 | Wait 7 days | — |
-| 4 | **Email: "How our clients are implementing their Blueprints"** | Case study / success story. |
-| 5 | Wait 7 days | — |
-| 6 | **Email: "Let's talk about your brand implementation"** | Direct CTA to book a call. Use `%services_url%`. |
-
----
-
-## 13. Referral Campaign
-
-**Trigger**: Tag `lifecycle:advocate` is added (apply manually or after promoter + testimonial)
-**Goal**: Generate referrals
-
-| Step | Action | Details |
-|---|---|---|
-| 1 | **Email: "Share the love — refer a colleague"** | Referral link/code. Explain what the referred person gets. |
-| 2 | Wait 30 days | — |
-| 3 | **Email: "Know someone who needs a brand checkup?"** | Gentle re-ask. |
-
-**Note**: Apply `lifecycle:advocate` tag manually or create a rule: has `nps:promoter` AND `testimonial:submitted`.
-
----
-
-## 14. Annual Re-engagement
-
-**Trigger**: Date-based — 11 months after `%purchase_date%`
-**Goal**: Bring dormant customers back
-
-| Step | Action | Details |
-|---|---|---|
-| 1 | **Email: "It's been a year — how has your brand evolved?"** | Use `%FIRSTNAME%`, `%product_purchased%`. Offer a re-diagnostic at a loyalty discount. |
-| 2 | Wait 7 days | — |
-| 3 | **Email: "New features since your last visit"** | Highlight new products or improvements. |
-| 4 | Wait 7 days | — |
-| 5 | **Email: "Your brand deserves a fresh look"** | Final re-engagement CTA. |
-
----
-
-## Event Reference
-
-Events fired by the app (use as automation triggers in AC):
-
-| Event Name | When Fired | Key Fields |
-|---|---|---|
-| `free_report_ready` | Free Snapshot completed | `first_name`, `report_link`, `brand_alignment_score`, `weakest_pillar`, `upgrade_product_name`, `upgrade_price` |
-| `report_ready` | Paid product completed | `first_name`, `product_name`, `report_link`, `nps_survey_link`, `purchase_date`, `amount_paid`, `refresh_price`, `upgrade_product_name`, `upgrade_price` |
-| `refresh_report_ready` | Quarterly refresh completed | `first_name`, `product_name`, `report_link`, `dashboard_link` |
-| `checkout_abandoned` | Stripe checkout expired | `first_name`, `abandoned_product`, `abandoned_product_url`, `abandoned_product_price` |
-| `assessment_paused` | User saves and exits diagnostic | `first_name`, `resume_link`, `product_tier` |
-| `nps_submitted` | NPS survey completed | `nps_score`, `nps_category`, `nps_tier`, `testimonial_link`, `google_review_url` |
-| `testimonial_submitted` | Testimonial submitted | Set via `/api/testimonial` route |
-
----
-
-## Tag Quick Reference
-
-| Category | Tags |
+| Field | Description |
 |---|---|
-| **Purchase** | `purchased:snapshot-plus`, `purchased:blueprint`, `purchased:blueprint-plus`, `purchased:snapshot-plus-refresh`, `purchased:blueprint-refresh` |
-| **Onboarding** | `onboarding:snapshot`, `onboarding:snapshot-plus`, `onboarding:blueprint`, `onboarding:blueprint-plus` |
-| **Completion** | `completed:snapshot` |
-| **Upgrade Intent** | `intent:upgrade-snapshot-plus`, `intent:upgrade-blueprint`, `intent:upgrade-blueprint-plus` |
-| **Refresh** | `refresh:eligible`, `refresh:snapshot-plus-ready`, `refresh:blueprint-ready` |
-| **Session** | `session:pending`, `session:booked`, `session:completed` |
-| **Abandonment** | `checkout:abandoned`, `checkout:abandoned:snapshot_plus`, `checkout:abandoned:blueprint`, `checkout:abandoned:blueprint_plus` |
-| **NPS** | `nps:promoter`, `nps:passive`, `nps:detractor` + tier variants |
-| **Reviews** | `review:eligible`, `testimonial:eligible`, `testimonial:submitted`, `testimonial:publishable`, `case-study:interested` |
-| **Retention** | `retention:at-risk` |
-| **Cross-sell** | `nurture:other-services` |
-| **Lifecycle** | `lifecycle:lead`, `lifecycle:customer`, `lifecycle:advocate`, `lifecycle:at-risk` |
-| **Resume** | `snapshot:paused`, `snapshot:resume-link-sent` |
-| **Calls/Sessions** | `call:expert-completed`, `call:expert-scheduled`, `session:activation-completed`, `session:activation-scheduled`, `followup:pending-review`, `followup:sent-talk-to-expert`, `followup:sent-activation-session` |
+| `%ABANDONED_PRODUCT%` | Name of the product they abandoned |
+| `%ABANDONED_PRODUCT_URL%` | Link back to checkout |
+
+### Session/Call Fields
+
+| Field | Type | Set By | Description |
+|---|---|---|---|
+| `last_call_type` | text | Calendly webhook, process-transcript | "Talk to an Expert" or "Strategy Activation Session" |
+| `last_call_date` | text | Calendly webhook, process-transcript | Date of the call (YYYY-MM-DD) |
+| `last_call_strategist` | text | process-transcript | Name of the team member on the call |
+| `followup_subject` | text | followups (on approve) | AI-generated email subject line |
+| `followup_body` | textarea | followups (on approve) | AI-generated email body (HTML) |
+| `followup_session_type` | text | followups (on approve) | "Talk to an Expert" or "Strategy Activation Session" |
+| `followup_sent_date` | text | followups (on approve) | Date the follow-up was sent |
+| `last_noshow_type` | text | Calendly webhook | "Talk to an Expert" or "Strategy Activation Session" |
+| `last_noshow_date` | text | Calendly webhook | Date of the no-show (YYYY-MM-DD) |
 
 ---
 
-## 15. Talk to Expert — Post-Call Follow-up
+## Nurture Sequence Overview
+
+All 19 nurture sequences are documented in [NURTURE_IMPLEMENTATION_GUIDE.md](./NURTURE_IMPLEMENTATION_GUIDE.md). Here is the sequence map for quick reference:
+
+| # | Name | Trigger | Emails |
+|---|------|---------|--------|
+| 1 | Free Snapshot → Snapshot+ Upgrade | `purchased:snapshot` + `intent:upgrade-snapshot-plus` | 5 |
+| 2 | Checkout Abandoned | `checkout:abandoned` + product tag | 3 |
+| 3 | Coverage Gap Nudge | `snapshot:coverage-gap` | 2 |
+| 4 | Purchase Welcome | Event `start_diagnostic` + `product_key` | 4 × 3 variants |
+| 5 | Report Ready | `report:*-ready` tag | 3 × 3 variants |
+| 6 | Snapshot+ → Blueprint Upgrade | `intent:upgrade-blueprint` | 4 |
+| 7 | Blueprint → Blueprint+ Upgrade | `intent:upgrade-blueprint-plus` | 4 |
+| 8 | Quarterly Refresh | `refresh:eligible` | 3 |
+| 9 | Diagnostic Paused | `snapshot:paused` + `snapshot:resume-link-sent` | 3 |
+| 10 | Session No-Show Recovery | `noshow:needs-followup` + no-show tag | 2 |
+| 11 | Experience Score Follow-up | `experience:*` tag | 2 × 3 branches |
+| 12 | Session Booking (B+) | `session:pending` + `report:blueprint-plus-ready` | 3 |
+| 13 | Services Interest | `intent:services` | 2 |
+| 14 | Content Opt-In Welcome | `content:opt-in` | 2 |
+| 15 | Evergreen Education | Exits conversion sequences | 10 |
+| 16 | It's Wunderbar Newsletter | `content:opted_in` | Ongoing |
+| 17 | Customer Retention | 30d after report | 8 |
+| 18 | Win-Back | 90d+ since report | 3 |
+| 19 | Services Cross-Sell | 45d+ as customer + signal | 4 |
+
+---
+
+## Talk to Expert — Post-Call Follow-up
 
 **Purpose**: After a "Talk to an Expert" consultation call, automatically generate a personalized follow-up email from the Otter.ai transcript, queue it for human review, and send it once approved.
 
@@ -394,33 +159,24 @@ Events fired by the app (use as automation triggers in AC):
 
 | Step | Action |
 |------|--------|
-| 1 | **Send email**: "Post-Call Follow-up" — uses `%FOLLOWUP_BODY%` for the personalized content and `%FOLLOWUP_SUBJECT%` as the subject line |
+| 1 | **Send email**: uses `%FOLLOWUP_BODY%` and `%FOLLOWUP_SUBJECT%` |
 | 2 | **Wait** 3 days |
 | 3 | **If/Else**: Has tag `purchased:*`? |
-| 4a | **Yes** → End (they bought something) |
-| 4b | **No** → **Send email**: "Quick follow-up" — reference their specific pain points from the call, soft CTA to book or purchase |
+| 4a | **Yes** → End |
+| 4b | **No** → **Send email**: reference pain points, soft CTA |
 | 5 | **Wait** 7 days |
 | 6 | **If/Else**: Has tag `purchased:*`? |
 | 7a | **Yes** → End |
-| 7b | **No** → **Send email**: "Thought of you" — share a relevant resource/case study, mention their specific situation |
-| 8 | Apply tag: `nurture:other-services` (enters services cross-sell if not purchased within 10 days) |
-
-**Personalization fields**:
-- `%FIRST_NAME_CUSTOM%` — their first name
-- `%FOLLOWUP_SUBJECT%` — AI-generated subject line
-- `%FOLLOWUP_BODY%` — AI-generated email body (HTML)
-- `%LAST_CALL_STRATEGIST%` — who they spoke with
-- `%LAST_CALL_DATE%` — when the call happened
+| 7b | **No** → **Send email**: relevant resource/case study |
+| 8 | Apply tag: `nurture:other-services` |
 
 **Goal**: Contact purchases any product → exit automation
 
-**Exit conditions**: Purchases any product, or completes the 3-email sequence
-
 ---
 
-## 16. Strategy Activation Session — Post-Session Follow-up
+## Strategy Activation Session — Post-Session Follow-up
 
-**Purpose**: After a Blueprint+ Strategy Activation Session, generate a comprehensive personalized follow-up (this is a deliverable the customer paid for) from the Otter.ai transcript, queue it for review, and send once approved.
+**Purpose**: After a Blueprint+ Strategy Activation Session, generate a comprehensive personalized follow-up from the Otter.ai transcript, queue it for review, and send once approved. This is a deliverable the customer paid for.
 
 ### How It Works (Technical Flow)
 
@@ -433,11 +189,11 @@ Events fired by the app (use as automation triggers in AC):
 2. Session happens, Otter.ai creates transcript
    → Otter.ai → Zapier → POST /api/session/process-transcript
    → session_type: "activation_session"
-   → OpenAI generates comprehensive follow-up (30/60/90-day plan, action items, prompt recommendations)
+   → OpenAI generates comprehensive follow-up (30/60/90-day plan)
    → Stored in session_followups table (status: pending_review)
    → Tags: session:activation-completed, session:completed, followup:pending-review
 
-3. Admin reviews and edits (this is premium content — take extra care)
+3. Admin reviews and edits (premium content — take extra care)
    → Same review queue as Talk to Expert
    → PATCH /api/session/followups (action: edit, regenerate, or approve)
 
@@ -453,198 +209,80 @@ Events fired by the app (use as automation triggers in AC):
 
 | Step | Action |
 |------|--------|
-| 1 | **Send email**: "Your Strategy Activation Recap" — uses `%FOLLOWUP_BODY%` for the full personalized deliverable. Subject: `%FOLLOWUP_SUBJECT%`. This is the primary deliverable email. |
+| 1 | **Send email**: "Your Strategy Activation Recap" — `%FOLLOWUP_BODY%` / `%FOLLOWUP_SUBJECT%` |
 | 2 | **Wait** 3 days |
-| 3 | **Send email**: "How's your action plan going?" — check-in, offer to clarify anything from the session, remind them of their first 30-day priorities |
+| 3 | **Send email**: "How's your action plan going?" — check-in, 30-day priorities |
 | 4 | **Wait** 14 days |
-| 5 | **Send email**: "30-Day Check-in" — reference their 30-day milestones from the action plan, ask how it's going, soft CTA for Managed Marketing if they need execution help |
+| 5 | **Send email**: "30-Day Check-in" — reference milestones, soft CTA for Managed Marketing |
 | 6 | **Wait** 30 days |
-| 7 | **Send email**: "60-Day Milestone" — celebrate progress, reference their 60-day goals, mention AI Consulting if they're implementing AI recommendations |
+| 7 | **Send email**: "60-Day Milestone" — celebrate progress, mention AI Consulting |
 | 8 | **Wait** 30 days |
-| 9 | **Send email**: "90-Day Strategy Review" — congratulate on completing the initial plan, CTA to book a paid follow-up session or explore Managed Marketing |
+| 9 | **Send email**: "90-Day Strategy Review" — CTA for paid follow-up or Managed Marketing |
 | 10 | Apply tag: `nurture:other-services` |
-
-**Personalization fields**:
-- `%FIRST_NAME_CUSTOM%` — their first name
-- `%FOLLOWUP_SUBJECT%` — AI-generated subject line
-- `%FOLLOWUP_BODY%` — AI-generated comprehensive follow-up (HTML)
-- `%LAST_CALL_STRATEGIST%` — the strategist who ran the session
-- `%LAST_CALL_DATE%` — session date
-- `%PRODUCT_PURCHASED%` — "WunderBrand Blueprint+™"
 
 **Goal**: Contact books Managed Marketing or AI Consulting → exit automation
 
-**Exit conditions**: Purchases services package, or completes the 5-email sequence
+---
+
+## Event Reference
+
+Events fired by the app (use as automation triggers in AC):
+
+| Event Name | When Fired | Key Fields |
+|---|---|---|
+| `free_report_ready` | Free Snapshot completed | `first_name`, `report_link`, `brand_alignment_score`, `weakest_pillar`, `upgrade_product_name`, `upgrade_price` |
+| `report_ready` | Paid product completed | `first_name`, `product_name`, `report_link`, `experience_survey_link`, `purchase_date`, `amount_paid`, `refresh_price`, `upgrade_product_name`, `upgrade_price` |
+| `start_diagnostic` | Purchase completed, diagnostic ready | `first_name`, `product_key`, `start_diagnostic_link` |
+| `refresh_report_ready` | Quarterly refresh completed | `first_name`, `product_name`, `report_link`, `dashboard_link` |
+| `checkout_abandoned` | Stripe checkout expired | `first_name`, `abandoned_product`, `abandoned_product_url`, `abandoned_product_price` |
+| `assessment_paused` | User saves and exits diagnostic | `first_name`, `resume_link`, `product_tier` |
+| `experience_survey_submitted` | WunderBrand Experience Survey completed | `experience_score`, `experience_category`, `experience_tier`, `testimonial_link`, `google_review_url` |
+| `testimonial_submitted` | Testimonial submitted | Set via `/api/testimonial` route |
+| `expert_call_booked` | Prospect booked Talk to Expert | Calendly webhook |
+| `activation_session_booked` | B+ customer booked Strategy Session | Calendly webhook |
+| `expert_call_followup_ready` | Admin approves post-call follow-up | Triggers post-call sequence |
+| `activation_session_followup_ready` | Admin approves post-session follow-up | Triggers post-session sequence |
+| `expert_call_no_show` | Prospect no-shows expert call | Calendly webhook |
+| `activation_session_no_show` | Customer no-shows Strategy Session | Calendly webhook |
 
 ---
 
-## New Custom Fields (Calls/Sessions)
+## Tag Quick Reference
 
-These are set automatically by the app when processing transcripts:
-
-| Field | Type | Set By | Description |
-|-------|------|--------|-------------|
-| `last_call_type` | text | Calendly webhook, process-transcript | "Talk to an Expert" or "Strategy Activation Session" |
-| `last_call_date` | text | Calendly webhook, process-transcript | Date of the call (YYYY-MM-DD) |
-| `last_call_strategist` | text | process-transcript | Name of the team member on the call |
-| `followup_subject` | text | followups (on approve) | AI-generated email subject line |
-| `followup_body` | textarea | followups (on approve) | AI-generated email body (HTML) |
-| `followup_session_type` | text | followups (on approve) | "Talk to an Expert" or "Strategy Activation Session" |
-| `followup_sent_date` | text | followups (on approve) | Date the follow-up was sent |
-
-## New Events (Calls/Sessions)
-
-| Event | Fired By | Purpose |
-|-------|----------|---------|
-| `expert_call_booked` | Calendly webhook | Prospect booked a Talk to Expert call |
-| `activation_session_booked` | Calendly webhook | Blueprint+ customer booked their session |
-| `expert_call_followup_ready` | Admin approves follow-up | Triggers the post-call email sequence |
-| `activation_session_followup_ready` | Admin approves follow-up | Triggers the post-session email sequence |
-
----
-
-## 17. Talk to Expert — No-Show Recovery
-
-**Purpose**: When a prospect no-shows their "Talk to an Expert" consultation, send a warm, no-guilt follow-up sequence to re-engage them and get the meeting rescheduled.
-
-### How It Works
-
-```
-1. Host marks invitee as no-show in Calendly
-   → Calendly webhook → POST /api/calendly/webhook (event: invitee.no_show)
-   → Tags: call:expert-no-show, noshow:needs-followup
-   → Fields: last_noshow_type, last_noshow_date
-   → Event: expert_call_no_show
-
-   OR: Admin manually marks via POST /api/session/no-show
-```
-
-### ActiveCampaign Automation
-
-**Trigger**: Event `expert_call_no_show`
-
-| Step | Action |
-|------|--------|
-| 1 | **Wait** 1 hour (give them a moment — they may reach out themselves) |
-| 2 | **If/Else**: Has tag `call:expert-scheduled`? (rebooked already) |
-| 3a | **Yes** → Remove tag `noshow:needs-followup`, apply `noshow:rescheduled` → End |
-| 3b | **No** → Continue |
-| 4 | **Send email**: "We missed you!" — No guilt, assume life happened. "We had time set aside for you today and want to make sure you still get the help you need. Here's a link to rebook whenever works." Include direct Calendly link. |
-| 5 | **Wait** 2 days |
-| 6 | **If/Else**: Has tag `call:expert-scheduled`? |
-| 7a | **Yes** → Remove tag `noshow:needs-followup`, apply `noshow:rescheduled` → End |
-| 7b | **No** → Continue |
-| 8 | **Send email**: "Still thinking about your brand strategy?" — Lead with value. Share a quick insight or tip related to the most common challenge prospects face. End with: "If you'd like to talk through your specific situation, I'm here:" + Calendly link. |
-| 9 | **Wait** 5 days |
-| 10 | **If/Else**: Has tag `call:expert-scheduled`? |
-| 11a | **Yes** → Remove tag `noshow:needs-followup`, apply `noshow:rescheduled` → End |
-| 11b | **No** → Continue |
-| 12 | **Send email**: "One more thought" — Final touch. Mention the free WunderBrand Snapshot as a lower-commitment entry point: "Not ready for a call? Try our free 15-minute brand diagnostic instead — it'll show you exactly where your brand stands." Link to Snapshot. |
-| 13 | Remove tag `noshow:needs-followup` |
-
-**Personalization fields**:
-- `%FIRST_NAME_CUSTOM%` — their first name
-- `%LAST_NOSHOW_DATE%` — the date they missed
-- `%LAST_NOSHOW_TYPE%` — "Talk to an Expert"
-
-**Goal**: Contact rebooks (tag `call:expert-scheduled` applied) → exit automation
-
-**Exit conditions**: Rebooks, purchases any product, or completes 3-email sequence
-
-**Tone**: Warm, zero guilt, assume positive intent. Never say "you missed" or "you didn't show up." Frame as "we had time for you" and "whenever works for you."
-
----
-
-## 18. Activation Session — No-Show Recovery
-
-**Purpose**: When a Blueprint+ customer no-shows their Strategy Activation Session, re-engage quickly — this is a session they already paid for.
-
-### How It Works
-
-```
-Same detection as #17 but with session_type = activation_session
-→ Tags: session:activation-no-show, noshow:needs-followup
-→ Event: activation_session_no_show
-```
-
-### ActiveCampaign Automation
-
-**Trigger**: Event `activation_session_no_show`
-
-| Step | Action |
-|------|--------|
-| 1 | **Wait** 30 minutes (shorter wait — they're a paying customer) |
-| 2 | **If/Else**: Has tag `session:activation-scheduled`? (rebooked already) |
-| 3a | **Yes** → Remove tag `noshow:needs-followup`, apply `noshow:rescheduled` → End |
-| 3b | **No** → Continue |
-| 4 | **Send email**: "Your Strategy Activation Session" — Warm and helpful. "We had your session on the calendar today and I wanted to make sure we get this rescheduled. Your Blueprint+ includes this session and I don't want you to miss out on this part of your investment. Here's a link to pick a new time that works:" + Calendly link. Signed by the strategist. |
-| 5 | **Wait** 1 day |
-| 6 | **If/Else**: Has tag `session:activation-scheduled`? |
-| 7a | **Yes** → Remove tag `noshow:needs-followup`, apply `noshow:rescheduled` → End |
-| 7b | **No** → Continue |
-| 8 | **Send email**: "Your session is waiting" — Reference their Blueprint+ results: "I've reviewed your WunderBrand Blueprint+ results and have some specific ideas I'd love to share with you in your Strategy Activation Session. This is where we turn your diagnostic into a real action plan." Rebook link. |
-| 9 | **Wait** 3 days |
-| 10 | **If/Else**: Has tag `session:activation-scheduled`? |
-| 11a | **Yes** → Remove tag `noshow:needs-followup`, apply `noshow:rescheduled` → End |
-| 11b | **No** → Continue |
-| 12 | **Send email**: "Let's make sure you get the most from your Blueprint+" — Final touch. Emphasize the value: "Your Blueprint+ came with a Strategy Activation Session specifically so we can help you prioritize and plan. I'd love to help — just pick a time and we'll make it happen." Rebook link. Mention they can also reply to the email to coordinate. |
-| 13 | Remove tag `noshow:needs-followup` |
-| 14 | **Internal notification** → Notify team (Slack or email) that this customer hasn't rebooked after 3 attempts |
-
-**Personalization fields**:
-- `%FIRST_NAME_CUSTOM%` — their first name
-- `%LAST_NOSHOW_DATE%` — the date they missed
-- `%LAST_NOSHOW_TYPE%` — "Strategy Activation Session"
-- `%LAST_CALL_STRATEGIST%` — who they were supposed to meet
-- `%PRODUCT_PURCHASED%` — "WunderBrand Blueprint+™"
-
-**Goal**: Contact rebooks (tag `session:activation-scheduled` applied) → exit automation
-
-**Exit conditions**: Rebooks or completes 3-email sequence
-
-**Tone**: Supportive and service-oriented. They paid for this — your job is to make sure they use what they bought. Never punitive, always "we're here for you."
-
-**Key difference from #17**: Shorter wait times (they're a customer, not a prospect), reference their specific investment, and include internal team notification if all 3 emails go unanswered.
-
----
-
-## New Tags (No-Shows)
-
-| Tag | Applied When |
-|-----|-------------|
-| `call:expert-no-show` | Prospect no-shows Talk to Expert |
-| `call:expert-canceled` | Prospect cancels Talk to Expert |
-| `session:activation-no-show` | Customer no-shows Activation Session |
-| `session:activation-canceled` | Customer cancels Activation Session |
-| `noshow:needs-followup` | Any no-show (removed when rescheduled or sequence completes) |
-| `noshow:rescheduled` | No-show who successfully rebooked |
-
-## New Custom Fields (No-Shows)
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `last_noshow_type` | text | "Talk to an Expert" or "Strategy Activation Session" |
-| `last_noshow_date` | text | Date of the no-show (YYYY-MM-DD) |
-
-## New Events (No-Shows)
-
-| Event | Fired By | Purpose |
-|-------|----------|---------|
-| `expert_call_no_show` | Calendly webhook or manual endpoint | Triggers Talk to Expert no-show recovery |
-| `activation_session_no_show` | Calendly webhook or manual endpoint | Triggers Activation Session no-show recovery |
+| Category | Tags |
+|---|---|
+| **Purchase** | `purchased:snapshot`, `purchased:snapshot-plus`, `purchased:blueprint`, `purchased:blueprint-plus`, `purchased:snapshot-plus-refresh`, `purchased:blueprint-refresh`, `purchased:refunded` |
+| **Intent / Upgrade** | `intent:upgrade-snapshot-plus`, `intent:upgrade-blueprint`, `intent:upgrade-blueprint-plus`, `intent:services`, `nurture:other-services` |
+| **Report Ready** | `completed:snapshot`, `report:snapshot-ready`, `report:snapshot-plus-ready`, `report:blueprint-ready`, `report:blueprint-plus-ready` |
+| **Checkout** | `checkout:initiated`, `checkout:abandoned`, `checkout:abandoned:snapshot_plus`, `checkout:abandoned:blueprint`, `checkout:abandoned:blueprint_plus` |
+| **Payment** | `payment:failed` |
+| **Behavior** | `snapshot:completed`, `snapshot:viewed-results`, `snapshot:return-visit`, `snapshot:clicked-upgrade`, `snapshot:coverage-gap`, `snapshot:paused`, `snapshot:resume-link-sent` |
+| **Experience Score** | `experience:promoter`, `experience:passive`, `experience:detractor` |
+| **Session** | `session:pending`, `session:activation-scheduled`, `session:activation-canceled`, `session:activation-no-show`, `session:activation-completed` |
+| **Calls** | `call:expert-scheduled`, `call:expert-canceled`, `call:expert-no-show`, `call:expert-completed` |
+| **Follow-up** | `followup:send`, `followup:pending-review`, `followup:sent-talk-to-expert`, `followup:sent-activation-session` |
+| **Content** | `content:opt-in`, `content:opted_in`, `content:marketing_trends`, `content:ai_updates` |
+| **Services** | `services:interested`, `services:managed_marketing`, `services:consulting`, `services:expert_call_requested`, `services:call-booked`, `services:client-active` |
+| **Refresh** | `refresh:eligible`, `refresh:60-day-reminder`, `refresh:30-day-reminder`, `refresh:7-day-reminder`, `refresh:window-expired` |
+| **No-Show** | `noshow:needs-followup`, `noshow:rescheduled` |
+| **Retention** | `retention:at-risk` |
+| **Lifecycle** | `lifecycle:lead`, `lifecycle:customer`, `lifecycle:advocate`, `lifecycle:at-risk`, `evergreen:complete` |
+| **Onboarding** | `onboarding:snapshot`, `onboarding:snapshot-plus`, `onboarding:blueprint`, `onboarding:blueprint-plus` |
+| **Support** | `support:new_request` |
 
 ---
 
 ## Setup Checklist
 
-1. Run `npx tsx scripts/setup-activecampaign.ts` to create all tags + fields
-2. Build each automation above in the AC visual builder
-3. Set the Stripe webhook in Stripe Dashboard → Developers → Webhooks
-4. Set env vars: `ACTIVE_CAMPAIGN_API_URL`, `ACTIVE_CAMPAIGN_API_KEY`, `ACTIVECAMPAIGN_WEBHOOK_URL`
-5. Test each flow end-to-end with a test contact
-6. Set `NEXT_PUBLIC_GOOGLE_REVIEW_URL` for the review CTA
-7. Optional: Set `SLACK_SALES_WEBHOOK_URL` for purchase notifications
-8. Set up Calendly webhook → `POST /api/calendly/webhook` — subscribe to `invitee.created`, `invitee.canceled`, `invitee.no_show` events (set `CALENDLY_WEBHOOK_SECRET`)
-9. Set up Otter.ai → Zapier → `POST /api/session/process-transcript` (set `ZAPIER_WEBHOOK_SECRET`)
-10. Set `ADMIN_API_KEY` for the follow-up review queue and no-show marking APIs
-11. Build automations #17 and #18 (no-show recovery) in AC visual editor
+1. Create all custom fields in AC Settings → Fields (use [ACTIVECAMPAIGN_COMPLETE_SETUP.md](./ACTIVECAMPAIGN_COMPLETE_SETUP.md) for field IDs and env vars)
+2. Create all tags in AC Settings → Tags (exact spelling required, including colons)
+3. Set Stripe webhook in Stripe Dashboard → Developers → Webhooks
+4. Set env vars: `ACTIVE_CAMPAIGN_API_URL`, `ACTIVE_CAMPAIGN_API_KEY`
+5. Build all 19 nurture automations per [NURTURE_IMPLEMENTATION_GUIDE.md](./NURTURE_IMPLEMENTATION_GUIDE.md)
+6. Build post-call and post-session follow-up automations (see above)
+7. Set up Calendly webhook → `POST /api/calendly/webhook` — subscribe to `invitee.created`, `invitee.canceled`, `invitee.no_show` events (set `CALENDLY_WEBHOOK_SECRET`)
+8. Set up Otter.ai → Zapier → `POST /api/session/process-transcript` (set `ZAPIER_WEBHOOK_SECRET`)
+9. Set `ADMIN_API_KEY` for the follow-up review queue
+10. Set `NEXT_PUBLIC_GOOGLE_REVIEW_URL` for the review CTA
+11. Replace `CALENDLY_LINK` and `CALENDLY_SERVICES_LINK` placeholders in email copy with live URLs
+12. Test each flow end-to-end with a test contact

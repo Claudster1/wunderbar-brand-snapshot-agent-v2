@@ -33,6 +33,11 @@ const SECTION_PROMPTS: Record<string, string> = {
 };
 
 export async function POST(req: NextRequest) {
+  const { apiGuard } = await import("@/lib/security/apiGuard");
+  const { AI_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+  const guard = apiGuard(req, { routeId: "workbook-refine", rateLimit: AI_RATE_LIMIT });
+  if (!guard.passed) return guard.errorResponse;
+
   try {
     const body = await req.json();
     const { section, content, businessName, context, reportId, email } = body;

@@ -39,7 +39,8 @@ export type UseCase =
   | "report_blueprint"      // Blueprint report generation
   | "report_blueprint_plus" // Blueprint+ report generation
   | "voc_analysis"          // VOC survey analysis
-  | "refinement_engine";    // Pillar refinement engine
+  | "refinement_engine"     // Pillar refinement engine
+  | "wundy_marketing";      // Wundy™ marketing widget (external site embed)
 
 /**
  * Default model routing table.
@@ -148,6 +149,17 @@ const DEFAULT_ROUTES: Record<UseCase, ModelRoute> = {
     fallbackProvider: "anthropic",
     fallbackModel: "claude-sonnet-4-20250514",
     temperature: 0.7,
+    maxTokens: 2000,
+    timeoutMs: 25_000,
+  },
+
+  // ─── Marketing Widget ───────────────────────────────────────
+  wundy_marketing: {
+    provider: "openai",
+    model: "gpt-4o-mini",
+    fallbackProvider: "gemini",
+    fallbackModel: "gemini-2.0-flash",
+    temperature: 0.6,
     maxTokens: 2000,
     timeoutMs: 25_000,
   },

@@ -1,6 +1,3 @@
-// src/content/blueprintActivation.copy.ts
-// Blueprint activation copy for each pillar
-
 import { PillarKey } from "@/types/pillars";
 
 export const blueprintActivationCopy: Record<
@@ -12,42 +9,42 @@ export const blueprintActivationCopy: Record<
   }
 > = {
   positioning: {
-    headline: "Clarifies your market position",
+    headline: "Define a market position competitors can\u2019t replicate",
     value:
-      "Your Snapshot+™ revealed that positioning is your biggest opportunity. Blueprint™ translates that insight into a clear positioning system you can rally around.",
+      "Your Snapshot+\u2122 identified positioning as the highest-leverage pillar. Blueprint\u2122 transforms that diagnosis into a complete positioning system \u2014 including a defensible positioning statement, audience personas, competitive mapping, and a value proposition the market can articulate without you in the room.",
     outcome:
-      "Your brand becomes easier to understand, easier to choose, and harder to confuse.",
+      "Your brand occupies a clear, ownable position that makes the right customers choose faster and pay more confidently.",
   },
 
   messaging: {
-    headline: "Aligns what you say everywhere",
+    headline: "Build a messaging system that compounds trust at every touchpoint",
     value:
-      "Snapshot+™ identified messaging as a key lever. Blueprint™ turns that into a structured messaging framework you can reuse across every channel.",
+      "Your Snapshot+\u2122 revealed messaging as the critical lever. Blueprint\u2122 creates a codified messaging architecture \u2014 with messaging pillars, content pillars, voice and tone guide, and channel-specific copy frameworks that ensure every touchpoint reinforces the same strategic narrative.",
     outcome:
-      "Your message stays consistent without sounding repetitive or scripted.",
+      "Your message stays consistent across channels without sounding repetitive \u2014 and each interaction builds on the last instead of starting from scratch.",
   },
 
   visibility: {
-    headline: "Strengthens how your brand shows up",
+    headline: "Become discoverable where buying decisions happen",
     value:
-      "Snapshot+™ highlighted visibility as a growth opportunity. Blueprint™ defines how your brand appears across channels — including SEO and AEO.",
+      "Your Snapshot+\u2122 flagged visibility as a growth constraint. Blueprint\u2122 addresses this with a complete visibility strategy \u2014 including SEO keyword direction, AEO (Answer Engine Optimization) implementation roadmap, platform-specific social strategy, and content pillars designed for organic discovery.",
     outcome:
-      "Your brand becomes easier to find, recognize, and recommend.",
+      "Your brand appears where high-intent prospects are searching \u2014 across both traditional search engines and AI-powered platforms \u2014 reducing dependence on outbound and paid channels.",
   },
 
   credibility: {
-    headline: "Builds trust through consistency",
+    headline: "Build the trust infrastructure that accelerates every conversion",
     value:
-      "Snapshot+™ showed credibility as a priority. Blueprint™ establishes clear brand rules so your presence feels intentional and trustworthy.",
+      "Your Snapshot+\u2122 identified credibility as a strategic priority. Blueprint\u2122 delivers a complete credibility strategy \u2014 including a proof-point roadmap, testimonial framework, authority signal plan, brand consistency checklist, and visual identity direction that makes your brand look as credible as your work actually is.",
     outcome:
-      "Your brand earns confidence faster — even with new audiences.",
+      "Prospects trust you faster, price sensitivity decreases, and your brand earns confidence \u2014 even with audiences encountering you for the first time.",
   },
 
   conversion: {
-    headline: "Turns clarity into action",
+    headline: "Turn brand clarity into a measurable revenue system",
     value:
-      "Snapshot+™ revealed conversion gaps. Blueprint™ connects positioning and messaging directly to decision-making moments.",
+      "Your Snapshot+\u2122 revealed conversion infrastructure as the gap. Blueprint\u2122 connects positioning, messaging, and credibility directly to decision-making moments \u2014 with a CTA hierarchy, customer journey map, sales conversation guide, and website copy direction that closes the loop between attention and action.",
     outcome:
-      "More people understand what to do next — and why it matters.",
+      "Every upstream investment in brand clarity compounds into revenue \u2014 with clear conversion paths, reduced friction, and a system that scales with your growth.",
   },
 };

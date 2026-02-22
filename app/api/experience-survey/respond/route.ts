@@ -1,4 +1,4 @@
-// POST /api/nps/respond — Record an NPS survey response
+// POST /api/experience-survey/respond — Record a WunderBrand Experience Score™ response
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase";
 import { apiGuard } from "@/lib/security/apiGuard";
@@ -8,21 +8,21 @@ import { logger } from "@/lib/logger";
 import { applyActiveCampaignTags, removeActiveCampaignTags } from "@/lib/applyActiveCampaignTags";
 import { fireACEvent } from "@/lib/fireACEvent";
 
-// ─── Tag NPS category in ActiveCampaign ───
-const NPS_CATEGORIES = ["promoter", "passive", "detractor"] as const;
+// ─── Tag experience category in ActiveCampaign ───
+const EXPERIENCE_CATEGORIES = ["promoter", "passive", "detractor"] as const;
 
-async function tagContactForNPS(
+async function tagContactForExperience(
   email: string,
   category: "promoter" | "passive" | "detractor",
   tier: string,
   score: number
 ) {
-  // Remove stale NPS tags (a person may retake, so keep only the latest)
-  const staleTags = NPS_CATEGORIES.filter((c) => c !== category).map((c) => `nps:${c}`);
+  // Remove stale experience tags (a person may retake, so keep only the latest)
+  const staleTags = EXPERIENCE_CATEGORIES.filter((c) => c !== category).map((c) => `experience:${c}`);
   await removeActiveCampaignTags({ email, tags: staleTags });
 
-  // Apply current NPS tag + tier-specific tag
-  const applyTags = [`nps:${category}`, `nps:${tier}:${category}`];
+  // Apply current experience tag + tier-specific tag
+  const applyTags = [`experience:${category}`, `experience:${tier}:${category}`];
 
   // Promoters get a review-eligible tag
   if (category === "promoter") {
@@ -36,22 +36,22 @@ async function tagContactForNPS(
 
   await applyActiveCampaignTags({ email, tags: applyTags });
 
-  // Set custom fields for NPS email personalization
+  // Set custom fields for experience email personalization
   const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://app.wunderbrand.ai";
   const { setContactFields } = await import("@/lib/applyActiveCampaignTags");
 
   try {
-    const npsFields: Record<string, string> = {
-      nps_score: String(score),
-      nps_category: category,
-      nps_tier: tier,
-      nps_date: new Date().toISOString().split("T")[0],
+    const experienceFields: Record<string, string> = {
+      experience_score: String(score),
+      experience_category: category,
+      experience_tier: tier,
+      experience_date: new Date().toISOString().split("T")[0],
     };
     if (category === "promoter") {
-      npsFields.testimonial_link = `${BASE_URL}/nps?tier=${tier}&step=testimonial&email=${encodeURIComponent(email)}`;
-      npsFields.google_review_url = process.env.NEXT_PUBLIC_GOOGLE_REVIEW_URL || "";
+      experienceFields.testimonial_link = `${BASE_URL}/experience-survey?tier=${tier}&step=testimonial&email=${encodeURIComponent(email)}`;
+      experienceFields.google_review_url = process.env.NEXT_PUBLIC_GOOGLE_REVIEW_URL || "";
     }
-    await setContactFields({ email, fields: npsFields });
+    await setContactFields({ email, fields: experienceFields });
   } catch (fieldErr) {
     // Non-blocking
   }
@@ -59,14 +59,14 @@ async function tagContactForNPS(
   // Fire event so AC automations can trigger review/case-study sequences
   await fireACEvent({
     email,
-    eventName: "nps_submitted",
+    eventName: "experience_score_submitted",
     tags: applyTags,
     fields: {
-      nps_score: score,
-      nps_category: category,
-      nps_tier: tier,
-      nps_date: new Date().toISOString().split("T")[0],
-      testimonial_link: category === "promoter" ? `${BASE_URL}/nps?tier=${tier}&step=testimonial&email=${encodeURIComponent(email)}` : "",
+      experience_score: score,
+      experience_category: category,
+      experience_tier: tier,
+      experience_date: new Date().toISOString().split("T")[0],
+      testimonial_link: category === "promoter" ? `${BASE_URL}/experience-survey?tier=${tier}&step=testimonial&email=${encodeURIComponent(email)}` : "",
       google_review_url: category === "promoter" ? (process.env.NEXT_PUBLIC_GOOGLE_REVIEW_URL || "") : "",
     },
   });
@@ -77,7 +77,7 @@ export const dynamic = "force-dynamic";
 const VALID_TIERS = ["snapshot", "snapshot_plus", "blueprint", "blueprint_plus"];
 
 export async function POST(req: NextRequest) {
-  const guard = apiGuard(req, { routeId: "nps-respond", rateLimit: GENERAL_RATE_LIMIT });
+  const guard = apiGuard(req, { routeId: "experience-survey-respond", rateLimit: GENERAL_RATE_LIMIT });
   if (!guard.passed) return guard.errorResponse;
 
   try {
@@ -109,7 +109,7 @@ export async function POST(req: NextRequest) {
     const supabase = supabaseServer();
 
     const { error: dbError } = await (supabase
-      .from("nps_responses" as any)
+      .from("experience_survey_responses" as any)
       .upsert(
         {
           report_id: reportId,
@@ -122,23 +122,23 @@ export async function POST(req: NextRequest) {
       ));
 
     if (dbError) {
-      logger.error("[NPS] Database error", { error: dbError.message });
+      logger.error("[Experience Survey] Database error", { error: dbError.message });
       return NextResponse.json({ error: "Failed to save response." }, { status: 500 });
     }
 
     // ─── Categorize ───
     const category = score >= 9 ? "promoter" : score >= 7 ? "passive" : "detractor";
-    logger.info("[NPS] Response recorded", { tier, score, category });
+    logger.info("[Experience Survey] Response recorded", { tier, score, category });
 
     // ─── Tag contact in ActiveCampaign (non-blocking) ───
-    tagContactForNPS(normalizedEmail, category, tier, score).catch((err) =>
-      logger.error("[NPS] AC tagging failed", { error: String(err) })
+    tagContactForExperience(normalizedEmail, category, tier, score).catch((err) =>
+      logger.error("[Experience Survey] AC tagging failed", { error: String(err) })
     );
 
     return NextResponse.json({ success: true, category });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
-    logger.error("[NPS] Unexpected error", { error: message });
+    logger.error("[Experience Survey] Unexpected error", { error: message });
     return NextResponse.json({ error: "Internal error." }, { status: 500 });
   }
 }

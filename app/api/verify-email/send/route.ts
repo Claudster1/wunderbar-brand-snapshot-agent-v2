@@ -2,6 +2,7 @@
 // Generates a 6-digit verification code, stores it in Supabase, and sends it via email.
 
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { validateEmail } from "@/lib/security/emailValidation";
 import { fireACEvent } from "@/lib/fireACEvent";
@@ -34,7 +35,7 @@ export async function POST(req: Request) {
     // Full email validation (format + disposable + MX)
     const validation = await validateEmail(email);
     if (!validation.valid) {
-      console.warn("[Verify Email Send] Validation failed:", validation.reason);
+      logger.warn("[Verify Email Send] Validation failed", { reason: validation.reason });
       return NextResponse.json(
         { error: validation.friendlyMessage },
         { status: 422 }
@@ -57,7 +58,7 @@ export async function POST(req: Request) {
         })
         .eq("report_id", reportId);
       if (dbError) {
-        console.error("[Verify Email Send] Supabase update error:", dbError);
+        logger.error("[Verify Email Send] Supabase update error", { error: dbError instanceof Error ? dbError.message : String(dbError) });
         return NextResponse.json({ error: "Failed to save verification code." }, { status: 500 });
       }
     }
@@ -75,7 +76,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true, message: "Verification code sent" });
   } catch (err) {
-    console.error("[Verify Email Send] Error:", err);
+    logger.error("[Verify Email Send] Error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "Failed to send verification email" }, { status: 500 });
   }
 }

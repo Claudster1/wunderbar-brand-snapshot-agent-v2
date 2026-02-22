@@ -3,6 +3,7 @@
 
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { logger } from "@/lib/logger";
 
 // ─── Per-reportId brute-force lockout ───
 // Max 5 failed attempts per report; resets on deploy or after TTL.
@@ -126,13 +127,13 @@ export async function POST(req: Request) {
       .eq("report_id", reportId);
 
     if (updateError) {
-      console.error("[Verify Email Confirm] Supabase update error:", updateError);
+      logger.error("[Verify Email Confirm] Supabase update error", { error: updateError instanceof Error ? updateError.message : String(updateError) });
       return NextResponse.json({ error: "Verification succeeded but failed to update record." }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, verified: true });
   } catch (err) {
-    console.error("[Verify Email Confirm] Error:", err);
+    logger.error("[Verify Email Confirm] Error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "Verification failed" }, { status: 500 });
   }
 }

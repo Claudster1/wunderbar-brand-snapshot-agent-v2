@@ -1,5 +1,6 @@
 // app/api/purchase/lookup/route.ts
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { supabaseServer } from "@/lib/supabaseServer";
 
 export const runtime = "nodejs";
@@ -38,7 +39,9 @@ export async function POST(req: Request) {
       },
     });
   } catch (e: any) {
-    console.error(e);
+    logger.error("Purchase lookup failed", {
+      error: e instanceof Error ? e.message : String(e),
+    });
     return NextResponse.json({ error: "Lookup failed" }, { status: 500 });
   }
 }

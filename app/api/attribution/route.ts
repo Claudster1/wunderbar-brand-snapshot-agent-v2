@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 
 /**
  * POST /api/attribution — Save first-visit attribution data to Supabase.
@@ -33,12 +34,12 @@ export async function POST(req: Request) {
     });
 
     if (error) {
-      console.error("[Attribution] Insert error:", error.message);
+      logger.error("[Attribution] Insert error", { error: error.message });
     }
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("[Attribution] Error:", err);
+    logger.error("[Attribution] Error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "Attribution capture failed." }, { status: 500 });
   }
 }
@@ -72,12 +73,12 @@ export async function PATCH(req: Request) {
       .eq("anonymous_id", body.anonymousId);
 
     if (error) {
-      console.error("[Attribution] Update error:", error.message);
+      logger.error("[Attribution] Update error", { error: error.message });
     }
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("[Attribution] Patch error:", err);
+    logger.error("[Attribution] Patch error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "Attribution link failed." }, { status: 500 });
   }
 }

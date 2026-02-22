@@ -2,6 +2,7 @@
 // API route to get WunderBrand Snapshot™ reports
 
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { apiGuard } from "@/lib/security/apiGuard";
 import { GENERAL_RATE_LIMIT } from "@/lib/security/rateLimit";
@@ -76,7 +77,7 @@ export async function GET(req: Request) {
       },
     });
   } catch (err: unknown) {
-    console.error("[Snapshot Get API] Unexpected error:", err);
+    logger.error("[Snapshot Get API] Unexpected error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
       { error: "Failed to load report. Please try again." },
       { status: 500 }

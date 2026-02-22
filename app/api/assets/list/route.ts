@@ -2,6 +2,7 @@
 // Returns uploaded assets for a user + tier, plus remaining upload slots.
 
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { supabaseServer } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
@@ -25,7 +26,7 @@ export async function GET(req: NextRequest) {
     .order("created_at", { ascending: true });
 
   if (error) {
-    console.error("[Asset List]", error);
+    logger.error("[Asset List]", { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: "Failed to fetch assets." }, { status: 500 });
   }
 

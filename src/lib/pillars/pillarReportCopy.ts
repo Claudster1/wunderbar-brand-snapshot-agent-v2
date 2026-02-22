@@ -1,11 +1,7 @@
-// src/lib/pillars/pillarReportCopy.ts
-// Pillar-specific copy for the results report: stage copy, score bands, and biggest opportunity
-
 import type { PillarKey } from "./pillarCopy";
 
 export type BrandStage = "early" | "scaling" | "growing";
 
-/** Why this pillar matters at your current stage — different per pillar and stage */
 export function getPillarStageCopy(
   pillar: PillarKey,
   businessName: string,
@@ -14,61 +10,73 @@ export function getPillarStageCopy(
   const name = businessName;
   const copy: Record<PillarKey, Record<BrandStage, string>> = {
     positioning: {
-      early: `${name}'s positioning now sets the foundation everything else builds on — early clarity compounds fastest.`,
-      scaling: `Inconsistent positioning slows ${name} as you add channels and team — alignment becomes critical.`,
-      growing: `As ${name} scales, how you're understood in the market drives every other pillar — sharpen it first.`,
+      early: `${name}\u2019s positioning today determines acquisition cost for the next 2\u20133 years \u2014 brands that define their position early spend significantly less to attract the right customers.`,
+      scaling: `As ${name} adds channels, team members, and campaigns, positioning inconsistency becomes a multiplier problem \u2014 every misalignment compounds across every touchpoint.`,
+      growing: `At ${name}\u2019s scale, how the market understands your brand drives margin, retention, and competitive defensibility \u2014 sharpening positioning protects the premium you\u2019ve earned.`,
     },
     messaging: {
-      early: `Getting ${name}'s message consistent now means it compounds as you grow — one voice, everywhere.`,
-      scaling: `Mixed messaging creates confusion as ${name} expands — one clear story speeds every decision.`,
-      growing: `At ${name}'s size, inconsistent messaging slows growth — align the narrative across touchpoints.`,
+      early: `Getting ${name}\u2019s core narrative right now creates a compounding asset \u2014 each new touchpoint reinforces the last instead of diluting it.`,
+      scaling: `Inconsistent messaging across ${name}\u2019s channels means each interaction starts from scratch rather than building on previous ones \u2014 the cumulative trust gap widens with every new campaign.`,
+      growing: `At ${name}\u2019s size, messaging precision is a margin lever \u2014 the gap between \u2018they\u2019re good\u2019 and \u2018they\u2019re the obvious choice\u2019 is often one sentence, consistently deployed.`,
     },
     visibility: {
-      early: `Making ${name} easier to find now pays off as you scale — discoverability compounds over time.`,
-      scaling: `If ${name} is hard to find, even strong positioning goes unseen — visibility unlocks growth.`,
-      growing: `As ${name} grows, being discoverable (search, AI, referrals) becomes a major growth lever.`,
+      early: `Making ${name} discoverable in the right 2\u20133 channels now creates the organic foundation that makes every future marketing dollar work harder.`,
+      scaling: `If ${name} isn\u2019t appearing where high-intent buyers are searching, even strong positioning and messaging never get the chance to work \u2014 visibility is the prerequisite for every other pillar.`,
+      growing: `As buying behavior shifts toward AI-powered discovery, ${name}\u2019s visibility strategy must evolve \u2014 the brands that appear in AI-generated answers will capture the next wave of organic growth.`,
     },
     credibility: {
-      early: `Building ${name}'s trust signals now means every future touchpoint starts from strength.`,
-      scaling: `Inconsistencies in how ${name} shows up erode trust — credibility accelerates conversion.`,
-      growing: `At scale, ${name} needs to feel credible everywhere — proof points and consistency matter most.`,
+      early: `Building ${name}\u2019s trust signals now means every future touchpoint starts from a position of credibility rather than having to earn it from zero.`,
+      scaling: `As ${name}\u2019s visibility grows, credibility gaps get amplified \u2014 more people seeing an inconsistent trust story means more qualified deals lost to competitors who simply look more established.`,
+      growing: `At scale, ${name}\u2019s credibility needs active maintenance \u2014 proof points that powered early growth may not resonate with the next tier of customers you\u2019re targeting.`,
     },
     conversion: {
-      early: `Smoothing ${name}'s path from interest to action now shortens sales cycles as you grow.`,
-      scaling: `Friction in how people say yes to ${name} slows growth — conversion clarity pays off fast.`,
-      growing: `As ${name} scales, small conversion gaps compound — fix the path from interest to action.`,
+      early: `For ${name}, conversion infrastructure isn\u2019t a luxury \u2014 it\u2019s the difference between growing through intention and growing through luck.`,
+      scaling: `Every percentage point of conversion improvement at ${name}\u2019s traffic level has outsized revenue impact \u2014 this is where operational leverage lives.`,
+      growing: `As ${name} scales, the audience already exists \u2014 the highest-ROI investment is removing every unnecessary barrier between intent and action.`,
     },
   };
   return copy[pillar][stage];
 }
 
-/** Score band label and short description (0–20 scale) */
 export function getScoreBand(score: number): { label: string; description: string } {
-  if (score >= 17) return { label: "Strong", description: "This pillar is a strength. Look for small refinements." };
-  if (score >= 13) return { label: "Developing", description: "Solid base with clear room to improve." };
-  if (score >= 9) return { label: "Needs focus", description: "Worth prioritizing — gains here will lift overall alignment." };
-  return { label: "Critical opportunity", description: "Your biggest leverage; improving here will move the needle most." };
+  if (score >= 17)
+    return {
+      label: "Strong",
+      description: "This pillar is performing well \u2014 focus on refinement, consistency at scale, and protecting this advantage."
+    };
+  if (score >= 13)
+    return {
+      label: "Developing",
+      description: "A solid base with clear room for strategic improvement \u2014 targeted investment here will compound across the system."
+    };
+  if (score >= 9)
+    return {
+      label: "Needs focus",
+      description: "This pillar is constraining performance in other areas \u2014 improving it will create cascading impact across your brand."
+    };
+  return {
+    label: "Critical opportunity",
+    description: "This is where focused effort will create the most disproportionate improvement in overall brand performance."
+  };
 }
 
-/** Short one-liner for biggest opportunity (shown when score < 20) */
 export const PILLAR_OPPORTUNITY: Record<PillarKey, string> = {
-  positioning: "Sharpen how you're understood at a glance — clarity on who you are and why you matter.",
-  messaging: "Align your core message across every channel so your brand sounds intentional, not improvised.",
-  visibility: "Make your brand easier to find and reference — SEO, AEO, and where you show up.",
-  credibility: "Strengthen trust signals everywhere you show up — proof points, consistency, and social proof.",
-  conversion: "Smooth the path from interest to action — remove friction and make the next step obvious.",
+  positioning: "Define how the market understands you \u2014 so the right customers self-select and the wrong ones don\u2019t waste your time.",
+  messaging: "Codify one consistent narrative across every touchpoint \u2014 so each interaction compounds trust instead of starting from zero.",
+  visibility: "Close the discovery gap between where your best customers search and where your brand appears \u2014 including AI-powered platforms.",
+  credibility: "Deploy trust signals where buying decisions happen \u2014 so prospects choose with confidence instead of defaulting to safer alternatives.",
+  conversion: "Remove the structural friction between interest and action \u2014 so the attention you generate becomes the revenue you deserve.",
 };
 
-/** Expanded recommendation for biggest opportunity: actionable detail per pillar */
 export const PILLAR_OPPORTUNITY_EXPANDED: Record<PillarKey, string> = {
   positioning:
-    "Get one clear line that answers 'who you serve' and 'why you're different' and use it everywhere — homepage, bios, sales one-pagers. When positioning is fuzzy, everything downstream (messaging, ads, sales) stays inconsistent. Start by writing that line, testing it with a few ideal customers, then rolling it out across your main touchpoints.",
+    "Write one sentence that answers \u2018who you serve, what you do, and why it matters\u2019 \u2014 then deploy it on your homepage hero, LinkedIn headline, email signature, and sales deck opening slide. When positioning is unclear, every downstream investment (messaging, campaigns, sales) underperforms. Test the statement with 3\u20135 ideal customers this week: if they can repeat it back accurately, you\u2019ve found your position.",
   messaging:
-    "Pick one core message (the promise or outcome you want to own) and repeat it across your site, emails, and sales conversations. Right now your message may shift by channel or page; aligning on one story makes your brand feel intentional and builds trust. Draft a single 'hero message,' use it in 3 places this week, and note what resonates.",
+    "Define 3 messaging pillars \u2014 the strategic themes your brand always comes back to \u2014 and use them as the backbone of every piece of content, copy, and communication. Right now, your message likely shifts by channel and context, which prevents trust from compounding. Start by auditing your homepage, top social profile, and most-used email template: do they tell the same story?",
   visibility:
-    "Improve how people find you: tighten your site and content around the terms your ideal customers use (and how AI might cite you). Add a clear 'about' and value proposition so search and AI can surface you accurately. One high-impact step: audit your homepage and key pages — do they state who you are and who you're for in the first screen?",
+    "Audit the 5 highest-intent search queries your ideal customer uses when looking for what you offer. Then check: does your brand appear? If not, create one comprehensive, authoritative content piece for each query \u2014 structured so both search engines and AI assistants can surface it. The brands that invest in AEO (Answer Engine Optimization) now will own the discovery advantage for the next 3\u20135 years.",
   credibility:
-    "Make proof visible: testimonials, case studies, or results where your audience already looks. Inconsistency (different tone, missing proof, outdated info) undermines trust. Choose one proof format (e.g. 3 short testimonials or one case study), place it prominently on your site and in sales materials, and keep it updated.",
+    "Place your 3 strongest proof points where buying decisions actually happen: your homepage hero area, your pricing/services page, and the first follow-up email after an inquiry. Most brands bury proof on a testimonials page nobody visits. The fix is deployment, not collection \u2014 move your best evidence to the moments of highest buyer hesitation.",
   conversion:
-    "Reduce friction between 'interested' and 'action': one clear primary CTA per page, a simple next step (e.g. book a call, get the guide), and no competing choices. Often the biggest win is making the one thing you want people to do obvious and easy. Map the path from first visit to conversion and remove or simplify one step.",
+    "Map the exact path from first visit to first conversion on your site. Count the clicks, choices, and distractions. Then reduce it to 3 steps maximum: arrive \u2192 understand the value \u2192 take one clear action. The most common conversion killer isn\u2019t missing features or wrong pricing \u2014 it\u2019s too many options competing for the same click.",
 };

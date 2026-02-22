@@ -116,7 +116,7 @@ export function VocSurveyCTA({
             Strengthen Your Report with Customer Insights
           </h3>
           <p style={{ fontSize: 14, color: "#C9D6FF", lineHeight: 1.6, margin: "0 0 16px" }}>
-            See how your customers actually perceive your brand. Send a 2-minute survey to 5–10 customers and we&apos;ll add their perspective to your diagnostic — including perception gaps, NPS score, and blind spots.
+            See how your customers actually perceive your brand. Send a 2-minute survey to 5–10 customers and we&apos;ll add their perspective to your diagnostic — including perception gaps, WunderBrand Experience Score™, and blind spots.
           </p>
 
           {status === "idle" && (

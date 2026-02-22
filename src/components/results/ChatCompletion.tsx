@@ -1,6 +1,3 @@
-// src/components/results/ChatCompletion.tsx
-// Chat completion message component
-
 import { rolePhrase } from "@/src/lib/roleLanguage";
 
 interface ChatCompletionProps {
@@ -9,14 +6,14 @@ interface ChatCompletionProps {
 
 export function ChatCompletion({ userRoleContext }: ChatCompletionProps) {
   return (
-    <div className="text-center py-4 sm:py-6 space-y-2">
+    <div className="text-center py-6 sm:py-8 space-y-3">
       <p className="bs-h2 text-brand-navy">
-        Your WunderBrand Snapshot™ is complete.
+        Your WunderBrand Snapshot™ is ready.
       </p>
-      <p className="bs-body-sm text-brand-muted max-w-xl mx-auto">
-        This snapshot gives you a clear view of how your brand is showing up today
+      <p className="bs-body text-brand-midnight max-w-2xl mx-auto leading-relaxed">
+        Below is a strategic diagnostic of how your brand performs across five core pillars — positioning, messaging, visibility, credibility, and conversion. Each score reflects where your brand stands today, and where focused effort will create the most impact
         {userRoleContext ? (
-          <> — specifically to support you in {rolePhrase(userRoleContext as import("@/src/types/snapshot").UserRoleContext)}.</>
+          <> — calibrated to support you in {rolePhrase(userRoleContext as import("@/src/types/snapshot").UserRoleContext)}.</>
         ) : (
           "."
         )}

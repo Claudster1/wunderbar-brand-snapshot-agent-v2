@@ -3,6 +3,7 @@
 
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { logger } from "@/lib/logger";
 import { generateReport, type ReportData } from "@/src/services/reportGenerator";
 
 export async function POST(req: Request) {
@@ -69,7 +70,9 @@ export async function POST(req: Request) {
       });
 
     if (insertError) {
-      console.error("Supabase insert error:", insertError);
+      logger.error("Supabase insert error", {
+        error: insertError.message,
+      });
       return NextResponse.json(
         { error: insertError.message },
         { status: 500 }
@@ -78,7 +81,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ reportId: report_id, success: true });
   } catch (err: any) {
-    console.error("[Reports Create API] Error:", err);
+    logger.error("[Reports Create API] Error", {
+      error: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json(
       { error: err?.message || "Failed to create report" },
       { status: 500 }

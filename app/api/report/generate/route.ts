@@ -3,8 +3,14 @@
 
 import { NextResponse } from 'next/server';
 import { generateReport, type ReportData } from '@/src/services/reportGenerator';
+import { logger } from '@/lib/logger';
+import { apiGuard } from '@/lib/security/apiGuard';
+import { GENERAL_RATE_LIMIT } from '@/lib/security/rateLimit';
 
 export async function POST(request: Request) {
+  const guard = apiGuard(request, { routeId: 'report-generate', rateLimit: GENERAL_RATE_LIMIT });
+  if (!guard.passed) return guard.errorResponse;
+
   try {
     const body = await request.json();
 
@@ -41,7 +47,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(report);
   } catch (error: any) {
-    console.error('[Report Generate API] Error:', error);
+    logger.error("[Report Generate API] Error", { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: error?.message || 'Failed to generate report' },
       { status: 500 }
@@ -56,7 +62,7 @@ export async function GET() {
     const exampleReport = generateExampleReport();
     return NextResponse.json(exampleReport);
   } catch (error: any) {
-    console.error('[Report Generate API] Error:', error);
+    logger.error("[Report Generate API] Error", { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: error?.message || 'Failed to generate example report' },
       { status: 500 }

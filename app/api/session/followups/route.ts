@@ -70,6 +70,7 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Database not configured." }, { status: 500 });
   }
 
+  try {
   const body = await req.json();
   const { id, action, final_subject, final_body, reviewer_notes, reviewed_by } = body;
 
@@ -311,4 +312,8 @@ export async function PATCH(req: NextRequest) {
     { error: "Invalid action. Use: approve, reject, edit, regenerate." },
     { status: 400 }
   );
+  } catch (err: unknown) {
+    logger.error("[Session Followups] PATCH error", { error: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "Internal server error." }, { status: 500 });
+  }
 }

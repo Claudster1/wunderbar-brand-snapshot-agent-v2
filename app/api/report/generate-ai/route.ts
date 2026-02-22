@@ -24,6 +24,7 @@ import { generateAIReport } from "@/lib/ai/reportGeneration";
 import type { ReportTier, AssessmentInput } from "@/lib/ai/reportGeneration";
 import { randomUUID } from "crypto";
 import { logger } from "@/lib/logger";
+import { featureGuard, FEATURES } from "@/lib/featureFlags";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +34,14 @@ export const maxDuration = 300; // 5 minutes (Vercel Pro/Enterprise)
 const VALID_TIERS: ReportTier[] = ["free", "snapshot_plus", "blueprint", "blueprint_plus"];
 
 export async function POST(req: Request) {
+  // ─── Kill switch ──────────────────────────────────────────
+  if (!featureGuard(FEATURES.AI_INSIGHTS, "report-generate-ai")) {
+    return NextResponse.json(
+      { error: "AI report generation is temporarily unavailable. Please try again later." },
+      { status: 503 }
+    );
+  }
+
   // ─── Security ─────────────────────────────────────────────
   const { apiGuard } = await import("@/lib/security/apiGuard");
   const { AI_RATE_LIMIT } = await import("@/lib/security/rateLimit");
@@ -214,6 +223,23 @@ export async function POST(req: Request) {
         logger.error("[Report Generate AI] DB save failed", { tier, error: error.message });
         return NextResponse.json({ error: "Failed to save report." }, { status: 500 });
       }
+    }
+
+    // Register brand (non-blocking)
+    const brandName = assessmentData.businessName as string | undefined;
+    if (email && brandName) {
+      import("@/lib/userBrands").then(({ registerBrand }) =>
+        registerBrand({
+          email,
+          brandName,
+          industry: (assessmentData.industry as string) ?? null,
+          website: (assessmentData.website as string) ?? null,
+          score: (generatedReport.content.executiveSummary as any)?.brandAlignmentScore ??
+                 (assessmentData.brandAlignmentScore as number) ?? null,
+          reportId: report_id,
+          reportTier: tier === "free" ? "snapshot" : tier,
+        })
+      ).catch(() => {});
     }
 
     logger.info("[Report Generate AI] Success", {

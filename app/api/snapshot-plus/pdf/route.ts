@@ -2,9 +2,8 @@
 // API route to generate WunderBrand Snapshot+™ PDF (content mirrors report view)
 
 import { NextResponse } from 'next/server';
-import { renderToBuffer } from '@react-pdf/renderer';
 import React from 'react';
-import { BrandSnapshotPlusPDF } from '@/src/pdf/BrandSnapshotPlusPDF';
+import { logger } from '@/lib/logger';
 import { supabaseServer } from '@/lib/supabaseServer';
 import { getPrimaryPillar } from '@/src/lib/pillars/getPrimaryPillar';
 
@@ -137,7 +136,8 @@ export async function GET(req: Request) {
     // Transform report data (same shape as report view)
     const reportData = transformReportData(report);
 
-    // Generate PDF (BrandSnapshotPlusPDF mirrors report view content)
+    const { renderToBuffer } = await import('@react-pdf/renderer');
+    const { BrandSnapshotPlusPDF } = await import('@/src/pdf/BrandSnapshotPlusPDF');
     const doc = React.createElement(BrandSnapshotPlusPDF, { report: reportData });
     const pdfBuffer = await renderToBuffer(doc as any);
 
@@ -153,7 +153,7 @@ export async function GET(req: Request) {
       },
     });
   } catch (err: unknown) {
-    console.error('[Snapshot+ PDF] Error:', err);
+    logger.error("[Snapshot+ PDF] Error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
       { error: 'Failed to generate PDF. Please try again.' },
       { status: 500 }

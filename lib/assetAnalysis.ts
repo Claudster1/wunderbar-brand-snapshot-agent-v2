@@ -49,7 +49,8 @@ export async function getAssetAnalyses(
     .select("id, file_name, file_type, asset_category, analysis")
     .eq("user_email", email.toLowerCase())
     .eq("tier", tier)
-    .order("created_at", { ascending: true });
+    .order("created_at", { ascending: true })
+    .limit(50);
 
   if (error || !assets || assets.length === 0) return null;
 
@@ -70,7 +71,8 @@ export async function getAssetAnalyses(
         .select("id, file_name, file_type, asset_category, analysis")
         .eq("user_email", email.toLowerCase())
         .eq("tier", tier)
-        .order("created_at", { ascending: true });
+        .order("created_at", { ascending: true })
+        .limit(50);
 
       if (refreshed) typedAssets = refreshed as AssetAnalysisRecord[];
     } catch {

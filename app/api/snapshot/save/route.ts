@@ -3,6 +3,7 @@
 
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: Request) {
   // ─── Security: Rate limit + request size ───
@@ -63,7 +64,7 @@ export async function POST(req: Request) {
       });
 
     if (error) {
-      console.error("Supabase insert error:", error);
+      logger.error("Supabase insert error", { error: error.message });
       return NextResponse.json(
         { success: false, error: error.message },
         { status: 500 }
@@ -72,7 +73,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true, report_id });
   } catch (err: any) {
-    console.error("[Snapshot Save API] Unexpected error:", err);
+    logger.error("[Snapshot Save API] Unexpected error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
       { success: false, error: err?.message || "Failed to save snapshot" },
       { status: 500 }

@@ -4,6 +4,7 @@
 // Use this URL in UptimeRobot, Better Uptime, Pingdom, etc.
 
 import { NextResponse } from "next/server";
+import { getAllFeatureFlags } from "@/lib/featureFlags";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -14,6 +15,7 @@ interface HealthCheck {
   version: string;
   uptime: number;
   checks: Record<string, { ok: boolean; latencyMs?: number; error?: string }>;
+  featureFlags?: Record<string, boolean>;
 }
 
 const startTime = Date.now();
@@ -78,6 +80,7 @@ export async function GET() {
     version: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) || "dev",
     uptime: Math.floor((Date.now() - startTime) / 1000),
     checks,
+    featureFlags: getAllFeatureFlags(),
   };
 
   return NextResponse.json(health, {

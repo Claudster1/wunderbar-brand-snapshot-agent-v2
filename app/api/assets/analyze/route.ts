@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase";
+import { logger } from "@/lib/logger";
 import OpenAI from "openai";
 
 export const dynamic = "force-dynamic";
@@ -140,6 +141,11 @@ Return a JSON object:
 }
 
 export async function POST(req: NextRequest) {
+  const { apiGuard } = await import("@/lib/security/apiGuard");
+  const { AI_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+  const guard = apiGuard(req, { routeId: "assets-analyze", rateLimit: AI_RATE_LIMIT });
+  if (!guard.passed) return guard.errorResponse;
+
   try {
     const { email, tier, brandContext } = await req.json();
 
@@ -257,7 +263,7 @@ export async function POST(req: NextRequest) {
           results.push({ id: asset.id, file_name: asset.file_name, analysis });
         }
       } catch (assetErr) {
-        console.error(`[Asset Analyze] Error analyzing ${asset.file_name}:`, assetErr);
+        logger.error("[Asset Analyze] Error analyzing asset", { file_name: asset.file_name, error: assetErr instanceof Error ? assetErr.message : String(assetErr) });
       }
     }
 
@@ -266,7 +272,7 @@ export async function POST(req: NextRequest) {
       results,
     });
   } catch (err) {
-    console.error("[Asset Analyze] Unexpected error:", err);
+    logger.error("[Asset Analyze] Unexpected error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
       { error: "Analysis failed. Please try again." },
       { status: 500 }

@@ -2,10 +2,9 @@
 
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { logger } from "@/lib/logger";
 import { v4 as uuidv4 } from "uuid";
-import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
-import { ReportDocument } from "@/components/pdf/ReportDocument";
 
 export async function POST(req: Request) {
   try {
@@ -41,6 +40,8 @@ export async function POST(req: Request) {
     // -----------------------------------------------------
     // 2. Render PDF to a buffer
     // -----------------------------------------------------
+    const { renderToBuffer } = await import("@react-pdf/renderer");
+    const { ReportDocument } = await import("@/components/pdf/ReportDocument");
     const pdfBuffer = await renderToBuffer(
       React.createElement(ReportDocument, {
         userName,
@@ -64,7 +65,7 @@ export async function POST(req: Request) {
       });
 
     if (uploadError) {
-      console.error("Upload Error:", uploadError);
+      logger.error("Upload Error", { error: uploadError instanceof Error ? uploadError.message : String(uploadError) });
       return NextResponse.json(
         { error: "Failed to upload PDF" },
         { status: 500 }
@@ -103,7 +104,7 @@ export async function POST(req: Request) {
       });
 
     if (dbError) {
-      console.error("DB Error:", dbError);
+      logger.error("DB Error", { error: dbError instanceof Error ? dbError.message : String(dbError) });
       return NextResponse.json(
         { error: "Failed to save report" },
         { status: 500 }
@@ -118,7 +119,7 @@ export async function POST(req: Request) {
       pdfUrl: signedUrlData?.signedUrl,
     });
   } catch (err: any) {
-    console.error("API Error:", err);
+    logger.error("API Error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
       { error: "Server error", message: err?.message },
       { status: 500 }

@@ -4,6 +4,7 @@
 // Can generate from report ID or inline data
 
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { supabaseServer } from "@/lib/supabase";
 import {
   generatePdfResponseFromReport,
@@ -57,33 +58,42 @@ export async function GET(req: Request) {
 
     const supabase = supabaseServer();
 
-    // Determine table based on document type
-    let table: string;
+    // Determine primary table based on document type
+    const tableLookupOrder: string[] = [];
     switch (documentType) {
       case "snapshot":
-        table = "brand_snapshot_reports";
+        tableLookupOrder.push("brand_snapshot_reports");
         break;
       case "snapshot-plus":
-        table = "brand_snapshot_plus_reports";
+        tableLookupOrder.push("brand_snapshot_plus_reports");
         break;
       case "blueprint":
-        table = "brand_blueprint_results";
+        tableLookupOrder.push("brand_blueprint_results", "brand_snapshot_plus_reports");
         break;
       case "blueprint-plus":
-        table = "brand_blueprint_plus_reports";
+        tableLookupOrder.push("brand_blueprint_plus_reports", "brand_snapshot_plus_reports");
         break;
       default:
-        table = "brand_snapshot_reports";
+        tableLookupOrder.push("brand_snapshot_reports");
     }
 
-    // Fetch report from database
-    const { data: report, error } = await supabase
-      .from(table as any)
-      .select("*")
-      .eq("report_id", reportId)
-      .single();
+    // Fetch report — try primary table first, then fallback
+    let report: any = null;
+    for (const table of tableLookupOrder) {
+      const idCol = table === "brand_blueprint_results" ? "blueprint_id" : "report_id";
+      const { data, error: fetchErr } = await supabase
+        .from(table as any)
+        .select("*")
+        .eq(idCol, reportId)
+        .maybeSingle();
 
-    if (error || !report) {
+      if (!fetchErr && data) {
+        report = data;
+        break;
+      }
+    }
+
+    if (!report) {
       return NextResponse.json(
         { error: "Report not found" },
         { status: 404 }
@@ -116,7 +126,9 @@ export async function GET(req: Request) {
         });
 
       if (uploadError) {
-        console.error("[PDF Upload] Error:", uploadError);
+        logger.error("[PDF Upload] Error", {
+          error: uploadError.message,
+        });
         return NextResponse.json(
           { error: "Failed to upload PDF" },
           { status: 500 }
@@ -150,7 +162,9 @@ export async function GET(req: Request) {
     // Return PDF download
     return pdfResponse;
   } catch (err: any) {
-    console.error("[PDF API] Error:", err);
+    logger.error("[PDF API] Error", {
+      error: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json(
       { error: err?.message || "Failed to generate PDF" },
       { status: 500 }
@@ -212,7 +226,9 @@ export async function POST(req: Request) {
 
     return pdfResponse;
   } catch (err: any) {
-    console.error("[PDF API] Error:", err);
+    logger.error("[PDF API] Error", {
+      error: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json(
       { error: err?.message || "Failed to generate PDF" },
       { status: 500 }

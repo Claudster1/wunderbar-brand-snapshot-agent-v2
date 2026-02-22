@@ -86,23 +86,31 @@ export const BrandBlueprintPlusPDF = ({
     <Document>
       {/* PAGE 1 — COVER */}
       <Page style={stylePresets.page}>
-        <View style={{ borderBottom: `2px solid ${colors.navy}`, paddingBottom: spacing.md, marginBottom: spacing["2xl"] }}>
-          <Text style={stylePresets.h1}>WunderBrand Blueprint+™</Text>
-          <Text style={stylePresets.body}>
-            The advanced strategic foundation for scalable brand growth.
+        <View style={{ borderBottom: `3px solid ${colors.navy}`, paddingBottom: spacing.lg, marginBottom: spacing["2xl"] }}>
+          <Text style={{ ...stylePresets.h1, fontSize: 32, marginBottom: 4 }}>WunderBrand Blueprint+™</Text>
+          <Text style={{ fontSize: fonts.md, color: colors.textSecondary, fontWeight: fonts.medium }}>
+            {businessName ? `Strategic Brand Operating System for ${businessName}` : "Advanced Strategic Brand Operating System"}
           </Text>
         </View>
 
-        <Text style={stylePresets.body}>Hello {userName || "there"},</Text>
-        <Text style={{ marginTop: spacing.md, ...stylePresets.body }}>
-          Your WunderBrand Blueprint+™ synthesizes deeper customer insights, narrative frameworks,
-          positioning strategy, and execution plans into a single, actionable system designed
-          for clarity, alignment, and growth. This includes a complete AEO system with full
-          implementation guidance.
+        <Text style={{ ...stylePresets.body, marginTop: spacing.xl }}>
+          {businessName ? `${businessName}\u2019s` : "Your"} WunderBrand Blueprint+™ is a comprehensive brand operating system — synthesizing customer intelligence, narrative architecture, positioning strategy, competitive analysis, and a complete AEO implementation roadmap into a single, execution-ready document. Every section is designed to be handed directly to your team, agency, or freelancers as a production brief.
         </Text>
 
+        <View style={{ marginTop: spacing.xl, padding: spacing.md, backgroundColor: colors.bgSecondary, borderRadius: 8 }}>
+          <Text style={{ ...stylePresets.h4, marginTop: 0 }}>What this document includes:</Text>
+          <Text style={{ ...stylePresets.body, marginTop: spacing.sm }}>
+            {"\u2022"} Brand story framework and positioning architecture{"\n"}
+            {"\u2022"} Customer journey mapping with conversion triggers{"\n"}
+            {"\u2022"} 12-month content roadmap with AEO integration{"\n"}
+            {"\u2022"} Complete Answer Engine Optimization system{"\n"}
+            {"\u2022"} Advanced AI Prompt Library calibrated to your brand{"\n"}
+            {"\u2022"} Visual and verbal direction with decision filters
+          </Text>
+        </View>
+
         <Text style={stylePresets.footer}>
-          © 2025 Wunderbar Digital. WunderBrand Blueprint+™ is a trademark of Wunderbar Digital.
+          © {new Date().getFullYear()} Wunderbar Digital. WunderBrand Blueprint+™ is a trademark of Wunderbar Digital.
         </Text>
       </Page>
 

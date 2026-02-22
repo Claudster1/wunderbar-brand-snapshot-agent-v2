@@ -3,6 +3,7 @@
 // Checks all services and sends an alert if anything is degraded/down.
 
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -36,8 +37,8 @@ export async function GET(req: Request) {
     const { logger } = await import("@/lib/logger");
     logger.info("[Cron Health Check]", {
       status: health.status,
-      services: Object.fromEntries(
-        Object.entries(health.services || {}).map(([k, v]: [string, any]) => [k, v.status])
+      checks: Object.fromEntries(
+        Object.entries(health.checks || {}).map(([k, v]: [string, any]) => [k, v.ok ? "ok" : v.error || "failed"])
       ),
     });
 
@@ -47,7 +48,7 @@ export async function GET(req: Request) {
       alerted: health.status !== "healthy",
     });
   } catch (err) {
-    console.error("[Cron Health Check] Error:", err);
+    logger.error("[Cron Health Check] Error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "Health check failed" }, { status: 500 });
   }
 }
@@ -57,10 +58,10 @@ async function sendAlert(health: Record<string, unknown>) {
   const slackUrl = process.env.SLACK_ALERT_WEBHOOK;
   if (slackUrl) {
     try {
-      const services = health.services as Record<string, { status: string; message?: string }>;
-      const problems = Object.entries(services)
-        .filter(([, v]) => v.status !== "ok")
-        .map(([k, v]) => `• *${k}*: ${v.status}${v.message ? ` — ${v.message}` : ""}`)
+      const checks = (health.checks || {}) as Record<string, { ok: boolean; error?: string }>;
+      const problems = Object.entries(checks)
+        .filter(([, v]) => !v.ok)
+        .map(([k, v]) => `• *${k}*: failed${v.error ? ` — ${v.error}` : ""}`)
         .join("\n");
 
       await fetch(slackUrl, {
@@ -71,7 +72,7 @@ async function sendAlert(health: Record<string, unknown>) {
         }),
       });
     } catch (err) {
-      console.error("[Alert] Slack notification failed:", err);
+      logger.error("[Alert] Slack notification failed", { error: err instanceof Error ? err.message : String(err) });
     }
   }
 

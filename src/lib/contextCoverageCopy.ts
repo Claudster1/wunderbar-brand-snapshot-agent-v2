@@ -1,20 +1,17 @@
-// src/lib/contextCoverageCopy.ts
-// Copy utilities for context coverage messaging
-
 import { ContextCoverageResult } from "@/src/engine/contextCoverage";
 
 export function getContextSummaryCopy(
   coverage: ContextCoverageResult
 ): string {
   if (coverage.confidenceLevel === "high") {
-    return "This Snapshot+™ is built on strong, well-confirmed context, allowing for precise and confident recommendations.";
+    return "This report is grounded in comprehensive brand context — the insights and recommendations are highly specific to your business, stage, and competitive environment.";
   }
 
   if (coverage.confidenceLevel === "medium") {
-    return "This Snapshot+™ reflects solid context, with a few areas where deeper input could sharpen recommendations further.";
+    return "This report reflects solid brand context with a few areas where richer inputs would sharpen specificity. The strategic direction is reliable; adding depth to the thinner areas would make recommendations more precise.";
   }
 
-  return "This Snapshot+™ provides directional guidance based on limited context. Expanding inputs will increase precision.";
+  return "This report provides directional strategic guidance based on the context available. The patterns identified are meaningful, but enriching your inputs would significantly increase the precision and actionability of every recommendation.";
 }
 
 export function shouldSuggestRefinement(
@@ -27,5 +24,5 @@ export function getRefinementCTA(
   primaryPillar: string,
   brandName: string
 ): string {
-  return `Want to go deeper on ${primaryPillar} for ${brandName}?`;
+  return `Sharpen ${brandName}\u2019s ${primaryPillar} analysis with deeper context`;
 }

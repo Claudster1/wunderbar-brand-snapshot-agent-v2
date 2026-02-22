@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
         .select("id", { count: "exact", head: true })
         .eq("survey_id", survey.id),
       (supabase.from("voc_analysis") as any)
-        .select("nps_score, nps_category, top_words, perception_summary, alignment_gaps, strengths_customers_see, blind_spots, response_count")
+        .select("experience_score, experience_category, top_words, perception_summary, alignment_gaps, strengths_customers_see, blind_spots, response_count")
         .eq("survey_id", survey.id)
         .single(),
     ]);

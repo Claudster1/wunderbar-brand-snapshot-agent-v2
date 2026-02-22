@@ -3,7 +3,7 @@
 // GET /api/blueprint/pdf?reportId=xxx&type=complete|executive|messaging|prompts|activation|digital|competitive|standards&tier=blueprint|blueprint-plus
 
 import { NextRequest, NextResponse } from "next/server";
-import { renderToBuffer } from "@react-pdf/renderer";
+import { logger } from "@/lib/logger";
 import React from "react";
 import { supabaseServer } from "@/lib/supabase";
 import type { BlueprintEngineOutput } from "@/src/pdf/types/blueprintReport";
@@ -123,6 +123,7 @@ function toBrandStandardsData(d: BlueprintEngineOutput, brandName: string) {
 }
 
 async function renderDocument(type: DocType, data: BlueprintEngineOutput, brandName: string, userName?: string) {
+  const { renderToBuffer } = await import("@react-pdf/renderer");
   switch (type) {
     case "complete": {
       const { CompleteBlueprintDocument } = await import("@/src/pdf/documents/CompleteBlueprintDocument");
@@ -187,16 +188,40 @@ export async function GET(req: NextRequest) {
 
     const sb = supabaseServer();
 
-    const { data: report, error } = await sb
-      .from("blueprint_reports")
+    type ReportShape = { report_data: BlueprintEngineOutput; company_name: string; user_email: string; user_name?: string; tier?: string };
+    let report: ReportShape | null = null;
+
+    const { data: primary, error: primaryErr } = await sb
+      .from("blueprint_reports" as any)
       .select("report_data, company_name, user_email, user_name, tier")
       .eq("id", reportId)
-      .single() as {
-        data: { report_data: BlueprintEngineOutput; company_name: string; user_email: string; user_name?: string; tier?: string } | null;
-        error: unknown;
-      };
+      .single();
 
-    if (error || !report) {
+    if (primary && !primaryErr) {
+      report = primary as unknown as ReportShape;
+    } else {
+      const { data: fallback } = await sb
+        .from("brand_snapshot_plus_reports" as any)
+        .select("full_report, company_name, user_email, user_name, tier")
+        .eq("id", reportId)
+        .single();
+
+      if (fallback) {
+        const fb = fallback as Record<string, unknown>;
+        const fullReport = typeof fb.full_report === "string"
+          ? JSON.parse(fb.full_report)
+          : fb.full_report;
+        report = {
+          report_data: fullReport as BlueprintEngineOutput,
+          company_name: (fb.company_name as string) || (fullReport as any)?.businessName || "Your Brand",
+          user_email: (fb.user_email as string) || "",
+          user_name: fb.user_name as string | undefined,
+          tier: (fb.tier as string) || tier,
+        };
+      }
+    }
+
+    if (!report) {
       return NextResponse.json({ error: "Report not found" }, { status: 404 });
     }
 
@@ -237,7 +262,7 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (err) {
-    console.error("[Blueprint PDF]", err);
+    logger.error("[Blueprint PDF]", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "Failed to generate PDF" }, { status: 500 });
   }
 }

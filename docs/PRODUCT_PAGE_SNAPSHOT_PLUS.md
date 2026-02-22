@@ -37,7 +37,7 @@ Think of it this way: the free Snapshot is your brand's blood pressure reading. 
 - **Before & After Example** — A concrete, side-by-side example showing what improvement looks like in practice (e.g., a weak homepage headline vs. a strong one)
 - **Strategic Recommendation** — A specific action tied to a specific outcome
 
-**Why it matters:** Most brand assessments stop at "your messaging needs work." That's not useful. You need to know that weak messaging typically leads to longer sales cycles, that unclear value propositions make it easier for competitors to win deals, and that unaddressed gaps tend to compound over time. Snapshot+ connects each gap to the business outcomes it most likely affects.
+**Why it matters:** Most brand diagnostics stop at "your messaging needs work." That's not useful. You need to know that weak messaging typically leads to longer sales cycles, that unclear value propositions make it easier for competitors to win deals, and that unaddressed gaps tend to compound over time. Snapshot+ connects each gap to the business outcomes it most likely affects.
 
 **How it helps your business:** Build the business case for brand investment — in language your co-founder, leadership team, or investors will understand. Stop defending "we need to work on our brand" with vague arguments. Start saying "our Credibility pillar score of 8/20 means prospects likely aren't seeing enough proof to take the next step — and here's what to do about it."
 
@@ -94,7 +94,7 @@ Think of it this way: the free Snapshot is your brand's blood pressure reading. 
 ---
 
 ### 7. Who's Paying Attention & Ideal Customer Profile
-**What it is:** An AI-generated breakdown of your audience based on your assessment answers and industry patterns: who your current customers likely are, who your ideal customers could be, what language they tend to use, what drives their decisions, what holds them back, and where to reach them. Includes a full Ideal Customer Profile (ICP) with demographics, psychographics, behavioral patterns, and buying motivators.
+**What it is:** An AI-generated breakdown of your audience based on your diagnostic answers and industry patterns: who your current customers likely are, who your ideal customers could be, what language they tend to use, what drives their decisions, what holds them back, and where to reach them. Includes a full Ideal Customer Profile (ICP) with demographics, psychographics, behavioral patterns, and buying motivators.
 
 **Why it matters:** "Everyone" is not a target audience. The most expensive marketing mistake is targeting broadly and hoping the right people notice. Your ICP defines who to pursue with precision — so every marketing dollar reaches someone likely to buy.
 
@@ -170,7 +170,7 @@ Think of it this way: the free Snapshot is your brand's blood pressure reading. 
 - **A concrete example** — what "done" looks like in practice
 - **Effort/impact rating** — so you can choose quick wins or high-impact projects based on your capacity
 
-**Why it matters:** Most business owners finish a brand assessment and think "great, now what?" This is the "now what." Five actions, ranked by impact, with implementation guidance. Not 20 things you could do — five things you should do, in order.
+**Why it matters:** Most business owners finish a brand diagnostic and think "great, now what?" This is the "now what." Five actions, ranked by impact, with implementation guidance. Not 20 things you could do — five things you should do, in order.
 
 **How it helps your business:** Move from diagnosis to action immediately. Each action is designed to create visible improvement in 30 days or less, building momentum and confidence for the bigger strategic work ahead.
 
@@ -253,16 +253,16 @@ Think of it this way: the free Snapshot is your brand's blood pressure reading. 
 ## Frequently Asked Questions
 
 **Do I need to take the free Snapshot first?**
-The WunderBrand Snapshot+™ assessment includes everything in the free version — you don't need to complete them separately.
+The WunderBrand Snapshot+™ diagnostic includes everything in the free version — you don't need to complete them separately.
 
 **How long does it take?**
-About 10–15 minutes for the assessment. Results are delivered instantly.
+About 15–20 minutes for the diagnostic. Results are delivered instantly.
 
 **What if I want to upgrade to Blueprint later?**
 Every dollar you spend on Snapshot+ is credited toward your Blueprint or Blueprint+ upgrade. You'll never pay twice for the same tier.
 
-**Can I retake the assessment later to track my progress?**
-Yes. Quarterly refreshes are available for $47 — you'll get a fully updated WunderBrand Snapshot+™ report with a side-by-side comparison showing what improved, what declined, and where to focus next. Your dashboard includes a score trend chart that updates with every assessment. (WunderBrand Blueprint+™ customers get unlimited quarterly refreshes included free.)
+**Can I retake the diagnostic later to track my progress?**
+Yes. Quarterly refreshes are available for $47 — you'll get a fully updated WunderBrand Snapshot+™ report with a side-by-side comparison showing what improved, what declined, and where to focus next. Your dashboard includes a score trend chart that updates with every diagnostic. (WunderBrand Blueprint+™ customers get unlimited quarterly refreshes included free.)
 
 ---
 

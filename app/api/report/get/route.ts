@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase";
+import { logger } from "@/lib/logger";
 
 export async function GET(request: Request) {
   try {
@@ -41,7 +42,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json((data as any).full_report || data, { status: 200 });
   } catch (err: any) {
-    console.error("[Report Get API] Error:", err);
+    logger.error("[Report Get API] Error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
       { error: err?.message || "Failed to get report" },
       { status: 500 }

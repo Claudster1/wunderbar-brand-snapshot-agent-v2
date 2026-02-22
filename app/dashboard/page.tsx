@@ -15,7 +15,7 @@ export default function DashboardPage() {
       style={{
         maxWidth: 920,
         margin: "0 auto",
-        padding: "48px 24px 80px",
+        padding: "32px 16px 80px",
         fontFamily: "'Lato', system-ui, sans-serif",
       }}
     >
@@ -51,6 +51,8 @@ export default function DashboardPage() {
             marginBottom: 16,
             paddingBottom: 12,
             borderBottom: `1px solid ${BORDER}`,
+            gap: 12,
+            flexWrap: "wrap",
           }}
         >
           <h2 style={{ fontSize: 18, fontWeight: 700, color: NAVY, margin: 0 }}>

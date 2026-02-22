@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { getPersistedEmail } from "@/lib/persistEmail";
+import { ShareButton } from "@/components/share/ShareButton";
 
 const NAVY = "#021859";
 const BLUE = "#07B0F2";
@@ -107,44 +108,55 @@ function DeliverableRow({ d, reportId, tier }: { d: Deliverable; reportId: strin
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        padding: "10px 14px",
+        padding: "10px 12px",
         borderRadius: 6,
         background: "#FAFBFF",
         border: `1px solid ${BORDER}`,
-        gap: 12,
+        gap: 10,
+        flexWrap: "wrap",
       }}
     >
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: NAVY }}>{d.label}</div>
+      <div style={{ flex: "1 1 0%", minWidth: 0 }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: NAVY, wordBreak: "break-word" }}>{d.label}</div>
         <div style={{ fontSize: 11, color: SUB, marginTop: 2 }}>
-          {d.description} \u00B7 {d.pages}
+          {d.pages}
         </div>
       </div>
-      <a
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 4,
-          padding: "5px 12px",
-          borderRadius: 5,
-          border: `1px solid ${BORDER}`,
-          background: WHITE,
-          color: NAVY,
-          fontWeight: 600,
-          fontSize: 12,
-          textDecoration: "none",
-          whiteSpace: "nowrap",
-          transition: "background 0.15s",
-        }}
-      >
-        <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 13, height: 13 }}>
-          <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
-        </svg>
-        PDF
-      </a>
+      <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+        <ShareButton
+          reportId={reportId}
+          documentType={d.type}
+          tier={tier}
+          label={d.label}
+          variant="text"
+        />
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 4,
+            padding: "5px 12px",
+            borderRadius: 5,
+            border: `1px solid ${BORDER}`,
+            background: WHITE,
+            color: NAVY,
+            fontWeight: 600,
+            fontSize: 12,
+            textDecoration: "none",
+            whiteSpace: "nowrap",
+            transition: "background 0.15s",
+            flexShrink: 0,
+          }}
+        >
+          <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 13, height: 13 }}>
+            <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+          </svg>
+          PDF
+        </a>
+      </div>
     </div>
   );
 }
@@ -189,15 +201,16 @@ function ReportCard({ item }: { item: HistoryItem }) {
       style={{
         border: `1px solid ${BORDER}`,
         borderRadius: 10,
-        padding: "20px 24px",
+        padding: "16px 16px",
         background: WHITE,
         transition: "box-shadow 0.2s ease",
       }}
+      className="report-card"
     >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16 }}>
-        <div style={{ flex: 1 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-            <span style={{ fontSize: 18, fontWeight: 700, color: NAVY }}>
+      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+        <div style={{ flex: "1 1 0%", minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 16, fontWeight: 700, color: NAVY, wordBreak: "break-word" }}>
               {item.businessName}
             </span>
             <TierBadge tier={item.tier} />
@@ -218,7 +231,7 @@ function ReportCard({ item }: { item: HistoryItem }) {
               </span>
             )}
           </div>
-          <div style={{ display: "flex", gap: 16, flexWrap: "wrap", fontSize: 13, color: SUB }}>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", fontSize: 13, color: SUB }}>
             <span>
               WunderBrand Score\u2122:{" "}
               <strong style={{ color }}>{item.brandAlignmentScore}</strong>
@@ -240,7 +253,12 @@ function ReportCard({ item }: { item: HistoryItem }) {
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+        <div style={{ display: "flex", gap: 8, flexShrink: 0, width: "auto" }} className="report-card-actions">
+          <ShareButton
+            reportId={item.id}
+            tier={item.tier}
+            label={`${item.businessName} — ${TIER_CONFIG[item.tier]?.label || "Report"}`}
+          />
           <a
             href={item.pdfUrl}
             target="_blank"
@@ -622,10 +640,10 @@ export default function DashboardHistory() {
           alignItems: "center",
         }}
       >
-        <div style={{ flex: 1, minWidth: 200, position: "relative" }}>
+        <div style={{ flex: "1 1 100%", minWidth: 0, position: "relative" }}>
           <input
             type="text"
-            placeholder={activeBrand ? `Search ${activeBrand} reports...` : "Search reports by brand name or pillar..."}
+            placeholder={activeBrand ? `Search ${activeBrand} reports...` : "Search by brand or pillar..."}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
@@ -633,10 +651,11 @@ export default function DashboardHistory() {
               padding: "10px 14px 10px 36px",
               border: `1px solid ${BORDER}`,
               borderRadius: 8,
-              fontSize: 14,
+              fontSize: 16,
               color: NAVY,
               background: WHITE,
               outline: "none",
+              boxSizing: "border-box",
             }}
           />
           <svg
@@ -659,7 +678,7 @@ export default function DashboardHistory() {
           </svg>
         </div>
 
-        <div style={{ display: "flex", gap: 6 }}>
+        <div style={{ display: "flex", gap: 6, overflowX: "auto", WebkitOverflowScrolling: "touch", paddingBottom: 2 }}>
           {[
             { key: "all", label: "All" },
             { key: "snapshot", label: "Snapshot" },

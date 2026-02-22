@@ -338,7 +338,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
           const jsonString = jsonMatch[0];
           const snapshotData = JSON.parse(jsonString);
           
-          console.log('[useBrandChat] Detected JSON response:', Object.keys(snapshotData).slice(0, 8));
+          // JSON response detected — process for scoring
           
           // Determine format: scores-based vs collected-inputs
           const hasScores = (snapshotData.scores && typeof snapshotData.scores.brandAlignmentScore === 'number')
@@ -352,7 +352,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
 
           if (isCollectedInputs) {
             // Collected inputs format — send to /api/snapshot for server-side scoring
-            console.log('[useBrandChat] Collected inputs detected, sending to scoring API');
+            // Collected inputs — route through server-side scoring
 
             const turnstileToken = typeof window !== 'undefined' ? (window as any).__turnstileToken : undefined;
 
@@ -442,7 +442,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
               recommendations
             };
             
-            console.log('[useBrandChat] Sending scores to parent:', scoresPayload);
+            // Dispatch scores to parent frame / callback
             
             // Extract user context from conversation for report generation
             const { extractUserContext, extractCompanyInfo } = await import('../services/snapshotService');
@@ -537,7 +537,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
                         redirectUrl,
                       }
                     }, '*');
-                    console.log('[useBrandChat] postMessage sent to parent window with redirectUrl:', redirectUrl);
+                    // postMessage dispatched to parent frame
                   } else if (onCompleteRef.current) {
                     // Caller provided onComplete callback — defer navigation to them
                     // (used for email verification gate)
@@ -600,7 +600,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
           }
         } catch (parseError) {
           // Not valid JSON - treat as normal message
-          console.debug('[useBrandChat] JSON parse failed:', parseError);
+          // Not valid JSON — fall through to normal message rendering
           const assistantMessage = createMessage('assistant', replyText);
           setMessages((prev) => [...prev, assistantMessage]);
         }
@@ -610,7 +610,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
         
         if (hasScoreNumbers) {
           // This looks like scores displayed as text - don't add to chat
-          console.log('[useBrandChat] Detected score text in response - filtering out');
+          // Score text detected — filter from chat display
           // Try to extract just a handoff message if present
           const handoffMatch = replyText.match(/(?:Perfect!|Great!|Here's|Your).*?(?:form|below|details|enter)/i);
           if (handoffMatch) {

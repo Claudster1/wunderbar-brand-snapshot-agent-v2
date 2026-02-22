@@ -11,6 +11,7 @@ type EnvRule = {
 const RULES: EnvRule[] = [
   // ─── Supabase ───
   { key: "NEXT_PUBLIC_SUPABASE_URL", required: true, label: "Supabase URL" },
+  { key: "NEXT_PUBLIC_SUPABASE_ANON_KEY", required: true, label: "Supabase anon key" },
   { key: "SUPABASE_SERVICE_ROLE_KEY", required: false, label: "Supabase service role key" },
   { key: "SUPABASE_SECRET_KEY", required: false, label: "Supabase secret key (fallback)" },
 

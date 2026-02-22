@@ -48,6 +48,9 @@ These create standalone tables. Order among them does not matter.
 | 17 | `migration_refresh_entitlements.sql` | `refresh_entitlements` table |
 | 18 | `migration_blueprint_enrichment.sql` | `blueprint_enrichment` table |
 | 19 | `migration_brand_workbook.sql` | `brand_workbook` table |
+| 20a | `migration_create_blueprint_reports.sql` | `blueprint_reports` table (used by `/api/blueprint/pdf`, `/api/assets/analyze`, `/api/workbook/export`) |
+| 20b | `migration_add_user_brands.sql` | `user_brands` table (multi-brand support) |
+| 20c | `migration_shared_links.sql` | `shared_links` table (shareable report/deliverable links) |
 
 ### Phase 3: Alter-Table Migrations (Depend on Phase 1–2)
 
@@ -127,6 +130,9 @@ for file in \
   database/migration_refresh_entitlements.sql \
   database/migration_blueprint_enrichment.sql \
   database/migration_brand_workbook.sql \
+  database/migration_create_blueprint_reports.sql \
+  database/migration_add_user_brands.sql \
+  database/migration_shared_links.sql \
   database/migration_add_columns_and_constraints.sql \
   database/migration_add_refinement_columns.sql \
   database/migration_add_snapshot_progress_columns.sql \

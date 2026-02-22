@@ -20,6 +20,7 @@ import { ImplementationIntro } from "@/components/SnapshotPlus/ImplementationInt
 import { getPrimaryPillar } from "@/lib/upgrade/primaryPillar";
 import { PillarKey } from "@/src/types/pillars";
 import type { UserRoleContext } from "@/src/types/snapshot";
+import { ShareButton } from "@/components/share/ShareButton";
 
 interface BrandSnapshotResult {
   businessName: string;
@@ -124,6 +125,22 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         contextCoverage={data.contextCoverage}
         email={data.userEmail}
       />
+
+      {/* Share + PDF actions */}
+      <div className="flex items-center justify-end gap-3">
+        <ShareButton reportId={data.reportId} tier="snapshot" label={`${data.businessName} — WunderBrand Snapshot`} />
+        <a
+          href={`/api/pdf?id=${encodeURIComponent(data.reportId)}&type=snapshot`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-brand-blue/20 bg-brand-blue/5 text-brand-blue text-sm font-bold no-underline hover:bg-brand-blue/10 transition-colors"
+        >
+          <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+            <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+          </svg>
+          Download PDF
+        </a>
+      </div>
 
       {/* Chat (completed) */}
       <ChatCompletion userRoleContext={data.userRoleContext} />

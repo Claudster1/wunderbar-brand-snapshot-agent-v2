@@ -3,6 +3,7 @@
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 import { VocSurveyCTA } from "@/components/voc/VocSurveyCTA";
+import { ShareButton } from "@/components/share/ShareButton";
 
 export const dynamic = "force-dynamic";
 
@@ -59,50 +60,50 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
 
   const css = `
     body { font-family: Helvetica Neue, sans-serif; color:#0C1526; }
-    .page { max-width:900px; margin:0 auto; padding:48px 20px; }
-    h1,h2,h3 { color:#021859; }
-    h1 { font-size:40px; font-weight:700; margin-bottom:16px; }
-    h2 { font-size:24px; font-weight:600; margin-top:48px; margin-bottom:12px; }
-    h3 { font-size:20px; font-weight:600; margin-top:32px; margin-bottom:8px; }
+    .page { max-width:900px; margin:0 auto; padding:32px 16px; }
+    h1,h2,h3 { color:#021859; word-break:break-word; }
+    h1 { font-size:clamp(24px, 5vw, 40px); font-weight:700; margin-bottom:16px; }
+    h2 { font-size:clamp(18px, 4vw, 24px); font-weight:600; margin-top:36px; margin-bottom:12px; }
+    h3 { font-size:clamp(16px, 3.5vw, 20px); font-weight:600; margin-top:24px; margin-bottom:8px; }
 
     .section {
-      padding:28px;
+      padding:20px;
       border-radius:12px;
       border:1px solid #E0E3EA;
       background:#FFFFFF;
-      margin-top:28px;
+      margin-top:24px;
       box-shadow:0 8px 24px rgba(2,24,89,0.06);
       opacity:0;
       animation:fadeIn 0.7s forwards ease;
     }
 
-    .score { font-size:72px; font-weight:700; color:#021859; }
+    .score { font-size:clamp(40px, 10vw, 72px); font-weight:700; color:#021859; }
 
     .meter-track {
       width:100%; height:12px; background:#E0E3EA; border-radius:6px; margin-top:12px;
     }
     .meter-fill { height:12px; background:#07B0F2; width:0%; animation:grow 1.2s ease forwards; }
 
-    .pillars { margin-top:20px; display:grid; gap:20px; }
+    .pillars { margin-top:20px; display:grid; gap:16px; }
 
     .pillar-card {
       border:1px solid #E0E3EA;
       border-radius:10px;
-      padding:20px 24px;
+      padding:16px 18px;
       background:#FAFBFF;
       opacity:0;
       animation:fadeInUp 0.6s forwards ease;
     }
 
-    .color-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px; }
+    .color-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px; }
     .swatch {
-      width:52px; height:52px; border-radius:6px; border:1px solid #DDE2EA; margin-right:12px;
+      width:44px; height:44px; border-radius:6px; border:1px solid #DDE2EA; margin-right:8px;
     }
 
     .op-map, .roadmap { margin-top:16px; }
 
     .blueprint-cta {
-      margin-top:48px; padding:40px; border-radius:12px;
+      margin-top:36px; padding:28px 20px; border-radius:12px;
       background:#021859; color:white; text-align:center;
       opacity:0; animation:fadeIn 1s forwards ease;
     }
@@ -111,6 +112,14 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
       display:inline-block; margin-top:18px; padding:14px 26px; background:#07B0F2;
       border-radius:6px; font-weight:600; text-decoration:none; color:#FFFFFF;
       box-shadow:0 6px 18px rgba(7,176,242,0.3);
+    }
+
+    @media (min-width: 640px) {
+      .page { padding:48px 24px; }
+      .section { padding:28px; margin-top:28px; }
+      .pillar-card { padding:20px 24px; }
+      .blueprint-cta { padding:40px; }
+      .swatch { width:52px; height:52px; }
     }
 
     @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
@@ -306,8 +315,8 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
         </Link>
       </div>
 
-      {/* PDF DOWNLOAD */}
-      <div style={{ marginTop: "32px", display: "flex", justifyContent: "center" }}>
+      {/* PDF DOWNLOAD + SHARE */}
+      <div style={{ marginTop: "32px", display: "flex", justifyContent: "center", gap: "12px", flexWrap: "wrap" }}>
         <a
           href={`/api/pdf?id=${reportId}&type=snapshot-plus`}
           target="_blank"
@@ -331,6 +340,12 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
           </svg>
           Download Snapshot+\u2122 PDF
         </a>
+        <ShareButton
+          reportId={reportId}
+          tier="snapshot-plus"
+          label="Snapshot+ Report"
+          variant="text"
+        />
       </div>
     </div>
   );

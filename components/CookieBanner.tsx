@@ -376,6 +376,7 @@ export function CookieBanner() {
         marketing: existing.marketing,
       });
       if (existing.analytics) injectTracking();
+      if (existing.marketing) injectMarketingPixels();
     } else {
       const t = setTimeout(() => setVisible(true), 800);
       return () => clearTimeout(t);
@@ -418,6 +419,7 @@ export function CookieBanner() {
     setVisible(false);
     setModalOpen(false);
     injectTracking();
+    injectMarketingPixels();
     showToast("All cookies accepted — preferences saved for 1 year");
   }, [showToast]);
 
@@ -439,6 +441,7 @@ export function CookieBanner() {
     setVisible(false);
     setModalOpen(false);
     if (preferences.analytics) injectTracking();
+    if (preferences.marketing) injectMarketingPixels();
     const active = Object.entries(preferences)
       .filter(([, v]) => v)
       .map(([k]) => k);
@@ -696,8 +699,9 @@ function injectTracking() {
     };
   }
 
-  // Google Analytics 4 (GA4)
+  // Google Analytics 4 (GA4) + Google Ads conversion tracking
   const GA_ID = "G-HFNS3KRBKH";
+  const GADS_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID;
   if (!w.gtag) {
     const gtagScript = document.createElement("script");
     gtagScript.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
@@ -710,6 +714,49 @@ function injectTracking() {
     };
     w.gtag("js", new Date());
     w.gtag("config", GA_ID);
+    if (GADS_ID) w.gtag("config", GADS_ID);
+  }
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+}
+
+/* ─── Inject marketing pixels when marketing consent is given ─── */
+function injectMarketingPixels() {
+  if (typeof window === "undefined") return;
+
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const w = window as any;
+
+  // Meta Pixel (Facebook)
+  const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+  if (META_PIXEL_ID && !w.fbq) {
+    const f = function (...args: unknown[]) {
+      f.callMethod ? f.callMethod(...args) : f.queue.push(args);
+    } as any;
+    f.push = f;
+    f.loaded = true;
+    f.version = "2.0";
+    f.queue = [] as unknown[][];
+    w.fbq = f;
+
+    const script = document.createElement("script");
+    script.src = "https://connect.facebook.net/en_US/fbevents.js";
+    script.async = true;
+    document.head.appendChild(script);
+
+    w.fbq("init", META_PIXEL_ID);
+    w.fbq("track", "PageView");
+  }
+
+  // LinkedIn Insight Tag
+  const LINKEDIN_PARTNER_ID = process.env.NEXT_PUBLIC_LINKEDIN_PARTNER_ID;
+  if (LINKEDIN_PARTNER_ID && !w._linkedin_data_partner_ids) {
+    w._linkedin_data_partner_ids = w._linkedin_data_partner_ids || [];
+    w._linkedin_data_partner_ids.push(LINKEDIN_PARTNER_ID);
+
+    const script = document.createElement("script");
+    script.src = "https://snap.licdn.com/li.lms-analytics/insight.min.js";
+    script.async = true;
+    document.head.appendChild(script);
   }
   /* eslint-enable @typescript-eslint/no-explicit-any */
 }

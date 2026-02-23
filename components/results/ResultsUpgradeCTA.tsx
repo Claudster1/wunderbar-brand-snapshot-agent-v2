@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { getOrAssignVariant } from "@/lib/abTesting";
 import { RESULTS_CTA_COPY } from "@/content/resultsCtaCopy";
 import { fireACEvent } from "@/lib/activeCampaign";
+import { trackUpgradeClick } from "@/lib/adTracking";
 
 export function ResultsUpgradeCTA({
   primaryPillar,
@@ -55,6 +56,7 @@ export function ResultsUpgradeCTA({
         cta_presence: presence,
       },
     });
+    trackUpgradeClick({ fromTier: "snapshot", toTier: "snapshot-plus", value: 497 });
 
     window.location.href = "/snapshot-plus";
   };

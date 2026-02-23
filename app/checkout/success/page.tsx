@@ -1,12 +1,13 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { persistEmail, getPersistedEmail } from "@/lib/persistEmail";
 import {
   POST_PURCHASE_COPY,
   type PostPurchaseTier,
 } from "@/content/postPurchaseCopy";
+import { trackPurchase } from "@/lib/adTracking";
 
 const NAVY = "#021859";
 const BLUE = "#07B0F2";
@@ -37,6 +38,7 @@ function SuccessContent() {
   const [customerEmail, setCustomerEmail] = useState<string | null>(
     emailParam || getPersistedEmail()
   );
+  const trackedRef = useRef(false);
 
   useEffect(() => {
     if (emailParam) {
@@ -61,6 +63,21 @@ function SuccessContent() {
         .catch(() => {});
     }
   }, [emailParam, sessionId]);
+
+  useEffect(() => {
+    if (trackedRef.current) return;
+    trackedRef.current = true;
+    const priceMap: Record<string, number> = {
+      "snapshot-plus": 497,
+      blueprint: 997,
+      "blueprint-plus": 1997,
+    };
+    trackPurchase({
+      product: `WunderBrand ${copy.eyebrow || product}`,
+      value: priceMap[product] || 497,
+      transactionId: sessionId || undefined,
+    });
+  }, [product, sessionId, copy.eyebrow]);
 
   const startHref = `/?tier=${product}${customerFirstName ? `&name=${encodeURIComponent(customerFirstName)}` : ""}${tierToken ? `&token=${encodeURIComponent(tierToken)}` : ""}`;
 

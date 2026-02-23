@@ -5,6 +5,7 @@
 
 import { useEffect } from "react";
 import { fireACEvent } from "@/lib/fireACEvent";
+import { trackResultsView } from "@/lib/adTracking";
 
 export function ResultsPageViewTracker({
   brandAlignmentScore,
@@ -48,6 +49,11 @@ export function ResultsPageViewTracker({
 
     if (!isReturnVisit) {
       localStorage.setItem(key, "true");
+      trackResultsView({
+        reportId,
+        score: brandAlignmentScore,
+        primaryPillar,
+      });
     }
 
     if (typeof contextCoverage === "number" && contextCoverage < 70) {

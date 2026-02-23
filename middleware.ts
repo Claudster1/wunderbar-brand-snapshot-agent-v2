@@ -5,9 +5,10 @@
 //
 // Responsibilities:
 // 1. Block suspicious/malicious request patterns
-// 2. Enforce request size limits at the edge (before body parsing)
-// 3. Add security headers to API responses
-// 4. Block known scanner/bot paths to reduce noise
+// 2. CSRF origin verification on state-changing API requests
+// 3. Enforce request size limits at the edge (before body parsing)
+// 4. Add security headers to API responses
+// 5. Block known scanner/bot paths to reduce noise
 // ─────────────────────────────────────────────────────────────────
 
 import { NextResponse } from "next/server";
@@ -59,6 +60,31 @@ const SUSPICIOUS_UA_PATTERNS = [
   /exploit/i,
 ];
 
+// ─── CSRF: Allowed Origins ───────────────────────────────────
+const ALLOWED_ORIGINS = new Set(
+  [
+    "https://app.wunderbrand.ai",
+    "https://app.brandsnapshot.ai",
+    process.env.NEXT_PUBLIC_BASE_URL,
+  ].filter(Boolean)
+);
+
+function isOriginAllowed(origin: string): boolean {
+  if (ALLOWED_ORIGINS.has(origin)) return true;
+  if (origin.endsWith(".vercel.app")) return true;
+  if (/^https?:\/\/localhost(:\d+)?$/.test(origin)) return true;
+  return false;
+}
+
+// Routes that receive external POSTs (webhooks, cron) — exempt from Origin check
+const CSRF_EXEMPT_PREFIXES = [
+  "/api/stripe/webhook",
+  "/api/calendly/webhook",
+  "/api/cron/",
+  "/api/health",
+  "/api/test/",
+];
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const method = request.method;
@@ -84,7 +110,22 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // ─── 3. Block oversized API request bodies ───────────────────
+  // ─── 3. CSRF — verify Origin on state-changing API requests ──
+  if (
+    pathname.startsWith("/api/") &&
+    ["POST", "PUT", "PATCH", "DELETE"].includes(method) &&
+    !CSRF_EXEMPT_PREFIXES.some((p) => pathname.startsWith(p))
+  ) {
+    const origin = request.headers.get("origin");
+    if (origin && !isOriginAllowed(origin)) {
+      return NextResponse.json(
+        { error: "Forbidden — origin not allowed" },
+        { status: 403 }
+      );
+    }
+  }
+
+  // ─── 4. Block oversized API request bodies ───────────────────
   // Content-Length check at the edge (before body is parsed)
   if (pathname.startsWith("/api/")) {
     const contentLength = request.headers.get("content-length");
@@ -118,11 +159,10 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // ─── 4. Add security headers to API responses ────────────────
+  // ─── 5. Add security headers to API responses ────────────────
   const response = NextResponse.next();
 
   if (pathname.startsWith("/api/")) {
-    // Routes that manage their own caching (read-only, safe to cache)
     const CACHEABLE_API_ROUTES = [
       "/api/snapshot/get",
       "/api/history",

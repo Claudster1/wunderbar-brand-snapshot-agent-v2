@@ -3,6 +3,7 @@
 import DashboardHistory from "@/components/dashboard/DashboardHistory";
 import ScoreTrendChart from "@/components/dashboard/ScoreTrendChart";
 import RetakeCTA from "@/components/dashboard/RetakeCTA";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const NAVY = "#021859";
 const BLUE = "#07B0F2";
@@ -39,7 +40,9 @@ export default function DashboardPage() {
       </div>
 
       {/* Score trend (only renders with 2+ data points) */}
-      <ScoreTrendChart />
+      <ErrorBoundary section="ScoreTrendChart">
+        <ScoreTrendChart />
+      </ErrorBoundary>
 
       {/* Reports section */}
       <section style={{ marginBottom: 32 }}>
@@ -77,10 +80,14 @@ export default function DashboardPage() {
             + New brand diagnostic
           </a>
         </div>
-        <DashboardHistory />
+        <ErrorBoundary section="DashboardHistory">
+          <DashboardHistory />
+        </ErrorBoundary>
       </section>
 
-      <RetakeCTA />
+      <ErrorBoundary section="RetakeCTA">
+        <RetakeCTA />
+      </ErrorBoundary>
     </main>
   );
 }

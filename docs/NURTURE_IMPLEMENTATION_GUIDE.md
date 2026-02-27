@@ -1,6 +1,6 @@
 # WunderBrand Nurture Sequences — Implementation Guide
 
-> Single source of truth for building all 19 nurture automations in ActiveCampaign.
+> Single source of truth for building all 22 nurture automations in ActiveCampaign.
 > Production copy lives in the batch documents. This guide covers triggers, tags, merge fields, timing, and build notes.
 
 ---
@@ -28,6 +28,9 @@
 | 17 | Customer Retention — Brand Momentum Series | 30 days after `report:*-ready`, no active upgrade seq | 8 | `purchased:*` / `services:expert_call_requested` / `call:expert-scheduled` |
 | 18 | Win-Back — Lapsed Customers | 90+ days since report, no refresh, no engagement | 3 | `purchased:*` / `snapshot:viewed-results` / `call:expert-scheduled` |
 | 19 | Services Warm-Up — Cross-Sell | 45+ days as customer + signal tag | 4 | `call:expert-scheduled` or manual removal |
+| 20 | Post-Expert Call | `call:expert-completed` | 4 (branch-aware) | `services:client-active` OR branch completes to Seq 15 |
+| 21 | Post-Strategy Activation Session | `session:activation-completed` | 4 | `services:client-active` OR handoff to Seq 15/17 |
+| 22 | Connect Form / General Inquiry | `inquiry:connect-form` | 3 (branch-aware) | `inquiry:responded` OR branch completes |
 
 ---
 
@@ -55,6 +58,12 @@ No-Show → Seq 10
 Lapsed (90+ days) → Seq 18 → [no convert] → Seq 15
 
 Content Opt-in → Seq 14 → Seq 15 → Seq 16
+
+Expert Call Completed → Seq 20 → [services client] onboarding branch OR [not converted] Seq 15
+
+Strategy Activation Completed → Seq 21 → [services relevant] intro branch OR Seq 15/17
+
+Connect Form Inquiry → Seq 22 → [team responded] confirmation branch OR [no response] gentle follow-up
 ```
 
 ---
@@ -273,6 +282,48 @@ Content Opt-in → Seq 14 → Seq 15 → Seq 16
 - **After Email 4 with no conversion:** No further automated follow-up. Remove from sequence.
 - **Salutation fallback:** Hi there,
 
+### SEQUENCE 20: Post-Expert Call
+- **Trigger:** Tag `call:expert-completed`
+- **Timing:** Email 1 at +2 hours, Email 2 at +3 days, Email 3 at +8 days, Email 4 at +16 days
+- **Branches (in AC):**
+  - **A. Converted to services client** (`services:client-active` present): send onboarding/welcome orientation emails, then exit.
+  - **B. Not yet converted** (no `services:client-active`): low-pressure follow-up with path to services page/call and optional handoff into Seq 15.
+- **Exit:** `services:client-active` OR branch completion
+- **Sender:** All: Claudine | claudine@ | Founder template
+- **Merge fields:** `%FIRSTNAME%`, `%COMPANY_NAME%`, `%SERVICES_URL%`
+- **Content intent:**
+  1. Recap + thank you + next best step
+  2. Clarify service fit and implementation pathways
+  3. Soft case-study proof
+  4. Final low-pressure CTA or evergreen handoff
+- **Salutation fallback:** Hi there,
+
+### SEQUENCE 21: Post-Strategy Activation Session
+- **Trigger:** Tag `session:activation-completed`
+- **Timing:** Email 1 at +1 day (after manual recap), Email 2 at +7 days, Email 3 at +14 days, Email 4 at +30 days
+- **Purpose:** Reinforce implementation momentum, request referral/testimonial if appropriate, and introduce services support when relevant.
+- **Exit:** `services:client-active` OR sequence completion (handoff to Seq 15 or Seq 17 based on lifecycle)
+- **Sender:** All: Claudine | claudine@ | Founder template
+- **Merge fields:** `%FIRSTNAME%`, `%COMPANY_NAME%`, `%REPORT_LINK%`, `%SERVICES_URL%`
+- **Branching logic (recommended):**
+  - If engagement signals are strong (`experience:promoter` OR service intent tags): include services-intro CTA.
+  - If low engagement: keep educational and route to Seq 15.
+- **Salutation fallback:** Hi there,
+
+### SEQUENCE 22: Connect Form / General Inquiry
+- **Trigger:** Tag `inquiry:connect-form`
+- **Timing:** Email 1 immediate confirmation, Email 2 at +2 days, Email 3 at +6 days
+- **Branches (in AC):**
+  - **A. Team responded** (`inquiry:responded` present): expectation-setting + route confirmation, then stop.
+  - **B. No response after X days** (`inquiry:responded` absent): gentle automated follow-up so no inquiry is lost.
+- **Exit:** `inquiry:responded` OR branch completion
+- **Sender:** Email 1 branded (Wunderbar Digital), Emails 2–3 founder voice (Claudine)
+- **Merge fields:** `%FIRSTNAME%`, `%COMPANY_NAME%`, `%SERVICES_URL%`
+- **Operational tags (recommended):**
+  - Apply on form submit: `inquiry:connect-form`, `inquiry:pending-response`
+  - Apply when team replies: `inquiry:responded` and remove `inquiry:pending-response`
+- **Salutation fallback:** Hi there,
+
 ---
 
 ## Complete Merge Field Reference
@@ -374,6 +425,7 @@ Content Opt-in → Seq 14 → Seq 15 → Seq 16
 | `session:activation-no-show` | Session no-show |
 | `session:activation-completed` | Session completed |
 | `call:expert-scheduled` | Expert call booked |
+| `call:expert-completed` | Expert call completed |
 | `call:expert-no-show` | Expert call no-show |
 | `noshow:needs-followup` | Any no-show |
 
@@ -390,6 +442,13 @@ Content Opt-in → Seq 14 → Seq 15 → Seq 16
 | `services:call-booked` | Services call booked |
 | `services:client-active` | Active services client |
 | `services:expert_call_requested` | Requested expert call |
+
+### Inquiry Tags
+| Tag | Applied When |
+|---|---|
+| `inquiry:connect-form` | Connect/general inquiry form submitted |
+| `inquiry:pending-response` | Waiting for team follow-up |
+| `inquiry:responded` | Team has replied to inquiry |
 
 ### Refresh Tags
 | Tag | Applied When |
@@ -448,3 +507,4 @@ These emails require conditional content blocks built in ActiveCampaign:
 5. **Retention sequences:** Seq 17 (retention), Seq 8 (refresh), Seq 18 (win-back)
 6. **Content sequences:** Seq 14 (opt-in), Seq 15 (evergreen), Seq 16 (newsletter)
 7. **Services sequences:** Seq 13 (services interest), Seq 19 (cross-sell)
+8. **Conversation follow-up sequences:** Seq 20 (post-expert), Seq 21 (post-activation), Seq 22 (connect inquiry)

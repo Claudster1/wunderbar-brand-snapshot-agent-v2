@@ -1,5 +1,6 @@
 // components/results/SnapshotUpgradeCTA.tsx
 // Upgrade CTA for Snapshot+ based on primary pillar
+import Link from "next/link";
 
 type Props = {
   primaryPillar: string;
@@ -18,12 +19,12 @@ export function SnapshotUpgradeCTA({ primaryPillar, stage }: Props) {
         prioritization, and next-step guidance tailored to your stage.
       </p>
 
-      <a
+      <Link
         href="/snapshot-plus"
         className="inline-block rounded-md bg-white px-5 py-3 text-sm font-medium text-slate-900"
       >
         Take it further with Snapshot+™
-      </a>
+      </Link>
     </div>
   );
 }

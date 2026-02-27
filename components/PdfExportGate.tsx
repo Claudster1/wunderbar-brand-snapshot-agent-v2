@@ -2,6 +2,7 @@
 "use client";
 
 import { trackEvent } from "@/lib/activeCampaignTracking";
+import Link from "next/link";
 
 export function PdfExportGate({
   hasAccess
@@ -10,13 +11,13 @@ export function PdfExportGate({
 }) {
   if (hasAccess) {
     return (
-      <a
+      <Link
         href="/api/pdf/snapshot-plus"
         onClick={() => trackEvent("pdf_export_clicked", {})}
         className="btn-primary"
       >
         Download PDF →
-      </a>
+      </Link>
     );
   }
 
@@ -25,7 +26,7 @@ export function PdfExportGate({
       <p className="text-sm mb-3">
         Want a downloadable version of this report?
       </p>
-      <a
+      <Link
         href="/snapshot-plus"
         onClick={() =>
           trackEvent("pdf_export_upsell_clicked", {})
@@ -33,7 +34,7 @@ export function PdfExportGate({
         className="text-brand-blue font-medium hover:underline"
       >
         Take it further with Snapshot+™ →
-      </a>
+      </Link>
     </div>
   );
 }

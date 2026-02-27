@@ -176,7 +176,7 @@ const DocFooter = ({ businessName, productName }: { businessName?: string; produ
   <View style={styles.pageFooter} fixed>
     <View style={styles.pageFooterRow}>
       <Text style={styles.pageFooterText}>© {new Date().getFullYear()} Wunderbar Digital · {productName}</Text>
-      <Link src="https://wunderbardigital.com" style={styles.pageFooterUrl}>wunderbardigital.com</Link>
+      <Link src="https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=pdf_footer&utm_campaign=report_delivery&utm_content=report_document" style={styles.pageFooterUrl}>wunderbardigital.com</Link>
     </View>
     {businessName && (
       <Text style={styles.pageFooterConfidential}>

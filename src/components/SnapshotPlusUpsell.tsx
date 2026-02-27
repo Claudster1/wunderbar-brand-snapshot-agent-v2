@@ -2,6 +2,7 @@
 // Snapshot+ upsell section component
 
 import { rolePhrase } from "@/src/lib/roleLanguage";
+import Link from "next/link";
 
 interface SnapshotPlusUpsellProps {
   userRoleContext?: string;
@@ -31,9 +32,9 @@ export function SnapshotPlusUpsell({ userRoleContext }: SnapshotPlusUpsellProps 
           <li>• A clearer path forward — without guesswork</li>
         </ul>
 
-        <a href="/snapshot-plus" className="btn-primary">
+        <Link href="/snapshot-plus" className="btn-primary">
           See how to strengthen what matters most right now →
-        </a>
+        </Link>
       </div>
     </section>
   );

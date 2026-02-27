@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { trackEvent } from "@/lib/activeCampaignTracking";
+import Link from "next/link";
 
 export function HistoryReminder() {
   const [show, setShow] = useState(false);
@@ -26,13 +27,13 @@ export function HistoryReminder() {
       <p className="text-sm text-brand-midnight mb-2">
         Want a clearer plan based on these results?
       </p>
-      <a
+      <Link
         href="/snapshot-plus"
         onClick={() => trackEvent("history_soft_reminder_clicked", {})}
         className="text-sm font-medium text-brand-blue hover:underline"
       >
         View Snapshot+™ →
-      </a>
+      </Link>
     </div>
   );
 }

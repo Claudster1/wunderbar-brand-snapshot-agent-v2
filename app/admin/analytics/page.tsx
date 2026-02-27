@@ -13,7 +13,7 @@ const GREEN = "#22C55E";
 const YELLOW = "#EAB308";
 const RED = "#EF4444";
 
-type TabId = "funnel" | "ai-traffic" | "attribution" | "events";
+type TabId = "funnel" | "ai-traffic" | "attribution" | "events" | "crm";
 
 interface FunnelData {
   totalEvents: Record<string, number>;
@@ -59,6 +59,75 @@ interface EventRow {
   created_at: string;
 }
 
+interface CrmAnalyticsData {
+  totals: {
+    open: number;
+    new: number;
+    inProgress: number;
+    responded: number;
+    closed: number;
+  };
+  responseMetrics: {
+    respondedWithFirstResponse: number;
+    medianFirstResponseHours: number;
+    slaBreaches: number;
+    slaBreachRate: number;
+    trends: {
+      last7Days: Array<{
+        date: string;
+        medianFirstResponseHours: number;
+        slaBreachRate: number;
+      }>;
+      last30Days: Array<{
+        date: string;
+        medianFirstResponseHours: number;
+        slaBreachRate: number;
+      }>;
+    };
+  };
+  sourceBreakdown: Array<{
+    source: string;
+    total: number;
+    responded: number;
+    closed: number;
+    open: number;
+  }>;
+  ownerWorkload: Array<{
+    owner: string;
+    openInquiries: number;
+    inProgressInquiries: number;
+    overdueTasks: number;
+  }>;
+}
+
+function Sparkline({
+  values,
+  color,
+}: {
+  values: number[];
+  color: string;
+}) {
+  const width = 180;
+  const height = 40;
+  const min = Math.min(...values, 0);
+  const max = Math.max(...values, 1);
+  const range = Math.max(max - min, 1);
+  const points = values
+    .map((value, i) => {
+      const x = (i / Math.max(values.length - 1, 1)) * width;
+      const y = height - ((value - min) / range) * height;
+      return `${x},${y}`;
+    })
+    .join(" ");
+
+  return (
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label="trend">
+      <polyline fill="none" stroke={`${color}50`} strokeWidth="1.5" points={`0,${height} ${width},${height}`} />
+      <polyline fill="none" stroke={color} strokeWidth="2.5" points={points} />
+    </svg>
+  );
+}
+
 const FUNNEL_STAGES = [
   { key: "SNAPSHOT_STARTED", label: "Snapshot Started", color: BLUE },
   { key: "SNAPSHOT_COMPLETED", label: "Snapshot Completed", color: "#6366F1" },
@@ -92,6 +161,7 @@ export default function AnalyticsDashboardPage() {
   const [aiData, setAiData] = useState<AiTrafficData | null>(null);
   const [attrData, setAttrData] = useState<AttributionData | null>(null);
   const [eventsData, setEventsData] = useState<EventRow[]>([]);
+  const [crmData, setCrmData] = useState<CrmAnalyticsData | null>(null);
 
   useEffect(() => {
     const stored = sessionStorage.getItem("admin_api_key");
@@ -127,6 +197,7 @@ export default function AnalyticsDashboardPage() {
         if (view === "ai-traffic") setAiData(json.aiTraffic);
         if (view === "attribution") setAttrData(json.attribution);
         if (view === "events") setEventsData(json.events || []);
+        if (view === "crm") setCrmData(json.crm || null);
       } catch {
         /* toast could go here */
       } finally {
@@ -313,6 +384,18 @@ export default function AnalyticsDashboardPage() {
           >
             Follow-ups
           </a>
+          <a
+            href="/admin/inbound"
+            style={{
+              padding: "8px 14px",
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#8BA3CF",
+              textDecoration: "none",
+            }}
+          >
+            Inbound Inbox
+          </a>
           <button
             onClick={() => {
               setAuthenticated(false);
@@ -352,6 +435,7 @@ export default function AnalyticsDashboardPage() {
             { key: "ai-traffic" as const, label: "AI Traffic" },
             { key: "attribution" as const, label: "Attribution" },
             { key: "events" as const, label: "Event Log" },
+            { key: "crm" as const, label: "CRM Ops" },
           ] as const
         ).map(({ key, label }) => {
           const isActive = tab === key;
@@ -406,6 +490,9 @@ export default function AnalyticsDashboardPage() {
         )}
         {!loading && tab === "events" && (
           <EventLogView events={eventsData} />
+        )}
+        {!loading && tab === "crm" && crmData && (
+          <CrmAnalyticsView data={crmData} />
         )}
       </div>
     </div>
@@ -882,6 +969,147 @@ function EventLogView({ events }: { events: EventRow[] }) {
           </table>
         </TableWrapper>
       )}
+    </div>
+  );
+}
+
+function CrmAnalyticsView({ data }: { data: CrmAnalyticsData }) {
+  return (
+    <div>
+      <SectionTitle>CRM Operations</SectionTitle>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+          gap: 12,
+          marginBottom: 24,
+        }}
+      >
+        <StatCard label="Open Inquiries" value={data.totals.open} accent={BLUE} />
+        <StatCard label="New" value={data.totals.new} accent={YELLOW} />
+        <StatCard label="In Progress" value={data.totals.inProgress} accent="#6366F1" />
+        <StatCard label="Responded" value={data.totals.responded} accent={GREEN} />
+        <StatCard label="Closed" value={data.totals.closed} />
+      </div>
+
+      <SubTitle>Response Performance</SubTitle>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+          gap: 12,
+          marginBottom: 24,
+        }}
+      >
+        <StatCard
+          label="Median First Response (hrs)"
+          value={data.responseMetrics.medianFirstResponseHours.toFixed(1)}
+          accent={NAVY}
+        />
+        <StatCard
+          label="SLA Breaches"
+          value={data.responseMetrics.slaBreaches}
+          accent={RED}
+        />
+        <StatCard
+          label="SLA Breach Rate"
+          value={`${data.responseMetrics.slaBreachRate.toFixed(1)}%`}
+          accent={data.responseMetrics.slaBreachRate > 25 ? RED : YELLOW}
+        />
+        <StatCard
+          label="Responded with Timestamp"
+          value={data.responseMetrics.respondedWithFirstResponse}
+          accent={GREEN}
+        />
+      </div>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+          gap: 12,
+          marginBottom: 24,
+        }}
+      >
+        <div style={{ background: WHITE, border: `1px solid ${BORDER}`, borderRadius: 8, padding: "12px 14px" }}>
+          <div style={{ fontSize: 11, color: SUB, textTransform: "uppercase", fontWeight: 700, marginBottom: 6 }}>
+            Median Response Trend (7d)
+          </div>
+          <Sparkline
+            values={data.responseMetrics.trends.last7Days.map((point) => point.medianFirstResponseHours)}
+            color={BLUE}
+          />
+        </div>
+        <div style={{ background: WHITE, border: `1px solid ${BORDER}`, borderRadius: 8, padding: "12px 14px" }}>
+          <div style={{ fontSize: 11, color: SUB, textTransform: "uppercase", fontWeight: 700, marginBottom: 6 }}>
+            SLA Breach Trend (30d)
+          </div>
+          <Sparkline
+            values={data.responseMetrics.trends.last30Days.map((point) => point.slaBreachRate)}
+            color={RED}
+          />
+        </div>
+      </div>
+
+      <SubTitle>Source Outcomes</SubTitle>
+      <TableWrapper>
+        <table style={tableStyle}>
+          <thead>
+            <tr>
+              <Th>Source</Th>
+              <Th align="right">Total</Th>
+              <Th align="right">Open</Th>
+              <Th align="right">Responded</Th>
+              <Th align="right">Closed</Th>
+              <Th align="right">Source-to-Close</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.sourceBreakdown.map((row) => {
+              const closeRate = row.total > 0 ? (row.closed / row.total) * 100 : 0;
+              return (
+                <tr key={row.source}>
+                  <Td bold>{row.source}</Td>
+                  <Td align="right">{row.total}</Td>
+                  <Td align="right">{row.open}</Td>
+                  <Td align="right">{row.responded}</Td>
+                  <Td align="right">{row.closed}</Td>
+                  <Td align="right">
+                    <span style={{ color: closeRate >= 30 ? GREEN : closeRate >= 10 ? YELLOW : SUB, fontWeight: 600 }}>
+                      {closeRate.toFixed(1)}%
+                    </span>
+                  </Td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </TableWrapper>
+
+      <SubTitle style={{ marginTop: 24 }}>Owner Workload</SubTitle>
+      <TableWrapper>
+        <table style={tableStyle}>
+          <thead>
+            <tr>
+              <Th>Owner</Th>
+              <Th align="right">Open Inquiries</Th>
+              <Th align="right">In Progress</Th>
+              <Th align="right">Overdue Tasks</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.ownerWorkload.map((row) => (
+              <tr key={row.owner}>
+                <Td bold>{row.owner}</Td>
+                <Td align="right">{row.openInquiries}</Td>
+                <Td align="right">{row.inProgressInquiries}</Td>
+                <Td align="right">{row.overdueTasks}</Td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </TableWrapper>
     </div>
   );
 }

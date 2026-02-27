@@ -53,7 +53,7 @@ export const PdfFooter = ({ businessName, productName }: PdfFooterProps = {}) =>
       <Text style={styles.text}>
         © {new Date().getFullYear()} Wunderbar Digital · {productName || "WunderBrand Suite™"}
       </Text>
-      <Link src="https://wunderbardigital.com" style={styles.url}>
+      <Link src="https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=pdf_footer&utm_campaign=report_delivery&utm_content=pdf_footer_component" style={styles.url}>
         wunderbardigital.com
       </Link>
     </View>

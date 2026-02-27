@@ -4,6 +4,7 @@
 import { PillarKey } from "@/src/lib/pillars/pillarCopy";
 import { rolePhrase } from "@/src/lib/roleLanguage";
 import type { UserRoleContext } from "@/src/types/snapshot";
+import Link from "next/link";
 
 interface PrimaryCTAProps {
   pillar: PillarKey;
@@ -26,12 +27,12 @@ function PrimaryCTA({ pillar, userRoleContext }: PrimaryCTAProps) {
         )}
       </p>
 
-      <a
+      <Link
         href="/snapshot-plus"
         className="inline-flex items-center px-5 py-2.5 rounded-md bg-brand-blue text-white font-medium hover:bg-brand-blueHover transition"
       >
         Take it further with Snapshot+™ →
-      </a>
+      </Link>
     </div>
   );
 }

@@ -535,7 +535,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
           <Text style={s.coverConfidential}>
             Confidential {"\u2014"} For internal and authorized partner use only
           </Text>
-          <Link src="https://wunderbardigital.com" style={s.coverUrl}>
+          <Link src="https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=pdf_cover&utm_campaign=report_delivery&utm_content=brand_standards_cover" style={s.coverUrl}>
             wunderbardigital.com
           </Link>
         </View>

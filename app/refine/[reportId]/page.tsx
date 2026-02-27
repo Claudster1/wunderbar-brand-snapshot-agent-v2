@@ -122,7 +122,7 @@ export default function RefinePage() {
         zIndex: 100,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <a href="https://wunderbardigital.com" target="_blank" rel="noopener noreferrer">
+          <a href="https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=refine_page&utm_campaign=brand_navigation&utm_content=header_logo" target="_blank" rel="noopener noreferrer">
             <img
               src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp"
               alt="Wunderbar Digital"

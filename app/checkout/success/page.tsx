@@ -43,7 +43,6 @@ function SuccessContent() {
   useEffect(() => {
     if (emailParam) {
       persistEmail(emailParam);
-      setCustomerEmail(emailParam);
     }
     if (sessionId) {
       fetch(`/api/stripe/session-email?session_id=${sessionId}`)

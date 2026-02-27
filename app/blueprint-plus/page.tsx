@@ -33,7 +33,7 @@ export default function BlueprintPlusPage() {
               campaigns, and performance aligned to your brand.
             </p>
             <a
-              href="https://wunderbardigital.com"
+              href="https://wunderbardigital.com/managed-marketing?utm_source=wunderbrand_app&utm_medium=blueprint_plus_page&utm_campaign=services_navigation&utm_content=managed_marketing_card"
               target="_blank"
               rel="noopener noreferrer"
               className="text-brand-blue font-semibold text-sm hover:underline"
@@ -48,7 +48,7 @@ export default function BlueprintPlusPage() {
               AI strategy and implementation so your brand stays consistent at scale.
             </p>
             <a
-              href="https://wunderbardigital.com"
+              href="https://wunderbardigital.com/ai-consulting?utm_source=wunderbrand_app&utm_medium=blueprint_plus_page&utm_campaign=services_navigation&utm_content=ai_consulting_card"
               target="_blank"
               rel="noopener noreferrer"
               className="text-brand-blue font-semibold text-sm hover:underline"

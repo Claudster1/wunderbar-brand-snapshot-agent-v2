@@ -10,6 +10,7 @@ import type { ContextCoverage } from "@/lib/enrichment/coverage";
 import { shouldShowSnapshotPlusUpgrade, getUpgradeCopy } from "@/lib/enrichment/upgrade";
 import { BlueprintPlusLocked } from "./BlueprintPlusLocked";
 import { PromptPackGrid } from "@/components/blueprintPlus/PromptPackGrid";
+import Link from "next/link";
 
 export function BlueprintPlusActivation({
   access,
@@ -61,12 +62,12 @@ export function BlueprintPlusActivation({
           </h3>
           <p className="mt-2">{upgradeCopy.body}</p>
 
-          <a
+          <Link
             href="/snapshot-plus"
             className="inline-block mt-4 btn-primary"
           >
             {upgradeCopy.cta}
-          </a>
+          </Link>
         </div>
       )}
     </main>

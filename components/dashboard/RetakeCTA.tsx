@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { getPersistedEmail } from "@/lib/persistEmail";
+import Link from "next/link";
 
 const NAVY = "#021859";
 const BLUE = "#07B0F2";
@@ -133,7 +134,7 @@ export default function RetakeCTA() {
         )}
 
         <div style={{ marginTop: 6 }}>
-          <a
+          <Link
             href="/"
             style={{
               display: "inline-flex",
@@ -150,7 +151,7 @@ export default function RetakeCTA() {
             }}
           >
             Start Strategy Refresh — Free
-          </a>
+          </Link>
         </div>
 
         {eligibility.windowEnd && (
@@ -230,7 +231,7 @@ export default function RetakeCTA() {
         )}
 
         <div style={{ marginTop: 6 }}>
-          <a
+          <Link
             href="/"
             style={{
               display: "inline-flex",
@@ -247,14 +248,14 @@ export default function RetakeCTA() {
             }}
           >
             Start Strategy Check-In — Free
-          </a>
+          </Link>
         </div>
 
         <p style={{ fontSize: 12, color: SUB, margin: "12px 0 0", lineHeight: 1.5 }}>
           After your check-in, additional refreshes are $97 each. Or{" "}
-          <a href="/checkout?product=blueprint-plus" style={{ color: BLUE, fontWeight: 700, textDecoration: "none" }}>
+          <Link href="/checkout?product=blueprint-plus" style={{ color: BLUE, fontWeight: 700, textDecoration: "none" }}>
             take it further with WunderBrand Blueprint+™
-          </a>{" "}
+          </Link>{" "}
           for unlimited refreshes and a Brand Workspace that grows with you.
         </p>
       </div>
@@ -375,9 +376,9 @@ export default function RetakeCTA() {
         {tier !== "blueprint_plus" && (
           <p style={{ fontSize: 12, color: SUB, margin: "12px 0 0", lineHeight: 1.5 }}>
             Or{" "}
-            <a href="/checkout?product=blueprint-plus" style={{ color: BLUE, fontWeight: 700, textDecoration: "none" }}>
+            <Link href="/checkout?product=blueprint-plus" style={{ color: BLUE, fontWeight: 700, textDecoration: "none" }}>
               take it further with WunderBrand Blueprint+™
-            </a>{" "}
+            </Link>{" "}
             for unlimited refreshes and a Brand Workspace that grows with you.
           </p>
         )}
@@ -400,7 +401,7 @@ export default function RetakeCTA() {
       <p style={{ fontSize: 14, color: SUB, margin: "0 0 14px", lineHeight: 1.6 }}>
         Want a fresh perspective? Retake the diagnostic with updated information for a new analysis.
       </p>
-      <a
+      <Link
         href="/"
         style={{
           display: "inline-flex",
@@ -417,7 +418,7 @@ export default function RetakeCTA() {
         }}
       >
         Start a new WunderBrand Snapshot™
-      </a>
+      </Link>
     </div>
   );
 }

@@ -40,12 +40,82 @@ export async function GET(req: NextRequest) {
       const limit = Math.min(Number(url.searchParams.get("limit")) || 100, 500);
       return NextResponse.json(await getRecentEvents(since, limit));
     }
+    if (view === "crm") {
+      return NextResponse.json(await getCrmData(since));
+    }
 
     return NextResponse.json({ error: "Unknown view" }, { status: 400 });
   } catch (err) {
     logger.error("[Admin Analytics]", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "Query failed" }, { status: 500 });
   }
+}
+
+function median(values: number[]): number {
+  if (values.length === 0) return 0;
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  if (sorted.length % 2 === 0) return (sorted[mid - 1] + sorted[mid]) / 2;
+  return sorted[mid];
+}
+
+type TrendPoint = {
+  date: string;
+  medianFirstResponseHours: number;
+  slaBreachRate: number;
+};
+
+function toDayKey(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+function buildTrend(
+  inquiries: Array<{
+    status: string;
+    created_at: string;
+    first_response_at: string | null;
+  }>,
+  days: number,
+): TrendPoint[] {
+  const now = Date.now();
+  const points: TrendPoint[] = [];
+
+  for (let i = days - 1; i >= 0; i -= 1) {
+    const day = new Date(now - i * 86400000);
+    const dayKey = toDayKey(day);
+    const responseHours: number[] = [];
+    let evaluated = 0;
+    let breaches = 0;
+
+    for (const inquiry of inquiries) {
+      if (!inquiry.created_at.startsWith(dayKey)) continue;
+
+      if (inquiry.first_response_at) {
+        const hours =
+          (new Date(inquiry.first_response_at).getTime() -
+            new Date(inquiry.created_at).getTime()) /
+          (1000 * 60 * 60);
+        if (Number.isFinite(hours) && hours >= 0) {
+          responseHours.push(hours);
+          evaluated += 1;
+          if (hours > 24) breaches += 1;
+        }
+      } else if (inquiry.status === "new" || inquiry.status === "in_progress") {
+        const openHours =
+          (Date.now() - new Date(inquiry.created_at).getTime()) / (1000 * 60 * 60);
+        evaluated += 1;
+        if (openHours > 24) breaches += 1;
+      }
+    }
+
+    points.push({
+      date: dayKey,
+      medianFirstResponseHours: median(responseHours),
+      slaBreachRate: evaluated > 0 ? (breaches / evaluated) * 100 : 0,
+    });
+  }
+
+  return points;
 }
 
 // ── Funnel data ──
@@ -192,4 +262,179 @@ async function getRecentEvents(since: string, limit: number) {
     .limit(limit);
 
   return { events: data || [] };
+}
+
+// ── CRM ops analytics ──
+async function getCrmData(since: string) {
+  const sb = supabaseAdmin!;
+  const minSince = new Date(Math.min(new Date(since).getTime(), Date.now() - 30 * 86400000))
+    .toISOString();
+
+  const [{ data: inquiries }, { data: tasks }] = await Promise.all([
+    sb
+      .from("crm_inquiries")
+      .select("id, source, status, owner, created_at, first_response_at, last_activity_at")
+      .gte("created_at", minSince)
+      .limit(2000),
+    sb
+      .from("crm_tasks")
+      .select("id, status, due_at, assigned_to, inquiry_id")
+      .gte("created_at", minSince)
+      .limit(3000),
+  ]);
+
+  const inquiryRows = (inquiries as Array<{
+    id: string;
+    source: string | null;
+    status: string;
+    owner: string | null;
+    created_at: string;
+    first_response_at: string | null;
+    last_activity_at: string | null;
+  }> | null) || [];
+
+  const taskRows = (tasks as Array<{
+    id: string;
+    status: string;
+    due_at: string | null;
+    assigned_to: string | null;
+    inquiry_id: string | null;
+  }> | null) || [];
+
+  const totals = {
+    open: 0,
+    new: 0,
+    inProgress: 0,
+    responded: 0,
+    closed: 0,
+  };
+
+  const sourceMap: Record<
+    string,
+    { source: string; total: number; responded: number; closed: number; open: number }
+  > = {};
+
+  const responseHours: number[] = [];
+  let respondedWithFirstResponse = 0;
+  let slaBreaches = 0;
+
+  for (const inquiry of inquiryRows) {
+    if (inquiry.status === "new") {
+      totals.new += 1;
+      totals.open += 1;
+    } else if (inquiry.status === "in_progress") {
+      totals.inProgress += 1;
+      totals.open += 1;
+    } else if (inquiry.status === "responded") {
+      totals.responded += 1;
+    } else if (inquiry.status === "closed") {
+      totals.closed += 1;
+    }
+
+    const sourceKey = inquiry.source || "unknown";
+    if (!sourceMap[sourceKey]) {
+      sourceMap[sourceKey] = {
+        source: sourceKey,
+        total: 0,
+        responded: 0,
+        closed: 0,
+        open: 0,
+      };
+    }
+    sourceMap[sourceKey].total += 1;
+    if (inquiry.status === "responded") sourceMap[sourceKey].responded += 1;
+    if (inquiry.status === "closed") sourceMap[sourceKey].closed += 1;
+    if (inquiry.status === "new" || inquiry.status === "in_progress") sourceMap[sourceKey].open += 1;
+
+    if (inquiry.first_response_at) {
+      const hours =
+        (new Date(inquiry.first_response_at).getTime() -
+          new Date(inquiry.created_at).getTime()) /
+        (1000 * 60 * 60);
+      if (Number.isFinite(hours) && hours >= 0) {
+        responseHours.push(hours);
+        respondedWithFirstResponse += 1;
+        if (hours > 24) slaBreaches += 1;
+      }
+    } else if (inquiry.status === "new" || inquiry.status === "in_progress") {
+      // Open inquiries older than 24h with no first response count as SLA breaches.
+      const openHours =
+        (Date.now() - new Date(inquiry.created_at).getTime()) / (1000 * 60 * 60);
+      if (openHours > 24) slaBreaches += 1;
+    }
+  }
+
+  const ownerMap: Record<
+    string,
+    { owner: string; openInquiries: number; inProgressInquiries: number; overdueTasks: number }
+  > = {};
+
+  for (const inquiry of inquiryRows) {
+    const owner = (inquiry.owner || "unassigned").trim() || "unassigned";
+    if (!ownerMap[owner]) {
+      ownerMap[owner] = {
+        owner,
+        openInquiries: 0,
+        inProgressInquiries: 0,
+        overdueTasks: 0,
+      };
+    }
+    if (inquiry.status === "new" || inquiry.status === "in_progress") ownerMap[owner].openInquiries += 1;
+    if (inquiry.status === "in_progress") ownerMap[owner].inProgressInquiries += 1;
+  }
+
+  for (const task of taskRows) {
+    const owner = (task.assigned_to || "unassigned").trim() || "unassigned";
+    if (!ownerMap[owner]) {
+      ownerMap[owner] = {
+        owner,
+        openInquiries: 0,
+        inProgressInquiries: 0,
+        overdueTasks: 0,
+      };
+    }
+    if (
+      task.status === "open" &&
+      task.due_at &&
+      new Date(task.due_at).getTime() < Date.now()
+    ) {
+      ownerMap[owner].overdueTasks += 1;
+    }
+  }
+
+  const sourceBreakdown = Object.values(sourceMap).sort((a, b) => b.total - a.total);
+  const ownerWorkload = Object.values(ownerMap).sort(
+    (a, b) =>
+      b.openInquiries +
+      b.inProgressInquiries +
+      b.overdueTasks -
+      (a.openInquiries + a.inProgressInquiries + a.overdueTasks),
+  );
+  const responseTrends = {
+    last7Days: buildTrend(inquiryRows, 7),
+    last30Days: buildTrend(inquiryRows, 30),
+  };
+
+  const medianFirstResponseHours = median(responseHours);
+  const evaluatedForSla = Math.max(
+    respondedWithFirstResponse +
+      inquiryRows.filter((i) => !i.first_response_at && (i.status === "new" || i.status === "in_progress")).length,
+    1,
+  );
+  const slaBreachRate = (slaBreaches / evaluatedForSla) * 100;
+
+  return {
+    crm: {
+      totals,
+      responseMetrics: {
+        respondedWithFirstResponse,
+        medianFirstResponseHours,
+        slaBreaches,
+        slaBreachRate,
+        trends: responseTrends,
+      },
+      sourceBreakdown,
+      ownerWorkload,
+    },
+  };
 }

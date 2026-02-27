@@ -18,20 +18,17 @@ export function ResultsUpgradeCTA({
   hasPurchasedPlus: boolean;
   email?: string;
 }) {
-  const [variant, setVariant] = useState<"A" | "B">("A");
-  const [presence, setPresence] = useState<"single" | "dual">("single");
-
-  useEffect(() => {
-    setVariant(getOrAssignVariant<"A" | "B">("results_cta_variant", ["A", "B"]));
-    setPresence(getOrAssignVariant<"single" | "dual">("results_cta_presence", ["single", "dual"]));
-  }, []);
-
-  // Only show to non-buyers
-  if (hasPurchasedPlus) return null;
+  const [variant] = useState<"A" | "B">(() =>
+    getOrAssignVariant<"A" | "B">("results_cta_variant", ["A", "B"])
+  );
+  const [presence] = useState<"single" | "dual">(() =>
+    getOrAssignVariant<"single" | "dual">("results_cta_presence", ["single", "dual"])
+  );
 
   const copy = RESULTS_CTA_COPY[variant];
 
   useEffect(() => {
+    if (hasPurchasedPlus) return;
     fireACEvent({
       email,
       eventName: "snapshot_upgrade_cta_shown",
@@ -42,7 +39,10 @@ export function ResultsUpgradeCTA({
         brand_stage: stage,
       },
     });
-  }, [variant, presence]);
+  }, [email, hasPurchasedPlus, presence, primaryPillar, stage, variant]);
+
+  // Only show to non-buyers
+  if (hasPurchasedPlus) return null;
 
   const onPrimaryClick = () => {
     fireACEvent({

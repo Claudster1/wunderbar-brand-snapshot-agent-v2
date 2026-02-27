@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 
 export default function SnapshotPlusPanel({ score }: { score?: number }) {
   return (
@@ -13,12 +14,12 @@ export default function SnapshotPlusPanel({ score }: { score?: number }) {
         based on your unique brand data.
       </p>
 
-      <a
+      <Link
         href="/snapshot-plus"
         className="inline-block mt-6 px-6 py-3 bg-brand-blue text-white rounded-lg shadow hover:bg-brand-blueHover transition"
       >
         Take it further with Snapshot+™ →
-      </a>
+      </Link>
     </div>
   );
 }

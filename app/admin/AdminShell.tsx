@@ -17,6 +17,7 @@ type AdminShellProps = {
 
 const NAV_ITEMS = [
   { href: "/admin/inbound", label: "Inbound" },
+  { href: "/admin/unified", label: "Unified" },
   { href: "/admin/followups", label: "Follow-ups" },
   { href: "/admin/analytics", label: "Analytics" },
   { href: "/admin/experience-scores", label: "Experience" },

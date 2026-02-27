@@ -13,6 +13,80 @@ function isAuthorized(req: NextRequest): boolean {
   return auth.replace("Bearer ", "").trim() === ADMIN_API_KEY;
 }
 
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  if (!isAuthorized(req)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (!supabaseAdmin) {
+    return NextResponse.json({ error: "Database not configured." }, { status: 500 });
+  }
+
+  const { id } = await params;
+
+  const { data: inquiry, error: inquiryError } = await supabaseAdmin
+    .from("crm_inquiries")
+    .select(
+      `
+      id,
+      source,
+      status,
+      priority,
+      subject,
+      message,
+      transcript,
+      owner,
+      first_response_at,
+      resolved_at,
+      last_activity_at,
+      created_at,
+      updated_at,
+      crm_contacts (
+        id,
+        email,
+        phone,
+        full_name,
+        company_name
+      )
+    `,
+    )
+    .eq("id", id)
+    .single();
+
+  if (inquiryError || !inquiry) {
+    return NextResponse.json({ error: "Inquiry not found." }, { status: 404 });
+  }
+
+  const [tasksRes, activitiesRes, syncRes] = await Promise.all([
+    supabaseAdmin
+      .from("crm_tasks")
+      .select("id, title, status, due_at, assigned_to, created_at, updated_at")
+      .eq("inquiry_id", id)
+      .order("created_at", { ascending: false }),
+    supabaseAdmin
+      .from("crm_activities")
+      .select("id, activity_type, body, payload, created_by, created_at")
+      .eq("inquiry_id", id)
+      .order("created_at", { ascending: false })
+      .limit(50),
+    supabaseAdmin
+      .from("crm_sync_log")
+      .select("id, provider, status, event_type, error_message, payload, created_at")
+      .eq("inquiry_id", id)
+      .order("created_at", { ascending: false })
+      .limit(25),
+  ]);
+
+  return NextResponse.json({
+    inquiry,
+    tasks: tasksRes.data || [],
+    activities: activitiesRes.data || [],
+    syncLog: syncRes.data || [],
+  });
+}
+
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -27,10 +101,19 @@ export async function PATCH(
   const { id } = await params;
   const body = await req.json();
   const status = typeof body.status === "string" ? body.status : null;
-  const owner = typeof body.owner === "string" ? sanitizeString(body.owner) : null;
+  const ownerProvided = Object.prototype.hasOwnProperty.call(body, "owner");
+  let owner: string | null | undefined = undefined;
+  if (ownerProvided) {
+    if (typeof body.owner === "string") {
+      const sanitizedOwner = sanitizeString(body.owner).trim();
+      owner = sanitizedOwner || null;
+    } else if (body.owner === null) {
+      owner = null;
+    }
+  }
   const note = typeof body.note === "string" ? sanitizeString(body.note) : null;
 
-  if (!status && !owner && !note) {
+  if (!status && owner === undefined && !note) {
     return NextResponse.json({ error: "No valid fields to update." }, { status: 400 });
   }
   if (status && !ALLOWED_STATUS.includes(status)) {
@@ -51,7 +134,7 @@ export async function PATCH(
     last_activity_at: new Date().toISOString(),
   };
   if (status) updates.status = status;
-  if (owner) updates.owner = owner;
+  if (owner !== undefined) updates.owner = owner;
   if (status === "responded" && inquiry.status !== "responded") {
     updates.first_response_at = new Date().toISOString();
   }
@@ -90,7 +173,7 @@ export async function PATCH(
       activityType: "note_added",
       body: note,
       payload: {},
-      createdBy: owner || "admin",
+      createdBy: (owner ?? undefined) || "admin",
     });
   }
 

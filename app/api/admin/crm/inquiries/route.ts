@@ -9,6 +9,19 @@ function isAuthorized(req: NextRequest): boolean {
   return auth.replace("Bearer ", "").trim() === ADMIN_API_KEY;
 }
 
+function parseOwnerOptionsFromEnv(): string[] {
+  const raw = process.env.CRM_OWNER_SLACK_MAP_JSON?.trim();
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw) as Record<string, string>;
+    return Object.keys(parsed)
+      .map((key) => key.trim())
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
 export async function GET(req: NextRequest) {
   if (!isAuthorized(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -20,6 +33,7 @@ export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const status = url.searchParams.get("status");
   const source = url.searchParams.get("source");
+  const owner = (url.searchParams.get("owner") || "").trim();
   const limit = Math.min(Number(url.searchParams.get("limit")) || 50, 200);
   const offset = Math.max(Number(url.searchParams.get("offset")) || 0, 0);
 
@@ -54,6 +68,10 @@ export async function GET(req: NextRequest) {
 
   if (status && status !== "all") query = query.eq("status", status);
   if (source && source !== "all") query = query.eq("source", source);
+  if (owner && owner !== "all") {
+    if (owner === "unassigned") query = query.or("owner.is.null,owner.eq.\"\"");
+    else query = query.eq("owner", owner);
+  }
 
   const { data, error } = await query;
   if (error) {
@@ -95,10 +113,20 @@ export async function GET(req: NextRequest) {
     overdue_tasks: overdueTasksRes.count ?? 0,
   };
 
+  const ownerOptions = Array.from(
+    new Set([
+      ...parseOwnerOptionsFromEnv(),
+      ...((data || [])
+        .map((inquiry) => inquiry.owner)
+        .filter((value): value is string => !!value && value.trim().length > 0)),
+    ]),
+  ).sort((a, b) => a.localeCompare(b));
+
   return NextResponse.json({
     inquiries: data || [],
     count: data?.length || 0,
     summary,
     analytics: summary,
+    ownerOptions,
   });
 }

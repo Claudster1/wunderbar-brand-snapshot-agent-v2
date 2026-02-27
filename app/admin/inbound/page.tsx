@@ -83,6 +83,14 @@ type TaskDraft = {
   assignedTo: string;
 };
 
+type TaskViewFilter = "all" | "open" | "due_24h" | "overdue";
+
+type InquiriesResponse = {
+  inquiries?: Inquiry[];
+  analytics?: Analytics;
+  ownerOptions?: string[];
+};
+
 type Analytics = {
   totalOpen: number;
   newCount: number;
@@ -145,6 +153,20 @@ function fromDatetimeLocal(local: string): string | null {
   return new Date(local).toISOString();
 }
 
+function isTaskVisible(task: CrmTask, filter: TaskViewFilter): boolean {
+  if (filter === "all") return true;
+  if (filter === "open") return task.status === "open";
+  if (!task.due_at) return false;
+
+  const dueMs = new Date(task.due_at).getTime();
+  const now = Date.now();
+  if (filter === "overdue") return task.status === "open" && dueMs < now;
+  if (filter === "due_24h") {
+    return task.status === "open" && dueMs >= now && dueMs <= now + 24 * 60 * 60 * 1000;
+  }
+  return true;
+}
+
 export default function InboundInboxPage() {
   const [apiKey, setApiKey] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
@@ -155,6 +177,10 @@ export default function InboundInboxPage() {
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>("new");
   const [sourceFilter, setSourceFilter] = useState<string>("all");
+  const [ownerFilter, setOwnerFilter] = useState<string>("all");
+  const [operatorName, setOperatorName] = useState<string>("");
+  const [ownerOptions, setOwnerOptions] = useState<string[]>([]);
+  const [taskViewFilter, setTaskViewFilter] = useState<TaskViewFilter>("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [deepLinkedInquiryId, setDeepLinkedInquiryId] = useState<string | null>(null);
   const [ownerInput, setOwnerInput] = useState<Record<string, string>>({});
@@ -174,6 +200,9 @@ export default function InboundInboxPage() {
 
     const deepLinkId = new URLSearchParams(window.location.search).get("inquiry");
     if (deepLinkId) setDeepLinkedInquiryId(deepLinkId);
+
+    const storedOperatorName = sessionStorage.getItem("crm_operator_name");
+    if (storedOperatorName) setOperatorName(storedOperatorName);
   }, []);
 
   useEffect(() => {
@@ -190,12 +219,18 @@ export default function InboundInboxPage() {
     [apiKey],
   );
 
+  useEffect(() => {
+    if (!operatorName.trim()) return;
+    sessionStorage.setItem("crm_operator_name", operatorName.trim());
+  }, [operatorName]);
+
   const fetchInquiries = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams({
         status: statusFilter,
         source: sourceFilter,
+        owner: ownerFilter === "mine" ? operatorName.trim() || "all" : ownerFilter,
         limit: "100",
       });
       const res = await fetch(`/api/admin/crm/inquiries?${params.toString()}`, {
@@ -206,15 +241,16 @@ export default function InboundInboxPage() {
         sessionStorage.removeItem("admin_api_key");
         return;
       }
-      const data = (await res.json()) as { inquiries?: Inquiry[]; analytics?: Analytics };
+      const data = (await res.json()) as InquiriesResponse;
       setInquiries(data.inquiries || []);
       setAnalytics(data.analytics || EMPTY_ANALYTICS);
+      setOwnerOptions(data.ownerOptions || []);
     } catch {
       setToast("Failed to load inquiries");
     } finally {
       setLoading(false);
     }
-  }, [headers, sourceFilter, statusFilter]);
+  }, [headers, operatorName, ownerFilter, sourceFilter, statusFilter]);
 
   const fetchInquiryDetail = useCallback(
     async (inquiryId: string, force = false) => {
@@ -546,6 +582,26 @@ export default function InboundInboxPage() {
             <option value="quo_voicemail">Quo Voicemail</option>
             <option value="manual">Manual</option>
           </select>
+          <select
+            value={ownerFilter}
+            onChange={(e) => setOwnerFilter(e.target.value)}
+            style={{ padding: "8px 10px", borderRadius: 8, border: `1px solid ${BORDER}` }}
+          >
+            <option value="all">All owners</option>
+            <option value="unassigned">Unassigned</option>
+            <option value="mine">Mine</option>
+            {ownerOptions.map((owner) => (
+              <option key={owner} value={owner}>
+                {owner}
+              </option>
+            ))}
+          </select>
+          <input
+            value={operatorName}
+            onChange={(e) => setOperatorName(e.target.value)}
+            placeholder="Your name (for Mine/Claim)"
+            style={{ padding: "8px 10px", borderRadius: 8, border: `1px solid ${BORDER}` }}
+          />
           <button
             onClick={fetchInquiries}
             style={{
@@ -722,12 +778,18 @@ export default function InboundInboxPage() {
                   )}
 
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px,1fr))", gap: 8, marginBottom: 10 }}>
-                    <input
+                    <select
                       value={ownerInput[inquiry.id] ?? inquiry.owner ?? ""}
                       onChange={(e) => setOwnerInput((prev) => ({ ...prev, [inquiry.id]: e.target.value }))}
-                      placeholder="Owner (e.g. Claudine)"
                       style={{ padding: "8px 10px", borderRadius: 8, border: `1px solid ${BORDER}` }}
-                    />
+                    >
+                      <option value="">Unassigned</option>
+                      {ownerOptions.map((owner) => (
+                        <option key={owner} value={owner}>
+                          {owner}
+                        </option>
+                      ))}
+                    </select>
                     <select
                       defaultValue={inquiry.status}
                       onChange={(e) =>
@@ -761,6 +823,29 @@ export default function InboundInboxPage() {
                   />
 
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+                    <button
+                      onClick={() =>
+                        updateInquiry(inquiry.id, {
+                          owner:
+                            operatorName.trim() ||
+                            ownerInput[inquiry.id] ||
+                            inquiry.owner ||
+                            null,
+                        })
+                      }
+                      disabled={saving}
+                      style={{
+                        padding: "8px 10px",
+                        borderRadius: 8,
+                        border: "none",
+                        background: NAVY,
+                        color: WHITE,
+                        fontWeight: 700,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Claim
+                    </button>
                     <button
                       onClick={() =>
                         updateInquiry(inquiry.id, {
@@ -829,13 +914,33 @@ export default function InboundInboxPage() {
                   <div style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr" }}>
                     <div style={{ border: `1px solid ${BORDER}`, borderRadius: 10, background: WHITE, padding: 10 }}>
                       <div style={{ fontSize: 12, fontWeight: 800, color: NAVY, marginBottom: 8 }}>Task Panel</div>
+                      <select
+                        value={taskViewFilter}
+                        onChange={(e) => setTaskViewFilter(e.target.value as TaskViewFilter)}
+                        style={{
+                          marginBottom: 8,
+                          padding: "6px 8px",
+                          borderRadius: 6,
+                          border: `1px solid ${BORDER}`,
+                          fontSize: 11,
+                        }}
+                      >
+                        <option value="all">All tasks</option>
+                        <option value="open">Open only</option>
+                        <option value="due_24h">Due in 24h</option>
+                        <option value="overdue">Overdue</option>
+                      </select>
                       {loadingDetailId === inquiry.id && !details && (
                         <div style={{ fontSize: 12, color: SUB }}>Loading tasks...</div>
                       )}
-                      {details && details.tasks.length === 0 && (
+                      {details &&
+                        details.tasks.filter((task) => isTaskVisible(task, taskViewFilter))
+                          .length === 0 && (
                         <div style={{ fontSize: 12, color: SUB }}>No tasks yet.</div>
                       )}
-                      {details?.tasks.map((task) => {
+                      {details?.tasks
+                        .filter((task) => isTaskVisible(task, taskViewFilter))
+                        .map((task) => {
                         const taskDraft = taskDraftById[task.id] || {
                           title: task.title,
                           dueAtLocal: toDatetimeLocal(task.due_at),

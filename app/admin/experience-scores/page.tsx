@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { supabaseBrowser } from "@/lib/supabase/client";
 
 /* ─── Brand tokens ─── */
 const NAVY = "#021859";
@@ -231,23 +230,6 @@ export default function ExperienceScoresDashboard() {
             <option value={180}>Last 6 months</option>
             <option value={365}>Last year</option>
           </select>
-          <button
-            onClick={async () => {
-              await supabaseBrowser().auth.signOut();
-              router.replace("/admin-login");
-            }}
-            style={{
-              background: "rgba(255,255,255,0.12)",
-              color: WHITE,
-              border: "1px solid rgba(255,255,255,0.2)",
-              borderRadius: 6,
-              padding: "6px 14px",
-              fontSize: 13,
-              cursor: "pointer",
-            }}
-          >
-            Logout
-          </button>
         </div>
       </header>
 

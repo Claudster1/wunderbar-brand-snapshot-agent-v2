@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { supabaseBrowser } from "@/lib/supabase/client";
 
 /* ─── Brand tokens ─── */
 const NAVY = "#021859";
@@ -233,28 +232,6 @@ export default function FollowupReviewPage() {
           </p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <a
-            href="/admin/inbound"
-            style={{
-              fontSize: 12,
-              fontWeight: 600,
-              color: "#8BA3CF",
-              textDecoration: "none",
-            }}
-          >
-            Inbound Inbox
-          </a>
-          <a
-            href="/admin/analytics"
-            style={{
-              fontSize: 12,
-              fontWeight: 600,
-              color: "#8BA3CF",
-              textDecoration: "none",
-            }}
-          >
-            Analytics
-          </a>
           <button
             onClick={() => { fetchFollowups(); fetchCounts(); }}
             style={{
@@ -265,20 +242,6 @@ export default function FollowupReviewPage() {
             }}
           >
             Refresh
-          </button>
-          <button
-            onClick={async () => {
-              await supabaseBrowser().auth.signOut();
-              router.replace("/admin-login");
-            }}
-            style={{
-              padding: "8px 14px", fontSize: 12, fontWeight: 600,
-              background: "transparent", color: "#8BA3CF",
-              border: "1px solid rgba(255,255,255,0.15)", borderRadius: 6,
-              cursor: "pointer", fontFamily: "'Lato', system-ui, sans-serif",
-            }}
-          >
-            Sign Out
           </button>
         </div>
       </div>

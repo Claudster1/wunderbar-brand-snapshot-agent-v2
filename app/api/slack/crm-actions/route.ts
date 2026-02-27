@@ -10,6 +10,8 @@ const ACTION_TO_STATUS: Record<string, "in_progress" | "responded" | "closed"> =
   crm_set_responded: "responded",
   crm_set_closed: "closed",
 };
+const ACTION_CLAIM = "crm_claim_owner";
+const ACTION_SNOOZE_4H = "crm_snooze_4h";
 
 function safeEqual(a: string, b: string): boolean {
   const aBuf = Buffer.from(a);
@@ -85,8 +87,10 @@ export async function POST(req: NextRequest) {
     const actionId = action?.action_id || "";
     const inquiryId = action?.value || "";
     const status = ACTION_TO_STATUS[actionId];
+    const isClaim = actionId === ACTION_CLAIM;
+    const isSnooze = actionId === ACTION_SNOOZE_4H;
 
-    if (!status || !inquiryId) {
+    if ((!status && !isClaim && !isSnooze) || !inquiryId) {
       return NextResponse.json({
         response_type: "ephemeral",
         text: "Invalid action payload.",
@@ -107,15 +111,26 @@ export async function POST(req: NextRequest) {
     }
 
     const updates: Record<string, unknown> = {
-      status,
       updated_at: new Date().toISOString(),
-      last_activity_at: new Date().toISOString(),
     };
-    if (status === "responded" && inquiry.status !== "responded") {
-      updates.first_response_at = new Date().toISOString();
+    if (status) {
+      updates.status = status;
+      updates.last_activity_at = new Date().toISOString();
+      if (status === "responded" && inquiry.status !== "responded") {
+        updates.first_response_at = new Date().toISOString();
+      }
+      if (status === "closed") {
+        updates.resolved_at = new Date().toISOString();
+      }
     }
-    if (status === "closed") {
-      updates.resolved_at = new Date().toISOString();
+    if (isClaim) {
+      updates.owner = payload.user?.name || slackUserId;
+      updates.last_activity_at = new Date().toISOString();
+    }
+    if (isSnooze) {
+      const snoozeUntil = new Date();
+      snoozeUntil.setHours(snoozeUntil.getHours() + 4);
+      updates.last_activity_at = snoozeUntil.toISOString();
     }
 
     const { error: updateError } = await supabaseAdmin
@@ -130,14 +145,34 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    await createCrmActivity({
-      inquiryId,
-      contactId: inquiry.contact_id,
-      activityType: "status_changed",
-      body: `Status changed to ${status} from Slack`,
-      payload: { from: inquiry.status, to: status, by_slack_user_id: slackUserId },
-      createdBy: payload.user?.name || "slack",
-    });
+    if (status) {
+      await createCrmActivity({
+        inquiryId,
+        contactId: inquiry.contact_id,
+        activityType: "status_changed",
+        body: `Status changed to ${status} from Slack`,
+        payload: { from: inquiry.status, to: status, by_slack_user_id: slackUserId },
+        createdBy: payload.user?.name || "slack",
+      });
+    } else if (isClaim) {
+      await createCrmActivity({
+        inquiryId,
+        contactId: inquiry.contact_id,
+        activityType: "owner_claimed",
+        body: `Inquiry claimed by ${payload.user?.name || slackUserId} from Slack`,
+        payload: { owner: payload.user?.name || slackUserId, by_slack_user_id: slackUserId },
+        createdBy: payload.user?.name || "slack",
+      });
+    } else if (isSnooze) {
+      await createCrmActivity({
+        inquiryId,
+        contactId: inquiry.contact_id,
+        activityType: "snoozed_from_slack",
+        body: "Snoozed stale reminder window by 4 hours from Slack",
+        payload: { by_slack_user_id: slackUserId, snooze_hours: 4 },
+        createdBy: payload.user?.name || "slack",
+      });
+    }
 
     if (status === "responded" || status === "closed") {
       await supabaseAdmin
@@ -148,7 +183,7 @@ export async function POST(req: NextRequest) {
     }
 
     const contactEmail = (inquiry as { crm_contacts?: { email?: string } | null })?.crm_contacts?.email;
-    if (contactEmail) {
+    if (contactEmail && status) {
       try {
         if (status === "responded" || status === "closed") {
           await applyActiveCampaignTags({
@@ -186,9 +221,21 @@ export async function POST(req: NextRequest) {
     }
 
     const subject = inquiry.subject || "Inbound inquiry";
+    if (status) {
+      return NextResponse.json({
+        response_type: "ephemeral",
+        text: `Updated "${subject}" to *${status.replace("_", " ")}*.`,
+      });
+    }
+    if (isClaim) {
+      return NextResponse.json({
+        response_type: "ephemeral",
+        text: `Claimed "${subject}" and assigned owner to *${payload.user?.name || slackUserId}*.`,
+      });
+    }
     return NextResponse.json({
       response_type: "ephemeral",
-      text: `Updated "${subject}" to *${status.replace("_", " ")}*.`,
+      text: `Snoozed "${subject}" for 4 hours.`,
     });
   } catch (err) {
     logger.error("[Slack CRM Actions] Failed", {

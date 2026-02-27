@@ -34,6 +34,14 @@ type StaleInquiry = {
     | null;
 };
 
+type ReminderActivity = {
+  id: string;
+  created_at: string;
+  payload?: {
+    reminder_state?: string;
+  } | null;
+};
+
 function getContact(inquiry: StaleInquiry) {
   if (!inquiry.crm_contacts) return null;
   if (Array.isArray(inquiry.crm_contacts)) return inquiry.crm_contacts[0] ?? null;
@@ -125,6 +133,24 @@ async function sendSlackReminder(lines: string[]) {
   });
 }
 
+function getReminderState(params: {
+  status: string;
+  owner: string | null;
+  targetPriority: StaleInquiry["priority"] | null;
+  currentPriority: StaleInquiry["priority"];
+  hoursStale: number;
+}): string {
+  const staleBucket = Math.floor(params.hoursStale / 6);
+  const ownerKey = normalizeOwnerKey(params.owner);
+  const effectivePriority = params.targetPriority || params.currentPriority;
+  return [
+    params.status,
+    ownerKey || "unassigned",
+    effectivePriority,
+    `bucket:${staleBucket}`,
+  ].join("|");
+}
+
 function getHoursSince(iso?: string | null): number {
   if (!iso) return 0;
   const ms = Date.now() - new Date(iso).getTime();
@@ -151,10 +177,19 @@ export async function GET(req: NextRequest) {
     const ownerSlackMap = parseOwnerSlackMap();
     const unassignedSlackUserId = process.env.CRM_UNASSIGNED_SLACK_USER_ID?.trim() || null;
     const staleHours = Number(process.env.CRM_STALE_REMINDER_HOURS || 24);
+    const reminderCooldownHours = Number(
+      process.env.CRM_STALE_REMINDER_COOLDOWN_HOURS || 24,
+    );
     const escalateHighHours = Number(process.env.CRM_ESCALATE_HIGH_HOURS || 48);
     const escalateUrgentHours = Number(process.env.CRM_ESCALATE_URGENT_HOURS || 72);
     const staleCutoff = new Date(Date.now() - staleHours * 60 * 60 * 1000).toISOString();
-    const recentReminderCutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const recentReminderCutoff = new Date(
+      Date.now() - reminderCooldownHours * 60 * 60 * 1000,
+    ).toISOString();
+    const appBaseUrl =
+      process.env.NEXT_PUBLIC_BASE_URL?.trim() ||
+      process.env.NEXTAUTH_URL?.trim() ||
+      "https://app.wunderbrand.ai";
 
     const { data, error } = await supabaseAdmin
       .from("crm_inquiries")
@@ -201,22 +236,42 @@ export async function GET(req: NextRequest) {
             ? "high"
             : null;
 
+      const reminderState = getReminderState({
+        status: inquiry.status,
+        owner: inquiry.owner,
+        targetPriority,
+        currentPriority: inquiry.priority,
+        hoursStale,
+      });
+
       const { data: recentReminder } = await supabaseAdmin
         .from("crm_activities")
-        .select("id")
+        .select("id, created_at, payload")
         .eq("inquiry_id", inquiry.id)
         .eq("activity_type", "stale_reminder_sent")
-        .gte("created_at", recentReminderCutoff)
+        .order("created_at", { ascending: false })
         .limit(1)
-        .maybeSingle();
+        .maybeSingle<ReminderActivity>();
 
-      if (recentReminder?.id) continue;
+      const recentReminderState = recentReminder?.payload?.reminder_state || "";
+      const reminderStillCoolingDown =
+        !!recentReminder?.created_at &&
+        new Date(recentReminder.created_at).getTime() >=
+          new Date(recentReminderCutoff).getTime();
+      if (reminderStillCoolingDown && recentReminderState === reminderState) {
+        continue;
+      }
 
       await supabaseAdmin.from("crm_activities").insert({
         inquiry_id: inquiry.id,
         activity_type: "stale_reminder_sent",
         body: "Stale inquiry reminder triggered by cron.",
-        payload: { stale_cutoff: staleCutoff },
+        payload: {
+          stale_cutoff: staleCutoff,
+          reminder_state: reminderState,
+          hours_stale: hoursStale,
+          target_priority: targetPriority,
+        },
         created_by: "system",
       });
 
@@ -298,7 +353,9 @@ export async function GET(req: NextRequest) {
       reminderLines.push(line);
       reminderBlocks.push({
         inquiryId: inquiry.id,
-        text: line.replace(/^•\s*/, ""),
+        text:
+          `${line.replace(/^•\s*/, "")}\n` +
+          `<${appBaseUrl}/admin/inbound?inquiry=${inquiry.id}|Open in CRM>`,
       });
       remindedCount += 1;
     }
@@ -336,6 +393,18 @@ export async function GET(req: NextRequest) {
             {
               type: "actions",
               elements: [
+                {
+                  type: "button",
+                  text: { type: "plain_text", text: "Claim" },
+                  action_id: "crm_claim_owner",
+                  value: item.inquiryId,
+                },
+                {
+                  type: "button",
+                  text: { type: "plain_text", text: "Snooze 4h" },
+                  action_id: "crm_snooze_4h",
+                  value: item.inquiryId,
+                },
                 {
                   type: "button",
                   text: { type: "plain_text", text: "In Progress" },

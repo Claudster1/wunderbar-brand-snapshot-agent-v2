@@ -138,6 +138,7 @@ export default function InboundInboxPage() {
   const [statusFilter, setStatusFilter] = useState<string>("new");
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [deepLinkedInquiryId, setDeepLinkedInquiryId] = useState<string | null>(null);
   const [ownerInput, setOwnerInput] = useState<Record<string, string>>({});
   const [noteInput, setNoteInput] = useState<Record<string, string>>({});
   const [detailsByInquiry, setDetailsByInquiry] = useState<Record<string, InquiryDetail>>({});
@@ -150,6 +151,9 @@ export default function InboundInboxPage() {
       setApiKey(stored);
       setAuthenticated(true);
     }
+
+    const deepLinkId = new URLSearchParams(window.location.search).get("inquiry");
+    if (deepLinkId) setDeepLinkedInquiryId(deepLinkId);
   }, []);
 
   useEffect(() => {
@@ -228,6 +232,21 @@ export default function InboundInboxPage() {
   useEffect(() => {
     if (authenticated) fetchInquiries();
   }, [authenticated, fetchInquiries]);
+
+  useEffect(() => {
+    if (!authenticated || !deepLinkedInquiryId || inquiries.length === 0) return;
+    const exists = inquiries.some((inquiry) => inquiry.id === deepLinkedInquiryId);
+    if (!exists) return;
+
+    setExpandedId(deepLinkedInquiryId);
+    void fetchInquiryDetail(deepLinkedInquiryId);
+    setDeepLinkedInquiryId(null);
+  }, [
+    authenticated,
+    deepLinkedInquiryId,
+    fetchInquiryDetail,
+    inquiries,
+  ]);
 
   const counts = useMemo(() => {
     const base = { new: 0, in_progress: 0, responded: 0, closed: 0 };

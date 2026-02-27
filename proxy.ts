@@ -52,6 +52,8 @@ const ALLOWED_ORIGINS = new Set(
   [
     "https://app.wunderbrand.ai",
     "https://app.brandsnapshot.ai",
+    "https://wunderbardigital.com",
+    "https://www.wunderbardigital.com",
     process.env.NEXT_PUBLIC_BASE_URL,
   ].filter(Boolean)
 );

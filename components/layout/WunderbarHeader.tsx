@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import Image from "next/image";
 
 // Routes where the header should be hidden (reports/previews)
 const HIDDEN_HEADER_ROUTES = [
@@ -21,9 +20,6 @@ export function WunderbarHeader() {
 
   // Check if header should be hidden on current route
   const shouldHideHeader = HIDDEN_HEADER_ROUTES.some(route => pathname?.startsWith(route));
-
-  // On the assessment page, hide the redundant "Start Your Free" CTA
-  const isAssessmentPage = pathname === "/";
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
@@ -53,7 +49,7 @@ export function WunderbarHeader() {
 
   return (
     <>
-      <header className="wunder-header">
+      <header className="wunder-header-final">
         <a href="https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=site_navigation" className="wunder-logo" target="_blank" rel="noopener noreferrer">
           <img
             src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp"
@@ -100,14 +96,12 @@ export function WunderbarHeader() {
 
         {/* Desktop CTAs */}
         <div className="wunder-btn-container">
-          {!isAssessmentPage && (
-            <a href="https://wunderbardigital.com/wunderbrand-snapshot?utm_source=wunderbrand_app&utm_medium=header_cta&utm_campaign=site_navigation" className="wunder-btn wunder-btn-solid" target="_blank" rel="noopener noreferrer">
-              Start Your Free WunderBrand Snapshot™
-            </a>
-          )}
+          <a href="https://wunderbardigital.com/wunderbrand-snapshot?utm_source=wunderbrand_app&utm_medium=header_cta&utm_campaign=site_navigation" className="btn-base btn-solid" target="_blank" rel="noopener noreferrer">
+            Start Your Free WunderBrand Snapshot™
+          </a>
           <a
             href="https://wunderbardigital.com/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=header_cta&utm_campaign=site_navigation"
-            className={`wunder-btn ${isAssessmentPage ? "wunder-btn-solid" : "wunder-btn-outline"}`}
+            className="btn-base btn-outline"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -117,6 +111,7 @@ export function WunderbarHeader() {
 
         {/* Mobile Hamburger */}
         <button
+          type="button"
           className={`wunder-mobile-toggle ${mobileMenuOpen ? "active" : ""}`}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label="Toggle mobile menu"
@@ -142,7 +137,7 @@ export function WunderbarHeader() {
             width={180}
             height={32}
           />
-          <button className="wunder-mobile-close" onClick={closeMenu} aria-label="Close mobile menu">
+          <button type="button" className="wunder-mobile-close" onClick={closeMenu} aria-label="Close mobile menu">
             ×
           </button>
         </div>
@@ -151,6 +146,7 @@ export function WunderbarHeader() {
           {/* WunderBrand Suite™ Section */}
           <div className="wunder-mobile-section">
             <button
+              type="button"
               className={`wunder-mobile-dropdown-btn ${activeDropdown === "suite" ? "active" : ""}`}
               onClick={() => toggleDropdown("suite")}
             >
@@ -171,6 +167,7 @@ export function WunderbarHeader() {
           {/* Services Section */}
           <div className="wunder-mobile-section">
             <button
+              type="button"
               className={`wunder-mobile-dropdown-btn ${activeDropdown === "services" ? "active" : ""}`}
               onClick={() => toggleDropdown("services")}
             >
@@ -193,14 +190,12 @@ export function WunderbarHeader() {
 
           {/* Mobile CTAs */}
           <div className="wunder-mobile-ctas">
-            {!isAssessmentPage && (
-              <a href="https://wunderbardigital.com/wunderbrand-snapshot?utm_source=wunderbrand_app&utm_medium=header_cta&utm_campaign=site_navigation" className="wunder-btn wunder-btn-solid" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
-                Start Your Free WunderBrand Snapshot™
-              </a>
-            )}
+            <a href="https://wunderbardigital.com/wunderbrand-snapshot?utm_source=wunderbrand_app&utm_medium=header_cta&utm_campaign=site_navigation" className="btn-base btn-solid" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
+              Start Your Free WunderBrand Snapshot™
+            </a>
             <a
               href="https://wunderbardigital.com/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=header_cta&utm_campaign=site_navigation"
-              className={`wunder-btn ${isAssessmentPage ? "wunder-btn-solid" : "wunder-btn-outline"}`}
+              className="btn-base btn-outline"
               target="_blank"
               rel="noopener noreferrer"
               onClick={closeMenu}

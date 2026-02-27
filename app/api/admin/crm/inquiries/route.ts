@@ -58,7 +58,10 @@ export async function GET(req: NextRequest) {
     .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
-  if (status && status !== "all") query = query.eq("status", status);
+  if (status && status !== "all") {
+    if (status === "open") query = query.in("status", ["new", "in_progress"]);
+    else query = query.eq("status", status);
+  }
   if (source && source !== "all") query = query.eq("source", source);
   if (owner && owner !== "all") {
     if (owner === "unassigned") query = query.or("owner.is.null,owner.eq.\"\"");
@@ -70,7 +73,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Failed to fetch inquiries." }, { status: 500 });
   }
 
-  const [newRes, inProgressRes, responded7dRes, staleRes, overdueTasksRes] = await Promise.all([
+  const nowIso = new Date().toISOString();
+  const due24Iso = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+  const [newRes, inProgressRes, responded7dRes, staleRes, overdueTasksRes, allTasksRes, openTasksRes, due24hTasksRes, doneTasksRes, cancelledTasksRes] = await Promise.all([
     supabaseAdmin.from("crm_inquiries").select("id", { count: "exact", head: true }).eq("status", "new"),
     supabaseAdmin
       .from("crm_inquiries")
@@ -90,11 +95,35 @@ export async function GET(req: NextRequest) {
       .from("crm_tasks")
       .select("id", { count: "exact", head: true })
       .eq("status", "open")
-      .lt("due_at", new Date().toISOString()),
+      .lt("due_at", nowIso),
+    supabaseAdmin.from("crm_tasks").select("id", { count: "exact", head: true }),
+    supabaseAdmin.from("crm_tasks").select("id", { count: "exact", head: true }).eq("status", "open"),
+    supabaseAdmin
+      .from("crm_tasks")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "open")
+      .gte("due_at", nowIso)
+      .lte("due_at", due24Iso),
+    supabaseAdmin.from("crm_tasks").select("id", { count: "exact", head: true }).eq("status", "done"),
+    supabaseAdmin.from("crm_tasks").select("id", { count: "exact", head: true }).eq("status", "cancelled"),
   ]);
 
   const newCount = newRes.count ?? 0;
   const inProgressCount = inProgressRes.count ?? 0;
+
+  const analytics = {
+    totalOpen: newCount + inProgressCount,
+    newCount,
+    inProgressCount,
+    responded7d: responded7dRes.count ?? 0,
+    staleOpen24h: staleRes.count ?? 0,
+    overdueTasks: overdueTasksRes.count ?? 0,
+    taskTotal: allTasksRes.count ?? 0,
+    taskPending: openTasksRes.count ?? 0,
+    taskDue24h: due24hTasksRes.count ?? 0,
+    taskDone: doneTasksRes.count ?? 0,
+    taskCancelled: cancelledTasksRes.count ?? 0,
+  };
 
   const summary = {
     total_open: newCount + inProgressCount,
@@ -103,6 +132,11 @@ export async function GET(req: NextRequest) {
     responded_7d: responded7dRes.count ?? 0,
     stale_count: staleRes.count ?? 0,
     overdue_tasks: overdueTasksRes.count ?? 0,
+    task_total: allTasksRes.count ?? 0,
+    task_pending: openTasksRes.count ?? 0,
+    task_due_24h: due24hTasksRes.count ?? 0,
+    task_done: doneTasksRes.count ?? 0,
+    task_cancelled: cancelledTasksRes.count ?? 0,
   };
 
   const ownerOptions = Array.from(
@@ -118,7 +152,7 @@ export async function GET(req: NextRequest) {
     inquiries: data || [],
     count: data?.length || 0,
     summary,
-    analytics: summary,
+    analytics,
     ownerOptions,
   });
 }

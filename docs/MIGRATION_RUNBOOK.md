@@ -51,6 +51,7 @@ These create standalone tables. Order among them does not matter.
 | 20a | `migration_create_blueprint_reports.sql` | `blueprint_reports` table (used by `/api/blueprint/pdf`, `/api/assets/analyze`, `/api/workbook/export`) |
 | 20b | `migration_add_user_brands.sql` | `user_brands` table (multi-brand support) |
 | 20c | `migration_shared_links.sql` | `shared_links` table (shareable report/deliverable links) |
+| 20d | `migration_crm_inbound_ops.sql` | CRM-lite inbound tables (`crm_contacts`, `crm_inquiries`, `crm_activities`, `crm_tasks`, `crm_sync_log`) |
 
 ### Phase 3: Alter-Table Migrations (Depend on Phase 1–2)
 
@@ -133,6 +134,7 @@ for file in \
   database/migration_create_blueprint_reports.sql \
   database/migration_add_user_brands.sql \
   database/migration_shared_links.sql \
+  database/migration_crm_inbound_ops.sql \
   database/migration_add_columns_and_constraints.sql \
   database/migration_add_refinement_columns.sql \
   database/migration_add_snapshot_progress_columns.sql \
@@ -181,6 +183,43 @@ npm test
 # - Trigger a test Stripe webhook (Stripe CLI: stripe trigger checkout.session.completed)
 # - Confirm no 500 errors in Vercel/server logs
 ```
+
+### CRM Smoke Checklist (5-minute)
+
+Run this after each deploy touching CRM, Slack, or cron logic:
+
+```bash
+# 0) Set env vars locally for command convenience
+export APP_URL="https://app.wunderbrand.ai"
+export ADMIN_KEY="YOUR_ADMIN_API_KEY"
+export CRON_SECRET="YOUR_CRON_SECRET"
+
+# 1) Read-only CRM smoke endpoint (admin protected)
+curl -sS "$APP_URL/api/admin/crm/smoke" \
+  -H "Authorization: Bearer $ADMIN_KEY"
+
+# Expect: {"ok":true,...}
+
+# 2) Trigger stale reminder cron manually (auth protected)
+curl -i "$APP_URL/api/cron/crm-stale-reminders" \
+  -H "Authorization: Bearer $CRON_SECRET"
+
+# Expect: HTTP 200 and JSON with scanned/reminded counts
+
+# 3) Open inbox list API (admin protected)
+curl -sS "$APP_URL/api/admin/crm/inquiries?status=all&source=all&limit=5" \
+  -H "Authorization: Bearer $ADMIN_KEY"
+
+# Expect: inquiries array + analytics summary
+```
+
+Manual UI + Slack checks:
+
+- Open `/admin/inbound` and verify filters (`All owners`, `Unassigned`, `Mine`) return expected rows.
+- From Slack reminder, click `Claim` then verify owner updates in inbox and timeline.
+- Click `Snooze 4h` then verify inquiry stays out of immediate stale reminder reruns.
+- Click `In Progress` / `Responded` and verify status updates in both Slack confirmation and inbox.
+- Verify `Open in CRM` deep link opens `/admin/inbound?inquiry=<id>` with the card expanded.
 
 ## Rollback Strategy
 

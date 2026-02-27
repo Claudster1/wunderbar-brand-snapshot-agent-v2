@@ -1,9 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { supabaseBrowser } from "@/lib/supabase/client";
 
 const NAVY = "#021859";
 const BLUE = "#07B0F2";
@@ -502,7 +500,7 @@ export default function InboundInboxPage() {
           color: WHITE,
           padding: "18px 24px",
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "flex-start",
           alignItems: "center",
           gap: 16,
         }}
@@ -510,31 +508,6 @@ export default function InboundInboxPage() {
         <div>
           <h1 style={{ margin: 0, fontSize: 20 }}>Inbound CRM Inbox</h1>
           <p style={{ margin: "4px 0 0", fontSize: 12, color: "#8BA3CF" }}>Calls, voicemails, and connect form inquiries in one queue.</p>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <Link href="/admin/followups" style={{ color: "#8BA3CF", textDecoration: "none", fontSize: 12 }}>
-            Follow-ups
-          </Link>
-          <Link href="/admin/analytics" style={{ color: "#8BA3CF", textDecoration: "none", fontSize: 12 }}>
-            Analytics
-          </Link>
-          <button
-            onClick={async () => {
-              await supabaseBrowser().auth.signOut();
-              router.replace("/admin-login");
-            }}
-            style={{
-              background: "transparent",
-              color: "#8BA3CF",
-              border: "1px solid rgba(255,255,255,0.2)",
-              borderRadius: 6,
-              padding: "6px 10px",
-              fontSize: 12,
-              cursor: "pointer",
-            }}
-          >
-            Sign Out
-          </button>
         </div>
       </div>
 

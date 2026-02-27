@@ -28,6 +28,8 @@ export function trackEvent(event: AnalyticsEvent, meta?: Record<string, any>) {
     ...meta,
     anonymousId: getAnonymousId(),
     pagePath: window.location.pathname,
+    pageUrl: window.location.href,
+    siteHost: window.location.hostname.toLowerCase(),
     // Merge attribution data so every event has source context
     ...(attribution
       ? {

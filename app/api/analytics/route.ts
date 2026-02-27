@@ -14,14 +14,79 @@ const EVENT_CATEGORIES: Record<string, string> = {
   BLUEPRINT_COMPLETED: "conversion",
 };
 
+const DEFAULT_ALLOWED_ORIGINS = [
+  "https://app.wunderbrand.ai",
+  "https://wunderbardigital.com",
+  "https://www.wunderbardigital.com",
+];
+
+function getAllowedOrigins(): Set<string> {
+  const configured = (process.env.ANALYTICS_ALLOWED_ORIGINS || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+  return new Set([...DEFAULT_ALLOWED_ORIGINS, ...configured]);
+}
+
+function getOriginHost(origin: string | null): string | null {
+  if (!origin) return null;
+  try {
+    return new URL(origin).hostname.toLowerCase();
+  } catch {
+    return null;
+  }
+}
+
+function getCorsHeaders(req: Request): Record<string, string> {
+  const headers: Record<string, string> = {
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    Vary: "Origin",
+  };
+  const origin = req.headers.get("origin");
+  if (origin && getAllowedOrigins().has(origin)) {
+    headers["Access-Control-Allow-Origin"] = origin;
+  }
+  return headers;
+}
+
+function withCors(response: NextResponse, req: Request): NextResponse {
+  const corsHeaders = getCorsHeaders(req);
+  Object.entries(corsHeaders).forEach(([key, value]) => {
+    response.headers.set(key, value);
+  });
+  return response;
+}
+
+function getPagePath(pagePath: unknown, pageUrl: unknown): string | null {
+  if (typeof pagePath === "string" && pagePath.trim().length > 0) return pagePath;
+  if (typeof pageUrl !== "string" || pageUrl.trim().length === 0) return null;
+  try {
+    return new URL(pageUrl).pathname;
+  } catch {
+    return null;
+  }
+}
+
+export async function OPTIONS(req: Request) {
+  return withCors(new NextResponse(null, { status: 204 }), req);
+}
+
 export async function POST(req: Request) {
   try {
     const { apiGuard } = await import("@/lib/security/apiGuard");
     const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
     const guard = apiGuard(req, { routeId: "analytics", rateLimit: GENERAL_RATE_LIMIT });
-    if (!guard.passed) return guard.errorResponse;
+    if (!guard.passed) {
+      return withCors(
+        guard.errorResponse || NextResponse.json({ error: "Analytics request blocked." }, { status: 429 }),
+        req,
+      );
+    }
 
     const body = await req.json();
+    const siteHost = body.meta?.siteHost || getOriginHost(req.headers.get("origin"));
+    const pageUrl = body.meta?.pageUrl || null;
 
     // ── 1. Write to Supabase analytics_events table ──
     const { supabaseServer } = await import("@/lib/supabase");
@@ -45,8 +110,12 @@ export async function POST(req: Request) {
       ai_source: body.meta?.aiSource || null,
       ab_variant: body.meta?.abVariant || null,
       ab_test_id: body.meta?.abTestId || null,
-      meta: body.meta || {},
-      page_path: body.meta?.pagePath || null,
+      meta: {
+        ...(body.meta || {}),
+        siteHost: typeof siteHost === "string" ? siteHost : null,
+        pageUrl: typeof pageUrl === "string" ? pageUrl : null,
+      },
+      page_path: getPagePath(body.meta?.pagePath, pageUrl),
       user_agent: req.headers.get("user-agent") || null,
     };
 
@@ -91,12 +160,15 @@ export async function POST(req: Request) {
       });
     }
 
-    return NextResponse.json({ ok: true });
+    return withCors(NextResponse.json({ ok: true }), req);
   } catch (err: unknown) {
     logger.error("[Analytics API] Error", { error: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json(
-      { error: "Analytics request failed." },
-      { status: 500 }
+    return withCors(
+      NextResponse.json(
+        { error: "Analytics request failed." },
+        { status: 500 }
+      ),
+      req,
     );
   }
 }

@@ -1,13 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-
-const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
-
-function isAuthorized(req: NextRequest): boolean {
-  if (!ADMIN_API_KEY) return false;
-  const auth = req.headers.get("authorization") || "";
-  return auth.replace("Bearer ", "").trim() === ADMIN_API_KEY;
-}
+import { requireAdminApi } from "@/lib/auth/adminSession";
 
 function parseOwnerOptionsFromEnv(): string[] {
   const raw = process.env.CRM_OWNER_SLACK_MAP_JSON?.trim();
@@ -23,9 +16,8 @@ function parseOwnerOptionsFromEnv(): string[] {
 }
 
 export async function GET(req: NextRequest) {
-  if (!isAuthorized(req)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await requireAdminApi(req);
+  if (!auth.ok) return auth.response;
   if (!supabaseAdmin) {
     return NextResponse.json({ error: "Database not configured." }, { status: 500 });
   }

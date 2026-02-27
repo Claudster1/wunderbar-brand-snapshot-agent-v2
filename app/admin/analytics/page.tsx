@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { supabaseBrowser } from "@/lib/supabase/client";
 
 /* ─── Brand tokens (matches follow-ups dashboard) ─── */
 const NAVY = "#021859";
@@ -150,8 +152,7 @@ const EVENT_COLORS: Record<string, string> = {
 /*  MAIN PAGE                                  */
 /* ═══════════════════════════════════════════ */
 export default function AnalyticsDashboardPage() {
-  const [apiKey, setApiKey] = useState("");
-  const [authenticated, setAuthenticated] = useState(false);
+  const router = useRouter();
   const [tab, setTab] = useState<TabId>("funnel");
   const [days, setDays] = useState(30);
   const [loading, setLoading] = useState(false);
@@ -163,33 +164,13 @@ export default function AnalyticsDashboardPage() {
   const [eventsData, setEventsData] = useState<EventRow[]>([]);
   const [crmData, setCrmData] = useState<CrmAnalyticsData | null>(null);
 
-  useEffect(() => {
-    const stored = sessionStorage.getItem("admin_api_key");
-    if (stored) {
-      setApiKey(stored);
-      setAuthenticated(true);
-    }
-  }, []);
-
-  const headers = useCallback(
-    () => ({
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    }),
-    [apiKey],
-  );
-
   const fetchTab = useCallback(
     async (view: TabId) => {
       setLoading(true);
       try {
-        const res = await fetch(
-          `/api/admin/analytics?view=${view}&days=${days}&limit=200`,
-          { headers: headers() },
-        );
+        const res = await fetch(`/api/admin/analytics?view=${view}&days=${days}&limit=200`);
         if (res.status === 401) {
-          setAuthenticated(false);
-          sessionStorage.removeItem("admin_api_key");
+          router.replace("/admin-login");
           return;
         }
         const json = await res.json();
@@ -204,106 +185,12 @@ export default function AnalyticsDashboardPage() {
         setLoading(false);
       }
     },
-    [days, headers],
+    [days, router],
   );
 
   useEffect(() => {
-    if (authenticated) fetchTab(tab);
-  }, [authenticated, tab, days, fetchTab]);
-
-  const handleLogin = () => {
-    sessionStorage.setItem("admin_api_key", apiKey);
-    setAuthenticated(true);
-  };
-
-  /* ═══ LOGIN ═══ */
-  if (!authenticated) {
-    return (
-      <div
-        style={{
-          minHeight: "100vh",
-          background: LIGHT_BG,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontFamily: "'Lato', system-ui, sans-serif",
-        }}
-      >
-        <div
-          style={{
-            background: WHITE,
-            borderRadius: 12,
-            padding: "40px 36px",
-            boxShadow: "0 8px 32px rgba(2,24,89,0.1)",
-            maxWidth: 400,
-            width: "100%",
-            border: `1px solid ${BORDER}`,
-          }}
-        >
-          <h1
-            style={{
-              fontSize: 20,
-              fontWeight: 700,
-              color: NAVY,
-              margin: "0 0 6px",
-              textAlign: "center",
-            }}
-          >
-            Analytics Dashboard
-          </h1>
-          <p
-            style={{
-              fontSize: 13,
-              color: SUB,
-              textAlign: "center",
-              margin: "0 0 24px",
-            }}
-          >
-            Enter your admin API key to access
-          </p>
-          <input
-            type="password"
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-            placeholder="Admin API key"
-            style={{
-              width: "100%",
-              padding: "12px 14px",
-              fontSize: 14,
-              border: `1.5px solid ${BORDER}`,
-              borderRadius: 8,
-              outline: "none",
-              boxSizing: "border-box",
-              marginBottom: 12,
-              color: NAVY,
-              fontFamily: "'SF Mono', Monaco, monospace",
-            }}
-            autoFocus
-          />
-          <button
-            onClick={handleLogin}
-            disabled={!apiKey.trim()}
-            style={{
-              width: "100%",
-              padding: "12px",
-              fontSize: 14,
-              fontWeight: 700,
-              background: BLUE,
-              color: WHITE,
-              border: "none",
-              borderRadius: 8,
-              cursor: apiKey.trim() ? "pointer" : "not-allowed",
-              opacity: apiKey.trim() ? 1 : 0.5,
-              fontFamily: "'Lato', system-ui, sans-serif",
-            }}
-          >
-            Sign In
-          </button>
-        </div>
-      </div>
-    );
-  }
+    fetchTab(tab);
+  }, [tab, days, fetchTab]);
 
   /* ═══ DASHBOARD ═══ */
   return (
@@ -397,9 +284,9 @@ export default function AnalyticsDashboardPage() {
             Inbound Inbox
           </a>
           <button
-            onClick={() => {
-              setAuthenticated(false);
-              sessionStorage.removeItem("admin_api_key");
+            onClick={async () => {
+              await supabaseBrowser().auth.signOut();
+              router.replace("/admin-login");
             }}
             style={{
               padding: "8px 14px",

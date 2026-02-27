@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { supabaseBrowser } from "@/lib/supabase/client";
 
 const NAVY = "#021859";
 const BLUE = "#07B0F2";
@@ -240,8 +242,7 @@ function getFollowUpDraft(inquiry: Inquiry, contact: Contact | null): { subject:
 }
 
 export default function InboundInboxPage() {
-  const [apiKey, setApiKey] = useState("");
-  const [authenticated, setAuthenticated] = useState(false);
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [taskSavingId, setTaskSavingId] = useState<string | null>(null);
@@ -264,12 +265,6 @@ export default function InboundInboxPage() {
   const [analytics, setAnalytics] = useState<Analytics>(EMPTY_ANALYTICS);
 
   useEffect(() => {
-    const stored = sessionStorage.getItem("admin_api_key");
-    if (stored) {
-      setApiKey(stored);
-      setAuthenticated(true);
-    }
-
     const deepLinkId = new URLSearchParams(window.location.search).get("inquiry");
     if (deepLinkId) setDeepLinkedInquiryId(deepLinkId);
 
@@ -282,14 +277,6 @@ export default function InboundInboxPage() {
     const t = setTimeout(() => setToast(null), 2500);
     return () => clearTimeout(t);
   }, [toast]);
-
-  const headers = useCallback(
-    () => ({
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    }),
-    [apiKey],
-  );
 
   useEffect(() => {
     if (!operatorName.trim()) return;
@@ -305,12 +292,9 @@ export default function InboundInboxPage() {
         owner: ownerFilter === "mine" ? operatorName.trim() || "all" : ownerFilter,
         limit: "100",
       });
-      const res = await fetch(`/api/admin/crm/inquiries?${params.toString()}`, {
-        headers: headers(),
-      });
+      const res = await fetch(`/api/admin/crm/inquiries?${params.toString()}`);
       if (res.status === 401) {
-        setAuthenticated(false);
-        sessionStorage.removeItem("admin_api_key");
+        router.replace("/admin-login");
         return;
       }
       const data = (await res.json()) as InquiriesResponse;
@@ -322,7 +306,7 @@ export default function InboundInboxPage() {
     } finally {
       setLoading(false);
     }
-  }, [headers, operatorName, ownerFilter, sourceFilter, statusFilter]);
+  }, [operatorName, ownerFilter, router, sourceFilter, statusFilter]);
 
   const fetchInquiryDetail = useCallback(
     async (inquiryId: string, force = false) => {
@@ -330,9 +314,7 @@ export default function InboundInboxPage() {
 
       setLoadingDetailId(inquiryId);
       try {
-        const res = await fetch(`/api/admin/crm/inquiries/${inquiryId}`, {
-          headers: headers(),
-        });
+        const res = await fetch(`/api/admin/crm/inquiries/${inquiryId}`);
         if (!res.ok) throw new Error("Failed to load inquiry detail");
         const data = (await res.json()) as {
           tasks?: CrmTask[];
@@ -354,15 +336,15 @@ export default function InboundInboxPage() {
         setLoadingDetailId((prev) => (prev === inquiryId ? null : prev));
       }
     },
-    [detailsByInquiry, headers],
+    [detailsByInquiry],
   );
 
   useEffect(() => {
-    if (authenticated) fetchInquiries();
-  }, [authenticated, fetchInquiries]);
+    fetchInquiries();
+  }, [fetchInquiries]);
 
   useEffect(() => {
-    if (!authenticated || !deepLinkedInquiryId || inquiries.length === 0) return;
+    if (!deepLinkedInquiryId || inquiries.length === 0) return;
     const exists = inquiries.some((inquiry) => inquiry.id === deepLinkedInquiryId);
     if (!exists) return;
 
@@ -370,7 +352,6 @@ export default function InboundInboxPage() {
     void fetchInquiryDetail(deepLinkedInquiryId);
     setDeepLinkedInquiryId(null);
   }, [
-    authenticated,
     deepLinkedInquiryId,
     fetchInquiryDetail,
     inquiries,
@@ -398,11 +379,6 @@ export default function InboundInboxPage() {
     });
   }, [inquiries]);
 
-  const handleLogin = () => {
-    sessionStorage.setItem("admin_api_key", apiKey);
-    setAuthenticated(true);
-  };
-
   const getContact = (inquiry: Inquiry): Contact | null => {
     if (!inquiry.crm_contacts) return null;
     if (Array.isArray(inquiry.crm_contacts)) return inquiry.crm_contacts[0] ?? null;
@@ -414,7 +390,7 @@ export default function InboundInboxPage() {
     try {
       const res = await fetch(`/api/admin/crm/inquiries/${id}`, {
         method: "PATCH",
-        headers: headers(),
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       if (!res.ok) {
@@ -446,7 +422,7 @@ export default function InboundInboxPage() {
     try {
       const res = await fetch(`/api/admin/crm/tasks/${taskId}`, {
         method: "PATCH",
-        headers: headers(),
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       if (!res.ok) {
@@ -475,7 +451,7 @@ export default function InboundInboxPage() {
     try {
       const res = await fetch("/api/admin/crm/tasks", {
         method: "POST",
-        headers: headers(),
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           inquiryId,
           title,
@@ -500,64 +476,6 @@ export default function InboundInboxPage() {
       setTaskSavingId(null);
     }
   };
-
-  if (!authenticated) {
-    return (
-      <div
-        style={{
-          minHeight: "100vh",
-          background: LIGHT_BG,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <div
-          style={{
-            width: 420,
-            maxWidth: "100%",
-            background: WHITE,
-            border: `1px solid ${BORDER}`,
-            borderRadius: 12,
-            padding: 28,
-          }}
-        >
-          <h1 style={{ margin: 0, color: NAVY, fontSize: 22 }}>Inbound Inbox</h1>
-          <p style={{ margin: "8px 0 16px", color: SUB, fontSize: 13 }}>Enter your admin API key.</p>
-          <input
-            type="password"
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-            placeholder="Admin API key"
-            style={{
-              width: "100%",
-              padding: "10px 12px",
-              border: `1px solid ${BORDER}`,
-              borderRadius: 8,
-              marginBottom: 10,
-            }}
-          />
-          <button
-            onClick={handleLogin}
-            disabled={!apiKey.trim()}
-            style={{
-              width: "100%",
-              padding: "10px 12px",
-              borderRadius: 8,
-              border: "none",
-              background: BLUE,
-              color: WHITE,
-              fontWeight: 700,
-              cursor: "pointer",
-            }}
-          >
-            Sign In
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div style={{ minHeight: "100vh", background: LIGHT_BG, fontFamily: "'Lato', system-ui, sans-serif" }}>
@@ -601,9 +519,9 @@ export default function InboundInboxPage() {
             Analytics
           </Link>
           <button
-            onClick={() => {
-              setAuthenticated(false);
-              sessionStorage.removeItem("admin_api_key");
+            onClick={async () => {
+              await supabaseBrowser().auth.signOut();
+              router.replace("/admin-login");
             }}
             style={{
               background: "transparent",

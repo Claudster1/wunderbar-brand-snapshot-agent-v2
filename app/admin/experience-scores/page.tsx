@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { supabaseBrowser } from "@/lib/supabase/client";
 
 /* ─── Brand tokens ─── */
 const NAVY = "#021859";
@@ -112,8 +114,7 @@ function formatMonth(ym: string): string {
 /*  MAIN PAGE                                  */
 /* ═══════════════════════════════════════════ */
 export default function ExperienceScoresDashboard() {
-  const [apiKey, setApiKey] = useState("");
-  const [authenticated, setAuthenticated] = useState(false);
+  const router = useRouter();
   const [tab, setTab] = useState<TabId>("overview");
   const [days, setDays] = useState(90);
   const [loading, setLoading] = useState(false);
@@ -124,39 +125,21 @@ export default function ExperienceScoresDashboard() {
   const [responses, setResponses] = useState<ResponseRow[]>([]);
   const [testimonials, setTestimonials] = useState<TestimonialRow[]>([]);
 
-  useEffect(() => {
-    const stored = sessionStorage.getItem("admin_api_key");
-    if (stored) {
-      setApiKey(stored);
-      setAuthenticated(true);
-    }
-  }, []);
-
-  const headers = useCallback(
-    () => ({
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    }),
-    [apiKey],
-  );
-
   const fetchData = useCallback(
     async (currentTab: TabId) => {
       setLoading(true);
       try {
         const base = `/api/admin/experience-scores`;
-        const h = { headers: headers() };
 
         if (currentTab === "overview") {
           const [ovRes, tierRes, trendRes] = await Promise.all([
-            fetch(`${base}?view=overview&days=${days}`, h),
-            fetch(`${base}?view=by-tier&days=${days}`, h),
-            fetch(`${base}?view=trend`, h),
+            fetch(`${base}?view=overview&days=${days}`),
+            fetch(`${base}?view=by-tier&days=${days}`),
+            fetch(`${base}?view=trend`),
           ]);
 
           if (ovRes.status === 401 || tierRes.status === 401 || trendRes.status === 401) {
-            setAuthenticated(false);
-            sessionStorage.removeItem("admin_api_key");
+            router.replace("/admin-login");
             return;
           }
 
@@ -170,10 +153,9 @@ export default function ExperienceScoresDashboard() {
         }
 
         if (currentTab === "responses") {
-          const res = await fetch(`${base}?view=responses&days=${days}&limit=100`, h);
+          const res = await fetch(`${base}?view=responses&days=${days}&limit=100`);
           if (res.status === 401) {
-            setAuthenticated(false);
-            sessionStorage.removeItem("admin_api_key");
+            router.replace("/admin-login");
             return;
           }
           const json = await res.json();
@@ -181,10 +163,9 @@ export default function ExperienceScoresDashboard() {
         }
 
         if (currentTab === "testimonials") {
-          const res = await fetch(`${base}?view=testimonials&days=${days}&limit=50`, h);
+          const res = await fetch(`${base}?view=testimonials&days=${days}&limit=50`);
           if (res.status === 401) {
-            setAuthenticated(false);
-            sessionStorage.removeItem("admin_api_key");
+            router.replace("/admin-login");
             return;
           }
           const json = await res.json();
@@ -196,85 +177,12 @@ export default function ExperienceScoresDashboard() {
         setLoading(false);
       }
     },
-    [days, headers],
+    [days, router],
   );
 
   useEffect(() => {
-    if (authenticated) fetchData(tab);
-  }, [authenticated, tab, days, fetchData]);
-
-  const handleLogin = () => {
-    sessionStorage.setItem("admin_api_key", apiKey);
-    setAuthenticated(true);
-  };
-
-  /* ═══ LOGIN GATE ═══ */
-  if (!authenticated) {
-    return (
-      <div
-        style={{
-          minHeight: "100vh",
-          background: LIGHT_BG,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontFamily: "'Lato', system-ui, sans-serif",
-        }}
-      >
-        <div
-          style={{
-            background: WHITE,
-            borderRadius: 12,
-            padding: "40px 36px",
-            boxShadow: "0 8px 32px rgba(2,24,89,0.1)",
-            maxWidth: 400,
-            width: "100%",
-            border: `1px solid ${BORDER}`,
-          }}
-        >
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: NAVY, margin: "0 0 6px", textAlign: "center" }}>
-            WunderBrand Experience Scores
-          </h1>
-          <p style={{ fontSize: 13, color: SUB, textAlign: "center", margin: "0 0 24px" }}>
-            Enter your admin key to continue
-          </p>
-          <input
-            type="password"
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-            placeholder="Admin API key"
-            style={{
-              width: "100%",
-              padding: "10px 14px",
-              borderRadius: 8,
-              border: `1px solid ${BORDER}`,
-              fontSize: 14,
-              marginBottom: 16,
-              boxSizing: "border-box",
-              outline: "none",
-            }}
-          />
-          <button
-            onClick={handleLogin}
-            style={{
-              width: "100%",
-              padding: "10px 0",
-              borderRadius: 8,
-              background: NAVY,
-              color: WHITE,
-              fontWeight: 600,
-              fontSize: 14,
-              border: "none",
-              cursor: "pointer",
-            }}
-          >
-            Continue
-          </button>
-        </div>
-      </div>
-    );
-  }
+    fetchData(tab);
+  }, [tab, days, fetchData]);
 
   /* ═══ DASHBOARD ═══ */
   return (
@@ -324,10 +232,9 @@ export default function ExperienceScoresDashboard() {
             <option value={365}>Last year</option>
           </select>
           <button
-            onClick={() => {
-              sessionStorage.removeItem("admin_api_key");
-              setAuthenticated(false);
-              setApiKey("");
+            onClick={async () => {
+              await supabaseBrowser().auth.signOut();
+              router.replace("/admin-login");
             }}
             style={{
               background: "rgba(255,255,255,0.12)",

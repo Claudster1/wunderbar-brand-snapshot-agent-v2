@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { supabaseBrowser } from "@/lib/supabase/client";
 
 /* ─── Brand tokens ─── */
 const NAVY = "#021859";
@@ -74,8 +76,7 @@ const SESSION_LABELS: Record<string, string> = {
 
 /* ─── Main Page ─── */
 export default function FollowupReviewPage() {
-  const [apiKey, setApiKey] = useState("");
-  const [authenticated, setAuthenticated] = useState(false);
+  const router = useRouter();
   const [followups, setFollowups] = useState<Followup[]>([]);
   const [loading, setLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("pending_review");
@@ -88,15 +89,6 @@ export default function FollowupReviewPage() {
   const [toast, setToast] = useState<string | null>(null);
   const [counts, setCounts] = useState<Record<string, number>>({});
 
-  // Load key from sessionStorage on mount
-  useEffect(() => {
-    const stored = sessionStorage.getItem("admin_api_key");
-    if (stored) {
-      setApiKey(stored);
-      setAuthenticated(true);
-    }
-  }, []);
-
   // Auto-dismiss toast
   useEffect(() => {
     if (!toast) return;
@@ -104,21 +96,13 @@ export default function FollowupReviewPage() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  const headers = useCallback(() => ({
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${apiKey}`,
-  }), [apiKey]);
-
   // Fetch follow-ups
   const fetchFollowups = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/followups?status=${statusFilter}&limit=100`, {
-        headers: headers(),
-      });
+      const res = await fetch(`/api/admin/followups?status=${statusFilter}&limit=100`);
       if (res.status === 401) {
-        setAuthenticated(false);
-        sessionStorage.removeItem("admin_api_key");
+        router.replace("/admin-login");
         return;
       }
       const data = await res.json();
@@ -128,7 +112,7 @@ export default function FollowupReviewPage() {
     } finally {
       setLoading(false);
     }
-  }, [statusFilter, headers]);
+  }, [router, statusFilter]);
 
   // Fetch counts for all statuses
   const fetchCounts = useCallback(async () => {
@@ -136,27 +120,19 @@ export default function FollowupReviewPage() {
       const statuses = ["pending_review", "approved", "sent", "rejected"];
       const results = await Promise.all(
         statuses.map(async (s) => {
-          const res = await fetch(`/api/admin/followups?status=${s}&limit=200`, { headers: headers() });
+          const res = await fetch(`/api/admin/followups?status=${s}&limit=200`);
           const data = await res.json();
           return [s, data.count || 0] as [string, number];
         }),
       );
       setCounts(Object.fromEntries(results));
     } catch { /* noop */ }
-  }, [headers]);
+  }, []);
 
   useEffect(() => {
-    if (authenticated) {
-      fetchFollowups();
-      fetchCounts();
-    }
-  }, [authenticated, statusFilter, fetchFollowups, fetchCounts]);
-
-  // Login
-  const handleLogin = () => {
-    sessionStorage.setItem("admin_api_key", apiKey);
-    setAuthenticated(true);
-  };
+    fetchFollowups();
+    fetchCounts();
+  }, [statusFilter, fetchFollowups, fetchCounts]);
 
   // Update follow-up
   const updateFollowup = async (id: string, payload: Record<string, unknown>) => {
@@ -164,7 +140,7 @@ export default function FollowupReviewPage() {
     try {
       const res = await fetch(`/api/admin/followups/${id}`, {
         method: "PATCH",
-        headers: headers(),
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error("Update failed");
@@ -187,7 +163,7 @@ export default function FollowupReviewPage() {
     try {
       const res = await fetch(`/api/admin/followups/${id}`, {
         method: "PATCH",
-        headers: headers(),
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "approve_and_send" }),
       });
       const data = await res.json();
@@ -227,56 +203,6 @@ export default function FollowupReviewPage() {
       () => setToast("Failed to copy"),
     );
   };
-
-  /* ═══ LOGIN SCREEN ═══ */
-  if (!authenticated) {
-    return (
-      <div style={{
-        minHeight: "100vh", background: LIGHT_BG, display: "flex",
-        alignItems: "center", justifyContent: "center", fontFamily: "'Lato', system-ui, sans-serif",
-      }}>
-        <div style={{
-          background: WHITE, borderRadius: 12, padding: "40px 36px",
-          boxShadow: "0 8px 32px rgba(2,24,89,0.1)", maxWidth: 400, width: "100%",
-          border: `1px solid ${BORDER}`,
-        }}>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: NAVY, margin: "0 0 6px", textAlign: "center" }}>
-            Follow-Up Review Dashboard
-          </h1>
-          <p style={{ fontSize: 13, color: SUB, textAlign: "center", margin: "0 0 24px" }}>
-            Enter your admin API key to access
-          </p>
-          <input
-            type="password"
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-            placeholder="Admin API key"
-            style={{
-              width: "100%", padding: "12px 14px", fontSize: 14,
-              border: `1.5px solid ${BORDER}`, borderRadius: 8, outline: "none",
-              boxSizing: "border-box", marginBottom: 12, color: NAVY,
-              fontFamily: "'SF Mono', Monaco, monospace",
-            }}
-            autoFocus
-          />
-          <button
-            onClick={handleLogin}
-            disabled={!apiKey.trim()}
-            style={{
-              width: "100%", padding: "12px", fontSize: 14, fontWeight: 700,
-              background: BLUE, color: WHITE, border: "none", borderRadius: 8,
-              cursor: apiKey.trim() ? "pointer" : "not-allowed",
-              opacity: apiKey.trim() ? 1 : 0.5,
-              fontFamily: "'Lato', system-ui, sans-serif",
-            }}
-          >
-            Sign In
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   /* ═══ MAIN DASHBOARD ═══ */
   return (
@@ -341,7 +267,10 @@ export default function FollowupReviewPage() {
             Refresh
           </button>
           <button
-            onClick={() => { setAuthenticated(false); sessionStorage.removeItem("admin_api_key"); }}
+            onClick={async () => {
+              await supabaseBrowser().auth.signOut();
+              router.replace("/admin-login");
+            }}
             style={{
               padding: "8px 14px", fontSize: 12, fontWeight: 600,
               background: "transparent", color: "#8BA3CF",

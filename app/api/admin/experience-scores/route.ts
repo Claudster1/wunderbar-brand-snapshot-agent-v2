@@ -4,14 +4,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-
-const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
-
-function isAuthorized(req: NextRequest): boolean {
-  if (!ADMIN_API_KEY) return false;
-  const auth = req.headers.get("authorization") || "";
-  return auth.replace("Bearer ", "").trim() === ADMIN_API_KEY;
-}
+import { requireAdminApi } from "@/lib/auth/adminSession";
 
 function categorize(score: number): "promoter" | "passive" | "detractor" {
   if (score >= 9) return "promoter";
@@ -27,8 +20,9 @@ const TIER_LABELS: Record<string, string> = {
 };
 
 export async function GET(req: NextRequest) {
-  if (!isAuthorized(req)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = await requireAdminApi(req);
+  if (!auth.ok) {
+    return auth.response;
   }
   if (!supabaseAdmin) {
     return NextResponse.json({ error: "Database not configured." }, { status: 500 });

@@ -1,13 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-
-const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
-
-function isAuthorized(req: NextRequest): boolean {
-  if (!ADMIN_API_KEY) return false;
-  const auth = req.headers.get("authorization") || "";
-  return auth.replace("Bearer ", "").trim() === ADMIN_API_KEY;
-}
+import { requireAdminApi } from "@/lib/auth/adminSession";
 
 type CheckResult = {
   ok: boolean;
@@ -15,9 +8,8 @@ type CheckResult = {
 };
 
 export async function GET(req: NextRequest) {
-  if (!isAuthorized(req)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await requireAdminApi(req);
+  if (!auth.ok) return auth.response;
   if (!supabaseAdmin) {
     return NextResponse.json({ error: "Database not configured." }, { status: 500 });
   }
@@ -51,9 +43,9 @@ export async function GET(req: NextRequest) {
   }
 
   // Env/config checks used by CRM automation and Slack workflow.
-  checks.env_admin_api_key = {
-    ok: !!process.env.ADMIN_API_KEY,
-    detail: process.env.ADMIN_API_KEY ? "present" : "missing",
+  checks.auth_supabase_service_role = {
+    ok: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    detail: process.env.SUPABASE_SERVICE_ROLE_KEY ? "present" : "missing",
   };
   checks.env_cron_secret = {
     ok: !!process.env.CRON_SECRET,

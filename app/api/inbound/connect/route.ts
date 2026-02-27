@@ -10,6 +10,7 @@ import {
   upsertCrmContact,
 } from "@/lib/crm/inbound";
 import { applyActiveCampaignTags, removeActiveCampaignTags } from "@/lib/applyActiveCampaignTags";
+import { resolveAutoAssignedOwner } from "@/lib/crm/assignment";
 
 function isAuthorized(req: NextRequest): boolean {
   const secret = process.env.INBOUND_WEBHOOK_SECRET;
@@ -64,10 +65,13 @@ export async function POST(req: NextRequest) {
       metadata: { inbound_source: source },
     });
 
+    const assignment = await resolveAutoAssignedOwner({ source: "connect_form" });
+
     const inquiryId = await createCrmInquiry({
       contactId,
       source: "connect_form",
       status: "new",
+      owner: assignment.owner,
       subject: `Connect inquiry${companyName ? ` - ${companyName}` : ""}`,
       message: message || null,
       externalRef: externalRef || null,
@@ -88,9 +92,20 @@ export async function POST(req: NextRequest) {
       contactId,
       activityType: "inbound_received",
       body: "Connect form inquiry received",
-      payload: { source: "connect_form" },
+      payload: { source: "connect_form", assigned_owner: assignment.owner, assign_reason: assignment.reason },
       createdBy: "system",
     });
+
+    if (assignment.owner) {
+      await createCrmActivity({
+        inquiryId,
+        contactId,
+        activityType: "owner_auto_assigned",
+        body: `Inquiry auto-assigned to ${assignment.owner}`,
+        payload: { owner: assignment.owner, reason: assignment.reason },
+        createdBy: "system",
+      });
+    }
 
     await createDefaultCrmTaskForInquiry({
       inquiryId,

@@ -10,6 +10,7 @@ import {
   upsertCrmContact,
 } from "@/lib/crm/inbound";
 import { applyActiveCampaignTags, removeActiveCampaignTags } from "@/lib/applyActiveCampaignTags";
+import { resolveAutoAssignedOwner } from "@/lib/crm/assignment";
 
 function isAuthorized(req: NextRequest): boolean {
   const secret = process.env.QUO_WEBHOOK_SECRET || process.env.INBOUND_WEBHOOK_SECRET;
@@ -68,10 +69,13 @@ export async function POST(req: NextRequest) {
       metadata: { channel: "quo" },
     });
 
+    const assignment = await resolveAutoAssignedOwner({ source });
+
     const inquiryId = await createCrmInquiry({
       contactId,
       source,
       status: "new",
+      owner: assignment.owner,
       priority: source === "quo_voicemail" ? "high" : "normal",
       subject: source === "quo_voicemail" ? "Inbound voicemail" : "Inbound phone call",
       message: summary || null,
@@ -95,9 +99,24 @@ export async function POST(req: NextRequest) {
       contactId,
       activityType: source === "quo_voicemail" ? "voicemail_received" : "call_received",
       body: summary || null,
-      payload: { hasTranscript: Boolean(transcript) },
+      payload: {
+        hasTranscript: Boolean(transcript),
+        assigned_owner: assignment.owner,
+        assign_reason: assignment.reason,
+      },
       createdBy: "system",
     });
+
+    if (assignment.owner) {
+      await createCrmActivity({
+        inquiryId,
+        contactId,
+        activityType: "owner_auto_assigned",
+        body: `Inquiry auto-assigned to ${assignment.owner}`,
+        payload: { owner: assignment.owner, reason: assignment.reason },
+        createdBy: "system",
+      });
+    }
 
     await createDefaultCrmTaskForInquiry({
       inquiryId,

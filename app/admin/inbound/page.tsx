@@ -98,6 +98,11 @@ type Analytics = {
   responded7d: number;
   staleOpen24h: number;
   overdueTasks: number;
+  taskTotal: number;
+  taskPending: number;
+  taskDue24h: number;
+  taskDone: number;
+  taskCancelled: number;
 };
 
 const EMPTY_ANALYTICS: Analytics = {
@@ -107,6 +112,11 @@ const EMPTY_ANALYTICS: Analytics = {
   responded7d: 0,
   staleOpen24h: 0,
   overdueTasks: 0,
+  taskTotal: 0,
+  taskPending: 0,
+  taskDue24h: 0,
+  taskDone: 0,
+  taskCancelled: 0,
 };
 
 const STATUS_LABEL: Record<InquiryStatus, string> = {
@@ -363,6 +373,16 @@ export default function InboundInboxPage() {
     return base;
   }, [inquiries]);
 
+  const riskState = useMemo(() => {
+    if (analytics.overdueTasks > 0 || analytics.staleOpen24h >= 3) {
+      return { label: "At risk", color: RED, bg: `${RED}18` };
+    }
+    if (analytics.taskDue24h > 0 || analytics.staleOpen24h > 0) {
+      return { label: "Approaching risk", color: YELLOW, bg: `${YELLOW}22` };
+    }
+    return { label: "On track", color: GREEN, bg: `${GREEN}18` };
+  }, [analytics.overdueTasks, analytics.staleOpen24h, analytics.taskDue24h]);
+
   const sortedInquiries = useMemo(() => {
     return [...inquiries].sort((a, b) => {
       const aSla = getSlaBadge(a);
@@ -511,28 +531,108 @@ export default function InboundInboxPage() {
         </div>
       </div>
 
-      <div style={{ maxWidth: 980, margin: "0 auto", padding: 20 }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10, marginBottom: 14 }}>
+      <div style={{ maxWidth: 1120, margin: "0 auto", padding: 20 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 10 }}>
+          <h2 style={{ margin: 0, color: NAVY, fontSize: 17, fontWeight: 800 }}>Executive Overview</h2>
+          <span style={{ fontSize: 11, fontWeight: 700, color: riskState.color, background: riskState.bg, padding: "5px 10px", borderRadius: 999 }}>
+            {riskState.label}
+          </span>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(165px, 1fr))", gap: 10, marginBottom: 14 }}>
           {[
-            { label: "Open", value: analytics.totalOpen, color: NAVY },
-            { label: "New", value: analytics.newCount, color: YELLOW },
-            { label: "In Progress", value: analytics.inProgressCount, color: BLUE },
-            { label: "Responded (7d)", value: analytics.responded7d, color: GREEN },
-            { label: "Stale (24h+)", value: analytics.staleOpen24h, color: RED },
-            { label: "Overdue Tasks", value: analytics.overdueTasks, color: SUB },
+            {
+              label: "Open Inquiries",
+              hint: "New + in progress",
+              value: analytics.totalOpen,
+              color: NAVY,
+              active: statusFilter === "open",
+              onClick: () => setStatusFilter("open"),
+            },
+            {
+              label: "New",
+              hint: "Awaiting first response",
+              value: analytics.newCount,
+              color: YELLOW,
+              active: statusFilter === "new",
+              onClick: () => setStatusFilter("new"),
+            },
+            {
+              label: "In Progress",
+              hint: "Currently being handled",
+              value: analytics.inProgressCount,
+              color: BLUE,
+              active: statusFilter === "in_progress",
+              onClick: () => setStatusFilter("in_progress"),
+            },
+            {
+              label: "Responded (7d)",
+              hint: "Recent completed responses",
+              value: analytics.responded7d,
+              color: GREEN,
+              active: statusFilter === "responded",
+              onClick: () => setStatusFilter("responded"),
+            },
+            {
+              label: "Stale (24h+)",
+              hint: "Needs intervention",
+              value: analytics.staleOpen24h,
+              color: RED,
+              active: statusFilter === "open",
+              onClick: () => setStatusFilter("open"),
+            },
+            {
+              label: "Overdue Tasks",
+              hint: "Task due date passed",
+              value: analytics.overdueTasks,
+              color: RED,
+              active: taskViewFilter === "overdue",
+              onClick: () => setTaskViewFilter("overdue"),
+            },
           ].map((card) => (
-            <div
+            <button
               key={card.label}
+              onClick={card.onClick}
+              style={{
+                background: WHITE,
+                border: card.active ? `2px solid ${card.color}` : `1px solid ${BORDER}`,
+                borderRadius: 10,
+                padding: 12,
+                textAlign: "left",
+                cursor: "pointer",
+              }}
+            >
+              <div style={{ color: SUB, fontSize: 11, marginBottom: 4, fontWeight: 700 }}>{card.label}</div>
+              <div style={{ color: card.color, fontSize: 24, fontWeight: 800, lineHeight: 1.1 }}>{card.value}</div>
+              <div style={{ color: SUB, fontSize: 11, marginTop: 4 }}>{card.hint}</div>
+            </button>
+          ))}
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(165px, 1fr))", gap: 10, marginBottom: 14 }}>
+          {[
+            { label: "Total Tasks", value: analytics.taskTotal, color: NAVY, hint: "All statuses" },
+            { label: "Pending Tasks", value: analytics.taskPending, color: YELLOW, hint: "Open", onClick: () => setTaskViewFilter("open") },
+            { label: "Due in 24h", value: analytics.taskDue24h, color: YELLOW, hint: "Upcoming deadlines", onClick: () => setTaskViewFilter("due_24h") },
+            { label: "Completed Tasks", value: analytics.taskDone, color: GREEN, hint: "Closed successfully" },
+            { label: "Cancelled Tasks", value: analytics.taskCancelled, color: SUB, hint: "No action needed" },
+          ].map((card) => (
+            <button
+              key={card.label}
+              onClick={card.onClick}
               style={{
                 background: WHITE,
                 border: `1px solid ${BORDER}`,
                 borderRadius: 10,
                 padding: 12,
+                textAlign: "left",
+                cursor: card.onClick ? "pointer" : "default",
               }}
             >
-              <div style={{ color: SUB, fontSize: 11, marginBottom: 6 }}>{card.label}</div>
-              <div style={{ color: card.color, fontSize: 20, fontWeight: 800 }}>{card.value}</div>
-            </div>
+              <div style={{ color: SUB, fontSize: 11, marginBottom: 4, fontWeight: 700 }}>{card.label}</div>
+              <div style={{ color: card.color, fontSize: 22, fontWeight: 800 }}>{card.value}</div>
+              <div style={{ color: SUB, fontSize: 11, marginTop: 4 }}>{card.hint}</div>
+            </button>
           ))}
         </div>
 
@@ -543,6 +643,7 @@ export default function InboundInboxPage() {
             style={{ padding: "8px 10px", borderRadius: 8, border: `1px solid ${BORDER}` }}
           >
             <option value="all">All statuses</option>
+            <option value="open">Open (New + In Progress)</option>
             <option value="new">New</option>
             <option value="in_progress">In Progress</option>
             <option value="responded">Responded</option>

@@ -24,6 +24,15 @@ export default function AdminLoginPage() {
     if (errorCode === "forbidden") {
       return "Your account is authenticated but not an admin. Ask to be added to admin_users.";
     }
+    if (errorCode === "otp_expired") {
+      return "That magic link is invalid or expired. Request a fresh link and try again.";
+    }
+    if (errorCode === "missing_code") {
+      return "Sign-in callback was incomplete. Request a fresh magic link.";
+    }
+    if (errorCode === "config") {
+      return "Admin auth is not configured correctly yet. Contact support.";
+    }
     return null;
   }, [errorCode]);
 
@@ -45,7 +54,7 @@ export default function AdminLoginPage() {
       const supabase = supabaseBrowser();
       const redirectTo =
         typeof window !== "undefined"
-          ? `${window.location.origin}/admin/inbound`
+          ? `${window.location.origin}/auth/callback?next=${encodeURIComponent("/admin/inbound")}`
           : undefined;
       const { error: signInError } = await supabase.auth.signInWithOtp({
         email: email.trim().toLowerCase(),

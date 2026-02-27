@@ -43,7 +43,6 @@ const EXACT_BLOCKED = new Set([
   "/.env.local",
   "/.env.production",
   "/phpmyadmin",
-  "/admin",
   "/administrator",
 ]);
 

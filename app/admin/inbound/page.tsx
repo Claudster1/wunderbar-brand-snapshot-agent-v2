@@ -77,6 +77,12 @@ type InquiryDetail = {
   syncLog: CrmSyncLog[];
 };
 
+type TaskDraft = {
+  title: string;
+  dueAtLocal: string;
+  assignedTo: string;
+};
+
 type Analytics = {
   totalOpen: number;
   newCount: number;
@@ -127,6 +133,18 @@ function formatDate(date: string | null | undefined): string {
   return new Date(date).toLocaleString();
 }
 
+function toDatetimeLocal(date: string | null | undefined): string {
+  if (!date) return "";
+  const d = new Date(date);
+  const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+  return local.toISOString().slice(0, 16);
+}
+
+function fromDatetimeLocal(local: string): string | null {
+  if (!local) return null;
+  return new Date(local).toISOString();
+}
+
 export default function InboundInboxPage() {
   const [apiKey, setApiKey] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
@@ -142,6 +160,8 @@ export default function InboundInboxPage() {
   const [ownerInput, setOwnerInput] = useState<Record<string, string>>({});
   const [noteInput, setNoteInput] = useState<Record<string, string>>({});
   const [detailsByInquiry, setDetailsByInquiry] = useState<Record<string, InquiryDetail>>({});
+  const [taskDraftById, setTaskDraftById] = useState<Record<string, TaskDraft>>({});
+  const [newTaskByInquiry, setNewTaskByInquiry] = useState<Record<string, TaskDraft>>({});
   const [toast, setToast] = useState<string | null>(null);
   const [analytics, setAnalytics] = useState<Analytics>(EMPTY_ANALYTICS);
 
@@ -290,13 +310,22 @@ export default function InboundInboxPage() {
     }
   };
 
-  const updateTask = async (inquiryId: string, taskId: string, status: TaskStatus) => {
+  const updateTask = async (
+    inquiryId: string,
+    taskId: string,
+    payload: {
+      status?: TaskStatus;
+      title?: string;
+      dueAt?: string | null;
+      assignedTo?: string;
+    },
+  ) => {
     setTaskSavingId(taskId);
     try {
       const res = await fetch(`/api/admin/crm/tasks/${taskId}`, {
         method: "PATCH",
         headers: headers(),
-        body: JSON.stringify({ status }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
         const data = (await res.json().catch(() => ({}))) as { error?: string };
@@ -306,6 +335,44 @@ export default function InboundInboxPage() {
       await Promise.all([fetchInquiryDetail(inquiryId, true), fetchInquiries()]);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Task update failed";
+      setToast(msg);
+    } finally {
+      setTaskSavingId(null);
+    }
+  };
+
+  const createTask = async (inquiryId: string) => {
+    const draft = newTaskByInquiry[inquiryId];
+    const title = draft?.title?.trim() || "";
+    if (!title) {
+      setToast("Task title is required");
+      return;
+    }
+
+    setTaskSavingId(`new-${inquiryId}`);
+    try {
+      const res = await fetch("/api/admin/crm/tasks", {
+        method: "POST",
+        headers: headers(),
+        body: JSON.stringify({
+          inquiryId,
+          title,
+          assignedTo: draft?.assignedTo?.trim() || null,
+          dueAt: fromDatetimeLocal(draft?.dueAtLocal || ""),
+        }),
+      });
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(data.error || "Task creation failed");
+      }
+      setToast("Task created");
+      setNewTaskByInquiry((prev) => ({
+        ...prev,
+        [inquiryId]: { title: "", dueAtLocal: "", assignedTo: "" },
+      }));
+      await Promise.all([fetchInquiryDetail(inquiryId, true), fetchInquiries()]);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Task creation failed";
       setToast(msg);
     } finally {
       setTaskSavingId(null);
@@ -768,25 +835,124 @@ export default function InboundInboxPage() {
                       {details && details.tasks.length === 0 && (
                         <div style={{ fontSize: 12, color: SUB }}>No tasks yet.</div>
                       )}
-                      {details?.tasks.map((task) => (
-                        <div
-                          key={task.id}
-                          style={{
-                            border: `1px solid ${BORDER}`,
-                            borderRadius: 8,
-                            padding: 8,
-                            marginBottom: 8,
-                            background: LIGHT_BG,
-                          }}
-                        >
-                          <div style={{ fontSize: 12, fontWeight: 700, color: NAVY, marginBottom: 4 }}>{task.title}</div>
-                          <div style={{ fontSize: 11, color: SUB, marginBottom: 8 }}>Due: {formatDate(task.due_at)}</div>
-                          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                            {(["open", "done", "cancelled"] as TaskStatus[]).map((status) => (
+                      {details?.tasks.map((task) => {
+                        const taskDraft = taskDraftById[task.id] || {
+                          title: task.title,
+                          dueAtLocal: toDatetimeLocal(task.due_at),
+                          assignedTo: task.assigned_to || "",
+                        };
+                        return (
+                          <div
+                            key={task.id}
+                            style={{
+                              border: `1px solid ${BORDER}`,
+                              borderRadius: 8,
+                              padding: 8,
+                              marginBottom: 8,
+                              background: LIGHT_BG,
+                            }}
+                          >
+                            <input
+                              value={taskDraft.title}
+                              onChange={(e) =>
+                                setTaskDraftById((prev) => ({
+                                  ...prev,
+                                  [task.id]: { ...taskDraft, title: e.target.value },
+                                }))
+                              }
+                              placeholder="Task title"
+                              style={{
+                                width: "100%",
+                                fontSize: 12,
+                                marginBottom: 6,
+                                padding: "6px 8px",
+                                borderRadius: 6,
+                                border: `1px solid ${BORDER}`,
+                              }}
+                            />
+                            <div
+                              style={{
+                                display: "grid",
+                                gridTemplateColumns: "1fr 1fr",
+                                gap: 6,
+                                marginBottom: 8,
+                              }}
+                            >
+                              <input
+                                type="datetime-local"
+                                value={taskDraft.dueAtLocal}
+                                onChange={(e) =>
+                                  setTaskDraftById((prev) => ({
+                                    ...prev,
+                                    [task.id]: {
+                                      ...taskDraft,
+                                      dueAtLocal: e.target.value,
+                                    },
+                                  }))
+                                }
+                                style={{
+                                  width: "100%",
+                                  fontSize: 11,
+                                  padding: "6px 8px",
+                                  borderRadius: 6,
+                                  border: `1px solid ${BORDER}`,
+                                }}
+                              />
+                              <input
+                                value={taskDraft.assignedTo}
+                                onChange={(e) =>
+                                  setTaskDraftById((prev) => ({
+                                    ...prev,
+                                    [task.id]: {
+                                      ...taskDraft,
+                                      assignedTo: e.target.value,
+                                    },
+                                  }))
+                                }
+                                placeholder="Assigned to"
+                                style={{
+                                  width: "100%",
+                                  fontSize: 11,
+                                  padding: "6px 8px",
+                                  borderRadius: 6,
+                                  border: `1px solid ${BORDER}`,
+                                }}
+                              />
+                            </div>
+                            <div style={{ fontSize: 11, color: SUB, marginBottom: 8 }}>
+                              Due: {formatDate(task.due_at)}
+                            </div>
+                            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                              {(["open", "done", "cancelled"] as TaskStatus[]).map((status) => (
+                                <button
+                                  key={status}
+                                  onClick={() =>
+                                    updateTask(inquiry.id, task.id, { status })
+                                  }
+                                  disabled={taskSavingId === task.id || task.status === status}
+                                  style={{
+                                    fontSize: 11,
+                                    borderRadius: 999,
+                                    padding: "4px 8px",
+                                    border: "none",
+                                    cursor: "pointer",
+                                    color: WHITE,
+                                    background: TASK_STATUS_COLORS[status],
+                                    opacity: task.status === status ? 0.6 : 1,
+                                  }}
+                                >
+                                  {status}
+                                </button>
+                              ))}
                               <button
-                                key={status}
-                                onClick={() => updateTask(inquiry.id, task.id, status)}
-                                disabled={taskSavingId === task.id || task.status === status}
+                                onClick={() =>
+                                  updateTask(inquiry.id, task.id, {
+                                    title: taskDraft.title.trim(),
+                                    dueAt: fromDatetimeLocal(taskDraft.dueAtLocal),
+                                    assignedTo: taskDraft.assignedTo.trim(),
+                                  })
+                                }
+                                disabled={taskSavingId === task.id}
                                 style={{
                                   fontSize: 11,
                                   borderRadius: 999,
@@ -794,16 +960,109 @@ export default function InboundInboxPage() {
                                   border: "none",
                                   cursor: "pointer",
                                   color: WHITE,
-                                  background: TASK_STATUS_COLORS[status],
-                                  opacity: task.status === status ? 0.6 : 1,
+                                  background: NAVY,
                                 }}
                               >
-                                {status}
+                                Save
                               </button>
-                            ))}
+                            </div>
                           </div>
+                        );
+                      })}
+                      <div
+                        style={{
+                          border: `1px dashed ${BORDER}`,
+                          borderRadius: 8,
+                          padding: 8,
+                          marginTop: 6,
+                        }}
+                      >
+                        <div style={{ fontSize: 11, fontWeight: 700, color: NAVY, marginBottom: 6 }}>
+                          Add task
                         </div>
-                      ))}
+                        <input
+                          value={newTaskByInquiry[inquiry.id]?.title || ""}
+                          onChange={(e) =>
+                            setNewTaskByInquiry((prev) => ({
+                              ...prev,
+                              [inquiry.id]: {
+                                title: e.target.value,
+                                dueAtLocal: prev[inquiry.id]?.dueAtLocal || "",
+                                assignedTo: prev[inquiry.id]?.assignedTo || "",
+                              },
+                            }))
+                          }
+                          placeholder="Task title"
+                          style={{
+                            width: "100%",
+                            fontSize: 12,
+                            marginBottom: 6,
+                            padding: "6px 8px",
+                            borderRadius: 6,
+                            border: `1px solid ${BORDER}`,
+                          }}
+                        />
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                          <input
+                            type="datetime-local"
+                            value={newTaskByInquiry[inquiry.id]?.dueAtLocal || ""}
+                            onChange={(e) =>
+                              setNewTaskByInquiry((prev) => ({
+                                ...prev,
+                                [inquiry.id]: {
+                                  title: prev[inquiry.id]?.title || "",
+                                  dueAtLocal: e.target.value,
+                                  assignedTo: prev[inquiry.id]?.assignedTo || "",
+                                },
+                              }))
+                            }
+                            style={{
+                              width: "100%",
+                              fontSize: 11,
+                              padding: "6px 8px",
+                              borderRadius: 6,
+                              border: `1px solid ${BORDER}`,
+                            }}
+                          />
+                          <input
+                            value={newTaskByInquiry[inquiry.id]?.assignedTo || ""}
+                            onChange={(e) =>
+                              setNewTaskByInquiry((prev) => ({
+                                ...prev,
+                                [inquiry.id]: {
+                                  title: prev[inquiry.id]?.title || "",
+                                  dueAtLocal: prev[inquiry.id]?.dueAtLocal || "",
+                                  assignedTo: e.target.value,
+                                },
+                              }))
+                            }
+                            placeholder="Assigned to"
+                            style={{
+                              width: "100%",
+                              fontSize: 11,
+                              padding: "6px 8px",
+                              borderRadius: 6,
+                              border: `1px solid ${BORDER}`,
+                            }}
+                          />
+                        </div>
+                        <button
+                          onClick={() => createTask(inquiry.id)}
+                          disabled={taskSavingId === `new-${inquiry.id}`}
+                          style={{
+                            marginTop: 8,
+                            fontSize: 11,
+                            borderRadius: 999,
+                            padding: "5px 10px",
+                            border: "none",
+                            cursor: "pointer",
+                            color: WHITE,
+                            background: BLUE,
+                          }}
+                        >
+                          Create Task
+                        </button>
+                      </div>
                     </div>
 
                     <div style={{ border: `1px solid ${BORDER}`, borderRadius: 10, background: WHITE, padding: 10 }}>

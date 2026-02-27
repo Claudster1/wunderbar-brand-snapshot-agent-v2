@@ -47,6 +47,25 @@ type OverviewPayload = {
   };
 };
 
+const EMPTY_OVERVIEW: OverviewPayload["overview"] = {
+  totals: {
+    events24h: 0,
+    inbound24h: 0,
+    outbound24h: 0,
+    web24h: 0,
+    uniqueContacts30d: 0,
+    engagedAccounts30d: 0,
+  },
+  pipeline: {
+    inboundCreated30d: 0,
+    outboundTouches30d: 0,
+    webHighIntent30d: 0,
+    medianFirstResponseHours30d: 0,
+  },
+  ownerActivity: [],
+  recent: [],
+};
+
 export default function UnifiedDashboardPage() {
   const router = useRouter();
   const [days, setDays] = useState(30);
@@ -54,19 +73,34 @@ export default function UnifiedDashboardPage() {
   const [syncing, setSyncing] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [data, setData] = useState<OverviewPayload["overview"] | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const loadOverview = useCallback(async () => {
     setLoading(true);
+    setLoadError(null);
     try {
       const res = await fetch(`/api/admin/unified/overview?days=${days}`);
       if (res.status === 401) {
         router.replace("/admin-login");
         return;
       }
-      const json = (await res.json()) as OverviewPayload;
+      const json = (await res.json().catch(() => ({}))) as Partial<OverviewPayload> & {
+        error?: string;
+      };
+      if (!res.ok) {
+        setLoadError(json.error || "Failed to load unified overview.");
+        setData(EMPTY_OVERVIEW);
+        return;
+      }
+      if (!json.overview) {
+        setLoadError("Unified overview payload is missing.");
+        setData(EMPTY_OVERVIEW);
+        return;
+      }
       setData(json.overview);
     } catch {
-      setToast("Failed to load unified overview");
+      setLoadError("Failed to load unified overview.");
+      setData(EMPTY_OVERVIEW);
     } finally {
       setLoading(false);
     }
@@ -164,6 +198,11 @@ export default function UnifiedDashboardPage() {
         </div>
 
         {loading && <div style={{ padding: 24, color: SUB }}>Loading unified overview...</div>}
+        {!loading && loadError && (
+          <div style={{ padding: 14, marginBottom: 12, borderRadius: 8, border: `1px solid ${BORDER}`, background: WHITE, color: SUB }}>
+            {loadError}
+          </div>
+        )}
 
         {!loading && data && (
           <>
@@ -180,7 +219,11 @@ export default function UnifiedDashboardPage() {
               <Stat title="Inbound Created (30d)" value={data.pipeline.inboundCreated30d} color={BLUE} />
               <Stat title="Outbound Touches (30d)" value={data.pipeline.outboundTouches30d} color={GREEN} />
               <Stat title="Web High Intent (30d)" value={data.pipeline.webHighIntent30d} color={YELLOW} />
-              <Stat title="Median First Response (hrs)" value={data.pipeline.medianFirstResponseHours30d.toFixed(1)} color={NAVY} />
+              <Stat
+                title="Median First Response (hrs)"
+                value={Number(data.pipeline.medianFirstResponseHours30d || 0).toFixed(1)}
+                color={NAVY}
+              />
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>

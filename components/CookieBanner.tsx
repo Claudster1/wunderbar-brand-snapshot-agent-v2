@@ -16,7 +16,6 @@ const BRAND = {
   lightBg: "#F7F9FC",
   border: "#E2E8F0",
   white: "#FFFFFF",
-  accent: "#E8F7FE",
   shadow: "0 -4px 32px rgba(10, 37, 64, 0.10)",
   modalShadow: "0 24px 64px rgba(10, 37, 64, 0.18)",
 };
@@ -517,19 +516,15 @@ export function CookieBanner() {
                   minWidth: 260,
                 }}
               >
-                <div
-                  style={{
-                    width: 38,
-                    height: 38,
-                    borderRadius: 10,
-                    background: BRAND.accent,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                  }}
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={BRAND.navy} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M9 12h.01M15 12h.01M12 9h.01M12 15h.01M7.5 7.5h.01M16.5 16.5h.01"/></svg>
+                <div style={{ width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      fill={BRAND.blue}
+                      fillRule="evenodd"
+                      d="M12 2.6a9.4 9.4 0 1 0 9.27 10.95 2.9 2.9 0 0 1-2.63-2.88 2.9 2.9 0 0 1 2.72-2.9A9.4 9.4 0 0 0 12 2.6Zm-2.8 4.2a1.05 1.05 0 1 1 0 2.1 1.05 1.05 0 0 1 0-2.1Zm4.4 1.1a1 1 0 1 1 0 2 1 1 0 0 1 0-2Zm-3 4.1a1.15 1.15 0 1 1 0 2.3 1.15 1.15 0 0 1 0-2.3Zm4.5 2a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
                 </div>
                 <div>
                   <p
@@ -632,7 +627,7 @@ const styles: Record<string, React.CSSProperties> = {
     background: BRAND.blue,
     color: BRAND.white,
     border: "none",
-    borderRadius: 10,
+    borderRadius: 5,
     padding: "10px 22px",
     fontSize: 14,
     fontWeight: 700,
@@ -645,7 +640,7 @@ const styles: Record<string, React.CSSProperties> = {
     background: "transparent",
     color: BRAND.blue,
     border: `1.5px solid ${BRAND.blue}`,
-    borderRadius: 10,
+    borderRadius: 5,
     padding: "10px 22px",
     fontSize: 14,
     fontWeight: 700,
@@ -658,7 +653,7 @@ const styles: Record<string, React.CSSProperties> = {
     background: "transparent",
     color: BRAND.muted,
     border: `1.5px solid ${BRAND.border}`,
-    borderRadius: 10,
+    borderRadius: 5,
     padding: "10px 22px",
     fontSize: 14,
     fontWeight: 700,

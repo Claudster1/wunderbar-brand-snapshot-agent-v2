@@ -26,8 +26,12 @@ export async function GET(req: NextRequest) {
   const status = url.searchParams.get("status");
   const source = url.searchParams.get("source");
   const owner = (url.searchParams.get("owner") || "").trim();
+  const staleOnly = url.searchParams.get("stale_only") === "1";
+  const taskScope = (url.searchParams.get("task_scope") || "all").trim();
   const limit = Math.min(Number(url.searchParams.get("limit")) || 50, 200);
   const offset = Math.max(Number(url.searchParams.get("offset")) || 0, 0);
+  const nowIso = new Date().toISOString();
+  const due24Iso = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
   let query = supabaseAdmin
     .from("crm_inquiries")
@@ -67,14 +71,49 @@ export async function GET(req: NextRequest) {
     if (owner === "unassigned") query = query.or("owner.is.null,owner.eq.\"\"");
     else query = query.eq("owner", owner);
   }
+  if (staleOnly) {
+    query = query
+      .in("status", ["new", "in_progress"])
+      .lt("last_activity_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
+  }
+  if (taskScope !== "all") {
+    let taskFilter = supabaseAdmin.from("crm_tasks").select("inquiry_id").not("inquiry_id", "is", null);
+    if (taskScope === "pending") {
+      taskFilter = taskFilter.eq("status", "open");
+    } else if (taskScope === "due_24h") {
+      taskFilter = taskFilter.eq("status", "open").gte("due_at", nowIso).lte("due_at", due24Iso);
+    } else if (taskScope === "overdue") {
+      taskFilter = taskFilter.eq("status", "open").lt("due_at", nowIso);
+    } else if (taskScope === "done") {
+      taskFilter = taskFilter.eq("status", "done");
+    } else if (taskScope === "cancelled") {
+      taskFilter = taskFilter.eq("status", "cancelled");
+    }
+
+    const { data: taskRows, error: taskFilterError } = await taskFilter.limit(3000);
+    if (taskFilterError) {
+      return NextResponse.json({ error: "Failed to filter inquiries by tasks." }, { status: 500 });
+    }
+
+    const inquiryIds = Array.from(
+      new Set(
+        (taskRows || [])
+          .map((row) => row.inquiry_id)
+          .filter((value): value is string => typeof value === "string" && value.length > 0),
+      ),
+    );
+    if (inquiryIds.length === 0) {
+      query = query.limit(0);
+    } else {
+      query = query.in("id", inquiryIds);
+    }
+  }
 
   const { data, error } = await query;
   if (error) {
     return NextResponse.json({ error: "Failed to fetch inquiries." }, { status: 500 });
   }
 
-  const nowIso = new Date().toISOString();
-  const due24Iso = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
   const [newRes, inProgressRes, responded7dRes, staleRes, overdueTasksRes, allTasksRes, openTasksRes, due24hTasksRes, doneTasksRes, cancelledTasksRes] = await Promise.all([
     supabaseAdmin.from("crm_inquiries").select("id", { count: "exact", head: true }).eq("status", "new"),
     supabaseAdmin

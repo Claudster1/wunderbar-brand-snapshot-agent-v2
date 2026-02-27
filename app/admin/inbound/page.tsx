@@ -12,6 +12,7 @@ const SUB = "#5A6B7E";
 const GREEN = "#22C55E";
 const YELLOW = "#EAB308";
 const RED = "#EF4444";
+const MOBILE_BREAKPOINT = 768;
 
 type InquiryStatus = "new" | "in_progress" | "responded" | "closed";
 type InquirySource = "connect_form" | "quo_call" | "quo_voicemail" | "manual";
@@ -84,6 +85,7 @@ type TaskDraft = {
 };
 
 type TaskViewFilter = "all" | "open" | "due_24h" | "overdue";
+type TaskScopeFilter = "all" | "pending" | "due_24h" | "overdue" | "done" | "cancelled";
 
 type InquiriesResponse = {
   inquiries?: Inquiry[];
@@ -251,6 +253,7 @@ function getFollowUpDraft(inquiry: Inquiry, contact: Contact | null): { subject:
 
 export default function InboundInboxPage() {
   const router = useRouter();
+  const [isMobile, setIsMobile] = useState(false);
   const [loading, setLoading] = useState(false);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [taskSavingId, setTaskSavingId] = useState<string | null>(null);
@@ -262,6 +265,8 @@ export default function InboundInboxPage() {
   const [operatorName, setOperatorName] = useState<string>("");
   const [ownerOptions, setOwnerOptions] = useState<string[]>([]);
   const [taskViewFilter, setTaskViewFilter] = useState<TaskViewFilter>("all");
+  const [taskScope, setTaskScope] = useState<TaskScopeFilter>("all");
+  const [staleOnly, setStaleOnly] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [deepLinkedInquiryId, setDeepLinkedInquiryId] = useState<string | null>(null);
   const [ownerInput, setOwnerInput] = useState<Record<string, string>>({});
@@ -271,6 +276,13 @@ export default function InboundInboxPage() {
   const [newTaskByInquiry, setNewTaskByInquiry] = useState<Record<string, TaskDraft>>({});
   const [toast, setToast] = useState<string | null>(null);
   const [analytics, setAnalytics] = useState<Analytics>(EMPTY_ANALYTICS);
+
+  useEffect(() => {
+    const updateViewport = () => setIsMobile(window.innerWidth <= MOBILE_BREAKPOINT);
+    updateViewport();
+    window.addEventListener("resize", updateViewport);
+    return () => window.removeEventListener("resize", updateViewport);
+  }, []);
 
   useEffect(() => {
     const deepLinkId = new URLSearchParams(window.location.search).get("inquiry");
@@ -300,6 +312,8 @@ export default function InboundInboxPage() {
         owner: ownerFilter === "mine" ? operatorName.trim() || "all" : ownerFilter,
         limit: "100",
       });
+      if (staleOnly) params.set("stale_only", "1");
+      if (taskScope !== "all") params.set("task_scope", taskScope);
       const res = await fetch(`/api/admin/crm/inquiries?${params.toString()}`);
       if (res.status === 401) {
         router.replace("/admin-login");
@@ -314,7 +328,7 @@ export default function InboundInboxPage() {
     } finally {
       setLoading(false);
     }
-  }, [operatorName, ownerFilter, router, sourceFilter, statusFilter]);
+  }, [operatorName, ownerFilter, router, sourceFilter, staleOnly, statusFilter, taskScope]);
 
   const fetchInquiryDetail = useCallback(
     async (inquiryId: string, force = false) => {
@@ -396,6 +410,103 @@ export default function InboundInboxPage() {
       return +new Date(b.created_at) - +new Date(a.created_at);
     });
   }, [inquiries]);
+
+  const applyOverviewDrilldown = useCallback((tileKey: string) => {
+    if (tileKey === "open") {
+      setStatusFilter("open");
+      setStaleOnly(false);
+      setTaskScope("all");
+      setTaskViewFilter("all");
+      return;
+    }
+    if (tileKey === "new") {
+      setStatusFilter("new");
+      setStaleOnly(false);
+      setTaskScope("all");
+      setTaskViewFilter("all");
+      return;
+    }
+    if (tileKey === "in_progress") {
+      setStatusFilter("in_progress");
+      setStaleOnly(false);
+      setTaskScope("all");
+      setTaskViewFilter("all");
+      return;
+    }
+    if (tileKey === "responded") {
+      setStatusFilter("responded");
+      setStaleOnly(false);
+      setTaskScope("all");
+      setTaskViewFilter("all");
+      return;
+    }
+    if (tileKey === "stale") {
+      setStatusFilter("open");
+      setStaleOnly(true);
+      setTaskScope("all");
+      setTaskViewFilter("all");
+      return;
+    }
+    if (tileKey === "overdue_tasks") {
+      setStatusFilter("all");
+      setStaleOnly(false);
+      setTaskScope("overdue");
+      setTaskViewFilter("overdue");
+      return;
+    }
+    if (tileKey === "task_pending") {
+      setStatusFilter("all");
+      setStaleOnly(false);
+      setTaskScope("pending");
+      setTaskViewFilter("open");
+      return;
+    }
+    if (tileKey === "task_due_24h") {
+      setStatusFilter("all");
+      setStaleOnly(false);
+      setTaskScope("due_24h");
+      setTaskViewFilter("due_24h");
+      return;
+    }
+    if (tileKey === "task_total") {
+      setStatusFilter("all");
+      setStaleOnly(false);
+      setTaskScope("all");
+      setTaskViewFilter("all");
+      return;
+    }
+    if (tileKey === "task_done") {
+      setStatusFilter("all");
+      setStaleOnly(false);
+      setTaskScope("done");
+      setTaskViewFilter("all");
+      return;
+    }
+    if (tileKey === "task_cancelled") {
+      setStatusFilter("all");
+      setStaleOnly(false);
+      setTaskScope("cancelled");
+      setTaskViewFilter("all");
+    }
+  }, []);
+
+  const isOverviewActive = useCallback(
+    (tileKey: string) => {
+      if (tileKey === "open") return statusFilter === "open" && !staleOnly && taskScope === "all";
+      if (tileKey === "new") return statusFilter === "new" && !staleOnly && taskScope === "all";
+      if (tileKey === "in_progress") return statusFilter === "in_progress" && !staleOnly && taskScope === "all";
+      if (tileKey === "responded") return statusFilter === "responded" && !staleOnly && taskScope === "all";
+      if (tileKey === "stale") return statusFilter === "open" && staleOnly && taskScope === "all";
+      if (tileKey === "overdue_tasks") return taskScope === "overdue";
+      if (tileKey === "task_total") return taskScope === "all" && statusFilter === "all" && !staleOnly;
+      if (tileKey === "task_pending") return taskScope === "pending";
+      if (tileKey === "task_due_24h") return taskScope === "due_24h";
+      if (tileKey === "task_done") return taskScope === "done";
+      if (tileKey === "task_cancelled") return taskScope === "cancelled";
+      return false;
+    },
+    [staleOnly, statusFilter, taskScope],
+  );
 
   const getContact = (inquiry: Inquiry): Contact | null => {
     if (!inquiry.crm_contacts) return null;
@@ -501,7 +612,8 @@ export default function InboundInboxPage() {
         <div
           style={{
             position: "fixed",
-            top: 16,
+            top: isMobile ? 10 : 16,
+            left: isMobile ? 10 : "auto",
             right: 16,
             padding: "10px 14px",
             background: NAVY,
@@ -518,7 +630,7 @@ export default function InboundInboxPage() {
         style={{
           background: NAVY,
           color: WHITE,
-          padding: "18px 24px",
+          padding: isMobile ? "14px 14px" : "18px 24px",
           display: "flex",
           justifyContent: "flex-start",
           alignItems: "center",
@@ -526,72 +638,78 @@ export default function InboundInboxPage() {
         }}
       >
         <div>
-          <h1 style={{ margin: 0, fontSize: 20 }}>Inbound CRM Inbox</h1>
+          <h1 style={{ margin: 0, fontSize: isMobile ? 18 : 20 }}>Inbound CRM Inbox</h1>
           <p style={{ margin: "4px 0 0", fontSize: 12, color: "#8BA3CF" }}>Calls, voicemails, and connect form inquiries in one queue.</p>
         </div>
       </div>
 
-      <div style={{ maxWidth: 1120, margin: "0 auto", padding: 20 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 10 }}>
-          <h2 style={{ margin: 0, color: NAVY, fontSize: 17, fontWeight: 800 }}>Executive Overview</h2>
+      <div style={{ maxWidth: 1120, margin: "0 auto", padding: isMobile ? 12 : 20 }}>
+        <div style={{ display: "flex", alignItems: isMobile ? "flex-start" : "center", flexDirection: isMobile ? "column" : "row", justifyContent: "space-between", gap: 12, marginBottom: 10 }}>
+          <h2 style={{ margin: 0, color: NAVY, fontSize: 17, fontWeight: 800 }}>Dashboard</h2>
           <span style={{ fontSize: 11, fontWeight: 700, color: riskState.color, background: riskState.bg, padding: "5px 10px", borderRadius: 999 }}>
             {riskState.label}
           </span>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(165px, 1fr))", gap: 10, marginBottom: 14 }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(auto-fit, minmax(165px, 1fr))", gap: 10, marginBottom: 14 }}>
           {[
             {
+              key: "open",
               label: "Open Inquiries",
               hint: "New + in progress",
               value: analytics.totalOpen,
               color: NAVY,
-              active: statusFilter === "open",
-              onClick: () => setStatusFilter("open"),
+              active: isOverviewActive("open"),
+              onClick: () => applyOverviewDrilldown("open"),
             },
             {
+              key: "new",
               label: "New",
               hint: "Awaiting first response",
               value: analytics.newCount,
               color: YELLOW,
-              active: statusFilter === "new",
-              onClick: () => setStatusFilter("new"),
+              active: isOverviewActive("new"),
+              onClick: () => applyOverviewDrilldown("new"),
             },
             {
+              key: "in_progress",
               label: "In Progress",
               hint: "Currently being handled",
               value: analytics.inProgressCount,
               color: BLUE,
-              active: statusFilter === "in_progress",
-              onClick: () => setStatusFilter("in_progress"),
+              active: isOverviewActive("in_progress"),
+              onClick: () => applyOverviewDrilldown("in_progress"),
             },
             {
+              key: "responded",
               label: "Responded (7d)",
               hint: "Recent completed responses",
               value: analytics.responded7d,
               color: GREEN,
-              active: statusFilter === "responded",
-              onClick: () => setStatusFilter("responded"),
+              active: isOverviewActive("responded"),
+              onClick: () => applyOverviewDrilldown("responded"),
             },
             {
+              key: "stale",
               label: "Stale (24h+)",
               hint: "Needs intervention",
               value: analytics.staleOpen24h,
               color: RED,
-              active: statusFilter === "open",
-              onClick: () => setStatusFilter("open"),
+              active: isOverviewActive("stale"),
+              onClick: () => applyOverviewDrilldown("stale"),
             },
             {
+              key: "overdue_tasks",
               label: "Overdue Tasks",
               hint: "Task due date passed",
               value: analytics.overdueTasks,
               color: RED,
-              active: taskViewFilter === "overdue",
-              onClick: () => setTaskViewFilter("overdue"),
+              active: isOverviewActive("overdue_tasks"),
+              onClick: () => applyOverviewDrilldown("overdue_tasks"),
             },
           ].map((card) => (
             <button
-              key={card.label}
+              key={card.key}
               onClick={card.onClick}
               style={{
                 background: WHITE,
@@ -609,24 +727,64 @@ export default function InboundInboxPage() {
           ))}
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(165px, 1fr))", gap: 10, marginBottom: 14 }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(auto-fit, minmax(165px, 1fr))", gap: 10, marginBottom: 14 }}>
           {[
-            { label: "Total Tasks", value: analytics.taskTotal, color: NAVY, hint: "All statuses" },
-            { label: "Pending Tasks", value: analytics.taskPending, color: YELLOW, hint: "Open", onClick: () => setTaskViewFilter("open") },
-            { label: "Due in 24h", value: analytics.taskDue24h, color: YELLOW, hint: "Upcoming deadlines", onClick: () => setTaskViewFilter("due_24h") },
-            { label: "Completed Tasks", value: analytics.taskDone, color: GREEN, hint: "Closed successfully" },
-            { label: "Cancelled Tasks", value: analytics.taskCancelled, color: SUB, hint: "No action needed" },
+            {
+              key: "task_total",
+              label: "Total Tasks",
+              value: analytics.taskTotal,
+              color: NAVY,
+              hint: "All statuses",
+              active: isOverviewActive("task_total"),
+              onClick: () => applyOverviewDrilldown("task_total"),
+            },
+            {
+              key: "task_pending",
+              label: "Pending Tasks",
+              value: analytics.taskPending,
+              color: YELLOW,
+              hint: "Open",
+              active: isOverviewActive("task_pending"),
+              onClick: () => applyOverviewDrilldown("task_pending"),
+            },
+            {
+              key: "task_due_24h",
+              label: "Due in 24h",
+              value: analytics.taskDue24h,
+              color: YELLOW,
+              hint: "Upcoming deadlines",
+              active: isOverviewActive("task_due_24h"),
+              onClick: () => applyOverviewDrilldown("task_due_24h"),
+            },
+            {
+              key: "task_done",
+              label: "Completed Tasks",
+              value: analytics.taskDone,
+              color: GREEN,
+              hint: "Closed successfully",
+              active: isOverviewActive("task_done"),
+              onClick: () => applyOverviewDrilldown("task_done"),
+            },
+            {
+              key: "task_cancelled",
+              label: "Cancelled Tasks",
+              value: analytics.taskCancelled,
+              color: SUB,
+              hint: "No action needed",
+              active: isOverviewActive("task_cancelled"),
+              onClick: () => applyOverviewDrilldown("task_cancelled"),
+            },
           ].map((card) => (
             <button
-              key={card.label}
+              key={card.key}
               onClick={card.onClick}
               style={{
                 background: WHITE,
-                border: `1px solid ${BORDER}`,
+                border: card.active ? `2px solid ${card.color}` : `1px solid ${BORDER}`,
                 borderRadius: 10,
                 padding: 12,
                 textAlign: "left",
-                cursor: card.onClick ? "pointer" : "default",
+                cursor: "pointer",
               }}
             >
               <div style={{ color: SUB, fontSize: 11, marginBottom: 4, fontWeight: 700 }}>{card.label}</div>
@@ -639,8 +797,12 @@ export default function InboundInboxPage() {
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center", marginBottom: 16 }}>
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            style={{ padding: "8px 10px", borderRadius: 8, border: `1px solid ${BORDER}` }}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setStaleOnly(false);
+              setTaskScope("all");
+            }}
+            style={{ padding: "8px 10px", borderRadius: 8, border: `1px solid ${BORDER}`, width: isMobile ? "100%" : "auto" }}
           >
             <option value="all">All statuses</option>
             <option value="open">Open (New + In Progress)</option>
@@ -651,8 +813,10 @@ export default function InboundInboxPage() {
           </select>
           <select
             value={sourceFilter}
-            onChange={(e) => setSourceFilter(e.target.value)}
-            style={{ padding: "8px 10px", borderRadius: 8, border: `1px solid ${BORDER}` }}
+            onChange={(e) => {
+              setSourceFilter(e.target.value);
+            }}
+            style={{ padding: "8px 10px", borderRadius: 8, border: `1px solid ${BORDER}`, width: isMobile ? "100%" : "auto" }}
           >
             <option value="all">All sources</option>
             <option value="connect_form">Connect Form</option>
@@ -662,8 +826,10 @@ export default function InboundInboxPage() {
           </select>
           <select
             value={ownerFilter}
-            onChange={(e) => setOwnerFilter(e.target.value)}
-            style={{ padding: "8px 10px", borderRadius: 8, border: `1px solid ${BORDER}` }}
+            onChange={(e) => {
+              setOwnerFilter(e.target.value);
+            }}
+            style={{ padding: "8px 10px", borderRadius: 8, border: `1px solid ${BORDER}`, width: isMobile ? "100%" : "auto" }}
           >
             <option value="all">All owners</option>
             <option value="unassigned">Unassigned</option>
@@ -678,7 +844,7 @@ export default function InboundInboxPage() {
             value={operatorName}
             onChange={(e) => setOperatorName(e.target.value)}
             placeholder="Your name (for Mine/Claim)"
-            style={{ padding: "8px 10px", borderRadius: 8, border: `1px solid ${BORDER}` }}
+            style={{ padding: "8px 10px", borderRadius: 8, border: `1px solid ${BORDER}`, width: isMobile ? "100%" : "auto" }}
           />
           <button
             onClick={fetchInquiries}
@@ -688,11 +854,12 @@ export default function InboundInboxPage() {
               border: `1px solid ${BORDER}`,
               background: WHITE,
               cursor: "pointer",
+              width: isMobile ? "100%" : "auto",
             }}
           >
             Refresh
           </button>
-          <div style={{ marginLeft: "auto", display: "flex", gap: 8, fontSize: 12, color: SUB }}>
+          <div style={{ marginLeft: isMobile ? 0 : "auto", display: "flex", gap: 8, fontSize: 12, color: SUB, flexWrap: "wrap" }}>
             <span>New: {counts.new}</span>
             <span>In progress: {counts.in_progress}</span>
             <span>Responded: {counts.responded}</span>
@@ -773,7 +940,8 @@ export default function InboundInboxPage() {
                     display: "flex",
                     justifyContent: "space-between",
                     gap: 10,
-                    alignItems: "center",
+                    alignItems: isMobile ? "flex-start" : "center",
+                    flexDirection: isMobile ? "column" : "row",
                   }}
                 >
                   <div>
@@ -782,7 +950,7 @@ export default function InboundInboxPage() {
                       {(contact?.full_name || "Unknown")} · {contact?.email || contact?.phone || "No contact"} · {new Date(inquiry.created_at).toLocaleString()}
                     </div>
                   </div>
-                  <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                  <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
                     <span
                       style={{
                         fontSize: 10,
@@ -1040,12 +1208,14 @@ export default function InboundInboxPage() {
                     </button>
                   </div>
 
-                  <div style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr" }}>
+                  <div style={{ display: "grid", gap: 12, gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr" }}>
                     <div style={{ border: `1px solid ${BORDER}`, borderRadius: 10, background: WHITE, padding: 10 }}>
                       <div style={{ fontSize: 12, fontWeight: 800, color: NAVY, marginBottom: 8 }}>Task Panel</div>
                       <select
                         value={taskViewFilter}
-                        onChange={(e) => setTaskViewFilter(e.target.value as TaskViewFilter)}
+                        onChange={(e) => {
+                          setTaskViewFilter(e.target.value as TaskViewFilter);
+                        }}
                         style={{
                           marginBottom: 8,
                           padding: "6px 8px",
@@ -1107,7 +1277,7 @@ export default function InboundInboxPage() {
                             <div
                               style={{
                                 display: "grid",
-                                gridTemplateColumns: "1fr 1fr",
+                                gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
                                 gap: 6,
                                 marginBottom: 8,
                               }}
@@ -1236,7 +1406,7 @@ export default function InboundInboxPage() {
                             border: `1px solid ${BORDER}`,
                           }}
                         />
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 6 }}>
                           <input
                             type="datetime-local"
                             value={newTaskByInquiry[inquiry.id]?.dueAtLocal || ""}

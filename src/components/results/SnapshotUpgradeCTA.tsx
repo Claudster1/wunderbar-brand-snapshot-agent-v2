@@ -2,6 +2,7 @@
 
 import { getUpgradeCopy } from "@/src/lib/upgrade/ctaCopy";
 import { PillarKey } from "@/types/pillars";
+import Link from "next/link";
 
 interface Props {
   primaryPillar: PillarKey;
@@ -25,12 +26,12 @@ export function SnapshotUpgradeCTA({
       </h2>
       <p className="max-w-xl mx-auto">{copy.body}</p>
 
-      <a
+      <Link
         href="/snapshot-plus"
         className="inline-block mt-4 px-8 py-4 bg-brand-blue rounded-md font-semibold"
       >
         Take it further with Snapshot+™ →
-      </a>
+      </Link>
     </section>
   );
 }

@@ -1,5 +1,6 @@
 // app/blueprint/ActivationPanel.tsx
 // Blueprint activation panel component
+import Link from "next/link";
 
 export function BlueprintActivation({
   primaryPillar,
@@ -26,25 +27,25 @@ export function BlueprintActivation({
         prioritized action plan?
       </p>
 
-      <a href="/snapshot-plus" className="btn-primary mt-3">
+      <Link href="/snapshot-plus" className="btn-primary mt-3">
         Take it further with Snapshot+™
-      </a>
+      </Link>
 
       <p className="text-sm mt-2">
         Ready to turn this insight into a complete brand system?
       </p>
 
-      <a href="/blueprint" className="btn-primary mt-3">
+      <Link href="/blueprint" className="btn-primary mt-3">
         Build My WunderBrand Blueprint™
-      </a>
+      </Link>
 
       <p className="text-sm mt-2">
         Need deeper activation across campaigns, channels, and growth stages?
       </p>
 
-      <a href="/blueprint-plus" className="btn-primary mt-3">
+      <Link href="/blueprint-plus" className="btn-primary mt-3">
         Upgrade to Blueprint+™
-      </a>
+      </Link>
     </section>
   );
 }

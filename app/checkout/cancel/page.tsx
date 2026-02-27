@@ -2,6 +2,7 @@
 
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 const NAVY = "#021859";
 const BLUE = "#07B0F2";
@@ -89,7 +90,7 @@ function CancelContent() {
       </p>
 
       <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-        <a
+        <Link
           href="/"
           style={{
             display: "inline-flex",
@@ -106,8 +107,8 @@ function CancelContent() {
           }}
         >
           Back to WunderBrand Snapshot™
-        </a>
-        <a
+        </Link>
+        <Link
           href="/dashboard"
           style={{
             display: "inline-flex",
@@ -125,7 +126,7 @@ function CancelContent() {
           }}
         >
           My dashboard
-        </a>
+        </Link>
       </div>
     </main>
   );

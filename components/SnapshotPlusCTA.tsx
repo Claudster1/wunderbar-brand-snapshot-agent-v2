@@ -1,5 +1,6 @@
 // components/SnapshotPlusCTA.tsx
 // Snapshot+™ upgrade CTA component
+import Link from "next/link";
 
 export function SnapshotPlusCTA({ pillar }: { pillar: string }) {
   return (
@@ -9,9 +10,9 @@ export function SnapshotPlusCTA({ pillar }: { pillar: string }) {
         Snapshot+™ expands this insight into a prioritized, actionable brand plan.
       </p>
 
-      <a href="/snapshot-plus" className="btn-primary mt-4">
+      <Link href="/snapshot-plus" className="btn-primary mt-4">
         Take it further with Snapshot+™
-      </a>
+      </Link>
     </section>
   );
 }

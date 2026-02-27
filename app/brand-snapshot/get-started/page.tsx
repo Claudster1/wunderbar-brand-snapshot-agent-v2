@@ -1,16 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import SnapshotModal from "@/components/SnapshotModal";
 
 export default function BrandSnapshotGetStartedPage() {
   const [open, setOpen] = useState(true);
   const router = useRouter();
-
-  useEffect(() => {
-    setOpen(true);
-  }, []);
 
   return (
     <>

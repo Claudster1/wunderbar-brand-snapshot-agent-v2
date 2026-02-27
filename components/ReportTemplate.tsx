@@ -51,7 +51,7 @@ export function ReportTemplate({ data }: { data: any }) {
           <a
             href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
               shareUrl
-            )}`}
+            )}&utm_source=wunderbrand_app&utm_medium=report_share&utm_campaign=linkedin_share&utm_content=share_button`}
             target="_blank"
             className="px-5 py-3 bg-brand-aqua text-brand-navy font-medium rounded-md"
           >

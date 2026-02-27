@@ -49,7 +49,7 @@ function DocFooter({ businessName }: { businessName?: string }) {
     <View style={{ position: "absolute", bottom: 16, left: 40, right: 40, borderTop: "0.5px solid #E5E7EB", paddingTop: 6 }} fixed>
       <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
         <Text style={{ fontSize: 7, color: "#9CA3AF" }}>© {new Date().getFullYear()} Wunderbar Digital · WunderBrand Blueprint™</Text>
-        <Link src="https://wunderbardigital.com" style={{ fontSize: 7, color: "#07B0F2", textDecoration: "none" }}>wunderbardigital.com</Link>
+        <Link src="https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=pdf_footer&utm_campaign=report_delivery&utm_content=blueprint_document" style={{ fontSize: 7, color: "#07B0F2", textDecoration: "none" }}>wunderbardigital.com</Link>
       </View>
       {businessName && (
         <Text style={{ fontSize: 6.5, color: "#B0B8C4", textAlign: "center", marginTop: 3 }}>

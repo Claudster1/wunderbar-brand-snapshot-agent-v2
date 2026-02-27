@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 
 export default function DashboardError({
   error,
@@ -64,7 +65,7 @@ export default function DashboardError({
         >
           Retry
         </button>
-        <a
+        <Link
           href="/"
           style={{
             padding: "10px 24px",
@@ -77,7 +78,7 @@ export default function DashboardError({
           }}
         >
           Home
-        </a>
+        </Link>
       </div>
     </section>
   );

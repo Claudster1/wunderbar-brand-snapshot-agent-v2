@@ -307,6 +307,28 @@ export default function FollowupReviewPage() {
           </p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <a
+            href="/admin/inbound"
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#8BA3CF",
+              textDecoration: "none",
+            }}
+          >
+            Inbound Inbox
+          </a>
+          <a
+            href="/admin/analytics"
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#8BA3CF",
+              textDecoration: "none",
+            }}
+          >
+            Analytics
+          </a>
           <button
             onClick={() => { fetchFollowups(); fetchCounts(); }}
             style={{

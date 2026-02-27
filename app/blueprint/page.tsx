@@ -1,7 +1,7 @@
 // app/blueprint/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { BlueprintModule } from "@/components/blueprint/BlueprintModule";
 import { blueprintCopyByPillar, PillarKey } from "@/lib/blueprintCopyByPillar";
@@ -9,28 +9,26 @@ import { fireACEvent } from "@/lib/fireACEvent";
 import { BlueprintActivationPaths } from "@/components/blueprint/BlueprintActivationPaths";
 
 export default function BlueprintPage() {
-  const [primaryPillar, setPrimaryPillar] = useState<PillarKey>("positioning");
-  const [email, setEmail] = useState<string | undefined>(undefined);
-  const [brandStage, setBrandStage] = useState<string>("");
-
-  useEffect(() => {
-    // Try to get primary pillar from localStorage or URL params
+  const [primaryPillar] = useState<PillarKey>(() => {
+    if (typeof window === "undefined") return "positioning";
     const storedPillar = localStorage.getItem("primary_pillar");
-    if (storedPillar && ["positioning", "messaging", "visibility", "credibility", "conversion"].includes(storedPillar)) {
-      setPrimaryPillar(storedPillar as PillarKey);
-    }
-
-    const storedEmail = localStorage.getItem("brand_snapshot_email");
-    if (storedEmail) {
-      setEmail(storedEmail);
-    }
-
-    const stage =
+    const allowed = ["positioning", "messaging", "visibility", "credibility", "conversion"];
+    return storedPillar && allowed.includes(storedPillar)
+      ? (storedPillar as PillarKey)
+      : "positioning";
+  });
+  const [email] = useState<string | undefined>(() => {
+    if (typeof window === "undefined") return undefined;
+    return localStorage.getItem("brand_snapshot_email") || undefined;
+  });
+  const [brandStage] = useState<string>(() => {
+    if (typeof window === "undefined") return "";
+    return (
       localStorage.getItem("brand_stage") ||
       localStorage.getItem("snapshot_stage") ||
-      "";
-    setBrandStage(stage);
-  }, []);
+      ""
+    );
+  });
 
   const copy = blueprintCopyByPillar[primaryPillar];
   const onBlueprintClick = () => {

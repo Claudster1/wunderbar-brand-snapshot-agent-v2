@@ -34,7 +34,7 @@ export function WunderbarFooter() {
       <div className="wunder-footer-container">
         <div className="wunder-footer-top">
           <div className="wunder-footer-brand-row">
-            <a href="https://wunderbardigital.com/" className="wunder-footer-brand" aria-label="Wunderbar Digital home" target="_blank" rel="noopener noreferrer">
+            <a href="https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" className="wunder-footer-brand" aria-label="Wunderbar Digital home" target="_blank" rel="noopener noreferrer">
               Wunderbar Digital
             </a>
           </div>
@@ -53,7 +53,7 @@ export function WunderbarFooter() {
               <h3>Products</h3>
               <ul>
                 <li><a href="https://wunderbardigital.com/wunderbrand-snapshot?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">WunderBrand Snapshot™ (Free)</a></li>
-                <li><a href="https://wunderbardigital.com/wunderbrand-suite" target="_blank" rel="noopener noreferrer">WunderBrand Suite™</a></li>
+                <li><a href="https://wunderbardigital.com/wunderbrand-suite?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">WunderBrand Suite™</a></li>
               </ul>
             </div>
 
@@ -62,7 +62,7 @@ export function WunderbarFooter() {
               <h3>Services</h3>
               <ul>
                 <li><a href="https://wunderbardigital.com/managed-marketing?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">Managed Marketing</a></li>
-                <li><a href="https://wunderbardigital.com/ai-consulting" target="_blank" rel="noopener noreferrer">AI Consulting</a></li>
+                <li><a href="https://wunderbardigital.com/ai-consulting?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">AI Consulting</a></li>
               </ul>
             </div>
 
@@ -71,7 +71,7 @@ export function WunderbarFooter() {
               <h3>Resources</h3>
               <ul>
                 <li><a href="https://wunderbardigital.com/insights?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">Insights</a></li>
-                <li><a href="https://wunderbardigital.com/faq" target="_blank" rel="noopener noreferrer">FAQs</a></li>
+                <li><a href="https://wunderbardigital.com/faq?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">FAQs</a></li>
               </ul>
             </div>
 
@@ -80,7 +80,7 @@ export function WunderbarFooter() {
               <h3>Legal</h3>
               <ul>
                 <li><a href="https://wunderbardigital.com/terms-of-service?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">Terms of Service</a></li>
-                <li><a href="https://wunderbardigital.com/privacy-policy" target="_blank" rel="noopener noreferrer">Privacy Policy</a></li>
+                <li><a href="https://wunderbardigital.com/privacy-policy?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">Privacy Policy</a></li>
                 <li><a href="https://wunderbardigital.com/dmca-policy?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">DMCA</a></li>
                 <li><a href="https://wunderbardigital.com/accessibility-statement?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">Accessibility</a></li>
                 <li><a href="https://wunderbardigital.com/do-not-sell-or-share-my-personal-information?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">Do Not Sell/Share</a></li>

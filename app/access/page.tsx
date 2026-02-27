@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { persistEmail } from "@/lib/persistEmail";
+import Link from "next/link";
 
 const NAVY = "#021859";
 const BLUE = "#07B0F2";
@@ -226,12 +227,12 @@ export default function AccessPage() {
 
         <p style={{ color: SUB, fontSize: 13, lineHeight: 1.6, margin: 0 }}>
           Don&rsquo;t have a report yet?{" "}
-          <a
+          <Link
             href="/?utm_source=brand_snapshot_app&utm_medium=access_page&utm_campaign=start_snapshot"
             style={{ color: BLUE, fontWeight: 600, textDecoration: "none" }}
           >
             Start a free WunderBrand Snapshot™
-          </a>
+          </Link>
         </p>
 
         <p

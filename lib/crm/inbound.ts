@@ -40,7 +40,11 @@ export async function upsertCrmContact(input: CrmContactInput): Promise<string |
   const phone = normalizePhone(input.phone);
   if (!email && !phone) return null;
 
-  let existing: { id: string; metadata?: Record<string, unknown> | null } | null = null;
+  type ExistingContactRow = {
+    id: string;
+    metadata?: Record<string, unknown> | null;
+  };
+  let existing: ExistingContactRow | null = null;
 
   if (email) {
     const { data } = await supabaseAdmin
@@ -48,7 +52,7 @@ export async function upsertCrmContact(input: CrmContactInput): Promise<string |
       .select("id, metadata")
       .eq("email", email)
       .maybeSingle();
-    existing = (data as typeof existing) ?? null;
+    existing = (data as ExistingContactRow | null) ?? null;
   }
 
   if (!existing && phone) {
@@ -57,7 +61,7 @@ export async function upsertCrmContact(input: CrmContactInput): Promise<string |
       .select("id, metadata")
       .eq("phone", phone)
       .maybeSingle();
-    existing = (data as typeof existing) ?? null;
+    existing = (data as ExistingContactRow | null) ?? null;
   }
 
   if (existing?.id) {

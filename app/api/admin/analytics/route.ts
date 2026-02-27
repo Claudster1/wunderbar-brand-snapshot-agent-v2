@@ -59,6 +59,65 @@ function median(values: number[]): number {
   return sorted[mid];
 }
 
+type TrendPoint = {
+  date: string;
+  medianFirstResponseHours: number;
+  slaBreachRate: number;
+};
+
+function toDayKey(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+function buildTrend(
+  inquiries: Array<{
+    status: string;
+    created_at: string;
+    first_response_at: string | null;
+  }>,
+  days: number,
+): TrendPoint[] {
+  const now = Date.now();
+  const points: TrendPoint[] = [];
+
+  for (let i = days - 1; i >= 0; i -= 1) {
+    const day = new Date(now - i * 86400000);
+    const dayKey = toDayKey(day);
+    const responseHours: number[] = [];
+    let evaluated = 0;
+    let breaches = 0;
+
+    for (const inquiry of inquiries) {
+      if (!inquiry.created_at.startsWith(dayKey)) continue;
+
+      if (inquiry.first_response_at) {
+        const hours =
+          (new Date(inquiry.first_response_at).getTime() -
+            new Date(inquiry.created_at).getTime()) /
+          (1000 * 60 * 60);
+        if (Number.isFinite(hours) && hours >= 0) {
+          responseHours.push(hours);
+          evaluated += 1;
+          if (hours > 24) breaches += 1;
+        }
+      } else if (inquiry.status === "new" || inquiry.status === "in_progress") {
+        const openHours =
+          (Date.now() - new Date(inquiry.created_at).getTime()) / (1000 * 60 * 60);
+        evaluated += 1;
+        if (openHours > 24) breaches += 1;
+      }
+    }
+
+    points.push({
+      date: dayKey,
+      medianFirstResponseHours: median(responseHours),
+      slaBreachRate: evaluated > 0 ? (breaches / evaluated) * 100 : 0,
+    });
+  }
+
+  return points;
+}
+
 // ── Funnel data ──
 async function getFunnelData(since: string) {
   const sb = supabaseAdmin!;
@@ -208,17 +267,19 @@ async function getRecentEvents(since: string, limit: number) {
 // ── CRM ops analytics ──
 async function getCrmData(since: string) {
   const sb = supabaseAdmin!;
+  const minSince = new Date(Math.min(new Date(since).getTime(), Date.now() - 30 * 86400000))
+    .toISOString();
 
   const [{ data: inquiries }, { data: tasks }] = await Promise.all([
     sb
       .from("crm_inquiries")
       .select("id, source, status, owner, created_at, first_response_at, last_activity_at")
-      .gte("created_at", since)
+      .gte("created_at", minSince)
       .limit(2000),
     sb
       .from("crm_tasks")
       .select("id, status, due_at, assigned_to, inquiry_id")
-      .gte("created_at", since)
+      .gte("created_at", minSince)
       .limit(3000),
   ]);
 
@@ -349,6 +410,10 @@ async function getCrmData(since: string) {
       b.overdueTasks -
       (a.openInquiries + a.inProgressInquiries + a.overdueTasks),
   );
+  const responseTrends = {
+    last7Days: buildTrend(inquiryRows, 7),
+    last30Days: buildTrend(inquiryRows, 30),
+  };
 
   const medianFirstResponseHours = median(responseHours);
   const evaluatedForSla = Math.max(
@@ -366,6 +431,7 @@ async function getCrmData(since: string) {
         medianFirstResponseHours,
         slaBreaches,
         slaBreachRate,
+        trends: responseTrends,
       },
       sourceBreakdown,
       ownerWorkload,

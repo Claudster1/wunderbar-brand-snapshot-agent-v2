@@ -13,6 +13,13 @@ import {
   getFollowupUserPrompt,
   type SessionType,
 } from "@/lib/session/followupPrompts";
+import {
+  createCrmActivity,
+  createCrmInquiry,
+  createDefaultCrmTaskForInquiry,
+  upsertCrmContact,
+} from "@/lib/crm/inbound";
+import { resolveAutoAssignedOwner } from "@/lib/crm/assignment";
 
 export const runtime = "nodejs";
 export const maxDuration = 60; // Allow up to 60s for OpenAI generation
@@ -247,6 +254,87 @@ export async function POST(req: NextRequest) {
     if (dbError) {
       logger.error("[Session] DB insert failed", { error: dbError.message });
       return NextResponse.json({ error: "Failed to save follow-up." }, { status: 500 });
+    }
+
+    // ─── Also add transcript-driven inquiry to CRM inbox (non-blocking) ───
+    try {
+      const normalizedEmail = contact_email.trim().toLowerCase();
+      const sourceLabel = source || (isZapier ? "otter_zapier" : "manual");
+      const assignment = await resolveAutoAssignedOwner({ source: "manual" });
+
+      const crmContactId = await upsertCrmContact({
+        email: normalizedEmail,
+        fullName: contact_name || null,
+        source: "manual",
+        metadata: {
+          inbound_source: sourceLabel,
+          session_type,
+        },
+      });
+
+      const crmInquiryId = await createCrmInquiry({
+        contactId: crmContactId,
+        source: "manual",
+        status: "new",
+        owner: assignment.owner,
+        priority: session_type === "talk_to_expert" ? "high" : "normal",
+        subject:
+          session_type === "talk_to_expert"
+            ? "Otter transcript - Talk to Expert"
+            : "Otter transcript - Activation Session",
+        message:
+          transcript_summary ||
+          `Transcript received from ${sourceLabel}. Follow-up queued for review.`,
+        transcript,
+        externalRef: data?.id ? `session_followup:${data.id}` : null,
+        channelMetadata: {
+          channel: "otter",
+          transcript_source: sourceLabel,
+          session_type,
+          followup_id: data?.id || null,
+        },
+        attribution: {
+          inbound_channel: "meeting_transcript",
+        },
+      });
+
+      if (crmInquiryId) {
+        await createCrmActivity({
+          inquiryId: crmInquiryId,
+          contactId: crmContactId,
+          activityType: "transcript_received",
+          body: "Otter/Zapier transcript received and follow-up queued for review",
+          payload: {
+            source: sourceLabel,
+            session_type,
+            followup_id: data?.id || null,
+            assigned_owner: assignment.owner,
+            assign_reason: assignment.reason,
+          },
+          createdBy: "system",
+        });
+
+        if (assignment.owner) {
+          await createCrmActivity({
+            inquiryId: crmInquiryId,
+            contactId: crmContactId,
+            activityType: "owner_auto_assigned",
+            body: `Inquiry auto-assigned to ${assignment.owner}`,
+            payload: { owner: assignment.owner, reason: assignment.reason },
+            createdBy: "system",
+          });
+        }
+
+        await createDefaultCrmTaskForInquiry({
+          inquiryId: crmInquiryId,
+          contactId: crmContactId,
+          source: "manual",
+        });
+      }
+    } catch (crmErr) {
+      logger.error("[Session] CRM inbox sync failed (non-blocking)", {
+        error: crmErr instanceof Error ? crmErr.message : String(crmErr),
+      });
     }
 
     // ─── Tag contact in AC ───

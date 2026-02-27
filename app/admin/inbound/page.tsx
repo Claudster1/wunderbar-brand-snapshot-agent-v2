@@ -136,6 +136,13 @@ const TASK_STATUS_COLORS: Record<TaskStatus, string> = {
   cancelled: SUB,
 };
 
+const PRIORITY_RANK: Record<Inquiry["priority"], number> = {
+  urgent: 4,
+  high: 3,
+  normal: 2,
+  low: 1,
+};
+
 function formatDate(date: string | null | undefined): string {
   if (!date) return "-";
   return new Date(date).toLocaleString();
@@ -165,6 +172,71 @@ function isTaskVisible(task: CrmTask, filter: TaskViewFilter): boolean {
     return task.status === "open" && dueMs >= now && dueMs <= now + 24 * 60 * 60 * 1000;
   }
   return true;
+}
+
+function getSlaBadge(inquiry: Inquiry): {
+  label: string;
+  color: string;
+  background: string;
+  urgencyRank: number;
+} {
+  if (inquiry.status === "responded" || inquiry.status === "closed") {
+    return {
+      label: "Resolved",
+      color: SUB,
+      background: "#EEF2F7",
+      urgencyRank: -1,
+    };
+  }
+
+  const ageMs = Date.now() - new Date(inquiry.created_at).getTime();
+  const ageHours = ageMs / (1000 * 60 * 60);
+
+  if (ageHours < 24) {
+    return {
+      label: "<24h",
+      color: GREEN,
+      background: `${GREEN}20`,
+      urgencyRank: 0,
+    };
+  }
+
+  if (ageHours < 48) {
+    return {
+      label: "24-48h",
+      color: YELLOW,
+      background: `${YELLOW}22`,
+      urgencyRank: 1,
+    };
+  }
+
+  return {
+    label: ">48h",
+    color: RED,
+    background: `${RED}20`,
+    urgencyRank: 2,
+  };
+}
+
+function getFollowUpDraft(inquiry: Inquiry, contact: Contact | null): { subject: string; body: string } {
+  const contactName = contact?.full_name?.trim() || "there";
+  const inquirySubject = inquiry.subject?.trim() || "your inquiry";
+  const ownerName = inquiry.owner?.trim() || "our team";
+
+  return {
+    subject: `Following up on ${inquirySubject}`,
+    body: [
+      `Hi ${contactName},`,
+      "",
+      "Thanks again for reaching out to Wunderbar Digital.",
+      `I'm following up on ${inquirySubject}.`,
+      "",
+      "Happy to answer any questions and share the best next step for your brand goals.",
+      "",
+      "Best,",
+      ownerName,
+    ].join("\n"),
+  };
 }
 
 export default function InboundInboxPage() {
@@ -310,6 +382,20 @@ export default function InboundInboxPage() {
       base[inquiry.status] += 1;
     }
     return base;
+  }, [inquiries]);
+
+  const sortedInquiries = useMemo(() => {
+    return [...inquiries].sort((a, b) => {
+      const aSla = getSlaBadge(a);
+      const bSla = getSlaBadge(b);
+      if (aSla.urgencyRank !== bSla.urgencyRank) return bSla.urgencyRank - aSla.urgencyRank;
+
+      const aPriority = PRIORITY_RANK[a.priority];
+      const bPriority = PRIORITY_RANK[b.priority];
+      if (aPriority !== bPriority) return bPriority - aPriority;
+
+      return +new Date(b.created_at) - +new Date(a.created_at);
+    });
   }, [inquiries]);
 
   const handleLogin = () => {
@@ -639,11 +725,12 @@ export default function InboundInboxPage() {
           </div>
         )}
 
-        {inquiries.map((inquiry) => {
+        {sortedInquiries.map((inquiry) => {
           const contact = getContact(inquiry);
           const expanded = expandedId === inquiry.id;
           const saving = savingId === inquiry.id;
           const details = detailsByInquiry[inquiry.id];
+          const slaBadge = getSlaBadge(inquiry);
           const timelineItems = [
             ...(details?.activities || []).map((item) => ({
               id: `activity-${item.id}`,
@@ -704,6 +791,18 @@ export default function InboundInboxPage() {
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                    <span
+                      style={{
+                        fontSize: 10,
+                        fontWeight: 700,
+                        color: slaBadge.color,
+                        background: slaBadge.background,
+                        padding: "3px 8px",
+                        borderRadius: 999,
+                      }}
+                    >
+                      SLA {slaBadge.label}
+                    </span>
                     <span
                       style={{
                         fontSize: 10,
@@ -908,6 +1007,44 @@ export default function InboundInboxPage() {
                       }}
                     >
                       Close
+                    </button>
+                    <a
+                      href={`mailto:${encodeURIComponent(contact?.email || "")}?subject=${encodeURIComponent(getFollowUpDraft(inquiry, contact).subject)}&body=${encodeURIComponent(getFollowUpDraft(inquiry, contact).body)}`}
+                      style={{
+                        padding: "8px 10px",
+                        borderRadius: 8,
+                        border: `1px solid ${BORDER}`,
+                        background: WHITE,
+                        color: NAVY,
+                        fontWeight: 700,
+                        textDecoration: "none",
+                        fontSize: 13,
+                        opacity: contact?.email ? 1 : 0.5,
+                        pointerEvents: contact?.email ? "auto" : "none",
+                      }}
+                    >
+                      Create Follow-up Email Draft
+                    </a>
+                    <button
+                      onClick={() =>
+                        updateInquiry(inquiry.id, {
+                          status: inquiry.status === "new" ? "in_progress" : inquiry.status,
+                          owner: ownerInput[inquiry.id] ?? inquiry.owner ?? null,
+                          note: `Call outcome logged (${new Date().toLocaleString()}): awaiting callback.`,
+                        })
+                      }
+                      disabled={saving}
+                      style={{
+                        padding: "8px 10px",
+                        borderRadius: 8,
+                        border: `1px solid ${BORDER}`,
+                        background: LIGHT_BG,
+                        color: NAVY,
+                        fontWeight: 700,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Log Call Outcome
                     </button>
                   </div>
 

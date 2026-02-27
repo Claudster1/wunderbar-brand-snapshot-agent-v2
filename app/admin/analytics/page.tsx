@@ -72,6 +72,18 @@ interface CrmAnalyticsData {
     medianFirstResponseHours: number;
     slaBreaches: number;
     slaBreachRate: number;
+    trends: {
+      last7Days: Array<{
+        date: string;
+        medianFirstResponseHours: number;
+        slaBreachRate: number;
+      }>;
+      last30Days: Array<{
+        date: string;
+        medianFirstResponseHours: number;
+        slaBreachRate: number;
+      }>;
+    };
   };
   sourceBreakdown: Array<{
     source: string;
@@ -86,6 +98,34 @@ interface CrmAnalyticsData {
     inProgressInquiries: number;
     overdueTasks: number;
   }>;
+}
+
+function Sparkline({
+  values,
+  color,
+}: {
+  values: number[];
+  color: string;
+}) {
+  const width = 180;
+  const height = 40;
+  const min = Math.min(...values, 0);
+  const max = Math.max(...values, 1);
+  const range = Math.max(max - min, 1);
+  const points = values
+    .map((value, i) => {
+      const x = (i / Math.max(values.length - 1, 1)) * width;
+      const y = height - ((value - min) / range) * height;
+      return `${x},${y}`;
+    })
+    .join(" ");
+
+  return (
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label="trend">
+      <polyline fill="none" stroke={`${color}50`} strokeWidth="1.5" points={`0,${height} ${width},${height}`} />
+      <polyline fill="none" stroke={color} strokeWidth="2.5" points={points} />
+    </svg>
+  );
 }
 
 const FUNNEL_STAGES = [
@@ -984,6 +1024,34 @@ function CrmAnalyticsView({ data }: { data: CrmAnalyticsData }) {
         />
       </div>
 
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+          gap: 12,
+          marginBottom: 24,
+        }}
+      >
+        <div style={{ background: WHITE, border: `1px solid ${BORDER}`, borderRadius: 8, padding: "12px 14px" }}>
+          <div style={{ fontSize: 11, color: SUB, textTransform: "uppercase", fontWeight: 700, marginBottom: 6 }}>
+            Median Response Trend (7d)
+          </div>
+          <Sparkline
+            values={data.responseMetrics.trends.last7Days.map((point) => point.medianFirstResponseHours)}
+            color={BLUE}
+          />
+        </div>
+        <div style={{ background: WHITE, border: `1px solid ${BORDER}`, borderRadius: 8, padding: "12px 14px" }}>
+          <div style={{ fontSize: 11, color: SUB, textTransform: "uppercase", fontWeight: 700, marginBottom: 6 }}>
+            SLA Breach Trend (30d)
+          </div>
+          <Sparkline
+            values={data.responseMetrics.trends.last30Days.map((point) => point.slaBreachRate)}
+            color={RED}
+          />
+        </div>
+      </div>
+
       <SubTitle>Source Outcomes</SubTitle>
       <TableWrapper>
         <table style={tableStyle}>
@@ -994,18 +1062,27 @@ function CrmAnalyticsView({ data }: { data: CrmAnalyticsData }) {
               <Th align="right">Open</Th>
               <Th align="right">Responded</Th>
               <Th align="right">Closed</Th>
+              <Th align="right">Source-to-Close</Th>
             </tr>
           </thead>
           <tbody>
-            {data.sourceBreakdown.map((row) => (
-              <tr key={row.source}>
-                <Td bold>{row.source}</Td>
-                <Td align="right">{row.total}</Td>
-                <Td align="right">{row.open}</Td>
-                <Td align="right">{row.responded}</Td>
-                <Td align="right">{row.closed}</Td>
-              </tr>
-            ))}
+            {data.sourceBreakdown.map((row) => {
+              const closeRate = row.total > 0 ? (row.closed / row.total) * 100 : 0;
+              return (
+                <tr key={row.source}>
+                  <Td bold>{row.source}</Td>
+                  <Td align="right">{row.total}</Td>
+                  <Td align="right">{row.open}</Td>
+                  <Td align="right">{row.responded}</Td>
+                  <Td align="right">{row.closed}</Td>
+                  <Td align="right">
+                    <span style={{ color: closeRate >= 30 ? GREEN : closeRate >= 10 ? YELLOW : SUB, fontWeight: 600 }}>
+                      {closeRate.toFixed(1)}%
+                    </span>
+                  </Td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </TableWrapper>

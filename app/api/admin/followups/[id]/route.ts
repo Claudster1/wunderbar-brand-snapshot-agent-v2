@@ -9,14 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { logger } from "@/lib/logger";
 import { sendFollowupViaAC } from "@/lib/activeCampaign/sendFollowup";
-
-const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
-
-function isAuthorized(req: NextRequest): boolean {
-  if (!ADMIN_API_KEY) return false;
-  const auth = req.headers.get("authorization") || "";
-  return auth.replace("Bearer ", "").trim() === ADMIN_API_KEY;
-}
+import { requireAdminApi } from "@/lib/auth/adminSession";
 
 const ALLOWED_STATUSES = ["pending_review", "approved", "sent", "rejected"];
 
@@ -24,9 +17,8 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  if (!isAuthorized(req)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const auth = await requireAdminApi(req);
+  if (!auth.ok) return auth.response;
   if (!supabaseAdmin) {
     return NextResponse.json({ error: "Database not configured." }, { status: 500 });
   }

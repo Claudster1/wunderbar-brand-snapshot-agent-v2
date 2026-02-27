@@ -4,18 +4,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-
-const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
-
-function isAuthorized(req: NextRequest): boolean {
-  if (!ADMIN_API_KEY) return false;
-  const auth = req.headers.get("authorization") || "";
-  return auth.replace("Bearer ", "").trim() === ADMIN_API_KEY;
-}
+import { requireAdminApi } from "@/lib/auth/adminSession";
 
 export async function GET(req: NextRequest) {
-  if (!isAuthorized(req)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = await requireAdminApi(req);
+  if (!auth.ok) {
+    return auth.response;
   }
   if (!supabaseAdmin) {
     return NextResponse.json({ error: "Database not configured." }, { status: 500 });
@@ -267,19 +261,19 @@ async function getRecentEvents(since: string, limit: number) {
 // ── CRM ops analytics ──
 async function getCrmData(since: string) {
   const sb = supabaseAdmin!;
-  const minSince = new Date(Math.min(new Date(since).getTime(), Date.now() - 30 * 86400000))
+  const trendSince = new Date(Math.min(new Date(since).getTime(), Date.now() - 30 * 86400000))
     .toISOString();
 
   const [{ data: inquiries }, { data: tasks }] = await Promise.all([
     sb
       .from("crm_inquiries")
       .select("id, source, status, owner, created_at, first_response_at, last_activity_at")
-      .gte("created_at", minSince)
+      .gte("created_at", trendSince)
       .limit(2000),
     sb
       .from("crm_tasks")
-      .select("id, status, due_at, assigned_to, inquiry_id")
-      .gte("created_at", minSince)
+      .select("id, status, due_at, assigned_to, inquiry_id, created_at")
+      .gte("created_at", trendSince)
       .limit(3000),
   ]);
 
@@ -299,7 +293,15 @@ async function getCrmData(since: string) {
     due_at: string | null;
     assigned_to: string | null;
     inquiry_id: string | null;
+    created_at: string;
   }> | null) || [];
+  const sinceMs = new Date(since).getTime();
+  const inquiryRowsInWindow = inquiryRows.filter(
+    (row) => new Date(row.created_at).getTime() >= sinceMs,
+  );
+  const taskRowsInWindow = taskRows.filter(
+    (row) => new Date(row.created_at).getTime() >= sinceMs,
+  );
 
   const totals = {
     open: 0,
@@ -318,7 +320,7 @@ async function getCrmData(since: string) {
   let respondedWithFirstResponse = 0;
   let slaBreaches = 0;
 
-  for (const inquiry of inquiryRows) {
+  for (const inquiry of inquiryRowsInWindow) {
     if (inquiry.status === "new") {
       totals.new += 1;
       totals.open += 1;
@@ -369,7 +371,7 @@ async function getCrmData(since: string) {
     { owner: string; openInquiries: number; inProgressInquiries: number; overdueTasks: number }
   > = {};
 
-  for (const inquiry of inquiryRows) {
+  for (const inquiry of inquiryRowsInWindow) {
     const owner = (inquiry.owner || "unassigned").trim() || "unassigned";
     if (!ownerMap[owner]) {
       ownerMap[owner] = {
@@ -383,7 +385,7 @@ async function getCrmData(since: string) {
     if (inquiry.status === "in_progress") ownerMap[owner].inProgressInquiries += 1;
   }
 
-  for (const task of taskRows) {
+  for (const task of taskRowsInWindow) {
     const owner = (task.assigned_to || "unassigned").trim() || "unassigned";
     if (!ownerMap[owner]) {
       ownerMap[owner] = {
@@ -418,7 +420,7 @@ async function getCrmData(since: string) {
   const medianFirstResponseHours = median(responseHours);
   const evaluatedForSla = Math.max(
     respondedWithFirstResponse +
-      inquiryRows.filter((i) => !i.first_response_at && (i.status === "new" || i.status === "in_progress")).length,
+      inquiryRowsInWindow.filter((i) => !i.first_response_at && (i.status === "new" || i.status === "in_progress")).length,
     1,
   );
   const slaBreachRate = (slaBreaches / evaluatedForSla) * 100;

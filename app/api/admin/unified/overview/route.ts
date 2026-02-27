@@ -51,6 +51,7 @@ type AnalyticsRow = {
   utm_source: string | null;
   ai_source: string | null;
   is_ai_referral: boolean | null;
+  meta: Record<string, unknown> | null;
   created_at: string;
 };
 
@@ -102,7 +103,7 @@ async function buildUnifiedEvents(since: string): Promise<UnifiedEventRow[]> {
       .limit(5000),
     sb
       .from("analytics_events" as never)
-      .select("id, event_name, event_category, user_email, page_path, utm_source, ai_source, is_ai_referral, created_at")
+      .select("id, event_name, event_category, user_email, page_path, utm_source, ai_source, is_ai_referral, meta, created_at")
       .gte("created_at", since)
       .limit(5000),
   ]);
@@ -236,6 +237,7 @@ async function buildUnifiedEvents(since: string): Promise<UnifiedEventRow[]> {
 
   for (const row of analyticsRows) {
     const accountKey = getAccountKey(null, row.user_email);
+    const siteHost = typeof row.meta?.siteHost === "string" ? row.meta.siteHost : null;
     events.push({
       source: "analytics_event",
       source_event_id: row.id,
@@ -254,6 +256,7 @@ async function buildUnifiedEvents(since: string): Promise<UnifiedEventRow[]> {
         utm_source: row.utm_source,
         ai_source: row.ai_source,
         is_ai_referral: row.is_ai_referral,
+        site_host: siteHost,
       },
     });
   }

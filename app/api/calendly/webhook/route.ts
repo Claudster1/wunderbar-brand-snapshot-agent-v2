@@ -436,7 +436,7 @@ export async function POST(req: NextRequest) {
           fields: {
             first_name: firstName,
             session_type: getSessionLabel(sessionType),
-            scheduled_date: payload.scheduled_event?.start_time || "",
+            scheduled_date: scheduledStart || "",
           },
         });
       }

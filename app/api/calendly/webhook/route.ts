@@ -16,8 +16,10 @@ import { createHmac, timingSafeEqual } from "crypto";
 
 export const runtime = "nodejs";
 
+type SessionType = "talk_to_expert" | "activation_session" | "general_session";
+
 // Map Calendly event type names to our session types
-const EVENT_TYPE_MAP: Record<string, "talk_to_expert" | "activation_session"> = {
+const EVENT_TYPE_MAP: Record<string, SessionType> = {
   "talk-to-an-expert": "talk_to_expert",
   "talk to an expert": "talk_to_expert",
   "strategy-activation-session": "activation_session",
@@ -25,12 +27,137 @@ const EVENT_TYPE_MAP: Record<string, "talk_to_expert" | "activation_session"> = 
   "blueprint-plus-activation": "activation_session",
 };
 
-function detectSessionType(eventTypeName: string): "talk_to_expert" | "activation_session" | null {
+function detectSessionType(eventTypeName: string): SessionType {
   const lower = eventTypeName.toLowerCase().trim();
   if (EVENT_TYPE_MAP[lower]) return EVENT_TYPE_MAP[lower];
   if (lower.includes("expert") || lower.includes("consultation")) return "talk_to_expert";
   if (lower.includes("activation") || lower.includes("blueprint")) return "activation_session";
-  return null;
+  return "general_session";
+}
+
+function getSessionLabel(sessionType: SessionType): string {
+  if (sessionType === "talk_to_expert") return "Talk to an Expert";
+  if (sessionType === "activation_session") return "Strategy Activation Session";
+  return "General Session";
+}
+
+function getCalendlyRefs(payload: Record<string, unknown>) {
+  const inviteeUri =
+    ((payload.uri as string | undefined) ||
+      ((payload.invitee as { uri?: string } | undefined)?.uri as string | undefined) ||
+      null);
+  const scheduledEventUri =
+    ((payload.scheduled_event as { uri?: string } | undefined)?.uri as string | undefined) || null;
+  const rescheduledFromInviteeUri =
+    ((payload as { old_invitee?: { uri?: string } }).old_invitee?.uri as string | undefined) ||
+    ((payload as { rescheduled_from_invitee_uri?: string }).rescheduled_from_invitee_uri as string | undefined) ||
+    null;
+  const rescheduledToInviteeUri =
+    ((payload as { new_invitee?: { uri?: string } }).new_invitee?.uri as string | undefined) ||
+    ((payload as { rescheduled_to_invitee_uri?: string }).rescheduled_to_invitee_uri as string | undefined) ||
+    null;
+  const isRescheduled =
+    Boolean((payload as { rescheduled?: boolean }).rescheduled) ||
+    Boolean(rescheduledFromInviteeUri) ||
+    Boolean(rescheduledToInviteeUri);
+  return {
+    inviteeUri: inviteeUri?.trim() || null,
+    scheduledEventUri: scheduledEventUri?.trim() || null,
+    rescheduledFromInviteeUri: rescheduledFromInviteeUri?.trim() || null,
+    rescheduledToInviteeUri: rescheduledToInviteeUri?.trim() || null,
+    isRescheduled,
+  };
+}
+
+function getLifecycleStatus(event: string): "scheduled" | "canceled" | "no_show" | "updated" {
+  if (event === "invitee.created") return "scheduled";
+  if (event === "invitee.canceled") return "canceled";
+  if (event === "invitee.no_show" || event === "invitee_no_show") return "no_show";
+  return "updated";
+}
+
+async function sendCalendlyDispositionPrompt(params: {
+  meetingKey: string;
+  inviteeUri: string | null;
+  scheduledEventUri: string | null;
+  email: string;
+  sessionType: SessionType;
+  eventTypeName: string;
+  scheduledStart: string | null;
+}) {
+  const webhookUrl = process.env.SLACK_CRM_WEBHOOK || process.env.SLACK_ALERT_WEBHOOK;
+  if (!webhookUrl) return;
+
+  const actionValue = JSON.stringify({
+    meetingKey: params.meetingKey,
+    inviteeUri: params.inviteeUri,
+    scheduledEventUri: params.scheduledEventUri,
+    email: params.email,
+    sessionType: params.sessionType,
+    eventTypeName: params.eventTypeName,
+    scheduledStart: params.scheduledStart,
+  });
+
+  const label = getSessionLabel(params.sessionType);
+  const scheduledLine = params.scheduledStart
+    ? `\n• Start: ${new Date(params.scheduledStart).toLocaleString()}`
+    : "";
+
+  await fetch(webhookUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      text: `Calendly booked: ${label} — ${params.email}`,
+      blocks: [
+        {
+          type: "header",
+          text: { type: "plain_text", text: "Calendly Meeting Booked" },
+        },
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text:
+              `• Type: ${label}` +
+              `\n• Event: ${params.eventTypeName || "Unnamed Calendly event"}` +
+              `\n• Email: ${params.email}` +
+              scheduledLine,
+          },
+        },
+        {
+          type: "actions",
+          elements: [
+            {
+              type: "button",
+              text: { type: "plain_text", text: "Completed" },
+              style: "primary",
+              action_id: "cal_mark_completed",
+              value: actionValue,
+            },
+            {
+              type: "button",
+              text: { type: "plain_text", text: "No-show" },
+              action_id: "cal_mark_no_show",
+              value: actionValue,
+            },
+            {
+              type: "button",
+              text: { type: "plain_text", text: "Rescheduled" },
+              action_id: "cal_mark_rescheduled",
+              value: actionValue,
+            },
+            {
+              type: "button",
+              text: { type: "plain_text", text: "Canceled" },
+              style: "danger",
+              action_id: "cal_mark_canceled",
+              value: actionValue,
+            },
+          ],
+        },
+      ],
+    }),
+  });
 }
 
 function getEmailDomain(email: string): string | null {
@@ -74,25 +201,24 @@ async function upsertUnifiedCalendlyEvent(params: {
   event: string;
   payload: Record<string, unknown>;
   email: string;
-  sessionType: "talk_to_expert" | "activation_session";
+  sessionType: SessionType;
   eventTypeName: string;
 }) {
   if (!supabaseAdmin) return;
 
   const normalizedEmail = params.email.trim().toLowerCase();
-  const inviteeUri =
-    ((params.payload.uri as string | undefined) ||
-      ((params.payload.invitee as { uri?: string } | undefined)?.uri as string | undefined) ||
-      "").trim();
+  const refs = getCalendlyRefs(params.payload);
   const startTime =
     ((params.payload.scheduled_event as { start_time?: string } | undefined)?.start_time as string | undefined) ||
     null;
-  const sourceEventId = inviteeUri
-    ? `${params.event}:${inviteeUri}`
+  const meetingKey = refs.scheduledEventUri || refs.inviteeUri;
+  const sourceEventId = refs.inviteeUri
+    ? `${params.event}:${refs.inviteeUri}`
     : `${params.event}:${normalizedEmail}:${startTime || "unknown_start"}`;
   const occurredAt = pickOccurredAt(params.payload, params.event);
   const accountKey = getEmailDomain(normalizedEmail);
   const { eventType, direction } = getCalendlyEventMapping(params.event);
+  const lifecycleStatus = getLifecycleStatus(params.event);
 
   let contactId: string | null = null;
   try {
@@ -109,10 +235,16 @@ async function upsertUnifiedCalendlyEvent(params: {
   const metadata = {
     calendly_event: params.event,
     session_type: params.sessionType,
+    session_label: getSessionLabel(params.sessionType),
     event_type_name: params.eventTypeName,
-    scheduled_event_uri: ((params.payload.scheduled_event as { uri?: string } | undefined)?.uri as string | undefined) || null,
-    invitee_uri: inviteeUri || null,
+    meeting_key: meetingKey,
+    scheduled_event_uri: refs.scheduledEventUri,
+    invitee_uri: refs.inviteeUri,
+    rescheduled: refs.isRescheduled,
+    rescheduled_from_invitee_uri: refs.rescheduledFromInviteeUri,
+    rescheduled_to_invitee_uri: refs.rescheduledToInviteeUri,
     start_time: startTime,
+    lifecycle_status: lifecycleStatus,
     status: params.event,
   };
 
@@ -199,15 +331,21 @@ export async function POST(req: NextRequest) {
   try {
     const body = JSON.parse(rawBody);
     const event = body.event;
-    const payload = body.payload;
+    const payload = body.payload as Record<string, unknown>;
 
     if (!payload) {
       return NextResponse.json({ received: true });
     }
 
-    const email = payload.email || payload.invitee?.email;
-    const name = payload.name || payload.invitee?.name || "";
-    const eventTypeName = payload.event_type?.name || payload.scheduled_event?.name || "";
+    const email = (payload.email as string | undefined) || ((payload.invitee as { email?: string } | undefined)?.email as string | undefined);
+    const name =
+      (payload.name as string | undefined) ||
+      ((payload.invitee as { name?: string } | undefined)?.name as string | undefined) ||
+      "";
+    const eventTypeName =
+      ((payload.event_type as { name?: string } | undefined)?.name as string | undefined) ||
+      ((payload.scheduled_event as { name?: string } | undefined)?.name as string | undefined) ||
+      "";
 
     if (!email) {
       logger.warn("[Calendly Webhook] No email in payload");
@@ -215,10 +353,12 @@ export async function POST(req: NextRequest) {
     }
 
     const sessionType = detectSessionType(eventTypeName);
-    if (!sessionType) {
-      logger.info("[Calendly Webhook] Unrecognized event type", { eventTypeName });
-      return NextResponse.json({ received: true, note: "Unrecognized event type" });
-    }
+    const refs = getCalendlyRefs(payload);
+    const normalizedEmail = email.trim().toLowerCase();
+    const scheduledStart =
+      ((payload.scheduled_event as { start_time?: string } | undefined)?.start_time as string | undefined) ||
+      null;
+    const meetingKey = refs.scheduledEventUri || refs.inviteeUri || `${normalizedEmail}:${Date.now()}`;
 
     logger.info("[Calendly Webhook] Processing", { event, email, sessionType, eventTypeName });
 
@@ -236,13 +376,29 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    if (event === "invitee.created") {
+      await sendCalendlyDispositionPrompt({
+        meetingKey,
+        inviteeUri: refs.inviteeUri,
+        scheduledEventUri: refs.scheduledEventUri,
+        email: normalizedEmail,
+        sessionType,
+        eventTypeName,
+        scheduledStart,
+      }).catch((slackErr) => {
+        logger.error("[Calendly Webhook] Failed to send Slack disposition prompt", {
+          error: slackErr instanceof Error ? slackErr.message : String(slackErr),
+          email: normalizedEmail,
+        });
+      });
+    }
+
     // ─── Tag in ActiveCampaign ───
     try {
       const { applyActiveCampaignTags, setContactFields, getOrCreateContactId } =
         await import("@/lib/applyActiveCampaignTags");
       const { fireACEvent } = await import("@/lib/fireACEvent");
 
-      const normalizedEmail = email.trim().toLowerCase();
       const firstName = name.split(" ")[0] || "";
 
       if (firstName) {
@@ -252,14 +408,16 @@ export async function POST(req: NextRequest) {
       if (event === "invitee.created") {
         const tags = sessionType === "talk_to_expert"
           ? ["call:expert-scheduled"]
-          : ["session:activation-scheduled", "session:booked"];
+          : sessionType === "activation_session"
+            ? ["session:activation-scheduled", "session:booked"]
+            : ["call:scheduled"];
 
         await applyActiveCampaignTags({ email: normalizedEmail, tags });
 
         await setContactFields({
           email: normalizedEmail,
           fields: {
-            last_call_type: sessionType === "talk_to_expert" ? "Talk to an Expert" : "Strategy Activation Session",
+            last_call_type: getSessionLabel(sessionType),
             last_call_date: new Date().toISOString().split("T")[0],
             ...(firstName ? { first_name_custom: firstName } : {}),
           },
@@ -267,7 +425,9 @@ export async function POST(req: NextRequest) {
 
         const eventName = sessionType === "talk_to_expert"
           ? "expert_call_booked"
-          : "activation_session_booked";
+          : sessionType === "activation_session"
+            ? "activation_session_booked"
+            : "meeting_booked";
 
         await fireACEvent({
           email: normalizedEmail,
@@ -275,7 +435,7 @@ export async function POST(req: NextRequest) {
           tags,
           fields: {
             first_name: firstName,
-            session_type: sessionType === "talk_to_expert" ? "Talk to an Expert" : "Strategy Activation Session",
+            session_type: getSessionLabel(sessionType),
             scheduled_date: payload.scheduled_event?.start_time || "",
           },
         });
@@ -285,14 +445,18 @@ export async function POST(req: NextRequest) {
         logger.info("[Calendly Webhook] Session canceled", { email: normalizedEmail, sessionType });
         const cancelTag = sessionType === "talk_to_expert"
           ? "call:expert-canceled"
-          : "session:activation-canceled";
+          : sessionType === "activation_session"
+            ? "session:activation-canceled"
+            : "call:canceled";
         await applyActiveCampaignTags({ email: normalizedEmail, tags: [cancelTag] });
       }
 
       if (event === "invitee.no_show" || event === "invitee_no_show") {
         const noShowTag = sessionType === "talk_to_expert"
           ? "call:expert-no-show"
-          : "session:activation-no-show";
+          : sessionType === "activation_session"
+            ? "session:activation-no-show"
+            : "call:no-show";
 
         await applyActiveCampaignTags({
           email: normalizedEmail,
@@ -302,14 +466,16 @@ export async function POST(req: NextRequest) {
         await setContactFields({
           email: normalizedEmail,
           fields: {
-            last_noshow_type: sessionType === "talk_to_expert" ? "Talk to an Expert" : "Strategy Activation Session",
+            last_noshow_type: getSessionLabel(sessionType),
             last_noshow_date: new Date().toISOString().split("T")[0],
           },
         });
 
         const eventName = sessionType === "talk_to_expert"
           ? "expert_call_no_show"
-          : "activation_session_no_show";
+          : sessionType === "activation_session"
+            ? "activation_session_no_show"
+            : "meeting_no_show";
 
         await fireACEvent({
           email: normalizedEmail,
@@ -317,7 +483,7 @@ export async function POST(req: NextRequest) {
           tags: [noShowTag],
           fields: {
             first_name: firstName,
-            session_type: sessionType === "talk_to_expert" ? "Talk to an Expert" : "Strategy Activation Session",
+            session_type: getSessionLabel(sessionType),
             noshow_date: new Date().toISOString().split("T")[0],
           },
         });

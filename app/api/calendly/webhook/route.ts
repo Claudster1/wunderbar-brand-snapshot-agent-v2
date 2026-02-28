@@ -11,6 +11,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { createHmac, timingSafeEqual } from "crypto";
 
 export const runtime = "nodejs";
@@ -30,6 +31,116 @@ function detectSessionType(eventTypeName: string): "talk_to_expert" | "activatio
   if (lower.includes("expert") || lower.includes("consultation")) return "talk_to_expert";
   if (lower.includes("activation") || lower.includes("blueprint")) return "activation_session";
   return null;
+}
+
+function getEmailDomain(email: string): string | null {
+  if (!email.includes("@")) return null;
+  const domain = email.split("@")[1]?.trim().toLowerCase();
+  return domain || null;
+}
+
+function getCalendlyEventMapping(event: string): {
+  eventType: string;
+  direction: "inbound" | "outbound" | "neutral";
+} {
+  if (event === "invitee.created") {
+    return { eventType: "calendly_meeting_booked", direction: "inbound" };
+  }
+  if (event === "invitee.canceled") {
+    return { eventType: "calendly_meeting_canceled", direction: "neutral" };
+  }
+  if (event === "invitee.no_show" || event === "invitee_no_show") {
+    return { eventType: "calendly_meeting_no_show", direction: "neutral" };
+  }
+  return { eventType: "calendly_event", direction: "neutral" };
+}
+
+function pickOccurredAt(payload: Record<string, unknown>, event: string): string {
+  const candidate =
+    (event === "invitee.canceled" ? (payload.cancelled_at as string | undefined) : undefined) ||
+    (event === "invitee.no_show" || event === "invitee_no_show"
+      ? ((payload.no_show_at as string | undefined) || (payload.updated_at as string | undefined))
+      : undefined) ||
+    (event === "invitee.created"
+      ? ((payload.created_at as string | undefined) ||
+        ((payload.scheduled_event as { start_time?: string } | undefined)?.start_time as string | undefined))
+      : undefined) ||
+    (payload.created_at as string | undefined) ||
+    (payload.updated_at as string | undefined);
+  return candidate || new Date().toISOString();
+}
+
+async function upsertUnifiedCalendlyEvent(params: {
+  event: string;
+  payload: Record<string, unknown>;
+  email: string;
+  sessionType: "talk_to_expert" | "activation_session";
+  eventTypeName: string;
+}) {
+  if (!supabaseAdmin) return;
+
+  const normalizedEmail = params.email.trim().toLowerCase();
+  const inviteeUri =
+    ((params.payload.uri as string | undefined) ||
+      ((params.payload.invitee as { uri?: string } | undefined)?.uri as string | undefined) ||
+      "").trim();
+  const startTime =
+    ((params.payload.scheduled_event as { start_time?: string } | undefined)?.start_time as string | undefined) ||
+    null;
+  const sourceEventId = inviteeUri
+    ? `${params.event}:${inviteeUri}`
+    : `${params.event}:${normalizedEmail}:${startTime || "unknown_start"}`;
+  const occurredAt = pickOccurredAt(params.payload, params.event);
+  const accountKey = getEmailDomain(normalizedEmail);
+  const { eventType, direction } = getCalendlyEventMapping(params.event);
+
+  let contactId: string | null = null;
+  try {
+    const { data: contact } = await supabaseAdmin
+      .from("crm_contacts")
+      .select("id")
+      .ilike("email", normalizedEmail)
+      .maybeSingle();
+    contactId = (contact?.id as string | undefined) || null;
+  } catch {
+    contactId = null;
+  }
+
+  const metadata = {
+    calendly_event: params.event,
+    session_type: params.sessionType,
+    event_type_name: params.eventTypeName,
+    scheduled_event_uri: ((params.payload.scheduled_event as { uri?: string } | undefined)?.uri as string | undefined) || null,
+    invitee_uri: inviteeUri || null,
+    start_time: startTime,
+    status: params.event,
+  };
+
+  const { error } = await supabaseAdmin.from("crm_events").upsert(
+    {
+      source: "calendly_webhook",
+      source_event_id: sourceEventId,
+      event_type: eventType,
+      direction,
+      channel: "calendly",
+      contact_id: contactId,
+      inquiry_id: null,
+      owner: null,
+      account_key: accountKey,
+      user_email: normalizedEmail,
+      occurred_at: occurredAt,
+      metadata,
+    },
+    { onConflict: "source,source_event_id" },
+  );
+
+  if (error) {
+    logger.error("[Calendly Webhook] Failed to upsert crm_events row", {
+      error: error.message,
+      event: params.event,
+      email: normalizedEmail,
+    });
+  }
 }
 
 /**
@@ -110,6 +221,20 @@ export async function POST(req: NextRequest) {
     }
 
     logger.info("[Calendly Webhook] Processing", { event, email, sessionType, eventTypeName });
+
+    try {
+      await upsertUnifiedCalendlyEvent({
+        event,
+        payload,
+        email,
+        sessionType,
+        eventTypeName,
+      });
+    } catch (crmErr) {
+      logger.error("[Calendly Webhook] Unified event write failed", {
+        error: crmErr instanceof Error ? crmErr.message : String(crmErr),
+      });
+    }
 
     // ─── Tag in ActiveCampaign ───
     try {

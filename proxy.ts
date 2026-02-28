@@ -66,6 +66,7 @@ function isOriginAllowed(origin: string): boolean {
 }
 
 const CSRF_EXEMPT_PREFIXES = [
+  "/api/analytics",
   "/api/stripe/webhook",
   "/api/calendly/webhook",
   "/api/cron/",

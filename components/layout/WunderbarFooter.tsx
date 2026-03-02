@@ -30,7 +30,30 @@ export function WunderbarFooter() {
   }
 
   return (
-    <footer className="site-footer" role="contentinfo">
+    <>
+      <section id="connect" className="social-connect" aria-label="Social media">
+        <div className="social-container">
+          <a href="https://www.youtube.com/@WunderbarDigitalAI" target="_blank" aria-label="YouTube" rel="noopener noreferrer">
+            <i className="fab fa-youtube" />
+          </a>
+          <a href="https://x.com/wunderbarai" target="_blank" aria-label="X (Twitter)" rel="noopener noreferrer">
+            <i className="fab fa-x-twitter" />
+          </a>
+          <a href="https://www.tiktok.com/@wunderbardigital" target="_blank" aria-label="TikTok" rel="noopener noreferrer">
+            <i className="fab fa-tiktok" />
+          </a>
+          <a href="https://www.linkedin.com/company/wunderbar-digital/" target="_blank" aria-label="LinkedIn" rel="noopener noreferrer">
+            <i className="fab fa-linkedin" />
+          </a>
+          <a href="https://www.facebook.com/profile.php?id=61565609848830&mibextid=LQQJ4d" target="_blank" aria-label="Facebook" rel="noopener noreferrer">
+            <i className="fab fa-facebook" />
+          </a>
+          <a href="https://www.instagram.com/wunderbardigital?igsh=dDF6N21peTRzcmU3&utm_source=qr" target="_blank" aria-label="Instagram" rel="noopener noreferrer">
+            <i className="fab fa-instagram" />
+          </a>
+        </div>
+      </section>
+      <footer className="site-footer" role="contentinfo">
       <div className="container">
         <div className="footer-top">
           <div className="brand-row">
@@ -112,6 +135,7 @@ export function WunderbarFooter() {
           </p>
         </div>
       </div>
-    </footer>
+      </footer>
+    </>
   );
 }

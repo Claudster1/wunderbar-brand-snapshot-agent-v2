@@ -1,33 +1,13 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-// Routes where the footer should be hidden (reports/previews)
-const HIDDEN_FOOTER_ROUTES = [
-  "/preview",
-  "/results",
-  "/snapshot-plus",
-  "/blueprint",
-  "/report",
-  "/brand-snapshot/results",
-];
-
 export function WunderbarFooter() {
-  const pathname = usePathname();
   const [year, setYear] = useState<number | null>(null);
 
   useEffect(() => {
     setYear(new Date().getFullYear());
   }, []);
-
-  // Check if footer should be hidden on current route
-  const shouldHideFooter = HIDDEN_FOOTER_ROUTES.some(route => pathname?.startsWith(route));
-
-  // Don't render footer on report pages
-  if (shouldHideFooter) {
-    return null;
-  }
 
   return (
     <>

@@ -58,6 +58,10 @@ export default function RootLayout({
       <head>
         {/* Plausible Analytics — privacy-friendly, cookie-free */}
         <script defer data-domain="app.wunderbrand.ai" src="https://plausible.io/js/script.js" />
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        />
       </head>
       <body className="font-brand antialiased">
         <a href="#main-content" className="sr-only" style={{ position: "absolute", top: 0, left: 0, padding: "8px 16px", background: "#07B0F2", color: "#fff", zIndex: 100000, fontWeight: 700 }}>Skip to main content</a>

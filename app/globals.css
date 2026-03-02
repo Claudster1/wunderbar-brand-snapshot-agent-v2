@@ -1747,6 +1747,28 @@ a.sr-only:focus {
   justify-content: center;
 }
 
+.social-connect {
+  background: #021859;
+  padding: 20px 0 10px;
+}
+
+.social-container {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  padding: 0 24px;
+}
+
+.social-container a i {
+  color: #FFFFFF !important;
+  font-size: 32px;
+  transition: color 0.3s ease;
+}
+
+.social-container a i:hover {
+  color: #07B0F2 !important;
+}
+
 .site-footer {
   font-family: var(--font-brand);
   background: #021859;

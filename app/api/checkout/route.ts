@@ -23,7 +23,7 @@ export async function POST(req: Request) {
   if (!guard.passed) return guard.errorResponse;
 
   try {
-    const { productKey, userId, email, metadata } = await req.json();
+    const { productKey, userId, email, metadata, smsOptedIn, emailMarketingOptedIn } = await req.json();
     const normalizedKey = normalizeProductKey(productKey);
 
     if (!normalizedKey) {
@@ -64,6 +64,8 @@ export async function POST(req: Request) {
       metadata: {
         product_key: normalizedKey,
         user_id: userId ?? "",
+        ...(smsOptedIn ? { sms_opted_in: "true", sms_optin_source: "checkout" } : {}),
+        ...(emailMarketingOptedIn ? { email_marketing_opted_in: "true", email_marketing_optin_source: "checkout" } : {}),
         ...(upgradeDescription ? { upgrade_credit: upgradeDescription } : {}),
         ...(metadata ?? {}),
       },

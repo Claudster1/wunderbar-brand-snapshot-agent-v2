@@ -34,22 +34,34 @@ export function WunderbarFooter() {
       <section id="connect" className="social-connect" aria-label="Social media">
         <div className="social-container">
           <a href="https://www.youtube.com/@WunderbarDigitalAI" target="_blank" aria-label="YouTube" rel="noopener noreferrer">
-            <i className="fab fa-youtube" />
+            <svg className="social-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.8ZM9.6 15.6V8.4L16 12l-6.4 3.6Z" />
+            </svg>
           </a>
           <a href="https://x.com/wunderbarai" target="_blank" aria-label="X (Twitter)" rel="noopener noreferrer">
-            <i className="fab fa-x-twitter" />
+            <svg className="social-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M18.9 2h3.4l-7.4 8.5L23.6 22h-6.8l-5.3-7-6.1 7H2l7.9-9.1L.6 2h7l4.8 6.4L18.9 2Zm-1.2 18h1.9L6.6 3.9H4.6L17.7 20Z" />
+            </svg>
           </a>
           <a href="https://www.tiktok.com/@wunderbardigital" target="_blank" aria-label="TikTok" rel="noopener noreferrer">
-            <i className="fab fa-tiktok" />
+            <svg className="social-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M16.5 3c.4 2 1.6 3.7 3.5 4.7v3.1a9.4 9.4 0 0 1-3.5-1v6.1a6 6 0 1 1-5.2-6v3.2a2.8 2.8 0 1 0 2 2.7V3h3.2Z" />
+            </svg>
           </a>
           <a href="https://www.linkedin.com/company/wunderbar-digital/" target="_blank" aria-label="LinkedIn" rel="noopener noreferrer">
-            <i className="fab fa-linkedin" />
+            <svg className="social-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M4.98 3.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5ZM2.7 9h4.6v12H2.7V9Zm7.3 0h4.4v1.7h.1c.6-1.1 2.1-2.2 4.2-2.2 4.5 0 5.3 2.8 5.3 6.5V21h-4.6v-5.3c0-1.3 0-2.9-1.9-2.9s-2.2 1.3-2.2 2.8V21H10V9Z" />
+            </svg>
           </a>
           <a href="https://www.facebook.com/profile.php?id=61565609848830&mibextid=LQQJ4d" target="_blank" aria-label="Facebook" rel="noopener noreferrer">
-            <i className="fab fa-facebook" />
+            <svg className="social-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M13.5 22v-8h2.7l.4-3h-3.1V9.2c0-.9.3-1.6 1.7-1.6h1.8V4.9c-.3 0-1.4-.1-2.6-.1-2.6 0-4.3 1.5-4.3 4.3V11H7.4v3h2.7v8h3.4Z" />
+            </svg>
           </a>
           <a href="https://www.instagram.com/wunderbardigital?igsh=dDF6N21peTRzcmU3&utm_source=qr" target="_blank" aria-label="Instagram" rel="noopener noreferrer">
-            <i className="fab fa-instagram" />
+            <svg className="social-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2.2A2.8 2.8 0 0 0 4.2 7v10A2.8 2.8 0 0 0 7 19.8h10a2.8 2.8 0 0 0 2.8-2.8V7A2.8 2.8 0 0 0 17 4.2H7Zm11.2 1.7a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2.2a2.8 2.8 0 1 0 0 5.6 2.8 2.8 0 0 0 0-5.6Z" />
+            </svg>
           </a>
         </div>
       </section>

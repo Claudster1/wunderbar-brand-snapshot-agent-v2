@@ -2,6 +2,10 @@
 
 Use this on `wunderbardigital.com` so marketing-site activity appears in the same unified dashboard as app activity.
 
+For consent + connect-form payload requirements, see:
+
+- `docs/CONSENT_COMPLIANCE.md`
+
 ## 1) Cross-domain event tracking
 
 Send events to:
@@ -262,3 +266,29 @@ Use the same event names where possible to keep unified reporting consistent:
 
 - Include `meta.email` when available to improve identity stitching.
 - `siteHost` is stored and propagated to unified events as `metadata.site_host`.
+
+## 5) Connect form SMS opt-in payload
+
+If your marketing-site connect form posts into `https://app.wunderbrand.ai/api/inbound/connect`, include SMS consent fields when the user checks the opt-in box:
+
+```json
+{
+  "email": "user@example.com",
+  "phone": "+16575003620",
+  "name": "Jane Doe",
+  "companyName": "Example Co",
+  "message": "I'd like to talk to an expert.",
+  "source": "connect_form",
+  "utm_source": "wunderbardigital",
+  "utm_medium": "website",
+  "utm_campaign": "connect_form",
+  "sms_opted_in": true,
+  "phone_mobile": "+16575003620"
+}
+```
+
+Notes:
+
+- `sms_opted_in` should only be `true` when explicit checkbox consent is captured.
+- `phone_mobile` should be E.164 format (for example, `+16575551234`).
+- When provided with `sms_opted_in: true`, the app tags the contact with `sms:opted-in` and sets `sms_opted_in` in ActiveCampaign.

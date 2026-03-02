@@ -1759,14 +1759,24 @@ a.sr-only:focus {
   padding: 0 24px;
 }
 
-.social-container a i {
-  color: #FFFFFF !important;
-  font-size: 32px;
+.social-container a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  color: #FFFFFF;
   transition: color 0.3s ease;
 }
 
-.social-container a i:hover {
-  color: #07B0F2 !important;
+.social-container a:hover {
+  color: #07B0F2;
+}
+
+.social-container .social-icon {
+  width: 32px;
+  height: 32px;
+  display: block;
+  fill: currentColor;
 }
 
 .site-footer {

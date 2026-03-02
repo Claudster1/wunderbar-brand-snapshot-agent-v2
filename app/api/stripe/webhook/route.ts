@@ -85,6 +85,8 @@ export async function POST(req: NextRequest) {
         const productKey = normalizeProductKey(rawProduct);
         const snapshotId = metadata.snapshot_id as string | undefined;
         const userId = metadata.user_id as string | undefined;
+        const smsOptedIn = String(metadata.sms_opted_in || "").toLowerCase() === "true";
+        const emailMarketingOptedIn = String(metadata.email_marketing_opted_in || "").toLowerCase() === "true";
 
         if (!customerEmail || !productKey) {
           logger.warn("[Stripe Webhook] Missing email or product", {
@@ -184,6 +186,9 @@ export async function POST(req: NextRequest) {
             reportId: snapshotId,
             customerName,
             amountPaid: session.amount_total ?? undefined,
+            smsOptedIn,
+            emailMarketingOptedIn,
+            phoneMobile: session.customer_details?.phone || undefined,
           });
         }
 
@@ -389,12 +394,18 @@ async function triggerActiveCampaign({
   reportId,
   customerName,
   amountPaid,
+  smsOptedIn,
+  emailMarketingOptedIn,
+  phoneMobile,
 }: {
   email: string;
   productKey: ProductKey;
   reportId?: string;
   customerName?: string;
   amountPaid?: number;
+  smsOptedIn?: boolean;
+  emailMarketingOptedIn?: boolean;
+  phoneMobile?: string;
 }) {
   const applyTags: string[] = [];
   const removeTags: string[] = [];
@@ -435,6 +446,14 @@ async function triggerActiveCampaign({
   // --- Blueprint+ Strategy Activation Session reminder ---
   if (productKey === "blueprint_plus") {
     applyTags.push("session:pending");
+  }
+  if (smsOptedIn) {
+    applyTags.push("sms:opted-in");
+    removeTags.push("sms:opted-out");
+  }
+  if (emailMarketingOptedIn) {
+    applyTags.push("email:marketing-opted-in");
+    removeTags.push("email:marketing-opted-out");
   }
 
   // --- Quarterly Refresh eligibility tag (AC uses this to trigger 90-day reminder) ---
@@ -508,7 +527,10 @@ async function triggerActiveCampaign({
     upgrade_price: upgradePrice,
     services_url: "https://wunderbardigital.com/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=email&utm_campaign=purchase_confirmation",
     email_subject: POST_PURCHASE_EMAILS[productKey as EmailTier]?.subject || "",
+    ...(smsOptedIn ? { sms_opted_in: "true" } : {}),
+    ...(emailMarketingOptedIn ? { email_marketing_opted_in: "true" } : {}),
   };
+  if (smsOptedIn && phoneMobile) contactFields.phone_mobile = phoneMobile;
   if (customerName) contactFields.first_name_custom = customerName;
   if (amountPaid) contactFields.amount_paid = `$${(amountPaid / 100).toFixed(0)}`;
 

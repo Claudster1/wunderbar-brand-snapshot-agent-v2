@@ -6,12 +6,30 @@ import { logger } from "@/lib/logger";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { validateEmail } from "@/lib/security/emailValidation";
 import { fireACEvent } from "@/lib/fireACEvent";
+import {
+  applyActiveCampaignTags,
+  removeActiveCampaignTags,
+  setContactFields,
+} from "@/lib/applyActiveCampaignTags";
 
 function generateCode(): string {
   // Cryptographically random 6-digit code
   const array = new Uint32Array(1);
   crypto.getRandomValues(array);
   return String(array[0] % 1000000).padStart(6, "0");
+}
+
+function normalizePhoneToE164(input: unknown): string {
+  if (typeof input !== "string") return "";
+  const cleaned = input.trim().replace(/[^\d+]/g, "");
+  if (!cleaned) return "";
+  if (cleaned.startsWith("+")) {
+    return /^\+[1-9]\d{7,14}$/.test(cleaned) ? cleaned : "";
+  }
+  const digits = cleaned.replace(/\D/g, "");
+  if (digits.length === 10) return `+1${digits}`;
+  if (digits.length === 11 && digits.startsWith("1")) return `+${digits}`;
+  return "";
 }
 
 export async function POST(req: Request) {
@@ -26,7 +44,7 @@ export async function POST(req: Request) {
     const sizeCheck = checkBodySize(req, BODY_LIMITS.EMAIL_FORM);
     if (sizeCheck) return sizeCheck;
 
-    const { email, reportId } = await req.json();
+    const { email, reportId, smsOptedIn, emailMarketingOptedIn, phoneMobile } = await req.json();
 
     if (!email || !reportId) {
       return NextResponse.json({ error: "Email and reportId are required" }, { status: 400 });
@@ -43,6 +61,7 @@ export async function POST(req: Request) {
     }
 
     const normalized = email.trim().toLowerCase();
+    const normalizedPhoneMobile = normalizePhoneToE164(phoneMobile);
     const code = generateCode();
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15 minutes
 
@@ -73,6 +92,57 @@ export async function POST(req: Request) {
         report_id: reportId,
       },
     });
+
+    if (smsOptedIn === true) {
+      try {
+        await applyActiveCampaignTags({
+          email: normalized,
+          tags: ["sms:opted-in"],
+        });
+        await removeActiveCampaignTags({
+          email: normalized,
+          tags: ["sms:opted-out"],
+        });
+        await setContactFields({
+          email: normalized,
+          fields: {
+            sms_opted_in: "true",
+            sms_optin_source: "diagnostic_email_gate",
+            ...(normalizedPhoneMobile ? { phone_mobile: normalizedPhoneMobile } : {}),
+          },
+        });
+      } catch (smsErr) {
+        // Non-blocking: verification should succeed even if AC sync fails.
+        logger.warn("[Verify Email Send] SMS opt-in sync failed", {
+          error: smsErr instanceof Error ? smsErr.message : String(smsErr),
+        });
+      }
+    }
+
+    if (emailMarketingOptedIn === true) {
+      try {
+        await applyActiveCampaignTags({
+          email: normalized,
+          tags: ["email:marketing-opted-in"],
+        });
+        await removeActiveCampaignTags({
+          email: normalized,
+          tags: ["email:marketing-opted-out"],
+        });
+        await setContactFields({
+          email: normalized,
+          fields: {
+            email_marketing_opted_in: "true",
+            email_marketing_optin_source: "diagnostic_email_gate",
+          },
+        });
+      } catch (emailOptInErr) {
+        // Non-blocking: verification should succeed even if AC sync fails.
+        logger.warn("[Verify Email Send] Email marketing opt-in sync failed", {
+          error: emailOptInErr instanceof Error ? emailOptInErr.message : String(emailOptInErr),
+        });
+      }
+    }
 
     return NextResponse.json({ success: true, message: "Verification code sent" });
   } catch (err) {

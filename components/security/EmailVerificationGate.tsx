@@ -5,6 +5,12 @@
 // User enters their email → receives a 6-digit code → enters it → results unlock.
 
 import { useState, useRef, useEffect, useCallback, FormEvent } from "react";
+import {
+  getSmsOptInPreference,
+  setSmsOptInPreference,
+  getEmailMarketingOptInPreference,
+  setEmailMarketingOptInPreference,
+} from "@/lib/smsConsent";
 
 interface EmailVerificationGateProps {
   reportId: string;
@@ -24,6 +30,9 @@ export function EmailVerificationGate({
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [smsOptedIn, setSmsOptedIn] = useState<boolean>(false);
+  const [emailMarketingOptedIn, setEmailMarketingOptedIn] = useState<boolean>(false);
+  const [phoneMobile, setPhoneMobile] = useState("");
   const codeRefs = useRef<(HTMLInputElement | null)[]>([]);
   const emailRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -31,6 +40,8 @@ export function EmailVerificationGate({
   // Auto-focus email input on mount; cleanup abort controller on unmount
   useEffect(() => {
     emailRef.current?.focus();
+    setSmsOptedIn(getSmsOptInPreference());
+    setEmailMarketingOptedIn(getEmailMarketingOptInPreference());
     return () => { abortRef.current?.abort(); };
   }, []);
 
@@ -41,7 +52,24 @@ export function EmailVerificationGate({
     return () => clearTimeout(timer);
   }, [resendCooldown]);
 
-  const sendCode = useCallback(async (emailToVerify: string) => {
+  const normalizePhoneToE164 = useCallback((input: string): string => {
+    const cleaned = input.trim().replace(/[^\d+]/g, "");
+    if (!cleaned) return "";
+    if (cleaned.startsWith("+")) {
+      return /^\+[1-9]\d{7,14}$/.test(cleaned) ? cleaned : "";
+    }
+    const digits = cleaned.replace(/\D/g, "");
+    if (digits.length === 10) return `+1${digits}`;
+    if (digits.length === 11 && digits.startsWith("1")) return `+${digits}`;
+    return "";
+  }, []);
+
+  const sendCode = useCallback(async (
+    emailToVerify: string,
+    includeSmsOptIn: boolean,
+    includeEmailMarketingOptIn: boolean,
+    mobilePhone?: string,
+  ) => {
     if (loading) return false; // Guard against double-submit
     abortRef.current?.abort();
     const controller = new AbortController();
@@ -52,7 +80,13 @@ export function EmailVerificationGate({
       const res = await fetch("/api/verify-email/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: emailToVerify, reportId }),
+        body: JSON.stringify({
+          email: emailToVerify,
+          reportId,
+          smsOptedIn: includeSmsOptIn,
+          emailMarketingOptedIn: includeEmailMarketingOptIn,
+          phoneMobile: mobilePhone || null,
+        }),
         signal: controller.signal,
       });
       const data = await res.json();
@@ -80,7 +114,17 @@ export function EmailVerificationGate({
       setError("Please enter a valid email address.");
       return;
     }
-    const success = await sendCode(trimmed);
+    const normalizedPhone = normalizePhoneToE164(phoneMobile);
+    if (smsOptedIn && !normalizedPhone) {
+      setError("Please add a valid mobile number with country code for SMS updates (example: +16575003620).");
+      return;
+    }
+    const success = await sendCode(
+      trimmed,
+      smsOptedIn,
+      emailMarketingOptedIn,
+      normalizedPhone,
+    );
     if (success) {
       setStep("code");
       // Focus first code input after a short delay
@@ -190,6 +234,77 @@ export function EmailVerificationGate({
               autoComplete="email"
             />
             {error && <p className="email-verification-error">{error}</p>}
+            <label
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                gap: 10,
+                marginTop: 2,
+                marginBottom: 10,
+                color: "#5A6B7E",
+                fontSize: 13,
+                lineHeight: 1.5,
+                textAlign: "left",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={smsOptedIn}
+                onChange={(e) => {
+                  const checked = e.target.checked;
+                  setSmsOptedIn(checked);
+                  setSmsOptInPreference(checked);
+                }}
+                disabled={loading}
+                style={{ marginTop: 2 }}
+              />
+              <span>
+                Yes, text me occasional updates and reminders. Message and data rates may apply. Reply STOP to opt out.
+              </span>
+            </label>
+              {smsOptedIn && (
+                <input
+                  type="tel"
+                  value={phoneMobile}
+                  onChange={(e) => {
+                    setPhoneMobile(e.target.value);
+                    setError("");
+                  }}
+                  placeholder="Mobile number (e.g., +16575003620)"
+                  className="email-verification-input"
+                  disabled={loading}
+                  autoComplete="tel"
+                  style={{ marginBottom: 10 }}
+                />
+              )}
+              <label
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 10,
+                  marginTop: 0,
+                  marginBottom: 10,
+                  color: "#5A6B7E",
+                  fontSize: 13,
+                  lineHeight: 1.5,
+                  textAlign: "left",
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={emailMarketingOptedIn}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setEmailMarketingOptedIn(checked);
+                    setEmailMarketingOptInPreference(checked);
+                  }}
+                  disabled={loading}
+                  style={{ marginTop: 2 }}
+                />
+                <span>
+                  Send me occasional product tips and offers by email.
+                </span>
+              </label>
             <button
               type="submit"
               className="email-verification-btn"
@@ -234,7 +349,14 @@ export function EmailVerificationGate({
               </button>
               <button
                 className="email-verification-link"
-                onClick={() => sendCode(email.trim())}
+                onClick={async () => {
+                  const normalizedPhone = normalizePhoneToE164(phoneMobile);
+                  if (smsOptedIn && !normalizedPhone) {
+                    setError("Please add a valid mobile number with country code for SMS updates (example: +16575003620).");
+                    return;
+                  }
+                  await sendCode(email.trim(), smsOptedIn, emailMarketingOptedIn, normalizedPhone);
+                }}
                 disabled={loading || resendCooldown > 0}
               >
                 {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend code"}

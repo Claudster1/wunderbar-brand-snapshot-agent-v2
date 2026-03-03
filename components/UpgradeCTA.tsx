@@ -7,6 +7,12 @@
 import { getUpgradeCTAVariant } from "@/lib/abTest";
 import { trackEvent } from "@/lib/analytics";
 import { getPersistedEmail } from "@/lib/persistEmail";
+import {
+  getSmsOptInPreference,
+  setSmsOptInPreference,
+  getEmailMarketingOptInPreference,
+  setEmailMarketingOptInPreference,
+} from "@/lib/smsConsent";
 import { useState, useEffect } from "react";
 
 export function UpgradeCTA({
@@ -17,6 +23,9 @@ export function UpgradeCTA({
   productKey: string;
 }) {
   const [loading, setLoading] = useState(false);
+  const [smsOptedIn, setSmsOptedIn] = useState(false);
+  const [emailMarketingOptedIn, setEmailMarketingOptedIn] = useState(false);
+  const [showCommsPrefs, setShowCommsPrefs] = useState(false);
   const variant = getUpgradeCTAVariant();
 
   const label =
@@ -31,6 +40,14 @@ export function UpgradeCTA({
       variant,
     });
   }, [productKey, variant]);
+
+  useEffect(() => {
+    const smsPref = getSmsOptInPreference();
+    const emailPref = getEmailMarketingOptInPreference();
+    setSmsOptedIn(smsPref);
+    setEmailMarketingOptedIn(emailPref);
+    setShowCommsPrefs(smsPref || emailPref);
+  }, []);
 
   async function handleClick() {
     trackEvent("UPGRADE_CLICKED", {
@@ -51,6 +68,8 @@ export function UpgradeCTA({
         body: JSON.stringify({
           productKey,
           email,
+          smsOptedIn,
+          emailMarketingOptedIn,
           metadata: {
             source: "snapshot-results",
             primary_pillar: primaryPillar,
@@ -75,12 +94,55 @@ export function UpgradeCTA({
   }
 
   return (
-    <button
-      onClick={handleClick}
-      disabled={loading}
-      className="btn-primary"
-    >
-      {loading ? "Loading..." : label}
-    </button>
+    <div className="flex flex-col gap-2">
+      <div>
+        <button
+          type="button"
+          onClick={() => setShowCommsPrefs((prev) => !prev)}
+          className="text-xs font-medium text-[#021859] underline decoration-dotted underline-offset-2"
+        >
+          Communication preferences (optional)
+        </button>
+        {showCommsPrefs && (
+          <div className="mt-2 space-y-2 text-left text-xs leading-5 text-slate-600">
+            <label className="flex items-start gap-2">
+              <input
+                type="checkbox"
+                checked={smsOptedIn}
+                onChange={(e) => {
+                  const checked = e.target.checked;
+                  setSmsOptedIn(checked);
+                  setSmsOptInPreference(checked);
+                }}
+                className="mt-0.5"
+              />
+              <span>
+                Text me occasional updates and reminders. Message and data rates may apply. Reply STOP to opt out.
+              </span>
+            </label>
+            <label className="flex items-start gap-2">
+              <input
+                type="checkbox"
+                checked={emailMarketingOptedIn}
+                onChange={(e) => {
+                  const checked = e.target.checked;
+                  setEmailMarketingOptedIn(checked);
+                  setEmailMarketingOptInPreference(checked);
+                }}
+                className="mt-0.5"
+              />
+              <span>Email me occasional product tips and offers. You can unsubscribe anytime.</span>
+            </label>
+          </div>
+        )}
+      </div>
+      <button
+        onClick={handleClick}
+        disabled={loading}
+        className="btn-primary"
+      >
+        {loading ? "Loading..." : label}
+      </button>
+    </div>
   );
 }

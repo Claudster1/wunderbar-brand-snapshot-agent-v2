@@ -3,8 +3,14 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getPersistedEmail } from "@/lib/persistEmail";
+import {
+  getSmsOptInPreference,
+  setSmsOptInPreference,
+  getEmailMarketingOptInPreference,
+  setEmailMarketingOptInPreference,
+} from "@/lib/smsConsent";
 
 type Props = {
   badge?: string;
@@ -34,6 +40,17 @@ export function PricingCard({
   variant = "base",
 }: Props) {
   const [loading, setLoading] = useState(false);
+  const [smsOptedIn, setSmsOptedIn] = useState(false);
+  const [emailMarketingOptedIn, setEmailMarketingOptedIn] = useState(false);
+  const [showCommsPrefs, setShowCommsPrefs] = useState(false);
+
+  useEffect(() => {
+    const smsPref = getSmsOptInPreference();
+    const emailPref = getEmailMarketingOptInPreference();
+    setSmsOptedIn(smsPref);
+    setEmailMarketingOptedIn(emailPref);
+    setShowCommsPrefs(smsPref || emailPref);
+  }, []);
 
   async function startCheckout() {
     if (!ctaAction || !checkoutProductKey) return;
@@ -43,7 +60,7 @@ export function PricingCard({
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ productKey: checkoutProductKey, email }),
+        body: JSON.stringify({ productKey: checkoutProductKey, email, smsOptedIn, emailMarketingOptedIn }),
       });
 
       if (!res.ok) throw new Error("Checkout failed");
@@ -91,6 +108,47 @@ export function PricingCard({
       </ul>
 
       <div className="mt-6">
+        {ctaAction === "checkout" && (
+          <div className="mb-3">
+            <button
+              type="button"
+              onClick={() => setShowCommsPrefs((prev) => !prev)}
+              className="text-xs font-medium text-[#021859] underline decoration-dotted underline-offset-2"
+            >
+              Communication preferences (optional)
+            </button>
+            {showCommsPrefs && (
+              <div className="mt-2 space-y-2 text-left text-xs leading-5 text-slate-600">
+                <label className="flex items-start gap-2">
+                  <input
+                    type="checkbox"
+                    checked={smsOptedIn}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      setSmsOptedIn(checked);
+                      setSmsOptInPreference(checked);
+                    }}
+                    className="mt-0.5"
+                  />
+                  <span>Text me occasional updates and reminders. Message and data rates may apply. Reply STOP to opt out.</span>
+                </label>
+                <label className="flex items-start gap-2">
+                  <input
+                    type="checkbox"
+                    checked={emailMarketingOptedIn}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      setEmailMarketingOptedIn(checked);
+                      setEmailMarketingOptInPreference(checked);
+                    }}
+                    className="mt-0.5"
+                  />
+                  <span>Email me occasional product tips and offers. You can unsubscribe anytime.</span>
+                </label>
+              </div>
+            )}
+          </div>
+        )}
         {ctaHref ? (
           <Link
             href={ctaHref}

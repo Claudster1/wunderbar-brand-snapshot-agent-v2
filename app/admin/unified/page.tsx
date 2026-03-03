@@ -71,6 +71,7 @@ export default function UnifiedDashboardPage() {
   const [days, setDays] = useState(30);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
+  const [provisioningConsent, setProvisioningConsent] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [data, setData] = useState<OverviewPayload["overview"] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -137,6 +138,32 @@ export default function UnifiedDashboardPage() {
     }
   }, [days, loadOverview]);
 
+  const provisionConsent = useCallback(async () => {
+    setProvisioningConsent(true);
+    try {
+      const res = await fetch("/api/admin/ac/provision-consent", {
+        method: "POST",
+      });
+      const json = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        error?: string;
+        tags?: Array<{ ok: boolean }>;
+        fields?: Array<{ ok: boolean }>;
+      };
+      if (!res.ok || !json.ok) {
+        setToast(json.error || "Consent provisioning completed with issues");
+        return;
+      }
+      const tagsCount = json.tags?.filter((x) => x.ok).length ?? 0;
+      const fieldsCount = json.fields?.filter((x) => x.ok).length ?? 0;
+      setToast(`Provisioned AC consent setup (${tagsCount} tags, ${fieldsCount} fields)`);
+    } catch {
+      setToast("Failed to provision AC consent setup");
+    } finally {
+      setProvisioningConsent(false);
+    }
+  }, []);
+
   const directionColor = useMemo<Record<string, string>>(
     () => ({ inbound: BLUE, outbound: GREEN, neutral: SUB }),
     [],
@@ -194,6 +221,14 @@ export default function UnifiedDashboardPage() {
             style={{ padding: "8px 10px", borderRadius: 8, border: "none", background: BLUE, color: WHITE, cursor: "pointer", fontWeight: 700 }}
           >
             {syncing ? "Syncing..." : "Sync Events"}
+          </button>
+          <button
+            onClick={() => void provisionConsent()}
+            disabled={provisioningConsent}
+            style={{ padding: "8px 10px", borderRadius: 8, border: `1px solid ${BORDER}`, background: WHITE, color: NAVY, cursor: "pointer", fontWeight: 700 }}
+            title="Create/verify required ActiveCampaign consent tags and fields"
+          >
+            {provisioningConsent ? "Provisioning..." : "Provision AC Consent"}
           </button>
         </div>
 

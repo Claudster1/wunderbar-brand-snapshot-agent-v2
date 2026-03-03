@@ -9,7 +9,7 @@ import {
   findInquiryByExternalRef,
   upsertCrmContact,
 } from "@/lib/crm/inbound";
-import { applyActiveCampaignTags, removeActiveCampaignTags } from "@/lib/applyActiveCampaignTags";
+import { applyActiveCampaignTags, removeActiveCampaignTags, setContactFields } from "@/lib/applyActiveCampaignTags";
 import { resolveAutoAssignedOwner } from "@/lib/crm/assignment";
 
 function isAuthorized(req: NextRequest): boolean {
@@ -40,6 +40,9 @@ export async function POST(req: NextRequest) {
     const message = sanitizeString(body.message ?? "");
     const source = sanitizeString(body.source ?? "connect_form");
     const externalRef = sanitizeString(body.externalRef ?? body.id ?? "");
+    const smsOptedIn = body.sms_opted_in === true;
+    const emailMarketingOptedIn = body.email_marketing_opted_in === true;
+    const phoneMobile = typeof body.phone_mobile === "string" ? body.phone_mobile.trim() : "";
 
     if (!email && !phone) {
       return NextResponse.json(
@@ -115,20 +118,40 @@ export async function POST(req: NextRequest) {
 
     if (email) {
       try {
+        const tags = ["inquiry:connect-form", "inquiry:pending-response", "inbound:connect"];
+        if (smsOptedIn) tags.push("sms:opted-in");
+        if (emailMarketingOptedIn) tags.push("email:marketing-opted-in");
+
         await applyActiveCampaignTags({
           email,
-          tags: ["inquiry:connect-form", "inquiry:pending-response", "inbound:connect"],
+          tags,
         });
+        const removeTags = ["inquiry:responded"];
+        if (smsOptedIn) removeTags.push("sms:opted-out");
+        if (emailMarketingOptedIn) removeTags.push("email:marketing-opted-out");
         await removeActiveCampaignTags({
           email,
-          tags: ["inquiry:responded"],
+          tags: removeTags,
         });
+        if (smsOptedIn || emailMarketingOptedIn) {
+          const fields: Record<string, string> = {};
+          if (smsOptedIn) {
+            fields.sms_opted_in = "true";
+            fields.sms_optin_source = "connect_form";
+          }
+          if (emailMarketingOptedIn) {
+            fields.email_marketing_opted_in = "true";
+            fields.email_marketing_optin_source = "connect_form";
+          }
+          if (phoneMobile) fields.phone_mobile = phoneMobile;
+          await setContactFields({ email, fields });
+        }
         await createCrmSyncLog({
           status: "success",
           eventType: "ac.tags.inquiry_pending",
           contactId,
           inquiryId,
-          payload: { email },
+          payload: { email, sms_opted_in: smsOptedIn, email_marketing_opted_in: emailMarketingOptedIn },
         });
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);

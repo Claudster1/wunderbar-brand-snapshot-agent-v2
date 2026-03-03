@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
   if (!guard.passed) return guard.errorResponse;
 
   try {
-    const { priceId, snapshotId, email, productKey: rawProductKey } = await req.json();
+    const { priceId, snapshotId, email, productKey: rawProductKey, smsOptedIn, emailMarketingOptedIn } = await req.json();
 
     if (!priceId) {
       return NextResponse.json({ error: "Missing priceId" }, { status: 400 });
@@ -93,6 +93,10 @@ export async function POST(req: NextRequest) {
       cancel_url: `${baseUrl}/checkout/cancel?product=snapshot-plus`,
       metadata: {
         snapshot_id: snapshotId ?? "",
+        ...(smsOptedIn === true ? { sms_opted_in: "true", sms_optin_source: "create_checkout_session" } : {}),
+        ...(emailMarketingOptedIn === true
+          ? { email_marketing_opted_in: "true", email_marketing_optin_source: "create_checkout_session" }
+          : {}),
         ...(upgradeDescription ? { upgrade_credit: upgradeDescription } : {}),
       },
     };
@@ -114,6 +118,8 @@ export async function POST(req: NextRequest) {
           fields: {
             checkout_product: priceId,
             checkout_session_id: session.id,
+            ...(smsOptedIn === true ? { sms_opted_in: "true" } : {}),
+            ...(emailMarketingOptedIn === true ? { email_marketing_opted_in: "true" } : {}),
             ...(upgradeDescription ? { upgrade_credit: upgradeDescription } : {}),
           },
         });

@@ -2,8 +2,7 @@ import '@/lib/env'
 import type { Metadata } from 'next'
 import { Lato } from 'next/font/google'
 import './globals.css'
-import { WunderbarHeader } from '@/components/layout/WunderbarHeader'
-import { WunderbarFooter } from '@/components/layout/WunderbarFooter'
+import { ConditionalGlobalChrome } from '@/components/layout/ConditionalGlobalChrome'
 import { CookieBanner } from '@/components/CookieBanner'
 import { AttributionCapture } from '@/components/AttributionCapture'
 import MaintenanceBanner from '@/components/MaintenanceBanner'
@@ -106,9 +105,8 @@ export default function RootLayout({
           </div>
         </noscript>
         <MaintenanceBanner />
-        <WunderbarHeader />
+        <ConditionalGlobalChrome />
         {children}
-        <WunderbarFooter />
         <CookieBanner />
         <AttributionCapture />
       </body>

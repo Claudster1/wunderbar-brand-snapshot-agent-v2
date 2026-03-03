@@ -226,12 +226,10 @@ body {
   height: auto;
 }
 
-/* When the chat page is active, lock the body so only .chat-messages scrolls.
-   This prevents the page from scrolling past the app card to the footer. */
+/* Keep normal page scrolling enabled on chat pages so global footer remains reachable. */
 body:has(.app-root) {
-  overflow: hidden;
-  height: 100vh;
-  height: 100dvh;
+  overflow: auto;
+  height: auto;
 }
 
 @layer components {
@@ -251,8 +249,8 @@ body:has(.app-root) {
 
 /* Root layout — account for sticky header (~56px) */
 .app-root {
-  height: calc(100vh - 56px);
-  height: calc(100dvh - 56px);
+  min-height: calc(100vh - 56px);
+  min-height: calc(100dvh - 56px);
   display: flex;
   align-items: center;
   justify-content: center;

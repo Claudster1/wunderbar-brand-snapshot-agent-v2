@@ -4,22 +4,30 @@ import { usePathname } from "next/navigation";
 import { WunderbarHeader } from "@/components/layout/WunderbarHeader";
 import { WunderbarFooter } from "@/components/layout/WunderbarFooter";
 
-export function ConditionalGlobalChrome() {
+function useIsBackendRoute(): boolean {
   const pathname = usePathname();
-  if (!pathname) return null;
+  if (!pathname) return true;
 
-  const isBackendRoute =
+  return (
     pathname === "/admin-login" ||
     pathname.startsWith("/admin") ||
-    pathname.startsWith("/backend");
+    pathname.startsWith("/backend")
+  );
+}
+
+export function ConditionalGlobalHeader() {
+  const isBackendRoute = useIsBackendRoute();
 
   if (isBackendRoute) return null;
 
-  return (
-    <>
-      <WunderbarHeader />
-      <WunderbarFooter />
-    </>
-  );
+  return <WunderbarHeader />;
+}
+
+export function ConditionalGlobalFooter() {
+  const isBackendRoute = useIsBackendRoute();
+
+  if (isBackendRoute) return null;
+
+  return <WunderbarFooter />;
 }
 

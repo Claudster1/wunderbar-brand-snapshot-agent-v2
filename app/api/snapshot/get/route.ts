@@ -77,6 +77,7 @@ const SAMPLE_REPORTS: Record<string, SampleReport> = {
     full_report: {
       answers: {
         businessType: "service_b2b",
+        likelyArchetype: "Sage",
         monthlyMarketingBudget: "2000_5000",
         monthlyRevenueRange: "20k_50k",
         revenueRange: "500k-1M",
@@ -135,6 +136,7 @@ const SAMPLE_REPORTS: Record<string, SampleReport> = {
     full_report: {
       answers: {
         businessType: "ecommerce",
+        likelyArchetype: "Creator",
         monthlyMarketingBudget: "5000_plus",
         monthlyRevenueRange: "50k_150k",
         revenueRange: "1M-5M",

@@ -13,6 +13,7 @@ import { generateAIReport } from "@/lib/ai/reportGeneration";
 import type { AssessmentInput } from "@/lib/ai/reportGeneration";
 import { randomUUID } from "crypto";
 import { logger } from "@/lib/logger";
+import { buildTierSignals } from "@/lib/signals/tierSignals";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 120; // 2 minutes for Snapshot+ generation
@@ -86,6 +87,11 @@ export async function POST(req: Request) {
 
     // ─── Generate AI report ───
     const generatedReport = await generateAIReport("snapshot_plus", assessmentData);
+    const tierSignals = buildTierSignals(
+      "snapshot_plus",
+      assessmentData as Record<string, unknown>,
+      (generatedReport.content as Record<string, unknown>) ?? {},
+    );
 
     // ─── Save to database ───
     const email = rawEmail ? sanitizeString(rawEmail).toLowerCase() : null;
@@ -93,6 +99,7 @@ export async function POST(req: Request) {
 
     const full_report = {
       ...generatedReport.content,
+      ...tierSignals,
       // Legacy fields for backward compatibility with existing rendering
       snapshotReportId: base_snapshot_report_id,
       brandPersona: (generatedReport.content as any).brandPersona ?? null,

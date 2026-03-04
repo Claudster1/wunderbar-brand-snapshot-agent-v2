@@ -16,6 +16,7 @@ import { generateAIReport } from "@/lib/ai/reportGeneration";
 import type { AssessmentInput } from "@/lib/ai/reportGeneration";
 import { randomUUID } from "crypto";
 import { logger } from "@/lib/logger";
+import { buildTierSignals } from "@/lib/signals/tierSignals";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300; // 5 minutes for Blueprint+ multi-call pipeline
@@ -90,6 +91,11 @@ export async function POST(req: Request) {
 
     // ─── Generate AI report (multi-call pipeline) ───
     const generatedReport = await generateAIReport("blueprint_plus", assessmentData);
+    const tierSignals = buildTierSignals(
+      "blueprint_plus",
+      assessmentData as Record<string, unknown>,
+      (generatedReport.content as Record<string, unknown>) ?? {},
+    );
 
     // ─── Save to database ───
     const email = rawEmail ? sanitizeString(rawEmail).toLowerCase() : null;
@@ -97,6 +103,7 @@ export async function POST(req: Request) {
 
     const full_report = {
       ...generatedReport.content,
+      ...tierSignals,
       _meta: {
         tier: "blueprint_plus",
         generatedAt: generatedReport.generatedAt,
@@ -138,9 +145,13 @@ export async function POST(req: Request) {
         const React = (await import("react")).default;
         const { renderToBuffer } = await import("@react-pdf/renderer");
         const { BlueprintPlusDocument } = await import("@/app/reports/BlueprintPlusDocument");
+        const pdfData = {
+          ...generatedReport.content,
+          ...tierSignals,
+        };
 
         const pdfBuffer = await renderToBuffer(
-          React.createElement(BlueprintPlusDocument, { data: generatedReport.content }) as any
+          React.createElement(BlueprintPlusDocument, { data: pdfData }) as any
         );
 
         return new NextResponse(pdfBuffer as any, {

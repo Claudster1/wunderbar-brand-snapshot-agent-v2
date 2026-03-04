@@ -26,6 +26,7 @@ import { MarketingSpendEfficiencySignal } from "@/app/results/components/Marketi
 import { RevenueImpactStatement } from "@/app/results/components/RevenueImpactStatement";
 import { HumanAssistCTA } from "@/app/results/components/HumanAssistCTA";
 import { safeFetchJson } from "@/lib/resilience/safeFetch";
+import { getArchetypeIcon, getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
 
 interface BrandSnapshotResult {
   businessName: string;
@@ -55,6 +56,23 @@ function asBudgetBand(value: unknown): BudgetBand | null {
     value === "5000_plus"
     ? value
     : null;
+}
+
+function extractLikelyArchetype(report: Record<string, unknown>, answers: Record<string, unknown>): string | null {
+  const candidates: unknown[] = [
+    report.likely_archetype,
+    report.brand_archetype,
+    report.archetype,
+    report.primary_archetype,
+    answers.likelyArchetype,
+    answers.brandArchetype,
+    answers.archetype,
+    answers.primaryArchetype,
+  ];
+  for (const candidate of candidates) {
+    if (typeof candidate === "string" && candidate.trim()) return candidate.trim();
+  }
+  return null;
 }
 
 export default async function ResultsPage({ searchParams }: ResultsPageProps) {
@@ -148,6 +166,9 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
     typeof reportAnswers.conversionRateEstimate === "string"
       ? reportAnswers.conversionRateEstimate
       : null;
+  const likelyArchetype = extractLikelyArchetype(report as Record<string, unknown>, reportAnswers);
+  const archetypeMeaning = getArchetypeMeaning(likelyArchetype);
+  const archetypeIcon = getArchetypeIcon(likelyArchetype);
 
   return (
     <main className="min-h-screen bg-brand-bg font-brand">
@@ -179,6 +200,18 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         </a>
       </div>
 
+      <section className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
+        <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+          Executive Summary
+        </p>
+        <h2 className="bs-h3 mb-2">Your high-level brand results overview</h2>
+        <p className="bs-body-sm text-brand-muted max-w-3xl">
+          This summary gives you the top-line view of your WunderBrand Score™, pillar performance,
+          and immediate priority focus so you can understand where your brand stands before diving
+          into details.
+        </p>
+      </section>
+
       {/* Chat (completed) */}
       <ChatCompletion userRoleContext={data.userRoleContext} />
 
@@ -195,6 +228,21 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         pillarScores={data.pillarScores}
         pillarInsights={data.pillarInsights}
       />
+
+      {likelyArchetype && (
+        <section className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
+          <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+            Your Brand Archetype
+          </p>
+          <p className="bs-body-sm text-brand-navy font-bold">
+            {archetypeIcon ? `${archetypeIcon} ` : ""}
+            {likelyArchetype}
+          </p>
+          {archetypeMeaning && (
+            <p className="bs-small text-brand-muted mt-1">{archetypeMeaning}</p>
+          )}
+        </section>
+      )}
 
       <MarketingSpendEfficiencySignal
         businessType={businessType}
@@ -232,6 +280,9 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
           businessName={data.businessName}
           reportId={data.reportId}
           email={data.userEmail}
+          likelyArchetype={likelyArchetype}
+          archetypeMeaning={archetypeMeaning}
+          archetypeIcon={archetypeIcon}
         />
       )}
 

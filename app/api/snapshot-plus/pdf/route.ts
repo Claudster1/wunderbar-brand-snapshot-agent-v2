@@ -73,6 +73,20 @@ function transformReportData(report: any) {
     personalityWords: r.personality_words ?? r.personalityWords ?? [],
     messagingGaps: r.messaging_gaps ?? r.messagingGaps,
     visibilityPlan: r.visibility_plan ?? r.visibilityPlan,
+    contentFormatChannelSnapshot:
+      r.content_format_channel_snapshot ??
+      r.contentFormatChannelSnapshot,
+    marketingSpendAuditSignal:
+      r.marketing_spend_audit_signal ??
+      r.marketingSpendAuditSignal ??
+      r.marketing_spend_efficiency_signal ??
+      r.marketingSpendEfficiencySignal,
+    competitiveVulnerabilitySignal:
+      r.competitive_vulnerability_signal ??
+      r.competitiveVulnerabilitySignal,
+    revenueImpactStatement:
+      r.revenue_impact_statement ??
+      r.revenueImpactStatement,
     visualIdentityNotes: r.visual_identity_notes ?? r.visualIdentityNotes,
     aeoRecommendations: r.aeo_recommendations ?? r.aeoRecommendations,
     aiPrompts: r.ai_prompts ?? r.aiPrompts ?? [],

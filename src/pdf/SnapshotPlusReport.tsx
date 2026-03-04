@@ -129,6 +129,8 @@ export function SnapshotPlusReport({
   contextCoverage,
   contentFormatChannelSnapshot,
   marketingSpendAuditSignal,
+  competitiveVulnerabilitySignal,
+  revenueImpactStatement,
 }: any) {
   return (
     <Document>
@@ -226,10 +228,22 @@ export function SnapshotPlusReport({
             "This section maps your primary audience to the highest-leverage formats, channels, and funnel-stage priorities so execution starts with the right sequence."}
         </Text>
 
-        <Text style={styles.h2}>Marketing Spend Audit Signal</Text>
+        <Text style={styles.h2}>Marketing Spend Efficiency Signal</Text>
         <Text style={styles.body}>
           {marketingSpendAuditSignal ||
             "This section highlights whether your current spend allocation aligns with buyer behavior and where efficiency can improve before scaling complexity."}
+        </Text>
+
+        <Text style={styles.h2}>Competitive Vulnerability Signal</Text>
+        <Text style={styles.body}>
+          {competitiveVulnerabilitySignal ||
+            "This section identifies where competitors are most likely to out-position your brand and what to address first to reduce exposure."}
+        </Text>
+
+        <Text style={styles.h2}>Revenue Impact Statement</Text>
+        <Text style={styles.body}>
+          {revenueImpactStatement ||
+            "This section frames the likely business impact of current gaps and where focused improvements can create measurable upside."}
         </Text>
 
         <View style={styles.divider} />

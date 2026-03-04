@@ -93,6 +93,14 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
   const visualDirection = Array.isArray(data.visualDirection) ? data.visualDirection : [];
   const decisionFilters = Array.isArray(data.decisionFilters) ? data.decisionFilters : [];
   const aiPrompts = Array.isArray(data.aiPrompts) ? data.aiPrompts : [];
+  const competitiveVulnerabilitySignal =
+    data.competitiveVulnerabilitySignal ?? data.competitive_vulnerability_signal;
+  const marketingSpendEfficiencySignal =
+    data.marketingSpendEfficiencySignal ??
+    data.marketing_spend_efficiency_signal ??
+    data.marketing_spend_audit_signal;
+  const revenueImpactStatement =
+    data.revenueImpactStatement ?? data.revenue_impact_statement;
 
   return (
     <Document>
@@ -374,6 +382,36 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
               <Text>{p.prompt}</Text>
             </View>
           ))}
+          <DocFooter businessName={businessName} />
+        </Page>
+      )}
+
+      {/* STRATEGIC SIGNALS */}
+      {(competitiveVulnerabilitySignal || marketingSpendEfficiencySignal || revenueImpactStatement) && (
+        <Page size="A4" style={styles.page}>
+          <Text style={styles.sectionTitle}>Strategic Signals</Text>
+
+          {competitiveVulnerabilitySignal && (
+            <View style={styles.block}>
+              <Text style={{ fontWeight: 600, marginBottom: 6 }}>Competitive Vulnerability Signal</Text>
+              <Text>{competitiveVulnerabilitySignal}</Text>
+            </View>
+          )}
+
+          {marketingSpendEfficiencySignal && (
+            <View style={styles.block}>
+              <Text style={{ fontWeight: 600, marginBottom: 6 }}>Marketing Spend Efficiency Signal</Text>
+              <Text>{marketingSpendEfficiencySignal}</Text>
+            </View>
+          )}
+
+          {revenueImpactStatement && (
+            <View style={styles.block}>
+              <Text style={{ fontWeight: 600, marginBottom: 6 }}>Revenue Impact Statement</Text>
+              <Text>{revenueImpactStatement}</Text>
+            </View>
+          )}
+
           <DocFooter businessName={businessName} />
         </Page>
       )}

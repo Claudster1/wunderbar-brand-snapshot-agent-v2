@@ -101,6 +101,18 @@
       "id": "tone_of_voice",
       "text": "How would you describe your brand's tone of voice? Professional? Friendly? Playful? Authoritative?",
       "type": "open_text",
+      "next": { "default": "archetype_reputation_goal" }
+    },
+    {
+      "id": "archetype_reputation_goal",
+      "text": "What do you most want your brand to be known for right now: trusted expertise, bold innovation, warm relationships, or premium quality?",
+      "type": "open_text",
+      "next": { "default": "archetype_avoid_pattern" }
+    },
+    {
+      "id": "archetype_avoid_pattern",
+      "text": "What tone do you most want to avoid in your brand voice?",
+      "type": "open_text",
       "next": { "default": "messaging_consistency" }
     },
     {

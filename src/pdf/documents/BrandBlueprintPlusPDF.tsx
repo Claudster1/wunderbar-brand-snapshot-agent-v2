@@ -69,6 +69,9 @@ export interface BrandBlueprintPlusPDFProps {
   completeAEOSystem?: CompleteAEOSystem;
   marketingRoiPrioritization?: string;
   activationSessionPlan?: string;
+  competitiveVulnerabilitySignal?: string;
+  marketingSpendEfficiencySignal?: string;
+  revenueImpactStatement?: string;
 }
 
 export const BrandBlueprintPlusPDF = ({
@@ -85,6 +88,9 @@ export const BrandBlueprintPlusPDF = ({
   completeAEOSystem,
   marketingRoiPrioritization,
   activationSessionPlan,
+  competitiveVulnerabilitySignal,
+  marketingSpendEfficiencySignal,
+  revenueImpactStatement,
 }: BrandBlueprintPlusPDFProps) => {
   return (
     <Document>
@@ -478,7 +484,39 @@ export const BrandBlueprintPlusPDF = ({
         </Page>
       )}
 
-      {/* PAGE 11 — NEXT STEPS */}
+      {/* PAGE 11 — STRATEGIC SIGNALS */}
+      {(competitiveVulnerabilitySignal || marketingSpendEfficiencySignal || revenueImpactStatement) && (
+        <Page style={stylePresets.page}>
+          <Text style={stylePresets.h1}>Strategic Signals</Text>
+
+          {competitiveVulnerabilitySignal && (
+            <View style={{ ...stylePresets.card, marginBottom: spacing.md }}>
+              <Text style={{ ...stylePresets.h3, marginTop: 0 }}>Competitive Vulnerability Signal</Text>
+              <Text style={stylePresets.body}>{competitiveVulnerabilitySignal}</Text>
+            </View>
+          )}
+
+          {marketingSpendEfficiencySignal && (
+            <View style={{ ...stylePresets.card, marginBottom: spacing.md }}>
+              <Text style={{ ...stylePresets.h3, marginTop: 0 }}>Marketing Spend Efficiency Signal</Text>
+              <Text style={stylePresets.body}>{marketingSpendEfficiencySignal}</Text>
+            </View>
+          )}
+
+          {revenueImpactStatement && (
+            <View style={{ ...stylePresets.card, marginBottom: spacing.md }}>
+              <Text style={{ ...stylePresets.h3, marginTop: 0 }}>Revenue Impact Statement</Text>
+              <Text style={stylePresets.body}>{revenueImpactStatement}</Text>
+            </View>
+          )}
+
+          <Text style={stylePresets.footer}>
+            Strategic signals link market exposure, spend discipline, and revenue outcomes.
+          </Text>
+        </Page>
+      )}
+
+      {/* PAGE 12 — NEXT STEPS */}
       <Page style={stylePresets.page}>
         <Text style={stylePresets.h1}>Next Steps</Text>
 

@@ -79,6 +79,9 @@ export interface BrandBlueprintReport {
   opportunities?: string;
   campaignArchitectureStarter?: string;
   revenueMappedWorkbook?: string;
+  competitiveVulnerabilitySignal?: string;
+  marketingSpendEfficiencySignal?: string;
+  revenueImpactStatement?: string;
   // AEO integrated strategy (required for Blueprint tier)
   aeoIntegratedStrategy?: {
     messagingFramework?: string;
@@ -125,6 +128,9 @@ export const BrandBlueprintPDF = ({
     opportunities,
     campaignArchitectureStarter,
     revenueMappedWorkbook,
+    competitiveVulnerabilitySignal,
+    marketingSpendEfficiencySignal,
+    revenueImpactStatement,
     aeoIntegratedStrategy,
   } = report;
 
@@ -405,6 +411,41 @@ export const BrandBlueprintPDF = ({
 
         <PdfFooter businessName={businessName} productName="WunderBrand Blueprint™" />
       </Page>
+
+      {/* ------------ STRATEGIC SIGNALS ------------ */}
+      {(competitiveVulnerabilitySignal || marketingSpendEfficiencySignal || revenueImpactStatement) && (
+        <Page size="A4" style={styles.page}>
+          <PdfHeader title="Strategic Signals" />
+
+          <PageTitle
+            title="Strategic Signals"
+            subtitle="Priority exposure, spend efficiency, and revenue pathway"
+          />
+
+          {competitiveVulnerabilitySignal && (
+            <Section>
+              <Text style={styles.heading}>Competitive Vulnerability Signal</Text>
+              <Text style={styles.para}>{competitiveVulnerabilitySignal}</Text>
+            </Section>
+          )}
+
+          {marketingSpendEfficiencySignal && (
+            <Section>
+              <Text style={styles.heading}>Marketing Spend Efficiency Signal</Text>
+              <Text style={styles.para}>{marketingSpendEfficiencySignal}</Text>
+            </Section>
+          )}
+
+          {revenueImpactStatement && (
+            <Section>
+              <Text style={styles.heading}>Revenue Impact Statement</Text>
+              <Text style={styles.para}>{revenueImpactStatement}</Text>
+            </Section>
+          )}
+
+          <PdfFooter businessName={businessName} productName="WunderBrand Blueprint™" />
+        </Page>
+      )}
 
       {/* ------------ PAGE 10 — CONTENT STRATEGY & AEO ------------ */}
       <Page size="A4" style={styles.page}>

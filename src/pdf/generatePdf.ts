@@ -214,6 +214,12 @@ export function transformReportDataForPdf(
           typeof answers.averageTransactionValue === "string" ? answers.averageTransactionValue : null,
         conversionRateEstimate:
           typeof answers.conversionRateEstimate === "string" ? answers.conversionRateEstimate : null,
+        likelyArchetype:
+          typeof answers.likelyArchetype === "string"
+            ? answers.likelyArchetype
+            : typeof (report?.likely_archetype) === "string"
+              ? report.likely_archetype
+              : null,
       } as unknown as BrandSnapshotReport;
 
     case "snapshot-plus": {
@@ -282,6 +288,14 @@ export function transformReportDataForPdf(
           r.marketing_spend_audit_signal ||
           r.marketingSpendAuditSignal ||
           report?.marketing_spend_audit_signal,
+        competitiveVulnerabilitySignal:
+          r.competitive_vulnerability_signal ||
+          r.competitiveVulnerabilitySignal ||
+          report?.competitive_vulnerability_signal,
+        revenueImpactStatement:
+          r.revenue_impact_statement ||
+          r.revenueImpactStatement ||
+          report?.revenue_impact_statement,
         visualIdentityNotes: r.visual_identity_notes || r.visualIdentityNotes || report?.visual_identity_notes,
         aiPrompts: r.ai_prompts || r.aiPrompts || report?.ai_prompts || [],
         aeoRecommendations: r.aeo_recommendations || r.aeoRecommendations || report?.aeo_recommendations,
@@ -328,6 +342,25 @@ export function transformReportDataForPdf(
           r.revenue_mapped_workbook ||
           r.revenueMappedWorkbook ||
           report?.revenue_mapped_workbook,
+        competitiveVulnerabilitySignal:
+          r.competitive_vulnerability_signal ||
+          r.competitiveVulnerabilitySignal ||
+          report?.competitive_vulnerability_signal ||
+          report?.competitiveVulnerabilitySignal,
+        marketingSpendEfficiencySignal:
+          r.marketing_spend_efficiency_signal ||
+          r.marketingSpendEfficiencySignal ||
+          r.marketing_spend_audit_signal ||
+          r.marketingSpendAuditSignal ||
+          report?.marketing_spend_efficiency_signal ||
+          report?.marketingSpendEfficiencySignal ||
+          report?.marketing_spend_audit_signal ||
+          report?.marketingSpendAuditSignal,
+        revenueImpactStatement:
+          r.revenue_impact_statement ||
+          r.revenueImpactStatement ||
+          report?.revenue_impact_statement ||
+          report?.revenueImpactStatement,
         aeoIntegratedStrategy: r.aeo_integrated_strategy || r.aeoIntegratedStrategy || report?.aeo_integrated_strategy,
       } as BrandBlueprintReport;
 
@@ -351,6 +384,25 @@ export function transformReportDataForPdf(
           r.activation_session_plan ||
           r.activationSessionPlan ||
           report?.activation_session_plan,
+        competitiveVulnerabilitySignal:
+          r.competitive_vulnerability_signal ||
+          r.competitiveVulnerabilitySignal ||
+          report?.competitive_vulnerability_signal ||
+          report?.competitiveVulnerabilitySignal,
+        marketingSpendEfficiencySignal:
+          r.marketing_spend_efficiency_signal ||
+          r.marketingSpendEfficiencySignal ||
+          r.marketing_spend_audit_signal ||
+          r.marketingSpendAuditSignal ||
+          report?.marketing_spend_efficiency_signal ||
+          report?.marketingSpendEfficiencySignal ||
+          report?.marketing_spend_audit_signal ||
+          report?.marketingSpendAuditSignal,
+        revenueImpactStatement:
+          r.revenue_impact_statement ||
+          r.revenueImpactStatement ||
+          report?.revenue_impact_statement ||
+          report?.revenueImpactStatement,
       } as BrandBlueprintPlusPDFProps;
 
     default:

@@ -58,8 +58,23 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
     roadmap_90,
     content_format_channel_snapshot,
     marketing_spend_audit_signal,
+    competitive_vulnerability_signal,
+    revenue_impact_statement,
     brand_opportunities,
+    full_report,
   } = report;
+  const derivedCompetitiveVulnerabilitySignal =
+    competitive_vulnerability_signal ||
+    full_report?.competitiveVulnerabilitySignal ||
+    null;
+  const derivedMarketingSpendSignal =
+    marketing_spend_audit_signal ||
+    full_report?.marketingSpendEfficiencySignal ||
+    null;
+  const derivedRevenueImpactStatement =
+    revenue_impact_statement ||
+    full_report?.revenueImpactStatement ||
+    null;
 
   const css = `
     body { font-family: Helvetica Neue, sans-serif; color:#0C1526; }
@@ -201,10 +216,26 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
       </div>
 
       <div className="section">
-        <h2>Marketing Spend Audit Signal</h2>
+        <h2>Marketing Spend Efficiency Signal</h2>
         <p style={{ lineHeight: "1.65" }}>
-          {marketing_spend_audit_signal ||
+          {derivedMarketingSpendSignal ||
             "This section highlights whether current spend allocation aligns with audience behavior and where budget efficiency can improve before scaling channel complexity."}
+        </p>
+      </div>
+
+      <div className="section">
+        <h2>Competitive Vulnerability Signal</h2>
+        <p style={{ lineHeight: "1.65" }}>
+          {derivedCompetitiveVulnerabilitySignal ||
+            "This section identifies where competitors are most likely to out-position your brand and what to address first to reduce exposure."}
+        </p>
+      </div>
+
+      <div className="section">
+        <h2>Revenue Impact Statement</h2>
+        <p style={{ lineHeight: "1.65" }}>
+          {derivedRevenueImpactStatement ||
+            "This section frames the likely business impact of your current gaps and where targeted improvements can increase commercial performance."}
         </p>
       </div>
 

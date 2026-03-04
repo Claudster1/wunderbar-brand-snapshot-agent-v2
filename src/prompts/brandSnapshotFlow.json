@@ -213,6 +213,32 @@
         { "label": "Connection and shared values", "value": "connection" }
       ],
       "save_as": "archetypeSignals.customerExpectation",
+      "next": "q_archetype_reputation_goal"
+    },
+
+    "q_archetype_reputation_goal": {
+      "type": "single_select",
+      "prompt": "Which reputation outcome matters most for your brand right now?",
+      "options": [
+        { "label": "Be seen as the trusted expert", "value": "trusted_expert" },
+        { "label": "Be seen as bold and category-shaping", "value": "category_shaping" },
+        { "label": "Be seen as warm, human, and relationship-first", "value": "relationship_first" },
+        { "label": "Be seen as premium and high-standard", "value": "premium_standard" }
+      ],
+      "save_as": "archetypeSignals.reputationGoal",
+      "next": "q_archetype_avoid_pattern"
+    },
+
+    "q_archetype_avoid_pattern": {
+      "type": "single_select",
+      "prompt": "What tone do you most want to avoid in your brand?",
+      "options": [
+        { "label": "Too generic / bland", "value": "generic" },
+        { "label": "Too aggressive / pushy", "value": "aggressive" },
+        { "label": "Too corporate / cold", "value": "cold" },
+        { "label": "Too playful / not serious enough", "value": "not_serious" }
+      ],
+      "save_as": "archetypeSignals.avoidPattern",
       "next": "q_conversion_confidence"
     },
 

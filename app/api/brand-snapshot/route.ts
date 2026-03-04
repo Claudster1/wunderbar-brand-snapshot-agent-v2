@@ -87,7 +87,8 @@ type CaptureKey =
   | "conversion_rate_estimate"
   | "primary_acquisition_channel"
   | "monthly_marketing_budget"
-  | "content_creation_capacity";
+  | "content_creation_capacity"
+  | "competitive_pressure_point";
 
 type CaptureState = {
   key: CaptureKey;
@@ -164,6 +165,16 @@ function getCaptureStates(messages: Array<{ role: string; content: string }>): C
         hasSignal(messages, /\bunder 2 hours|2[–-]5 hours|5[–-]10 hours|10\+ hours|content creation\b/i) ||
         refused(/\bcontent creation|hours per week\b/i),
     },
+    {
+      key: "competitive_pressure_point",
+      label: "competitive pressure point",
+      completed:
+        hasSignal(
+          messages,
+          /\bwhere .*lose deals|lose to competitors|competitive pressure|prospects choose.*instead|win[- ]?loss|why buyers choose competitors\b/i,
+        ) ||
+        refused(/\bcompetitor|competitive pressure|lose deals|win[- ]?loss\b/i),
+    },
   ];
 }
 
@@ -220,6 +231,8 @@ function buildCaptureQuestion(
       return "What is your approximate monthly marketing budget today? Ballpark is perfect — this just helps prioritize what is realistic for you.";
     case "content_creation_capacity":
       return "How much time can your team realistically invest in content creation each week? Even a rough range works — no need to overthink it.";
+    case "competitive_pressure_point":
+      return "When prospects choose a competitor over you, what reason comes up most often (for example: price, trust, clarity, speed, proof, or fit)?";
     default:
       return `Great context so far. Let's grab one more input so your recommendations stay precise.${typeHint}`;
   }
@@ -241,6 +254,8 @@ function capturePromptPatternForKey(key: CaptureKey): RegExp {
       return /\bmonthly marketing budget|under \$?500|\$?2,?000|\$?5,?000\+\b/i;
     case "content_creation_capacity":
       return /\bcontent creation|hours per week|under 2 hours|2-5 hours|5-10 hours|10\+ hours\b/i;
+    case "competitive_pressure_point":
+      return /\blose deals|competitive pressure|price|trust|clarity|proof|fit|why buyers choose competitors\b/i;
     default:
       return /\?/;
   }

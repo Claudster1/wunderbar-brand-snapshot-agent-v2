@@ -28,6 +28,7 @@ import {
 } from "@/lib/benchmarkCollector";
 import { logger } from "@/lib/logger";
 import { generateAIInsights } from "@/lib/ai/freeReportEnhancer";
+import { inferLikelyArchetype } from "@/lib/archetype/likelyArchetype";
 import { z } from "zod";
 import { createCrmSyncLog } from "@/lib/crm/inbound";
 
@@ -358,6 +359,10 @@ export async function POST(req: Request) {
     if (body.brandName != null) body.brandName = sanitizeString(body.brandName);
 
     const snapshotInput = normalizeAnswers((body.answers || {}) as Record<string, unknown>);
+    const archetypeInference = inferLikelyArchetype(snapshotInput);
+    if (archetypeInference.likelyArchetype) {
+      snapshotInput.likelyArchetype = archetypeInference.likelyArchetype;
+    }
     const scores = calculateBrandSnapshotScores(snapshotInput);
     const supabase = supabaseServer();
 
@@ -517,6 +522,7 @@ export async function POST(req: Request) {
           scores,
           insights: scores.insights,
           aiEnhanced: !!aiInsights,
+          archetypeInference,
           servicesInterest: snapshotInput.servicesInterest ?? null,
           expertConversation: snapshotInput.expertConversation ?? null,
           contentOptIn: snapshotInput.contentOptIn ?? null,

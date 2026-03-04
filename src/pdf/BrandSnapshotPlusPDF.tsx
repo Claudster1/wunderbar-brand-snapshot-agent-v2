@@ -86,6 +86,8 @@ export interface BrandSnapshotPlusReport extends BrandSnapshotReport {
   visibilityPlan?: string;
   contentFormatChannelSnapshot?: string;
   marketingSpendAuditSignal?: string;
+  competitiveVulnerabilitySignal?: string;
+  revenueImpactStatement?: string;
   visualIdentityNotes?: string;
   aiPrompts?: string[];
   contextCoverage?: number; // 0-100 percentage
@@ -160,6 +162,8 @@ export const BrandSnapshotPlusPDF = ({
     visibilityPlan,
     contentFormatChannelSnapshot,
     marketingSpendAuditSignal,
+    competitiveVulnerabilitySignal,
+    revenueImpactStatement,
     visualIdentityNotes,
     aiPrompts = [],
     aeoRecommendations,
@@ -239,10 +243,26 @@ export const BrandSnapshotPlusPDF = ({
         </Section>
 
         <Section>
-          <Text style={styles.heading}>Marketing Spend Audit Signal</Text>
+          <Text style={styles.heading}>Marketing Spend Efficiency Signal</Text>
           <Text style={styles.para}>
             {marketingSpendAuditSignal ||
               "This section highlights whether current spend allocation aligns with audience behavior and where budget efficiency can improve before scaling channel complexity."}
+          </Text>
+        </Section>
+
+        <Section>
+          <Text style={styles.heading}>Competitive Vulnerability Signal</Text>
+          <Text style={styles.para}>
+            {competitiveVulnerabilitySignal ||
+              "This section identifies where competitors are most likely to out-position your brand and what to address first to reduce exposure."}
+          </Text>
+        </Section>
+
+        <Section>
+          <Text style={styles.heading}>Revenue Impact Statement</Text>
+          <Text style={styles.para}>
+            {revenueImpactStatement ||
+              "This section frames the likely business impact of your current strategic gaps and where corrective actions can create measurable upside."}
           </Text>
         </Section>
 

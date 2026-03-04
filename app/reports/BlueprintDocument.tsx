@@ -82,7 +82,18 @@ export function BlueprintDocument({ data }: { data: any }) {
     messagingPillars,
     colorPalette,
     aiPrompts,
+    competitiveVulnerabilitySignal: competitiveSignalRaw,
+    marketingSpendEfficiencySignal: spendSignalRaw,
+    revenueImpactStatement: revenueSignalRaw,
   } = data;
+  const competitiveVulnerabilitySignal =
+    competitiveSignalRaw ?? data.competitive_vulnerability_signal;
+  const marketingSpendEfficiencySignal =
+    spendSignalRaw ??
+    data.marketing_spend_efficiency_signal ??
+    data.marketing_spend_audit_signal;
+  const revenueImpactStatement =
+    revenueSignalRaw ?? data.revenue_impact_statement;
 
   const reportDate = new Date().toLocaleDateString("en-US", {
     year: "numeric",
@@ -270,6 +281,42 @@ export function BlueprintDocument({ data }: { data: any }) {
         ))}
         <DocFooter businessName={businessName} />
       </Page>
+
+      {/* PAGE 8 — STRATEGIC SIGNALS */}
+      {(competitiveVulnerabilitySignal || marketingSpendEfficiencySignal || revenueImpactStatement) && (
+        <Page size="A4" style={styles.page}>
+          <Text style={styles.sectionTitle}>Strategic Signals</Text>
+
+          {competitiveVulnerabilitySignal && (
+            <>
+              <Text style={styles.sectionTitle}>Competitive Vulnerability Signal</Text>
+              <View style={styles.block}>
+                <Text>{competitiveVulnerabilitySignal}</Text>
+              </View>
+            </>
+          )}
+
+          {marketingSpendEfficiencySignal && (
+            <>
+              <Text style={styles.sectionTitle}>Marketing Spend Efficiency Signal</Text>
+              <View style={styles.block}>
+                <Text>{marketingSpendEfficiencySignal}</Text>
+              </View>
+            </>
+          )}
+
+          {revenueImpactStatement && (
+            <>
+              <Text style={styles.sectionTitle}>Revenue Impact Statement</Text>
+              <View style={styles.block}>
+                <Text>{revenueImpactStatement}</Text>
+              </View>
+            </>
+          )}
+
+          <DocFooter businessName={businessName} />
+        </Page>
+      )}
 
       {/* Final Page — Next Steps + Upsell to Blueprint+ */}
       <Page size="A4" style={styles.page}>

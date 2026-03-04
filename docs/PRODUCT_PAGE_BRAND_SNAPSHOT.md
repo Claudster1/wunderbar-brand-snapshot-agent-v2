@@ -57,14 +57,14 @@ For each pillar, you'll receive three specific insights: **What's Working** (you
 
 ---
 
-### 4. Your Brand's Core Personality Type (Archetype)
-**What it is:** Using the signals from your diagnostic — how you make decisions, where your authority comes from, your approach to risk, and what your customers expect — we map your brand to one of 12 established brand archetypes (e.g., The Sage, The Explorer, The Creator, The Ruler). You'll see which archetype best represents your brand's natural personality, including when it works, how it can backfire, and what it means for your tone of voice.
+### 4. Primary Brand Archetype
+**What it is:** Using conversational signals from your diagnostic — how you make decisions, where your authority comes from, your approach to risk, and what customers expect from you — we infer your primary archetype from the standard 12-archetype framework.
 
-**Why it matters:** Your brand archetype isn't a gimmick — it's the psychological foundation that determines how customers emotionally connect with you. Apple (The Creator), Nike (The Hero), and Patagonia (The Explorer) didn't build billion-dollar brands by accident. They built them on consistent archetypal identities.
+**Why it matters:** Archetype helps explain how customers emotionally perceive your brand and why certain brand choices feel aligned (or not).
 
-**How it helps your business:** Once you know your archetype, every brand decision becomes easier. Should your website feel bold or warm? Should your emails be inspirational or authoritative? Should your social media be playful or serious? Your archetype answers these questions. It also helps you stop sounding like a different company on every channel — a problem that quietly erodes customer trust.
+**How it helps your business:** You get a clear personality anchor you can use to keep your positioning and messaging consistent across channels.
 
-**What you'll see:** Your primary archetype with a description, strengths, risks, and tone of voice guidance.
+**What you'll see:** Your primary archetype name with a concise meaning statement.
 
 ---
 

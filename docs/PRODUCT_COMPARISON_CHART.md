@@ -20,6 +20,9 @@
 | Quarterly refresh — retake and track your scores over time | Free retake | $47/refresh | $97/refresh | Unlimited (included) |
 | | | | | |
 | **DETAILED ANALYSIS** | | | | |
+| Competitive Vulnerability Signal | ✓ | Expanded with priority mitigation path | Strategic vulnerability map + 30/60/90 sequencing | Scenario-based playbook with defend/attack triggers + owner cadence |
+| Marketing Spend Efficiency Signal | ✓ | Expanded with spend-leak diagnosis + reallocation priority | Allocation framework + governance rule for scale decisions | ROI prioritization system with conservative/base/aggressive scenarios |
+| Revenue Impact Statement | ✓ | Expanded with directional upside framing + near-term validation guidance | Business-case framing tied to pillar correction and KPI chain | 12-month impact scenarios with risk-of-inaction and milestone tracking |
 | How each gap affects your business | — | ✓ | ✓ | ✓ |
 | How brand gaps connect to business outcomes | — | ✓ | ✓ | Estimated Business Impact & Financial Framing |
 | What happens if you don't act | — | ✓ | ✓ | Illustrative 12-Month Impact Scenarios |
@@ -27,7 +30,7 @@
 | Step-by-step guides & templates | — | — | — | ✓ |
 | | | | | |
 | **BRAND IDENTITY & PERSONALITY** | | | | |
-| Brand personality profile | Core Type | Core & Supporting | Core & Supporting | Core & Supporting |
+| Brand personality profile | Primary archetype + meaning | Core & Supporting | Core & Supporting | Core & Supporting |
 | Brand personality playbook | — | — | ✓ | Full Playbook (Messaging, Content, Sales, Visuals) |
 | Value Proposition Statement | — | ✓ | ✓ | ✓ |
 | Voice & Tone Guide | — | ✓ | ✓ | ✓ |

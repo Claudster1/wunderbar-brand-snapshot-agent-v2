@@ -14,6 +14,9 @@ type Props = {
   businessName?: string | null;
   reportId?: string;
   email?: string;
+  likelyArchetype?: string | null;
+  archetypeMeaning?: string | null;
+  archetypeIcon?: string;
 };
 
 function toLabel(pillar: PillarKey): string {
@@ -113,6 +116,9 @@ export function LockedResultsPreview({
   businessName,
   reportId,
   email,
+  likelyArchetype,
+  archetypeMeaning,
+  archetypeIcon,
 }: Props) {
   const primaryLabel = toLabel(primaryPillar);
   const normalizedBusinessType = normalizeBusinessType(businessType);
@@ -180,16 +186,34 @@ export function LockedResultsPreview({
           <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
             Your Brand Archetype
           </p>
-          <p className="bs-body-sm text-brand-midnight mb-2">
-            Based on your answers, your archetype has been identified.
+          {likelyArchetype ? (
+            <>
+              <p className="bs-body-sm text-brand-midnight mb-2">
+                Your archetype:{" "}
+                <span className="font-bold text-brand-navy">
+                  {archetypeIcon ? `${archetypeIcon} ` : ""}
+                  {likelyArchetype}
+                </span>
+              </p>
+              {archetypeMeaning && (
+                <p className="bs-small text-brand-muted mb-2">{archetypeMeaning}</p>
+              )}
+            </>
+          ) : (
+            <p className="bs-body-sm text-brand-midnight mb-2">
+              We detected a clear archetype pattern in your answers and mapped your results to your
+              strongest archetype fit.
+            </p>
+          )}
+          <p className="bs-small text-brand-blue font-bold">
+            Full archetype activation guidance is available in Snapshot+
           </p>
-          <p className="bs-small text-brand-blue font-bold">Locked — available in Snapshot+</p>
           <Link
-            href="/snapshot-plus?source=archetype_lock"
-            onClick={() => trackLockedClick("archetype")}
+            href="/snapshot-plus?source=archetype_activation"
+            onClick={() => trackLockedClick("archetype_activation")}
             className="inline-flex mt-3 text-sm font-bold text-brand-blue hover:underline"
           >
-            Your archetype is identified — see it now
+            Get your full archetype activation plan
           </Link>
         </article>
 

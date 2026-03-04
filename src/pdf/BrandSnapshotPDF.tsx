@@ -21,6 +21,7 @@ import { pdfTheme } from "./theme";
 import { registerPdfFonts } from "./registerFonts";
 import { DisclaimerPage } from "./components/DisclaimerPage";
 import { getPrimaryPillar } from "@/src/lib/pillars/getPrimaryPillar";
+import { getArchetypeIcon, getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
 
 // Register fonts
 registerPdfFonts();
@@ -233,6 +234,16 @@ export const BrandSnapshotPDF = ({
         : null);
   const normalizedBusinessType = normalizeBusinessType(businessType);
   const promptPackLabel = `8 prompts built for ${businessName?.trim() || "your brand"}`;
+  const likelyArchetype =
+    (typeof report.likelyArchetype === "string"
+      ? report.likelyArchetype
+      : typeof answers.likelyArchetype === "string"
+        ? answers.likelyArchetype
+        : typeof answers.archetype === "string"
+          ? answers.archetype
+          : null);
+  const archetypeMeaning = getArchetypeMeaning(likelyArchetype);
+  const archetypeIcon = getArchetypeIcon(likelyArchetype);
 
   const monthlyRevenue = monthlyRevenueFromRanges(monthlyRevenueRange, annualRevenueRange);
   const avgValue = parseMoney(averageTransactionValue);
@@ -254,6 +265,7 @@ export const BrandSnapshotPDF = ({
         />
 
         <Section>
+          <Text style={styles.smallHeading}>Executive Summary</Text>
           <Text style={styles.smallHeading}>WunderBrand Score™</Text>
 
           <Text style={styles.body}>
@@ -349,7 +361,14 @@ export const BrandSnapshotPDF = ({
 
         <Section>
           <Text style={styles.smallHeading}>Locked Sections Identified</Text>
-          <Text style={styles.body}>- Your Brand Archetype: identified, available in Snapshot+</Text>
+          {likelyArchetype ? (
+            <Text style={styles.body}>
+              - Your Brand Archetype: {archetypeIcon} {likelyArchetype}
+              {archetypeMeaning ? ` — ${archetypeMeaning}` : ""}
+            </Text>
+          ) : (
+            <Text style={styles.body}>- Your Brand Archetype: included in your results</Text>
+          )}
           <Text style={styles.body}>
             - {primaryLabel} Deep Dive: dominant contributing factor identified, available in Snapshot+
           </Text>
@@ -370,7 +389,9 @@ export const BrandSnapshotPDF = ({
         <Section>
           <Text style={styles.smallHeading}>Call to Action</Text>
           <Text style={styles.body}>See Your Full Results — $497</Text>
-          <Text style={styles.body}>Your archetype is identified — see it now.</Text>
+          <Text style={styles.body}>
+            Get full archetype activation guidance and implementation steps in Snapshot+.
+          </Text>
         </Section>
 
         <PdfFooter businessName={businessName} productName="WunderBrand Snapshot™" />
@@ -476,4 +497,5 @@ export interface BrandSnapshotReport {
   annualRevenueRange?: string | null;
   averageTransactionValue?: string | null;
   conversionRateEstimate?: string | null;
+  likelyArchetype?: string | null;
 }

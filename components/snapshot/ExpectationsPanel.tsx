@@ -11,7 +11,7 @@ export function ExpectationsPanel() {
       <ul className="space-y-1">
         <li>• Takes about <strong>15–20 minutes</strong></li>
         <li>• No prep or documents needed</li>
-        <li>• We'll ask about your business, audience, and visibility</li>
+        <li>• We&apos;ll ask about your business, audience, and visibility</li>
         <li>• Your WunderBrand Score™ appears immediately</li>
       </ul>
 

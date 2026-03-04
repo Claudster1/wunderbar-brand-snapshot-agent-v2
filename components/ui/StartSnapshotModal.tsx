@@ -29,7 +29,7 @@ export default function StartSnapshotModal({ isOpen, onClose }: StartSnapshotMod
             how clearly and confidently your brand is showing up in the market today.
             <br />
             <br />
-            You’ll receive your WunderBrand Score™ along with a clear picture of what's working,
+            You’ll receive your WunderBrand Score™ along with a clear picture of what&apos;s working,
             what’s unclear, and where smarter refinements can create a measurable lift in trust,
             clarity, and conversion.
           </p>
@@ -41,7 +41,7 @@ export default function StartSnapshotModal({ isOpen, onClose }: StartSnapshotMod
             <li>5-pillar brand clarity analysis</li>
             <li>WunderBrand Score™ (your overall market-readiness rating)</li>
             <li>Instant insights once completed</li>
-            <li>No email required until you're ready to unlock your full report</li>
+            <li>No email required until you&apos;re ready to unlock your full report</li>
           </ul>
         </div>
 

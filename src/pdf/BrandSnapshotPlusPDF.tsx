@@ -84,6 +84,8 @@ export interface BrandSnapshotPlusReport extends BrandSnapshotReport {
   brandOpportunities?: string;
   messagingGaps?: string;
   visibilityPlan?: string;
+  contentFormatChannelSnapshot?: string;
+  marketingSpendAuditSignal?: string;
   visualIdentityNotes?: string;
   aiPrompts?: string[];
   contextCoverage?: number; // 0-100 percentage
@@ -156,6 +158,8 @@ export const BrandSnapshotPlusPDF = ({
     brandOpportunities,
     messagingGaps,
     visibilityPlan,
+    contentFormatChannelSnapshot,
+    marketingSpendAuditSignal,
     visualIdentityNotes,
     aiPrompts = [],
     aeoRecommendations,
@@ -183,14 +187,14 @@ export const BrandSnapshotPlusPDF = ({
         <PdfHeader title={`WunderBrand Snapshot+\u2122 \u2014 ${businessName}`} businessName={businessName} date={reportDate} />
 
         <PageTitle
-          title={`${businessName} \u2014 Strategic Brand Diagnostic`}
-          subtitle="WunderBrand Snapshot+\u2122 \u2014 Personalized brand analysis with prioritized strategic recommendations"
+          title="Snapshot+™ Brand Intelligence Report"
+          subtitle="Expanded strategic analysis across brand clarity, voice, visuals, audience, archetype, and next-step priorities."
         />
 
         <Section>
-          <Text style={styles.heading}>Executive Summary</Text>
+          <Text style={styles.heading}>Report Overview</Text>
           <Text style={styles.para}>
-            This report delivers a comprehensive analysis of how {businessName}{"\u2019"}s brand performs across five core pillars \u2014 positioning, messaging, visibility, credibility, and conversion. Each section connects diagnosis to commercial impact, with concrete examples and prioritized actions calibrated to {businessName}{"\u2019"}s industry, stage, and growth objectives.
+            This expanded analysis builds on your WunderBrand Snapshot™ results and adds deeper strategic insight across brand clarity, voice, visuals, audience, archetype, and next-step priorities.
           </Text>
 
           {/* WunderBrand Score™ Panel with Legend */}
@@ -213,10 +217,33 @@ export const BrandSnapshotPlusPDF = ({
             </Text>
           </View>
 
+          <View style={{ marginTop: pdfTheme.spacing.md }}>
+            <Text style={styles.subheading}>Pillar Analysis</Text>
+            <Text style={styles.para}>
+              Your detailed pillar analysis highlights what is currently strong and where refinement will unlock the most strategic lift.
+            </Text>
+          </View>
+
           {/* Context Coverage Meter */}
           {contextCoverage !== undefined && (
             <ContextCoverageMeter percent={contextCoverage} />
           )}
+        </Section>
+
+        <Section>
+          <Text style={styles.heading}>Content Format & Channel Snapshot</Text>
+          <Text style={styles.para}>
+            {contentFormatChannelSnapshot ||
+              "This section maps your audience to the most effective content formats, highest-leverage channels, and funnel-stage priorities so execution starts with the right sequence."}
+          </Text>
+        </Section>
+
+        <Section>
+          <Text style={styles.heading}>Marketing Spend Audit Signal</Text>
+          <Text style={styles.para}>
+            {marketingSpendAuditSignal ||
+              "This section highlights whether current spend allocation aligns with audience behavior and where budget efficiency can improve before scaling channel complexity."}
+          </Text>
         </Section>
 
         {brandOpportunities && (
@@ -291,7 +318,7 @@ export const BrandSnapshotPlusPDF = ({
 
           {voice && (
             <Section>
-              <Text style={styles.heading}>Brand Voice</Text>
+              <Text style={styles.heading}>Brand Voice Guidance</Text>
               {typeof voice === "string" ? (
                 <Text style={styles.para}>{voice}</Text>
               ) : (
@@ -420,7 +447,7 @@ export const BrandSnapshotPlusPDF = ({
           <PdfHeader title="Strategic Roadmap" />
 
           <PageTitle
-            title="30/60/90-Day Roadmap & Opportunities"
+            title="Recommended 30/60/90-Day Roadmap"
             subtitle="Prioritized next steps"
           />
 
@@ -652,7 +679,7 @@ export const BrandSnapshotPlusPDF = ({
         </Page>
       )}
 
-      {/* ---------------- PAGE 7 — AI PROMPTS & NEXT STEPS ---------------- */}
+      {/* ---------------- PAGE 7 — AI PROMPTS ---------------- */}
       {aiPrompts && aiPrompts.length > 0 && (
         <Page size="A4" style={styles.page}>
           <PdfHeader title="AI Prompt Pack" />
@@ -677,18 +704,30 @@ export const BrandSnapshotPlusPDF = ({
             ))}
           </Section>
 
-          <Section>
-            <Text style={styles.heading}>Next Steps</Text>
-            <Text style={styles.para}>
-            Your report gives you a strong foundation. For a complete, AI-ready brand
-            system — messaging, voice, positioning, personality, and visual direction —
-            consider upgrading to WunderBrand Blueprint™.
-            </Text>
-          </Section>
-
           <PdfFooter businessName={businessName} productName="WunderBrand Snapshot+™" />
         </Page>
       )}
+
+      {/* ---------------- NEXT STEP — BLUEPRINT CTA ---------------- */}
+      <Page size="A4" style={styles.page}>
+        <PdfHeader title="Next Step: Blueprint™" />
+
+        <PageTitle
+          title="Ready for Blueprint™?"
+          subtitle="Turn strategy into a complete brand foundation."
+        />
+
+        <Section>
+          <Text style={styles.para}>
+            Blueprint™ is where your strategy becomes a complete brand foundation — messaging, identity, audience segmentation, competitor positioning, visual direction, and a full marketing roadmap.
+          </Text>
+          <Text style={{ ...styles.para, fontWeight: 600, color: pdfTheme.colors.blue }}>
+            Explore WunderBrand Blueprint™
+          </Text>
+        </Section>
+
+        <PdfFooter businessName={businessName} productName="WunderBrand Snapshot+™" />
+      </Page>
 
       <DisclaimerPage tier="snapshot_plus" />
     </Document>

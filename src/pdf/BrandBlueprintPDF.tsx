@@ -1,6 +1,7 @@
 // src/pdf/BrandBlueprintPDF.tsx
 // WunderBrand Blueprint™ PDF Document ($997)
 // Includes AEO integrated with brand strategy
+/* eslint-disable react/no-unescaped-entities */
 
 import {
   Document,
@@ -76,6 +77,8 @@ export interface BrandBlueprintReport {
   aiPrompts?: string[];
   visualDirection?: string;
   opportunities?: string;
+  campaignArchitectureStarter?: string;
+  revenueMappedWorkbook?: string;
   // AEO integrated strategy (required for Blueprint tier)
   aeoIntegratedStrategy?: {
     messagingFramework?: string;
@@ -120,6 +123,8 @@ export const BrandBlueprintPDF = ({
     aiPrompts = [],
     visualDirection,
     opportunities,
+    campaignArchitectureStarter,
+    revenueMappedWorkbook,
     aeoIntegratedStrategy,
   } = report;
 
@@ -489,6 +494,22 @@ export const BrandBlueprintPDF = ({
             identity, communication, differentiation, and direction. If you'd like help
             applying this blueprint to your marketing, content, or website, Wunderbar
             Digital offers additional support and implementation services.
+          </Text>
+        </Section>
+
+        <Section>
+          <Text style={styles.subheading}>Revenue-Mapped Implementation Modules</Text>
+          <Text style={styles.para}>
+            {revenueMappedWorkbook ||
+              "Blueprint implementation is organized around six execution modules: Audience Clarity, Positioning for Conversion, Channel-Mapped Messaging, Content Architecture, Conversion Path Audit, and Marketing Spend Allocation. Use this as your 90-day operating structure."}
+          </Text>
+        </Section>
+
+        <Section>
+          <Text style={styles.subheading}>Campaign Architecture Starter (90 Days)</Text>
+          <Text style={styles.para}>
+            {campaignArchitectureStarter ||
+              "Use a 90-day sequence: Month 1 foundation positioning content, Month 2 credibility/social proof content, Month 3 conversion campaign with explicit success metrics."}
           </Text>
         </Section>
 

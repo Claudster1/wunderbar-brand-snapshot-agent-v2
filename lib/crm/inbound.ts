@@ -11,7 +11,12 @@ export type CrmContactInput = {
 
 export type CrmInquiryInput = {
   contactId?: string | null;
-  source: "connect_form" | "quo_call" | "quo_voicemail" | "manual";
+  source:
+    | "connect_form"
+    | "results_human_assist_branch"
+    | "quo_call"
+    | "quo_voicemail"
+    | "manual";
   status?: "new" | "in_progress" | "responded" | "closed";
   priority?: "low" | "normal" | "high" | "urgent";
   subject?: string | null;
@@ -129,7 +134,12 @@ export async function createCrmInquiry(input: CrmInquiryInput): Promise<string |
 }
 
 export async function findInquiryByExternalRef(
-  source: "connect_form" | "quo_call" | "quo_voicemail" | "manual",
+  source:
+    | "connect_form"
+    | "results_human_assist_branch"
+    | "quo_call"
+    | "quo_voicemail"
+    | "manual",
   externalRef?: string | null,
 ): Promise<string | null> {
   if (!supabaseAdmin || !externalRef) return null;
@@ -193,7 +203,12 @@ export async function createCrmTask(params: {
 export async function createDefaultCrmTaskForInquiry(params: {
   inquiryId?: string | null;
   contactId?: string | null;
-  source: "connect_form" | "quo_call" | "quo_voicemail" | "manual";
+  source:
+    | "connect_form"
+    | "results_human_assist_branch"
+    | "quo_call"
+    | "quo_voicemail"
+    | "manual";
 }) {
   if (!supabaseAdmin || !params.inquiryId) return;
 
@@ -209,11 +224,12 @@ export async function createDefaultCrmTaskForInquiry(params: {
 
   const due = new Date();
   if (params.source === "quo_voicemail") due.setHours(due.getHours() + 4);
-  else if (params.source === "quo_call") due.setHours(due.getHours() + 8);
+  else if (params.source === "quo_call" || params.source === "results_human_assist_branch") due.setHours(due.getHours() + 8);
   else due.setHours(due.getHours() + 24);
 
   const titleBySource: Record<typeof params.source, string> = {
     connect_form: "Respond to connect form inquiry",
+    results_human_assist_branch: "Follow up on human assist request",
     quo_call: "Follow up on inbound call",
     quo_voicemail: "Return inbound voicemail",
     manual: "Follow up on inbound inquiry",

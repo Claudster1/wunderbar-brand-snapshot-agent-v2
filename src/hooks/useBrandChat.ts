@@ -103,6 +103,38 @@ function buildResumeGreeting(
 Let's pick up right where we left off.`;
 }
 
+function isContinueAnyway(text: string): boolean {
+  return /(continue|proceed|go ahead|generate|submit|finish|run it|continue anyway)/i.test(
+    text,
+  );
+}
+
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+function getMissingHighImpactSignals(snapshotData: Record<string, unknown>): string[] {
+  const hasBusinessType = isNonEmptyString(snapshotData.businessType);
+  const hasRevenueRange =
+    isNonEmptyString(snapshotData.monthlyRevenueRange) ||
+    isNonEmptyString(snapshotData.revenueRange);
+  const hasAvgTransactionValue = isNonEmptyString(snapshotData.averageTransactionValue);
+  const hasConversionRate = isNonEmptyString(snapshotData.conversionRateEstimate);
+  const hasAcquisitionChannel = isNonEmptyString(snapshotData.primaryAcquisitionChannel);
+  const hasMarketingBudget = isNonEmptyString(snapshotData.monthlyMarketingBudget);
+  const hasContentCapacity = isNonEmptyString(snapshotData.contentCreationCapacity);
+
+  const missing: string[] = [];
+  if (!hasBusinessType) missing.push('Business type');
+  if (!hasRevenueRange) missing.push('Monthly or annual revenue range');
+  if (!hasAvgTransactionValue) missing.push('Average transaction value / deal size');
+  if (!hasConversionRate) missing.push('Conversion or close rate estimate');
+  if (!hasAcquisitionChannel) missing.push('Primary acquisition channel');
+  if (!hasMarketingBudget) missing.push('Monthly marketing budget');
+  if (!hasContentCapacity) missing.push('Content creation capacity');
+  return missing;
+}
+
 interface UseBrandChatOptions {
   /** Called when the assessment completes and report is saved. If provided, the hook will NOT auto-redirect — the caller is responsible for navigation. */
   onComplete?: (reportId: string, redirectUrl: string) => void;
@@ -124,6 +156,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
   const [reportId, setReportId] = useState<string | null>(null);
   const [lastFailedInput, setLastFailedInput] = useState<string | null>(null);
   const hasReceivedName = useRef(false);
+  const allowIncompleteSubmissionRef = useRef(false);
   const sendingRef = useRef(false); // Synchronous guard against double-sends
   const router = useRouter();
   const { generateReport, loading: pdfLoading } = useGenerateReport();
@@ -261,6 +294,11 @@ export function useBrandChat(options?: UseBrandChatOptions) {
   const sendMessage = async (text: string) => {
     const trimmed = text.trim();
     if (!trimmed || isLoading || sendingRef.current) return; // Prevent double submission
+    if (isContinueAnyway(trimmed)) {
+      allowIncompleteSubmissionRef.current = true;
+    } else {
+      allowIncompleteSubmissionRef.current = false;
+    }
     sendingRef.current = true;
 
     const userMessage = createMessage('user', trimmed);
@@ -351,6 +389,23 @@ export function useBrandChat(options?: UseBrandChatOptions) {
           let recommendations: any = {};
 
           if (isCollectedInputs) {
+            const missingSignals = getMissingHighImpactSignals(
+              snapshotData as Record<string, unknown>,
+            );
+            if (missingSignals.length > 0 && !allowIncompleteSubmissionRef.current) {
+              const missingList = missingSignals.map((item) => `- ${item}`).join('\n');
+              const nudge = createMessage(
+                'assistant',
+                `Before I generate your report, here are the highest-impact details still missing:\n\n${missingList}\n\nYou can continue now, but adding these will make your results more reliable, more actionable, and more performance-optimized for your business.\n\nReply with any of these details, or say "continue anyway" to generate now.`,
+              );
+              const updatedHistory = [...nextHistory, nudge];
+              setMessages(updatedHistory);
+              await saveProgress('completeness_nudge', updatedHistory);
+              setIsLoading(false);
+              sendingRef.current = false;
+              return;
+            }
+            allowIncompleteSubmissionRef.current = false;
             // Collected inputs format — send to /api/snapshot for server-side scoring
             // Collected inputs — route through server-side scoring
 

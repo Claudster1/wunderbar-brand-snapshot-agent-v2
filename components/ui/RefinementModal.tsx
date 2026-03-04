@@ -76,7 +76,7 @@ export function RefinementModal({
           Request Refinement: {pillarLabels[pillar]}
         </h2>
         <p className="text-sm text-slate-600 mb-6">
-          Share additional context or ask for clarification on this pillar. We'll
+          Share additional context or ask for clarification on this pillar. We&apos;ll
           review your request and provide an updated analysis.
         </p>
 

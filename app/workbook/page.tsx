@@ -567,11 +567,6 @@ function EditableField({
   const [localValue, setLocalValue] = useState(value);
   const [dirty, setDirty] = useState(false);
 
-  useEffect(() => {
-    setLocalValue(value);
-    setDirty(false);
-  }, [value]);
-
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (readOnly) return;
     setLocalValue(e.target.value);

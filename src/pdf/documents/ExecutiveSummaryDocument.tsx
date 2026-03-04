@@ -52,6 +52,7 @@ export function ExecutiveSummaryDocument({ data, brandName, userName }: Props) {
   return (
     <Document>
       <Page size="A4" style={s.cover}>
+        {/* eslint-disable-next-line jsx-a11y/alt-text */}
         <Image src={LOGO_URL} style={s.logo} />
         <Text style={s.coverTitle}>Executive Summary</Text>
         <Text style={s.coverSub}>{brandName} — WunderBrand Blueprint™</Text>

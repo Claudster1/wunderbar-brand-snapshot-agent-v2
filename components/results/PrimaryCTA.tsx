@@ -31,7 +31,7 @@ function PrimaryCTA({ pillar, userRoleContext }: PrimaryCTAProps) {
         href="/snapshot-plus"
         className="inline-flex items-center px-5 py-2.5 rounded-md bg-brand-blue text-white font-medium hover:bg-brand-blueHover transition"
       >
-        Take it further with Snapshot+™ →
+        See Your Full Results — $497 →
       </Link>
     </div>
   );

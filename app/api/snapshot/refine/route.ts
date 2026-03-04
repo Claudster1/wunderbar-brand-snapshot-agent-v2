@@ -97,7 +97,6 @@ export async function POST(req: Request) {
       refinement_count: ((report.refinement_count as number) || 0) + 1,
       updated_at: new Date().toISOString(),
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error: updateError } = await (supabase
       .from("brand_snapshot_reports") as any)
       .update(updatePayload)

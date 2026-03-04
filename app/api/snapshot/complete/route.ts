@@ -29,7 +29,6 @@ export async function POST(req: Request) {
 
     const supabase = supabaseServer();
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase
       .from("brand_snapshot_reports") as any)
       .update({

@@ -45,7 +45,7 @@ These fields are set on contacts automatically by the app and available for emai
 | `%PURCHASE_DATE%` | Date of purchase | 2026-01-26 |
 | `%AMOUNT_PAID%` | Amount paid | $497 |
 | `%UPGRADE_PRODUCT_NAME%` | Next tier product name | WunderBrand Blueprint™ |
-| `%UPGRADE_PRODUCT_URL%` | URL to upgrade product page | https://wunderbardigital.com/brand-blueprint |
+| `%UPGRADE_PRODUCT_URL%` | URL to upgrade product page | https://wunderbardigital.com/wunderbrand-blueprint?utm_source=wunderbrand_app&utm_medium=automation&utm_campaign=upgrade_flow |
 
 ### Link Fields
 

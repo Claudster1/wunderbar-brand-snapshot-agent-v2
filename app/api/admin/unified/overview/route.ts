@@ -70,6 +70,13 @@ type UnifiedEventRow = {
   metadata: Record<string, unknown>;
 };
 
+type SyncLogRow = {
+  status: "success" | "failed";
+  event_type: string;
+  payload: Record<string, unknown> | null;
+  created_at: string;
+};
+
 function getEmailDomain(email: string | null): string | null {
   if (!email || !email.includes("@")) return null;
   const domain = email.split("@")[1]?.trim().toLowerCase();
@@ -257,6 +264,9 @@ async function buildUnifiedEvents(since: string): Promise<UnifiedEventRow[]> {
         ai_source: row.ai_source,
         is_ai_referral: row.is_ai_referral,
         site_host: siteHost,
+        source: typeof row.meta?.source === "string" ? row.meta.source : null,
+        section: typeof row.meta?.section === "string" ? row.meta.section : null,
+        target: typeof row.meta?.target === "string" ? row.meta.target : null,
       },
     });
   }
@@ -313,7 +323,14 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Failed to load unified overview." }, { status: 500 });
   }
 
+  const { data: syncLogRows } = await supabaseAdmin
+    .from("crm_sync_log")
+    .select("status, event_type, payload, created_at")
+    .gte("created_at", since)
+    .limit(5000);
+
   const events = data || [];
+  const syncRows = (syncLogRows as SyncLogRow[] | null) || [];
   const last24h = events.filter((row) => row.occurred_at >= since24h);
   const inbound24h = last24h.filter((row) => row.direction === "inbound").length;
   const outbound24h = last24h.filter((row) => row.direction === "outbound").length;
@@ -360,6 +377,83 @@ export async function GET(req: NextRequest) {
     .sort((a, b) => b.total - a.total)
     .slice(0, 8);
 
+  const lockedPreviewViews = events.filter((row) => {
+    const source = (row.metadata as { source?: string } | null)?.source;
+    return row.event_type === "RESULTS_VIEWED" && source === "locked_results_preview";
+  }).length;
+
+  const lockedSectionRows = events.filter((row) => {
+    const source = (row.metadata as { source?: string } | null)?.source;
+    return row.event_type === "UPGRADE_CLICKED" && source === "locked_results_preview";
+  });
+
+  const lockedSectionBySection = Object.values(
+    lockedSectionRows.reduce<
+      Record<string, { section: string; clicks: number }>
+    >((acc, row) => {
+      const rawSection = (row.metadata as { section?: string } | null)?.section;
+      const section = (rawSection || "unknown").trim().toLowerCase();
+      if (!acc[section]) acc[section] = { section, clicks: 0 };
+      acc[section].clicks += 1;
+      return acc;
+    }, {}),
+  )
+    .sort((a, b) => b.clicks - a.clicks)
+    .slice(0, 8);
+
+  const resultsViewsRows = events.filter((row) => row.event_type === "RESULTS_VIEWED");
+  const humanAssistRows = events.filter((row) => row.event_type === "HUMAN_ASSIST_CLICKED");
+  const humanAssistBySource = Object.values(
+    humanAssistRows.reduce<Record<string, { source: string; clicks: number }>>((acc, row) => {
+      const rawSource = (row.metadata as { source?: string } | null)?.source;
+      const source = (rawSource || "unknown").trim().toLowerCase();
+      if (!acc[source]) acc[source] = { source, clicks: 0 };
+      acc[source].clicks += 1;
+      return acc;
+    }, {}),
+  )
+    .sort((a, b) => b.clicks - a.clicks)
+    .slice(0, 6);
+
+  const acSyncRows = syncRows.filter((row) => row.event_type.startsWith("ac."));
+  const acSyncSuccess = acSyncRows.filter((row) => row.status === "success").length;
+  const acSyncFailed = acSyncRows.filter((row) => row.status === "failed").length;
+  const acSyncFailuresByEvent = Object.values(
+    acSyncRows
+      .filter((row) => row.status === "failed")
+      .reduce<Record<string, { eventType: string; failures: number }>>((acc, row) => {
+        const key = row.event_type || "unknown";
+        if (!acc[key]) acc[key] = { eventType: key, failures: 0 };
+        acc[key].failures += 1;
+        return acc;
+      }, {}),
+  )
+    .sort((a, b) => b.failures - a.failures)
+    .slice(0, 6);
+
+  const consentRows = syncRows.filter((row) => {
+    const payload = row.payload || {};
+    return (
+      typeof payload.sms_opted_in === "boolean" ||
+      typeof payload.email_marketing_opted_in === "boolean"
+    );
+  });
+  const consentSmsOptIns = consentRows.filter(
+    (row) => (row.payload as { sms_opted_in?: boolean } | null)?.sms_opted_in === true,
+  ).length;
+  const consentEmailOptIns = consentRows.filter(
+    (row) =>
+      (row.payload as { email_marketing_opted_in?: boolean } | null)?.email_marketing_opted_in ===
+      true,
+  ).length;
+  const consentDualOptIns = consentRows.filter((row) => {
+    const payload = (row.payload || {}) as {
+      sms_opted_in?: boolean;
+      email_marketing_opted_in?: boolean;
+    };
+    return payload.sms_opted_in === true && payload.email_marketing_opted_in === true;
+  }).length;
+
   return NextResponse.json({
     overview: {
       totals: {
@@ -374,9 +468,39 @@ export async function GET(req: NextRequest) {
         inboundCreated30d: events.filter((row) => row.event_type === "inquiry_created").length,
         outboundTouches30d: events.filter((row) => row.direction === "outbound").length,
         webHighIntent30d: events.filter((row) =>
-          ["UPGRADE_CLICKED", "RESULTS_VIEWED", "SNAPSHOT_COMPLETED", "BLUEPRINT_STARTED", "BLUEPRINT_COMPLETED"].includes(row.event_type),
+          [
+            "UPGRADE_CLICKED",
+            "HUMAN_ASSIST_CLICKED",
+            "RESULTS_VIEWED",
+            "SNAPSHOT_COMPLETED",
+            "BLUEPRINT_STARTED",
+            "BLUEPRINT_COMPLETED",
+          ].includes(row.event_type),
         ).length,
         medianFirstResponseHours30d: responseMedian,
+      },
+      lockedSectionPerformance: {
+        views: lockedPreviewViews,
+        clicksTotal: lockedSectionRows.length,
+        bySection: lockedSectionBySection,
+      },
+      humanAssistPerformance: {
+        clicksTotal: humanAssistRows.length,
+        resultsViews: resultsViewsRows.length,
+        bySource: humanAssistBySource,
+      },
+      consentAndSync: {
+        consentSignals: {
+          captured: consentRows.length,
+          smsOptIns: consentSmsOptIns,
+          emailOptIns: consentEmailOptIns,
+          dualOptIns: consentDualOptIns,
+        },
+        acSync: {
+          success: acSyncSuccess,
+          failed: acSyncFailed,
+          failuresByEvent: acSyncFailuresByEvent,
+        },
       },
       ownerActivity,
       recent: events.slice(0, 30),

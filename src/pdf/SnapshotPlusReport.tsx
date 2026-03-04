@@ -127,6 +127,8 @@ export function SnapshotPlusReport({
   pillarInsights,
   recommendations,
   contextCoverage,
+  contentFormatChannelSnapshot,
+  marketingSpendAuditSignal,
 }: any) {
   return (
     <Document>
@@ -214,6 +216,21 @@ export function SnapshotPlusReport({
         </Text>
 
         <Text style={styles.subtle}>Coverage level: {contextCoverage}%</Text>
+
+        <View style={styles.divider} />
+
+        {/* New strategy outputs */}
+        <Text style={styles.h2}>Content Format & Channel Snapshot</Text>
+        <Text style={styles.body}>
+          {contentFormatChannelSnapshot ||
+            "This section maps your primary audience to the highest-leverage formats, channels, and funnel-stage priorities so execution starts with the right sequence."}
+        </Text>
+
+        <Text style={styles.h2}>Marketing Spend Audit Signal</Text>
+        <Text style={styles.body}>
+          {marketingSpendAuditSignal ||
+            "This section highlights whether your current spend allocation aligns with buyer behavior and where efficiency can improve before scaling complexity."}
+        </Text>
 
         <View style={styles.divider} />
 

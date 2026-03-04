@@ -1,5 +1,6 @@
 // Competitive Intelligence Brief — standalone document
 // For: Sales team, business development, leadership
+/* eslint-disable react/no-unescaped-entities */
 
 import React from "react";
 import { Document, Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
@@ -40,6 +41,7 @@ export function CompetitiveIntelDocument({ data, brandName }: Props) {
   return (
     <Document>
       <Page size="A4" style={s.cover}>
+        {/* eslint-disable-next-line jsx-a11y/alt-text */}
         <Image src={LOGO_URL} style={s.logo} />
         <Text style={s.coverTitle}>Competitive Intelligence Brief</Text>
         <Text style={s.coverSub}>{brandName}</Text>

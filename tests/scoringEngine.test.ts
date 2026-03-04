@@ -7,62 +7,51 @@ import {
 
 describe('scoringEngine', () => {
   describe('calculateBrandAlignmentScore', () => {
-    it('averages all pillar scores and rounds', () => {
+    it('sums all pillar scores to 100-point model', () => {
       const scores = { positioning: 15, messaging: 18, visibility: 12, credibility: 10, conversion: 20 };
-      expect(calculateBrandAlignmentScore(scores)).toBe(15);
+      expect(calculateBrandAlignmentScore(scores)).toBe(75);
     });
 
-    it('returns exact average when evenly divisible', () => {
+    it('returns exact total when evenly distributed', () => {
       const scores = { positioning: 10, messaging: 10, visibility: 10, credibility: 10, conversion: 10 };
-      expect(calculateBrandAlignmentScore(scores)).toBe(10);
+      expect(calculateBrandAlignmentScore(scores)).toBe(50);
     });
 
-    it('rounds correctly for fractional averages', () => {
+    it('handles integer totals directly', () => {
       const scores = { positioning: 11, messaging: 12, visibility: 13, credibility: 14, conversion: 15 };
-      // sum = 65, avg = 13
-      expect(calculateBrandAlignmentScore(scores)).toBe(13);
+      expect(calculateBrandAlignmentScore(scores)).toBe(65);
     });
 
-    it('handles all-max scores (25 each)', () => {
-      const scores = { positioning: 25, messaging: 25, visibility: 25, credibility: 25, conversion: 25 };
-      expect(calculateBrandAlignmentScore(scores)).toBe(25);
+    it('caps at all-max score (20 each)', () => {
+      const scores = { positioning: 20, messaging: 20, visibility: 20, credibility: 20, conversion: 20 };
+      expect(calculateBrandAlignmentScore(scores)).toBe(100);
     });
 
-    it('handles all-min scores (1 each)', () => {
-      const scores = { positioning: 1, messaging: 1, visibility: 1, credibility: 1, conversion: 1 };
-      expect(calculateBrandAlignmentScore(scores)).toBe(1);
-    });
-
-    it('handles zero scores', () => {
+    it('handles all-min scores', () => {
       const scores = { positioning: 0, messaging: 0, visibility: 0, credibility: 0, conversion: 0 };
       expect(calculateBrandAlignmentScore(scores)).toBe(0);
     });
   });
 
   describe('getPrimaryPillar', () => {
-    it('returns the lowest-scoring pillar', () => {
+    it('returns the weakest pillar by spec logic', () => {
       const scores = { positioning: 15, messaging: 18, visibility: 12, credibility: 10, conversion: 20 };
       expect(getPrimaryPillar(scores)).toBe('credibility');
     });
 
-    it('returns first lowest when tied', () => {
-      const scores = { positioning: 10, messaging: 10, visibility: 15, credibility: 15, conversion: 15 };
-      const result = getPrimaryPillar(scores);
-      expect(['positioning', 'messaging']).toContain(result);
+    it('applies upstream override before raw-lowest fallback', () => {
+      const scores = { positioning: 8, messaging: 14, visibility: 13, credibility: 15, conversion: 12 };
+      expect(getPrimaryPillar(scores)).toBe('positioning');
     });
 
-    it('works when all scores are equal', () => {
-      const scores = { positioning: 12, messaging: 12, visibility: 12, credibility: 12, conversion: 12 };
-      const result = getPrimaryPillar(scores);
-      expect(['positioning', 'messaging', 'visibility', 'credibility', 'conversion']).toContain(result);
+    it('uses business-type multipliers for near-tie priority', () => {
+      const scores = { positioning: 14, messaging: 14, visibility: 14, credibility: 14, conversion: 14 };
+      expect(getPrimaryPillar(scores, "local_service")).toBe('visibility');
     });
 
-    it('identifies correct weakest across various combos', () => {
-      expect(getPrimaryPillar({ positioning: 5, messaging: 20, visibility: 20, credibility: 20, conversion: 20 })).toBe('positioning');
-      expect(getPrimaryPillar({ positioning: 20, messaging: 5, visibility: 20, credibility: 20, conversion: 20 })).toBe('messaging');
-      expect(getPrimaryPillar({ positioning: 20, messaging: 20, visibility: 5, credibility: 20, conversion: 20 })).toBe('visibility');
-      expect(getPrimaryPillar({ positioning: 20, messaging: 20, visibility: 20, credibility: 5, conversion: 20 })).toBe('credibility');
-      expect(getPrimaryPillar({ positioning: 20, messaging: 20, visibility: 20, credibility: 20, conversion: 5 })).toBe('conversion');
+    it('uses upstream tie-break in adjusted-gap near ties', () => {
+      const scores = { positioning: 14, messaging: 14, visibility: 15, credibility: 15, conversion: 14 };
+      expect(getPrimaryPillar(scores, "service_b2b")).toBe('positioning');
     });
   });
 

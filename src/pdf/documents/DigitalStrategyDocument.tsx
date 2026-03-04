@@ -43,6 +43,7 @@ export function DigitalStrategyDocument({ data, brandName }: Props) {
   return (
     <Document>
       <Page size="A4" style={s.cover}>
+        {/* eslint-disable-next-line jsx-a11y/alt-text */}
         <Image src={LOGO_URL} style={s.logo} />
         <Text style={s.coverTitle}>Digital Marketing Strategy</Text>
         <Text style={s.coverSub}>{brandName}</Text>

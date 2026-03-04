@@ -1,6 +1,7 @@
 // src/pdf/documents/BrandBlueprintPDF.tsx
 // WunderBrand Blueprint™ PDF Document ($997)
 // AEO integrated with brand strategy
+/* eslint-disable react/no-unescaped-entities */
 
 import React from "react";
 import { Document, Page, Text, View } from "@react-pdf/renderer";

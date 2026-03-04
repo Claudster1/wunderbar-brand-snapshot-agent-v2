@@ -2,6 +2,7 @@
 // BrandSnapshotPDF.tsx
 // React-PDF template for WunderBrand Snapshot™ Report
 // ---------------------------------------------
+/* eslint-disable react/no-unescaped-entities */
 
 import {
   Page,
@@ -172,9 +173,11 @@ export const BrandSnapshotPDF = ({ reportData, data }: { reportData?: any; data?
         {/* HEADER */}
         <View style={styles.header}>
           {BrandLogo && (
+            // eslint-disable-next-line jsx-a11y/alt-text
             <Image style={styles.logo} src={typeof BrandLogo === 'string' ? BrandLogo : (BrandLogo as any).src || BrandLogo} />
           )}
           {WundyHero && (
+            // eslint-disable-next-line jsx-a11y/alt-text
             <Image style={styles.wundy} src={typeof WundyHero === 'string' ? WundyHero : (WundyHero as any).src || WundyHero} />
           )}
         </View>

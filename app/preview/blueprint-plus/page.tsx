@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import nextDynamic from "next/dynamic";
+import Image from "next/image";
 
 // Lazy-load heavy interactive components to reduce initial bundle size
 const ReportNav = nextDynamic(() => import("@/components/reports/ReportNav"), { ssr: false });
@@ -1623,7 +1624,13 @@ export default function BrandBlueprintPlusReport() {
         <div style={{ maxWidth: 900, margin: "0 auto", padding: "0 24px", position: "relative", zIndex: 1 }}>
           <div data-header-top style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 0", borderBottom: `1px solid ${BORDER}` }}>
             <a href={UTM_BASE} target="_blank" rel="noopener noreferrer">
-              <img src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp" alt="Wunderbar Digital" style={{ height: 26, objectFit: "contain" }} />
+              <Image
+                src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp"
+                alt="Wunderbar Digital"
+                width={160}
+                height={26}
+                style={{ height: 26, width: "auto", objectFit: "contain" }}
+              />
             </a>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
               <span style={{ fontSize: 22, fontWeight: 700, color: NAVY, lineHeight: 1 }}>WunderBrand Blueprint+™</span>
@@ -1905,7 +1912,6 @@ export default function BrandBlueprintPlusReport() {
           <SectionTitle description="Strategic analysis of each pillar with examples, step-by-step implementation guides, and recommended tools.">Pillar Deep Dives</SectionTitle>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px 32px", padding: "20px 24px", background: LIGHT_BG, borderRadius: 5, marginBottom: 24 }}>{PILLARS.map((p) => (<div key={p} style={{ display: "flex", alignItems: "center", gap: 10 }}><PillarIcon pillar={p} size={20} /><div style={{ flex: 1 }}><PillarMeter score={r.pillarDeepDives[p].score} label={PILLAR_LABELS[p]} /></div></div>))}</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>{PILLARS.map((p) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const d = r.pillarDeepDives[p] as any;
             const pct = (d.score / 20) * 100;
             return (
@@ -2028,7 +2034,9 @@ export default function BrandBlueprintPlusReport() {
 
             <div style={{ padding: "20px 24px", background: `${BLUE}08`, borderRadius: 5, borderLeft: `4px solid ${BLUE}` }}>
               <div style={{ fontSize: 12, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>Positioning Statement</div>
-              <div style={{ fontSize: 17, color: "#1a1a2e", lineHeight: 1.65, fontStyle: "italic", fontWeight: 500 }}>"{r.brandFoundation.positioningStatement}"</div>
+              <div style={{ fontSize: 17, color: "#1a1a2e", lineHeight: 1.65, fontStyle: "italic", fontWeight: 500 }}>
+                &ldquo;{r.brandFoundation.positioningStatement}&rdquo;
+              </div>
             </div>
 
             <div>
@@ -2491,7 +2499,6 @@ export default function BrandBlueprintPlusReport() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}><div style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{ fontSize: 14, fontWeight: 900, color: NAVY, textTransform: "uppercase", letterSpacing: "0.08em" }}>AEO Readiness Review</span></div><span style={{ fontSize: 12, fontWeight: 700, padding: "4px 12px", borderRadius: 10, background: r.visibilityDiscovery.aeoReadiness.score === "High" ? `${GREEN}15` : r.visibilityDiscovery.aeoReadiness.score.includes("Moderate") ? `${YELLOW}15` : `${RED_S}10`, color: r.visibilityDiscovery.aeoReadiness.score === "High" ? GREEN : r.visibilityDiscovery.aeoReadiness.score.includes("Moderate") ? "#92700C" : RED_S }}>{r.visibilityDiscovery.aeoReadiness.score}</span></div>
             <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.65, marginBottom: 16 }}>{r.visibilityDiscovery.aeoReadiness.explanation}</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {r.visibilityDiscovery.aeoReadiness.recommendations.map((rec: any, i: number) => (
                 <div key={i} style={{ padding: "14px 18px", borderRadius: 6, border: `1px solid ${BORDER}`, background: WHITE }}>
                   <div style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: rec.detail ? 8 : 0 }}>
@@ -2512,7 +2519,6 @@ export default function BrandBlueprintPlusReport() {
               <span style={{ fontSize: 14, fontWeight: 900, color: NAVY, textTransform: "uppercase", letterSpacing: "0.08em" }}>Visibility Priorities — Implementation Roadmap</span>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {r.visibilityDiscovery.visibilityPriorities.map((vp: any, i: number) => (
                 <div key={i} style={{ borderRadius: 6, border: `1px solid ${i === 0 ? BLUE + "25" : BORDER}`, background: WHITE, overflow: "hidden" }}>
                   <div style={{ display: "flex", gap: 16, alignItems: "flex-start", padding: "14px 18px", background: i === 0 ? `${BLUE}06` : LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
@@ -2775,7 +2781,6 @@ export default function BrandBlueprintPlusReport() {
 
           {/* CTA Hierarchy with Templates */}
           {(() => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const cs = r.conversionStrategy as any;
             return (<>
           <div style={{ marginBottom: 28 }}>
@@ -2916,7 +2921,6 @@ export default function BrandBlueprintPlusReport() {
         <Section id="strategic-action-plan">
           <SectionTitle description="Five prioritized actions with step-by-step implementation guides, ready-to-use templates, and examples you can apply today.">Strategic Action Plan</SectionTitle>
           <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {r.strategicActionPlan.map((item: any, idx: number) => (
               <div key={idx} style={{ borderRadius: 8, border: `1px solid ${BORDER}`, background: WHITE, overflow: "hidden" }}>
                 {/* Header */}
@@ -4295,7 +4299,13 @@ export default function BrandBlueprintPlusReport() {
         <footer style={{ textAlign: "center", padding: "20px 0 0", borderTop: `1px solid ${BORDER}` }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8 }}>
             <a href={UTM_BASE} target="_blank" rel="noopener noreferrer">
-              <img src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp" alt="Wunderbar Digital" style={{ height: 20, objectFit: "contain" }} />
+              <Image
+                src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp"
+                alt="Wunderbar Digital"
+                width={124}
+                height={20}
+                style={{ height: 20, width: "auto", objectFit: "contain" }}
+              />
             </a>
           </div>
           <p style={{ fontSize: 14, color: SUB, marginBottom: 4 }}>

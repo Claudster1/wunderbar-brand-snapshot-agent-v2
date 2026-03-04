@@ -69,7 +69,6 @@ export default async function SharePage({
     return <ExpiredPage reason="This share link has reached its maximum number of views." />;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await (supabase.from("shared_links" as any) as any).update({ access_count: link.access_count + 1 }).eq("id", link.id);
 
   const pdfUrl = buildPdfUrl(link);

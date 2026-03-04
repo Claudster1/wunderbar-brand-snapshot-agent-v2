@@ -5,6 +5,18 @@
 
 ---
 
+## Strategy v3 Language Guardrails
+
+To stay aligned with the current rebuild strategy:
+
+- Use **inference-and-confirm** framing for business model classification in any diagnostic-related copy.
+- Do **not** describe classification as a visible user selection list; the six business types are internal routing targets.
+- Refer to diagnostic data as **signals extracted from conversation**, not rigid question blocks.
+- For revenue impact messaging, use **fallback without fabrication** language when a signal is not captured.
+- Avoid form-style phrasing like "selects I don't track this"; use conversational non-answer wording instead.
+
+---
+
 ## Sequence Map
 
 | # | Name | Trigger | Emails | Exit Condition |

@@ -13,7 +13,7 @@ export function BlueprintCTA({
   return (
     <div className="mt-8 rounded-xl bg-brand-navy text-white p-8">
       <h2 className="text-2xl font-semibold mb-3">
-        Ready to activate what you've uncovered?
+        Ready to activate what you&apos;ve uncovered?
       </h2>
 
       <p className="mb-6">

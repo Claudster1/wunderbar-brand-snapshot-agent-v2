@@ -526,6 +526,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
       {/* ═══════ Cover Page ═══════ */}
       <Page size="A4" style={s.coverPage}>
         <View style={s.coverInner}>
+          {/* eslint-disable-next-line jsx-a11y/alt-text */}
           <Image style={s.coverLogo} src={LOGO_URL} />
           <Text style={s.coverTitle}>Brand Standards{"\n"}& Guidelines</Text>
           <Text style={s.coverSubtitle}>WunderBrand Blueprint+{"\u2122"}</Text>

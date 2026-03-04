@@ -370,7 +370,7 @@ export const getPillarScoreLabel = (score: number): string => {
 // ============================================================
 // EXPORTS
 // ============================================================
-export default {
+const theme = {
   pdfTheme,
   colors,
   fonts,
@@ -386,3 +386,5 @@ export default {
     getPillarScoreLabel,
   },
 };
+
+export default theme;

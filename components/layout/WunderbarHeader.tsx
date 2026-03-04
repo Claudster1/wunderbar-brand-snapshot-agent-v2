@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 // Routes where the header should be hidden (reports/previews)
 const HIDDEN_HEADER_ROUTES = [
@@ -51,7 +52,7 @@ export function WunderbarHeader() {
     <>
       <header className="wunder-header-final">
         <a href="https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=site_navigation" className="wunder-logo" target="_blank" rel="noopener noreferrer">
-          <img
+          <Image
             src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp"
             alt="Wunderbar Digital"
             width={220}
@@ -131,7 +132,7 @@ export function WunderbarHeader() {
       {/* Mobile Menu */}
       <nav className={`wunder-mobile-menu ${mobileMenuOpen ? "active" : ""}`}>
         <div className="wunder-mobile-header">
-          <img
+          <Image
             src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp"
             alt="Wunderbar Digital"
             width={180}

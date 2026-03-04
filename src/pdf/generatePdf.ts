@@ -156,6 +156,10 @@ export function transformReportDataForPdf(
 
   switch (documentType) {
     case "snapshot":
+      const answers =
+        report?.full_report?.answers && typeof report.full_report.answers === "object"
+          ? (report.full_report.answers as Record<string, unknown>)
+          : {};
       return {
         ...baseProps,
         brandAlignmentScore:
@@ -198,6 +202,18 @@ export function transformReportDataForPdf(
           report?.color_palette ||
           report?.enriched_color_palette ||
           [],
+        fullReportAnswers:
+          answers,
+        businessType: typeof answers.businessType === "string" ? answers.businessType : null,
+        monthlyMarketingBudget:
+          typeof answers.monthlyMarketingBudget === "string" ? answers.monthlyMarketingBudget : null,
+        monthlyRevenueRange:
+          typeof answers.monthlyRevenueRange === "string" ? answers.monthlyRevenueRange : null,
+        annualRevenueRange: typeof answers.revenueRange === "string" ? answers.revenueRange : null,
+        averageTransactionValue:
+          typeof answers.averageTransactionValue === "string" ? answers.averageTransactionValue : null,
+        conversionRateEstimate:
+          typeof answers.conversionRateEstimate === "string" ? answers.conversionRateEstimate : null,
       } as unknown as BrandSnapshotReport;
 
     case "snapshot-plus": {
@@ -258,6 +274,14 @@ export function transformReportDataForPdf(
         brandOpportunities: r.brand_opportunities || r.brandOpportunities || report?.brand_opportunities,
         messagingGaps: r.messaging_gaps || r.messagingGaps || report?.messaging_gaps,
         visibilityPlan: r.visibility_plan || r.visibilityPlan || report?.visibility_plan,
+        contentFormatChannelSnapshot:
+          r.content_format_channel_snapshot ||
+          r.contentFormatChannelSnapshot ||
+          report?.content_format_channel_snapshot,
+        marketingSpendAuditSignal:
+          r.marketing_spend_audit_signal ||
+          r.marketingSpendAuditSignal ||
+          report?.marketing_spend_audit_signal,
         visualIdentityNotes: r.visual_identity_notes || r.visualIdentityNotes || report?.visual_identity_notes,
         aiPrompts: r.ai_prompts || r.aiPrompts || report?.ai_prompts || [],
         aeoRecommendations: r.aeo_recommendations || r.aeoRecommendations || report?.aeo_recommendations,
@@ -296,6 +320,14 @@ export function transformReportDataForPdf(
         aiPrompts: r.ai_prompts || r.aiPrompts || report?.ai_prompts || [],
         visualDirection: r.visual_direction || report?.visual_direction,
         opportunities: r.opportunities || report?.opportunities,
+        campaignArchitectureStarter:
+          r.campaign_architecture_starter ||
+          r.campaignArchitectureStarter ||
+          report?.campaign_architecture_starter,
+        revenueMappedWorkbook:
+          r.revenue_mapped_workbook ||
+          r.revenueMappedWorkbook ||
+          report?.revenue_mapped_workbook,
         aeoIntegratedStrategy: r.aeo_integrated_strategy || r.aeoIntegratedStrategy || report?.aeo_integrated_strategy,
       } as BrandBlueprintReport;
 
@@ -311,6 +343,14 @@ export function transformReportDataForPdf(
         decisionFilters: r.decision_filters || report?.decision_filters || [],
         aiPrompts: r.ai_prompts || report?.ai_prompts || [],
         completeAEOSystem: r.complete_aeo_system || report?.complete_aeo_system,
+        marketingRoiPrioritization:
+          r.marketing_roi_prioritization ||
+          r.marketingRoiPrioritization ||
+          report?.marketing_roi_prioritization,
+        activationSessionPlan:
+          r.activation_session_plan ||
+          r.activationSessionPlan ||
+          report?.activation_session_plan,
       } as BrandBlueprintPlusPDFProps;
 
     default:

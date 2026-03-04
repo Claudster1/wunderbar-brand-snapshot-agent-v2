@@ -232,7 +232,6 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: `Unknown type: ${type}. Use: snapshot, snapshot-plus, blueprint, blueprint-plus, brand-standards` }, { status: 400 });
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { renderToBuffer } = await import("@react-pdf/renderer");
     const buffer = await renderToBuffer(element as any);
 

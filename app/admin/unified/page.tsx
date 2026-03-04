@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 const NAVY = "#021859";
@@ -26,6 +26,38 @@ type OverviewPayload = {
       outboundTouches30d: number;
       webHighIntent30d: number;
       medianFirstResponseHours30d: number;
+    };
+    lockedSectionPerformance: {
+      views: number;
+      clicksTotal: number;
+      bySection: Array<{
+        section: string;
+        clicks: number;
+      }>;
+    };
+    humanAssistPerformance: {
+      clicksTotal: number;
+      resultsViews: number;
+      bySource: Array<{
+        source: string;
+        clicks: number;
+      }>;
+    };
+    consentAndSync: {
+      consentSignals: {
+        captured: number;
+        smsOptIns: number;
+        emailOptIns: number;
+        dualOptIns: number;
+      };
+      acSync: {
+        success: number;
+        failed: number;
+        failuresByEvent: Array<{
+          eventType: string;
+          failures: number;
+        }>;
+      };
     };
     ownerActivity: Array<{
       owner: string;
@@ -62,12 +94,87 @@ const EMPTY_OVERVIEW: OverviewPayload["overview"] = {
     webHighIntent30d: 0,
     medianFirstResponseHours30d: 0,
   },
+  lockedSectionPerformance: {
+    views: 0,
+    clicksTotal: 0,
+    bySection: [],
+  },
+  humanAssistPerformance: {
+    clicksTotal: 0,
+    resultsViews: 0,
+    bySource: [],
+  },
+  consentAndSync: {
+    consentSignals: {
+      captured: 0,
+      smsOptIns: 0,
+      emailOptIns: 0,
+      dualOptIns: 0,
+    },
+    acSync: {
+      success: 0,
+      failed: 0,
+      failuresByEvent: [],
+    },
+  },
   ownerActivity: [],
   recent: [],
 };
 
+function normalizeOverview(
+  incoming: Partial<OverviewPayload["overview"]> | null | undefined,
+): OverviewPayload["overview"] {
+  return {
+    ...EMPTY_OVERVIEW,
+    ...incoming,
+    totals: {
+      ...EMPTY_OVERVIEW.totals,
+      ...(incoming?.totals || {}),
+    },
+    pipeline: {
+      ...EMPTY_OVERVIEW.pipeline,
+      ...(incoming?.pipeline || {}),
+    },
+    lockedSectionPerformance: {
+      ...EMPTY_OVERVIEW.lockedSectionPerformance,
+      ...(incoming?.lockedSectionPerformance || {}),
+      bySection: incoming?.lockedSectionPerformance?.bySection || [],
+    },
+    humanAssistPerformance: {
+      ...EMPTY_OVERVIEW.humanAssistPerformance,
+      ...(incoming?.humanAssistPerformance || {}),
+      bySource: incoming?.humanAssistPerformance?.bySource || [],
+    },
+    consentAndSync: {
+      ...EMPTY_OVERVIEW.consentAndSync,
+      ...(incoming?.consentAndSync || {}),
+      consentSignals: {
+        ...EMPTY_OVERVIEW.consentAndSync.consentSignals,
+        ...(incoming?.consentAndSync?.consentSignals || {}),
+      },
+      acSync: {
+        ...EMPTY_OVERVIEW.consentAndSync.acSync,
+        ...(incoming?.consentAndSync?.acSync || {}),
+        failuresByEvent: incoming?.consentAndSync?.acSync?.failuresByEvent || [],
+      },
+    },
+    ownerActivity: incoming?.ownerActivity || [],
+    recent: incoming?.recent || [],
+  };
+}
+
+function needsAutoRepair(incoming: Partial<OverviewPayload["overview"]> | null | undefined): boolean {
+  if (!incoming) return true;
+  if (!incoming.totals || !incoming.pipeline || !incoming.lockedSectionPerformance) return true;
+  if (!incoming.humanAssistPerformance) return true;
+  if (!incoming.consentAndSync || !incoming.consentAndSync.acSync || !incoming.consentAndSync.consentSignals) return true;
+  if (!Array.isArray(incoming.recent) || !Array.isArray(incoming.ownerActivity)) return true;
+  return false;
+}
+
 export default function UnifiedDashboardPage() {
   const router = useRouter();
+  const attemptedAutoRepairRef = useRef(false);
   const [days, setDays] = useState(30);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
@@ -98,7 +205,24 @@ export default function UnifiedDashboardPage() {
         setData(EMPTY_OVERVIEW);
         return;
       }
-      setData(json.overview);
+      setData(normalizeOverview(json.overview));
+
+      if (needsAutoRepair(json.overview) && !attemptedAutoRepairRef.current) {
+        attemptedAutoRepairRef.current = true;
+        void fetch("/api/admin/unified/overview", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ days }),
+        })
+          .then(async (repairRes) => {
+            if (!repairRes.ok) return;
+            setToast("Dashboard auto-repaired. Refreshing data...");
+            await loadOverview();
+          })
+          .catch(() => {
+            // Non-blocking: page still renders from normalized fallback shape.
+          });
+      }
     } catch {
       setLoadError("Failed to load unified overview.");
       setData(EMPTY_OVERVIEW);
@@ -254,6 +378,11 @@ export default function UnifiedDashboardPage() {
               <Stat title="Inbound Created (30d)" value={data.pipeline.inboundCreated30d} color={BLUE} />
               <Stat title="Outbound Touches (30d)" value={data.pipeline.outboundTouches30d} color={GREEN} />
               <Stat title="Web High Intent (30d)" value={data.pipeline.webHighIntent30d} color={YELLOW} />
+              <Stat title="Human Assist Clicks" value={data.humanAssistPerformance.clicksTotal} color={BLUE} />
+              <Stat title="Locked Preview Views" value={data.lockedSectionPerformance.views} color={NAVY} />
+              <Stat title="Locked Section Clicks" value={data.lockedSectionPerformance.clicksTotal} color={BLUE} />
+              <Stat title="Consent Signals (Range)" value={data.consentAndSync.consentSignals.captured} color={NAVY} />
+              <Stat title="AC Sync Failures (Range)" value={data.consentAndSync.acSync.failed} color={data.consentAndSync.acSync.failed > 0 ? "#DC2626" : NAVY} />
               <Stat
                 title="Median First Response (hrs)"
                 value={Number(data.pipeline.medianFirstResponseHours30d || 0).toFixed(1)}
@@ -261,7 +390,7 @@ export default function UnifiedDashboardPage() {
               />
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 12 }}>
               <div style={{ background: WHITE, border: `1px solid ${BORDER}`, borderRadius: 10, padding: 12 }}>
                 <h2 style={{ margin: "0 0 8px", fontSize: 14, color: NAVY }}>Owner Activity</h2>
                 {data.ownerActivity.length === 0 && <div style={{ color: SUB, fontSize: 12 }}>No owner activity in range.</div>}
@@ -277,6 +406,182 @@ export default function UnifiedDashboardPage() {
                       </div>
                     </div>
                     <div style={{ fontSize: 16, fontWeight: 800, color: NAVY }}>{owner.total}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ background: WHITE, border: `1px solid ${BORDER}`, borderRadius: 10, padding: 12 }}>
+                <h2 style={{ margin: "0 0 8px", fontSize: 14, color: NAVY }}>Consent + AC Sync Health</h2>
+                <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 8 }}>
+                  <div style={{ fontSize: 12, color: SUB }}>
+                    SMS opt-ins:{" "}
+                    <strong style={{ color: NAVY }}>{data.consentAndSync.consentSignals.smsOptIns}</strong>
+                  </div>
+                  <div style={{ fontSize: 12, color: SUB }}>
+                    Email opt-ins:{" "}
+                    <strong style={{ color: NAVY }}>{data.consentAndSync.consentSignals.emailOptIns}</strong>
+                  </div>
+                  <div style={{ fontSize: 12, color: SUB }}>
+                    Dual opt-ins:{" "}
+                    <strong style={{ color: NAVY }}>{data.consentAndSync.consentSignals.dualOptIns}</strong>
+                  </div>
+                  <div style={{ fontSize: 12, color: SUB }}>
+                    AC sync success:{" "}
+                    <strong style={{ color: NAVY }}>{data.consentAndSync.acSync.success}</strong>
+                  </div>
+                  <div style={{ fontSize: 12, color: SUB }}>
+                    AC sync failure rate:{" "}
+                    <strong style={{ color: NAVY }}>
+                      {data.consentAndSync.acSync.success + data.consentAndSync.acSync.failed > 0
+                        ? `${Math.round(
+                            (data.consentAndSync.acSync.failed /
+                              (data.consentAndSync.acSync.success + data.consentAndSync.acSync.failed)) *
+                              100,
+                          )}%`
+                        : "0%"}
+                    </strong>
+                  </div>
+                </div>
+                <p style={{ margin: 0, fontSize: 11, color: SUB }}>
+                  Metrics are based on CRM sync log records for the selected date range.
+                </p>
+                {data.consentAndSync.acSync.failuresByEvent.length > 0 && (
+                  <div style={{ marginTop: 10 }}>
+                    <div style={{ fontSize: 11, color: SUB, marginBottom: 6 }}>Top AC sync failures</div>
+                    {data.consentAndSync.acSync.failuresByEvent.map((row) => (
+                      <div
+                        key={row.eventType}
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          padding: "6px 0",
+                          borderBottom: `1px solid ${BORDER}`,
+                        }}
+                      >
+                        <div style={{ fontSize: 12, color: NAVY }}>{row.eventType}</div>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: "#DC2626" }}>{row.failures}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div style={{ background: WHITE, border: `1px solid ${BORDER}`, borderRadius: 10, padding: 12 }}>
+                <h2 style={{ margin: "0 0 8px", fontSize: 14, color: NAVY }}>Locked Section Performance</h2>
+                <p style={{ margin: "0 0 10px", fontSize: 11, color: SUB }}>
+                  CTR is calculated as section clicks divided by total locked preview views in the selected date range.
+                </p>
+                <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 8 }}>
+                  <div style={{ fontSize: 12, color: SUB }}>
+                    Overall CTR:{" "}
+                    <strong style={{ color: NAVY }}>
+                      {data.lockedSectionPerformance.views > 0
+                        ? `${Math.round(
+                            (data.lockedSectionPerformance.clicksTotal /
+                              data.lockedSectionPerformance.views) *
+                              100,
+                          )}%`
+                        : "0%"}
+                    </strong>
+                  </div>
+                  <div style={{ fontSize: 12, color: SUB }}>
+                    Top Section:{" "}
+                    <strong style={{ color: NAVY }}>
+                      {data.lockedSectionPerformance.bySection[0]
+                        ? data.lockedSectionPerformance.bySection[0].section.replace(/_/g, " ")
+                        : "n/a"}
+                    </strong>
+                  </div>
+                </div>
+                {data.lockedSectionPerformance.bySection.length === 0 && (
+                  <div style={{ color: SUB, fontSize: 12 }}>No locked-section clicks yet in range.</div>
+                )}
+                {data.lockedSectionPerformance.bySection.map((row) => (
+                  <div
+                    key={row.section}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: "8px 0",
+                      borderBottom: `1px solid ${BORDER}`,
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: NAVY, textTransform: "capitalize" }}>
+                        {row.section.replace(/_/g, " ")}
+                      </div>
+                      <div style={{ fontSize: 11, color: SUB }}>
+                        CTR:{" "}
+                        <strong style={{ color: NAVY }}>
+                          {data.lockedSectionPerformance.views > 0
+                            ? `${Math.round((row.clicks / data.lockedSectionPerformance.views) * 100)}%`
+                            : "0%"}
+                        </strong>
+                        {" · "}
+                        Share:{" "}
+                        <strong style={{ color: NAVY }}>
+                          {data.lockedSectionPerformance.clicksTotal > 0
+                            ? `${Math.round((row.clicks / data.lockedSectionPerformance.clicksTotal) * 100)}%`
+                            : "0%"}
+                        </strong>
+                      </div>
+                    </div>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: NAVY }}>{row.clicks}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ background: WHITE, border: `1px solid ${BORDER}`, borderRadius: 10, padding: 12 }}>
+                <h2 style={{ margin: "0 0 8px", fontSize: 14, color: NAVY }}>Human Assist Performance</h2>
+                <p style={{ margin: "0 0 10px", fontSize: 11, color: SUB }}>
+                  CTR is human assist clicks divided by total results views in the selected date range.
+                </p>
+                <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 8 }}>
+                  <div style={{ fontSize: 12, color: SUB }}>
+                    Results views:{" "}
+                    <strong style={{ color: NAVY }}>{data.humanAssistPerformance.resultsViews}</strong>
+                  </div>
+                  <div style={{ fontSize: 12, color: SUB }}>
+                    Clicks:{" "}
+                    <strong style={{ color: NAVY }}>{data.humanAssistPerformance.clicksTotal}</strong>
+                  </div>
+                  <div style={{ fontSize: 12, color: SUB }}>
+                    CTR:{" "}
+                    <strong style={{ color: NAVY }}>
+                      {data.humanAssistPerformance.resultsViews > 0
+                        ? `${Math.round(
+                            (data.humanAssistPerformance.clicksTotal /
+                              data.humanAssistPerformance.resultsViews) *
+                              100,
+                          )}%`
+                        : "0%"}
+                    </strong>
+                  </div>
+                  <div style={{ fontSize: 12, color: SUB }}>
+                    Top source:{" "}
+                    <strong style={{ color: NAVY }}>
+                      {data.humanAssistPerformance.bySource[0]?.source || "n/a"}
+                    </strong>
+                  </div>
+                </div>
+                {data.humanAssistPerformance.bySource.length === 0 && (
+                  <div style={{ color: SUB, fontSize: 12 }}>No human assist clicks yet in range.</div>
+                )}
+                {data.humanAssistPerformance.bySource.map((row) => (
+                  <div
+                    key={row.source}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: "8px 0",
+                      borderBottom: `1px solid ${BORDER}`,
+                    }}
+                  >
+                    <div style={{ fontSize: 13, fontWeight: 700, color: NAVY }}>{row.source}</div>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: NAVY }}>{row.clicks}</div>
                   </div>
                 ))}
               </div>

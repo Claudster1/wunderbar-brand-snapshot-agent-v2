@@ -103,7 +103,7 @@ function generateAssessmentData() {
 }
 
 // ─── Test Scenarios ─────────────────────────────────────────────
-export default function () {
+export default function loadTestMain() {
   var headers = { "Content-Type": "application/json" };
 
   // ── 1. Landing Page ──────────────────────────────────────────

@@ -37,7 +37,7 @@ export function ReportTemplate({ data }: { data: any }) {
           Your WunderBrand Snapshot™ Report
         </h1>
         <p className="mt-2 text-gray-600">
-          Hi {userName}, here's your personalized WunderBrand Score™ and the insights that matter most for your brand right now.
+          Hi {userName}, here&apos;s your personalized WunderBrand Score™ and the insights that matter most for your brand right now.
         </p>
 
         <div className="flex flex-wrap gap-4 mt-6">

@@ -1,13 +1,10 @@
-// lib/scoring/primaryPillar.ts
-// Primary pillar calculation
-
 import { PillarKey } from "@/types/pillars";
+import { getPrimaryPillar as getPrimaryPillarFromSpec } from "@/lib/pillars/getPrimaryPillar";
 
 export function getPrimaryPillar(
-  scores: Record<PillarKey, number>
+  scores: Record<PillarKey, number>,
+  businessType?: string | null,
 ): PillarKey {
-  const entries = Object.entries(scores) as [PillarKey, number][];
-  const maxScore = Math.max(...entries.map(([, v]) => v));
-  const lowest = entries.filter(([, v]) => v === maxScore);
-  return lowest[0][0]; // deterministic, stable
+  const result = getPrimaryPillarFromSpec(scores, { businessType });
+  return (result.type === "single" ? result.pillar : result.pillars?.[0]) as PillarKey;
 }

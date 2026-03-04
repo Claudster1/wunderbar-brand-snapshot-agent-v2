@@ -67,6 +67,8 @@ export interface BrandBlueprintPlusPDFProps {
     prompt: string;
   }>;
   completeAEOSystem?: CompleteAEOSystem;
+  marketingRoiPrioritization?: string;
+  activationSessionPlan?: string;
 }
 
 export const BrandBlueprintPlusPDF = ({
@@ -81,6 +83,8 @@ export const BrandBlueprintPlusPDF = ({
   decisionFilters = [],
   aiPrompts = [],
   completeAEOSystem,
+  marketingRoiPrioritization,
+  activationSessionPlan,
 }: BrandBlueprintPlusPDFProps) => {
   return (
     <Document>
@@ -490,6 +494,18 @@ export const BrandBlueprintPlusPDF = ({
         <Text style={stylePresets.body}>
           Schedule a strategy session with Wunderbar Digital to walk through your Blueprint+™
           and create a customized implementation plan.
+        </Text>
+
+        <Text style={stylePresets.h3}>Marketing ROI Prioritization</Text>
+        <Text style={stylePresets.body}>
+          {marketingRoiPrioritization ||
+            "Use your Blueprint+ outputs to rank channels by expected return, allocate budget by near-term wins vs long-game growth, and avoid vanity metrics that do not correlate with revenue."}
+        </Text>
+
+        <Text style={stylePresets.h3}>Activation Session Framework</Text>
+        <Text style={stylePresets.body}>
+          {activationSessionPlan ||
+            "Use a 30-minute activation format: calibrate highest-impact pillar, lock two channel priorities, define the first three content assets, and confirm 90-day success metrics."}
         </Text>
 
         <Text style={stylePresets.footer}>

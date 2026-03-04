@@ -1,6 +1,7 @@
 // src/pdf/documents/SnapshotPlusPDF.tsx
 // WunderBrand Snapshot+™ PDF Document ($497)
 // Includes full structured AEO section as required for this tier
+/* eslint-disable react/no-unescaped-entities */
 
 import React from "react";
 import { Document, Page, Text, View } from "@react-pdf/renderer";

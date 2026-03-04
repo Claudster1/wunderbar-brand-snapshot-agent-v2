@@ -1,5 +1,6 @@
 // Brand Messaging Playbook — standalone document
 // For: Content creators, copywriters, marketing team
+/* eslint-disable react/no-unescaped-entities */
 
 import React from "react";
 import { Document, Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
@@ -41,6 +42,7 @@ export function MessagingPlaybookDocument({ data, brandName }: Props) {
   return (
     <Document>
       <Page size="A4" style={s.cover}>
+        {/* eslint-disable-next-line jsx-a11y/alt-text */}
         <Image src={LOGO_URL} style={s.logo} />
         <Text style={s.coverTitle}>Brand Messaging Playbook</Text>
         <Text style={s.coverSub}>{brandName}</Text>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import Link from "next/link";
 
 export default function ResultsError({
   error,
@@ -9,12 +10,23 @@ export default function ResultsError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const autoRetried = useRef(false);
+
   useEffect(() => {
     console.error("[Results Error]", error);
     import("@sentry/nextjs")
       .then((Sentry) => Sentry.captureException(error))
       .catch(() => {});
   }, [error]);
+
+  useEffect(() => {
+    if (autoRetried.current) return;
+    autoRetried.current = true;
+    const timer = setTimeout(() => {
+      reset();
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, [reset]);
 
   return (
     <section
@@ -46,7 +58,8 @@ export default function ResultsError({
         Couldn&apos;t load your report
       </h2>
       <p style={{ fontSize: 15, color: "#5A6B7E", lineHeight: 1.6, margin: "0 0 24px" }}>
-        We had trouble loading your WunderBrand results. Try refreshing, or start a new snapshot.
+        We had trouble loading your WunderBrand results. We&apos;re retrying automatically.
+        If it still fails, start a new snapshot.
       </p>
       <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
         <button
@@ -64,7 +77,7 @@ export default function ResultsError({
         >
           Retry
         </button>
-        <a
+        <Link
           href="/brand-snapshot"
           style={{
             padding: "10px 24px",
@@ -77,7 +90,7 @@ export default function ResultsError({
           }}
         >
           New Snapshot
-        </a>
+        </Link>
       </div>
     </section>
   );

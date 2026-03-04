@@ -17,7 +17,7 @@ export function BlueprintPlusLocked({ userRole }: BlueprintPlusLockedProps = {})
       </h3>
 
       <p className="mb-6 max-w-md">
-        Blueprint+™ extends everything you've already clarified —
+        Blueprint+™ extends everything you&apos;ve already clarified —
         turning it into a system designed to support you in{" "}
         <strong>{rolePhrase(userRole as UserRoleContext)}</strong> as your brand grows.
       </p>

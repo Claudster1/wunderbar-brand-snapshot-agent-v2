@@ -63,15 +63,12 @@ function DeltaArrow({ current, previous }: { current: number; previous: number }
 }
 
 export default function ScoreTrendChart() {
-  const [history, setHistory] = useState<HistoryPoint[]>([]);
-  const [loading, setLoading] = useState(true);
   const email = getPersistedEmail();
+  const [history, setHistory] = useState<HistoryPoint[]>([]);
+  const [loading, setLoading] = useState<boolean>(() => Boolean(email));
 
   useEffect(() => {
-    if (!email) {
-      setLoading(false);
-      return;
-    }
+    if (!email) return;
 
     fetch(`/api/score-history?email=${encodeURIComponent(email)}`)
       .then((res) => res.json())

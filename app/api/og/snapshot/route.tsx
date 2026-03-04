@@ -28,8 +28,10 @@ export async function GET() {
           position: "relative",
         }}
       >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={`${base}/assets/og/logo-wunderbar.svg`}
+          alt=""
           width="180"
           style={{ opacity: 0.9 }}
         />
@@ -57,8 +59,10 @@ export async function GET() {
           </div>
         </div>
 
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={`${base}/assets/og/wundy-outline.svg`}
+          alt=""
           width="200"
           style={{ position: "absolute", bottom: "40px", right: "40px" }}
         />

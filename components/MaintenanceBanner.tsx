@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const NAVY = "#021859";
 const AMBER = "#F59E0B";
@@ -14,24 +14,21 @@ type BannerData = {
 };
 
 export default function MaintenanceBanner() {
-  const [banner, setBanner] = useState<BannerData | null>(null);
-  const [dismissed, setDismissed] = useState(false);
-
-  useEffect(() => {
+  const [banner] = useState<BannerData | null>(() => {
     const raw = process.env.NEXT_PUBLIC_MAINTENANCE_BANNER;
-    if (!raw || raw.trim() === "" || raw === "false") return;
-
+    if (!raw || raw.trim() === "" || raw === "false") return null;
     try {
       const parsed = JSON.parse(raw);
-      setBanner({
+      return {
         message: parsed.message || raw,
         type: parsed.type || "maintenance",
         dismissible: parsed.dismissible !== false,
-      });
+      };
     } catch {
-      setBanner({ message: raw, type: "maintenance", dismissible: true });
+      return { message: raw, type: "maintenance", dismissible: true };
     }
-  }, []);
+  });
+  const [dismissed, setDismissed] = useState(false);
 
   if (!banner || dismissed) return null;
 

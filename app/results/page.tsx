@@ -21,6 +21,11 @@ import { getPrimaryPillar } from "@/lib/upgrade/primaryPillar";
 import { PillarKey } from "@/src/types/pillars";
 import type { UserRoleContext } from "@/src/types/snapshot";
 import { ShareButton } from "@/components/share/ShareButton";
+import { LockedResultsPreview } from "@/app/results/components/LockedResultsPreview";
+import { MarketingSpendEfficiencySignal } from "@/app/results/components/MarketingSpendEfficiencySignal";
+import { RevenueImpactStatement } from "@/app/results/components/RevenueImpactStatement";
+import { HumanAssistCTA } from "@/app/results/components/HumanAssistCTA";
+import { safeFetchJson } from "@/lib/resilience/safeFetch";
 
 interface BrandSnapshotResult {
   businessName: string;
@@ -39,6 +44,17 @@ interface BrandSnapshotResult {
 
 interface ResultsPageProps {
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+type BudgetBand = "under_500" | "500_2000" | "2000_5000" | "5000_plus";
+
+function asBudgetBand(value: unknown): BudgetBand | null {
+  return value === "under_500" ||
+    value === "500_2000" ||
+    value === "2000_5000" ||
+    value === "5000_plus"
+    ? value
+    : null;
 }
 
 export default async function ResultsPage({ searchParams }: ResultsPageProps) {
@@ -66,8 +82,11 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 
   // Fetch report and render full results (server component)
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  const res = await fetch(`${baseUrl}/api/snapshot/get?id=${encodeURIComponent(reportId)}`, { cache: "no-store" });
-  if (!res.ok) {
+  const reportResponse = await safeFetchJson<any>(
+    `${baseUrl}/api/snapshot/get?id=${encodeURIComponent(reportId)}`,
+    { cache: "no-store", retries: 2, timeoutMs: 7000 },
+  );
+  if (!reportResponse.ok || !reportResponse.data) {
     return (
       <main className="min-h-screen bg-brand-bg font-brand flex flex-col items-center justify-center px-4 py-16">
         <div className="bs-container-narrow max-w-[700px] mx-auto text-center">
@@ -79,14 +98,14 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
     );
   }
 
-  const report = await res.json();
+  const report = reportResponse.data as any;
   const pillarScores = (report.pillar_scores || report.pillarScores || {}) as Record<PillarKey, number>;
   const pillarInsightsRaw = report.pillar_insights || report.insights || {};
   const pillarInsights: Record<PillarKey, string> = {} as Record<PillarKey, string>;
   for (const key of ["positioning", "messaging", "visibility", "credibility", "conversion"] as PillarKey[]) {
     const v = pillarInsightsRaw[key];
     pillarInsights[key] = typeof v === "string" ? v : (v && typeof v === "object" && "strength" in v)
-      ? [v.strength, v.opportunity, v.action].filter(Boolean).join(" ")
+      ? [v.strength, v.opportunity].filter(Boolean).join(" ")
       : "No insight available.";
   }
 
@@ -111,6 +130,24 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   const primaryPillarStr = (primaryPillar ?? "positioning") as PillarKey;
   const stage = data.stage; // inferred by engine
   const user = data.user ?? { hasSnapshotPlus: false };
+  const reportAnswers = (report.full_report?.answers ?? report.answers ?? {}) as Record<string, unknown>;
+  const businessType =
+    typeof reportAnswers.businessType === "string" ? reportAnswers.businessType : null;
+  const monthlyMarketingBudget = asBudgetBand(reportAnswers.monthlyMarketingBudget);
+  const monthlyRevenueRange =
+    typeof reportAnswers.monthlyRevenueRange === "string"
+      ? reportAnswers.monthlyRevenueRange
+      : null;
+  const annualRevenueRange =
+    typeof reportAnswers.revenueRange === "string" ? reportAnswers.revenueRange : null;
+  const averageTransactionValue =
+    typeof reportAnswers.averageTransactionValue === "string"
+      ? reportAnswers.averageTransactionValue
+      : null;
+  const conversionRateEstimate =
+    typeof reportAnswers.conversionRateEstimate === "string"
+      ? reportAnswers.conversionRateEstimate
+      : null;
 
   return (
     <main className="min-h-screen bg-brand-bg font-brand">
@@ -158,6 +195,45 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         pillarScores={data.pillarScores}
         pillarInsights={data.pillarInsights}
       />
+
+      <MarketingSpendEfficiencySignal
+        businessType={businessType}
+        monthlyMarketingBudget={monthlyMarketingBudget}
+        primaryPillar={primaryPillarStr}
+        reportId={data.reportId}
+        email={data.userEmail}
+      />
+
+      <RevenueImpactStatement
+        primaryPillar={primaryPillarStr}
+        monthlyRevenueRange={monthlyRevenueRange}
+        annualRevenueRange={annualRevenueRange}
+        averageTransactionValue={averageTransactionValue}
+        conversionRateEstimate={conversionRateEstimate}
+        reportId={data.reportId}
+        email={data.userEmail}
+      />
+
+      <HumanAssistCTA
+        source="results_page"
+        reportId={data.reportId}
+        email={data.userEmail}
+        businessName={data.businessName}
+        businessType={businessType}
+        primaryPillar={primaryPillarStr}
+        brandAlignmentScore={data.brandAlignmentScore}
+      />
+
+      {!user.hasSnapshotPlus && (
+        <LockedResultsPreview
+          primaryPillar={primaryPillarStr}
+          pillarScores={data.pillarScores}
+          businessType={businessType}
+          businessName={data.businessName}
+          reportId={data.reportId}
+          email={data.userEmail}
+        />
+      )}
 
       {/* Context Coverage Meter */}
       {data.contextCoverage !== undefined && (

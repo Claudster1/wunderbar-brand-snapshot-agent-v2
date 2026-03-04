@@ -5,7 +5,12 @@ import { snapshotPlusCopy } from "@/src/content/snapshotPlus.copy";
 import { trackEvent } from "@/lib/activeCampaignTracking";
 
 export default function SnapshotPlusPage() {
-  const [showBlueprintPromo, setShowBlueprintPromo] = useState(false);
+  const [showBlueprintPromo] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const views = Number(window.localStorage.getItem("snapshot_plus_views") || "0");
+    const hasBlueprint = window.localStorage.getItem("has_blueprint") === "true";
+    return views >= 2 && !hasBlueprint;
+  });
 
   useEffect(() => {
     const count = Number(
@@ -20,11 +25,6 @@ export default function SnapshotPlusPage() {
       trackEvent("snapshot_plus_viewed_twice", {});
     }
 
-    // Check if Blueprint promo should be shown
-    const shouldShow =
-      Number(localStorage.getItem("snapshot_plus_views")) >= 2 &&
-      localStorage.getItem("has_blueprint") !== "true";
-    setShowBlueprintPromo(shouldShow);
   }, []);
 
   return (

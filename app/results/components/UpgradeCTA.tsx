@@ -1,5 +1,7 @@
 // app/results/components/UpgradeCTA.tsx
 
+import Link from "next/link";
+
 type Props = {
   primaryPillar: string;
   coverageGap: boolean;
@@ -17,12 +19,12 @@ export function UpgradeCTA({ primaryPillar, coverageGap }: Props) {
         Snapshot+™ unlocks a more complete strategic analysis.
       </p>
 
-      <a
+      <Link
         href="/upgrade/snapshot-plus"
         className="inline-block mt-3 px-4 py-2 bg-blue-600 text-white rounded"
       >
-        See how to strengthen what matters most right now
-      </a>
+        See Your Full Results — $497
+      </Link>
     </div>
   );
 }

@@ -69,7 +69,7 @@ export default function Error({
           margin: "0 0 32px",
         }}
       >
-        We hit an unexpected issue. This has been logged and we're looking into
+        We hit an unexpected issue. This has been logged and we&apos;re looking into
         it. You can try again or head back to the homepage.
       </p>
 

@@ -1,4 +1,5 @@
 // components/pdf/ReportDocument.tsx
+/* eslint-disable react/no-unescaped-entities */
 
 import React from "react";
 
@@ -231,6 +232,7 @@ export const ReportDocument = ({
           PAGE 1 — COVER PAGE
       ============================================================ */}
       <Page style={styles.page}>
+        {/* eslint-disable-next-line jsx-a11y/alt-text */}
         <Image src={LOGO_URL} style={styles.coverLogo} />
         <Text style={styles.h1}>Your {productLabel} Report</Text>
         <Text>Prepared for {userName || "you"}</Text>

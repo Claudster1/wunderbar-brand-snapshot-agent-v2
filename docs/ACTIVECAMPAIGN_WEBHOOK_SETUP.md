@@ -18,7 +18,7 @@ So: **no webhook URL = app works; you just won’t send these events to ActiveCa
 
 ## When you DO need it
 
-Set **`ACTIVECAMPAIGN_WEBHOOK_URL`** (and optionally `NEXT_PUBLIC_ACTIVECAMPAIGN_WEBHOOK_URL` for client-side events) if you want:
+Set **`ACTIVECAMPAIGN_WEBHOOK_URL`** if you want:
 
 | What | Where it’s used | Purpose |
 |------|------------------|---------|
@@ -93,19 +93,13 @@ ACTIVECAMPAIGN_WEBHOOK_URL=https://YOUR-WEBHOOK-URL-HERE
 |------|--------|-------------|
 | `ACTIVECAMPAIGN_WEBHOOK_URL` | Your full webhook URL | Production (and Preview if you want) |
 
-**Client-side events (optional):**
+**Client-side events (recommended pattern):**
 
-Events that run in the browser (e.g. results page view, upgrade CTA shown/clicked) need a URL they can call. Options:
+Events triggered in the browser should flow through a server API route (proxy) so webhook URLs remain server-only.
 
-- **A) Public URL (simplest, less secure):** Expose the same URL to the client:
-
-```bash
-NEXT_PUBLIC_ACTIVECAMPAIGN_WEBHOOK_URL=https://YOUR-WEBHOOK-URL-HERE
-```
-
-The code checks `ACTIVECAMPAIGN_WEBHOOK_URL` first, then `NEXT_PUBLIC_ACTIVECAMPAIGN_WEBHOOK_URL`. So you can set only the server one, or both if you want client events.
-
-- **B) API proxy (more secure):** Add an API route (e.g. `/api/track-event`) that accepts the event payload and calls `fireACEvent` (and thus uses server-only `ACTIVECAMPAIGN_WEBHOOK_URL`). Then point the client at `/api/track-event` instead of the webhook URL. (That route is not implemented in this repo yet.)
+- Use an API endpoint (for example `/api/analytics` or a dedicated `/api/track-event`) to accept client event payloads.
+- That server route then forwards to ActiveCampaign using `ACTIVECAMPAIGN_WEBHOOK_URL`.
+- Do **not** expose ActiveCampaign webhook URLs via `NEXT_PUBLIC_*` variables.
 
 ---
 
@@ -137,7 +131,7 @@ The code checks `ACTIVECAMPAIGN_WEBHOOK_URL` first, then `NEXT_PUBLIC_ACTIVECAMP
 |------|-------------|
 | App and reports work | Nothing (webhook optional). |
 | Server-side events (e.g. snapshot completion) to AC | `ACTIVECAMPAIGN_WEBHOOK_URL` in `.env.local` and production. |
-| Client-side events (results view, CTA clicks) to AC | Same URL in `NEXT_PUBLIC_ACTIVECAMPAIGN_WEBHOOK_URL` **or** an API proxy that uses `ACTIVECAMPAIGN_WEBHOOK_URL`. |
+| Client-side events (results view, CTA clicks) to AC | API proxy route that forwards server-side using `ACTIVECAMPAIGN_WEBHOOK_URL`. |
 | Full event tracking | Webhook URL in AC (Automation or external endpoint) + env vars above + automations/actions in AC. |
 
 No webhook URL is required for the app to work; add it only when you want these events in ActiveCampaign.

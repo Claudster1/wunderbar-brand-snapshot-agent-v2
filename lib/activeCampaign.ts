@@ -1,5 +1,5 @@
 // SECURITY: Use server-side env var only. Never expose webhook URLs to the client.
-const AC_WEBHOOK_URL = process.env.ACTIVECAMPAIGN_WEBHOOK_URL ?? process.env.NEXT_PUBLIC_ACTIVECAMPAIGN_WEBHOOK_URL ?? "";
+const AC_WEBHOOK_URL = process.env.ACTIVECAMPAIGN_WEBHOOK_URL ?? "";
 
 export async function trackUpgradeClick(
   product: "snapshot+" | "blueprint" | "blueprint+",

@@ -54,6 +54,7 @@ export const PdfHeader = ({ title, businessName, date }: PdfHeaderProps) => (
       )}
       {date && <Text style={styles.date}>{date}</Text>}
     </View>
+    {/* eslint-disable-next-line jsx-a11y/alt-text */}
     <Image style={styles.logo} src={LOGO_URL} />
   </View>
 );

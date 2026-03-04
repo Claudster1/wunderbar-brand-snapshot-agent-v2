@@ -98,6 +98,7 @@ export function BlueprintPlusDocument({ data }: { data: any }) {
     <Document>
       {/* PAGE 1 — COVER */}
       <Page size="A4" style={styles.page}>
+        {/* eslint-disable-next-line jsx-a11y/alt-text */}
         <Image src={LOGO_URL} style={{ width: 100, marginBottom: 16 }} />
         <View style={styles.header}>
           <Text style={styles.title}>WunderBrand Blueprint+™</Text>

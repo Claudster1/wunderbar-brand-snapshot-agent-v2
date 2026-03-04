@@ -39,6 +39,8 @@ export async function POST(req: NextRequest) {
     const companyName = sanitizeString(body.companyName ?? body.company ?? "");
     const message = sanitizeString(body.message ?? "");
     const source = sanitizeString(body.source ?? "connect_form");
+    const normalizedSource =
+      source === "results_human_assist_branch" ? "results_human_assist_branch" : "connect_form";
     const externalRef = sanitizeString(body.externalRef ?? body.id ?? "");
     const smsOptedIn = body.sms_opted_in === true;
     const emailMarketingOptedIn = body.email_marketing_opted_in === true;
@@ -54,7 +56,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid email address." }, { status: 400 });
     }
 
-    const existingInquiryId = await findInquiryByExternalRef("connect_form", externalRef || null);
+    const existingInquiryId = await findInquiryByExternalRef(normalizedSource, externalRef || null);
     if (existingInquiryId) {
       return NextResponse.json({ ok: true, deduped: true, inquiryId: existingInquiryId });
     }
@@ -64,18 +66,25 @@ export async function POST(req: NextRequest) {
       phone: phone || null,
       fullName: name || null,
       companyName: companyName || null,
-      source: "connect_form",
+      source: normalizedSource,
       metadata: { inbound_source: source },
     });
 
-    const assignment = await resolveAutoAssignedOwner({ source: "connect_form" });
+    const isHumanAssistSource = normalizedSource === "results_human_assist_branch";
+    const preferredHumanAssistOwner = sanitizeString(process.env.CRM_HUMAN_ASSIST_OWNER ?? "");
+    const defaultAssignment = await resolveAutoAssignedOwner({ source: normalizedSource });
+    const assignment =
+      isHumanAssistSource && preferredHumanAssistOwner
+        ? { owner: preferredHumanAssistOwner, reason: "human_assist_owner_override" }
+        : defaultAssignment;
 
     const inquiryId = await createCrmInquiry({
       contactId,
-      source: "connect_form",
+      source: normalizedSource,
       status: "new",
+      priority: isHumanAssistSource ? "high" : "normal",
       owner: assignment.owner,
-      subject: `Connect inquiry${companyName ? ` - ${companyName}` : ""}`,
+      subject: `${isHumanAssistSource ? "Human assist request" : "Connect inquiry"}${companyName ? ` - ${companyName}` : ""}`,
       message: message || null,
       externalRef: externalRef || null,
       channelMetadata: { source },
@@ -94,10 +103,21 @@ export async function POST(req: NextRequest) {
       inquiryId,
       contactId,
       activityType: "inbound_received",
-      body: "Connect form inquiry received",
-      payload: { source: "connect_form", assigned_owner: assignment.owner, assign_reason: assignment.reason },
+      body: isHumanAssistSource ? "Human assist request received from results" : "Connect form inquiry received",
+      payload: { source, assigned_owner: assignment.owner, assign_reason: assignment.reason },
       createdBy: "system",
     });
+
+    if (isHumanAssistSource) {
+      await createCrmActivity({
+        inquiryId,
+        contactId,
+        activityType: "human_assist_requested",
+        body: "High-intent human assist request from results page",
+        payload: { source, priority: "high" },
+        createdBy: "system",
+      });
+    }
 
     if (assignment.owner) {
       await createCrmActivity({
@@ -113,12 +133,17 @@ export async function POST(req: NextRequest) {
     await createDefaultCrmTaskForInquiry({
       inquiryId,
       contactId,
-      source: "connect_form",
+      source: normalizedSource,
     });
 
     if (email) {
       try {
-        const tags = ["inquiry:connect-form", "inquiry:pending-response", "inbound:connect"];
+        const tags = ["inquiry:pending-response", "inbound:connect"];
+        if (isHumanAssistSource) {
+          tags.push("inquiry:human-assist");
+        } else {
+          tags.push("inquiry:connect-form");
+        }
         if (smsOptedIn) tags.push("sms:opted-in");
         if (emailMarketingOptedIn) tags.push("email:marketing-opted-in");
 
@@ -137,11 +162,11 @@ export async function POST(req: NextRequest) {
           const fields: Record<string, string> = {};
           if (smsOptedIn) {
             fields.sms_opted_in = "true";
-            fields.sms_optin_source = "connect_form";
+            fields.sms_optin_source = normalizedSource;
           }
           if (emailMarketingOptedIn) {
             fields.email_marketing_opted_in = "true";
-            fields.email_marketing_optin_source = "connect_form";
+            fields.email_marketing_optin_source = normalizedSource;
           }
           if (phoneMobile) fields.phone_mobile = phoneMobile;
           await setContactFields({ email, fields });

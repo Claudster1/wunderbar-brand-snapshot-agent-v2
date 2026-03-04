@@ -56,6 +56,9 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
     roadmap_30,
     roadmap_60,
     roadmap_90,
+    content_format_channel_snapshot,
+    marketing_spend_audit_signal,
+    brand_opportunities,
   } = report;
 
   const css = `
@@ -187,6 +190,34 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
           })}
         </div>
       </div>
+
+      {/* STRATEGY SNAPSHOT SIGNALS */}
+      <div className="section">
+        <h2>Content Format &amp; Channel Snapshot</h2>
+        <p style={{ lineHeight: "1.65" }}>
+          {content_format_channel_snapshot ||
+            "This section maps your audience to the most effective content formats, highest-leverage channels, and funnel-stage priorities so execution starts with the right sequence."}
+        </p>
+      </div>
+
+      <div className="section">
+        <h2>Marketing Spend Audit Signal</h2>
+        <p style={{ lineHeight: "1.65" }}>
+          {marketing_spend_audit_signal ||
+            "This section highlights whether current spend allocation aligns with audience behavior and where budget efficiency can improve before scaling channel complexity."}
+        </p>
+      </div>
+
+      {brand_opportunities && (
+        <div className="section">
+          <h2>Core Brand Opportunities</h2>
+          <p style={{ lineHeight: "1.65" }}>
+            {typeof brand_opportunities === "string"
+              ? brand_opportunities
+              : JSON.stringify(brand_opportunities)}
+          </p>
+        </div>
+      )}
 
       {/* BRAND PERSONA */}
       {enriched_persona && (

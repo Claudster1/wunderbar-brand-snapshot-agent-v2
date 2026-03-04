@@ -356,36 +356,39 @@ function ConfirmToast({ message }: { message: string }) {
 /* ─── Main CookieBanner Component ─── */
 /* ═══════════════════════════════════════════ */
 export function CookieBanner() {
-  const [visible, setVisible] = useState(false);
+  const [consent, setConsentState] = useState<ConsentState | null>(() => {
+    if (typeof window === "undefined") return null;
+    return getConsent();
+  });
+  const [visible, setVisible] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return !getConsent();
+  });
   const [modalOpen, setModalOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
-  const [consent, setConsentState] = useState<ConsentState | null>(null);
-  const [preferences, setPreferences] = useState<Record<string, boolean>>(
-    Object.fromEntries(CATEGORIES.map((c) => [c.id, c.defaultOn])),
-  );
+  const [preferences, setPreferences] = useState<Record<string, boolean>>(() => {
+    const existing = typeof window === "undefined" ? null : getConsent();
+    return {
+      essential: true,
+      analytics: existing?.analytics ?? true,
+      marketing: existing?.marketing ?? false,
+    };
+  });
 
-  // Check existing consent on mount
   useEffect(() => {
-    const existing = getConsent();
-    if (existing) {
-      setConsentState(existing);
-      setPreferences({
-        essential: true,
-        analytics: existing.analytics,
-        marketing: existing.marketing,
-      });
-      if (existing.analytics) injectTracking();
-      if (existing.marketing) injectMarketingPixels();
-    } else {
-      const t = setTimeout(() => setVisible(true), 800);
-      return () => clearTimeout(t);
+    if (consent) {
+      if (consent.analytics) injectTracking();
+      if (consent.marketing) injectMarketingPixels();
+      return;
     }
-  }, []);
+    const t = setTimeout(() => setVisible(true), 800);
+    return () => clearTimeout(t);
+  }, [consent]);
 
   // Expose global function for "Cookie Settings" footer link
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (window as any).__openCookieSettings = () => {
+    type CookieWindow = Window & { __openCookieSettings?: () => void };
+    (window as CookieWindow).__openCookieSettings = () => {
       const existing = getConsent();
       if (existing) {
         setPreferences({
@@ -397,8 +400,7 @@ export function CookieBanner() {
       setModalOpen(true);
     };
     return () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (window as any).__openCookieSettings;
+      delete (window as CookieWindow).__openCookieSettings;
     };
   }, []);
 
@@ -667,9 +669,12 @@ const styles: Record<string, React.CSSProperties> = {
 /* ─── Inject tracking scripts when analytics consent is given ─── */
 function injectTracking() {
   if (typeof window === "undefined") return;
-
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  const w = window as any;
+  const w = window as Window & {
+    visitorGlobalObjectAlias?: string;
+    vgo?: ((...args: unknown[]) => void) & { q?: unknown[][]; l?: number };
+    dataLayer?: unknown[][];
+    gtag?: (...args: unknown[]) => void;
+  };
 
   // AC Site Tracking (diffuser.js)
   if (!w.vgo) {
@@ -705,28 +710,35 @@ function injectTracking() {
 
     w.dataLayer = w.dataLayer || [];
     w.gtag = function (...args: unknown[]) {
-      w.dataLayer.push(args);
+      (w.dataLayer ??= []).push(args);
     };
     w.gtag("js", new Date());
     w.gtag("config", GA_ID);
     if (GADS_ID) w.gtag("config", GADS_ID);
   }
-  /* eslint-enable @typescript-eslint/no-explicit-any */
 }
 
 /* ─── Inject marketing pixels when marketing consent is given ─── */
 function injectMarketingPixels() {
   if (typeof window === "undefined") return;
-
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  const w = window as any;
+  type FbqFn = ((...args: unknown[]) => void) & {
+    callMethod?: (...args: unknown[]) => void;
+    queue: unknown[][];
+    push?: FbqFn;
+    loaded?: boolean;
+    version?: string;
+  };
+  const w = window as Window & {
+    fbq?: FbqFn;
+    _linkedin_data_partner_ids?: string[];
+  };
 
   // Meta Pixel (Facebook)
   const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
   if (META_PIXEL_ID && !w.fbq) {
-    const f = function (...args: unknown[]) {
+    const f: FbqFn = function (...args: unknown[]) {
       f.callMethod ? f.callMethod(...args) : f.queue.push(args);
-    } as any;
+    };
     f.push = f;
     f.loaded = true;
     f.version = "2.0";
@@ -753,5 +765,4 @@ function injectMarketingPixels() {
     script.async = true;
     document.head.appendChild(script);
   }
-  /* eslint-enable @typescript-eslint/no-explicit-any */
 }

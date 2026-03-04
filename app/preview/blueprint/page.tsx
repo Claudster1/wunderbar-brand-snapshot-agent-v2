@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import nextDynamic from "next/dynamic";
+import Image from "next/image";
 
 // Lazy-load heavy interactive components to reduce initial bundle size
 const ReportNav = nextDynamic(() => import("@/components/reports/ReportNav"), { ssr: false });
@@ -921,18 +922,21 @@ export default function BrandBlueprintReport() {
   const r = REPORT;
   const [selectedFocus, setSelectedFocus] = useState<"primary" | "secondary">("primary");
   const [selectedArchetype, setSelectedArchetype] = useState<"primary" | "secondary">("primary");
-  const [blueprintReportId, setBlueprintReportId] = useState<string | null>(null);
-  const [blueprintEmail, setBlueprintEmail] = useState<string | undefined>(undefined);
-  const [blueprintTier, setBlueprintTier] = useState<"blueprint" | "blueprint-plus">("blueprint");
-  useEffect(() => {
+  const [blueprintReportId] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
     const params = new URLSearchParams(window.location.search);
-    const rid = params.get("reportId") || params.get("id");
-    if (rid) setBlueprintReportId(rid);
-    const em = params.get("email") || localStorage.getItem("brand_snapshot_email") || undefined;
-    if (em) setBlueprintEmail(em);
-    const t = params.get("tier");
-    if (t === "blueprint-plus") setBlueprintTier("blueprint-plus");
-  }, []);
+    return params.get("reportId") || params.get("id");
+  });
+  const [blueprintEmail] = useState<string | undefined>(() => {
+    if (typeof window === "undefined") return undefined;
+    const params = new URLSearchParams(window.location.search);
+    return params.get("email") || localStorage.getItem("brand_snapshot_email") || undefined;
+  });
+  const [blueprintTier] = useState<"blueprint" | "blueprint-plus">(() => {
+    if (typeof window === "undefined") return "blueprint";
+    const params = new URLSearchParams(window.location.search);
+    return params.get("tier") === "blueprint-plus" ? "blueprint-plus" : "blueprint";
+  });
 
   return (
     <>
@@ -982,7 +986,13 @@ export default function BrandBlueprintReport() {
         <div style={{ maxWidth: 900, margin: "0 auto", padding: "0 24px", position: "relative", zIndex: 1 }}>
           <div data-header-top style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 0", borderBottom: `1px solid ${BORDER}` }}>
           <a href={UTM_BASE} target="_blank" rel="noopener noreferrer">
-            <img src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp" alt="Wunderbar Digital" style={{ height: 26, objectFit: "contain" }} />
+            <Image
+              src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp"
+              alt="Wunderbar Digital"
+              width={160}
+              height={26}
+              style={{ height: 26, width: "auto", objectFit: "contain" }}
+            />
           </a>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
             <span style={{ fontSize: 22, fontWeight: 700, color: NAVY, lineHeight: 1 }}>WunderBrand Blueprint™</span>
@@ -1332,7 +1342,9 @@ export default function BrandBlueprintReport() {
 
             <div style={{ padding: "20px 24px", background: `${BLUE}08`, borderRadius: 5, borderLeft: `4px solid ${BLUE}` }}>
               <div style={{ fontSize: 12, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>Positioning Statement</div>
-              <div style={{ fontSize: 17, color: "#1a1a2e", lineHeight: 1.65, fontStyle: "italic", fontWeight: 500 }}>"{r.brandFoundation.positioningStatement}"</div>
+              <div style={{ fontSize: 17, color: "#1a1a2e", lineHeight: 1.65, fontStyle: "italic", fontWeight: 500 }}>
+                &ldquo;{r.brandFoundation.positioningStatement}&rdquo;
+              </div>
             </div>
 
             <div>
@@ -2403,7 +2415,13 @@ export default function BrandBlueprintReport() {
         <footer style={{ textAlign: "center", padding: "20px 0 0", borderTop: `1px solid ${BORDER}` }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8 }}>
             <a href={UTM_BASE} target="_blank" rel="noopener noreferrer">
-              <img src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp" alt="Wunderbar Digital" style={{ height: 20, objectFit: "contain" }} />
+              <Image
+                src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp"
+                alt="Wunderbar Digital"
+                width={124}
+                height={20}
+                style={{ height: 20, width: "auto", objectFit: "contain" }}
+              />
             </a>
           </div>
           <p style={{ fontSize: 14, color: SUB, marginBottom: 4 }}>

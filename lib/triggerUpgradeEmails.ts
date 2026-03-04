@@ -12,8 +12,10 @@ export async function triggerUpgradeEmails({
   const gaps = uncoveredPillars(coverage);
 
   if (gaps.length === 0) return;
+  const webhookUrl = process.env.ACTIVE_CAMPAIGN_WEBHOOK || process.env.ACTIVECAMPAIGN_WEBHOOK_URL;
+  if (!webhookUrl) return;
 
-  await fetch(process.env.ACTIVE_CAMPAIGN_WEBHOOK!, {
+  await fetch(webhookUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

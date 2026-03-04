@@ -28,7 +28,8 @@ export async function GET() {
           position: "relative",
         }}
       >
-        <img src={`${base}/assets/og/logo-wunderbar.svg`} width="180" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={`${base}/assets/og/logo-wunderbar.svg`} alt="" width="180" />
 
         <div style={{ marginTop: "60px" }}>
           <div style={{ fontSize: "62px", fontWeight: 700 }}>Blueprint™</div>
@@ -37,8 +38,10 @@ export async function GET() {
           </div>
         </div>
 
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={`${base}/assets/og/blueprint-bg.svg`}
+          alt=""
           width="360"
           style={{ position: "absolute", right: "50px", bottom: "70px" }}
         />

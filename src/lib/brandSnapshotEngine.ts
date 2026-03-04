@@ -22,44 +22,57 @@ export function calculateBrandSnapshotScores(
   answers: Record<string, any>
 ): SnapshotResult {
   // Normalize helper
-  const normalize = (value: number, max = 5) =>
-    Math.min(Math.max(value, 1), max);
+  const normalize = (value: unknown, max = 5) => {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) return 0;
+    return Math.min(Math.max(numeric, 0), max);
+  };
+  const toPillar20 = (factors: number[]) => {
+    if (factors.length === 0) return 0;
+    const sum = factors.reduce((acc, value) => acc + value, 0);
+    return Math.min(Math.max(Math.round((sum / (factors.length * 5)) * 20), 0), 20);
+  };
 
   // Pillar scoring
-  const positioning =
-    normalize(answers.marketClarity) +
-    normalize(answers.targetCustomerDefinition) +
-    normalize(answers.uniqueValue) +
-    normalize(answers.marketDifferentiation) +
-    normalize(answers.offerClarity);
+  const positioning = toPillar20([
+    normalize(answers.marketClarity),
+    normalize(answers.targetCustomerDefinition),
+    normalize(answers.uniqueValue),
+    normalize(answers.marketDifferentiation),
+    normalize(answers.offerClarity),
+  ]);
 
-  const messaging =
-    normalize(answers.coreMessageStrength) +
-    normalize(answers.websiteMessagingClarity) +
-    normalize(answers.socialMessagingConsistency) +
-    normalize(answers.storyClarity) +
-    normalize(answers.benefitClarity);
+  const messaging = toPillar20([
+    normalize(answers.coreMessageStrength),
+    normalize(answers.websiteMessagingClarity),
+    normalize(answers.socialMessagingConsistency),
+    normalize(answers.storyClarity),
+    normalize(answers.benefitClarity),
+  ]);
 
-  const visibility =
-    normalize(answers.webPresence) +
-    normalize(answers.socialPresence) +
-    normalize(answers.seoHealth) +
-    normalize(answers.contentVelocity) +
-    normalize(answers.discoverability);
+  const visibility = toPillar20([
+    normalize(answers.webPresence),
+    normalize(answers.socialPresence),
+    normalize(answers.seoHealth),
+    normalize(answers.contentVelocity),
+    normalize(answers.discoverability),
+  ]);
 
-  const credibility =
-    normalize(answers.proofPoints) +
-    normalize(answers.reviews) +
-    normalize(answers.socialProof) +
-    normalize(answers.brandProfessionalism) +
-    normalize(answers.websiteTrustSignals);
+  const credibility = toPillar20([
+    normalize(answers.proofPoints),
+    normalize(answers.reviews),
+    normalize(answers.socialProof),
+    normalize(answers.brandProfessionalism),
+    normalize(answers.websiteTrustSignals),
+  ]);
 
-  const conversion =
-    normalize(answers.ctaClarity) +
-    normalize(answers.funnelStrength) +
-    normalize(answers.leadCapture) +
-    normalize(answers.offerMessaging) +
-    normalize(answers.salesReadiness);
+  const conversion = toPillar20([
+    normalize(answers.ctaClarity),
+    normalize(answers.funnelStrength),
+    normalize(answers.leadCapture),
+    normalize(answers.offerMessaging),
+    normalize(answers.salesReadiness),
+  ]);
 
   const pillarScores: PillarScores = {
     positioning,
@@ -69,14 +82,12 @@ export function calculateBrandSnapshotScores(
     conversion,
   };
 
-  const brandAlignmentScore = Math.round(
-    (positioning +
-      messaging +
-      visibility +
-      credibility +
-      conversion) /
-      5
-  );
+  const brandAlignmentScore =
+    pillarScores.positioning +
+    pillarScores.messaging +
+    pillarScores.visibility +
+    pillarScores.credibility +
+    pillarScores.conversion;
 
   // Generate insights dynamically
   const insights = generateInsights(pillarScores);
@@ -156,32 +167,37 @@ function generateRecommendations(pillars: PillarScores): string[] {
 // =============================================================
 export function calculateScores(pillarScores: PillarScores) {
   // Calculate WunderBrand Score™ from existing pillar scores
-  const brandAlignmentScore = Math.round(
-    (pillarScores.positioning +
-      pillarScores.messaging +
-      pillarScores.visibility +
-      pillarScores.credibility +
-      pillarScores.conversion) /
-      5
-  );
+  const normalizedPillars: PillarScores = {
+    positioning: Math.min(Math.max(Math.round(Number(pillarScores.positioning || 0)), 0), 20),
+    messaging: Math.min(Math.max(Math.round(Number(pillarScores.messaging || 0)), 0), 20),
+    visibility: Math.min(Math.max(Math.round(Number(pillarScores.visibility || 0)), 0), 20),
+    credibility: Math.min(Math.max(Math.round(Number(pillarScores.credibility || 0)), 0), 20),
+    conversion: Math.min(Math.max(Math.round(Number(pillarScores.conversion || 0)), 0), 20),
+  };
+  const brandAlignmentScore =
+    normalizedPillars.positioning +
+    normalizedPillars.messaging +
+    normalizedPillars.visibility +
+    normalizedPillars.credibility +
+    normalizedPillars.conversion;
   
   // Find weakest pillar
-  const entries = Object.entries(pillarScores) as [keyof PillarScores, number][];
+  const entries = Object.entries(normalizedPillars) as [keyof PillarScores, number][];
   const weakestPillar = entries.reduce((min, [pillar, score]) => 
     score < min.score ? { pillar, score } : min,
-    { pillar: 'positioning' as keyof PillarScores, score: 25 }
+    { pillar: 'positioning' as keyof PillarScores, score: 20 }
   );
   
   // Find strong pillars (>= 20)
-  const strengths = Object.entries(pillarScores)
+  const strengths = Object.entries(normalizedPillars)
     .filter(([_, score]) => score >= 20)
     .map(([pillar]) => pillar);
   
   // Generate insights (convert to object format with strength/opportunity/action)
-  const rawInsights = generateInsights(pillarScores);
+  const rawInsights = generateInsights(normalizedPillars);
   const pillarInsights: Record<string, { strength: string; opportunity: string; action: string }> = {};
   
-  Object.entries(pillarScores).forEach(([pillar, score]) => {
+  Object.entries(normalizedPillars).forEach(([pillar, score]) => {
     const insight = rawInsights.find((ins) => ins.toLowerCase().includes(pillar)) || "";
     if (score >= 20) {
       pillarInsights[pillar] = {
@@ -209,7 +225,7 @@ export function calculateScores(pillarScores: PillarScores) {
   
   return {
     brandAlignmentScore,
-    pillarScores,
+    pillarScores: normalizedPillars,
     pillarInsights,
     weakestPillar: {
       pillar: weakestPillar.pillar,
@@ -218,7 +234,7 @@ export function calculateScores(pillarScores: PillarScores) {
     },
     strengths,
     snapshotUpsell: upsellCopy,
-    opportunities: Object.entries(pillarScores)
+    opportunities: Object.entries(normalizedPillars)
       .filter(([_, score]) => score < 14)
       .map(([pillar]) => pillar)
   };

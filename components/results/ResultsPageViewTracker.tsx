@@ -75,7 +75,15 @@ export function ResultsPageViewTracker({
         localStorage.setItem(coverageKey, "true");
       }
     }
-  }, []);
+  }, [
+    brandAlignmentScore,
+    brandName,
+    contextCoverage,
+    email,
+    primaryPillar,
+    reportId,
+    stage,
+  ]);
 
   return null;
 }

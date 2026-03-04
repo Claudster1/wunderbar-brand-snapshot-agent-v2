@@ -4,6 +4,18 @@ Copy and paste everything below this line into Claude to generate all email copy
 
 ---
 
+## STRATEGY V3 ALIGNMENT RULES (DIAGNOSTIC REFERENCES)
+
+When any sequence references diagnostic logic or report methodology, enforce these rules:
+
+- Business type is established with **inference-and-confirm**, not a user-facing taxonomy list.
+- The six business categories are **internal routing targets** and should not be presented as a visible selector.
+- Capture framing is **signal extraction from conversation**, not fixed question-order/form language.
+- Revenue fallback language must be **"fallback without fabrication"** when a signal is missing.
+- Do not imply the user clicked a form option like "I don't track this"; use conversational non-answer phrasing.
+
+---
+
 ## PROMPT STARTS HERE
 
 You are writing the complete email nurture sequences for **WunderBrand** (by Wunderbar Digital). These emails will be built in ActiveCampaign (AC) and triggered by tags and events sent from the WunderBrand app.

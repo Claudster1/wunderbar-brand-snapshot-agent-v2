@@ -544,8 +544,7 @@ async function triggerActiveCampaign({
   }
 
   const AC_WEBHOOK_URL =
-    process.env.ACTIVECAMPAIGN_WEBHOOK_URL ??
-    process.env.NEXT_PUBLIC_ACTIVECAMPAIGN_WEBHOOK_URL;
+    process.env.ACTIVE_CAMPAIGN_WEBHOOK ?? process.env.ACTIVECAMPAIGN_WEBHOOK_URL;
 
   // --- Fire "purchase_complete" event (AC sends preparation/onboarding email) ---
   const emailCopy = POST_PURCHASE_EMAILS[productKey as EmailTier];
@@ -736,8 +735,7 @@ async function triggerRefreshActiveCampaign({
 
   // Fire refresh-specific event for AC automation
   const AC_WEBHOOK_URL =
-    process.env.ACTIVECAMPAIGN_WEBHOOK_URL ??
-    process.env.NEXT_PUBLIC_ACTIVECAMPAIGN_WEBHOOK_URL;
+    process.env.ACTIVE_CAMPAIGN_WEBHOOK ?? process.env.ACTIVECAMPAIGN_WEBHOOK_URL;
 
   if (AC_WEBHOOK_URL) {
     try {

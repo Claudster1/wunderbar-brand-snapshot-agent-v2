@@ -1,6 +1,6 @@
 # WunderBrand Suite™ — Product Comparison Chart
 
-> For use on the suite overview page (wunderbardigital.com/brand-snapshot-suite)
+> For use on the suite overview page (https://wunderbardigital.com/wunderbrand-suite?utm_source=wunderbrand_app&utm_medium=docs&utm_campaign=product_comparison_chart)
 
 ---
 

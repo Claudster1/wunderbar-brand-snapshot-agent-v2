@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 
 // Lazy-load heavy interactive components to reduce initial bundle size
 const ReportNav = dynamic(() => import("@/components/reports/ReportNav"), { ssr: false });
@@ -1199,7 +1200,13 @@ export default function BrandSnapshotPlusReport() {
         <div style={{ maxWidth: 900, margin: "0 auto", padding: "0 24px", position: "relative", zIndex: 1 }}>
           <div data-header-top style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 0", borderBottom: `1px solid ${BORDER}` }}>
             <a href="https://wunderbardigital.com/?utm_source=brand_snapshot_plus_report&utm_medium=report_nav&utm_campaign=nav_header_logo&utm_content=snap_plus_logo" target="_blank" rel="noopener noreferrer">
-              <img src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp" alt="Wunderbar Digital" style={{ height: 26, objectFit: "contain" }} />
+              <Image
+                src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp"
+                alt="Wunderbar Digital"
+                width={160}
+                height={26}
+                style={{ height: 26, width: "auto", objectFit: "contain" }}
+              />
             </a>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
               <span style={{ fontSize: 22, fontWeight: 700, color: NAVY, lineHeight: 1 }}>WunderBrand Snapshot+™</span>
@@ -2943,7 +2950,9 @@ export default function BrandSnapshotPlusReport() {
               <div key={i} style={{ background: i === 0 ? '#F0F7FF' : WHITE, border: `1px solid ${i === 0 ? BLUE : BORDER}`, borderRadius: 10, padding: '24px 28px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
                   <div style={{ width: 32, height: 32, borderRadius: '50%', background: `${BLUE}15`, color: BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14, flexShrink: 0 }}>{i + 1}</div>
-                  <h3 style={{ fontSize: 20, fontWeight: 700, color: NAVY, margin: 0, fontStyle: 'italic' }}>"{t.tagline}"</h3>
+                  <h3 style={{ fontSize: 20, fontWeight: 700, color: NAVY, margin: 0, fontStyle: 'italic' }}>
+                    &ldquo;{t.tagline}&rdquo;
+                  </h3>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                   <div>
@@ -3193,7 +3202,13 @@ export default function BrandSnapshotPlusReport() {
         <footer style={{ textAlign: "center", padding: "20px 0 0", borderTop: `1px solid ${BORDER}` }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8 }}>
             <a href="https://wunderbardigital.com/?utm_source=brand_snapshot_plus_report&utm_medium=report_nav&utm_campaign=nav_header_logo&utm_content=snap_plus_logo" target="_blank" rel="noopener noreferrer">
-              <img src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp" alt="Wunderbar Digital" style={{ height: 20, objectFit: "contain" }} />
+              <Image
+                src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp"
+                alt="Wunderbar Digital"
+                width={124}
+                height={20}
+                style={{ height: 20, width: "auto", objectFit: "contain" }}
+              />
             </a>
           </div>
           <p style={{ fontSize: 14, color: SUB, marginBottom: 4 }}>

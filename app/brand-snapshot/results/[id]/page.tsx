@@ -6,25 +6,41 @@ export const dynamic = "force-dynamic";
 import { WundyHero } from "@/components/WundyHero";
 import { ScoreMeter } from "@/components/ScoreMeter";
 import { PillarBreakdown } from "@/components/PillarBreakdown";
-import { RecommendationsBlock } from "@/components/RecommendationsBlock";
 import { SnapshotUpgradePanel } from "@/components/SnapshotUpgradePanel";
+import { LockedResultsPreview } from "@/app/results/components/LockedResultsPreview";
+import { MarketingSpendEfficiencySignal } from "@/app/results/components/MarketingSpendEfficiencySignal";
+import { RevenueImpactStatement } from "@/app/results/components/RevenueImpactStatement";
+import { HumanAssistCTA } from "@/app/results/components/HumanAssistCTA";
+import type { PillarKey } from "@/src/types/pillars";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { safeFetchJson } from "@/lib/resilience/safeFetch";
 
-async function getReport(id: string) {
+type BudgetBand = "under_500" | "500_2000" | "2000_5000" | "5000_plus";
+
+function asBudgetBand(value: unknown): BudgetBand | null {
+  if (typeof value !== "string") return null;
+  return (["under_500", "500_2000", "2000_5000", "5000_plus"] as const).includes(
+    value as BudgetBand
+  )
+    ? (value as BudgetBand)
+    : null;
+}
+
+async function getReport(id: string): Promise<any | null> {
   // Use NEXT_PUBLIC_BASE_URL if set, otherwise try Vercel's automatic URL, then fallback to localhost
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL 
     || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
     || "http://localhost:3000";
-  const res = await fetch(`${baseUrl}/api/snapshot/get?id=${id}`, {
-    cache: "no-store",
-  });
-
-  if (!res.ok) {
+  const response = await safeFetchJson<any>(
+    `${baseUrl}/api/snapshot/get?id=${encodeURIComponent(id)}`,
+    { cache: "no-store", retries: 2, timeoutMs: 7000 },
+  );
+  if (!response.ok || !response.data) {
     return null;
   }
 
-  return res.json();
+  return response.data;
 }
 
 export async function generateMetadata({
@@ -127,6 +143,33 @@ export default async function SnapshotResultPage({
       ? pillarEntries.reduce((a, b) => (a[1] <= b[1] ? a : b))[0]
       : null;
 
+  const normalizedScores: Record<PillarKey, number> = {
+    positioning: Number(pillar_scores?.positioning ?? 0),
+    messaging: Number(pillar_scores?.messaging ?? 0),
+    visibility: Number(pillar_scores?.visibility ?? 0),
+    credibility: Number(pillar_scores?.credibility ?? 0),
+    conversion: Number(pillar_scores?.conversion ?? 0),
+  };
+  const primaryPillar = (weakestPillar ?? "positioning") as PillarKey;
+  const reportAnswers = (report.full_report?.answers ?? report.answers ?? {}) as Record<string, unknown>;
+  const businessType =
+    typeof reportAnswers.businessType === "string" ? reportAnswers.businessType : null;
+  const monthlyMarketingBudget = asBudgetBand(reportAnswers.monthlyMarketingBudget);
+  const monthlyRevenueRange =
+    typeof reportAnswers.monthlyRevenueRange === "string"
+      ? reportAnswers.monthlyRevenueRange
+      : null;
+  const annualRevenueRange =
+    typeof reportAnswers.revenueRange === "string" ? reportAnswers.revenueRange : null;
+  const averageTransactionValue =
+    typeof reportAnswers.averageTransactionValue === "string"
+      ? reportAnswers.averageTransactionValue
+      : null;
+  const conversionRateEstimate =
+    typeof reportAnswers.conversionRateEstimate === "string"
+      ? reportAnswers.conversionRateEstimate
+      : null;
+
   return (
     <main className="min-h-screen bg-brand-bg font-brand">
       <div className="bs-container-wide bs-section px-4 sm:px-6 md:px-8 space-y-12 md:space-y-14">
@@ -152,17 +195,47 @@ export default async function SnapshotResultPage({
           stage={(report.snapshot_stage || report.stage || "scaling") as "early" | "scaling" | "growing"}
         />
 
-        {/* Recommendations Block — personalized next steps */}
-        <RecommendationsBlock
-          recommendations={recommendationsList}
-          summary={summary}
-          opportunitiesSummary={opportunities_summary}
-        />
-
         {/* Upgrade Panel — credibility + value of upgrading */}
         <SnapshotUpgradePanel
           upgradeCTA={upgrade_cta}
           weakestPillar={weakestPillar}
+        />
+
+        <MarketingSpendEfficiencySignal
+          businessType={businessType}
+          monthlyMarketingBudget={monthlyMarketingBudget}
+          primaryPillar={primaryPillar}
+          reportId={report.report_id}
+          email={report.user_email}
+        />
+
+        <RevenueImpactStatement
+          primaryPillar={primaryPillar}
+          monthlyRevenueRange={monthlyRevenueRange}
+          annualRevenueRange={annualRevenueRange}
+          averageTransactionValue={averageTransactionValue}
+          conversionRateEstimate={conversionRateEstimate}
+          reportId={report.report_id}
+          email={report.user_email}
+        />
+
+        <HumanAssistCTA
+          source="legacy_results_page"
+          reportId={report.report_id}
+          email={report.user_email}
+          businessName={company_name}
+          businessType={businessType}
+          primaryPillar={primaryPillar}
+          brandAlignmentScore={brand_alignment_score}
+        />
+
+        <LockedResultsPreview
+          primaryPillar={primaryPillar}
+          pillarScores={normalizedScores}
+          businessType={businessType}
+          businessName={company_name}
+          reportId={report.report_id}
+          email={report.user_email}
         />
 
         {/* Download report + email note */}

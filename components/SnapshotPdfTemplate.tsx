@@ -166,6 +166,9 @@ interface SnapshotPdfTemplateProps {
     }>;
     persona?: string;
     archetype?: string;
+    full_report?: {
+      answers?: Record<string, unknown>;
+    };
   };
 }
 
@@ -192,6 +195,17 @@ export default function SnapshotPdfTemplate({
 
   const displayCompany = company || company_name;
   const displayInsights = pillar_insights || insights || {};
+  const answers = (report.full_report?.answers || {}) as Record<string, unknown>;
+  const monthlyMarketingBudget =
+    typeof answers.monthlyMarketingBudget === "string" ? answers.monthlyMarketingBudget : null;
+  const monthlyRevenueRange =
+    typeof answers.monthlyRevenueRange === "string" ? answers.monthlyRevenueRange : null;
+  const annualRevenueRange =
+    typeof answers.revenueRange === "string" ? answers.revenueRange : null;
+  const averageTransactionValue =
+    typeof answers.averageTransactionValue === "string" ? answers.averageTransactionValue : null;
+  const conversionRateEstimate =
+    typeof answers.conversionRateEstimate === "string" ? answers.conversionRateEstimate : null;
 
   return (
     <Document>
@@ -328,7 +342,7 @@ export default function SnapshotPdfTemplate({
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Recommended Brand Color Palette</Text>
             <Text style={[styles.pillarInsight, { marginBottom: 12 }]}>
-              Each color plays a role in how your brand is perceived. Here's the palette WUNDY™ generated for you, with the meaning behind each choice:
+              Each color plays a role in how your brand is perceived. Here&apos;s the palette WUNDY™ generated for you, with the meaning behind each choice:
             </Text>
             {color_palette.map((color, index) => (
               <View key={index} style={styles.paletteRow}>
@@ -339,7 +353,7 @@ export default function SnapshotPdfTemplate({
               </View>
             ))}
             <Text style={[styles.pillarInsight, { marginTop: 12, fontSize: 9, color: '#6b7280' }]}>
-              If you'd like WUNDY™ to turn this into a fully realized visual identity system—including brand pillars, persona, archetype, typography, and a polished brand guide—you're a perfect fit for Snapshot+™.
+              If you&apos;d like WUNDY™ to turn this into a fully realized visual identity system—including brand pillars, persona, archetype, typography, and a polished brand guide—you&apos;re a perfect fit for Snapshot+™.
             </Text>
           </View>
         )}
@@ -351,6 +365,36 @@ export default function SnapshotPdfTemplate({
             <Text style={styles.pillarInsight}>{upgrade_cta}</Text>
           </View>
         )}
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Marketing Spend Efficiency Signal</Text>
+          <Text style={styles.pillarInsight}>
+            {monthlyMarketingBudget
+              ? `Based on your declared budget (${monthlyMarketingBudget}), your current pattern indicates spend inefficiency that Snapshot+ can prioritize and correct.`
+              : "Your score pattern indicates likely spend inefficiency. Snapshot+ identifies where budget is leaking and what to fix first."}
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Revenue Impact Statement</Text>
+          <Text style={styles.pillarInsight}>
+            {(monthlyRevenueRange || annualRevenueRange) && averageTransactionValue && conversionRateEstimate
+              ? "Based on your inputs, Snapshot+ estimates the likely monthly upside tied to your primary pillar and discloses assumptions clearly."
+              : "When baseline inputs are incomplete, Snapshot+ uses pillar-to-metric impact framing (not fabricated numbers) to show where revenue drag appears."}
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Your Full Results Are Ready</Text>
+          <Text style={styles.pillarInsight}>
+            Your complete diagnostic includes locked sections prepared for Snapshot+: archetype reveal,
+            dominant contributing factor, audience alignment gap, foundational prompt pack, and content
+            format/channel recommendations.
+          </Text>
+          <Text style={[styles.pillarInsight, { marginTop: 8, fontWeight: 700, color: "#07b0f2" }]}>
+            See Your Full Results — $497
+          </Text>
+        </View>
 
         {/* Footer */}
         <Text style={{

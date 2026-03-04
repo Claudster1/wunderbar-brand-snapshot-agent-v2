@@ -58,9 +58,8 @@ describe('input validation & edge cases', () => {
         proofPoints: 3, reviews: 3, socialProof: 3, brandProfessionalism: 3, websiteTrustSignals: 3,
         ctaClarity: 3, funnelStrength: 3, leadCapture: 3, offerMessaging: 3, salesReadiness: 3,
       });
-      // Normalize clamps to [1, 5], so all negatives should become 1
-      // positioning = 1 + 1 + 1 + 1 + 1 = 5 (0 clamps to 1 since Math.max(0, 1) = 1)
-      expect(result.pillarScores.positioning).toBe(5);
+      // Normalize clamps to [0, 5], so negatives become 0.
+      expect(result.pillarScores.positioning).toBe(0);
     });
 
     it('handles very large numbers', () => {
@@ -75,8 +74,8 @@ describe('input validation & edge cases', () => {
         proofPoints: 3, reviews: 3, socialProof: 3, brandProfessionalism: 3, websiteTrustSignals: 3,
         ctaClarity: 3, funnelStrength: 3, leadCapture: 3, offerMessaging: 3, salesReadiness: 3,
       });
-      // Large numbers clamp to 5
-      expect(result.pillarScores.positioning).toBe(5 + 5 + 5 + 3 + 3); // 21
+      // Large numbers clamp to 5; Infinity becomes 0 by numeric guard.
+      expect(result.pillarScores.positioning).toBe(13);
     });
 
     it('handles mixed valid and invalid fields', () => {

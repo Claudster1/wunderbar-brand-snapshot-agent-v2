@@ -4,6 +4,7 @@ import {
   removeActiveCampaignTags,
   setContactFields,
 } from "@/lib/applyActiveCampaignTags";
+import { createCrmSyncLog } from "@/lib/crm/inbound";
 import { isValidEmail, sanitizeString } from "@/lib/security/inputValidation";
 import { logger } from "@/lib/logger";
 
@@ -61,6 +62,15 @@ export async function POST(req: NextRequest) {
     };
     if (phoneMobile) fields.phone_mobile = phoneMobile;
     await setContactFields({ email, fields });
+    await createCrmSyncLog({
+      status: "success",
+      eventType: "ac.consent.sms_endpoint",
+      payload: {
+        email,
+        sms_opted_in: smsOptedIn,
+        source,
+      },
+    });
 
     return NextResponse.json({
       ok: true,
@@ -69,6 +79,12 @@ export async function POST(req: NextRequest) {
       source,
     });
   } catch (err) {
+    await createCrmSyncLog({
+      status: "failed",
+      eventType: "ac.consent.sms_endpoint",
+      errorMessage: err instanceof Error ? err.message : String(err),
+      payload: {},
+    });
     logger.error("[SMS Consent] Failed", {
       error: err instanceof Error ? err.message : String(err),
     });

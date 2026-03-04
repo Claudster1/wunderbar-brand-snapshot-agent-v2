@@ -381,13 +381,12 @@ function ReportCard({ item }: { item: HistoryItem }) {
 
 export default function DashboardHistory() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const email = getPersistedEmail();
+  const [loading, setLoading] = useState<boolean>(() => Boolean(email));
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterTier, setFilterTier] = useState<string>("all");
   const [activeBrand, setActiveBrand] = useState<string | null>(null);
-
-  const email = getPersistedEmail();
 
   const fetchHistory = useCallback((emailAddr: string, signal?: AbortSignal) => {
     fetch(`/api/history?email=${encodeURIComponent(emailAddr)}`, { signal })
@@ -406,10 +405,7 @@ export default function DashboardHistory() {
   }, []);
 
   useEffect(() => {
-    if (!email) {
-      setLoading(false);
-      return;
-    }
+    if (!email) return;
     const controller = new AbortController();
     fetchHistory(email, controller.signal);
     return () => controller.abort();

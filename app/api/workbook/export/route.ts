@@ -13,8 +13,6 @@ import React from "react";
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 function extractBrandStandardsData(report: any): Record<string, any> {
   const r = report.engine_results || report.results || {};
   const bsd: Record<string, any> = {};

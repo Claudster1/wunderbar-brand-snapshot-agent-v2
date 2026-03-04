@@ -7,15 +7,24 @@ export async function POST(req: Request) {
   if (!guard.passed) return guard.errorResponse;
 
   const body = await req.json();
+  const webhookUrl =
+    process.env.ACTIVE_CAMPAIGN_WEBHOOK ?? process.env.ACTIVECAMPAIGN_WEBHOOK_URL ?? "";
+  if (!webhookUrl) {
+    return NextResponse.json({ ok: true, skipped: "missing_webhook" });
+  }
 
-  await fetch(process.env.ACTIVE_CAMPAIGN_WEBHOOK!, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      event: body.event,
-      pillar: body.pillar,
-    }),
-  });
+  try {
+    await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        event: typeof body?.event === "string" ? body.event : "upgrade_click",
+        pillar: typeof body?.pillar === "string" ? body.pillar : "",
+      }),
+    });
+  } catch {
+    return NextResponse.json({ ok: false, error: "Upstream webhook failed" }, { status: 502 });
+  }
 
   return NextResponse.json({ ok: true });
 }

@@ -9,6 +9,13 @@ This runbook defines how consent is captured and propagated for marketing commun
 - Preserve a strong customer experience with optional preferences.
 - Support CAN-SPAM and SMS opt-out handling workflows.
 
+## Security Note (Webhook Configuration)
+
+- ActiveCampaign webhook URLs must be configured as server-only environment variables:
+  - `ACTIVE_CAMPAIGN_WEBHOOK` or `ACTIVECAMPAIGN_WEBHOOK_URL`
+- Do **not** expose ActiveCampaign webhook endpoints in `NEXT_PUBLIC_*` variables.
+- Browser-originated tracking should go through server API routes (proxy pattern), which then forward to ActiveCampaign.
+
 ## Current Consent Fields
 
 Use these booleans in app and marketing-site submissions:
@@ -240,12 +247,51 @@ You can provision required consent tags/fields from the app admin API.
   - `sms:opted-out`
   - `email:marketing-opted-in`
   - `email:marketing-opted-out`
+  - `snapshot:business-type:service_b2b`
+  - `snapshot:business-type:service_b2c`
+  - `snapshot:business-type:retail`
+  - `snapshot:business-type:ecommerce`
+  - `snapshot:business-type:saas`
+  - `snapshot:business-type:local_service`
+  - `snapshot:signal-missing:conversion-rate`
+  - `snapshot:signal-missing:revenue-baseline`
 - Fields:
   - `sms_opted_in`
   - `sms_optin_source`
   - `phone_mobile`
   - `email_marketing_opted_in`
   - `email_marketing_optin_source`
+
+### Strategy-v3 Diagnostic Signal Objects (also provisioned)
+
+These support segmentation/automation based on the new inference-and-confirm + signal extraction model:
+
+- Tags:
+  - `snapshot:business-type:service_b2b`
+  - `snapshot:business-type:service_b2c`
+  - `snapshot:business-type:retail`
+  - `snapshot:business-type:ecommerce`
+  - `snapshot:business-type:saas`
+  - `snapshot:business-type:local_service`
+  - `snapshot:signal-missing:conversion-rate`
+  - `snapshot:signal-missing:revenue-baseline`
+- Fields:
+  - `snapshot_business_type`
+  - `snapshot_primary_revenue_driver`
+  - `snapshot_monthly_revenue_range`
+  - `snapshot_average_transaction_value`
+  - `snapshot_conversion_rate_estimate`
+  - `snapshot_primary_acquisition_channel`
+  - `snapshot_monthly_marketing_budget`
+  - `snapshot_content_creation_capacity`
+  - `snapshot_business_type`
+  - `snapshot_primary_revenue_driver`
+  - `snapshot_monthly_revenue_range`
+  - `snapshot_average_transaction_value`
+  - `snapshot_conversion_rate_estimate`
+  - `snapshot_primary_acquisition_channel`
+  - `snapshot_monthly_marketing_budget`
+  - `snapshot_content_creation_capacity`
 
 ### How to run (quickest)
 

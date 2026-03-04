@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import { trackEvent } from "@/lib/analytics";
 import { trackUpgradeNudgeClick } from "@/lib/trackUpgradeNudgeClick";
 import { getUpgradeNudgeCopy } from "@/lib/upgrade/ctaCopy";
@@ -32,7 +33,7 @@ export function RecommendationCard({ primaryPillar }: RecommendationCardProps) {
       <p className="bs-body-sm text-brand-muted mb-4 flex-1">
         {copy.detail}
       </p>
-      <a
+      <Link
         href={`/snapshot-plus?focus=${primaryPillar}`}
         onClick={() => {
           trackEvent("UPGRADE_CLICKED", { target: "Snapshot+", primaryPillar });
@@ -41,7 +42,7 @@ export function RecommendationCard({ primaryPillar }: RecommendationCardProps) {
         className="btn-secondary w-full sm:w-auto inline-flex items-center justify-center"
       >
         {copy.ctaLabel}
-      </a>
+      </Link>
     </div>
   );
 }

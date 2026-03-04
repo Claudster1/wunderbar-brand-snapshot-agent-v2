@@ -1,13 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
 export function WunderbarFooter() {
-  const [year, setYear] = useState<number | null>(null);
-
-  useEffect(() => {
-    setYear(new Date().getFullYear());
-  }, []);
+  const year = new Date().getFullYear();
 
   return (
     <>
@@ -101,8 +95,11 @@ export function WunderbarFooter() {
                 <li><a href="https://wunderbardigital.com/dmca-policy?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">DMCA</a></li>
                 <li><a href="https://wunderbardigital.com/accessibility-statement?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">Accessibility</a></li>
                 <li><a href="https://wunderbardigital.com/do-not-sell-or-share-my-personal-information?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">Do Not Sell/Share</a></li>
-                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                <li><button onClick={() => { if (typeof window !== "undefined" && (window as any).__openCookieSettings) { (window as any).__openCookieSettings(); } }} className="site-footer-cookie-btn" type="button">Cookie Settings</button></li>
+                <li><button onClick={() => {
+                  if (typeof window === "undefined") return;
+                  const cookieWindow = window as Window & { __openCookieSettings?: () => void };
+                  cookieWindow.__openCookieSettings?.();
+                }} className="site-footer-cookie-btn" type="button">Cookie Settings</button></li>
               </ul>
             </div>
           </nav>

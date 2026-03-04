@@ -1,5 +1,6 @@
 // Complete WunderBrand Blueprint™ Report — Master Document
 // Renders all engine sections organized into 6 parts.
+/* eslint-disable react/no-unescaped-entities */
 
 import React from "react";
 import { Document, Page, Text, View, Image, StyleSheet, Link } from "@react-pdf/renderer";
@@ -103,6 +104,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
     <Document>
       {/* ═══ COVER ═══ */}
       <Page size="A4" style={s.coverPage}>
+        {/* eslint-disable-next-line jsx-a11y/alt-text */}
         <Image src={LOGO_URL} style={s.coverLogo} />
         <Text style={s.coverTitle}>WunderBrand Blueprint™</Text>
         <Text style={s.coverSubtitle}>Your Complete Brand Operating System</Text>

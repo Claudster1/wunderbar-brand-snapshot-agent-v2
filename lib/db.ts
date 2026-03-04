@@ -32,7 +32,6 @@ export async function saveRefinementRequest(payload: {
 }) {
   const supabase = supabaseServer();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await (supabase.from("snapshot_refinement_requests") as any).insert({
     report_id: payload.report_id?.toString() || "",
     pillar: payload.pillar?.toString() || null,

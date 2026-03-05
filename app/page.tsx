@@ -10,7 +10,6 @@ import { BehaviorTracker } from "@/lib/security/behavioralScoring";
 import { EmailVerificationGate } from "@/components/security/EmailVerificationGate";
 import { parseTierFromParam, getChatTierConfig, interpolateWelcomeBack, type ChatTier } from "@/lib/chatTierConfig";
 import { AssetUploadPanel } from "@/components/assets/AssetUploadPanel";
-import "./globals.css";
 
 export default function Home() {
   return (
@@ -99,6 +98,7 @@ function HomeContent() {
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveEmail, setSaveEmail] = useState("");
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [saveErrorMessage, setSaveErrorMessage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatMessagesRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -179,22 +179,45 @@ function HomeContent() {
   const handleSaveAndExit = async () => {
     if (!saveEmail.trim() || !saveEmail.includes("@")) return;
     setSaveStatus("saving");
+    setSaveErrorMessage(null);
     try {
       // Persist the email
       const { persistEmail } = await import("@/lib/persistEmail");
       persistEmail(saveEmail.trim());
 
       // Send resume link via API
-      await fetch("/api/snapshot/save-exit", {
+      const saveExitRes = await fetch("/api/snapshot/save-exit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           reportId,
           email: saveEmail.trim(),
+          turnstileToken,
         }),
       });
+      if (!saveExitRes.ok) {
+        let message = "Something went wrong. Please try again.";
+        try {
+          const payload = await saveExitRes.json();
+          if (typeof payload?.error === "string" && payload.error.trim()) {
+            message = payload.error;
+          }
+        } catch {
+          // Ignore JSON parse failures and keep fallback message.
+        }
+        if (saveExitRes.status === 429) {
+          message = "Too many attempts. Please wait a moment, then try again.";
+        }
+        throw new Error(message);
+      }
       setSaveStatus("saved");
-    } catch {
+      setSaveErrorMessage(null);
+    } catch (error) {
+      const message =
+        error instanceof Error && error.message
+          ? error.message
+          : "Something went wrong. Please try again.";
+      setSaveErrorMessage(message);
       setSaveStatus("error");
     }
   };
@@ -278,33 +301,45 @@ function HomeContent() {
 
               // Report iframe height to parent window for auto-expanding
               useEffect(() => {
-                function reportHeight() {
-                  if (typeof window !== 'undefined' && window.parent !== window) {
+                const reportHeight = () => {
+                  if (typeof window !== "undefined" && window.parent !== window) {
                     const height = document.documentElement.scrollHeight;
                     // Support both message types for compatibility
                     window.parent.postMessage({ type: "BS_IFRAME_HEIGHT", height }, "*");
                     window.parent.postMessage({ type: "RESIZE_IFRAME", height }, "*");
                   }
-                }
+                };
 
-                // Report initial height
-                reportHeight();
+                let rafId = 0;
+                const queueReport = () => {
+                  if (rafId) return;
+                  rafId = window.requestAnimationFrame(() => {
+                    rafId = 0;
+                    reportHeight();
+                  });
+                };
 
-                // Watch for size changes
-                const resizeObserver = new ResizeObserver(() => {
-                  reportHeight();
-                });
-
+                // Report initial height and keep observing layout changes once.
+                queueReport();
+                const resizeObserver = new ResizeObserver(queueReport);
                 resizeObserver.observe(document.body);
 
-                // Also report on messages/loading changes
-                const timeoutId = setTimeout(reportHeight, 100);
-
                 return () => {
+                  if (rafId) window.cancelAnimationFrame(rafId);
                   resizeObserver.disconnect();
-                  clearTimeout(timeoutId);
                 };
-              }, [messages, isLoading]);
+              }, []);
+
+              // Report updates when chat content changes without recreating observers.
+              useEffect(() => {
+                if (typeof window === "undefined" || window.parent === window) return;
+                const timeoutId = window.setTimeout(() => {
+                  const height = document.documentElement.scrollHeight;
+                  window.parent.postMessage({ type: "BS_IFRAME_HEIGHT", height }, "*");
+                  window.parent.postMessage({ type: "RESIZE_IFRAME", height }, "*");
+                }, 100);
+                return () => window.clearTimeout(timeoutId);
+              }, [messages.length, isLoading]);
 
   const handleReset = () => {
     reset();
@@ -403,8 +438,8 @@ function HomeContent() {
                 src={WundyLogo}
                 alt="Wundy™, brand specialist"
                 className="app-card-avatar"
-                width={64}
-                height={64}
+                width={72}
+                height={72}
               />
             </div>
 
@@ -799,7 +834,7 @@ function HomeContent() {
                 />
                 {saveStatus === "error" && (
                   <p style={{ color: "#DC2626", fontSize: 13, margin: "0 0 8px" }}>
-                    Something went wrong. Please try again.
+                    {saveErrorMessage || "Something went wrong. Please try again."}
                   </p>
                 )}
                 <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>

@@ -16,6 +16,24 @@ const BASE_URL =
   process.env.NEXT_PUBLIC_BASE_URL ||
   "https://app.wunderbrand.ai";
 
+type SupabaseLikeError = {
+  message?: string;
+  details?: string;
+  hint?: string;
+  code?: string;
+};
+
+function describeError(err: unknown): string {
+  if (!err) return "unknown error";
+  if (err instanceof Error) return err.message;
+  if (typeof err === "string") return err;
+  if (typeof err === "object") {
+    const e = err as SupabaseLikeError;
+    return [e.message, e.details, e.hint, e.code].filter(Boolean).join(" | ") || JSON.stringify(e);
+  }
+  return String(err);
+}
+
 export async function POST(req: Request) {
   // ─── Security: Rate limit ───
   const { apiGuard } = await import("@/lib/security/apiGuard");
@@ -63,16 +81,26 @@ export async function POST(req: Request) {
     const normalized = email.trim().toLowerCase();
     const resumeLink = `${BASE_URL}/?resume=${reportId}`;
 
-    // Update the draft report with the user's email
+    // Update the draft report with the user's email.
+    // Draft flow persists UUID in `id`; legacy/report flows may use `report_id`.
     const supabase = getSupabase();
     if (supabase && reportId) {
-      const { error: dbError } = await supabase
+      const { error: idError } = await supabase
         .from("brand_snapshot_reports")
         .update({ user_email: normalized })
-        .eq("report_id", reportId);
-      if (dbError) {
-        logger.error("[Save-Exit] Supabase update error", { error: dbError instanceof Error ? dbError.message : String(dbError) });
-        return NextResponse.json({ error: "Failed to save your progress." }, { status: 500 });
+        .eq("id", reportId);
+      if (idError) {
+        const { error: legacyError } = await supabase
+          .from("brand_snapshot_reports")
+          .update({ user_email: normalized })
+          .eq("report_id", reportId);
+        if (legacyError) {
+          logger.warn("[Save-Exit] Draft email association skipped", {
+            reportId,
+            idError: describeError(idError),
+            reportIdError: describeError(legacyError),
+          });
+        }
       }
     }
 
@@ -95,25 +123,31 @@ export async function POST(req: Request) {
         },
       });
     } catch (fieldErr) {
-      logger.error("[Save-Exit] AC field sync failed", { error: fieldErr instanceof Error ? fieldErr.message : String(fieldErr) });
+      logger.error("[Save-Exit] AC field sync failed", { error: describeError(fieldErr) });
     }
 
-    // Fire AC event to send the resume email
-    await fireACEvent({
-      email: normalized,
-      eventName: "assessment_paused",
-      tags: ["snapshot:paused", "snapshot:resume-link-sent"],
-      fields: {
-        first_name: firstName,
-        resume_link: resumeLink,
-        report_id: reportId || "",
-        product_tier: tier,
-      },
-    });
+    // Fire AC event to send the resume email (non-blocking fallback).
+    // If AC is temporarily unavailable, still return success so users
+    // can continue without being blocked by third-party delivery issues.
+    try {
+      await fireACEvent({
+        email: normalized,
+        eventName: "assessment_paused",
+        tags: ["snapshot:paused", "snapshot:resume-link-sent"],
+        fields: {
+          first_name: firstName,
+          resume_link: resumeLink,
+          report_id: reportId || "",
+          product_tier: tier,
+        },
+      });
+    } catch (acErr) {
+      logger.error("[Save-Exit] AC event failed", { error: describeError(acErr) });
+    }
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    logger.error("[Save-Exit API] Error", { error: err instanceof Error ? err.message : String(err) });
+    logger.error("[Save-Exit API] Error", { error: describeError(err) });
     return NextResponse.json(
       { error: "Failed to save progress." },
       { status: 500 }

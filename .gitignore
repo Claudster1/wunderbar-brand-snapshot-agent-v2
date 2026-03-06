@@ -40,3 +40,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 tmp-screenshots/
+tmp-*
+test-results/

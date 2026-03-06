@@ -14,8 +14,11 @@ import { HumanAssistCTA } from "@/app/results/components/HumanAssistCTA";
 import type { PillarKey } from "@/src/types/pillars";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { headers } from "next/headers";
 import { safeFetchJson } from "@/lib/resilience/safeFetch";
 import { getArchetypeIcon, getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
+import { ShareButton } from "@/components/share/ShareButton";
+import { BlueprintPlusHeader } from "@/components/reports/BlueprintPlusHeader";
 
 type BudgetBand = "under_500" | "500_2000" | "2000_5000" | "5000_plus";
 
@@ -45,11 +48,30 @@ function extractLikelyArchetype(report: Record<string, unknown>, answers: Record
   return null;
 }
 
+async function resolveBaseUrlFromHeaders() {
+  const hdrs = await headers();
+  const host = hdrs.get("x-forwarded-host") || hdrs.get("host");
+  if (!host) return null;
+  const proto = hdrs.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
+  return `${proto}://${host}`;
+}
+
+async function resolveRuntimeBaseUrl() {
+  const requestBaseUrl = await resolveBaseUrlFromHeaders();
+  if (process.env.NODE_ENV !== "production") {
+    return requestBaseUrl || process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  }
+  return (
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
+    requestBaseUrl ||
+    "http://localhost:3000"
+  );
+}
+
 async function getReport(id: string): Promise<any | null> {
-  // Use NEXT_PUBLIC_BASE_URL if set, otherwise try Vercel's automatic URL, then fallback to localhost
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL 
-    || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
-    || "http://localhost:3000";
+  // Prefer explicit env URL, otherwise derive from the current request host (works for :3010 preview).
+  const baseUrl = await resolveRuntimeBaseUrl();
   const response = await safeFetchJson<any>(
     `${baseUrl}/api/snapshot/get?id=${encodeURIComponent(id)}`,
     { cache: "no-store", retries: 2, timeoutMs: 7000 },
@@ -68,6 +90,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const report = await getReport(id);
+  const baseUrl = await resolveRuntimeBaseUrl();
 
   if (!report) {
     return {
@@ -94,7 +117,7 @@ export async function generateMetadata({
       description: `Your WunderBrand Score™ is ${score}/100. View your complete WunderBrand Snapshot™.`,
       images: [
         {
-          url: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/og/${id}`,
+          url: `${baseUrl}/api/og/${id}`,
           width: 1200,
           height: 630,
           alt: "WunderBrand Snapshot™ Results",
@@ -194,10 +217,20 @@ export default async function SnapshotResultPage({
   return (
     <main className="min-h-screen bg-brand-bg font-brand">
       <div className="bs-container-wide bs-section px-4 sm:px-6 md:px-8 space-y-12 md:space-y-14">
-        {/* Hero Section */}
-        <WundyHero userName={user_name} companyName={company_name} />
+        <BlueprintPlusHeader
+          productName="WunderBrand Snapshot™"
+          reportId={report.report_id}
+          userEmail={report.user_email}
+          pdfHref={`/api/snapshot/pdf?id=${encodeURIComponent(report.report_id)}`}
+          utmMedium="snapshot_results"
+        />
 
-        <section className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
+        {/* Hero Section */}
+        <div id="report-header">
+          <WundyHero userName={user_name} companyName={company_name} />
+        </div>
+
+        <section id="summary" className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
           <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
             Executive Summary
           </p>
@@ -217,67 +250,88 @@ export default async function SnapshotResultPage({
           </p>
         )}
 
-        {/* Score Meter */}
-        <ScoreMeter
-          score={brand_alignment_score || 0}
-        />
-
-        {/* Pillar Breakdown */}
-        <PillarBreakdown
-          pillars={pillar_scores || {}}
-          insights={insights || {}}
-          businessName={company_name || "Your brand"}
-          stage={(report.snapshot_stage || report.stage || "scaling") as "early" | "scaling" | "growing"}
-        />
-
-        {likelyArchetype && (
+        {recommendationsList.length > 0 && (
           <section className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
             <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
-              Your Brand Archetype
+              Priority Actions
             </p>
-            <p className="bs-body-sm text-brand-navy font-bold">
-              {archetypeIcon ? `${archetypeIcon} ` : ""}
-              {likelyArchetype}
-            </p>
-            {archetypeMeaning && (
-              <p className="bs-small text-brand-muted mt-1">{archetypeMeaning}</p>
-            )}
+            <h2 className="bs-h3 mb-2">What to focus on next</h2>
+            <div className="space-y-2">
+              {recommendationsList.slice(0, 5).map((item, idx) => (
+                <p key={`${idx}-${item.slice(0, 30)}`} className="bs-body-sm text-brand-midnight">
+                  {idx + 1}. {item}
+                </p>
+              ))}
+            </div>
           </section>
         )}
 
-        {/* Upgrade Panel — credibility + value of upgrading */}
-        <SnapshotUpgradePanel
-          upgradeCTA={upgrade_cta}
-          weakestPillar={weakestPillar}
-        />
+        {/* Score Meter */}
+        <div id="score-overview">
+          <ScoreMeter
+            score={brand_alignment_score || 0}
+          />
+        </div>
 
-        <MarketingSpendEfficiencySignal
-          businessType={businessType}
-          monthlyMarketingBudget={monthlyMarketingBudget}
-          primaryPillar={primaryPillar}
-          reportId={report.report_id}
-          email={report.user_email}
-        />
+        {/* Pillar Breakdown */}
+        <div id="pillar-analysis">
+          <PillarBreakdown
+            pillars={pillar_scores || {}}
+            insights={insights || {}}
+            businessName={company_name || "Your brand"}
+            stage={(report.snapshot_stage || report.stage || "scaling") as "early" | "scaling" | "growing"}
+          />
+        </div>
 
-        <RevenueImpactStatement
-          primaryPillar={primaryPillar}
-          monthlyRevenueRange={monthlyRevenueRange}
-          annualRevenueRange={annualRevenueRange}
-          averageTransactionValue={averageTransactionValue}
-          conversionRateEstimate={conversionRateEstimate}
-          reportId={report.report_id}
-          email={report.user_email}
-        />
+        {likelyArchetype && (
+          <section id="archetype" className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
+            <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+              Your Brand Archetype
+            </p>
+            <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-brand-blue/10 border border-brand-blue/20">
+              <p className="bs-body-sm text-brand-navy font-bold">
+                {archetypeIcon ? `${archetypeIcon} ` : ""}
+                {likelyArchetype}
+              </p>
+            </div>
+            {archetypeMeaning && (
+              <p className="bs-small text-brand-muted mt-1">{archetypeMeaning}</p>
+            )}
+            <p className="bs-small text-brand-muted mt-3">
+              Snapshot-level guidance: use this archetype as your tone filter for headlines, proof language, and call-to-action framing.
+            </p>
+          </section>
+        )}
 
-        <HumanAssistCTA
-          source="legacy_results_page"
-          reportId={report.report_id}
-          email={report.user_email}
-          businessName={company_name}
-          businessType={businessType}
-          primaryPillar={primaryPillar}
-          brandAlignmentScore={brand_alignment_score}
-        />
+        <div id="signals" className="space-y-12 md:space-y-14">
+          <MarketingSpendEfficiencySignal
+            businessType={businessType}
+            monthlyMarketingBudget={monthlyMarketingBudget}
+            primaryPillar={primaryPillar}
+            reportId={report.report_id}
+            email={report.user_email}
+          />
+
+          <RevenueImpactStatement
+            primaryPillar={primaryPillar}
+            monthlyRevenueRange={monthlyRevenueRange}
+            annualRevenueRange={annualRevenueRange}
+            averageTransactionValue={averageTransactionValue}
+            conversionRateEstimate={conversionRateEstimate}
+            reportId={report.report_id}
+            email={report.user_email}
+          />
+
+          <HumanAssistCTA
+            source="legacy_results_page"
+            reportId={report.report_id}
+            email={report.user_email}
+            businessName={company_name}
+            businessType={businessType}
+            primaryPillar={primaryPillar}
+            brandAlignmentScore={brand_alignment_score}
+          />
+        </div>
 
         <LockedResultsPreview
           primaryPillar={primaryPillar}
@@ -292,7 +346,7 @@ export default async function SnapshotResultPage({
         />
 
         {/* Download report + email note */}
-        <section className="bs-card rounded-xl p-6 sm:p-8">
+        <section id="next-steps" className="bs-card rounded-xl p-6 sm:p-8">
           <h2 className="bs-h2 mb-3">
             Your report, anytime
           </h2>
@@ -315,25 +369,22 @@ export default async function SnapshotResultPage({
             >
               Download PDF Snapshot →
             </a>
-            <button
-              type="button"
-              onClick={() => {
-                if (typeof window !== "undefined" && navigator.share) {
-                  navigator.share({
-                    title: "My WunderBrand Snapshot™ Results",
-                    text: `Check out my WunderBrand Score™: ${brand_alignment_score}/100`,
-                    url: window.location.href,
-                  });
-                } else {
-                  navigator.clipboard?.writeText(window.location.href);
-                }
-              }}
-              className="btn-secondary w-full sm:w-auto"
-            >
-              Share results
-            </button>
+            <div className="w-full sm:w-auto">
+              <ShareButton
+                reportId={report.report_id}
+                tier="snapshot"
+                label="My WunderBrand Snapshot™ Results"
+                variant="text"
+              />
+            </div>
           </div>
         </section>
+
+        {/* Upgrade Panel — moved lower so value is shown first */}
+        <SnapshotUpgradePanel
+          upgradeCTA={upgrade_cta}
+          weakestPillar={weakestPillar}
+        />
 
         {/* Footer */}
         <div className="text-center bs-small text-brand-muted pt-8 border-t border-brand-border">

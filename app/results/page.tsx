@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
@@ -20,13 +21,13 @@ import { ImplementationIntro } from "@/components/SnapshotPlus/ImplementationInt
 import { getPrimaryPillar } from "@/lib/upgrade/primaryPillar";
 import { PillarKey } from "@/src/types/pillars";
 import type { UserRoleContext } from "@/src/types/snapshot";
-import { ShareButton } from "@/components/share/ShareButton";
 import { LockedResultsPreview } from "@/app/results/components/LockedResultsPreview";
 import { MarketingSpendEfficiencySignal } from "@/app/results/components/MarketingSpendEfficiencySignal";
 import { RevenueImpactStatement } from "@/app/results/components/RevenueImpactStatement";
 import { HumanAssistCTA } from "@/app/results/components/HumanAssistCTA";
 import { safeFetchJson } from "@/lib/resilience/safeFetch";
 import { getArchetypeIcon, getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
+import { BlueprintPlusHeader } from "@/components/reports/BlueprintPlusHeader";
 
 interface BrandSnapshotResult {
   businessName: string;
@@ -75,6 +76,27 @@ function extractLikelyArchetype(report: Record<string, unknown>, answers: Record
   return null;
 }
 
+async function resolveBaseUrlFromHeaders() {
+  const hdrs = await headers();
+  const host = hdrs.get("x-forwarded-host") || hdrs.get("host");
+  if (!host) return null;
+  const proto = hdrs.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
+  return `${proto}://${host}`;
+}
+
+async function resolveRuntimeBaseUrl() {
+  const requestBaseUrl = await resolveBaseUrlFromHeaders();
+  if (process.env.NODE_ENV !== "production") {
+    return requestBaseUrl || process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  }
+  return (
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
+    requestBaseUrl ||
+    "http://localhost:3000"
+  );
+}
+
 export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   const raw = searchParams != null ? await searchParams : undefined;
   const resolved = raw ?? {};
@@ -99,7 +121,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   }
 
   // Fetch report and render full results (server component)
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const baseUrl = await resolveRuntimeBaseUrl();
   const reportResponse = await safeFetchJson<any>(
     `${baseUrl}/api/snapshot/get?id=${encodeURIComponent(reportId)}`,
     { cache: "no-store", retries: 2, timeoutMs: 7000 },
@@ -119,6 +141,14 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   const report = reportResponse.data as any;
   const pillarScores = (report.pillar_scores || report.pillarScores || {}) as Record<PillarKey, number>;
   const pillarInsightsRaw = report.pillar_insights || report.insights || {};
+  const rawRecommendations = report.recommendations;
+  const recommendationsList = Array.isArray(rawRecommendations)
+    ? rawRecommendations
+    : rawRecommendations && typeof rawRecommendations === "object"
+      ? (Object.values(rawRecommendations).filter(
+          (r): r is string => typeof r === "string"
+        ) as string[])
+      : [];
   const pillarInsights: Record<PillarKey, string> = {} as Record<PillarKey, string>;
   for (const key of ["positioning", "messaging", "visibility", "credibility", "conversion"] as PillarKey[]) {
     const v = pillarInsightsRaw[key];
@@ -184,23 +214,18 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         email={data.userEmail}
       />
 
-      {/* Share + PDF actions */}
-      <div className="flex items-center justify-end gap-3">
-        <ShareButton reportId={data.reportId} tier="snapshot" label={`${data.businessName} — WunderBrand Snapshot`} />
-        <a
-          href={`/api/pdf?id=${encodeURIComponent(data.reportId)}&type=snapshot`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-brand-blue/20 bg-brand-blue/5 text-brand-blue text-sm font-bold no-underline hover:bg-brand-blue/10 transition-colors"
-        >
-          <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-            <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
-          </svg>
-          Download PDF
-        </a>
-      </div>
+      <BlueprintPlusHeader
+        productName="WunderBrand Snapshot™"
+        reportId={data.reportId}
+        userEmail={data.userEmail}
+        pdfHref={`/api/pdf?id=${encodeURIComponent(data.reportId)}&type=snapshot`}
+        utmMedium="snapshot_results"
+      />
 
-      <section className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
+      {/* Intro */}
+      <ChatCompletion userRoleContext={data.userRoleContext} />
+
+      <section id="summary" className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
         <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
           Executive Summary
         </p>
@@ -212,65 +237,91 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         </p>
       </section>
 
-      {/* Chat (completed) */}
-      <ChatCompletion userRoleContext={data.userRoleContext} />
-
-      {/* Hero: two-column — gauge + rating (left) | recommendation card (right) */}
-      <ResultsHeroSection
-        score={data.brandAlignmentScore}
-        primaryPillar={primaryPillarStr}
-        hasSnapshotPlus={user.hasSnapshotPlus}
-        userRoleContext={data.userRoleContext as UserRoleContext | undefined}
-      />
-
-      {/* Score breakdown: grid of pillar cards */}
-      <PillarCardGrid
-        pillarScores={data.pillarScores}
-        pillarInsights={data.pillarInsights}
-      />
-
-      {likelyArchetype && (
+      {recommendationsList.length > 0 && (
         <section className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
           <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
-            Your Brand Archetype
+            Priority Actions
           </p>
-          <p className="bs-body-sm text-brand-navy font-bold">
-            {archetypeIcon ? `${archetypeIcon} ` : ""}
-            {likelyArchetype}
-          </p>
-          {archetypeMeaning && (
-            <p className="bs-small text-brand-muted mt-1">{archetypeMeaning}</p>
-          )}
+          <h2 className="bs-h3 mb-2">What to focus on next</h2>
+          <div className="space-y-2">
+            {recommendationsList.slice(0, 5).map((item, idx) => (
+              <p key={`${idx}-${item.slice(0, 30)}`} className="bs-body-sm text-brand-midnight">
+                {idx + 1}. {item}
+              </p>
+            ))}
+          </div>
         </section>
       )}
 
-      <MarketingSpendEfficiencySignal
-        businessType={businessType}
-        monthlyMarketingBudget={monthlyMarketingBudget}
-        primaryPillar={primaryPillarStr}
-        reportId={data.reportId}
-        email={data.userEmail}
-      />
+      {/* Hero: two-column — gauge + rating (left) | recommendation card (right) */}
+      <div id="score-overview">
+        <ResultsHeroSection
+          score={data.brandAlignmentScore}
+          primaryPillar={primaryPillarStr}
+          hasSnapshotPlus={user.hasSnapshotPlus}
+          userRoleContext={data.userRoleContext as UserRoleContext | undefined}
+        />
+      </div>
 
-      <RevenueImpactStatement
-        primaryPillar={primaryPillarStr}
-        monthlyRevenueRange={monthlyRevenueRange}
-        annualRevenueRange={annualRevenueRange}
-        averageTransactionValue={averageTransactionValue}
-        conversionRateEstimate={conversionRateEstimate}
-        reportId={data.reportId}
-        email={data.userEmail}
-      />
+      {/* Score breakdown: grid of pillar cards */}
+      <div id="pillar-analysis">
+        <PillarCardGrid
+          pillarScores={data.pillarScores}
+          pillarInsights={data.pillarInsights}
+        />
+      </div>
 
-      <HumanAssistCTA
-        source="results_page"
-        reportId={data.reportId}
-        email={data.userEmail}
-        businessName={data.businessName}
-        businessType={businessType}
-        primaryPillar={primaryPillarStr}
-        brandAlignmentScore={data.brandAlignmentScore}
-      />
+      {likelyArchetype && (
+        <section id="archetype" className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
+          <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+            Your Brand Archetype
+          </p>
+          <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-brand-blue/10 border border-brand-blue/20">
+            <p className="bs-body-sm text-brand-navy font-bold">
+              {archetypeIcon ? `${archetypeIcon} ` : ""}
+              {likelyArchetype}
+            </p>
+          </div>
+          {archetypeMeaning && (
+            <p className="bs-small text-brand-muted mt-1">{archetypeMeaning}</p>
+          )}
+          <p className="bs-small text-brand-muted mt-3">
+            {user.hasSnapshotPlus
+              ? "Blueprint+ style guidance: use this archetype as your default tone filter across website copy, offer framing, and CTA language."
+              : "Snapshot view: use this archetype as your north star for headline tone, proof style, and call-to-action language."}
+          </p>
+        </section>
+      )}
+
+      <div id="signals" className="space-y-12 md:space-y-14">
+        <MarketingSpendEfficiencySignal
+          businessType={businessType}
+          monthlyMarketingBudget={monthlyMarketingBudget}
+          primaryPillar={primaryPillarStr}
+          reportId={data.reportId}
+          email={data.userEmail}
+        />
+
+        <RevenueImpactStatement
+          primaryPillar={primaryPillarStr}
+          monthlyRevenueRange={monthlyRevenueRange}
+          annualRevenueRange={annualRevenueRange}
+          averageTransactionValue={averageTransactionValue}
+          conversionRateEstimate={conversionRateEstimate}
+          reportId={data.reportId}
+          email={data.userEmail}
+        />
+
+        <HumanAssistCTA
+          source="results_page"
+          reportId={data.reportId}
+          email={data.userEmail}
+          businessName={data.businessName}
+          businessType={businessType}
+          primaryPillar={primaryPillarStr}
+          brandAlignmentScore={data.brandAlignmentScore}
+        />
+      </div>
 
       {!user.hasSnapshotPlus && (
         <LockedResultsPreview
@@ -291,17 +342,21 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         <ContextCoverageMeter coveragePercent={data.contextCoverage} />
       )}
 
-      <ResultsUpgradeCTA
-        primaryPillar={primaryPillarStr}
-        stage={data.stage}
-        hasPurchasedPlus={user.hasSnapshotPlus}
-        email={data.userEmail}
-      />
-
-      <ImplementationIntro />
+      <div id="implementation">
+        <ImplementationIntro />
+      </div>
 
       {/* Optional secondary CTA */}
       <SuiteCTA />
+
+      <div id="next-steps">
+        <ResultsUpgradeCTA
+          primaryPillar={primaryPillarStr}
+          stage={data.stage}
+          hasPurchasedPlus={user.hasSnapshotPlus}
+          email={data.userEmail}
+        />
+      </div>
       </div>
     </main>
   );

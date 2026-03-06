@@ -4,9 +4,9 @@ import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 import { VocSurveyCTA } from "@/components/voc/VocSurveyCTA";
 import { ShareButton } from "@/components/share/ShareButton";
+import { BlueprintPlusHeader } from "@/components/reports/BlueprintPlusHeader";
 
 export const dynamic = "force-dynamic";
-const REPORT_LOGO_SRC = "/assets/og/logo-wunderbar.svg";
 
 const SAMPLE_SNAPSHOT_PLUS_REPORTS: Record<string, any> = {
   "sample-service-b2b": {
@@ -252,6 +252,21 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
     revenue_impact_statement ||
     full_report?.revenueImpactStatement ||
     null;
+  const navItems = [
+    { id: "summary", label: "Summary" },
+    { id: "score", label: "Score" },
+    { id: "pillars", label: "Pillars" },
+    { id: "signals", label: "Signals" },
+    { id: "archetype", label: "Archetype" },
+    { id: "roadmap", label: "Roadmap" },
+    { id: "next-steps", label: "Next Steps" },
+  ];
+  const weakestPillarKey =
+    Object.entries(pillar_scores || {})
+      .filter((entry): entry is [string, number] => typeof entry[1] === "number")
+      .sort((a, b) => a[1] - b[1])[0]?.[0] || "positioning";
+  const weakestPillarLabel =
+    weakestPillarKey.charAt(0).toUpperCase() + weakestPillarKey.slice(1);
 
   const css = `
     body { font-family: Helvetica Neue, sans-serif; color:#0C1526; }
@@ -415,36 +430,28 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
         insight across brand clarity, voice, visuals, audience, archetype, and next-step priorities.
       </p>
 
-      <div className="action-bar">
-        <a
-          href="https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=snapshot_plus_results&utm_campaign=brand_navigation&utm_content=action_bar_logo"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="action-brand"
-        >
-          <img src={REPORT_LOGO_SRC} alt="Wunderbar Digital" />
-          <span className="action-brand-note">Powered by <strong>Wunderbar Digital</strong></span>
-        </a>
-        <div className="action-row">
-          <a
-            href={`/api/pdf?id=${reportId}&type=snapshot-plus`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="action-btn primary"
-          >
-            Download PDF
-          </a>
-          <a href={`/refine/${encodeURIComponent(reportId)}`} className="action-btn">Refine Analysis</a>
-          <a href={workbookHref} className="action-btn">Implementation Workbook</a>
-        </div>
-        <div className="jump-links">
-          <a href="#score">Score</a>
-          <a href="#pillars">Pillars</a>
-          <a href="#signals">Signals</a>
-          <a href="#archetype">Archetype</a>
-          <a href="#roadmap">Roadmap</a>
-          <a href="#next-steps">Next Steps</a>
-        </div>
+      <BlueprintPlusHeader
+        productName="WunderBrand Snapshot+™"
+        reportId={reportId}
+        userEmail={reportEmail}
+        pdfHref={`/api/pdf?id=${encodeURIComponent(reportId)}&type=snapshot-plus`}
+        utmMedium="snapshot_plus_results"
+        navItems={navItems}
+      />
+
+      <div id="summary" className="section">
+        <h2>Executive Summary</h2>
+        <p style={{ lineHeight: "1.65" }}>
+          Your Snapshot+ indicates a primary opportunity in <strong>{weakestPillarLabel}</strong>.
+          Addressing this first should unlock the highest near-term lift in brand alignment and conversion performance.
+        </p>
+        {opportunities_map && (
+          <p style={{ lineHeight: "1.65", marginTop: "10px" }}>
+            {typeof opportunities_map === "string"
+              ? opportunities_map
+              : JSON.stringify(opportunities_map)}
+          </p>
+        )}
       </div>
 
       {/* SCORE SECTION */}

@@ -2,9 +2,9 @@
 
 import { createClient } from "@supabase/supabase-js";
 import SnapshotPlusUpsell from "@/components/SnapshotPlusUpsell";
+import { BlueprintPlusHeader } from "@/components/reports/BlueprintPlusHeader";
 
 export const dynamic = "force-dynamic";
-const REPORT_LOGO_SRC = "/assets/og/logo-wunderbar.svg";
 const SAMPLE_LEGACY_REPORTS: Record<string, any> = {
   "sample-ecommerce": {
     report_id: "sample-ecommerce",
@@ -60,64 +60,6 @@ const SAMPLE_LEGACY_REPORTS: Record<string, any> = {
     snapshot_upsell: "Upgrade to Snapshot+ for deeper audience and implementation guidance.",
   },
 };
-
-function ReportActionBar({
-  reportId,
-  userEmail,
-}: {
-  reportId: string;
-  userEmail?: string;
-}) {
-  const workbookHref = userEmail
-    ? `/workbook?reportId=${encodeURIComponent(reportId)}&email=${encodeURIComponent(userEmail)}`
-    : `/workbook?reportId=${encodeURIComponent(reportId)}`;
-
-  const navItems = [
-    { id: "summary", label: "Summary" },
-    { id: "score-overview", label: "Score" },
-    { id: "pillar-analysis", label: "Pillars" },
-    { id: "next-steps", label: "Next Steps" },
-  ];
-
-  return (
-    <section className="action-bar">
-      <a
-        href="https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=legacy_report&utm_campaign=brand_navigation&utm_content=report_action_bar_logo"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="action-brand"
-      >
-        <img src={REPORT_LOGO_SRC} alt="Wunderbar Digital" />
-        <span className="action-brand-note">
-          Powered by <strong>Wunderbar Digital</strong>
-        </span>
-      </a>
-      <div className="action-row">
-        <a
-          href={`/api/snapshot/pdf?id=${encodeURIComponent(reportId)}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="action-btn primary"
-        >
-          Download PDF
-        </a>
-        <a href={`/refine/${encodeURIComponent(reportId)}`} className="action-btn">
-          Refine Analysis
-        </a>
-        <a href={workbookHref} className="action-btn">
-          Implementation Workbook
-        </a>
-      </div>
-      <nav className="jump-links">
-        {navItems.map((item) => (
-          <a key={item.id} href={`#${item.id}`}>
-            {item.label}
-          </a>
-        ))}
-      </nav>
-    </section>
-  );
-}
 
 export default async function ReportPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: reportId } = await params;
@@ -434,31 +376,41 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
     credibility: "Credibility",
     conversion: "Conversion",
   };
+  const weakestPillar =
+    Object.entries(pillar_scores || {})
+      .filter((entry): entry is [string, number] => typeof entry[1] === "number")
+      .sort((a, b) => a[1] - b[1])[0]?.[0] || "positioning";
 
   return (
     <div>
       <style>{css}</style>
 
       <div className="report-container">
-        <ReportActionBar
+        <BlueprintPlusHeader
+          productName="WunderBrand Snapshot™"
           reportId={reportId}
           userEmail={typeof (report as any).user_email === "string" ? (report as any).user_email : undefined}
+          pdfHref={`/api/snapshot/pdf?id=${encodeURIComponent(reportId)}`}
+          utmMedium="legacy_report"
         />
-        <a
-          className="brand-lockup"
-          href="https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=legacy_report&utm_campaign=brand_navigation&utm_content=report_logo"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="/assets/og/logo-wunderbar.svg" alt="Wunderbar Digital" />
-          <span>Powered by <strong>Wunderbar Digital</strong></span>
-        </a>
         <div id="summary">
+          <p style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5A6B7E", marginBottom: 8 }}>
+            Introduction
+          </p>
           <h1>Your WunderBrand Snapshot™ Results</h1>
           <p>
             Here’s your personalized WunderBrand Score™ and a concise breakdown of how your brand is
             performing across the five strategic pillars. Each insight is tailored to help you understand
             where you’re strong today — and where small refinements can unlock clarity, consistency, and conversion.
+          </p>
+        </div>
+
+        <div style={{ marginTop: 20 }}>
+          <h2 style={{ marginTop: 0 }}>Executive Summary</h2>
+          <p>
+            Your current alignment is {score}/100. The strongest near-term opportunity is{" "}
+            <strong>{pillarDisplay[weakestPillar as keyof typeof pillarDisplay] || "Positioning"}</strong>, where focused
+            improvements should create the fastest lift in clarity and conversion outcomes.
           </p>
         </div>
 
@@ -480,6 +432,19 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
             );
           })}
         </div>
+
+        {recommendationsList.length > 0 && (
+          <div style={{ marginTop: 24 }}>
+            <h2 style={{ marginTop: 0 }}>Priority Actions</h2>
+            <div>
+              {recommendationsList.slice(0, 5).map((item, idx) => (
+                <p key={`${idx}-${item.slice(0, 30)}`}>
+                  {idx + 1}. {item}
+                </p>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div id="next-steps">
           <SnapshotPlusUpsell

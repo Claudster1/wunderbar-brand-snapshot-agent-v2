@@ -6,14 +6,170 @@ import { VocSurveyCTA } from "@/components/voc/VocSurveyCTA";
 import { ShareButton } from "@/components/share/ShareButton";
 
 export const dynamic = "force-dynamic";
+const REPORT_LOGO_SRC = "/assets/og/logo-wunderbar.svg";
+
+const SAMPLE_SNAPSHOT_PLUS_REPORTS: Record<string, any> = {
+  "sample-service-b2b": {
+    business_name: "Northlight Advisory",
+    industry: "B2B Services",
+    brand_alignment_score: 71,
+    pillar_scores: {
+      positioning: 16,
+      messaging: 14,
+      visibility: 13,
+      credibility: 15,
+      conversion: 13,
+    },
+    pillar_insights: {
+      positioning: "Clear value proposition, but not consistently surfaced in top-of-funnel assets.",
+      messaging: "Narrative is strong, but proof integration is still inconsistent.",
+      visibility: "Good referral quality; organic and channel distribution need stronger sequencing.",
+      credibility: "Case-study assets exist, but trust signals are not consistently front-loaded.",
+      conversion: "Qualified intent is present, but CTA pathways and urgency framing can be improved.",
+    },
+    enriched_persona:
+      "Strategic, insight-led buyers who need confidence in outcomes before they commit.",
+    enriched_archetype: {
+      name: "The Sage",
+      summary:
+        "Lead with clarity and evidence. Your strongest growth lever is translating expertise into visible trust signals.",
+    },
+    enriched_voice: {
+      summary:
+        "Confident, clear, and practical. Keep language specific and outcome-first.",
+      pillars: ["Evidence-backed", "Commercially grounded", "Direct but warm"],
+    },
+    enriched_color_palette: [
+      { name: "Signal Blue", hex: "#07B0F2", role: "Primary", meaning: "Clarity and momentum" },
+      { name: "Trust Navy", hex: "#021859", role: "Anchor", meaning: "Authority and confidence" },
+    ],
+    opportunities_map:
+      "Top opportunities: sharpen first-impression clarity, elevate proof placement, and simplify conversion pathways.",
+    roadmap_30: "Refine homepage hero, reposition proof blocks, and align CTA sequence.",
+    roadmap_60: "Deploy authority content cadence and optimize high-intent landing journeys.",
+    roadmap_90: "Scale top-performing channels and standardize message architecture across assets.",
+    content_format_channel_snapshot:
+      "Prioritize authority-led short-form insights and case-based long-form content distributed through LinkedIn and search.",
+    marketing_spend_audit_signal:
+      "Current spend should shift toward channels with higher trust transfer and lower qualification friction.",
+    competitive_vulnerability_signal:
+      "Biggest exposure is in comparison moments where competitors present proof earlier and more explicitly.",
+    revenue_impact_statement:
+      "Improving trust signal placement and CTA clarity can lift qualified conversion efficiency within one quarter.",
+    brand_opportunities:
+      "Clarify the first 5 seconds of value and align all demand paths to one confident narrative.",
+    full_report: {},
+    user_email: "sample@wunderbar.ai",
+  },
+  "sample-ecommerce": {
+    business_name: "Lumen & Co.",
+    industry: "Ecommerce",
+    brand_alignment_score: 64,
+    pillar_scores: {
+      positioning: 15,
+      messaging: 13,
+      visibility: 14,
+      credibility: 12,
+      conversion: 10,
+    },
+    pillar_insights: {
+      positioning: "Distinctive identity, but product-level differentiation needs sharper framing.",
+      messaging: "Tone is strong, but key objections are not resolved early enough.",
+      visibility: "Traffic is healthy; channel prioritization by profitability is the next lever.",
+      credibility: "Trust proof exists, but appears too late in the journey.",
+      conversion: "Checkout and next-step sequencing are suppressing completion.",
+    },
+    enriched_persona:
+      "Style-conscious buyers who convert when trust and clarity are visible before checkout friction.",
+    enriched_archetype: {
+      name: "The Creator",
+      summary:
+        "Your edge is identity and expression. Pair it with explicit commercial proof to improve conversion confidence.",
+    },
+    enriched_voice: {
+      summary:
+        "Expressive and premium, with clearer outcome framing and confidence-building proof.",
+      pillars: ["Aspirational", "Specific", "Trust-building"],
+    },
+    enriched_color_palette: [
+      { name: "Brand Blue", hex: "#07B0F2", role: "Primary", meaning: "Clarity and action" },
+      { name: "Midnight", hex: "#021859", role: "Anchor", meaning: "Trust and depth" },
+    ],
+    opportunities_map:
+      "Top opportunities: trust-first merchandising, objection-aware product copy, and checkout friction reduction.",
+    roadmap_30: "Improve product-page proof hierarchy and tighten CTA clarity.",
+    roadmap_60: "Refactor top categories by conversion quality and buyer intent stage.",
+    roadmap_90: "Scale profitable channels with standardized conversion playbooks.",
+    content_format_channel_snapshot:
+      "Blend social proof reels, creator stories, and comparison-focused PDP modules.",
+    marketing_spend_audit_signal:
+      "Reallocate spend from broad reach to high-intent retargeting and trust-led conversion assets.",
+    competitive_vulnerability_signal:
+      "Competitors that surface social proof earlier will continue to win checkout confidence.",
+    revenue_impact_statement:
+      "Reducing checkout friction and improving trust visibility can materially improve ROAS and margin.",
+    brand_opportunities:
+      "Unify brand expression with conversion architecture so creative strength also drives revenue efficiency.",
+    full_report: {},
+    user_email: "sample@wunderbar.ai",
+  },
+  // Keep compatibility with existing sample links used in QA/docs.
+  "sample-ecommerce-plus": {
+    business_name: "Lumen & Co.",
+    industry: "Ecommerce",
+    brand_alignment_score: 64,
+    pillar_scores: {
+      positioning: 15,
+      messaging: 13,
+      visibility: 14,
+      credibility: 12,
+      conversion: 10,
+    },
+    pillar_insights: {
+      positioning: "Distinctive identity, but product-level differentiation needs sharper framing.",
+      messaging: "Tone is strong, but key objections are not resolved early enough.",
+      visibility: "Traffic is healthy; channel prioritization by profitability is the next lever.",
+      credibility: "Trust proof exists, but appears too late in the journey.",
+      conversion: "Checkout and next-step sequencing are suppressing completion.",
+    },
+    enriched_persona:
+      "Style-conscious buyers who convert when trust and clarity are visible before checkout friction.",
+    enriched_archetype: {
+      name: "The Creator",
+      summary:
+        "Your edge is identity and expression. Pair it with explicit commercial proof to improve conversion confidence.",
+    },
+    enriched_voice: {
+      summary:
+        "Expressive and premium, with clearer outcome framing and confidence-building proof.",
+      pillars: ["Aspirational", "Specific", "Trust-building"],
+    },
+    enriched_color_palette: [
+      { name: "Brand Blue", hex: "#07B0F2", role: "Primary", meaning: "Clarity and action" },
+      { name: "Midnight", hex: "#021859", role: "Anchor", meaning: "Trust and depth" },
+    ],
+    opportunities_map:
+      "Top opportunities: trust-first merchandising, objection-aware product copy, and checkout friction reduction.",
+    roadmap_30: "Improve product-page proof hierarchy and tighten CTA clarity.",
+    roadmap_60: "Refactor top categories by conversion quality and buyer intent stage.",
+    roadmap_90: "Scale profitable channels with standardized conversion playbooks.",
+    content_format_channel_snapshot:
+      "Blend social proof reels, creator stories, and comparison-focused PDP modules.",
+    marketing_spend_audit_signal:
+      "Reallocate spend from broad reach to high-intent retargeting and trust-led conversion assets.",
+    competitive_vulnerability_signal:
+      "Competitors that surface social proof earlier will continue to win checkout confidence.",
+    revenue_impact_statement:
+      "Reducing checkout friction and improving trust visibility can materially improve ROAS and margin.",
+    brand_opportunities:
+      "Unify brand expression with conversion architecture so creative strength also drives revenue efficiency.",
+    full_report: {},
+    user_email: "sample@wunderbar.ai",
+  },
+};
 
 export default async function SnapshotPlusPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: reportId } = await params;
-  const supabase = createClient(
-    process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY)!,
-    { auth: { persistSession: false } }
-  );
 
   if (!reportId) {
     return (
@@ -23,14 +179,30 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
     );
   }
 
-  // 🧠 Fetch the report from Supabase
-  const { data: report, error } = await supabase
-    .from("brand_snapshot_plus_reports")
-    .select("*")
-    .eq("report_id", reportId)
-    .single();
+  // Serve known sample routes without external dependencies.
+  const sampleReport = SAMPLE_SNAPSHOT_PLUS_REPORTS[reportId];
+  let report: any = null;
+  let error: any = null;
 
-  if (error || !report) {
+  if (!sampleReport) {
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
+
+    if (supabaseUrl && supabaseKey) {
+      const supabase = createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } });
+      const queryResult = await supabase
+        .from("brand_snapshot_plus_reports")
+        .select("*")
+        .eq("report_id", reportId)
+        .single();
+      report = queryResult.data;
+      error = queryResult.error;
+    }
+  }
+
+  const resolvedReport = sampleReport || report;
+
+  if (!resolvedReport) {
     console.error("Error fetching report:", error);
     return (
       <div className="p-10 text-center">
@@ -62,7 +234,12 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
     revenue_impact_statement,
     brand_opportunities,
     full_report,
-  } = report;
+  } = resolvedReport;
+  const reportEmail =
+    typeof (resolvedReport as any).user_email === "string" ? (resolvedReport as any).user_email : undefined;
+  const workbookHref = reportEmail
+    ? `/workbook?reportId=${encodeURIComponent(reportId)}&email=${encodeURIComponent(reportEmail)}`
+    : `/workbook?reportId=${encodeURIComponent(reportId)}`;
   const derivedCompetitiveVulnerabilitySignal =
     competitive_vulnerability_signal ||
     full_report?.competitiveVulnerabilitySignal ||
@@ -132,12 +309,83 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
       box-shadow:0 6px 18px rgba(7,176,242,0.3);
     }
 
+    .action-bar {
+      position: sticky;
+      top: 84px;
+      z-index: 60;
+      margin-top: 18px;
+      padding: 12px;
+      border: 1px solid #D6DFE8;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(4px);
+    }
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .action-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      margin-bottom: 8px;
+    }
+    .action-brand img {
+      width: 170px;
+      height: auto;
+      display: block;
+    }
+    .action-brand-note {
+      font-size: 11px;
+      color: #5A6B7E;
+    }
+    .action-brand-note strong { color: #07B0F2; }
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      border: 1px solid #D6DFE8;
+      color: #021859;
+      background: #fff;
+    }
+    .action-btn.primary {
+      background: #07B0F2;
+      color: #fff;
+      border-color: #07B0F2;
+    }
+    .jump-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .jump-links a {
+      text-decoration: none;
+      color: #5A6B7E;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 9px;
+      border-radius: 6px;
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+    }
+
     @media (min-width: 640px) {
       .page { padding:48px 24px; }
       .section { padding:28px; margin-top:28px; }
       .pillar-card { padding:20px 24px; }
       .blueprint-cta { padding:40px; }
       .swatch { width:52px; height:52px; }
+      .action-btn { font-size: 13px; }
+      .jump-links a { font-size: 12px; }
     }
 
     @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
@@ -167,8 +415,40 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
         insight across brand clarity, voice, visuals, audience, archetype, and next-step priorities.
       </p>
 
+      <div className="action-bar">
+        <a
+          href="https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=snapshot_plus_results&utm_campaign=brand_navigation&utm_content=action_bar_logo"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="action-brand"
+        >
+          <img src={REPORT_LOGO_SRC} alt="Wunderbar Digital" />
+          <span className="action-brand-note">Powered by <strong>Wunderbar Digital</strong></span>
+        </a>
+        <div className="action-row">
+          <a
+            href={`/api/pdf?id=${reportId}&type=snapshot-plus`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="action-btn primary"
+          >
+            Download PDF
+          </a>
+          <a href={`/refine/${encodeURIComponent(reportId)}`} className="action-btn">Refine Analysis</a>
+          <a href={workbookHref} className="action-btn">Implementation Workbook</a>
+        </div>
+        <div className="jump-links">
+          <a href="#score">Score</a>
+          <a href="#pillars">Pillars</a>
+          <a href="#signals">Signals</a>
+          <a href="#archetype">Archetype</a>
+          <a href="#roadmap">Roadmap</a>
+          <a href="#next-steps">Next Steps</a>
+        </div>
+      </div>
+
       {/* SCORE SECTION */}
-      <div className="section">
+      <div id="score" className="section">
         <h2>Your WunderBrand Score™</h2>
         <div className="score">{brand_alignment_score || 0}</div>
 
@@ -181,7 +461,7 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
       </div>
 
       {/* PILLARS */}
-      <div className="section">
+      <div id="pillars" className="section">
         <h2>Pillar Analysis</h2>
         <div className="pillars">
           {Object.entries(pillar_scores || {}).map(([pillar, score]: [string, any], idx) => {
@@ -207,7 +487,7 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
       </div>
 
       {/* STRATEGY SNAPSHOT SIGNALS */}
-      <div className="section">
+      <div id="signals" className="section">
         <h2>Content Format &amp; Channel Snapshot</h2>
         <p style={{ lineHeight: "1.65" }}>
           {content_format_channel_snapshot ||
@@ -264,7 +544,7 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
 
       {/* ARCHETYPE */}
       {enriched_archetype && (
-        <div className="section">
+        <div id="archetype" className="section">
           <h2>Brand Archetype</h2>
           {typeof enriched_archetype === 'string' ? (
             <p style={{ lineHeight: "1.65" }}>{enriched_archetype}</p>
@@ -334,7 +614,7 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
 
       {/* ROADMAP */}
       {(roadmap_30 || roadmap_60 || roadmap_90) && (
-        <div className="section roadmap">
+        <div id="roadmap" className="section roadmap">
           <h2>Recommended 30/60/90-Day Roadmap</h2>
 
           {roadmap_30 && (
@@ -363,22 +643,8 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
       {/* VOC Survey — Customer Perception Insights */}
       <VocSurveyCTA reportId={reportId} businessName={business_name || "Your Business"} />
 
-      {/* CTA: Upgrade to Blueprint */}
-      <div className="blueprint-cta">
-        <h2>Ready for Blueprint™?</h2>
-        <p style={{ maxWidth: "620px", margin: "0 auto", lineHeight: "1.6" }}>
-          Blueprint™ is where your strategy becomes a complete brand foundation —
-          messaging, identity, audience segmentation, competitor positioning,
-          visual system direction, and a full marketing roadmap.
-        </p>
-
-        <Link href="/upgrade/blueprint" className="blueprint-btn">
-          Explore WunderBrand Blueprint™ →
-        </Link>
-      </div>
-
       {/* PDF DOWNLOAD + SHARE */}
-      <div style={{ marginTop: "32px", display: "flex", justifyContent: "center", gap: "12px", flexWrap: "wrap" }}>
+      <div id="next-steps" style={{ marginTop: "32px", display: "flex", justifyContent: "center", gap: "12px", flexWrap: "wrap" }}>
         <a
           href={`/api/pdf?id=${reportId}&type=snapshot-plus`}
           target="_blank"
@@ -408,6 +674,18 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
           label="Snapshot+ Report"
           variant="text"
         />
+      </div>
+
+      {/* CTA: Upgrade to Blueprint (after users consume report and next-step actions) */}
+      <div className="blueprint-cta">
+        <h2>Ready for Blueprint™?</h2>
+        <p style={{ maxWidth: "620px", margin: "0 auto", lineHeight: "1.6" }}>
+          Blueprint™ turns these findings into a complete brand foundation:
+          messaging system, positioning architecture, visual direction, and implementation roadmap.
+        </p>
+        <Link href="/upgrade/blueprint" className="blueprint-btn">
+          Explore WunderBrand Blueprint™ →
+        </Link>
       </div>
     </div>
   );

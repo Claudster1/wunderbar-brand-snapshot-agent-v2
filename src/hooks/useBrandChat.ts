@@ -164,6 +164,13 @@ export function useBrandChat(options?: UseBrandChatOptions) {
   useEffect(() => { onCompleteRef.current = options?.onComplete; }, [options?.onComplete]);
   const isInitialized = useRef(false);
 
+  const assignLocalDraftId = () => {
+    if (typeof window === 'undefined') return;
+    const fallbackId = `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    setReportId(fallbackId);
+    sessionStorage.setItem('wundy_report_id', fallbackId);
+  };
+
   // Initialize: create draft report or load resume
   // Also persist reportId in sessionStorage so a page refresh can recover.
   useEffect(() => {
@@ -174,13 +181,10 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     const urlParams = new URLSearchParams(window.location.search);
     const resumeId = urlParams.get('resume');
 
-    // Also check sessionStorage for a previously started session (page refresh recovery)
-    const sessionReportId = sessionStorage.getItem('wundy_report_id');
-    const effectiveResumeId = resumeId || sessionReportId;
-    
-    if (effectiveResumeId) {
+    // For explicit resume links, load existing progress from API.
+    if (resumeId) {
       // Load existing progress
-      fetch(`/api/snapshot/resume?reportId=${effectiveResumeId}`)
+      fetch(`/api/snapshot/resume?reportId=${resumeId}`)
         .then((res) => res.json())
         .then((data) => {
           if (data.reportId && data.progress) {
@@ -203,31 +207,40 @@ export function useBrandChat(options?: UseBrandChatOptions) {
 
               setMessages([...savedMessages, resumeMessage]);
             }
-          } else if (!resumeId) {
-            // sessionStorage had stale ID — fall through to create new draft
-            sessionStorage.removeItem('wundy_report_id');
+          } else {
             createDraft();
           }
         })
-        .catch((err) => {
-          console.error('[useBrandChat] Error loading resume:', err);
-          if (!resumeId) createDraft();
+        .catch(() => {
+          createDraft();
         });
     } else {
-      createDraft();
+      // On normal entry, avoid auto-resume network calls (prevents noisy 404s from stale IDs).
+      // Keep any session-stored id so progress saves can continue on refresh.
+      const sessionReportId = sessionStorage.getItem('wundy_report_id');
+      if (sessionReportId) {
+        setReportId(sessionReportId);
+      } else {
+        createDraft();
+      }
     }
 
     function createDraft() {
       fetch('/api/snapshot/draft', { method: 'POST' })
-        .then((res) => res.json())
+        .then(async (res) => {
+          if (!res.ok) return null;
+          return res.json();
+        })
         .then((data) => {
           if (data.reportId) {
             setReportId(data.reportId);
             sessionStorage.setItem('wundy_report_id', data.reportId);
+          } else {
+            assignLocalDraftId();
           }
         })
-        .catch((err) => {
-          console.error('[useBrandChat] Error creating draft:', err);
+        .catch(() => {
+          assignLocalDraftId();
         });
     }
   }, []);

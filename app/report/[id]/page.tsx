@@ -1,18 +1,126 @@
 // app/report/[id]/page.tsx
 
 import { createClient } from "@supabase/supabase-js";
-import Link from "next/link";
 import SnapshotPlusUpsell from "@/components/SnapshotPlusUpsell";
 
 export const dynamic = "force-dynamic";
+const REPORT_LOGO_SRC = "/assets/og/logo-wunderbar.svg";
+const SAMPLE_LEGACY_REPORTS: Record<string, any> = {
+  "sample-ecommerce": {
+    report_id: "sample-ecommerce",
+    business_name: "Lumen & Co.",
+    user_email: "sample@wunderbar.ai",
+    brand_alignment_score: 58,
+    pillar_scores: {
+      positioning: 61,
+      messaging: 57,
+      visibility: 62,
+      credibility: 55,
+      conversion: 52,
+    },
+    pillar_insights: {
+      positioning:
+        "Your visual identity is distinctive and recognizable, but your unique value is not explicit enough in product copy.",
+      messaging:
+        "Tone is on-brand and consistent, while product pages still need clearer problem-solution framing.",
+      visibility:
+        "Organic and social traffic volume is healthy, but channel mix is not prioritized by conversion quality.",
+      credibility:
+        "Customer sentiment is positive, but trust signals are buried below the fold on key pages.",
+      conversion:
+        "Cart initiation is acceptable, but checkout friction and weak urgency cues reduce completion rate.",
+    },
+    snapshot_upsell:
+      "Unlock your full Snapshot+ strategy to close conversion gaps and improve trust placement.",
+  },
+  "sample-service-b2b": {
+    report_id: "sample-service-b2b",
+    business_name: "Northlight Advisory",
+    user_email: "sample@wunderbar.ai",
+    brand_alignment_score: 63,
+    pillar_scores: {
+      positioning: 59,
+      messaging: 66,
+      visibility: 54,
+      credibility: 72,
+      conversion: 64,
+    },
+    pillar_insights: {
+      positioning:
+        "Your offer is differentiated deeper in the funnel, but top-of-funnel clarity needs to be stronger.",
+      messaging:
+        "Your narrative is outcome-oriented, while several pages still read feature-first.",
+      visibility:
+        "Referral quality is strong, but search and LinkedIn discovery are under-leveraged.",
+      credibility:
+        "Case-study proof is strong, but trust signals are not consistently front-loaded.",
+      conversion:
+        "Qualified conversion is healthy, but visitors drop pre-booking due to weak next-step clarity.",
+    },
+    snapshot_upsell: "Upgrade to Snapshot+ for deeper audience and implementation guidance.",
+  },
+};
+
+function ReportActionBar({
+  reportId,
+  userEmail,
+}: {
+  reportId: string;
+  userEmail?: string;
+}) {
+  const workbookHref = userEmail
+    ? `/workbook?reportId=${encodeURIComponent(reportId)}&email=${encodeURIComponent(userEmail)}`
+    : `/workbook?reportId=${encodeURIComponent(reportId)}`;
+
+  const navItems = [
+    { id: "summary", label: "Summary" },
+    { id: "score-overview", label: "Score" },
+    { id: "pillar-analysis", label: "Pillars" },
+    { id: "next-steps", label: "Next Steps" },
+  ];
+
+  return (
+    <section className="action-bar">
+      <a
+        href="https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=legacy_report&utm_campaign=brand_navigation&utm_content=report_action_bar_logo"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="action-brand"
+      >
+        <img src={REPORT_LOGO_SRC} alt="Wunderbar Digital" />
+        <span className="action-brand-note">
+          Powered by <strong>Wunderbar Digital</strong>
+        </span>
+      </a>
+      <div className="action-row">
+        <a
+          href={`/api/snapshot/pdf?id=${encodeURIComponent(reportId)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="action-btn primary"
+        >
+          Download PDF
+        </a>
+        <a href={`/refine/${encodeURIComponent(reportId)}`} className="action-btn">
+          Refine Analysis
+        </a>
+        <a href={workbookHref} className="action-btn">
+          Implementation Workbook
+        </a>
+      </div>
+      <nav className="jump-links">
+        {navItems.map((item) => (
+          <a key={item.id} href={`#${item.id}`}>
+            {item.label}
+          </a>
+        ))}
+      </nav>
+    </section>
+  );
+}
 
 export default async function ReportPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: reportId } = await params;
-  const supabase = createClient(
-    process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY)!,
-    { auth: { persistSession: false } }
-  );
 
   if (!reportId) {
     return (
@@ -22,12 +130,24 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
     );
   }
 
-  // 🧠 Fetch the report from Supabase
-  const { data: report, error } = await supabase
-    .from("brand_snapshot_reports")
-    .select("*")
-    .eq("report_id", reportId)
-    .single();
+  let report = SAMPLE_LEGACY_REPORTS[reportId] || null;
+  let error: any = null;
+
+  if (!report) {
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
+
+    if (supabaseUrl && supabaseKey) {
+      const supabase = createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } });
+      const queryResult = await supabase
+        .from("brand_snapshot_reports")
+        .select("*")
+        .eq("report_id", reportId)
+        .single();
+      report = queryResult.data;
+      error = queryResult.error;
+    }
+  }
 
   if (error || !report) {
     return (
@@ -75,6 +195,105 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
       opacity: 0;
       transform: translateY(20px);
       animation: fadeUp 0.8s ease-out forwards;
+    }
+
+    .brand-lockup {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      margin-bottom: 14px;
+    }
+
+    .brand-lockup img {
+      width: 170px;
+      height: auto;
+      display: block;
+    }
+
+    .brand-lockup span {
+      font-size: 11px;
+      color: #5A6B7E;
+    }
+
+    .action-bar {
+      position: sticky;
+      top: 84px;
+      z-index: 60;
+      margin-bottom: 18px;
+      padding: 12px;
+      border: 1px solid #D6DFE8;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(4px);
+    }
+
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .action-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      margin-bottom: 8px;
+    }
+
+    .action-brand img {
+      width: 170px;
+      height: auto;
+      display: block;
+    }
+
+    .action-brand-note {
+      font-size: 11px;
+      color: #5A6B7E;
+    }
+
+    .action-brand-note strong {
+      color: #07B0F2;
+    }
+
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      border: 1px solid #D6DFE8;
+      color: #021859;
+      background: #fff;
+    }
+
+    .action-btn.primary {
+      background: #07B0F2;
+      color: #fff;
+      border-color: #07B0F2;
+    }
+
+    .jump-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .jump-links a {
+      text-decoration: none;
+      color: #5A6B7E;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 9px;
+      border-radius: 6px;
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
     }
 
     @keyframes fadeUp {
@@ -221,19 +440,34 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
       <style>{css}</style>
 
       <div className="report-container">
-        <h1>Your WunderBrand Snapshot™ Results</h1>
-        <p>
-          Here’s your personalized WunderBrand Score™ and a concise breakdown of how your brand is
-          performing across the five strategic pillars. Each insight is tailored to help you understand
-          where you’re strong today — and where small refinements can unlock clarity, consistency, and conversion.
-        </p>
+        <ReportActionBar
+          reportId={reportId}
+          userEmail={typeof (report as any).user_email === "string" ? (report as any).user_email : undefined}
+        />
+        <a
+          className="brand-lockup"
+          href="https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=legacy_report&utm_campaign=brand_navigation&utm_content=report_logo"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <img src="/assets/og/logo-wunderbar.svg" alt="Wunderbar Digital" />
+          <span>Powered by <strong>Wunderbar Digital</strong></span>
+        </a>
+        <div id="summary">
+          <h1>Your WunderBrand Snapshot™ Results</h1>
+          <p>
+            Here’s your personalized WunderBrand Score™ and a concise breakdown of how your brand is
+            performing across the five strategic pillars. Each insight is tailored to help you understand
+            where you’re strong today — and where small refinements can unlock clarity, consistency, and conversion.
+          </p>
+        </div>
 
-        <div className="score-card">
+        <div id="score-overview" className="score-card">
           <div className="score-number">{score}</div>
           <p>{scoreLabel}</p>
         </div>
 
-        <h2>How Your Brand Performs Across the Five Pillars</h2>
+        <h2 id="pillar-analysis">How Your Brand Performs Across the Five Pillars</h2>
         <div className="pillars">
           {pillarOrder.map((pillar) => {
             const insight = (pillar_insights as any)?.[pillar];
@@ -247,24 +481,17 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
           })}
         </div>
 
-        <SnapshotPlusUpsell
-          href="/checkout/snapshot-plus"
-          copy={
-            typeof snapshot_upsell === "string" && snapshot_upsell.trim().length > 0
-              ? snapshot_upsell
-              : undefined
-          }
-          businessName={businessName}
-        />
-
-        <p style={{ marginTop: "24px" }}>
-          <a
-            href={`/api/report/pdf?id=${reportId}`}
-            style={{ textDecoration: "underline", color: "#021859" }}
-          >
-            Download PDF →
-          </a>
-        </p>
+        <div id="next-steps">
+          <SnapshotPlusUpsell
+            href="/checkout/snapshot-plus"
+            copy={
+              typeof snapshot_upsell === "string" && snapshot_upsell.trim().length > 0
+                ? snapshot_upsell
+                : undefined
+            }
+            businessName={businessName}
+          />
+        </div>
       </div>
 
       <footer>Powered by Wunderbar Digital · © 2025 All Rights Reserved</footer>

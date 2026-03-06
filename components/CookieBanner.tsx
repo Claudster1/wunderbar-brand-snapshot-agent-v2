@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useSyncExternalStore } from "react";
 import {
   getConsent,
   setConsent as saveConsent,
@@ -46,6 +46,20 @@ const CATEGORIES = [
     defaultOn: false,
   },
 ];
+
+function normalizeTrackingId(value: string | undefined): string | null {
+  const cleaned = value?.trim();
+  if (!cleaned) return null;
+  const lowered = cleaned.toLowerCase();
+  if (lowered === "null" || lowered === "undefined") return null;
+  return cleaned;
+}
+
+function normalizeMetaPixelId(value: string | undefined): string | null {
+  const cleaned = normalizeTrackingId(value);
+  if (!cleaned) return null;
+  return /^\d{5,20}$/.test(cleaned) ? cleaned : null;
+}
 
 /* ─── Toggle Switch ─── */
 function Toggle({
@@ -356,31 +370,38 @@ function ConfirmToast({ message }: { message: string }) {
 /* ─── Main CookieBanner Component ─── */
 /* ═══════════════════════════════════════════ */
 export function CookieBanner() {
-  const [consent, setConsentState] = useState<ConsentState | null>(() => {
-    if (typeof window === "undefined") return null;
-    return getConsent();
-  });
-  const [visible, setVisible] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
-    return !getConsent();
-  });
+  const hydrated = useSyncExternalStore(
+    () => () => undefined,
+    () => true,
+    () => false
+  );
+  const initialConsent =
+    typeof window === "undefined" ? null : getConsent();
+  const [consent, setConsentState] = useState<ConsentState | null>(initialConsent);
+  const [visible, setVisible] = useState<boolean>(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
-  const [preferences, setPreferences] = useState<Record<string, boolean>>(() => {
-    const existing = typeof window === "undefined" ? null : getConsent();
-    return {
-      essential: true,
-      analytics: existing?.analytics ?? true,
-      marketing: existing?.marketing ?? false,
-    };
-  });
+  const [preferences, setPreferences] = useState<Record<string, boolean>>(() =>
+    initialConsent
+      ? {
+          essential: true,
+          analytics: initialConsent.analytics,
+          marketing: initialConsent.marketing,
+        }
+      : {
+          essential: true,
+          analytics: true,
+          marketing: false,
+        }
+  );
 
   useEffect(() => {
     if (consent) {
       if (consent.analytics) injectTracking();
       if (consent.marketing) injectMarketingPixels();
-      return;
+      return undefined;
     }
+
     const t = setTimeout(() => setVisible(true), 800);
     return () => clearTimeout(t);
   }, [consent]);
@@ -450,6 +471,7 @@ export function CookieBanner() {
   }, [preferences, showToast]);
 
   // Don't render anything if consent exists, modal not open, and no toast
+  if (!hydrated) return null;
   if (!visible && !modalOpen && !toast && consent) return null;
   if (!visible && !modalOpen && !toast) return null;
 
@@ -701,7 +723,7 @@ function injectTracking() {
 
   // Google Analytics 4 (GA4) + Google Ads conversion tracking
   const GA_ID = "G-HFNS3KRBKH";
-  const GADS_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID;
+  const GADS_ID = normalizeTrackingId(process.env.NEXT_PUBLIC_GOOGLE_ADS_ID);
   if (!w.gtag) {
     const gtagScript = document.createElement("script");
     gtagScript.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
@@ -731,10 +753,13 @@ function injectMarketingPixels() {
   const w = window as Window & {
     fbq?: FbqFn;
     _linkedin_data_partner_ids?: string[];
+    __metaPixelInitialized?: boolean;
+    __metaPixelScriptInjected?: boolean;
+    __linkedInInsightInjected?: boolean;
   };
 
   // Meta Pixel (Facebook)
-  const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+  const META_PIXEL_ID = normalizeMetaPixelId(process.env.NEXT_PUBLIC_META_PIXEL_ID);
   if (META_PIXEL_ID && !w.fbq) {
     const f: FbqFn = function (...args: unknown[]) {
       f.callMethod ? f.callMethod(...args) : f.queue.push(args);
@@ -745,24 +770,33 @@ function injectMarketingPixels() {
     f.queue = [] as unknown[][];
     w.fbq = f;
 
-    const script = document.createElement("script");
-    script.src = "https://connect.facebook.net/en_US/fbevents.js";
-    script.async = true;
-    document.head.appendChild(script);
+    if (!w.__metaPixelScriptInjected) {
+      const script = document.createElement("script");
+      script.src = "https://connect.facebook.net/en_US/fbevents.js";
+      script.async = true;
+      document.head.appendChild(script);
+      w.__metaPixelScriptInjected = true;
+    }
+  }
 
+  if (META_PIXEL_ID && w.fbq && !w.__metaPixelInitialized) {
     w.fbq("init", META_PIXEL_ID);
     w.fbq("track", "PageView");
+    w.__metaPixelInitialized = true;
   }
 
   // LinkedIn Insight Tag
-  const LINKEDIN_PARTNER_ID = process.env.NEXT_PUBLIC_LINKEDIN_PARTNER_ID;
+  const LINKEDIN_PARTNER_ID = normalizeTrackingId(process.env.NEXT_PUBLIC_LINKEDIN_PARTNER_ID);
   if (LINKEDIN_PARTNER_ID && !w._linkedin_data_partner_ids) {
     w._linkedin_data_partner_ids = w._linkedin_data_partner_ids || [];
     w._linkedin_data_partner_ids.push(LINKEDIN_PARTNER_ID);
 
-    const script = document.createElement("script");
-    script.src = "https://snap.licdn.com/li.lms-analytics/insight.min.js";
-    script.async = true;
-    document.head.appendChild(script);
+    if (!w.__linkedInInsightInjected) {
+      const script = document.createElement("script");
+      script.src = "https://snap.licdn.com/li.lms-analytics/insight.min.js";
+      script.async = true;
+      document.head.appendChild(script);
+      w.__linkedInInsightInjected = true;
+    }
   }
 }

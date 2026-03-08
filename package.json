@@ -31,7 +31,7 @@
         "@react-pdf/renderer": "^4.3.1",
         "@sentry/nextjs": "^10.39.0",
         "@tailwindcss/postcss": "^4.2.0",
-        "@types/uuid": "^10.0.0",
+        "@types/uuid": "^11.0.0",
         "@vercel/og": "^0.8.5",
         "disposable-email-domains": "^1.0.62",
         "next": "^16.1.6",

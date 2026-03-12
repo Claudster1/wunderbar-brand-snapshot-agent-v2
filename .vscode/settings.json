@@ -1,0 +1,34 @@
+{
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/.next/**": true,
+    "**/.turbo/**": true,
+    "**/dist/**": true,
+    "**/build/**": true,
+    "**/coverage/**": true,
+    "**/.cache/**": true,
+    "**/.vercel/**": true,
+    "**/tmp/**": true,
+    "**/*.log": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.next": true,
+    "**/.turbo": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/coverage": true,
+    "**/.cache": true,
+    "**/.vercel": true,
+    "**/tmp": true,
+    "**/*.log": true
+  },
+  "files.exclude": {
+    "**/.next": true,
+    "**/.turbo": true,
+    "**/coverage": true,
+    "**/*.log": true
+  }
+}

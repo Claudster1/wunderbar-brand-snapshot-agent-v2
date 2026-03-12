@@ -492,6 +492,7 @@ function WorkbookContent() {
     apply: (refined: string) => Promise<void>;
   } | null>(null);
   const [applyingRefinePreview, setApplyingRefinePreview] = useState(false);
+  const readOnly = editability ? !editability.canEdit : false;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -1031,7 +1032,6 @@ function WorkbookContent() {
     );
   }
 
-  const readOnly = editability ? !editability.canEdit : false;
   const isBlueprint = editability?.tier === "blueprint";
   const isBlueprintPlus = editability?.tier === "blueprint_plus";
   const strategyActivationHref =

@@ -1,4 +1,4 @@
-// GET /api/preview/pdf?type=snapshot|snapshot-plus|blueprint|blueprint-plus|brand-standards
+// GET /api/preview/pdf?type=snapshot|snapshot-plus|blueprint|blueprint-plus|executive|messaging|prompts|voice-checklist|activation|digital|competitive|brand-standards
 // Generates a PDF with mock data for preview purposes.
 
 import { NextRequest, NextResponse } from "next/server";
@@ -187,6 +187,169 @@ const MOCK_WORKBOOK_DATA = {
   archetype_application: "Apply the Sage archetype by leading every interaction with insight rather than salesmanship. Share original research, frameworks, and diagnostic findings freely. Position your team as educators first, service providers second. In content, always answer 'why' before 'how'.",
   brand_alignment_score: 72,
   primary_pillar: "credibility",
+  typography_tone:
+    "Clean, modern, and highly legible. Typography should feel expert-led without becoming overly corporate.",
+  typography_recommendations: {
+    headline: {
+      font: "Inter",
+      weight: "700",
+      size: "32px",
+      usage: "Hero headlines, key section titles",
+    },
+    subheadline: {
+      font: "Inter",
+      weight: "600",
+      size: "22px",
+      usage: "Section headers and supporting lead-ins",
+    },
+    body: {
+      font: "Inter",
+      weight: "400",
+      size: "12px",
+      usage: "Paragraphs and body copy",
+    },
+    caption: {
+      font: "Inter",
+      weight: "400",
+      size: "10px",
+      usage: "Labels, metadata, and notes",
+    },
+    accent: {
+      font: "Inter",
+      weight: "700",
+      size: "11px",
+      usage: "Buttons, CTAs, and UI emphasis",
+    },
+  },
+  brand_imagery_direction: {
+    photography_style_direction:
+      "Use authentic, human-centered photography with natural light and real working environments.",
+    subject_matter_guidance: {
+      show: [
+        "Real team interactions and client collaboration moments",
+        "Work-in-progress scenes that show process and expertise",
+        "Confident, clear expressions that signal trust and momentum",
+      ],
+      avoid: [
+        "Generic handshake stock photos",
+        "Overly staged boardroom poses",
+        "Visuals with heavy filters or artificial HDR looks",
+      ],
+    },
+    stock_photo_selection_criteria: {
+      lighting: "Natural or soft directional light; avoid harsh blown highlights.",
+      composition: "Clean framing with clear focal point and intentional negative space.",
+      color_temperature: "Neutral to slightly warm; avoid extreme color casts.",
+      diversity: "Reflect diverse professionals and realistic team representation.",
+      authenticity_markers: "Real environments, practical wardrobes, and credible context cues.",
+    },
+    image_donts: [
+      {
+        dont: "Overuse abstract skyline imagery for service proof",
+        why: "Feels generic and disconnects from real buyer outcomes.",
+        alternative: "Use project-specific visuals and real customer context.",
+      },
+      {
+        dont: "Use overly polished stock team photos",
+        why: "Reduces trust and perceived authenticity.",
+        alternative: "Use candid team-in-action imagery with natural expressions.",
+      },
+    ],
+    color_application_in_imagery:
+      "Use navy as stabilizing anchor, blue as accent highlights, and preserve neutral backgrounds for readability.",
+    platform_specific_imagery_guidance: [
+      {
+        platform: "LinkedIn",
+        dimensions: "1200x627",
+        style_adaptation:
+          "High-contrast professional imagery with clear headline overlays and subtle brand accents.",
+        examples: ["Founder insight posts", "Client outcome snapshots"],
+      },
+      {
+        platform: "Website",
+        dimensions: "16:9 hero + 4:3 cards",
+        style_adaptation:
+          "Editorial composition with strong focal subjects and generous white space for copy.",
+        examples: ["Homepage hero", "Service section imagery"],
+      },
+    ],
+    mood_board_descriptors: {
+      adjectives: ["Confident", "Strategic", "Human", "Modern"],
+      textures: ["Clean paper", "Soft gradients", "Subtle grain"],
+      environments: ["Studio office", "Collaborative workspaces", "Client workshops"],
+      lighting_conditions: "Natural and directional; avoid flat flash aesthetics.",
+      color_moods: "Navy trust base with vibrant blue accents and clean neutrals.",
+      designer_note:
+        "Prioritize clarity and credibility over decorative styling. Every image should support decision confidence.",
+    },
+    imagery_by_audience: [
+      {
+        persona: "Founder-led B2B teams",
+        visual_tone_shift:
+          "More direct leadership imagery and strategy-table moments that communicate confidence.",
+        example_image_descriptions: [
+          "Founder presenting framework to team",
+          "Small group strategic planning session",
+        ],
+      },
+      {
+        persona: "In-house marketing leads",
+        visual_tone_shift:
+          "Execution-oriented visuals showing systems, dashboards, and campaign collaboration.",
+        example_image_descriptions: [
+          "Team reviewing campaign metrics",
+          "Content planning board in use",
+        ],
+      },
+    ],
+  },
+  brand_standards_data: {
+    color_palette: [
+      {
+        name: "Trust Navy",
+        hex: "#021859",
+        rgb: "2, 24, 89",
+        usage: "Primary backgrounds, headings, authority moments",
+      },
+      {
+        name: "Signal Blue",
+        hex: "#07B0F2",
+        rgb: "7, 176, 242",
+        usage: "CTAs, highlights, links, and key accents",
+      },
+      {
+        name: "Cloud White",
+        hex: "#F8FAFD",
+        rgb: "248, 250, 253",
+        usage: "Page background and card surfaces",
+      },
+    ],
+    secondary_palette: [
+      {
+        name: "Slate",
+        hex: "#5A6B7E",
+        rgb: "90, 107, 126",
+        usage: "Body text and secondary UI",
+      },
+    ],
+    logo_guidelines: {
+      overview:
+        "Use the primary logo on light backgrounds and white logo on dark navy backgrounds only.",
+      clear_space:
+        "Maintain clear space equal to the cap-height of the wordmark around all sides.",
+      minimum_size: "Digital: 120px width minimum. Print: 30mm width minimum.",
+      placement_rules: [
+        "Prefer top-left alignment for web and slide contexts.",
+        "Center placement allowed for title and cover compositions.",
+      ],
+      incorrect_uses: [
+        "Do not stretch or compress the logo",
+        "Do not recolor outside approved palette",
+      ],
+    },
+    visual_consistency_principles:
+      "Preserve white space, consistent corner radii, and restrained color use to keep outputs clear and premium.",
+  },
 };
 
 export async function GET(req: NextRequest) {
@@ -222,14 +385,78 @@ export async function GET(req: NextRequest) {
         filename = "Acme_Co_WunderBrand_Blueprint_Plus.pdf";
         break;
       }
+      case "executive": {
+        const { ExecutiveSummaryDocument } = await import("@/src/pdf/documents/ExecutiveSummaryDocument");
+        element = React.createElement(ExecutiveSummaryDocument, {
+          data: MOCK_BLUEPRINT_PLUS_DATA as any,
+          brandName: "Acme Co",
+          userName: "Jane Smith",
+        });
+        filename = "Acme_Co_Executive_Summary.pdf";
+        break;
+      }
+      case "messaging": {
+        const { MessagingPlaybookDocument } = await import("@/src/pdf/documents/MessagingPlaybookDocument");
+        element = React.createElement(MessagingPlaybookDocument, {
+          data: MOCK_BLUEPRINT_PLUS_DATA as any,
+          brandName: "Acme Co",
+        });
+        filename = "Acme_Co_Messaging_Playbook.pdf";
+        break;
+      }
       case "brand-standards": {
         const { BrandStandardsDocument } = await import("@/src/pdf/documents/BrandStandardsDocument");
         element = React.createElement(BrandStandardsDocument, { data: MOCK_WORKBOOK_DATA as any });
         filename = "Acme_Co_Brand_Standards_Guide.pdf";
         break;
       }
+      case "prompts": {
+        const { PromptLibraryDocument } = await import("@/src/pdf/documents/PromptLibraryDocument");
+        element = React.createElement(PromptLibraryDocument, {
+          data: MOCK_BLUEPRINT_PLUS_DATA as any,
+          brandName: "Acme Co",
+        });
+        filename = "Acme_Co_AI_Prompt_Library.pdf";
+        break;
+      }
+      case "voice-checklist": {
+        const { VoiceChecklistDocument } = await import("@/src/pdf/documents/VoiceChecklistDocument");
+        element = React.createElement(VoiceChecklistDocument, {
+          data: MOCK_BLUEPRINT_PLUS_DATA as any,
+          brandName: "Acme Co",
+        });
+        filename = "Acme_Co_Voice_Do_Dont_Checklist.pdf";
+        break;
+      }
+      case "activation": {
+        const { ActivationPlanDocument } = await import("@/src/pdf/documents/ActivationPlanDocument");
+        element = React.createElement(ActivationPlanDocument, {
+          data: MOCK_BLUEPRINT_PLUS_DATA as any,
+          brandName: "Acme Co",
+        });
+        filename = "Acme_Co_90_Day_Activation_Plan.pdf";
+        break;
+      }
+      case "digital": {
+        const { DigitalStrategyDocument } = await import("@/src/pdf/documents/DigitalStrategyDocument");
+        element = React.createElement(DigitalStrategyDocument, {
+          data: MOCK_BLUEPRINT_PLUS_DATA as any,
+          brandName: "Acme Co",
+        });
+        filename = "Acme_Co_Digital_Marketing_Strategy.pdf";
+        break;
+      }
+      case "competitive": {
+        const { CompetitiveIntelDocument } = await import("@/src/pdf/documents/CompetitiveIntelDocument");
+        element = React.createElement(CompetitiveIntelDocument, {
+          data: MOCK_BLUEPRINT_PLUS_DATA as any,
+          brandName: "Acme Co",
+        });
+        filename = "Acme_Co_Competitive_Intelligence_Brief.pdf";
+        break;
+      }
       default:
-        return NextResponse.json({ error: `Unknown type: ${type}. Use: snapshot, snapshot-plus, blueprint, blueprint-plus, brand-standards` }, { status: 400 });
+        return NextResponse.json({ error: `Unknown type: ${type}. Use: snapshot, snapshot-plus, blueprint, blueprint-plus, executive, messaging, prompts, voice-checklist, activation, digital, competitive, brand-standards` }, { status: 400 });
     }
 
     const { renderToBuffer } = await import("@react-pdf/renderer");

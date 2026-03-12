@@ -80,6 +80,16 @@ Connect Form Inquiry → Seq 22 → [team responded] confirmation branch OR [no 
 
 ---
 
+## Workbook Update Trigger (Blueprint / Blueprint+)
+
+- **Backend event now fired:** `workbook_recomputed` (from `/api/workbook/recompute`)
+- **Tags applied with event:** `workbook:updated`, `workbook:updated:{tier}`
+- **Blueprint+ bonus tags:** `session:pending`, `nurture:other-services`
+- **Recommended automation:** send "Your updated version is ready" email with `%WORKBOOK_LINK%`, `%REPORT_LINK%`, and (for Blueprint+) Strategy Activation CTA
+- **Recommended timing:** send immediately after recompute, then optional +3 day reminder if no `session:activation-scheduled` and no `services:call-booked`
+
+---
+
 ## Sequence Details
 
 ### SEQUENCE 1: Free Snapshot → Snapshot+ Upgrade

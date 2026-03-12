@@ -556,7 +556,6 @@ export default function BrandSnapshotReport() {
                 alt="Wunderbar Digital"
                 width={160}
                 height={26}
-                style={{ height: 26, width: "auto", objectFit: "contain" }}
               />
             </a>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
@@ -1102,7 +1101,6 @@ export default function BrandSnapshotReport() {
                 alt="Wunderbar Digital"
                 width={124}
                 height={20}
-                style={{ height: 20, width: "auto", objectFit: "contain" }}
               />
             </a>
           </div>
@@ -1120,19 +1118,19 @@ export default function BrandSnapshotReport() {
           </p>
           <p style={{ fontSize: 11, color: '#8A97A8', textAlign: 'center', marginTop: 24, padding: '16px 0', borderTop: '1px solid #E6EAF2', fontFamily: 'Lato, sans-serif' }}>
             This report is licensed for internal use by the commissioning organization. Redistribution or resale is prohibited.
-            {' '}&copy; {new Date().getFullYear()} Wunderbar Digital &middot;{' '}
+            {' '}&copy; 2026 Wunderbar Digital &middot;{' '}
             <a href="https://wunderbardigital.com/terms-of-service?utm_source=wunderbrand_app&utm_medium=report_footer&utm_campaign=legal" target="_blank" rel="noopener noreferrer" style={{ color: '#8A97A8', textDecoration: 'underline' }}>Terms of Use</a>
           </p>
         </footer>
       </div>
     </div>
     <ReportNav reportTitle="WunderBrand Snapshot™" sections={[
-      { id: "executive-summary", label: "Executive Summary" },
-      { id: "brand-alignment-score", label: "WunderBrand Score™" },
-      { id: "pillar-scores", label: "Brand Pillar Scores" },
-      { id: "brand-archetype", label: "Brand Archetype" },
-      { id: "next-steps", label: "Your Next Steps" },
-      { id: "whats-next", label: "What's Next" },
+      { id: "executive-summary", label: "Executive Summary", group: "Core Results" },
+      { id: "brand-alignment-score", label: "WunderBrand Score™", group: "Core Results" },
+      { id: "pillar-scores", label: "Brand Pillar Scores", group: "Core Results" },
+      { id: "brand-archetype", label: "Brand Archetype", group: "Core Results" },
+      { id: "next-steps", label: "Your Next Steps", group: "Execution Plan" },
+      { id: "whats-next", label: "What's Next", group: "Execution Plan" },
     ]} />
 
     {/* Wundy™ General Guide — free tier (no report data access) */}

@@ -28,7 +28,7 @@ registerPdfFonts();
 // Styles
 const styles = StyleSheet.create({
   page: {
-    fontFamily: "Inter",
+    fontFamily: "Helvetica",
     fontSize: pdfTheme.fontSizes.base,
     paddingBottom: pdfTheme.spacing.xl,
     paddingTop: pdfTheme.spacing.lg,

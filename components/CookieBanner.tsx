@@ -698,8 +698,11 @@ function injectTracking() {
     gtag?: (...args: unknown[]) => void;
   };
 
-  // AC Site Tracking (diffuser.js)
-  if (!w.vgo) {
+  // AC Site Tracking (diffuser.js) — only initialize when account id is configured.
+  const AC_SITE_TRACKING_ACCOUNT_ID = normalizeTrackingId(
+    process.env.NEXT_PUBLIC_ACTIVE_CAMPAIGN_ACCOUNT_ID
+  );
+  if (AC_SITE_TRACKING_ACCOUNT_ID && !w.vgo) {
     const script = document.createElement("script");
     script.src = "https://diffuser-cdn.app-us1.com/diffuser/diffuser.js";
     script.async = true;
@@ -715,6 +718,7 @@ function injectTracking() {
 
     script.onload = () => {
       if (typeof w.vgo === "function") {
+        w.vgo("setAccount", AC_SITE_TRACKING_ACCOUNT_ID);
         w.vgo("setTrackByDefault", true);
         w.vgo("process");
       }

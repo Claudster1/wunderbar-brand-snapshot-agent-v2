@@ -6,6 +6,7 @@ import React from "react";
 import { Document, Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
 import { pdfTheme } from "../theme";
 import { DisclaimerPage } from "../components/DisclaimerPage";
+import { SectionDividerPage } from "../components/SectionDividerPage";
 import type { BlueprintEngineOutput } from "../types/blueprintReport";
 
 const LOGO_URL = "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp";
@@ -50,6 +51,12 @@ export function MessagingPlaybookDocument({ data, brandName }: Props) {
         <Text style={{ ...s.coverMeta, marginTop: 40, fontSize: 8 }}>CONFIDENTIAL — For marketing team use</Text>
       </Page>
 
+      <SectionDividerPage
+        label="Section"
+        title="Voice and Messaging Foundations"
+        subtitle="Persona, voice rules, and the core messaging system."
+      />
+
       <Page size="A4" style={s.page} wrap>
         <View style={s.footer} fixed>
           <Text style={s.footerText}>Messaging Playbook — {brandName}</Text>
@@ -58,7 +65,7 @@ export function MessagingPlaybookDocument({ data, brandName }: Props) {
 
         <Text style={s.h1}>Brand Voice & Persona</Text>
         <Text style={s.body}>{d.brandPersona?.personaSummary}</Text>
-        <View style={s.row}>
+        <View style={s.row} wrap={false}>
           <View style={s.col3}><View style={s.card}><Text style={s.label}>Tone</Text><Text style={s.body}>{d.brandPersona?.communicationStyle?.tone}</Text></View></View>
           <View style={s.col3}><View style={s.card}><Text style={s.label}>Pace</Text><Text style={s.body}>{d.brandPersona?.communicationStyle?.pace}</Text></View></View>
           <View style={s.col3}><View style={s.card}><Text style={s.label}>Energy</Text><Text style={s.body}>{d.brandPersona?.communicationStyle?.energy}</Text></View></View>
@@ -71,7 +78,7 @@ export function MessagingPlaybookDocument({ data, brandName }: Props) {
         )}
 
         <Text style={s.h2}>Do / Don't Quick Reference</Text>
-        <View style={s.row}>
+        <View style={s.row} wrap={false}>
           <View style={s.col2}>
             <View style={s.accentCard}>
               <Text style={s.cardTitle}>Do</Text>
@@ -98,13 +105,26 @@ export function MessagingPlaybookDocument({ data, brandName }: Props) {
 
         <Text style={s.h1}>Core Messaging System</Text>
         <Text style={s.label}>Core Message</Text>
-        <View style={s.accentCard}><Text style={s.body}>{d.messagingSystem?.coreMessage}</Text></View>
+        <View style={s.accentCard} wrap={false}><Text style={s.body}>{d.messagingSystem?.coreMessage}</Text></View>
         <Text style={s.label}>Supporting Messages</Text>
         {d.messagingSystem?.supportingMessages?.map((m, i) => <Text key={i} style={s.bullet}>• {m}</Text>)}
         <Text style={s.label}>Proof Points</Text>
         {d.messagingSystem?.proofPoints?.map((p, i) => <Text key={i} style={s.bullet}>• {p}</Text>)}
         <Text style={s.label}>Never Say</Text>
         {d.messagingSystem?.whatNotToSay?.map((w, i) => <Text key={i} style={{ ...s.bullet, color: "#EF4444" }}>✕ {w}</Text>)}
+      </Page>
+
+      <SectionDividerPage
+        label="Section"
+        title="Pillars and Taglines"
+        subtitle="Message architecture, content themes, and positioning language."
+      />
+
+      <Page size="A4" style={s.page} wrap>
+        <View style={s.footer} fixed>
+          <Text style={s.footerText}>Messaging Playbook — {brandName}</Text>
+          <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
+        </View>
 
         <Text style={s.h1}>Messaging Pillars</Text>
         {d.messagingPillars?.map((mp, i) => (
@@ -141,6 +161,19 @@ export function MessagingPlaybookDocument({ data, brandName }: Props) {
             <Text style={s.small}>Best used on: {t.bestUsedOn}</Text>
           </View>
         ))}
+      </Page>
+
+      <SectionDividerPage
+        label="Section"
+        title="Ready-to-Use Copy"
+        subtitle="Practical copy assets and headline / CTA references."
+      />
+
+      <Page size="A4" style={s.page} wrap>
+        <View style={s.footer} fixed>
+          <Text style={s.footerText}>Messaging Playbook — {brandName}</Text>
+          <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
+        </View>
 
         <Text style={s.h1}>Ready-to-Use Copy</Text>
         <Text style={s.label}>One-Liner</Text>
@@ -155,7 +188,7 @@ export function MessagingPlaybookDocument({ data, brandName }: Props) {
         <Text style={s.body}>{d.companyDescription?.proposalIntro}</Text>
 
         <Text style={s.h2}>Headline & CTA Examples</Text>
-        <View style={s.row}>
+        <View style={s.row} wrap={false}>
           <View style={s.col2}>
             <View style={s.accentCard}>
               <Text style={s.cardTitle}>Headlines — Use</Text>

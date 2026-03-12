@@ -53,6 +53,15 @@ const DOCUMENTS: DocItem[] = [
     pages: "12–16 pages",
     minTier: "blueprint",
   },
+  {
+    type: "voice-checklist",
+    label: "Voice Do/Don't Checklist",
+    description: "Quick reference for approved phrasing, tone guardrails, and off-brand language to avoid across all content.",
+    audience: "Writers, Sales, Marketing, Agencies",
+    icon: "🧭",
+    pages: "2–4 pages",
+    minTier: "blueprint",
+  },
   // --- Blueprint+ ($1,997): 4 additional documents ---
   {
     type: "activation",

@@ -1576,6 +1576,29 @@ export default function BrandBlueprintPlusReport() {
     if (em) setBlueprintEmail(em);
   }, []);
 
+  const buildDocUrl = (docType: string) => {
+    const isSampleReportId =
+      Boolean(blueprintReportId) &&
+      (blueprintReportId!.startsWith("sample-") || blueprintReportId!.startsWith("preview-"));
+
+    if (blueprintReportId && !isSampleReportId) {
+      const p = new URLSearchParams({
+        reportId: blueprintReportId,
+        type: docType,
+        tier: "blueprint-plus",
+      });
+      if (blueprintEmail) p.set("email", blueprintEmail);
+      return `/api/blueprint/pdf?${p.toString()}`;
+    }
+
+    if (docType === "standards") return "/api/preview/pdf?type=brand-standards";
+    if (docType === "prompts") return "/api/preview/pdf?type=prompts";
+    if (docType === "voice-checklist") return "/api/preview/pdf?type=voice-checklist";
+    if (docType === "complete") return "/api/preview/pdf?type=blueprint-plus";
+    if (docType === "executive" || docType === "messaging") return "/api/preview/pdf?type=blueprint";
+    return "/api/preview/pdf?type=blueprint-plus";
+  };
+
   return (
     <>
     <div data-report style={{ minHeight: "100vh", background: LIGHT_BG, fontFamily: "'Lato', sans-serif" }}>
@@ -1629,7 +1652,6 @@ export default function BrandBlueprintPlusReport() {
                 alt="Wunderbar Digital"
                 width={160}
                 height={26}
-                style={{ height: 26, width: "auto", objectFit: "contain" }}
               />
             </a>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
@@ -1698,6 +1720,35 @@ export default function BrandBlueprintPlusReport() {
                 </svg>
                 Download
               </button>
+            </div>
+            <div data-download-secondary style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "flex-end" }}>
+              {[
+                { key: "standards", label: "Brand Standards" },
+                { key: "executive", label: "Executive Summary" },
+                { key: "messaging", label: "One-Page Messaging" },
+                { key: "prompts", label: "Prompt Guide" },
+                { key: "voice-checklist", label: "Voice Checklist" },
+                { key: "activation", label: "Strategic Action Plan" },
+              ].map((doc) => (
+                <a
+                  key={doc.key}
+                  href={buildDocUrl(doc.key)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    fontSize: 11,
+                    color: NAVY,
+                    border: `1px solid ${BORDER}`,
+                    borderRadius: 999,
+                    padding: "4px 10px",
+                    textDecoration: "none",
+                    background: WHITE,
+                    fontWeight: 700,
+                  }}
+                >
+                  {doc.label}
+                </a>
+              ))}
             </div>
           </div>
         </div>
@@ -4288,6 +4339,38 @@ export default function BrandBlueprintPlusReport() {
           </div>
         </Section>
 
+        <Section id="strategic-signals">
+          <SectionTitle description="Executive-level diagnostic signals with implementation implications for growth and profitability.">
+            Strategic Signals
+          </SectionTitle>
+          <div style={{ display: "grid", gap: 14 }}>
+            <div style={{ border: `1px solid ${BORDER}`, borderRadius: 5, padding: 16, background: WHITE }}>
+              <div style={{ fontSize: 14, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
+                Competitive Vulnerability Signal
+              </div>
+              <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.65 }}>
+                Your strongest moat is strategic authority; your current exposure is proof distribution and differentiation consistency across channels. Rivals with tighter narrative continuity can out-position you in final-stage evaluations despite weaker underlying capability.
+              </div>
+            </div>
+            <div style={{ border: `1px solid ${BORDER}`, borderRadius: 5, padding: 16, background: WHITE }}>
+              <div style={{ fontSize: 14, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
+                Marketing Spend Efficiency Signal
+              </div>
+              <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.65 }}>
+                Spend dilution is concentrated in cross-channel message drift and under-leveraged high-intent pathways. Reallocating budget toward aligned journeys and conversion-ready assets should raise blended ROAS and improve CAC efficiency.
+              </div>
+            </div>
+            <div style={{ border: `1px solid ${BORDER}`, borderRadius: 5, padding: 16, background: WHITE }}>
+              <div style={{ fontSize: 14, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
+                Revenue Impact Statement
+              </div>
+              <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.65 }}>
+                The primary upside vector is conversion-quality lift from clearer positioning, stronger proof hierarchy, and tighter execution governance. Resolving these constraints increases forecast reliability and unlocks sustainable revenue acceleration.
+              </div>
+            </div>
+          </div>
+        </Section>
+
         {/* ═══ DOCUMENT LIBRARY ═══ */}
         {blueprintReportId && (
           <Section id="document-library">
@@ -4304,7 +4387,6 @@ export default function BrandBlueprintPlusReport() {
                 alt="Wunderbar Digital"
                 width={124}
                 height={20}
-                style={{ height: 20, width: "auto", objectFit: "contain" }}
               />
             </a>
           </div>
@@ -4321,7 +4403,7 @@ export default function BrandBlueprintPlusReport() {
           </p>
           <p style={{ fontSize: 11, color: '#8A97A8', textAlign: 'center', marginTop: 24, padding: '16px 0', borderTop: '1px solid #E6EAF2', fontFamily: 'Lato, sans-serif' }}>
             This report is licensed for internal use by the commissioning organization. Redistribution or resale is prohibited.
-            {' '}&copy; {new Date().getFullYear()} Wunderbar Digital &middot;{' '}
+            {' '}&copy; 2026 Wunderbar Digital &middot;{' '}
             <a href="https://wunderbardigital.com/terms-of-service?utm_source=wunderbrand_app&utm_medium=report_footer&utm_campaign=legal" target="_blank" rel="noopener noreferrer" style={{ color: '#8A97A8', textDecoration: 'underline' }}>Terms of Use</a>
           </p>
         </footer>
@@ -4329,40 +4411,41 @@ export default function BrandBlueprintPlusReport() {
       </div>
     </div>
     <ReportNav reportTitle="WunderBrand Blueprint+™" sections={[
-      { id: "executive-summary", label: "Executive Summary", group: "Diagnostic" },
-      { id: "context-coverage", label: "Context Coverage", group: "Diagnostic" },
-      { id: "brand-alignment-score", label: "WunderBrand Score™", group: "Diagnostic" },
-      { id: "focus-area-diagnosis", label: "Focus Area Diagnosis", group: "Diagnostic" },
-      { id: "pillar-deep-dives", label: "Pillar Deep Dives", group: "Diagnostic" },
-      { id: "strategic-alignment", label: "Strategic Alignment", group: "Diagnostic" },
-      { id: "strategic-overview", label: "Strategic Overview", group: "Strategic Foundation" },
-      { id: "blueprint-overview", label: "Blueprint+ Overview", group: "Strategic Foundation" },
-      { id: "brand-foundation", label: "Brand Foundation", group: "Strategic Foundation" },
-      { id: "brand-archetypes", label: "Brand Archetypes", group: "Strategic Foundation" },
-      { id: "messaging-system", label: "Messaging System", group: "Messaging & Content" },
-      { id: "messaging-pillars", label: "Messaging Pillars", group: "Messaging & Content" },
-      { id: "content-pillars", label: "Content Pillars", group: "Messaging & Content" },
-      { id: "messaging-matrix", label: "Messaging Matrix", group: "Messaging & Content" },
-      { id: "brand-persona", label: "Your Brand Persona", group: "Messaging & Content" },
-      { id: "audience-persona", label: "Audience & Persona", group: "Audience & Positioning" },
-      { id: "audience-segmentation", label: "Audience Segmentation", group: "Audience & Positioning" },
-      { id: "competitive-positioning", label: "Competitive Positioning", group: "Audience & Positioning" },
-      { id: "visibility-discovery", label: "Visibility & Discovery", group: "Visibility & Growth" },
-      { id: "visual-direction", label: "Visual Direction", group: "Visibility & Growth" },
-      { id: "conversion-strategy", label: "Conversion Strategy", group: "Visibility & Growth" },
-      { id: "brand-architecture", label: "Brand Architecture", group: "Visibility & Growth" },
-      { id: "campaign-strategy", label: "Campaign Strategy", group: "Visibility & Growth" },
-      { id: "strategic-action-plan", label: "Strategic Action Plan", group: "Implementation" },
-      { id: "prompt-library", label: "AI Prompt Library (28)", group: "Implementation" },
-      { id: "execution-guardrails", label: "Execution Guardrails", group: "Implementation" },
-      { id: "measurement-optimization", label: "Measurement & Optimization", group: "Implementation" },
-      { id: "strategic-guardrails", label: "Strategic Guardrails", group: "Implementation" },
-      { id: "strategic-trade-offs", label: "Strategic Trade-Offs", group: "Implementation" },
-      { id: "ninety-day-roadmap", label: "90-Day Roadmap", group: "Implementation" },
-      { id: "brand-health-scorecard", label: "Brand Health Scorecard", group: "Implementation" },
-      { id: "tagline-recommendations", label: "Tagline Recommendations", group: "Brand Assets" },
-      { id: "brand-story", label: "Brand Story", group: "Brand Assets" },
-      { id: "company-description", label: "Company Description", group: "Brand Assets" },
+      { id: "executive-summary", label: "Executive Summary", group: "Core Results" },
+      { id: "context-coverage", label: "Context Coverage", group: "Core Results" },
+      { id: "brand-alignment-score", label: "WunderBrand Score™", group: "Core Results" },
+      { id: "focus-area-diagnosis", label: "Focus Area Diagnosis", group: "Core Results" },
+      { id: "pillar-deep-dives", label: "Pillar-by-Pillar Results", group: "Core Results" },
+      { id: "strategic-alignment", label: "Strategic Alignment", group: "Core Results" },
+      { id: "strategic-signals", label: "Strategic Signals", group: "Core Results" },
+      { id: "strategic-overview", label: "Strategic Overview", group: "Strategy" },
+      { id: "blueprint-overview", label: "Blueprint+ Overview", group: "Strategy" },
+      { id: "brand-foundation", label: "Brand Foundation", group: "Strategy" },
+      { id: "brand-archetypes", label: "Brand Archetypes", group: "Strategy" },
+      { id: "messaging-system", label: "Messaging System", group: "Strategy" },
+      { id: "messaging-pillars", label: "Messaging Pillars", group: "Strategy" },
+      { id: "content-pillars", label: "Content Pillars", group: "Strategy" },
+      { id: "messaging-matrix", label: "Messaging Matrix", group: "Strategy" },
+      { id: "brand-persona", label: "Your Brand Persona", group: "Strategy" },
+      { id: "audience-persona", label: "Audience & Persona", group: "Strategy" },
+      { id: "audience-segmentation", label: "Audience Segmentation", group: "Strategy" },
+      { id: "competitive-positioning", label: "Competitive Positioning", group: "Strategy" },
+      { id: "visibility-discovery", label: "Visibility & Discovery", group: "Strategy" },
+      { id: "visual-direction", label: "Visual Direction", group: "Strategy" },
+      { id: "conversion-strategy", label: "Conversion Strategy", group: "Strategy" },
+      { id: "brand-architecture", label: "Brand Architecture", group: "Strategy" },
+      { id: "campaign-strategy", label: "Campaign Strategy", group: "Strategy" },
+      { id: "strategic-action-plan", label: "Strategic Action Plan", group: "Execution Plan" },
+      { id: "prompt-library", label: "AI Prompt Library (28)", group: "Execution Plan" },
+      { id: "execution-guardrails", label: "Execution Guardrails", group: "Execution Plan" },
+      { id: "measurement-optimization", label: "Measurement & Optimization", group: "Execution Plan" },
+      { id: "strategic-guardrails", label: "Strategic Guardrails", group: "Execution Plan" },
+      { id: "strategic-trade-offs", label: "Strategic Trade-Offs", group: "Execution Plan" },
+      { id: "ninety-day-roadmap", label: "90-Day Roadmap", group: "Execution Plan" },
+      { id: "brand-health-scorecard", label: "Brand Health Scorecard", group: "Execution Plan" },
+      { id: "tagline-recommendations", label: "Tagline Recommendations", group: "Assets" },
+      { id: "brand-story", label: "Brand Story", group: "Assets" },
+      { id: "company-description", label: "Company Description", group: "Assets" },
       { id: "customer-journey", label: "Customer Journey", group: "Channel Strategy" },
       { id: "seo-strategy", label: "SEO & Keywords", group: "Channel Strategy" },
       { id: "aeo-strategy", label: "AEO & AI Search", group: "Channel Strategy" },

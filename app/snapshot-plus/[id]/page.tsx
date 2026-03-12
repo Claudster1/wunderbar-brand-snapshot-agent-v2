@@ -5,6 +5,7 @@ import Link from "next/link";
 import { VocSurveyCTA } from "@/components/voc/VocSurveyCTA";
 import { ShareButton } from "@/components/share/ShareButton";
 import { BlueprintPlusHeader } from "@/components/reports/BlueprintPlusHeader";
+import { ScoreGauge } from "@/src/components/ScoreGauge";
 
 export const dynamic = "force-dynamic";
 
@@ -423,13 +424,6 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
     <div className="page">
       <style>{css}</style>
 
-      {/* HEADER */}
-      <h1>Snapshot+™ Brand Intelligence Report</h1>
-      <p style={{ maxWidth: "720px", lineHeight: "1.6" }}>
-        This expanded analysis builds on your WunderBrand Snapshot™ results and adds deeper strategic
-        insight across brand clarity, voice, visuals, audience, archetype, and next-step priorities.
-      </p>
-
       <BlueprintPlusHeader
         productName="WunderBrand Snapshot+™"
         reportId={reportId}
@@ -442,8 +436,8 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
       <div id="summary" className="section">
         <h2>Executive Summary</h2>
         <p style={{ lineHeight: "1.65" }}>
-          Your Snapshot+ indicates a primary opportunity in <strong>{weakestPillarLabel}</strong>.
-          Addressing this first should unlock the highest near-term lift in brand alignment and conversion performance.
+          This high-level overview summarizes your current WunderBrand Score™, pillar performance,
+          and the strongest near-term improvement priority in <strong>{weakestPillarLabel}</strong>.
         </p>
         {opportunities_map && (
           <p style={{ lineHeight: "1.65", marginTop: "10px" }}>
@@ -457,13 +451,8 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
       {/* SCORE SECTION */}
       <div id="score" className="section">
         <h2>Your WunderBrand Score™</h2>
-        <div className="score">{brand_alignment_score || 0}</div>
-
-        <div className="meter-track">
-          <div
-            className="meter-fill"
-            style={{ width: `${brand_alignment_score || 0}%` }}
-          ></div>
+        <div style={{ maxWidth: 360, margin: "0 auto" }}>
+          <ScoreGauge value={brand_alignment_score || 0} showLegend />
         </div>
       </div>
 

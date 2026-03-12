@@ -5,37 +5,27 @@ export function WunderbarFooter() {
 
   return (
     <>
-      <section id="connect" className="social-connect" aria-label="Social media">
+      <section id="connect" aria-label="Social links">
         <div className="social-container">
           <a href="https://www.youtube.com/@WunderbarDigitalAI" target="_blank" aria-label="YouTube" rel="noopener noreferrer">
-            <svg className="social-icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path fill="currentColor" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.8ZM9.6 15.6V8.4L16 12l-6.4 3.6Z" />
-            </svg>
+            <span className="si si-youtube" aria-hidden="true"></span>
           </a>
           <a href="https://x.com/wunderbarai" target="_blank" aria-label="X (Twitter)" rel="noopener noreferrer">
-            <svg className="social-icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path fill="currentColor" d="M18.9 2h3.4l-7.4 8.5L23.6 22h-6.8l-5.3-7-6.1 7H2l7.9-9.1L.6 2h7l4.8 6.4L18.9 2Zm-1.2 18h1.9L6.6 3.9H4.6L17.7 20Z" />
-            </svg>
+            <span className="si si-x" aria-hidden="true"></span>
           </a>
           <a href="https://www.tiktok.com/@wunderbardigital" target="_blank" aria-label="TikTok" rel="noopener noreferrer">
-            <svg className="social-icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path fill="currentColor" d="M16.5 3c.4 2 1.6 3.7 3.5 4.7v3.1a9.4 9.4 0 0 1-3.5-1v6.1a6 6 0 1 1-5.2-6v3.2a2.8 2.8 0 1 0 2 2.7V3h3.2Z" />
-            </svg>
+            <span className="si si-tiktok" aria-hidden="true"></span>
           </a>
           <a href="https://www.linkedin.com/company/wunderbar-digital/" target="_blank" aria-label="LinkedIn" rel="noopener noreferrer">
-            <svg className="social-icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path fill="currentColor" d="M4.98 3.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5ZM2.7 9h4.6v12H2.7V9Zm7.3 0h4.4v1.7h.1c.6-1.1 2.1-2.2 4.2-2.2 4.5 0 5.3 2.8 5.3 6.5V21h-4.6v-5.3c0-1.3 0-2.9-1.9-2.9s-2.2 1.3-2.2 2.8V21H10V9Z" />
+            <svg className="si-svg si-linkedin" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path fill="currentColor" d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.036-1.852-3.036-1.853 0-2.136 1.445-2.136 2.939v5.666H9.35V9h3.414v1.561h.049c.476-.9 1.637-1.852 3.369-1.852 3.599 0 4.266 2.368 4.266 5.455v6.288zM5.337 7.433a2.062 2.062 0 11.001-4.124 2.062 2.062 0 01-.001 4.124zM6.813 20.452H3.862V9h2.951v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
             </svg>
           </a>
           <a href="https://www.facebook.com/profile.php?id=61565609848830&mibextid=LQQJ4d" target="_blank" aria-label="Facebook" rel="noopener noreferrer">
-            <svg className="social-icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path fill="currentColor" d="M13.5 22v-8h2.7l.4-3h-3.1V9.2c0-.9.3-1.6 1.7-1.6h1.8V4.9c-.3 0-1.4-.1-2.6-.1-2.6 0-4.3 1.5-4.3 4.3V11H7.4v3h2.7v8h3.4Z" />
-            </svg>
+            <span className="si si-facebook" aria-hidden="true"></span>
           </a>
           <a href="https://www.instagram.com/wunderbardigital?igsh=dDF6N21peTRzcmU3&utm_source=qr" target="_blank" aria-label="Instagram" rel="noopener noreferrer">
-            <svg className="social-icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path fill="currentColor" d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2.2A2.8 2.8 0 0 0 4.2 7v10A2.8 2.8 0 0 0 7 19.8h10a2.8 2.8 0 0 0 2.8-2.8V7A2.8 2.8 0 0 0 17 4.2H7Zm11.2 1.7a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2.2a2.8 2.8 0 1 0 0 5.6 2.8 2.8 0 0 0 0-5.6Z" />
-            </svg>
+            <span className="si si-instagram" aria-hidden="true"></span>
           </a>
         </div>
       </section>
@@ -43,7 +33,7 @@ export function WunderbarFooter() {
       <div className="container">
         <div className="footer-top">
           <div className="brand-row">
-            <a href="https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" className="brand-footer" aria-label="Wunderbar Digital home" target="_blank" rel="noopener noreferrer">
+            <a href="https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=footer_nav&utm_campaign=nav_logo&utm_content=footer_logo" className="brand-footer" aria-label="Wunderbar Digital home" target="_blank" rel="noopener noreferrer">
               Wunderbar Digital
             </a>
             <p className="brand-descriptor">Brand Clarity for Growing Businesses</p>
@@ -53,9 +43,9 @@ export function WunderbarFooter() {
             <div className="nav-col">
               <h3>Company</h3>
               <ul>
-                <li><a href="https://wunderbardigital.com/about?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">About</a></li>
-                <li><a href="https://wunderbardigital.com/connect?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">Contact Us</a></li>
-                <li><a href="https://wunderbardigital.com/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">Talk to an Expert</a></li>
+                <li><a href="https://wunderbardigital.com/about?utm_source=wunderbrand_app&utm_medium=footer_nav&utm_campaign=nav_link&utm_content=footer_about" target="_blank" rel="noopener noreferrer">About</a></li>
+                <li><a href="https://wunderbardigital.com/connect?utm_source=wunderbrand_app&utm_medium=footer_nav&utm_campaign=nav_link&utm_content=footer_contact" target="_blank" rel="noopener noreferrer">Contact Us</a></li>
+                <li><a href="https://calendly.com/claudine-wunderbardigital/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=footer_nav&utm_campaign=nav_cta_secondary&utm_content=footer_talk_expert" target="_blank" rel="noopener noreferrer">Talk to an Expert</a></li>
               </ul>
             </div>
 
@@ -63,8 +53,8 @@ export function WunderbarFooter() {
             <div className="nav-col">
               <h3>Products</h3>
               <ul>
-                <li><a href="https://wunderbardigital.com/wunderbrand-snapshot?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">WunderBrand Snapshot™ (Free)</a></li>
-                <li><a href="https://wunderbardigital.com/wunderbrand-suite?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">WunderBrand Suite™</a></li>
+                <li><a href="https://wunderbardigital.com/wunderbrand-snapshot?utm_source=wunderbrand_app&utm_medium=footer_nav&utm_campaign=nav_link&utm_content=footer_snapshot_free" target="_blank" rel="noopener noreferrer">WunderBrand Snapshot™ (Free)</a></li>
+                <li><a href="https://wunderbardigital.com/wunderbrand-suite?utm_source=wunderbrand_app&utm_medium=footer_nav&utm_campaign=nav_link&utm_content=footer_suite_overview" target="_blank" rel="noopener noreferrer">WunderBrand Suite™</a></li>
               </ul>
             </div>
 
@@ -72,8 +62,8 @@ export function WunderbarFooter() {
             <div className="nav-col">
               <h3>Services</h3>
               <ul>
-                <li><a href="https://wunderbardigital.com/managed-marketing?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">Managed Marketing</a></li>
-                <li><a href="https://wunderbardigital.com/ai-consulting?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">AI Consulting</a></li>
+                <li><a href="https://wunderbardigital.com/managed-marketing?utm_source=wunderbrand_app&utm_medium=footer_nav&utm_campaign=nav_link&utm_content=footer_managed_marketing" target="_blank" rel="noopener noreferrer">Managed Marketing</a></li>
+                <li><a href="https://wunderbardigital.com/ai-consulting?utm_source=wunderbrand_app&utm_medium=footer_nav&utm_campaign=nav_link&utm_content=footer_ai_consulting" target="_blank" rel="noopener noreferrer">AI Consulting</a></li>
               </ul>
             </div>
 
@@ -81,8 +71,8 @@ export function WunderbarFooter() {
             <div className="nav-col">
               <h3>Resources</h3>
               <ul>
-                <li><a href="https://wunderbardigital.com/insights?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">Insights</a></li>
-                <li><a href="https://wunderbardigital.com/faq?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">FAQs</a></li>
+                <li><a href="https://wunderbardigital.com/insights?utm_source=wunderbrand_app&utm_medium=footer_nav&utm_campaign=nav_link&utm_content=footer_insights" target="_blank" rel="noopener noreferrer">Insights</a></li>
+                <li><a href="https://wunderbardigital.com/faq?utm_source=wunderbrand_app&utm_medium=footer_nav&utm_campaign=nav_link&utm_content=footer_faq" target="_blank" rel="noopener noreferrer">FAQs</a></li>
               </ul>
             </div>
 
@@ -90,16 +80,11 @@ export function WunderbarFooter() {
             <div className="nav-col">
               <h3>Legal</h3>
               <ul>
-                <li><a href="https://wunderbardigital.com/terms-of-service?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">Terms of Service</a></li>
-                <li><a href="https://wunderbardigital.com/privacy-policy?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">Privacy Policy</a></li>
-                <li><a href="https://wunderbardigital.com/dmca-policy?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">DMCA</a></li>
-                <li><a href="https://wunderbardigital.com/accessibility-statement?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">Accessibility</a></li>
-                <li><a href="https://wunderbardigital.com/do-not-sell-or-share-my-personal-information?utm_source=wunderbrand_app&utm_medium=footer&utm_campaign=site_navigation" target="_blank" rel="noopener noreferrer">Do Not Sell/Share</a></li>
-                <li><button onClick={() => {
-                  if (typeof window === "undefined") return;
-                  const cookieWindow = window as Window & { __openCookieSettings?: () => void };
-                  cookieWindow.__openCookieSettings?.();
-                }} className="site-footer-cookie-btn" type="button">Cookie Settings</button></li>
+                <li><a href="https://wunderbardigital.com/terms-of-service?utm_source=wunderbrand_app&utm_medium=footer_nav&utm_campaign=nav_link&utm_content=footer_terms" target="_blank" rel="noopener noreferrer">Terms of Service</a></li>
+                <li><a href="https://wunderbardigital.com/privacy-policy?utm_source=wunderbrand_app&utm_medium=footer_nav&utm_campaign=nav_link&utm_content=footer_privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a></li>
+                <li><a href="https://wunderbardigital.com/dmca-policy?utm_source=wunderbrand_app&utm_medium=footer_nav&utm_campaign=nav_link&utm_content=footer_dmca" target="_blank" rel="noopener noreferrer">DMCA</a></li>
+                <li><a href="https://wunderbardigital.com/accessibility-statement?utm_source=wunderbrand_app&utm_medium=footer_nav&utm_campaign=nav_link&utm_content=footer_accessibility" target="_blank" rel="noopener noreferrer">Accessibility</a></li>
+                <li><a href="https://wunderbardigital.com/do-not-sell-or-share-my-personal-information?utm_source=wunderbrand_app&utm_medium=footer_nav&utm_campaign=nav_link&utm_content=footer_do_not_sell" target="_blank" rel="noopener noreferrer">Do Not Sell/Share</a></li>
               </ul>
             </div>
           </nav>

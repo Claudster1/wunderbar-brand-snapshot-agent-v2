@@ -10,7 +10,7 @@ const styles = StyleSheet.create({
     paddingBottom: pdfTheme.spacing.md,
     paddingHorizontal: pdfTheme.spacing.xl,
     borderTop: `1px solid ${pdfTheme.colors.border}`,
-    fontFamily: "Inter",
+    fontFamily: "Helvetica",
   },
   row: {
     flexDirection: "row",

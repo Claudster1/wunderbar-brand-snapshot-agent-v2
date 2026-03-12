@@ -5,6 +5,7 @@ import React from "react";
 import { Document, Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
 import { pdfTheme } from "../theme";
 import { DisclaimerPage } from "../components/DisclaimerPage";
+import { SectionDividerPage } from "../components/SectionDividerPage";
 import type { BlueprintEngineOutput } from "../types/blueprintReport";
 
 const LOGO_URL = "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp";
@@ -51,6 +52,12 @@ export function DigitalStrategyDocument({ data, brandName }: Props) {
         <Text style={{ ...s.coverMeta, marginTop: 40, fontSize: 8 }}>From your WunderBrand Blueprint™</Text>
       </Page>
 
+      <SectionDividerPage
+        label="Section"
+        title="Customer Journey"
+        subtitle="Stage-by-stage journey, touchpoints, and messaging focus."
+      />
+
       <Page size="A4" style={s.page} wrap>
         <View style={s.footer} fixed>
           <Text style={s.footerText}>Digital Marketing Strategy — {brandName}</Text>
@@ -59,7 +66,7 @@ export function DigitalStrategyDocument({ data, brandName }: Props) {
 
         {/* Customer Journey */}
         <Text style={s.h1}>Customer Journey Map</Text>
-        <Text style={s.body}>{d.customerJourneyMap?.overview}</Text>
+        <Text style={s.body} wrap={false}>{d.customerJourneyMap?.overview}</Text>
         {d.customerJourneyMap?.stages?.map((stage, i) => (
           <View key={i} style={s.card} wrap={false}>
             <Text style={s.cardTitle}>{stage.stage}</Text>
@@ -74,10 +81,23 @@ export function DigitalStrategyDocument({ data, brandName }: Props) {
             <Text style={s.small}>Conversion Trigger: {stage.conversionTrigger} | KPI: {stage.kpiToTrack}</Text>
           </View>
         ))}
+      </Page>
+
+      <SectionDividerPage
+        label="Section"
+        title="Search Strategy"
+        subtitle="SEO priorities and AI answer engine readiness."
+      />
+
+      <Page size="A4" style={s.page} wrap>
+        <View style={s.footer} fixed>
+          <Text style={s.footerText}>Digital Marketing Strategy — {brandName}</Text>
+          <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
+        </View>
 
         {/* SEO */}
         <Text style={s.h1}>SEO & Keyword Strategy</Text>
-        <Text style={s.body}>{d.seoStrategy?.overview}</Text>
+        <Text style={s.body} wrap={false}>{d.seoStrategy?.overview}</Text>
         <Text style={s.h2}>Primary Keywords</Text>
         {d.seoStrategy?.primaryKeywords?.map((kw, i) => (
           <View key={i} style={s.card} wrap={false}>
@@ -98,11 +118,11 @@ export function DigitalStrategyDocument({ data, brandName }: Props) {
         ))}
         <Text style={s.label}>Technical Priorities</Text>
         {d.seoStrategy?.technicalPriorities?.map((t, i) => <Text key={i} style={s.bullet}>• {t}</Text>)}
-        <View style={s.accentCard}><Text style={s.body}>{d.seoStrategy?.contentSEOPlaybook}</Text></View>
+        <View style={s.accentCard} wrap={false}><Text style={s.body}>{d.seoStrategy?.contentSEOPlaybook}</Text></View>
 
         {/* AEO */}
         <Text style={s.h1}>AEO & AI Search Strategy</Text>
-        <Text style={s.body}>{d.aeoStrategy?.overview}</Text>
+        <Text style={s.body} wrap={false}>{d.aeoStrategy?.overview}</Text>
         <Text style={s.h2}>Entity Optimization</Text>
         <Text style={s.body}>{d.aeoStrategy?.entityOptimization?.currentEntityStatus}</Text>
         {d.aeoStrategy?.entityOptimization?.entityBuildingActions?.map((a, i) => <Text key={i} style={s.bullet}>• {a}</Text>)}
@@ -111,10 +131,23 @@ export function DigitalStrategyDocument({ data, brandName }: Props) {
         {d.aeoStrategy?.contentForAICitation?.formatRecommendations?.map((r, i) => <Text key={i} style={s.bullet}>• {r}</Text>)}
         <Text style={s.h2}>Priority FAQs</Text>
         {d.aeoStrategy?.faqStrategy?.priorityFAQs?.map((faq, i) => <Text key={i} style={s.bullet}>• {faq}</Text>)}
+      </Page>
+
+      <SectionDividerPage
+        label="Section"
+        title="Lifecycle Channels"
+        subtitle="Email and social channel strategy for consistent execution."
+      />
+
+      <Page size="A4" style={s.page} wrap>
+        <View style={s.footer} fixed>
+          <Text style={s.footerText}>Digital Marketing Strategy — {brandName}</Text>
+          <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
+        </View>
 
         {/* Email */}
         <Text style={s.h1}>Email Marketing Strategy</Text>
-        <Text style={s.body}>{d.emailMarketingFramework?.overview}</Text>
+        <Text style={s.body} wrap={false}>{d.emailMarketingFramework?.overview}</Text>
         <Text style={s.h2}>Welcome Sequence</Text>
         <Text style={s.body}>{d.emailMarketingFramework?.welcomeSequence?.description}</Text>
         {d.emailMarketingFramework?.welcomeSequence?.emails?.map((e, i) => (
@@ -135,7 +168,7 @@ export function DigitalStrategyDocument({ data, brandName }: Props) {
 
         {/* Social */}
         <Text style={s.h1}>Social Media Strategy</Text>
-        <Text style={s.body}>{d.socialMediaStrategy?.overview}</Text>
+        <Text style={s.body} wrap={false}>{d.socialMediaStrategy?.overview}</Text>
         {d.socialMediaStrategy?.platforms?.map((p, i) => (
           <View key={i} style={s.card} wrap={false}>
             <Text style={s.cardTitle}>{p.platform}</Text>
@@ -156,11 +189,24 @@ export function DigitalStrategyDocument({ data, brandName }: Props) {
             <Text style={s.small}>{d.socialMediaStrategy.platformsToAvoid.reasoning}</Text>
           </>
         )}
+      </Page>
+
+      <SectionDividerPage
+        label="Section"
+        title="Conversion Pathways"
+        subtitle="Trust-building and CTA hierarchy designed to drive action."
+      />
+
+      <Page size="A4" style={s.page} wrap>
+        <View style={s.footer} fixed>
+          <Text style={s.footerText}>Digital Marketing Strategy — {brandName}</Text>
+          <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
+        </View>
 
         {/* Conversion */}
         <Text style={s.h1}>Conversion Strategy</Text>
         <Text style={s.label}>How Trust Is Built</Text>
-        <Text style={s.body}>{d.conversionStrategy?.howTrustIsBuilt}</Text>
+        <Text style={s.body} wrap={false}>{d.conversionStrategy?.howTrustIsBuilt}</Text>
         <Text style={s.label}>How Clarity Drives Action</Text>
         <Text style={s.body}>{d.conversionStrategy?.howClarityDrivesAction}</Text>
         <Text style={s.h2}>CTA Hierarchy</Text>

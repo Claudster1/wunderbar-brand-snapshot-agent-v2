@@ -20,6 +20,12 @@ const nextConfig = {
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     minimumCacheTTL: 60,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'd268zs2sdbzvo0.cloudfront.net',
+      },
+    ],
   },
 
   // ─── Security Headers ───
@@ -34,12 +40,12 @@ const nextConfig = {
             value: [
               "default-src 'self'",
               // Scripts: self + Stripe + GTM + Cloudflare Turnstile + ActiveCampaign tracking
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://www.googletagmanager.com https://challenges.cloudflare.com https://diffuser-cdn.app-us1.com",
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "font-src 'self' https://fonts.gstatic.com data:",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://www.googletagmanager.com https://challenges.cloudflare.com https://diffuser-cdn.app-us1.com https://plausible.io https://connect.facebook.net https://snap.licdn.com",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
+              "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:",
               "img-src 'self' data: blob: https: http:",
               // Connect: self + Supabase + OpenAI + Stripe + ActiveCampaign + Cloudflare + Slack + Sentry
-              "connect-src 'self' https://*.supabase.co https://api.openai.com https://api.stripe.com https://*.api-us1.com https://hooks.slack.com https://*.wunderbardigital.com https://*.wunderbrand.ai https://challenges.cloudflare.com wss://*.supabase.co https://*.ingest.us.sentry.io",
+              "connect-src 'self' https://*.supabase.co https://api.openai.com https://api.stripe.com https://*.api-us1.com https://hooks.slack.com https://*.wunderbardigital.com https://*.wunderbrand.ai https://challenges.cloudflare.com wss://*.supabase.co https://*.ingest.us.sentry.io https://plausible.io https://www.facebook.com https://px.ads.linkedin.com",
               // Frames: Stripe + Calendly + Turnstile widget
               "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://calendly.com https://challenges.cloudflare.com",
               "frame-ancestors https://www.wunderbardigital.com https://wunderbardigital.com",

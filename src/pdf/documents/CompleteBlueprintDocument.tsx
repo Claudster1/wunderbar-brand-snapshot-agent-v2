@@ -6,6 +6,7 @@ import React from "react";
 import { Document, Page, Text, View, Image, StyleSheet, Link } from "@react-pdf/renderer";
 import { pdfTheme, colors } from "../theme";
 import { DisclaimerPage } from "../components/DisclaimerPage";
+import { SectionDividerPage } from "../components/SectionDividerPage";
 import type { BlueprintEngineOutput } from "../types/blueprintReport";
 
 const LOGO_URL = "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp";
@@ -180,6 +181,12 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         <Text style={s.partDesc}>Where {brandName} stands today — scored, analyzed, and benchmarked.</Text>
       </Page>
 
+      <SectionDividerPage
+        label="Section"
+        title="Executive Summary"
+        subtitle="Brand score, benchmark context, and immediate focus areas."
+      />
+
       {/* Executive Summary */}
       <Page size="A4" style={s.page} wrap>
         <Footer brandName={brandName} />
@@ -230,6 +237,12 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
           <Text style={s.body}>{d.priorityDiagnosis?.secondary?.whatImproves}</Text>
         </View>
       </Page>
+
+      <SectionDividerPage
+        label="Section"
+        title="Pillar Deep Dives"
+        subtitle="Detailed diagnostics for positioning, messaging, visibility, credibility, and conversion."
+      />
 
       {/* Pillar Deep Dives */}
       {pillars.map((key) => {
@@ -284,6 +297,12 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
           </Page>
         );
       })}
+
+      <SectionDividerPage
+        label="Section"
+        title="Strategic Alignment"
+        subtitle="Cross-pillar conflicts, archetype guidance, and system-level recommendations."
+      />
 
       {/* Strategic Alignment + Archetype + Action Plan */}
       <Page size="A4" style={s.page} wrap>
@@ -360,6 +379,12 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         <Text style={s.partDesc}>Who {brandName} is at its core — purpose, story, persona, and audience.</Text>
       </Page>
 
+      <SectionDividerPage
+        label="Section"
+        title="Brand Foundation"
+        subtitle="Mission, vision, values, story, and positioning core."
+      />
+
       {/* Value Proposition Statement */}
       {d.valuePropositionStatement?.statement && (
         <Page size="A4" style={s.page} wrap>
@@ -429,6 +454,12 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
 
       {/* Voice & Tone Guide */}
       {d.voiceToneGuide && (
+        <>
+        <SectionDividerPage
+          label="Section"
+          title="Voice and Tone Guide"
+          subtitle="Language standards to keep brand expression consistent across channels."
+        />
         <Page size="A4" style={s.page} wrap>
           <Footer brandName={brandName} />
           <Text style={s.h1}>Voice & Tone Guide</Text>
@@ -477,9 +508,15 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
             </View>
           )}
         </Page>
+        </>
       )}
 
       {/* Brand Persona */}
+      <SectionDividerPage
+        label="Section"
+        title="Brand Persona"
+        subtitle="Identity, behavior, and channel-ready communication examples."
+      />
       <Page size="A4" style={s.page} wrap>
         <Footer brandName={brandName} />
         <Text style={s.h1}>Brand Persona</Text>
@@ -522,6 +559,11 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
       </Page>
 
       {/* Audience & ICPs */}
+      <SectionDividerPage
+        label="Section"
+        title="Audience and Buyer Personas"
+        subtitle="Primary and secondary ICPs plus persona-level messaging guidance."
+      />
       <Page size="A4" style={s.page} wrap>
         <Footer brandName={brandName} />
         <Text style={s.h1}>Ideal Customer Profiles</Text>
@@ -592,6 +634,12 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         <Text style={s.partDesc}>What {brandName} says, how it says it, and the content system behind it.</Text>
       </Page>
 
+      <SectionDividerPage
+        label="Section"
+        title="Messaging System"
+        subtitle="Core narrative, proof architecture, and channel message structure."
+      />
+
       <Page size="A4" style={s.page} wrap>
         <Footer brandName={brandName} />
         <Text style={s.h1}>Messaging System</Text>
@@ -623,7 +671,18 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
             </View>
           </View>
         ))}
+      </Page>
 
+      <SectionDividerPage
+        label="Section"
+        title="Content and Taglines"
+        subtitle="Content pillars, narrative themes, and approved tagline options."
+      />
+
+      <Page size="A4" style={s.page} wrap>
+        <Footer brandName={brandName} />
+        <Text style={s.h1}>Messaging Pillars</Text>
+        <Text style={s.body}>Use this section for content planning and campaign briefing.</Text>
         <Text style={s.h1}>Content Pillars</Text>
         {d.contentPillars?.map((cp, i) => (
           <View key={i} style={s.card} wrap={false}>
@@ -665,6 +724,12 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         <Text style={s.partTitle}>Strategy & Channels</Text>
         <Text style={s.partDesc}>How {brandName} competes, reaches its audience, and converts.</Text>
       </Page>
+
+      <SectionDividerPage
+        label="Section"
+        title="Competitive Positioning"
+        subtitle="Market map, trade-offs, whitespace, and category strategy."
+      />
 
       <Page size="A4" style={s.page} wrap>
         <Footer brandName={brandName} />
@@ -730,6 +795,11 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
       </Page>
 
       {/* SEO, AEO, Email, Social, Conversion, Pricing, Sales */}
+      <SectionDividerPage
+        label="Section"
+        title="Channel and Conversion Strategy"
+        subtitle="Search, email, social, conversion, pricing, and sales execution guidance."
+      />
       <Page size="A4" style={s.page} wrap>
         <Footer brandName={brandName} />
         <Text style={s.h1}>SEO & Keyword Strategy</Text>
@@ -953,6 +1023,12 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         <Text style={s.partDesc}>How to roll out, measure, and protect {brandName}'s brand strategy.</Text>
       </Page>
 
+      <SectionDividerPage
+        label="Section"
+        title="Rollout and Governance"
+        subtitle="Operational rollout, consistency controls, and team alignment."
+      />
+
       <Page size="A4" style={s.page} wrap>
         <Footer brandName={brandName} />
         <Text style={s.h1}>90-Day Brand Strategy Rollout</Text>
@@ -1132,6 +1208,12 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         <Bullets items={d.brandImageryDirection?.subjectMatterGuidance?.avoid || []} />
       </Page>
 
+      <SectionDividerPage
+        label="Section"
+        title="Performance and Risk Review"
+        subtitle="KPI tracking, brand health scorecard, SWOT, and terminology controls."
+      />
+
       {/* ═══════════════════════════════════════════════════════════
           PART VI — AI PROMPT LIBRARY
          ═══════════════════════════════════════════════════════════ */}
@@ -1140,6 +1222,12 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         <Text style={s.partTitle}>AI Prompt Library</Text>
         <Text style={s.partDesc}>16 custom AI prompts built from {brandName}'s brand strategy — ready to paste.</Text>
       </Page>
+
+      <SectionDividerPage
+        label="Section"
+        title="Prompt Packs"
+        subtitle="Foundational and execution prompts for consistent, on-brand output."
+      />
 
       <Page size="A4" style={s.page} wrap>
         <Footer brandName={brandName} />

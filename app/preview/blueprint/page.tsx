@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import nextDynamic from "next/dynamic";
-import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 
 // Lazy-load heavy interactive components to reduce initial bundle size
 const ReportNav = nextDynamic(() => import("@/components/reports/ReportNav"), { ssr: false });
@@ -48,6 +48,42 @@ function scoreLabel(pct: number) {
   if (pct >= 40) return "Fair";
   if (pct >= 20) return "Weak";
   return "Critical";
+}
+
+function toFiniteNumber(value: unknown, fallback = 0): number {
+  const n = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  const cleaned = (hex || "").replace("#", "").trim();
+  const normalized = cleaned.length === 3
+    ? cleaned.split("").map((c) => c + c).join("")
+    : cleaned.padEnd(6, "0").slice(0, 6);
+  const intValue = Number.parseInt(normalized, 16);
+  return {
+    r: (intValue >> 16) & 255,
+    g: (intValue >> 8) & 255,
+    b: intValue & 255,
+  };
+}
+
+function hexToRgbString(hex: string): string {
+  const { r, g, b } = hexToRgb(hex);
+  return `RGB ${r}, ${g}, ${b}`;
+}
+
+function hexToCmykString(hex: string): string {
+  const { r, g, b } = hexToRgb(hex);
+  const rn = r / 255;
+  const gn = g / 255;
+  const bn = b / 255;
+  const k = 1 - Math.max(rn, gn, bn);
+  if (k >= 0.999) return "CMYK 0, 0, 0, 100";
+  const c = (1 - rn - k) / (1 - k);
+  const m = (1 - gn - k) / (1 - k);
+  const y = (1 - bn - k) / (1 - k);
+  return `CMYK ${Math.round(c * 100)}, ${Math.round(m * 100)}, ${Math.round(y * 100)}, ${Math.round(k * 100)}`;
 }
 
 /* ─── AnimNum ─── */
@@ -191,7 +227,21 @@ function PillarMeter({ score, maxScore = 20, label }: { score: number; maxScore?
 /* ─── Section & SectionTitle ─── */
 function Section({ children, style, pageBreak, id }: { children: React.ReactNode; style?: React.CSSProperties; pageBreak?: boolean; id?: string }) {
   return (
-    <div id={id} data-section data-page-break={pageBreak || undefined} style={{ background: WHITE, borderRadius: 5, border: `1px solid ${BORDER}`, padding: "32px 32px", ...style }}>
+    <div
+      id={id}
+      data-section
+      data-page-break={pageBreak || undefined}
+      style={{
+        background: WHITE,
+        borderRadius: 8,
+        border: `1px solid ${BORDER}`,
+        borderTop: `3px solid ${BLUE}20`,
+        boxShadow: "0 8px 24px rgba(2, 24, 89, 0.04)",
+        padding: "32px 32px",
+        scrollMarginTop: 128,
+        ...style,
+      }}
+    >
       {children}
     </div>
   );
@@ -760,6 +810,30 @@ Prioritize ruthlessly. A brand trying to fix everything at once fixes nothing.`,
       revisitWhen: "When Acme Co\u2019s credibility score would be 16+ (social proof is visible, case studies are published, testimonials are placed at decision points).",
     },
   ],
+  swotAnalysis: {
+    overview: "This SWOT highlights where Acme Co can compound strategic advantage fastest in the next two quarters.",
+    strengths: [
+      { item: "Strong strategic positioning clarity", evidence: "Positioning score and narrative consistency are above peer baseline.", leverage: "Use this as the lead frame in all sales and landing pages." },
+      { item: "Expert-led brand methodology", evidence: "Framework-based delivery is visible across report outputs.", leverage: "Turn this into repeatable proof assets and thought leadership content." },
+      { item: "High-quality advisory depth", evidence: "Insights are differentiated beyond tactical recommendations.", leverage: "Anchor premium pricing on strategic depth + implementation guidance." },
+    ],
+    weaknesses: [
+      { item: "Credibility signals not consistently surfaced", evidence: "Proof artifacts are present but not always at high-intent conversion points.", mitigation: "Add case studies, testimonials, and results blocks to every mid-funnel page." },
+      { item: "Content system execution variance", evidence: "Publishing cadence and format consistency fluctuate by channel.", mitigation: "Implement a monthly content operating cadence tied to pillar priorities." },
+      { item: "Conversion pathways can be fragmented", evidence: "CTA narrative differs across paid, organic, and landing flows.", mitigation: "Align one primary CTA narrative per campaign cluster." },
+    ],
+    opportunities: [
+      { item: "Own the B2B specialist advisory position", context: "Category competitors are either broad agencies or narrow tactical providers.", action: "Publish category-defining comparison and positioning explainers." },
+      { item: "Compound visibility through SEO + AEO", context: "High-intent searches and AI answer surfaces favor structured expert content.", action: "Prioritize FAQ schema, authority pages, and citation-ready content formats." },
+      { item: "Improve win-rate with proof-first conversion UX", context: "Decision-stage buyers respond to concrete outcomes and process certainty.", action: "Re-sequence pages: claim → proof → process → CTA." },
+    ],
+    threats: [
+      { item: "Boutique competitors moving into B2B specialization", likelihood: "Medium", impact: "High", contingency: "Accelerate thought leadership footprint and proprietary framework visibility." },
+      { item: "Rising paid media costs reduce acquisition efficiency", likelihood: "High", impact: "Medium", contingency: "Shift budget mix toward owned channels and conversion optimization." },
+      { item: "Messaging drift across teams over time", likelihood: "Medium", impact: "Medium", contingency: "Use workbook governance and quarterly language audits." },
+    ],
+    strategicImplications: "Near-term priority should be proof-led conversion architecture and authority content. This protects differentiation while improving pipeline efficiency.",
+  },
   taglineRecommendations: [
     { tagline: "Strategy That Scales With You", rationale: "Positions Acme Co as a growth partner — reflects the Sage archetype's emphasis on wisdom applied practically.", bestUsedOn: "Website hero section, LinkedIn bio, email signature", tone: "Confident authority with warmth" },
     { tagline: "Clarity First. Growth Follows.", rationale: "Emphasizes strategic clarity as the foundation for measurable results — ties to the primary messaging pillar.", bestUsedOn: "Tagline beneath logo, presentation slides, proposal covers", tone: "Direct and assured" },
@@ -917,42 +991,272 @@ const ARCHETYPE_META: Record<string, { tagline: string; description: string }> =
 };
 ARCHETYPE_META["The Guide"] = ARCHETYPE_META["The Sage"];
 
+function getSampleWorkbookStorageKey(reportId: string, email: string): string {
+  return `wundy:sample-workbook:${reportId}:${email.toLowerCase()}`;
+}
+
+function getJourneyPhase(index: number): "acquire" | "convert" | "grow" {
+  if (index <= 1) return "acquire";
+  if (index <= 3) return "convert";
+  return "grow";
+}
+
+function getJourneyIcon(stageName: string) {
+  const normalized = (stageName || "").toLowerCase();
+  if (normalized.includes("awareness")) {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+        <circle cx="12" cy="12" r="3.5" />
+      </svg>
+    );
+  }
+  if (normalized.includes("consideration")) {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <rect x="3" y="3" width="18" height="18" rx="3" />
+        <path d="M8 8h8M8 12h5M8 16h3" />
+      </svg>
+    );
+  }
+  if (normalized.includes("decision")) {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M12 2l2.9 5.8L21 9l-4.5 4.4 1.1 6.3L12 17l-5.6 2.7 1.1-6.3L3 9l6.1-1.2L12 2z" />
+      </svg>
+    );
+  }
+  if (normalized.includes("onboarding")) {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M12 22V12M12 12l-4 4M12 12l4 4" />
+        <path d="M4 8l4-4 4 4M8 4v8" />
+        <path d="M14 8l4-4 4 4M18 4v8" />
+      </svg>
+    );
+  }
+  if (normalized.includes("retention")) {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M3 12a9 9 0 1018 0 9 9 0 00-18 0" />
+        <path d="M12 8v4l3 3" />
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M23 21v-2a4 4 0 00-3-3.87" />
+    </svg>
+  );
+}
+
 /* ─── Main Component ─── */
 export default function BrandBlueprintReport() {
   const r = REPORT;
+  const searchParams = useSearchParams();
   const [selectedFocus, setSelectedFocus] = useState<"primary" | "secondary">("primary");
   const [selectedArchetype, setSelectedArchetype] = useState<"primary" | "secondary">("primary");
-  const [blueprintReportId] = useState<string | null>(() => {
-    if (typeof window === "undefined") return null;
-    const params = new URLSearchParams(window.location.search);
-    return params.get("reportId") || params.get("id");
-  });
-  const [blueprintEmail] = useState<string | undefined>(() => {
-    if (typeof window === "undefined") return undefined;
-    const params = new URLSearchParams(window.location.search);
-    return params.get("email") || localStorage.getItem("brand_snapshot_email") || undefined;
-  });
-  const [blueprintTier] = useState<"blueprint" | "blueprint-plus">(() => {
-    if (typeof window === "undefined") return "blueprint";
-    const params = new URLSearchParams(window.location.search);
-    return params.get("tier") === "blueprint-plus" ? "blueprint-plus" : "blueprint";
-  });
+  const [workbookSectionOverrides, setWorkbookSectionOverrides] = useState<Record<string, string>>({});
+  const [logoSrc, setLogoSrc] = useState(
+    "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp"
+  );
+  const blueprintReportId = searchParams.get("reportId") || searchParams.get("id");
+  const blueprintEmail = searchParams.get("email") || undefined;
+  const resolvedWorkbookReportId = blueprintReportId || "preview-blueprint";
+  const resolvedWorkbookEmail = blueprintEmail || "preview@wunderbar.ai";
+  const blueprintTier: "blueprint" | "blueprint-plus" =
+    searchParams.get("tier") === "blueprint-plus" ? "blueprint-plus" : "blueprint";
+  const productDisplayName =
+    blueprintTier === "blueprint-plus" ? "WunderBrand Blueprint+™" : "WunderBrand Blueprint™";
+  const logoFallback = "/assets/og/logo-wunderbar.svg";
+
+  const buildDocUrl = (docType: string) => {
+    const isSampleReportId =
+      Boolean(blueprintReportId) &&
+      (blueprintReportId!.startsWith("sample-") || blueprintReportId!.startsWith("preview-"));
+
+    if (blueprintReportId && !isSampleReportId) {
+      const p = new URLSearchParams({
+        reportId: blueprintReportId,
+        type: docType,
+        tier: blueprintTier,
+      });
+      if (blueprintEmail) p.set("email", blueprintEmail);
+      return `/api/blueprint/pdf?${p.toString()}`;
+    }
+    if (docType === "standards") return "/api/preview/pdf?type=brand-standards";
+    if (docType === "complete") {
+      return "/api/preview/pdf?type=blueprint-plus";
+    }
+    if (docType === "executive" || docType === "messaging") {
+      return "/api/preview/pdf?type=blueprint";
+    }
+    if (docType === "prompts") {
+      return "/api/preview/pdf?type=prompts";
+    }
+    if (docType === "voice-checklist") {
+      return "/api/preview/pdf?type=voice-checklist";
+    }
+    return "/api/preview/pdf?type=blueprint-plus";
+  };
+  const workbookUrl = `/workbook?reportId=${encodeURIComponent(resolvedWorkbookReportId)}&email=${encodeURIComponent(resolvedWorkbookEmail)}`;
+
+  const topNavItems = [
+    { id: "executive-summary", label: "Summary" },
+    { id: "brand-alignment-score", label: "Score" },
+    { id: "pillar-deep-dives", label: "Pillars" },
+    { id: "brand-archetypes", label: "Archetype" },
+    { id: "visibility-discovery", label: "Visibility" },
+    { id: "strategic-signals", label: "Signals" },
+  ];
+  const [activeNavId, setActiveNavId] = useState(topNavItems[0].id);
+  const brandPersonaName = "The Trusted Strategist";
+  const journeyStageColors = [BLUE, NAVY, GREEN, ORANGE, "#8B5CF6"];
+  const journeyStages = ((r as any).customerJourneyMap?.stages ?? []) as any[];
+  const [activeJourneyStage, setActiveJourneyStage] = useState(0);
+  const activeJourney = journeyStages[Math.min(activeJourneyStage, Math.max(0, journeyStages.length - 1))];
+
+  const getSectionOverride = (key: string, fallback: string) => {
+    const override = workbookSectionOverrides[key];
+    return typeof override === "string" && override.trim().length > 0 ? override : fallback;
+  };
+
+  useEffect(() => {
+    if (activeJourneyStage > Math.max(0, journeyStages.length - 1)) {
+      setActiveJourneyStage(0);
+    }
+  }, [activeJourneyStage, journeyStages.length]);
+
+  useEffect(() => {
+    const reportIdForOverrides = blueprintReportId || resolvedWorkbookReportId;
+    const emailForOverrides = blueprintEmail || resolvedWorkbookEmail;
+    if (!reportIdForOverrides || !emailForOverrides) return;
+    let mounted = true;
+    (async () => {
+      try {
+        const isSampleMode =
+          reportIdForOverrides.startsWith("sample-") ||
+          reportIdForOverrides.startsWith("preview-") ||
+          reportIdForOverrides === "preview";
+        if (isSampleMode) {
+          try {
+            const cached = window.localStorage.getItem(
+              getSampleWorkbookStorageKey(reportIdForOverrides, emailForOverrides)
+            );
+            if (cached) {
+              const parsed = JSON.parse(cached);
+              const cachedOverrides = parsed?.custom_sections?.report_sections;
+              if (mounted && cachedOverrides && typeof cachedOverrides === "object") {
+                setWorkbookSectionOverrides(cachedOverrides as Record<string, string>);
+                return;
+              }
+            }
+          } catch {
+            // Ignore malformed local cache payloads.
+          }
+        }
+
+        const res = await fetch(
+          `/api/workbook?reportId=${encodeURIComponent(reportIdForOverrides)}&email=${encodeURIComponent(emailForOverrides)}`
+        );
+        if (!res.ok) return;
+        const data = await res.json();
+        const overrides = data?.workbook?.custom_sections?.report_sections;
+        if (mounted && overrides && typeof overrides === "object") {
+          setWorkbookSectionOverrides(overrides as Record<string, string>);
+        }
+      } catch {
+        // Silent fallback to built-in report copy
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [blueprintReportId, blueprintEmail, resolvedWorkbookReportId, resolvedWorkbookEmail]);
+
+  const handleNavClick = (event: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    event.preventDefault();
+    const target = document.getElementById(id);
+    if (!target) return;
+    const navOffset = 128;
+    const y = target.getBoundingClientRect().top + window.scrollY - navOffset;
+    window.scrollTo({ top: y, behavior: "smooth" });
+    window.history.replaceState(null, "", `#${id}`);
+    setActiveNavId(id);
+  };
+
+  useEffect(() => {
+    const sectionIds = topNavItems.map((item) => item.id);
+    const targets = sectionIds
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => Boolean(el));
+    if (targets.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible[0]?.target?.id) setActiveNavId(visible[0].target.id);
+      },
+      {
+        root: null,
+        rootMargin: "-30% 0px -55% 0px",
+        threshold: [0.2, 0.4, 0.6],
+      }
+    );
+
+    targets.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [topNavItems]);
 
   return (
-    <>
+    <div>
     <div data-report style={{ minHeight: "100vh", background: LIGHT_BG, fontFamily: "'Lato', sans-serif" }}>
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
+          @page { size: Letter; margin: 0.5in; }
+          html, body { background: #FFFFFF !important; }
           body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          [data-report] { background: #FFFFFF !important; }
           [data-section] { page-break-inside: avoid; break-inside: avoid; }
           [data-page-break] { page-break-before: always; break-before: page; }
+          [data-section] {
+            box-shadow: none !important;
+            border: 1px solid #D6DFE8 !important;
+            border-top: 3px solid rgba(7, 176, 242, 0.25) !important;
+            background: #FFFFFF !important;
+          }
+          [data-nav-row] {
+            position: static !important;
+            top: auto !important;
+            backdrop-filter: none !important;
+            box-shadow: none !important;
+          }
+          [data-download-row] { display: none !important; }
+          [data-print-hidden] { display: none !important; }
+          [data-journey-interactive] { display: none !important; }
+          [data-journey-print] { display: block !important; }
+          [data-journey-print-stage] {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            margin-bottom: 14px !important;
+          }
+          a { color: #021859 !important; text-decoration: none !important; }
+          svg { max-width: 100% !important; }
           button { display: none !important; }
         }
+        [data-journey-print] { display: none; }
         @media (max-width: 640px) {
           [data-report] { font-size: 15px; }
           [data-header-top] { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
-          [data-header-info] { flex-direction: column !important; align-items: flex-start !important; gap: 16px !important; }
-          [data-header-actions] { align-items: flex-start !important; }
+          [data-header-info] { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+          [data-download-row] { flex-direction: column !important; align-items: flex-start !important; gap: 10px !important; }
+          [data-download-primary] { width: 100% !important; justify-content: flex-start !important; }
+          [data-download-secondary] { justify-content: flex-start !important; }
+          [data-nav-links] { padding-bottom: 6px !important; }
           [data-key-cards] { grid-template-columns: 1fr !important; }
           [data-gauge-row] { flex-direction: column !important; align-items: center !important; gap: 20px !important; }
           [data-pillar-meters] { grid-template-columns: 1fr !important; }
@@ -978,6 +1282,9 @@ export default function BrandBlueprintReport() {
             transition-duration: 0.01ms !important;
           }
         }
+        [data-nav-links]::-webkit-scrollbar {
+          display: none;
+        }
       `}} />
       {/* ═══ HEADER ═══ */}
       <div style={{ background: WHITE, position: "relative", overflow: "hidden" }}>
@@ -986,22 +1293,26 @@ export default function BrandBlueprintReport() {
         <div style={{ maxWidth: 900, margin: "0 auto", padding: "0 24px", position: "relative", zIndex: 1 }}>
           <div data-header-top style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 0", borderBottom: `1px solid ${BORDER}` }}>
           <a href={UTM_BASE} target="_blank" rel="noopener noreferrer">
-            <Image
-              src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp"
+            <img
+              src={logoSrc}
               alt="Wunderbar Digital"
-              width={160}
-              height={26}
-              style={{ height: 26, width: "auto", objectFit: "contain" }}
+              width={236}
+              height={38}
+              loading="eager"
+              style={{ display: "block", width: 236, height: "auto" }}
+              onError={() => {
+                if (logoSrc !== logoFallback) setLogoSrc(logoFallback);
+              }}
             />
           </a>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-            <span style={{ fontSize: 22, fontWeight: 700, color: NAVY, lineHeight: 1 }}>WunderBrand Blueprint™</span>
-            <span style={{ fontSize: 12, fontWeight: 400, color: BLUE, marginTop: 3 }}>Powered by <a href={UTM_BASE} target="_blank" rel="noopener noreferrer" style={{ fontWeight: 700, color: BLUE, textDecoration: "none" }}>Wunderbar Digital</a></span>
+            <span style={{ fontSize: 19, fontWeight: 700, color: NAVY, lineHeight: 1 }}>{productDisplayName}</span>
+            <span style={{ fontSize: 11, fontWeight: 500, color: BLUE, marginTop: 3 }}>Powered by <a href={UTM_BASE} target="_blank" rel="noopener noreferrer" style={{ fontWeight: 700, color: BLUE, textDecoration: "none" }}>Wunderbar Digital</a></span>
           </div>
         </div>
 
-        {/* Report info + actions */}
-        <div data-header-info style={{ padding: "22px 0 22px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+        {/* Report info */}
+        <div data-header-info style={{ padding: "18px 0 10px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 3, marginBottom: 1 }}>
               <span style={{ fontSize: 12, fontWeight: 700, color: SUB, textTransform: "uppercase", letterSpacing: "0.08em" }}>Brand Operating System</span>
@@ -1011,68 +1322,195 @@ export default function BrandBlueprintReport() {
             <p style={{ fontSize: 13, color: SUB, margin: "6px 0 0" }}>{r.date}</p>
             <p style={{ fontSize: 11, fontWeight: 600, color: "#8A97A8", margin: "8px 0 0", letterSpacing: "0.04em" }}>Confidential — Prepared exclusively for {r.businessName}</p>
           </div>
-          <div data-header-actions style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
-            <div style={{ display: "flex", gap: 8 }}>
-              <button aria-label="Print report" onClick={() => window.print()} style={{
-                display: "inline-flex", alignItems: "center", gap: 5,
-                padding: "8px 16px", minHeight: 36, borderRadius: 5,
-                border: `1.5px solid ${BORDER}`, background: WHITE,
-                color: SUB, fontSize: 12, fontWeight: 700, cursor: "pointer",
-                fontFamily: "Lato, sans-serif",
-                transition: "border-color 0.2s ease, color 0.2s ease",
+        </div>
+        {/* Download controls (moved below header metadata) */}
+        <div
+          data-download-row
+          style={{
+            padding: "0 0 16px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-end",
+            gap: 8,
+          }}
+        >
+          <div data-download-primary style={{ display: "flex", gap: 8 }}>
+            <button aria-label="Print report" onClick={() => window.print()} style={{
+              display: "inline-flex", alignItems: "center", gap: 5,
+              padding: "8px 16px", minHeight: 36, borderRadius: 5,
+              border: `1.5px solid ${BORDER}`, background: WHITE,
+              color: SUB, fontSize: 12, fontWeight: 700, cursor: "pointer",
+              fontFamily: "Lato, sans-serif",
+              transition: "border-color 0.2s ease, color 0.2s ease",
+            }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.border = `1.5px solid ${BLUE}`;
+                e.currentTarget.style.color = BLUE;
               }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = BLUE; e.currentTarget.style.color = BLUE; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.color = SUB; }}
-              >
-                <svg viewBox="0 0 20 20" fill="none" style={{ width: 14, height: 14 }}>
-                  <path d="M5 8V3h10v5M5 14h10v3H5v-3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-                  <path d="M3 8h14v6H3V8z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-                  <circle cx="13" cy="11" r="0.8" fill="currentColor"/>
-                </svg>
-                Print
-              </button>
-              <button aria-label="Download report" onClick={() => {
-                const el = document.querySelector('[data-report]') || document.querySelector('main') || document.body;
-                if (el) {
-                  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>WunderBrand Blueprint™ - ${r.businessName}</title><link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet"><style>body{margin:0;font-family:Lato,sans-serif;}</style></head><body>${el.outerHTML}</body></html>`;
-                  const blob = new Blob([html], { type: 'text/html' });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = `Brand-Blueprint-${r.businessName.replace(/\s+/g, '-')}.html`;
-                  a.click();
-                  URL.revokeObjectURL(url);
-                }
-              }} style={{
-                display: "inline-flex", alignItems: "center", gap: 5,
-                padding: "8px 16px", minHeight: 36, borderRadius: 5,
-                border: `1.5px solid ${BLUE}`, background: `${BLUE}08`,
-                color: BLUE, fontSize: 12, fontWeight: 700, cursor: "pointer",
-                fontFamily: "Lato, sans-serif",
-                transition: "background 0.2s ease",
+              onMouseLeave={(e) => {
+                e.currentTarget.style.border = `1.5px solid ${BORDER}`;
+                e.currentTarget.style.color = SUB;
               }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = `${BLUE}15`; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = `${BLUE}08`; }}
+            >
+              <svg viewBox="0 0 20 20" fill="none" style={{ width: 14, height: 14 }}>
+                <path d="M5 8V3h10v5M5 14h10v3H5v-3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+                <path d="M3 8h14v6H3V8z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+                <circle cx="13" cy="11" r="0.8" fill="currentColor"/>
+              </svg>
+              Print
+            </button>
+            <button
+              type="button"
+              aria-label="Save UI PDF"
+              onClick={() => window.print()}
+              style={{
+              display: "inline-flex", alignItems: "center", gap: 5,
+              padding: "8px 16px", minHeight: 36, borderRadius: 5,
+              border: `1.5px solid ${BLUE}`, background: `${BLUE}08`,
+              color: BLUE, fontSize: 12, fontWeight: 700, cursor: "pointer",
+              fontFamily: "Lato, sans-serif",
+              transition: "background 0.2s ease",
+            }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = `${BLUE}15`; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = `${BLUE}08`; }}
+            >
+              <svg viewBox="0 0 20 20" fill="none" style={{ width: 14, height: 14 }}>
+                <path d="M10 3v10M10 13l-3.5-3.5M10 13l3.5-3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M3 14v2a1 1 0 001 1h12a1 1 0 001-1v-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+              Save UI PDF
+            </button>
+          </div>
+          <div data-download-secondary style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "flex-end" }}>
+            {[
+              { key: "standards", label: "Brand Standards" },
+              { key: "executive", label: "Executive Summary" },
+              { key: "messaging", label: "One-Page Messaging" },
+              { key: "prompts", label: "Prompt Guide" },
+              { key: "voice-checklist", label: "Voice Checklist" },
+              { key: "activation", label: "Strategic Action Plan" },
+            ].map((doc) => (
+              <a
+                key={doc.key}
+                href={buildDocUrl(doc.key)}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  fontSize: 11,
+                  color: NAVY,
+                  border: `1px solid ${BORDER}`,
+                  borderRadius: 999,
+                  padding: "4px 10px",
+                  textDecoration: "none",
+                  background: WHITE,
+                  fontWeight: 700,
+                }}
               >
-                <svg viewBox="0 0 20 20" fill="none" style={{ width: 14, height: 14 }}>
-                  <path d="M10 3v10M10 13l-3.5-3.5M10 13l3.5-3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M3 14v2a1 1 0 001 1h12a1 1 0 001-1v-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                </svg>
-                Download
-              </button>
-            </div>
+                {doc.label}
+              </a>
+            ))}
+            <a
+              href={workbookUrl}
+              style={{
+                fontSize: 11,
+                color: WHITE,
+                border: `1px solid ${BLUE}`,
+                borderRadius: 999,
+                padding: "4px 10px",
+                textDecoration: "none",
+                background: BLUE,
+                fontWeight: 700,
+              }}
+            >
+              Interactive Workbook
+            </a>
           </div>
         </div>
-        </div>
-
         <div style={{ height: 3, background: BLUE }} />
+      </div>
+
+      <div
+        data-nav-row
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 25,
+          background: "rgba(247, 250, 255, 0.96)",
+          backdropFilter: "blur(8px)",
+          borderTop: `1px solid ${BLUE}20`,
+          borderBottom: `1px solid ${BLUE}25`,
+          boxShadow: "0 6px 18px rgba(2, 24, 89, 0.08)",
+        }}
+      >
+        <div style={{ maxWidth: 900, margin: "0 auto", padding: "0 24px 8px" }}>
+          <div style={{ fontSize: 10, fontWeight: 800, color: BLUE, textTransform: "uppercase", letterSpacing: "0.08em", paddingTop: 9 }}>
+            Jump to section
+          </div>
+          <div
+            data-nav-links
+            style={{
+              display: "flex",
+              gap: 8,
+              flexWrap: "nowrap",
+              overflowX: "auto",
+              scrollbarWidth: "none",
+              padding: 6,
+              background: WHITE,
+              border: `1px solid ${BLUE}20`,
+              borderRadius: 999,
+            }}
+          >
+            {topNavItems.map((item) => {
+              const isActive = activeNavId === item.id;
+              return (
+                <a
+                  key={item.id}
+                  href={`#${item.id}`}
+                  onClick={(event) => handleNavClick(event, item.id)}
+                  aria-current={isActive ? "true" : undefined}
+                  style={{
+                    fontSize: 12,
+                    textTransform: "none",
+                    letterSpacing: "0.01em",
+                    color: isActive ? WHITE : NAVY,
+                    padding: "8px 14px",
+                    borderRadius: 999,
+                    background: isActive ? BLUE : WHITE,
+                    border: `1px solid ${isActive ? BLUE : "transparent"}`,
+                    textDecoration: "none",
+                    fontWeight: isActive ? 800 : 700,
+                    whiteSpace: "nowrap",
+                    transition: "all 0.2s ease",
+                    boxShadow: isActive ? "0 4px 12px rgba(7, 176, 242, 0.25)" : "none",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.border = `1px solid ${BLUE}40`;
+                      e.currentTarget.style.color = BLUE;
+                      e.currentTarget.style.background = `${BLUE}10`;
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.border = "1px solid transparent";
+                      e.currentTarget.style.color = NAVY;
+                      e.currentTarget.style.background = WHITE;
+                    }
+                  }}
+                >
+                  {item.label}
+                </a>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       <div style={{ maxWidth: 900, margin: "0 auto", padding: "0 24px", position: "relative", zIndex: 1 }}>
         <div style={{ padding: "28px 0 48px", display: "flex", flexDirection: "column", gap: 24 }}>
         {/* Preview Banner */}
         <div style={{ background: "#fff9e6", border: "2px solid #f5e6b3", borderRadius: 5, padding: "12px 16px", fontSize: 14, color: "#8b6914", display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
-          <span><strong>Preview mode</strong> — Mock data showing WunderBrand Blueprint™ structure.</span>
+          <span><strong>Preview mode</strong> — Mock data showing WunderBrand Blueprint+™ structure.</span>
           <Link href="/preview" style={{ color: NAVY, fontWeight: 600, textDecoration: "underline" }}>← All previews</Link>
         </div>
 
@@ -1124,7 +1562,9 @@ export default function BrandBlueprintReport() {
                 <div style={{ padding: "16px 20px", borderRadius: 5, marginBottom: 16, background: `${BLUE}08`, borderLeft: `3px solid ${BLUE}` }}>
                   <div style={{ fontSize: 18, fontWeight: 700, color: NAVY, lineHeight: 1.6, fontStyle: "italic" }}>{r.executiveSummary.diagnosis.split(" because ")[0]}.</div>
                 </div>
-                <div style={{ fontSize: 16, color: "#1a1a2e", lineHeight: 1.75, marginBottom: 20 }}>{r.executiveSummary.synthesis}</div>
+                <div style={{ fontSize: 16, color: "#1a1a2e", lineHeight: 1.75, marginBottom: 20 }}>
+                  {getSectionOverride("executive_summary", r.executiveSummary.synthesis)}
+                </div>
                 {(r.executiveSummary as any).industryBenchmark && (
                   <div style={{ padding: "16px 20px", borderRadius: 5, background: `${BLUE}06`, borderLeft: `3px solid ${BLUE}`, display: "flex", gap: 12, alignItems: "flex-start" }}>
                     <svg viewBox="0 0 20 20" fill="none" style={{ width: 20, height: 20, flexShrink: 0, marginTop: 2 }}><rect x="2" y="10" width="4" height="8" rx="1" fill={BLUE} opacity="0.3"/><rect x="8" y="6" width="4" height="12" rx="1" fill={BLUE} opacity="0.5"/><rect x="14" y="2" width="4" height="16" rx="1" fill={BLUE} opacity="0.7"/></svg>
@@ -1226,6 +1666,9 @@ export default function BrandBlueprintReport() {
         {/* ═══ 2. BRAND ALIGNMENT SCORE + FOCUS TOGGLE ═══ */}
         <Section id="brand-alignment-score">
           <SectionTitle hero description="A composite score measuring how well your brand communicates across five key pillars.">WunderBrand Score™</SectionTitle>
+          <div style={{ fontSize: 14, color: SUB, lineHeight: 1.6, marginBottom: 12 }}>
+            {getSectionOverride("score_analysis", "This score summarizes how consistently your brand communicates value, proof, and next-step clarity across core touchpoints.")}
+          </div>
           <MainGauge score={r.executiveSummary.brandAlignmentScore} />
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 28 }}>
             <button aria-pressed={selectedFocus === "primary"} onClick={() => setSelectedFocus("primary")} style={{ padding: "18px 20px", borderRadius: 5, textAlign: "left", background: selectedFocus === "primary" ? `${BLUE}12` : WHITE, border: selectedFocus === "primary" ? `2px solid ${BLUE}` : `1px solid ${BORDER}`, cursor: "pointer", transition: "all 0.2s ease", position: "relative", overflow: "hidden" }}>
@@ -1269,9 +1712,12 @@ export default function BrandBlueprintReport() {
           </div>
         </div>
 
-        {/* ═══ 4. PILLAR DEEP DIVES ═══ */}
+        {/* ═══ 4. PILLAR RESULTS ═══ */}
         <Section id="pillar-deep-dives" pageBreak>
-          <SectionTitle description="Strategic analysis of each pillar with examples and success metrics.">Pillar Deep Dives</SectionTitle>
+          <SectionTitle description="Strategic analysis of each pillar with examples and success metrics.">Pillar Results</SectionTitle>
+          <div style={{ fontSize: 14, color: SUB, lineHeight: 1.6, marginBottom: 14 }}>
+            {getSectionOverride("pillar_results", "Each pillar shows current performance, business impact, and the highest-leverage recommendations for improvement.")}
+          </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px 32px", padding: "20px 24px", background: LIGHT_BG, borderRadius: 5, marginBottom: 24 }}>{PILLARS.map((p) => (<div key={p} style={{ display: "flex", alignItems: "center", gap: 10 }}><PillarIcon pillar={p} size={20} /><div style={{ flex: 1 }}><PillarMeter score={r.pillarDeepDives[p].score} label={PILLAR_LABELS[p]} /></div></div>))}</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>{PILLARS.map((p) => {
             const d = r.pillarDeepDives[p];
@@ -1311,7 +1757,7 @@ export default function BrandBlueprintReport() {
           <SectionTitle hero description="What this system enables and how to get maximum value from it.">
             <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <svg viewBox="0 0 24 24" fill="none" style={{ width: 24, height: 24 }}><rect x="3" y="3" width="18" height="18" rx="3" stroke={BLUE} strokeWidth="1.5"/><path d="M8 8h8M8 12h8M8 16h4" stroke={BLUE} strokeWidth="1.5" strokeLinecap="round"/></svg>
-              WunderBrand Blueprint™ Overview
+              Blueprint+ Strategy Overview
             </span>
           </SectionTitle>
 
@@ -1358,15 +1804,15 @@ export default function BrandBlueprintReport() {
         <Section id="brand-archetypes" pageBreak style={{ background: `linear-gradient(135deg, ${NAVY}05 0%, ${BLUE}08 100%)` }}>
           <SectionTitle hero description="Your brand archetype system defines the personality pattern that shapes your messaging and positioning.">Brand Archetype System</SectionTitle>
           <div style={{ marginBottom: 24 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: SUB, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10, textAlign: "center" }}>Click to explore each archetype</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: SUB, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10, textAlign: "center" }}>Click to switch archetype view</div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
-              <button aria-pressed={selectedArchetype === "primary"} onClick={() => setSelectedArchetype("primary")} style={{ padding: "24px", borderRadius: 5, background: WHITE, border: selectedArchetype === "primary" ? `2px solid ${BLUE}` : `1px solid ${BORDER}`, display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer", transition: "all 0.2s ease", transform: selectedArchetype === "primary" ? "scale(1.02)" : "scale(1)", boxShadow: selectedArchetype === "primary" ? `0 4px 12px ${BLUE}20` : "none" }}>
+              <button type="button" aria-pressed={selectedArchetype === "primary"} onClick={() => setSelectedArchetype("primary")} style={{ padding: "24px", borderRadius: 5, background: WHITE, border: selectedArchetype === "primary" ? `2px solid ${BLUE}` : `1px solid ${BORDER}`, display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer", transition: "all 0.2s ease", transform: selectedArchetype === "primary" ? "scale(1.02)" : "scale(1)", boxShadow: selectedArchetype === "primary" ? `0 4px 12px ${BLUE}20` : "none" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}><div style={{ width: 24, height: 24, borderRadius: "50%", background: selectedArchetype === "primary" ? BLUE : LIGHT_BG, color: selectedArchetype === "primary" ? WHITE : SUB, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 900 }}>1</div><div style={{ fontSize: 10, fontWeight: 700, color: selectedArchetype === "primary" ? BLUE : SUB, textTransform: "uppercase", letterSpacing: "0.1em" }}>Primary</div></div>
                 <div style={{ width: 90, height: 90, borderRadius: 5, background: selectedArchetype === "primary" ? `${BLUE}12` : LIGHT_BG, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 12 }}><ArchetypeIcon name={r.brandArchetypeSystem.primary.name} size={65} /></div>
                 <div style={{ fontSize: 18, fontWeight: 900, color: NAVY }}>{r.brandArchetypeSystem.primary.name}</div>
                 <div style={{ fontSize: 13, fontWeight: 700, color: SUB, fontStyle: "italic", marginTop: 4, textAlign: "center" }}>&quot;{ARCHETYPE_META[r.brandArchetypeSystem.primary.name]?.tagline}&quot;</div>
               </button>
-              <button aria-pressed={selectedArchetype === "secondary"} onClick={() => setSelectedArchetype("secondary")} style={{ padding: "24px", borderRadius: 5, background: WHITE, border: selectedArchetype === "secondary" ? `2px solid ${BLUE}` : `1px solid ${BORDER}`, display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer", transition: "all 0.2s ease", transform: selectedArchetype === "secondary" ? "scale(1.02)" : "scale(1)", boxShadow: selectedArchetype === "secondary" ? `0 4px 12px ${BLUE}20` : "none" }}>
+              <button type="button" aria-pressed={selectedArchetype === "secondary"} onClick={() => setSelectedArchetype("secondary")} style={{ padding: "24px", borderRadius: 5, background: WHITE, border: selectedArchetype === "secondary" ? `2px solid ${BLUE}` : `1px solid ${BORDER}`, display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer", transition: "all 0.2s ease", transform: selectedArchetype === "secondary" ? "scale(1.02)" : "scale(1)", boxShadow: selectedArchetype === "secondary" ? `0 4px 12px ${BLUE}20` : "none" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}><div style={{ width: 24, height: 24, borderRadius: "50%", background: selectedArchetype === "secondary" ? BLUE : LIGHT_BG, color: selectedArchetype === "secondary" ? WHITE : SUB, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 900 }}>2</div><div style={{ fontSize: 10, fontWeight: 700, color: selectedArchetype === "secondary" ? BLUE : SUB, textTransform: "uppercase", letterSpacing: "0.1em" }}>Secondary</div></div>
                 <div style={{ width: 90, height: 90, borderRadius: 5, background: selectedArchetype === "secondary" ? `${BLUE}12` : LIGHT_BG, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 12 }}><ArchetypeIcon name={r.brandArchetypeSystem.secondary.name} size={65} /></div>
                 <div style={{ fontSize: 18, fontWeight: 900, color: NAVY }}>{r.brandArchetypeSystem.secondary.name}</div>
@@ -1402,6 +1848,18 @@ export default function BrandBlueprintReport() {
               <div key={i} style={{ padding: "16px 20px", background: WHITE, borderRadius: 5, border: `1px solid ${BORDER}` }}>
                 <div style={{ fontSize: 13, fontWeight: 900, color: NAVY, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>{item.label}</div>
                 <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.65 }}>{r.brandArchetypeActivation.activation[item.key]}</div>
+                <div style={{ marginTop: 8, padding: "10px 12px", borderRadius: 5, background: `${BLUE}06`, borderLeft: `3px solid ${BLUE}` }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>Example</div>
+                  <div style={{ fontSize: 13, color: "#1a1a2e", lineHeight: 1.55 }}>
+                    {item.key === "messaging"
+                      ? `"We turn complexity into confident decisions."`
+                      : item.key === "content"
+                      ? "Publish one weekly breakdown: problem -> insight -> practical move."
+                      : item.key === "salesConversations"
+                      ? "Start calls with a diagnostic question, then provide a simple framework."
+                      : "Use clean layouts, high contrast, and confidence-building proof blocks."}
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -1467,6 +1925,10 @@ export default function BrandBlueprintReport() {
               Your Brand Persona
             </span>
           </SectionTitle>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 14px", borderRadius: 999, background: `${BLUE}12`, border: `1px solid ${BLUE}30`, marginBottom: 14 }}>
+            <svg viewBox="0 0 20 20" fill="none" style={{ width: 16, height: 16 }}><path d="M10 2l2.3 4.7L17 7.4l-3.4 3.3.8 4.9L10 13.2l-4.4 2.4.8-4.9L3 7.4l4.7-.7L10 2z" fill={BLUE} opacity="0.85" /></svg>
+            <span style={{ fontSize: 13, fontWeight: 800, color: NAVY }}>Persona Name: The Trusted Expert</span>
+          </div>
           <div style={{ padding: "18px 22px", borderRadius: 5, marginBottom: 24, background: `${BLUE}08`, borderLeft: `4px solid ${BLUE}` }}>
             <div style={{ fontSize: 17, color: "#1a1a2e", lineHeight: 1.7, fontStyle: "italic" }}>{r.brandPersona.personaSummary}</div>
           </div>
@@ -1570,6 +2032,20 @@ export default function BrandBlueprintReport() {
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>{r.visibilityDiscovery.aeoReadiness.recommendations.map((rec, i) => (<div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}><div style={{ width: 22, height: 22, borderRadius: "50%", background: `${BLUE}12`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1, fontSize: 11, fontWeight: 700, color: BLUE }}>{i + 1}</div><span style={{ fontSize: 14, color: "#1a1a2e", lineHeight: 1.55 }}>{rec}</span></div>))}</div>
           </div>
           <div style={{ marginTop: 20 }}><div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}><span style={{ fontSize: 14, fontWeight: 900, color: NAVY, textTransform: "uppercase", letterSpacing: "0.08em" }}>Visibility Priorities</span></div><div style={{ display: "flex", flexDirection: "column", gap: 10 }}>{r.visibilityDiscovery.visibilityPriorities.map((vp, i) => (<div key={i} style={{ display: "flex", gap: 16, alignItems: "flex-start", padding: "14px 18px", background: i === 0 ? `${BLUE}06` : WHITE, borderRadius: 5, border: `1px solid ${i === 0 ? BLUE + "25" : BORDER}` }}><div style={{ width: 28, height: 28, borderRadius: "50%", background: i === 0 ? BLUE : `${NAVY}10`, color: i === 0 ? WHITE : NAVY, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 13, fontWeight: 900 }}>{vp.priority}</div><div><div style={{ fontSize: 15, fontWeight: 700, color: NAVY, lineHeight: 1.4, marginBottom: 4 }}>{vp.action}</div><div style={{ fontSize: 13, color: SUB, lineHeight: 1.5 }}>{vp.impact}</div></div></div>))}</div></div>
+          <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div style={{ padding: "12px 14px", borderRadius: 5, border: `1px solid ${BORDER}`, background: WHITE }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: BLUE, textTransform: "uppercase", marginBottom: 4 }}>Example Execution</div>
+              <div style={{ fontSize: 13, color: "#1a1a2e", lineHeight: 1.5 }}>
+                Publish a weekly LinkedIn post that answers one buyer question and links to a short proof-backed page.
+              </div>
+            </div>
+            <div style={{ padding: "12px 14px", borderRadius: 5, border: `1px solid ${BORDER}`, background: WHITE }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: BLUE, textTransform: "uppercase", marginBottom: 4 }}>What Good Looks Like</div>
+              <div style={{ fontSize: 13, color: "#1a1a2e", lineHeight: 1.5 }}>
+                Clear headline, one concrete result, one CTA. New visitors understand value in under 10 seconds.
+              </div>
+            </div>
+          </div>
         </Section>
 
         {/* ═══ MESSAGING PILLARS ═══ */}
@@ -1682,6 +2158,49 @@ export default function BrandBlueprintReport() {
           </div>
         </Section>
 
+        <Section id="strategic-signals">
+          <SectionTitle description="Commercial signals to prioritize budget, messaging, and conversion decisions this quarter.">
+            Strategic Signals
+          </SectionTitle>
+          <div style={{ fontSize: 14, color: SUB, lineHeight: 1.6, marginBottom: 12 }}>
+            {getSectionOverride("strategic_signals", "These signals identify where message, spend, and conversion structure create the highest strategic upside this quarter.")}
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 14 }}>
+            <div style={{ border: `1px solid ${BORDER}`, borderRadius: 5, padding: 14, background: WHITE }}>
+              <div style={{ fontSize: 11, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>
+                Competitive Vulnerability Signal
+              </div>
+              <div style={{ fontSize: 14, color: "#1a1a2e", lineHeight: 1.55 }}>
+                Competitors with simpler proof language can appear safer even when your delivery is stronger.
+              </div>
+            </div>
+            <div style={{ border: `1px solid ${BORDER}`, borderRadius: 5, padding: 14, background: WHITE }}>
+              <div style={{ fontSize: 11, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>
+                Marketing Spend Efficiency Signal
+              </div>
+              <div style={{ fontSize: 14, color: "#1a1a2e", lineHeight: 1.55 }}>
+                Message mismatch across ad -&gt; landing page -&gt; CTA creates wasted impressions and lower lead quality.
+              </div>
+            </div>
+            <div style={{ border: `1px solid ${BORDER}`, borderRadius: 5, padding: 14, background: WHITE }}>
+              <div style={{ fontSize: 11, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>
+                Revenue Impact Statement
+              </div>
+              <div style={{ fontSize: 14, color: "#1a1a2e", lineHeight: 1.55 }}>
+                Better proof architecture and tighter CTA pathways should increase qualified conversion efficiency.
+              </div>
+            </div>
+          </div>
+          <div style={{ padding: "14px 16px", borderRadius: 5, background: `${BLUE}08`, borderLeft: `3px solid ${BLUE}` }}>
+            <div style={{ fontSize: 11, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>
+              What to do first
+            </div>
+            <div style={{ fontSize: 14, color: "#1a1a2e", lineHeight: 1.6 }}>
+              Start with credibility proof placement, then align campaign copy and page-level CTAs to one primary narrative.
+            </div>
+          </div>
+        </Section>
+
         {/* ═══ VISUAL DIRECTION ═══ */}
         <Section id="visual-direction">
           <SectionTitle hero description="Visual identity direction that reinforces your brand personality and positioning.">
@@ -1698,8 +2217,19 @@ export default function BrandBlueprintReport() {
               {r.visualDirection.colorPalette.map((color, i) => (
                 <div key={i} style={{ display: "flex", gap: 14, alignItems: "center", padding: "14px 16px", background: WHITE, borderRadius: 5, border: `1px solid ${BORDER}` }}>
                   <div style={{ width: 44, height: 44, borderRadius: 5, background: color.hex, border: color.hex === "#FFFFFF" ? `1px solid ${BORDER}` : "none", flexShrink: 0 }} />
-                  <div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: NAVY }}>{color.name} <span style={{ fontSize: 12, fontWeight: 400, color: SUB }}>{color.hex}</span></div>
+                  <div style={{ width: "100%" }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: NAVY }}>{color.name}</div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 4 }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: NAVY, background: `${NAVY}08`, borderRadius: 5, padding: "2px 6px" }}>
+                        {color.hex}
+                      </span>
+                      <span style={{ fontSize: 11, color: SUB, background: "#F8FAFC", border: `1px solid ${BORDER}`, borderRadius: 5, padding: "2px 6px" }}>
+                        {hexToRgbString(color.hex)}
+                      </span>
+                      <span style={{ fontSize: 11, color: SUB, background: "#F8FAFC", border: `1px solid ${BORDER}`, borderRadius: 5, padding: "2px 6px" }}>
+                        {hexToCmykString(color.hex)}
+                      </span>
+                    </div>
                     <div style={{ fontSize: 12, color: SUB, lineHeight: 1.4, marginTop: 2 }}>{color.usage}</div>
                   </div>
                 </div>
@@ -1716,6 +2246,51 @@ export default function BrandBlueprintReport() {
               <div style={{ fontSize: 12, fontWeight: 700, color: NAVY, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>Visual Consistency Principles</div>
               <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.65 }}>{r.visualDirection.visualConsistencyPrinciples}</div>
             </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div style={{ padding: "14px 16px", borderRadius: 5, border: `1px solid ${BORDER}`, background: WHITE }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>Recommended Font Stack</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  <div style={{ border: `1px solid ${BORDER}`, borderRadius: 5, padding: "8px 10px", background: "#FBFDFF" }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: SUB, textTransform: "uppercase", marginBottom: 3 }}>Headlines — Inter / Plus Jakarta Sans</div>
+                    <div style={{ fontFamily: "'Inter', 'Plus Jakarta Sans', sans-serif", fontSize: 18, fontWeight: 700, color: NAVY }}>Build trust with strategic clarity.</div>
+                    <div style={{ fontSize: 11, color: SUB, marginTop: 3 }}>Use for H1/H2, hero statements, and key proof callouts.</div>
+                  </div>
+                  <div style={{ border: `1px solid ${BORDER}`, borderRadius: 5, padding: "8px 10px", background: "#FBFDFF" }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: SUB, textTransform: "uppercase", marginBottom: 3 }}>Body — Inter / Source Sans 3</div>
+                    <div style={{ fontFamily: "'Inter', 'Source Sans 3', sans-serif", fontSize: 14, color: "#1a1a2e", lineHeight: 1.55 }}>This is your primary reading style for paragraphs, descriptions, and instructional content.</div>
+                    <div style={{ fontSize: 11, color: SUB, marginTop: 3 }}>Use for all explanatory text and multi-line narrative content.</div>
+                  </div>
+                </div>
+              </div>
+              <div style={{ padding: "14px 16px", borderRadius: 5, border: `1px solid ${BORDER}`, background: WHITE }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>Imagery Direction Examples</div>
+                <div style={{ fontSize: 14, color: NAVY, lineHeight: 1.55, marginBottom: 8 }}>
+                  Real team moments, whiteboard strategy sessions, clean office environments, and proof-oriented screenshots over generic stock lifestyle.
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                  {[
+                    { title: "Team in Action", tone: `${BLUE}16` },
+                    { title: "Strategy Whiteboard", tone: `${NAVY}14` },
+                    { title: "Proof Dashboard", tone: `${GREEN}18` },
+                    { title: "Client Workshop", tone: `${ORANGE}18` },
+                  ].map((item, idx) => (
+                    <div key={idx} style={{ borderRadius: 5, border: `1px solid ${BORDER}`, overflow: "hidden", background: WHITE }}>
+                      <div style={{ height: 46, background: `linear-gradient(135deg, ${item.tone} 0%, #F8FAFC 100%)`, borderBottom: `1px solid ${BORDER}` }} />
+                      <div style={{ padding: "7px 8px", fontSize: 11, color: NAVY, fontWeight: 700 }}>{item.title}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ fontSize: 11, color: SUB, marginTop: 6 }}>
+                  Use authentic, process-oriented images where the outcome and expertise are visually clear.
+                </div>
+              </div>
+            </div>
+            <div style={{ padding: "14px 16px", borderRadius: 5, borderLeft: `3px solid ${BLUE}`, background: `${BLUE}08` }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>Voice & Tone in Visual Assets</div>
+              <div style={{ fontSize: 14, color: NAVY, lineHeight: 1.55 }}>
+                Keep language direct and confidence-building in overlays: short claims, one proof point, one action. Avoid hype phrases and overly decorative copy blocks.
+              </div>
+            </div>
           </div>
         </Section>
 
@@ -1727,6 +2302,10 @@ export default function BrandBlueprintReport() {
               Conversion Strategy
             </span>
           </SectionTitle>
+
+          <div style={{ fontSize: 14, color: SUB, lineHeight: 1.6, marginBottom: 14 }}>
+            {getSectionOverride("conversion_strategy", "Conversion performance improves when positioning clarity, proof architecture, and CTA pathways are aligned to one narrative.")}
+          </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 24 }}>
             <div style={{ padding: "16px 20px", background: `${BLUE}06`, borderRadius: 5, borderLeft: `3px solid ${BLUE}` }}>
@@ -1791,7 +2370,7 @@ export default function BrandBlueprintReport() {
         </Section>
 
         {/* ═══ AI PROMPT LIBRARY ═══ */}
-        <Section pageBreak>
+        <Section id="prompt-library" pageBreak>
           <SectionTitle hero description="Complete AI prompt library combining foundational brand building prompts with execution-focused prompts — all calibrated to your brand.">
             <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <svg viewBox="0 0 24 24" fill="none" style={{ width: 24, height: 24 }}><rect x="3" y="3" width="18" height="18" rx="3" stroke={BLUE} strokeWidth="1.5"/><path d="M8 10l3 3-3 3" stroke={BLUE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M14 16h3" stroke={BLUE} strokeWidth="2" strokeLinecap="round"/></svg>
@@ -1807,6 +2386,17 @@ export default function BrandBlueprintReport() {
             <div>
               <div style={{ fontSize: 15, fontWeight: 700, color: NAVY }}>16 AI Prompts — Calibrated to {r.businessName}</div>
               <div style={{ fontSize: 13, color: SUB, lineHeight: 1.4 }}>Pre-filled with your brand data. Copy directly into ChatGPT, Claude, or any AI tool.</div>
+            </div>
+          </div>
+          <div style={{ marginBottom: 24, padding: "14px 16px", borderRadius: 5, border: `1px solid ${BORDER}`, background: WHITE }}>
+            <div style={{ fontSize: 11, fontWeight: 800, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>
+              Section-to-Prompt Quick Map
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, fontSize: 13, color: NAVY }}>
+              <div>Archetype Activation -&gt; "Brand Voice Calibration Prompt"</div>
+              <div>Visibility Priorities -&gt; "Visibility Channel Expansion Prompt"</div>
+              <div>SEO & AEO -&gt; "Search Authority Plan Prompt"</div>
+              <div>Email Framework -&gt; "Lifecycle Email Sequence Prompt"</div>
             </div>
           </div>
 
@@ -1859,7 +2449,7 @@ export default function BrandBlueprintReport() {
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ padding: "6px 12px", borderRadius: 5, background: `${BLUE}12`, fontSize: 12, fontWeight: 700, color: BLUE }}>{r.executionPromptPack.promptCount} Prompts</div>
-                <div style={{ padding: "6px 12px", borderRadius: 5, background: `${ORANGE}12`, fontSize: 12, fontWeight: 700, color: ORANGE }}>New in WunderBrand Blueprint™</div>
+                <div style={{ padding: "6px 12px", borderRadius: 5, background: `${ORANGE}12`, fontSize: 12, fontWeight: 700, color: ORANGE }}>New in WunderBrand Blueprint+™</div>
               </div>
             </div>
 
@@ -1962,19 +2552,60 @@ export default function BrandBlueprintReport() {
                 Competitive Positioning Map
               </span>
             </SectionTitle>
+            <div style={{ fontSize: 14, color: SUB, lineHeight: 1.6, marginBottom: 12 }}>
+              {getSectionOverride("competitive_positioning", "This map visualizes your market position against adjacent competitors and clarifies where defensible whitespace exists.")}
+            </div>
 
             {/* 2x2 Grid Axes */}
             <div style={{ marginBottom: 24 }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div style={{ padding: "14px 18px", borderRadius: 5, background: `${BLUE}06`, borderLeft: `3px solid ${BLUE}` }}>
-                  <div style={{ fontSize: 12, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>Axis 1: {(r as any).competitivePositioning.positioningAxis1.label}</div>
+                  <div style={{ fontSize: 12, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>
+                    Market Dimension: {(r as any).competitivePositioning.positioningAxis1.label}
+                  </div>
                   <div style={{ fontSize: 14, color: SUB }}>{(r as any).competitivePositioning.positioningAxis1.lowEnd} → {(r as any).competitivePositioning.positioningAxis1.highEnd}</div>
                 </div>
                 <div style={{ padding: "14px 18px", borderRadius: 5, background: `${BLUE}06`, borderLeft: `3px solid ${BLUE}` }}>
-                  <div style={{ fontSize: 12, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>Axis 2: {(r as any).competitivePositioning.positioningAxis2.label}</div>
+                  <div style={{ fontSize: 12, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>
+                    Audience Dimension: {(r as any).competitivePositioning.positioningAxis2.label}
+                  </div>
                   <div style={{ fontSize: 14, color: SUB }}>{(r as any).competitivePositioning.positioningAxis2.lowEnd} → {(r as any).competitivePositioning.positioningAxis2.highEnd}</div>
                 </div>
               </div>
+            </div>
+
+            <div style={{ marginBottom: 24, padding: "14px", borderRadius: 5, border: `1px solid ${BORDER}`, background: WHITE }}>
+              <svg viewBox="0 0 560 320" width="100%" height="220" style={{ display: "block" }}>
+                <defs>
+                  <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
+                    <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#E6EDF5" strokeWidth="1" />
+                  </pattern>
+                </defs>
+                <rect x="40" y="20" width="480" height="250" fill="url(#grid)" stroke={BORDER} />
+                <line x1="280" y1="20" x2="280" y2="270" stroke={BLUE} strokeWidth="1.5" opacity="0.35" />
+                <line x1="40" y1="145" x2="520" y2="145" stroke={BLUE} strokeWidth="1.5" opacity="0.35" />
+                <text x="280" y="302" textAnchor="middle" fill={SUB} fontSize="12">
+                  {(r as any).competitivePositioning.positioningAxis1.lowEnd} → {(r as any).competitivePositioning.positioningAxis1.highEnd}
+                </text>
+                <text x="16" y="145" textAnchor="middle" fill={SUB} fontSize="12" transform="rotate(-90 16 145)">
+                  {(r as any).competitivePositioning.positioningAxis2.lowEnd} → {(r as any).competitivePositioning.positioningAxis2.highEnd}
+                </text>
+                {((r as any).competitivePositioning.players ?? []).map((player: any, idx: number) => {
+                  const xValue = Math.max(-5, Math.min(5, toFiniteNumber(player?.position?.x, 0)));
+                  const yValue = Math.max(-5, Math.min(5, toFiniteNumber(player?.position?.y, 0)));
+                  const px = 40 + ((xValue + 5) / 10) * 480;
+                  const py = 270 - ((yValue + 5) / 10) * 250;
+                  const color = idx === 0 ? BLUE : "#64748B";
+                  return (
+                    <g key={`${player.name}-${idx}`}>
+                      <circle cx={px} cy={py} r={idx === 0 ? 8 : 6} fill={color} stroke={WHITE} strokeWidth="2" />
+                      <text x={px + 11} y={py - 9} fill={NAVY} fontSize="11" fontWeight={idx === 0 ? 800 : 600}>
+                        {String(player?.name || "Competitor")}
+                      </text>
+                    </g>
+                  );
+                })}
+              </svg>
             </div>
 
             {/* Players */}
@@ -1982,9 +2613,10 @@ export default function BrandBlueprintReport() {
               {(r as any).competitivePositioning.players.map((player: any, i: number) => (
                 <div key={i} style={{ padding: "16px 20px", borderRadius: 5, border: `1px solid ${i === 0 ? BLUE : BORDER}`, background: i === 0 ? `${BLUE}06` : WHITE }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                    {i === 0 && <svg viewBox="0 0 16 16" style={{ width: 14, height: 14, flexShrink: 0 }}><circle cx="8" cy="8" r="6" fill={BLUE}/></svg>}
                     <span style={{ fontSize: 16, fontWeight: 700, color: i === 0 ? BLUE : NAVY }}>{player.name}</span>
-                    <span style={{ fontSize: 12, color: SUB, marginLeft: "auto" }}>({player.position.x}, {player.position.y})</span>
+                    <span style={{ fontSize: 12, color: SUB, marginLeft: "auto" }}>
+                      ({toFiniteNumber(player?.position?.x, 0)}, {toFiniteNumber(player?.position?.y, 0)})
+                    </span>
                   </div>
                   <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.6 }}>{player.narrative}</div>
                 </div>
@@ -2004,6 +2636,108 @@ export default function BrandBlueprintReport() {
               <div style={{ padding: "16px 20px", borderRadius: 5, background: `${ORANGE}08`, borderLeft: `3px solid ${ORANGE}` }}>
                 <div style={{ fontSize: 12, fontWeight: 900, color: ORANGE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>Vulnerabilities</div>
                 <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.6 }}>{(r as any).competitivePositioning.vulnerabilities}</div>
+              </div>
+            </div>
+          </Section>
+        )}
+
+        {/* ═══ SWOT ANALYSIS ═══ */}
+        {(r as any).swotAnalysis && (
+          <Section id="swot-analysis" pageBreak>
+            <SectionTitle hero description="Strategic strengths, weaknesses, opportunities, and threats with implementation implications.">
+              SWOT Analysis
+            </SectionTitle>
+            <p style={{ fontSize: 14, color: SUB, lineHeight: 1.6, marginBottom: 16 }}>
+              {(r as any).swotAnalysis.overview}
+            </p>
+
+            <div style={{ marginBottom: 18, padding: "12px", borderRadius: 5, border: `1px solid ${BORDER}`, background: WHITE }}>
+              <svg viewBox="0 0 560 300" width="100%" height="220" style={{ display: "block" }}>
+                <rect x="20" y="20" width="520" height="240" fill="#F8FAFC" stroke={BORDER} />
+                <line x1="280" y1="20" x2="280" y2="260" stroke={BORDER} />
+                <line x1="20" y1="140" x2="540" y2="140" stroke={BORDER} />
+
+                <rect x="20" y="20" width="260" height="120" fill={`${GREEN}12`} />
+                <rect x="280" y="20" width="260" height="120" fill={`${ORANGE}14`} />
+                <rect x="20" y="140" width="260" height="120" fill={`${BLUE}12`} />
+                <rect x="280" y="140" width="260" height="120" fill={`${RED_S}10`} />
+
+                <text x="36" y="46" fill={GREEN} fontSize="14" fontWeight="700">Strengths</text>
+                <text x="296" y="46" fill={ORANGE} fontSize="14" fontWeight="700">Weaknesses</text>
+                <text x="36" y="166" fill={BLUE} fontSize="14" fontWeight="700">Opportunities</text>
+                <text x="296" y="166" fill={RED_S} fontSize="14" fontWeight="700">Threats</text>
+
+                <text x="36" y="68" fill={NAVY} fontSize="11">
+                  <tspan x="36" dy="0">{((r as any).swotAnalysis.strengths?.[0]?.item || "").slice(0, 42)}</tspan>
+                  <tspan x="36" dy="16">{((r as any).swotAnalysis.strengths?.[1]?.item || "").slice(0, 42)}</tspan>
+                </text>
+                <text x="296" y="68" fill={NAVY} fontSize="11">
+                  <tspan x="296" dy="0">{((r as any).swotAnalysis.weaknesses?.[0]?.item || "").slice(0, 42)}</tspan>
+                  <tspan x="296" dy="16">{((r as any).swotAnalysis.weaknesses?.[1]?.item || "").slice(0, 42)}</tspan>
+                </text>
+                <text x="36" y="188" fill={NAVY} fontSize="11">
+                  <tspan x="36" dy="0">{((r as any).swotAnalysis.opportunities?.[0]?.item || "").slice(0, 42)}</tspan>
+                  <tspan x="36" dy="16">{((r as any).swotAnalysis.opportunities?.[1]?.item || "").slice(0, 42)}</tspan>
+                </text>
+                <text x="296" y="188" fill={NAVY} fontSize="11">
+                  <tspan x="296" dy="0">{((r as any).swotAnalysis.threats?.[0]?.item || "").slice(0, 42)}</tspan>
+                  <tspan x="296" dy="16">{((r as any).swotAnalysis.threats?.[1]?.item || "").slice(0, 42)}</tspan>
+                </text>
+              </svg>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div style={{ padding: "14px 16px", borderRadius: 5, borderTop: `3px solid ${GREEN}`, background: `${GREEN}08` }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: GREEN, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>Strengths</div>
+                {((r as any).swotAnalysis.strengths ?? []).map((entry: any, idx: number) => (
+                  <div key={idx} style={{ marginBottom: 10 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: NAVY }}>{entry.item}</div>
+                    <div style={{ fontSize: 12, color: SUB }}>Evidence: {entry.evidence}</div>
+                    <div style={{ fontSize: 12, color: NAVY }}>Leverage: {entry.leverage}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ padding: "14px 16px", borderRadius: 5, borderTop: `3px solid ${ORANGE}`, background: `${ORANGE}10` }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: ORANGE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>Weaknesses</div>
+                {((r as any).swotAnalysis.weaknesses ?? []).map((entry: any, idx: number) => (
+                  <div key={idx} style={{ marginBottom: 10 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: NAVY }}>{entry.item}</div>
+                    <div style={{ fontSize: 12, color: SUB }}>Evidence: {entry.evidence}</div>
+                    <div style={{ fontSize: 12, color: NAVY }}>Mitigation: {entry.mitigation}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ padding: "14px 16px", borderRadius: 5, borderTop: `3px solid ${BLUE}`, background: `${BLUE}08` }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>Opportunities</div>
+                {((r as any).swotAnalysis.opportunities ?? []).map((entry: any, idx: number) => (
+                  <div key={idx} style={{ marginBottom: 10 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: NAVY }}>{entry.item}</div>
+                    <div style={{ fontSize: 12, color: SUB }}>Context: {entry.context}</div>
+                    <div style={{ fontSize: 12, color: NAVY }}>Action: {entry.action}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ padding: "14px 16px", borderRadius: 5, borderTop: `3px solid ${RED_S}`, background: `${RED_S}08` }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: RED_S, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>Threats</div>
+                {((r as any).swotAnalysis.threats ?? []).map((entry: any, idx: number) => (
+                  <div key={idx} style={{ marginBottom: 10 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: NAVY }}>{entry.item}</div>
+                    <div style={{ fontSize: 12, color: SUB }}>Likelihood/Impact: {entry.likelihood} / {entry.impact}</div>
+                    <div style={{ fontSize: 12, color: NAVY }}>Contingency: {entry.contingency}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ marginTop: 12, padding: "12px 14px", borderRadius: 5, borderLeft: `3px solid ${NAVY}`, background: `${NAVY}08` }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: NAVY, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>
+                Strategic Implications
+              </div>
+              <div style={{ fontSize: 13, color: "#1a1a2e", lineHeight: 1.55 }}>
+                {(r as any).swotAnalysis.strategicImplications}
               </div>
             </div>
           </Section>
@@ -2041,16 +2775,18 @@ export default function BrandBlueprintReport() {
                       <div style={{ marginBottom: 8 }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: GREEN, textTransform: "uppercase", marginBottom: 4 }}>Pros</div>
                         {tradeoff.optionA.pros.map((p: string, j: number) => (
-                          <div key={j} style={{ fontSize: 13, color: "#1a1a2e", lineHeight: 1.5, paddingLeft: 12, position: "relative" }}>
-                            <span style={{ position: "absolute", left: 0, color: GREEN }}>+</span>{p}
+                          <div key={j} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 13, color: "#1a1a2e", lineHeight: 1.6, marginBottom: 4 }}>
+                            <span style={{ color: GREEN, fontWeight: 700, minWidth: 10 }}>+</span>
+                            <span>{p}</span>
                           </div>
                         ))}
                       </div>
                       <div>
                         <div style={{ fontSize: 11, fontWeight: 700, color: RED_S, textTransform: "uppercase", marginBottom: 4 }}>Cons</div>
                         {tradeoff.optionA.cons.map((c: string, j: number) => (
-                          <div key={j} style={{ fontSize: 13, color: "#1a1a2e", lineHeight: 1.5, paddingLeft: 12, position: "relative" }}>
-                            <span style={{ position: "absolute", left: 0, color: RED_S }}>\u2013</span>{c}
+                          <div key={j} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 13, color: "#1a1a2e", lineHeight: 1.6, marginBottom: 4 }}>
+                            <span style={{ color: RED_S, fontWeight: 700, minWidth: 10 }}>−</span>
+                            <span>{c}</span>
                           </div>
                         ))}
                       </div>
@@ -2062,16 +2798,18 @@ export default function BrandBlueprintReport() {
                       <div style={{ marginBottom: 8 }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: GREEN, textTransform: "uppercase", marginBottom: 4 }}>Pros</div>
                         {tradeoff.optionB.pros.map((p: string, j: number) => (
-                          <div key={j} style={{ fontSize: 13, color: "#1a1a2e", lineHeight: 1.5, paddingLeft: 12, position: "relative" }}>
-                            <span style={{ position: "absolute", left: 0, color: GREEN }}>+</span>{p}
+                          <div key={j} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 13, color: "#1a1a2e", lineHeight: 1.6, marginBottom: 4 }}>
+                            <span style={{ color: GREEN, fontWeight: 700, minWidth: 10 }}>+</span>
+                            <span>{p}</span>
                           </div>
                         ))}
                       </div>
                       <div>
                         <div style={{ fontSize: 11, fontWeight: 700, color: RED_S, textTransform: "uppercase", marginBottom: 4 }}>Cons</div>
                         {tradeoff.optionB.cons.map((c: string, j: number) => (
-                          <div key={j} style={{ fontSize: 13, color: "#1a1a2e", lineHeight: 1.5, paddingLeft: 12, position: "relative" }}>
-                            <span style={{ position: "absolute", left: 0, color: RED_S }}>\u2013</span>{c}
+                          <div key={j} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 13, color: "#1a1a2e", lineHeight: 1.6, marginBottom: 4 }}>
+                            <span style={{ color: RED_S, fontWeight: 700, minWidth: 10 }}>−</span>
+                            <span>{c}</span>
                           </div>
                         ))}
                       </div>
@@ -2143,11 +2881,10 @@ export default function BrandBlueprintReport() {
 
         {/* ═══ COMPANY DESCRIPTION ═══ */}
         {(r as any).companyDescription && (
-          <div id="company-description" style={{ marginBottom: 48 }}>
-            <div style={{ borderBottom: '2px solid #07B0F2', paddingBottom: 10, marginBottom: 24 }}>
-              <h2 style={{ fontSize: 22, fontWeight: 400, color: NAVY, margin: 0 }}>Company Description</h2>
-              <p style={{ fontSize: 14, color: SUB, margin: '6px 0 0', lineHeight: 1.5 }}>Ready-to-use descriptions for directories, social profiles, proposals, and press.</p>
-            </div>
+          <Section id="company-description">
+            <SectionTitle hero description="Ready-to-use descriptions for directories, social profiles, proposals, and press.">
+              Company Description
+            </SectionTitle>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {[
                 { label: "One-Liner", sublabel: "LinkedIn tagline, Google Business, directories", text: (r as any).companyDescription.oneLiner },
@@ -2164,18 +2901,33 @@ export default function BrandBlueprintReport() {
                 </div>
               ))}
             </div>
-          </div>
+          </Section>
         )}
 
         {/* ═══ CUSTOMER JOURNEY MAP ═══ */}
         <Section id="customer-journey">
           <SectionTitle hero description="How your ideal customer moves from awareness to advocacy — with touchpoints, messaging focus, and KPIs per stage.">Customer Journey</SectionTitle>
-          <p style={{ fontSize: 14, color: SUB, lineHeight: 1.6, marginBottom: 20 }}>{(r as any).customerJourneyMap?.overview}</p>
+          <p style={{ fontSize: 14, color: SUB, lineHeight: 1.6, marginBottom: 20 }}>
+            {getSectionOverride("journey_map", (r as any).customerJourneyMap?.overview)}
+          </p>
+          <div style={{ marginBottom: 20, padding: "14px 16px", borderRadius: 5, border: `1px solid ${BORDER}`, background: WHITE }}>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", justifyContent: "space-between" }}>
+              {((r as any).customerJourneyMap?.stages ?? []).map((s: any, i: number, arr: any[]) => (
+                <React.Fragment key={`${s.stage}-${i}`}>
+                  <div style={{ minWidth: 120, flex: 1, padding: "10px 12px", borderRadius: 5, background: `${journeyStageColors[i % journeyStageColors.length]}12`, border: `1px solid ${journeyStageColors[i % journeyStageColors.length]}33`, textAlign: "center" }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: journeyStageColors[i % journeyStageColors.length], textTransform: "uppercase", letterSpacing: "0.06em" }}>Stage {i + 1}</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: NAVY, marginTop: 3 }}>{s.stage}</div>
+                  </div>
+                  {i < arr.length - 1 && <div style={{ color: journeyStageColors[i % journeyStageColors.length], fontWeight: 800 }}>→</div>}
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {((r as any).customerJourneyMap?.stages ?? []).map((s: any, i: number) => (
               <div key={i} style={{ borderRadius: 5, border: `1px solid ${BORDER}`, overflow: "hidden" }}>
-                <div style={{ padding: "14px 20px", background: `${NAVY}08`, borderBottom: `1px solid ${BORDER}` }}>
-                  <div style={{ fontSize: 12, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>Stage {i + 1}</div>
+                <div style={{ padding: "14px 20px", background: `${journeyStageColors[i % journeyStageColors.length]}10`, borderBottom: `1px solid ${BORDER}`, borderLeft: `4px solid ${journeyStageColors[i % journeyStageColors.length]}` }}>
+                  <div style={{ fontSize: 12, fontWeight: 900, color: journeyStageColors[i % journeyStageColors.length], textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>Stage {i + 1}</div>
                   <div style={{ fontSize: 18, fontWeight: 700, color: NAVY }}>{s.stage}</div>
                 </div>
                 <div style={{ padding: "16px 20px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
@@ -2192,12 +2944,16 @@ export default function BrandBlueprintReport() {
                   <div><strong style={{ color: SUB }}>Touchpoints:</strong> {(s.touchpoints ?? []).join(", ")}</div>
                   <div><strong style={{ color: SUB }}>Content types:</strong> {(s.contentTypes ?? []).join(", ")}</div>
                 </div>
-                <div style={{ padding: "12px 20px", borderTop: `1px solid ${BORDER}`, background: `${BLUE}06`, fontSize: 13, lineHeight: 1.5 }}>
+                <div style={{ padding: "12px 20px", borderTop: `1px solid ${BORDER}`, background: `${journeyStageColors[i % journeyStageColors.length]}0D`, fontSize: 13, lineHeight: 1.5 }}>
                   <strong style={{ color: NAVY }}>Messaging focus:</strong> {s.messagingFocus}
                 </div>
                 <div style={{ padding: "10px 20px", borderTop: `1px solid ${BORDER}`, display: "flex", flexWrap: "wrap", gap: 12, fontSize: 12, color: SUB }}>
-                  <span><strong>Conversion trigger:</strong> {s.conversionTrigger}</span>
-                  <span><strong>KPI to track:</strong> {s.kpiToTrack}</span>
+                  <span style={{ background: `${journeyStageColors[i % journeyStageColors.length]}12`, padding: "4px 8px", borderRadius: 999 }}>
+                    <strong>Conversion trigger:</strong> {s.conversionTrigger}
+                  </span>
+                  <span style={{ background: `${journeyStageColors[i % journeyStageColors.length]}12`, padding: "4px 8px", borderRadius: 999 }}>
+                    <strong>KPI to track:</strong> {s.kpiToTrack}
+                  </span>
                 </div>
               </div>
             ))}
@@ -2207,7 +2963,9 @@ export default function BrandBlueprintReport() {
         {/* ═══ SEO STRATEGY ═══ */}
         <Section id="seo-strategy">
           <SectionTitle hero description="Primary keywords, long-tail opportunities, technical priorities, and content playbook for search visibility.">SEO &amp; Keywords</SectionTitle>
-          <p style={{ fontSize: 14, color: SUB, lineHeight: 1.6, marginBottom: 20 }}>{(r as any).seoStrategy?.overview}</p>
+          <p style={{ fontSize: 14, color: SUB, lineHeight: 1.6, marginBottom: 20 }}>
+            {getSectionOverride("seo_aeo", (r as any).seoStrategy?.overview)}
+          </p>
           <div style={{ fontSize: 12, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Primary Keywords</div>
           <div style={{ borderRadius: 5, border: `1px solid ${BORDER}`, overflow: "hidden", marginBottom: 20 }}>
             <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr 1fr 2fr", gap: 12, padding: "12px 16px", background: `${NAVY}08`, borderBottom: `1px solid ${BORDER}`, fontSize: 11, fontWeight: 700, color: NAVY }}>
@@ -2219,7 +2977,7 @@ export default function BrandBlueprintReport() {
               </div>
             ))}
           </div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Long-tail opportunities</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>High-Intent Questions & Niche Keywords</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
             {((r as any).seoStrategy?.longTailOpportunities ?? []).map((lt: any, i: number) => (
               <div key={i} style={{ padding: "12px 16px", borderRadius: 5, border: `1px solid ${BORDER}` }}>
@@ -2228,6 +2986,16 @@ export default function BrandBlueprintReport() {
                 <div style={{ fontSize: 13, color: "#1a1a2e" }}>{lt.contentRecommendation}</div>
               </div>
             ))}
+          </div>
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Secondary Keywords</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {((r as any).seoStrategy?.primaryKeywords ?? []).slice(0, 6).map((kw: any, i: number) => (
+                <span key={`${kw.keyword}-${i}`} style={{ padding: "6px 10px", borderRadius: 999, border: `1px solid ${BORDER}`, background: WHITE, fontSize: 12, color: NAVY }}>
+                  {kw.keyword}
+                </span>
+              ))}
+            </div>
           </div>
           <div style={{ fontSize: 12, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Technical priorities</div>
           <ul style={{ margin: "0 0 20px", paddingLeft: 20, fontSize: 14, color: "#1a1a2e", lineHeight: 1.6 }}>{((r as any).seoStrategy?.technicalPriorities ?? []).map((p: string, i: number) => <li key={i}>{p}</li>)}</ul>
@@ -2240,7 +3008,9 @@ export default function BrandBlueprintReport() {
         {/* ═══ AEO STRATEGY ═══ */}
         <Section id="aeo-strategy">
           <SectionTitle hero description="Answer Engine Optimization — how to become a citable authority in AI-powered search.">AEO &amp; AI Search</SectionTitle>
-          <p style={{ fontSize: 14, color: SUB, lineHeight: 1.6, marginBottom: 20 }}>{(r as any).aeoStrategy?.overview}</p>
+          <p style={{ fontSize: 14, color: SUB, lineHeight: 1.6, marginBottom: 20 }}>
+            {getSectionOverride("seo_aeo", (r as any).aeoStrategy?.overview)}
+          </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             <div style={{ padding: "16px 20px", borderRadius: 5, border: `1px solid ${BORDER}` }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>Entity optimization</div>
@@ -2273,7 +3043,9 @@ export default function BrandBlueprintReport() {
         {/* ═══ EMAIL FRAMEWORK ═══ */}
         <Section id="email-framework">
           <SectionTitle hero description="Welcome sequence, segmentation, subject-line formulas, and send cadence for B2B email.">Email Framework</SectionTitle>
-          <p style={{ fontSize: 14, color: SUB, lineHeight: 1.6, marginBottom: 20 }}>{(r as any).emailMarketingFramework?.overview}</p>
+          <p style={{ fontSize: 14, color: SUB, lineHeight: 1.6, marginBottom: 20 }}>
+            {getSectionOverride("email_framework", (r as any).emailMarketingFramework?.overview)}
+          </p>
           <div style={{ fontSize: 12, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>{(r as any).emailMarketingFramework?.welcomeSequence?.description}</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
             {((r as any).emailMarketingFramework?.welcomeSequence?.emails ?? []).map((e: any, i: number) => (
@@ -2284,6 +3056,12 @@ export default function BrandBlueprintReport() {
                   <div style={{ fontSize: 15, fontWeight: 700, color: NAVY, marginBottom: 4 }}>{e.subject}</div>
                   <div style={{ fontSize: 12, color: BLUE, marginBottom: 4 }}>{e.purpose}</div>
                   <div style={{ fontSize: 13, color: "#1a1a2e", lineHeight: 1.5 }}>{e.keyMessage}</div>
+                  <div style={{ marginTop: 8, padding: "10px 12px", borderRadius: 5, background: `${BLUE}06`, borderLeft: `3px solid ${BLUE}` }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: BLUE, textTransform: "uppercase", marginBottom: 4 }}>Sample Email Copy</div>
+                    <div style={{ fontSize: 13, color: "#1a1a2e", lineHeight: 1.55 }}>
+                      Hi there — here is your next step based on your report. {e.keyMessage} Reply to this email if you want help applying it to your brand this week.
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
@@ -2305,12 +3083,28 @@ export default function BrandBlueprintReport() {
         {/* ═══ SOCIAL MEDIA STRATEGY ═══ */}
         <Section id="social-media-strategy">
           <SectionTitle hero description="Platform priorities, content strategy, and KPIs for LinkedIn and YouTube.">Social Media Strategy</SectionTitle>
-          <p style={{ fontSize: 14, color: SUB, lineHeight: 1.6, marginBottom: 20 }}>{(r as any).socialMediaStrategy?.overview}</p>
+          <p style={{ fontSize: 14, color: SUB, lineHeight: 1.6, marginBottom: 20 }}>
+            {getSectionOverride("social_strategy", (r as any).socialMediaStrategy?.overview)}
+          </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             {((r as any).socialMediaStrategy?.platforms ?? []).map((plat: any, i: number) => (
               <div key={i} style={{ padding: "20px", borderRadius: 5, border: `1px solid ${BORDER}` }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 5, background: ACCENT_BG, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: BLUE, fontSize: 14 }}>{plat.platform}</div>
+                  <div style={{ width: 36, height: 36, borderRadius: 5, background: ACCENT_BG, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: BLUE, fontSize: 14 }}>
+                    {plat.platform === "LinkedIn" ? (
+                      <svg viewBox="0 0 24 24" fill="none" style={{ width: 20, height: 20 }}>
+                        <rect x="3" y="3" width="18" height="18" rx="3" fill="#0A66C2" />
+                        <path d="M8 10v7M8 8.2v.1M12 17v-4c0-1.2.8-2 2-2s2 .8 2 2v4" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" />
+                      </svg>
+                    ) : plat.platform === "YouTube" ? (
+                      <svg viewBox="0 0 24 24" fill="none" style={{ width: 20, height: 20 }}>
+                        <rect x="3" y="6" width="18" height="12" rx="4" fill="#FF0033" />
+                        <path d="M11 10l4 2-4 2v-4z" fill="#fff" />
+                      </svg>
+                    ) : (
+                      plat.platform
+                    )}
+                  </div>
                   <div style={{ fontSize: 16, fontWeight: 700, color: NAVY }}>{plat.platform}</div>
                 </div>
                 <div style={{ fontSize: 13, color: "#1a1a2e", lineHeight: 1.5, marginBottom: 10 }}><strong style={{ color: SUB }}>Why this platform:</strong> {plat.whyThisPlatform}</div>
@@ -2404,6 +3198,38 @@ export default function BrandBlueprintReport() {
           </div>
         </Section>
 
+        <Section id="strategic-signals-detail">
+          <SectionTitle description="Tiered business signals that convert diagnostic findings into commercial direction.">
+            Extended Signals Detail
+          </SectionTitle>
+          <div style={{ display: "grid", gap: 14 }}>
+            <div style={{ border: `1px solid ${BORDER}`, borderRadius: 5, padding: 16, background: WHITE }}>
+              <div style={{ fontSize: 14, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
+                Competitive Vulnerability Signal
+              </div>
+              <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.65 }}>
+                The highest competitive risk is clarity compression: competitors with simpler proof language can appear safer, even when your actual delivery is stronger. Your defensive move is proof-led positioning in all mid-funnel assets.
+              </div>
+            </div>
+            <div style={{ border: `1px solid ${BORDER}`, borderRadius: 5, padding: 16, background: WHITE }}>
+              <div style={{ fontSize: 14, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
+                Marketing Spend Efficiency Signal
+              </div>
+              <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.65 }}>
+                Channel performance is constrained by message inconsistency between ads, landing pages, and conversion asks. Aligning these touchpoints to one prioritized narrative should improve lead quality and lower wasted impressions.
+              </div>
+            </div>
+            <div style={{ border: `1px solid ${BORDER}`, borderRadius: 5, padding: 16, background: WHITE }}>
+              <div style={{ fontSize: 14, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
+                Revenue Impact Statement
+              </div>
+              <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.65 }}>
+                Commercial upside is most likely unlocked by improving conversion confidence in high-intent stages. Better proof architecture and tighter CTA pathways are expected to increase win-rate efficiency before budget expansion.
+              </div>
+            </div>
+          </div>
+        </Section>
+
         {/* ═══ DOCUMENT LIBRARY ═══ */}
         {blueprintReportId && (
           <Section id="document-library">
@@ -2415,21 +3241,25 @@ export default function BrandBlueprintReport() {
         <footer style={{ textAlign: "center", padding: "20px 0 0", borderTop: `1px solid ${BORDER}` }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8 }}>
             <a href={UTM_BASE} target="_blank" rel="noopener noreferrer">
-              <Image
-                src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp"
+              <img
+                src={logoSrc}
                 alt="Wunderbar Digital"
                 width={124}
                 height={20}
-                style={{ height: 20, width: "auto", objectFit: "contain" }}
+                loading="lazy"
+                style={{ display: "block", width: 124, height: "auto" }}
+                onError={() => {
+                  if (logoSrc !== logoFallback) setLogoSrc(logoFallback);
+                }}
               />
             </a>
           </div>
           <p style={{ fontSize: 14, color: SUB, marginBottom: 4 }}>
-            WunderBrand Blueprint™ is a product of Wunderbar Digital ·{" "}
+            WunderBrand Blueprint+™ is a product of Wunderbar Digital ·{" "}
             <a href={UTM_BASE} target="_blank" rel="noopener noreferrer" style={{ color: BLUE, textDecoration: "none", fontWeight: 700 }}>wunderbardigital.com</a>
           </p>
           <p style={{ fontSize: 12, color: "#94A3B8", lineHeight: 1.6, maxWidth: 600, margin: "0 auto" }}>
-            © 2026 Wunderbar Digital. All rights reserved. WunderBrand Blueprint™ and the WunderBrand Score™ are trademarks of Wunderbar Digital.
+            © 2026 Wunderbar Digital. All rights reserved. WunderBrand Blueprint+™ and the WunderBrand Score™ are trademarks of Wunderbar Digital.
             This report is confidential and intended solely for the use of the individual or entity to whom it is addressed.
           </p>
           <p style={{ fontSize: 9, fontWeight: 400, color: "#8A97A8", textAlign: "center", marginTop: 16 }}>
@@ -2437,39 +3267,43 @@ export default function BrandBlueprintReport() {
           </p>
           <p style={{ fontSize: 11, color: '#8A97A8', textAlign: 'center', marginTop: 24, padding: '16px 0', borderTop: '1px solid #E6EAF2', fontFamily: 'Lato, sans-serif' }}>
             This report is licensed for internal use by the commissioning organization. Redistribution or resale is prohibited.
-            {' '}&copy; {new Date().getFullYear()} Wunderbar Digital &middot;{' '}
+            {' '}&copy; 2026 Wunderbar Digital &middot;{' '}
             <a href="https://wunderbardigital.com/terms-of-service?utm_source=wunderbrand_app&utm_medium=report_footer&utm_campaign=legal" target="_blank" rel="noopener noreferrer" style={{ color: '#8A97A8', textDecoration: 'underline' }}>Terms of Use</a>
           </p>
         </footer>
         </div>
       </div>
     </div>
-    <ReportNav reportTitle="WunderBrand Blueprint™" sections={[
-      { id: "executive-summary", label: "Executive Summary", group: "Diagnostic" },
-      { id: "context-coverage", label: "Context Coverage", group: "Diagnostic" },
-      { id: "brand-alignment-score", label: "WunderBrand Score™", group: "Diagnostic" },
-      { id: "focus-area-diagnosis", label: "Focus Area Diagnosis", group: "Diagnostic" },
-      { id: "pillar-deep-dives", label: "Pillar Deep Dives", group: "Diagnostic" },
-      { id: "strategic-alignment", label: "Strategic Alignment", group: "Diagnostic" },
-      { id: "blueprint-overview", label: "Blueprint Overview", group: "Strategic Foundation" },
-      { id: "brand-foundation", label: "Brand Foundation", group: "Strategic Foundation" },
-      { id: "brand-archetypes", label: "Brand Archetypes", group: "Strategic Foundation" },
-      { id: "messaging-system", label: "Messaging System", group: "Messaging & Content" },
-      { id: "messaging-pillars", label: "Messaging Pillars", group: "Messaging & Content" },
-      { id: "content-pillars", label: "Content Pillars", group: "Messaging & Content" },
-      { id: "brand-persona", label: "Your Brand Persona", group: "Messaging & Content" },
-      { id: "audience-persona", label: "Audience & Persona", group: "Audience & Positioning" },
-      { id: "competitive-positioning", label: "Competitive Positioning", group: "Audience & Positioning" },
-      { id: "visibility-discovery", label: "Visibility & Discovery", group: "Visibility & Growth" },
-      { id: "visual-direction", label: "Visual Direction", group: "Visibility & Growth" },
-      { id: "conversion-strategy", label: "Conversion Strategy", group: "Visibility & Growth" },
-      { id: "strategic-action-plan", label: "Strategic Action Plan", group: "Implementation" },
-      { id: "prompt-library", label: "AI Prompt Library", group: "Implementation" },
-      { id: "execution-guardrails", label: "Execution Guardrails", group: "Implementation" },
-      { id: "strategic-trade-offs", label: "Strategic Trade-Offs", group: "Implementation" },
-      { id: "tagline-recommendations", label: "Tagline Recommendations", group: "Brand Assets" },
-      { id: "brand-story", label: "Brand Story", group: "Brand Assets" },
-      { id: "company-description", label: "Company Description", group: "Brand Assets" },
+    </div>
+    <div data-print-hidden>
+    <ReportNav reportTitle={productDisplayName} sections={[
+      { id: "executive-summary", label: "Executive Summary", group: "Core Results" },
+      { id: "context-coverage", label: "Context Coverage", group: "Core Results" },
+      { id: "brand-alignment-score", label: "WunderBrand Score™", group: "Core Results" },
+      { id: "focus-area-diagnosis", label: "Focus Area Diagnosis", group: "Core Results" },
+      { id: "pillar-deep-dives", label: "Pillar-by-Pillar Results", group: "Core Results" },
+      { id: "strategic-alignment", label: "Strategic Alignment", group: "Core Results" },
+      { id: "strategic-signals", label: "Strategic Signals", group: "Core Results" },
+      { id: "blueprint-overview", label: "Blueprint Overview", group: "Strategy" },
+      { id: "brand-foundation", label: "Brand Foundation", group: "Strategy" },
+      { id: "brand-archetypes", label: "Brand Archetypes", group: "Strategy" },
+      { id: "messaging-system", label: "Messaging System", group: "Strategy" },
+      { id: "messaging-pillars", label: "Messaging Pillars", group: "Strategy" },
+      { id: "content-pillars", label: "Content Pillars", group: "Strategy" },
+      { id: "brand-persona", label: "Your Brand Persona", group: "Strategy" },
+      { id: "audience-persona", label: "Audience & Persona", group: "Strategy" },
+      { id: "competitive-positioning", label: "Competitive Positioning", group: "Strategy" },
+      { id: "swot-analysis", label: "SWOT Analysis", group: "Strategy" },
+      { id: "visibility-discovery", label: "Visibility & Discovery", group: "Strategy" },
+      { id: "visual-direction", label: "Visual Direction", group: "Strategy" },
+      { id: "conversion-strategy", label: "Conversion Strategy", group: "Strategy" },
+      { id: "strategic-action-plan", label: "Strategic Action Plan", group: "Execution Plan" },
+      { id: "prompt-library", label: "AI Prompt Library", group: "Execution Plan" },
+      { id: "execution-guardrails", label: "Execution Guardrails", group: "Execution Plan" },
+      { id: "strategic-trade-offs", label: "Strategic Trade-Offs", group: "Execution Plan" },
+      { id: "tagline-recommendations", label: "Tagline Recommendations", group: "Assets" },
+      { id: "brand-story", label: "Brand Story", group: "Assets" },
+      { id: "company-description", label: "Company Description", group: "Assets" },
       { id: "customer-journey", label: "Customer Journey", group: "Channel Strategy" },
       { id: "seo-strategy", label: "SEO & Keywords", group: "Channel Strategy" },
       { id: "aeo-strategy", label: "AEO & AI Search", group: "Channel Strategy" },
@@ -2478,14 +3312,17 @@ export default function BrandBlueprintReport() {
       { id: "whats-next", label: "What's Next", group: "Channel Strategy" },
       { id: "document-library", label: "Document Library", group: "Downloads" },
     ]} />
+    </div>
 
-    {/* Wundy™ Report Companion — Blueprint tier */}
+    {/* Wundy™ Report Companion — Blueprint+ tier */}
+    <div data-print-hidden>
     <WundyChat
       mode="report"
-      tier="blueprint"
+      tier="blueprint-plus"
       reportId="preview"
-      greeting={`Hi, I\u2019m Wundy™ \u2014 I have your WunderBrand Blueprint™ report right here. I can help you understand your results, explain any section, or help you prioritize your next steps. What would you like to know?`}
+      greeting={`Hi, I\u2019m Wundy™ \u2014 I have your WunderBrand Blueprint+™ report right here. I can help you understand your results, explain any section, or help you prioritize your next steps. What would you like to know?`}
     />
-    </>
+    </div>
+    </div>
   );
 }

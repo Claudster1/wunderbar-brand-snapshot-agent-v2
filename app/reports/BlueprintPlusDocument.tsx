@@ -4,22 +4,16 @@ import {
   Text,
   View,
   StyleSheet,
-  Font,
   Image,
   Link,
 } from "@react-pdf/renderer";
 
 const LOGO_URL = "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp";
 
-Font.register({
-  family: "Inter",
-  fonts: [{ src: "https://fonts.gstatic.com/s/inter/v12/UcCO3H6mNWsBAg.ttf" }],
-});
-
 const styles = StyleSheet.create({
   page: {
     padding: 40,
-    fontFamily: "Inter",
+    fontFamily: "Helvetica",
     fontSize: 11,
     color: "#0C1526",
     lineHeight: 1.5,

@@ -52,11 +52,15 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const shouldLoadPlausible = process.env.NODE_ENV === 'production'
+
   return (
     <html lang="en" className={lato.variable}>
       <head>
         {/* Plausible Analytics — privacy-friendly, cookie-free */}
-        <script defer data-domain="app.wunderbrand.ai" src="https://plausible.io/js/script.js" />
+        {shouldLoadPlausible ? (
+          <script defer data-domain="app.wunderbrand.ai" src="https://plausible.io/js/script.js" />
+        ) : null}
         <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"

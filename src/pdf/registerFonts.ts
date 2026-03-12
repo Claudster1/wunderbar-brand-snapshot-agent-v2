@@ -1,45 +1,44 @@
 // src/pdf/registerFonts.ts
-// Centralized font registration for all PDF documents
-// Ensures consistent font usage across WunderBrand Snapshot™, Snapshot+™, Blueprint™, and Blueprint+™
+// Centralized font registration for PDF documents.
+// Falls back safely when local font files are missing.
 
+import fs from "node:fs";
+import path from "node:path";
 import { Font } from "@react-pdf/renderer";
 
-// Inter (primary)
-Font.register({
-  family: "Inter",
-  fonts: [
-    {
-      src: "/fonts/Inter-Regular.ttf",
-      fontWeight: "normal",
-    },
-    {
-      src: "/fonts/Inter-Medium.ttf",
-      fontWeight: "medium",
-    },
-    {
-      src: "/fonts/Inter-SemiBold.ttf",
-      fontWeight: "semibold",
-    },
-    {
-      src: "/fonts/Inter-Bold.ttf",
-      fontWeight: "bold",
-    },
-  ],
-});
+let fontsRegistered = false;
 
-// Helvetica Neue fallback (system) - src omitted for system font
-Font.register({
-  family: "Helvetica Neue",
-  fonts: [
-    { src: "" as unknown as string, fontWeight: "normal" },
-    { src: "" as unknown as string, fontWeight: "bold" },
-  ],
-});
+function resolveFontPath(filename: string): string | null {
+  const abs = path.join(process.cwd(), "public", "fonts", filename);
+  return fs.existsSync(abs) ? abs : null;
+}
 
-// Generic sans fallback
-Font.register({
-  family: "System Sans",
-  fonts: [{ src: "" as unknown as string }],
-});
+export const registerPdfFonts = () => {
+  if (fontsRegistered) return true;
 
-export const registerPdfFonts = () => true;
+  const interFonts = [
+    { file: "Inter-Regular.ttf", fontWeight: "normal" as const },
+    { file: "Inter-Medium.ttf", fontWeight: "medium" as const },
+    { file: "Inter-SemiBold.ttf", fontWeight: "semibold" as const },
+    { file: "Inter-Bold.ttf", fontWeight: "bold" as const },
+  ]
+    .map(({ file, fontWeight }) => {
+      const src = resolveFontPath(file);
+      return src ? { src, fontWeight } : null;
+    })
+    .filter((item): item is { src: string; fontWeight: "normal" | "medium" | "semibold" | "bold" } => Boolean(item));
+
+  if (interFonts.length > 0) {
+    try {
+      Font.register({
+        family: "Inter",
+        fonts: interFonts,
+      });
+    } catch {
+      // Keep PDF generation alive with built-in font fallbacks.
+    }
+  }
+
+  fontsRegistered = true;
+  return true;
+};

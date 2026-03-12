@@ -6,6 +6,7 @@ import React from "react";
 import { Document, Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
 import { pdfTheme } from "../theme";
 import { DisclaimerPage } from "../components/DisclaimerPage";
+import { SectionDividerPage } from "../components/SectionDividerPage";
 import type { BlueprintEngineOutput } from "../types/blueprintReport";
 
 const LOGO_URL = "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp";
@@ -48,6 +49,12 @@ export function CompetitiveIntelDocument({ data, brandName }: Props) {
         <Text style={{ ...s.coverMeta, marginTop: 30 }}>{new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</Text>
         <Text style={{ ...s.coverMeta, marginTop: 40, fontSize: 8 }}>CONFIDENTIAL — For sales & leadership</Text>
       </Page>
+
+      <SectionDividerPage
+        label="Section"
+        title="Positioning and Trade-Offs"
+        subtitle="Competitive landscape, strategic whitespace, and decision trade-offs."
+      />
 
       <Page size="A4" style={s.page} wrap>
         <View style={s.footer} fixed>
@@ -98,6 +105,19 @@ export function CompetitiveIntelDocument({ data, brandName }: Props) {
             <Text style={s.small}>Revisit when: {t.revisitWhen}</Text>
           </View>
         ))}
+      </Page>
+
+      <SectionDividerPage
+        label="Section"
+        title="Value and Pricing"
+        subtitle="Price positioning language and objection reframing."
+      />
+
+      <Page size="A4" style={s.page} wrap>
+        <View style={s.footer} fixed>
+          <Text style={s.footerText}>Competitive Intelligence — {brandName}</Text>
+          <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
+        </View>
 
         {/* Value & Pricing */}
         <Text style={s.h1}>Value & Pricing Communication</Text>
@@ -117,6 +137,19 @@ export function CompetitiveIntelDocument({ data, brandName }: Props) {
         ))}
         <Text style={s.label}>Website Pricing Language</Text>
         <Text style={s.body}>{d.valuePricingFramework?.whyUsAtThisPrice}</Text>
+      </Page>
+
+      <SectionDividerPage
+        label="Section"
+        title="Sales Conversation Guide"
+        subtitle="Discovery, objection handling, and closing language."
+      />
+
+      <Page size="A4" style={s.page} wrap>
+        <View style={s.footer} fixed>
+          <Text style={s.footerText}>Competitive Intelligence — {brandName}</Text>
+          <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
+        </View>
 
         {/* Sales Conversation Guide */}
         <Text style={s.h1}>Sales Conversation Guide</Text>

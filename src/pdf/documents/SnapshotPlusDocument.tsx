@@ -18,14 +18,14 @@ registerPdfFonts();
 
 const styles = StyleSheet.create({
   page: {
-    fontFamily: "Inter",
+    fontFamily: "Helvetica",
     padding: 40,
     fontSize: 11,
   },
   title: {
     fontSize: 22,
     marginBottom: 12,
-    fontFamily: "Inter",
+    fontFamily: "Helvetica",
     fontWeight: 600,
     color: pdfTheme.colors.navy,
   },
@@ -35,26 +35,26 @@ const styles = StyleSheet.create({
   pillarTitle: {
     fontSize: 16,
     marginBottom: 6,
-    fontFamily: "Inter",
+    fontFamily: "Helvetica",
     fontWeight: 600,
     color: pdfTheme.colors.navy,
   },
   body: {
     lineHeight: 1.5,
-    fontFamily: "Inter",
+    fontFamily: "Helvetica",
     color: pdfTheme.colors.midnight,
     marginBottom: 8,
   },
   recommendationsTitle: {
     marginTop: 8,
-    fontFamily: "Inter",
+    fontFamily: "Helvetica",
     fontWeight: 600,
     color: pdfTheme.colors.navy,
     marginBottom: 4,
   },
   recommendation: {
     marginBottom: 4,
-    fontFamily: "Inter",
+    fontFamily: "Helvetica",
     color: pdfTheme.colors.midnight,
     lineHeight: 1.5,
   },

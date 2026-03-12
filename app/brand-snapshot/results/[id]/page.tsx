@@ -3,8 +3,7 @@
 
 export const dynamic = "force-dynamic";
 
-import { WundyHero } from "@/components/WundyHero";
-import { ScoreMeter } from "@/components/ScoreMeter";
+import { ScoreGauge } from "@/src/components/ScoreGauge";
 import { PillarBreakdown } from "@/components/PillarBreakdown";
 import { SnapshotUpgradePanel } from "@/components/SnapshotUpgradePanel";
 import { LockedResultsPreview } from "@/app/results/components/LockedResultsPreview";
@@ -225,11 +224,6 @@ export default async function SnapshotResultPage({
           utmMedium="snapshot_results"
         />
 
-        {/* Hero Section */}
-        <div id="report-header">
-          <WundyHero userName={user_name} companyName={company_name} />
-        </div>
-
         <section id="summary" className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
           <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
             Executive Summary
@@ -242,13 +236,22 @@ export default async function SnapshotResultPage({
           </p>
         </section>
 
-        {/* Personalized intro */}
-        {company_name && (
-          <p className="text-center bs-body-sm text-brand-muted max-w-xl mx-auto">
-            {company_name}&apos;s WunderBrand Snapshot™ is tailored to your answers.
-            Your score and recommendations below are specific to your brand.
-          </p>
-        )}
+        <section id="score-overview" className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
+          <h2 className="bs-h3 mb-4">Your WunderBrand Score™</h2>
+          <div className="flex justify-center">
+            <ScoreGauge value={brand_alignment_score || 0} showLegend />
+          </div>
+        </section>
+
+        {/* Pillar Breakdown */}
+        <div id="pillar-analysis">
+          <PillarBreakdown
+            pillars={pillar_scores || {}}
+            insights={insights || {}}
+            businessName={company_name || "Your brand"}
+            stage={(report.snapshot_stage || report.stage || "scaling") as "early" | "scaling" | "growing"}
+          />
+        </div>
 
         {recommendationsList.length > 0 && (
           <section className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
@@ -265,23 +268,6 @@ export default async function SnapshotResultPage({
             </div>
           </section>
         )}
-
-        {/* Score Meter */}
-        <div id="score-overview">
-          <ScoreMeter
-            score={brand_alignment_score || 0}
-          />
-        </div>
-
-        {/* Pillar Breakdown */}
-        <div id="pillar-analysis">
-          <PillarBreakdown
-            pillars={pillar_scores || {}}
-            insights={insights || {}}
-            businessName={company_name || "Your brand"}
-            stage={(report.snapshot_stage || report.stage || "scaling") as "early" | "scaling" | "growing"}
-          />
-        </div>
 
         {likelyArchetype && (
           <section id="archetype" className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">

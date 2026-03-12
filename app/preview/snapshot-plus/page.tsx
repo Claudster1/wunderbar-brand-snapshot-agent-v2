@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import Image from "next/image";
 
 // Lazy-load heavy interactive components to reduce initial bundle size
 const ReportNav = dynamic(() => import("@/components/reports/ReportNav"), { ssr: false });
@@ -1159,6 +1158,14 @@ export default function BrandSnapshotPlusReport() {
   const r = REPORT;
   const [selectedFocus, setSelectedFocus] = useState<"primary" | "secondary">("primary");
   const [selectedArchetype, setSelectedArchetype] = useState<"primary" | "secondary">("primary");
+  const buildDocUrl = (docType: string) => {
+    if (docType === "standards") return "/api/preview/pdf?type=brand-standards";
+    if (docType === "prompts") return "/api/preview/pdf?type=prompts";
+    if (docType === "voice-checklist") return "/api/preview/pdf?type=voice-checklist";
+    if (docType === "complete") return "/api/preview/pdf?type=snapshot-plus";
+    if (docType === "executive" || docType === "messaging") return "/api/preview/pdf?type=blueprint";
+    return "/api/preview/pdf?type=snapshot-plus";
+  };
 
   return (
     <>
@@ -1200,12 +1207,13 @@ export default function BrandSnapshotPlusReport() {
         <div style={{ maxWidth: 900, margin: "0 auto", padding: "0 24px", position: "relative", zIndex: 1 }}>
           <div data-header-top style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 0", borderBottom: `1px solid ${BORDER}` }}>
             <a href="https://wunderbardigital.com/?utm_source=brand_snapshot_plus_report&utm_medium=report_nav&utm_campaign=nav_header_logo&utm_content=snap_plus_logo" target="_blank" rel="noopener noreferrer">
-              <Image
+              <img
                 src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp"
                 alt="Wunderbar Digital"
                 width={160}
                 height={26}
-                style={{ height: 26, width: "auto", objectFit: "contain" }}
+                loading="eager"
+                style={{ width: 160, height: "auto", display: "block" }}
               />
             </a>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
@@ -1244,25 +1252,13 @@ export default function BrandSnapshotPlusReport() {
                   </svg>
                   Print
                 </button>
-                <button onClick={() => {
-                  const el = document.querySelector('[data-report]');
-                  if (el) {
-                    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>WunderBrand Snapshot+™ - ${r.businessName}</title><link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet"><style>body{margin:0;font-family:Lato,sans-serif;}</style></head><body>${el.outerHTML}</body></html>`;
-                    const blob = new Blob([html], { type: 'text/html' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `Brand-Snapshot-Plus-${r.businessName.replace(/\s+/g, '-')}.html`;
-                    a.click();
-                    URL.revokeObjectURL(url);
-                  }
-                }} style={{
+                <a href={buildDocUrl("complete")} target="_blank" rel="noopener noreferrer" style={{
                   display: "inline-flex", alignItems: "center", gap: 5,
                   padding: "6px 12px", borderRadius: 5,
                   border: `1.5px solid ${BLUE}`, background: `${BLUE}08`,
                   color: BLUE, fontSize: 12, fontWeight: 700, cursor: "pointer",
                   fontFamily: "Lato, sans-serif",
-                  transition: "background 0.2s ease",
+                  transition: "background 0.2s ease", textDecoration: "none",
                 }}
                   onMouseEnter={(e) => { e.currentTarget.style.background = `${BLUE}15`; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = `${BLUE}08`; }}
@@ -1271,8 +1267,40 @@ export default function BrandSnapshotPlusReport() {
                     <path d="M10 3v10M10 13l-3.5-3.5M10 13l3.5-3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                     <path d="M3 14v2a1 1 0 001 1h12a1 1 0 001-1v-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                   </svg>
-                  Download
-                </button>
+                  Download Full PDF
+                </a>
+              </div>
+              <div data-download-secondary style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                {[
+                  { key: "standards", label: "Brand Standards" },
+                  { key: "executive", label: "Executive Summary" },
+                  { key: "messaging", label: "One-Page Messaging" },
+                  { key: "prompts", label: "Prompt Guide" },
+                  { key: "voice-checklist", label: "Voice Checklist" },
+                  { key: "complete", label: "Full Report PDF" },
+                ].map((doc) => (
+                  <a
+                    key={doc.key}
+                    href={buildDocUrl(doc.key)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      padding: "5px 10px",
+                      borderRadius: 999,
+                      fontSize: 11,
+                      fontWeight: 700,
+                      color: BLUE,
+                      border: `1px solid ${BLUE}33`,
+                      background: `${BLUE}0D`,
+                      textDecoration: "none",
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    {doc.label}
+                  </a>
+                ))}
               </div>
             </div>
           </div>
@@ -1708,9 +1736,9 @@ export default function BrandSnapshotPlusReport() {
           </div>
         </div>
 
-        {/* ═══ 4. PILLAR DEEP DIVES ═══ */}
+        {/* ═══ 4. PILLAR-BY-PILLAR RESULTS ═══ */}
         <Section id="pillar-deep-dives" pageBreak>
-          <SectionTitle description="Strategic analysis of each pillar with examples and success metrics.">Pillar Deep Dives</SectionTitle>
+          <SectionTitle description="Strategic analysis of each pillar with examples and success metrics.">Pillar-by-Pillar Results</SectionTitle>
 
           <div data-pillar-meters style={{
             display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px 32px",
@@ -3198,16 +3226,48 @@ export default function BrandSnapshotPlusReport() {
           </div>
         </Section>
 
+        <Section id="strategic-signals">
+          <SectionTitle description="Directional business signals derived from your diagnostic responses.">
+            Strategic Signals
+          </SectionTitle>
+          <div style={{ display: "grid", gap: 14 }}>
+            <div style={{ border: `1px solid ${BORDER}`, borderRadius: 5, padding: 16, background: WHITE }}>
+              <div style={{ fontSize: 14, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
+                Competitive Vulnerability Signal
+              </div>
+              <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.65 }}>
+                You are currently strongest in strategic depth but easiest to out-position on proof clarity. Competitors with clearer outcomes and case evidence will convert decision-stage buyers faster until this gap is tightened.
+              </div>
+            </div>
+            <div style={{ border: `1px solid ${BORDER}`, borderRadius: 5, padding: 16, background: WHITE }}>
+              <div style={{ fontSize: 14, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
+                Marketing Spend Efficiency Signal
+              </div>
+              <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.65 }}>
+                Current spend likely underperforms because top-of-funnel traffic and sales conversations are not guided by one proof-backed message spine. Improving positioning-message continuity should increase return from existing channels before adding new spend.
+              </div>
+            </div>
+            <div style={{ border: `1px solid ${BORDER}`, borderRadius: 5, padding: 16, background: WHITE }}>
+              <div style={{ fontSize: 14, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
+                Revenue Impact Statement
+              </div>
+              <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.65 }}>
+                If these gaps persist, revenue growth remains constrained by slower deal velocity and lower conversion confidence. Closing the highest-friction message and proof gaps creates the clearest path to near-term upside.
+              </div>
+            </div>
+          </div>
+        </Section>
+
         {/* ═══ FOOTER ═══ */}
         <footer style={{ textAlign: "center", padding: "20px 0 0", borderTop: `1px solid ${BORDER}` }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8 }}>
             <a href="https://wunderbardigital.com/?utm_source=brand_snapshot_plus_report&utm_medium=report_nav&utm_campaign=nav_header_logo&utm_content=snap_plus_logo" target="_blank" rel="noopener noreferrer">
-              <Image
+              <img
                 src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp"
                 alt="Wunderbar Digital"
                 width={124}
                 height={20}
-                style={{ height: 20, width: "auto", objectFit: "contain" }}
+                style={{ width: 124, height: "auto", display: "block" }}
               />
             </a>
           </div>
@@ -3224,7 +3284,7 @@ export default function BrandSnapshotPlusReport() {
           </p>
           <p style={{ fontSize: 11, color: '#8A97A8', textAlign: 'center', marginTop: 24, padding: '16px 0', borderTop: '1px solid #E6EAF2', fontFamily: 'Lato, sans-serif' }}>
             This report is licensed for internal use by the commissioning organization. Redistribution or resale is prohibited.
-            {' '}&copy; {new Date().getFullYear()} Wunderbar Digital &middot;{' '}
+            {' '}&copy; 2026 Wunderbar Digital &middot;{' '}
             <a href="https://wunderbardigital.com/terms-of-service?utm_source=wunderbrand_app&utm_medium=report_footer&utm_campaign=legal" target="_blank" rel="noopener noreferrer" style={{ color: '#8A97A8', textDecoration: 'underline' }}>Terms of Use</a>
           </p>
         </footer>
@@ -3232,22 +3292,23 @@ export default function BrandSnapshotPlusReport() {
       </div>
     </div>
     <ReportNav reportTitle="WunderBrand Snapshot+™" sections={[
-      { id: "executive-summary", label: "Executive Summary", group: "Diagnostic" },
-      { id: "context-coverage", label: "Context Coverage", group: "Diagnostic" },
-      { id: "brand-alignment-score", label: "WunderBrand Score™", group: "Diagnostic" },
-      { id: "focus-area-diagnosis", label: "Focus Area Diagnosis", group: "Diagnostic" },
-      { id: "pillar-deep-dives", label: "Pillar Deep Dives", group: "Diagnostic" },
-      { id: "strategic-alignment", label: "Strategic Alignment", group: "Diagnostic" },
-      { id: "visibility-discovery", label: "Visibility & Discovery", group: "Brand Strategy" },
-      { id: "brand-archetypes", label: "Brand Archetypes", group: "Brand Strategy" },
-      { id: "brand-persona", label: "Your Brand Persona", group: "Brand Strategy" },
-      { id: "messaging-pillars", label: "Messaging Pillars", group: "Brand Strategy" },
-      { id: "audience-signals", label: "Audience Signals", group: "Brand Strategy" },
-      { id: "visual-verbal-signals", label: "Visual & Verbal Signals", group: "Brand Strategy" },
-      { id: "strategic-action-plan", label: "Strategic Action Plan", group: "Action & Tools" },
-      { id: "prompt-pack", label: "AI Prompt Pack", group: "Action & Tools" },
-      { id: "tagline-recommendations", label: "Tagline Recommendations", group: "Action & Tools" },
-      { id: "whats-next", label: "What's Next", group: "Action & Tools" },
+      { id: "executive-summary", label: "Executive Summary", group: "Core Results" },
+      { id: "context-coverage", label: "Context Coverage", group: "Core Results" },
+      { id: "brand-alignment-score", label: "WunderBrand Score™", group: "Core Results" },
+      { id: "focus-area-diagnosis", label: "Focus Area Diagnosis", group: "Core Results" },
+      { id: "pillar-deep-dives", label: "Pillar-by-Pillar Results", group: "Core Results" },
+      { id: "strategic-alignment", label: "Strategic Alignment", group: "Core Results" },
+      { id: "strategic-signals", label: "Strategic Signals", group: "Core Results" },
+      { id: "visibility-discovery", label: "Visibility & Discovery", group: "Strategy" },
+      { id: "brand-archetypes", label: "Brand Archetypes", group: "Strategy" },
+      { id: "brand-persona", label: "Your Brand Persona", group: "Strategy" },
+      { id: "messaging-pillars", label: "Messaging Pillars", group: "Strategy" },
+      { id: "audience-signals", label: "Audience Signals", group: "Strategy" },
+      { id: "visual-verbal-signals", label: "Visual & Verbal Signals", group: "Strategy" },
+      { id: "strategic-action-plan", label: "Strategic Action Plan", group: "Execution Plan" },
+      { id: "prompt-pack", label: "AI Prompt Pack", group: "Execution Plan" },
+      { id: "tagline-recommendations", label: "Tagline Recommendations", group: "Execution Plan" },
+      { id: "whats-next", label: "What's Next", group: "Execution Plan" },
     ]} />
 
     {/* Wundy™ Report Companion — Snapshot+ tier */}

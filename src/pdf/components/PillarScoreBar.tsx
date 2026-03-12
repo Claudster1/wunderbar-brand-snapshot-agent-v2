@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
     marginBottom: pdfTheme.spacing.xs,
   },
   label: {
-    fontFamily: "Inter",
+    fontFamily: "Helvetica",
     fontSize: pdfTheme.fontSizes.sm,
     color: pdfTheme.colors.midnight,
   },

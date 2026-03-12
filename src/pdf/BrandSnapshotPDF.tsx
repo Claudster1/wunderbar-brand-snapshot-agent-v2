@@ -28,7 +28,7 @@ registerPdfFonts();
 
 const styles = StyleSheet.create({
   page: {
-    fontFamily: "Inter",
+    fontFamily: "Helvetica",
     fontSize: pdfTheme.fontSizes.base,
     paddingBottom: pdfTheme.spacing.xl,
   },
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     marginBottom: pdfTheme.spacing.sm,
   },
   body: {
-    fontFamily: "Inter",
+    fontFamily: "Helvetica",
     fontSize: pdfTheme.fontSizes.base,
     color: pdfTheme.colors.midnight,
     lineHeight: 1.5,

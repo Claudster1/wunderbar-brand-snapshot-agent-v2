@@ -98,6 +98,8 @@ export default function WundyChat({
   };
 
   const modeLabel = mode === "report" ? "Report Companion" : "Brand Guide";
+  const bubbleColor = accentColor;
+  const bubbleTextColor = WHITE;
 
   return (
     <>
@@ -124,7 +126,7 @@ export default function WundyChat({
               height: showBubble ? 100 : 0,
               marginBottom: 0,
               animation: showBubble ? "wundyBubbleIn 0.5s ease-out 1s both" : "none",
-              filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.10))",
+              filter: "drop-shadow(0 3px 10px rgba(7,176,242,0.30))",
               opacity: showBubble ? 1 : 0,
               overflow: "hidden",
               transition: "opacity 0.5s ease, height 0.5s ease",
@@ -139,23 +141,23 @@ export default function WundyChat({
             >
               {/* Puffy cloud body — many overlapping ellipses for organic shape */}
               {/* Top bumps */}
-              <ellipse cx="60"  cy="20" rx="30" ry="18" fill={WHITE} />
-              <ellipse cx="95"  cy="14" rx="34" ry="14" fill={WHITE} />
-              <ellipse cx="135" cy="16" rx="32" ry="16" fill={WHITE} />
-              <ellipse cx="168" cy="22" rx="26" ry="18" fill={WHITE} />
+              <ellipse cx="60"  cy="20" rx="30" ry="18" fill={bubbleColor} />
+              <ellipse cx="95"  cy="14" rx="34" ry="14" fill={bubbleColor} />
+              <ellipse cx="135" cy="16" rx="32" ry="16" fill={bubbleColor} />
+              <ellipse cx="168" cy="22" rx="26" ry="18" fill={bubbleColor} />
               {/* Left bump */}
-              <ellipse cx="32"  cy="34" rx="26" ry="20" fill={WHITE} />
+              <ellipse cx="32"  cy="34" rx="26" ry="20" fill={bubbleColor} />
               {/* Right bump */}
-              <ellipse cx="188" cy="36" rx="24" ry="20" fill={WHITE} />
+              <ellipse cx="188" cy="36" rx="24" ry="20" fill={bubbleColor} />
               {/* Center fill */}
-              <ellipse cx="110" cy="34" rx="78" ry="24" fill={WHITE} />
+              <ellipse cx="110" cy="34" rx="78" ry="24" fill={bubbleColor} />
               {/* Bottom bumps */}
-              <ellipse cx="55"  cy="50" rx="32" ry="16" fill={WHITE} />
-              <ellipse cx="105" cy="52" rx="36" ry="14" fill={WHITE} />
-              <ellipse cx="155" cy="50" rx="32" ry="16" fill={WHITE} />
+              <ellipse cx="55"  cy="50" rx="32" ry="16" fill={bubbleColor} />
+              <ellipse cx="105" cy="52" rx="36" ry="14" fill={bubbleColor} />
+              <ellipse cx="155" cy="50" rx="32" ry="16" fill={bubbleColor} />
               {/* Trailing thought circles */}
-              <circle cx="182" cy="72" r="9" fill={WHITE} />
-              <circle cx="196" cy="86" r="5.5" fill={WHITE} />
+              <circle cx="182" cy="72" r="9" fill={bubbleColor} />
+              <circle cx="196" cy="86" r="5.5" fill={bubbleColor} />
             </svg>
             {/* Text overlay — centered on the cloud */}
             <div
@@ -171,7 +173,7 @@ export default function WundyChat({
                 fontFamily: "'Lato', system-ui, sans-serif",
                 fontSize: 13,
                 fontWeight: 700,
-                color: NAVY,
+                color: bubbleTextColor,
                 whiteSpace: "nowrap",
                 pointerEvents: "none",
               }}

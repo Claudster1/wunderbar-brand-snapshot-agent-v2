@@ -92,7 +92,6 @@ export function ScoreGauge({ value, score, size, showLegend = false }: { value?:
     <svg
       viewBox={`0 0 200 ${viewBoxHeight}`}
       width="100%"
-      height="auto"
       className="mx-auto block"
       style={{ maxWidth: showLegend ? "220px" : "280px", aspectRatio: "200 / 175" }}
     >

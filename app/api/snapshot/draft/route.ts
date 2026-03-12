@@ -45,10 +45,13 @@ export async function POST(req: Request) {
       logger.error("[Snapshot Draft API] Error", {
         error: error.message,
       });
-      return NextResponse.json(
-        { error: "Failed to create draft report", details: error.message },
-        { status: 500 }
-      );
+      // Graceful fallback for local/offline environments:
+      // keep the chat flow usable even if persistence is temporarily unavailable.
+      return NextResponse.json({
+        reportId,
+        persisted: false,
+        warning: "Draft persistence temporarily unavailable",
+      });
     }
 
     const row = data as { id?: string; report_id?: string } | null;
@@ -57,9 +60,11 @@ export async function POST(req: Request) {
     logger.error("[Snapshot Draft API] Error", {
       error: err instanceof Error ? err.message : String(err),
     });
-    return NextResponse.json(
-      { error: "Failed to create draft report" },
-      { status: 500 }
-    );
+    // Graceful fallback for transient network/Supabase failures.
+    return NextResponse.json({
+      reportId: randomUUID(),
+      persisted: false,
+      warning: "Draft persistence temporarily unavailable",
+    });
   }
 }

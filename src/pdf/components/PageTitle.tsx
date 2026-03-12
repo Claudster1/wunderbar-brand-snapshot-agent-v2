@@ -9,14 +9,14 @@ const styles = StyleSheet.create({
     marginBottom: pdfTheme.spacing.lg,
   },
   title: {
-    fontFamily: "Inter",
+    fontFamily: "Helvetica",
     fontSize: pdfTheme.fontSizes.xxl,
     fontWeight: 700,
     color: pdfTheme.colors.navy,
     marginBottom: pdfTheme.spacing.sm,
   },
   subtitle: {
-    fontFamily: "Inter",
+    fontFamily: "Helvetica",
     fontSize: pdfTheme.fontSizes.base,
     color: pdfTheme.colors.midnight,
     opacity: 0.7,

@@ -5,6 +5,7 @@ import React from "react";
 import { Document, Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
 import { pdfTheme } from "../theme";
 import { DisclaimerPage } from "../components/DisclaimerPage";
+import { SectionDividerPage } from "../components/SectionDividerPage";
 import type { BlueprintEngineOutput } from "../types/blueprintReport";
 
 const LOGO_URL = "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp";
@@ -63,6 +64,12 @@ export function ExecutiveSummaryDocument({ data, brandName, userName }: Props) {
         <Text style={{ ...s.coverMeta, marginTop: 40, fontSize: 8 }}>CONFIDENTIAL</Text>
       </Page>
 
+      <SectionDividerPage
+        label="Section"
+        title="Brand Health Snapshot"
+        subtitle="Score, pillar performance, and immediate strategic focus."
+      />
+
       <Page size="A4" style={s.page}>
         <View style={s.footer} fixed>
           <Text style={s.footerText}>Executive Summary — {brandName}</Text>
@@ -70,7 +77,7 @@ export function ExecutiveSummaryDocument({ data, brandName, userName }: Props) {
         </View>
 
         <Text style={s.h1}>Brand Health at a Glance</Text>
-        <View style={s.scoreRow}>
+        <View style={s.scoreRow} wrap={false}>
           <View style={s.scoreBadge}><Text style={s.scoreNum}>{d.executiveSummary?.brandAlignmentScore}</Text></View>
           <View>
             <Text style={{ fontSize: 14, fontWeight: "bold", color: pdfTheme.colors.navy }}>WunderBrand Score™</Text>
@@ -98,7 +105,7 @@ export function ExecutiveSummaryDocument({ data, brandName, userName }: Props) {
         </View>
 
         <Text style={s.h2}>Priority Focus Areas</Text>
-        <View style={s.row}>
+        <View style={s.row} wrap={false}>
           <View style={s.col2}>
             <View style={s.accentCard}>
               <Text style={s.label}>Primary</Text>
@@ -116,7 +123,7 @@ export function ExecutiveSummaryDocument({ data, brandName, userName }: Props) {
         </View>
 
         <Text style={s.h2}>Brand Archetype</Text>
-        <View style={s.card}>
+        <View style={s.card} wrap={false}>
           <Text style={{ fontSize: 12, fontWeight: "bold", color: pdfTheme.colors.navy }}>
             {d.brandArchetypeSystem?.primary?.name} / {d.brandArchetypeSystem?.secondary?.name}
           </Text>
@@ -130,10 +137,23 @@ export function ExecutiveSummaryDocument({ data, brandName, userName }: Props) {
         <Text style={s.body}>{d.brandFoundation?.vision}</Text>
         <Text style={s.label}>Positioning</Text>
         <View style={s.accentCard}><Text style={s.body}>{d.brandFoundation?.positioningStatement}</Text></View>
+      </Page>
+
+      <SectionDividerPage
+        label="Section"
+        title="Priority Actions"
+        subtitle="Top strategic moves and leadership-ready messaging."
+      />
+
+      <Page size="A4" style={s.page}>
+        <View style={s.footer} fixed>
+          <Text style={s.footerText}>Executive Summary — {brandName}</Text>
+          <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
+        </View>
 
         <Text style={s.h2}>Top 3 Strategic Actions</Text>
         {d.strategicActionPlan?.slice(0, 3).map((a, i) => (
-          <View key={i} style={s.card}>
+          <View key={i} style={s.card} wrap={false}>
             <Text style={{ fontSize: 11, fontWeight: "bold", color: pdfTheme.colors.navy }}>{i + 1}. {a.action}</Text>
             <Text style={s.body}>{a.outcome}</Text>
             <Text style={s.small}>Pillar: {a.pillar} | Priority: {a.priority}</Text>
@@ -143,7 +163,7 @@ export function ExecutiveSummaryDocument({ data, brandName, userName }: Props) {
         <Text style={s.h2}>Elevator Pitch</Text>
         <View style={s.accentCard}><Text style={s.body}>{d.brandStory?.elevatorPitch}</Text></View>
 
-        <View style={{ marginTop: 16, padding: 12, backgroundColor: "#F8FAFC", borderRadius: 6 }}>
+        <View style={{ marginTop: 16, padding: 12, backgroundColor: "#F8FAFC", borderRadius: 6 }} wrap={false}>
           <Text style={s.small}>This is a summary of your complete WunderBrand Blueprint™. The full report includes 42 strategic sections covering messaging, audience personas, competitive positioning, channel strategies, AI prompts, and implementation roadmaps.</Text>
         </View>
       </Page>

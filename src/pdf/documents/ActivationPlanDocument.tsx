@@ -5,6 +5,7 @@ import React from "react";
 import { Document, Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
 import { pdfTheme } from "../theme";
 import { DisclaimerPage } from "../components/DisclaimerPage";
+import { SectionDividerPage } from "../components/SectionDividerPage";
 import type { BlueprintEngineOutput } from "../types/blueprintReport";
 
 const LOGO_URL = "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp";
@@ -52,6 +53,12 @@ export function ActivationPlanDocument({ data, brandName }: Props) {
         <Text style={{ ...s.coverMeta, marginTop: 40, fontSize: 8 }}>From your WunderBrand Blueprint™</Text>
       </Page>
 
+      <SectionDividerPage
+        label="Section"
+        title="Action Priorities"
+        subtitle="One-page strategy anchor and prioritized execution plan."
+      />
+
       <Page size="A4" style={s.page} wrap>
         <View style={s.footer} fixed>
           <Text style={s.footerText}>90-Day Activation Plan — {brandName}</Text>
@@ -81,6 +88,19 @@ export function ActivationPlanDocument({ data, brandName }: Props) {
             </View>
           </View>
         ))}
+      </Page>
+
+      <SectionDividerPage
+        label="Section"
+        title="Rollout Messaging"
+        subtitle="Approved language, talking points, and communication guardrails."
+      />
+
+      <Page size="A4" style={s.page} wrap>
+        <View style={s.footer} fixed>
+          <Text style={s.footerText}>90-Day Activation Plan — {brandName}</Text>
+          <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
+        </View>
 
         <Text style={s.h1}>How We Talk About Ourselves</Text>
         <Text style={s.label}>Elevator Pitch</Text>
@@ -109,6 +129,19 @@ export function ActivationPlanDocument({ data, brandName }: Props) {
             <Text style={s.small}>Reference: {tp.whatToReference}</Text>
           </View>
         ))}
+      </Page>
+
+      <SectionDividerPage
+        label="Section"
+        title="Measurement and Guardrails"
+        subtitle="KPI tracking, leading indicators, and brand drift prevention."
+      />
+
+      <Page size="A4" style={s.page} wrap>
+        <View style={s.footer} fixed>
+          <Text style={s.footerText}>90-Day Activation Plan — {brandName}</Text>
+          <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
+        </View>
 
         <Text style={s.h1}>Measurement & KPIs</Text>
         <Text style={s.body}>{d.measurementFramework?.overview}</Text>

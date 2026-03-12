@@ -2,6 +2,10 @@
 
 Use this file as the single source of truth when resuming after a crash or interruption.
 
+Release go/no-go checklist: `docs/RELEASE_READINESS_CHECKLIST.md`
+
+Release gate checklist: `docs/RELEASE_READINESS_CHECKLIST.md`
+
 ## Current Objective
 
 Close remaining deltas for the rebuild strategy in this order:
@@ -75,3 +79,4 @@ Close remaining deltas for the rebuild strategy in this order:
 - Keep snapshot upgrade CTA text consistent: `See Your Full Results — $497`.
 - Prefer centralized `/api/pdf?type=...` generation path for parity.
 - Do not remove existing analytics tracking (`trackEvent`, `fireACEvent`, `trackUpgradeClick`).
+- Use `docs/RELEASE_READINESS_CHECKLIST.md` for final go/no-go launch validation.

@@ -18,12 +18,17 @@ export function ResultsUpgradeCTA({
   hasPurchasedPlus: boolean;
   email?: string;
 }) {
-  const [variant] = useState<"A" | "B">(() =>
-    getOrAssignVariant<"A" | "B">("results_cta_variant", ["A", "B"])
-  );
-  const [presence] = useState<"single" | "dual">(() =>
-    getOrAssignVariant<"single" | "dual">("results_cta_presence", ["single", "dual"])
-  );
+  // Keep the initial render deterministic (server + first client render match),
+  // then assign/read A/B variants after mount.
+  const [variant, setVariant] = useState<"A" | "B">("A");
+  const [presence, setPresence] = useState<"single" | "dual">("single");
+
+  useEffect(() => {
+    setVariant(getOrAssignVariant<"A" | "B">("results_cta_variant", ["A", "B"]));
+    setPresence(
+      getOrAssignVariant<"single" | "dual">("results_cta_presence", ["single", "dual"])
+    );
+  }, []);
 
   const copy = RESULTS_CTA_COPY[variant];
 

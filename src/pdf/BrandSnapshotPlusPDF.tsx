@@ -35,7 +35,7 @@ registerPdfFonts();
 
 const styles = StyleSheet.create({
   page: {
-    fontFamily: "Inter",
+    fontFamily: "Helvetica",
     fontSize: pdfTheme.fontSizes.base,
     paddingBottom: pdfTheme.spacing.xl,
   },
@@ -89,7 +89,7 @@ export interface BrandSnapshotPlusReport extends BrandSnapshotReport {
   competitiveVulnerabilitySignal?: string;
   revenueImpactStatement?: string;
   visualIdentityNotes?: string;
-  aiPrompts?: string[];
+  aiPrompts?: Array<string | { name?: string; prompt?: string }>;
   contextCoverage?: number; // 0-100 percentage
   /** Brand persona (mirrors report view). */
   persona?: PersonaContent;
@@ -138,6 +138,21 @@ export const BrandSnapshotPlusPDF = ({
 }: {
   report: BrandSnapshotPlusReport;
 }) => {
+  const asText = (value: unknown): string => {
+    if (typeof value === "string") return value;
+    if (typeof value === "number" || typeof value === "boolean") return String(value);
+    if (value && typeof value === "object") {
+      const obj = value as Record<string, unknown>;
+      if (typeof obj.name === "string" && typeof obj.prompt === "string") {
+        return `${obj.name}: ${obj.prompt}`;
+      }
+      if (typeof obj.prompt === "string") return obj.prompt;
+      if (typeof obj.name === "string") return obj.name;
+      return JSON.stringify(obj);
+    }
+    return "";
+  };
+
   const reportDate = new Date().toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -352,7 +367,7 @@ export const BrandSnapshotPlusPDF = ({
                     <>
                       <Text style={styles.subheading}>Tone pillars</Text>
                       {(voice as { pillars: string[] }).pillars.map((p, i) => (
-                        <Text key={i} style={styles.para}>• {p}</Text>
+                        <Text key={i} style={styles.para}>• {asText(p)}</Text>
                       ))}
                     </>
                   ) : null}
@@ -388,7 +403,7 @@ export const BrandSnapshotPlusPDF = ({
                 <>
                   <Text style={styles.subheading}>Phrases to Use</Text>
                   {report.voiceToneGuide.phrasesToUse.map((p, i) => (
-                    <Text key={i} style={{ ...styles.para, color: "#047857" }}>✓ {p}</Text>
+                    <Text key={i} style={{ ...styles.para, color: "#047857" }}>✓ {asText(p)}</Text>
                   ))}
                 </>
               )}
@@ -397,7 +412,7 @@ export const BrandSnapshotPlusPDF = ({
                 <>
                   <Text style={styles.subheading}>Phrases to Avoid</Text>
                   {report.voiceToneGuide.phrasesToAvoid.map((p, i) => (
-                    <Text key={i} style={{ ...styles.para, color: "#DC2626" }}>✗ {p}</Text>
+                    <Text key={i} style={{ ...styles.para, color: "#DC2626" }}>✗ {asText(p)}</Text>
                   ))}
                 </>
               )}
@@ -710,7 +725,9 @@ export const BrandSnapshotPlusPDF = ({
           />
 
           <Section>
-            {aiPrompts.map((p, i) => (
+            {aiPrompts.map((p, i) => {
+              const promptText = asText(p);
+              return (
               <Text
                 key={i}
                 style={{
@@ -719,9 +736,10 @@ export const BrandSnapshotPlusPDF = ({
                   lineHeight: 1.5,
                 }}
               >
-                {i + 1}. {p}
+                {i + 1}. {promptText}
               </Text>
-            ))}
+              );
+            })}
           </Section>
 
           <PdfFooter businessName={businessName} productName="WunderBrand Snapshot+™" />

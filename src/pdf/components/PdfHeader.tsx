@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontFamily: "Inter",
+    fontFamily: "Helvetica",
     fontSize: pdfTheme.fontSizes.lg,
     color: pdfTheme.colors.navy,
     fontWeight: 600,
@@ -36,6 +36,8 @@ const styles = StyleSheet.create({
   },
   logo: {
     width: 80,
+    height: 10.7,
+    objectFit: "contain",
   },
 });
 

@@ -15,7 +15,6 @@ import { PillarCardGrid } from "@/src/components/results/PillarCardGrid";
 import { ResultsUpgradeCTA } from "@/components/results/ResultsUpgradeCTA";
 import { SuiteCTA } from "@/src/components/results/SuiteCTA";
 import { ContextCoverageMeter } from "@/src/components/results/ContextCoverageMeter";
-import { ChatCompletion } from "@/src/components/results/ChatCompletion";
 import { ResultsPageViewTracker } from "@/components/results/ResultsPageViewTracker";
 import { ImplementationIntro } from "@/components/SnapshotPlus/ImplementationIntro";
 import { getPrimaryPillar } from "@/lib/upgrade/primaryPillar";
@@ -222,9 +221,6 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         utmMedium="snapshot_results"
       />
 
-      {/* Intro */}
-      <ChatCompletion userRoleContext={data.userRoleContext} />
-
       <section id="summary" className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
         <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
           Executive Summary
@@ -236,22 +232,6 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
           into details.
         </p>
       </section>
-
-      {recommendationsList.length > 0 && (
-        <section className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
-          <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
-            Priority Actions
-          </p>
-          <h2 className="bs-h3 mb-2">What to focus on next</h2>
-          <div className="space-y-2">
-            {recommendationsList.slice(0, 5).map((item, idx) => (
-              <p key={`${idx}-${item.slice(0, 30)}`} className="bs-body-sm text-brand-midnight">
-                {idx + 1}. {item}
-              </p>
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* Hero: two-column — gauge + rating (left) | recommendation card (right) */}
       <div id="score-overview">
@@ -270,6 +250,22 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
           pillarInsights={data.pillarInsights}
         />
       </div>
+
+      {recommendationsList.length > 0 && (
+        <section className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
+          <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+            Priority Actions
+          </p>
+          <h2 className="bs-h3 mb-2">What to focus on next</h2>
+          <div className="space-y-2">
+            {recommendationsList.slice(0, 5).map((item, idx) => (
+              <p key={`${idx}-${item.slice(0, 30)}`} className="bs-body-sm text-brand-midnight">
+                {idx + 1}. {item}
+              </p>
+            ))}
+          </div>
+        </section>
+      )}
 
       {likelyArchetype && (
         <section id="archetype" className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">

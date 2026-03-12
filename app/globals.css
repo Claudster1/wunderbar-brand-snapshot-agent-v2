@@ -1106,7 +1106,7 @@ a.sr-only:focus {
   transition: color 0.2s ease;
 }
 
-.wunder-nav-link::after {
+.wunder-nav-item .wunder-nav-link::after {
   content: ' ▾';
   color: #07B0F2;
 }
@@ -1668,10 +1668,10 @@ a.sr-only:focus {
 
 /* Pixel-match class aliases from Wunderbar embed spec */
 .wunder-header-final {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  display: flex;
+  flex-direction: row;
   align-items: center;
-  column-gap: 24px;
+  justify-content: space-between;
   background-color: #ffffff;
   padding: 12px 25px;
   width: 100%;
@@ -1679,23 +1679,28 @@ a.sr-only:focus {
   font-family: var(--font-brand);
   border: none;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+  z-index: 99999;
 }
 
 .wunder-header-final .wunder-logo {
-  justify-self: start;
+  display: block;
 }
 
 .wunder-header-final .wunder-nav-group {
-  margin-left: 0;
-  padding-right: 0;
-  justify-content: center;
+  display: flex;
+  gap: 30px;
+  flex-grow: 1;
+  align-items: center;
+  padding-right: 65px;
+  margin-left: 50px;
 }
 
 .wunder-header-final .wunder-btn-container {
-  justify-self: end;
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .btn-base {
@@ -1715,6 +1720,24 @@ a.sr-only:focus {
   box-sizing: border-box;
   white-space: nowrap;
   transition: all 0.3s ease;
+}
+
+.wunder-header-final .wunder-nav-item .wunder-nav-link {
+  color: #021859;
+}
+
+.wunder-header-final .wunder-nav-item .wunder-nav-link::after {
+  content: ' ▾';
+  color: #07B0F2;
+}
+
+.wunder-dropdown a.wunder-dropdown-divider {
+  color: #07B0F2;
+}
+
+.wunder-dropdown a.wunder-dropdown-divider:hover {
+  background-color: #f5f8ff;
+  color: #0590c7 !important;
 }
 
 .btn-solid {
@@ -1745,36 +1768,88 @@ a.sr-only:focus {
   justify-content: center;
 }
 
-.social-connect {
+#connect {
   background: #021859;
-  padding: 20px 0 10px;
+}
+
+:root {
+  --wb-blue: #07B0F2;
+  --icon-size: 36px;
 }
 
 .social-container {
   display: flex;
   justify-content: center;
-  gap: 30px;
-  padding: 0 24px;
+  gap: 28px;
+  padding: 20px 0;
 }
 
-.social-container a {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  color: #FFFFFF;
-  transition: color 0.3s ease;
-}
-
-.social-container a:hover {
-  color: #07B0F2;
-}
-
-.social-container .social-icon {
-  width: 32px;
-  height: 32px;
+.si {
   display: block;
-  fill: currentColor;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  background-color: #fff;
+  transition: background-color .2s ease, transform .2s ease;
+}
+
+.social-container a:hover .si,
+.social-container a:focus .si {
+  background-color: var(--wb-blue);
+  transform: translateY(-1px);
+}
+
+.si-svg {
+  display: block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  color: #fff;
+  transition: color .2s ease, transform .2s ease;
+}
+
+.social-container a:hover .si-svg,
+.social-container a:focus .si-svg {
+  color: var(--wb-blue);
+  transform: translateY(-1px);
+}
+
+.social-container a:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(7, 176, 242, .35);
+  border-radius: 8px;
+}
+
+.si-youtube {
+  -webkit-mask: url("https://cdn.simpleicons.org/youtube") no-repeat center / contain;
+  mask: url("https://cdn.simpleicons.org/youtube") no-repeat center / contain;
+}
+
+.si-x {
+  -webkit-mask: url("https://cdn.simpleicons.org/x") no-repeat center / contain;
+  mask: url("https://cdn.simpleicons.org/x") no-repeat center / contain;
+}
+
+.si-tiktok {
+  -webkit-mask: url("https://cdn.simpleicons.org/tiktok") no-repeat center / contain;
+  mask: url("https://cdn.simpleicons.org/tiktok") no-repeat center / contain;
+}
+
+.si-facebook {
+  -webkit-mask: url("https://cdn.simpleicons.org/facebook") no-repeat center / contain;
+  mask: url("https://cdn.simpleicons.org/facebook") no-repeat center / contain;
+}
+
+.si-instagram {
+  -webkit-mask: url("https://cdn.simpleicons.org/instagram") no-repeat center / contain;
+  mask: url("https://cdn.simpleicons.org/instagram") no-repeat center / contain;
+}
+
+#connect i {
+  display: none !important;
+}
+
+@media (max-width: 480px) {
+  :root { --icon-size: 32px; }
+  .social-container { gap: 22px; }
 }
 
 .site-footer {
@@ -1946,27 +2021,20 @@ a.sr-only:focus {
 }
 
 @media (max-width: 1024px) {
+  .wunder-header-final .wunder-nav-group {
+    gap: 20px;
+    margin-left: 30px;
+    padding-right: 30px;
+  }
+
+  .wunder-header-final .wunder-nav-link {
+    font-size: 14px;
+  }
+
   .btn-base {
     height: 40px;
     padding: 0 18px;
     font-size: 10px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .wunder-header-final {
-    display: flex;
-    justify-content: space-between;
-    position: sticky;
-  }
-
-  .wunder-header-final .wunder-nav-group {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-left: 0;
-    padding-right: 0;
-    flex-grow: 0;
   }
 }
 
@@ -1976,9 +2044,20 @@ a.sr-only:focus {
     flex-wrap: nowrap;
     padding: 12px 20px;
   }
+
+  .wunder-header-final .wunder-nav-group {
+    display: none;
+  }
+
+  .wunder-header-final .wunder-btn-container {
+    display: none;
+  }
+
   .wunder-header-final .wunder-mobile-toggle {
     margin-left: auto;
+    display: flex;
   }
+
   .wunder-mobile-ctas .btn-base {
     height: 48px;
     padding: 0 20px;

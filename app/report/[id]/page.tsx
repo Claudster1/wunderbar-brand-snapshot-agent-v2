@@ -3,6 +3,7 @@
 import { createClient } from "@supabase/supabase-js";
 import SnapshotPlusUpsell from "@/components/SnapshotPlusUpsell";
 import { BlueprintPlusHeader } from "@/components/reports/BlueprintPlusHeader";
+import { ScoreGauge } from "@/src/components/ScoreGauge";
 
 export const dynamic = "force-dynamic";
 const SAMPLE_LEGACY_REPORTS: Record<string, any> = {
@@ -281,6 +282,22 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
       margin-bottom: 6px;
     }
 
+    .meter-track {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      background: #D6E4FB;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .meter-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #07B0F2 0%, #021859 100%);
+      transition: width 0.4s ease;
+    }
+
     .pillars { margin-top: 28px; }
 
     .pillar {
@@ -393,30 +410,21 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
           pdfHref={`/api/snapshot/pdf?id=${encodeURIComponent(reportId)}`}
           utmMedium="legacy_report"
         />
-        <div id="summary">
-          <p style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#5A6B7E", marginBottom: 8 }}>
-            Introduction
-          </p>
-          <h1>Your WunderBrand Snapshot™ Results</h1>
-          <p>
-            Here’s your personalized WunderBrand Score™ and a concise breakdown of how your brand is
-            performing across the five strategic pillars. Each insight is tailored to help you understand
-            where you’re strong today — and where small refinements can unlock clarity, consistency, and conversion.
-          </p>
-        </div>
 
         <div style={{ marginTop: 20 }}>
           <h2 style={{ marginTop: 0 }}>Executive Summary</h2>
           <p>
-            Your current alignment is {score}/100. The strongest near-term opportunity is{" "}
-            <strong>{pillarDisplay[weakestPillar as keyof typeof pillarDisplay] || "Positioning"}</strong>, where focused
-            improvements should create the fastest lift in clarity and conversion outcomes.
+            Your current alignment is {score}/100. This high-level overview summarizes your
+            WunderBrand Score™, pillar performance, and the strongest near-term priority in{" "}
+            <strong>{pillarDisplay[weakestPillar as keyof typeof pillarDisplay] || "Positioning"}</strong>.
           </p>
         </div>
 
         <div id="score-overview" className="score-card">
-          <div className="score-number">{score}</div>
-          <p>{scoreLabel}</p>
+          <div style={{ maxWidth: 360, margin: "0 auto" }}>
+            <ScoreGauge value={score} showLegend />
+          </div>
+          <p style={{ marginTop: 10 }}>{scoreLabel}</p>
         </div>
 
         <h2 id="pillar-analysis">How Your Brand Performs Across the Five Pillars</h2>

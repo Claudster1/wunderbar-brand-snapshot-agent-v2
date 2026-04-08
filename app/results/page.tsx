@@ -725,6 +725,12 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   return (
     <main className="min-h-screen font-brand" style={{ backgroundColor: "#F5F7FA" }}>
       <ResultsTabsShell
+        key={[
+          data.reportId,
+          initialResultsTab ?? "_",
+          initialWorkbookSectionId ?? "_",
+          initialActivationPlanId ?? "_",
+        ].join("|")}
         productTier={tabTier}
         resultsContent={resultsContent}
         foundationContent={foundationContent}

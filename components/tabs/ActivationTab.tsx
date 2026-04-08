@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import ExecutionSchedule, { type ScheduleRow } from "@/components/ExecutionSchedule";
@@ -248,7 +248,8 @@ export default function ActivationTab({
   const userEmail = typeof diagnosticData.userEmail === "string" ? diagnosticData.userEmail : "";
   const isPreviewReport =
     reportId.startsWith("preview-") ||
-    (reportId.includes("preview") && userEmail.toLowerCase().includes("preview"));
+    reportId === "preview-results-tabs" ||
+    reportId === "preview-mock";
 
   const activationPlanSections = buildActivationPlanSectionsList(diagnosticData, scheduleRows.length);
   const activationPlanSectionsVisible = filterActivationPlanSections(productTier, activationPlanSections);
@@ -272,6 +273,23 @@ export default function ActivationTab({
     if (!showFoundationCampaignToggle) return activationPlanSectionsVisible;
     return filterActivationSectionsByTabFocus(activationPlanSectionsVisible, activationFocus);
   }, [showFoundationCampaignToggle, activationPlanSectionsVisible, activationFocus]);
+
+  /** Deep link: `/results?...&activationPlanId=paid-ads` → scroll to that playbook row. */
+  useEffect(() => {
+    const raw = searchParams.get("activationPlanId");
+    const planId = typeof raw === "string" ? raw.trim() : "";
+    if (!planId) return;
+    const targetId = `activation-${planId}`;
+    const run = () => {
+      const el = document.getElementById(targetId);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+    const raf = window.requestAnimationFrame(() => {
+      run();
+      window.setTimeout(run, 120);
+    });
+    return () => window.cancelAnimationFrame(raf);
+  }, [searchParamsKey, sectionsForTable, searchParams]);
 
   const setActivationFocusInUrl = (next: ActivationTabFocus) => {
     const params = new URLSearchParams(searchParams.toString());

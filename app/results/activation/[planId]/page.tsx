@@ -140,7 +140,7 @@ export default async function ActivationPlanPage({ params, searchParams }: PageP
             it, or open a report that includes the full Activation pack.
           </p>
           <Link
-            href={`/results?reportId=${encodeURIComponent(reportId)}&tab=activation`}
+            href={`/results?reportId=${encodeURIComponent(reportId)}&tab=activation&activationPlanId=${encodeURIComponent(planId)}`}
             style={{ color: "#0D5BD7", fontWeight: 700 }}
           >
             Back to Activation

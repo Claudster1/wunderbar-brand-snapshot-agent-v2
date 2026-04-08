@@ -24,10 +24,15 @@ import type { Prompt } from "@/lib/promptPackData";
 import type { ScheduleRow } from "@/components/ExecutionSchedule";
 import {
   SUITE_ACCENT_BRIGHT,
-  SUITE_BORDER,
+  SUITE_BG_PAGE,
+  SUITE_CHIP_CARD_STYLE,
+  SUITE_CONTENT_MAX_PX,
+  SUITE_FONT_UI,
+  SUITE_INTRO_BAND_STYLE,
   SUITE_MUTED,
   SUITE_NAVY,
-  SUITE_PANEL_RAIL,
+  SUITE_SHADOW_CARD,
+  SUITE_TEXT_PRIMARY,
 } from "@/components/results/suiteBrandTokens";
 import type { NormalizedImagerySample } from "@/lib/brand/brandImageryNormalize";
 import { mergeWorkbookMoodIntoDiagnostic, moodBoardSamplesFromCustomSections } from "@/lib/brand/moodBoardFromWorkbook";
@@ -1169,7 +1174,10 @@ export default function ResultsTabsShell({
   }, [activeTab, productTier]);
 
   return (
-    <div style={{ backgroundColor: "#F5F7FA", minHeight: "100vh" }}>
+    <div
+      className="results-suite-root"
+      style={{ backgroundColor: SUITE_BG_PAGE, minHeight: "100vh", fontFamily: SUITE_FONT_UI }}
+    >
       <CompactResultsHeader
         productName={productDisplayName}
         companyName={
@@ -1221,49 +1229,38 @@ export default function ResultsTabsShell({
       {!lockedTabContext && activeTab === "results" && (
         <div
           className="results-tab-content"
-          style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 28px 80px" }}
+          style={{ maxWidth: SUITE_CONTENT_MAX_PX, margin: "0 auto", padding: "28px 24px 88px" }}
         >
-          <div
-            style={{
-              marginBottom: 14,
-              padding: "16px 18px",
-              border: `1px solid ${SUITE_BORDER}`,
-              borderRadius: 5,
-              borderLeft: `3px solid ${SUITE_PANEL_RAIL}`,
-              background: "#E8F6FE",
-              boxShadow: "0 6px 18px rgba(2,24,89,0.08)",
-            }}
-          >
+          <div style={SUITE_INTRO_BAND_STYLE}>
             <p
               style={{
-                margin: "0 0 6px",
-                fontSize: 14,
-                fontWeight: 800,
-                letterSpacing: "0.11em",
+                margin: "0 0 8px",
+                fontSize: 11,
+                fontWeight: 600,
+                letterSpacing: "0.08em",
                 textTransform: "uppercase",
                 color: SUITE_ACCENT_BRIGHT,
               }}
             >
               {resultsTabIntro.eyebrow}
             </p>
-            <p style={{ margin: "0 0 4px", fontSize: 17, fontWeight: 700, color: SUITE_NAVY }}>
+            <p
+              style={{
+                margin: "0 0 6px",
+                fontSize: 20,
+                fontWeight: 600,
+                letterSpacing: "-0.02em",
+                lineHeight: 1.25,
+                color: SUITE_NAVY,
+              }}
+            >
               {resultsTabIntro.title}
             </p>
-            <p style={{ margin: 0, fontSize: 13, color: SUITE_MUTED, lineHeight: 1.5 }}>
+            <p style={{ margin: 0, fontSize: 14, color: SUITE_MUTED, lineHeight: 1.55, fontWeight: 400 }}>
               {resultsTabIntro.guidance}
             </p>
           </div>
-          <div
-            style={{
-              marginBottom: 16,
-              padding: "14px 16px",
-              border: `1px solid ${SUITE_BORDER}`,
-              borderRadius: 5,
-              borderLeft: `3px solid ${SUITE_PANEL_RAIL}`,
-              background: "#FFFFFF",
-              boxShadow: "0 3px 10px rgba(2,24,89,0.05)",
-            }}
-          >
+          <div style={SUITE_CHIP_CARD_STYLE}>
             <TabSectionMenu title="Results" items={resultsSectionMenuItems} description={TAB_SECTION_NAV_HINT_CHIPS_ONLY} />
           </div>
           {resultsContent}
@@ -1273,53 +1270,42 @@ export default function ResultsTabsShell({
         <div
           className="foundation-tab-content"
           style={{
-            maxWidth: 1100,
+            maxWidth: SUITE_CONTENT_MAX_PX,
             margin: "0 auto",
-            padding: "32px 28px 80px",
-            fontFamily: "'Lato', sans-serif",
+            padding: "28px 24px 88px",
+            fontFamily: SUITE_FONT_UI,
           }}
         >
-          <div
-            style={{
-              marginBottom: 14,
-              padding: "16px 18px",
-              border: "1px solid #D6DFE8",
-              borderRadius: 5,
-              borderLeft: "3px solid #07B0F2",
-              background: "#E8F6FE",
-              boxShadow: "0 6px 18px rgba(2,24,89,0.08)",
-            }}
-          >
+          <div style={SUITE_INTRO_BAND_STYLE}>
             <p
               style={{
-                margin: "0 0 6px",
-                fontSize: 14,
-                fontWeight: 800,
-                letterSpacing: "0.11em",
+                margin: "0 0 8px",
+                fontSize: 11,
+                fontWeight: 600,
+                letterSpacing: "0.08em",
                 textTransform: "uppercase",
-                color: "#07B0F2",
+                color: SUITE_ACCENT_BRIGHT,
               }}
             >
               {foundationTabIntro.eyebrow}
             </p>
-            <p style={{ margin: "0 0 4px", fontSize: 17, fontWeight: 700, color: "#021859" }}>
+            <p
+              style={{
+                margin: "0 0 6px",
+                fontSize: 20,
+                fontWeight: 600,
+                letterSpacing: "-0.02em",
+                lineHeight: 1.25,
+                color: SUITE_NAVY,
+              }}
+            >
               {foundationTabIntro.title}
             </p>
-            <p style={{ margin: 0, fontSize: 13, color: "#5A6B7E", lineHeight: 1.5 }}>
+            <p style={{ margin: 0, fontSize: 14, color: SUITE_MUTED, lineHeight: 1.55, fontWeight: 400 }}>
               {foundationTabIntro.guidance}
             </p>
           </div>
-          <div
-            style={{
-              marginBottom: 16,
-              padding: "14px 16px",
-              border: `1px solid ${SUITE_BORDER}`,
-              borderRadius: 5,
-              borderLeft: `3px solid ${SUITE_PANEL_RAIL}`,
-              background: "#FFFFFF",
-              boxShadow: "0 3px 10px rgba(2,24,89,0.05)",
-            }}
-          >
+          <div style={SUITE_CHIP_CARD_STYLE}>
             <TabSectionMenu title="Foundation" items={foundationNavItems} description={TAB_SECTION_NAV_HINT_CHIPS_ONLY} />
           </div>
           {foundationContent}
@@ -1391,32 +1377,34 @@ export default function ResultsTabsShell({
       {!lockedTabContext && handoffActions.length > 0 && (
         <div
           style={{
-            maxWidth: 1100,
-            margin: "12px auto 48px",
-            padding: "0 28px",
-            fontFamily: "'Lato', sans-serif",
+            maxWidth: SUITE_CONTENT_MAX_PX,
+            margin: "8px auto 56px",
+            padding: "0 24px",
+            fontFamily: SUITE_FONT_UI,
           }}
         >
           <div
             style={{
-              border: `1px solid ${SUITE_BORDER}`,
-              borderRadius: 10,
+              border: "1px solid rgba(0, 0, 0, 0.08)",
+              borderRadius: 14,
               backgroundColor: "#FFFFFF",
-              padding: "14px 16px",
+              boxShadow: SUITE_SHADOW_CARD,
+              padding: "16px 20px",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              gap: 12,
+              gap: 14,
               flexWrap: "wrap",
             }}
           >
-            <span style={{ fontSize: 13, color: SUITE_MUTED, fontWeight: 600 }}>
+            <span style={{ fontSize: 13, color: SUITE_TEXT_PRIMARY, fontWeight: 600, letterSpacing: "-0.01em" }}>
               Next step
             </span>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
               {handoffActions.map((action) => (
                 <button
                   key={action.id}
+                  type="button"
                   onClick={() => openOrLockTab(action.id)}
                   onMouseEnter={(event) => {
                     event.currentTarget.style.backgroundColor = SUITE_NAVY;
@@ -1426,14 +1414,16 @@ export default function ResultsTabsShell({
                   }}
                   style={{
                     border: "none",
-                    borderRadius: 8,
+                    borderRadius: 980,
                     backgroundColor: SUITE_ACCENT_BRIGHT,
                     color: "#FFFFFF",
-                    padding: "8px 12px",
-                    fontSize: 12,
-                    fontWeight: 700,
+                    padding: "10px 18px",
+                    fontSize: 13,
+                    fontWeight: 600,
                     cursor: "pointer",
-                    fontFamily: "'Lato', sans-serif",
+                    fontFamily: SUITE_FONT_UI,
+                    letterSpacing: "-0.01em",
+                    transition: "background-color 0.2s ease, transform 0.15s ease",
                   }}
                 >
                   {action.label}

@@ -2,12 +2,20 @@
 
 import type { ReactNode } from "react";
 
-import { SUITE_BLUE, SUITE_BORDER, SUITE_MUTED, SUITE_NAVY } from "@/components/results/suiteBrandTokens";
+import {
+  SUITE_BLUE,
+  SUITE_FONT_UI,
+  SUITE_MUTED,
+  SUITE_NAVY,
+  SUITE_RADIUS_LG,
+  SUITE_SHADOW_CARD,
+  SUITE_TEXT_PRIMARY,
+  SUITE_BG_CARD,
+} from "@/components/results/suiteBrandTokens";
 
 const NAVY = SUITE_NAVY;
 const BLUE = SUITE_BLUE;
 const SUB = SUITE_MUTED;
-const BORDER = SUITE_BORDER;
 
 export function ReportPanel({
   children,
@@ -23,19 +31,20 @@ export function ReportPanel({
   style?: React.CSSProperties;
 }) {
   const accent = accentColor || BLUE;
-  const panelTint = tint || "#FFFFFF";
+  const panelTint = tint || SUITE_BG_CARD;
   return (
     <section
       id={id}
       style={{
-        background: `linear-gradient(135deg, ${panelTint} 0%, #FFFFFF 100%)`,
-        borderRadius: 5,
-        border: `1px solid ${BORDER}`,
-        borderTop: `2px solid ${accent}30`,
+        background: panelTint,
+        borderRadius: SUITE_RADIUS_LG,
+        border: `1px solid rgba(0, 0, 0, 0.08)`,
+        borderTop: `1px solid rgba(0, 0, 0, 0.06)`,
         borderLeft: `3px solid ${accent}`,
-        boxShadow: "0 8px 24px rgba(2, 24, 89, 0.08)",
-        padding: "18px 20px",
-        scrollMarginTop: 124,
+        boxShadow: SUITE_SHADOW_CARD,
+        padding: "22px 24px",
+        scrollMarginTop: 108,
+        fontFamily: SUITE_FONT_UI,
         ...style,
       }}
     >
@@ -57,16 +66,51 @@ export function ReportPanelTitle({
 }) {
   const accent = accentColor || BLUE;
   return (
-    <div style={{ marginBottom: 10 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+    <div style={{ marginBottom: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         {icon ? (
-          <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: accent }}>
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+              color: accent,
+              opacity: 0.92,
+            }}
+          >
             {icon}
           </span>
         ) : null}
-        <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: NAVY }}>{title}</h3>
+        <h3
+          style={{
+            margin: 0,
+            fontSize: 22,
+            fontWeight: 600,
+            letterSpacing: "-0.025em",
+            lineHeight: 1.2,
+            color: NAVY,
+            fontFamily: SUITE_FONT_UI,
+          }}
+        >
+          {title}
+        </h3>
       </div>
-      {subtitle ? <p style={{ margin: "6px 0 0", color: SUB, fontSize: 14, lineHeight: 1.5 }}>{subtitle}</p> : null}
+      {subtitle ? (
+        <p
+          style={{
+            margin: "8px 0 0",
+            color: SUB,
+            fontSize: 15,
+            lineHeight: 1.5,
+            fontWeight: 400,
+            maxWidth: 720,
+            fontFamily: SUITE_FONT_UI,
+          }}
+        >
+          {subtitle}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -76,27 +120,28 @@ export function ReportCallout({ label, children, accentColor }: { label: string;
   return (
     <div
       style={{
-        marginTop: 12,
-        padding: "14px 16px",
-        borderRadius: 5,
-        background: `${accent}12`,
+        marginTop: 14,
+        padding: "16px 18px",
+        borderRadius: SUITE_RADIUS_LG - 2,
+        background: "rgba(0, 0, 0, 0.03)",
+        border: `1px solid rgba(0, 0, 0, 0.06)`,
         borderLeft: `3px solid ${accent}`,
+        fontFamily: SUITE_FONT_UI,
       }}
     >
       <p
         style={{
-          margin: "0 0 6px",
-          fontSize: 12,
-          fontWeight: 800,
+          margin: "0 0 8px",
+          fontSize: 11,
+          fontWeight: 600,
           color: accent,
           textTransform: "uppercase",
-          letterSpacing: "0.07em",
+          letterSpacing: "0.06em",
         }}
       >
         {label}
       </p>
-      <div style={{ margin: 0, color: "#1A1A2E", fontSize: 14, lineHeight: 1.6 }}>{children}</div>
+      <div style={{ margin: 0, color: SUITE_TEXT_PRIMARY, fontSize: 15, lineHeight: 1.55, fontWeight: 400 }}>{children}</div>
     </div>
   );
 }
-

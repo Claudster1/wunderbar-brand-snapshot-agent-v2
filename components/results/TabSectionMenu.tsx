@@ -4,12 +4,16 @@ import type { CSSProperties, ReactNode } from "react";
 import Link from "next/link";
 import {
   SUITE_BLUE,
-  SUITE_BORDER,
+  SUITE_CHROME_MUTED,
+  SUITE_FONT_UI,
   SUITE_MUTED,
   SUITE_NAVY,
+  SUITE_RADIUS_LG,
   SUITE_SECTION_ACTIVE,
   SUITE_SECTION_ACTIVE_BG,
   SUITE_SECTION_ACTIVE_BORDER,
+  SUITE_SHADOW_CARD,
+  SUITE_TEXT_PRIMARY,
 } from "@/components/results/suiteBrandTokens";
 
 export interface TabSectionMenuItem {
@@ -36,7 +40,6 @@ export interface TabSectionMenuProps {
   showIcons?: boolean;
 }
 
-const BORDER = SUITE_BORDER;
 const NAVY = SUITE_NAVY;
 const MID = SUITE_MUTED;
 const SKY = SUITE_BLUE;
@@ -256,27 +259,29 @@ export default function TabSectionMenu({
       display: "inline-flex",
       alignItems: "center",
       gap: showIcons ? 10 : 0,
-      border: active ? `1px solid ${SUITE_SECTION_ACTIVE_BORDER}` : `1px solid ${BORDER}`,
-      borderRadius: 5,
+      border: active ? `1px solid ${SUITE_SECTION_ACTIVE_BORDER}` : `1px solid rgba(0, 0, 0, 0.08)`,
+      borderRadius: 980,
       background: active ? SUITE_SECTION_ACTIVE_BG : "#FFFFFF",
-      color: NAVY,
-      padding: isSidebar ? "8px 10px" : "7px 11px",
-      fontSize: 12,
-      fontWeight: active ? 800 : 700,
+      color: active ? SUITE_TEXT_PRIMARY : NAVY,
+      padding: isSidebar ? "9px 12px" : "8px 14px",
+      fontSize: 13,
+      fontWeight: active ? 600 : 500,
+      letterSpacing: "-0.01em",
       cursor: "pointer",
-      fontFamily: "'Lato', sans-serif",
+      fontFamily: SUITE_FONT_UI,
       boxShadow: isSidebar
         ? active
-          ? "0 1px 0 rgba(5, 95, 70, 0.08)"
+          ? "0 1px 2px rgba(5, 95, 70, 0.12)"
           : "none"
         : active
-          ? "0 2px 10px rgba(5, 95, 70, 0.14)"
-          : "0 2px 8px rgba(2,24,89,0.1)",
+          ? "0 2px 8px rgba(5, 95, 70, 0.12)"
+          : "0 1px 3px rgba(0, 0, 0, 0.04)",
       width: isSidebar ? "100%" : undefined,
       justifyContent: isSidebar ? "flex-start" : undefined,
       textAlign: "left",
       textDecoration: "none",
       boxSizing: "border-box",
+      transition: "box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease",
     };
   }
 
@@ -335,22 +340,23 @@ export default function TabSectionMenu({
     <div
       style={{
         marginBottom: isSidebar ? 0 : 18,
-        padding: isSidebar ? "12px 12px 14px" : "14px 16px",
-        border: isSidebar ? `1px solid ${BORDER}` : `1px solid ${BORDER}`,
-        borderRadius: isSidebar ? 8 : 5,
+        padding: isSidebar ? "14px 14px 16px" : "16px 18px",
+        border: `1px solid rgba(0, 0, 0, 0.08)`,
+        borderRadius: isSidebar ? SUITE_RADIUS_LG : SUITE_RADIUS_LG,
         borderLeft: isSidebar ? `3px solid ${SKY}` : `3px solid ${SKY}`,
-        background: isSidebar ? "#FFFFFF" : `${SKY}08`,
-        boxShadow: isSidebar ? "0 2px 10px rgba(2,24,89,0.06)" : "0 6px 18px rgba(2,24,89,0.08)",
+        background: isSidebar ? "#FFFFFF" : "#FFFFFF",
+        boxShadow: SUITE_SHADOW_CARD,
+        fontFamily: SUITE_FONT_UI,
       }}
     >
       <p
         style={{
-          margin: description && !isSidebar ? "0 0 4px" : "0 0 9px",
-          fontSize: isSidebar ? 11 : 14,
-          fontWeight: 800,
-          textTransform: "uppercase",
-          letterSpacing: "0.08em",
-          color: MID,
+          margin: description && !isSidebar ? "0 0 6px" : "0 0 10px",
+          fontSize: isSidebar ? 12 : 13,
+          fontWeight: 600,
+          textTransform: "none",
+          letterSpacing: "-0.02em",
+          color: SUITE_CHROME_MUTED,
         }}
       >
         {title}
@@ -358,11 +364,11 @@ export default function TabSectionMenu({
       {description && !isSidebar ? (
         <p
           style={{
-            margin: "0 0 10px",
-            fontSize: 12,
-            fontWeight: 600,
+            margin: "0 0 12px",
+            fontSize: 13,
+            fontWeight: 400,
             color: MID,
-            lineHeight: 1.45,
+            lineHeight: 1.5,
             maxWidth: 720,
           }}
         >

@@ -9,10 +9,18 @@ import {
   type ResultsTab,
   type ResultsTabDefinition,
 } from "@/components/results/tabConfig";
+import {
+  SUITE_BG_CARD,
+  SUITE_BACKDROP_BLUR,
+  SUITE_BG_CHROME,
+  SUITE_CHROME_MUTED,
+  SUITE_FONT_UI,
+  SUITE_NAVY,
+  SUITE_SHADOW_TAB_PILL,
+  SUITE_CONTENT_MAX_PX,
+} from "@/components/results/suiteBrandTokens";
 
-const NAVY = "#021859";
-const MID_GRAY = "#5A6B7E";
-const BORDER = "#E0E8F0";
+const HEADER_CHROME_HEIGHT = 56;
 
 interface ResultsTabNavProps {
   activeTab: ResultsTab;
@@ -27,57 +35,60 @@ export default function ResultsTabNav({
   productTier,
   onLockedTabClick,
 }: ResultsTabNavProps) {
-  const activeTabStyle: CSSProperties = {
-    padding: "16px 20px",
-    background: "none",
-    border: "none",
-    borderBottom: `3px solid ${NAVY}`,
-    color: NAVY,
-    fontWeight: 700,
-    fontSize: 13,
-    textTransform: "uppercase",
-    letterSpacing: "0.08em",
-    cursor: "pointer",
-    fontFamily: "'Lato', sans-serif",
-    marginBottom: -2,
+  const trackStyle: CSSProperties = {
+    display: "inline-flex",
+    flexWrap: "wrap",
+    gap: 4,
+    padding: 4,
+    borderRadius: 12,
+    background: "rgba(0, 0, 0, 0.045)",
+    maxWidth: "100%",
   };
 
-  const inactiveTabStyle: CSSProperties = {
-    padding: "16px 20px",
-    background: "none",
-    border: "none",
-    borderBottom: "3px solid transparent",
-    color: MID_GRAY,
-    fontWeight: 700,
-    fontSize: 13,
-    textTransform: "uppercase",
-    letterSpacing: "0.08em",
-    cursor: "pointer",
-    fontFamily: "'Lato', sans-serif",
-    marginBottom: -2,
-    transition: "color 0.12s, border-color 0.12s",
-  };
-
-  const lockedTabStyle: CSSProperties = {
-    ...inactiveTabStyle,
-    color: "#CBD5E0",
-    cursor: "not-allowed",
-  };
+  function tabButtonStyle(isActive: boolean, locked: boolean): CSSProperties {
+    return {
+      padding: "9px 14px",
+      borderRadius: 9,
+      border: "none",
+      background: isActive ? SUITE_BG_CARD : "transparent",
+      color: locked ? "#C7C7CC" : isActive ? SUITE_NAVY : SUITE_CHROME_MUTED,
+      fontWeight: isActive ? 600 : 500,
+      fontSize: 13,
+      letterSpacing: "-0.015em",
+      cursor: locked ? "not-allowed" : "pointer",
+      fontFamily: SUITE_FONT_UI,
+      boxShadow: isActive ? SUITE_SHADOW_TAB_PILL : "none",
+      transition: "color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, opacity 0.2s ease",
+      opacity: locked ? 0.55 : 1,
+      whiteSpace: "nowrap",
+    };
+  }
 
   return (
     <nav
       className="results-tab-nav"
       style={{
         position: "sticky",
-        top: 64,
+        top: HEADER_CHROME_HEIGHT,
         zIndex: 200,
-        backgroundColor: "#ffffff",
-        borderBottom: `2px solid ${BORDER}`,
-        fontFamily: "'Lato', sans-serif",
+        ...SUITE_BACKDROP_BLUR,
+        backgroundColor: SUITE_BG_CHROME,
+        borderBottom: `1px solid rgba(0, 0, 0, 0.06)`,
+        fontFamily: SUITE_FONT_UI,
       }}
     >
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 28px", display: "flex", gap: 0 }}>
-        <div style={{ display: "flex", gap: 0 }}>
+      <div
+        style={{
+          maxWidth: SUITE_CONTENT_MAX_PX,
+          margin: "0 auto",
+          padding: "10px 24px 12px",
+          overflowX: "auto",
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+        }}
+        className="results-tab-nav-scroll"
+      >
+        <div style={trackStyle}>
           {TAB_DEFINITIONS.map((tab) => {
             const available = isTabAvailable(tab, productTier);
             const isActive = activeTab === tab.id;
@@ -85,11 +96,12 @@ export default function ResultsTabNav({
             return (
               <button
                 key={tab.id}
+                type="button"
                 onClick={() => {
                   if (available) onTabChange(tab.id);
                   else onLockedTabClick(tab);
                 }}
-                style={isActive ? activeTabStyle : available ? inactiveTabStyle : lockedTabStyle}
+                style={tabButtonStyle(isActive, !available)}
                 aria-selected={isActive}
                 aria-disabled={!available}
               >

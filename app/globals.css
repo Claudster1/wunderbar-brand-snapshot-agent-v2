@@ -120,6 +120,40 @@
 .bs-card:hover {
   box-shadow: 0 8px 24px rgba(2, 24, 89, 0.1);
 }
+
+/* WunderBrand report suite — calmer cards on the results experience */
+.results-suite-root {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+.results-suite-root .bs-card {
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06), 0 0 1px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.35s cubic-bezier(0.25, 0.1, 0.25, 1), transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.results-suite-root .bs-card:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.09), 0 4px 12px rgba(0, 0, 0, 0.04);
+  transform: translateY(-1px);
+}
+.results-suite-root .bs-h1,
+.results-suite-root .bs-h2,
+.results-suite-root .bs-h3 {
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+.results-suite-root .bs-body,
+.results-suite-root .bs-body-sm {
+  color: #1d1d1f;
+}
+.results-tab-nav-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.results-tab-nav-scroll::-webkit-scrollbar {
+  display: none;
+}
 .bs-badge {
   display: inline-flex;
   align-items: center;

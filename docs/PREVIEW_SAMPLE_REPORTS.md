@@ -33,6 +33,13 @@ All of these use **inline mock/dummy data** only. No Supabase, OpenAI, or Stripe
 - **Layout and styling** — Use these pages for design and copy review.
 - **Navigation** — “← All previews” and links between previews (e.g. Blueprint → Blueprint+).
 
+## If a preview route spins forever or stays blank
+
+1. **Use the URL that matches your dev server port** — `npm run dev` is **http://localhost:3000/preview**; `npm run dev:preview` is **http://localhost:3010/preview**. Opening 3010 while only 3000 is running (or the reverse) will not load.
+2. **Free the port** if the dev server failed to start (`EADDRINUSE`): stop other Next processes or run the `lsof`/`kill` step in the section above.
+3. **Hard refresh** after upgrading Next.js (Cmd+Shift+R / Ctrl+Shift+R). Heavy preview routes (`/preview/results-tabs`, `/preview/blueprint`) stream client UI; a stuck cache can look like a blank page.
+4. **Production / `next start` with `output: 'standalone'`** — the CLI may warn that `next start` is not the right entry; use `node .next/standalone/server.js` (or your host’s documented command). Vercel ignores `standalone` for serverless and serves the app normally.
+
 ## What does not work from preview
 
 - **PDF download** from the Snapshot+ and Legacy report preview pages. The “Download … PDF” links call the real PDF API with a fake ID (`preview-mock`), so they will return an error. To test PDF generation, use a real report ID from your database or a dedicated preview-PDF endpoint if you add one.

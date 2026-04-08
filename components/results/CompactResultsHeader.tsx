@@ -1,11 +1,19 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  SUITE_ACCENT_BRIGHT,
+  SUITE_BACKDROP_BLUR,
+  SUITE_BG_CHROME,
+  SUITE_BORDER,
+  SUITE_CHROME_MUTED,
+  SUITE_FONT_UI,
+  SUITE_NAVY,
+  SUITE_SHADOW_FLOAT,
+  SUITE_TEXT_PRIMARY,
+} from "@/components/results/suiteBrandTokens";
 
-const NAVY = "#021859";
-const BLUE = "#07B0F2";
-const BORDER = "#E0E8F0";
-const MUTED = "#5A6B7E";
+const HEADER_HEIGHT = 56;
 
 interface CompactResultsHeaderProps {
   productName: string;
@@ -19,7 +27,11 @@ function formatDate(iso?: string): string {
   if (!iso) return new Date().toLocaleDateString();
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return new Date().toLocaleDateString();
-  return date.toLocaleDateString();
+  return date.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 }
 
 export default function CompactResultsHeader({
@@ -57,60 +69,110 @@ export default function CompactResultsHeader({
     return () => document.removeEventListener("keydown", handleKey);
   }, []);
 
+  const hairline = "rgba(0, 0, 0, 0.08)";
+
   return (
     <header
       className="results-header"
       style={{
-        height: 64,
-        backgroundColor: "#FFFFFF",
-        borderBottom: `1px solid ${BORDER}`,
-        padding: "0 28px",
+        height: HEADER_HEIGHT,
+        ...SUITE_BACKDROP_BLUR,
+        backgroundColor: SUITE_BG_CHROME,
+        borderBottom: `1px solid ${hairline}`,
+        padding: "0 22px 0 20px",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        gap: 0,
+        gap: 12,
         position: "sticky",
         top: 0,
         zIndex: 300,
-        fontFamily: "'Lato', sans-serif",
+        fontFamily: SUITE_FONT_UI,
       }}
     >
       <div
         style={{
           display: "flex",
           alignItems: "center",
-          paddingRight: 20,
-          borderRight: `1px solid ${BORDER}`,
-          marginRight: 20,
+          paddingRight: 16,
+          borderRight: `1px solid ${hairline}`,
+          marginRight: 4,
           flexShrink: 0,
         }}
       >
         <img
           src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp"
           alt="Wunderbar Digital"
-          style={{ height: 28, width: "auto", display: "block" }}
+          style={{ height: 26, width: "auto", display: "block" }}
         />
       </div>
-      <div style={{ flex: 1, display: "flex", alignItems: "center", overflow: "hidden" }}>
-        <span style={{ fontSize: 15, fontWeight: 700, color: NAVY, whiteSpace: "nowrap", marginRight: 10 }}>
+      <div style={{ flex: 1, display: "flex", alignItems: "center", overflow: "hidden", minWidth: 0 }}>
+        <span
+          style={{
+            fontSize: 15,
+            fontWeight: 600,
+            color: SUITE_TEXT_PRIMARY,
+            whiteSpace: "nowrap",
+            marginRight: 10,
+            letterSpacing: "-0.02em",
+          }}
+        >
           {companyName}
         </span>
-        <span style={{ fontSize: 12, color: "#CBD5E0", marginRight: 10, flexShrink: 0 }}>·</span>
-        <span style={{ fontSize: 12, color: MUTED, whiteSpace: "nowrap", marginRight: 10, flexShrink: 0 }}>
+        <span style={{ fontSize: 12, color: "#D1D1D6", marginRight: 10, flexShrink: 0 }} aria-hidden>
+          ·
+        </span>
+        <span
+          style={{
+            fontSize: 12,
+            color: SUITE_CHROME_MUTED,
+            whiteSpace: "nowrap",
+            marginRight: 10,
+            flexShrink: 0,
+            fontWeight: 500,
+          }}
+        >
           {resultsDate}
         </span>
-        <span style={{ fontSize: 12, color: "#CBD5E0", marginRight: 10, flexShrink: 0 }}>·</span>
-        <span style={{ fontSize: 12, color: "#94A3B8", fontStyle: "italic", whiteSpace: "nowrap", flexShrink: 0 }}>
+        <span style={{ fontSize: 12, color: "#D1D1D6", marginRight: 10, flexShrink: 0 }} aria-hidden>
+          ·
+        </span>
+        <span
+          style={{
+            fontSize: 12,
+            color: SUITE_CHROME_MUTED,
+            fontWeight: 500,
+            whiteSpace: "nowrap",
+            flexShrink: 0,
+          }}
+        >
           Confidential
         </span>
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0, marginLeft: 16 }}>
-        <span style={{ width: 1, height: 28, backgroundColor: BORDER, flexShrink: 0 }} />
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, marginLeft: 8 }}>
+        <span style={{ width: 1, height: 24, backgroundColor: hairline, flexShrink: 0 }} aria-hidden />
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", marginRight: 2 }}>
-          <span style={{ fontSize: 13, color: BLUE, fontWeight: 800, whiteSpace: "nowrap", lineHeight: 1.1 }}>
+          <span
+            style={{
+              fontSize: 12,
+              color: SUITE_ACCENT_BRIGHT,
+              fontWeight: 600,
+              whiteSpace: "nowrap",
+              lineHeight: 1.2,
+              letterSpacing: "-0.01em",
+            }}
+          >
             {productName}
           </span>
-          <span style={{ fontSize: 11, color: MUTED, whiteSpace: "nowrap", lineHeight: 1.1, opacity: 0.9 }}>
+          <span
+            style={{
+              fontSize: 10,
+              color: SUITE_CHROME_MUTED,
+              whiteSpace: "nowrap",
+              lineHeight: 1.2,
+              fontWeight: 500,
+            }}
+          >
             Powered by Wunderbar Digital
           </span>
         </div>
@@ -126,14 +188,15 @@ export default function CompactResultsHeader({
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            backgroundColor: "transparent",
-            border: `1.5px solid ${BORDER}`,
-            borderRadius: 6,
-            color: MUTED,
-            fontSize: 13,
-            fontWeight: 700,
+            backgroundColor: "rgba(0, 0, 0, 0.04)",
+            border: "none",
+            borderRadius: "50%",
+            color: SUITE_CHROME_MUTED,
+            fontSize: 15,
+            fontWeight: 600,
             cursor: "pointer",
-            fontFamily: "'Lato', sans-serif",
+            fontFamily: SUITE_FONT_UI,
+            transition: "background 0.2s ease, color 0.2s ease",
           }}
           aria-label="Help"
         >
@@ -149,17 +212,18 @@ export default function CompactResultsHeader({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              backgroundColor: menuOpen ? NAVY : "transparent",
-              border: `1.5px solid ${menuOpen ? NAVY : BORDER}`,
-              borderRadius: 6,
-              color: menuOpen ? "#ffffff" : NAVY,
-              fontSize: 18,
+              backgroundColor: menuOpen ? SUITE_NAVY : "rgba(0, 0, 0, 0.04)",
+              border: "none",
+              borderRadius: "50%",
+              color: menuOpen ? "#FFFFFF" : SUITE_NAVY,
+              fontSize: 16,
               fontWeight: 700,
               cursor: "pointer",
-              letterSpacing: "0.05em",
-              transition: "all 0.12s",
+              letterSpacing: "0.12em",
+              transition: "background 0.2s ease, color 0.2s ease",
             }}
             aria-label="More options"
+            aria-expanded={menuOpen}
           >
             ···
           </button>
@@ -167,20 +231,18 @@ export default function CompactResultsHeader({
             <div
               style={{
                 position: "absolute",
-                top: "calc(100% + 6px)",
+                top: "calc(100% + 8px)",
                 right: 0,
-                width: 210,
-                backgroundColor: "#ffffff",
-                border: `1px solid ${BORDER}`,
-                borderRadius: 8,
-                boxShadow: "0 8px 24px rgba(2,24,89,0.1)",
+                width: 220,
+                backgroundColor: "#FFFFFF",
+                border: `1px solid ${SUITE_BORDER}`,
+                borderRadius: 12,
+                boxShadow: SUITE_SHADOW_FLOAT,
                 zIndex: 400,
                 overflow: "hidden",
               }}
             >
-              {[
-                { label: "Go to Downloads", icon: "↓", action: onGoToDownloads },
-              ].map((item, index) => (
+              {[{ label: "Go to Downloads", icon: "↓", action: onGoToDownloads }].map((item) => (
                 <button
                   key={item.label}
                   type="button"
@@ -193,23 +255,24 @@ export default function CompactResultsHeader({
                     padding: "12px 16px",
                     background: "none",
                     border: "none",
-                    borderBottom: "none",
                     textAlign: "left",
                     fontSize: 14,
-                    color: NAVY,
+                    fontWeight: 500,
+                    color: SUITE_TEXT_PRIMARY,
                     cursor: "pointer",
                     display: "flex",
                     alignItems: "center",
                     gap: 10,
+                    fontFamily: SUITE_FONT_UI,
                   }}
                   onMouseEnter={(event) => {
-                    event.currentTarget.style.backgroundColor = "#F7F9FC";
+                    event.currentTarget.style.backgroundColor = "rgba(0, 0, 0, 0.04)";
                   }}
                   onMouseLeave={(event) => {
                     event.currentTarget.style.backgroundColor = "transparent";
                   }}
                 >
-                  <span style={{ width: 16, color: MUTED, fontSize: 14 }}>{item.icon}</span>
+                  <span style={{ width: 16, color: SUITE_CHROME_MUTED, fontSize: 14 }}>{item.icon}</span>
                   {item.label}
                 </button>
               ))}

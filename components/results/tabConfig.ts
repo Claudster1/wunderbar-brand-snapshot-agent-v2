@@ -198,7 +198,8 @@ const RESULTS_TAB_IDS: readonly ResultsTab[] = [
 export function parseResultsTabId(raw: string | string[] | undefined): ResultsTab | undefined {
   const value = Array.isArray(raw) ? raw[0] : raw;
   if (typeof value !== "string") return undefined;
-  return (RESULTS_TAB_IDS as readonly string[]).includes(value) ? (value as ResultsTab) : undefined;
+  const normalized = value.trim().toLowerCase();
+  return (RESULTS_TAB_IDS as readonly string[]).includes(normalized) ? (normalized as ResultsTab) : undefined;
 }
 
 export function parseActivationPlanSectionId(

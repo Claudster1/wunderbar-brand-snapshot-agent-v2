@@ -84,7 +84,10 @@ export default function ActivationPlanStandaloneClient({
   const userEmail =
     (typeof userEmailProp === "string" && userEmailProp.trim()) ||
     (typeof diagnosticData.userEmail === "string" ? diagnosticData.userEmail.trim() : "");
-  const isPreviewReport = reportId.startsWith("preview-") || reportId.toLowerCase().includes("preview");
+  const isPreviewReport =
+    reportId.startsWith("preview-") ||
+    reportId === "preview-results-tabs" ||
+    reportId === "preview-mock";
 
   const tierSections = useMemo(
     () =>
@@ -115,6 +118,7 @@ export default function ActivationPlanStandaloneClient({
     return buildResultsActivationTabHref(reportId, userEmail, {
       activationFocus: "campaigns",
       mode: isPreviewReport ? "preview-tabs" : undefined,
+      activationPlanId: section.id,
     });
   }, [section.id, reportId, userEmail, isPreviewReport]);
 
@@ -123,6 +127,7 @@ export default function ActivationPlanStandaloneClient({
     buildResultsActivationTabHref(reportId, userEmail, {
       activationFocus: isActivationAudienceJourneySectionId(section.id) ? "audience-journey" : "campaigns",
       mode: isPreviewReport ? "preview-tabs" : undefined,
+      activationPlanId: section.id,
     });
   const editWorkbookHref =
     workbookHref ??

@@ -2,8 +2,7 @@
 // Dev index: links to all report previews with mock data for design work.
 
 import Link from "next/link";
-
-// Static page — no dynamic data needed
+import { headers } from "next/headers";
 
 const PREVIEWS = [
   {
@@ -38,17 +37,66 @@ const PREVIEWS = [
   },
 ] as const;
 
-export default function PreviewIndexPage() {
+const EXTRA_SAMPLE_PATHS = [
+  { href: "/preview/results-tabs?tab=activation", label: "Results tabs — Activation tab only" },
+  { href: "/preview/results-tabs/activation/paid-ads", label: "Full-page activation plan (paid ads; swap segment id in URL)" },
+  { href: "/preview/pdf", label: "PDF preview shell" },
+] as const;
+
+export default async function PreviewIndexPage() {
+  const hdrs = await headers();
+  const host = hdrs.get("x-forwarded-host") || hdrs.get("host") || "";
+  const proto =
+    hdrs.get("x-forwarded-proto") || (host.includes("localhost") || host.startsWith("127.") ? "http" : "https");
+  const base = host ? `${proto}://${host}` : "";
+
   return (
     <main className="min-h-screen bg-brand-bg font-brand">
       <div className="bs-container-narrow bs-section max-w-2xl mx-auto px-4 sm:px-6">
         <h1 className="bs-h1 mb-2">Design previews</h1>
         <p className="bs-body-sm text-brand-muted mb-8">
-          Mock data only. Use these to work on layout and styling without a real report.
-          See <code className="bg-brand-navy/5 px-1.5 py-0.5 rounded text-sm">docs/PREVIEW_SAMPLE_REPORTS.md</code> for details.
+          Mock data only. Use these to work on layout and styling without a real report. Paths are the same on every
+          deployment; only the <strong>origin</strong> changes (local vs staging vs production).
         </p>
+
+        {base ? (
+          <section
+            className="mb-8 rounded-xl border border-brand-border bg-white p-4 sm:p-5"
+            aria-label="Absolute URLs for this host"
+          >
+            <p className="bs-body-sm font-bold text-brand-navy mb-2">Copy-paste links (this deployment)</p>
+            <p className="bs-small text-brand-muted mb-3">
+              If a path 404s on production, the app on that host may not include the latest build yet—open a PR to{" "}
+              <code className="rounded bg-brand-navy/5 px-1">main</code> or use your Vercel preview URL for the branch that
+              has the route.
+            </p>
+            <ul className="space-y-2 text-sm break-all">
+              {PREVIEWS.map((p) => (
+                <li key={p.href}>
+                  <a href={`${base}${p.href}`} className="text-brand-blue font-semibold hover:underline">
+                    {base}
+                    {p.href}
+                  </a>
+                  <span className="text-brand-muted"> — {p.title}</span>
+                </li>
+              ))}
+              {EXTRA_SAMPLE_PATHS.map((p) => (
+                <li key={p.href}>
+                  <a href={`${base}${p.href}`} className="text-brand-blue font-semibold hover:underline">
+                    {base}
+                    {p.href}
+                  </a>
+                  <span className="text-brand-muted"> — {p.label}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
         <p className="bs-small text-brand-muted mb-6">
-          If links do not load: stop any running dev server, then run <code className="bg-brand-navy/5 px-1 rounded">npm run dev:preview</code> and open <strong>http://localhost:3010/preview</strong>.
+          Local dev: <code className="bg-brand-navy/5 px-1 rounded">npm run dev</code> →{" "}
+          <strong>http://localhost:3000/preview</strong> or <code className="bg-brand-navy/5 px-1 rounded">npm run dev:preview</code>{" "}
+          → <strong>http://localhost:3010/preview</strong> (match the port to the command).
         </p>
         <ul className="space-y-4">
           {PREVIEWS.map(({ href, title, description }) => (
@@ -59,9 +107,7 @@ export default function PreviewIndexPage() {
               >
                 <h2 className="bs-h3 mb-1">{title}</h2>
                 <p className="bs-body-sm text-brand-muted">{description}</p>
-                <span className="bs-small text-brand-blue font-semibold mt-2 inline-block">
-                  Open preview →
-                </span>
+                <span className="bs-small text-brand-blue font-semibold mt-2 inline-block">Open preview →</span>
               </Link>
             </li>
           ))}

@@ -2,6 +2,19 @@
 
 Use the **design preview** pages to view all report layouts with mock data — no database, completed snapshot, or API keys required.
 
+## Paths did not change (no “new” URLs)
+
+The mock routes are still the same paths as before, for example:
+
+- `/preview` — index  
+- `/preview/results-tabs` — full tabbed results suite (mock)  
+- `/preview/results-tabs/activation/paid-ads` — sample full-page activation plan (change the last segment for other plans)  
+- `/preview/results`, `/preview/snapshot-plus`, `/preview/blueprint`, `/preview/blueprint-plus`, `/preview/report`
+
+Only the **origin** changes: `http://localhost:3000`, your **Vercel preview** URL for a branch, or `https://app.wunderbrand.ai` once **production** has shipped that commit on **`main`**.
+
+If **`/preview/results-tabs` returns 404** on production, the live site is almost certainly still on an older **`main`** build. Production does not automatically use a feature branch unless you configure it. Open **`/preview`** on that host: it lists **copy-paste absolute links** for the deployment you are on.
+
 ## How to view
 
 1. **Stop any other Next.js dev server**  

@@ -126,12 +126,25 @@ export async function GET(req: Request) {
       );
     }
 
-    // Fetch report from database
-    const { data: report, error } = await supabaseAdmin
+    // Fetch report from database (support both report_id and id links)
+    const { data: reportByReportId, error: errorByReportId } = await supabaseAdmin
       .from("brand_snapshot_reports")
       .select("*")
       .eq("report_id", id)
       .single();
+
+    let report = reportByReportId;
+    let error = errorByReportId;
+
+    if (!report) {
+      const { data: reportById, error: errorById } = await supabaseAdmin
+        .from("brand_snapshot_reports")
+        .select("*")
+        .eq("id", id)
+        .single();
+      report = reportById;
+      error = errorById;
+    }
 
     if (error || !report) {
       return NextResponse.json(

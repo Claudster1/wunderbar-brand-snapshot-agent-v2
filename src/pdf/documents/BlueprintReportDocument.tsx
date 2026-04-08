@@ -9,42 +9,46 @@ import { DisclaimerPage } from "../components/DisclaimerPage";
 
 const styles = StyleSheet.create({
   page: {
-    padding: 48,
-    fontSize: 11,
+    padding: 42,
+    fontSize: 10.5,
     fontFamily: "Helvetica",
     color: "#0C1526",
+    lineHeight: 1.6,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 700,
-    color: "#0C1526",
-    marginBottom: 12,
-    marginTop: 24,
+    color: "#021859",
+    marginBottom: 10,
+    marginTop: 20,
   },
   subsectionTitle: {
-    fontSize: 13,
+    fontSize: 11.5,
     fontWeight: 700,
-    color: "#0C1526",
+    color: "#0B5FCC",
     marginBottom: 6,
-    marginTop: 14,
+    marginTop: 12,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   body: {
-    fontSize: 10,
-    lineHeight: 1.5,
-    color: "#333",
-    marginBottom: 4,
+    fontSize: 10.3,
+    lineHeight: 1.62,
+    color: "#2D3A4A",
+    marginBottom: 6,
   },
   card: {
-    backgroundColor: "#f8f9fa",
-    borderRadius: 6,
-    padding: 10,
-    marginBottom: 8,
+    backgroundColor: "#F8FBFF",
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 10,
+    border: "1 solid #E2EAF5",
   },
   cardTitle: {
     fontSize: 11,
     fontWeight: 700,
-    color: "#0C1526",
-    marginBottom: 3,
+    color: "#021859",
+    marginBottom: 4,
   },
   bullet: {
     fontSize: 10,
@@ -53,13 +57,13 @@ const styles = StyleSheet.create({
     paddingLeft: 8,
   },
   tag: {
-    fontSize: 8,
+    fontSize: 7.6,
     fontWeight: 600,
-    color: "#1B3A5C",
-    backgroundColor: "#e8ecf2",
+    color: "#0B4FB2",
+    backgroundColor: "#E8F2FF",
     paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: 3,
+    borderRadius: 10,
   },
 });
 
@@ -100,7 +104,7 @@ export function BlueprintReportDocument({
 
   return (
     <Document>
-      <Page size="LETTER" style={styles.page}>
+      <Page size="A4" style={styles.page}>
         <BlueprintCover brandName={data.brandName} />
         <BlueprintContinuity primaryPillar={data.primaryPillar} />
 

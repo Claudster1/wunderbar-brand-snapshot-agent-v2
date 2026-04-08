@@ -2,12 +2,41 @@
 
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import { VocSurveyCTA } from "@/components/voc/VocSurveyCTA";
 import { ShareButton } from "@/components/share/ShareButton";
 import { BlueprintPlusHeader } from "@/components/reports/BlueprintPlusHeader";
+import { SectionOverviewTiles } from "@/components/reports/SectionOverviewTiles";
 import { ScoreGauge } from "@/src/components/ScoreGauge";
+import { getArchetypeIcon, getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
 
 export const dynamic = "force-dynamic";
+const SNAPSHOT_PLUS_SECTION_LABELS: Record<string, string> = {
+  overview: "Overview",
+  foundation: "Foundation",
+  score: "Score",
+  strategy: "Strategy",
+  activation: "Activation",
+  signals: "Signals",
+  archetype: "Archetype",
+  roadmap: "Roadmap",
+  "next-steps": "Next Steps",
+};
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams?: Promise<{ section?: string }>;
+}): Promise<Metadata> {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const section = typeof resolvedSearchParams?.section === "string" ? resolvedSearchParams.section : "overview";
+  const sectionLabel = SNAPSHOT_PLUS_SECTION_LABELS[section] || SNAPSHOT_PLUS_SECTION_LABELS.foundation;
+  return {
+    title: `WunderBrand Snapshot+™ • ${sectionLabel}`,
+  };
+}
 
 const SAMPLE_SNAPSHOT_PLUS_REPORTS: Record<string, any> = {
   "sample-service-b2b": {
@@ -169,8 +198,69 @@ const SAMPLE_SNAPSHOT_PLUS_REPORTS: Record<string, any> = {
   },
 };
 
-export default async function SnapshotPlusPage({ params }: { params: Promise<{ id: string }> }) {
+function coerceText(value: unknown): string {
+  if (typeof value === "string") return value.trim();
+  if (Array.isArray(value)) {
+    const parts = value
+      .map((item) => (typeof item === "string" ? item.trim() : ""))
+      .filter(Boolean);
+    return parts.join(" ");
+  }
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    const prioritized = [
+      "summary",
+      "overview",
+      "guidance",
+      "description",
+      "detail",
+      "text",
+      "content",
+      "plan",
+      "actions",
+    ];
+    for (const key of prioritized) {
+      const candidate = record[key];
+      const normalized = coerceText(candidate);
+      if (normalized) return normalized;
+    }
+  }
+  return "";
+}
+
+function firstNonEmptyText(...values: unknown[]): string | null {
+  for (const value of values) {
+    const normalized = coerceText(value);
+    if (normalized) return normalized;
+  }
+  return null;
+}
+
+export default async function SnapshotPlusPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams?: Promise<{ section?: string }>;
+}) {
   const { id: reportId } = await params;
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const validSections = [
+    "overview",
+    "foundation",
+    "score",
+    "strategy",
+    "activation",
+    "signals",
+    "archetype",
+    "roadmap",
+    "next-steps",
+  ] as const;
+  const requestedSection =
+    typeof resolvedSearchParams?.section === "string" ? resolvedSearchParams.section : undefined;
+  if (!requestedSection || !validSections.includes(requestedSection as (typeof validSections)[number])) {
+    redirect(`/snapshot-plus/${encodeURIComponent(reportId)}?section=overview`);
+  }
 
   if (!reportId) {
     return (
@@ -191,13 +281,23 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
 
     if (supabaseUrl && supabaseKey) {
       const supabase = createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } });
-      const queryResult = await supabase
+      const queryByReportId = await supabase
         .from("brand_snapshot_plus_reports")
         .select("*")
         .eq("report_id", reportId)
         .single();
-      report = queryResult.data;
-      error = queryResult.error;
+      if (queryByReportId.data) {
+        report = queryByReportId.data;
+        error = null;
+      } else {
+        const queryById = await supabase
+          .from("brand_snapshot_plus_reports")
+          .select("*")
+          .eq("id", reportId)
+          .single();
+        report = queryById.data;
+        error = queryById.error;
+      }
     }
   }
 
@@ -253,22 +353,126 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
     revenue_impact_statement ||
     full_report?.revenueImpactStatement ||
     null;
-  const navItems = [
-    { id: "summary", label: "Summary" },
-    { id: "score", label: "Score" },
-    { id: "pillars", label: "Pillars" },
-    { id: "signals", label: "Signals" },
-    { id: "archetype", label: "Archetype" },
-    { id: "roadmap", label: "Roadmap" },
-    { id: "next-steps", label: "Next Steps" },
-  ];
+  const fullReportData =
+    full_report && typeof full_report === "object"
+      ? (full_report as Record<string, unknown>)
+      : {};
   const weakestPillarKey =
     Object.entries(pillar_scores || {})
       .filter((entry): entry is [string, number] => typeof entry[1] === "number")
       .sort((a, b) => a[1] - b[1])[0]?.[0] || "positioning";
   const weakestPillarLabel =
     weakestPillarKey.charAt(0).toUpperCase() + weakestPillarKey.slice(1);
-
+  const strongestPillarLabel =
+    Object.entries(pillar_scores || {})
+      .filter((entry): entry is [string, number] => typeof entry[1] === "number")
+      .sort((a, b) => b[1] - a[1])[0]?.[0]
+      ?.replace(/^\w/, (c) => c.toUpperCase()) || "Messaging";
+  const fullReportArchetypeSystem =
+    full_report && typeof full_report === "object" && full_report.brandArchetypeSystem && typeof full_report.brandArchetypeSystem === "object"
+      ? (full_report.brandArchetypeSystem as Record<string, any>)
+      : null;
+  const primaryArchetypeObject =
+    enriched_archetype && typeof enriched_archetype === "object"
+      ? (enriched_archetype as Record<string, any>)
+      : null;
+  const primaryArchetypeName =
+    (typeof enriched_archetype === "string" ? enriched_archetype : primaryArchetypeObject?.name) ||
+    fullReportArchetypeSystem?.primary?.name ||
+    (resolvedReport as any).brand_archetype ||
+    (resolvedReport as any).brandArchetype ||
+    null;
+  const normalizedPrimaryArchetypeName =
+    typeof primaryArchetypeName === "string"
+      ? primaryArchetypeName.replace(/^the\s+/i, "").trim()
+      : null;
+  const archetypeIcon = getArchetypeIcon(normalizedPrimaryArchetypeName);
+  const archetypeMeaning = getArchetypeMeaning(normalizedPrimaryArchetypeName);
+  const primaryArchetypeSummary =
+    (typeof enriched_archetype === "string" ? enriched_archetype : primaryArchetypeObject?.summary || primaryArchetypeObject?.description) ||
+    fullReportArchetypeSystem?.primary?.whenAligned ||
+    null;
+  const primaryArchetypeRisk =
+    primaryArchetypeObject?.riskIfMisused || fullReportArchetypeSystem?.primary?.riskIfMisused || null;
+  const primaryArchetypeLanguageTone =
+    primaryArchetypeObject?.languageTone || fullReportArchetypeSystem?.primary?.languageTone || null;
+  const primaryArchetypeBehaviorGuide =
+    primaryArchetypeObject?.behaviorGuide || fullReportArchetypeSystem?.primary?.behaviorGuide || null;
+  const secondaryArchetypeName =
+    fullReportArchetypeSystem?.secondary?.name ||
+    (resolvedReport as any).secondary_archetype ||
+    (resolvedReport as any).secondaryArchetype ||
+    null;
+  const secondaryArchetypeSummary =
+    fullReportArchetypeSystem?.secondary?.whenAligned ||
+    fullReportArchetypeSystem?.secondary?.summary ||
+    null;
+  const archetypePairingGuidance =
+    fullReportArchetypeSystem?.howTheyWorkTogether ||
+    primaryArchetypeObject?.howTheyWorkTogether ||
+    null;
+  const archetypeActivation =
+    full_report && typeof full_report === "object" && full_report.brandArchetypeActivation && typeof full_report.brandArchetypeActivation === "object"
+      ? (full_report.brandArchetypeActivation as Record<string, any>)
+      : null;
+  const archetypeActivationBlocks =
+    archetypeActivation && typeof archetypeActivation.activation === "object"
+      ? (archetypeActivation.activation as Record<string, unknown>)
+      : {};
+  const roadmapFromFull =
+    fullReportData.roadmap && typeof fullReportData.roadmap === "object"
+      ? (fullReportData.roadmap as Record<string, unknown>)
+      : {};
+  const roadmapPlan30 =
+    firstNonEmptyText(
+      roadmap_30,
+      fullReportData.roadmap_30,
+      fullReportData.roadmap30,
+      fullReportData.thirtyDayPlan,
+      fullReportData.plan30,
+      roadmapFromFull.next30Days,
+      roadmapFromFull.day30,
+      roadmapFromFull.thirtyDay,
+    ) ||
+    `Clarify your ${weakestPillarLabel} messaging in top traffic journeys and remove one major friction point.`;
+  const roadmapPlan60 =
+    firstNonEmptyText(
+      roadmap_60,
+      fullReportData.roadmap_60,
+      fullReportData.roadmap60,
+      fullReportData.sixtyDayPlan,
+      fullReportData.plan60,
+      roadmapFromFull.next60Days,
+      roadmapFromFull.day60,
+      roadmapFromFull.sixtyDay,
+    ) ||
+    `Standardize high-performing message patterns across core channels and introduce repeatable execution rhythms.`;
+  const roadmapPlan90 =
+    firstNonEmptyText(
+      roadmap_90,
+      fullReportData.roadmap_90,
+      fullReportData.roadmap90,
+      fullReportData.ninetyDayPlan,
+      fullReportData.plan90,
+      roadmapFromFull.next90Days,
+      roadmapFromFull.day90,
+      roadmapFromFull.ninetyDay,
+    ) ||
+    `Scale what is converting, codify team playbooks, and measure impact against conversion and trust signals.`;
+  const activeSection = requestedSection as (typeof validSections)[number];
+  const sectionHref = (section: (typeof validSections)[number]) =>
+    `/snapshot-plus/${encodeURIComponent(reportId)}?section=${section}`;
+  const sectionTabs = [
+    { id: "overview", label: "Overview", href: sectionHref("overview") },
+    { id: "foundation", label: "Foundation", href: sectionHref("foundation") },
+    { id: "score", label: "Score", href: sectionHref("score") },
+    { id: "strategy", label: "Strategy", href: sectionHref("strategy") },
+    { id: "activation", label: "Activation", href: sectionHref("activation") },
+    { id: "signals", label: "Signals", href: sectionHref("signals") },
+    { id: "archetype", label: "Archetype", href: sectionHref("archetype") },
+    { id: "roadmap", label: "Roadmap", href: sectionHref("roadmap") },
+    { id: "next-steps", label: "Next Steps", href: sectionHref("next-steps") },
+  ];
   const css = `
     body { font-family: Helvetica Neue, sans-serif; color:#0C1526; }
     .page { max-width:900px; margin:0 auto; padding:32px 16px; }
@@ -419,6 +623,12 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
     }
     return "No insight available.";
   };
+  const extractDeliverables = (value: string): string[] =>
+    value
+      .split(/\n|•|;|\. /)
+      .map((item) => item.trim())
+      .filter((item) => item.length > 18)
+      .slice(0, 4);
 
   return (
     <div className="page">
@@ -427,37 +637,106 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
       <BlueprintPlusHeader
         productName="WunderBrand Snapshot+™"
         reportId={reportId}
-        userEmail={reportEmail}
-        pdfHref={`/api/pdf?id=${encodeURIComponent(reportId)}&type=snapshot-plus`}
         utmMedium="snapshot_plus_results"
-        navItems={navItems}
+        navItems={sectionTabs}
+        activeSectionId={activeSection}
       />
 
-      <div id="summary" className="section">
+      {activeSection === "overview" && (
+        <SectionOverviewTiles
+          productName="WunderBrand Snapshot+™ report"
+          tiles={[
+            {
+              id: "foundation",
+              label: "Foundation",
+              description: "Decision snapshot with current state, risks, and the highest-leverage move.",
+              href: sectionHref("foundation"),
+            },
+            {
+              id: "score",
+              label: "Score",
+              description: "Review your overall score and top-line diagnostic outcome.",
+              href: sectionHref("score"),
+            },
+            {
+              id: "strategy",
+              label: "Strategy",
+              description: "Explore pillar insights, persona context, voice, and opportunity map.",
+              href: sectionHref("strategy"),
+            },
+            {
+              id: "activation",
+              label: "Activation",
+              description: "See channel-format priorities and where to focus implementation first.",
+              href: sectionHref("activation"),
+            },
+            {
+              id: "signals",
+              label: "Signals",
+              description: "Review spend efficiency, vulnerability, and revenue impact indicators.",
+              href: sectionHref("signals"),
+            },
+            {
+              id: "archetype",
+              label: "Archetype",
+              description: "Understand your archetype and how it should shape message expression.",
+              href: sectionHref("archetype"),
+            },
+            {
+              id: "roadmap",
+              label: "Roadmap",
+              description: "Follow the 30/60/90-day plan for phased execution.",
+              href: sectionHref("roadmap"),
+            },
+            {
+              id: "next-steps",
+              label: "Next Steps",
+              description: "Download, share, and move forward into Blueprint when ready.",
+              href: sectionHref("next-steps"),
+            },
+          ]}
+        />
+      )}
+
+      {activeSection === "foundation" && (
+      <div id="foundation" className="section">
         <h2>Executive Summary</h2>
-        <p style={{ lineHeight: "1.65" }}>
-          This high-level overview summarizes your current WunderBrand Score™, pillar performance,
-          and the strongest near-term improvement priority in <strong>{weakestPillarLabel}</strong>.
-        </p>
-        {opportunities_map && (
-          <p style={{ lineHeight: "1.65", marginTop: "10px" }}>
-            {typeof opportunities_map === "string"
-              ? opportunities_map
-              : JSON.stringify(opportunities_map)}
+        <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
+          <p style={{ margin: 0, lineHeight: "1.6" }}>
+            <strong>Current state:</strong> Your score is {brand_alignment_score || 0}/100 with the
+            strongest leverage in <strong>{strongestPillarLabel}</strong>.
           </p>
-        )}
+          <p style={{ margin: 0, lineHeight: "1.6" }}>
+            <strong>Biggest risk:</strong> Inconsistent execution around{" "}
+            <strong>{weakestPillarLabel}</strong> is likely slowing performance and trust transfer.
+          </p>
+          <p style={{ margin: 0, lineHeight: "1.6" }}>
+            <strong>Biggest leverage:</strong> <strong>{strongestPillarLabel}</strong> is a relative
+            strength you can amplify while fixing bottlenecks.
+          </p>
+          <p style={{ margin: 0, lineHeight: "1.6" }}>
+            <strong>Next action (this week):</strong>{" "}
+            {typeof opportunities_map === "string" && opportunities_map.trim().length > 0
+              ? opportunities_map
+              : `Prioritize one high-traffic journey and rewrite it using the ${weakestPillarLabel} recommendations.`}
+          </p>
+        </div>
       </div>
+      )}
 
       {/* SCORE SECTION */}
+      {activeSection === "score" && (
       <div id="score" className="section">
         <h2>Your WunderBrand Score™</h2>
         <div style={{ maxWidth: 360, margin: "0 auto" }}>
           <ScoreGauge value={brand_alignment_score || 0} showLegend />
         </div>
       </div>
+      )}
 
       {/* PILLARS */}
-      <div id="pillars" className="section">
+      {activeSection === "strategy" && (
+      <div id="strategy" className="section">
         <h2>Pillar Analysis</h2>
         <div className="pillars">
           {Object.entries(pillar_scores || {}).map(([pillar, score]: [string, any], idx) => {
@@ -481,41 +760,48 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
           })}
         </div>
       </div>
+      )}
 
       {/* STRATEGY SNAPSHOT SIGNALS */}
-      <div id="signals" className="section">
+      {activeSection === "activation" && (
+      <div id="activation" className="section">
         <h2>Content Format &amp; Channel Snapshot</h2>
         <p style={{ lineHeight: "1.65" }}>
           {content_format_channel_snapshot ||
             "This section maps your audience to the most effective content formats, highest-leverage channels, and funnel-stage priorities so execution starts with the right sequence."}
         </p>
       </div>
+      )}
 
-      <div className="section">
-        <h2>Marketing Spend Efficiency Signal</h2>
-        <p style={{ lineHeight: "1.65" }}>
-          {derivedMarketingSpendSignal ||
-            "This section highlights whether current spend allocation aligns with audience behavior and where budget efficiency can improve before scaling channel complexity."}
-        </p>
-      </div>
+      {activeSection === "signals" && (
+        <>
+          <div id="signals" className="section">
+            <h2>Marketing Spend Efficiency Signal</h2>
+            <p style={{ lineHeight: "1.65" }}>
+              {derivedMarketingSpendSignal ||
+                "This section highlights whether current spend allocation aligns with audience behavior and where budget efficiency can improve before scaling channel complexity."}
+            </p>
+          </div>
 
-      <div className="section">
-        <h2>Competitive Vulnerability Signal</h2>
-        <p style={{ lineHeight: "1.65" }}>
-          {derivedCompetitiveVulnerabilitySignal ||
-            "This section identifies where competitors are most likely to out-position your brand and what to address first to reduce exposure."}
-        </p>
-      </div>
+          <div className="section">
+            <h2>Competitive Vulnerability Signal</h2>
+            <p style={{ lineHeight: "1.65" }}>
+              {derivedCompetitiveVulnerabilitySignal ||
+                "This section identifies where competitors are most likely to out-position your brand and what to address first to reduce exposure."}
+            </p>
+          </div>
 
-      <div className="section">
-        <h2>Revenue Impact Statement</h2>
-        <p style={{ lineHeight: "1.65" }}>
-          {derivedRevenueImpactStatement ||
-            "This section frames the likely business impact of your current gaps and where targeted improvements can increase commercial performance."}
-        </p>
-      </div>
+          <div className="section">
+            <h2>Revenue Impact Statement</h2>
+            <p style={{ lineHeight: "1.65" }}>
+              {derivedRevenueImpactStatement ||
+                "This section frames the likely business impact of your current gaps and where targeted improvements can increase commercial performance."}
+            </p>
+          </div>
+        </>
+      )}
 
-      {brand_opportunities && (
+      {activeSection === "strategy" && brand_opportunities && (
         <div className="section">
           <h2>Core Brand Opportunities</h2>
           <p style={{ lineHeight: "1.65" }}>
@@ -527,7 +813,7 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
       )}
 
       {/* BRAND PERSONA */}
-      {enriched_persona && (
+      {activeSection === "strategy" && enriched_persona && (
         <div className="section">
           <h2>Brand Persona</h2>
           <p style={{ lineHeight: "1.65" }}>
@@ -539,22 +825,114 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
       )}
 
       {/* ARCHETYPE */}
-      {enriched_archetype && (
+      {activeSection === "archetype" && primaryArchetypeName && (
         <div id="archetype" className="section">
-          <h2>Brand Archetype</h2>
-          {typeof enriched_archetype === 'string' ? (
-            <p style={{ lineHeight: "1.65" }}>{enriched_archetype}</p>
-          ) : (
-            <>
-              <h3>{enriched_archetype.name || 'Brand Archetype'}</h3>
-              <p style={{ lineHeight: "1.65" }}>{enriched_archetype.summary || enriched_archetype.description}</p>
-            </>
-          )}
+          <h2>Brand Archetype System</h2>
+          <div style={{ display: "grid", gap: 14 }}>
+            <div
+              style={{
+                border: "1px solid #D6DFE8",
+                background: "#F8FAFC",
+                borderRadius: 10,
+                padding: 14,
+              }}
+            >
+              <h3 style={{ marginTop: 0, marginBottom: 8 }}>
+                {getArchetypeIcon(primaryArchetypeName)} {primaryArchetypeName}
+              </h3>
+              {primaryArchetypeSummary && (
+                <p style={{ margin: "0 0 10px", lineHeight: "1.6" }}>{primaryArchetypeSummary}</p>
+              )}
+              {getArchetypeMeaning(primaryArchetypeName) && (
+                <p style={{ margin: "0 0 8px", fontSize: 14, color: "#5A6B7E", lineHeight: "1.6" }}>
+                  <strong>Core pattern:</strong> {getArchetypeMeaning(primaryArchetypeName)}
+                </p>
+              )}
+              {primaryArchetypeRisk && (
+                <p style={{ margin: "0 0 8px", fontSize: 14, color: "#5A6B7E", lineHeight: "1.6" }}>
+                  <strong>Risk if overused:</strong> {primaryArchetypeRisk}
+                </p>
+              )}
+              {primaryArchetypeLanguageTone && (
+                <p style={{ margin: "0 0 8px", fontSize: 14, color: "#5A6B7E", lineHeight: "1.6" }}>
+                  <strong>How it should sound:</strong> {primaryArchetypeLanguageTone}
+                </p>
+              )}
+              {primaryArchetypeBehaviorGuide && (
+                <p style={{ margin: 0, fontSize: 14, color: "#5A6B7E", lineHeight: "1.6" }}>
+                  <strong>How it impacts your brand:</strong> {primaryArchetypeBehaviorGuide}
+                </p>
+              )}
+            </div>
+
+            {secondaryArchetypeName && (
+              <div
+                style={{
+                  border: "1px solid #E2E8F0",
+                  background: "#FFFFFF",
+                  borderRadius: 10,
+                  padding: 14,
+                }}
+              >
+                <h3 style={{ marginTop: 0, marginBottom: 8 }}>
+                  {getArchetypeIcon(secondaryArchetypeName)} Secondary: {secondaryArchetypeName}
+                </h3>
+                {secondaryArchetypeSummary && (
+                  <p style={{ margin: 0, lineHeight: "1.6", color: "#5A6B7E" }}>{secondaryArchetypeSummary}</p>
+                )}
+              </div>
+            )}
+
+            {archetypePairingGuidance && (
+              <div
+                style={{
+                  borderLeft: "4px solid #07B0F2",
+                  background: "#F8FAFC",
+                  borderRadius: 8,
+                  padding: "12px 14px",
+                }}
+              >
+                <p style={{ margin: 0, lineHeight: "1.6", color: "#2D3A4A" }}>
+                  <strong>How this archetype mix should guide your brand:</strong>{" "}
+                  {archetypePairingGuidance}
+                </p>
+              </div>
+            )}
+
+            {archetypeActivation?.activation && typeof archetypeActivation.activation === "object" && (
+              <div>
+                <h3 style={{ marginTop: 2 }}>Activation Guidance</h3>
+                <div style={{ display: "grid", gap: 10, marginTop: 10 }}>
+                  {Object.entries(archetypeActivation.activation)
+                    .slice(0, 4)
+                    .map(([key, value]) => {
+                      const guidance =
+                        typeof value === "string"
+                          ? value
+                          : value && typeof value === "object" && typeof (value as any).guidance === "string"
+                          ? (value as any).guidance
+                          : null;
+                      if (!guidance) return null;
+                      return (
+                        <div key={key} style={{ border: "1px solid #E2E8F0", borderRadius: 8, padding: 12 }}>
+                          <p style={{ margin: "0 0 6px", fontSize: 12, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#5A6B7E" }}>
+                            {key.replace(/([A-Z])/g, " $1").trim()}
+                          </p>
+                          <p style={{ margin: 0, fontSize: 14, color: "#2D3A4A", lineHeight: "1.55" }}>
+                            {guidance}
+                          </p>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
       {/* BRAND VOICE */}
-      {enriched_voice && (
+      {activeSection === "strategy" && enriched_voice && (
         <div className="section">
           <h2>Brand Voice Guidance</h2>
           {typeof enriched_voice === 'string' ? (
@@ -578,7 +956,7 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
       )}
 
       {/* COLOR PALETTE */}
-      {enriched_color_palette && Array.isArray(enriched_color_palette) && enriched_color_palette.length > 0 && (
+      {activeSection === "strategy" && enriched_color_palette && Array.isArray(enriched_color_palette) && enriched_color_palette.length > 0 && (
         <div className="section">
           <h2>Recommended Color Palette</h2>
           <div className="color-grid">
@@ -597,7 +975,7 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
       )}
 
       {/* OPPORTUNITIES MAP */}
-      {opportunities_map && (
+      {activeSection === "strategy" && opportunities_map && (
         <div className="section">
           <h2>Brand Opportunities Map</h2>
           <p style={{ marginTop: "8px", lineHeight: "1.6" }}>
@@ -609,40 +987,52 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
       )}
 
       {/* ROADMAP */}
-      {(roadmap_30 || roadmap_60 || roadmap_90) && (
+      {activeSection === "roadmap" && (
         <div id="roadmap" className="section roadmap">
           <h2>Recommended 30/60/90-Day Roadmap</h2>
+          <p style={{ color: "#5A6B7E", marginTop: 8, lineHeight: "1.6" }}>
+            These are your phase-based deliverables. Complete each phase before moving to the next to compound gains.
+          </p>
 
-          {roadmap_30 && (
-            <>
-              <h3>Next 30 Days</h3>
-              <p>{typeof roadmap_30 === 'string' ? roadmap_30 : JSON.stringify(roadmap_30)}</p>
-            </>
-          )}
-
-          {roadmap_60 && (
-            <>
-              <h3>Next 60 Days</h3>
-              <p>{typeof roadmap_60 === 'string' ? roadmap_60 : JSON.stringify(roadmap_60)}</p>
-            </>
-          )}
-
-          {roadmap_90 && (
-            <>
-              <h3>Next 90 Days</h3>
-              <p>{typeof roadmap_90 === 'string' ? roadmap_90 : JSON.stringify(roadmap_90)}</p>
-            </>
-          )}
+          {[
+            { title: "Next 30 Days", body: roadmapPlan30, accent: "#07B0F2" },
+            { title: "Next 60 Days", body: roadmapPlan60, accent: "#0284C7" },
+            { title: "Next 90 Days", body: roadmapPlan90, accent: "#021859" },
+          ].map((phase) => (
+            <div
+              key={phase.title}
+              style={{
+                border: "1px solid #E2E8F0",
+                borderLeft: `4px solid ${phase.accent}`,
+                borderRadius: 10,
+                padding: "14px 14px 12px",
+                marginTop: 14,
+                background: "#FFFFFF",
+              }}
+            >
+              <h3 style={{ margin: "0 0 8px" }}>{phase.title}</h3>
+              <p style={{ margin: "0 0 10px", lineHeight: "1.6", color: "#2D3A4A" }}>{phase.body}</p>
+              <ul style={{ margin: 0, paddingLeft: 18, color: "#5A6B7E" }}>
+                {extractDeliverables(phase.body).map((item, idx) => (
+                  <li key={`${phase.title}-${idx}`} style={{ marginBottom: 4 }}>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
       )}
 
       {/* VOC Survey — Customer Perception Insights */}
+      {activeSection === "next-steps" && (
+        <>
       <VocSurveyCTA reportId={reportId} businessName={business_name || "Your Business"} />
 
       {/* PDF DOWNLOAD + SHARE */}
       <div id="next-steps" style={{ marginTop: "32px", display: "flex", justifyContent: "center", gap: "12px", flexWrap: "wrap" }}>
         <a
-          href={`/api/pdf?id=${reportId}&type=snapshot-plus`}
+          href={`/api/snapshot-plus/pdf?id=${encodeURIComponent(reportId)}`}
           target="_blank"
           rel="noopener noreferrer"
           style={{
@@ -679,10 +1069,19 @@ export default async function SnapshotPlusPage({ params }: { params: Promise<{ i
           Blueprint™ turns these findings into a complete brand foundation:
           messaging system, positioning architecture, visual direction, and implementation roadmap.
         </p>
-        <Link href="/upgrade/blueprint" className="blueprint-btn">
+        <Link
+          href={getTrackedCheckoutUrl({
+            product: "blueprint",
+            medium: "report_cta",
+            content: "snapshot_plus_report_footer",
+          })}
+          className="blueprint-btn"
+        >
           Explore WunderBrand Blueprint™ →
         </Link>
       </div>
+        </>
+      )}
     </div>
   );
 }

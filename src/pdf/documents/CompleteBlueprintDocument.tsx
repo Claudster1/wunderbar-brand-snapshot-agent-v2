@@ -5,6 +5,13 @@
 import React from "react";
 import { Document, Page, Text, View, Image, StyleSheet, Link } from "@react-pdf/renderer";
 import { pdfTheme, colors } from "../theme";
+import {
+  ILLUSTRATION_AFTER,
+  ILLUSTRATION_BEFORE,
+  SEMANTIC_DONT,
+  SEMANTIC_DO,
+  EXAMPLE_CALLOUT,
+} from "../reportVisualTokens";
 import { DisclaimerPage } from "../components/DisclaimerPage";
 import { SectionDividerPage } from "../components/SectionDividerPage";
 import type { BlueprintEngineOutput } from "../types/blueprintReport";
@@ -12,35 +19,35 @@ import type { BlueprintEngineOutput } from "../types/blueprintReport";
 const LOGO_URL = "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp";
 
 const s = StyleSheet.create({
-  page: { padding: 40, fontFamily: "Helvetica", fontSize: 10, color: pdfTheme.colors.text, lineHeight: 1.55 },
-  coverPage: { padding: 40, fontFamily: "Helvetica", justifyContent: "center", alignItems: "center", backgroundColor: pdfTheme.colors.navy },
+  page: { padding: 42, paddingBottom: 66, fontFamily: "Helvetica", fontSize: 10, color: "#2D3A4A", lineHeight: 1.6 },
+  coverPage: { padding: 42, fontFamily: "Helvetica", justifyContent: "center", alignItems: "center", backgroundColor: pdfTheme.colors.navy },
   coverLogo: { width: 120, marginBottom: 40, opacity: 0.9 },
   coverTitle: { fontSize: 32, fontWeight: "bold", color: "#FFFFFF", textAlign: "center", marginBottom: 8 },
   coverSubtitle: { fontSize: 14, color: pdfTheme.colors.aqua, textAlign: "center", marginBottom: 32 },
   coverMeta: { fontSize: 10, color: "#FFFFFF", textAlign: "center", opacity: 0.7, marginTop: 4 },
 
-  tocPage: { padding: 40, fontFamily: "Helvetica", fontSize: 10, color: pdfTheme.colors.text },
+  tocPage: { padding: 42, paddingBottom: 66, fontFamily: "Helvetica", fontSize: 10, color: "#2D3A4A" },
   tocTitle: { fontSize: 24, fontWeight: "bold", color: pdfTheme.colors.navy, marginBottom: 24 },
   tocPart: { fontSize: 13, fontWeight: "bold", color: pdfTheme.colors.navy, marginTop: 16, marginBottom: 6 },
   tocItem: { fontSize: 10, color: "#4B5563", paddingLeft: 12, marginBottom: 3, lineHeight: 1.6 },
 
-  partDivider: { padding: 40, fontFamily: "Helvetica", justifyContent: "center", alignItems: "center", backgroundColor: pdfTheme.colors.navy },
+  partDivider: { padding: 42, fontFamily: "Helvetica", justifyContent: "center", alignItems: "center", backgroundColor: pdfTheme.colors.navy },
   partNumber: { fontSize: 14, color: pdfTheme.colors.aqua, letterSpacing: 3, textTransform: "uppercase", marginBottom: 8 },
   partTitle: { fontSize: 28, fontWeight: "bold", color: "#FFFFFF", textAlign: "center", marginBottom: 8 },
   partDesc: { fontSize: 11, color: "#FFFFFF", textAlign: "center", opacity: 0.7, maxWidth: 400 },
 
-  h1: { fontSize: 22, fontWeight: "bold", color: pdfTheme.colors.navy, marginBottom: 10, marginTop: 24 },
-  h2: { fontSize: 16, fontWeight: "bold", color: pdfTheme.colors.navy, marginBottom: 8, marginTop: 20 },
+  h1: { fontSize: 20, fontWeight: "bold", color: "#021859", marginBottom: 8, marginTop: 20 },
+  h2: { fontSize: 14, fontWeight: "bold", color: "#021859", marginBottom: 6, marginTop: 15 },
   h3: { fontSize: 12, fontWeight: "bold", color: pdfTheme.colors.navy, marginBottom: 4, marginTop: 14 },
   h4: { fontSize: 10, fontWeight: "bold", color: pdfTheme.colors.navy, marginBottom: 3, marginTop: 10 },
-  body: { fontSize: 10, lineHeight: 1.55, marginBottom: 6, color: pdfTheme.colors.text },
+  body: { fontSize: 10, lineHeight: 1.6, marginBottom: 6, color: "#2D3A4A" },
   small: { fontSize: 9, color: "#6B7280", lineHeight: 1.5 },
-  label: { fontSize: 8, fontWeight: "bold", color: pdfTheme.colors.blue, textTransform: "uppercase", letterSpacing: 1, marginBottom: 3, marginTop: 12 },
+  label: { fontSize: 8, fontWeight: "bold", color: "#0D5BD7", textTransform: "uppercase", letterSpacing: 1.1, marginBottom: 3, marginTop: 10 },
 
-  card: { backgroundColor: "#F8FAFC", borderRadius: 6, padding: 12, marginBottom: 10, border: "1 solid #E5E7EB" },
+  card: { backgroundColor: "#F8FBFF", borderRadius: 8, padding: 12, marginBottom: 10, border: "1 solid #E2EAF5" },
   cardTitle: { fontSize: 11, fontWeight: "bold", color: pdfTheme.colors.navy, marginBottom: 4 },
-  accentCard: { backgroundColor: "#EFF6FF", borderRadius: 6, padding: 12, marginBottom: 10, borderLeft: `3 solid ${pdfTheme.colors.blue}` },
-  warnCard: { backgroundColor: "#FFFBEB", borderRadius: 6, padding: 12, marginBottom: 10, borderLeft: "3 solid #F59E0B" },
+  accentCard: { backgroundColor: "#EFF6FF", borderRadius: 8, padding: 12, marginBottom: 10, borderLeft: `3 solid ${pdfTheme.colors.blue}`, border: "1 solid #D9E8FF" },
+  warnCard: { backgroundColor: "#FFFBEB", borderRadius: 8, padding: 12, marginBottom: 10, borderLeft: "3 solid #F59E0B", border: "1 solid #FDE68A" },
 
   scoreRow: { flexDirection: "row", alignItems: "center", marginBottom: 8 },
   scoreBadge: { width: 36, height: 36, borderRadius: 18, backgroundColor: pdfTheme.colors.blue, justifyContent: "center", alignItems: "center", marginRight: 10 },
@@ -55,7 +62,7 @@ const s = StyleSheet.create({
   swatch: { width: 20, height: 20, borderRadius: 4, marginRight: 6, border: "1 solid #E5E7EB" },
   swatchRow: { flexDirection: "row", alignItems: "center", marginBottom: 6 },
 
-  footer: { position: "absolute", bottom: 20, left: 40, right: 40, flexDirection: "row", justifyContent: "space-between" },
+  footer: { position: "absolute", bottom: 18, left: 42, right: 42, flexDirection: "row", justifyContent: "space-between" },
   footerText: { fontSize: 7, color: "#9CA3AF" },
 
   tag: { backgroundColor: "#DBEAFE", borderRadius: 3, paddingHorizontal: 6, paddingVertical: 2, marginRight: 4, marginBottom: 3 },
@@ -109,12 +116,12 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         <Image src={LOGO_URL} style={s.coverLogo} />
         <Text style={s.coverTitle}>WunderBrand Blueprint™</Text>
         <Text style={s.coverSubtitle}>Your Complete Brand Operating System</Text>
-        <View style={{ marginTop: 40 }}>
+        <View style={{ marginTop: 30 }}>
           <Text style={s.coverMeta}>Prepared for {brandName}</Text>
           {userName && <Text style={s.coverMeta}>Requested by {userName}</Text>}
           <Text style={s.coverMeta}>{new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</Text>
         </View>
-        <Text style={{ ...s.coverMeta, marginTop: 60, fontSize: 8 }}>CONFIDENTIAL — For internal use only</Text>
+        <Text style={{ ...s.coverMeta, marginTop: 44, fontSize: 8 }}>CONFIDENTIAL — For internal use only</Text>
       </Page>
 
       {/* ═══ TABLE OF CONTENTS ═══ */}
@@ -276,14 +283,26 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
             <Text style={s.label}>Before / After</Text>
             <View style={s.row}>
               <View style={s.col2}>
-                <View style={{ ...s.card, borderLeft: "3 solid #EF4444" }}>
-                  <Text style={s.h4}>Before</Text>
+                <View
+                  style={{
+                    ...s.card,
+                    borderLeft: `3 solid ${ILLUSTRATION_BEFORE.border}`,
+                    backgroundColor: ILLUSTRATION_BEFORE.bg,
+                  }}
+                >
+                  <Text style={{ ...s.h4, color: ILLUSTRATION_BEFORE.label }}>Before</Text>
                   <Text style={s.body}>{p.concreteExample?.before}</Text>
                 </View>
               </View>
               <View style={s.col2}>
-                <View style={{ ...s.card, borderLeft: `3 solid ${pdfTheme.colors.blue}` }}>
-                  <Text style={s.h4}>After</Text>
+                <View
+                  style={{
+                    ...s.card,
+                    borderLeft: `3 solid ${ILLUSTRATION_AFTER.border}`,
+                    backgroundColor: ILLUSTRATION_AFTER.bg,
+                  }}
+                >
+                  <Text style={{ ...s.h4, color: ILLUSTRATION_AFTER.label }}>After</Text>
                   <Text style={s.body}>{p.concreteExample?.after}</Text>
                 </View>
               </View>
@@ -469,7 +488,10 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
             <View key={i} style={s.card} wrap={false}>
               <Text style={s.cardTitle}>{vt.trait}</Text>
               <Text style={s.body}>{vt.whatItMeans}</Text>
-              <Text style={{ ...s.small, fontStyle: "italic", marginTop: 4 }}>Example: {vt.example}</Text>
+              <Text style={{ ...s.small, fontWeight: 700, color: EXAMPLE_CALLOUT.labelColor, marginTop: 4 }}>
+                {EXAMPLE_CALLOUT.labelPrefix}
+              </Text>
+              <Text style={{ ...s.body, fontStyle: "italic", color: EXAMPLE_CALLOUT.bodyColor }}>{vt.example}</Text>
             </View>
           ))}
 
@@ -485,7 +507,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
             <View style={{ marginTop: 12 }}>
               <Text style={s.h3}>Phrases to Use</Text>
               {d.voiceToneGuide.phrasesToUse.map((p, i) => (
-                <Text key={i} style={{ ...s.body, color: "#047857" }}>✓ {p}</Text>
+                <Text key={i} style={{ ...s.body, color: SEMANTIC_DO.label }}>✓ {p}</Text>
               ))}
             </View>
           )}
@@ -494,7 +516,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
             <View style={{ marginTop: 12 }}>
               <Text style={s.h3}>Phrases to Avoid</Text>
               {d.voiceToneGuide.phrasesToAvoid.map((p, i) => (
-                <Text key={i} style={{ ...s.body, color: "#DC2626" }}>✗ {p}</Text>
+                <Text key={i} style={{ ...s.body, color: SEMANTIC_DONT.label }}>✗ {p}</Text>
               ))}
             </View>
           )}
@@ -543,14 +565,30 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         {(["headlines", "ctaButtons", "socialPosts"] as const).map((cat) => (
           <View key={cat} style={s.row}>
             <View style={s.col2}>
-              <View style={{ ...s.card, borderLeft: `3 solid ${pdfTheme.colors.blue}` }}>
-                <Text style={s.h4}>{cat === "ctaButtons" ? "CTA Buttons" : cat === "socialPosts" ? "Social Posts" : "Headlines"} — Use</Text>
+              <View
+                style={{
+                  ...s.card,
+                  borderLeft: `3 solid ${SEMANTIC_DO.border}`,
+                  backgroundColor: SEMANTIC_DO.bg,
+                }}
+              >
+                <Text style={{ ...s.h4, color: SEMANTIC_DO.label }}>
+                  {cat === "ctaButtons" ? "CTA Buttons" : cat === "socialPosts" ? "Social Posts" : "Headlines"} — Do this
+                </Text>
                 <Bullets items={d.brandPersona?.messagingExamples?.[cat]?.use || []} />
               </View>
             </View>
             <View style={s.col2}>
-              <View style={{ ...s.card, borderLeft: "3 solid #EF4444" }}>
-                <Text style={s.h4}>{cat === "ctaButtons" ? "CTA Buttons" : cat === "socialPosts" ? "Social Posts" : "Headlines"} — Avoid</Text>
+              <View
+                style={{
+                  ...s.card,
+                  borderLeft: `3 solid ${SEMANTIC_DONT.border}`,
+                  backgroundColor: SEMANTIC_DONT.bg,
+                }}
+              >
+                <Text style={{ ...s.h4, color: SEMANTIC_DONT.label }}>
+                  {cat === "ctaButtons" ? "CTA Buttons" : cat === "socialPosts" ? "Social Posts" : "Headlines"} — Not this
+                </Text>
                 <Bullets items={d.brandPersona?.messagingExamples?.[cat]?.avoid || []} />
               </View>
             </View>
@@ -562,18 +600,29 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
       <SectionDividerPage
         label="Section"
         title="Audience and Buyer Personas"
-        subtitle="Primary and secondary ICPs plus persona-level messaging guidance."
+        subtitle="Labeled ICPs (segments) and buyer personas (people inside each segment)."
       />
       <Page size="A4" style={s.page} wrap>
         <Footer brandName={brandName} />
         <Text style={s.h1}>Ideal Customer Profiles</Text>
+        <View style={{ ...s.warnCard, marginBottom: 12 }}>
+          <Text style={s.body}>
+            <Text style={{ fontWeight: 700 }}>ICP vs. personas: </Text>
+            An ideal customer profile (ICP) describes a strategic segment — who you prioritize (e.g. company
+            size, industry, or consumer cohort). Buyer personas are named individuals inside that segment who
+            discover, evaluate, and buy. Every persona&apos;s &quot;ICP alignment&quot; tag must match exactly
+            one ICP label in this section.
+          </Text>
+        </View>
 
         {(["primaryICP", "secondaryICP"] as const).map((icpKey) => {
           const icp = d.audiencePersonas?.[icpKey];
           if (!icp) return null;
+          const defaultLabel =
+            icpKey === "primaryICP" ? "Primary ICP — best-fit segment" : "Secondary ICP — adjacent or expansion segment";
           return (
             <View key={icpKey} style={s.card} wrap={false}>
-              <Text style={s.label}>{icpKey === "primaryICP" ? "Primary ICP" : "Secondary ICP"}</Text>
+              <Text style={s.label}>{icp.icpLabel?.trim() || defaultLabel}</Text>
               <Text style={s.cardTitle}>{icp.name}</Text>
               <Text style={s.body}>{icp.summary}</Text>
               <View style={s.row}>
@@ -594,6 +643,34 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
           );
         })}
 
+        {(d.audiencePersonas?.additionalICPs || []).map((icp, idx) => (
+          <View key={`additional-icp-${idx}`} style={s.card} wrap={false}>
+            <Text style={s.label}>{icp.icpLabel?.trim() || `Additional ICP ${idx + 1}`}</Text>
+            <Text style={s.cardTitle}>{icp.name}</Text>
+            <Text style={s.body}>{icp.summary}</Text>
+            <View style={s.row}>
+              <View style={s.col2}>
+                <Text style={s.h4}>Demographics</Text>
+                <Text style={s.body}>{icp.demographics}</Text>
+              </View>
+              <View style={s.col2}>
+                <Text style={s.h4}>Psychographics</Text>
+                <Text style={s.body}>{icp.psychographics}</Text>
+              </View>
+            </View>
+            <Text style={s.h4}>Pain Points</Text>
+            <Bullets items={icp.painPoints || []} />
+            <Text style={s.h4}>Goals</Text>
+            <Text style={s.body}>{icp.goals}</Text>
+            <Text style={s.h4}>Buying Journey</Text>
+            <Text style={s.body}>{icp.buyingJourney}</Text>
+            <Text style={s.h4}>Language They Use</Text>
+            <Text style={{ ...s.body, fontStyle: "italic" }}>{icp.languageTheyUse}</Text>
+            <Text style={s.h4}>Where to Be Findable</Text>
+            <Text style={s.body}>{icp.whereToBeFindable}</Text>
+          </View>
+        ))}
+
         {d.audiencePersonas?.audienceTransitionPlan && (
           <>
             <Text style={s.h2}>Audience Transition Plan</Text>
@@ -606,11 +683,14 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         )}
 
         <Text style={s.h1}>Buyer Personas</Text>
+        <Text style={{ ...s.body, marginBottom: 10, color: "#4B5563" }}>
+          Tags show which ICP this persona belongs to — use the same wording as the ICP labels above.
+        </Text>
         {d.buyerPersonas?.map((bp, i) => (
           <View key={i} style={s.card} wrap={false}>
             <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
               <Text style={s.cardTitle}>{bp.personaName}</Text>
-              <View style={s.tag}><Text style={s.tagText}>{bp.icpAlignment}</Text></View>
+              <View style={s.tag}><Text style={s.tagText}>ICP: {bp.icpAlignment}</Text></View>
             </View>
             <Text style={s.small}>{bp.role}</Text>
             <Text style={s.h4}>Core Frustration</Text>
@@ -651,7 +731,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         <Bullets items={d.messagingSystem?.proofPoints || []} />
         <Text style={s.label}>What Not to Say</Text>
         {d.messagingSystem?.whatNotToSay?.map((item, i) => (
-          <Text key={i} style={{ ...s.bullet, color: "#EF4444" }}>✕ {item}</Text>
+          <Text key={i} style={{ ...s.bullet, color: SEMANTIC_DONT.label }}>✕ {item}</Text>
         ))}
 
         <Text style={s.h1}>Messaging Pillars</Text>
@@ -661,8 +741,18 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
             <Text style={s.body}>{mp.whatItCommunicates}</Text>
             <Text style={s.label}>Why It Matters</Text>
             <Text style={s.body}>{mp.whyItMatters}</Text>
-            <Text style={s.label}>Example</Text>
-            <Text style={{ ...s.body, fontStyle: "italic" }}>"{mp.exampleMessage}"</Text>
+            <Text
+              style={{
+                fontSize: 9,
+                fontWeight: "bold",
+                color: EXAMPLE_CALLOUT.labelColor,
+                marginBottom: 3,
+                marginTop: 10,
+              }}
+            >
+              {EXAMPLE_CALLOUT.labelPrefix}
+            </Text>
+            <Text style={{ ...s.body, fontStyle: "italic", color: EXAMPLE_CALLOUT.bodyColor }}>"{mp.exampleMessage}"</Text>
             <Text style={s.label}>Channel Examples</Text>
             <View style={s.row}>
               <View style={s.col3}><Text style={s.h4}>Website</Text><Text style={s.small}>{mp.channelExamples?.website}</Text></View>
@@ -865,6 +955,18 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
             <Text style={s.body}>{p.contentStrategy}</Text>
             <Text style={s.h4}>Example Posts</Text>
             <Bullets items={p.examplePosts || []} />
+            {p.exampleImagePrompts && p.exampleImagePrompts.length > 0 ? (
+              <>
+                <Text style={s.h4}>Image Prompts</Text>
+                <Bullets items={p.exampleImagePrompts} />
+              </>
+            ) : null}
+            {p.exampleVideoPrompts && p.exampleVideoPrompts.length > 0 ? (
+              <>
+                <Text style={s.h4}>Video Prompts</Text>
+                <Bullets items={p.exampleVideoPrompts} />
+              </>
+            ) : null}
             <Text style={s.small}>Frequency: {p.postingFrequency} | Mix: {p.contentMix} | KPI: {p.kpiToTrack}</Text>
           </View>
         ))}
@@ -986,8 +1088,18 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
             <Text style={s.cardTitle}>"{obj.objection}"</Text>
             <Text style={s.label}>Reframe</Text>
             <Text style={s.body}>{obj.reframe}</Text>
-            <Text style={s.label}>Example Response</Text>
-            <Text style={{ ...s.body, fontStyle: "italic" }}>"{obj.exampleResponse}"</Text>
+            <Text
+              style={{
+                fontSize: 9,
+                fontWeight: "bold",
+                color: EXAMPLE_CALLOUT.labelColor,
+                marginBottom: 3,
+                marginTop: 8,
+              }}
+            >
+              Example response
+            </Text>
+            <Text style={{ ...s.body, fontStyle: "italic", color: EXAMPLE_CALLOUT.bodyColor }}>"{obj.exampleResponse}"</Text>
           </View>
         ))}
 
@@ -1041,7 +1153,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         <Bullets items={d.brandStrategyRollout?.howWeTalkAboutOurselves?.approvedLanguage || []} />
         <Text style={s.label}>Phrases to Avoid</Text>
         {d.brandStrategyRollout?.howWeTalkAboutOurselves?.phrasesToAvoid?.map((p, i) => (
-          <Text key={i} style={{ ...s.bullet, color: "#EF4444" }}>✕ {p}</Text>
+          <Text key={i} style={{ ...s.bullet, color: SEMANTIC_DONT.label }}>✕ {p}</Text>
         ))}
 
         <Text style={s.h2}>Internal Rollout Talking Points</Text>
@@ -1202,9 +1314,9 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
 
         <Text style={s.h3}>Photography Direction</Text>
         <Text style={s.body}>{d.brandImageryDirection?.photographyStyleDirection}</Text>
-        <Text style={s.h4}>Show</Text>
+        <Text style={s.h4}>Do this</Text>
         <Bullets items={d.brandImageryDirection?.subjectMatterGuidance?.show || []} />
-        <Text style={s.h4}>Avoid</Text>
+        <Text style={s.h4}>Not this</Text>
         <Bullets items={d.brandImageryDirection?.subjectMatterGuidance?.avoid || []} />
       </Page>
 

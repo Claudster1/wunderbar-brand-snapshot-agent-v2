@@ -6,15 +6,18 @@ import { pdfTheme } from "../theme";
 
 const styles = StyleSheet.create({
   section: {
-    paddingHorizontal: pdfTheme.spacing.xl,
-    paddingVertical: pdfTheme.spacing.lg,
-    marginBottom: pdfTheme.spacing.md,
+    paddingHorizontal: 22,
+    paddingVertical: 12,
+    marginBottom: 8,
+    borderBottom: "1px solid #EAF1FB",
   },
   title: {
-    fontSize: 18,
+    fontSize: 11,
     fontWeight: 600,
-    color: "#021859",
-    marginBottom: pdfTheme.spacing.md,
+    color: "#0B5FCC",
+    marginBottom: 6,
+    textTransform: "uppercase",
+    letterSpacing: 1.1,
   },
 });
 

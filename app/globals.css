@@ -1,6 +1,7 @@
 /* app/globals.css */
 
 @import "tailwindcss";
+@import "../styles/print.css";
 
 @theme {
   --color-brand-navy: #021859;
@@ -274,7 +275,7 @@ body:has(.app-root) {
   border-radius: 5px;
   border: 1px solid #e0e3ea;
   box-shadow: 0 16px 40px rgba(2, 24, 89, 0.12);
-  padding: 28px 28px 24px;
+  padding: 24px 24px 20px;
   max-height: calc(100vh - 56px - 48px); /* header + padding */
   max-height: calc(100dvh - 56px - 48px);
   display: flex;
@@ -285,7 +286,7 @@ body:has(.app-root) {
 /* Header / avatar */
 .app-card-header {
   display: flex;
-  gap: 18px;
+  gap: 14px;
   align-items: flex-start;
 }
 
@@ -294,13 +295,13 @@ body:has(.app-root) {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
 }
 
 .app-card-avatar {
-  width: 72px;
-  height: 72px;
+  width: 64px;
+  height: 64px;
   border-radius: 5px;
   overflow: hidden;
   background: #ffffff;
@@ -519,6 +520,24 @@ body:has(.app-root) {
 }
 
 .chat-bubble p:last-child {
+  margin-bottom: 0;
+}
+
+/* Markdown in chat (Wundy): **bold**, *italic*, [label](url) — see components/chat/ChatMarkdown.tsx */
+.chat-md p {
+  margin: 0 0 8px;
+}
+.chat-md .chat-md-link {
+  color: #0369a1;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.chat-bubble-user .chat-md .chat-md-link,
+.wundy-msg-user .chat-md .chat-md-link {
+  color: rgba(255, 255, 255, 0.95);
+  text-decoration: underline;
+}
+.chat-md > p:last-child {
   margin-bottom: 0;
 }
 
@@ -829,7 +848,13 @@ a.sr-only:focus {
   }
 
   .app-card-avatar-wrap {
-    display: none; /* Hide avatar on mobile to save space */
+    display: flex;
+    gap: 4px;
+  }
+
+  .app-card-avatar {
+    width: 44px;
+    height: 44px;
   }
 
   .app-card-eyebrow {
@@ -2279,5 +2304,24 @@ a.sr-only:focus {
     width: 40px;
     height: 48px;
     font-size: 18px;
+  }
+}
+
+/* Suite tab pages: left nav + main column — stack on narrow viewports */
+@media (max-width: 960px) {
+  .tab-page-with-sidebar {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+  .tab-page-sidebar-row {
+    flex-direction: column !important;
+    gap: 20px !important;
+  }
+  .tab-page-sidebar {
+    position: relative !important;
+    top: auto !important;
+    width: 100% !important;
+    max-height: none !important;
+    overflow-y: visible !important;
   }
 }

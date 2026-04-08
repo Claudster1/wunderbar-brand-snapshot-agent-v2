@@ -6,23 +6,23 @@ import { pdfTheme } from "../theme";
 
 const styles = StyleSheet.create({
   container: {
-    padding: pdfTheme.spacing.lg,
-    backgroundColor: "#F8FAFC",
-    borderRadius: 6,
-    border: `1px solid ${pdfTheme.colors.border}`,
+    padding: 12,
+    backgroundColor: "#F8FBFF",
+    borderRadius: 8,
+    border: `1px solid #E2EAF5`,
   },
   title: {
     fontFamily: "Helvetica",
-    fontSize: pdfTheme.fontSizes.md,
+    fontSize: 11.5,
     fontWeight: 600,
     color: pdfTheme.colors.navy,
-    marginBottom: pdfTheme.spacing.sm,
+    marginBottom: 6,
   },
   text: {
     fontFamily: "Helvetica",
-    fontSize: pdfTheme.fontSizes.base,
-    color: pdfTheme.colors.midnight,
-    lineHeight: 1.5,
+    fontSize: 10,
+    color: "#2D3A4A",
+    lineHeight: 1.62,
   },
 });
 

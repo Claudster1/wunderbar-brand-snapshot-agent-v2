@@ -1035,7 +1035,7 @@ function WorkbookContent() {
   const isBlueprint = editability?.tier === "blueprint";
   const isBlueprintPlus = editability?.tier === "blueprint_plus";
   const strategyActivationHref =
-    `https://calendly.com/wunderbardigital/brand-strategy-activation` +
+    `https://calendly.com/claudine-wunderbardigital/brand-blueprint-strategy-activation-session` +
     `?utm_source=wunderbrand_app&utm_medium=workbook_action_rail&utm_campaign=strategy_activation` +
     `&utm_content=blueprint_plus_workbook` +
     `&reportId=${encodeURIComponent(reportId)}` +
@@ -1065,6 +1065,7 @@ function WorkbookContent() {
               { label: "90-Day Activation Plan", href: "/api/preview/pdf?type=activation" },
               { label: "Digital Marketing Strategy", href: "/api/preview/pdf?type=digital" },
               { label: "Competitive Intelligence Brief", href: "/api/preview/pdf?type=competitive" },
+              { label: "Sales Battle Cards", href: "/api/preview/pdf?type=battle-cards" },
             ]
           : []),
       ]
@@ -1079,6 +1080,7 @@ function WorkbookContent() {
               { label: "90-Day Activation Plan", href: `/api/blueprint/pdf?reportId=${encodeURIComponent(reportId)}&type=activation&tier=blueprint-plus&email=${encodeURIComponent(email)}` },
               { label: "Digital Marketing Strategy", href: `/api/blueprint/pdf?reportId=${encodeURIComponent(reportId)}&type=digital&tier=blueprint-plus&email=${encodeURIComponent(email)}` },
               { label: "Competitive Intelligence Brief", href: `/api/blueprint/pdf?reportId=${encodeURIComponent(reportId)}&type=competitive&tier=blueprint-plus&email=${encodeURIComponent(email)}` },
+              { label: "Sales Battle Cards", href: `/api/blueprint/pdf?reportId=${encodeURIComponent(reportId)}&type=battle-cards&tier=blueprint-plus&email=${encodeURIComponent(email)}` },
             ]
           : []),
       ];
@@ -1101,6 +1103,7 @@ function WorkbookContent() {
       "90-Day Activation Plan",
       "Digital Marketing Strategy",
       "Competitive Intelligence Brief",
+      "Sales Battle Cards",
     ],
   };
   const sectionDeliverables = deliverableLinks
@@ -1115,6 +1118,7 @@ function WorkbookContent() {
     "Prompt Guide": "AI-assisted drafting and iteration",
     "Digital Marketing Strategy": "Channel planning and optimization",
     "Competitive Intelligence Brief": "Objection handling and win strategy",
+    "Sales Battle Cards": "Frontline sales handling and differentiation",
     "Brand Standards": "Design and brand governance",
     "Brand Standards Draft": "In-progress design handoff review",
     "Voice Checklist": "Daily writing and review guardrails",
@@ -1639,7 +1643,7 @@ function WorkbookContent() {
                 Use your 90-day refresh
               </a>{" "}
               to update your strategy, or{" "}
-              <a href="/checkout?product=blueprint-plus" style={{ color: "#07B0F2", fontWeight: 600, textDecoration: "none" }}>
+              <a href="/brand-blueprint-plus" style={{ color: "#07B0F2", fontWeight: 600, textDecoration: "none" }}>
                 upgrade to Blueprint+
               </a>{" "}
               for a Brand Workspace that adapts as your brand grows.
@@ -1777,18 +1781,6 @@ function WorkbookContent() {
               readOnly={readOnly}
               rows={5}
               placeholder="An expanded pitch with a story or proof point (~150 words)..."
-            />
-            <EditableField
-              label="Outreach Email Intro"
-              value={workbook.elevator_pitch_email || ""}
-              field="elevator_pitch_email"
-              onSave={saveField}
-              onRefine={refineField}
-              saving={saving}
-              refining={refining}
-              readOnly={readOnly}
-              rows={4}
-              placeholder="A concise intro paragraph for outreach emails (problem, value, and next step)..."
             />
           </section>
         )}

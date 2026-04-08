@@ -4,41 +4,62 @@ import { pdfTheme } from "../theme";
 
 const s = StyleSheet.create({
   page: {
-    padding: 40,
+    padding: 44,
     fontFamily: "Helvetica",
     justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: pdfTheme.colors.navy,
+    backgroundColor: "#061E63",
+  },
+  panel: {
+    borderRadius: 14,
+    border: "1 solid rgba(255,255,255,0.16)",
+    backgroundColor: "rgba(255,255,255,0.06)",
+    paddingVertical: 28,
+    paddingHorizontal: 30,
   },
   eyebrow: {
-    fontSize: 10,
-    color: pdfTheme.colors.aqua,
-    letterSpacing: 2,
+    fontSize: 9,
+    color: "#8CD7FF",
+    letterSpacing: 1.4,
     textTransform: "uppercase",
-    marginBottom: 8,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#FFFFFF",
+    marginBottom: 10,
+    fontWeight: 600,
     textAlign: "center",
-    marginBottom: 8,
-    maxWidth: 460,
+    opacity: 0.95,
   },
-  subtitle: {
-    fontSize: 10,
-    color: "#FFFFFF",
-    textAlign: "center",
-    opacity: 0.78,
-    maxWidth: 420,
-    lineHeight: 1.5,
+  ruleWrap: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginBottom: 14,
   },
   rule: {
-    width: 56,
-    height: 2,
-    backgroundColor: pdfTheme.colors.aqua,
-    marginBottom: 16,
-    opacity: 0.9,
+    width: 74,
+    height: 3,
+    backgroundColor: pdfTheme.colors.blue,
+    borderRadius: 999,
+    opacity: 0.95,
+  },
+  title: {
+    fontSize: 27,
+    fontWeight: 700,
+    color: "#FFFFFF",
+    textAlign: "center",
+    marginBottom: 10,
+    lineHeight: 1.2,
+  },
+  subtitle: {
+    fontSize: 11,
+    color: "#FFFFFF",
+    textAlign: "center",
+    opacity: 0.82,
+    lineHeight: 1.55,
+  },
+  watermark: {
+    marginTop: 24,
+    textAlign: "center",
+    fontSize: 8,
+    color: "#95A4CC",
+    letterSpacing: 0.7,
+    textTransform: "uppercase",
   },
 });
 
@@ -53,10 +74,15 @@ export function SectionDividerPage({ title, subtitle, label, eyebrow }: Props) {
   const displayLabel = label || eyebrow || "Section";
   return (
     <Page size="A4" style={s.page}>
-      <Text style={s.eyebrow}>{displayLabel}</Text>
-      <View style={s.rule} />
-      <Text style={s.title}>{title}</Text>
-      {subtitle ? <Text style={s.subtitle}>{subtitle}</Text> : null}
+      <View style={s.panel}>
+        <Text style={s.eyebrow}>{displayLabel}</Text>
+        <View style={s.ruleWrap}>
+          <View style={s.rule} />
+        </View>
+        <Text style={s.title}>{title}</Text>
+        {subtitle ? <Text style={s.subtitle}>{subtitle}</Text> : null}
+      </View>
+      <Text style={s.watermark}>Wunderbar Digital · Strategy System</Text>
     </Page>
   );
 }

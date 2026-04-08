@@ -1,3 +1,5 @@
+"use client";
+
 import { ScoreGauge } from "@/src/components/ScoreGauge";
 import { getOverallScoreRating } from "@/src/lib/results/scoreRating";
 import { RecommendationCard } from "@/src/components/results/RecommendationCard";
@@ -42,7 +44,7 @@ export function ResultsHeroSection({
           <TooltipIcon
             content={
               <>
-                Your overall alignment across all five pillars. 0–100 scale: higher means your brand is clearer and more consistent. The needle shows where you land.
+                Weighted index across all five pillars (each scored 0–20). The 0–100 headline emphasizes positioning, messaging, and credibility more than visibility and conversion.
               </>
             }
           />

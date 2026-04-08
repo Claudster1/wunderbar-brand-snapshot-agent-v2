@@ -1,5 +1,7 @@
 // src/prompts/brandSnapshotReportPrompt.ts
 // WunderBrand Snapshot™ (Free) - Report Generation Prompt
+import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
+import { reportExecutionReadyContentRule } from "@/lib/copy/reportExecutionStandard";
 
 export const brandSnapshotReportPrompt = `
 You are generating the WunderBrand Snapshot™ report for Wunderbar Digital.
@@ -10,7 +12,11 @@ STRICT RULES:
 - Use decisive, confident language. Avoid hedging ("may", "might", "often").
 - No generic advice. Every insight must be tied to the company context provided.
 - Short sections. Clear hierarchy. No dense text blocks.
-- This report diagnoses, prioritizes, and orients — it does NOT fully solve.
+- This report diagnoses, prioritizes, and orients — it does NOT fully solve — but every section must still contain **specific, usable language** (not generic task reminders).
+
+${reportExecutionReadyContentRule}
+
+${aiAbbreviationFirstReferenceRule}
 
 REQUIRED OUTPUT STRUCTURE:
 
@@ -37,9 +43,19 @@ REQUIRED OUTPUT STRUCTURE:
    - Archetype name (use standard 12 archetypes: Sage, Hero, Outlaw, Magician, Lover, Caregiver, Ruler, Creator, Innocent, Explorer, Neighbor, Entertainer — NOT "Jester" or "Everyman" or "Regular Guy")
    - What this archetype signals when aligned
    - One risk if misused
+   - One **sample Homepage headline** (10–14 words) plus **one sample subhead** (15–25 words)—finished visitor-facing lines only; **no** prefixes like “Headline:” or “Subhead:”
+
+   ILLUSTRATIVE OUTPUT EXAMPLE (fictional inputs — show the level of specificity; do not copy):
+   {
+     "name": "Sage",
+     "alignedSignal": "Northline reads as the vendor who teaches before it sells — frameworks, honest tradeoffs, and language that helps marketing ops leaders look smart in internal meetings.",
+     "misusedRisk": "If overused, the brand can feel slow or overly academic — buyers may mistake clarity for lack of urgency versus louder competitors."
+   }
 
 5. Immediate Clarity Actions (Next 7–14 Days)
-   - Exactly 3 actions
+   - Exactly 3 actions — all **now**-focused (executable in 7–14 days with current constraints)
+   - When inputs include **implementationPrioritiesNow**, reflect that language where it fits; do not invent scaling work here.
+   - When **implementationPrioritiesScaling** is present, mention it in **one sentence** only under "What's Next" (section 6), not as a fourth action — keep section 5 strictly immediate.
    - Each action must be:
      • Specific
      • Achievable without additional tools

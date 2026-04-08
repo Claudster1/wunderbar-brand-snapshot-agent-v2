@@ -24,8 +24,17 @@ function buildPdfUrl(link: SharedLink): string {
   const encodedId = encodeURIComponent(report_id);
 
   if (document_type === "report") {
-    const apiTier = tier.replace("_", "-");
-    return `/api/pdf?id=${encodedId}&type=${apiTier}`;
+    const normalizedTier = tier.replace("_", "-");
+    if (normalizedTier === "snapshot") {
+      return `/api/snapshot/pdf?id=${encodedId}`;
+    }
+    if (normalizedTier === "snapshot-plus") {
+      return `/api/snapshot-plus/pdf?id=${encodedId}`;
+    }
+    if (normalizedTier === "blueprint") {
+      return `/api/blueprint/pdf?reportId=${encodedId}&type=complete&tier=blueprint`;
+    }
+    return `/api/blueprint/pdf?reportId=${encodedId}&type=complete&tier=blueprint-plus`;
   }
 
   const apiTier = tier === "blueprint_plus" || tier === "blueprint-plus" ? "blueprint-plus" : "blueprint";

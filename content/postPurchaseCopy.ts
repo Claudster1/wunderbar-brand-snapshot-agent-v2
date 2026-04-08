@@ -162,9 +162,9 @@ export const POST_PURCHASE_COPY: Record<PostPurchaseTier, PostPurchaseCopy> = {
     eyebrow: "YOU\u2019RE ALL SET",
     headline: "Your WunderBrand Blueprint\u2122 is ready.",
     subhead:
-      "In about 20\u201325 minutes, Wundy\u2122 will build a complete picture of your brand \u2014 and turn it into a strategy you can execute.",
+      "In about 20\u201325 minutes, Wundy\u2122 will build a complete picture of your brand \u2014 and turn it into a strategy you can activate.",
     reinforcement:
-      "What you\u2019re about to build is rare: a complete brand foundation, scored, interpreted, and mapped to an execution-ready strategy \u2014 all in one session. Your WunderBrand Score\u2122, pillar analysis, and Interactive Brand Workbook will be ready the moment you\u2019re done. The more context you bring into this conversation, the more specific and actionable your Blueprint\u2122 will be.",
+      "What you\u2019re about to build is rare: a complete brand foundation, scored, interpreted, and mapped to an activation-ready strategy \u2014 all in one session. Your WunderBrand Score\u2122, pillar analysis, and Interactive Brand Workbook will be ready the moment you\u2019re done. The more context you bring into this conversation, the more specific and actionable your Blueprint\u2122 will be.",
 
     checklist: {
       headline:
@@ -185,7 +185,7 @@ export const POST_PURCHASE_COPY: Record<PostPurchaseTier, PostPurchaseCopy> = {
       {
         title: "Get your results instantly",
         detail:
-          "Your WunderBrand Blueprint\u2122 results are generated the moment the conversation is complete \u2014 including your WunderBrand Score\u2122, analysis across all five brand pillars, your brand archetype, messaging framework, and a complete execution-ready strategy.",
+          "Your WunderBrand Blueprint\u2122 results are generated the moment the conversation is complete \u2014 including your WunderBrand Score\u2122, analysis across all five brand pillars, your brand archetype, messaging framework, and a complete activation-ready strategy.",
       },
       {
         title: "Open your Interactive Brand Workbook",

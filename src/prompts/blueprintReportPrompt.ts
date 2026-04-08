@@ -1,5 +1,7 @@
 // src/prompts/blueprintReportPrompt.ts
 // WunderBrand Blueprint™ ($997) - Report Generation Prompt
+import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
+import { reportExecutionReadyContentRule } from "@/lib/copy/reportExecutionStandard";
 
 export const blueprintReportPrompt = `
 You are generating the WunderBrand Blueprint™ for Wunderbar Digital.
@@ -11,7 +13,11 @@ STRICT REQUIREMENTS:
 - Everything must be explicit. Do not assume prior context.
 - No references to "as mentioned earlier".
 - This report defines HOW the brand operates going forward.
-- Include examples, specific copy, and actionable guidance throughout.
+- Include examples, specific copy, and **execution-ready** guidance throughout — not vague to-do language without the actual words.
+
+${reportExecutionReadyContentRule}
+
+${aiAbbreviationFirstReferenceRule}
 
 ---------------------------------------------------------------------
 REQUIRED OUTPUT STRUCTURE
@@ -32,7 +38,7 @@ The output must include ALL sections from WunderBrand Snapshot+™ (sections 1�
    Each with: whyFocus, downstreamIssues, whatImproves
 
 3. Pillar Deep Dives (All 5: positioning, messaging, visibility, credibility, conversion)
-   Each with: score (0–20), interpretation, whatsHappeningNow, whyItMattersCommercially, concreteExample { before, after }, strategicRecommendation, successLooksLike
+   Each with: score (0–20), interpretation, whatsHappeningNow, whyItMattersCommercially, concreteExample { before, after }, strategicRecommendation (include at least one ready-to-use line of copy or criterion — not tasks alone), successLooksLike
 
 4. Context Coverage
    overallPercent, areas [{ name, percent, status }], contextGaps []
@@ -44,7 +50,7 @@ The output must include ALL sections from WunderBrand Snapshot+™ (sections 1�
    primary + secondary (each: name, whenAligned, riskIfMisused, languageTone, behaviorGuide), howTheyWorkTogether
 
 7. Brand Persona
-   personaSummary, coreIdentity { whoYouAre, whatYouStandFor, howYouShowUp }, communicationStyle { tone, pace, energy }, messagingExamples { headlines, ctaButtons, socialPosts — each with avoid/use arrays }, doAndDont { do: [{ guideline, example }], dont: [{ guideline, example }] }
+   personaSummary, coreIdentity { whoYouAre, whatYouStandFor, howYouShowUp }, communicationStyle { tone, pace, energy }, messagingExamples { headlines, ctaButtons, socialPosts — each with use[] (**Do this**) and avoid[] (**Not this**) lines only; no "Avoid example" prefixes in strings }, doAndDont { do: [{ guideline, example }], dont: [{ guideline, example }] }
 
 8. Visual & Verbal Signals
    colorPaletteDirection, colorSwatches [{ name, hex, rgb, cmyk, usage }], avoidColors [{ name, hex, reason }], voiceTraits [], consistencyRisks
@@ -73,7 +79,7 @@ The output must include ALL sections from WunderBrand Snapshot+™ (sections 1�
     - howToUse: How to use this document across teams or as a solo operator
 
 16. Brand Foundation
-    - brandPurpose: Why the brand exists beyond making money
+    - brandPurpose: **Declarative** why the brand exists (actual copy to brief or read aloud) — **2–3 short paragraphs (90–200 words)**, company-specific. **Not** prescriptive tasks (no "unify messaging", "improve visibility", "align positioning"). Must include: (1) who & stake, (2) tension from inputs, (3) grounding in what they stand for/deliver (identity, not roadmap), (4) one **principle** for tradeoffs. Anchor in ≥3 input threads. Distinct from mission, promise, positioning, and action plan.
     - brandPromise: The one commitment the brand makes to every customer
     - positioningStatement: Complete, ready-to-use positioning statement
     - differentiationNarrative: 2–3 paragraph narrative on what makes this brand different
@@ -89,7 +95,11 @@ The output must include ALL sections from WunderBrand Snapshot+™ (sections 1�
     - primaryArchetype: Name
     - secondaryArchetype: Name
     - activation: For EACH of messaging, content, salesConversations, visualTone:
-      provide a string describing how the archetype manifests in that area
+      provide a string that **embeds finished, paste-ready sample language** (exact words a buyer would see or hear)—not abstract rules alone.
+      - **messaging**: output reads like a **live Homepage**—headline, subhead, button, and secondary link as the customer sees them. **Do not** prefix with labels like “H1:”, “Subhead:”, or “CTA:”.
+      - **content**: a single **opening paragraph** as it would appear in a guide or newsletter—no “you should” or “include proof blocks” instructions inside the sample.
+      - **salesConversations**: **verbatim talk track** (first ~20–40 seconds) inside quotes—what a rep would say, not bullet steps.
+      - **visualTone**: stay descriptive; you may add one short in-situ line (e.g. caption or layout direction) if it clarifies archetype expression.
 
 19. Messaging System
     - coreMessage: The single most important thing the brand communicates

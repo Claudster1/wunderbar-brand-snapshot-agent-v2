@@ -4,6 +4,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 import { ResultsHeroSection } from "@/src/components/results/ResultsHeroSection";
-import { PillarCardGrid } from "@/src/components/results/PillarCardGrid";
+import { PillarBreakdown } from "@/components/PillarBreakdown";
 import { ResultsUpgradeCTA } from "@/components/results/ResultsUpgradeCTA";
 import { SuiteCTA } from "@/src/components/results/SuiteCTA";
 import { ContextCoverageMeter } from "@/src/components/results/ContextCoverageMeter";
@@ -21,12 +22,23 @@ import { getPrimaryPillar } from "@/lib/upgrade/primaryPillar";
 import { PillarKey } from "@/src/types/pillars";
 import type { UserRoleContext } from "@/src/types/snapshot";
 import { LockedResultsPreview } from "@/app/results/components/LockedResultsPreview";
-import { MarketingSpendEfficiencySignal } from "@/app/results/components/MarketingSpendEfficiencySignal";
-import { RevenueImpactStatement } from "@/app/results/components/RevenueImpactStatement";
 import { HumanAssistCTA } from "@/app/results/components/HumanAssistCTA";
+import { FoundationLockedPreview } from "@/app/results/components/FoundationLockedPreview";
+import { ResultsWundyChat } from "@/app/results/components/ResultsWundyChat";
+import ResultsTabsShell from "@/components/results/ResultsTabsShell";
+import {
+  parseActivationPlanSectionId,
+  parseResultsTabId,
+  type ProductTier as ResultsTabTier,
+} from "@/components/results/tabConfig";
+import { isWorkbookSectionId } from "@/lib/workbookTypes";
+import { wunderBrandScoreFromPillars } from "@/lib/wunderBrandScoreDisplay";
+import FoundationBlueprintContent from "@/components/tabs/FoundationBlueprintContent";
+import FoundationExtras from "@/components/FoundationExtras";
 import { safeFetchJson } from "@/lib/resilience/safeFetch";
 import { getArchetypeIcon, getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
-import { BlueprintPlusHeader } from "@/components/reports/BlueprintPlusHeader";
+import { buildActivationDiagnostics } from "@/lib/results/buildActivationDiagnostics";
+import { normalizeBrandImageryDirection } from "@/lib/brand/brandImageryNormalize";
 
 interface BrandSnapshotResult {
   businessName: string;
@@ -35,11 +47,18 @@ interface BrandSnapshotResult {
   pillarInsights: Record<PillarKey, string>;
   stage: "early" | "scaling" | "growing";
   contextCoverage?: number; // 0-100, optional
+  contextCoverageDetails?: {
+    overallPercent: number;
+    areas: Array<{ name: string; percent: number; status?: string }>;
+    contextGaps: string[];
+  };
   userRoleContext?: string; // optional user role context
   userEmail?: string; // optional user email for access check
   reportId: string;
   user?: {
     hasSnapshotPlus: boolean;
+    hasBlueprint: boolean;
+    hasBlueprintPlus: boolean;
   };
 }
 
@@ -48,6 +67,8 @@ interface ResultsPageProps {
 }
 
 type BudgetBand = "under_500" | "500_2000" | "2000_5000" | "5000_plus";
+type ProductTier = "snapshot" | "snapshot_plus" | "blueprint" | "blueprint_plus";
+type SignalSeverity = "low" | "medium" | "high";
 
 function asBudgetBand(value: unknown): BudgetBand | null {
   return value === "under_500" ||
@@ -75,6 +96,31 @@ function extractLikelyArchetype(report: Record<string, unknown>, answers: Record
   return null;
 }
 
+function extractStringArray(...candidates: unknown[]): string[] {
+  for (const candidate of candidates) {
+    if (Array.isArray(candidate)) {
+      const values = candidate.filter(
+        (value): value is string => typeof value === "string" && value.trim().length > 0,
+      );
+      if (values.length > 0) return values;
+    }
+    if (typeof candidate === "string" && candidate.trim()) {
+      return candidate
+        .split(/[,\n]/)
+        .map((value) => value.trim())
+        .filter(Boolean);
+    }
+  }
+  return [];
+}
+
+function toTitleLabel(value: string): string {
+  return value
+    .replace(/[_-]+/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase())
+    .trim();
+}
+
 async function resolveBaseUrlFromHeaders() {
   const hdrs = await headers();
   const host = hdrs.get("x-forwarded-host") || hdrs.get("host");
@@ -96,11 +142,52 @@ async function resolveRuntimeBaseUrl() {
   );
 }
 
+function resolveProductTier(report: Record<string, unknown>): ProductTier {
+  const metaTier = (report.full_report as { _meta?: { tier?: string } } | undefined)?._meta?.tier;
+  if (metaTier === "blueprint_plus" || metaTier === "blueprint-plus") return "blueprint_plus";
+  if (metaTier === "blueprint") return "blueprint";
+  if (metaTier === "snapshot_plus" || metaTier === "snapshot-plus") return "snapshot_plus";
+
+  const productTier = typeof report.product_tier === "string" ? report.product_tier : "";
+  if (productTier === "blueprint_plus" || productTier === "blueprint-plus") return "blueprint_plus";
+  if (productTier === "blueprint") return "blueprint";
+  if (productTier === "snapshot_plus" || productTier === "snapshot-plus") return "snapshot_plus";
+
+  const user = (report.user ?? {}) as Record<string, unknown>;
+  if (user.hasBlueprintPlus === true || user.has_blueprint_plus === true) return "blueprint_plus";
+  if (user.hasBlueprint === true || user.has_blueprint === true) return "blueprint";
+  if (user.hasSnapshotPlus === true || user.has_snapshot_plus === true) return "snapshot_plus";
+  return "snapshot";
+}
+
+function getUpstreamPillar(
+  pillarScores: Record<PillarKey, number>,
+  primaryPillar: PillarKey
+): PillarKey {
+  const ordered = (Object.entries(pillarScores) as Array<[PillarKey, number]>)
+    .sort((a, b) => a[1] - b[1])
+    .map(([pillar]) => pillar);
+  return ordered.find((pillar) => pillar !== primaryPillar) ?? primaryPillar;
+}
+
 export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   const raw = searchParams != null ? await searchParams : undefined;
   const resolved = raw ?? {};
   const reportId = (typeof resolved.reportId === "string" ? resolved.reportId : resolved.reportId?.[0])
     ?? (typeof resolved.id === "string" ? resolved.id : resolved.id?.[0]);
+  const initialResultsTab = parseResultsTabId(resolved.tab);
+  const initialActivationPlanId = parseActivationPlanSectionId(resolved.activationPlanId);
+  const workbookSectionRaw =
+    typeof resolved.workbookSection === "string"
+      ? resolved.workbookSection
+      : Array.isArray(resolved.workbookSection)
+        ? resolved.workbookSection[0]
+        : undefined;
+  const initialWorkbookSectionId = isWorkbookSectionId(workbookSectionRaw) ? workbookSectionRaw : undefined;
+
+  if (reportId && reportId.startsWith("preview-")) {
+    redirect("/preview/results-tabs");
+  }
 
   // No reportId: redirect to brand-snapshot results entry or show prompt
   if (!reportId || reportId === "preview-mock") {
@@ -109,7 +196,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         <div className="bs-container-narrow max-w-[700px] mx-auto text-center">
           <h1 className="bs-h1 mb-3">Your results</h1>
           <p className="bs-body mb-6 text-brand-midnight">
-            Complete a WunderBrand Snapshot™ to see your results here, or open your report from the link we sent you.
+            Complete a WunderBrand Snapshot™ to see your results here, or open your results from the link we sent you.
           </p>
           <Link href="/brand-snapshot" className="btn-primary">
             Start WunderBrand Snapshot™
@@ -129,8 +216,8 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
     return (
       <main className="min-h-screen bg-brand-bg font-brand flex flex-col items-center justify-center px-4 py-16">
         <div className="bs-container-narrow max-w-[700px] mx-auto text-center">
-          <h1 className="bs-h1 mb-3">Report not found</h1>
-          <p className="bs-body mb-6 text-brand-midnight">This report may have been removed or the link is incorrect.</p>
+          <h1 className="bs-h1 mb-3">Results not found</h1>
+          <p className="bs-body mb-6 text-brand-midnight">These results may have been removed or the link is incorrect.</p>
           <Link href="/brand-snapshot" className="text-brand-blue font-bold hover:underline focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 rounded">Start a new WunderBrand Snapshot™</Link>
         </div>
       </main>
@@ -156,17 +243,46 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       : "No insight available.";
   }
 
+  const rawContextCoverage =
+    report.contextCoverage ||
+    report.context_coverage ||
+    report.full_report?.contextCoverage ||
+    report.full_report?.context_coverage;
+  const contextCoverageDetails =
+    rawContextCoverage &&
+    typeof rawContextCoverage === "object" &&
+    !Array.isArray(rawContextCoverage) &&
+    typeof rawContextCoverage.overallPercent === "number"
+      ? {
+          overallPercent: rawContextCoverage.overallPercent,
+          areas: Array.isArray(rawContextCoverage.areas) ? rawContextCoverage.areas : [],
+          contextGaps: Array.isArray(rawContextCoverage.contextGaps)
+            ? rawContextCoverage.contextGaps
+            : [],
+        }
+      : undefined;
+  const contextCoveragePercent =
+    contextCoverageDetails?.overallPercent ??
+    (typeof rawContextCoverage === "number" ? rawContextCoverage : undefined);
+
   const data: BrandSnapshotResult = {
     businessName: report.company_name || report.company || "Your brand",
-    brandAlignmentScore: report.brand_alignment_score ?? 0,
+    brandAlignmentScore: wunderBrandScoreFromPillars(report),
     pillarScores,
     pillarInsights,
     stage: (report.snapshot_stage || report.stage || "early") as "early" | "scaling" | "growing",
-    contextCoverage: report.context_coverage ?? undefined,
+    contextCoverage: contextCoveragePercent,
+    contextCoverageDetails,
     userRoleContext: report.user_role_context,
     userEmail: report.user_email ?? report.email,
     reportId: report.report_id || reportId,
-    user: report.user ? { hasSnapshotPlus: !!report.user.hasSnapshotPlus } : undefined,
+    user: report.user
+      ? {
+          hasSnapshotPlus: !!(report.user.hasSnapshotPlus || report.user.has_snapshot_plus),
+          hasBlueprint: !!(report.user.hasBlueprint || report.user.has_blueprint),
+          hasBlueprintPlus: !!(report.user.hasBlueprintPlus || report.user.has_blueprint_plus),
+        }
+      : undefined,
   };
 
   const primaryResult = getPrimaryPillar(data.pillarScores);
@@ -175,8 +291,8 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       ? primaryResult.pillars?.[0] ?? primaryResult.pillar
       : primaryResult.pillar;
   const primaryPillarStr = (primaryPillar ?? "positioning") as PillarKey;
-  const stage = data.stage; // inferred by engine
-  const user = data.user ?? { hasSnapshotPlus: false };
+  const productTier = resolveProductTier(report as Record<string, unknown>);
+  const hasSnapshotPlusAccess = productTier !== "snapshot";
   const reportAnswers = (report.full_report?.answers ?? report.answers ?? {}) as Record<string, unknown>;
   const businessType =
     typeof reportAnswers.businessType === "string" ? reportAnswers.businessType : null;
@@ -196,13 +312,292 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       ? reportAnswers.conversionRateEstimate
       : null;
   const likelyArchetype = extractLikelyArchetype(report as Record<string, unknown>, reportAnswers);
+  const secondaryArchetype = (() => {
+    const candidates: unknown[] = [
+      report.secondary_archetype,
+      (report.full_report as { secondary_archetype?: unknown } | undefined)?.secondary_archetype,
+      reportAnswers.secondaryArchetype,
+      reportAnswers.secondary_archetype,
+    ];
+    for (const candidate of candidates) {
+      if (typeof candidate === "string" && candidate.trim()) return candidate.trim();
+    }
+    return null;
+  })();
+  const secondaryArchetypeMeaning = secondaryArchetype ? getArchetypeMeaning(secondaryArchetype) : null;
+  const topStrengths = extractStringArray(
+    report.top_strengths,
+    report.strengths,
+    (report.full_report as { top_strengths?: unknown } | undefined)?.top_strengths,
+  ).slice(0, 3);
+  const topGaps = extractStringArray(
+    report.top_gaps,
+    report.gaps,
+    (report.full_report as { top_gaps?: unknown } | undefined)?.top_gaps,
+  ).slice(0, 3);
+  const voiceAttributes = extractStringArray(
+    report.voice_attributes,
+    (report.full_report as { voice_attributes?: unknown } | undefined)?.voice_attributes,
+    reportAnswers.voiceAttributes,
+  ).slice(0, 4);
+  const targetAudience =
+    typeof reportAnswers.targetAudience === "string"
+      ? reportAnswers.targetAudience
+      : typeof reportAnswers.primaryAudience === "string"
+        ? reportAnswers.primaryAudience
+        : "Your highest-fit audience segment";
+  const secondaryAudience = (() => {
+    const candidates: unknown[] = [
+      report.secondary_audience,
+      (report.full_report as { secondary_audience?: unknown } | undefined)?.secondary_audience,
+      reportAnswers.secondaryAudience,
+      reportAnswers.secondary_audience,
+      (report.enrichment as { secondaryAudience?: unknown } | undefined)?.secondaryAudience,
+    ];
+    for (const candidate of candidates) {
+      if (typeof candidate === "string" && candidate.trim()) return candidate.trim();
+    }
+    return "";
+  })();
+  const tertiaryAudience = (() => {
+    const candidates: unknown[] = [
+      report.tertiary_audience,
+      (report.full_report as { tertiary_audience?: unknown } | undefined)?.tertiary_audience,
+      reportAnswers.tertiaryAudience,
+      reportAnswers.tertiary_audience,
+      (report.enrichment as { tertiaryAudience?: unknown } | undefined)?.tertiaryAudience,
+    ];
+    for (const candidate of candidates) {
+      if (typeof candidate === "string" && candidate.trim()) return candidate.trim();
+    }
+    return "";
+  })();
+  const industry =
+    typeof reportAnswers.industry === "string"
+      ? reportAnswers.industry
+      : typeof reportAnswers.businessType === "string"
+        ? reportAnswers.businessType
+        : "Your market category";
+
+  const strategicPriorities = recommendationsList.slice(0, 3).map((item, index) => ({
+    rank: index + 1,
+    title: item.length > 72 ? `${item.slice(0, 69)}...` : item,
+    why: item,
+    pillar: toTitleLabel(primaryPillarStr),
+    effort: index === 0 ? "Medium" : index === 1 ? "Medium" : "High",
+    dependency: index === 1 ? toTitleLabel(primaryPillarStr) : undefined,
+  }));
+
+  const defaultChannels = [
+    "Website",
+    "Social",
+    "Email",
+    "SEO",
+    "Sales",
+    "Content",
+    "Website",
+    "Social",
+    "Email",
+    "SEO",
+    "Content",
+    "Sales",
+  ];
+  const scheduleRows = defaultChannels.map((channel, index) => ({
+    week: Math.floor(index / 3) + 1,
+    channel,
+    contentType: channel === "Email" ? "Sequence" : channel === "SEO" ? "Article" : "Post",
+    assetTopic: recommendationsList[index % Math.max(recommendationsList.length, 1)] ?? `Priority activation item ${index + 1}`,
+    messagePillar: toTitleLabel(primaryPillarStr),
+    funnelStage: index % 2 === 0 ? "Problem-Aware" : "Solution-Aware",
+    primaryCta: "Book Strategy Call",
+    owner: "",
+    status: "Not Started" as const,
+    dueDate: `Week ${Math.floor(index / 3) + 1}`,
+  }));
+
   const archetypeMeaning = getArchetypeMeaning(likelyArchetype);
   const archetypeIcon = getArchetypeIcon(likelyArchetype);
+  const tabTier: ResultsTabTier =
+    productTier === "snapshot_plus"
+      ? "snapshot-plus"
+      : productTier === "blueprint_plus"
+        ? "blueprint-plus"
+        : productTier;
+  const upstreamPillar = getUpstreamPillar(data.pillarScores, primaryPillarStr);
+  const primaryRecommendation = recommendationsList[0] ?? "Align your top-of-funnel narrative to the strongest audience need.";
+  const competitiveSeverity: SignalSeverity =
+    data.pillarScores[primaryPillarStr] >= 70
+      ? "low"
+      : data.pillarScores[primaryPillarStr] >= 55
+        ? "medium"
+        : "high";
+  const spendEfficiencySeverity: SignalSeverity =
+    (data.pillarScores.visibility ?? 0) >= 70
+      ? "low"
+      : (data.pillarScores.visibility ?? 0) >= 55
+        ? "medium"
+        : "high";
+  const fullReport = report.full_report as Record<string, unknown> | undefined;
+  const brandFoundation =
+    (report.brandFoundation as Record<string, unknown> | undefined) ??
+    (fullReport?.brandFoundation as Record<string, unknown> | undefined);
 
-  return (
-    <main className="min-h-screen bg-brand-bg font-brand">
-      <div className="bs-container-wide bs-section px-4 sm:px-6 md:px-8 space-y-12 md:space-y-14">
-      {/* Track page view */}
+  const defaultChannelPlans: Record<string, string> = {
+    positioning:
+      "Clarify your core positioning statement and align all outward-facing language to that promise before scaling channel activity.",
+    messaging:
+      "Build a three-pillar message system and map each campaign message back to one pillar to avoid drift.",
+    "voice-copy":
+      "Document voice attributes, on-brand language, and tone shifts by channel so copy remains consistent across contributors.",
+    email:
+      "Run sequence-driven email with one narrative thread per campaign, not disconnected sends.",
+    social:
+      "Publish around recurring content pillars with consistent hooks and CTA patterns tied to audience pain points.",
+    website:
+      "Audit key pages for positioning clarity, message alignment, and conversion intent. Rewrite highest-traffic sections first.",
+    "content-seo":
+      "Prioritize authority content that supports both discoverability and conversion while reflecting your archetype voice.",
+    "lead-gen":
+      "Create value-first conversion assets that bridge awareness to action through one clear promise and next step.",
+    "strategic-planning":
+      "Sequence work over 90 days: quick wins first, then foundation upgrades, then growth initiatives.",
+    "persona-messaging":
+      "Adapt emphasis by persona while preserving a consistent brand voice and strategic through-line.",
+    "full-funnel":
+      "Map messaging by buyer stage so awareness, nurture, and conversion content reinforce each other.",
+    campaigns:
+      "Build repeatable campaign systems for launch, quarterly planning, and advocacy to improve consistency and speed.",
+    "advanced-strategy":
+      "Use competitive and portfolio strategy prompts to protect positioning while scaling to new opportunities.",
+  };
+  const activationDx = buildActivationDiagnostics(fullReport, data.businessName);
+  const channelPlans: Record<string, string> = { ...defaultChannelPlans };
+  for (const [key, value] of Object.entries(activationDx.channelPlans)) {
+    if (typeof value === "string" && value.trim()) channelPlans[key] = value;
+  }
+
+  const diagnosticData = {
+    companyName: data.businessName,
+    reportId: data.reportId,
+    userEmail: data.userEmail ?? "",
+    resultsDeliveredAt:
+      (typeof report.created_at === "string" && report.created_at) || new Date().toISOString(),
+    industry,
+    targetAudience,
+    secondaryAudience,
+    tertiaryAudience,
+    primaryArchetype: likelyArchetype ?? "Archetype pending",
+    secondaryArchetype: secondaryArchetype ?? "Secondary archetype pending",
+    archetypeMeaning: archetypeMeaning ?? "",
+    archetypeIcon: archetypeIcon ?? "",
+    topStrengths,
+    topGaps,
+    voiceAttributes,
+    businessName: data.businessName,
+    productTier: tabTier,
+    wunderBrandScore: data.brandAlignmentScore,
+    pillarScores: data.pillarScores,
+    primaryPillar: primaryPillarStr.charAt(0).toUpperCase() + primaryPillarStr.slice(1),
+    upstreamPillar: upstreamPillar.charAt(0).toUpperCase() + upstreamPillar.slice(1),
+    competitiveVulnerability: {
+      severity: competitiveSeverity,
+      summary: `Competitive pressure is concentrated around your ${primaryPillarStr} activation layer.`,
+      implication:
+        "Competitors with clearer language and stronger repetition can win attention even when your offer is stronger.",
+      recommendation: primaryRecommendation,
+    },
+    marketingSpendEfficiency: {
+      severity: spendEfficiencySeverity,
+      summary: "Your current brand alignment is influencing how efficiently spend converts to qualified demand.",
+      implication:
+        "When positioning and visibility are misaligned, acquisition cost rises because your message attracts weaker-fit traffic.",
+      recommendation:
+        recommendationsList[1] ??
+        "Prioritize one message pillar per channel and align CTA language to that pillar for the next 30 days.",
+    },
+    revenueImpactStatement:
+      `${data.businessName} currently has a WunderBrand Score™ of ${data.brandAlignmentScore}. ` +
+      `Improving ${primaryPillarStr} alignment can increase conversion quality and reduce wasted marketing spend.`,
+    brandHealthVerdict:
+      `${data.businessName} is currently ${data.brandAlignmentScore >= 75 ? "strong" : data.brandAlignmentScore >= 60 ? "good" : "developing"} but inconsistent across key brand touchpoints.`,
+    positioningMessagingFramework:
+      recommendationsList[0] ??
+      "Use one clear positioning promise and reinforce it with consistent message pillars across homepage, email, social, and sales narratives.",
+    topOpportunity:
+      recommendationsList[0] ??
+      "Sharpen your highest-leverage message and apply it consistently across homepage, email, and social touchpoints.",
+    synthesisPoints: [
+      {
+        label: "What to protect",
+        content:
+          recommendationsList[0] ??
+          "Protect the message elements that already create immediate audience clarity and trust.",
+      },
+      {
+        label: "What to prioritize",
+        content:
+          recommendationsList[1] ??
+          "Prioritize the weakest high-impact pillar first so downstream activation improves faster.",
+      },
+      {
+        label: "What unlocks growth",
+        content:
+          recommendationsList[2] ??
+          "Consistent message-to-channel alignment creates compounding visibility, credibility, and conversion momentum.",
+      },
+    ],
+    pillarDependencyExplanation:
+      `Improving ${primaryPillarStr} depends on strengthening ${upstreamPillar} first, because upstream clarity determines how well downstream messaging performs.`,
+    strategicPriorities,
+    channelPlans,
+    scheduleRows,
+    brandFoundation,
+    contextCoverage: data.contextCoverage,
+    hasPriorityActions: recommendationsList.length > 0,
+    ...(activationDx.personaIcpBanner ? { activationPersonaIcpBanner: activationDx.personaIcpBanner } : {}),
+    ...(activationDx.audienceSegmentsBody ? { activationSegmentPlansBody: activationDx.audienceSegmentsBody } : {}),
+    ...(activationDx.executionRoadmapBody ? { activationRoadmapPlansBody: activationDx.executionRoadmapBody } : {}),
+    ...(activationDx.buyerJourneySummary ? { buyerJourneySummary: activationDx.buyerJourneySummary } : {}),
+    ...(activationDx.competitiveMatrixSummary ? { competitiveMatrixSummary: activationDx.competitiveMatrixSummary } : {}),
+    ...(fullReport?.paidMediaStrategy &&
+    typeof fullReport.paidMediaStrategy === "object" &&
+    !Array.isArray(fullReport.paidMediaStrategy)
+      ? { paidMediaStrategy: fullReport.paidMediaStrategy }
+      : {}),
+    ...(fullReport?.icpConversionIntelligenceFramework &&
+    typeof fullReport.icpConversionIntelligenceFramework === "object" &&
+    !Array.isArray(fullReport.icpConversionIntelligenceFramework)
+      ? { icpConversionIntelligenceFramework: fullReport.icpConversionIntelligenceFramework }
+      : {}),
+    ...(fullReport?.personaDrivenSegmentation &&
+    typeof fullReport.personaDrivenSegmentation === "object" &&
+    !Array.isArray(fullReport.personaDrivenSegmentation)
+      ? { personaDrivenSegmentation: fullReport.personaDrivenSegmentation }
+      : {}),
+    ...(fullReport?.audiencePersonaDefinition &&
+    typeof fullReport.audiencePersonaDefinition === "object" &&
+    !Array.isArray(fullReport.audiencePersonaDefinition)
+      ? { audiencePersonaDefinition: fullReport.audiencePersonaDefinition }
+      : {}),
+    ...(() => {
+      const norm = normalizeBrandImageryDirection(
+        fullReport?.brandImageryDirection ?? fullReport?.brand_imagery_direction,
+      );
+      const bsg = fullReport?.brandStandardsGuide;
+      const extra: Record<string, unknown> = {};
+      if (norm) {
+        extra.brandImageryDirection = norm;
+        extra.brand_imagery_direction = norm;
+      }
+      if (bsg && typeof bsg === "object" && !Array.isArray(bsg)) {
+        extra.brandStandardsGuide = bsg;
+      }
+      return extra;
+    })(),
+  };
+
+  const resultsContent = (
+    <div className="space-y-12 md:space-y-14">
       <ResultsPageViewTracker
         brandAlignmentScore={data.brandAlignmentScore}
         primaryPillar={primaryPillarStr}
@@ -212,48 +607,38 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         contextCoverage={data.contextCoverage}
         email={data.userEmail}
       />
-
-      <BlueprintPlusHeader
-        productName="WunderBrand Snapshot™"
-        reportId={data.reportId}
-        userEmail={data.userEmail}
-        pdfHref={`/api/pdf?id=${encodeURIComponent(data.reportId)}&type=snapshot`}
-        utmMedium="snapshot_results"
-      />
-
-      <section id="summary" className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
-        <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
-          Executive Summary
+      <section id="results-overview" className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
+        <p className="text-[14px] font-bold uppercase tracking-wide text-brand-blue mb-2">
+          Results
         </p>
-        <h2 className="bs-h3 mb-2">Your high-level brand results overview</h2>
+        <h2 className="bs-h3 mb-2">Diagnostic Results</h2>
         <p className="bs-body-sm text-brand-muted max-w-3xl">
-          This summary gives you the top-line view of your WunderBrand Score™, pillar performance,
-          and immediate priority focus so you can understand where your brand stands before diving
-          into details.
+          This tab is your diagnostic readout: score, pillars, findings, and priority opportunities.
+          Use it to understand what the data says before moving into platform and activation decisions.
         </p>
       </section>
 
-      {/* Hero: two-column — gauge + rating (left) | recommendation card (right) */}
       <div id="score-overview">
         <ResultsHeroSection
           score={data.brandAlignmentScore}
           primaryPillar={primaryPillarStr}
-          hasSnapshotPlus={user.hasSnapshotPlus}
+          hasSnapshotPlus={hasSnapshotPlusAccess}
           userRoleContext={data.userRoleContext as UserRoleContext | undefined}
         />
       </div>
-
-      {/* Score breakdown: grid of pillar cards */}
+      {!hasSnapshotPlusAccess && <FoundationExtras slot="signals" data={diagnosticData} />}
       <div id="pillar-analysis">
-        <PillarCardGrid
-          pillarScores={data.pillarScores}
-          pillarInsights={data.pillarInsights}
+        <PillarBreakdown
+          pillars={data.pillarScores}
+          insights={pillarInsightsRaw}
+          businessName={data.businessName}
+          stage={data.stage}
         />
       </div>
 
       {recommendationsList.length > 0 && (
-        <section className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
-          <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+        <section id="priority-actions" className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
+          <p className="text-[14px] font-bold uppercase tracking-wide text-brand-blue mb-2">
             Priority Actions
           </p>
           <h2 className="bs-h3 mb-2">What to focus on next</h2>
@@ -267,59 +652,15 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         </section>
       )}
 
-      {likelyArchetype && (
+      {!hasSnapshotPlusAccess && (
         <section id="archetype" className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
-          <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
-            Your Brand Archetype
-          </p>
-          <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-brand-blue/10 border border-brand-blue/20">
-            <p className="bs-body-sm text-brand-navy font-bold">
-              {archetypeIcon ? `${archetypeIcon} ` : ""}
-              {likelyArchetype}
-            </p>
-          </div>
-          {archetypeMeaning && (
-            <p className="bs-small text-brand-muted mt-1">{archetypeMeaning}</p>
-          )}
-          <p className="bs-small text-brand-muted mt-3">
-            {user.hasSnapshotPlus
-              ? "Blueprint+ style guidance: use this archetype as your default tone filter across website copy, offer framing, and CTA language."
-              : "Snapshot view: use this archetype as your north star for headline tone, proof style, and call-to-action language."}
-          </p>
+          <FoundationExtras slot="archetypeLocked" data={diagnosticData} />
         </section>
       )}
 
-      <div id="signals" className="space-y-12 md:space-y-14">
-        <MarketingSpendEfficiencySignal
-          businessType={businessType}
-          monthlyMarketingBudget={monthlyMarketingBudget}
-          primaryPillar={primaryPillarStr}
-          reportId={data.reportId}
-          email={data.userEmail}
-        />
+      {!hasSnapshotPlusAccess && <FoundationLockedPreview likelyArchetype={likelyArchetype} />}
 
-        <RevenueImpactStatement
-          primaryPillar={primaryPillarStr}
-          monthlyRevenueRange={monthlyRevenueRange}
-          annualRevenueRange={annualRevenueRange}
-          averageTransactionValue={averageTransactionValue}
-          conversionRateEstimate={conversionRateEstimate}
-          reportId={data.reportId}
-          email={data.userEmail}
-        />
-
-        <HumanAssistCTA
-          source="results_page"
-          reportId={data.reportId}
-          email={data.userEmail}
-          businessName={data.businessName}
-          businessType={businessType}
-          primaryPillar={primaryPillarStr}
-          brandAlignmentScore={data.brandAlignmentScore}
-        />
-      </div>
-
-      {!user.hasSnapshotPlus && (
+      {!hasSnapshotPlusAccess && (
         <LockedResultsPreview
           primaryPillar={primaryPillarStr}
           pillarScores={data.pillarScores}
@@ -333,26 +674,67 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         />
       )}
 
-      {/* Context Coverage Meter */}
       {data.contextCoverage !== undefined && (
-        <ContextCoverageMeter coveragePercent={data.contextCoverage} />
+        <div id="context-coverage">
+          <ContextCoverageMeter
+            coveragePercent={data.contextCoverage}
+            areas={data.contextCoverageDetails?.areas}
+            contextGaps={data.contextCoverageDetails?.contextGaps}
+          />
+        </div>
       )}
 
       <div id="implementation">
         <ImplementationIntro />
       </div>
 
-      {/* Optional secondary CTA */}
       <SuiteCTA />
 
       <div id="next-steps">
+        <HumanAssistCTA
+          source="results_page"
+          reportId={data.reportId}
+          email={data.userEmail}
+          businessName={data.businessName}
+          businessType={businessType}
+          primaryPillar={primaryPillarStr}
+          brandAlignmentScore={data.brandAlignmentScore}
+        />
         <ResultsUpgradeCTA
           primaryPillar={primaryPillarStr}
           stage={data.stage}
-          hasPurchasedPlus={user.hasSnapshotPlus}
+          hasPurchasedPlus={hasSnapshotPlusAccess}
           email={data.userEmail}
         />
       </div>
+    </div>
+  );
+
+  const foundationContent = (
+    <FoundationBlueprintContent
+      businessName={data.businessName}
+      targetAudience={targetAudience}
+      industry={industry}
+      primaryPillar={primaryPillarStr}
+      primaryArchetype={likelyArchetype}
+      secondaryArchetype={secondaryArchetype}
+      diagnosticData={diagnosticData}
+    />
+  );
+
+  return (
+    <main className="min-h-screen font-brand" style={{ backgroundColor: "#F5F7FA" }}>
+      <ResultsTabsShell
+        productTier={tabTier}
+        resultsContent={resultsContent}
+        foundationContent={foundationContent}
+        diagnosticData={diagnosticData}
+        initialActiveTab={initialResultsTab}
+        initialWorkbookSectionId={initialWorkbookSectionId}
+        initialActivationPlanId={initialActivationPlanId}
+      />
+      <div className="bs-container-wide px-4 sm:px-6 md:px-8 pb-10">
+        <ResultsWundyChat reportId={data.reportId} productTier={productTier} />
       </div>
     </main>
   );

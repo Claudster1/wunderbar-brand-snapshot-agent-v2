@@ -2,11 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import Image from "next/image";
 
 const BRAND_LOGO_SRC =
   "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp";
-const BRAND_LOGO_FALLBACK = "/assets/og/logo-wunderbar.svg";
 
 // Routes where the header should be hidden (reports/previews)
 const HIDDEN_HEADER_ROUTES = [
@@ -21,7 +19,6 @@ export function WunderbarHeader() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-  const [logoSrc, setLogoSrc] = useState(BRAND_LOGO_SRC);
 
   // Check if header should be hidden on current route
   const shouldHideHeader = HIDDEN_HEADER_ROUTES.some(route => pathname?.startsWith(route));
@@ -61,17 +58,12 @@ export function WunderbarHeader() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          <Image
-            src={logoSrc}
+          <img
+            src={BRAND_LOGO_SRC}
             alt="Wunderbar Digital"
             width={220}
             height={29}
-            priority
-            unoptimized
             style={{ width: 220, height: "auto", display: "block" }}
-            onError={() => {
-              if (logoSrc !== BRAND_LOGO_FALLBACK) setLogoSrc(BRAND_LOGO_FALLBACK);
-            }}
           />
         </a>
 
@@ -149,16 +141,12 @@ export function WunderbarHeader() {
       {/* Mobile Menu */}
       <nav className={`wunder-mobile-menu ${mobileMenuOpen ? "active" : ""}`}>
         <div className="wunder-mobile-header">
-          <Image
-            src={logoSrc}
+          <img
+            src={BRAND_LOGO_SRC}
             alt="Wunderbar Digital"
             width={180}
             height={24}
-            unoptimized
             style={{ width: 180, height: "auto", display: "block" }}
-            onError={() => {
-              if (logoSrc !== BRAND_LOGO_FALLBACK) setLogoSrc(BRAND_LOGO_FALLBACK);
-            }}
           />
           <button type="button" className="wunder-mobile-close" onClick={closeMenu} aria-label="Close mobile menu">
             ×

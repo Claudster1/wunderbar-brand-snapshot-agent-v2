@@ -83,10 +83,12 @@
 | Thought Leadership & PR Positioning | — | — | — | ✓ |
 | | | | | |
 | **AI PROMPT PACKS — USE AI ON-BRAND** | | | | |
-| 8 Brand strategy prompts | — | 8 Prompts | 8 Prompts | 8 Prompts |
-| 8 Marketing & content prompts | — | — | 8 Prompts | 8 Prompts |
-| 12 Advanced prompts (Blueprint+ exclusive) | — | — | — | 12 Prompts |
-| **Total ready-to-use AI prompts** | **—** | **8** | **16** | **28** |
+| Visibility & Discoverability Prompt | — | ✓ | ✓ | ✓ |
+| SEO Strategy Prompt | — | — | ✓ | ✓ |
+| AEO / Answer Engine Optimization Prompt | — | — | ✓ | ✓ |
+| AEO Advanced: Thought Leadership & Authority System | — | — | — | ✓ |
+| AI Prompt Pack | — | **7 prompts** · Immediate use | **17 prompts** · Activation systems | **29 prompts** · Strategic operating system |
+| **Total ready-to-use AI prompts** | **—** | **7** | **17** | **29** |
 | | | | | |
 | **PRICING & SALES ENABLEMENT** | | | | |
 | Value & pricing communication framework | — | — | Pricing Narrative, Objection Responses & Proposal Language | + Persona-Specific Pricing Narratives & Competitive Differentiation |

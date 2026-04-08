@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { calculateBrandSnapshotScores, calculateScores, type PillarScores } from '../src/lib/brandSnapshotEngine';
+import { computeWeightedBrandAlignmentScore } from '../src/lib/pillarWeights';
 import { generateReport, type ReportData } from '../src/services/reportGenerator';
 
 function makeRandomAnswers(): Record<string, number> {
@@ -93,9 +94,7 @@ describe('stress tests', () => {
       const start = performance.now();
       const promises = Array.from({ length: 1_000 }, () => {
         const pillarScores = makeRandomPillarScores();
-        const brandAlignmentScore = Math.round(
-          (pillarScores.positioning + pillarScores.messaging + pillarScores.visibility + pillarScores.credibility + pillarScores.conversion) / 5
-        );
+        const brandAlignmentScore = computeWeightedBrandAlignmentScore(pillarScores);
         return Promise.resolve(generateReport({ brandAlignmentScore, pillarScores }));
       });
       const results = await Promise.all(promises);

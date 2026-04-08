@@ -21,7 +21,7 @@ export function BrandScoreGauge({ score, userRoleContext }: BrandScoreGaugeProps
         <TooltipIcon
           content={
             <>
-              Your overall alignment across all five pillars (positioning, messaging, visibility, credibility, conversion). 0–100 scale: higher means your brand is clearer and more consistent. The needle shows where you land; green = strong, red = biggest opportunity.
+              Weighted index across all five pillars (positioning, messaging, visibility, credibility, conversion). Each pillar is scored 0–20; the headline 0–100 score emphasizes positioning, messaging, and credibility more than visibility and conversion. Higher means clearer, more consistent brand strength.
             </>
           }
         />

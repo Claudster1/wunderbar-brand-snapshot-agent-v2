@@ -73,7 +73,7 @@ export default function AccessPage() {
             rel="noopener noreferrer"
           >
             <Image
-              src="/assets/og/logo-wunderbar.svg"
+              src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp"
               alt="Wunderbar Digital"
               width={198}
               height={36}

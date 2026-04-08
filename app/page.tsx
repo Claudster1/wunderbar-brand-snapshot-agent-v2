@@ -1,15 +1,15 @@
 'use client'
 
 import { FormEvent, useState, useEffect, useRef, useCallback, useMemo, Suspense } from "react";
-import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useBrandChat } from "../src/hooks/useBrandChat";
-import WundyLogo from "@/assets/wundy-logo.jpeg";
 import { TurnstileWidget } from "@/components/security/TurnstileWidget";
 import { BehaviorTracker } from "@/lib/security/behavioralScoring";
 import { EmailVerificationGate } from "@/components/security/EmailVerificationGate";
 import { parseTierFromParam, getChatTierConfig, interpolateWelcomeBack, type ChatTier } from "@/lib/chatTierConfig";
 import { AssetUploadPanel } from "@/components/assets/AssetUploadPanel";
+import { ChatMarkdown, renderChatMarkdownInline } from "@/components/chat/ChatMarkdown";
+import WundyLogo from "@/src/assets/wundy-logo.jpeg";
 
 export default function Home() {
   return (
@@ -20,6 +20,10 @@ export default function Home() {
 }
 
 function HomeContent() {
+  const WUNDY_AVATAR_SRC = WundyLogo.src;
+  const WUNDY_AVATAR_FALLBACK = "/assets/og/wundy-outline.svg";
+  const WUNDY_AVATAR_FINAL_FALLBACK = "/assets/og/wundy-outline.svg";
+  const [wundyAvatarSrc, setWundyAvatarSrc] = useState(WUNDY_AVATAR_SRC);
   // ─── Product tier + customer name detection ───
   const searchParams = useSearchParams();
   const tier = useMemo(() => parseTierFromParam(searchParams.get("tier")), [searchParams]);
@@ -91,6 +95,7 @@ function HomeContent() {
     onComplete: handleAssessmentComplete,
     customGreeting: resolvedGreeting,
     welcomeBackTemplate: !customerName ? activeTierConfig.welcomeBack : undefined,
+    productTier: activeTier,
   });
   const [inputValue, setInputValue] = useState("");
   const [progress, setProgress] = useState(0);
@@ -434,18 +439,24 @@ function HomeContent() {
         <section className="app-card" aria-labelledby="wundy-heading">
           <header className="app-card-header">
             <div className="app-card-avatar-wrap">
-              <Image
-                src={WundyLogo}
-                alt="Wundy™, brand specialist"
-                className="app-card-avatar"
-                width={72}
-                height={72}
-              />
+              <div className="app-card-avatar">
+                <img
+                  src={wundyAvatarSrc}
+                  alt="Wundy™, brand specialist"
+                  className="app-card-avatar-img"
+                  width={64}
+                  height={64}
+                  onError={() => {
+                    if (wundyAvatarSrc === WUNDY_AVATAR_SRC) setWundyAvatarSrc(WUNDY_AVATAR_FALLBACK);
+                    else if (wundyAvatarSrc === WUNDY_AVATAR_FALLBACK) setWundyAvatarSrc(WUNDY_AVATAR_FINAL_FALLBACK);
+                  }}
+                />
+              </div>
             </div>
 
             <div>
               <div className="app-card-eyebrow">{activeTierConfig.heading}</div>
-              <p style={{ fontSize: '14px', color: '#5A6B7E', fontWeight: 400, textAlign: 'center', marginTop: '8px', marginBottom: 0 }}>
+              <p style={{ fontSize: '14px', color: '#5A6B7E', fontWeight: 400, textAlign: 'center', marginTop: '6px', marginBottom: 0 }}>
                 {activeTierConfig.valueProp}
               </p>
             </div>
@@ -523,7 +534,7 @@ function HomeContent() {
                         className={`chat-bubble chat-bubble-${message.role}`}
                       >
                         {contextLines.map((line, idx) => (
-                          <p key={idx}>{line}</p>
+                          <p key={idx}>{renderChatMarkdownInline(line)}</p>
                         ))}
                         <div className={isMultiSelect ? "chat-checkboxes" : "chat-radio-buttons"}>
                           {selectData.options.map((option, idx) => (
@@ -541,7 +552,7 @@ function HomeContent() {
                                 }
                                 disabled={isLoading}
                               />
-                              <span>{option}</span>
+                              <span>{renderChatMarkdownInline(option)}</span>
                             </label>
                           ))}
                         </div>
@@ -555,9 +566,7 @@ function HomeContent() {
                       key={message.id}
                       className={`chat-bubble chat-bubble-${message.role}`}
                     >
-                      {message.text.split("\n\n").map((paragraph, index) => (
-                        <p key={index}>{paragraph}</p>
-                      ))}
+                      <ChatMarkdown text={message.text} />
                     </div>
                   );
                 })}
@@ -817,6 +826,12 @@ function HomeContent() {
                   placeholder="you@company.com"
                   value={saveEmail}
                   onChange={(e) => setSaveEmail(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && saveStatus !== "saving" && saveEmail.trim()) {
+                      e.preventDefault();
+                      void handleSaveAndExit();
+                    }
+                  }}
                   style={{
                     width: "100%",
                     padding: "12px 14px",
@@ -832,6 +847,26 @@ function HomeContent() {
                   onBlur={(e) => (e.currentTarget.style.borderColor = "#D6DFE8")}
                   autoFocus
                 />
+                <p
+                  aria-live="polite"
+                  style={{
+                    minHeight: 18,
+                    margin: "0 0 8px",
+                    fontSize: 12,
+                    color:
+                      saveStatus === "error"
+                        ? "#DC2626"
+                        : saveStatus === "saving"
+                          ? "#0369A1"
+                          : "#5A6B7E",
+                  }}
+                >
+                  {saveStatus === "saving"
+                    ? "Sending your resume link..."
+                    : saveStatus === "error"
+                      ? "Could not send the link. Please check your email and try again."
+                      : "We will send a secure resume link to this address."}
+                </p>
                 {saveStatus === "error" && (
                   <p style={{ color: "#DC2626", fontSize: 13, margin: "0 0 8px" }}>
                     {saveErrorMessage || "Something went wrong. Please try again."}

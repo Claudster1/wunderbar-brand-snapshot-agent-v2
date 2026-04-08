@@ -3,6 +3,15 @@
 // Core scoring + insights engine for WunderBrand Snapshot™
 // ---------------------------------------------
 
+import {
+  deriveSnapshotFactorsFromAssessment,
+  resolveSnapshotFactor,
+  type SnapshotFactorKey,
+} from "./snapshotAssessmentFactors";
+import { computeWeightedBrandAlignmentScore } from "./pillarWeights";
+
+export { computeWeightedBrandAlignmentScore, BRAND_PILLAR_WEIGHTS } from "./pillarWeights";
+
 export type PillarScores = {
   positioning: number;
   messaging: number;
@@ -21,57 +30,56 @@ export type SnapshotResult = {
 export function calculateBrandSnapshotScores(
   answers: Record<string, any>
 ): SnapshotResult {
-  // Normalize helper
-  const normalize = (value: unknown, max = 5) => {
-    const numeric = Number(value);
-    if (!Number.isFinite(numeric)) return 0;
-    return Math.min(Math.max(numeric, 0), max);
-  };
+  const asRecord = answers as Record<string, unknown>;
+  const derived = deriveSnapshotFactorsFromAssessment(asRecord);
+  const f = (key: SnapshotFactorKey) =>
+    resolveSnapshotFactor(asRecord, key, derived[key]);
+
   const toPillar20 = (factors: number[]) => {
     if (factors.length === 0) return 0;
     const sum = factors.reduce((acc, value) => acc + value, 0);
     return Math.min(Math.max(Math.round((sum / (factors.length * 5)) * 20), 0), 20);
   };
 
-  // Pillar scoring
+  // Pillar scoring (factors 0–5 each; explicit numeric overrides + Wundy-derived fill)
   const positioning = toPillar20([
-    normalize(answers.marketClarity),
-    normalize(answers.targetCustomerDefinition),
-    normalize(answers.uniqueValue),
-    normalize(answers.marketDifferentiation),
-    normalize(answers.offerClarity),
+    f("marketClarity"),
+    f("targetCustomerDefinition"),
+    f("uniqueValue"),
+    f("marketDifferentiation"),
+    f("offerClarity"),
   ]);
 
   const messaging = toPillar20([
-    normalize(answers.coreMessageStrength),
-    normalize(answers.websiteMessagingClarity),
-    normalize(answers.socialMessagingConsistency),
-    normalize(answers.storyClarity),
-    normalize(answers.benefitClarity),
+    f("coreMessageStrength"),
+    f("websiteMessagingClarity"),
+    f("socialMessagingConsistency"),
+    f("storyClarity"),
+    f("benefitClarity"),
   ]);
 
   const visibility = toPillar20([
-    normalize(answers.webPresence),
-    normalize(answers.socialPresence),
-    normalize(answers.seoHealth),
-    normalize(answers.contentVelocity),
-    normalize(answers.discoverability),
+    f("webPresence"),
+    f("socialPresence"),
+    f("seoHealth"),
+    f("contentVelocity"),
+    f("discoverability"),
   ]);
 
   const credibility = toPillar20([
-    normalize(answers.proofPoints),
-    normalize(answers.reviews),
-    normalize(answers.socialProof),
-    normalize(answers.brandProfessionalism),
-    normalize(answers.websiteTrustSignals),
+    f("proofPoints"),
+    f("reviews"),
+    f("socialProof"),
+    f("brandProfessionalism"),
+    f("websiteTrustSignals"),
   ]);
 
   const conversion = toPillar20([
-    normalize(answers.ctaClarity),
-    normalize(answers.funnelStrength),
-    normalize(answers.leadCapture),
-    normalize(answers.offerMessaging),
-    normalize(answers.salesReadiness),
+    f("ctaClarity"),
+    f("funnelStrength"),
+    f("leadCapture"),
+    f("offerMessaging"),
+    f("salesReadiness"),
   ]);
 
   const pillarScores: PillarScores = {
@@ -82,12 +90,8 @@ export function calculateBrandSnapshotScores(
     conversion,
   };
 
-  const brandAlignmentScore =
-    pillarScores.positioning +
-    pillarScores.messaging +
-    pillarScores.visibility +
-    pillarScores.credibility +
-    pillarScores.conversion;
+  // Headline 0–100: weighted blend (pillars stay 0–20 each for bars and copy).
+  const brandAlignmentScore = computeWeightedBrandAlignmentScore(pillarScores);
 
   // Generate insights dynamically
   const insights = generateInsights(pillarScores);
@@ -174,12 +178,7 @@ export function calculateScores(pillarScores: PillarScores) {
     credibility: Math.min(Math.max(Math.round(Number(pillarScores.credibility || 0)), 0), 20),
     conversion: Math.min(Math.max(Math.round(Number(pillarScores.conversion || 0)), 0), 20),
   };
-  const brandAlignmentScore =
-    normalizedPillars.positioning +
-    normalizedPillars.messaging +
-    normalizedPillars.visibility +
-    normalizedPillars.credibility +
-    normalizedPillars.conversion;
+  const brandAlignmentScore = computeWeightedBrandAlignmentScore(normalizedPillars);
   
   // Find weakest pillar
   const entries = Object.entries(normalizedPillars) as [keyof PillarScores, number][];

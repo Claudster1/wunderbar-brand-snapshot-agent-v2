@@ -6,6 +6,7 @@ import type { PillarKey } from "@/src/types/pillars";
 import { trackEvent } from "@/lib/analytics";
 import { fireACEvent } from "@/lib/fireACEvent";
 import { trackUpgradeClick } from "@/lib/adTracking";
+import { SNAPSHOT_PLUS_LOCKED_PROMPT_TITLES } from "@/src/lib/prompts/promptLibrary";
 
 type Props = {
   primaryPillar: PillarKey;
@@ -122,7 +123,7 @@ export function LockedResultsPreview({
 }: Props) {
   const primaryLabel = toLabel(primaryPillar);
   const normalizedBusinessType = normalizeBusinessType(businessType);
-  const promptPackLabel = `8 prompts built for ${businessName?.trim() || "your brand"}`;
+  const promptPackLabel = `${SNAPSHOT_PLUS_LOCKED_PROMPT_TITLES.length} prompts built for ${businessName?.trim() || "your brand"}`;
 
   useEffect(() => {
     const key = `snapshot_locked_preview_viewed_${reportId ?? "unknown"}`;
@@ -254,12 +255,20 @@ export function LockedResultsPreview({
 
         <article className="bs-card rounded-xl p-5 border border-brand-border">
           <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
-            Foundational Prompt Pack
+            Snapshot+ Prompt Pack (Locked Preview)
           </p>
           <p className="bs-body-sm text-brand-midnight mb-2">
-            {promptPackLabel}. Your highest-leverage prompt for {primaryLabel} is selected and
-            waiting in Snapshot+, along with your complete foundational prompt pack.
+            {promptPackLabel}. These are pre-calibrated to your brand context and ready to copy
+            into ChatGPT/Claude:
           </p>
+          <ul className="mb-2 space-y-1">
+            {SNAPSHOT_PLUS_LOCKED_PROMPT_TITLES.map((name) => (
+              <li key={name} className="bs-small text-brand-midnight flex items-center justify-between gap-3">
+                <span>{name}</span>
+                <span className="text-brand-blue font-bold">locked</span>
+              </li>
+            ))}
+          </ul>
           <p className="bs-small text-brand-blue font-bold">Locked — available in Snapshot+</p>
           <Link
             href="/snapshot-plus?source=prompt_pack_lock"

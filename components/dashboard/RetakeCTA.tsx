@@ -253,7 +253,7 @@ export default function RetakeCTA() {
 
         <p style={{ fontSize: 12, color: SUB, margin: "12px 0 0", lineHeight: 1.5 }}>
           After your check-in, additional refreshes are $97 each. Or{" "}
-          <Link href="/checkout?product=blueprint-plus" style={{ color: BLUE, fontWeight: 700, textDecoration: "none" }}>
+          <Link href="/brand-blueprint-plus" style={{ color: BLUE, fontWeight: 700, textDecoration: "none" }}>
             take it further with WunderBrand Blueprint+™
           </Link>{" "}
           for unlimited refreshes and a Brand Workspace that grows with you.
@@ -376,7 +376,7 @@ export default function RetakeCTA() {
         {tier !== "blueprint_plus" && (
           <p style={{ fontSize: 12, color: SUB, margin: "12px 0 0", lineHeight: 1.5 }}>
             Or{" "}
-            <Link href="/checkout?product=blueprint-plus" style={{ color: BLUE, fontWeight: 700, textDecoration: "none" }}>
+            <Link href="/brand-blueprint-plus" style={{ color: BLUE, fontWeight: 700, textDecoration: "none" }}>
               take it further with WunderBrand Blueprint+™
             </Link>{" "}
             for unlimited refreshes and a Brand Workspace that grows with you.

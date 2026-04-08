@@ -8,6 +8,7 @@ import { withRetry } from "@/lib/openaiRetry";
 import { logger } from "@/lib/logger";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { getWorkbookEditability } from "@/lib/workbookAccess";
+import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -42,6 +43,16 @@ const LOCKED_DIAGNOSTIC_SECTIONS = new Set([
   "voice_attributes",
   "brand_voice_attributes",
 ]);
+
+const REFINEMENT_QUALITY_APPENDIX = `
+Quality requirements:
+- Keep this hyper-specific to the business context provided. Avoid generic language.
+- Prioritize conversion clarity: clear value, proof-aware framing, and a specific next-step action when relevant.
+- Use concrete audience language and outcome language over abstract branding terms.
+- Preserve the user's original intent and factual constraints.
+
+${aiAbbreviationFirstReferenceRule}
+`;
 
 function fallbackRefine(content: string, businessName?: string): string {
   const normalized = content
@@ -139,7 +150,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const systemPrompt = SECTION_PROMPTS[section] || `You are a brand strategist. Refine this brand content to be clearer, more compelling, and more professional. Keep the core message and intent. Return only the refined text, no explanation or preamble.`;
+    const baseSystemPrompt = SECTION_PROMPTS[section] || `You are a brand strategist. Refine this brand content to be clearer, more compelling, and more professional. Keep the core message and intent. Return only the refined text, no explanation or preamble.`;
+    const systemPrompt = `${baseSystemPrompt}\n\n${REFINEMENT_QUALITY_APPENDIX}`.trim();
 
     let userMessage = content;
     if (businessName) {

@@ -42,7 +42,7 @@ export function ReportTemplate({ data }: { data: any }) {
 
         <div className="flex flex-wrap gap-4 mt-6">
           <Link
-            href={`/api/report/pdf?id=${data.reportId}`}
+            href={`/api/snapshot/pdf?id=${data.reportId}`}
             className="px-5 py-3 bg-brand-blue text-white rounded-md"
           >
             Download PDF

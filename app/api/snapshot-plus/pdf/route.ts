@@ -6,6 +6,7 @@ import React from 'react';
 import { logger } from '@/lib/logger';
 import { supabaseServer } from '@/lib/supabaseServer';
 import { getPrimaryPillar } from '@/src/lib/pillars/getPrimaryPillar';
+import type { BrandSnapshotPlusReport } from "@/src/pdf/BrandSnapshotPlusPDF";
 
 export const runtime = "nodejs";
 
@@ -30,6 +31,43 @@ const defaultPillarStrings = {
  */
 function transformReportData(report: any) {
   const r = report?.full_report ?? report ?? {};
+  const pickFirst = (...values: unknown[]) =>
+    values.find((value) => typeof value === "string" && value.trim().length > 0) as string | undefined;
+  const roadmapFromObject =
+    r.roadmap && typeof r.roadmap === "object" ? (r.roadmap as Record<string, unknown>) : {};
+  const archetypeSource =
+    r.enriched_archetype && typeof r.enriched_archetype === "object"
+      ? (r.enriched_archetype as Record<string, unknown>)
+      : r.archetype && typeof r.archetype === "object"
+        ? (r.archetype as Record<string, unknown>)
+        : {};
+  const archetype = {
+    ...archetypeSource,
+    name:
+      pickFirst(
+        archetypeSource.name,
+        typeof r.enriched_archetype === "string" ? r.enriched_archetype : undefined,
+        typeof r.archetype === "string" ? r.archetype : undefined,
+        r.brand_archetype,
+        r.likely_archetype
+      ) ?? "",
+    summary: pickFirst(archetypeSource.summary, archetypeSource.description),
+    risk: pickFirst(archetypeSource.risk, r.archetype_risk),
+    languageTone: pickFirst(archetypeSource.languageTone, r.archetype_language_tone),
+    behaviorGuide: pickFirst(archetypeSource.behaviorGuide, r.archetype_behavior_guide),
+    secondary:
+      archetypeSource.secondary ??
+      (typeof r.secondary_archetype === "string"
+        ? { name: r.secondary_archetype, summary: pickFirst(r.secondary_archetype_summary) }
+        : undefined),
+    pairingGuidance: pickFirst(archetypeSource.pairingGuidance, r.archetype_pairing_guidance),
+    activation:
+      archetypeSource.activation && typeof archetypeSource.activation === "object"
+        ? archetypeSource.activation
+        : r.archetype_activation && typeof r.archetype_activation === "object"
+          ? r.archetype_activation
+          : undefined,
+  };
 
   const pillarScores = r.pillar_scores || r.pillarScores || defaultPillarScores;
   const primaryResult = getPrimaryPillar(pillarScores);
@@ -60,12 +98,36 @@ function transformReportData(report: any) {
         : defaultPillarStrings,
     contextCoverage: r.context_coverage ?? r.contextCoverage,
     persona: r.enriched_persona ?? r.persona,
-    archetype: r.enriched_archetype ?? r.archetype ?? r.brand_archetype,
+    archetype,
     voice: r.enriched_voice ?? r.voice,
     colorPalette: r.enriched_color_palette ?? r.color_palette ?? [],
-    roadmap_30: r.roadmap_30,
-    roadmap_60: r.roadmap_60,
-    roadmap_90: r.roadmap_90,
+    roadmap_30: pickFirst(
+      r.roadmap_30,
+      r.roadmap30,
+      r.thirtyDayPlan,
+      r.plan30,
+      roadmapFromObject.next30Days,
+      roadmapFromObject.day30,
+      roadmapFromObject.thirtyDay
+    ),
+    roadmap_60: pickFirst(
+      r.roadmap_60,
+      r.roadmap60,
+      r.sixtyDayPlan,
+      r.plan60,
+      roadmapFromObject.next60Days,
+      roadmapFromObject.day60,
+      roadmapFromObject.sixtyDay
+    ),
+    roadmap_90: pickFirst(
+      r.roadmap_90,
+      r.roadmap90,
+      r.ninetyDayPlan,
+      r.plan90,
+      roadmapFromObject.next90Days,
+      roadmapFromObject.day90,
+      roadmapFromObject.ninetyDay
+    ),
     opportunities_map: r.opportunities_map,
     brandOpportunities: r.brand_opportunities ?? r.brandOpportunities,
     targetCustomers: r.target_customers ?? r.targetCustomers,
@@ -95,13 +157,14 @@ function transformReportData(report: any) {
 
 /**
  * GET /api/snapshot-plus/pdf?id=report-id
- * 
+ *
  * Generates a WunderBrand Snapshot+™ PDF from a report ID
  */
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const reportId = searchParams.get('id');
+    const exportType = (searchParams.get("type") || "snapshot-plus").toLowerCase();
 
     if (!reportId) {
       return NextResponse.json(
@@ -109,11 +172,17 @@ export async function GET(req: Request) {
         { status: 400 }
       );
     }
+    if (!["snapshot-plus", "executive", "prompts"].includes(exportType)) {
+      return NextResponse.json(
+        { error: 'Invalid type. Must be one of: snapshot-plus, executive, prompts' },
+        { status: 400 }
+      );
+    }
 
     // Fetch report from Supabase
     const supabase = supabaseServer();
     
-    // Try snapshot-plus reports first, then fall back to regular snapshot reports
+    // Try snapshot-plus reports first (support report_id and id), then fall back to snapshot table.
     let { data: report, error } = await supabase
       .from('brand_snapshot_plus_reports')
       .select('*')
@@ -121,15 +190,39 @@ export async function GET(req: Request) {
       .single();
 
     if (error || !report) {
+      const byIdResult = await supabase
+        .from('brand_snapshot_plus_reports')
+        .select('*')
+        .eq('id', reportId)
+        .single();
+
+      if (byIdResult.data) {
+        report = byIdResult.data;
+        error = byIdResult.error;
+      }
+    }
+
+    if (error || !report) {
       // Fall back to regular snapshot reports
-      const result = await supabase
+      const resultByReportId = await supabase
         .from('brand_snapshot_reports')
         .select('*')
         .eq('report_id', reportId)
         .single();
-      
-      report = result.data;
-      error = result.error;
+
+      report = resultByReportId.data;
+      error = resultByReportId.error;
+    }
+
+    if (error || !report) {
+      const resultById = await supabase
+        .from('brand_snapshot_reports')
+        .select('*')
+        .eq('id', reportId)
+        .single();
+
+      report = resultById.data;
+      error = resultById.error;
     }
 
     if (error || !report) {
@@ -151,13 +244,35 @@ export async function GET(req: Request) {
     const reportData = transformReportData(report);
 
     const { renderToBuffer } = await import('@react-pdf/renderer');
-    const { BrandSnapshotPlusPDF } = await import('@/src/pdf/BrandSnapshotPlusPDF');
-    const doc = React.createElement(BrandSnapshotPlusPDF, { report: reportData });
+    let doc: React.ReactElement;
+    if (exportType === "executive") {
+      const { SnapshotPlusExecutiveSummaryDocument } = await import(
+        "@/src/pdf/documents/SnapshotPlusExecutiveSummaryDocument"
+      );
+      doc = React.createElement(SnapshotPlusExecutiveSummaryDocument, {
+        report: reportData as BrandSnapshotPlusReport,
+      });
+    } else if (exportType === "prompts") {
+      const { SnapshotPlusPromptGuideDocument } = await import(
+        "@/src/pdf/documents/SnapshotPlusPromptGuideDocument"
+      );
+      doc = React.createElement(SnapshotPlusPromptGuideDocument, {
+        report: reportData as BrandSnapshotPlusReport,
+      });
+    } else {
+      const { BrandSnapshotPlusPDF } = await import('@/src/pdf/BrandSnapshotPlusPDF');
+      doc = React.createElement(BrandSnapshotPlusPDF, { report: reportData as BrandSnapshotPlusReport });
+    }
     const pdfBuffer = await renderToBuffer(doc as any);
 
     // Generate filename
     const companyName = reportData.businessName.replace(/[^a-z0-9]/gi, '-').toLowerCase();
-    const filename = `${companyName}-Brand-Snapshot+.pdf`;
+    const filename =
+      exportType === "executive"
+        ? `${companyName}-SnapshotPlus-Executive-Summary.pdf`
+        : exportType === "prompts"
+          ? `${companyName}-SnapshotPlus-Prompt-Guide.pdf`
+          : `${companyName}-Brand-Snapshot+.pdf`;
 
     return new NextResponse(new Uint8Array(pdfBuffer), {
       headers: {

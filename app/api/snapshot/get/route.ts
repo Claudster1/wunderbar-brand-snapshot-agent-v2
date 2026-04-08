@@ -183,7 +183,7 @@ export async function GET(req: Request) {
     // Fetch only the columns the results page needs (avoid SELECT *)
     const { data, error } = await supabaseAdmin
       .from("brand_snapshot_reports")
-      .select("report_id, company_name, brand_alignment_score, pillar_scores, pillar_insights, recommendations, summary, opportunities_summary, upgrade_cta, full_report, user_name, user_email, email_verified, created_at")
+      .select("report_id, company_name, product_tier, brand_alignment_score, pillar_scores, pillar_insights, recommendations, summary, opportunities_summary, upgrade_cta, full_report, user_name, user_email, email_verified, created_at")
       .eq("report_id", id)
       .single();
     

@@ -5,6 +5,7 @@
 import { FormEvent, useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import { useRefinementChat } from "@/src/hooks/useRefinementChat";
+import { ChatMarkdown } from "@/components/chat/ChatMarkdown";
 import Image from "next/image";
 
 /* ─── Brand tokens ─── */
@@ -270,7 +271,7 @@ export default function RefinePage() {
               alt="Wundy™"
               width={32}
               height={32}
-              style={{ borderRadius: "50%" }}
+              style={{ borderRadius: "50%", background: "#fff" }}
             />
             <div>
               <div style={{ fontSize: 14, fontWeight: 700, color: NAVY }}>Wundy™</div>
@@ -303,6 +304,7 @@ export default function RefinePage() {
                 }}
               >
                 <div
+                  className={msg.role === "user" ? "wundy-msg-user" : "wundy-msg-assistant"}
                   style={{
                     maxWidth: "80%",
                     padding: "10px 16px",
@@ -314,16 +316,7 @@ export default function RefinePage() {
                     fontFamily: "Lato, sans-serif",
                   }}
                 >
-                  {msg.text.split("\n\n").map((p, i) => (
-                    <p key={i} style={{ margin: i === 0 ? 0 : "8px 0 0" }}>
-                      {p.split("\n").map((line, j) => (
-                        <span key={j}>
-                          {j > 0 && <br />}
-                          {line}
-                        </span>
-                      ))}
-                    </p>
-                  ))}
+                  <ChatMarkdown text={msg.text} />
                 </div>
               </div>
             ))}

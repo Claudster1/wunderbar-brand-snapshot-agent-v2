@@ -1,0 +1,122 @@
+@media print {
+  .results-header,
+  .results-tab-nav,
+  .executive-summary-actions,
+  .tab-action-row,
+  .wundy-widget,
+  .preview-mode-banner,
+  .how-to-use-banner,
+  .locked-tab-prompt,
+  .prompt-card-actions,
+  .workbook-version-history,
+  button:not(.print-safe) {
+    display: none !important;
+  }
+
+  body {
+    font-family: "DM Sans", "Lato", sans-serif;
+    font-size: 11pt;
+    color: #0c1526;
+    background: #ffffff;
+  }
+
+  @page {
+    margin: 1in;
+    size: letter portrait;
+  }
+
+  @page :first {
+    margin-top: 0.75in;
+  }
+
+  .print-header {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16pt;
+    margin-bottom: 24pt;
+    border-bottom: 2pt solid #021859;
+  }
+
+  .print-header-logo {
+    font-size: 14pt;
+    font-weight: 700;
+    color: #021859;
+    font-family: "DM Serif Display", "Georgia", serif;
+  }
+
+  .print-header-meta {
+    text-align: right;
+    font-size: 9pt;
+    color: #5a6b7e;
+    line-height: 1.5;
+  }
+
+  .print-footer {
+    display: block !important;
+    position: fixed;
+    bottom: 0.5in;
+    left: 1in;
+    right: 1in;
+    font-size: 8pt;
+    color: #8a97a8;
+    text-align: center;
+    border-top: 0.5pt solid #e0e8f0;
+    padding-top: 6pt;
+  }
+
+  .print-scope-foundation .strategy-tab-content,
+  .print-scope-foundation .activation-tab-content,
+  .print-scope-foundation .workbook-tab-content,
+  .print-scope-foundation .downloads-tab-content,
+  .print-scope-foundation .executive-summary-content {
+    display: none !important;
+  }
+
+  .print-scope-strategy .foundation-tab-content,
+  .print-scope-strategy .activation-tab-content,
+  .print-scope-strategy .workbook-tab-content,
+  .print-scope-strategy .downloads-tab-content,
+  .print-scope-strategy .executive-summary-content {
+    display: none !important;
+  }
+
+  .print-scope-activation .foundation-tab-content,
+  .print-scope-activation .strategy-tab-content,
+  .print-scope-activation .workbook-tab-content,
+  .print-scope-activation .downloads-tab-content,
+  .print-scope-activation .executive-summary-content {
+    display: none !important;
+  }
+
+  .print-scope-executive-summary .foundation-tab-content,
+  .print-scope-executive-summary .strategy-tab-content,
+  .print-scope-executive-summary .activation-tab-content,
+  .print-scope-executive-summary .workbook-tab-content,
+  .print-scope-executive-summary .downloads-tab-content {
+    display: none !important;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: "DM Serif Display", "Georgia", serif;
+    color: #021859;
+    page-break-after: avoid;
+  }
+
+  p,
+  li {
+    line-height: 1.6;
+  }
+
+  table,
+  .prompt-card {
+    page-break-inside: avoid;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

@@ -32,7 +32,7 @@ const TIER_CONFIGS: Record<ChatTier, ChatTierConfig> = {
     valueProp: "See how aligned your brand really is — in about 15–20 minutes.",
     timeEstimate: "about 15–20 minutes",
 
-    greeting: `Hi {firstName}, I'm Wundy™ — your brand guide here at Wunderbar Digital. My job is to ask you the right questions so our diagnostic can give you a clear picture of where your brand stands today. It's a real conversation — not a quiz, no wrong answers, nothing to prepare. Just talk to me like you'd talk to a curious colleague who wants to understand your business. Ready when you are — let's get into it.`,
+    greeting: `Hi {firstName}, I'm Wundy™ — your brand guide here at Wunderbar Digital. My job is to ask you the right questions so our proprietary diagnostic can give you a clear picture of where your brand stands today. It's a real conversation — not a quiz, no wrong answers, nothing to prepare. Just talk to me like you'd talk to a curious colleague who wants to understand your business. Ready when you are — let's get into it.`,
 
     welcomeBack: `Great to meet you, {firstName}.
 
@@ -56,7 +56,7 @@ Ready when you are, {firstName}. Let's see where your brand stands.`,
 
     welcomeBack: `Really glad to have you here, {firstName}.
 
-Let me tell you what to expect. I'm going to ask you about your business, your audience, your competitors, and how your brand shows up across different touchpoints. We'll go a bit deeper than a standard Snapshot — that extra depth is what allows me to give you specific strategic recommendations, not just a score.
+Let me tell you what to expect. I'm going to ask you about your business, your audience, your competitors, and how your brand shows up across different touchpoints. We'll go a bit deeper than a standard Snapshot — that extra depth is what allows our proprietary scoring methodology to produce specific strategic recommendations, not just a generic score.
 
 Plan on about 15–20 minutes. If I ask something that feels unfamiliar — like "brand pillars" or "messaging framework" — don't worry about it. I'll explain as we go, and I'll always give you an example so it's clear what I'm looking for. There's no wrong way to answer.
 
@@ -71,18 +71,18 @@ Let's get into it.`,
   blueprint: {
     heading: "WUNDERBRAND BLUEPRINT™",
     productName: "WunderBrand Blueprint™",
-    valueProp: "Your brand strategy, mapped — with an execution-ready action plan.",
+    valueProp: "Your brand strategy, mapped — with an activation-ready action plan.",
     timeEstimate: "about 20–25 minutes",
 
     greeting: `Hi {firstName}, I'm Wundy™ — your brand guide here at Wunderbar Digital. We've got a good conversation ahead of us. My job is to get a complete picture of your business — your positioning, your audience, how your brand shows up across every channel — so our diagnostic can build you something you can actually use. We'll cover more ground than a quick check-in, so take your time with each answer. No prep needed, no wrong answers — the more honest you are, the better your results will be. Let's get into it.`,
 
     welcomeBack: `{firstName}, welcome — this is going to be a great conversation.
 
-WunderBrand Blueprint™ is designed to give you a complete strategic picture of your brand, with an execution-ready plan you can act on across your marketing. To get there, I'll ask you some deeper questions about your positioning, messaging, competitive landscape, and how you're reaching your audience today.
+WunderBrand Blueprint™ is designed to give you a complete strategic picture of your brand, with an activation-ready plan you can act on across your marketing. To get there, I'll ask you some deeper questions about your positioning, messaging, competitive landscape, and how you're reaching your audience today.
 
 Plan on about 20–25 minutes. Some of these questions will be straightforward and some will ask you to think more strategically. If you're someone who lives and breathes marketing, you'll move through quickly. If some of this is newer territory, that's equally fine — I'll give you context and examples along the way. Like if I ask about your "go-to-market approach," I'm really just asking: how do people find you and what's the path from discovering you to becoming a customer?
 
-Your results will include an Execution Prompt Pack — 8 AI prompts for building campaigns, email sequences, and content systems that stay aligned with your brand.
+Your results will include an Activation Prompt Pack — 8 AI prompts for building campaigns, email sequences, and content systems that stay aligned with your brand. You'll also get structured outputs across Foundation, Strategy, Activation, Workbook, and Downloads so execution stays connected to your diagnostic.
 
 If you need to step away, just tap "Save and continue later" below the chat — we'll email you a link to pick up right where you left off. Take the time you need with the questions that matter most, {firstName} — that's where the real value comes from.
 
@@ -104,7 +104,7 @@ WunderBrand Blueprint+™ is the deepest strategic work we do, and the quality o
 
 Plan on about 25–35 minutes. If you're a seasoned marketer, some of this will feel like second nature. If you're earlier in the journey, don't let the terminology slow you down — I'll walk you through it. For example, when I ask about "funnel strategy," I'm really asking: what happens between someone hearing about you for the first time and them deciding to buy? Even if the answer is "I'm not sure yet," that's valuable information.
 
-Your results will include an Advanced Prompt Library — 12 AI frameworks for persona-based messaging, funnel-stage campaigns, and stakeholder communications. And your complimentary 30-minute Strategy Activation Session will turn all of this into a prioritized action plan you can execute on.
+Your results will include an Advanced Prompt Library — 12 AI frameworks for persona-based messaging, funnel-stage campaigns, and stakeholder communications. You'll also receive implementation-ready deliverables including Persona Atlas, Buyer Journey Map, Competitive Landscape Matrix, and separate activation downloads. And your complimentary 30-minute Strategy Activation Session will turn all of this into a prioritized action plan you can activate.
 
 Take your time with this, {firstName}. If you need to step away, just tap "Save and continue later" below the chat — we'll email you a link to pick up right where you left off. The more you share, the more we can build together.
 

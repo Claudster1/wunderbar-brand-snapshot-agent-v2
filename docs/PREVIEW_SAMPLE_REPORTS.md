@@ -17,7 +17,8 @@ Use the **design preview** pages to view all report layouts with mock data — n
 3. **Open the preview index**
    - In the browser go to: **http://localhost:3010/preview**
 
-4. **Open any preview** (direct URLs: /preview/results, /preview/snapshot-plus, /preview/report, /preview/blueprint, /preview/blueprint-plus)
+4. **Open any preview** (direct URLs: /preview/results-tabs, /preview/results, /preview/snapshot-plus, /preview/report, /preview/blueprint, /preview/blueprint-plus)
+   - **Updated Results Tabs UI** — New shell with compact header, executive summary above tabs, and Foundation → Strategy → Activation → Workbook → Downloads flow.
    - **WunderBrand Snapshot™ results** — New results UI: gauge, score breakdown, context coverage, upgrade CTAs.
    - **Snapshot+™ report** — Score, pillars, persona, archetype, voice, palette, roadmap, Blueprint upsell.
    - **Legacy report** — Classic WunderBrand Snapshot™ report layout with Snapshot+ upsell.

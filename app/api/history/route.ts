@@ -50,12 +50,17 @@ function getTierFromMeta(row: PaidReportRow): HistoryItem["tier"] {
   return "snapshot_plus";
 }
 
-function getPdfType(tier: HistoryItem["tier"]): string {
+function getPdfUrl(reportId: string, tier: HistoryItem["tier"]): string {
+  const encodedId = encodeURIComponent(reportId);
   switch (tier) {
-    case "snapshot": return "snapshot";
-    case "snapshot_plus": return "snapshot-plus";
-    case "blueprint": return "blueprint";
-    case "blueprint_plus": return "blueprint-plus";
+    case "snapshot":
+      return `/api/snapshot/pdf?id=${encodedId}`;
+    case "snapshot_plus":
+      return `/api/snapshot-plus/pdf?id=${encodedId}`;
+    case "blueprint":
+      return `/api/blueprint/pdf?reportId=${encodedId}&type=complete&tier=blueprint`;
+    case "blueprint_plus":
+      return `/api/blueprint/pdf?reportId=${encodedId}&type=complete&tier=blueprint-plus`;
   }
 }
 
@@ -101,7 +106,7 @@ export async function GET(req: Request) {
         createdAt: r.created_at ?? "",
         tier: "snapshot",
         completed: true,
-        pdfUrl: `/api/pdf?id=${encodeURIComponent(reportId)}&type=snapshot`,
+        pdfUrl: getPdfUrl(reportId, "snapshot"),
         reportUrl: `/results?reportId=${encodeURIComponent(reportId)}`,
       });
     }
@@ -122,7 +127,6 @@ export async function GET(req: Request) {
     for (const r of (data ?? []) as PaidReportRow[]) {
       const reportId = r.report_id ?? r.id ?? "";
       const tier = getTierFromMeta(r);
-      const pdfType = getPdfType(tier);
       const businessName =
         r.full_report?.businessName ??
         r.user_name ??
@@ -153,7 +157,7 @@ export async function GET(req: Request) {
         createdAt: r.created_at ?? r.updated_at ?? "",
         tier,
         completed: true,
-        pdfUrl: `/api/pdf?id=${encodeURIComponent(reportId)}&type=${pdfType}`,
+        pdfUrl: getPdfUrl(reportId, tier),
         reportUrl,
       });
     }

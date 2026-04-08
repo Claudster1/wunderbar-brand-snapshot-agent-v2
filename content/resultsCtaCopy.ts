@@ -7,7 +7,7 @@ export const RESULTS_CTA_COPY = {
     secondaryCta: "Explore the full WunderBrand Suite™",
   },
   B: {
-    headline: "Turn this diagnostic into a system your brand can execute on",
+    headline: "Turn this diagnostic into a system your brand can activate",
     body: "Your results show where the highest-leverage improvements are. Snapshot+ gives you the strategic depth, messaging frameworks, and AI prompt pack to act on them with confidence.",
     primaryCta: "See Your Full Results — $497",
     secondaryCta: "See the full suite of deliverables",

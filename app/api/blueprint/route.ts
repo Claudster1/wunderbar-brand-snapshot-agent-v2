@@ -16,6 +16,7 @@ import type { AssessmentInput } from "@/lib/ai/reportGeneration";
 import { randomUUID } from "crypto";
 import { logger } from "@/lib/logger";
 import { buildTierSignals } from "@/lib/signals/tierSignals";
+import { generatePdfResponse, transformReportDataForPdf } from "@/src/pdf/generatePdf";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 180; // 3 minutes for Blueprint generation
@@ -140,23 +141,14 @@ export async function POST(req: Request) {
     // ─── If PDF format requested, generate and return PDF ───
     if (format === "pdf") {
       try {
-        const React = (await import("react")).default;
-        const { renderToBuffer } = await import("@react-pdf/renderer");
-        const { BlueprintDocument } = await import("@/app/reports/BlueprintDocument");
-        const pdfData = {
-          ...generatedReport.content,
-          ...tierSignals,
-        };
-
-        const pdfBuffer = await renderToBuffer(
-          React.createElement(BlueprintDocument, { data: pdfData }) as any
+        const pdfData = transformReportDataForPdf(
+          { ...generatedReport.content, ...tierSignals },
+          "blueprint",
         );
-
-        return new NextResponse(pdfBuffer as any, {
-          headers: {
-            "Content-Type": "application/pdf",
-            "Content-Disposition": 'attachment; filename="brand-blueprint.pdf"',
-          },
+        return await generatePdfResponse({
+          documentType: "blueprint",
+          data: pdfData,
+          filename: "brand-blueprint.pdf",
         });
       } catch (pdfErr) {
         logger.error("[Blueprint API] PDF generation failed", {

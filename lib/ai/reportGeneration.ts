@@ -21,6 +21,8 @@ import type { UseCase } from "@/lib/ai/config";
 import type { ChatMessage } from "@/lib/ai/types";
 import { logger } from "@/lib/logger";
 import { getAssetAnalyses, formatAssetContext } from "@/lib/assetAnalysis";
+import { buildSpendRecommendationContext } from "@/lib/spendRecommendation";
+import { ensurePaidMediaChannelsMinimum } from "@/lib/activation/paidMediaPlanFields";
 
 // ─── Prompt imports ──────────────────────────────────────────────
 
@@ -46,6 +48,12 @@ export interface AssessmentInput {
   currentCustomers?: string;
   idealCustomers?: string;
   idealDiffersFromCurrent?: boolean;
+  /** Optional: third/parallel distinct segment (partners, second region, etc.) from Wundy follow-up 13b. */
+  additionalDistinctSegmentsNote?: string | null;
+  /** Next 2–4 week actions with current resources (Wundy 36H). */
+  implementationPrioritiesNow?: string | null;
+  /** Longer-term / when-budget priorities (Wundy 36H). */
+  implementationPrioritiesScaling?: string | null;
   competitorNames?: string[];
   customerAcquisitionSource?: string[];
   offerClarity?: string;
@@ -64,6 +72,13 @@ export interface AssessmentInput {
   hasCaseStudies?: boolean;
   hasEmailList?: boolean;
   hasLeadMagnet?: boolean;
+  /** When hasLeadMagnet, Wundy collects title/format/summary (+ optional URL) for optimization fidelity. */
+  leadMagnetDetails?: {
+    title?: string | null;
+    format?: string | null;
+    summary?: string | null;
+    urlOrLocation?: string | null;
+  } | null;
   hasClearCTA?: boolean;
   marketingChannels?: string[];
   visualConfidence?: string;
@@ -81,6 +96,20 @@ export interface AssessmentInput {
   yearsInBusiness?: string;
   teamSize?: string;
   userRoleContext?: string;
+  topAcquisitionChannel?: string;
+  monthlyMarketingBudget?: "under_500" | "500_2000" | "2000_5000" | "5000_plus" | string;
+  paidAdsBudgetBand?: "none" | "under_1000" | "1000_3000" | "3000_10000" | "10000_plus" | string;
+  paidAdsPrimaryObjective?:
+    | "lead_volume"
+    | "sales_volume"
+    | "cpl_efficiency"
+    | "roas"
+    | "pipeline_quality"
+    | "awareness"
+    | string;
+  monthlyRevenueRange?: string;
+  averageTransactionValue?: string;
+  conversionRateEstimate?: string;
   // Scoring data (passed through from scoring engine)
   brandAlignmentScore?: number;
   pillarScores?: Record<string, number>;
@@ -138,7 +167,46 @@ function formatInputForAI(input: AssessmentInput): string {
     cleaned[key] = value;
   }
 
+  // Deterministic budget guidance context to ground channel recommendations.
+  if (!("spendRecommendationContext" in cleaned)) {
+    cleaned.spendRecommendationContext = buildSpendRecommendationContext(
+      cleaned as Record<string, unknown>,
+    );
+  }
+
   return JSON.stringify(cleaned, null, 2);
+}
+
+function attachSpendContext(
+  content: Record<string, unknown>,
+  input: AssessmentInput,
+): Record<string, unknown> {
+  const spendContext = buildSpendRecommendationContext(input as Record<string, unknown>);
+
+  const patched = { ...content, spendRecommendationContext: spendContext } as Record<string, unknown>;
+
+  const conversionStrategy = patched.conversionStrategy;
+  if (conversionStrategy && typeof conversionStrategy === "object" && !Array.isArray(conversionStrategy)) {
+    patched.conversionStrategy = {
+      ...(conversionStrategy as Record<string, unknown>),
+      spendAlignmentPlan: {
+        currentBudgetPlan: spendContext.budgetConstrainedPlan,
+        growthRoadmap: spendContext.growthRoadmap,
+        confidence: spendContext.confidence,
+      },
+    };
+  }
+
+  const paidMediaStrategy = patched.paidMediaStrategy;
+  if (paidMediaStrategy && typeof paidMediaStrategy === "object" && !Array.isArray(paidMediaStrategy)) {
+    patched.paidMediaStrategy = ensurePaidMediaChannelsMinimum({
+      ...(paidMediaStrategy as Record<string, unknown>),
+      budgetScenarios: spendContext.growthRoadmap.scenarios,
+      allocationGuidance: spendContext.budgetConstrainedPlan.allocation,
+    });
+  }
+
+  return patched;
 }
 
 /**
@@ -260,7 +328,7 @@ async function generateSingleCall(
     throw new Error(`AI returned empty content for ${tier} report`);
   }
 
-  const content = parseAIJsonResponse(response.content);
+  const content = attachSpendContext(parseAIJsonResponse(response.content), input);
 
   return {
     tier,
@@ -442,7 +510,7 @@ Do NOT include any other sections. Return ONLY valid JSON with the keys listed a
 
   return {
     tier: "blueprint_plus",
-    content: mergedContent,
+    content: attachSpendContext(mergedContent, input),
     generatedAt: new Date().toISOString(),
     model: lastModel,
     provider: lastProvider,

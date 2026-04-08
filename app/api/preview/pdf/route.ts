@@ -1,4 +1,4 @@
-// GET /api/preview/pdf?type=snapshot|snapshot-plus|blueprint|blueprint-plus|executive|messaging|prompts|voice-checklist|activation|digital|competitive|brand-standards
+// GET /api/preview/pdf?type=snapshot|snapshot-plus|blueprint|blueprint-plus|executive|messaging|prompts|voice-checklist|icp-conversion-snapshot|icp-conversion-intelligence|activation|digital|competitive|battle-cards|brand-standards
 // Generates a PDF with mock data for preview purposes.
 
 import { NextRequest, NextResponse } from "next/server";
@@ -156,6 +156,97 @@ const MOCK_BLUEPRINT_PLUS_DATA = {
     { name: "Case Study", prompt: "Write a detailed case study for Acme Co about [CLIENT]..." },
     { name: "Social Strategy", prompt: "Create a 30-day social media content plan for Acme Co..." },
   ],
+  icpConversionIntelligenceFramework: {
+    overview:
+      "This framework defines ICP-tier conversion logic and maps it to channel execution so every activation plan uses the same performance backbone.",
+    conversionProfile: [
+      {
+        icpTier: "Primary ICP",
+        buyingCycleLength: "30-60 days",
+        primaryConversionBarrier: "Unclear implementation confidence",
+        decisionTrigger: "Sees role-specific roadmap with concrete proof",
+        conversionBehaviorPattern: "Consumes insight + proof assets before booking",
+      },
+    ],
+    hookTypePerformance: [
+      {
+        icpTier: "Primary ICP",
+        reliableHookTypes: [
+          { hookType: "Data-led insight", whyItConverts: "Signals authority and lowers perceived risk." },
+          { hookType: "Peer social proof", whyItConverts: "Increases confidence via comparable outcomes." },
+        ],
+        hookTypesToAvoid: [
+          { hookType: "Generic hype claims", whyToAvoid: "Feels non-specific and lowers trust." },
+        ],
+      },
+    ],
+    channelLevelConversionMechanics: [],
+    multiTouchConversionSequence: [],
+    contentTypeConversionMatrix: [],
+    behavioralSignalLibrary: [],
+    scoringSignals: {
+      icpConversionPathCoverage: 78,
+      contentMatrixCompleteness: 74,
+      behavioralSignalCoverage: 70,
+      channelConversionDataPopulated: 72,
+      activeTestCoverage: "2 active tests in-market",
+      lastReviewedAt: new Date().toISOString(),
+    },
+  },
+  contentCalendarFramework: {
+    conversion_intelligence_reference: {
+      type: "ref",
+      framework: "icp_conversion_intelligence_framework",
+      icpTier: "Primary ICP",
+      funnelStage: "Aware",
+      matrixCell: "primary-icp:aware:authority-article",
+    },
+  },
+  emailMarketingFramework: {
+    conversion_intelligence_reference: {
+      type: "ref",
+      framework: "icp_conversion_intelligence_framework",
+      icpTier: "Primary ICP",
+      funnelStage: "Consideration",
+      matrixCell: "primary-icp:consideration:nurture-proof-email",
+    },
+  },
+  paidMediaStrategy: {
+    conversion_intelligence_reference: {
+      type: "ref",
+      framework: "icp_conversion_intelligence_framework",
+      icpTier: "Secondary ICP",
+      funnelStage: "Consideration",
+      matrixCell: "secondary-icp:consideration:paid-offer-ad",
+    },
+  },
+  socialMediaStrategy: {
+    conversion_intelligence_reference: {
+      type: "ref",
+      framework: "icp_conversion_intelligence_framework",
+      icpTier: "Primary ICP",
+      funnelStage: "Aware",
+      matrixCell: "primary-icp:aware:insight-social-post",
+    },
+  },
+  salesConversationGuide: {
+    conversion_intelligence_reference: {
+      type: "ref",
+      framework: "icp_conversion_intelligence_framework",
+      icpTier: "Secondary ICP",
+      funnelStage: "Decision",
+      matrixCell: "secondary-icp:decision:sales-proof-sequence",
+    },
+  },
+  thoughtLeadershipStrategy: {
+    conversion_intelligence_reference: {
+      type: "ref",
+      framework: "icp_conversion_intelligence_framework",
+      icpTier: "Primary ICP",
+      funnelStage: "Consideration",
+      matrixCell: "primary-icp:consideration:thought-leadership-brief",
+    },
+  },
 };
 
 const MOCK_WORKBOOK_DATA = {
@@ -282,6 +373,28 @@ const MOCK_WORKBOOK_DATA = {
       designer_note:
         "Prioritize clarity and credibility over decorative styling. Every image should support decision confidence.",
     },
+    mood_board_image_samples: [
+      {
+        url: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80",
+        caption: "Collaborative Strategy Session",
+        rationale: "Signals real expertise and decision-making momentum.",
+      },
+      {
+        url: "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=1200&q=80",
+        caption: "Execution Team in Motion",
+        rationale: "Supports operational credibility and implementation readiness.",
+      },
+      {
+        url: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80",
+        caption: "Decision Dashboard View",
+        rationale: "Reinforces measurable outcomes and strategic clarity.",
+      },
+      {
+        url: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=1200&q=80",
+        caption: "Client-Centric Planning",
+        rationale: "Keeps customer context and confidence central to the visual language.",
+      },
+    ],
     imagery_by_audience: [
       {
         persona: "Founder-led B2B teams",
@@ -428,6 +541,24 @@ export async function GET(req: NextRequest) {
         filename = "Acme_Co_Voice_Do_Dont_Checklist.pdf";
         break;
       }
+      case "icp-conversion-intelligence": {
+        const { ICPConversionIntelligenceDocument } = await import("@/src/pdf/documents/ICPConversionIntelligenceDocument");
+        element = React.createElement(ICPConversionIntelligenceDocument, {
+          data: MOCK_BLUEPRINT_PLUS_DATA as any,
+          brandName: "Acme Co",
+        });
+        filename = "Acme_Co_ICP_Conversion_Intelligence_Framework.pdf";
+        break;
+      }
+      case "icp-conversion-snapshot": {
+        const { ICPConversionSnapshotDocument } = await import("@/src/pdf/documents/ICPConversionSnapshotDocument");
+        element = React.createElement(ICPConversionSnapshotDocument, {
+          data: MOCK_BLUEPRINT_PLUS_DATA as any,
+          brandName: "Acme Co",
+        });
+        filename = "Acme_Co_ICP_Conversion_Snapshot.pdf";
+        break;
+      }
       case "activation": {
         const { ActivationPlanDocument } = await import("@/src/pdf/documents/ActivationPlanDocument");
         element = React.createElement(ActivationPlanDocument, {
@@ -455,8 +586,17 @@ export async function GET(req: NextRequest) {
         filename = "Acme_Co_Competitive_Intelligence_Brief.pdf";
         break;
       }
+      case "battle-cards": {
+        const { BattleCardsDocument } = await import("@/src/pdf/documents/BattleCardsDocument");
+        element = React.createElement(BattleCardsDocument, {
+          data: MOCK_BLUEPRINT_PLUS_DATA as any,
+          brandName: "Acme Co",
+        });
+        filename = "Acme_Co_Sales_Battle_Cards.pdf";
+        break;
+      }
       default:
-        return NextResponse.json({ error: `Unknown type: ${type}. Use: snapshot, snapshot-plus, blueprint, blueprint-plus, executive, messaging, prompts, voice-checklist, activation, digital, competitive, brand-standards` }, { status: 400 });
+        return NextResponse.json({ error: `Unknown type: ${type}. Use: snapshot, snapshot-plus, blueprint, blueprint-plus, executive, messaging, prompts, voice-checklist, icp-conversion-snapshot, icp-conversion-intelligence, activation, digital, competitive, battle-cards, brand-standards` }, { status: 400 });
     }
 
     const { renderToBuffer } = await import("@react-pdf/renderer");

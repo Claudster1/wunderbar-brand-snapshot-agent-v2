@@ -7,6 +7,11 @@ import Link from "next/link";
 
 const PREVIEWS = [
   {
+    href: "/preview/results-tabs",
+    title: "Updated Results Tabs UI (Mock)",
+    description: "New tabbed results shell: compact header, executive summary above tabs, activation/workbook/download flow.",
+  },
+  {
     href: "/preview/results",
     title: "WunderBrand Snapshot™ (Free)",
     description: "Executive summary, pillar scores, archetype, 3 immediate actions, soft CTA to Snapshot+.",

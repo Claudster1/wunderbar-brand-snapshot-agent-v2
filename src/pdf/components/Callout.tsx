@@ -6,16 +6,17 @@ import { pdfTheme } from "../theme";
 
 const styles = StyleSheet.create({
   container: {
-    padding: pdfTheme.spacing.md || 12,
-    backgroundColor: "#F0F9FF",
+    padding: 12,
+    backgroundColor: "#EFF6FF",
     borderLeft: `3px solid ${pdfTheme.colors.blue || "#07B0F2"}`,
-    marginBottom: pdfTheme.spacing.md || 12,
-    borderRadius: 4,
+    marginBottom: 10,
+    borderRadius: 6,
+    border: "1 solid #DCE9FF",
   },
   text: {
-    fontSize: pdfTheme.fontSizes.sm || 11,
-    color: pdfTheme.colors.midnight || "#0C1526",
-    lineHeight: 1.5,
+    fontSize: 10,
+    color: "#1F2C3D",
+    lineHeight: 1.6,
   },
 });
 

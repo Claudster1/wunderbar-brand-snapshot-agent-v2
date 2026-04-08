@@ -40,7 +40,7 @@ describe('prompt structure validation', () => {
         'primaryGoals', 'biggestChallenge', 'whatMakesYouDifferent',
         'offerClarity', 'messagingClarity',
         'hasTestimonials', 'hasCaseStudies', 'credibilityDetails', 'thoughtLeadershipActivity',
-        'hasEmailList', 'hasLeadMagnet', 'hasClearCTA',
+        'hasEmailList', 'hasLeadMagnet', 'leadMagnetDetails', 'hasClearCTA',
         'marketingChannels', 'visualConfidence', 'brandPersonalityWords',
         'archetypeSignals', 'yearsInBusiness', 'brandOriginStory', 'teamSize', 'revenueRange',
       ];

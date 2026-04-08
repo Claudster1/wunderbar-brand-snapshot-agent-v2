@@ -1,3 +1,5 @@
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
+
 export default function BlueprintPlusPage() {
   return (
     <div className="w-full bg-white text-brand-midnight">
@@ -15,7 +17,11 @@ export default function BlueprintPlusPage() {
 
         <div className="mt-8 flex justify-center gap-4">
           <a
-            href="/checkout/blueprint-plus"
+            href={getTrackedCheckoutUrl({
+              product: "blueprint-plus",
+              medium: "landing_cta",
+              content: "blueprint_plus_hero_primary",
+            })}
             className="px-6 py-3 bg-brand-blue text-white font-semibold rounded-md shadow-lg hover:bg-brand-blueHover transition"
           >
             Activate WunderBrand Blueprint+™ →
@@ -140,7 +146,11 @@ export default function BlueprintPlusPage() {
         </p>
 
         <a
-          href="/checkout/blueprint-plus"
+          href={getTrackedCheckoutUrl({
+            product: "blueprint-plus",
+            medium: "landing_cta",
+            content: "blueprint_plus_footer_primary",
+          })}
           className="px-8 py-4 bg-brand-blue text-white font-semibold rounded-md shadow hover:bg-brand-blueHover transition"
         >
           Activate WunderBrand Blueprint+™ →

@@ -13,7 +13,7 @@ export function ImplementationIntro() {
 
       <div className="mt-6">
         <a
-          href="/implementation-options"
+          href="/brand-suite"
           className="inline-flex items-center gap-2 text-brand-blue font-medium hover:underline"
         >
           Explore implementation options →

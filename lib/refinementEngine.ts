@@ -5,6 +5,7 @@
 import { supabaseServer } from "./supabaseServer";
 import { PILLARS, PillarKey } from "./pillars";
 import { completeWithFallback } from "@/lib/ai";
+import { reportExecutionReadyContentRule } from "@/lib/copy/reportExecutionStandard";
 
 export type RefinementInput = {
   snapshotReportId: string;
@@ -114,7 +115,7 @@ Based on the user's additional context, provide a structured refinement with:
 
 2. **Recommendations** (object with priority and actions):
    - priority: "high" or "medium" based on impact and urgency
-   - actions: 3-5 specific, actionable recommendations as an array of strings
+   - actions: 3-5 strings — each must include **execution-ready detail** (sample headline, line of copy, criterion, or exact next move), not vague tasks like "improve messaging"
 
 Return as JSON with this exact structure:
 {
@@ -138,8 +139,9 @@ Return as JSON with this exact structure:
       messages: [
         {
           role: "system",
-          content:
-            "You are a brand strategist refining a WunderBrand Snapshot+™ report. Provide clear, actionable insights and recommendations.",
+          content: `${reportExecutionReadyContentRule}
+
+You are a brand strategist refining a WunderBrand Snapshot+™ report. Insights are declarative; recommendation lines must carry paste-ready or verify-ready substance — not a generic to-do list.`,
         },
         {
           role: "user",

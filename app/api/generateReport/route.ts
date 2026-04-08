@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { logger } from "@/lib/logger";
 import { v4 as uuidv4 } from "uuid";
-import React from "react";
+import { generatePdfFromReport } from "@/src/pdf/generatePdf";
 
 export async function POST(req: Request) {
   try {
@@ -38,12 +38,17 @@ export async function POST(req: Request) {
     const fileName = `reports/${reportId}.pdf`;
 
     // -----------------------------------------------------
-    // 2. Render PDF to a buffer
+    // 2. Render PDF using unified modern pipeline
     // -----------------------------------------------------
-    const { renderToBuffer } = await import("@react-pdf/renderer");
-    const { ReportDocument } = await import("@/components/pdf/ReportDocument");
-    const pdfBuffer = await renderToBuffer(
-      React.createElement(ReportDocument, {
+    const pdfSource = {
+      user_name: userName,
+      company: businessName,
+      brand_alignment_score: brandAlignmentScore,
+      pillar_scores: pillarScores,
+      pillar_insights: pillarInsights,
+      recommendations,
+      color_palette: suggestedPalette,
+      full_report: {
         userName,
         businessName,
         brandAlignmentScore,
@@ -51,8 +56,9 @@ export async function POST(req: Request) {
         pillarInsights,
         recommendations,
         suggestedPalette,
-      }) as any
-    );
+      },
+    };
+    const pdfBuffer = await generatePdfFromReport(pdfSource, "snapshot");
 
     // -----------------------------------------------------
     // 3. Store PDF in Supabase Storage

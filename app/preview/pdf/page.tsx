@@ -12,6 +12,8 @@ const PDF_TYPES = [
   { id: "snapshot-plus", label: "WunderBrand Snapshot+™", tier: "$497" },
   { id: "blueprint", label: "WunderBrand Blueprint™", tier: "$997" },
   { id: "blueprint-plus", label: "WunderBrand Blueprint+™", tier: "$2,497" },
+  { id: "icp-conversion-snapshot", label: "ICP Conversion Snapshot", tier: "Blueprint" },
+  { id: "icp-conversion-intelligence", label: "ICP Conversion Intelligence Framework", tier: "Blueprint+" },
   { id: "brand-standards", label: "Brand Standards Guide", tier: "Blueprint+" },
 ] as const;
 

@@ -24,47 +24,50 @@ type Props = {
 
 const styles = StyleSheet.create({
   page: {
-    padding: 48,
+    padding: 42,
+    paddingBottom: 66,
     fontFamily: "Helvetica",
     color: "#021859",
+    fontSize: 10.5,
+    lineHeight: 1.6,
   },
   header: {
-    marginBottom: 32,
+    marginBottom: 24,
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: "bold",
     marginBottom: 6,
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 11,
     color: "#555",
   },
   alignmentBlock: {
-    marginVertical: 24,
-    padding: 20,
+    marginVertical: 18,
+    padding: 14,
     borderRadius: 8,
     backgroundColor: "#F6F9FF",
   },
   alignmentScore: {
-    fontSize: 36,
+    fontSize: 32,
     fontWeight: "bold",
   },
   section: {
-    marginTop: 28,
+    marginTop: 20,
   },
   pillarHeader: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: "bold",
     marginBottom: 6,
   },
   whyItMatters: {
-    fontSize: 11,
+    fontSize: 10,
     color: "#666",
     marginBottom: 8,
   },
   body: {
-    fontSize: 12,
+    fontSize: 10.5,
     lineHeight: 1.6,
   },
   recommendation: {
@@ -74,19 +77,19 @@ const styles = StyleSheet.create({
     borderLeftColor: "#07B0F2",
   },
   ctaBlock: {
-    marginTop: 40,
-    padding: 20,
+    marginTop: 28,
+    padding: 14,
     borderRadius: 8,
     backgroundColor: "#021859",
     color: "#fff",
   },
   ctaTitle: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: "bold",
     marginBottom: 6,
   },
   ctaBody: {
-    fontSize: 12,
+    fontSize: 10.5,
     lineHeight: 1.6,
   },
 });

@@ -78,12 +78,12 @@
 - Visual direction guidance
 - Archetype definition and meaning
 
-**Built for execution:** Your Blueprint™ isn't just documentation — it's a working system designed to guide decisions, content, campaigns, and AI tools.
+**Built for activation:** Your Blueprint™ isn't just documentation — it's a working system designed to guide decisions, content, campaigns, and AI tools.
 
 **What changes:**
 - Clear brand decision-making
 - Consistent messaging across channels
-- Faster execution with less rework
+- Faster activation with less rework
 - Alignment across people and tools
 
 **Pricing:** $997 — One-time purchase. Snapshot+™ credit applies.
@@ -106,7 +106,7 @@
 - Campaign-level messaging systems
 - Expanded AEO strategy
 - Brand themes for future offerings
-- Execution-ready AI prompt packs
+- Activation-ready AI prompt packs
 
 **Why Blueprint+™ exists:**
 - Scale without dilution
@@ -183,9 +183,9 @@
 
 #### Blueprint ($997)
 - **Heading:** WUNDERBRAND BLUEPRINT™
-- **Value prop:** Your brand strategy, mapped — with an execution-ready action plan.
+- **Value prop:** Your brand strategy, mapped — with an activation-ready action plan.
 - **Greeting (new users):** Hi {firstName}, I'm Wundy™ — your brand guide here at Wunderbar Digital. We've got a good conversation ahead of us. My job is to get a complete picture of your business — your positioning, your audience, how your brand shows up across every channel — so our diagnostic can build you something you can actually use. We'll cover more ground than a quick check-in, so take your time with each answer. No prep needed, no wrong answers — the more honest you are, the better your results will be. Let's get into it.
-- **Welcome back (returning users):** {firstName}, welcome — this is going to be a great conversation. WunderBrand Blueprint™ is designed to give you a complete strategic picture of your brand [...] Plan on about 20–25 minutes. [...] Your results will include an Execution Prompt Pack — 8 AI prompts for building campaigns, email sequences, and content systems that stay aligned with your brand. [...]
+- **Welcome back (returning users):** {firstName}, welcome — this is going to be a great conversation. WunderBrand Blueprint™ is designed to give you a complete strategic picture of your brand [...] Plan on about 20–25 minutes. [...] Your results will include an Activation Prompt Pack — 8 AI prompts for building campaigns, email sequences, and content systems that stay aligned with your brand. [...]
 
 #### Blueprint+ ($1,997)
 - **Heading:** WUNDERBRAND BLUEPRINT+™

@@ -88,7 +88,65 @@ type CaptureKey =
   | "primary_acquisition_channel"
   | "monthly_marketing_budget"
   | "content_creation_capacity"
-  | "competitive_pressure_point";
+  | "competitive_pressure_point"
+  | "has_email_list"
+  | "has_lead_magnet"
+  | "has_clear_cta"
+  | "marketing_channel_mix";
+
+type IntakeTier = "snapshot" | "snapshot-plus" | "blueprint" | "blueprint-plus";
+
+function normalizeIntakeTier(raw: unknown): IntakeTier {
+  if (typeof raw !== "string") return "snapshot";
+  const tier = raw.trim().toLowerCase().replace(/_/g, "-");
+  if (tier === "snapshot-plus") return "snapshot-plus";
+  if (tier === "blueprint") return "blueprint";
+  if (tier === "blueprint-plus") return "blueprint-plus";
+  return "snapshot";
+}
+
+function isActivationPlanningTier(raw: unknown): boolean {
+  const tier = normalizeIntakeTier(raw);
+  return tier === "blueprint" || tier === "blueprint-plus";
+}
+
+function shouldIncludeCaptureForTier(capture: CaptureKey, tier: IntakeTier): boolean {
+  // Base captures for all tiers.
+  const core: CaptureKey[] = [
+    "business_type_classifier",
+    "primary_acquisition_channel",
+    "competitive_pressure_point",
+  ];
+
+  // Snapshot+ and above need stronger performance signal coverage.
+  const advanced: CaptureKey[] = [
+    "monthly_revenue_range",
+    "average_transaction_value",
+    "conversion_rate_estimate",
+    "content_creation_capacity",
+  ];
+
+  if (core.includes(capture)) return true;
+
+  if (tier === "snapshot") return false;
+  if (tier === "snapshot-plus") return advanced.includes(capture);
+
+  // Blueprint tiers include advanced captures and budget for activation planning.
+  if (tier === "blueprint" || tier === "blueprint-plus") {
+    return (
+      advanced.includes(capture) ||
+      [
+        "monthly_marketing_budget",
+        "has_email_list",
+        "has_lead_magnet",
+        "has_clear_cta",
+        "marketing_channel_mix",
+      ].includes(capture)
+    );
+  }
+
+  return false;
+}
 
 type CaptureState = {
   key: CaptureKey;
@@ -96,9 +154,46 @@ type CaptureState = {
   completed: boolean;
 };
 
+/** Plain-language hint for the model only — keep internal `label` for logs/debug. */
+function modelFacingCaptureHint(key: CaptureKey): string {
+  switch (key) {
+    case "business_type_classifier":
+      return "how you primarily get paid and who you sell to";
+    case "monthly_revenue_range":
+      return "roughly what the business brings in month to month";
+    case "average_transaction_value":
+      return "a typical deal, order, or transaction size";
+    case "conversion_rate_estimate":
+      return "how you think about conversion or close rates — or if you do not track that yet";
+    case "primary_acquisition_channel":
+      return "where most new customers find you today";
+    case "monthly_marketing_budget":
+      return "what you are comfortable spending on marketing each month";
+    case "content_creation_capacity":
+      return "how much time you can realistically put into content each week";
+    case "competitive_pressure_point":
+      return "what usually tilts prospects toward a competitor instead of you";
+    case "has_email_list":
+      return "whether you are emailing a list today — even a small list counts";
+    case "has_lead_magnet":
+      return "whether you offer something simple and free (guide, checklist, template, etc.) when someone shares their email — or not yet";
+    case "has_clear_cta":
+      return "how clear the main next step feels when someone lands on your site or profile";
+    case "marketing_channel_mix":
+      return "which channels you are actively using to show up for people";
+    default:
+      return "one more detail to tailor your plan";
+  }
+}
+
 const REFUSAL_PATTERN = /\b(skip|prefer not|rather not|don'?t want to|do not want to|not sure|unsure|unknown|i don'?t know)\b/i;
 
-function getCaptureStates(messages: Array<{ role: string; content: string }>): CaptureState[] {
+function getCaptureStates(
+  messages: Array<{ role: string; content: string }>,
+  options?: { includeBudgetCapture?: boolean; tier?: IntakeTier },
+): CaptureState[] {
+  const tier = options?.tier ?? "snapshot";
+  const includeBudgetCapture = options?.includeBudgetCapture === true;
   const inferredType = inferBusinessTypeFromHistory(messages);
   const userCorpus = messages
     .filter((m) => m.role === "user")
@@ -108,7 +203,7 @@ function getCaptureStates(messages: Array<{ role: string; content: string }>): C
   const refused = (topicPattern: RegExp) =>
     topicPattern.test(userCorpus) && REFUSAL_PATTERN.test(userCorpus);
 
-  return [
+  const captures: CaptureState[] = [
     {
       key: "business_type_classifier",
       label: "business type classifier",
@@ -175,13 +270,59 @@ function getCaptureStates(messages: Array<{ role: string; content: string }>): C
         ) ||
         refused(/\bcompetitor|competitive pressure|lose deals|win[- ]?loss\b/i),
     },
+    {
+      key: "has_email_list",
+      label: "email list status",
+      completed:
+        hasSignal(
+          messages,
+          /\bemail list|newsletter list|mailing list|we (have|don't have|do not have) an email list|no email list|not yet|starting|building (a )?list|small list\b/i,
+        ) ||
+        refused(/\bemail list|newsletter\b/i),
+    },
+    {
+      key: "has_lead_magnet",
+      label: "free offer / lead capture status",
+      completed:
+        hasSignal(
+          messages,
+          /\blead magnet|lead capture|opt-?in|downloadable guide|free checklist|gated content|lead form|free resource|not yet|don't have|do not have|haven't|no we don't|nothing yet|we're not|we are not|skipped|no,? not really\b/i,
+        ) ||
+        refused(/\blead magnet|lead capture|opt-?in|free (download|resource)\b/i),
+    },
+    {
+      key: "has_clear_cta",
+      label: "primary CTA clarity",
+      completed:
+        hasSignal(
+          messages,
+          /\bclear cta|call to action|book a call|get started|schedule (a )?demo|request a quote|next step is clear|next step|a bit mixed|still figuring|not sure yet\b/i,
+        ) ||
+        refused(/\bcall to action|cta|next step\b/i),
+    },
+    {
+      key: "marketing_channel_mix",
+      label: "active marketing channels",
+      completed:
+        hasSignal(
+          messages,
+          /\bmarketing channels|active channels|we use (email|social|paid ads|seo|search|events|referrals|youtube|linkedin|instagram)\b/i,
+        ) ||
+        refused(/\bmarketing channels|active channels\b/i),
+    },
   ];
+
+  return captures.filter((capture) => {
+    if (capture.key === "monthly_marketing_budget" && !includeBudgetCapture) return false;
+    return shouldIncludeCaptureForTier(capture.key, tier);
+  });
 }
 
 function getNextPendingCapture(
-  messages: Array<{ role: string; content: string }>
+  messages: Array<{ role: string; content: string }>,
+  options?: { includeBudgetCapture?: boolean; tier?: IntakeTier },
 ): CaptureState | null {
-  return getCaptureStates(messages).find((x) => !x.completed) ?? null;
+  return getCaptureStates(messages, options).find((x) => !x.completed) ?? null;
 }
 
 function buildCaptureQuestion(
@@ -233,6 +374,14 @@ function buildCaptureQuestion(
       return "How much time can your team realistically invest in content creation each week? Even a rough range works — no need to overthink it.";
     case "competitive_pressure_point":
       return "When prospects choose a competitor over you, what reason comes up most often (for example: price, trust, clarity, speed, proof, or fit)?";
+    case "has_email_list":
+      return `One gentle logistics question — do you have an email list you're sending to today (even a small one is perfect)? A simple yes or no is totally enough. If you're just starting, that's okay too — your report can include a friendly path forward.`;
+    case "has_lead_magnet":
+      return `Lots of strong brands don't use a "lead magnet" yet — totally normal. Do you have any free download, template, guide, or similar that people get in exchange for their email? If the answer is no, that's useful too: say something like "not yet" or "we don't," and your plan can include a short list of ideas we'll weave into the email and social campaigns we draft for you.`;
+    case "has_clear_cta":
+      return `When someone lands on your site or main profile, how clear does the next step feel — pretty obvious (like one main button or action), or still a little mixed? Whatever you share is the right answer.`;
+    case "marketing_channel_mix":
+      return `Where are you showing up for people lately — things like email, social, SEO or search, paid ads, referrals, events, YouTube, or something else? Name whatever fits; "mostly one channel" is a great answer too.`;
     default:
       return `Great context so far. Let's grab one more input so your recommendations stay precise.${typeHint}`;
   }
@@ -256,6 +405,14 @@ function capturePromptPatternForKey(key: CaptureKey): RegExp {
       return /\bcontent creation|hours per week|under 2 hours|2-5 hours|5-10 hours|10\+ hours\b/i;
     case "competitive_pressure_point":
       return /\blose deals|competitive pressure|price|trust|clarity|proof|fit|why buyers choose competitors\b/i;
+    case "has_email_list":
+      return /\bemail list|newsletter list|mailing list|small list|starting\b/i;
+    case "has_lead_magnet":
+      return /\blead magnet|lead capture|opt-?in|gated content|downloadable|not yet|don't have|do not have|haven't|nothing yet\b/i;
+    case "has_clear_cta":
+      return /\bcta|call to action|book a call|get started|next step|mixed\b/i;
+    case "marketing_channel_mix":
+      return /\bmarketing channels|email|social|seo|search|paid ads|referrals|events|youtube|linkedin|instagram\b/i;
     default:
       return /\?/;
   }
@@ -328,14 +485,21 @@ function normalizeStoredAnswers(raw: unknown): Record<string, unknown> {
     answers.contentCreationCapacity = answers.content_creation_capacity;
   }
 
+  if (!answers.leadMagnetDetails && answers.lead_magnet_details && typeof answers.lead_magnet_details === "object") {
+    answers.leadMagnetDetails = answers.lead_magnet_details;
+  }
+
   return answers;
 }
 
 function buildDeterministicRoutingGuard(
-  messages: Array<{ role: string; content: string }>
+  messages: Array<{ role: string; content: string }>,
+  options?: { includeBudgetCapture?: boolean; tier?: IntakeTier },
 ): string {
+  const tier = options?.tier ?? "snapshot";
+  const includeBudgetCapture = options?.includeBudgetCapture === true;
   const inferredType = inferBusinessTypeFromHistory(messages);
-  const captureStates = getCaptureStates(messages);
+  const captureStates = getCaptureStates(messages, { includeBudgetCapture, tier });
   const pending = captureStates.filter((x) => !x.completed);
   const nextCapture = pending[0]?.label ?? "none";
   const completionPercent = Math.round(
@@ -349,6 +513,7 @@ function buildDeterministicRoutingGuard(
     `- Step-state completion: ${completionPercent}%`,
     `- Next required capture (strict order): ${nextCapture}.`,
     `- Pending required captures right now: ${pending.length ? pending.map((x) => x.label).join(", ") : "none"}.`,
+    `- Tier capture policy: ${tier}.`,
     `- Step-state map (json): ${JSON.stringify(
       captureStates.reduce<Record<string, boolean>>((acc, c) => {
         acc[c.key] = c.completed;
@@ -356,6 +521,9 @@ function buildDeterministicRoutingGuard(
       }, {}),
     )}`,
     "- Do not skip required captures unless user explicitly refuses; if they refuse, record null and proceed.",
+    includeBudgetCapture
+      ? "- Activation planning tier detected: monthly marketing budget capture is required."
+      : "- Non-activation tier detected: do NOT ask budget questions (monthlyMarketingBudget, paidAdsBudgetBand, paidAdsPrimaryObjective). Keep these as null.",
   ].join("\n");
 }
 
@@ -482,7 +650,7 @@ export async function POST(req: Request) {
     }
 
     // Otherwise, treat as chat/conversation request
-    const { messages } = body || {};
+    const { messages, productTier } = body || {};
 
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json(
@@ -491,22 +659,47 @@ export async function POST(req: Request) {
       );
     }
 
+    const intakeTier = normalizeIntakeTier(productTier);
+    const includeBudgetCapture = isActivationPlanningTier(productTier);
     const inferredType = inferBusinessTypeFromHistory(messages);
-    const nextPendingCapture = getNextPendingCapture(messages);
+    const nextPendingCapture = getNextPendingCapture(messages, {
+      includeBudgetCapture,
+      tier: intakeTier,
+    });
     const forcedCapturePrompt = nextPendingCapture
       ? buildCaptureQuestion(nextPendingCapture.key, inferredType)
       : null;
 
     // Build universal messages with server-side deterministic routing guard
-    const routingGuard = buildDeterministicRoutingGuard(messages);
+    const routingGuard = buildDeterministicRoutingGuard(messages, {
+      includeBudgetCapture,
+      tier: intakeTier,
+    });
     const aiMessages: ChatMessage[] = [
       { role: "system", content: wundySystemPrompt },
       { role: "system", content: routingGuard },
-      ...(forcedCapturePrompt
+      ...(!includeBudgetCapture
         ? [
             {
               role: "system" as const,
-              content: `If required captures are pending, ask ONLY the next required question now.\n${forcedCapturePrompt}`,
+              content:
+                "TIER GUARDRAIL: This user is not in an activation-planning tier. Do not ask about monthly marketing budget, paid ads budget, or paid ads objective. If those fields are needed in final JSON, set them to null and continue.",
+            },
+          ]
+        : []),
+      ...(forcedCapturePrompt && nextPendingCapture
+        ? [
+            {
+              role: "system" as const,
+              content: [
+                "NEXT REQUIRED CAPTURE (this turn — single question only):",
+                `This turn we're gently checking in on: ${modelFacingCaptureHint(nextPendingCapture.key)}.`,
+                "Use the approved wording below verbatim, OR add at most one short warm sentence before it.",
+                "Do not ask any other conversion, budget, or channel question in this same reply — including paraphrases of email list, free download/lead capture, CTA clarity, or marketing channels.",
+                "",
+                "Approved wording:",
+                forcedCapturePrompt,
+              ].join("\n"),
             },
           ]
         : []),

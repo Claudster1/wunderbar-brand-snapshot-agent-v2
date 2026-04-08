@@ -1,0 +1,103 @@
+import Link from "next/link";
+
+type ProductTier = "snapshot" | "snapshot_plus" | "blueprint" | "blueprint_plus";
+
+type Props = {
+  productTier: ProductTier;
+  reportId: string;
+  email?: string;
+};
+
+export function DownloadsTabContent({ productTier, reportId, email }: Props) {
+  const emailParam = email ? `&email=${encodeURIComponent(email)}` : "";
+  const snapshotHref = `/api/snapshot/pdf?id=${encodeURIComponent(reportId)}`;
+  const snapshotPlusHref = `/api/snapshot-plus/pdf?id=${encodeURIComponent(reportId)}`;
+  const blueprintDocHref = (type: string, tier: "blueprint" | "blueprint-plus") =>
+    `/api/blueprint/pdf?reportId=${encodeURIComponent(reportId)}&type=${encodeURIComponent(type)}&tier=${tier}${emailParam}`;
+  const scheduleXlsxHref = `/api/results/activation-schedule?reportId=${encodeURIComponent(reportId)}${emailParam}`;
+  const baseBlueprintTier: "blueprint" | "blueprint-plus" =
+    productTier === "blueprint_plus" ? "blueprint-plus" : "blueprint";
+  const baseBlueprintLabel = productTier === "blueprint_plus" ? "WunderBrand Blueprint+™" : "WunderBrand Blueprint™";
+
+  if (productTier === "snapshot" || productTier === "snapshot_plus") {
+    return (
+      <section className="space-y-6">
+        <section className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
+          <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+            Downloads
+          </p>
+          <h2 className="bs-h3 mb-2">Foundation brief download</h2>
+          <p className="bs-body-sm text-brand-muted max-w-3xl">
+            Snapshot+ includes the foundation brief. Full document packs and schedule exports unlock in
+            WunderBrand Blueprint™ and Blueprint+™.
+          </p>
+          <div className="flex flex-wrap gap-3 mt-4">
+            <Link href={productTier === "snapshot_plus" ? snapshotPlusHref : snapshotHref} className="btn-secondary">
+              Download Foundation Brief
+            </Link>
+            <Link href="/brand-blueprint" className="btn-primary">
+              See What's Included
+            </Link>
+          </div>
+        </section>
+      </section>
+    );
+  }
+
+  return (
+    <section className="space-y-6">
+      <section className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
+        <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+          Available Downloads
+        </p>
+        <h2 className="bs-h3 mb-2">Team-ready document set</h2>
+        <p className="bs-body-sm text-brand-muted">
+          Download role-specific artifacts for leadership, marketing, sales, and implementation handoff.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+          <Link href={blueprintDocHref("complete", baseBlueprintTier)} className="btn-secondary">Complete {baseBlueprintLabel}</Link>
+          <Link href={blueprintDocHref("executive", baseBlueprintTier)} className="btn-secondary">Executive Summary</Link>
+          <Link href={blueprintDocHref("messaging", baseBlueprintTier)} className="btn-secondary">Brand Messaging Playbook</Link>
+          <Link href={blueprintDocHref("prompts", baseBlueprintTier)} className="btn-secondary">AI Prompt Library</Link>
+          <Link href={blueprintDocHref("voice-checklist", baseBlueprintTier)} className="btn-secondary">Voice Checklist</Link>
+          {productTier === "blueprint_plus" && (
+            <>
+              <Link href={blueprintDocHref("activation", "blueprint-plus")} className="btn-secondary">90-Day Activation Plan</Link>
+              <Link href={blueprintDocHref("digital", "blueprint-plus")} className="btn-secondary">Digital Marketing Strategy</Link>
+              <Link href={blueprintDocHref("competitive", "blueprint-plus")} className="btn-secondary">Competitive Intelligence Brief</Link>
+              <Link href={blueprintDocHref("battle-cards", "blueprint-plus")} className="btn-secondary">Sales Battle Cards</Link>
+              <Link href={blueprintDocHref("standards", "blueprint-plus")} className="btn-secondary">Brand Standards Guide</Link>
+            </>
+          )}
+        </div>
+      </section>
+      {productTier === "blueprint_plus" && (
+        <section className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
+          <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+            Role-Based Packs
+          </p>
+          <p className="bs-body-sm text-brand-muted mb-4">
+            Quick role pack downloads for leadership, marketing, sales, and design handoff.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <Link href={blueprintDocHref("executive", "blueprint-plus")} className="btn-secondary">Leadership Pack</Link>
+            <Link href={blueprintDocHref("messaging", "blueprint-plus")} className="btn-secondary">Marketing Pack</Link>
+            <Link href={blueprintDocHref("battle-cards", "blueprint-plus")} className="btn-secondary">Sales Battle Cards</Link>
+            <Link href={blueprintDocHref("standards", "blueprint-plus")} className="btn-secondary">Design Pack</Link>
+          </div>
+        </section>
+      )}
+      <section className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
+        <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+          Activation Tools
+        </p>
+        <p className="bs-body-sm text-brand-muted mb-4">
+          Export your activation schedule in spreadsheet format for team collaboration and weekly updates.
+        </p>
+        <Link href={scheduleXlsxHref} className="btn-secondary">
+          Download Activation Schedule (.xlsx)
+        </Link>
+      </section>
+    </section>
+  );
+}

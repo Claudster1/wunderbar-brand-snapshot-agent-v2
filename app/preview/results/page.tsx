@@ -40,6 +40,12 @@ function scoreLabel(pct: number) {
   return "Critical";
 }
 
+function weakestPillarCallout(pct: number) {
+  if (pct >= 60) return "Opportunity";
+  if (pct >= 40) return "Improvement Opportunity";
+  return "Needs Attention";
+}
+
 // ─── ANIMATED NUMBER ───
 function AnimNum({ value, duration = 1200 }: { value: number; duration?: number }) {
   const [display, setDisplay] = useState(0);
@@ -219,7 +225,7 @@ function PillarMeter({ score, maxScore = 20, label }: { score: number; maxScore?
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
         <span style={{ fontSize: 14, fontWeight: 700, color: NAVY }}>{label}</span>
-        <span style={{ fontSize: 16, fontWeight: 900, color }}>{score}<span style={{ fontWeight: 400, color: SUB }}>/{maxScore}</span></span>
+        <span style={{ fontSize: 16, fontWeight: 900, color }}>{score}<span style={{ fontWeight: 700, color }}>/{maxScore}</span></span>
       </div>
       <div style={{ height: 8, borderRadius: 5, background: "#E2E8F0", overflow: "hidden" }}>
         <div style={{
@@ -679,6 +685,8 @@ export default function BrandSnapshotReport() {
             const overallPct = overallScore;
             const strongPct = (strongest.score / 20) * 100;
             const weakPct = (weakest.score / 20) * 100;
+            const weakestLabel = weakestPillarCallout(weakPct);
+            const weakestIconColor = BLUE;
 
             const cards = [
               {
@@ -702,20 +710,20 @@ export default function BrandSnapshotReport() {
                 pill: strongest.label,
                 icon: (
                   <svg viewBox="0 0 24 24" fill="none" style={{ width: 22, height: 22 }}>
-                    <path d="M12 2l3 7h7l-5.5 4.5 2 7L12 16l-6.5 4.5 2-7L2 9h7z" stroke={GREEN} strokeWidth="2" strokeLinejoin="round"/>
+                    <path d="M12 2l3 7h7l-5.5 4.5 2 7L12 16l-6.5 4.5 2-7L2 9h7z" stroke={BLUE} strokeWidth="2" strokeLinejoin="round"/>
                   </svg>
                 ),
               },
               {
-                label: "Needs Attention",
+                label: weakestLabel,
                 value: `${weakest.score}/20`,
                 sub: null as string | null,
                 pct: weakPct,
                 pill: weakest.label,
                 icon: (
                   <svg viewBox="0 0 24 24" fill="none" style={{ width: 22, height: 22 }}>
-                    <path d="M12 9v4M12 17h.01" stroke={ORANGE} strokeWidth="2" strokeLinecap="round"/>
-                    <path d="M10.3 3.2L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.2a2 2 0 00-3.4 0z" stroke={ORANGE} strokeWidth="2" strokeLinejoin="round"/>
+                    <path d="M12 9v4M12 17h.01" stroke={weakestIconColor} strokeWidth="2" strokeLinecap="round"/>
+                    <path d="M10.3 3.2L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.2a2 2 0 00-3.4 0z" stroke={weakestIconColor} strokeWidth="2" strokeLinejoin="round"/>
                   </svg>
                 ),
               },
@@ -736,7 +744,14 @@ export default function BrandSnapshotReport() {
                       {card.icon}
                       <div style={{ fontSize: 14, fontWeight: 700, color: NAVY, marginTop: 8 }}>{card.label}</div>
                       <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginTop: 10 }}>
-                        <span style={{ fontSize: 30, fontWeight: 700, color: tierColor, lineHeight: 1 }}>{card.value}</span>
+                        <span style={{ fontSize: 34, fontWeight: 800, color: tierColor, lineHeight: 1 }}>
+                          {card.value.includes("/") ? card.value.split("/")[0] : card.value}
+                        </span>
+                        <span style={{ fontSize: 16, fontWeight: 700, color: tierColor, opacity: 0.9 }}>
+                          {card.value.includes("/")
+                            ? `/${card.value.split("/")[1]}`
+                            : "/100"}
+                        </span>
                         <span style={{ fontSize: 12, fontWeight: 700, color: tierColor, textTransform: "uppercase" }}>{tierLabel}</span>
                       </div>
                       {card.sub && (
@@ -1125,12 +1140,12 @@ export default function BrandSnapshotReport() {
       </div>
     </div>
     <ReportNav reportTitle="WunderBrand Snapshot™" sections={[
-      { id: "executive-summary", label: "Executive Summary", group: "Core Results" },
-      { id: "brand-alignment-score", label: "WunderBrand Score™", group: "Core Results" },
-      { id: "pillar-scores", label: "Brand Pillar Scores", group: "Core Results" },
-      { id: "brand-archetype", label: "Brand Archetype", group: "Core Results" },
-      { id: "next-steps", label: "Your Next Steps", group: "Execution Plan" },
-      { id: "whats-next", label: "What's Next", group: "Execution Plan" },
+      { id: "executive-summary", label: "Executive Summary", group: "Foundation" },
+      { id: "brand-alignment-score", label: "WunderBrand Score™", group: "Foundation" },
+      { id: "pillar-scores", label: "Brand Pillar Scores", group: "Foundation" },
+      { id: "brand-archetype", label: "Brand Archetype", group: "Foundation" },
+      { id: "next-steps", label: "Your Next Steps", group: "Activation" },
+      { id: "whats-next", label: "What's Next", group: "Activation" },
     ]} />
 
     {/* Wundy™ General Guide — free tier (no report data access) */}

@@ -4,12 +4,14 @@ export type ContextCoverage = {
 };
 
 export function buildContextCoverageMap(input: any): ContextCoverage[] {
+  const hasAudience =
+    !!(input?.currentCustomers || input?.idealCustomers || input?.targetCustomers);
   return [
-    { pillar: "Positioning", covered: !!input.targetCustomers },
-    { pillar: "Messaging", covered: !!input.messagingClarity },
-    { pillar: "Visibility", covered: !!(input.website || input.socials?.length) },
-    { pillar: "Credibility", covered: !!input.hasBrandGuidelines },
-    { pillar: "Conversion", covered: !!input.offerClarity },
+    { pillar: "Positioning", covered: hasAudience },
+    { pillar: "Messaging", covered: !!input?.messagingClarity },
+    { pillar: "Visibility", covered: !!(input?.website || input?.socials?.length) },
+    { pillar: "Credibility", covered: !!input?.hasBrandGuidelines },
+    { pillar: "Conversion", covered: !!input?.offerClarity },
   ];
 }
 

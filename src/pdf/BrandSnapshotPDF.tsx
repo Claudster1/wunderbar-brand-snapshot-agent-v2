@@ -31,6 +31,7 @@ const styles = StyleSheet.create({
     fontFamily: "Helvetica",
     fontSize: pdfTheme.fontSizes.base,
     paddingBottom: pdfTheme.spacing.xl,
+    backgroundColor: "#FFFFFF",
   },
   divider: {
     height: 1,
@@ -38,24 +39,44 @@ const styles = StyleSheet.create({
     marginVertical: pdfTheme.spacing.lg,
   },
   smallHeading: {
-    fontSize: pdfTheme.fontSizes.lg,
+    fontSize: 13,
     fontWeight: 600,
-    color: pdfTheme.colors.navy,
-    marginBottom: pdfTheme.spacing.sm,
+    color: "#0F2A57",
+    marginBottom: 6,
+    textTransform: "uppercase",
+    letterSpacing: 0.7,
   },
   body: {
     fontFamily: "Helvetica",
-    fontSize: pdfTheme.fontSizes.base,
+    fontSize: 11,
     color: pdfTheme.colors.midnight,
-    lineHeight: 1.5,
+    lineHeight: 1.55,
   },
   scoreDisplay: {
-    marginTop: pdfTheme.spacing.lg,
+    marginTop: pdfTheme.spacing.md,
+    backgroundColor: "#F3F8FF",
+    border: "1px solid #DCE7F5",
+    borderRadius: 10,
+    padding: 12,
   },
   scoreNumber: {
-    fontSize: 42,
+    fontSize: 38,
     fontWeight: 700,
     color: pdfTheme.colors.blue,
+  },
+  infoCard: {
+    backgroundColor: "#F7FAFF",
+    border: "1px solid #DCE7F5",
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 10,
+  },
+  signalCard: {
+    backgroundColor: "#F7FAFF",
+    border: "1px solid #DCE7F5",
+    borderLeft: "4px solid #07B0F2",
+    borderRadius: 10,
+    padding: 14,
   },
 });
 
@@ -407,7 +428,7 @@ export const BrandSnapshotPDF = ({
         />
 
         <Section>
-          <View style={{ backgroundColor: pdfTheme.colors.gray, padding: 16, borderRadius: 8, marginBottom: 16 }}>
+          <View style={styles.infoCard}>
             <Text style={styles.body}>
               <Text style={{ fontWeight: 700 }}>Business:</Text> {businessName}
               {"\n"}
@@ -422,7 +443,7 @@ export const BrandSnapshotPDF = ({
         </Section>
 
         <Section>
-          <View style={{ backgroundColor: "#F2F7FF", padding: 20, borderRadius: 8, borderLeftWidth: 4, borderLeftColor: "#07B0F2" }}>
+          <View style={styles.signalCard}>
             <Text style={{ ...styles.smallHeading, marginBottom: 8 }}>Marketing Spend Efficiency Signal</Text>
             <Text style={styles.body}>
               {monthlyMarketingBudget
@@ -438,7 +459,7 @@ export const BrandSnapshotPDF = ({
         </Section>
 
         <Section>
-          <View style={{ backgroundColor: "#F7FBFF", padding: 20, borderRadius: 8, borderLeftWidth: 4, borderLeftColor: "#021859" }}>
+          <View style={{ ...styles.signalCard, borderLeft: "4px solid #021859" }}>
             <Text style={{ ...styles.smallHeading, marginBottom: 8 }}>Revenue Impact Statement</Text>
             <Text style={styles.body}>
               {canEstimateRevenueImpact && estimatedLift

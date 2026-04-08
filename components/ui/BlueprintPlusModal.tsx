@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
 import ModalShell from "./ModalShell";
 
 interface BlueprintPlusModalProps {
@@ -13,7 +14,11 @@ export default function BlueprintPlusModal({ isOpen, onClose }: BlueprintPlusMod
 
   function upgrade() {
     onClose();
-    router.push("/checkout/blueprint-plus");
+    router.push(getTrackedCheckoutUrl({
+      product: "blueprint-plus",
+      medium: "modal_cta",
+      content: "blueprint_plus_modal_primary",
+    }));
   }
 
   return (

@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { logger } from "@/lib/logger";
 import { getWorkbookEditability, shouldAutoFinalize } from "@/lib/workbookAccess";
+import { optimizeSectionsForDelivery } from "@/lib/personalizationOptimizer";
 
 export const runtime = "nodejs";
 
@@ -57,7 +58,10 @@ function buildStrategicSections(engineResults: Record<string, any>): Record<stri
   };
 }
 
-function buildInitialReportSections(engineResults: Record<string, any>): Record<string, string> {
+function buildInitialReportSections(
+  engineResults: Record<string, any>,
+  businessName: string
+): Record<string, string> {
   const exec = engineResults?.executiveSummary || {};
   const strategicSignals = engineResults?.strategicSignals || {};
   const positioning = engineResults?.competitivePositioning || {};
@@ -97,12 +101,34 @@ function buildInitialReportSections(engineResults: Record<string, any>): Record<
   );
   const journeySummary = pickFirstText(journey.overview, journey.summary);
   const searchSummary = pickFirstText(visibility.searchStrategy, visibility.aeoStrategy);
+  const audienceSummary = pickFirstText(
+    engineResults?.audienceClarity?.audienceSignals?.primaryAudience,
+    engineResults?.audiencePersonaDefinition?.primaryICP?.summary,
+    engineResults?.audiencePersonaDefinition?.primaryICP?.name,
+    engineResults?.brandPersona?.personaSummary
+  );
+  const offerSummary = pickFirstText(
+    engineResults?.valuePropositionStatement?.statement,
+    engineResults?.brandFoundation?.brandPromise,
+    companyDescription?.oneLiner
+  );
+  const conversionFocus = pickFirstText(
+    conversion?.primaryRecommendation,
+    conversion?.overview,
+    engineResults?.websiteCopyDirection?.homepage?.heroCtaButton
+  );
+  const company = businessName || "This brand";
+  const defaultRefPrimary = "type=ref;framework=icp_conversion_intelligence_framework;icpTier=Primary ICP;funnelStage=Consideration;matrixCell=primary-icp:consideration:proof-led-asset";
+  const defaultRefSecondary = "type=ref;framework=icp_conversion_intelligence_framework;icpTier=Secondary ICP;funnelStage=Decision;matrixCell=secondary-icp:decision:offer-page";
   const contentTypeChannelPlan = [
-    "Where buyers look: search (SEO/AEO), social thought leadership, and nurture email.",
+    audienceSummary ? `Audience to convert: ${audienceSummary}` : "",
+    offerSummary ? `Offer narrative to reinforce: ${offerSummary}` : "",
+    "Where buyers look: search (SEO/AEO), thought leadership social, and nurture email.",
     contentTypes ? `Priority content types: ${contentTypes}.` : "",
     journeySummary ? `Journey mapping: ${journeySummary}` : "",
     searchSummary ? `Search intent guide: ${searchSummary}` : "",
     competitiveAngle ? `Competitive angle: ${competitiveAngle}` : "",
+    conversionFocus ? `Conversion emphasis: ${conversionFocus}` : "",
   ]
     .filter(Boolean)
     .join("\n");
@@ -114,8 +140,15 @@ function buildInitialReportSections(engineResults: Record<string, any>): Record<
       companyDescription.oneLiner,
       engineResults?.brandStory?.elevatorPitch
     ),
-    executive_summary: pickFirstText(exec.synthesis, exec.diagnosis),
-    score_analysis: pickFirstText(exec.industryBenchmark),
+    executive_summary: pickFirstText(
+      exec.synthesis,
+      exec.diagnosis,
+      `${company} has a clear strategic direction; the highest-value next move is to tighten cross-channel consistency so audience trust converts into pipeline and revenue.`
+    ),
+    score_analysis: pickFirstText(
+      exec.industryBenchmark,
+      `${company}'s WunderBrand Score should be used as an operating signal across positioning, messaging, visibility, credibility, and conversion to prioritize highest-impact execution.`
+    ),
     pillar_results: pickFirstText(
       listToText(engineResults?.contentPillars),
       listToText(engineResults?.messagingPillars)
@@ -124,9 +157,47 @@ function buildInitialReportSections(engineResults: Record<string, any>): Record<
     competitive_positioning: pickFirstText(positioning.positioningSummary, positioning.differentiationSummary),
     journey_map: pickFirstText(journey.overview, journey.summary),
     seo_aeo: pickFirstText(visibility.searchStrategy, visibility.aeoStrategy),
-    conversion_strategy: pickFirstText(conversion.overview, conversion.primaryRecommendation),
-    email_framework: pickFirstText(engineResults?.emailMarketingFramework?.overview),
-    social_strategy: pickFirstText(social.overview),
+    conversion_strategy: pickFirstText(
+      conversion.overview,
+      conversion.primaryRecommendation,
+      `${company} should run a single primary CTA path per page, pair it with immediate proof, and use objection-aware copy for the next best action.`
+    ),
+    email_framework: pickFirstText(
+      engineResults?.emailMarketingFramework?.overview,
+      `${company} should run a conversion-oriented lifecycle sequence: welcome (positioning), nurture (proof), offer (CTA), and re-engagement (new insight + action).`
+    ),
+    social_strategy: pickFirstText(
+      social.overview,
+      `${company} should publish weekly pillar-aligned thought leadership and proof content that moves the audience from attention to intent.`
+    ),
+    icp_conversion_intelligence_overview: pickFirstText(
+      engineResults?.icpConversionIntelligenceFramework?.overview,
+      `${company}'s conversion intelligence framework should map ICP-tier behavior, hook performance, channel mechanics, and stage-specific conversion triggers.`
+    ),
+    content_strategy_conversion_intelligence_reference: pickFirstText(
+      engineResults?.contentCalendarFramework?.conversion_intelligence_reference?.matrixCell,
+      defaultRefPrimary
+    ),
+    email_nurture_conversion_intelligence_reference: pickFirstText(
+      engineResults?.emailMarketingFramework?.conversion_intelligence_reference?.matrixCell,
+      defaultRefPrimary
+    ),
+    paid_media_conversion_intelligence_reference: pickFirstText(
+      engineResults?.paidMediaStrategy?.conversion_intelligence_reference?.matrixCell,
+      defaultRefSecondary
+    ),
+    social_media_conversion_intelligence_reference: pickFirstText(
+      engineResults?.socialMediaStrategy?.conversion_intelligence_reference?.matrixCell,
+      defaultRefPrimary
+    ),
+    sales_enablement_conversion_intelligence_reference: pickFirstText(
+      engineResults?.salesConversationGuide?.conversion_intelligence_reference?.matrixCell,
+      defaultRefSecondary
+    ),
+    thought_leadership_conversion_intelligence_reference: pickFirstText(
+      engineResults?.thoughtLeadershipStrategy?.conversion_intelligence_reference?.matrixCell,
+      defaultRefPrimary
+    ),
     content_type_channel_plan: contentTypeChannelPlan,
     implementation_action_plan: actionPlanSummary,
   };
@@ -173,13 +244,30 @@ function buildInitialWorkbookFromEngineData(params: {
   const visualVerbalSignals = engineResults.visualVerbalSignals || {};
   const companyDescription = engineResults.companyDescription || {};
   const strategicSections = buildStrategicSections(engineResults);
-  const reportSections = buildInitialReportSections(engineResults);
+  const reportSections = buildInitialReportSections(engineResults, businessName);
   const archetypeOutputs = buildArchetypeOutputs(engineResults);
   const brandAlignmentScore =
     engineResults.brandAlignmentScore ||
     engineResults.executiveSummary?.brandAlignmentScore ||
     0;
   const archetype = engineResults.archetype || engineResults.brandArchetype || engineResults.brandArchetypeSystem?.primary || {};
+  const primaryPillar = engineResults.primaryPillar || engineResults.weakestPillar?.pillar || "";
+  const audienceSeed = pickFirstText(
+    engineResults?.audienceClarity?.audienceSignals?.primaryAudience,
+    engineResults?.audiencePersonaDefinition?.primaryICP?.summary,
+    engineResults?.brandPersona?.personaSummary
+  );
+  const differentiatorSeed = pickFirstText(
+    engineResults?.competitivePositioning?.differentiationSummary,
+    engineResults?.brandFoundation?.brandPromise,
+    engineResults?.valuePropositionStatement?.statement
+  );
+  const optimized = optimizeSectionsForDelivery(reportSections, {
+    businessName,
+    audience: audienceSeed,
+    differentiator: differentiatorSeed,
+    primaryPillar: primaryPillar || "messaging",
+  });
 
   return {
     report_id: reportId,
@@ -188,7 +276,7 @@ function buildInitialWorkbookFromEngineData(params: {
     product_tier: tier,
     brand_alignment_score: brandAlignmentScore,
     pillar_scores: pillarScores,
-    primary_pillar: engineResults.primaryPillar || engineResults.weakestPillar?.pillar || "",
+    primary_pillar: primaryPillar,
 
     // Positioning
     positioning_statement:
@@ -255,7 +343,14 @@ function buildInitialWorkbookFromEngineData(params: {
     custom_sections: {
       strategic: strategicSections,
       archetype_outputs: archetypeOutputs,
-      report_sections: reportSections,
+      report_sections: optimized.optimizedSections,
+      personalization_quality: {
+        scope: "seeded",
+        optimized_at: new Date().toISOString(),
+        changed_keys: optimized.changedKeys,
+        overall_score: optimized.quality.overallScore,
+        failed_sections: optimized.quality.failedSections,
+      },
     },
   };
 }
@@ -431,6 +526,20 @@ function buildSampleWorkbook(reportId: string, email: string) {
           "Email should follow the same brand voice: concise, insight-first, and proof-backed with clear next steps.",
         social_strategy:
           "Publish pillar-aligned weekly content cadence with one thought-leadership asset and one proof asset per cycle.",
+        icp_conversion_intelligence_overview:
+          "Map ICP-specific conversion behavior from first touch to sales handoff. Use this framework as the performance backbone for email, social, paid, thought leadership, and sales enablement execution.",
+        content_strategy_conversion_intelligence_reference:
+          "type=ref;framework=icp_conversion_intelligence_framework;icpTier=Primary ICP;funnelStage=Aware;matrixCell=primary-icp:aware:authority-article",
+        email_nurture_conversion_intelligence_reference:
+          "type=ref;framework=icp_conversion_intelligence_framework;icpTier=Primary ICP;funnelStage=Consideration;matrixCell=primary-icp:consideration:nurture-proof-email",
+        paid_media_conversion_intelligence_reference:
+          "type=ref;framework=icp_conversion_intelligence_framework;icpTier=Secondary ICP;funnelStage=Consideration;matrixCell=secondary-icp:consideration:paid-case-study-cta",
+        social_media_conversion_intelligence_reference:
+          "type=ref;framework=icp_conversion_intelligence_framework;icpTier=Primary ICP;funnelStage=Aware;matrixCell=primary-icp:aware:insight-social-post",
+        sales_enablement_conversion_intelligence_reference:
+          "type=ref;framework=icp_conversion_intelligence_framework;icpTier=Secondary ICP;funnelStage=Decision;matrixCell=secondary-icp:decision:sales-proof-deck",
+        thought_leadership_conversion_intelligence_reference:
+          "type=ref;framework=icp_conversion_intelligence_framework;icpTier=Primary ICP;funnelStage=Consideration;matrixCell=primary-icp:consideration:thought-leadership-brief",
       },
     },
   };
@@ -451,7 +560,7 @@ export async function GET(req: NextRequest) {
 
   // Preview/sample mode: return editable local workbook shape without DB dependency.
   if (isSampleMode) {
-    const workbook = buildSampleWorkbook(reportId, email);
+    const workbook = buildSampleWorkbook(reportId, email ?? "preview@wunderbar.ai");
     const editability = getWorkbookEditability({
       productTier: workbook.product_tier,
       createdAt: new Date().toISOString(),
@@ -681,6 +790,30 @@ export async function GET(req: NextRequest) {
   }
 }
 
+/** Deep-merge custom_sections so partial PATCH cannot drop workbook_tab_versions or other tabs. */
+function mergeWorkbookCustomSections(
+  existing: Record<string, unknown> | null | undefined,
+  incoming: Record<string, unknown>,
+): Record<string, unknown> {
+  const base = existing && typeof existing === "object" ? { ...existing } : {};
+  const next: Record<string, unknown> = { ...base, ...incoming };
+  const baseTab =
+    base.workbook_tab_sections && typeof base.workbook_tab_sections === "object"
+      ? { ...(base.workbook_tab_sections as Record<string, string>) }
+      : {};
+  const incTab =
+    incoming.workbook_tab_sections && typeof incoming.workbook_tab_sections === "object"
+      ? (incoming.workbook_tab_sections as Record<string, string>)
+      : {};
+  if (Object.keys(incTab).length > 0) {
+    next.workbook_tab_sections = { ...baseTab, ...incTab };
+  }
+  if (!Array.isArray(incoming.workbook_tab_versions) && Array.isArray(base.workbook_tab_versions)) {
+    next.workbook_tab_versions = base.workbook_tab_versions;
+  }
+  return next;
+}
+
 // ─── PATCH: Save edits ───
 export async function PATCH(req: NextRequest) {
   const { apiGuard } = await import("@/lib/security/apiGuard");
@@ -702,7 +835,7 @@ export async function PATCH(req: NextRequest) {
     // Verify ownership and check editability
     const { data: workbook } = await supabaseAdmin
       .from("brand_workbook")
-      .select("id, email, product_tier, created_at, finalized_at")
+      .select("id, email, product_tier, created_at, finalized_at, custom_sections")
       .eq("report_id", reportId)
       .single();
 
@@ -748,6 +881,13 @@ export async function PATCH(req: NextRequest) {
 
     if (Object.keys(safeUpdates).length === 0) {
       return NextResponse.json({ error: "No valid fields to update." }, { status: 400 });
+    }
+
+    if (safeUpdates.custom_sections && typeof safeUpdates.custom_sections === "object") {
+      safeUpdates.custom_sections = mergeWorkbookCustomSections(
+        workbook.custom_sections as Record<string, unknown> | undefined,
+        safeUpdates.custom_sections as Record<string, unknown>,
+      );
     }
 
     safeUpdates.updated_at = new Date().toISOString();

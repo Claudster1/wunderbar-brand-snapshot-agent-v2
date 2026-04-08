@@ -7,12 +7,62 @@ import { Document, Page, Text, View, Image } from "@react-pdf/renderer";
 import { stylePresets, colors, fonts, spacing } from "../theme";
 import { registerPdfFonts } from "../registerFonts";
 import { DisclaimerPage } from "../components/DisclaimerPage";
+import { ColorSwatch } from "../components/ColorSwatch";
+import { getArchetypeIcon, getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
 
 const LOGO_URL =
   "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp";
 
 // Register fonts
 registerPdfFonts();
+
+function normalizeRoadmapPhase(text: string): string[] {
+  return text
+    .split(/[•\n;]+/g)
+    .map((item) => item.replace(/^\d+[\).\-\s]+/, "").trim())
+    .filter(Boolean)
+    .slice(0, 4);
+}
+
+function getBlueprintPlusRoadmap(
+  activationSessionPlan?: string,
+  roadmap30?: string,
+  roadmap60?: string,
+  roadmap90?: string
+) {
+  if (roadmap30 || roadmap60 || roadmap90) {
+    return {
+      next30: roadmap30 ? normalizeRoadmapPhase(roadmap30) : [],
+      next60: roadmap60 ? normalizeRoadmapPhase(roadmap60) : [],
+      next90: roadmap90 ? normalizeRoadmapPhase(roadmap90) : [],
+    };
+  }
+
+  if (!activationSessionPlan || activationSessionPlan.trim().length === 0) {
+    return {
+      next30: [
+        "Finalize positioning language and top-value proof points for all core pages.",
+        "Publish one authority asset aligned to your highest-intent audience question.",
+      ],
+      next60: [
+        "Roll out messaging consistency across email, social, and sales touchpoints.",
+        "Launch one conversion-focused campaign with clear KPI ownership.",
+      ],
+      next90: [
+        "Scale winning channels and codify the playbook into repeatable workflows.",
+        "Run a full strategic review with corrective actions for the next quarter.",
+      ],
+    };
+  }
+
+  const lines = normalizeRoadmapPhase(activationSessionPlan);
+  const chunk = Math.max(1, Math.ceil(lines.length / 3));
+  return {
+    next30: lines.slice(0, chunk),
+    next60: lines.slice(chunk, chunk * 2),
+    next90: lines.slice(chunk * 2),
+  };
+}
 
 interface CompleteAEOSystem {
   platformOptimizations?: {
@@ -38,6 +88,39 @@ interface CompleteAEOSystem {
 export interface BrandBlueprintPlusPDFProps {
   userName?: string;
   businessName?: string;
+  brandAlignmentScore?: number;
+  pillarScores?: {
+    positioning: number;
+    messaging: number;
+    visibility: number;
+    credibility: number;
+    conversion: number;
+  };
+  recommendations?: {
+    positioning?: string;
+    messaging?: string;
+    visibility?: string;
+    credibility?: string;
+    conversion?: string;
+  };
+  contextCoverage?: number;
+  opportunitiesMap?: string;
+  roadmap30?: string;
+  roadmap60?: string;
+  roadmap90?: string;
+  persona?: string | { summary?: string; description?: string };
+  archetype?:
+    | string
+    | {
+        name?: string;
+        summary?: string;
+        description?: string;
+        risk?: string;
+        languageTone?: string;
+        behaviorGuide?: string;
+      };
+  voice?: string | { summary?: string; description?: string; pillars?: string[] };
+  colorPalette?: Array<{ name?: string; hex?: string; role?: string; meaning?: string }>;
   brandStory?: {
     short?: string;
     long?: string;
@@ -80,6 +163,18 @@ export interface BrandBlueprintPlusPDFProps {
 export const BrandBlueprintPlusPDF = ({
   userName,
   businessName,
+  brandAlignmentScore,
+  pillarScores,
+  recommendations,
+  contextCoverage,
+  opportunitiesMap,
+  roadmap30,
+  roadmap60,
+  roadmap90,
+  persona,
+  archetype,
+  voice,
+  colorPalette = [],
   brandStory,
   positioning,
   journey = [],
@@ -95,8 +190,57 @@ export const BrandBlueprintPlusPDF = ({
   marketingSpendEfficiencySignal,
   revenueImpactStatement,
 }: BrandBlueprintPlusPDFProps) => {
+  const roadmap = getBlueprintPlusRoadmap(activationSessionPlan, roadmap30, roadmap60, roadmap90);
+  const carryoverArchetypeName =
+    typeof archetype === "string" ? archetype : archetype?.name || "";
+  const carryoverArchetypeMeaning = getArchetypeMeaning(carryoverArchetypeName);
+  const carryoverArchetypeIcon = getArchetypeIcon(carryoverArchetypeName);
+
   return (
     <Document>
+      {(typeof brandAlignmentScore === "number" || pillarScores) && (
+        <Page style={stylePresets.page}>
+          <Text style={stylePresets.h1}>Foundation Baseline</Text>
+          {typeof brandAlignmentScore === "number" && (
+            <View style={stylePresets.card}>
+              <Text style={stylePresets.h3}>WunderBrand Score™</Text>
+              <Text style={{ ...stylePresets.h1, marginBottom: 0, color: colors.blue }}>
+                {brandAlignmentScore}/100
+              </Text>
+              <Text style={stylePresets.body}>
+                This baseline is included for continuity as Blueprint+ strategy layers on top.
+              </Text>
+            </View>
+          )}
+          {pillarScores && (
+            <View style={stylePresets.card}>
+              <Text style={stylePresets.h3}>Five-Pillar Scores</Text>
+              {Object.entries(pillarScores).map(([pillar, score]) => (
+                <Text key={pillar} style={stylePresets.body}>
+                  • {pillar.charAt(0).toUpperCase() + pillar.slice(1)}: {score}/20
+                </Text>
+              ))}
+            </View>
+          )}
+          {recommendations && (
+            <View style={stylePresets.card}>
+              <Text style={stylePresets.h3}>Top Priority Actions</Text>
+              {Object.entries(recommendations)
+                .filter(([, value]) => typeof value === "string" && value.trim().length > 0)
+                .slice(0, 3)
+                .map(([pillar, value]) => (
+                  <Text key={pillar} style={stylePresets.body}>
+                    • {pillar.charAt(0).toUpperCase() + pillar.slice(1)}: {value}
+                  </Text>
+                ))}
+            </View>
+          )}
+          <Text style={stylePresets.footer}>
+            Foundation diagnostics carried forward into Blueprint+™.
+          </Text>
+        </Page>
+      )}
+
       {/* PAGE 1 — COVER */}
       <Page style={stylePresets.page}>
         {/* eslint-disable-next-line jsx-a11y/alt-text */}
@@ -128,6 +272,163 @@ export const BrandBlueprintPlusPDF = ({
           © {new Date().getFullYear()} Wunderbar Digital. WunderBrand Blueprint+™ is a trademark of Wunderbar Digital.
         </Text>
       </Page>
+
+      {(persona || archetype || voice || (colorPalette && colorPalette.length > 0)) && (
+        <Page style={stylePresets.page}>
+          <Text style={stylePresets.h1}>Brand Foundation Carryover</Text>
+          <Text style={stylePresets.body}>
+            Snapshot+ foundation context is included below so this Blueprint+ plan remains continuous from diagnostic to execution.
+          </Text>
+
+          {persona && (
+            <View style={stylePresets.card}>
+              <Text style={stylePresets.h3}>Brand Persona</Text>
+              <Text style={stylePresets.body}>
+                {typeof persona === "string" ? persona : persona.summary || persona.description || ""}
+              </Text>
+            </View>
+          )}
+
+          {archetype && (
+            <View style={stylePresets.card}>
+              <Text style={stylePresets.h3}>Brand Archetype</Text>
+              {typeof archetype === "string" ? (
+                <>
+                  <Text style={stylePresets.body}>
+                    {carryoverArchetypeIcon ? `${carryoverArchetypeIcon} ` : ""}
+                    {archetype}
+                  </Text>
+                  {carryoverArchetypeMeaning ? (
+                    <Text style={stylePresets.body}>{carryoverArchetypeMeaning}</Text>
+                  ) : null}
+                </>
+              ) : (
+                <>
+                  {archetype.name ? (
+                    <Text style={stylePresets.h4}>
+                      {carryoverArchetypeIcon ? `${carryoverArchetypeIcon} ` : ""}
+                      {archetype.name}
+                    </Text>
+                  ) : null}
+                  <Text style={stylePresets.body}>{archetype.summary || archetype.description || ""}</Text>
+                  {carryoverArchetypeMeaning ? (
+                    <Text style={stylePresets.body}>
+                      <Text style={stylePresets.semibold}>Core pattern: </Text>
+                      {carryoverArchetypeMeaning}
+                    </Text>
+                  ) : null}
+                  {archetype.risk ? (
+                    <Text style={stylePresets.body}>
+                      <Text style={stylePresets.semibold}>Risk if overused: </Text>
+                      {archetype.risk}
+                    </Text>
+                  ) : null}
+                  {archetype.languageTone ? (
+                    <Text style={stylePresets.body}>
+                      <Text style={stylePresets.semibold}>How it should sound: </Text>
+                      {archetype.languageTone}
+                    </Text>
+                  ) : null}
+                  {archetype.behaviorGuide ? (
+                    <Text style={stylePresets.body}>
+                      <Text style={stylePresets.semibold}>Brand impact: </Text>
+                      {archetype.behaviorGuide}
+                    </Text>
+                  ) : null}
+                </>
+              )}
+            </View>
+          )}
+
+          {voice && (
+            <View style={stylePresets.card}>
+              <Text style={stylePresets.h3}>Brand Voice</Text>
+              {typeof voice === "string" ? (
+                <Text style={stylePresets.body}>{voice}</Text>
+              ) : (
+                <>
+                  <Text style={stylePresets.body}>{voice.summary || voice.description || ""}</Text>
+                  {voice.pillars?.length ? (
+                    <>
+                      <Text style={stylePresets.h4}>Tone Pillars</Text>
+                      {voice.pillars.map((pillar, idx) => (
+                        <Text key={`voice-pillar-${idx}`} style={stylePresets.body}>• {pillar}</Text>
+                      ))}
+                    </>
+                  ) : null}
+                </>
+              )}
+            </View>
+          )}
+
+          {colorPalette && colorPalette.length > 0 && (
+            <View style={stylePresets.card}>
+              <Text style={stylePresets.h3}>Recommended Color Palette</Text>
+              {colorPalette.map((item, idx) => (
+                <View key={`palette-${idx}`} style={{ marginBottom: 8 }}>
+                  <ColorSwatch name={item.name || "Color"} hex={item.hex || "#000000"} />
+                  {(item.role || item.meaning) && (
+                    <Text style={{ ...stylePresets.small, marginTop: 2 }}>
+                      {item.role ? `${item.role}` : "Brand role"}
+                      {item.meaning ? ` • ${item.meaning}` : ""}
+                    </Text>
+                  )}
+                </View>
+              ))}
+            </View>
+          )}
+          <Text style={stylePresets.footer}>
+            Foundation continuity from Snapshot+™ into Blueprint+™.
+          </Text>
+        </Page>
+      )}
+
+      {(typeof contextCoverage === "number" || opportunitiesMap || roadmap30 || roadmap60 || roadmap90) && (
+        <Page style={stylePresets.page}>
+          <Text style={stylePresets.h1}>Snapshot+ Strategic Continuity</Text>
+          <Text style={stylePresets.body}>
+            The following Snapshot+ strategic signals are preserved here to keep your Blueprint+ execution path connected to original diagnostics.
+          </Text>
+
+          {typeof contextCoverage === "number" && (
+            <View style={stylePresets.card}>
+              <Text style={stylePresets.h3}>Context Coverage</Text>
+              <Text style={{ ...stylePresets.h1, marginBottom: 0, color: colors.blue }}>
+                {Math.max(0, Math.min(100, Math.round(contextCoverage)))}%
+              </Text>
+            </View>
+          )}
+
+          {opportunitiesMap && (
+            <View style={stylePresets.card}>
+              <Text style={stylePresets.h3}>Opportunities Map</Text>
+              <Text style={stylePresets.body}>{opportunitiesMap}</Text>
+            </View>
+          )}
+
+          {(roadmap30 || roadmap60 || roadmap90) && (
+            <>
+              <Text style={stylePresets.h3}>Snapshot+ 30/60/90 Roadmap</Text>
+              {[
+                { title: "Next 30 Days", body: roadmap30 },
+                { title: "Next 60 Days", body: roadmap60 },
+                { title: "Next 90 Days", body: roadmap90 },
+              ]
+                .filter((phase) => typeof phase.body === "string" && phase.body.trim().length > 0)
+                .map((phase, idx) => (
+                  <View key={`${phase.title}-${idx}`} style={stylePresets.card}>
+                    <Text style={stylePresets.h4}>{phase.title}</Text>
+                    <Text style={stylePresets.body}>{phase.body}</Text>
+                  </View>
+                ))}
+            </>
+          )}
+
+          <Text style={stylePresets.footer}>
+            Snapshot+ strategy retained for continuity into Blueprint+ activation.
+          </Text>
+        </Page>
+      )}
 
       {/* PAGE 2 — BRAND STORY FRAMEWORK */}
       {brandStory && (
@@ -545,11 +846,25 @@ export const BrandBlueprintPlusPDF = ({
             "Use your Blueprint+ outputs to rank channels by expected return, allocate budget by near-term wins vs long-game growth, and avoid vanity metrics that do not correlate with revenue."}
         </Text>
 
-        <Text style={stylePresets.h3}>Activation Session Framework</Text>
-        <Text style={stylePresets.body}>
-          {activationSessionPlan ||
-            "Use a 30-minute activation format: calibrate highest-impact pillar, lock two channel priorities, define the first three content assets, and confirm 90-day success metrics."}
-        </Text>
+        <Text style={stylePresets.h3}>90-Day Activation Plan</Text>
+        <View style={stylePresets.card}>
+          <Text style={stylePresets.h4}>Next 30 Days</Text>
+          {roadmap.next30.map((item, idx) => (
+            <Text key={`bpplus-30-${idx}`} style={stylePresets.body}>• {item}</Text>
+          ))}
+        </View>
+        <View style={stylePresets.card}>
+          <Text style={stylePresets.h4}>Next 60 Days</Text>
+          {(roadmap.next60.length > 0 ? roadmap.next60 : ["Operationalize cross-channel consistency with a KPI dashboard."]).map((item, idx) => (
+            <Text key={`bpplus-60-${idx}`} style={stylePresets.body}>• {item}</Text>
+          ))}
+        </View>
+        <View style={stylePresets.card}>
+          <Text style={stylePresets.h4}>Next 90 Days</Text>
+          {(roadmap.next90.length > 0 ? roadmap.next90 : ["Scale the highest-performing motions and document governance standards."]).map((item, idx) => (
+            <Text key={`bpplus-90-${idx}`} style={stylePresets.body}>• {item}</Text>
+          ))}
+        </View>
 
         <Text style={stylePresets.footer}>
           © 2025 Wunderbar Digital. WunderBrand Blueprint+™ is a trademark of Wunderbar Digital.

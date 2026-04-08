@@ -80,9 +80,10 @@ type Deliverable = {
 
 const BLUEPRINT_DELIVERABLES: Deliverable[] = [
   { type: "complete", label: "Complete WunderBrand Blueprint\u2122", description: "Full brand operating system", audience: "Everyone", pages: "60\u201380 pages" },
-  { type: "executive", label: "Executive Summary", description: "Score, pillars, priorities, and top actions", audience: "Leadership", pages: "2\u20134 pages" },
+  { type: "executive", label: "Executive Summary", description: "Pillars, priorities, and top actions", audience: "Leadership", pages: "2\u20134 pages" },
   { type: "messaging", label: "Brand Messaging Playbook", description: "Messaging pillars, content pillars, taglines, tone guide", audience: "Marketing", pages: "10\u201315 pages" },
   { type: "prompts", label: "AI Prompt Library", description: "Custom prompts calibrated to your brand", audience: "AI Users", pages: "12\u201316 pages" },
+  { type: "voice-checklist", label: "Voice Checklist", description: "Quick QA guardrails before publishing", audience: "Writers, Sales, Marketing", pages: "2\u20134 pages" },
 ];
 
 const BLUEPRINT_PLUS_DELIVERABLES: Deliverable[] = [
@@ -90,6 +91,7 @@ const BLUEPRINT_PLUS_DELIVERABLES: Deliverable[] = [
   { type: "activation", label: "90-Day Activation Plan", description: "Week-by-week roadmap, KPIs, guardrails", audience: "Implementation", pages: "12\u201318 pages" },
   { type: "digital", label: "Digital Marketing Strategy", description: "Journey, SEO/AEO, email, social, content calendar", audience: "Digital Marketing", pages: "18\u201324 pages" },
   { type: "competitive", label: "Competitive Intelligence Brief", description: "Positioning, trade-offs, pricing, sales scripts", audience: "Sales & BD", pages: "14\u201318 pages" },
+  { type: "battle-cards", label: "Sales Battle Cards", description: "Objection handling and differentiation cues", audience: "Sales & BD", pages: "6\u201310 pages" },
   { type: "standards", label: "Brand Standards Guide", description: "Logo, visual identity, writing rules, governance", audience: "Designers & Agencies", pages: "20\u201330 pages" },
 ];
 

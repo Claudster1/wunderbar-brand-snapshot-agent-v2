@@ -8,36 +8,48 @@ const LOGO_URL = "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: pdfTheme.spacing.md,
-    paddingHorizontal: pdfTheme.spacing.xl,
-    borderBottom: `1px solid ${pdfTheme.colors.border}`,
+    paddingTop: 14,
+    paddingBottom: 10,
+    paddingHorizontal: 22,
+    borderBottom: `1px solid #E4EBF7`,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    backgroundColor: "#F9FCFF",
   },
   leftCol: {
     flex: 1,
   },
-  title: {
-    fontFamily: "Helvetica",
-    fontSize: pdfTheme.fontSizes.lg,
-    color: pdfTheme.colors.navy,
+  kicker: {
+    fontSize: 7.8,
+    color: "#0D5BD7",
+    letterSpacing: 1.2,
+    textTransform: "uppercase",
+    marginBottom: 3,
     fontWeight: 600,
   },
+  title: {
+    fontFamily: "Helvetica",
+    fontSize: 12.6,
+    color: pdfTheme.colors.navy,
+    fontWeight: 600,
+    lineHeight: 1.3,
+  },
   preparedFor: {
-    fontSize: 9,
-    color: "#6B7280",
-    marginTop: 4,
+    fontSize: 7.4,
+    color: "#60708E",
+    marginTop: 2,
   },
   date: {
-    fontSize: 8,
-    color: "#9CA3AF",
+    fontSize: 7,
+    color: "#7E8EA9",
     marginTop: 2,
   },
   logo: {
-    width: 80,
-    height: 10.7,
+    width: 94,
+    height: 12.5,
     objectFit: "contain",
+    marginTop: 1,
   },
 });
 
@@ -50,6 +62,7 @@ interface PdfHeaderProps {
 export const PdfHeader = ({ title, businessName, date }: PdfHeaderProps) => (
   <View style={styles.container}>
     <View style={styles.leftCol}>
+      <Text style={styles.kicker}>WunderBrand Report</Text>
       <Text style={styles.title}>{title}</Text>
       {businessName && (
         <Text style={styles.preparedFor}>Prepared for {businessName}</Text>

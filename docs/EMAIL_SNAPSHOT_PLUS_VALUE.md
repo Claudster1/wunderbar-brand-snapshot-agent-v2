@@ -19,14 +19,14 @@ Hi {{first_name}},
 Brands at a similar stage often sense something is "almost there" —
 but don't yet have the clarity to act confidently.
 
-Your Snapshot+™ bridges that gap by:
-• Translating insight into direction  
-• Connecting your strongest signals into a system  
+Your WunderBrand Snapshot+™ bridges that gap by:
+• Translating your proprietary WunderBrand Score™ into strategic direction  
+• Connecting your strongest signals into a system across Foundation, Strategy, Activation, Workbook, and Downloads  
 • Clarifying what to focus on now — and what can wait  
 
 If that sounds useful, your report is ready whenever you are.
 
-→ Access Snapshot+™
+→ Access WunderBrand Snapshot+™
 
 Warmly,  
 Claudine
@@ -51,7 +51,7 @@ This email works well as:
 ## Key Messaging
 
 - **Problem**: "Almost there" feeling without clarity to act
-- **Solution**: Snapshot+™ bridges the gap
+- **Solution**: WunderBrand Snapshot+™ bridges the gap with proprietary diagnostic depth
 - **Benefits**: 
   - Translates insight into direction
   - Connects signals into a system

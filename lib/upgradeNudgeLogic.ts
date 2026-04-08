@@ -27,7 +27,7 @@ export function getUpgradeNudge(
     
     return {
       title: "Go deeper with WunderBrand Snapshot+™",
-      body: `Your results point to meaningful opportunity in ${snapshot.primary_pillar}. Snapshot+™ expands on this with deeper analysis, examples, and next-step clarity.`,
+      body: `Your results point to meaningful opportunity in ${snapshot.primary_pillar}. Snapshot+™ expands on this with deeper analysis, examples, and next-step clarity — powered by Wunderbar Digital's proprietary scoring methodology.`,
       ctaLabel: "See how to strengthen what matters most right now",
       href: "/snapshot-plus",
     };
@@ -41,8 +41,8 @@ export function getUpgradeNudge(
     }
     
     return {
-      title: "Turn insight into execution",
-      body: `You've identified where your brand needs clarity. WunderBrand Blueprint™ translates these insights into a complete, usable system.`,
+      title: "Turn insight into activation",
+      body: `You've identified where your brand needs clarity. WunderBrand Blueprint™ translates these insights into a complete, usable system across Strategy, Brand Standards, Activation, Workbook, and Downloads.`,
       ctaLabel: "Explore WunderBrand Blueprint™ →",
       href: "/blueprint",
     };

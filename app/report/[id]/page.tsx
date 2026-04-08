@@ -1,11 +1,38 @@
 // app/report/[id]/page.tsx
 
 import { createClient } from "@supabase/supabase-js";
+import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import SnapshotPlusUpsell from "@/components/SnapshotPlusUpsell";
 import { BlueprintPlusHeader } from "@/components/reports/BlueprintPlusHeader";
+import { SectionOverviewTiles } from "@/components/reports/SectionOverviewTiles";
 import { ScoreGauge } from "@/src/components/ScoreGauge";
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
+import { wunderBrandScoreFromPillars } from "@/lib/wunderBrandScoreDisplay";
 
 export const dynamic = "force-dynamic";
+const REPORT_SECTION_LABELS: Record<string, string> = {
+  overview: "Overview",
+  foundation: "Foundation",
+  score: "Score",
+  strategy: "Strategy",
+  activation: "Activation",
+  "next-steps": "Next Steps",
+};
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams?: Promise<{ section?: string }>;
+}): Promise<Metadata> {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const section = typeof resolvedSearchParams?.section === "string" ? resolvedSearchParams.section : "overview";
+  const sectionLabel = REPORT_SECTION_LABELS[section] || REPORT_SECTION_LABELS.foundation;
+  return {
+    title: `WunderBrand Snapshot™ Report • ${sectionLabel}`,
+  };
+}
+
 const SAMPLE_LEGACY_REPORTS: Record<string, any> = {
   "sample-ecommerce": {
     report_id: "sample-ecommerce",
@@ -62,8 +89,15 @@ const SAMPLE_LEGACY_REPORTS: Record<string, any> = {
   },
 };
 
-export default async function ReportPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function ReportPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams?: Promise<{ section?: string }>;
+}) {
   const { id: reportId } = await params;
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
 
   if (!reportId) {
     return (
@@ -82,13 +116,23 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
 
     if (supabaseUrl && supabaseKey) {
       const supabase = createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } });
-      const queryResult = await supabase
+      const queryByReportId = await supabase
         .from("brand_snapshot_reports")
         .select("*")
         .eq("report_id", reportId)
         .single();
-      report = queryResult.data;
-      error = queryResult.error;
+      if (queryByReportId.data) {
+        report = queryByReportId.data;
+        error = null;
+      } else {
+        const queryById = await supabase
+          .from("brand_snapshot_reports")
+          .select("*")
+          .eq("id", reportId)
+          .single();
+        report = queryById.data;
+        error = queryById.error;
+      }
     }
   }
 
@@ -102,7 +146,6 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
   }
 
   const {
-    brand_alignment_score,
     pillar_scores,
     pillar_insights,
     recommendations,
@@ -375,7 +418,7 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
     ? Object.values(recommendations).filter((r: any) => typeof r === 'string')
     : [];
 
-  const score = typeof brand_alignment_score === "number" ? brand_alignment_score : 0;
+  const score = wunderBrandScoreFromPillars(report);
   const scoreLabel =
     score >= 80
       ? "Excellent alignment — strong clarity and consistency"
@@ -397,6 +440,30 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
     Object.entries(pillar_scores || {})
       .filter((entry): entry is [string, number] => typeof entry[1] === "number")
       .sort((a, b) => a[1] - b[1])[0]?.[0] || "positioning";
+  const strongestPillar =
+    Object.entries(pillar_scores || {})
+      .filter((entry): entry is [string, number] => typeof entry[1] === "number")
+      .sort((a, b) => b[1] - a[1])[0]?.[0] || "messaging";
+  const decisionAction =
+    recommendationsList.length > 0
+      ? recommendationsList[0]
+      : `Prioritize ${pillarDisplay[weakestPillar as keyof typeof pillarDisplay] || "Positioning"} updates across your highest-traffic pages this week.`;
+  const validSections = new Set(["overview", "foundation", "score", "strategy", "activation", "next-steps"]);
+  const requestedSection =
+    typeof resolvedSearchParams?.section === "string" ? resolvedSearchParams.section : undefined;
+  if (!requestedSection || !validSections.has(requestedSection)) {
+    redirect(`/report/${encodeURIComponent(reportId)}?section=overview`);
+  }
+  const activeSection = requestedSection;
+  const sectionHref = (section: string) => `/report/${encodeURIComponent(reportId)}?section=${section}`;
+  const navItems = [
+    { id: "overview", label: "Overview", href: sectionHref("overview") },
+    { id: "foundation", label: "Foundation", href: sectionHref("foundation") },
+    { id: "score", label: "Score", href: sectionHref("score") },
+    { id: "strategy", label: "Strategy", href: sectionHref("strategy") },
+    { id: "activation", label: "Activation", href: sectionHref("activation") },
+    { id: "next-steps", label: "Next Steps", href: sectionHref("next-steps") },
+  ];
 
   return (
     <div>
@@ -406,65 +473,137 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
         <BlueprintPlusHeader
           productName="WunderBrand Snapshot™"
           reportId={reportId}
-          userEmail={typeof (report as any).user_email === "string" ? (report as any).user_email : undefined}
-          pdfHref={`/api/snapshot/pdf?id=${encodeURIComponent(reportId)}`}
           utmMedium="legacy_report"
+          navItems={navItems}
+          activeSectionId={activeSection}
         />
 
-        <div style={{ marginTop: 20 }}>
-          <h2 style={{ marginTop: 0 }}>Executive Summary</h2>
-          <p>
-            Your current alignment is {score}/100. This high-level overview summarizes your
-            WunderBrand Score™, pillar performance, and the strongest near-term priority in{" "}
-            <strong>{pillarDisplay[weakestPillar as keyof typeof pillarDisplay] || "Positioning"}</strong>.
-          </p>
-        </div>
+        {activeSection === "overview" && (
+          <SectionOverviewTiles
+            productName="WunderBrand Snapshot™ report"
+            tiles={[
+              {
+                id: "foundation",
+                label: "Foundation",
+                description: "Quick decision snapshot: current state, main risk, and immediate action.",
+                href: sectionHref("foundation"),
+              },
+              {
+                id: "score",
+                label: "Score",
+                description: "See your overall brand alignment score and interpretation.",
+                href: sectionHref("score"),
+              },
+              {
+                id: "strategy",
+                label: "Strategy",
+                description: "Review performance across the five brand pillars and key insights.",
+                href: sectionHref("strategy"),
+              },
+              {
+                id: "activation",
+                label: "Activation",
+                description: "Focus on priority actions to move from analysis to implementation.",
+                href: sectionHref("activation"),
+              },
+              {
+                id: "next-steps",
+                label: "Next Steps",
+                description: "Access upgrade recommendations and your follow-on path.",
+                href: sectionHref("next-steps"),
+              },
+            ]}
+          />
+        )}
 
-        <div id="score-overview" className="score-card">
-          <div style={{ maxWidth: 360, margin: "0 auto" }}>
-            <ScoreGauge value={score} showLegend />
-          </div>
-          <p style={{ marginTop: 10 }}>{scoreLabel}</p>
-        </div>
-
-        <h2 id="pillar-analysis">How Your Brand Performs Across the Five Pillars</h2>
-        <div className="pillars">
-          {pillarOrder.map((pillar) => {
-            const insight = (pillar_insights as any)?.[pillar];
-            const insightText = getInsightText(insight);
-            return (
-              <div className="pillar" key={pillar}>
-                <div className="pillar-title">{pillarDisplay[pillar]}</div>
-                <p>{insightText}</p>
-              </div>
-            );
-          })}
-        </div>
-
-        {recommendationsList.length > 0 && (
-          <div style={{ marginTop: 24 }}>
-            <h2 style={{ marginTop: 0 }}>Priority Actions</h2>
-            <div>
-              {recommendationsList.slice(0, 5).map((item, idx) => (
-                <p key={`${idx}-${item.slice(0, 30)}`}>
-                  {idx + 1}. {item}
-                </p>
-              ))}
+        {activeSection === "foundation" && (
+          <div id="foundation" style={{ marginTop: 20 }}>
+            <h2 style={{ marginTop: 0 }}>Executive Summary</h2>
+            <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
+              <p style={{ margin: 0 }}>
+                <strong>Current state:</strong> You are at {score}/100. {scoreLabel}
+              </p>
+              <p style={{ margin: 0 }}>
+                <strong>Biggest risk:</strong>{" "}
+                {pillarDisplay[weakestPillar as keyof typeof pillarDisplay] || "Positioning"} is your
+                lowest-scoring pillar and is likely constraining conversion consistency.
+              </p>
+              <p style={{ margin: 0 }}>
+                <strong>Biggest leverage:</strong>{" "}
+                {pillarDisplay[strongestPillar as keyof typeof pillarDisplay] || "Messaging"} is already
+                a relative strength you can scale while shoring up weak spots.
+              </p>
+              <p style={{ margin: 0 }}>
+                <strong>Next action (this week):</strong> {decisionAction}
+              </p>
             </div>
           </div>
         )}
 
-        <div id="next-steps">
-          <SnapshotPlusUpsell
-            href="/checkout/snapshot-plus"
-            copy={
-              typeof snapshot_upsell === "string" && snapshot_upsell.trim().length > 0
-                ? snapshot_upsell
-                : undefined
-            }
-            businessName={businessName}
-          />
-        </div>
+        {activeSection === "score" && (
+          <div id="score" className="score-card">
+            <div style={{ maxWidth: 360, margin: "0 auto" }}>
+              <ScoreGauge value={score} showLegend />
+            </div>
+            <p style={{ marginTop: 10 }}>{scoreLabel}</p>
+          </div>
+        )}
+
+        {activeSection === "strategy" && (
+          <>
+            <h2 id="strategy">How Your Brand Performs Across the Five Pillars</h2>
+            <div className="pillars">
+              {pillarOrder.map((pillar) => {
+                const insight = (pillar_insights as any)?.[pillar];
+                const insightText = getInsightText(insight);
+                return (
+                  <div className="pillar" key={pillar}>
+                    <div className="pillar-title">{pillarDisplay[pillar]}</div>
+                    <p>{insightText}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {activeSection === "activation" && (
+          <div id="activation" style={{ marginTop: 24 }}>
+            <h2 style={{ marginTop: 0 }}>Priority Actions</h2>
+            <div>
+              {recommendationsList.length > 0 ? (
+                recommendationsList.slice(0, 5).map((item, idx) => (
+                  <p key={`${idx}-${item.slice(0, 30)}`}>
+                    {idx + 1}. {item}
+                  </p>
+                ))
+              ) : (
+                <p>
+                  No explicit priority actions were generated for this report. Focus first on the
+                  lowest-scoring pillar to tighten positioning, messaging, and execution alignment.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeSection === "next-steps" && (
+          <div id="next-steps">
+            <SnapshotPlusUpsell
+              href={getTrackedCheckoutUrl({
+                product: "snapshot-plus",
+                medium: "report_cta",
+                content: "report_next_steps",
+              })}
+              copy={
+                typeof snapshot_upsell === "string" && snapshot_upsell.trim().length > 0
+                  ? snapshot_upsell
+                  : undefined
+              }
+              businessName={businessName}
+            />
+          </div>
+        )}
       </div>
 
       <footer>Powered by Wunderbar Digital · © 2025 All Rights Reserved</footer>

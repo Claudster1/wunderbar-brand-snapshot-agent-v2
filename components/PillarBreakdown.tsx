@@ -51,16 +51,14 @@ export function PillarBreakdown({
 
   return (
     <div>
-      <h2 className="bs-h2 mb-4">
-        How your score breaks down
-      </h2>
+      <h2 className="bs-h2 mb-4">Brand Pillar Analysis</h2>
       <div className="bs-card rounded-xl bg-brand-bg p-4 mb-6 border-0">
         <div className="flex items-center gap-2 mb-2">
           <span className="bs-body-sm font-bold text-brand-navy">How to read your scores</span>
           <TooltipIcon
             content={
               <>
-                Each pillar is scored 0–20. The bar runs from red (needs work) to green (strong). Your dot shows where you land. Use the band under each pillar to see what your score means and your biggest opportunity.
+                Each pillar is scored 0–20. The bar runs from red (needs work) to green (strong). Your dot shows where you land. Your overall WunderBrand Score™ (0–100) weights these pillars by strategic importance — positioning, messaging, and credibility count more than visibility and conversion — so the headline number is not a simple sum of the five bars.
               </>
             }
           />

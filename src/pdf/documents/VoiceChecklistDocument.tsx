@@ -20,33 +20,34 @@ const s = StyleSheet.create({
   coverTitle: { fontSize: 24, fontWeight: "bold", color: "#FFFFFF", textAlign: "center", marginBottom: 8 },
   coverSub: { fontSize: 12, color: pdfTheme.colors.aqua, textAlign: "center" },
   page: {
-    padding: 40,
+    padding: 42,
+    paddingBottom: 66,
     fontFamily: "Helvetica",
     fontSize: 10,
-    color: pdfTheme.colors.text,
-    lineHeight: 1.55,
+    color: "#2D3A4A",
+    lineHeight: 1.6,
   },
-  h1: { fontSize: 18, fontWeight: "bold", color: pdfTheme.colors.navy, marginBottom: 10 },
-  h2: { fontSize: 12, fontWeight: "bold", color: pdfTheme.colors.navy, marginBottom: 8, marginTop: 14 },
-  body: { fontSize: 10, lineHeight: 1.55, marginBottom: 6 },
+  h1: { fontSize: 19, fontWeight: "bold", color: "#021859", marginBottom: 8 },
+  h2: { fontSize: 13, fontWeight: "bold", color: "#021859", marginBottom: 6, marginTop: 14 },
+  body: { fontSize: 10, lineHeight: 1.6, marginBottom: 6, color: "#2D3A4A" },
   small: { fontSize: 9, color: "#6B7280", lineHeight: 1.5 },
   card: {
-    backgroundColor: "#F8FAFC",
-    borderRadius: 6,
-    border: "1 solid #E5E7EB",
+    backgroundColor: "#F8FBFF",
+    borderRadius: 8,
+    border: "1 solid #E2EAF5",
     padding: 12,
     marginBottom: 10,
   },
   doCard: {
     backgroundColor: "#F0FDF4",
-    borderRadius: 6,
+    borderRadius: 8,
     border: "1 solid #BBF7D0",
     padding: 12,
     marginBottom: 10,
   },
   dontCard: {
     backgroundColor: "#FEF2F2",
-    borderRadius: 6,
+    borderRadius: 8,
     border: "1 solid #FECACA",
     padding: 12,
     marginBottom: 10,
@@ -76,7 +77,7 @@ const s = StyleSheet.create({
     color: "#991B1B",
   },
   listItem: { fontSize: 10, marginBottom: 4, lineHeight: 1.5 },
-  footer: { position: "absolute", bottom: 20, left: 40, right: 40, flexDirection: "row", justifyContent: "space-between" },
+  footer: { position: "absolute", bottom: 18, left: 42, right: 42, flexDirection: "row", justifyContent: "space-between" },
   footerText: { fontSize: 7, color: "#9CA3AF" },
 });
 
@@ -168,7 +169,7 @@ export function VoiceChecklistDocument({ data, brandName }: Props) {
             <View style={s.card}>
               {sampleUse.length > 0 ? (
                 <>
-                  <Text style={s.label}>Prefer</Text>
+                  <Text style={s.label}>Do this</Text>
                   {sampleUse.map((p, idx) => (
                     <Text key={`use-${idx}`} style={s.listItem}>
                       • {p}
@@ -178,7 +179,7 @@ export function VoiceChecklistDocument({ data, brandName }: Props) {
               ) : null}
               {sampleAvoid.length > 0 ? (
                 <>
-                  <Text style={{ ...s.label, marginTop: 8 }}>Avoid</Text>
+                  <Text style={{ ...s.label, marginTop: 8 }}>Not this</Text>
                   {sampleAvoid.map((p, idx) => (
                     <Text key={`avoid-${idx}`} style={s.listItem}>
                       • {p}

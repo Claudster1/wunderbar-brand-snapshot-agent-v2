@@ -145,7 +145,7 @@ export function MarketingSpendEfficiencySignal({
           <p className="bs-body-sm text-brand-midnight">
             Your score pattern suggests potential spend inefficiency through <strong>{risk}</strong>.
             For your business model, stronger performance typically comes from prioritizing {allocation}
-            before adding more channel complexity. Snapshot+ maps this into a clear execution order.
+            before adding more channel complexity. Snapshot+ maps this into a clear activation order.
           </p>
         )}
         <Link

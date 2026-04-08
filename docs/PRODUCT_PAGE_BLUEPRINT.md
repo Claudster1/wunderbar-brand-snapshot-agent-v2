@@ -326,14 +326,14 @@ If Snapshot+ is the treatment plan, Blueprint is the full implementation bluepri
 
 ---
 
-### 23. Execution AI Prompt Pack (8 Additional Prompts — 16 Total)
-**What it is:** Eight additional AI prompts focused on execution — content creation, campaign planning, email writing, social media drafts, and ad copy — all calibrated to your brand voice, audience, and strategic priorities. Combined with the 8 Foundational Prompts from Snapshot+, you have 16 total prompts covering both strategy and execution.
+### 23. Activation AI Prompt Pack (8 Additional Prompts — 16 Total)
+**What it is:** Eight additional AI prompts focused on activation — content creation, campaign planning, email writing, social media drafts, and ad copy — all calibrated to your brand voice, audience, and strategic priorities. Combined with the 8 Foundational Prompts from Snapshot+, you have 16 total prompts covering both strategy and activation.
 
-**Why it matters:** The Foundational Pack (Snapshot+) helped you think strategically. The Execution Pack helps you produce. Blog posts, email campaigns, ad copy, social content — each prompt generates brand-aligned content that would take a copywriter hours to produce from a blank brief.
+**Why it matters:** The Foundational Pack (Snapshot+) helped you think strategically. The Activation Pack helps you produce. Blog posts, email campaigns, ad copy, social content — each prompt generates brand-aligned content that would take a copywriter hours to produce from a blank brief.
 
 **How it helps your business:** 16 AI prompts that turn any AI tool into your brand's creative department. Each prompt is pre-loaded with your brand context — voice, archetype, audience, messaging pillars — so the output sounds like you, not like generic AI.
 
-**What you'll see:** 8 execution prompts with strategic context, ready to copy and paste into ChatGPT, Claude, or any AI tool.
+**What you'll see:** 8 activation prompts with strategic context, ready to copy and paste into ChatGPT, Claude, or any AI tool.
 
 ---
 
@@ -362,7 +362,7 @@ If Snapshot+ is the treatment plan, Blueprint is the full implementation bluepri
 | No SEO or AEO | SEO keyword direction + AEO entity strategy |
 | No email or social framework | Welcome sequence + 2–3 platform social strategy |
 | No company descriptions | 4 ready-to-use descriptions + brand story |
-| 8 AI prompts | 16 AI prompts (strategy + execution) |
+| 8 AI prompts | 16 AI prompts (strategy + activation) |
 | Basic action plan | Action plan + KPIs throughout |
 
 ---

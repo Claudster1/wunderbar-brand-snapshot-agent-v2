@@ -121,7 +121,7 @@ This document outlines all report types in the Wunderbar Digital WunderBrand Sna
 ## 4. WunderBrand Blueprint+™ (PAID) - $1,997
 
 **Type:** Paid advanced strategic foundation  
-**Purpose:** Consulting-grade brand strategy with execution roadmap  
+**Purpose:** Consulting-grade brand strategy with activation roadmap
 **Database Table:** `brand_blueprint_plus_reports`  
 **Upgrade Path:** Standalone or from Blueprint  
 **Price:** $1,997

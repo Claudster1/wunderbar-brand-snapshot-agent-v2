@@ -113,7 +113,22 @@ function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0;
 }
 
-function getMissingHighImpactSignals(snapshotData: Record<string, unknown>): string[] {
+function hasLeadMagnetDetailSignal(snapshotData: Record<string, unknown>): boolean {
+  const nested = snapshotData.leadMagnetDetails;
+  if (nested && typeof nested === 'object' && !Array.isArray(nested)) {
+    const o = nested as Record<string, unknown>;
+    if (isNonEmptyString(o.title) || isNonEmptyString(o.summary)) return true;
+  }
+  if (isNonEmptyString(snapshotData.leadMagnetTitle) || isNonEmptyString(snapshotData.leadMagnetDescription)) {
+    return true;
+  }
+  return false;
+}
+
+function getMissingHighImpactSignals(
+  snapshotData: Record<string, unknown>,
+  productTier?: 'snapshot' | 'snapshot-plus' | 'blueprint' | 'blueprint-plus',
+): string[] {
   const hasBusinessType = isNonEmptyString(snapshotData.businessType);
   const hasRevenueRange =
     isNonEmptyString(snapshotData.monthlyRevenueRange) ||
@@ -132,6 +147,26 @@ function getMissingHighImpactSignals(snapshotData: Record<string, unknown>): str
   if (!hasAcquisitionChannel) missing.push('Primary acquisition channel');
   if (!hasMarketingBudget) missing.push('Monthly marketing budget');
   if (!hasContentCapacity) missing.push('Content creation capacity');
+
+  if (snapshotData.hasLeadMagnet === true && !hasLeadMagnetDetailSignal(snapshotData)) {
+    missing.push("Your current free offer: what it's called and what people get (a line each is enough)");
+  }
+
+  const isActivationTier = productTier === 'blueprint' || productTier === 'blueprint-plus';
+  if (isActivationTier) {
+    const hasEmailList = typeof snapshotData.hasEmailList === 'boolean';
+    const hasLeadMagnet = typeof snapshotData.hasLeadMagnet === 'boolean';
+    const hasClearCTA = typeof snapshotData.hasClearCTA === 'boolean';
+    const hasMarketingChannels =
+      Array.isArray(snapshotData.marketingChannels) &&
+      (snapshotData.marketingChannels as unknown[]).length > 0;
+
+    if (!hasEmailList) missing.push('Email list (yes/no — small lists count)');
+    if (!hasLeadMagnet) missing.push('Free download or sign-up offer (yes/no — "not yet" is a fine answer)');
+    if (!hasClearCTA) missing.push('How clear your main next step is');
+    if (!hasMarketingChannels) missing.push('Channels you are active on');
+  }
+
   return missing;
 }
 
@@ -142,6 +177,8 @@ interface UseBrandChatOptions {
   customGreeting?: string;
   /** Welcome-back template with {firstName} placeholders. If provided, the first user message is treated as their name and the welcome-back is injected directly instead of calling the AI. */
   welcomeBackTemplate?: string;
+  /** Active product tier for tier-aware intake behavior. */
+  productTier?: 'snapshot' | 'snapshot-plus' | 'blueprint' | 'blueprint-plus';
 }
 
 export function useBrandChat(options?: UseBrandChatOptions) {
@@ -346,7 +383,9 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     }
 
     try {
-      const replyText = await getBrandSnapshotReply(nextHistory);
+      const replyText = await getBrandSnapshotReply(nextHistory, {
+        productTier: options?.productTier,
+      });
 
       // Check if the response contains JSON (should NOT be displayed in chat).
       // Wundy outputs either:
@@ -404,12 +443,17 @@ export function useBrandChat(options?: UseBrandChatOptions) {
           if (isCollectedInputs) {
             const missingSignals = getMissingHighImpactSignals(
               snapshotData as Record<string, unknown>,
+              options?.productTier,
             );
             if (missingSignals.length > 0 && !allowIncompleteSubmissionRef.current) {
               const missingList = missingSignals.map((item) => `- ${item}`).join('\n');
+              const activationWarmth =
+                options?.productTier === 'blueprint' || options?.productTier === 'blueprint-plus'
+                  ? `A few quick signals help us write campaigns that match your real world — not a fantasy marketing stack. If something is "not yet" or "we don't," say so; your plan can still include supportive ideas and plug them into the email and social drafts we build for you.\n\n`
+                  : '';
               const nudge = createMessage(
                 'assistant',
-                `Before I generate your report, here are the highest-impact details still missing:\n\n${missingList}\n\nYou can continue now, but adding these will make your results more reliable, more actionable, and more performance-optimized for your business.\n\nReply with any of these details, or say "continue anyway" to generate now.`,
+                `${activationWarmth}Before I generate your report, here's what would still sharpen things:\n\n${missingList}\n\nShare what feels easy — short answers are perfect. You can also say "continue anyway" whenever you're ready.`,
               );
               const updatedHistory = [...nextHistory, nudge];
               setMessages(updatedHistory);
@@ -463,6 +507,11 @@ export function useBrandChat(options?: UseBrandChatOptions) {
                 const redirectUrl = `/results?reportId=${finalReportId}`;
                 if (window.parent && window.parent !== window) {
                   window.parent.postMessage({ type: 'BRAND_SNAPSHOT_COMPLETE', data: { report_id: finalReportId, redirectUrl } }, '*');
+                  // Also trigger local completion callback so in-app email gate can appear
+                  // even when embedded contexts are present.
+                  if (onCompleteRef.current) {
+                    onCompleteRef.current(finalReportId, redirectUrl);
+                  }
                 } else if (onCompleteRef.current) {
                   onCompleteRef.current(finalReportId, redirectUrl);
                 } else {
@@ -606,6 +655,11 @@ export function useBrandChat(options?: UseBrandChatOptions) {
                       }
                     }, '*');
                     // postMessage dispatched to parent frame
+                    // Also trigger local completion callback so in-app email gate can appear
+                    // even when embedded contexts are present.
+                    if (onCompleteRef.current) {
+                      onCompleteRef.current(finalReportId, redirectUrl);
+                    }
                   } else if (onCompleteRef.current) {
                     // Caller provided onComplete callback — defer navigation to them
                     // (used for email verification gate)

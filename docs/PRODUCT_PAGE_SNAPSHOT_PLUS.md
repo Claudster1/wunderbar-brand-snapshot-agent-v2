@@ -179,7 +179,7 @@ Think of it this way: the free Snapshot is your brand's blood pressure reading. 
 ---
 
 ### 14. 90-Day Phased Roadmap with Guardrails
-**What it is:** A structured 30/60/90-day execution plan that sequences your five strategic actions and additional improvements for maximum momentum. Includes guardrails — specific rules and checkpoints to keep you on track when daily business pressures pull you off strategy.
+**What it is:** A structured 30/60/90-day activation plan that sequences your five strategic actions and additional improvements for maximum momentum. Includes guardrails — specific rules and checkpoints to keep you on track when daily business pressures pull you off strategy.
 
 **Why it matters:** Knowing what to do isn't enough. You need to know what to do first, what to do next, and what to save for later. Without a roadmap, most businesses implement one or two things, get busy, and never finish. The 90-day structure creates urgency and accountability.
 

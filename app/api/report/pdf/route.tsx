@@ -5,66 +5,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { logger } from "@/lib/logger";
-import React from "react";
-
-/**
- * Transform database report format to PDF component format
- */
-function transformReportData(data: any) {
-  const reportData = data.full_report || data;
-  
-  // Extract pillar scores
-  const pillarScores = reportData.pillar_scores || reportData.pillarScores || {
-    positioning: reportData.scores?.positioning || 0,
-    messaging: reportData.scores?.messaging || 0,
-    visibility: reportData.scores?.visibility || 0,
-    credibility: reportData.scores?.credibility || 0,
-    conversion: reportData.scores?.conversion || 0,
-  };
-
-  // Extract pillar insights - handle both old (string) and new (object) formats
-  const pillarInsights: Record<string, any> = {};
-  const insightsSource = reportData.pillar_insights || reportData.pillarInsights || {};
-  
-  Object.keys(pillarScores).forEach((pillar) => {
-    const insightData = insightsSource[pillar];
-    if (typeof insightData === 'string') {
-      pillarInsights[pillar] = insightData;
-    } else if (insightData && typeof insightData === 'object') {
-      pillarInsights[pillar] = insightData;
-    } else {
-      pillarInsights[pillar] = "No insight available.";
-    }
-  });
-
-  // Extract color palette
-  const colorPalette = reportData.color_palette || reportData.colorPalette || reportData.recommendedPalette || reportData.suggestedPalette || [];
-
-  // Extract recommendations - handle both array and object formats
-  let recommendations: any[] = [];
-  if (Array.isArray(reportData.recommendations)) {
-    recommendations = reportData.recommendations;
-  } else if (reportData.recommendations && typeof reportData.recommendations === 'object') {
-    // If it's an object with pillar keys, convert to array
-    Object.values(reportData.recommendations).forEach((rec: any) => {
-      if (typeof rec === 'string') {
-        recommendations.push(rec);
-      } else if (rec && typeof rec === 'object') {
-        recommendations.push(rec.description || rec.title || rec);
-      }
-    });
-  }
-
-  return {
-    userName: reportData.user_name || reportData.userName || "User",
-    businessName: reportData.company || reportData.company_name || reportData.businessName || "",
-    brandAlignmentScore: reportData.brand_alignment_score || reportData.brandAlignmentScore || 0,
-    pillarScores,
-    pillarInsights,
-    recommendations,
-    suggestedPalette: colorPalette,
-  };
-}
+import { generatePdfResponseFromReport } from "@/src/pdf/generatePdf";
 
 /**
  * GET handler - Fetch report from Supabase by reportId
@@ -115,22 +56,11 @@ export async function GET(request: Request) {
       );
     }
 
-    // Transform data for PDF component
-    const transformedData = transformReportData(data);
-
-    const { renderToBuffer } = await import("@react-pdf/renderer");
-    const ReportDocument = (await import("@/components/pdf/ReportDocument")).default;
-    const pdfBuffer = await renderToBuffer(
-      React.createElement(ReportDocument, transformedData) as any
+    return generatePdfResponseFromReport(
+      data,
+      "snapshot",
+      `BrandSnapshotReport-${reportId}.pdf`
     );
-
-    return new NextResponse(pdfBuffer as any, {
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="BrandSnapshotReport-${reportId}.pdf"`,
-        "Content-Length": pdfBuffer.length.toString(),
-      },
-    });
   } catch (err: unknown) {
     logger.error("PDF generation error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(
@@ -188,22 +118,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Transform data for PDF component
-    const transformedData = transformReportData(finalData);
-
-    const { renderToBuffer } = await import("@react-pdf/renderer");
-    const ReportDocument = (await import("@/components/pdf/ReportDocument")).default;
-    const pdfBuffer = await renderToBuffer(
-      React.createElement(ReportDocument, transformedData) as any
-    );
-
-    return new NextResponse(pdfBuffer as any, {
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="BrandSnapshotReport.pdf"`,
-        "Content-Length": pdfBuffer.length.toString(),
-      },
-    });
+    return generatePdfResponseFromReport(finalData, "snapshot", "BrandSnapshotReport.pdf");
   } catch (err: unknown) {
     logger.error("PDF generation error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(

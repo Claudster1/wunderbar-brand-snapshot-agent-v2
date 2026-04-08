@@ -10,7 +10,7 @@
 
 ---
 
-## Migration Execution Order
+## Migration Activation Order
 
 Migrations must be run **in order** because later migrations depend on tables/columns created by earlier ones. All migrations use `IF NOT EXISTS` / `IF EXISTS` guards and are safe to re-run.
 

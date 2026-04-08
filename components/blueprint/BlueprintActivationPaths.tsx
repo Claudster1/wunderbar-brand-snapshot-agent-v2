@@ -31,9 +31,9 @@ export function BlueprintActivationPaths({
           title="Guided Implementation"
           description={`If you'd like support translating your ${
             pillarProblemMap[primaryPillar]
-          } into action, we work alongside your team to shape direction, decisions, and execution.`}
+          } into action, we work alongside your team to shape direction, decisions, and activation.`}
           cta="Learn more →"
-          href="/implementation-options?path=guided"
+          href="/brand-suite?path=guided"
           path="guided"
           primaryPillar={primaryPillar}
           brandName={brandName}
@@ -45,7 +45,7 @@ export function BlueprintActivationPaths({
             pillarProblemMap[primaryPillar]
           } — aligned to the priorities surfaced in your Snapshot+™.`}
           cta="Learn more →"
-          href="/implementation-options?path=dfy"
+          href="/brand-suite?path=dfy"
           path="dfy"
           primaryPillar={primaryPillar}
           brandName={brandName}

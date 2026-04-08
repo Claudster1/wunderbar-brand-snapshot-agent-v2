@@ -2,6 +2,7 @@
 // Snapshot+™ landing page (minimal stub; checkout handled elsewhere).
 
 import Link from "next/link";
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +19,11 @@ export default function BrandSnapshotPlusPage() {
 
       <div style={{ marginTop: 20, display: "flex", gap: 12, flexWrap: "wrap" }}>
         <Link
-          href="/checkout/snapshot-plus"
+          href={getTrackedCheckoutUrl({
+            product: "snapshot-plus",
+            medium: "landing_cta",
+            content: "brand_snapshot_plus_landing_primary",
+          })}
           style={{
             display: "inline-block",
             padding: "12px 16px",

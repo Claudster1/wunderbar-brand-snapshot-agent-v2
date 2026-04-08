@@ -3,7 +3,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { logger } from "@/lib/logger";
-import React from "react";
+import { generatePdfResponseFromReport } from "@/src/pdf/generatePdf";
 
 export const dynamic = "force-dynamic";
 
@@ -42,70 +42,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       );
     }
 
-    // Transform report data for PDF component
-    const transformReportForPdf = (data: any, isPlus: boolean) => {
-      if (isPlus) {
-        // Snapshot+ report format
-        return {
-          userName: data.user_name || "User",
-          businessName: data.business_name || data.company || "",
-          brandAlignmentScore: data.brand_alignment_score || 0,
-          pillarScores: data.pillar_scores || {},
-          pillarInsights: data.pillar_insights || {},
-          recommendations: Array.isArray(data.recommendations) 
-            ? data.recommendations 
-            : [],
-          suggestedPalette: data.enriched_color_palette || data.color_palette || [],
-          persona: data.enriched_persona || data.persona || "",
-          archetype: data.enriched_archetype || data.archetype || "",
-          brandVoice: data.enriched_voice || {},
-          opportunitiesMap: data.opportunities_map || "",
-          roadmap30: data.roadmap_30 || "",
-          roadmap60: data.roadmap_60 || "",
-          roadmap90: data.roadmap_90 || "",
-          isPlus: true,
-        };
-      } else {
-        // Standard report format
-        return {
-          userName: data.user_name || "User",
-          businessName: data.company || data.business_name || "",
-          brandAlignmentScore: data.brand_alignment_score || 0,
-          pillarScores: data.pillar_scores || {},
-          pillarInsights: data.pillar_insights || {},
-          recommendations: Array.isArray(data.recommendations)
-            ? data.recommendations
-            : data.recommendations && typeof data.recommendations === 'object'
-            ? Object.values(data.recommendations).filter((r: any) => typeof r === 'string')
-            : [],
-          suggestedPalette: data.color_palette || [],
-          persona: data.persona || "",
-          archetype: data.archetype || "",
-          isPlus: false,
-        };
-      }
-    };
-
-    const pdfData = transformReportForPdf(report, plus);
-
-    const { renderToBuffer } = await import("@react-pdf/renderer");
-    const ReportDocument = (await import("@/components/pdf/ReportDocument")).default;
-    const pdfBuffer = await renderToBuffer(
-      React.createElement(ReportDocument, { ...pdfData, report, isPlus: plus })
+    return generatePdfResponseFromReport(
+      report,
+      plus ? "snapshot-plus" : "snapshot",
+      plus ? `SnapshotPlus_Report_${id}.pdf` : `BrandSnapshot_Report_${id}.pdf`
     );
-
-    const filename = plus
-      ? `SnapshotPlus_Report_${id}.pdf`
-      : `BrandSnapshot_Report_${id}.pdf`;
-
-    return new NextResponse(pdfBuffer as any, {
-      status: 200,
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="${filename}"`,
-        "Content-Length": pdfBuffer.length.toString(),
-      },
-    });
   } catch (err: any) {
     logger.error("PDF generation error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json(

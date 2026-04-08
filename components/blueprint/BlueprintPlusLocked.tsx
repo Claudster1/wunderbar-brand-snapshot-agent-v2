@@ -23,7 +23,7 @@ export function BlueprintPlusLocked({ userRole }: BlueprintPlusLockedProps = {})
       </p>
 
       <p className="text-sm text-muted mb-6">
-        Built for brands ready to move beyond clarity and into execution —
+        Built for brands ready to move beyond clarity and into activation —
         without adding complexity to your workflow.
       </p>
 

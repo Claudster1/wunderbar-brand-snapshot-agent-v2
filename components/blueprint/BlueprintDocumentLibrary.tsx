@@ -16,7 +16,7 @@ interface DocItem {
 }
 
 const DOCUMENTS: DocItem[] = [
-  // --- Blueprint ($997): 4 core documents ---
+  // --- Blueprint ($997): 5 core documents ---
   {
     type: "complete",
     label: "Complete WunderBrand Blueprint™",
@@ -29,7 +29,7 @@ const DOCUMENTS: DocItem[] = [
   {
     type: "executive",
     label: "Executive Summary",
-    description: "WunderBrand Score, pillar breakdown, priority areas, and top strategic actions at a glance.",
+    description: "Pillar breakdown, priority areas, and top strategic actions at a glance.",
     audience: "Leadership & Stakeholders",
     icon: "📊",
     pages: "2–4 pages",
@@ -62,11 +62,31 @@ const DOCUMENTS: DocItem[] = [
     pages: "2–4 pages",
     minTier: "blueprint",
   },
-  // --- Blueprint+ ($1,997): 4 additional documents ---
+  {
+    type: "icp-conversion-snapshot",
+    label: "ICP Conversion Snapshot",
+    description:
+      "Lite conversion intelligence layer: ICP barriers, hook guidance, and stage-level conversion CTA recommendations.",
+    audience: "Marketing & Sales",
+    icon: "🧩",
+    pages: "4–8 pages",
+    minTier: "blueprint",
+  },
+  // --- Blueprint+ ($1,997): additional documents ---
+  {
+    type: "icp-conversion-intelligence",
+    label: "ICP Conversion Intelligence Framework",
+    description:
+      "The performance optimization backbone connecting master messaging to channel execution by ICP tier and funnel stage.",
+    audience: "Marketing, Sales & RevOps",
+    icon: "🧠",
+    pages: "14–20 pages",
+    minTier: "blueprint-plus",
+  },
   {
     type: "activation",
     label: "90-Day Brand Activation Plan",
-    description: "Week-by-week implementation roadmap, rollout talking points, approved language, KPIs, and execution guardrails.",
+    description: "Week-by-week implementation roadmap, rollout talking points, approved language, KPIs, and activation guardrails.",
     audience: "Implementation Team",
     icon: "🚀",
     pages: "12–18 pages",
@@ -91,9 +111,18 @@ const DOCUMENTS: DocItem[] = [
     minTier: "blueprint-plus",
   },
   {
+    type: "battle-cards",
+    label: "Sales Battle Cards",
+    description: "Frontline objection-handling and differentiation cues for real sales conversations.",
+    audience: "Sales & Business Development",
+    icon: "🛡️",
+    pages: "6–10 pages",
+    minTier: "blueprint-plus",
+  },
+  {
     type: "standards",
     label: "Brand Standards Guide",
-    description: "Logo guidelines, visual identity, writing rules, sample executions, and governance — for anyone who touches the brand.",
+    description: "Logo guidelines, visual identity, writing rules, sample activations, and governance — for anyone who touches the brand.",
     audience: "Designers, Agencies & Contractors",
     icon: "📐",
     pages: "20–30 pages",

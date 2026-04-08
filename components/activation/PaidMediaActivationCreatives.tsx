@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   SUITE_ACCENT_BRIGHT,
   SUITE_BORDER,
@@ -117,7 +117,7 @@ export default function PaidMediaActivationCreatives({ strategy }: { strategy: R
   const activeCh = normalizedChannels[activeIndex];
   const platformSummary = derivePaidPlatformsList(s);
 
-  const downloadCsv = useCallback(() => {
+  function downloadCsv() {
     if (normalizedChannels.length === 0) return;
     const csv = buildPaidMediaChannelsCsv(normalizedChannels);
     const blob = new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" });
@@ -127,9 +127,9 @@ export default function PaidMediaActivationCreatives({ strategy }: { strategy: R
     a.download = `paid-media-channels-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-  }, [normalizedChannels]);
+  }
 
-  const copyActiveChannel = useCallback(async () => {
+  async function copyActiveChannel() {
     if (!activeCh) return;
     const text = channelToPlainText(activeCh, activeIndex);
     try {
@@ -139,9 +139,9 @@ export default function PaidMediaActivationCreatives({ strategy }: { strategy: R
     } catch {
       /* ignore */
     }
-  }, [activeCh, activeIndex]);
+  }
 
-  const copyOverview = useCallback(async () => {
+  async function copyOverview() {
     if (!overview) return;
     try {
       await navigator.clipboard.writeText(overview);
@@ -150,7 +150,7 @@ export default function PaidMediaActivationCreatives({ strategy }: { strategy: R
     } catch {
       /* ignore */
     }
-  }, [overview]);
+  }
 
   const pillLabel = (ch: NormalizedPaidChannel, index: number) => {
     const full = paidChannelDisplayTitle(ch, index);

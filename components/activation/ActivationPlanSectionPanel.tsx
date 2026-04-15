@@ -15,9 +15,12 @@ import {
 import {
   SUITE_ACCENT_BRIGHT,
   SUITE_BORDER,
+  SUITE_INSIGHT_CARD_BASE,
+  SUITE_INSIGHT_CARD_RAIL_LEFT,
   SUITE_MUTED,
   SUITE_NAVY,
   SUITE_PANEL_RAIL,
+  SUITE_RADIUS_MD,
 } from "@/components/results/suiteBrandTokens";
 import type { ActivationPlanSection } from "@/lib/activation/activationPlanModel";
 import {
@@ -29,6 +32,7 @@ import {
   buildExpandedActivationContent,
   DO_DONT_ACTIVATION,
 } from "@/lib/activation/activationPlanAugmentations";
+import { SEMANTIC_DO, SEMANTIC_DONT } from "@/src/pdf/reportVisualTokens";
 import AudienceSegmentsActivationPanel from "@/components/activation/AudienceSegmentsActivationPanel";
 import PaidMediaActivationCreatives from "@/components/activation/PaidMediaActivationCreatives";
 import ActivationPlanReadableBody from "@/components/activation/ActivationPlanReadableBody";
@@ -158,8 +162,7 @@ export default function ActivationPlanSectionPanel({
                 fontSize: 11,
                 fontWeight: 800,
                 color: BLUE,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
+                letterSpacing: "0.04em",
               }}
             >
               {section.label}
@@ -184,10 +187,10 @@ export default function ActivationPlanSectionPanel({
         <div
           style={{
             marginBottom: 14,
-            padding: "10px 12px",
-            borderRadius: 8,
-            background: "#F8FAFC",
-            border: `1px solid ${BORDER}`,
+            ...SUITE_INSIGHT_CARD_BASE,
+            ...SUITE_INSIGHT_CARD_RAIL_LEFT,
+            borderRadius: SUITE_RADIUS_MD,
+            padding: "12px 14px",
             display: "flex",
             flexWrap: "wrap",
             alignItems: "center",
@@ -196,7 +199,7 @@ export default function ActivationPlanSectionPanel({
           }}
         >
           <p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: NAVY, lineHeight: 1.4, flex: "1 1 200px" }}>
-            Built on your audience foundation
+            Built on Your Audience Foundation
           </p>
           <AudienceFoundationInfoTrigger links={audienceJourneyPlanLinks} variant="panel" />
         </div>
@@ -222,11 +225,10 @@ export default function ActivationPlanSectionPanel({
               fontSize: 11,
               fontWeight: 800,
               color: BLUE,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
+              letterSpacing: "0.04em",
             }}
           >
-            At a glance — journey shape
+            At a Glance — Journey Shape
           </p>
           <JourneyMapVisual
             stages={[
@@ -283,11 +285,10 @@ export default function ActivationPlanSectionPanel({
                 fontSize: 14,
                 fontWeight: 800,
                 color: BLUE,
-                textTransform: "uppercase",
-                letterSpacing: "0.07em",
+                letterSpacing: "0.03em",
               }}
             >
-              Why this matters
+              Why This Matters
             </p>
             <p style={{ margin: "6px 0 0", fontSize: 13, color: "#1A1A2E", lineHeight: 1.55 }}>
               {expandedActivationContent[section.id].why}
@@ -300,11 +301,10 @@ export default function ActivationPlanSectionPanel({
                 fontSize: 14,
                 fontWeight: 800,
                 color: BLUE,
-                textTransform: "uppercase",
-                letterSpacing: "0.07em",
+                letterSpacing: "0.03em",
               }}
             >
-              Execution checklist
+              Execution Checklist
             </p>
             <div style={{ display: "grid", gap: 6 }}>
               {expandedActivationContent[section.id].actions.map((item, index) => (
@@ -318,37 +318,51 @@ export default function ActivationPlanSectionPanel({
             </div>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            <div style={{ padding: "10px 12px", borderRadius: 6, background: "#E8F6FE", borderLeft: `3px solid ${BLUE}` }}>
+            <div
+              style={{
+                padding: "12px 14px",
+                borderRadius: 8,
+                background: SEMANTIC_DO.bg,
+                border: "1px solid rgba(5, 150, 105, 0.22)",
+                borderLeft: `4px solid ${SEMANTIC_DO.border}`,
+              }}
+            >
               <p
                 style={{
                   margin: 0,
-                  fontSize: 14,
+                  fontSize: 12,
                   fontWeight: 800,
-                  color: NAVY,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.06em",
+                  letterSpacing: "0.08em",
+                  color: SEMANTIC_DO.label,
                 }}
               >
                 Success check to watch
               </p>
-              <p style={{ margin: "5px 0 0", fontSize: 13, color: "#243447", lineHeight: 1.5 }}>
+              <p style={{ margin: "6px 0 0", fontSize: 13, color: SEMANTIC_DO.text, lineHeight: 1.5 }}>
                 {expandedActivationContent[section.id].kpi}
               </p>
             </div>
-            <div style={{ padding: "10px 12px", borderRadius: 6, background: "#F1F5F9", borderLeft: "3px solid #94A3B8" }}>
+            <div
+              style={{
+                padding: "12px 14px",
+                borderRadius: 8,
+                background: SEMANTIC_DONT.bg,
+                border: "1px solid rgba(239, 68, 68, 0.2)",
+                borderLeft: `4px solid ${SEMANTIC_DONT.border}`,
+              }}
+            >
               <p
                 style={{
                   margin: 0,
-                  fontSize: 14,
+                  fontSize: 12,
                   fontWeight: 800,
-                  color: NAVY,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.06em",
+                  letterSpacing: "0.08em",
+                  color: SEMANTIC_DONT.label,
                 }}
               >
-                Failure pattern
+                Failure pattern (avoid)
               </p>
-              <p style={{ margin: "5px 0 0", fontSize: 13, color: "#334155", lineHeight: 1.5 }}>
+              <p style={{ margin: "6px 0 0", fontSize: 13, color: SEMANTIC_DONT.text, lineHeight: 1.5 }}>
                 {expandedActivationContent[section.id].warning}
               </p>
             </div>
@@ -365,43 +379,57 @@ export default function ActivationPlanSectionPanel({
       )}
       {showInstructionalSidebars && DO_DONT_ACTIVATION[section.id] && (
         <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-          <div style={{ padding: "10px 12px", borderRadius: 6, background: "#E8F6FE", borderLeft: `3px solid ${BLUE}` }}>
+          <div
+            style={{
+              padding: "12px 14px",
+              borderRadius: 8,
+              background: SEMANTIC_DO.bg,
+              border: "1px solid rgba(5, 150, 105, 0.22)",
+              borderLeft: `4px solid ${SEMANTIC_DO.border}`,
+            }}
+          >
             <p
               style={{
                 margin: 0,
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: 800,
-                color: NAVY,
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
+                letterSpacing: "0.08em",
+                color: SEMANTIC_DO.label,
               }}
             >
-              Do
+              Do this
             </p>
             <div style={{ display: "grid", gap: 5, marginTop: 6 }}>
               {DO_DONT_ACTIVATION[section.id].do.map((item, index) => (
-                <p key={`${section.id}-do-${index}`} style={{ margin: 0, fontSize: 13, color: "#243447", lineHeight: 1.5 }}>
+                <p key={`${section.id}-do-${index}`} style={{ margin: 0, fontSize: 13, color: SEMANTIC_DO.text, lineHeight: 1.5 }}>
                   {item}
                 </p>
               ))}
             </div>
           </div>
-          <div style={{ padding: "10px 12px", borderRadius: 6, background: "#F1F5F9", borderLeft: "3px solid #94A3B8" }}>
+          <div
+            style={{
+              padding: "12px 14px",
+              borderRadius: 8,
+              background: SEMANTIC_DONT.bg,
+              border: "1px solid rgba(239, 68, 68, 0.2)",
+              borderLeft: `4px solid ${SEMANTIC_DONT.border}`,
+            }}
+          >
             <p
               style={{
                 margin: 0,
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: 800,
-                color: NAVY,
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
+                letterSpacing: "0.08em",
+                color: SEMANTIC_DONT.label,
               }}
             >
-              Don&apos;t
+              Don&apos;t / not this
             </p>
             <div style={{ display: "grid", gap: 5, marginTop: 6 }}>
               {DO_DONT_ACTIVATION[section.id].dont.map((item, index) => (
-                <p key={`${section.id}-dont-${index}`} style={{ margin: 0, fontSize: 13, color: "#334155", lineHeight: 1.5 }}>
+                <p key={`${section.id}-dont-${index}`} style={{ margin: 0, fontSize: 13, color: SEMANTIC_DONT.text, lineHeight: 1.5 }}>
                   {item}
                 </p>
               ))}

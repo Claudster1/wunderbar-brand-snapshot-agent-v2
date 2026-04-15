@@ -23,8 +23,8 @@ export function PillarResults({
     <section className="space-y-5">
       {/* Score key: what the meter and bands mean */}
       <div className="bs-card rounded-xl bg-brand-bg p-4 mb-2 border-0">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="bs-body-sm font-bold text-brand-navy">How to read your scores</span>
+        <div className="flex items-center gap-2.5 mb-3">
+          <span className="text-base sm:text-lg font-bold text-brand-navy">How to read your scores</span>
           <TooltipIcon
             content={
               <>
@@ -33,11 +33,19 @@ export function PillarResults({
             }
           />
         </div>
-        <div className="flex flex-wrap gap-x-4 gap-y-1 bs-small text-brand-muted">
-          <span><strong className="text-[#ff3b30]">0–8</strong> Critical opportunity</span>
-          <span><strong className="text-[#ff9500]">9–12</strong> Needs focus</span>
-          <span><strong className="text-brand-blue">13–16</strong> Developing</span>
-          <span><strong className="text-[#34c759]">17–20</strong> Strong</span>
+        <div className="flex flex-wrap gap-x-5 gap-y-2.5 text-base sm:text-[1.05rem] text-brand-midnight leading-snug">
+          <span>
+            <strong className="font-bold tabular-nums text-[#ff3b30]">0–8</strong> Critical opportunity
+          </span>
+          <span>
+            <strong className="font-bold tabular-nums text-[#ff9500]">9–12</strong> Needs focus
+          </span>
+          <span>
+            <strong className="font-bold tabular-nums text-[#ca8a04]">13–16</strong> Developing
+          </span>
+          <span>
+            <strong className="font-bold tabular-nums text-[#34c759]">17–20</strong> Strong
+          </span>
         </div>
       </div>
 

@@ -360,17 +360,18 @@ const BLUEPRINT_PLUS_SECTION_GROUPS = [
   },
   {
     name: "strategy",
-    description: "Brand Strategy & Personas (Sections 15-25: Blueprint Overview, Brand Foundation, Audience Persona Definition, Buyer Persona Ecosystem, Archetype Activation, Messaging System, Messaging Pillars, Content Pillars, Visual Direction, Conversion Strategy, Execution Prompt Pack)",
+    description:
+      "Brand Strategy & Personas (Sections 15-26: Blueprint Overview, Brand Foundation, Audience Persona Definition, Buyer Persona Ecosystem, Archetype Activation, Messaging System, Messaging Pillars, Content Pillars, Visual Direction, Conversion Strategy, Strategic Offer & Portfolio strategicOfferContext, Execution Prompt Pack)",
     outputKeys: [
       "blueprintOverview", "brandFoundation", "audiencePersonaDefinition",
       "buyerPersonaEcosystem", "brandArchetypeActivation", "messagingSystem",
       "messagingPillars", "contentPillars", "visualDirection",
-      "conversionStrategy", "executionPromptPack",
+      "conversionStrategy", "strategicOfferContext", "icpGoToMarketPlans", "executionPromptPack",
     ],
   },
   {
     name: "advanced",
-    description: "Advanced Strategy (Sections 26-37, 51: Strategic Overview, Persona-Driven Segmentation, Advanced Messaging Matrix, Brand Architecture, Campaign Strategy, Advanced Prompt Library, Measurement & Optimization, Brand Consistency Checklist, Competitive Positioning, Strategic Trade-Offs, 90-Day Roadmap, Brand Health Scorecard, Measurement & KPI Framework)",
+    description: "Advanced Strategy (Sections 27-38, 52: Strategic Overview, Persona-Driven Segmentation, Advanced Messaging Matrix, Brand Architecture, Campaign Strategy, Advanced Prompt Library, Measurement & Optimization, Brand Consistency Checklist, Competitive Positioning, Strategic Trade-Offs, 90-Day Roadmap, Brand Health Scorecard, Measurement & KPI Framework)",
     outputKeys: [
       "strategicOverview", "personaDrivenSegmentation",
       "advancedMessagingMatrix", "brandArchitectureExpansion",
@@ -383,7 +384,7 @@ const BLUEPRINT_PLUS_SECTION_GROUPS = [
   },
   {
     name: "execution",
-    description: "Execution & Implementation (Sections 38-55: Taglines, Brand Story, Customer Journey Map, SEO Strategy, AEO Strategy, Email Marketing Strategy, Social Media Strategy, Content Calendar, SWOT Analysis, Brand Glossary, Company Description, Value & Pricing Framework, Sales Conversation Guide, Brand Strategy Rollout Guide, Brand Imagery & Photography Direction, Asset Optimization Playbook if assets provided, Brand Standards Guide Content)",
+    description: "Execution & Implementation (Sections 39-56: Taglines, Brand Story, Customer Journey Map, SEO Strategy, AEO Strategy, Email Marketing Strategy, Social Media Strategy, Content Calendar, SWOT Analysis, Brand Glossary, Company Description, Value & Pricing Framework, Sales Conversation Guide, Brand Strategy Rollout Guide, Brand Imagery & Photography Direction, Asset Optimization Playbook if assets provided, Brand Standards Guide Content)",
     outputKeys: [
       "taglineRecommendations", "brandStory", "customerJourneyMap",
       "seoStrategy", "aeoStrategy", "emailMarketingFramework",
@@ -398,7 +399,7 @@ const BLUEPRINT_PLUS_SECTION_GROUPS = [
 
 /**
  * Generate a Blueprint+ report using a multi-call pipeline.
- * Splits the 53 sections into 4 sequential AI calls for quality.
+ * Splits the Blueprint+ surface into 4 sequential AI calls for quality.
  */
 async function generateBlueprintPlusMultiCall(
   input: AssessmentInput

@@ -27,7 +27,7 @@ export function UpgradeCTA({ context }: Props) {
           pillar: context.primaryPillar,
         })
       }
-      className="inline-block mt-6 px-6 py-3 bg-brand-blue text-white rounded-md hover:bg-brand-blueHover transition"
+      className="inline-block mt-6 px-6 py-3 bg-brand-blue text-white rounded-[5px] hover:bg-brand-blueHover transition"
     >
       {cta.label}
     </a>

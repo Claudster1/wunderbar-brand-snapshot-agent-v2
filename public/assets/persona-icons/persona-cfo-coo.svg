@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none" role="img" aria-hidden="true">
+  <rect width="128" height="128" rx="22" fill="url(#cfo-bg)"/>
+  <defs>
+    <linearGradient id="cfo-bg" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F0F4FA"/>
+      <stop offset="1" stop-color="#E1E8F2"/>
+    </linearGradient>
+  </defs>
+  <!-- suit shoulders -->
+  <path fill="#121826" d="M12 128c5-34 24-50 52-50s47 16 52 50H12Z"/>
+  <path fill="#1E293B" d="M24 128c6-22 16-30 40-30s34 8 40 30H24Z"/>
+  <!-- shirt + tie -->
+  <path fill="#F8FAFC" d="M52 88h24l-2 40H54l-2-40Z"/>
+  <path fill="#021859" d="M62 88h4l6 38h-16l6-38Z"/>
+  <path fill="#07B0F2" opacity="0.35" d="M64 96l2 22h-4l2-22Z"/>
+  <!-- neck -->
+  <path fill="#A67C52" d="M55 70h18v16c0 3-4 6-9 6s-9-3-9-6V70Z"/>
+  <!-- ears -->
+  <ellipse cx="42" cy="52" rx="5" ry="7" fill="#8F6845"/>
+  <ellipse cx="86" cy="52" rx="5" ry="7" fill="#8F6845"/>
+  <!-- face -->
+  <ellipse cx="64" cy="48" rx="23" ry="27" fill="#C4916B"/>
+  <!-- eyes -->
+  <ellipse cx="53" cy="46" rx="5.5" ry="4" fill="#fff"/>
+  <ellipse cx="75" cy="46" rx="5.5" ry="4" fill="#fff"/>
+  <ellipse cx="53" cy="46" rx="2.8" ry="3" fill="#1A1510"/>
+  <ellipse cx="75" cy="46" rx="2.8" ry="3" fill="#1A1510"/>
+  <circle cx="54" cy="45" r="1" fill="#fff"/>
+  <circle cx="76" cy="45" r="1" fill="#fff"/>
+  <!-- glasses -->
+  <rect x="45" y="41" width="16" height="11" rx="2" stroke="#1E293B" stroke-width="1.6" fill="none"/>
+  <rect x="67" y="41" width="16" height="11" rx="2" stroke="#1E293B" stroke-width="1.6" fill="none"/>
+  <path stroke="#1E293B" stroke-width="1.4" d="M61 46h6"/>
+  <path stroke="#1E293B" stroke-width="1.2" d="M41 46h-3M87 46h3"/>
+  <!-- brows -->
+  <path stroke="#2C1810" stroke-width="2" stroke-linecap="round" d="M46 38h14M68 38h14"/>
+  <!-- nose -->
+  <path stroke="#8F6845" stroke-width="1.2" stroke-linecap="round" d="M64 50v9"/>
+  <!-- mouth neutral -->
+  <path stroke="#8B5A45" stroke-width="1.6" stroke-linecap="round" d="M58 62h12"/>
+  <!-- hair -->
+  <path fill="#0D0D0D" d="M40 34c0-16 11-26 24-26s24 10 24 26c0 8-4 14-10 16-2-10-8-16-14-16s-12 6-14 16c-6-2-10-8-10-16Z"/>
+  <path fill="#0D0D0D" d="M42 32c4-10 12-16 22-16s18 6 22 16c-8-4-16-5-22-5s-14 1-22 5Z"/>
+  <!-- sideburns -->
+  <path fill="#0D0D0D" d="M40 48v12c0 4 2 6 4 4V48c-1-2-3-2-4 0Z"/>
+  <path fill="#0D0D0D" d="M88 48v12c0 4-2 6-4 4V48c1-2 3-2 4 0Z"/>
+</svg>

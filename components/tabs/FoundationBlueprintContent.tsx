@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import ArchetypeToggleCard from "@/components/results/ArchetypeToggleCard";
 import { BrandArchetypeIcon } from "@/components/results/BrandIcons";
 import { ReportPanel } from "@/components/results/ReportDesignPrimitives";
@@ -8,8 +8,14 @@ import {
   filterFoundationAudienceSubsections,
   normalizeProductTierString,
   type ProductTier,
+  type ResultsTab,
 } from "@/components/results/tabConfig";
+import { useResultsSuiteNav } from "@/components/results/ResultsSuiteNavContext";
 import { getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
+import {
+  buildFoundationPersonaAtlasEntries,
+  extractBuyerPersonasRaw,
+} from "@/lib/foundationPersonaAtlas";
 
 interface FoundationBlueprintContentProps {
   businessName: string;
@@ -32,7 +38,6 @@ type Subsection = {
 
 type VisualSystemMode = "existing" | "optimize" | "refresh";
 type JourneyStageId = "unaware" | "aware" | "considering" | "evaluating" | "deciding" | "retained";
-type PersonaTabId = "vp-ops" | "cfo-coo" | "revops";
 type DensityMode = "comfortable" | "compact";
 
 /** Outer rail — subsection cards + domain sections (match suite-wide rails). */
@@ -52,9 +57,9 @@ const FAMILY_STYLES: Record<string, { chip: string; descriptorBg: string; badgeB
     badgeBg: "#DBEAFE",
   },
   messaging: {
-    chip: "#E0E7FF",
-    descriptorBg: "#F7F8FF",
-    badgeBg: "#E0E7FF",
+    chip: "#DBEAFE",
+    descriptorBg: "#F5F9FF",
+    badgeBg: "#DBEAFE",
   },
   voice: {
     chip: "#CCFBF1",
@@ -67,11 +72,22 @@ const FAMILY_STYLES: Record<string, { chip: string; descriptorBg: string; badgeB
     badgeBg: "#CFFAFE",
   },
   audience: {
-    chip: "#EDE9FE",
-    descriptorBg: "#F8F6FF",
-    badgeBg: "#EDE9FE",
+    chip: "#E1EEF9",
+    descriptorBg: "#F5F9FF",
+    badgeBg: "#E1EEF9",
   },
 };
+
+/** Typography + spacing aligned with Results tab — Foundation subsections + draft panels. */
+const FN_TITLE = "text-xl sm:text-2xl font-semibold text-brand-midnight leading-snug";
+const FN_FAMILY_CHIP =
+  "rounded-full px-2.5 py-1.5 text-xs font-medium tracking-wide text-brand-midnight";
+const FN_DESCRIPTOR =
+  "rounded-xl px-4 py-3.5 text-sm sm:text-base leading-relaxed text-brand-muted shadow-[0_1px_0_rgba(2,24,89,0.04),inset_0_0_0_1px_rgba(2,24,89,0.05)] sm:px-5 sm:py-4";
+const FN_DRAFT_SHELL =
+  "rounded-xl bg-[#F7FBFF] shadow-[inset_0_0_0_1px_rgba(7,176,242,0.12),0_1px_2px_rgba(2,24,89,0.04)]";
+const FN_DRAFT_EYEBROW = "text-[14px] font-semibold tracking-[0.08em]";
+const FN_DRAFT_HELPER = "mt-1.5 text-sm sm:text-base leading-relaxed text-brand-muted";
 
 function asString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
@@ -214,9 +230,9 @@ function parseCoreValuePutToWork(point: string): CoreValuePutToWorkParsed | null
     const sections: { label: string; body: string }[] = [];
     const labelNorm = (raw: string): string | null => {
       const x = raw.replace(/:$/, "").trim().toLowerCase();
-      if (x === "behavior") return "Behavior";
-      if (x === "in practice") return "In practice";
-      if (x === "why it matters") return "Why it matters";
+      if (x === "behavior") return apStyleHeadingCase("Behavior");
+      if (x === "in practice") return apStyleHeadingCase("In practice");
+      if (x === "why it matters") return apStyleHeadingCase("Why it matters");
       return null;
     };
     for (let i = 1; i < blocks.length; i++) {
@@ -301,14 +317,122 @@ function segmentDraftPoints(points: string[]): DraftSegment[] {
   return segments;
 }
 
+/** AP-style headline case for UI headings (principal words; short articles/prepositions lowercased unless first/last). */
+const AP_HEADLINE_SMALL_WORDS = new Set([
+  "a",
+  "an",
+  "the",
+  "and",
+  "but",
+  "for",
+  "nor",
+  "or",
+  "as",
+  "at",
+  "by",
+  "in",
+  "into",
+  "of",
+  "on",
+  "onto",
+  "off",
+  "out",
+  "over",
+  "per",
+  "to",
+  "up",
+  "via",
+  "vs",
+  "from",
+  "with",
+  "than",
+  "that",
+  "when",
+  "we",
+]);
+
+function apTitleCaseAtom(atom: string, isFirst: boolean, isLast: boolean): string {
+  if (!atom) return atom;
+  const lower = atom.toLowerCase();
+  if (!isFirst && !isLast && AP_HEADLINE_SMALL_WORDS.has(lower)) return lower;
+  if (/^[A-Z]{2,}$/.test(atom)) return atom;
+  return atom.charAt(0).toUpperCase() + atom.slice(1).toLowerCase();
+}
+
+/** Title-case a segment split on spaces (handles hyphens; preserves trailing punctuation on tokens). */
+function apStyleWordsSegment(segment: string): string {
+  const words = segment.trim().split(/\s+/).filter(Boolean);
+  const n = words.length;
+  if (n === 0) return segment;
+  return words.map((raw, i) => formatApHeadingWord(raw, i === 0, i === n - 1)).join(" ");
+}
+
+/** Title-case each step in an arrow-separated process (e.g. Diagnose → Prioritize → Ship → Review). */
+function apStyleArrowChain(input: string): string {
+  const trimmed = input.trim();
+  if (!trimmed.includes("→")) return apStyleWordsSegment(trimmed);
+  return trimmed
+    .split(/\s*→\s*/g)
+    .map((seg) => apStyleWordsSegment(seg.trim()))
+    .join(" → ");
+}
+
+function formatApHeadingWord(raw: string, isFirst: boolean, isLast: boolean): string {
+  const parenToken = raw.match(/^\(([^)]+)\)([,;:.)}\]!'?"]*)$/);
+  if (parenToken) {
+    const inner = parenToken[1];
+    const suf = parenToken[2];
+    if (/^[A-Z0-9]{2,}$/.test(inner)) return `(${inner})${suf}`;
+    return `(${apStyleWordsSegment(inner)})${suf}`;
+  }
+
+  const trailingMatch = raw.match(/([,;:.)}\]!'?"]+)$/);
+  const trailing = trailingMatch ? trailingMatch[1] : "";
+  const w0 = trailing ? raw.slice(0, -trailing.length) : raw;
+  if (!w0) return raw;
+
+  if (w0.includes("-")) {
+    const parts = w0.split("-");
+    const titled = parts.map((p, j) =>
+      apTitleCaseAtom(p, isFirst && j === 0, isLast && j === parts.length - 1),
+    ).join("-");
+    return titled + trailing;
+  }
+  return apTitleCaseAtom(w0, isFirst, isLast) + trailing;
+}
+
+/**
+ * AP-style title case for foundation draft eyebrows and similar UI headings.
+ * Special-cases "In use (…)" lines from channel samples.
+ */
+function apStyleHeadingCase(input: string): string {
+  const s = input.trim();
+  if (!s) return s;
+
+  const inUseMatch = s.match(/^in\s+use\s+\((.+)\)\s*$/i);
+  if (inUseMatch) {
+    const inner = inUseMatch[1]
+      .split(/\s*→\s*/g)
+      .map((p) => apStyleWordsSegment(p.trim()))
+      .join(" → ");
+    return `In Use (${inner})`;
+  }
+
+  return apStyleWordsSegment(s);
+}
+
+function formatPutToWorkHeadingLabel(labelWithOptionalColon: string): string {
+  const t = labelWithOptionalColon.trim();
+  if (!t) return t;
+  if (t.endsWith(":")) {
+    return `${apStyleHeadingCase(t.slice(0, -1).trim())}:`;
+  }
+  return apStyleHeadingCase(t);
+}
+
+/** @deprecated Prefer apStyleHeadingCase — kept name for contrast/example lines that need heading case. */
 function toInitialCaps(value: string): string {
-  return value
-    .split(" ")
-    .map((word) => {
-      if (!word) return word;
-      return word.charAt(0).toUpperCase() + word.slice(1);
-    })
-    .join(" ");
+  return apStyleHeadingCase(value);
 }
 
 function sentenceStartCaps(value: string): string {
@@ -344,19 +468,19 @@ function getActionLineMeta(lead: string): { tag: string | null; headline: string
   };
 
   if (lower.startsWith("application example")) {
-    return { tag: "Apply", headline: stripPrefix("application example") };
+    return { tag: apStyleHeadingCase("Apply"), headline: stripPrefix("application example") };
   }
   if (lower.startsWith("example in operation")) {
-    return { tag: "In practice", headline: stripPrefix("example in operation") };
+    return { tag: apStyleHeadingCase("In practice"), headline: stripPrefix("example in operation") };
   }
   if (lower.startsWith("example in action")) {
-    return { tag: "Example", headline: stripPrefix("example in action") };
+    return { tag: apStyleHeadingCase("Example"), headline: stripPrefix("example in action") };
   }
   if (lower.startsWith("this connects to")) {
-    return { tag: "Connects", headline: stripPrefix("this connects to") };
+    return { tag: apStyleHeadingCase("Connects"), headline: stripPrefix("this connects to") };
   }
   if (lower.startsWith("use this when")) {
-    return { tag: "When", headline: stripPrefix("use this when") };
+    return { tag: apStyleHeadingCase("When"), headline: stripPrefix("use this when") };
   }
   if (lower.startsWith("next step")) {
     return { tag: null, headline: stripPrefix("next step") };
@@ -366,7 +490,9 @@ function getActionLineMeta(lead: string): { tag: string | null; headline: string
 
 /** Application / in-practice lines are illustrative; everything else in Put it to work is framed as a direct move or cue. */
 function isPutToWorkExampleVariant(tag: string | null): boolean {
-  return tag === "Apply" || tag === "In practice" || tag === "Example";
+  if (!tag) return false;
+  const t = tag.trim().toLowerCase();
+  return t === "apply" || t === "in practice" || t === "example";
 }
 
 type ExecutionSignals = {
@@ -459,15 +585,15 @@ function ExecutionSignalChips({ signals }: { signals: ExecutionSignals }) {
   if (chips.length === 0) return null;
 
   return (
-    <div className="mt-2 flex flex-wrap gap-1.5" aria-label="Execution details">
+    <div className="mt-3 flex flex-wrap gap-2" aria-label="Execution details">
       {chips.map((c, chipIndex) => (
         <span
           key={`${c.label}-${chipIndex}-${c.value.slice(0, 32)}`}
-          className="inline-flex max-w-full items-center gap-1 rounded-md border border-[#BFDBFE] bg-white/90 px-2 py-0.5 text-[10px] leading-snug text-brand-midnight shadow-sm"
+          className="inline-flex max-w-full items-center gap-1.5 rounded-md border border-brand-border/70 bg-white px-2.5 py-1.5 text-xs leading-snug text-brand-midnight shadow-sm"
           title={`${c.label}: ${c.value}`}
         >
-          <span className="shrink-0 font-bold uppercase tracking-wide text-brand-blue">{c.label}</span>
-          <span className="min-w-0 truncate font-medium">{c.value}</span>
+          <span className="shrink-0 font-medium text-brand-muted">{c.label}</span>
+          <span className="min-w-0 truncate font-semibold text-brand-navy">{c.value}</span>
         </span>
       ))}
     </div>
@@ -480,42 +606,190 @@ function normalizeArchetypeName(value: string | null | undefined): string {
   return raw.replace(/^the\s+/i, "");
 }
 
+/** Mock ad CTAs: real buttons when rendered inside ResultsTabsShell (open related suite tab). */
+function ArchetypeChannelPreviewCta({
+  className,
+  children,
+  tab,
+  ariaLabel,
+  openTab,
+}: {
+  className: string;
+  children: ReactNode;
+  tab: ResultsTab;
+  ariaLabel: string;
+  openTab: ((t: ResultsTab) => void) | undefined;
+}) {
+  if (!openTab) {
+    return <span className={className}>{children}</span>;
+  }
+  return (
+    <button
+      type="button"
+      className={`${className} cursor-pointer border-0 font-sans hover:brightness-110 active:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2`}
+      onClick={() => openTab(tab)}
+      aria-label={ariaLabel}
+    >
+      {children}
+    </button>
+  );
+}
+
+/** Collapse whitespace and trim for UI samples; soft-break on words. */
+function clipForSample(text: string, maxLen: number): string {
+  const oneLine = text.replace(/\s+/g, " ").trim();
+  if (oneLine.length <= maxLen) return oneLine;
+  const slice = oneLine.slice(0, maxLen);
+  const lastSpace = slice.lastIndexOf(" ");
+  const base = lastSpace > maxLen * 0.45 ? slice.slice(0, lastSpace) : slice;
+  return `${base.trimEnd()}…`;
+}
+
+function firstTaglineFromRecommendations(raw: unknown): string {
+  if (!Array.isArray(raw)) return "";
+  for (const item of raw) {
+    if (typeof item === "string") {
+      const t = item.trim();
+      if (t) return t;
+    }
+    if (item && typeof item === "object") {
+      const t = asString((item as Record<string, unknown>).tagline);
+      if (t) return t;
+    }
+  }
+  return "";
+}
+
+/** Copy from Blueprint/Plus `brandFoundation` / `brandStory` (and `full_report`) when present. */
+type FoundationVoiceSnippets = {
+  positioningStatement: string;
+  brandPromise: string;
+  differentiationNarrative: string;
+  tagline: string;
+  elevatorPitch: string;
+};
+
+function extractFoundationVoiceSnippets(diagnostic: Record<string, unknown>): FoundationVoiceSnippets {
+  const fullReport = diagnostic.full_report as Record<string, unknown> | undefined;
+  const pickBf = (): Record<string, unknown> | undefined => {
+    const top = diagnostic.brandFoundation as Record<string, unknown> | undefined;
+    if (top && typeof top === "object") return top;
+    const fr = fullReport?.brandFoundation as Record<string, unknown> | undefined;
+    return fr;
+  };
+  const bf = pickBf() ?? {};
+  const pickStory = (): Record<string, unknown> | undefined => {
+    const s = diagnostic.brandStory as Record<string, unknown> | undefined;
+    if (s && typeof s === "object") return s;
+    return fullReport?.brandStory as Record<string, unknown> | undefined;
+  };
+  const story = pickStory() ?? {};
+  const tagRec =
+    firstTaglineFromRecommendations(diagnostic.taglineRecommendations) ||
+    firstTaglineFromRecommendations(fullReport?.taglineRecommendations) ||
+    firstTaglineFromRecommendations(bf.taglineRecommendations);
+
+  return {
+    positioningStatement: asString(bf.positioningStatement) || asString(bf.positioning_statement),
+    brandPromise: asString(bf.brandPromise) || asString(bf.brand_promise),
+    differentiationNarrative:
+      asString(bf.differentiationNarrative) || asString(bf.differentiation_narrative),
+    tagline: asString(bf.tagline) || asString(bf.primaryTagline) || tagRec,
+    elevatorPitch:
+      asString(story.elevatorPitch) ||
+      asString(story.elevator_pitch) ||
+      asString(story.oneLiner) ||
+      asString(story.one_liner),
+  };
+}
+
 /** Finished copy only—no “Headline:” scaffolding or homework language (UI + draft “In use” lines). */
 type ArchetypeChannelSamples = {
   socialOrganic: { hook: string; body: string; cta: string };
   paidAd: { headline: string; body: string; cta: string };
-  retargeting: string;
+  retargeting: { quote: string; cta: string };
 };
 
 function buildArchetypeChannelSamples(params: {
   brandName: string;
-  audience: string;
   market: string;
   primaryPillar: string;
   firstGap: string;
   primaryLabel: string;
   secondaryLabel?: string | null;
+  foundation?: FoundationVoiceSnippets;
+  voiceAttributes?: string[];
 }): ArchetypeChannelSamples {
-  const { brandName, audience, market, primaryPillar, firstGap, primaryLabel, secondaryLabel } = params;
+  const { brandName, market, primaryPillar, firstGap, primaryLabel, secondaryLabel, foundation, voiceAttributes } =
+    params;
   const dual = Boolean(primaryLabel && secondaryLabel?.trim());
   const pillar = primaryPillar.toLowerCase();
   const mkt = market.toLowerCase();
 
+  const pos = foundation?.positioningStatement ? clipForSample(foundation.positioningStatement, 118) : "";
+  const promise = foundation?.brandPromise ? clipForSample(foundation.brandPromise, 220) : "";
+  const diff = foundation?.differentiationNarrative ? clipForSample(foundation.differentiationNarrative, 200) : "";
+  const elev = foundation?.elevatorPitch ? clipForSample(foundation.elevatorPitch, 220) : "";
+  const tag = foundation?.tagline ? clipForSample(foundation.tagline, 40) : "";
+
+  const hook =
+    pos ||
+    (foundation?.elevatorPitch ? clipForSample(foundation.elevatorPitch, 108) : "") ||
+    `${brandName}: if ${firstGap} keeps repeating, the issue is message clarity—not effort.`;
+
+  const usedElevInHook = !pos && Boolean(foundation?.elevatorPitch);
+
+  let body =
+    promise ||
+    diff ||
+    (!usedElevInHook && elev ? elev : "") ||
+    `Most ${mkt} teams do not need more activity. They need one ${pillar} narrative that stays consistent from post to proof to CTA.`;
+
+  if (voiceAttributes && voiceAttributes.length > 0 && body.includes("do not need more activity")) {
+    const cue = clipForSample(voiceAttributes.slice(0, 3).join(", "), 56);
+    body = `${body} Aim for a ${cue} read.`;
+  }
+
   const socialOrganic = {
-    hook: `${brandName}: if ${firstGap} keeps repeating, the issue is message clarity—not effort.`,
-    body: `Most ${mkt} teams do not need more activity. They need one ${pillar} narrative that stays consistent from post to proof to CTA.`,
-    cta: "See the 90-day priority sequence",
+    hook,
+    body,
+    cta: tag && tag.length <= 34 ? tag : "See the 90-day priority sequence",
   };
+
+  const paidBody = dual
+    ? `${brandName} leads with ${primaryLabel} in the hook; ${secondaryLabel} shows up in the proof line only—same promise, warmer evidence.`
+    : promise
+      ? promise
+      : diff
+        ? diff
+        : `${brandName} · One ${pillar} promise, one mechanism, one next step—same voice from ad to landing.`;
 
   const paidAd = {
-    headline: `${brandName} for ${audience}: fix ${firstGap} fast`,
-    body: dual
-      ? `Primary signal leads the claim. Secondary signal adds warmth in proof copy—without changing the promise.`
-      : `One clear promise, one proof point, one next step. Keep the same character from headline to landing page.`,
-    cta: "Get the implementation plan",
+    headline: foundation?.positioningStatement
+      ? clipForSample(foundation.positioningStatement, 58)
+      : foundation?.differentiationNarrative
+        ? clipForSample(foundation.differentiationNarrative, 58)
+        : `Stop funding ${firstGap} with more spend`,
+    body: paidBody,
+    cta: tag && tag.length <= 34 ? tag : "Get your 90-day plan",
   };
 
-  const retargeting = `Still seeing ${firstGap}? This week, align one claim and one proof block before increasing spend. That shift usually improves conversion confidence in ${mkt}.`;
+  const retQuote = promise
+    ? clipForSample(
+        `${promise} If ${firstGap} still shows up in pipeline, add one proof block this week—then retest before raising spend.`,
+        240,
+      )
+    : pos
+      ? clipForSample(
+          `Revisit your hero claim: ${pos} Tighten one proof line this week if ${firstGap} is still visible in reporting.`,
+          240,
+        )
+      : `Still seeing ${firstGap}? Align one hero claim with one proof block this week—then retest before you raise budget.`;
+
+  const retargeting = {
+    quote: retQuote,
+    cta: tag && tag.length <= 30 ? tag : "See what to fix first",
+  };
 
   return { socialOrganic, paidAd, retargeting };
 }
@@ -596,18 +870,18 @@ function DraftSegmentHeading({
     if (principleVariant === "none") return null;
     if (principleVariant === "elevator") {
       return (
-        <div className="mb-3">
-          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-brand-midnight">Ready-to-say scripts</p>
-          <p className="mt-1 text-[11px] leading-snug text-brand-muted">
+        <div className="mb-4">
+          <p className={`${FN_DRAFT_EYEBROW} text-brand-midnight`}>Ready-to-say scripts</p>
+          <p className={FN_DRAFT_HELPER}>
             Speakable lines you can use as-is or tighten for live conversations.
           </p>
         </div>
       );
     }
     return (
-      <div className="mb-3">
-        <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-brand-midnight">Guidance</p>
-        <p className="mt-1 text-[11px] leading-snug text-brand-muted">
+      <div className="mb-4">
+        <p className={`${FN_DRAFT_EYEBROW} text-brand-midnight`}>Guidance</p>
+        <p className={FN_DRAFT_HELPER}>
           Rules, definitions, and statements to lock in for this subsection.
         </p>
       </div>
@@ -615,16 +889,16 @@ function DraftSegmentHeading({
   }
   if (kind === "contrast") {
     return (
-      <div className="mb-3">
-        <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-brand-midnight">Do / don&apos;t</p>
-        <p className="mt-1 text-[11px] leading-snug text-brand-muted">Contrast on-brand execution with patterns to avoid.</p>
+      <div className="mb-4">
+        <p className={`${FN_DRAFT_EYEBROW} text-brand-midnight`}>Do / Don&apos;t</p>
+        <p className={FN_DRAFT_HELPER}>Contrast on-brand execution with patterns to avoid.</p>
       </div>
     );
   }
   return (
-    <div className="mb-3">
-      <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-600">Examples</p>
-      <p className="mt-1 text-[11px] leading-snug text-slate-500">
+    <div className="mb-4">
+      <p className={`${FN_DRAFT_EYEBROW} text-slate-600`}>Examples</p>
+      <p className="mt-1.5 text-sm sm:text-base leading-relaxed text-slate-600">
         Illustrative phrasing and scenarios—adapt for your brand and channels.
       </p>
     </div>
@@ -647,25 +921,31 @@ function DraftPointContent({
     return (
       <>
         <div
-          className={`mb-2 inline-flex rounded border px-2 py-0.5 ${
+          className={`mb-2.5 inline-flex rounded-md border px-2.5 py-1 ${
             isDont ? "border-red-200 bg-red-50" : "border-emerald-200 bg-emerald-50"
           }`}
         >
           <span
-            className={`text-[10px] font-bold uppercase tracking-wide ${
+            className={`text-xs font-medium tracking-wide ${
               isDont ? "text-red-800" : "text-emerald-900"
             }`}
           >
-            {isDont ? "Not this" : "Do this"}
+            {isDont ? "Not This" : "Do This"}
           </span>
         </div>
         {parsed.detail ? (
           <>
-            <p className="text-[12px] font-semibold leading-snug text-brand-midnight">{toInitialCaps(parsed.lead)}</p>
-            <p className="mt-1.5 text-[13px] leading-relaxed text-brand-midnight">{sentenceStartCaps(parsed.detail)}</p>
+            <p className="text-sm font-normal leading-snug text-brand-midnight sm:text-base">
+              {toInitialCaps(parsed.lead)}
+            </p>
+            <p className="mt-2 text-[15px] sm:text-base leading-relaxed text-brand-midnight">
+              {sentenceStartCaps(parsed.detail)}
+            </p>
           </>
         ) : (
-          <p className="text-[13px] leading-relaxed text-brand-midnight">{sentenceStartCaps(parsed.lead)}</p>
+          <p className="text-[15px] sm:text-base leading-relaxed text-brand-midnight">
+            {sentenceStartCaps(parsed.lead)}
+          </p>
         )}
       </>
     );
@@ -674,13 +954,17 @@ function DraftPointContent({
   if (kind === "example") {
     return (
       <>
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{toInitialCaps(parsed.lead)}</p>
+        <p className="text-xs font-medium tracking-wide text-slate-600 sm:text-sm">
+          {toInitialCaps(parsed.lead)}
+        </p>
         {parsed.detail ? (
-          <p className="mt-1.5 text-[13px] leading-relaxed text-brand-midnight border-l-2 border-amber-200 pl-3">
+          <p className="mt-3 rounded-lg bg-amber-50/80 px-3 py-2.5 text-[15px] sm:text-base leading-relaxed text-brand-midnight ring-1 ring-amber-200/50">
             {sentenceStartCaps(parsed.detail)}
           </p>
         ) : (
-          <p className="mt-1.5 text-[13px] leading-relaxed text-brand-midnight">{sentenceStartCaps(parsed.lead)}</p>
+          <p className="mt-2 text-[15px] sm:text-base leading-relaxed text-brand-midnight">
+            {sentenceStartCaps(parsed.lead)}
+          </p>
         )}
       </>
     );
@@ -690,11 +974,13 @@ function DraftPointContent({
     <>
       {parsed.detail ? (
         <>
-          <p className="text-[13px] font-semibold leading-snug text-brand-blue">{toInitialCaps(parsed.lead)}</p>
-          <p className="mt-1 bs-body-sm text-brand-midnight leading-6">{sentenceStartCaps(parsed.detail)}</p>
+          <p className={`${FN_DRAFT_EYEBROW} text-brand-blue`}>{apStyleHeadingCase(parsed.lead)}</p>
+          <p className="mt-2.5 text-[15px] sm:text-base leading-relaxed text-brand-midnight">
+            {sentenceStartCaps(parsed.detail)}
+          </p>
         </>
       ) : (
-        <p className="bs-body-sm text-brand-midnight leading-6">{sentenceStartCaps(parsed.lead)}</p>
+        <p className="text-[15px] sm:text-base leading-relaxed text-brand-midnight">{sentenceStartCaps(parsed.lead)}</p>
       )}
     </>
   );
@@ -763,24 +1049,21 @@ function SubsectionCard({ item, densityMode }: { item: Subsection; densityMode: 
       id={item.id}
       accentColor={TILE_ACCENT_NAVY}
       tint={familyStyle.descriptorBg}
+      edgeAccent="none"
       style={{
-        padding: densityMode === "compact" ? "18px 20px" : "20px 22px",
+        padding: densityMode === "compact" ? "22px 24px" : "26px 28px",
         scrollMarginTop: 120,
+        boxShadow: "0 2px 14px rgba(2, 24, 89, 0.05), 0 0 1px rgba(2, 24, 89, 0.06)",
       }}
     >
-      <div className="flex items-start justify-between gap-3">
-        <h4 className="text-[18px] font-semibold text-brand-midnight leading-snug">{item.title}</h4>
-        <span
-          className="rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-brand-midnight"
-          style={{ backgroundColor: familyStyle.chip }}
-        >
+      <div className="flex items-start justify-between gap-4">
+        <h4 className={FN_TITLE}>{item.title}</h4>
+        <span className={FN_FAMILY_CHIP} style={{ backgroundColor: familyStyle.chip }}>
           {family}
         </span>
       </div>
       <p
-        className={`rounded-md border border-brand-border/60 px-4 text-[14px] leading-6 text-brand-muted ${
-          densityMode === "compact" ? "mt-2 py-2.5" : "mt-3 py-3"
-        }`}
+        className={`${FN_DESCRIPTOR} ${densityMode === "compact" ? "mt-4" : "mt-5"}`}
         style={{ backgroundColor: familyStyle.descriptorBg }}
       >
         {SUBSECTION_DESCRIPTORS[item.id] || item.whatItIs}
@@ -791,16 +1074,14 @@ function SubsectionCard({ item, densityMode }: { item: Subsection; densityMode: 
       {item.personalizedDraft && item.personalizedDraft.length > 0 ? (
         <div
           className={`${
-            item.customBody ? (densityMode === "compact" ? "mt-5" : "mt-6") : "mt-5"
-          } rounded-lg border border-brand-border/70 bg-[#F7FBFF] ${
-            densityMode === "compact" ? "p-4" : "p-5"
-          }`}
+            item.customBody ? (densityMode === "compact" ? "mt-6" : "mt-7") : "mt-6"
+          } ${FN_DRAFT_SHELL} ${densityMode === "compact" ? "p-5 sm:p-6" : "p-6 sm:p-7"}`}
         >
-          <div className={densityMode === "compact" ? "space-y-6" : "space-y-7"}>
+          <div className={densityMode === "compact" ? "space-y-7" : "space-y-8"}>
             {draftSegments.map((segment, segIndex) => (
               <div
                 key={`${item.id}-seg-${segIndex}-${segment.kind}`}
-                className={segIndex > 0 ? "border-t border-slate-200/90 pt-6" : ""}
+                className={segIndex > 0 ? "border-t border-slate-200/90 pt-7 sm:pt-8" : ""}
               >
                 <DraftSegmentHeading
                   kind={segment.kind}
@@ -809,14 +1090,14 @@ function SubsectionCard({ item, densityMode }: { item: Subsection; densityMode: 
                 <div
                   className={
                     segment.kind === "example"
-                      ? `rounded-lg border border-dashed border-slate-300/90 bg-slate-50/90 ${
-                          densityMode === "compact" ? "p-3.5" : "p-4"
-                        } space-y-4`
+                      ? `rounded-xl bg-slate-50/95 ${
+                          densityMode === "compact" ? "p-4 sm:p-5" : "p-5 sm:p-6"
+                        } space-y-5 shadow-[inset_0_0_0_1px_rgba(148,163,184,0.35)] [background-image:linear-gradient(135deg,rgba(255,255,255,0.9)_0%,transparent_100%)]`
                       : segment.kind === "contrast"
-                        ? `rounded-lg border border-slate-200 bg-slate-50/50 ${
-                            densityMode === "compact" ? "p-3.5" : "p-4"
-                          } space-y-3`
-                        : `${densityMode === "compact" ? "space-y-3" : "space-y-4"}`
+                        ? `rounded-xl bg-slate-50/60 ${
+                            densityMode === "compact" ? "p-4 sm:p-5" : "p-5 sm:p-6"
+                          } space-y-4 shadow-[inset_0_0_0_1px_rgba(148,163,184,0.2)]`
+                        : `${densityMode === "compact" ? "space-y-4" : "space-y-5"}`
                   }
                 >
                   {segment.points.map((point, index) => {
@@ -828,37 +1109,24 @@ function SubsectionCard({ item, densityMode }: { item: Subsection; densityMode: 
                       <div
                         key={`${item.id}-${segIndex}-${index}-${point.slice(0, 36)}`}
                         className={`relative ${
-                          segment.kind === "principle"
-                            ? densityMode === "compact"
-                              ? "pl-4"
-                              : "pl-5"
-                            : ""
-                        } ${segment.kind === "example" && index > 0 ? "border-t border-slate-200/80 pt-4" : ""}`}
+                          segment.kind === "example" && index > 0 ? "border-t border-slate-200/70 pt-5" : ""
+                        }`}
                       >
-                        {segment.kind === "principle" ? (
-                          <span
-                            className="absolute left-0 top-1 h-[calc(100%-6px)] w-[2px] rounded-full bg-brand-blue/70"
-                            aria-hidden
-                          />
-                        ) : null}
                         {segment.kind === "example" ? (
                           <DraftPointContent point={point} kind={segment.kind} />
                         ) : (
                           <div
-                            className={`rounded-md border bg-white px-4 ${
-                              densityMode === "compact" ? "py-2.5" : "py-3"
+                            className={`rounded-xl bg-white px-4 sm:px-5 ${
+                              densityMode === "compact" ? "py-3.5" : "py-4 sm:py-5"
                             } ${
                               segment.kind === "contrast"
                                 ? contrastIsDont
-                                  ? "border-red-200/90 bg-red-50/50"
-                                  : "border-emerald-200/90 bg-emerald-50/40"
-                                : ""
+                                  ? "shadow-[inset_0_0_0_1px_rgba(248,113,113,0.35)] bg-red-50/50"
+                                  : "shadow-[inset_0_0_0_1px_rgba(52,211,153,0.35)] bg-emerald-50/40"
+                                : segment.kind === "principle"
+                                  ? "shadow-[inset_0_0_0_1px_rgba(7,176,242,0.2),0_1px_2px_rgba(2,24,89,0.03)]"
+                                  : "shadow-[inset_0_0_0_1px_rgba(2,24,89,0.06)]"
                             }`}
-                            style={
-                              segment.kind === "principle"
-                                ? { borderColor: `${TILE_ACCENT_BLUE}4D` }
-                                : undefined
-                            }
                           >
                             <DraftPointContent point={point} kind={segment.kind} />
                           </div>
@@ -872,27 +1140,26 @@ function SubsectionCard({ item, densityMode }: { item: Subsection; densityMode: 
           </div>
           {derivedActionPoints.length > 0 ? (
             <div
-              className={`mt-4 rounded-md border border-[#BFDBFE]/70 bg-[#F8FBFF] ${
-                densityMode === "compact" ? "px-3 py-3" : "px-3.5 py-3.5"
+              className={`mt-6 rounded-2xl border-2 border-brand-blue/20 bg-gradient-to-b from-white to-[#f4f9ff] shadow-[0_6px_24px_rgba(2,24,89,0.06)] ${
+                densityMode === "compact" ? "p-5 sm:p-6" : "p-6 sm:p-8"
               }`}
             >
-              <div className="mb-3 flex items-start gap-2.5">
+              <div className="mb-6 flex items-start gap-4 border-b border-brand-border/70 pb-5 sm:mb-7 sm:pb-6">
                 <span
-                  className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded bg-[#0369A1] text-[12px] font-bold leading-none text-white"
+                  className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[5px] bg-brand-blue text-sm font-semibold leading-none text-white shadow-sm"
                   aria-hidden
                 >
                   →
                 </span>
                 <div className="min-w-0">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#0369A1]">Put it to work</p>
-                  <p className="mt-0.5 text-[11px] leading-snug text-[#0369A1]">
+                  <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue m-0 mb-3">
+                    Put It to Work
+                  </p>
+                  <p className="m-0 text-sm sm:text-base leading-relaxed text-brand-midnight">
                     {item.id === "identity-values" ? (
                       <>
-                        Ranked values (1–3). Each card separates{" "}
-                        <span className="font-semibold text-[#0C4A6E]">Behavior</span>,{" "}
-                        <span className="font-semibold text-[#0C4A6E]">In practice</span>, and{" "}
-                        <span className="font-semibold text-[#0C4A6E]">Why it matters</span> so the ideas do not run
-                        together.
+                        Ranked values (1–3). Each card separates Behavior, In Practice, and Why It Matters so the ideas do
+                        not run together.
                       </>
                     ) : item.id === "identity-archetype" ? (
                       <>
@@ -901,11 +1168,9 @@ function SubsectionCard({ item, densityMode }: { item: Subsection; densityMode: 
                       </>
                     ) : (
                       <>
-                        Concrete moves—workshops, audits, artifacts, and QA hooks. No fixed order.{" "}
-                        <span className="text-[#0C4A6E]">
-                          Warm, dashed cards are sample wording; solid cards are next steps, “use this when,” or connection cues.
-                        </span>{" "}
-                        Owner, date, or goal mentions surface as chips below when we detect them.
+                        Concrete moves—workshops, audits, artifacts, and QA hooks. No fixed order. Warm, dashed cards are
+                        sample wording; solid cards are next steps, “use this when,” or connection cues. Owner, date, or goal
+                        mentions surface as chips below when we detect them.
                       </>
                     )}
                   </p>
@@ -913,7 +1178,7 @@ function SubsectionCard({ item, densityMode }: { item: Subsection; densityMode: 
               </div>
               <ul
                 className={`m-0 list-none p-0 ${
-                  densityMode === "compact" ? "space-y-3" : "space-y-3.5"
+                  densityMode === "compact" ? "space-y-4" : "space-y-5"
                 }`}
               >
                 {derivedActionPoints.map((point, index) => {
@@ -931,27 +1196,29 @@ function SubsectionCard({ item, densityMode }: { item: Subsection; densityMode: 
                         key={`${item.id}-action-${index}-${point.slice(0, 36)}`}
                         className="list-none"
                       >
-                        <div className="flex gap-3">
+                        <div className="flex gap-4 items-start">
                           <span
-                            className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0369A1] text-[13px] font-bold leading-none text-white shadow-sm"
+                            className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-[5px] bg-brand-blue text-sm font-semibold tabular-nums leading-none text-white shadow-sm"
                             aria-hidden
                           >
                             {coreValueOrdinal}
                           </span>
-                          <div className="min-w-0 flex-1 rounded-lg border border-y border-r border-[#BFDBFE]/90 border-l-[3px] border-l-brand-blue/70 bg-white px-4 py-4 shadow-sm">
-                            <p className="m-0 text-[13px] leading-snug text-brand-midnight">
-                              <span className="font-semibold text-[#0369A1]">Value:</span>{" "}
-                              <span className="font-semibold text-brand-midnight">{cvParsed.valueName}</span>
+                          <div className="min-w-0 flex-1 rounded-xl bg-white/95 px-4 py-4 sm:px-5 sm:py-5 shadow-[0_1px_3px_rgba(2,24,89,0.05)] ring-1 ring-slate-900/[0.06]">
+                            <p className="m-0 text-[15px] sm:text-base leading-snug text-brand-midnight">
+                              <span className="text-brand-muted">Value:</span>{" "}
+                              <span className="font-semibold text-brand-navy">{cvParsed.valueName}</span>
                             </p>
                             {cvParsed.sections.map((s, si) => (
                               <div
                                 key={`${item.id}-cv-${index}-sec-${si}-${s.label}`}
-                                className={si === 0 ? "mt-4" : "mt-4 border-t border-slate-200/90 pt-4"}
+                                className={si === 0 ? "mt-5" : "mt-5 border-t border-slate-200/90 pt-5"}
                               >
-                                <p className="m-0 text-[11px] font-bold uppercase tracking-[0.12em] text-[#0369A1]">
+                                <p className="m-0 text-xs sm:text-sm font-medium tracking-[0.08em] text-brand-blue">
                                   {s.label}
                                 </p>
-                                <p className="mt-2 text-[13px] leading-relaxed text-brand-midnight">{s.body}</p>
+                                <p className="mt-2.5 text-[15px] sm:text-base leading-relaxed text-brand-midnight">
+                                  {s.body}
+                                </p>
                               </div>
                             ))}
                             <ExecutionSignalChips signals={signals} />
@@ -989,37 +1256,37 @@ function SubsectionCard({ item, densityMode }: { item: Subsection; densityMode: 
                       key={`${item.id}-action-${index}-${point.slice(0, 36)}`}
                         className={
                         isExample
-                          ? `rounded-lg border-2 border-dashed border-amber-400/75 bg-gradient-to-br from-amber-50/95 to-orange-50/40 px-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] ring-1 ring-amber-200/50 ${
-                              densityMode === "compact" ? "py-2.5" : "py-3"
+                          ? `rounded-xl border-2 border-dashed border-amber-400/75 bg-gradient-to-br from-amber-50/95 to-orange-50/40 px-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] ring-1 ring-amber-200/50 ${
+                              densityMode === "compact" ? "py-3.5" : "py-4 sm:py-5"
                             }`
-                            : "rounded-md border border-y border-r border-[#BFDBFE]/70 border-l-[3px] border-l-brand-blue/70 bg-white/80 px-3 py-2.5"
+                            : "rounded-xl bg-white/95 px-4 py-4 sm:px-5 sm:py-5 shadow-[0_1px_3px_rgba(2,24,89,0.05)] ring-1 ring-slate-900/[0.06]"
                       }
                     >
                       {isExample ? (
-                        <div className="mb-2 flex flex-wrap items-center gap-2">
-                          <span className="inline-flex rounded-md border border-amber-300/90 bg-white/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-amber-900">
+                        <div className="mb-3 flex flex-wrap items-center gap-2">
+                          <span className="inline-flex rounded-md border border-amber-300/90 bg-white/90 px-2.5 py-1 text-xs font-medium tracking-[0.08em] text-amber-900">
                             Example
                           </span>
-                          <span className="text-[10px] font-medium leading-snug text-amber-900/70">
+                          <span className="text-xs sm:text-sm font-medium leading-snug text-amber-900/75">
                             Sample phrasing—adapt to your voice
                           </span>
                         </div>
                       ) : meta.tag ? (
-                        <span className="mb-1 inline-flex rounded-full border border-[#BFDBFE] bg-[#F0F9FF] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-blue">
+                        <span className="mb-2 inline-flex rounded-full border border-brand-border/70 bg-[#F0F9FF] px-2.5 py-1 text-xs sm:text-sm font-medium tracking-[0.08em] text-brand-blue">
                           {meta.tag}
                         </span>
                       ) : null}
                       {colonSplit.label ? (
-                        <div className={!isExample && meta.tag ? "mt-1" : ""}>
+                        <div className={!isExample && meta.tag ? "mt-0.5" : ""}>
                           <p
-                            className={`text-[11px] font-semibold leading-snug tracking-wide ${
-                              isExample ? "text-amber-950" : "text-[#0369A1]"
+                            className={`text-sm font-medium leading-snug tracking-wide ${
+                              isExample ? "text-amber-950" : "text-brand-blue"
                             }`}
                           >
-                            {colonSplit.label}
+                            {formatPutToWorkHeadingLabel(colonSplit.label)}
                           </p>
                           <p
-                            className={`mt-1.5 text-[13px] leading-relaxed ${
+                            className={`mt-2 text-[15px] sm:text-base leading-relaxed ${
                               isExample ? "font-medium text-[#292524]" : "font-normal text-brand-midnight"
                             }`}
                           >
@@ -1028,8 +1295,8 @@ function SubsectionCard({ item, densityMode }: { item: Subsection; densityMode: 
                         </div>
                       ) : (
                         <p
-                          className={`text-[13px] leading-snug text-brand-midnight ${
-                            isExample ? "font-medium text-[#292524]" : "font-semibold"
+                          className={`text-[15px] sm:text-base leading-relaxed text-brand-midnight ${
+                            isExample ? "font-medium text-[#292524]" : "font-normal"
                           } ${!isExample && meta.tag ? "mt-1" : ""} ${isExample ? "mt-0" : ""}`}
                         >
                           {mainText}
@@ -1037,8 +1304,8 @@ function SubsectionCard({ item, densityMode }: { item: Subsection; densityMode: 
                       )}
                       {showContext ? (
                         <p
-                          className={`mt-1 text-[11px] leading-snug ${
-                            isExample ? "text-amber-900/65" : "text-brand-muted"
+                          className={`mt-2 text-xs sm:text-sm leading-relaxed ${
+                            isExample ? "text-amber-900/70" : "text-brand-muted"
                           }`}
                         >
                           {contextLine}
@@ -1081,25 +1348,28 @@ function DomainSection({
   return (
     <section
       id={id}
-      className={`bs-card rounded-2xl border border-brand-border ${
-        densityMode === "compact" ? "p-5 sm:p-6 lg:p-7" : "p-6 sm:p-7 lg:p-8"
-      }`}
-      style={{ borderLeft: `4px solid ${TILE_ACCENT_NAVY}`, background: gradient }}
+      className={`bs-card rounded-2xl ${
+        densityMode === "compact" ? "p-6 sm:p-7 lg:p-8" : "p-7 sm:p-8 lg:p-10"
+      } shadow-[0_10px_40px_rgba(2,24,89,0.05)] ring-1 ring-slate-900/[0.04]`}
+      style={{ background: gradient }}
     >
       <div
-        className={`flex items-start gap-4 border-b border-brand-border/70 ${
-          densityMode === "compact" ? "mb-5 pb-3" : "mb-6 pb-4"
+        className={`flex items-start gap-5 ${
+          densityMode === "compact" ? "mb-6 pb-4 sm:mb-7 sm:pb-5" : "mb-7 pb-5 sm:mb-8 sm:pb-6"
         }`}
+        style={{ boxShadow: "0 1px 0 rgba(2, 24, 89, 0.07)" }}
       >
-        <div className="min-w-[42px] text-[32px] font-black leading-none text-brand-navy">{sectionNumber || ""}</div>
+        <div className="min-w-[44px] text-3xl sm:text-4xl font-semibold leading-none tabular-nums text-brand-blue">
+          {sectionNumber || ""}
+        </div>
         <div>
-          <p className="mb-1 text-[13px] font-bold uppercase tracking-wide text-brand-navy">{eyebrow}</p>
-          <h3 className="bs-h3 mb-2">{title}</h3>
-          <p className="bs-body-sm leading-6 text-brand-muted">{intro}</p>
+          <p className={`mb-2 ${FN_DRAFT_EYEBROW} text-brand-navy`}>{eyebrow}</p>
+          <h3 className="bs-h2 mb-3">{title}</h3>
+          <p className="text-sm sm:text-base leading-relaxed text-brand-muted max-w-3xl">{intro}</p>
         </div>
       </div>
-      {visual ? <div className={densityMode === "compact" ? "mb-5" : "mb-6"}>{visual}</div> : null}
-      <div className={`grid grid-cols-1 ${densityMode === "compact" ? "gap-3.5" : "gap-4"}`}>
+      {visual ? <div className={densityMode === "compact" ? "mb-6 sm:mb-7" : "mb-7 sm:mb-8"}>{visual}</div> : null}
+      <div className={`grid grid-cols-1 ${densityMode === "compact" ? "gap-5 sm:gap-6" : "gap-6 sm:gap-7"}`}>
         {subsections.map((item) => (
           <SubsectionCard key={item.id} item={item} densityMode={densityMode} />
         ))}
@@ -1121,7 +1391,10 @@ export default function FoundationBlueprintContent({
   const audience = targetAudience || "your highest-fit audience";
   const market = industry || "your market";
   const archetypePair = [primaryArchetype, secondaryArchetype].filter(Boolean).join(" + ");
-  const data = diagnosticData ?? {};
+  const data = useMemo((): Record<string, unknown> => {
+    if (diagnosticData && typeof diagnosticData === "object") return diagnosticData as Record<string, unknown>;
+    return {};
+  }, [diagnosticData]);
   const secondaryAudience =
     asString(data.secondaryAudience) ||
     asString(data.secondary_audience) ||
@@ -1211,7 +1484,7 @@ export default function FoundationBlueprintContent({
     {
       id: "considering",
       title: "Considering",
-      color: { border: "#818CF8", bg: "#EEF2FF", text: "#4338CA", chip: "#E0E7FF" },
+      color: { border: "#5CC4F5", bg: "#E8F6FE", text: "#021859", chip: "#D6EEFB" },
       objective: "Increase solution confidence and fit.",
       buyerMindset: `They compare options and evaluate whether ${brandName} fits their context.`,
       message: `${brandName} aligns ${primaryPillar.toLowerCase()} strategy with owner-ready execution to improve decision confidence.`,
@@ -1225,7 +1498,7 @@ export default function FoundationBlueprintContent({
     {
       id: "evaluating",
       title: "Evaluating",
-      color: { border: "#A78BFA", bg: "#F5F3FF", text: "#6D28D9", chip: "#EDE9FE" },
+      color: { border: "#07B0F2", bg: "#E6F7FE", text: "#021859", chip: "#B8E8FB" },
       objective: "Remove final risk and prove execution readiness.",
       buyerMindset: "They need confidence in timeline, ownership, and measurable outcomes.",
       message: `${brandName} delivers measurable movement through prioritized sequencing and clear ownership.`,
@@ -1265,64 +1538,21 @@ export default function FoundationBlueprintContent({
       avoid: "Avoid static reporting that does not connect outcomes to next-phase priorities.",
     },
   ];
-  const personaProfiles: Record<
-    PersonaTabId,
-    {
-      title: string;
-      role: string;
-      goals: string[];
-      fears: string[];
-      messageAngle: string;
-      cta: string;
-      channels: string;
-    }
-  > = {
-    "vp-ops": {
-      title: "Sarah Chen",
-      role: "VP Operations",
-      goals: [
-        "Build coordination infrastructure before the next hiring wave.",
-        "Reduce leadership escalations caused by cross-team misalignment.",
-      ],
-      fears: [
-        "Buying another tool that creates implementation overhead.",
-        "Failing to show finance-legible ROI for operations investments.",
-      ],
-      messageAngle: `${brandName} helps operations leaders remove ${topGap} with owner-ready rollout sequencing.`,
-      cta: "Review my operations rollout plan",
-      channels: "LinkedIn thought leadership, operations-focused landing pages, diagnostic call follow-up email.",
-    },
-    "cfo-coo": {
-      title: "David Park",
-      role: "CFO / COO",
-      goals: [
-        "Increase revenue efficiency from current headcount investments.",
-        "Reduce operational waste and duplicated execution costs.",
-      ],
-      fears: [
-        "Unclear payback period and soft strategic claims without measurable outcomes.",
-        "Platform risk that creates financial and change-management drag.",
-      ],
-      messageAngle: `${brandName} improves ${primaryPillar.toLowerCase()} outcomes with measurable impact on decision velocity and execution efficiency.`,
-      cta: "See the financial impact model",
-      channels: "Executive summary, ROI email brief, finance-review one-pager.",
-    },
-    revops: {
-      title: "Alex Rivera",
-      role: "Head of RevOps / Chief of Staff",
-      goals: [
-        "Create one trusted data narrative across GTM teams.",
-        "Improve implementation confidence without adding integration sprawl.",
-      ],
-      fears: [
-        "Conflicting data models and added systems complexity.",
-        "Technical promises that are not operationally defensible.",
-      ],
-      messageAngle: `${brandName} gives RevOps leaders a clarity-first operating model that keeps cross-functional execution accountable.`,
-      cta: "Validate integration and ownership plan",
-      channels: "Technical validation call, implementation doc, RevOps enablement sequence.",
-    },
-  };
+  const buyerPersonaFingerprint = useMemo(
+    () => JSON.stringify(extractBuyerPersonasRaw(data as Record<string, unknown>).slice(0, 6)),
+    [data],
+  );
+  const foundationPersonaAtlasEntries = useMemo(
+    () =>
+      buildFoundationPersonaAtlasEntries({
+        diagnosticData: data as Record<string, unknown>,
+        businessName: brandName,
+        reportId: asString(data.reportId),
+        topGap: (topGaps[0] || "message inconsistency").toLowerCase(),
+        primaryPillar,
+      }),
+    [brandName, primaryPillar, asString(data.reportId), topGaps[0], buyerPersonaFingerprint],
+  );
   const reportId = asString(data.reportId);
   const userEmail = asString(data.userEmail).toLowerCase();
   const tierRaw = asString(data.productTier || data.product_tier).toLowerCase();
@@ -1337,12 +1567,18 @@ export default function FoundationBlueprintContent({
     asString(data.visualSystemMode) === "refresh"
       ? (asString(data.visualSystemMode) as VisualSystemMode)
       : "optimize";
+  const suiteNav = useResultsSuiteNav();
+  const openSuiteTab = suiteNav?.openTab;
   const [visualSystemMode, setVisualSystemMode] = useState<VisualSystemMode>(initialMode);
   const [visualModeReady, setVisualModeReady] = useState(false);
   const [selectedJourneyStage, setSelectedJourneyStage] = useState<JourneyStageId>("considering");
-  const [selectedPersonaTab, setSelectedPersonaTab] = useState<PersonaTabId>("vp-ops");
+  const [selectedPersonaAtlasIndex, setSelectedPersonaAtlasIndex] = useState(0);
   const [activeFoundationAnchor, setActiveFoundationAnchor] = useState("brand-story-proof");
   const [densityMode, setDensityMode] = useState<DensityMode>("comfortable");
+
+  useEffect(() => {
+    setSelectedPersonaAtlasIndex(0);
+  }, [buyerPersonaFingerprint]);
 
   useEffect(() => {
     let isMounted = true;
@@ -1542,18 +1778,18 @@ export default function FoundationBlueprintContent({
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
           <div className="rounded-md border border-brand-border bg-white p-3 mb-3">
-            <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue mb-2">
+            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">
               Personality Operating Model
             </p>
             <p className="bs-body-sm text-brand-midnight">
-              Personality defines <strong>how {brandName} behaves in everyday communication</strong>.
+              Personality defines how <strong>{brandName}</strong> behaves in everyday communication.
               Archetypes define strategic character; personality governs execution quality in copy, design, and interaction.
             </p>
             <div className="mt-3 grid gap-2 md:grid-cols-2">
               {traitPool.map((trait) => (
                 <div key={trait} className="rounded-md border border-brand-border bg-[#EFF6FF] p-2">
-                  <p className="text-[11px] font-bold text-brand-blue">{trait}</p>
-                  <p className="text-[12px] text-brand-midnight mt-1">
+                  <p className="text-sm sm:text-base font-medium text-brand-blue">{trait}</p>
+                  <p className="text-sm sm:text-base text-brand-midnight mt-1">
                     {traitDescriptions[trait] || "Applied consistently across messaging, visual hierarchy, and customer interactions."}
                   </p>
                 </div>
@@ -1562,24 +1798,24 @@ export default function FoundationBlueprintContent({
           </div>
 
           <div className="rounded-md border border-brand-border bg-white p-3 mb-3">
-            <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue mb-2">In use on key surfaces</p>
+            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">In Use on Key Surfaces</p>
             <div className="grid gap-2 md:grid-cols-3">
               <div className="rounded-md border border-brand-border bg-[#EFF6FF] p-2">
-                <p className="text-[11px] font-bold text-brand-blue">Organic social</p>
+                <p className="text-sm sm:text-base font-medium text-brand-blue">Organic Social</p>
                 <p className="text-[14px] font-semibold leading-snug text-brand-midnight mt-1">{brandName}</p>
-                <p className="text-[12px] text-brand-midnight mt-1 leading-relaxed">
+                <p className="text-sm sm:text-base text-brand-midnight mt-1 leading-relaxed">
                   When {topGap} is silent in your story, pipeline pays for it. One proof line, one CTA—built for feeds.
                 </p>
               </div>
               <div className="rounded-md border border-brand-border bg-[#EFF6FF] p-2">
-                <p className="text-[11px] font-bold text-brand-blue">Paid ad</p>
-                <p className="text-[12px] text-brand-midnight mt-1 leading-relaxed">
+                <p className="text-sm sm:text-base font-medium text-brand-blue">Paid Ad</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1 leading-relaxed">
                   Headline + one proof point + single next step. Same promise as organic—tighter for the click.
                 </p>
               </div>
               <div className="rounded-md border border-brand-border bg-[#EFF6FF] p-2">
-                <p className="text-[11px] font-bold text-brand-blue">Retargeting</p>
-                <p className="text-[12px] text-brand-midnight mt-1 leading-relaxed">
+                <p className="text-sm sm:text-base font-medium text-brand-blue">Retargeting</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1 leading-relaxed">
                   “Still seeing {topGap}? Align one claim and one proof block before raising spend—then retest.”
                 </p>
               </div>
@@ -1588,14 +1824,14 @@ export default function FoundationBlueprintContent({
 
           <div className="grid gap-2 md:grid-cols-2">
             <div className="rounded-md border border-[#86EFAC] bg-[#F0FDF4] p-3">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-[#166534]">Do This</p>
-              <p className="text-[12px] text-brand-midnight mt-1">
+              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#166534]">Do This</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Keep language specific and decision-led: diagnosis, implication, action.
               </p>
             </div>
             <div className="rounded-md border border-[#FCA5A5] bg-[#FEF2F2] p-3">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-[#B91C1C]">Not This</p>
-              <p className="text-[12px] text-brand-midnight mt-1">
+              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#B91C1C]">Not This</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Avoid generic “innovative solutions” phrasing that removes ownership and proof.
               </p>
             </div>
@@ -1614,14 +1850,16 @@ export default function FoundationBlueprintContent({
         getArchetypeMeaning(normalizedSecondaryArchetype) ||
         "Secondary archetype adds nuance to voice and execution style.";
       const primaryLabelForSamples = normalizedPrimaryArchetype || "your primary archetype";
+      const foundationSnippets = extractFoundationVoiceSnippets(data as Record<string, unknown>);
       const archetypeSamples = buildArchetypeChannelSamples({
         brandName,
-        audience,
         market,
         primaryPillar,
         firstGap: (topGaps[0] || "cross-channel message inconsistency").toLowerCase(),
         primaryLabel: primaryLabelForSamples,
         secondaryLabel: normalizedSecondaryArchetype,
+        foundation: foundationSnippets,
+        voiceAttributes,
       });
       const { socialOrganic, paidAd, retargeting } = archetypeSamples;
       return (
@@ -1648,59 +1886,126 @@ export default function FoundationBlueprintContent({
             />
           </div>
           <div className="rounded-md border border-brand-border bg-white p-3 mb-3">
-            <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue mb-2">
+            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">
               How The Archetypes Work Together
             </p>
             <p className="bs-body-sm text-brand-midnight">
-              <strong>{primaryName}</strong> sets the core market signal (authority, trust, and strategic clarity).
-              <strong> {secondaryName || "Secondary archetype"}</strong> adds energy and variation in campaign formats
+              <span className="font-semibold text-brand-midnight">{primaryName}</span> sets the core market signal (authority, trust, and strategic clarity).
+              {secondaryName ? (
+                <>
+                  {" "}
+                  <span className="font-semibold text-brand-midnight">{secondaryName}</span> adds energy and variation in campaign formats
+                </>
+              ) : (
+                <> Secondary archetype adds energy and variation in campaign formats</>
+              )}{" "}
               without changing the core positioning.
             </p>
-            <p className="mt-3 text-[11px] leading-snug text-brand-muted">
-              Same archetype, three channels—written as it would <strong className="text-brand-midnight">ship</strong>,
-              not as a task list. These are platform-ready examples you can adapt for your current campaign cycle.
+            <p className="mt-3 text-sm sm:text-base leading-relaxed text-brand-muted">
+              Same archetype, three placements—written as it would ship.
+              Channel names sit in the header row once; each column is the same height with the CTA pinned to the bottom.
             </p>
-            <div className="mt-3 grid gap-3 md:grid-cols-3">
-              <div className="rounded-lg border-2 border-dashed border-amber-400/75 bg-gradient-to-br from-amber-50/95 to-orange-50/40 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] ring-1 ring-amber-200/50">
-                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-amber-900">Example · Organic Social</p>
-                <div className="mt-3 rounded-md border border-amber-200/80 bg-white/95 px-3 py-3 shadow-sm">
-                  <p className="text-[14px] font-bold leading-snug text-brand-midnight">{socialOrganic.hook}</p>
-                  <p className="mt-2 text-[12px] leading-relaxed text-brand-muted">{socialOrganic.body}</p>
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <span className="rounded-md bg-brand-blue px-3 py-1.5 text-[11px] font-bold text-white">{socialOrganic.cta}</span>
+            {(() => {
+              const channelShell =
+                "rounded-xl border-2 border-dashed border-amber-400/75 bg-gradient-to-br from-amber-50/95 to-orange-50/40 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] ring-1 ring-amber-200/50";
+              const ctaMock =
+                "mt-auto flex w-full shrink-0 items-center justify-center rounded-lg bg-brand-blue px-3 py-2.5 text-center text-sm font-semibold leading-tight text-white shadow-sm";
+              const adPreviewSlug = primaryPillar
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, "-")
+                .replace(/^-|-$/g, "")
+                .slice(0, 28);
+              return (
+                <div className="mt-4">
+                  <div className="mb-2 hidden text-xs font-medium tracking-[0.08em] text-brand-muted md:grid md:grid-cols-3 md:gap-3">
+                    <div>Organic Social</div>
+                    <div>Paid Social Ad</div>
+                    <div>Retargeting</div>
+                  </div>
+                  <div className="grid gap-4 md:grid-cols-3 md:items-stretch md:gap-3 md:[grid-auto-rows:1fr]">
+                    <div className={`${channelShell} flex min-h-0 flex-col`}>
+                      <p className="mb-2 text-xs font-semibold text-brand-blue md:hidden">Organic Social</p>
+                      <div className="flex min-h-[248px] flex-1 flex-col rounded-lg border border-slate-200/90 bg-white p-3 shadow-sm">
+                        <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E8F4FE] text-xs font-semibold text-brand-blue">
+                            {brandName.trim().slice(0, 1).toUpperCase()}
+                          </span>
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-brand-midnight">{brandName}</p>
+                            <p className="text-[11px] text-slate-500">Organic post preview</p>
+                          </div>
+                        </div>
+                        <p className="mt-3 text-[15px] font-semibold leading-snug text-brand-midnight">{socialOrganic.hook}</p>
+                        <p className="mt-2 flex-1 text-sm leading-relaxed text-brand-muted">{socialOrganic.body}</p>
+                        <ArchetypeChannelPreviewCta
+                          className={ctaMock}
+                          tab="strategy"
+                          ariaLabel="Open Strategy tab for 90-day priorities"
+                          openTab={openSuiteTab}
+                        >
+                          {socialOrganic.cta}
+                        </ArchetypeChannelPreviewCta>
+                      </div>
+                    </div>
+
+                    <div className={`${channelShell} flex min-h-0 flex-col`}>
+                      <p className="mb-2 text-xs font-semibold text-brand-blue md:hidden">Paid Social Ad</p>
+                      <div className="flex min-h-[248px] flex-1 flex-col overflow-hidden rounded-lg border border-slate-300/90 bg-white shadow-md ring-1 ring-black/[0.04]">
+                        <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-2.5 py-1.5">
+                          <span className="text-[10px] font-semibold tracking-wide text-slate-500">Sponsored</span>
+                          <span className="max-w-[55%] truncate text-[11px] font-semibold text-slate-700">{brandName}</span>
+                        </div>
+                        <div className="h-[4.5rem] w-full shrink-0 bg-gradient-to-br from-slate-100 via-[#E8F4FE] to-slate-200" aria-hidden />
+                        <div className="flex min-h-0 flex-1 flex-col px-3 pb-3 pt-2">
+                          <p className="text-[15px] font-semibold leading-[1.25] text-[#0f172a]">{paidAd.headline}</p>
+                          <p className="mt-1.5 text-[13px] leading-snug text-slate-600">{paidAd.body}</p>
+                          <p className="mt-2 text-[11px] text-slate-400">
+                            {adPreviewSlug ? `example.ad/${adPreviewSlug}` : "example.ad/learn-more"}
+                          </p>
+                          <ArchetypeChannelPreviewCta
+                            className={ctaMock}
+                            tab="activation"
+                            ariaLabel="Open Activation tab for your 90-day plan"
+                            openTab={openSuiteTab}
+                          >
+                            {paidAd.cta}
+                          </ArchetypeChannelPreviewCta>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className={`${channelShell} flex min-h-0 flex-col`}>
+                      <p className="mb-2 text-xs font-semibold text-brand-blue md:hidden">Retargeting</p>
+                      <div className="flex min-h-[248px] flex-1 flex-col rounded-lg border border-slate-200/90 bg-white p-3 shadow-sm">
+                        <p className="text-[10px] font-semibold tracking-wide text-slate-500">Reminder ad</p>
+                        <p className="mt-3 min-h-0 flex-1 font-serif text-base italic leading-relaxed text-[#1C1917]">
+                          &ldquo;{retargeting.quote}&rdquo;
+                        </p>
+                        <ArchetypeChannelPreviewCta
+                          className={ctaMock}
+                          tab="results"
+                          ariaLabel="Open Results tab to review diagnostic gaps"
+                          openTab={openSuiteTab}
+                        >
+                          {retargeting.cta}
+                        </ArchetypeChannelPreviewCta>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="rounded-lg border-2 border-dashed border-amber-400/75 bg-gradient-to-br from-amber-50/95 to-orange-50/40 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] ring-1 ring-amber-200/50">
-                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-amber-900">Example · Paid Ad</p>
-                <div className="mt-3 rounded-md border border-amber-200/80 bg-white/95 px-3 py-3 shadow-sm">
-                  <p className="text-[14px] font-bold leading-snug text-brand-midnight">{paidAd.headline}</p>
-                  <p className="mt-2 text-[12px] leading-relaxed text-brand-muted">{paidAd.body}</p>
-                  <div className="mt-3">
-                    <span className="rounded-md border border-brand-blue/40 bg-[#E8F6FE] px-3 py-1.5 text-[11px] font-bold text-brand-blue">
-                      {paidAd.cta}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div className="rounded-lg border-2 border-dashed border-amber-400/75 bg-gradient-to-br from-amber-50/95 to-orange-50/40 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.85)] ring-1 ring-amber-200/50">
-                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-amber-900">Example · Retargeting Ad</p>
-                <p className="mt-3 text-[12px] leading-relaxed text-[#292524]">
-                  <span className="font-serif text-[13px] italic text-[#1C1917]">&ldquo;{retargeting}&rdquo;</span>
-                </p>
-              </div>
-            </div>
+              );
+            })()}
           </div>
           <div className="grid gap-2 md:grid-cols-2 mt-3">
             <div className="rounded-md border border-[#86EFAC] bg-[#F0FDF4] p-3">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-[#166534]">Do This</p>
-              <p className="text-[12px] text-brand-midnight mt-1">
+              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#166534]">Do This</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Keep the primary archetype dominant in core positioning, and use secondary traits only in supporting contexts.
               </p>
             </div>
             <div className="rounded-md border border-[#FCA5A5] bg-[#FEF2F2] p-3">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-[#B91C1C]">Not This</p>
-              <p className="text-[12px] text-brand-midnight mt-1">
+              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#B91C1C]">Not This</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Do not alternate archetypes between major sections; that creates mixed signals and weakens trust.
               </p>
             </div>
@@ -1716,24 +2021,24 @@ export default function FoundationBlueprintContent({
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
           <div className="rounded-md border border-brand-border bg-white p-3 mb-3">
-            <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue mb-2">Brand Persona Profile</p>
-            <p className="text-[13px] font-bold text-brand-blue">{personaName}</p>
-            <p className="text-[12px] text-brand-midnight mt-1">{personaRole}</p>
-            <p className="text-[12px] text-brand-midnight mt-2">
+            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">Brand Persona Profile</p>
+            <p className="text-base sm:text-lg font-semibold text-brand-blue">{personaName}</p>
+            <p className="text-sm sm:text-base text-brand-midnight mt-1">{personaRole}</p>
+            <p className="text-sm sm:text-base text-brand-midnight mt-2">
               Use this persona as the fastest quality filter: before publishing, ask whether this sounds like{" "}
               {personaName} giving practical guidance to {audience.toLowerCase()}.
             </p>
           </div>
           <div className="grid gap-2 md:grid-cols-2">
-            <div className="rounded-md border border-brand-border bg-white p-3">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue">Do this</p>
-              <p className="text-[12px] text-brand-midnight mt-1">
+            <div className="rounded-md border border-emerald-300/90 bg-emerald-50/95 p-3">
+              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#059669]">Do This</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 "Your highest-risk gap is {topGap}; here is the first implementation move and the owner."
               </p>
             </div>
-            <div className="rounded-md border border-brand-border bg-white p-3">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue">Not this</p>
-              <p className="text-[12px] text-brand-midnight mt-1">
+            <div className="rounded-md border border-red-300/90 bg-red-50/95 p-3">
+              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#991B1B]">Not This</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 "We offer innovative, end-to-end solutions for businesses of all sizes."
               </p>
             </div>
@@ -1762,15 +2067,15 @@ export default function FoundationBlueprintContent({
       ];
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
-          <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue mb-3">Pillar Application Matrix</p>
+          <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-4">Pillar Application Matrix</p>
           <div className="grid gap-3">
             {rows.map((row) => (
               <div key={row.pillar} className="rounded-md border border-brand-border bg-white p-3">
-                <p className="text-[12px] font-bold text-brand-blue">Pillar Claim</p>
+                <p className="text-sm sm:text-base font-medium text-brand-blue">Pillar Claim</p>
                 <p className="bs-body-sm text-brand-midnight mt-1">{row.pillar}</p>
-                <p className="text-[12px] font-bold text-brand-blue mt-2">Proof Signal</p>
+                <p className="text-sm sm:text-base font-medium text-brand-blue mt-2">Proof Signal</p>
                 <p className="bs-body-sm text-brand-midnight mt-1">{row.proof}</p>
-                <p className="text-[12px] font-bold text-brand-blue mt-2">Best CTA</p>
+                <p className="text-sm sm:text-base font-medium text-brand-blue mt-2">Best Call to Action</p>
                 <p className="bs-body-sm text-brand-midnight mt-1">{row.cta}</p>
               </div>
             ))}
@@ -1788,41 +2093,41 @@ export default function FoundationBlueprintContent({
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
           <div className="rounded-md border border-brand-border bg-white p-3 mb-3">
-            <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue mb-2">Positioning Hierarchy</p>
+            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">Positioning Hierarchy</p>
             <div className="grid gap-2 md:grid-cols-2">
               <div className="rounded-md border border-brand-border bg-[#EFF6FF] p-2">
-                <p className="text-[11px] font-bold text-brand-blue">Long-Form Positioning</p>
-                <p className="text-[12px] text-brand-midnight mt-1">{longForm}</p>
+                <p className="text-sm sm:text-base font-medium text-brand-blue">Long-Form Positioning</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">{longForm}</p>
               </div>
               <div className="rounded-md border border-brand-border bg-[#EFF6FF] p-2">
-                <p className="text-[11px] font-bold text-brand-blue">Short-Form Positioning</p>
-                <p className="text-[12px] text-brand-midnight mt-1">{shortForm}</p>
+                <p className="text-sm sm:text-base font-medium text-brand-blue">Short-Form Positioning</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">{shortForm}</p>
               </div>
             </div>
           </div>
           <div className="rounded-md border border-brand-border bg-white p-3 mb-3">
-            <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue mb-2">Before / After</p>
+            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">Before / After</p>
             <div className="grid gap-2 md:grid-cols-2">
               <div className="rounded-md border border-[#FCA5A5] bg-[#FEF2F2] p-2">
-                <p className="text-[11px] font-bold text-[#B91C1C]">Before</p>
-                <p className="text-[12px] text-brand-midnight mt-1">"{beforeLine}"</p>
+                <p className="text-xs sm:text-sm font-semibold text-[#B91C1C]">Before</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">"{beforeLine}"</p>
               </div>
               <div className="rounded-md border border-[#86EFAC] bg-[#F0FDF4] p-2">
-                <p className="text-[11px] font-bold text-[#166534]">After</p>
-                <p className="text-[12px] text-brand-midnight mt-1">"{afterLine}"</p>
+                <p className="text-xs sm:text-sm font-semibold text-[#166534]">After</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">"{afterLine}"</p>
               </div>
             </div>
           </div>
           <div className="grid gap-2 md:grid-cols-2">
             <div className="rounded-md border border-[#86EFAC] bg-[#F0FDF4] p-3">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-[#166534]">Do This</p>
-              <p className="text-[12px] text-brand-midnight mt-1">
+              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#166534]">Do This</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Keep every positioning statement tied to audience, differentiated method, and measurable business outcome.
               </p>
             </div>
             <div className="rounded-md border border-[#FCA5A5] bg-[#FEF2F2] p-3">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-[#B91C1C]">Not This</p>
-              <p className="text-[12px] text-brand-midnight mt-1">
+              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#B91C1C]">Not This</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Do not use interchangeable category language that any competitor can plausibly claim.
               </p>
             </div>
@@ -1841,7 +2146,7 @@ export default function FoundationBlueprintContent({
         {
           title: "Pillar-Level Prioritization",
           impact: `Focuses teams on the highest-leverage ${primaryPillar.toLowerCase()} moves first.`,
-          proof: "Priority stack mapped to conversion-quality outcomes.",
+          proof: "Priority order mapped to conversion-quality outcomes.",
         },
         {
           title: "Integrated Delivery System",
@@ -1851,16 +2156,17 @@ export default function FoundationBlueprintContent({
       ];
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
-          <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue mb-3">Differentiator Evidence Matrix</p>
+          <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-4">Differentiator Evidence Matrix</p>
           <div className="grid gap-2">
             {differentiators.map((item) => (
               <div key={item.title} className="rounded-md border border-brand-border bg-white p-3">
-                <p className="text-[12px] font-bold text-brand-blue">{item.title}</p>
-                <p className="text-[12px] text-brand-midnight mt-1">
-                  <strong>Why it matters:</strong> {item.impact}
+                <p className="text-sm sm:text-base font-medium text-brand-blue">{item.title}</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">
+                  <span className="text-brand-muted font-medium">{apStyleHeadingCase("Why it matters")}:</span>{" "}
+                  {item.impact}
                 </p>
-                <p className="text-[12px] text-brand-midnight mt-1">
-                  <strong>Proof signal:</strong> {item.proof}
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">
+                  <span className="text-brand-muted font-medium">Proof Signal:</span> {item.proof}
                 </p>
               </div>
             ))}
@@ -1872,22 +2178,24 @@ export default function FoundationBlueprintContent({
     if (sectionId === "positioning-competitive-context") {
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
-          <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue mb-3">Competitive Position Map</p>
+          <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-4">Competitive Position Map</p>
           <div className="grid gap-2 md:grid-cols-2">
             <div className="rounded-md border border-brand-border bg-white p-3">
-              <p className="text-[12px] font-bold text-brand-blue">High Strategy / Low Execution</p>
+              <p className="text-sm sm:text-base font-medium text-brand-blue">High Strategy / Low Execution</p>
               <p className="bs-body-sm text-brand-midnight mt-1">Alternatives with strong strategy narratives but weak implementation follow-through.</p>
             </div>
             <div className="rounded-md border border-brand-border bg-white p-3">
-              <p className="text-[12px] font-bold text-brand-blue">Low Strategy / High Activity</p>
+              <p className="text-sm sm:text-base font-medium text-brand-blue">Low Strategy / High Activity</p>
               <p className="bs-body-sm text-brand-midnight mt-1">High-output providers driving volume without positioning discipline.</p>
             </div>
             <div className="rounded-md border border-brand-border bg-white p-3">
-              <p className="text-[12px] font-bold text-brand-blue">Low Strategy / Low Execution</p>
+              <p className="text-sm sm:text-base font-medium text-brand-blue">Low Strategy / Low Execution</p>
               <p className="bs-body-sm text-brand-midnight mt-1">Fragmented approaches with low conversion confidence and unclear ownership.</p>
             </div>
             <div className="rounded-md border border-[#07B0F2] bg-[#E8F6FE] p-3">
-              <p className="text-[12px] font-bold text-brand-blue">Target Position: {brandName}</p>
+              <p className="text-sm sm:text-base font-medium text-brand-blue">
+                Target Position: <span className="font-semibold text-brand-navy">{brandName}</span>
+              </p>
               <p className="bs-body-sm text-brand-midnight mt-1">High strategy + high execution accountability with proof-backed sequencing.</p>
             </div>
           </div>
@@ -1902,49 +2210,49 @@ export default function FoundationBlueprintContent({
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
           <div className="rounded-md border border-brand-border bg-white p-3 mb-3">
-            <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue mb-2">Value Proposition Stack</p>
+            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">Value Proposition Stack</p>
             <div className="grid gap-2 md:grid-cols-3">
               <div className="rounded-md border border-brand-border bg-[#EFF6FF] p-2">
-                <p className="text-[11px] font-bold text-brand-blue">Core Outcome</p>
-                <p className="text-[12px] text-brand-midnight mt-1">{valueHeadline}</p>
+                <p className="text-sm sm:text-base font-medium text-brand-blue">Core Outcome</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">{valueHeadline}</p>
               </div>
               <div className="rounded-md border border-brand-border bg-[#EFF6FF] p-2">
-                <p className="text-[11px] font-bold text-brand-blue">Mechanism</p>
-                <p className="text-[12px] text-brand-midnight mt-1">
-                  Diagnose highest-gap pillar, prioritize by impact, then deploy owner-ready actions.
+                <p className="text-sm sm:text-base font-medium text-brand-blue">Mechanism</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">
+                  {apStyleArrowChain(`diagnose highest-gap pillar → prioritize by impact → deploy owner-ready actions`)}
                 </p>
               </div>
               <div className="rounded-md border border-brand-border bg-[#EFF6FF] p-2">
-                <p className="text-[11px] font-bold text-brand-blue">Business Result</p>
-                <p className="text-[12px] text-brand-midnight mt-1">
+                <p className="text-sm sm:text-base font-medium text-brand-blue">Business Result</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">
                   Higher conversion-quality consistency and faster decision confidence.
                 </p>
               </div>
             </div>
           </div>
           <div className="rounded-md border border-brand-border bg-white p-3 mb-3">
-            <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue mb-2">Copy Upgrade Example</p>
+            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">Copy Upgrade Example</p>
             <div className="grid gap-2 md:grid-cols-2">
               <div className="rounded-md border border-[#FCA5A5] bg-[#FEF2F2] p-2">
-                <p className="text-[11px] font-bold text-[#B91C1C]">Before</p>
-                <p className="text-[12px] text-brand-midnight mt-1">"{beforeLine}"</p>
+                <p className="text-xs sm:text-sm font-semibold text-[#B91C1C]">Before</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">"{beforeLine}"</p>
               </div>
               <div className="rounded-md border border-[#86EFAC] bg-[#F0FDF4] p-2">
-                <p className="text-[11px] font-bold text-[#166534]">After</p>
-                <p className="text-[12px] text-brand-midnight mt-1">"{afterLine}"</p>
+                <p className="text-xs sm:text-sm font-semibold text-[#166534]">After</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">"{afterLine}"</p>
               </div>
             </div>
           </div>
           <div className="grid gap-2 md:grid-cols-2">
             <div className="rounded-md border border-[#86EFAC] bg-[#F0FDF4] p-3">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-[#166534]">Do This</p>
-              <p className="text-[12px] text-brand-midnight mt-1">
+              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#166534]">Do This</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Tie value language to one outcome, one mechanism, and one immediate action.
               </p>
             </div>
             <div className="rounded-md border border-[#FCA5A5] bg-[#FEF2F2] p-3">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-[#B91C1C]">Not This</p>
-              <p className="text-[12px] text-brand-midnight mt-1">
+              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#B91C1C]">Not This</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Avoid broad “growth” language without a proof path or execution model.
               </p>
             </div>
@@ -1970,18 +2278,18 @@ export default function FoundationBlueprintContent({
       ];
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
-          <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue mb-3">Proof Readiness Board</p>
+          <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-4">Proof Readiness Board</p>
           <div className="grid gap-2 md:grid-cols-3">
             {proofRows.map((row) => (
               <div key={row.label} className="rounded-md border border-brand-border bg-white p-3">
-                <p className="text-[12px] font-bold text-brand-blue">{row.label}</p>
-                <p className="text-[12px] text-brand-midnight mt-1">{row.detail}</p>
+                <p className="text-sm sm:text-base font-medium text-brand-blue">{row.label}</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">{row.detail}</p>
               </div>
             ))}
           </div>
           <div className="mt-3 rounded-md border border-brand-border bg-white p-3">
-            <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue">Applied Example</p>
-            <p className="text-[12px] text-brand-midnight mt-1">
+            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">Applied Example</p>
+            <p className="text-sm sm:text-base text-brand-midnight mt-1">
               Claim: “We improve {primaryPillar.toLowerCase()} performance.” Proof package: baseline metric, identified leakage point,
               first 30-day action owner, and expected movement range.
             </p>
@@ -2024,9 +2332,9 @@ export default function FoundationBlueprintContent({
 
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
-          <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue mb-1">Color Specification Board</p>
-          <p className="text-[12px] text-brand-midnight mb-3">
-            <span className="font-bold text-brand-blue">Mode:</span> {visualModeLabel}
+          <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-2">Color Specification Board</p>
+          <p className="text-sm sm:text-base text-brand-midnight mb-3">
+            <span className="text-brand-muted font-medium">Mode:</span> {visualModeLabel}
           </p>
           <div className="grid gap-3 md:grid-cols-2">
             {colorSpecs.map((color) => (
@@ -2038,17 +2346,17 @@ export default function FoundationBlueprintContent({
                     aria-label={`${color.name} swatch`}
                   />
                   <div className="min-w-0">
-                    <p className="text-[13px] font-bold text-brand-blue">{color.name}</p>
-                    <p className="text-[12px] text-brand-midnight mt-1">{color.usage}</p>
+                    <p className="text-base sm:text-lg font-semibold text-brand-blue">{color.name}</p>
+                    <p className="text-sm sm:text-base text-brand-midnight mt-1">{color.usage}</p>
                     <div className="mt-2 space-y-1">
-                      <p className="text-[11px] text-brand-midnight">
-                        <span className="font-bold text-brand-blue">HEX:</span> {color.hex}
+                      <p className="text-sm sm:text-base text-brand-midnight">
+                        <span className="text-brand-muted font-medium">HEX:</span> {color.hex}
                       </p>
-                      <p className="text-[11px] text-brand-midnight">
-                        <span className="font-bold text-brand-blue">RGB:</span> {color.rgb}
+                      <p className="text-sm sm:text-base text-brand-midnight">
+                        <span className="text-brand-muted font-medium">RGB:</span> {color.rgb}
                       </p>
-                      <p className="text-[11px] text-brand-midnight">
-                        <span className="font-bold text-brand-blue">CMYK:</span> {color.cmyk}
+                      <p className="text-sm sm:text-base text-brand-midnight">
+                        <span className="text-brand-muted font-medium">CMYK:</span> {color.cmyk}
                       </p>
                     </div>
                   </div>
@@ -2057,8 +2365,8 @@ export default function FoundationBlueprintContent({
             ))}
           </div>
           <div className="mt-3 rounded-md border border-brand-border bg-white p-3">
-            <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue">Applied Example</p>
-            <p className="text-[12px] text-brand-midnight mt-1">
+            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">Applied Example</p>
+            <p className="text-sm sm:text-base text-brand-midnight mt-1">
               {visualSystemMode === "existing"
                 ? "Keep current primary and secondary colors unchanged, but standardize when each appears so visual hierarchy stays consistent."
                 : visualSystemMode === "optimize"
@@ -2098,32 +2406,32 @@ export default function FoundationBlueprintContent({
 
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
-          <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue mb-1">Typography Showcase</p>
-          <p className="text-[12px] text-brand-midnight mb-3">
-            <span className="font-bold text-brand-blue">Mode:</span> {visualModeLabel}
+          <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-2">Typography Showcase</p>
+          <p className="text-sm sm:text-base text-brand-midnight mb-3">
+            <span className="text-brand-muted font-medium">Mode:</span> {visualModeLabel}
           </p>
           <div className="grid gap-3">
             {typeRows.map((row) => (
               <div key={row.role} className="rounded-md border border-brand-border bg-white p-4">
                 <div className="flex items-center justify-between gap-3 mb-2">
-                  <p className="text-[12px] font-bold uppercase tracking-wide text-brand-blue">{row.role}</p>
-                  <p className="text-[11px] text-brand-muted">{row.spec}</p>
+                  <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">{row.role}</p>
+                  <p className="text-sm sm:text-base text-brand-muted">{row.spec}</p>
                 </div>
                 <p className={row.className}>{row.sample}</p>
-                <p className="text-[12px] text-brand-midnight mt-2">
-                  <span className="font-bold text-brand-blue">Use:</span> {row.usage}
+                <p className="text-sm sm:text-base text-brand-midnight mt-2">
+                  <span className="text-brand-muted font-medium">Use:</span> {row.usage}
                 </p>
               </div>
             ))}
           </div>
           <div className="mt-3 rounded-md border border-brand-border bg-white p-3">
-            <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue">Recommended Font Stack</p>
-            <p className="text-[12px] text-brand-midnight mt-1">
-              <strong>Primary:</strong>{" "}
+            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">Recommended Font Stack</p>
+            <p className="text-sm sm:text-base text-brand-midnight mt-1">
+              <span className="text-brand-muted font-medium">Primary:</span>{" "}
               {visualSystemMode === "refresh" ? "Lato (or approved brand update) for Headline, Subhead, Body" : "Lato for Headline, Subhead, Body"}
             </p>
-            <p className="text-[12px] text-brand-midnight">
-              <strong>Fallback:</strong> system-ui, sans-serif
+            <p className="text-sm sm:text-base text-brand-midnight">
+              <span className="text-brand-muted font-medium">Fallback:</span> system-ui, sans-serif
             </p>
           </div>
         </div>
@@ -2133,40 +2441,40 @@ export default function FoundationBlueprintContent({
     if (sectionId === "visual-iconography") {
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
-          <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue mb-3">Iconography Application Examples</p>
+          <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-4">Iconography Application Examples</p>
           <div className="grid gap-2 md:grid-cols-3">
             <div className="rounded-md border border-brand-border bg-white p-3">
-              <p className="text-[11px] font-bold text-brand-blue mb-2">Social / ad creative row</p>
+              <p className="text-sm sm:text-base font-medium text-brand-blue mb-2">Social / ad creative row</p>
               <div className="flex items-center gap-2">
                 <span className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-brand-border bg-[#EFF6FF] text-brand-blue">+</span>
-                <p className="text-[12px] text-brand-midnight">Use 1.5px stroke line icons with consistent corner radius.</p>
+                <p className="text-sm sm:text-base text-brand-midnight">Use 1.5px stroke line icons with consistent corner radius.</p>
               </div>
             </div>
             <div className="rounded-md border border-brand-border bg-white p-3">
-              <p className="text-[11px] font-bold text-brand-blue mb-2">Dashboard Status</p>
+              <p className="text-sm sm:text-base font-medium text-brand-blue mb-2">Dashboard Status</p>
               <div className="flex items-center gap-2">
                 <span className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-brand-border bg-[#EFF6FF] text-brand-blue">i</span>
-                <p className="text-[12px] text-brand-midnight">Pair icons with labels for fast scanning, never icon-only in dense sections.</p>
+                <p className="text-sm sm:text-base text-brand-midnight">Pair icons with labels for fast scanning, never icon-only in dense sections.</p>
               </div>
             </div>
             <div className="rounded-md border border-brand-border bg-white p-3">
-              <p className="text-[11px] font-bold text-brand-blue mb-2">CTA Support</p>
+              <p className="text-sm sm:text-base font-medium text-brand-blue mb-2">CTA Support</p>
               <div className="flex items-center gap-2">
                 <span className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-brand-border bg-[#EFF6FF] text-brand-blue">→</span>
-                <p className="text-[12px] text-brand-midnight">Use icons to clarify direction/action, not as decoration.</p>
+                <p className="text-sm sm:text-base text-brand-midnight">Use icons to clarify direction/action, not as decoration.</p>
               </div>
             </div>
           </div>
           <div className="mt-3 grid gap-2 md:grid-cols-2">
             <div className="rounded-md border border-[#86EFAC] bg-[#F0FDF4] p-3">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-[#166534]">Do This</p>
-              <p className="text-[12px] text-brand-midnight mt-1">
+              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#166534]">Do This</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Keep one icon family, one stroke behavior, and role-based color usage across all assets.
               </p>
             </div>
             <div className="rounded-md border border-[#FCA5A5] bg-[#FEF2F2] p-3">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-[#B91C1C]">Not This</p>
-              <p className="text-[12px] text-brand-midnight mt-1">
+              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#B91C1C]">Not This</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Avoid mixing filled and outlined icon sets or rotating icon styles between pages.
               </p>
             </div>
@@ -2178,29 +2486,29 @@ export default function FoundationBlueprintContent({
     if (sectionId === "visual-photography") {
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
-          <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue mb-3">Photography Direction Examples</p>
+          <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-4">Photography Direction Examples</p>
           <div className="grid gap-2 md:grid-cols-2">
             <div className="rounded-md border border-brand-border bg-white p-3">
-              <p className="text-[11px] font-bold text-brand-blue">Use Example: Strategy In Action</p>
-              <p className="text-[12px] text-brand-midnight mt-1">
+              <p className="text-sm sm:text-base font-medium text-brand-blue">Use Example: Strategy in Action</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Real team workshop scene with framework artifacts visible, neutral grading, and clear subject focus.
               </p>
             </div>
             <div className="rounded-md border border-brand-border bg-white p-3">
-              <p className="text-[11px] font-bold text-brand-blue">Use Example: Decision Moment</p>
-              <p className="text-[12px] text-brand-midnight mt-1">
+              <p className="text-sm sm:text-base font-medium text-brand-blue">Use Example: Decision Moment</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Buyer/operator context with practical environment cues and visible implementation signals.
               </p>
             </div>
             <div className="rounded-md border border-[#FCA5A5] bg-[#FEF2F2] p-3">
-              <p className="text-[11px] font-bold text-[#B91C1C]">Avoid Example</p>
-              <p className="text-[12px] text-brand-midnight mt-1">
+              <p className="text-xs sm:text-sm font-semibold text-[#B91C1C]">Avoid Example</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Generic handshake stock image with no role context, heavy filter, and low strategic relevance.
               </p>
             </div>
             <div className="rounded-md border border-brand-border bg-[#EFF6FF] p-3">
-              <p className="text-[11px] font-bold text-brand-blue">Channel Example</p>
-              <p className="text-[12px] text-brand-midnight mt-1">
+              <p className="text-sm sm:text-base font-medium text-brand-blue">Channel Example</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Paid and organic social use one high-credibility frame; landing pages use process + outcome pairs.
               </p>
             </div>
@@ -2212,34 +2520,34 @@ export default function FoundationBlueprintContent({
     if (sectionId === "visual-layout") {
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
-          <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue mb-3">Layout Execution Examples</p>
+          <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-4">Layout Execution Examples</p>
           <div className="rounded-md border border-brand-border bg-white p-3 mb-3">
-            <p className="text-[11px] font-bold text-brand-blue mb-2">Recommended Page Pattern</p>
+            <p className="text-sm sm:text-base font-medium text-brand-blue mb-2">Recommended Page Pattern</p>
             <div className="grid gap-2 md:grid-cols-3">
               <div className="rounded-md border border-brand-border bg-[#EFF6FF] p-2">
-                <p className="text-[11px] font-bold text-brand-blue">Message</p>
-                <p className="text-[12px] text-brand-midnight mt-1">One core claim for {brandName}.</p>
+                <p className="text-sm sm:text-base font-medium text-brand-blue">Message</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">One core claim for {brandName}.</p>
               </div>
               <div className="rounded-md border border-brand-border bg-[#EFF6FF] p-2">
-                <p className="text-[11px] font-bold text-brand-blue">Proof</p>
-                <p className="text-[12px] text-brand-midnight mt-1">One metric or case-based validation block.</p>
+                <p className="text-sm sm:text-base font-medium text-brand-blue">Proof</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">One metric or case-based validation block.</p>
               </div>
               <div className="rounded-md border border-brand-border bg-[#EFF6FF] p-2">
-                <p className="text-[11px] font-bold text-brand-blue">Action</p>
-                <p className="text-[12px] text-brand-midnight mt-1">One CTA tied to {primaryPillar.toLowerCase()} priority.</p>
+                <p className="text-sm sm:text-base font-medium text-brand-blue">Action</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">One CTA tied to {primaryPillar.toLowerCase()} priority.</p>
               </div>
             </div>
           </div>
           <div className="grid gap-2 md:grid-cols-2">
             <div className="rounded-md border border-[#86EFAC] bg-[#F0FDF4] p-3">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-[#166534]">Do This</p>
-              <p className="text-[12px] text-brand-midnight mt-1">
+              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#166534]">Do This</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Keep each viewport focused on one decision and one supporting evidence layer.
               </p>
             </div>
             <div className="rounded-md border border-[#FCA5A5] bg-[#FEF2F2] p-3">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-[#B91C1C]">Not This</p>
-              <p className="text-[12px] text-brand-midnight mt-1">
+              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#B91C1C]">Not This</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Avoid stacking multiple CTAs and unrelated claims in the same visual block.
               </p>
             </div>
@@ -2251,30 +2559,30 @@ export default function FoundationBlueprintContent({
     if (sectionId === "visual-motion") {
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
-          <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue mb-3">Motion Behavior Examples</p>
+          <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-4">Motion Behavior Examples</p>
           <div className="grid gap-2 md:grid-cols-3">
             <div className="rounded-md border border-brand-border bg-white p-3">
-              <p className="text-[11px] font-bold text-brand-blue">Tab Transition</p>
-              <p className="text-[12px] text-brand-midnight mt-1">
+              <p className="text-sm sm:text-base font-medium text-brand-blue">Tab Transition</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 180-220ms ease-out fade/slide to clarify context change without visual noise.
               </p>
             </div>
             <div className="rounded-md border border-brand-border bg-white p-3">
-              <p className="text-[11px] font-bold text-brand-blue">Card Reveal</p>
-              <p className="text-[12px] text-brand-midnight mt-1">
+              <p className="text-sm sm:text-base font-medium text-brand-blue">Card Reveal</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 140-180ms upward reveal on scroll for hierarchy support in dense content sections.
               </p>
             </div>
             <div className="rounded-md border border-brand-border bg-white p-3">
-              <p className="text-[11px] font-bold text-brand-blue">CTA Hover</p>
-              <p className="text-[12px] text-brand-midnight mt-1">
+              <p className="text-sm sm:text-base font-medium text-brand-blue">CTA Hover</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Subtle color shift and shadow only; no bounce or elastic motion.
               </p>
             </div>
           </div>
           <div className="mt-3 rounded-md border border-[#FCA5A5] bg-[#FEF2F2] p-3">
-            <p className="text-[11px] font-bold uppercase tracking-wide text-[#B91C1C]">Avoid Example</p>
-            <p className="text-[12px] text-brand-midnight mt-1">
+            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#B91C1C]">Avoid Example</p>
+            <p className="text-sm sm:text-base text-brand-midnight mt-1">
               Long, decorative animations that delay interaction or distract from strategic content.
             </p>
           </div>
@@ -2283,50 +2591,74 @@ export default function FoundationBlueprintContent({
     }
 
     if (sectionId === "audience-persona-atlas") {
-      const profile = personaProfiles[selectedPersonaTab];
+      const atlasIdx = Math.min(
+        selectedPersonaAtlasIndex,
+        Math.max(0, foundationPersonaAtlasEntries.length - 1),
+      );
+      const profile = foundationPersonaAtlasEntries[atlasIdx];
       return (
-        <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
-          <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue mb-3">Persona Atlas</p>
-          <div className="mb-3 grid grid-cols-1 gap-2 border-b border-brand-border pb-2 sm:flex sm:flex-wrap">
-            {([
-              { id: "vp-ops", label: "VP Operations" },
-              { id: "cfo-coo", label: "CFO / COO" },
-              { id: "revops", label: "RevOps / Chief Of Staff" },
-            ] as Array<{ id: PersonaTabId; label: string }>).map((tab) => (
+        <div className="w-full min-w-0 rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
+          <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-4">Persona Atlas</p>
+          <div className="mb-3 flex w-full min-w-0 flex-col gap-2 border-b border-brand-border pb-2 sm:flex-row sm:flex-wrap sm:justify-start sm:gap-3">
+            {foundationPersonaAtlasEntries.map((entry, idx) => (
               <button
-                key={tab.id}
+                key={entry.key}
                 type="button"
-                onClick={() => setSelectedPersonaTab(tab.id)}
-                className="w-full rounded-md border px-3 py-1 text-left text-[11px] font-bold uppercase tracking-wide transition sm:w-auto sm:text-center"
+                aria-pressed={atlasIdx === idx}
+                aria-label={`${entry.tabLabel}: ${entry.title}`}
+                onClick={() => setSelectedPersonaAtlasIndex(idx)}
+                className="flex w-full min-w-0 items-center gap-3 rounded-md border px-3 py-2 text-left text-xs sm:text-sm font-semibold tracking-[0.08em] transition sm:w-auto sm:max-w-none"
                 style={{
-                  borderColor: selectedPersonaTab === tab.id ? "#07B0F2" : "#E0E3EA",
-                  backgroundColor: selectedPersonaTab === tab.id ? "#E6F7FE" : "#FFFFFF",
-                  color: selectedPersonaTab === tab.id ? "#021859" : "#5A6C8A",
+                  borderColor: atlasIdx === idx ? "#07B0F2" : "#E0E3EA",
+                  backgroundColor: atlasIdx === idx ? "#E6F7FE" : "#FFFFFF",
+                  color: atlasIdx === idx ? "#021859" : "#5A6C8A",
                 }}
               >
-                {tab.label}
+                <img
+                  src={entry.portraitSrc}
+                  alt=""
+                  width={40}
+                  height={40}
+                  className="h-10 w-10 shrink-0 rounded-lg bg-[#E8F6FE] object-cover ring-1 ring-slate-200/80"
+                  loading="lazy"
+                  decoding="async"
+                  referrerPolicy="no-referrer"
+                />
+                <span className="min-w-0 leading-snug">{entry.tabLabel}</span>
               </button>
             ))}
           </div>
 
-          <div className="rounded-md border border-brand-border bg-white p-3 mb-2">
-            <p className="text-[13px] font-bold text-brand-blue">{profile.title}</p>
-            <p className="text-[12px] text-brand-midnight mt-1">{profile.role}</p>
+          <div className="mb-2 flex w-full min-w-0 flex-row items-center gap-4 rounded-md border border-brand-border bg-white p-3 sm:gap-5">
+            <img
+              src={profile.portraitSrc}
+              alt={profile.portraitAlt}
+              width={112}
+              height={112}
+              className="h-24 w-24 shrink-0 rounded-xl bg-[#E8F6FE] object-cover shadow-sm ring-1 ring-slate-200/80 sm:h-28 sm:w-28"
+              loading="lazy"
+              decoding="async"
+              referrerPolicy="no-referrer"
+            />
+            <div className="min-w-0 flex-1 text-left">
+              <p className="text-base sm:text-lg font-semibold text-brand-blue">{profile.title}</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-1">{profile.role}</p>
+            </div>
           </div>
 
           <div className="grid gap-2 md:grid-cols-2">
             <div className="rounded-md border border-brand-border bg-white p-3">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue">Top Goals</p>
+              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">Top Goals</p>
               {profile.goals.map((goal) => (
-                <p key={goal} className="text-[12px] text-brand-midnight mt-1">
+                <p key={goal} className="text-sm sm:text-base text-brand-midnight mt-1">
                   - {goal}
                 </p>
               ))}
             </div>
             <div className="rounded-md border border-brand-border bg-white p-3">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue">Top Fears</p>
+              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">Top Fears</p>
               {profile.fears.map((fear) => (
-                <p key={fear} className="text-[12px] text-brand-midnight mt-1">
+                <p key={fear} className="text-sm sm:text-base text-brand-midnight mt-1">
                   - {fear}
                 </p>
               ))}
@@ -2334,16 +2666,16 @@ export default function FoundationBlueprintContent({
           </div>
           <div className="mt-2 grid gap-2 md:grid-cols-3">
             <div className="rounded-md border border-brand-border bg-[#EFF6FF] p-2">
-              <p className="text-[11px] font-bold text-brand-blue">Message Angle</p>
-              <p className="text-[12px] text-brand-midnight mt-1">{profile.messageAngle}</p>
+              <p className="text-sm sm:text-base font-medium text-brand-blue">Message Angle</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-1">{profile.messageAngle}</p>
             </div>
             <div className="rounded-md border border-brand-border bg-[#EFF6FF] p-2">
-              <p className="text-[11px] font-bold text-brand-blue">Best Channels</p>
-              <p className="text-[12px] text-brand-midnight mt-1">{profile.channels}</p>
+              <p className="text-sm sm:text-base font-medium text-brand-blue">Best Channels</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-1">{profile.channels}</p>
             </div>
             <div className="rounded-md border border-brand-border bg-[#EFF6FF] p-2">
-              <p className="text-[11px] font-bold text-brand-blue">Primary CTA</p>
-              <p className="text-[12px] text-brand-midnight mt-1">{profile.cta}</p>
+              <p className="text-sm sm:text-base font-medium text-brand-blue">Primary CTA</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-1">{profile.cta}</p>
             </div>
           </div>
         </div>
@@ -2354,7 +2686,14 @@ export default function FoundationBlueprintContent({
       const activeStage = journeyStages.find((stage) => stage.id === selectedJourneyStage) || journeyStages[2];
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
-          <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue mb-3">Interactive Buyer Journey Map</p>
+          <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-1">
+            Interactive Buyer Journey Map
+          </p>
+          <p className="mb-4 text-sm text-brand-muted leading-snug max-w-3xl">
+            Top row shows typical duration by stage.{" "}
+            <span className="text-brand-midnight font-medium">Click a stage in the row below</span> to load the detail
+            panel and playbook fields for that step.
+          </p>
           <div className="mb-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
             {journeyStages.map((stage) => (
               <div
@@ -2362,10 +2701,10 @@ export default function FoundationBlueprintContent({
                 className="rounded-md border px-2 py-2"
                 style={{ borderColor: stage.color.border, backgroundColor: stage.color.bg }}
               >
-                <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: stage.color.text }}>
+                <p className="text-xs sm:text-sm font-semibold tracking-[0.08em]" style={{ color: stage.color.text }}>
                   {stage.title}
                 </p>
-                <p className="text-[11px] text-brand-midnight mt-1">
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">
                   {stage.id === "evaluating"
                     ? "3-5 wks"
                     : stage.id === "considering"
@@ -2377,13 +2716,18 @@ export default function FoundationBlueprintContent({
               </div>
             ))}
           </div>
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
+          <div
+            className="grid gap-2 sm:grid-cols-2 lg:grid-cols-6"
+            role="group"
+            aria-label="Journey stages — select one to update the detail panel below"
+          >
             {journeyStages.map((stage) => (
               <button
                 key={stage.id}
                 type="button"
+                aria-pressed={selectedJourneyStage === stage.id}
                 onClick={() => setSelectedJourneyStage(stage.id)}
-                className="rounded-md border px-2 py-2 text-center transition"
+                className="rounded-md border px-2 py-2 text-center transition hover:border-brand-blue/45 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/35 focus-visible:ring-offset-2"
                 style={{
                   borderColor: stage.color.border,
                   backgroundColor: selectedJourneyStage === stage.id ? stage.color.bg : "#FFFFFF",
@@ -2391,7 +2735,7 @@ export default function FoundationBlueprintContent({
                 }}
               >
                 <p
-                  className="text-[11px] font-bold"
+                  className="text-xs sm:text-sm font-semibold"
                   style={{ color: selectedJourneyStage === stage.id ? stage.color.text : "#0C1526" }}
                 >
                   {stage.title}
@@ -2403,73 +2747,75 @@ export default function FoundationBlueprintContent({
           <div
             className="mt-3 rounded-md border bg-white p-3"
             style={{ borderColor: activeStage.color.border, backgroundColor: activeStage.color.bg }}
+            aria-live="polite"
+            aria-label={`Details for ${activeStage.title} stage`}
           >
             <div className="flex items-center gap-2 mb-2">
               <span
-                className="rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wide"
+                className="rounded-full px-2.5 py-1 text-xs sm:text-sm font-semibold tracking-[0.08em]"
                 style={{ backgroundColor: activeStage.color.chip, color: activeStage.color.text }}
               >
                 {activeStage.title} Stage
               </span>
-              <p className="text-[12px] font-semibold text-brand-midnight">{activeStage.objective}</p>
+              <p className="text-sm sm:text-base font-semibold text-brand-midnight">{activeStage.objective}</p>
             </div>
 
             <div className="grid gap-2 md:grid-cols-2">
               <div className="rounded-md border border-brand-border bg-white p-2">
-                <p className="text-[11px] font-bold text-brand-blue">What they are thinking</p>
-                <p className="text-[12px] text-brand-midnight mt-1">{activeStage.buyerMindset}</p>
+                <p className="text-sm sm:text-base font-medium text-brand-blue">What they are thinking</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">{activeStage.buyerMindset}</p>
               </div>
               <div className="rounded-md border border-brand-border bg-white p-2">
-                <p className="text-[11px] font-bold text-brand-blue">What to say</p>
-                <p className="text-[12px] text-brand-midnight mt-1">{activeStage.message}</p>
+                <p className="text-sm sm:text-base font-medium text-brand-blue">What to say</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">{activeStage.message}</p>
               </div>
               <div className="rounded-md border border-brand-border bg-white p-2">
-                <p className="text-[11px] font-bold text-brand-blue">Proof to show early</p>
-                <p className="text-[12px] text-brand-midnight mt-1">{activeStage.proof}</p>
+                <p className="text-sm sm:text-base font-medium text-brand-blue">Proof to show early</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">{activeStage.proof}</p>
               </div>
               <div className="rounded-md border border-brand-border bg-white p-2">
-                <p className="text-[11px] font-bold text-brand-blue">Best places to reach them</p>
-                <p className="text-[12px] text-brand-midnight mt-1">{activeStage.channels}</p>
+                <p className="text-sm sm:text-base font-medium text-brand-blue">Best places to reach them</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">{activeStage.channels}</p>
               </div>
               <div className="rounded-md border border-brand-border bg-white p-2">
-                <p className="text-[11px] font-bold text-brand-blue">Best content type</p>
-                <p className="text-[12px] text-brand-midnight mt-1">{activeStage.content}</p>
+                <p className="text-sm sm:text-base font-medium text-brand-blue">Best content type</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">{activeStage.content}</p>
               </div>
               <div className="rounded-md border border-brand-border bg-white p-2">
-                <p className="text-[11px] font-bold text-brand-blue">Main next step</p>
-                <p className="text-[12px] text-brand-midnight mt-1">{activeStage.cta}</p>
+                <p className="text-sm sm:text-base font-medium text-brand-blue">Main Next Step</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">{activeStage.cta}</p>
               </div>
             </div>
 
             <div className="mt-2 grid gap-2 md:grid-cols-2">
               <div className="rounded-md border border-[#86EFAC] bg-[#F0FDF4] p-2">
-                <p className="text-[11px] font-bold uppercase tracking-wide text-[#166534]">How you know this is working</p>
-                <p className="text-[12px] text-brand-midnight mt-1">{activeStage.kpi}</p>
+                <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#166534]">How You Know This Is Working</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">{activeStage.kpi}</p>
               </div>
               <div className="rounded-md border border-[#FCA5A5] bg-[#FEF2F2] p-2">
-                <p className="text-[11px] font-bold uppercase tracking-wide text-[#B91C1C]">Avoid this move</p>
-                <p className="text-[12px] text-brand-midnight mt-1">{activeStage.avoid}</p>
+                <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#B91C1C]">Avoid This Move</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">{activeStage.avoid}</p>
               </div>
             </div>
           </div>
           <div className="mt-3 overflow-x-auto rounded-md border border-brand-border bg-white">
             <div className="min-w-[760px]">
               <div className="grid grid-cols-[140px_1fr_1fr_1fr] border-b border-brand-border bg-[#F8FAFC]">
-              <p className="px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-brand-muted">Stage</p>
-              <p className="px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-brand-muted">What they are asking</p>
-              <p className="px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-brand-muted">Where to reach them</p>
-              <p className="px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-brand-muted">What moves them forward</p>
+              <p className="px-3 py-2.5 text-xs sm:text-sm font-medium tracking-wide text-brand-muted">Stage</p>
+              <p className="px-3 py-2.5 text-xs sm:text-sm font-medium tracking-wide text-brand-muted">What They Are Asking</p>
+              <p className="px-3 py-2.5 text-xs sm:text-sm font-medium tracking-wide text-brand-muted">Where to Reach Them</p>
+              <p className="px-3 py-2.5 text-xs sm:text-sm font-medium tracking-wide text-brand-muted">What Moves Them Forward</p>
               </div>
               {journeyStages.map((stage) => (
                 <div key={`${stage.id}-row`} className="grid grid-cols-[140px_1fr_1fr_1fr] border-b border-brand-border last:border-b-0">
                   <div className="px-3 py-2" style={{ backgroundColor: stage.color.bg }}>
-                    <p className="text-[11px] font-bold" style={{ color: stage.color.text }}>
+                    <p className="text-xs sm:text-sm font-semibold" style={{ color: stage.color.text }}>
                       {stage.title}
                     </p>
                   </div>
-                  <p className="px-3 py-2 text-[12px] text-brand-midnight">{stage.buyerMindset}</p>
-                  <p className="px-3 py-2 text-[12px] text-brand-midnight">{stage.channels}</p>
-                  <p className="px-3 py-2 text-[12px] text-brand-midnight">{stage.proof}</p>
+                  <p className="px-3 py-2 text-sm sm:text-base text-brand-midnight">{stage.buyerMindset}</p>
+                  <p className="px-3 py-2 text-sm sm:text-base text-brand-midnight">{stage.channels}</p>
+                  <p className="px-3 py-2 text-sm sm:text-base text-brand-midnight">{stage.proof}</p>
                 </div>
               ))}
             </div>
@@ -2503,8 +2849,8 @@ export default function FoundationBlueprintContent({
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4 space-y-4">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue mb-1">Objection handling (Q&amp;A)</p>
-            <p className="text-[12px] text-brand-muted leading-snug">
+            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-2">Objection Handling (Q&amp;A)</p>
+            <p className="text-sm sm:text-base text-brand-muted leading-relaxed">
               Pair each buyer concern with a clear answer. Use the same structure in paid ads, landing pages, and organic posts so objections don’t blur into generic talking points.
             </p>
           </div>
@@ -2518,13 +2864,13 @@ export default function FoundationBlueprintContent({
                 <div className="border-b border-amber-200/80 bg-gradient-to-br from-amber-50 via-amber-50/40 to-white px-4 py-3">
                   <div className="flex gap-3">
                     <span
-                      className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-amber-200 bg-white text-[12px] font-black text-amber-900"
+                      className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-amber-200 bg-white text-sm font-semibold text-amber-900"
                       aria-hidden
                     >
                       Q
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[10px] font-bold uppercase tracking-wide text-amber-900/85">{pair.tag} · buyer asks</p>
+                      <p className="text-xs sm:text-sm font-medium tracking-[0.08em] text-amber-900/85">{pair.tag} · Buyer Asks</p>
                       <p className="mt-1 text-[14px] font-semibold leading-snug text-brand-midnight">{pair.question}</p>
                     </div>
                   </div>
@@ -2532,14 +2878,14 @@ export default function FoundationBlueprintContent({
                 <div className="border-l-[3px] border-brand-blue bg-[#F0F9FF] px-4 py-3 pl-[1.15rem]">
                   <div className="flex gap-3">
                     <span
-                      className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-blue text-[12px] font-black text-white"
+                      className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-blue text-sm font-semibold text-white"
                       aria-hidden
                     >
                       A
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[10px] font-bold uppercase tracking-wide text-brand-blue">{brandName} responds</p>
-                      <p className="mt-1 text-[13px] leading-relaxed text-brand-midnight">{pair.answer}</p>
+                      <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">{brandName} Responds</p>
+                      <p className="mt-1 text-sm sm:text-base leading-relaxed text-brand-midnight">{pair.answer}</p>
                     </div>
                   </div>
                 </div>
@@ -2548,8 +2894,8 @@ export default function FoundationBlueprintContent({
           </div>
 
           <div className="rounded-md border border-slate-200 bg-white px-4 py-3">
-            <p className="text-[11px] font-bold uppercase tracking-wide text-brand-midnight mb-1">Response sequence (every time)</p>
-            <ol className="m-0 list-decimal space-y-1 pl-4 text-[12px] leading-relaxed text-brand-midnight">
+            <p className="text-xs sm:text-sm font-medium tracking-[0.08em] text-brand-midnight mb-1">Response Sequence (Every Time)</p>
+            <ol className="m-0 list-decimal space-y-1.5 pl-4 text-sm sm:text-base leading-relaxed text-brand-midnight">
               <li>Acknowledge the concern in their words.</li>
               <li>Reframe with strategic logic (why this matters before tactics).</li>
               <li>Validate with evidence (diagnostic, proof, mechanism).</li>
@@ -2558,31 +2904,31 @@ export default function FoundationBlueprintContent({
           </div>
 
           {competitiveVulnerability.implication ? (
-            <div className="rounded-md border border-violet-200 bg-violet-50/70 px-4 py-3">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-violet-900 mb-1">Market-specific objection cue</p>
-              <p className="text-[12px] text-brand-midnight leading-relaxed">{competitiveVulnerability.implication}</p>
+            <div className="rounded-md border border-brand-blue/25 bg-[#F0F9FF] px-4 py-3">
+              <p className="text-xs sm:text-sm font-medium tracking-[0.08em] text-brand-navy mb-1">Market-Specific Objection Cue</p>
+              <p className="text-sm sm:text-base text-brand-midnight leading-relaxed">{competitiveVulnerability.implication}</p>
             </div>
           ) : null}
 
           <div className="rounded-md border border-dashed border-slate-300 bg-slate-50/90 px-4 py-3">
-            <p className="text-[11px] font-bold uppercase tracking-wide text-slate-600 mb-2">Sample Q&amp;A (adapt)</p>
+            <p className="text-xs sm:text-sm font-medium tracking-[0.08em] text-slate-600 mb-2">Sample Q&amp;A (Adapt)</p>
             <div className="space-y-3">
               <div>
-                <p className="text-[11px] font-bold text-amber-900/90">Q</p>
-                <p className="text-[12px] text-brand-midnight leading-snug">
+                <p className="text-xs sm:text-sm font-semibold text-amber-900/90">Q</p>
+                <p className="text-sm sm:text-base text-brand-midnight leading-snug">
                   If proof is the blocker, where do we start—without a six-month case study project?
                 </p>
-                <p className="mt-1.5 text-[11px] font-bold text-brand-blue">A</p>
-                <p className="text-[12px] text-brand-midnight leading-relaxed">
+                <p className="mt-1.5 text-sm sm:text-base font-medium text-brand-blue">A</p>
+                <p className="text-sm sm:text-base text-brand-midnight leading-relaxed">
                   Start with your highest-gap pillar baseline and a first 30-day owner plan—one metric, one mechanism, one accountable role—then expand proof as those numbers move.
                 </p>
               </div>
               <div className="border-t border-slate-200/90 pt-3">
-                <p className="text-[12px] leading-relaxed text-brand-midnight">
+                <p className="text-sm sm:text-base leading-relaxed text-brand-midnight">
                   <span className="font-semibold text-brand-blue">Live demo pattern:</span> one slide pairs “If you say ___” with “We respond with ___,” then moves to your{" "}
                   {primaryPillar.toLowerCase()} execution plan.
                 </p>
-                <p className="mt-2 text-[12px] leading-relaxed text-brand-midnight">
+                <p className="mt-2 text-sm sm:text-base leading-relaxed text-brand-midnight">
                   <span className="font-semibold text-brand-blue">Campaign / landing FAQ:</span> paste three objection + answer pairs with evidence links for {audience.toLowerCase()} evaluation.
                 </p>
               </div>
@@ -2596,6 +2942,7 @@ export default function FoundationBlueprintContent({
   }
 
   function buildDraftForSection(sectionId: string): string[] {
+    const foundationSnippets = extractFoundationVoiceSnippets(data as Record<string, unknown>);
     const commonNarrative =
       positioning ||
       `${brandName} helps ${audience.toLowerCase()} convert strategic clarity into measurable growth outcomes.`;
@@ -2622,6 +2969,98 @@ export default function FoundationBlueprintContent({
               ? "Increase message recognition and offer clarity across high-intent touchpoints over the next 90 days."
               : "Improve conversion-quality consistency across key channels over the next 90 days.";
     const strategicThesis = topOpportunity || commonNarrative;
+
+    /** One dashed “Application example” per subsection — surfaces in Put it to work with company + audience context. */
+    function companyPutToWorkExampleLine(id: string): string {
+      const aud = audience.toLowerCase();
+      const mkt = market.toLowerCase();
+      const pillar = primaryPillar.toLowerCase();
+      const strength = concreteStrength.toLowerCase();
+      const gap = concreteGap.toLowerCase();
+      const scoreBit = score > 0 ? `${score}/100 benchmark` : "diagnostic evidence";
+      switch (id) {
+        case "identity-purpose":
+          return `Application example: In a ${brandName} leadership sync, someone pitches a volume play—you filter it by naming one real decision from the last 90 days that was on-purpose vs off-purpose for ${aud}, using the purpose statement above.`;
+        case "identity-vision":
+          return `Application example: ${brandName} publishes a short LinkedIn note: “In ${mkt}, teams that win in 12 months compound ${strength}—here’s the one metric we’re moving monthly for ${aud}.”`;
+        case "identity-mission":
+          return `Application example: ${executionOwner} sends a weekly “how ${brandName} runs mission” note: ${apStyleArrowChain(`diagnose → prioritize → ship → review`)}, plus one ${pillar} artifact due in 14 days that ${aud} can actually see.`;
+        case "identity-values":
+          return `Application example: During a ${brandName} review, speed threatens proof—someone cites your values veto: two-sentence log of why the draft breaks “proof over preference” or strategic clarity, tied to ${gap}.`;
+        case "identity-personality":
+          return `Application example: A draft to ${aud} opens with a vague check-in—${brandName} rewrites the first line to lead with diagnosis: “Your highest-risk gap is ${firstGap}; here’s the first move this week.”`;
+        case "identity-archetype":
+          return `Application example: ${brandName} ships a paid ad where the primary archetype owns headline + CTA; any secondary warmth sits only in the proof line so ${aud} see one clear character in the hero.`;
+        case "identity-brand-persona":
+          return `Application example: ${brandName}’s organic post opens: “Here’s what we’re seeing in your diagnostic—and the first move this week”—practitioner-advisor frame, no generic hype, signed as ${brandName}.`;
+        case "identity-origin":
+          return `Application example: ${brandName}’s About opener becomes two short paragraphs: founding tension (${topOpportunity || "strategy vs execution split"}) + conviction, then proof—before timeline fluff competitors could copy.`;
+        case "positioning-icp":
+          return `Application example: ${brandName}’s team disqualifies an inbound that wants tactics without alignment—your negative ICP saves a scoping call for ${aud}-shaped fit only.`;
+        case "positioning-statement":
+          return foundationSnippets.positioningStatement
+            ? `Application example: ${brandName}’s hero leads with your positioning line: “${clipForSample(foundationSnippets.positioningStatement, 200)}”—after a 15-minute read-aloud with someone skeptical from ${aud}.`
+            : `Application example: ${brandName}’s hero swaps generic growth language for: “${afterSpecificLine}”—after a 15-minute read-aloud with someone skeptical from ${aud}.`;
+        case "positioning-category":
+          return `Application example: When a prospect buckets ${brandName} with generic agencies, your 20-second answer uses this category frame: judged on ${pillar} and implementation readiness, not a deliverables menu.`;
+        case "positioning-differentiators":
+          return `Application example: ${brandName}’s deck includes a battle slide: Column A = commodity claim rivals make; Column B = your differentiator + one dated proof artifact from this quarter.`;
+        case "positioning-not":
+          return `Application example: ${brandName} redlines a “we do everything” services page—each line rewrites as a ${pillar} outcome so ${aud} see the boundary, not a laundry list.`;
+        case "positioning-competitive-context":
+          return `Application example: After a loss on price, ${brandName} follows with one page: your counter-positioning line + link to proof of implementation sequencing—no discount-first reply.`;
+        case "messaging-value-proposition":
+          return `Application example: ${brandName} runs a hero A/B: current vs “${brandName} helps ${aud} improve ${pillar} outcomes…” with a proof strip using ${scoreBit}.`;
+        case "messaging-pillars":
+          return `Application example: ${brandName} maps “${primaryPillar}” to the live homepage hero for 30 days; ${executionOwner} keeps the one-page pillar map (claim, proof URL, last refreshed).`;
+        case "messaging-proof-library":
+          return `Application example: ${brandName}’s paid carousel uses a card: “${apStyleArrowChain(`Before ${firstGap} → after measurable lift → owner ${executionOwner}`)}”—pulled from the proof library you maintain.`;
+        case "messaging-tagline":
+          return foundationSnippets.tagline
+            ? `Application example: ${brandName} standardizes on “${clipForSample(foundationSnippets.tagline, 72)}” in email footer and primary paid text; campaign slogans stay subcopy so ${aud} aren’t served competing brand lines.`
+            : `Application example: ${brandName}’s email footer keeps a single master tagline; campaign slogans stay subcopy so ${aud} aren’t served three competing brand lines.`;
+        case "messaging-elevator-pitch":
+          return foundationSnippets.elevatorPitch
+            ? `Application example: At a ${mkt} meetup, ${brandName} answers “What do you do?” with: “${clipForSample(foundationSnippets.elevatorPitch, 220)}”—same beats as your approved elevator, not company-history drift.`
+            : `Application example: At a ${mkt} meetup, ${brandName} answers “What do you do?” with the 30-second alignment problem—not company history—then invites the 90-day priority conversation.`;
+        case "messaging-vocabulary":
+          return `Application example: Before launch, ${brandName} runs Ctrl+F on the next campaign for banned terms (“world-class,” “cutting-edge”) and swaps to approved ${pillar}-tied language.`;
+        case "voice-brand-voice":
+          return `Application example: ${brandName} posts: “${brandName} helps ${aud} close ${firstGap}. Diagnostic signal + owner-ready plan—book a short priority review.”—matches your voice attributes in a real channel.`;
+        case "voice-tone-registers":
+          return `Application example: ${brandName}’s sales email stays commercially direct (“Your top risk is ${firstGap}…”) while nurture uses the education register—same voice, different proof density for ${aud}.`;
+        case "voice-writing-principles":
+          return `Application example: ${brandName} restructures a long landing page so each H2 carries one claim, one proof, and one KPI anchor—nothing that can’t tie to a decision ships.`;
+        case "voice-dodont":
+          return `Application example: ${brandName}’s homepage hero uses the Do homepage line from above, not the Don’t generic line—paste-check against the appendix before publish.`;
+        case "visual-logo-system":
+          return `Application example: ${brandName} rejects a partner deck that equalizes marks on the hero—partner stays subordinate; primary lockup and clear space match your export pack.`;
+        case "visual-color-palette":
+          return `Application example: ${brandName}’s marketing chart uses the same insight blue and risk red tokens as the product—no one-off hex that confuses ${aud} comparing screenshots.`;
+        case "visual-typography":
+          return `Application example: A vendor returns ${brandName} slides in the wrong font—you send the H1–H4 + body scale screenshot and PDF preset so exports match in-app Foundation rhythm.`;
+        case "visual-iconography":
+          return `Application example: ${brandName}’s roadmap diagram uses one 1.5px stroke family; customer-facing PDFs drop emoji substitutes that cheapen signal with ${aud}.`;
+        case "visual-photography":
+          return `Application example: ${brandName} replaces handshake stock in paid social with one real ${aud} context frame + one product/UI frame from your approved mood board.`;
+        case "visual-layout":
+          return `Application example: ${brandName}’s mobile QA catches two H1s above the fold—you collapse to one message, one proof strip, one CTA per viewport before launch.`;
+        case "visual-motion":
+          return `Application example: ${brandName} caps transitions at ~200ms on strategy surfaces; no decorative bounce on dense reading views—motion only for navigation and save states.`;
+        case "audience-persona-atlas":
+          return `Application example: ${brandName}’s carousel ad gives the economic buyer an ROI card, the champion a rollout checklist—same offer, persona-tuned proof for ${aud}.`;
+        case "audience-jtbd":
+          return `Application example: ${brandName}’s webinar invite leads with the functional job (“Improve ${pillar} without fragmenting the story”) before the agenda—job before features for ${aud}.`;
+        case "audience-journey":
+          return `Application example: ${brandName}’s retargeting ladder matches CTA to stage (no demo ask on touch one); ${executionOwner} reviews the journey table quarterly for mismatch.`;
+        case "audience-objections":
+          return `Application example: When ${aud} asks “How is this different?”, ${brandName} answers with your sequence: ${apStyleArrowChain(`acknowledge → reframe with ${pillar} logic → evidence → one next step`)}, logged in the objection doc.`;
+        default:
+          return `Application example: ${brandName} walks ${aud} through this subsection in a working session—assign ${executionOwner} and tie the next move to ${pillar} within 14 days.`;
+      }
+    }
+
+    const core = ((): string[] => {
     switch (sectionId) {
       case "identity-purpose":
         return compact([
@@ -2649,7 +3088,7 @@ export default function FoundationBlueprintContent({
           pillarDependency ? `System dependency to resolve: ${pillarDependency}` : null,
           revenueImpact ? `Commercial upside if achieved: ${revenueImpact}` : null,
           `Execution test: if this vision is true in 12 months, one measurable buyer behavior should improve (conversion rate, sales-cycle velocity, or qualified pipeline quality).`,
-          `Next step: Pick one metric (e.g. qualified lead rate, sales cycle, or win rate) and write “current → 12-month target → leading indicator we will move monthly” on a single page.`,
+          `Next step: Pick one metric (e.g. qualified lead rate, sales cycle, or win rate) and write “${apStyleArrowChain(`current → 12-month target → leading indicator we will move monthly`)}” on a single page.`,
           `Next step: Socialize the vision in one internal forum and one external touch (e.g. leadership note + organic post)—same story, different depth; note where language drifted and fix the brief.`,
           `Use this when: the team debates tactics—ask which option compounds ${concreteStrength.toLowerCase()} and which only adds noise for ${audience.toLowerCase()}.`,
           `This connects to: roadmap fights shrink when ${concreteGap.toLowerCase()} is named as the cap on the vision and given an owner plus a 90-day proof point.`,
@@ -2664,7 +3103,7 @@ export default function FoundationBlueprintContent({
           `90-day performance objective: ${pillarKpi}`,
           revenueImpact ? `Expected business outcome: ${revenueImpact}` : null,
           `In use (Priority card): Every shipped priority names an owner, a timeline, and what “done” looks like.`,
-          `Next step: ${executionOwner} publishes a one-page “how we run mission this quarter”: diagnose → prioritize → ship → review, with dates for the next four checkpoints.`,
+          `Next step: ${executionOwner} publishes a one-page “how we run mission this quarter”: ${apStyleArrowChain(`diagnose → prioritize → ship → review`)}, with dates for the next four checkpoints.`,
           `Next step: Tie the top mission priority to one customer-visible artifact due in 14 days (page, email, or creative) so the mission is not trapped in strategy docs.`,
           `Use this when: scope creeps—if the ask does not improve ${primaryPillar.toLowerCase()} for ${audience.toLowerCase()}, it waits for the next planning cycle.`,
           `This connects to: clearing ${concreteGap.toLowerCase()} is a mission success criterion; add it to the same scoreboard as revenue or pipeline where leadership already looks weekly.`,
@@ -2746,12 +3185,12 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
       }
       case "identity-brand-persona":
         return compact([
-          `Brand persona profile: Morgan, the practitioner-advisor who translates complexity into direct execution guidance.`,
+          `Brand Persona Profile: Morgan, the practitioner-advisor who translates complexity into direct execution guidance.`,
           `Persona communication rule: lead with diagnosis, then action, then owner.`,
           `Persona stress behavior: under pressure, language becomes more specific and more accountable, never vague.`,
           `Persona use case: every homepage, email, and sales asset is reviewed with the question "Would this sound like Morgan?"`,
-          `In use (Organic social): "Here is what we are seeing in your diagnostic—and the first move this week."`,
-          `In use (Paid ad primary text): "You are not underinvesting in marketing—you are underwriting confusion between channels. Here is the sequence we use before spend moves."`,
+          `In use (Organic Social): "Here is what we are seeing in your diagnostic—and the first move this week."`,
+          `In use (Paid Ad primary text): "You are not underinvesting in marketing—you are underwriting confusion between channels. Here is the sequence we use before spend moves."`,
           `Next step: Create a “Morgan test” doc: 6 before/after sentences from real drafts; use it in onboarding for anyone who writes customer-facing copy.`,
           `Next step: Record a 3-minute Loom walking through one customer email in Morgan’s voice—share with sales and support as the reference clip.`,
           `Use this when: a launch is rushed—default to Morgan’s stress behavior (more specific, more accountable), not shorter generic reassurance.`,
@@ -2777,7 +3216,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
           topPriority?.pillar ? `Primary evaluation axis for this ICP: ${topPriority.pillar}.` : null,
           `Negative ICP: teams seeking tactical execution without strategic alignment or accountability.`,
           `Commercial fit signal: buyers who value implementation accountability over one-off deliverables.`,
-          `In use (Organic social hook): "Most ${audience} we talk to are tired of ${primaryPillar.toLowerCase()} promises that never match what their team actually ships."`,
+          `In use (Organic Social hook): "Most ${audience} we talk to are tired of ${primaryPillar.toLowerCase()} promises that never match what their team actually ships."`,
           `In use (Fit note): Growth-stage ${market.toLowerCase()} teams with demand in motion—roles that own revenue story and cross-channel coherence.`,
           `Next step: Document 3 “good-fit” and 3 “bad-fit” signals from last quarter’s conversations—add them to the CRM picklist or brief template reps actually open.`,
           `Next step: In one working session, align sales and marketing on the single primary ICP sentence above; anything outside it is nurture or partner, not core pipeline.`,
@@ -2803,8 +3242,8 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
           `Category framing: buyers should evaluate options by strategic precision, evidence quality, and implementation readiness.`,
           score > 0 ? `Current category narrative anchor: score ${score}/100 highlights measurable upside from consistency improvements.` : null,
           `Evaluation criteria to lead: strategic clarity, proof architecture, and conversion pathway design.`,
-          `In use (Paid ad headline): Outcomes and operating cadence—not a flat deliverables menu.`,
-          `In use (Organic social): "${brandName} — for ${market.toLowerCase()} teams that need strategy and execution in one system, not another generic agency pitch."`,
+          `In use (Paid Ad headline): Outcomes and operating cadence—not a flat deliverables menu.`,
+          `In use (Organic Social): "${brandName} — for ${market.toLowerCase()} teams that need strategy and execution in one system, not another generic agency pitch."`,
           `In use (Paid lead form): "${brandName} · Judge us on ${primaryPillar.toLowerCase()}, proof depth, and implementation readiness—then open scope."`,
           `Next step: List the three evaluation criteria on your primary offer or pricing page as subheads with one proof line each—no adjectives without evidence.`,
           `Next step: Train reps on a 20-second category answer: what you are, what you are not, and the one metric buyers should use to compare.`,
@@ -2840,7 +3279,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
           competitiveVulnerability.implication ? `Implication for buyer decisions: ${competitiveVulnerability.implication}` : null,
           `White-space ownership: practical strategic authority with explicit implementation sequencing.`,
           competitiveVulnerability.recommendation ? `Counter-positioning statement: ${competitiveVulnerability.recommendation}` : null,
-          `In use (Paid ad angle): When competitors lead with activity volume, we lead with proof quality and who owns the rollout.`,
+          `In use (Paid Ad angle): When competitors lead with activity volume, we lead with proof quality and who owns the rollout.`,
           `In use (Paid social proof): ${score > 0 ? `Diagnostic ${score}/100` : "Diagnostic baseline"} plus one implementation lane only we run.`,
           `Next step: Monthly competitive scan (30 min): capture one rival headline, one proof claim, one CTA—write your counter-line and file in a shared doc with date.`,
           `Next step: Add the counter-positioning statement to the internal sales note that goes out after first discovery—same language marketing uses externally.`,
@@ -2863,9 +3302,9 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
       case "messaging-pillars":
         return compact([
           `Primary message pillar: ${primaryPillar}.`,
-          topPriority?.title ? `Pillar claim 1: ${topPriority.title}.` : null,
-          secondPriority?.title ? `Pillar claim 2: ${secondPriority.title}.` : null,
-          `Pillar claim 3: conversion-quality gains come from aligned positioning, proof, and CTA sequencing.`,
+          topPriority?.title ? `Pillar Claim 1: ${topPriority.title}.` : null,
+          secondPriority?.title ? `Pillar Claim 2: ${secondPriority.title}.` : null,
+          `Pillar Claim 3: conversion-quality gains come from aligned positioning, proof, and CTA sequencing.`,
           `In use (Channel): ${firstChannelRoute}`,
           `In use (Landing section): One pillar, one proof (${concreteStrength}), one CTA tied to ${primaryPillar.toLowerCase()}.`,
           `Next step: Map each pillar to one “hero surface” (site section, ad set, or email series) for the next 30 days—no pillar without a live asset.`,
@@ -2880,7 +3319,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
           `Proof governance: monthly review cadence with staleness checks before major campaign pushes; owner ${executionOwner}.`,
           `In use (Landing): Every claim sits next to a number, a mechanism, and one clear next step.`,
           `In use (Evidence line): Baseline, method, expected 90-day movement—stated in one tight line.`,
-          `In use (Paid carousel card): "Before ${firstGap} → after measurable lift → owner ${executionOwner}."`,
+          `In use (Paid carousel card): "${apStyleArrowChain(`Before ${firstGap} → after measurable lift → owner ${executionOwner}`)}."`,
           `Next step: Build a proof library folder (5–8 items): benchmark, before/after copy, customer quote, methodology one-pager—each tagged to a pillar.`,
           `Next step: Calendar a monthly staleness review with ${executionOwner}; retire any proof older than 12 months without a refresh plan.`,
           `This connects to: ${synthesisPoints[0]?.content ? synthesisPoints[0].content : "Synthesis from your diagnostic"} should become at least one dated proof slide or snippet this quarter.`,
@@ -2891,7 +3330,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
           `Alternative tagline 1: "Strategy built to perform."`,
           `Alternative tagline 2: "From brand insight to market impact."`,
           `Usage rule: apply in high-signal brand contexts (cover pages, headers, strategic decks), not repetitive CTA microcopy.`,
-          `In use (Paid ad brand line): "Clarity that converts."`,
+          `In use (Paid Ad brand line): "Clarity that converts."`,
           `In use (Profile tagline): "Clarity that converts" · ${score > 0 ? `${score}/100 benchmark` : "diagnostic-backed plan"} for ${audience.toLowerCase()}.`,
           `In use (Ad): Clarity that converts — for ${audience.toLowerCase()}, ${primaryPillar.toLowerCase()} that performs.`,
           `Next step: Add tagline usage rules to your design checklist: max line length, never stacked with a second slogan, never on busy photography without a solid scrim.`,
@@ -2905,7 +3344,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
           `90-second close: "The result is stronger conversion quality, less wasted spend, and a repeatable system your team can scale with confidence."`,
           `Conversion prompt: "Would it be useful to review your highest-impact 90-day priority and owner plan together?"`,
           `In use (Open): "If your team is active but still underperforming, the issue is usually message-to-execution misalignment."`,
-          `In use (Organic social comment): "We fix ${firstGap} for ${market.toLowerCase()} teams like yours—happy to share one example."`,
+          `In use (Organic Social comment): "We fix ${firstGap} for ${market.toLowerCase()} teams like yours—happy to share one example."`,
           `In use (Ad landing CTA): "${commonNarrative}"`,
           `Next step: Drills: record yourself delivering 30s / 60s / 90s once a week for a month; trim one vague phrase every pass.`,
           `Next step: Add the conversion prompt as the last slide in any first-call deck and practice the exact handoff to calendar.`,
@@ -2933,8 +3372,8 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
             : `Voice is the audible form of your archetype—same character in organic social, paid creative, and product UI.`,
           `Voice execution rule: every customer-facing block includes one decision, one reason, and one next action.`,
           `Stress-test behavior: when stakes increase, tone stays calm, specific, and accountable—never frantic or vague.`,
-          `In use (Organic social): "${brandName} helps ${audience.toLowerCase()} close ${firstGap}. Diagnostic signal and owner-ready plan on request—book a short priority review."`,
-          `In use (Paid ad secondary text): "We start where ${firstGap} is costing you—which maps straight to ${primaryPillar.toLowerCase()}."`,
+          `In use (Organic Social): "${brandName} helps ${audience.toLowerCase()} close ${firstGap}. Diagnostic signal and owner-ready plan on request—book a short priority review."`,
+          `In use (Paid Ad secondary text): "We start where ${firstGap} is costing you—which maps straight to ${primaryPillar.toLowerCase()}."`,
           `In use (Product): "Something went wrong—here is the fix and who owns the next step." Same steady voice as marketing, not playful disclaimers.`,
           `Next step: Add voice attributes (${voiceAttributes.length > 0 ? voiceAttributes.join(", ") : "clear, confident, practical"}) to the creative brief header as non-optional fields.`,
           `Next step: Review one support macro and one billing email this week—rewrite any line that breaks the steady-voice rule.`,
@@ -2966,7 +3405,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
           `Before paragraph: "${beforeGenericLine}"`,
           `After paragraph: "${afterSpecificLine}"`,
           `In use (Rewrite): "Increase qualified traffic by tightening message consistency" instead of "improve visibility."`,
-          `In use (Organic social thread): Headline claim, proof paragraph, CTA—no stacked abstractions without a KPI anchor.`,
+          `In use (Organic Social thread): Headline claim, proof paragraph, CTA—no stacked abstractions without a KPI anchor.`,
           `In use (Organic carousel): Four short cards max for ${market.toLowerCase()} feeds; longer drafts get split or cut.`,
           `Next step: Add the editorial QA rule to your publish checklist: every block links to a decision or KPI or it does not ship.`,
           `Next step: Pick two long pages; split into sections with H2s that each carry one claim + one proof + one action.`,
@@ -3107,14 +3546,14 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
         ]);
       case "audience-journey":
         return compact([
-          `Journey model: unaware -> aware -> considering -> evaluating -> deciding -> retained/expanded.`,
+          `Journey Model: unaware -> aware -> considering -> evaluating -> deciding -> retained/expanded.`,
           scheduleRows.length > 0
-            ? `Execution alignment: ${scheduleRows.length} scheduled actions are already mapped to journey progression.`
-            : `Execution alignment: journey stages are mapped to campaign sequencing and stage-exit CTAs.`,
-          `Primary conversion route: ${firstChannelRoute}`,
-          `Audience sequencing: primary sees conversion outcome first; secondary gets implementation detail; tertiary gets risk/ROI validation.`,
+            ? `Execution Alignment: ${scheduleRows.length} scheduled actions are already mapped to journey progression.`
+            : `Execution Alignment: Journey stages are mapped to campaign sequencing and stage-exit CTAs.`,
+          `Primary Conversion Route: ${firstChannelRoute}`,
+          `Audience Sequencing: primary sees conversion outcome first; secondary gets implementation detail; tertiary gets risk/ROI validation.`,
           `In use (Considering → Evaluating): "See how teams like yours proved ${primaryPillar.toLowerCase()} gains before expanding spend."`,
-          `Decision-stage KPI: increase conversion confidence through one proof-rich CTA pathway per ICP tier.`,
+          `Decision-Stage KPI: increase conversion confidence through one proof-rich CTA pathway per ICP tier.`,
           `In use (Retargeting email): One touch per stage from awareness through evaluation—CTA matches readiness, not a hard ask in the first touch.`,
           `In use (Retargeting touch): Proof depth follows where they are on ${firstChannelRoute.split(":")[0] || "the funnel"}—same story, stage-appropriate detail.`,
           `Next step: Map one proof asset and one CTA to each journey stage in a table; highlight any stage with no asset—fill that gap first.`,
@@ -3125,13 +3564,15 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
         /* Main Q&A UI: buildCustomBody("audience-objections"). These lines power Put it to work only. */
         return compact([
           `Next step: Maintain a living objection log (10+ rows): objection, stage, owner, approved answer link, last used date—review monthly with sales and CS.`,
-          `Next step: Add the four-step response sequence (acknowledge → reframe → evidence → advance) as a required footer on talk tracks and battlecards.`,
+          `Next step: Add the four-step response sequence (${apStyleArrowChain(`acknowledge → reframe → evidence → advance`)}) as a required footer on talk tracks and battlecards.`,
           `Use this when: a deal stalls on the same question twice—promote that objection to a formal FAQ block on the site or in nurture with a proof asset.`,
           `This connects to: ${competitiveVulnerability.implication ? competitiveVulnerability.implication : "Market pressure"} should map to at least one named objection and counter-proof this quarter.`,
         ]);
       default:
         return compact([`${brandName} foundation content is populated and executable as-is from current diagnostic analysis.`]);
     }
+    })();
+    return [...core, companyPutToWorkExampleLine(sectionId)];
   }
 
   const identitySubsections: Subsection[] = [
@@ -3218,7 +3659,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
         "Define the person your brand sounds like in real customer conversations so teams execute consistent voice and judgment.",
       contentRequirements: [
         "Persona profile with role, worldview, and communication style.",
-        "Do this / not this examples in brand voice.",
+        "Do This / Not This Examples in Brand Voice.",
         "Stress-test behavior for criticism, urgency, and decision moments.",
       ],
     },
@@ -3238,7 +3679,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
   const positioningSubsections: Subsection[] = [
     {
       id: "positioning-icp",
-      title: "2.1 Ideal customer profile (ICP) definition",
+      title: "2.1 Ideal Customer Profile (ICP) Definition",
       whatItIs:
         "Specify the exact ideal customer profile (ICP)—company profile and buying roles—where this solution produces highest conversion and retention. Current priority audience: " +
         audience +
@@ -3602,7 +4043,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
     {
       label: "Positioning",
       links: [
-        { id: "positioning-icp", label: "Ideal customer profile (ICP)" },
+        { id: "positioning-icp", label: "Ideal Customer Profile (ICP)" },
         { id: "positioning-statement", label: "Positioning Statement" },
         { id: "positioning-differentiators", label: "Differentiators" },
       ],
@@ -3626,13 +4067,13 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
   ];
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-brand-border bg-white px-4 py-3 shadow-[0_4px_12px_rgba(2,24,89,0.04)]">
+    <div className="w-full max-w-full space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-white px-4 py-3 shadow-[0_4px_20px_rgba(2,24,89,0.05)] ring-1 ring-slate-900/[0.05]">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue">Reading Density</p>
-          <p className="text-[12px] text-brand-muted">Switch between comfortable spacing and compact scan mode.</p>
+          <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">Reading Density</p>
+          <p className="text-sm sm:text-base text-brand-muted leading-relaxed">Switch between comfortable spacing and compact scan mode.</p>
         </div>
-        <div className="inline-flex rounded-md border border-brand-border bg-[#F8FAFC] p-1">
+        <div className="inline-flex rounded-lg bg-[#F8FAFC] p-1 ring-1 ring-slate-900/[0.06]">
           {([
             { id: "comfortable", label: "Comfortable" },
             { id: "compact", label: "Compact" },
@@ -3641,7 +4082,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
               key={mode.id}
               type="button"
               onClick={() => setDensityMode(mode.id)}
-              className="rounded px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide transition"
+              className="rounded px-3 py-2 text-xs sm:text-sm font-semibold tracking-[0.08em] transition"
               style={{
                 backgroundColor: densityMode === mode.id ? "#E6F7FE" : "transparent",
                 color: densityMode === mode.id ? "#021859" : "#5A6C8A",
@@ -3652,12 +4093,13 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
           ))}
         </div>
       </div>
+      {/* Flex avoids grid mis-placing the main column when the aside is display:none below lg. */}
       <div
-        className={`grid grid-cols-1 lg:grid-cols-[256px_minmax(0,1fr)] ${
-          densityMode === "compact" ? "gap-6 lg:gap-8" : "gap-8 lg:gap-10"
+        className={`flex w-full flex-col items-stretch ${
+          densityMode === "compact" ? "gap-6 lg:flex-row lg:gap-8" : "gap-8 lg:flex-row lg:gap-10"
         }`}
       >
-      <aside className="hidden min-h-0 self-start lg:block">
+      <aside className="hidden min-h-0 w-full shrink-0 lg:block lg:w-[256px] lg:max-w-[256px]">
         <div
           className="sticky z-10 space-y-5 overflow-y-auto overscroll-contain pr-1"
           style={{
@@ -3666,15 +4108,15 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
           }}
         >
           {sidebarGroups.map((group) => (
-            <div key={group.label} className="rounded-lg border border-brand-border bg-white p-3 shadow-[0_4px_14px_rgba(2,24,89,0.05)]">
-              <p className="px-2 pb-2 text-[11px] font-black uppercase tracking-[0.15em] text-brand-blue">{group.label}</p>
+            <div key={group.label} className="rounded-xl bg-white p-3 shadow-[0_4px_18px_rgba(2,24,89,0.05)] ring-1 ring-slate-900/[0.05]">
+              <p className="px-2 pb-2 text-xs sm:text-sm font-semibold tracking-[0.1em] text-brand-blue">{group.label}</p>
               <div className="space-y-1.5">
                 {group.links.map((link) => (
                   <button
                     key={link.id}
                     type="button"
                     onClick={() => scrollToAnchor(link.id)}
-                    className="w-full rounded-md px-2.5 py-2 text-left text-[13px] leading-5 transition"
+                    className="w-full rounded-md px-2.5 py-2.5 text-left text-sm sm:text-[15px] leading-snug transition"
                     style={{
                       backgroundColor: activeFoundationAnchor === link.id ? "#E6F7FE" : "transparent",
                       color: activeFoundationAnchor === link.id ? "#021859" : "#1A1A1A",
@@ -3689,7 +4131,11 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
           ))}
         </div>
       </aside>
-      <div className={densityMode === "compact" ? "space-y-8 md:space-y-10" : "space-y-10 md:space-y-12"}>
+      <div
+        className={`min-w-0 flex-1 ${
+          densityMode === "compact" ? "space-y-8 md:space-y-10" : "space-y-10 md:space-y-12"
+        }`}
+      >
       <DomainSection
         id="brand-story-proof"
         sectionNumber="01"
@@ -3699,10 +4145,15 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
         gradient="linear-gradient(135deg, #FFFFFF 0%, #F5F9FF 100%)"
         densityMode={densityMode}
         visual={
-          <div className="rounded-lg border border-brand-border bg-white p-4">
-            <p className="text-[12px] font-bold uppercase tracking-wide text-brand-blue mb-3">Identity System Map</p>
-            <div className="grid gap-2 md:grid-cols-4">
-              {[
+          <div className="rounded-xl bg-white p-4 shadow-[0_2px_12px_rgba(2,24,89,0.04)] ring-1 ring-slate-900/[0.05] sm:p-5">
+            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">Identity System Map</p>
+            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-brand-muted">
+              Read down each pillar: general definition, then how it applies for {brandName}, then the cost of neglecting
+              it.
+              <span className="hidden lg:inline"> Row labels on the left apply to every column—no repeated headers.</span>
+            </p>
+            {(() => {
+              const identityMapPillars = [
                 {
                   key: "Purpose",
                   targetId: "identity-purpose",
@@ -3735,27 +4186,108 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
                   failureMode:
                     "Tradeoffs feel arbitrary; trust and perceived brand quality erode under pressure.",
                 },
-              ].map((item) => (
-                <button
-                  key={item.key}
-                  type="button"
-                  onClick={() => scrollToAnchor(item.targetId)}
-                  className="flex h-full flex-col rounded-md border border-brand-border bg-[#F7FBFF] px-3 py-2 text-left transition hover:border-[#93C5FD] hover:bg-[#EEF7FF]"
-                >
-                  <p className="text-[12px] font-bold text-brand-blue">{item.key}</p>
-                  <p className="text-[12px] text-brand-midnight mt-1">{item.definition}</p>
-                  <p className="text-[11px] text-brand-muted mt-1">{item.context}</p>
-                  <div className="mt-auto w-full pt-3">
-                    <div className={densityMode === "compact" ? "border-t border-[#FECACA]/90 pt-4 pb-3" : "border-t border-[#FECACA]/90 pt-5 pb-4"}>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#991B1B]">
-                        Strategic risk
-                      </p>
-                      <p className="mt-1 text-[11px] leading-snug text-[#7F1D1D]">{item.failureMode}</p>
-                    </div>
+              ] as const;
+              const riskPad =
+                densityMode === "compact"
+                  ? "rounded-lg bg-[#FEF2F2]/90 px-3 py-3"
+                  : "rounded-lg bg-[#FEF2F2]/90 px-3 py-3.5 sm:px-4 sm:py-4";
+              const rowLabelClass =
+                "flex h-full min-h-[2.75rem] items-center text-xs font-medium tracking-[0.08em] leading-snug text-brand-muted pr-3";
+              const rowLabelCompanyClass =
+                "flex h-full min-h-0 items-start py-2 pr-3 text-sm font-semibold leading-snug text-brand-navy break-words [hyphens:auto]";
+              const rowLabelRiskClass =
+                "flex h-full min-h-[2.75rem] items-center text-xs font-medium tracking-[0.08em] leading-snug text-[#991B1B] pr-3";
+              return (
+                <>
+                  {/* Mobile / tablet: legend once; cards use spacing + color only (no repeated row headers) */}
+                  <div className="mt-4 rounded-lg bg-slate-50/90 px-3 py-2.5 text-xs leading-relaxed text-brand-muted lg:hidden">
+                    <span className="font-semibold text-brand-midnight">How to read each card:</span> plain text = the
+                    standard idea; frosted white block = how it applies for {brandName}; red-tinted block = strategic risk
+                    if you skip it.
                   </div>
-                </button>
-              ))}
-            </div>
+                  <div className="mt-4 grid gap-3 sm:gap-4 md:grid-cols-2 lg:hidden">
+                    {identityMapPillars.map((item) => (
+                      <div
+                        key={item.key}
+                        className="flex min-h-0 w-full flex-col rounded-xl bg-[#F7FBFF] px-4 py-4 shadow-[0_1px_3px_rgba(2,24,89,0.06)] ring-1 ring-slate-900/[0.05] sm:px-5 sm:py-5"
+                      >
+                        <button
+                          type="button"
+                          onClick={() => scrollToAnchor(item.targetId)}
+                          title={`Jump to ${item.key} in Foundation`}
+                          className="text-left text-base font-semibold text-brand-blue underline-offset-2 transition hover:text-brand-navy hover:underline"
+                        >
+                          {item.key}
+                        </button>
+                        <p className="mt-4 text-sm sm:text-base leading-relaxed text-brand-midnight">{item.definition}</p>
+                        <p className="mt-4 rounded-lg bg-white/95 px-3 py-3 text-sm sm:text-base leading-relaxed text-brand-midnight shadow-[inset_0_0_0_1px_rgba(7,176,242,0.12)] sm:px-3.5 sm:py-3.5">
+                          {item.context}
+                        </p>
+                        <div className="mt-4">
+                          <div className={riskPad}>
+                            <p className="text-sm sm:text-base leading-snug text-[#7F1D1D]">{item.failureMode}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Large screens: row labels once (left column); pillars are content-only */}
+                  <div
+                    className="mt-5 hidden gap-x-3 gap-y-3 lg:grid"
+                    style={{
+                      gridTemplateColumns: "minmax(7rem, 10rem) repeat(4, minmax(0, 1fr))",
+                    }}
+                  >
+                    <div
+                      className="flex min-h-[3rem] items-end pb-2 pr-2 border-b border-slate-200/80"
+                      aria-hidden
+                    />
+                    {identityMapPillars.map((item) => (
+                      <button
+                        key={`hd-${item.key}`}
+                        type="button"
+                        onClick={() => scrollToAnchor(item.targetId)}
+                        title={`Jump to ${item.key}`}
+                        className="flex w-full min-h-[3rem] items-center rounded-lg border-b border-slate-200/80 bg-[#E8F4FE] px-3 py-3 text-left text-sm font-semibold text-brand-blue shadow-sm transition hover:bg-[#D6EDFC] hover:text-brand-navy"
+                      >
+                        {item.key}
+                      </button>
+                    ))}
+
+                    <div className={rowLabelClass}>Definition</div>
+                    {identityMapPillars.map((item) => (
+                      <div
+                        key={`def-${item.key}`}
+                        className="flex h-full min-h-0 flex-col rounded-lg bg-[#F7FBFF] px-3 py-3 shadow-sm sm:px-3.5 sm:py-4"
+                      >
+                        <p className="text-sm leading-relaxed text-brand-midnight sm:text-[15px]">{item.definition}</p>
+                      </div>
+                    ))}
+
+                    <div className={rowLabelCompanyClass}>{brandName}</div>
+                    {identityMapPillars.map((item) => (
+                      <div
+                        key={`ctx-${item.key}`}
+                        className="flex h-full min-h-0 flex-col rounded-lg bg-white px-3 py-3 shadow-[inset_0_0_0_1px_rgba(7,176,242,0.12)] sm:px-3.5 sm:py-4"
+                      >
+                        <p className="text-sm leading-relaxed text-brand-midnight sm:text-[15px]">{item.context}</p>
+                      </div>
+                    ))}
+
+                    <div className={rowLabelRiskClass}>Strategic risk</div>
+                    {identityMapPillars.map((item) => (
+                      <div
+                        key={`risk-${item.key}`}
+                        className={`flex h-full min-h-0 flex-col ${riskPad} shadow-sm`}
+                      >
+                        <p className="text-sm leading-snug text-[#7F1D1D] sm:text-[15px]">{item.failureMode}</p>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              );
+            })()}
           </div>
         }
         subsections={identitySubsections.map((item) => ({
@@ -3775,25 +4307,27 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
         densityMode={densityMode}
         visual={
           <div className="rounded-lg border border-brand-border bg-white p-4">
-            <p className="text-[12px] font-bold uppercase tracking-wide text-brand-blue mb-3">
+            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">
               Positioning Decision Framework
             </p>
             <div className="grid gap-2 md:grid-cols-2">
               <div className="flex h-full flex-col rounded-md border border-brand-border bg-[#F7FBFF] p-3">
-                <p className="text-[12px] font-bold text-brand-blue">Audience Fit</p>
-                <p className="text-[12px] text-brand-midnight mt-1">Ideal customer profile (ICP) precision + buying urgency + decision authority</p>
+                <p className="text-sm sm:text-base font-medium text-brand-blue">Audience Fit</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">
+                  Ideal Customer Profile (ICP) Precision + Buying Urgency + Decision Authority
+                </p>
               </div>
               <div className="flex h-full flex-col rounded-md border border-brand-border bg-[#F7FBFF] p-3">
-                <p className="text-[12px] font-bold text-brand-blue">Differentiation Depth</p>
-                <p className="text-[12px] text-brand-midnight mt-1">Ownable method + proof-backed outcomes</p>
+                <p className="text-sm sm:text-base font-medium text-brand-blue">Differentiation Depth</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">Ownable method + proof-backed outcomes</p>
               </div>
               <div className="flex h-full flex-col rounded-md border border-brand-border bg-[#F7FBFF] p-3">
-                <p className="text-[12px] font-bold text-brand-blue">Category Frame</p>
-                <p className="text-[12px] text-brand-midnight mt-1">Where you compete and how buyers evaluate</p>
+                <p className="text-sm sm:text-base font-medium text-brand-blue">Category Frame</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">Where you compete and how buyers evaluate</p>
               </div>
               <div className="flex h-full flex-col rounded-md border border-brand-border bg-[#F7FBFF] p-3">
-                <p className="text-[12px] font-bold text-brand-blue">Commercial Signal</p>
-                <p className="text-[12px] text-brand-midnight mt-1">Conversion quality + decision velocity + retention quality</p>
+                <p className="text-sm sm:text-base font-medium text-brand-blue">Commercial Signal</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-1">Conversion quality + decision velocity + retention quality</p>
               </div>
             </div>
           </div>
@@ -3815,11 +4349,11 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
         densityMode={densityMode}
         visual={
           <div className="rounded-lg border border-brand-border bg-white p-4">
-            <p className="text-[12px] font-bold uppercase tracking-wide text-brand-blue mb-3">Messaging Conversion Flow</p>
+            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">Messaging Conversion Flow</p>
             <div className="grid gap-2 md:grid-cols-4">
               {["Claim", "Proof", "Outcome", "CTA"].map((stage) => (
                 <div key={stage} className="flex h-full flex-col rounded-md border border-brand-border bg-[#F7FBFF] px-3 py-2">
-                  <p className="text-[12px] font-bold text-brand-blue">{stage}</p>
+                  <p className="text-sm sm:text-base font-medium text-brand-blue">{stage}</p>
                 </div>
               ))}
             </div>
@@ -3882,8 +4416,8 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
             ];
             return (
               <div className="rounded-lg border border-brand-border bg-white p-4">
-                <p className="text-[12px] font-bold uppercase tracking-wide text-brand-blue mb-1">Voice Architecture</p>
-                <p className="text-[11px] leading-snug text-brand-muted mb-3">
+                <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-1">Voice Architecture</p>
+                <p className="text-sm sm:text-base leading-relaxed text-brand-muted mb-3">
                   How tone shifts by context—each tile includes a sample line you can adapt, not a checklist to complete later.
                 </p>
                 <div className="grid gap-2 md:grid-cols-5">
@@ -3894,14 +4428,14 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
                         tile.span === "wide" ? "md:col-span-2" : ""
                       }`}
                     >
-                      <p className="text-[12px] font-bold text-brand-blue">{tile.title}</p>
+                      <p className="text-sm sm:text-base font-medium text-brand-blue">{tile.title}</p>
                       {tile.traits ? (
-                        <p className="text-[11px] font-medium text-brand-midnight mt-1 leading-snug">{tile.traits}</p>
+                        <p className="text-sm sm:text-base font-medium text-brand-midnight mt-1 leading-snug">{tile.traits}</p>
                       ) : null}
-                      <p className="text-[11px] text-brand-muted mt-1.5 leading-snug">{tile.when}</p>
+                      <p className="text-sm sm:text-base text-brand-muted mt-1.5 leading-snug">{tile.when}</p>
                       <div className="mt-2 rounded-md border border-slate-200/90 bg-white/90 px-2.5 py-2">
-                        <p className="text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1">Sample line</p>
-                        <p className="text-[11px] leading-snug text-brand-midnight">{tile.sample}</p>
+                        <p className="text-xs sm:text-sm font-medium tracking-[0.08em] text-slate-500 mb-1">Sample Line</p>
+                        <p className="text-sm sm:text-base leading-snug text-brand-midnight">{tile.sample}</p>
                       </div>
                     </div>
                   ))}
@@ -3927,14 +4461,14 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
         densityMode={densityMode}
         visual={
           <div className="rounded-lg border border-brand-border bg-white p-4">
-            <p className="text-[12px] font-bold uppercase tracking-wide text-brand-blue mb-3">Visual System Stack</p>
+            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">Visual System Stack</p>
             <div className="mb-3 rounded-md border border-brand-border bg-[#F7FBFF] p-2">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue mb-2">Visual System Mode</p>
+              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">Visual System Mode</p>
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
                   onClick={() => setVisualSystemMode("existing")}
-                  className={`rounded-md border px-3 py-1 text-[11px] font-bold uppercase tracking-wide transition ${
+                  className={`rounded-md border px-3 py-2 text-xs sm:text-sm font-semibold tracking-[0.08em] transition ${
                     visualSystemMode === "existing"
                       ? "border-brand-blue bg-brand-blue text-white"
                       : "border-brand-border bg-white text-brand-midnight"
@@ -3945,7 +4479,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
                 <button
                   type="button"
                   onClick={() => setVisualSystemMode("optimize")}
-                  className={`rounded-md border px-3 py-1 text-[11px] font-bold uppercase tracking-wide transition ${
+                  className={`rounded-md border px-3 py-2 text-xs sm:text-sm font-semibold tracking-[0.08em] transition ${
                     visualSystemMode === "optimize"
                       ? "border-brand-blue bg-brand-blue text-white"
                       : "border-brand-border bg-white text-brand-midnight"
@@ -3956,7 +4490,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
                 <button
                   type="button"
                   onClick={() => setVisualSystemMode("refresh")}
-                  className={`rounded-md border px-3 py-1 text-[11px] font-bold uppercase tracking-wide transition ${
+                  className={`rounded-md border px-3 py-2 text-xs sm:text-sm font-semibold tracking-[0.08em] transition ${
                     visualSystemMode === "refresh"
                       ? "border-brand-blue bg-brand-blue text-white"
                       : "border-brand-border bg-white text-brand-midnight"
@@ -3965,11 +4499,11 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
                   Strategic Refresh
                 </button>
               </div>
-              <p className="text-[12px] text-brand-midnight mt-2">{visualModeSummary}</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-2">{visualModeSummary}</p>
             </div>
             <div className="grid gap-2 md:grid-cols-3">
               <div className="flex h-full flex-col rounded-md border border-brand-border bg-[#F7FBFF] p-3">
-                <p className="text-[12px] font-bold text-brand-blue">Color</p>
+                <p className="text-sm sm:text-base font-medium text-brand-blue">Color</p>
                 <div className="mt-2 flex gap-2">
                   <div className="rounded border border-brand-border p-1 bg-white">
                     <span className="block h-8 w-8 rounded bg-[#021859]" />
@@ -3983,42 +4517,44 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
                 </div>
               </div>
               <div className="flex h-full flex-col rounded-md border border-brand-border bg-[#F7FBFF] p-3">
-                <p className="text-[12px] font-bold text-brand-blue">Typography</p>
-                <p className="text-[16px] font-bold text-brand-midnight mt-2">Headline Example</p>
-                <p className="text-[12px] text-brand-muted mt-1">Subhead + body hierarchy in Lato</p>
+                <p className="text-sm sm:text-base font-medium text-brand-blue">Typography</p>
+                <p className="text-[16px] font-semibold text-brand-midnight mt-2">Headline Example</p>
+                <p className="text-sm sm:text-base text-brand-muted mt-1 leading-relaxed">Subhead + body hierarchy in Lato</p>
               </div>
               <div className="flex h-full flex-col rounded-md border border-brand-border bg-[#F7FBFF] p-3">
-                <p className="text-[12px] font-bold text-brand-blue">Layout</p>
-                <p className="text-[12px] text-brand-midnight mt-2">Message + proof + action block composition</p>
+                <p className="text-sm sm:text-base font-medium text-brand-blue">Layout</p>
+                <p className="text-sm sm:text-base text-brand-midnight mt-2">Message + proof + action block composition</p>
               </div>
             </div>
             <div className="mt-3 rounded-md border border-brand-border bg-white p-3">
-              <p className="text-[12px] font-bold uppercase tracking-wide text-brand-blue mb-2">Brand Application Mock</p>
+              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-2">Brand Application Mock</p>
               <div className="rounded-lg border border-[#021859] overflow-hidden">
                 <div className="bg-[#021859] px-4 py-4">
-                  <p className="text-[11px] uppercase tracking-wide text-[#7DD3FC]">Paid social / ad creative example</p>
-                  <p className="text-[24px] leading-tight font-bold text-white mt-1">
+                  <p className="text-xs sm:text-sm tracking-[0.12em] text-[#7DD3FC]">Paid Social / Ad Creative Example</p>
+                  <p className="text-[24px] leading-tight font-semibold text-white mt-1">
                     {brandName} Turns Strategic Clarity Into Conversion Quality
                   </p>
-                  <p className="text-[13px] text-[#D6E4FF] mt-2 max-w-2xl">
-                    Diagnose the highest-impact gap, align your message architecture, and execute with owner-level accountability.
+                  <p className="text-sm sm:text-base text-[#D6E4FF] mt-2 max-w-2xl leading-relaxed">
+                    {apStyleArrowChain(
+                      `diagnose the highest-impact gap → align your message architecture → execute with owner-level accountability`,
+                    )}
                   </p>
-                  <div className="mt-3 inline-flex items-center rounded-md bg-[#07B0F2] px-3 py-2">
-                    <span className="text-[12px] font-bold text-[#021859]">See Your 90-day Priority Plan</span>
+                  <div className="mt-3 inline-flex items-center rounded-[5px] bg-[#07B0F2] px-3 py-2">
+                    <span className="text-sm font-semibold text-white">See Your 90-day Priority Plan</span>
                   </div>
                 </div>
                 <div className="grid gap-2 md:grid-cols-3 bg-[#F8FBFF] p-3">
                   <div className="rounded-md border border-brand-border bg-white p-3">
-                    <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue">Message</p>
-                    <p className="text-[12px] text-brand-midnight mt-1">One strategic claim per section.</p>
+                    <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">Message</p>
+                    <p className="text-sm sm:text-base text-brand-midnight mt-1">One strategic claim per section.</p>
                   </div>
                   <div className="rounded-md border border-brand-border bg-white p-3">
-                    <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue">Proof</p>
-                    <p className="text-[12px] text-brand-midnight mt-1">Pair claims with metric + mechanism.</p>
+                    <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">Proof</p>
+                    <p className="text-sm sm:text-base text-brand-midnight mt-1">Pair claims with metric + mechanism.</p>
                   </div>
                   <div className="rounded-md border border-brand-border bg-white p-3">
-                    <p className="text-[11px] font-bold uppercase tracking-wide text-brand-blue">Action</p>
-                    <p className="text-[12px] text-brand-midnight mt-1">End with one explicit next step.</p>
+                    <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">Action</p>
+                    <p className="text-sm sm:text-base text-brand-midnight mt-1">End with one explicit next step.</p>
                   </div>
                 </div>
               </div>
@@ -4043,11 +4579,11 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
           densityMode={densityMode}
           visual={
             <div className="rounded-lg border border-brand-border bg-white p-4">
-              <p className="text-[12px] font-bold uppercase tracking-wide text-brand-blue mb-3">Audience Journey Map</p>
+              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">Audience Journey Map</p>
               <div className="grid gap-2 md:grid-cols-6">
                 {["Unaware", "Aware", "Considering", "Evaluating", "Deciding", "Retained"].map((stage) => (
                   <div key={stage} className="flex h-full flex-col rounded-md border border-brand-border bg-[#F7FBFF] px-2 py-2 text-center">
-                    <p className="text-[11px] font-bold text-brand-blue">{stage}</p>
+                    <p className="text-sm sm:text-base font-medium text-brand-blue">{stage}</p>
                   </div>
                 ))}
               </div>
@@ -4068,24 +4604,24 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
         }`}
         style={{ borderLeft: "4px solid #16A34A", background: "linear-gradient(135deg, #FFFFFF 0%, #F3FCF6 100%)" }}
       >
-        <p className="text-[14px] font-bold uppercase tracking-wide text-brand-blue mb-2">Foundation Rollout</p>
+        <p className="text-[14px] font-semibold tracking-wide text-brand-blue mb-2">Foundation Rollout</p>
         <h3 className="bs-h3 mb-2">90-day implementation sequencing</h3>
         <div className="grid gap-3 md:grid-cols-3">
           <div className="rounded-lg border border-brand-border bg-white p-4">
-            <p className="text-[14px] font-bold uppercase tracking-wide text-brand-blue">Days 1-30</p>
+            <p className="text-[14px] font-semibold tracking-wide text-brand-blue">Days 1-30</p>
             <p className="bs-body-sm text-brand-midnight mt-1">
               Finalize identity, positioning, and message architecture, led by:{" "}
               {topPriority?.title || `the highest-impact ${primaryPillar.toLowerCase()} priority`}.
             </p>
           </div>
           <div className="rounded-lg border border-brand-border bg-white p-4">
-            <p className="text-[14px] font-bold uppercase tracking-wide text-brand-blue">Days 31-60</p>
+            <p className="text-[14px] font-semibold tracking-wide text-brand-blue">Days 31-60</p>
             <p className="bs-body-sm text-brand-midnight mt-1">
               Publish voice, visual, and audience standards into strategy/activation and align to channel plans.
             </p>
           </div>
           <div className="rounded-lg border border-brand-border bg-white p-4">
-            <p className="text-[14px] font-bold uppercase tracking-wide text-brand-blue">Days 61-90</p>
+            <p className="text-[14px] font-semibold tracking-wide text-brand-blue">Days 61-90</p>
             <p className="bs-body-sm text-brand-midnight mt-1">
               QA execution across channels, then update workbook and downloads with performance-backed refinements.
             </p>

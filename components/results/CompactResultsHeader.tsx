@@ -8,6 +8,7 @@ import {
   SUITE_BORDER,
   SUITE_CHROME_MUTED,
   SUITE_FONT_UI,
+  SUITE_HEADER_META,
   SUITE_NAVY,
   SUITE_SHADOW_FLOAT,
   SUITE_TEXT_PRIMARY,
@@ -70,6 +71,8 @@ export default function CompactResultsHeader({
   }, []);
 
   const hairline = "rgba(0, 0, 0, 0.08)";
+  /** Mid-tone separators — readable on white / frosted header without competing with body text. */
+  const metaSep = "rgba(2, 24, 89, 0.28)";
 
   return (
     <header
@@ -106,71 +109,90 @@ export default function CompactResultsHeader({
           style={{ height: 26, width: "auto", display: "block" }}
         />
       </div>
-      <div style={{ flex: 1, display: "flex", alignItems: "center", overflow: "hidden", minWidth: 0 }}>
+      <div
+        style={{ flex: 1, display: "flex", alignItems: "center", overflow: "hidden", minWidth: 0 }}
+        title={`${companyName} · ${resultsDate} · Confidential`}
+      >
         <span
           style={{
-            fontSize: 15,
-            fontWeight: 600,
-            color: SUITE_TEXT_PRIMARY,
+            fontSize: 16,
+            fontWeight: 700,
+            color: SUITE_NAVY,
             whiteSpace: "nowrap",
             marginRight: 10,
             letterSpacing: "-0.02em",
+            lineHeight: 1.25,
           }}
         >
           {companyName}
         </span>
-        <span style={{ fontSize: 12, color: "#D1D1D6", marginRight: 10, flexShrink: 0 }} aria-hidden>
+        <span style={{ fontSize: 13, color: metaSep, marginRight: 10, flexShrink: 0, fontWeight: 700 }} aria-hidden>
           ·
         </span>
         <span
           style={{
-            fontSize: 12,
-            color: SUITE_CHROME_MUTED,
+            fontSize: 13,
+            color: SUITE_HEADER_META,
             whiteSpace: "nowrap",
             marginRight: 10,
             flexShrink: 0,
-            fontWeight: 500,
+            fontWeight: 600,
+            letterSpacing: "-0.01em",
           }}
         >
           {resultsDate}
         </span>
-        <span style={{ fontSize: 12, color: "#D1D1D6", marginRight: 10, flexShrink: 0 }} aria-hidden>
+        <span style={{ fontSize: 13, color: metaSep, marginRight: 10, flexShrink: 0, fontWeight: 700 }} aria-hidden>
           ·
         </span>
         <span
           style={{
-            fontSize: 12,
-            color: SUITE_CHROME_MUTED,
-            fontWeight: 500,
+            fontSize: 13,
+            color: SUITE_HEADER_META,
+            fontWeight: 600,
             whiteSpace: "nowrap",
             flexShrink: 0,
+            letterSpacing: "-0.01em",
           }}
         >
           Confidential
         </span>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, marginLeft: 8 }}>
-        <span style={{ width: 1, height: 24, backgroundColor: hairline, flexShrink: 0 }} aria-hidden />
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", marginRight: 2 }}>
+        <span style={{ width: 1, height: 32, backgroundColor: hairline, flexShrink: 0 }} aria-hidden />
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "stretch",
+            width: "max-content",
+            marginRight: 2,
+            gap: 3,
+          }}
+        >
           <span
             style={{
-              fontSize: 12,
+              display: "block",
+              fontSize: 16.5,
               color: SUITE_ACCENT_BRIGHT,
-              fontWeight: 600,
+              fontWeight: 700,
               whiteSpace: "nowrap",
               lineHeight: 1.2,
-              letterSpacing: "-0.01em",
+              letterSpacing: "-0.02em",
+              textAlign: "right",
             }}
           >
             {productName}
           </span>
           <span
             style={{
-              fontSize: 10,
-              color: SUITE_CHROME_MUTED,
+              display: "block",
+              fontSize: 13,
+              color: SUITE_HEADER_META,
               whiteSpace: "nowrap",
               lineHeight: 1.2,
-              fontWeight: 500,
+              fontWeight: 600,
+              textAlign: "right",
             }}
           >
             Powered by Wunderbar Digital
@@ -212,7 +234,7 @@ export default function CompactResultsHeader({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              backgroundColor: menuOpen ? SUITE_NAVY : "rgba(0, 0, 0, 0.04)",
+              backgroundColor: menuOpen ? SUITE_ACCENT_BRIGHT : "rgba(0, 0, 0, 0.04)",
               border: "none",
               borderRadius: "50%",
               color: menuOpen ? "#FFFFFF" : SUITE_NAVY,

@@ -10,6 +10,7 @@ import { resolvePillarPriority } from "@/src/lib/pillars/pillarPriority";
 import { PillarKey } from "@/src/types/pillars";
 import { PillarPanel } from "@/components/pillars/PillarPanel";
 import { getUpgradeCTA } from "@/lib/cta";
+import { WUNDERBAR_SUITE_COMPARE_URL } from "@/lib/wunderbarExternalUrls";
 
 interface BrandSnapshotResultsProps {
   brandName: string;
@@ -89,7 +90,7 @@ export function BrandSnapshotResults({
           </p>
           <Link
             href="/snapshot-plus"
-            className="inline-block px-6 py-3 bg-brand-blue text-white rounded-md font-semibold hover:bg-brand-blueHover transition"
+            className="inline-block px-6 py-3 bg-brand-blue text-white rounded-[5px] font-semibold hover:bg-brand-blueHover transition"
           >
             See how to strengthen what matters most right now →
           </Link>
@@ -98,12 +99,14 @@ export function BrandSnapshotResults({
 
       {/* 5. Secondary CTA (Explore the WunderBrand Suite™) */}
       <section className="text-center">
-        <Link
-          href="/brand-suite"
+        <a
+          href={WUNDERBAR_SUITE_COMPARE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
           className="text-brand-blue hover:text-brand-blueHover font-medium underline"
         >
           Explore the WunderBrand Suite™ →
-        </Link>
+        </a>
       </section>
     </div>
   );

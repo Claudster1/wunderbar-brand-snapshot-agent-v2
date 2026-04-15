@@ -44,6 +44,7 @@ export function getAvailableTabs(tier: ProductTier): ResultsTabDefinition[] {
 
 export const STRATEGY_SECTION_IDS = [
   "positioning",
+  "strategic-offer",
   "messaging-pillars",
   "archetype-voice",
   "icp-personas",
@@ -87,6 +88,7 @@ export const STRATEGY_SECTION_IDS_BY_TIER: Record<ProductTier, readonly Strategy
   ],
   blueprint: [
     "positioning",
+    "strategic-offer",
     "messaging-pillars",
     "archetype-voice",
     "icp-personas",
@@ -99,6 +101,7 @@ export const STRATEGY_SECTION_IDS_BY_TIER: Record<ProductTier, readonly Strategy
   ],
   "blueprint-plus": [
     "positioning",
+    "strategic-offer",
     "messaging-pillars",
     "archetype-voice",
     "icp-personas",
@@ -148,8 +151,14 @@ export const ACTIVATION_SECTION_IDS_BY_TIER: Record<ProductTier, readonly Activa
 };
 
 export function filterStrategySections<T extends { id: string }>(tier: ProductTier, sections: T[]): T[] {
-  const allow = new Set(STRATEGY_SECTION_IDS_BY_TIER[tier]);
+  const ids = STRATEGY_SECTION_IDS_BY_TIER[tier] ?? STRATEGY_SECTION_IDS_BY_TIER.snapshot;
+  const allow = new Set(ids);
   return sections.filter((s) => allow.has(s.id as StrategySectionId));
+}
+
+/** Narrative strategy blocks (outcomes, conversion, content, credibility, sales) — Snapshot+ and above. */
+export function showStrategyPlanNarrativePanels(tier: ProductTier): boolean {
+  return TIER_RANK[tier] >= TIER_RANK["snapshot-plus"];
 }
 
 export function filterActivationPlanSections<T extends { id: string }>(tier: ProductTier, sections: T[]): T[] {
@@ -164,6 +173,12 @@ export const FOUNDATION_AUDIENCE_SUBSECTION_IDS_BY_TIER: Record<ProductTier, rea
   blueprint: ["audience-persona-atlas", "audience-jtbd", "audience-journey", "audience-objections"],
   "blueprint-plus": ["audience-persona-atlas", "audience-jtbd", "audience-journey", "audience-objections"],
 };
+
+/**
+ * DOM `id` on Foundation (`FoundationBlueprintContent` → Voice & Expression).
+ * Strategy (and other tabs) can jump here instead of repeating archetype / voice bedrock copy.
+ */
+export const FOUNDATION_VOICE_EXPRESSION_ANCHOR_ID = "archetype-voice";
 
 export function filterFoundationAudienceSubsections<T extends { id: string }>(tier: ProductTier, subsections: T[]): T[] {
   const allowList = FOUNDATION_AUDIENCE_SUBSECTION_IDS_BY_TIER[tier];

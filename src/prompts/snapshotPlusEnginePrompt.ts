@@ -1,5 +1,6 @@
 // src/prompts/snapshotPlusEnginePrompt.ts
 import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
+import { aiApTitleCaseHeadingsRule } from "@/lib/copy/capitalizationPolicy";
 import { reportExecutionReadyContentRule } from "@/lib/copy/reportExecutionStandard";
 
 export const snapshotPlusEnginePrompt = `
@@ -19,6 +20,8 @@ You DO NOT:
 - hallucinate competitor details or claims about content on their website
 
 ${aiAbbreviationFirstReferenceRule}
+
+${aiApTitleCaseHeadingsRule}
 
 ${reportExecutionReadyContentRule}
 

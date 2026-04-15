@@ -1,5 +1,9 @@
 import { trackImplementationInterest } from "@/lib/trackImplementationInterest";
 import { pillarProblemMap } from "@/lib/pillarProblemMap";
+import {
+  WUNDERBAR_BLUEPRINT_DFY_IMPLEMENTATION_URL,
+  WUNDERBAR_BLUEPRINT_GUIDED_IMPLEMENTATION_URL,
+} from "@/lib/wunderbarExternalUrls";
 
 export function BlueprintActivationPaths({
   primaryPillar,
@@ -33,7 +37,7 @@ export function BlueprintActivationPaths({
             pillarProblemMap[primaryPillar]
           } into action, we work alongside your team to shape direction, decisions, and activation.`}
           cta="Learn more →"
-          href="/brand-suite?path=guided"
+          href={WUNDERBAR_BLUEPRINT_GUIDED_IMPLEMENTATION_URL}
           path="guided"
           primaryPillar={primaryPillar}
           brandName={brandName}
@@ -45,7 +49,7 @@ export function BlueprintActivationPaths({
             pillarProblemMap[primaryPillar]
           } — aligned to the priorities surfaced in your Snapshot+™.`}
           cta="Learn more →"
-          href="/brand-suite?path=dfy"
+          href={WUNDERBAR_BLUEPRINT_DFY_IMPLEMENTATION_URL}
           path="dfy"
           primaryPillar={primaryPillar}
           brandName={brandName}
@@ -80,6 +84,8 @@ function ActivationCard({
       </p>
       <a
         href={href}
+        target="_blank"
+        rel="noopener noreferrer"
         onClick={() => {
           if (!path || !primaryPillar || !brandName) return;
           trackImplementationInterest({

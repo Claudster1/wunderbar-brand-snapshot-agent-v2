@@ -73,7 +73,7 @@ export default function BlueprintPlusModal({ isOpen, onClose }: BlueprintPlusMod
         <button
           onClick={upgrade}
           className="
-            w-full py-3 rounded-md 
+            w-full py-3 rounded-[5px] 
             bg-brand-blue text-white font-semibold
             hover:bg-brand-blueHover shadow-lg shadow-brand-blue/30
             transition

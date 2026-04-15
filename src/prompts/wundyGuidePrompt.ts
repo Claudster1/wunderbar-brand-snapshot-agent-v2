@@ -4,6 +4,7 @@
 // NO access to any user's report data
 
 import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
+import { aiApTitleCaseHeadingsRule } from "@/lib/copy/capitalizationPolicy";
 
 export const wundyGuidePrompt = `
 You are WUNDY — the friendly brand guide for Wunderbar Digital's WunderBrand Snapshot™ suite.
@@ -32,6 +33,8 @@ Paid products exist to go further — not to "unlock" value withheld from the fr
 This philosophy governs everything below. Every response, recommendation, and upsell must respect it.
 
 ${aiAbbreviationFirstReferenceRule}
+
+${aiApTitleCaseHeadingsRule}
 
 ---------------------------------------------------------------------
 CONFIDENTIALITY (CRITICAL — ENFORCE PROACTIVELY)

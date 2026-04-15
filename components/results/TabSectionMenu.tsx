@@ -7,13 +7,13 @@ import {
   SUITE_CHROME_MUTED,
   SUITE_FONT_UI,
   SUITE_MUTED,
+  SUITE_NAV_ITEM_MUTED,
   SUITE_NAVY,
+  SUITE_RADIUS_BUTTON,
   SUITE_RADIUS_LG,
-  SUITE_SECTION_ACTIVE,
   SUITE_SECTION_ACTIVE_BG,
   SUITE_SECTION_ACTIVE_BORDER,
   SUITE_SHADOW_CARD,
-  SUITE_TEXT_PRIMARY,
 } from "@/components/results/suiteBrandTokens";
 
 export interface TabSectionMenuItem {
@@ -29,6 +29,11 @@ export interface TabSectionMenuProps {
   items: TabSectionMenuItem[];
   /** Horizontal chips (default) or sticky left column navigation */
   variant?: "chips" | "sidebar";
+  /**
+   * When true (chips only), omit outer card chrome — parent already uses `SUITE_CHIP_CARD_STYLE`
+   * (Foundation tab, Results “On this page”, suite tabs).
+   */
+  suiteChipCardEmbed?: boolean;
   /** One line under the title (chips row only—avoids repeating next to the sidebar). */
   description?: string;
   /** Section id currently in view (scroll spy from TabPageWithSidebar). */
@@ -239,6 +244,7 @@ export default function TabSectionMenu({
   title,
   items,
   variant = "chips",
+  suiteChipCardEmbed = false,
   description,
   activeSectionId = null,
   showIcons = true,
@@ -252,6 +258,7 @@ export default function TabSectionMenu({
   }
 
   const isSidebar = variant === "sidebar";
+  const embedInParentCard = suiteChipCardEmbed && !isSidebar;
 
   function navItemStyleFor(item: TabSectionMenuItem): CSSProperties {
     const active = activeSectionId !== null && item.id === activeSectionId;
@@ -260,9 +267,9 @@ export default function TabSectionMenu({
       alignItems: "center",
       gap: showIcons ? 10 : 0,
       border: active ? `1px solid ${SUITE_SECTION_ACTIVE_BORDER}` : `1px solid rgba(0, 0, 0, 0.08)`,
-      borderRadius: 980,
+      borderRadius: SUITE_RADIUS_BUTTON,
       background: active ? SUITE_SECTION_ACTIVE_BG : "#FFFFFF",
-      color: active ? SUITE_TEXT_PRIMARY : NAVY,
+      color: active ? NAVY : SUITE_NAV_ITEM_MUTED,
       padding: isSidebar ? "9px 12px" : "8px 14px",
       fontSize: 13,
       fontWeight: active ? 600 : 500,
@@ -271,10 +278,10 @@ export default function TabSectionMenu({
       fontFamily: SUITE_FONT_UI,
       boxShadow: isSidebar
         ? active
-          ? "0 1px 2px rgba(5, 95, 70, 0.12)"
+          ? "0 1px 3px rgba(7, 176, 242, 0.18)"
           : "none"
         : active
-          ? "0 2px 8px rgba(5, 95, 70, 0.12)"
+          ? "0 2px 8px rgba(7, 176, 242, 0.14)"
           : "0 1px 3px rgba(0, 0, 0, 0.04)",
       width: isSidebar ? "100%" : undefined,
       justifyContent: isSidebar ? "flex-start" : undefined,
@@ -298,7 +305,7 @@ export default function TabSectionMenu({
               alignItems: "center",
               justifyContent: "center",
               flexShrink: 0,
-              color: isActive ? SUITE_SECTION_ACTIVE : SKY,
+              color: isActive ? NAVY : SKY,
               opacity: isActive ? 1 : 0.92,
             }}
           >
@@ -336,27 +343,38 @@ export default function TabSectionMenu({
     );
   };
 
-  return (
-    <div
-      style={{
+  const rootChrome: CSSProperties = embedInParentCard
+    ? {
+        marginBottom: 0,
+        padding: 0,
+        border: "none",
+        borderRadius: 0,
+        borderLeft: "none",
+        background: "transparent",
+        boxShadow: "none",
+        fontFamily: SUITE_FONT_UI,
+      }
+    : {
         marginBottom: isSidebar ? 0 : 18,
         padding: isSidebar ? "14px 14px 16px" : "16px 18px",
         border: `1px solid rgba(0, 0, 0, 0.08)`,
-        borderRadius: isSidebar ? SUITE_RADIUS_LG : SUITE_RADIUS_LG,
-        borderLeft: isSidebar ? `3px solid ${SKY}` : `3px solid ${SKY}`,
-        background: isSidebar ? "#FFFFFF" : "#FFFFFF",
+        borderRadius: SUITE_RADIUS_LG,
+        borderLeft: `3px solid ${SKY}`,
+        background: "#FFFFFF",
         boxShadow: SUITE_SHADOW_CARD,
         fontFamily: SUITE_FONT_UI,
-      }}
-    >
+      };
+
+  return (
+    <div style={rootChrome}>
       <p
         style={{
           margin: description && !isSidebar ? "0 0 6px" : "0 0 10px",
-          fontSize: isSidebar ? 12 : 13,
+          fontSize: isSidebar ? 12 : 14,
           fontWeight: 600,
           textTransform: "none",
-          letterSpacing: "-0.02em",
-          color: SUITE_CHROME_MUTED,
+          letterSpacing: "0.06em",
+          color: SKY,
         }}
       >
         {title}

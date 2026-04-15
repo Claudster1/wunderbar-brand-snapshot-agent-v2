@@ -77,8 +77,7 @@ export default function DiagnosticTruthPanel({
           style={{
             fontSize: 10,
             fontWeight: 700,
-            textTransform: "uppercase",
-            letterSpacing: "0.12em",
+            letterSpacing: "0.04em",
             color: BLUE,
           }}
         >
@@ -210,8 +209,7 @@ function Card({ label, children }: { label: string; children: ReactNode }) {
         style={{
           fontSize: 10,
           fontWeight: 700,
-          textTransform: "uppercase",
-          letterSpacing: "0.1em",
+          letterSpacing: "0.04em",
           color: BLUE,
           display: "block",
           marginBottom: 6,

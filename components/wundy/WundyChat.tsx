@@ -106,7 +106,12 @@ export default function WundyChat({
   // Allow other UI surfaces to pre-seed or trigger Wundy chats.
   useEffect(() => {
     const handler = (event: Event) => {
-      const custom = event as CustomEvent<{ message?: string; autoSend?: boolean }>;
+      const custom = event as CustomEvent<{ message?: string; autoSend?: boolean; open?: boolean }>;
+      if (custom.detail?.open) {
+        setIsOpen(true);
+        setShowBubble(false);
+        return;
+      }
       const message = custom.detail?.message?.trim();
       if (!message) return;
       setIsOpen(true);

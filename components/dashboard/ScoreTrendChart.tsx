@@ -93,9 +93,9 @@ export default function ScoreTrendChart() {
   const innerHeight = chartHeight - padding.top - padding.bottom;
 
   // SVG viewBox-based chart
-  const svgWidth = 600;
-  const svgHeight = 200;
-  const svgPadding = { top: 20, right: 20, bottom: 40, left: 45 };
+  const svgWidth = 620;
+  const svgHeight = 224;
+  const svgPadding = { top: 24, right: 28, bottom: 52, left: 54 };
   const svgInnerWidth = svgWidth - svgPadding.left - svgPadding.right;
   const svgInnerHeight = svgHeight - svgPadding.top - svgPadding.bottom;
 
@@ -165,9 +165,10 @@ export default function ScoreTrendChart() {
                 strokeDasharray={tick === 0 ? "none" : "4,4"}
               />
               <text
-                x={svgPadding.left - 8}
+                x={svgPadding.left - 12}
                 y={yScale(tick) + 4}
                 textAnchor="end"
+                dominantBaseline="middle"
                 fontSize={11}
                 fill={SUB}
               >
@@ -193,8 +194,9 @@ export default function ScoreTrendChart() {
               {/* Date label on x-axis */}
               <text
                 x={xScale(i)}
-                y={svgHeight - 8}
+                y={svgHeight - 14}
                 textAnchor="middle"
+                dominantBaseline="hanging"
                 fontSize={10}
                 fill={SUB}
               >

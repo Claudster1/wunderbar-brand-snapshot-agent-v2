@@ -10,7 +10,7 @@ export function PrimaryCTA({
   return (
     <a
       href={href}
-      className="inline-block px-6 py-3 bg-brand-blue text-white rounded-md hover:bg-brand-blueHover transition"
+      className="inline-block px-6 py-3 bg-brand-blue text-white rounded-[5px] hover:bg-brand-blueHover transition"
     >
       {children}
     </a>

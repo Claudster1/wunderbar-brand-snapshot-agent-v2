@@ -1628,6 +1628,19 @@ export default function BrandSnapshotPlusReport() {
               <div style={{ fontSize: 15, color: SUB, lineHeight: 1.55 }}>
                 We had sufficient information to provide a {r.contextCoverage.overallPercent >= 80 ? "highly detailed" : r.contextCoverage.overallPercent >= 60 ? "thorough" : "foundational"} analysis. Areas with lower coverage may benefit from additional data in a follow-up diagnostic.
               </div>
+              {r.contextCoverage.overallPercent < 85 ? (
+                <p style={{ fontSize: 13, color: SUB, lineHeight: 1.5, margin: "10px 0 0" }}>
+                  Add detail in a quick follow-up to raise coverage.{" "}
+                  <a
+                    href="/refine/preview-snapshot-plus"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: BLUE, fontWeight: 700, textDecoration: "underline" }}
+                  >
+                    Refine now →
+                  </a>
+                </p>
+              ) : null}
             </div>
           </div>
 

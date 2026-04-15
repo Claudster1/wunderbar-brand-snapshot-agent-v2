@@ -74,12 +74,12 @@ export function BrandAlignmentGauge({ score }: BrandAlignmentGaugeProps) {
             className="transition-all duration-1000 ease-out"
           />
         </svg>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center">
-            <div className="text-4xl font-bold text-[#021859]">
+        <div className="absolute inset-0 flex items-center justify-center px-4 py-2">
+          <div className="max-w-[9.5rem] text-center">
+            <div className="text-4xl font-bold leading-none text-[#021859]">
               {animatedScore}
             </div>
-            <div className="text-sm text-slate-600 mt-1">
+            <div className="mt-2 text-sm leading-snug text-slate-600">
               {getScoreLabel(score)}
             </div>
           </div>

@@ -233,11 +233,61 @@ const MOCK_BLUEPRINT_PLUS_DATA = {
     conversion_intelligence_reference: {
       type: "ref",
       framework: "icp_conversion_intelligence_framework",
-      icpTier: "Secondary ICP",
+      icpTier: "Primary ICP",
       funnelStage: "Decision",
-      matrixCell: "secondary-icp:decision:sales-proof-sequence",
+      matrixCell: "primary-icp:decision:sales-proof-sequence",
     },
   },
+  icpGoToMarketPlans: [
+    {
+      icpLabel: "Primary ICP",
+      alignmentToBusinessStrategy:
+        "Prioritize founder-led and operator buyers where narrative consistency directly improves qualified pipeline and board-ready proof.",
+      strategicFocus: "One primary-offer story across hero, outbound, and deck with proof beside the ask.",
+      campaignContentNeeds: [
+        "Founder POV content tied to pipeline-quality language.",
+        "Late-funnel page variant with proof module above the fold.",
+        "Sales leave-behind: 14-day pilot RACI.",
+      ],
+      priorityTactics: [
+        "Align homepage and deck openers to one headline family in 14 days.",
+        "Weekly narrative consistency check on top outbound cohort.",
+        "Publish one anonymized before/after snapshot for evaluation-stage buyers.",
+      ],
+      conversion_intelligence_reference: {
+        type: "ref",
+        framework: "icp_conversion_intelligence_framework",
+        icpTier: "Primary ICP",
+        funnelStage: "Decision",
+        matrixCell: "primary-icp:decision:sales-proof-sequence",
+      },
+      competitiveConversationCues:
+        "Lead with shipped checkpoints vs. deck-only agencies; avoid trash-talking—contrast operating rhythm.",
+    },
+    {
+      icpLabel: "Secondary ICP",
+      alignmentToBusinessStrategy:
+        "Expand deal size when marketing and RevOps adopt shared definitions and proof placement at decision moments.",
+      strategicFocus: "MQL→SQL clarity, enablement sales will run, and finance-legible leading metrics.",
+      campaignContentNeeds: [
+        "Co-authored SQL definition one-pager.",
+        "Nurture branch with stage-matched proof for marketing-led accounts.",
+      ],
+      priorityTactics: [
+        "Workshop: CRM stages ↔ nurture CTAs.",
+        "30-day late-funnel proof placement test.",
+      ],
+      conversion_intelligence_reference: {
+        type: "ref",
+        framework: "icp_conversion_intelligence_framework",
+        icpTier: "Secondary ICP",
+        funnelStage: "Consideration",
+        matrixCell: "secondary-icp:consideration:paid-offer-ad",
+      },
+      competitiveConversationCues:
+        "Vs. ‘we have a positioning doc,’ sell adoption and weekly operating cadence, not more PDFs.",
+    },
+  ],
   thoughtLeadershipStrategy: {
     conversion_intelligence_reference: {
       type: "ref",

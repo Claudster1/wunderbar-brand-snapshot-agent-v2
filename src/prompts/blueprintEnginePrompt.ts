@@ -1,5 +1,6 @@
 // src/prompts/blueprintEnginePrompt.ts
 import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
+import { aiApTitleCaseHeadingsRule } from "@/lib/copy/capitalizationPolicy";
 import { reportExecutionReadyContentRule } from "@/lib/copy/reportExecutionStandard";
 
 export const blueprintEnginePrompt = `
@@ -15,6 +16,8 @@ You DO NOT speculate beyond what the inputs support.
 You DO NOT hallucinate claims about their business or competitors.
 
 ${aiAbbreviationFirstReferenceRule}
+
+${aiApTitleCaseHeadingsRule}
 
 ${reportExecutionReadyContentRule}
 
@@ -696,7 +699,33 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
       ] (5–6 objections)
       
       closingLanguage: "CTAs and next-step framing that match [businessName]'s brand voice and conversion strategy. Include 3–4 closing phrases calibrated to the brand archetype — a Sage closes differently than a Hero. Also include how to frame next steps when the prospect isn't ready to commit."
+      
+      conversion_intelligence_reference: { type: "ref", framework: "icp_conversion_intelligence_framework", icpTier: "", funnelStage: "", matrixCell: "", note: "" } — **REQUIRED.** Set this to the **same object** as the **primary ICP** (or revenue-critical ICP) entry in the root-level **icpGoToMarketPlans** array below so legacy surfaces stay aligned.
     }
+
+40b. ICP Go-To-Market Plans (REQUIRED — sales + marketing alignment per segment)
+    **BLUEPRINT EXCLUSIVE** — Emit **icpGoToMarketPlans** as a **root-level** JSON array (sibling to **audiencePersonas**, **salesConversationGuide**, **icpConversionIntelligenceFramework**).
+    
+    • Include **exactly one object per ICP** you defined: **primaryICP**, **secondaryICP**, and **each** **additionalICPs** entry when present. Do **not** invent extra segments.
+    • Each object's **icpLabel** MUST **exactly match** that ICP's **icpLabel** string (the same string buyer personas use in **icpAlignment**). If an ICP slot truly lacks icpLabel, match its **name** consistently across the report.
+    • **alignmentToBusinessStrategy**: 2–4 sentences linking this segment to **executiveSummary** / **strategicActionPlan** priorities, **brandFoundation.positioningStatement**, and **strategicOfferContext** — not generic marketing fluff.
+    • **strategicFocus**: 1–2 sentences on what winning with this ICP means.
+    • **campaignContentNeeds**: 4–7 bullets — concrete assets, hooks, proof types, and landing narratives campaigns must produce **for this ICP** (paste-ready direction, not "create content").
+    • **priorityTactics**: 5–8 **ordered** bullets for ~90 days; must align with **measurementFramework** and channel strategy; must **not** contradict **strategicOfferContext.scopeOut**.
+    • **conversion_intelligence_reference**: must use **icpTier**, **funnelStage**, and **matrixCell** values that **fit** the matching tier rows in **icpConversionIntelligenceFramework** (Blueprint+). For base Blueprint without that framework, still pick coherent tier/stage/cell labels consistent with this ICP's journey language.
+    • **competitiveConversationCues**: 2–4 sentences — how marketing **and** sales should discuss alternatives, landmines, and proof **for this ICP only**.
+    
+    icpGoToMarketPlans: [
+      {
+        icpLabel: ""
+        alignmentToBusinessStrategy: ""
+        strategicFocus: ""
+        campaignContentNeeds: []
+        priorityTactics: []
+        conversion_intelligence_reference: { type: "ref", framework: "icp_conversion_intelligence_framework", icpTier: "", funnelStage: "", matrixCell: "", note: "" }
+        competitiveConversationCues: ""
+      }
+    ]
 
 41. Measurement & KPI Framework
     **BLUEPRINT EXCLUSIVE** — How to measure whether this brand strategy is working.
@@ -729,6 +758,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
           tool: "The specific tool or platform to use (e.g., 'Google Search Console,' 'Google Analytics 4,' 'LinkedIn Analytics,' 'HubSpot,' 'Mailchimp reports')"
           howToSetUp: "Brief setup guidance — what to configure, what dashboard or report to create"
           frequency: "How often to check (weekly, monthly, quarterly)"
+          readerFriendlyOneLiner: "One sentence anyone on the leadership team can follow—parallel to howToSetUp, not a replacement. Define acronyms (UTM, SQL, CRM, etc.) in plain words here when they appear in tool/howToSetUp. Experienced marketers can ignore this field and execute from howToSetUp alone."
         }
       ] (5–7 recommendations covering the major tracking needs)
     }
@@ -795,6 +825,15 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
       ] (3–5 pitfalls)
       
       colorApplicationInImagery: "How [businessName]'s brand color palette shows up in photography, graphics, social media imagery, and presentation backgrounds. Not just what the colors are (that's in Visual Direction), but HOW they're applied visually — overlays, backgrounds, accent elements, tinted photography, graphic elements. Include specific guidance for the primary and secondary palette colors."
+      
+      moodBoardDescriptors: {
+        adjectives: ["6–8 adjectives that describe the visual mood for this brand (e.g., 'grounded,' 'precise,' 'warm,' 'editorial') — tied to archetype and audience, not generic stock words"]
+        textures: ["3–5 texture references that feel on-brand for imagery and backgrounds"]
+        environments: ["3–5 environment types or settings that fit this brand's photography"]
+        lightingConditions: "Specific lighting descriptors calibrated to this brand (e.g., soft natural window light, high-key clinical, golden-hour warmth)"
+        colorMoods: "How this brand's palette reads in photography — warm/cool, saturation, contrast — in one short paragraph"
+        designerNote: "A 2–3 sentence brief a designer could use to source or brief photography without a meeting; must reference this business's positioning and audience"
+      }
     }
 
 44. Asset Alignment Notes (within Visual Direction / Brand Imagery section)

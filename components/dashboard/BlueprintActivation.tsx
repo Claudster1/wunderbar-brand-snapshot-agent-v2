@@ -35,7 +35,7 @@ export function BlueprintActivation({ report }: BlueprintActivationProps) {
 
       <Link
         href="/blueprint"
-        className="inline-flex rounded-[10px] bg-[#07B0F2] px-5 py-3 text-sm font-semibold text-white hover:bg-[#059BD8] no-underline"
+        className="inline-flex rounded-[5px] bg-[#07B0F2] px-5 py-3 text-sm font-semibold text-white hover:bg-[#059BD8] no-underline"
       >
         Activate your Snapshot+™ priorities →
       </Link>

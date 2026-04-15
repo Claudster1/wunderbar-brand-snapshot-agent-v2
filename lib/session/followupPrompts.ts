@@ -4,6 +4,7 @@
 // conversion psychology, and engagement best practices.
 
 import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
+import { aiApTitleCaseHeadingsRule } from "@/lib/copy/capitalizationPolicy";
 
 export type SessionType = "talk_to_expert" | "activation_session";
 
@@ -108,6 +109,8 @@ PRODUCT URLS:
 • Talk to Expert: https://wunderbardigital.com/talk-to-an-expert
 
 ${aiAbbreviationFirstReferenceRule}
+
+${aiApTitleCaseHeadingsRule}
 
 ═══════════════════════════════════════════
 `;

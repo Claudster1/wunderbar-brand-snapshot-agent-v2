@@ -5,6 +5,7 @@ import LockedArchetypeIndicator from "./LockedArchetypeIndicator";
 import RevenueImpactStatement from "./RevenueImpactStatement";
 import WhatThisMeans from "./WhatThisMeans";
 import type { ProductTier } from "./ResultsTabNav";
+import { WUNDERBAR_SUITE_FROM_DIAGNOSTIC_URL } from "@/lib/wunderbarExternalUrls";
 
 interface DiagnosticData {
   businessName: string;
@@ -30,7 +31,7 @@ interface DiagnosticData {
   pillarDependencyExplanation?: string;
 }
 
-const UPGRADE_URL = "https://wunderbardigital.com/wunderbrand-suite";
+const UPGRADE_URL = WUNDERBAR_SUITE_FROM_DIAGNOSTIC_URL;
 const EXPERT_URL = "https://calendly.com/wunderbardigital/expert-call";
 
 interface FoundationExtrasProps {
@@ -44,7 +45,7 @@ export default function FoundationExtras({ slot, data }: FoundationExtrasProps) 
 
   if (slot === "signals") {
     return (
-      <div style={{ marginTop: 24, marginBottom: 8 }}>
+      <div className="space-y-6 md:space-y-8">
         <LockedSignalCard
           signalName="Competitive Vulnerability Signal"
           isLocked={isFree}
@@ -91,10 +92,12 @@ export default function FoundationExtras({ slot, data }: FoundationExtrasProps) 
   }
 
   if (slot === "synthesis") {
+    const rawPoints = (data as { synthesisPoints?: unknown }).synthesisPoints;
+    const synthesisPoints = Array.isArray(rawPoints) ? rawPoints : [];
     return (
       <WhatThisMeans
         businessName={data.businessName}
-        synthesisPoints={data.synthesisPoints}
+        synthesisPoints={synthesisPoints as { label: string; content: string }[]}
         pillarDependency={
           isBlueprintPlus && data.upstreamPillar && data.pillarDependencyExplanation
             ? {
@@ -104,7 +107,7 @@ export default function FoundationExtras({ slot, data }: FoundationExtrasProps) 
               }
             : undefined
         }
-        productTier={data.productTier}
+        productTier={data.productTier ?? "snapshot"}
         upgradeProductUrl={isFree ? UPGRADE_URL : undefined}
         talkToExpertUrl={EXPERT_URL}
       />

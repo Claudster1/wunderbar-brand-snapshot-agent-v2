@@ -22,7 +22,7 @@ export default function BlueprintPlusPage() {
               medium: "landing_cta",
               content: "blueprint_plus_hero_primary",
             })}
-            className="px-6 py-3 bg-brand-blue text-white font-semibold rounded-md shadow-lg hover:bg-brand-blueHover transition"
+            className="px-6 py-3 bg-brand-blue text-white font-semibold rounded-[5px] shadow-lg hover:bg-brand-blueHover transition"
           >
             Activate WunderBrand Blueprint+™ →
           </a>
@@ -151,7 +151,7 @@ export default function BlueprintPlusPage() {
             medium: "landing_cta",
             content: "blueprint_plus_footer_primary",
           })}
-          className="px-8 py-4 bg-brand-blue text-white font-semibold rounded-md shadow hover:bg-brand-blueHover transition"
+          className="px-8 py-4 bg-brand-blue text-white font-semibold rounded-[5px] shadow hover:bg-brand-blueHover transition"
         >
           Activate WunderBrand Blueprint+™ →
         </a>

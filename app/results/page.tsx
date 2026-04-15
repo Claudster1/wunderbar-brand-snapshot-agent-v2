@@ -3,7 +3,6 @@
 
 import Link from "next/link";
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -11,20 +10,20 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
+import nextDynamic from "next/dynamic";
 import { ResultsHeroSection } from "@/src/components/results/ResultsHeroSection";
-import { PillarBreakdown } from "@/components/PillarBreakdown";
 import { ResultsUpgradeCTA } from "@/components/results/ResultsUpgradeCTA";
 import { SuiteCTA } from "@/src/components/results/SuiteCTA";
-import { ContextCoverageMeter } from "@/src/components/results/ContextCoverageMeter";
 import { ResultsPageViewTracker } from "@/components/results/ResultsPageViewTracker";
 import { ImplementationIntro } from "@/components/SnapshotPlus/ImplementationIntro";
+import TabSectionMenu from "@/components/results/TabSectionMenu";
+import { ResultsBlockSkeleton } from "@/components/results/ResultsBlockSkeleton";
+import { ContextCoveragePlaceholder } from "@/components/results/ContextCoveragePlaceholder";
 import { getPrimaryPillar } from "@/lib/upgrade/primaryPillar";
 import { PillarKey } from "@/src/types/pillars";
 import type { UserRoleContext } from "@/src/types/snapshot";
-import { LockedResultsPreview } from "@/app/results/components/LockedResultsPreview";
 import { HumanAssistCTA } from "@/app/results/components/HumanAssistCTA";
 import { FoundationLockedPreview } from "@/app/results/components/FoundationLockedPreview";
-import { ResultsWundyChat } from "@/app/results/components/ResultsWundyChat";
 import ResultsTabsShell from "@/components/results/ResultsTabsShell";
 import {
   parseActivationPlanSectionId,
@@ -38,7 +37,34 @@ import FoundationExtras from "@/components/FoundationExtras";
 import { safeFetchJson } from "@/lib/resilience/safeFetch";
 import { getArchetypeIcon, getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
 import { buildActivationDiagnostics } from "@/lib/results/buildActivationDiagnostics";
+import { buildResultsTabNavItems } from "@/lib/results/buildResultsTabNavItems";
 import { normalizeBrandImageryDirection } from "@/lib/brand/brandImageryNormalize";
+import { TAB_SECTION_NAV_HINT_CHIPS_ONLY } from "@/lib/copy/resultsSuiteGuidance";
+import { resolveRuntimeBaseUrlForServerFetch } from "@/lib/server/runtimeBaseUrl";
+import { SUITE_CHIP_CARD_STYLE, SUITE_SECTION_KICKER_CLASS } from "@/components/results/suiteBrandTokens";
+
+const PillarBreakdown = nextDynamic(
+  () => import("@/components/PillarBreakdown").then((m) => ({ default: m.PillarBreakdown })),
+  { loading: () => <ResultsBlockSkeleton label="Loading pillar analysis" /> },
+);
+
+const ContextCoverageMeter = nextDynamic(
+  () => import("@/src/components/results/ContextCoverageMeter").then((m) => ({ default: m.ContextCoverageMeter })),
+  { loading: () => <ResultsBlockSkeleton label="Loading context coverage" /> },
+);
+
+const ResultsSuiteVisualSummary = nextDynamic(
+  () =>
+    import("@/components/results/charts/ResultsSuiteVisualSummary").then((m) => ({
+      default: m.ResultsSuiteVisualSummary,
+    })),
+  { loading: () => <ResultsBlockSkeleton label="Loading charts" /> },
+);
+
+const LockedResultsPreview = nextDynamic(
+  () => import("@/app/results/components/LockedResultsPreview").then((m) => ({ default: m.LockedResultsPreview })),
+  { loading: () => <ResultsBlockSkeleton label="Loading Snapshot+ preview" /> },
+);
 
 interface BrandSnapshotResult {
   businessName: string;
@@ -121,27 +147,6 @@ function toTitleLabel(value: string): string {
     .trim();
 }
 
-async function resolveBaseUrlFromHeaders() {
-  const hdrs = await headers();
-  const host = hdrs.get("x-forwarded-host") || hdrs.get("host");
-  if (!host) return null;
-  const proto = hdrs.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
-  return `${proto}://${host}`;
-}
-
-async function resolveRuntimeBaseUrl() {
-  const requestBaseUrl = await resolveBaseUrlFromHeaders();
-  if (process.env.NODE_ENV !== "production") {
-    return requestBaseUrl || process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  }
-  return (
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
-    requestBaseUrl ||
-    "http://localhost:3000"
-  );
-}
-
 function resolveProductTier(report: Record<string, unknown>): ProductTier {
   const metaTier = (report.full_report as { _meta?: { tier?: string } } | undefined)?._meta?.tier;
   if (metaTier === "blueprint_plus" || metaTier === "blueprint-plus") return "blueprint_plus";
@@ -185,6 +190,15 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         : undefined;
   const initialWorkbookSectionId = isWorkbookSectionId(workbookSectionRaw) ? workbookSectionRaw : undefined;
 
+  const activationFocusRaw =
+    typeof resolved.activationFocus === "string"
+      ? resolved.activationFocus
+      : Array.isArray(resolved.activationFocus)
+        ? resolved.activationFocus[0]
+        : undefined;
+  const activationFocusFromUrl =
+    typeof activationFocusRaw === "string" && activationFocusRaw.trim() ? activationFocusRaw.trim() : undefined;
+
   if (reportId && reportId.startsWith("preview-")) {
     redirect("/preview/results-tabs");
   }
@@ -207,7 +221,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   }
 
   // Fetch report and render full results (server component)
-  const baseUrl = await resolveRuntimeBaseUrl();
+  const baseUrl = await resolveRuntimeBaseUrlForServerFetch();
   const reportResponse = await safeFetchJson<any>(
     `${baseUrl}/api/snapshot/get?id=${encodeURIComponent(reportId)}`,
     { cache: "no-store", retries: 2, timeoutMs: 7000 },
@@ -478,6 +492,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 
   const diagnosticData = {
     companyName: data.businessName,
+    ...(businessType ? { businessType } : {}),
     reportId: data.reportId,
     userEmail: data.userEmail ?? "",
     resultsDeliveredAt:
@@ -594,10 +609,50 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       }
       return extra;
     })(),
+    ...(() => {
+      const fr = fullReport;
+      if (!fr || typeof fr !== "object") return {};
+      const direct = Array.isArray(fr.buyerPersonas) ? fr.buyerPersonas : null;
+      const bpe = fr.buyerPersonaEcosystem as { buyerPersonas?: unknown[] } | undefined;
+      const nested = Array.isArray(bpe?.buyerPersonas) ? bpe.buyerPersonas : null;
+      const list = direct && direct.length > 0 ? direct : nested && nested.length > 0 ? nested : null;
+      return list ? { buyerPersonas: list } : {};
+    })(),
+    ...(() => {
+      const fr = fullReport;
+      if (!fr || typeof fr !== "object") return {};
+      const row = fr as Record<string, unknown>;
+      const pick = (key: string): Record<string, unknown> => {
+        const v = row[key];
+        return v && typeof v === "object" && !Array.isArray(v) ? { [key]: v } : {};
+      };
+      const cp = row.contentPillars;
+      const contentPillars = Array.isArray(cp) && cp.length > 0 ? { contentPillars: cp } : {};
+      return {
+        ...pick("executiveSummary"),
+        ...pick("strategicAlignmentOverview"),
+        ...pick("messagingSystem"),
+        ...pick("measurementFramework"),
+        ...pick("brandHealthScorecard"),
+        ...pick("conversionStrategy"),
+        ...pick("websiteCopyDirection"),
+        ...pick("credibilityStrategy"),
+        ...pick("salesConversationGuide"),
+        ...pick("contentCalendarFramework"),
+        ...pick("audiencePersonas"),
+        ...(Array.isArray(row.icpGoToMarketPlans) && row.icpGoToMarketPlans.length > 0
+          ? { icpGoToMarketPlans: row.icpGoToMarketPlans }
+          : {}),
+        ...pick("competitivePositioning"),
+        ...contentPillars,
+      };
+    })(),
   };
 
+  const resultsNavItems = buildResultsTabNavItems({ hasSnapshotPlusAccess });
+
   const resultsContent = (
-    <div className="space-y-12 md:space-y-14">
+    <div className="space-y-16 md:space-y-20">
       <ResultsPageViewTracker
         brandAlignmentScore={data.brandAlignmentScore}
         primaryPillar={primaryPillarStr}
@@ -607,27 +662,38 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         contextCoverage={data.contextCoverage}
         email={data.userEmail}
       />
-      <section id="results-overview" className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
-        <p className="text-[14px] font-bold uppercase tracking-wide text-brand-blue mb-2">
-          Results
-        </p>
-        <h2 className="bs-h3 mb-2">Diagnostic Results</h2>
-        <p className="bs-body-sm text-brand-muted max-w-3xl">
-          This tab is your diagnostic readout: score, pillars, findings, and priority opportunities.
-          Use it to understand what the data says before moving into platform and activation decisions.
-        </p>
-      </section>
-
-      <div id="score-overview">
+      <div style={SUITE_CHIP_CARD_STYLE}>
+        <TabSectionMenu
+          title="On this page"
+          items={resultsNavItems}
+          description={TAB_SECTION_NAV_HINT_CHIPS_ONLY}
+          suiteChipCardEmbed
+        />
+      </div>
+      <section id="results-overview" className="scroll-mt-28">
         <ResultsHeroSection
           score={data.brandAlignmentScore}
           primaryPillar={primaryPillarStr}
           hasSnapshotPlus={hasSnapshotPlusAccess}
           userRoleContext={data.userRoleContext as UserRoleContext | undefined}
+          executiveContext={{
+            businessName: data.businessName,
+            stage: data.stage,
+            pillarScores: data.pillarScores,
+            primaryPillar: primaryPillarStr,
+            recommendationPreview: recommendationsList.slice(0, 3),
+          }}
         />
-      </div>
-      {!hasSnapshotPlusAccess && <FoundationExtras slot="signals" data={diagnosticData} />}
-      <div id="pillar-analysis">
+      </section>
+
+      <ResultsSuiteVisualSummary pillars={data.pillarScores} />
+
+      {!hasSnapshotPlusAccess && (
+        <div id="diagnostic-signals" className="scroll-mt-28">
+          <FoundationExtras slot="signals" data={diagnosticData} />
+        </div>
+      )}
+      <div id="pillar-analysis" className="scroll-mt-28">
         <PillarBreakdown
           pillars={data.pillarScores}
           insights={pillarInsightsRaw}
@@ -636,61 +702,88 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         />
       </div>
 
-      {recommendationsList.length > 0 && (
-        <section id="priority-actions" className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
-          <p className="text-[14px] font-bold uppercase tracking-wide text-brand-blue mb-2">
-            Priority Actions
+      <section
+        id="priority-actions"
+        className="scroll-mt-28 rounded-2xl border-2 border-brand-blue/20 bg-gradient-to-b from-white to-[#f4f9ff] p-6 sm:p-8 shadow-[0_6px_24px_rgba(2,24,89,0.06)]"
+      >
+        <div className="mb-7 pb-6 border-b border-brand-border/70 sm:mb-8">
+          <p className={`${SUITE_SECTION_KICKER_CLASS} mb-4`}>Opportunities</p>
+          <h2 className="bs-h3 mb-1">Priority Actions</h2>
+          <p className="bs-body-sm text-brand-muted max-w-2xl m-0">
+            Concrete moves derived from your diagnostic — distinct from pillar scores above.
           </p>
-          <h2 className="bs-h3 mb-2">What to focus on next</h2>
-          <div className="space-y-2">
+        </div>
+        {recommendationsList.length > 0 ? (
+          <ol
+            className="list-none m-0 p-0 space-y-4"
+            aria-label="Ranked priority actions from your diagnostic, up to five items"
+          >
             {recommendationsList.slice(0, 5).map((item, idx) => (
-              <p key={`${idx}-${item.slice(0, 30)}`} className="bs-body-sm text-brand-midnight">
-                {idx + 1}. {item}
-              </p>
+              <li
+                key={`${idx}-${item.slice(0, 30)}`}
+                className="flex gap-4 items-start rounded-xl border border-brand-border/60 bg-white/90 p-4 sm:p-5 shadow-sm"
+              >
+                <span
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[5px] bg-brand-blue text-white text-sm font-bold tabular-nums shadow-sm"
+                  aria-hidden
+                >
+                  {idx + 1}
+                </span>
+                <p className="bs-body-sm text-brand-midnight leading-relaxed m-0 pt-1">{item}</p>
+              </li>
             ))}
-          </div>
-        </section>
-      )}
+          </ol>
+        ) : (
+          <p className="bs-body-sm text-brand-muted m-0 max-w-2xl leading-relaxed">
+            No ranked priority actions were returned for this report. Use the pillar analysis and your
+            WunderBrand Score™ above to prioritize next steps, or complete the snapshot again with richer
+            inputs if guidance still feels thin.
+          </p>
+        )}
+      </section>
 
       {!hasSnapshotPlusAccess && (
-        <section id="archetype" className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
+        <section id="archetype" className="bs-card rounded-xl p-6 sm:p-7 border border-brand-border scroll-mt-28">
           <FoundationExtras slot="archetypeLocked" data={diagnosticData} />
         </section>
       )}
 
-      {!hasSnapshotPlusAccess && <FoundationLockedPreview likelyArchetype={likelyArchetype} />}
-
       {!hasSnapshotPlusAccess && (
-        <LockedResultsPreview
-          primaryPillar={primaryPillarStr}
-          pillarScores={data.pillarScores}
-          businessType={businessType}
-          businessName={data.businessName}
-          reportId={data.reportId}
-          email={data.userEmail}
-          likelyArchetype={likelyArchetype}
-          archetypeMeaning={archetypeMeaning}
-          archetypeIcon={archetypeIcon}
-        />
+        <div id="snapshot-plus-preview" className="space-y-16 md:space-y-20 scroll-mt-28">
+          <FoundationLockedPreview likelyArchetype={likelyArchetype} />
+          <LockedResultsPreview
+            primaryPillar={primaryPillarStr}
+            pillarScores={data.pillarScores}
+            businessType={businessType}
+            businessName={data.businessName}
+            reportId={data.reportId}
+            email={data.userEmail}
+            likelyArchetype={likelyArchetype}
+            archetypeMeaning={archetypeMeaning}
+            archetypeIcon={archetypeIcon}
+          />
+        </div>
       )}
 
-      {data.contextCoverage !== undefined && (
-        <div id="context-coverage">
+      <div id="context-coverage" className="scroll-mt-28">
+        {data.contextCoverage !== undefined ? (
           <ContextCoverageMeter
             coveragePercent={data.contextCoverage}
             areas={data.contextCoverageDetails?.areas}
             contextGaps={data.contextCoverageDetails?.contextGaps}
           />
-        </div>
-      )}
-
-      <div id="implementation">
-        <ImplementationIntro />
+        ) : (
+          <ContextCoveragePlaceholder />
+        )}
       </div>
 
-      <SuiteCTA />
+      <div id="implementation" className="scroll-mt-28">
+        <ImplementationIntro variant={hasSnapshotPlusAccess ? "compact" : "default"} />
+      </div>
 
-      <div id="next-steps">
+      {!hasSnapshotPlusAccess && <SuiteCTA />}
+
+      <div id="next-steps" className="space-y-8 md:space-y-10 scroll-mt-28">
         <HumanAssistCTA
           source="results_page"
           reportId={data.reportId}
@@ -730,6 +823,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
           initialResultsTab ?? "_",
           initialWorkbookSectionId ?? "_",
           initialActivationPlanId ?? "_",
+          activationFocusFromUrl ?? "_",
         ].join("|")}
         productTier={tabTier}
         resultsContent={resultsContent}
@@ -738,10 +832,8 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         initialActiveTab={initialResultsTab}
         initialWorkbookSectionId={initialWorkbookSectionId}
         initialActivationPlanId={initialActivationPlanId}
+        activationFocus={activationFocusFromUrl}
       />
-      <div className="bs-container-wide px-4 sm:px-6 md:px-8 pb-10">
-        <ResultsWundyChat reportId={data.reportId} productTier={productTier} />
-      </div>
     </main>
   );
 }

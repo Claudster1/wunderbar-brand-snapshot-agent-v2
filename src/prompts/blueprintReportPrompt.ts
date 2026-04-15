@@ -1,6 +1,7 @@
 // src/prompts/blueprintReportPrompt.ts
 // WunderBrand Blueprint™ ($997) - Report Generation Prompt
 import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
+import { aiApTitleCaseHeadingsRule } from "@/lib/copy/capitalizationPolicy";
 import { reportExecutionReadyContentRule } from "@/lib/copy/reportExecutionStandard";
 
 export const blueprintReportPrompt = `
@@ -14,10 +15,13 @@ STRICT REQUIREMENTS:
 - No references to "as mentioned earlier".
 - This report defines HOW the brand operates going forward.
 - Include examples, specific copy, and **execution-ready** guidance throughout — not vague to-do language without the actual words.
+- In measurementFramework.trackingRecommendations, every object must include readerFriendlyOneLiner: one sentence leadership can skim—parallel to howToSetUp, not a replacement. Spell out acronyms (UTM, SQL, CRM, etc.) there when they appear in tool or howToSetUp. Experienced operators should still be able to execute from howToSetUp alone.
 
 ${reportExecutionReadyContentRule}
 
 ${aiAbbreviationFirstReferenceRule}
+
+${aiApTitleCaseHeadingsRule}
 
 ---------------------------------------------------------------------
 REQUIRED OUTPUT STRUCTURE
@@ -124,6 +128,19 @@ The output must include ALL sections from WunderBrand Snapshot+™ (sections 1�
     - promptCount: 8
     - prompts: Array of exactly 8 prompts [{ category, title, instruction, prompt, whyItMatters }]
     These are MORE ADVANCED than the Foundational pack — focused on execution, campaigns, and scaling.
+
+23. Strategic Offer & Portfolio (**strategicOfferContext** — REQUIRED for Blueprint)
+    Use leading product practice: **Jobs-to-be-done** (clear job statement), **outcomes over outputs**, **scope discipline** (in / out), **leading success signals** with review cadence, and **one riskiest assumption** with a cheap validation step. Works for **services**, **products**, **programs**, or **hybrid** businesses—set primaryOffer.offerType accordingly (product | service | hybrid_program | marketplace_other).
+    - **methodologyFraming**: One sentence naming the lenses used (e.g. JTBD + scope + signals).
+    - **jobStatement**: "When …, I want to …, so I can …" for the main economic buyer.
+    - **primaryOffer**: name, offerType, oneLinePitch, whoItsFor, substitutesConsidered, whyTheySwitch — all specific to inputs; never generic placeholders.
+    - **secondaryOffers**: optional adjacent/upsell/entry offers with role labels.
+    - **painsRelieved**, **outcomesEnabled**: concrete lists tied to this business.
+    - **scopeIn**, **scopeOut**: what marketing and sales may promise vs must not promise (protects delivery and trust).
+    - **leadingSuccessSignals**: a few measurable **leading** indicators with reviewCadence (weekly | monthly | quarterly) and whyItMatters.
+    - **channelExecutionAlignment**: 2–4 sentences stating how **email, social, site, paid, and sales** should each reinforce **the same primary offer** without contradicting scopeOut.
+    - **riskiestAssumption**: one line + how to validate quickly (interview, landing test, pilot).
+    This block must stay **consistent** with brandFoundation, messagingSystem, and conversionStrategy—and must be **quotable** inside channel plans later (same offer name everywhere).
 
 ---------------------------------------------------------------------
 OUTPUT FORMAT
@@ -307,6 +324,26 @@ Return valid JSON with ALL these keys:
     "howClarityDrivesAction": "",
     "ctaHierarchy": [{ "level": "Primary", "action": "", "context": "" }]
   },
+  "strategicOfferContext": {
+    "methodologyFraming": "",
+    "jobStatement": "",
+    "primaryOffer": {
+      "name": "",
+      "offerType": "service",
+      "oneLinePitch": "",
+      "whoItsFor": "",
+      "substitutesConsidered": "",
+      "whyTheySwitch": ""
+    },
+    "secondaryOffers": [{ "name": "", "role": "entry" }],
+    "painsRelieved": [],
+    "outcomesEnabled": [],
+    "scopeIn": [],
+    "scopeOut": [],
+    "leadingSuccessSignals": [{ "signal": "", "reviewCadence": "monthly", "whyItMatters": "" }],
+    "channelExecutionAlignment": "",
+    "riskiestAssumption": ""
+  },
   "executionPromptPack": {
     "packName": "Execution Prompt Pack",
     "description": "",
@@ -344,7 +381,7 @@ Return valid JSON with ALL these keys:
     "overview": "",
     "perSectionKPIs": [{ "section": "", "recommendation": "", "kpi": "", "target": "" }],
     "leadingIndicators": [{ "indicator": "", "whatItMeans": "", "timeframe": "" }],
-    "trackingRecommendations": [{ "metric": "", "tool": "", "howToSetUp": "", "frequency": "" }]
+    "trackingRecommendations": [{ "metric": "", "tool": "", "howToSetUp": "", "frequency": "", "readerFriendlyOneLiner": "" }]
   },
   "brandStrategyRollout": {
     "brandStrategyOnePager": "",
@@ -362,7 +399,15 @@ Return valid JSON with ALL these keys:
     "subjectMatterGuidance": { "show": [], "avoid": [] },
     "stockPhotoSelectionCriteria": { "lighting": "", "composition": "", "colorTemperature": "", "diversity": "", "authenticityMarkers": "" },
     "imageDonts": [{ "dont": "", "why": "", "alternative": "" }],
-    "colorApplicationInImagery": ""
+    "colorApplicationInImagery": "",
+    "moodBoardDescriptors": {
+      "adjectives": [],
+      "textures": [],
+      "environments": [],
+      "lightingConditions": "",
+      "colorMoods": "",
+      "designerNote": ""
+    }
   },
   "brandHealthScorecard": {
     "overview": "",
@@ -427,6 +472,8 @@ CONTENT QUALITY REQUIREMENTS
 - Brand Archetype activation must describe specific behaviors, not generic archetypes
 - Conversion Strategy ctaHierarchy should have 3 levels: Primary, Secondary, Tertiary
 - Color swatches must include real hex codes, RGB values, and CMYK values that work together as a palette
+- **brandImageryDirection.moodBoardDescriptors** must be fully populated from this brand’s inputs: adjectives, textures, environments, lightingConditions, colorMoods, and designerNote — these power the Brand Standards **Mood Board** UI (distinct from the prose in photographyStyleDirection).
+- **strategicOfferContext** must be complete and business-specific; channel and conversion sections should not contradict **scopeOut** or rename the **primaryOffer** casually.
 
 For Brand Archetypes:
 - Use ONLY these 12: Sage, Hero, Outlaw, Magician, Lover, Caregiver, Ruler, Creator, Innocent, Explorer, Neighbor, Entertainer

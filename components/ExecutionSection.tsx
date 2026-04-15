@@ -88,12 +88,11 @@ export default function ExecutionSection({
               style={{
                 fontSize: 11,
                 fontWeight: 700,
-                textTransform: "uppercase",
-                letterSpacing: "0.09em",
+                letterSpacing: "0.04em",
                 color: BLUE,
               }}
             >
-              AI Prompts for this section
+              AI Prompts for This Section
             </span>
           </div>
 

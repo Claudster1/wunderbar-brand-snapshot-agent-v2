@@ -14,7 +14,7 @@ interface BrandScoreGaugeProps {
 export function BrandScoreGauge({ score, userRoleContext }: BrandScoreGaugeProps) {
   return (
     <section className="text-center px-4 py-6 sm:py-8">
-      <div className="flex items-center justify-center gap-2 mb-4 sm:mb-5">
+      <div className="flex items-center justify-center gap-2.5 mb-4 sm:mb-5">
         <h1 className="bs-h1">
           WunderBrand Score™
         </h1>

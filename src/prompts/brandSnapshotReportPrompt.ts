@@ -1,6 +1,7 @@
 // src/prompts/brandSnapshotReportPrompt.ts
 // WunderBrand Snapshot™ (Free) - Report Generation Prompt
 import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
+import { aiApTitleCaseHeadingsRule } from "@/lib/copy/capitalizationPolicy";
 import { reportExecutionReadyContentRule } from "@/lib/copy/reportExecutionStandard";
 
 export const brandSnapshotReportPrompt = `
@@ -17,6 +18,8 @@ STRICT RULES:
 ${reportExecutionReadyContentRule}
 
 ${aiAbbreviationFirstReferenceRule}
+
+${aiApTitleCaseHeadingsRule}
 
 REQUIRED OUTPUT STRUCTURE:
 

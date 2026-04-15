@@ -13,7 +13,7 @@ export function WorkbookRefinementPanel({ productTier, reportId }: Props) {
   return (
     <section className="space-y-6">
       <section className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
-        <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+        <p className="text-xs font-bold tracking-[0.04em] text-brand-muted mb-2">
           Diagnostic Truth (Locked)
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -32,7 +32,7 @@ export function WorkbookRefinementPanel({ productTier, reportId }: Props) {
       </section>
 
       <section className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
-        <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+        <p className="text-xs font-bold tracking-[0.04em] text-brand-muted mb-2">
           Editable Activation Content
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -53,7 +53,7 @@ export function WorkbookRefinementPanel({ productTier, reportId }: Props) {
       </section>
 
       <section className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
-        <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+        <p className="text-xs font-bold tracking-[0.04em] text-brand-muted mb-2">
           Regeneration Controls
         </p>
         <div className="flex flex-wrap gap-3">
@@ -75,7 +75,7 @@ export function WorkbookRefinementPanel({ productTier, reportId }: Props) {
       </section>
 
       <section className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
-        <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+        <p className="text-xs font-bold tracking-[0.04em] text-brand-muted mb-2">
           Open Workbook
         </p>
         <div className="flex flex-wrap gap-3">

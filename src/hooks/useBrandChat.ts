@@ -756,7 +756,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
       setLastFailedInput(trimmed);
       const errorMessage = createMessage(
         'assistant',
-        'I ran into a connection issue. Your progress is saved — tap "Retry" to try again, or rephrase your answer.'
+        'I ran into a connection issue. Your progress is saved — click "Retry" to try again, or rephrase your answer.'
       );
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
@@ -768,7 +768,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
   const retry = () => {
     if (lastFailedInput) {
       // Remove the error message from chat
-      setMessages((prev) => prev.filter((m) => m.text !== 'I ran into a connection issue. Your progress is saved — tap "Retry" to try again, or rephrase your answer.'));
+      setMessages((prev) => prev.filter((m) => m.text !== 'I ran into a connection issue. Your progress is saved — click "Retry" to try again, or rephrase your answer.'));
       const inputToRetry = lastFailedInput;
       setLastFailedInput(null);
       sendMessage(inputToRetry);

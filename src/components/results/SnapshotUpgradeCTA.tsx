@@ -28,7 +28,7 @@ export function SnapshotUpgradeCTA({
 
       <Link
         href="/snapshot-plus"
-        className="inline-block mt-4 px-8 py-4 bg-brand-blue rounded-md font-semibold"
+        className="inline-block mt-4 px-8 py-4 bg-brand-blue text-white rounded-[5px] font-semibold hover:bg-brand-blueHover transition"
       >
         Take it further with Snapshot+™ →
       </Link>

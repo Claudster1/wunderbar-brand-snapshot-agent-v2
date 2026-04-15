@@ -124,5 +124,8 @@ export function getActivationDownloadsHint(tier: ProductTier): string {
   if (tier === "blueprint-plus") {
     return "Included in Downloads: Activation Plan PDF, Digital Marketing Strategy, Competitive Intelligence Brief, Strategic Action Plan, Activation Schedule, and role-based packs.";
   }
+  if (tier === "blueprint") {
+    return "Included in Downloads: Activation Schedule plus core strategy and standards PDFs. Blueprint+ adds fuller activation plan exports, competitive briefs, strategic action plan, and role packs—same Strategy depth; the upgrade is heavier execution deliverables.";
+  }
   return "Included in Downloads: Activation Schedule plus your core strategy/playbook PDFs.";
 }

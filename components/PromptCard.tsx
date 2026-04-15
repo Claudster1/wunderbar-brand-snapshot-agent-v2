@@ -76,8 +76,7 @@ export default function PromptCard({
             borderRadius: 10,
             fontSize: 10,
             fontWeight: 700,
-            textTransform: "uppercase",
-            letterSpacing: "0.08em",
+            letterSpacing: "0.03em",
             backgroundColor: `${packColor}18`,
             color: packColor,
             whiteSpace: "nowrap",
@@ -139,14 +138,13 @@ export default function PromptCard({
               style={{
                 fontSize: 10,
                 fontWeight: 700,
-                textTransform: "uppercase",
-                letterSpacing: "0.09em",
+                letterSpacing: "0.04em",
                 color: MID_GRAY,
                 display: "block",
                 marginBottom: 4,
               }}
             >
-              Why this works for you
+              Why This Works for You
             </span>
             <p style={{ fontSize: 13, color: "#2D3A4A", lineHeight: 1.6, margin: 0 }}>
               {prompt.whyItMatters}
@@ -165,14 +163,13 @@ export default function PromptCard({
               style={{
                 fontSize: 10,
                 fontWeight: 700,
-                textTransform: "uppercase",
-                letterSpacing: "0.09em",
+                letterSpacing: "0.04em",
                 color: BLUE,
                 display: "block",
                 marginBottom: 4,
               }}
             >
-              How to use
+              How to Use
             </span>
             <p style={{ fontSize: 13, color: NAVY, lineHeight: 1.5, margin: 0 }}>
               {prompt.howToUse}

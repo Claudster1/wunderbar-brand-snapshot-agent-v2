@@ -13,7 +13,13 @@ import OpenAI from "openai";
 
 export const dynamic = "force-dynamic";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+function getOpenAI(): OpenAI {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey?.trim()) {
+    throw new Error("Missing credentials. Please pass an `apiKey`, or set the `OPENAI_API_KEY` environment variable.");
+  }
+  return new OpenAI({ apiKey });
+}
 
 interface AssetRow {
   id: string;
@@ -216,7 +222,7 @@ export async function POST(req: NextRequest) {
           const base64 = Buffer.from(buffer).toString("base64");
           const dataUri = `data:${asset.file_type};base64,${base64}`;
 
-          const completion = await openai.chat.completions.create({
+          const completion = await getOpenAI().chat.completions.create({
             model: "gpt-4o",
             max_tokens: 1500,
             response_format: { type: "json_object" },
@@ -236,7 +242,7 @@ export async function POST(req: NextRequest) {
             try { analysis = JSON.parse(raw); } catch { analysis = { raw }; }
           }
         } else {
-          const completion = await openai.chat.completions.create({
+          const completion = await getOpenAI().chat.completions.create({
             model: "gpt-4o-mini",
             max_tokens: 1000,
             response_format: { type: "json_object" },

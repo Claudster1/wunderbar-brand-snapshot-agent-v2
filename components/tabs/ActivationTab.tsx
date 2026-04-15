@@ -13,6 +13,7 @@ import {
   SUITE_BORDER,
   SUITE_MUTED,
   SUITE_NAVY,
+  SUITE_RADIUS_BUTTON,
 } from "@/components/results/suiteBrandTokens";
 import { filterActivationPlanSections } from "@/components/results/tabConfig";
 import { getSuiteProgressHint } from "@/lib/copy/resultsSuiteGuidance";
@@ -28,6 +29,7 @@ import {
   splitActivationSectionsByAudienceVsCampaign,
   type ActivationTabFocus,
 } from "@/lib/activation/activationPlanAudienceVsCampaign";
+import { buildActivationNavMenuItems } from "@/lib/activation/activationTabNav";
 import { buildActivationFullPlanHref } from "@/lib/activation/activationPlanLinks";
 import { downloadActivationPackMarkdown } from "@/lib/activation/exportActivationPack";
 import { WORKBOOK_SECTIONS, type WorkbookSectionId } from "@/lib/workbookTypes";
@@ -38,6 +40,8 @@ import { ExecutionPromptCards } from "@/app/results/components/ExecutionPromptCa
 import { MessagingMatrix } from "@/app/results/components/MessagingMatrix";
 import type { BrandPromptContext } from "@/src/lib/prompts/promptLibrary";
 import AudienceFoundationInfoTrigger from "@/components/activation/AudienceFoundationInfoTrigger";
+import { ActivationChannelMixChart } from "@/components/results/charts/ActivationChannelMixChart";
+import ActivationStrategyBridgeBanner from "@/components/activation/ActivationStrategyBridgeBanner";
 
 const NAVY = SUITE_NAVY;
 const BLUE = SUITE_ACCENT_BRIGHT;
@@ -45,8 +49,8 @@ const MID_GRAY = SUITE_MUTED;
 const BORDER = SUITE_BORDER;
 
 const LINK_BTN: CSSProperties = {
-  padding: "7px 12px",
-  borderRadius: 7,
+  padding: "8px 14px",
+  borderRadius: SUITE_RADIUS_BUTTON,
   border: `1px solid ${BORDER}`,
   background: "#FFFFFF",
   color: NAVY,
@@ -71,8 +75,7 @@ const SECTION_HEAD_KICKER: CSSProperties = {
   margin: 0,
   fontSize: 11,
   fontWeight: 800,
-  letterSpacing: "0.1em",
-  textTransform: "uppercase",
+  letterSpacing: "0.04em",
   color: MID_GRAY,
 };
 
@@ -112,6 +115,10 @@ interface ActivationTabProps {
   scheduleRows: ScheduleRow[];
   onExportSchedule: () => void;
   onEditInWorkbook: (sectionId: WorkbookSectionId, activationPlanId?: string) => void;
+  /** Switch suite tab to Strategy (from ResultsTabsShell). */
+  onOpenStrategyTab: () => void;
+  shellRendersSectionChips?: boolean;
+  shellActiveSectionId?: string | null;
 }
 
 function clampActivationFocus(
@@ -169,8 +176,7 @@ const PLAN_TABLE_TH: CSSProperties = {
   color: "#FFFFFF",
   fontWeight: 700,
   fontSize: 11,
-  textTransform: "uppercase",
-  letterSpacing: "0.06em",
+  letterSpacing: "0.02em",
   whiteSpace: "nowrap",
 };
 
@@ -231,6 +237,9 @@ export default function ActivationTab({
   scheduleRows,
   onExportSchedule,
   onEditInWorkbook,
+  onOpenStrategyTab,
+  shellRendersSectionChips = false,
+  shellActiveSectionId = null,
 }: ActivationTabProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -307,18 +316,16 @@ export default function ActivationTab({
     }));
   }, [groupedChannelPlans]);
   const showLeadMagnetOfferPrompt = useMemo(() => campaignRecommendsLeadMagnet(diagnosticData), [diagnosticData]);
-  const activationMenuItems = useMemo(() => {
-    const items: Array<{ id: string; label: string; icon?: string }> = [
-      { id: "activation-overview", label: "Overview", icon: "OV" },
-    ];
-    for (const section of sectionsForTable) {
-      items.push({ id: `activation-${section.id}`, label: section.label });
-    }
-    if ((!showFoundationCampaignToggle || activationFocus === "campaigns") && scheduleRows.length > 0) {
-      items.push({ id: "activation-spreadsheet-schedule", label: "Schedule (.xlsx)", icon: "SC" });
-    }
-    return items;
-  }, [sectionsForTable, showFoundationCampaignToggle, activationFocus, scheduleRows.length]);
+  const activationMenuItems = useMemo(
+    () =>
+      buildActivationNavMenuItems(
+        productTier,
+        diagnosticData,
+        scheduleRows,
+        searchParams.get("activationFocus"),
+      ),
+    [productTier, diagnosticData, scheduleRows, searchParamsKey],
+  );
 
   const activationSectionNavHint = useMemo(() => {
     if (showFoundationCampaignToggle && activationFocus === "audience-journey") {
@@ -356,6 +363,8 @@ export default function ActivationTab({
       navItems={activationMenuItems}
       className="activation-tab-content"
       sectionNavHint={activationSectionNavHint}
+      shellRendersSectionChips={shellRendersSectionChips}
+      shellActiveSectionId={shellActiveSectionId}
     >
       <div
         style={{
@@ -364,39 +373,24 @@ export default function ActivationTab({
           borderBottom: `1px solid ${BORDER}`,
         }}
       >
-        <p
-          style={{
-            margin: 0,
-            fontSize: 14,
-            fontWeight: 700,
-            textTransform: "uppercase",
-            letterSpacing: "0.12em",
-            color: BLUE,
-          }}
-        >
-          Activation
-        </p>
-        <h2 style={{ fontSize: 26, fontWeight: 700, color: NAVY, margin: "8px 0 12px", lineHeight: 1.2 }}>
-          {productTier === "blueprint-plus" ? "Channel Execution Pack" : "Activation Plan & Channel Playbooks"}
+        <h2 className="bs-h2 mb-3 mt-0">
+          {productTier === "blueprint-plus"
+            ? "Activation: content & execution plans"
+            : productTier === "blueprint"
+              ? "Activation: plans to run your strategy"
+              : "Activation plan and channel playbooks"}
         </h2>
         {suiteProgressHint ? (
-          <p
-            style={{
-              fontSize: 13,
-              fontWeight: 600,
-              color: "#0369A1",
-              lineHeight: 1.55,
-              maxWidth: 760,
-              margin: "0 0 12px",
-            }}
-          >
+          <p className="text-sm font-semibold text-brand-blue max-w-[760px] mb-3 m-0" style={{ lineHeight: 1.55 }}>
             {suiteProgressHint}
           </p>
         ) : null}
-        <p style={{ fontSize: 16, color: MID_GRAY, lineHeight: 1.6, maxWidth: 760, margin: "0 0 14px" }}>
+        <p className="bs-body-sm text-brand-muted max-w-[760px] mb-3.5 m-0 leading-relaxed">
           {productTier === "blueprint-plus"
-            ? "Paste-ready sequences, hooks, and channel plans tied to your ICPs and personas — not a homework list. Use sections as the briefing layer for your team, then refine in Workbook."
-            : "Channel-ready plans and implementation playbooks, organized by section so your team can assign owners, ship content, and track measurable progress."}
+            ? "Blueprint+ is the full tier: Activation is where the actual deliverable lives—paste-ready copy and sequences, channel-by-channel execution plans, schedules, and prompt-backed drafts. This is not a thin checklist; it is what you ship and brief from. Refine in Workbook when you iterate."
+            : productTier === "blueprint"
+              ? "Blueprint: Strategy (including what you sell—products or services) stays the same depth as Blueprint+. Here in Activation you get structured channel plans, roadmaps, and schedules to execute—built to brief your team and refine in Workbook. Blueprint+ layers in more ship-ready copy and deeper packaged assets in the same workflow."
+              : "Channel-ready plans and implementation playbooks, organized by section so your team can assign owners, ship content, and track measurable progress."}
         </p>
         {activationPersonaIcpBanner ? (
           <p
@@ -415,8 +409,8 @@ export default function ActivationTab({
             {activationPersonaIcpBanner}
           </p>
         ) : null}
-        <p style={{ fontSize: 13, color: "#2D3A4A", lineHeight: 1.55, maxWidth: 760, margin: 0 }}>
-          <span style={{ color: MID_GRAY }}>
+        <p className="bs-body-sm text-brand-muted max-w-[760px] m-0" style={{ lineHeight: 1.55 }}>
+          <span className="text-brand-muted">
             Plans match your tier
             {productTier === "snapshot-plus"
               ? " (Snapshot+)"
@@ -436,7 +430,8 @@ export default function ActivationTab({
               onClick={() => setShowPlanningLayers((v) => !v)}
               style={{
                 ...LINK_BTN,
-                background: showPlanningLayers ? "#E8F6FE" : "#FFFFFF",
+                background: showPlanningLayers ? BLUE : "#FFFFFF",
+                color: showPlanningLayers ? "#FFFFFF" : NAVY,
                 borderColor: showPlanningLayers ? BLUE : BORDER,
               }}
             >
@@ -445,6 +440,7 @@ export default function ActivationTab({
           ) : null}
         </div>
       </div>
+      <ActivationStrategyBridgeBanner diagnosticData={diagnosticData} onOpenStrategy={onOpenStrategyTab} />
       <section id="activation-overview" style={{ scrollMarginTop: 120, marginBottom: 40 }}>
         <ActivationSectionHeading
           kicker="Step 1"
@@ -462,8 +458,10 @@ export default function ActivationTab({
         >
           <p style={{ margin: 0, fontSize: 14, color: "#2D3A4A", lineHeight: 1.55, fontWeight: 600 }}>
             {productTier === "blueprint-plus"
-              ? "The same channel intelligence as your PDFs — surfaced here so you can copy lines, brief agencies, and align media without re-deriving strategy."
-              : "Each channel row below links to a focused plan page with full narrative and exports. Use Workbook to refine, save versions, and run prompts from the Prompt library."}
+              ? "Everything included at this tier is here: the same depth as your PDFs plus interactive copy blocks, plans, and timelines—so you can brief agencies, assign owners, and execute without re-deriving strategy elsewhere."
+              : productTier === "blueprint"
+                ? "Blueprint: each row links to a clear plan page and schedule hooks—structured for owners and timelines. Upgrade to Blueprint+ when you want the same flow with more paste-ready copy blocks and fuller export packs."
+                : "Each channel row below links to a focused plan page with full narrative and exports. Use Workbook to refine, save versions, and run prompts from the Prompt library."}
           </p>
         </div>
       </section>
@@ -588,7 +586,8 @@ export default function ActivationTab({
               onClick={() => setActivationFocusInUrl("audience-journey")}
               style={{
                 ...LINK_BTN,
-                background: activationFocus === "audience-journey" ? "#E8F6FE" : "#FFFFFF",
+                background: activationFocus === "audience-journey" ? BLUE : "#FFFFFF",
+                color: activationFocus === "audience-journey" ? "#FFFFFF" : NAVY,
                 borderColor: activationFocus === "audience-journey" ? BLUE : BORDER,
               }}
             >
@@ -601,7 +600,8 @@ export default function ActivationTab({
               onClick={() => setActivationFocusInUrl("campaigns")}
               style={{
                 ...LINK_BTN,
-                background: activationFocus === "campaigns" ? "#E8F6FE" : "#FFFFFF",
+                background: activationFocus === "campaigns" ? BLUE : "#FFFFFF",
+                color: activationFocus === "campaigns" ? "#FFFFFF" : NAVY,
                 borderColor: activationFocus === "campaigns" ? BLUE : BORDER,
               }}
             >
@@ -624,7 +624,8 @@ export default function ActivationTab({
             onClick={() => setChannelPlansLayout("compact")}
             style={{
               ...LINK_BTN,
-              background: channelPlansLayout === "compact" ? "#E8F6FE" : "#FFFFFF",
+              background: channelPlansLayout === "compact" ? BLUE : "#FFFFFF",
+              color: channelPlansLayout === "compact" ? "#FFFFFF" : NAVY,
               borderColor: channelPlansLayout === "compact" ? BLUE : BORDER,
             }}
           >
@@ -635,7 +636,8 @@ export default function ActivationTab({
             onClick={() => setChannelPlansLayout("detailed")}
             style={{
               ...LINK_BTN,
-              background: channelPlansLayout === "detailed" ? "#E8F6FE" : "#FFFFFF",
+              background: channelPlansLayout === "detailed" ? BLUE : "#FFFFFF",
+              color: channelPlansLayout === "detailed" ? "#FFFFFF" : NAVY,
               borderColor: channelPlansLayout === "detailed" ? BLUE : BORDER,
             }}
           >
@@ -658,9 +660,9 @@ export default function ActivationTab({
               style={{
                 ...LINK_BTN,
                 marginLeft: "auto",
-                background: NAVY,
+                background: BLUE,
                 color: "#FFFFFF",
-                borderColor: NAVY,
+                borderColor: BLUE,
               }}
             >
               Download activation pack (.md)
@@ -692,13 +694,13 @@ export default function ActivationTab({
                     Playbook
                   </th>
                   <th scope="col" style={{ ...PLAN_TABLE_TH, whiteSpace: "normal", minWidth: 260 }}>
-                    At a glance
+                    At a Glance
                   </th>
                   <th scope="col" style={{ ...PLAN_TABLE_TH, width: "14%", minWidth: 100 }}>
                     Refine
                   </th>
                   <th scope="col" style={{ ...PLAN_TABLE_TH, width: "20%", minWidth: 120 }}>
-                    Next step
+                    Next Step
                   </th>
                 </tr>
               </thead>
@@ -804,9 +806,9 @@ export default function ActivationTab({
                               href={fullPlanHref}
                               style={{
                                 ...LINK_BTN,
-                                background: NAVY,
+                                background: BLUE,
                                 color: "#FFFFFF",
-                                borderColor: NAVY,
+                                borderColor: BLUE,
                                 textAlign: "center",
                                 minWidth: 108,
                                 fontSize: 11,
@@ -819,7 +821,16 @@ export default function ActivationTab({
                           <button
                             type="button"
                             onClick={() => onEditInWorkbook(section.workbookSectionId, section.id)}
-                            style={{ ...LINK_BTN, minWidth: 108, textAlign: "center", fontSize: 11, padding: "6px 10px" }}
+                            style={{
+                              ...LINK_BTN,
+                              minWidth: 108,
+                              textAlign: "center",
+                              fontSize: 11,
+                              padding: "6px 10px",
+                              background: BLUE,
+                              color: "#FFFFFF",
+                              borderColor: BLUE,
+                            }}
                           >
                             Edit in Workbook
                           </button>
@@ -848,13 +859,13 @@ export default function ActivationTab({
                   Playbook
                 </th>
                 <th scope="col" style={{ ...PLAN_TABLE_TH, whiteSpace: "normal", minWidth: 280 }}>
-                  What to execute
+                  What to Execute
                 </th>
                 <th scope="col" style={{ ...PLAN_TABLE_TH, whiteSpace: "normal", minWidth: 220 }}>
-                  Creative &amp; hooks
+                  Creative &amp; Hooks
                 </th>
                 <th scope="col" style={{ ...PLAN_TABLE_TH, width: "18%", minWidth: 132 }}>
-                  Next step
+                  Next Step
                 </th>
               </tr>
             </thead>
@@ -937,8 +948,8 @@ export default function ActivationTab({
                           Flow diagrams and journey map live on <strong style={{ color: NAVY }}>Open plan</strong> for this channel.
                         </p>
                       ) : null}
-                      <p style={{ margin: "6px 0 8px", fontSize: 11, fontWeight: 700, color: MID_GRAY, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                        Full playbook text
+                      <p style={{ margin: "6px 0 8px", fontSize: 11, fontWeight: 700, color: MID_GRAY, letterSpacing: "0.03em" }}>
+                        Full Playbook Text
                       </p>
                       <div
                         style={{
@@ -966,13 +977,13 @@ export default function ActivationTab({
                         maxWidth: 300,
                       }}
                     >
-                      <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: MID_GRAY, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                        Suggested visuals
+                      <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: MID_GRAY, letterSpacing: "0.03em" }}>
+                        Suggested Visuals
                       </p>
                       <p style={{ margin: "6px 0 14px", fontSize: 12, color: "#2D3A4A", lineHeight: 1.5 }}>
                         {imageryAndCreativeLine(section.id)}
                       </p>
-                      <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: MID_GRAY, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                      <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: MID_GRAY, letterSpacing: "0.03em" }}>
                         Hooks &amp; CTAs
                       </p>
                       {hookLines.length > 0 ? (
@@ -1005,9 +1016,9 @@ export default function ActivationTab({
                             href={fullPlanHref}
                             style={{
                               ...LINK_BTN,
-                              background: NAVY,
+                              background: BLUE,
                               color: "#FFFFFF",
-                              borderColor: NAVY,
+                              borderColor: BLUE,
                               textAlign: "center",
                               minWidth: 118,
                             }}
@@ -1020,7 +1031,14 @@ export default function ActivationTab({
                         <button
                           type="button"
                           onClick={() => onEditInWorkbook(section.workbookSectionId, section.id)}
-                          style={{ ...LINK_BTN, minWidth: 118, textAlign: "center" }}
+                          style={{
+                            ...LINK_BTN,
+                            minWidth: 118,
+                            textAlign: "center",
+                            background: BLUE,
+                            color: "#FFFFFF",
+                            borderColor: BLUE,
+                          }}
                         >
                           Edit in Workbook
                         </button>
@@ -1059,6 +1077,7 @@ export default function ActivationTab({
             title="Activation schedule (spreadsheet)"
             description="Exportable .xlsx — separate from the 90-day narrative roadmap in Step 2. Preview shows the first 12 rows; get the full file from Downloads or below."
           />
+          <ActivationChannelMixChart rows={scheduleRows} />
           <ExecutionSchedule rows={scheduleRows} onExportClick={onExportSchedule} showHeading={false} />
         </section>
       )}

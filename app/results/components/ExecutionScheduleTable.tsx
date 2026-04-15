@@ -56,7 +56,7 @@ export function ExecutionScheduleTable(props: Props) {
 
   return (
     <section className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border overflow-x-auto">
-      <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+      <p className="text-xs font-bold tracking-[0.04em] text-brand-muted mb-2">
         Activation Schedule
       </p>
       <h3 className="bs-h3 mb-3">90-day implementation view</h3>

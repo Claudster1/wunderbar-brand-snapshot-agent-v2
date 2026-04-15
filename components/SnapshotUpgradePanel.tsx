@@ -75,7 +75,7 @@ export function SnapshotUpgradePanel({
           {/* Upgrade Button */}
           <a 
             href={snapshotPlusCheckoutUrl} 
-            className="inline-block bg-brand-blue hover:bg-brand-blueHover text-white font-semibold px-6 py-3 rounded-md shadow-md transition"
+            className="inline-block bg-brand-blue hover:bg-brand-blueHover text-white font-semibold px-6 py-3 rounded-[5px] shadow-md transition"
           >
             Upgrade to Snapshot+™ →
           </a>

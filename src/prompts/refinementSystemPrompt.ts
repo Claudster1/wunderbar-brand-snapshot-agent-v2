@@ -3,6 +3,7 @@
 // The user has already completed their WunderBrand Snapshot™ and wants to add more context.
 
 import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
+import { aiApTitleCaseHeadingsRule } from "@/lib/copy/capitalizationPolicy";
 
 export function buildRefinementSystemPrompt(reportContext: {
   businessName: string;
@@ -42,6 +43,8 @@ This is a REFINEMENT conversation. The user has already completed their WunderBr
 IMPORTANT: You are NOT starting from scratch. You already have their data.
 
 ${aiAbbreviationFirstReferenceRule}
+
+${aiApTitleCaseHeadingsRule}
 
 YOUR ROLE:
 • Welcome them back warmly

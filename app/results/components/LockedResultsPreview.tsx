@@ -168,23 +168,23 @@ export function LockedResultsPreview({
   };
 
   return (
-    <section className="space-y-4 pt-6 border-t border-brand-border">
+    <section className="space-y-5 sm:space-y-6 border-t border-brand-border pt-8 sm:pt-9">
       <h2 className="bs-h2 mb-0">Your full results are ready</h2>
       <p className="bs-body-sm text-brand-muted max-w-3xl">
         Your diagnostic is complete. You are seeing your core score outputs now, and the deeper
         layer is already compiled for your brand.
       </p>
 
-      <div className="bs-card rounded-xl p-5 sm:p-6 border border-brand-blue/20 bg-brand-blue/5">
-        <p className="text-xs font-bold uppercase tracking-wide text-brand-blue mb-2">
+      <div className="bs-card rounded-xl p-6 sm:p-7 border border-brand-blue/20 bg-brand-blue/5">
+        <p className="text-xs font-bold tracking-[0.04em] text-brand-blue mb-4">
           Competitive Vulnerability Signal
         </p>
         <p className="bs-body-sm text-brand-midnight">{getVulnerabilitySignal(pillarScores)}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <article className="bs-card rounded-xl p-5 border border-brand-border">
-          <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+        <article className="bs-card rounded-xl p-6 sm:p-7 border border-brand-border">
+          <p className="text-xs font-bold tracking-[0.04em] text-brand-muted mb-4">
             Your Brand Archetype
           </p>
           {likelyArchetype ? (
@@ -218,8 +218,8 @@ export function LockedResultsPreview({
           </Link>
         </article>
 
-        <article className="bs-card rounded-xl p-5 border border-brand-border">
-          <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+        <article className="bs-card rounded-xl p-6 sm:p-7 border border-brand-border">
+          <p className="text-xs font-bold tracking-[0.04em] text-brand-muted mb-4">
             {primaryLabel} Deep Dive
           </p>
           <p className="bs-body-sm text-brand-midnight mb-2">
@@ -236,8 +236,8 @@ export function LockedResultsPreview({
           </Link>
         </article>
 
-        <article className="bs-card rounded-xl p-5 border border-brand-border">
-          <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+        <article className="bs-card rounded-xl p-6 sm:p-7 border border-brand-border">
+          <p className="text-xs font-bold tracking-[0.04em] text-brand-muted mb-4">
             Your Audience Alignment Gap
           </p>
           <p className="bs-body-sm text-brand-midnight mb-2">
@@ -253,8 +253,8 @@ export function LockedResultsPreview({
           </Link>
         </article>
 
-        <article className="bs-card rounded-xl p-5 border border-brand-border">
-          <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+        <article className="bs-card rounded-xl p-6 sm:p-7 border border-brand-border">
+          <p className="text-xs font-bold tracking-[0.04em] text-brand-muted mb-4">
             Snapshot+ Prompt Pack (Locked Preview)
           </p>
           <p className="bs-body-sm text-brand-midnight mb-2">
@@ -279,8 +279,8 @@ export function LockedResultsPreview({
           </Link>
         </article>
 
-        <article className="bs-card rounded-xl p-5 border border-brand-border">
-          <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+        <article className="bs-card rounded-xl p-6 sm:p-7 border border-brand-border">
+          <p className="text-xs font-bold tracking-[0.04em] text-brand-muted mb-4">
             Content Format &amp; Channel Recommendations
           </p>
           <p className="bs-body-sm text-brand-midnight mb-2">

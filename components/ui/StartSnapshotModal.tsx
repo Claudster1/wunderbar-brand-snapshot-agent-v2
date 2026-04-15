@@ -50,7 +50,7 @@ export default function StartSnapshotModal({ isOpen, onClose }: StartSnapshotMod
           onClick={beginSnapshot}
           className="
             bg-brand-blue hover:bg-brand-blueHover text-white 
-            font-semibold rounded-md px-6 py-3 w-full
+            font-semibold rounded-[5px] px-6 py-3 w-full
             shadow-md shadow-brand-blue/30 transition
           "
         >

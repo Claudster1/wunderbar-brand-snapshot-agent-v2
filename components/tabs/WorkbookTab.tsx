@@ -17,11 +17,13 @@ import VersionHistory from "@/components/workbook/VersionHistory";
 import TabPageWithSidebar from "@/components/results/TabPageWithSidebar";
 import { getSuiteProgressHint } from "@/lib/copy/resultsSuiteGuidance";
 import type { Prompt } from "@/lib/promptPackData";
+import { buildWorkbookNavMenuItems } from "@/lib/workbook/workbookNavMenu";
 import { PROMPT_SECTIONS_BY_PRODUCT_TIER } from "@/lib/promptPackData";
 
 import {
   SUITE_ACCENT_BRIGHT,
   SUITE_BORDER,
+  SUITE_FONT_UI,
   SUITE_MUTED,
   SUITE_NAVY,
 } from "@/components/results/suiteBrandTokens";
@@ -45,6 +47,8 @@ interface WorkbookTabProps {
   onRestoreVersion: (version: WorkbookVersion) => Promise<void>;
   onExportWorkbook: () => void;
   onAskWundy: (prompt: Prompt) => void;
+  shellRendersSectionChips?: boolean;
+  shellActiveSectionId?: string | null;
 }
 
 const TIER_RANK: Record<string, number> = {
@@ -74,6 +78,8 @@ export default function WorkbookTab({
   onRestoreVersion,
   onExportWorkbook,
   onAskWundy,
+  shellRendersSectionChips = false,
+  shellActiveSectionId = null,
 }: WorkbookTabProps) {
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [savingVersion, setSavingVersion] = useState(false);
@@ -107,20 +113,9 @@ export default function WorkbookTab({
   );
   const textWorkbookSections = availableSections.filter((s) => s.id !== "mood-board");
   const showMoodBoardSection = availableSections.some((s) => s.id === "mood-board");
+  const workbookMenuItems = buildWorkbookNavMenuItems(productTier, workbookState.versions.length);
   const promptPackSections = PROMPT_SECTIONS_BY_PRODUCT_TIER[productTier] ?? [];
   const hasPromptLibrary = promptPackSections.length > 0;
-  const workbookMenuItems = [
-    { id: "workbook-overview", label: "Overview", icon: "OV" },
-    { id: "workbook-diagnostic-truth", label: "Diagnostic Truth", icon: "DT" },
-    ...availableSections.map((section) => ({
-      id: `workbook-section-${section.id}`,
-      label: section.label,
-    })),
-    ...(hasPromptLibrary ? [{ id: "workbook-prompt-library", label: "Prompt library", icon: "PL" }] : []),
-  ];
-  if (workbookState.versions.length > 0) {
-    workbookMenuItems.push({ id: "workbook-version-history", label: "Version History", icon: "VH" });
-  }
 
   const pillarScores = (
     (diagnosticData.pillarScores as Record<string, number> | undefined) ?? {}
@@ -164,7 +159,12 @@ export default function WorkbookTab({
   }, [focusedSectionId, onFocusedSectionHandled]);
 
   return (
-    <TabPageWithSidebar navTitle="Workbook" navItems={workbookMenuItems}>
+    <TabPageWithSidebar
+      navTitle="Workbook"
+      navItems={workbookMenuItems}
+      shellRendersSectionChips={shellRendersSectionChips}
+      shellActiveSectionId={shellActiveSectionId}
+    >
       <div
         id="workbook-overview"
         style={{
@@ -178,36 +178,13 @@ export default function WorkbookTab({
         }}
       >
         <div>
-          <div
-            style={{
-              fontSize: 14,
-              fontWeight: 700,
-              textTransform: "uppercase",
-              letterSpacing: "0.12em",
-              color: BLUE,
-              marginBottom: 8,
-            }}
-          >
-            Workbook
-          </div>
-          <h2 style={{ fontSize: 26, fontWeight: 700, color: NAVY, margin: "0 0 8px" }}>
-            {String(diagnosticData.companyName ?? "Your")} Brand Workbook
-          </h2>
+          <h2 className="bs-h2 mb-2 mt-0">{String(diagnosticData.companyName ?? "Your")} brand workbook</h2>
           {suiteProgressHint ? (
-            <p
-              style={{
-                fontSize: 13,
-                fontWeight: 600,
-                color: "#0369A1",
-                lineHeight: 1.55,
-                maxWidth: 720,
-                margin: "0 0 10px",
-              }}
-            >
+            <p className="text-sm font-semibold text-brand-blue max-w-[720px] mb-2.5 m-0" style={{ lineHeight: 1.55 }}>
               {suiteProgressHint}
             </p>
           ) : null}
-          <p style={{ fontSize: 15, color: MID_GRAY, lineHeight: 1.5, maxWidth: 620, margin: 0 }}>
+          <p className="bs-body-sm text-brand-muted max-w-[620px] m-0">
             {isSnapshotPlus
               ? "Your diagnostic truth and brand strategy foundation are read only in WunderBrand Snapshot+™."
               : isBlueprintPlus
@@ -216,7 +193,7 @@ export default function WorkbookTab({
                   ? "Your 14-day edit window has closed. Upgrade to WunderBrand Blueprint+™ for ongoing edits."
                   : `Your workbook is editable. ${daysRemaining} day${daysRemaining !== 1 ? "s" : ""} remaining in your edit window.`}
           </p>
-          <p style={{ fontSize: 12, color: MID_GRAY, lineHeight: 1.5, maxWidth: 720, margin: "8px 0 0" }}>
+          <p className="bs-small text-brand-muted max-w-[720px] mt-2 mb-0">
             Refine a section, then save a version so Downloads can pick up the latest wording.
           </p>
         </div>
@@ -228,14 +205,15 @@ export default function WorkbookTab({
               disabled={savingVersion}
               style={{
                 padding: "9px 16px",
-                backgroundColor: "transparent",
-                color: NAVY,
-                border: `2px solid ${BORDER}`,
-                borderRadius: 6,
+                backgroundColor: BLUE,
+                color: "#ffffff",
+                border: "none",
+                borderRadius: 5,
                 fontWeight: 700,
                 fontSize: 13,
                 cursor: "pointer",
-                fontFamily: "'Lato', sans-serif",
+                fontFamily: SUITE_FONT_UI,
+                opacity: savingVersion ? 0.65 : 1,
               }}
             >
               {savingVersion ? "Saving..." : "Save Version"}
@@ -246,14 +224,14 @@ export default function WorkbookTab({
               onClick={() => setShowVersionHistory(true)}
               style={{
                 padding: "9px 16px",
-                backgroundColor: "transparent",
-                color: NAVY,
-                border: `2px solid ${BORDER}`,
-                borderRadius: 6,
+                backgroundColor: BLUE,
+                color: "#ffffff",
+                border: "none",
+                borderRadius: 5,
                 fontWeight: 700,
                 fontSize: 13,
                 cursor: "pointer",
-                fontFamily: "'Lato', sans-serif",
+                fontFamily: SUITE_FONT_UI,
               }}
             >
               Version History ({workbookState.versions.length})
@@ -266,11 +244,11 @@ export default function WorkbookTab({
               backgroundColor: BLUE,
               color: "#ffffff",
               border: "none",
-              borderRadius: 6,
+              borderRadius: 5,
               fontWeight: 700,
               fontSize: 13,
               cursor: "pointer",
-              fontFamily: "'Lato', sans-serif",
+              fontFamily: SUITE_FONT_UI,
             }}
           >
             Export Workbook
@@ -362,7 +340,7 @@ export default function WorkbookTab({
               boxShadow: "0 8px 20px rgba(2,24,89,0.05)",
             }}
           >
-            <p style={{ margin: 0, fontSize: 13, color: NAVY, fontWeight: 700 }}>Prompt library</p>
+            <p style={{ margin: 0, fontSize: 13, color: NAVY, fontWeight: 700 }}>Prompt Library</p>
             <p style={{ margin: "8px 0 0", fontSize: 13, color: "#2D3A4A", lineHeight: 1.55 }}>
               Tier-matched AI prompts by topic — kept separate from Activation so this tab stays for drafting
               and saving outputs next to your workbook sections.

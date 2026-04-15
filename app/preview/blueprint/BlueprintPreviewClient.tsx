@@ -1631,6 +1631,19 @@ export default function BrandBlueprintReport() {
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 18, fontWeight: 700, color: NAVY, marginBottom: 4 }}>Overall Context Coverage</div>
               <div style={{ fontSize: 15, color: SUB, lineHeight: 1.55 }}>We had sufficient information to provide a {r.contextCoverage.overallPercent >= 80 ? "highly detailed" : r.contextCoverage.overallPercent >= 60 ? "thorough" : "foundational"} analysis.</div>
+              {r.contextCoverage.overallPercent < 85 ? (
+                <p style={{ fontSize: 13, color: SUB, lineHeight: 1.5, margin: "10px 0 0" }}>
+                  Add detail in a quick follow-up to raise coverage.{" "}
+                  <a
+                    href="/refine/preview-blueprint"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: BLUE, fontWeight: 700, textDecoration: "underline" }}
+                  >
+                    Refine now →
+                  </a>
+                </p>
+              ) : null}
             </div>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>

@@ -1,8 +1,8 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { safeFetchJson } from "@/lib/resilience/safeFetch";
+import { resolveRuntimeBaseUrlForServerFetch } from "@/lib/server/runtimeBaseUrl";
 import { snapshotReportToActivationWorkspace } from "@/lib/activation/snapshotReportToActivationWorkspace";
 import { buildActivationPlanSectionsList } from "@/lib/activation/activationPlanModel";
 import {
@@ -17,27 +17,6 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
-
-async function resolveBaseUrlFromHeaders() {
-  const hdrs = await headers();
-  const host = hdrs.get("x-forwarded-host") || hdrs.get("host");
-  if (!host) return null;
-  const proto = hdrs.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
-  return `${proto}://${host}`;
-}
-
-async function resolveRuntimeBaseUrl() {
-  const requestBaseUrl = await resolveBaseUrlFromHeaders();
-  if (process.env.NODE_ENV !== "production") {
-    return requestBaseUrl || process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  }
-  return (
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
-    requestBaseUrl ||
-    "http://localhost:3000"
-  );
-}
 
 function isActivationPlanSectionId(id: string): id is ActivationPlanSectionId {
   return (ACTIVATION_PLAN_SECTION_IDS as readonly string[]).includes(id);
@@ -97,7 +76,7 @@ export default async function ActivationPlanPage({ params, searchParams }: PageP
     );
   }
 
-  const baseUrl = await resolveRuntimeBaseUrl();
+  const baseUrl = await resolveRuntimeBaseUrlForServerFetch();
   const reportResponse = await safeFetchJson<unknown>(
     `${baseUrl}/api/snapshot/get?id=${encodeURIComponent(reportId)}`,
     { cache: "no-store", retries: 2, timeoutMs: 7000 },

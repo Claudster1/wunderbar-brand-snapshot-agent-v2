@@ -115,9 +115,9 @@ export default function ArchetypeToggleCard({
           type="button"
           onClick={() => setSelected("primary")}
           style={{
-            border: selected === "primary" ? `2px solid ${BLUE}` : `1px solid ${BORDER}`,
-            borderRadius: 8,
-            background: "#FFFFFF",
+            border: `1px solid ${selected === "primary" ? BLUE : BORDER}`,
+            borderRadius: 5,
+            background: selected === "primary" ? BLUE : "#FFFFFF",
             padding: "12px 14px",
             display: "flex",
             alignItems: "center",
@@ -127,12 +127,22 @@ export default function ArchetypeToggleCard({
             minHeight: 72,
           }}
         >
-          <BrandArchetypeIcon archetype={primaryName} size={42} />
+          <BrandArchetypeIcon archetype={primaryName} size={42} color={selected === "primary" ? "#FFFFFF" : BLUE} />
           <div style={{ textAlign: "left" }}>
-            <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: SUB, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+            <p
+              style={{
+                margin: 0,
+                fontSize: 11,
+                fontWeight: 800,
+                color: selected === "primary" ? "rgba(255,255,255,0.9)" : SUB,
+                letterSpacing: "0.03em",
+              }}
+            >
               Primary
             </p>
-            <p style={{ margin: "4px 0 0", fontSize: 14, fontWeight: 700, color: NAVY }}>{primaryName}</p>
+            <p style={{ margin: "4px 0 0", fontSize: 14, fontWeight: 700, color: selected === "primary" ? "#FFFFFF" : NAVY }}>
+              {primaryName}
+            </p>
           </div>
         </button>
         {hasSecondary && (
@@ -140,9 +150,9 @@ export default function ArchetypeToggleCard({
             type="button"
             onClick={() => setSelected("secondary")}
             style={{
-              border: selected === "secondary" ? `2px solid ${BLUE}` : `1px solid ${BORDER}`,
-              borderRadius: 8,
-              background: "#FFFFFF",
+              border: `1px solid ${selected === "secondary" ? BLUE : BORDER}`,
+              borderRadius: 5,
+              background: selected === "secondary" ? BLUE : "#FFFFFF",
               padding: "12px 14px",
               display: "flex",
               alignItems: "center",
@@ -152,12 +162,23 @@ export default function ArchetypeToggleCard({
               minHeight: 72,
             }}
           >
-            <BrandArchetypeIcon archetype={secondaryName || undefined} size={42} />
+            <BrandArchetypeIcon archetype={secondaryName || undefined} size={42} color={selected === "secondary" ? "#FFFFFF" : BLUE} />
             <div style={{ textAlign: "left" }}>
-              <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: SUB, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: 11,
+                  fontWeight: 800,
+                  color: selected === "secondary" ? "rgba(255,255,255,0.9)" : SUB,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                }}
+              >
                 Secondary
               </p>
-              <p style={{ margin: "4px 0 0", fontSize: 14, fontWeight: 700, color: NAVY }}>{secondaryName}</p>
+              <p style={{ margin: "4px 0 0", fontSize: 14, fontWeight: 700, color: selected === "secondary" ? "#FFFFFF" : NAVY }}>
+                {secondaryName}
+              </p>
             </div>
           </button>
         )}
@@ -199,8 +220,7 @@ export default function ArchetypeToggleCard({
                     fontSize: 10,
                     fontWeight: 800,
                     color: BLUE,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.11em",
+                    letterSpacing: "0.04em",
                   }}
                 >
                   {row.label}

@@ -82,9 +82,9 @@ export function ResultsUpgradeCTA({
   };
 
   return (
-    <section className="mt-16 bs-card rounded-xl p-6 sm:p-8">
+    <section className="bs-card rounded-xl p-6 sm:p-7">
       <h3 className="bs-h2 mb-2">{copy.headline}</h3>
-      <p className="bs-body text-brand-midnight mb-6 max-w-xl">{copy.body}</p>
+      <p className="bs-body text-brand-midnight mb-7 max-w-xl">{copy.body}</p>
 
       <div className="flex flex-wrap gap-4">
         <button type="button" onClick={onPrimaryClick} className="btn-primary">

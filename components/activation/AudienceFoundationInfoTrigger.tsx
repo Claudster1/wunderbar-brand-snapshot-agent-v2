@@ -67,8 +67,7 @@ export default function AudienceFoundationInfoTrigger({ links, variant = "compac
             fontSize: 10,
             fontWeight: 800,
             color: MID_GRAY,
-            letterSpacing: "0.06em",
-            textTransform: "uppercase",
+            letterSpacing: "0.03em",
           }}
         >
           Foundation

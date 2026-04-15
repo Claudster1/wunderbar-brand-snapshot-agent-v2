@@ -75,6 +75,8 @@ export default function LockedSignalCard({
           </span>
           <a
             href={upgradeProductUrl}
+            target="_blank"
+            rel="noopener noreferrer"
             style={{
               fontSize: 12,
               color: BLUE,

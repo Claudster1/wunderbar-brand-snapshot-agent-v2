@@ -4,6 +4,7 @@
 // DOES NOT replace human strategy — redirects strategic questions to Activation Session
 
 import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
+import { aiApTitleCaseHeadingsRule } from "@/lib/copy/capitalizationPolicy";
 
 export function buildWundyReportCompanionPrompt(
   tierName: string,
@@ -39,6 +40,8 @@ Paid products exist to go further — not to "unlock" value withheld from the fr
 This philosophy governs everything below. Every response, recommendation, and upsell must respect it.
 
 ${aiAbbreviationFirstReferenceRule}
+
+${aiApTitleCaseHeadingsRule}
 
 ---------------------------------------------------------------------
 CONFIDENTIALITY (CRITICAL — ENFORCE PROACTIVELY)

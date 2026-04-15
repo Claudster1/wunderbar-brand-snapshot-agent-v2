@@ -19,11 +19,24 @@ interface SynthesisPoint {
 
 interface WhatThisMeansProps {
   businessName: string;
-  synthesisPoints: SynthesisPoint[];
+  synthesisPoints?: SynthesisPoint[] | null;
   pillarDependency?: PillarDependency;
-  productTier: "snapshot" | "snapshot-plus" | "blueprint" | "blueprint-plus";
+  productTier?: "snapshot" | "snapshot-plus" | "blueprint" | "blueprint-plus" | null;
   upgradeProductUrl?: string;
   talkToExpertUrl: string;
+}
+
+function normalizeSynthesisPoints(raw: SynthesisPoint[] | null | undefined): SynthesisPoint[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.filter(
+    (p): p is SynthesisPoint =>
+      Boolean(p) &&
+      typeof p === "object" &&
+      typeof p.label === "string" &&
+      p.label.trim().length > 0 &&
+      typeof p.content === "string" &&
+      p.content.trim().length > 0,
+  );
 }
 
 export default function WhatThisMeans({
@@ -34,7 +47,9 @@ export default function WhatThisMeans({
   upgradeProductUrl,
   talkToExpertUrl,
 }: WhatThisMeansProps) {
-  const isFree = productTier === "snapshot";
+  const tier = productTier ?? "snapshot";
+  const isFree = tier === "snapshot";
+  const points = normalizeSynthesisPoints(synthesisPoints);
 
   return (
     <div style={{ borderTop: `2px solid ${BORDER}`, paddingTop: 40, marginTop: 48, fontFamily: "'Lato', sans-serif" }}>
@@ -59,7 +74,13 @@ export default function WhatThisMeans({
         </p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 32 }}>
-          {synthesisPoints.map((point, i) => (
+          {points.length === 0 ? (
+            <p style={{ fontSize: 15, color: NAVY, lineHeight: 1.6, margin: "0 0 0 18px" }}>
+              Synthesis points will appear here once your diagnostic includes labeled takeaways (what to protect,
+              prioritize, and what unlocks growth).
+            </p>
+          ) : null}
+          {points.map((point, i) => (
             <div
               key={`${point.label}-${i}`}
               style={{

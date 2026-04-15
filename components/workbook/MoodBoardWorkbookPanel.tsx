@@ -128,8 +128,8 @@ export default function MoodBoardWorkbookPanel({
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
         <div>
-          <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-            Mood board reference images
+          <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.04em" }}>
+            Mood Board Reference Images
           </p>
           <p style={{ margin: "8px 0 0", fontSize: 13, color: MID_GRAY, lineHeight: 1.55, maxWidth: 720 }}>
             Paste HTTPS image or asset URLs you trust (licensed stock, your photography, mood links). These appear as thumbnails
@@ -180,7 +180,7 @@ export default function MoodBoardWorkbookPanel({
             }}
           >
             <label style={{ display: "grid", gap: 4 }}>
-              <span style={{ fontSize: 11, fontWeight: 800, color: NAVY, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              <span style={{ fontSize: 11, fontWeight: 800, color: NAVY, letterSpacing: "0.03em" }}>
                 Image URL
               </span>
               <input

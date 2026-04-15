@@ -227,11 +227,7 @@ export function BlueprintDocumentLibrary({ reportId, email, tier = "blueprint" }
                 <button
                   onClick={() => handleDownload(doc.type)}
                   disabled={isDownloading || downloading !== null}
-                  className={`flex-shrink-0 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-                    isMaster
-                      ? "bg-[#07B0F2] text-white hover:bg-[#0599d5] disabled:opacity-50"
-                      : "bg-[#F1F5F9] text-[#021859] hover:bg-[#E2E8F0] disabled:opacity-50"
-                  } disabled:cursor-not-allowed`}
+                  className={`flex-shrink-0 px-4 py-2 rounded-[5px] text-xs font-bold transition-all bg-[#07B0F2] text-white hover:bg-[#0599d5] disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   {isDownloading ? (
                     <span className="flex items-center gap-1.5">
@@ -308,7 +304,7 @@ export function BlueprintDocumentLibrary({ reportId, email, tier = "blueprint" }
                 href="https://wunderbardigital.com/wunderbrand-blueprint-plus?utm_source=document_library&utm_medium=upgrade_nudge&utm_campaign=blueprint_to_plus"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-[#07B0F2] text-white text-xs font-bold px-5 py-2.5 rounded-lg hover:bg-[#0599d5] transition-colors"
+                className="inline-flex items-center gap-2 bg-[#07B0F2] text-white text-xs font-bold px-5 py-2.5 rounded-[5px] hover:bg-[#0599d5] transition-colors"
               >
                 Upgrade to Blueprint+™
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

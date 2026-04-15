@@ -22,7 +22,10 @@ Products are judged on **usable output**: language teams can **paste, brief, or 
 • Each item = **one verifiable criterion** or **ready comparison line** — not "do better on tone."
 
 **Paired guidance labels**
-• In layouts, prefer **Do this** / **Not this** for side-by-side guidance. JSON may still use "use" and "avoid" array keys — list values are plain lines, not prefixed with "Avoid example" or "Avoid:".
+• In layouts, prefer **Do This** / **Not This** for side-by-side guidance (AP-style title case on those headers). JSON may still use "use" and "avoid" array keys — list values are plain lines, not prefixed with "Avoid example" or "Avoid:".
+
+**Capitalization (headings only)**
+• Use **AP-style title case** for section titles, subheads, table headers, and short UI labels — not for body paragraphs or long explanatory copy. Lowercase articles (**a**, **an**, **the**), coordinating conjunctions (**and**, **but**, **for**, **or**, **nor**), and prepositions of **four or fewer letters** unless first or last word. No ALL CAPS for multi-word headings.
 
 **Free WunderBrand Snapshot™**
 • The three Immediate Clarity Actions must each be a **specific move** the reader recognizes as **doable this week** (with enough detail or sample wording that it is not generic advice).

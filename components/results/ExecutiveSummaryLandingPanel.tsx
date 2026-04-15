@@ -1,9 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import {
+  SUITE_ACCENT_BRIGHT,
+  SUITE_ACCENT_HOVER,
+  SUITE_NAVY,
+  SUITE_RADIUS_BUTTON,
+} from "@/components/results/suiteBrandTokens";
 
-const NAVY = "#021859";
-const BLUE = "#07B0F2";
+const NAVY = SUITE_NAVY;
+const BLUE = SUITE_ACCENT_BRIGHT;
 const BORDER = "#D6DFE8";
 const BG = "#F8FBFF";
 
@@ -74,12 +80,18 @@ export default function ExecutiveSummaryLandingPanel({
         <button
           type="button"
           onClick={() => setDismissed(false)}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = SUITE_ACCENT_HOVER;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = BLUE;
+          }}
           style={{
-            border: `1px solid ${BORDER}`,
-            borderRadius: 999,
-            backgroundColor: "#FFFFFF",
-            color: NAVY,
-            padding: "6px 10px",
+            border: "none",
+            borderRadius: SUITE_RADIUS_BUTTON,
+            backgroundColor: BLUE,
+            color: "#FFFFFF",
+            padding: "8px 14px",
             fontSize: 12,
             fontWeight: 700,
             cursor: "pointer",
@@ -165,17 +177,17 @@ export default function ExecutiveSummaryLandingPanel({
               type="button"
               onClick={onContinueToFoundation}
               onMouseEnter={(event) => {
-                event.currentTarget.style.backgroundColor = NAVY;
+                event.currentTarget.style.backgroundColor = SUITE_ACCENT_HOVER;
               }}
               onMouseLeave={(event) => {
                 event.currentTarget.style.backgroundColor = BLUE;
               }}
               style={{
                 border: "none",
-                borderRadius: 8,
+                borderRadius: SUITE_RADIUS_BUTTON,
                 backgroundColor: BLUE,
                 color: "#FFFFFF",
-                padding: "8px 12px",
+                padding: "8px 14px",
                 fontSize: 12,
                 fontWeight: 700,
                 cursor: "pointer",
@@ -186,12 +198,18 @@ export default function ExecutiveSummaryLandingPanel({
             <button
               type="button"
               onClick={() => window.print()}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = SUITE_ACCENT_HOVER;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = BLUE;
+              }}
               style={{
-                border: `1px solid ${BORDER}`,
-                borderRadius: 8,
-                backgroundColor: "#FFFFFF",
-                color: NAVY,
-                padding: "8px 12px",
+                border: "none",
+                borderRadius: SUITE_RADIUS_BUTTON,
+                backgroundColor: BLUE,
+                color: "#FFFFFF",
+                padding: "8px 14px",
                 fontSize: 12,
                 fontWeight: 700,
                 cursor: "pointer",

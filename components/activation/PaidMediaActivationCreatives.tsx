@@ -179,11 +179,10 @@ export default function PaidMediaActivationCreatives({ strategy }: { strategy: R
                 fontSize: 11,
                 fontWeight: 800,
                 color: MID,
-                textTransform: "uppercase",
-                letterSpacing: "0.07em",
+                letterSpacing: "0.03em",
               }}
             >
-              Program overview
+              Program Overview
             </p>
             <button type="button" onClick={copyOverview} style={BTN} disabled={!overview}>
               {copyFlash === "overview" ? "Copied" : "Copy overview"}
@@ -357,11 +356,10 @@ export default function PaidMediaActivationCreatives({ strategy }: { strategy: R
               fontSize: 11,
               fontWeight: 800,
               color: MID,
-              textTransform: "uppercase",
-              letterSpacing: "0.07em",
+              letterSpacing: "0.03em",
             }}
           >
-            Budget scenarios
+            Budget Scenarios
           </p>
           <div style={{ fontSize: 13, color: "#2D3A4A", lineHeight: 1.55 }}>
             {scenarios.slice(0, 4).map((sc, i) => (

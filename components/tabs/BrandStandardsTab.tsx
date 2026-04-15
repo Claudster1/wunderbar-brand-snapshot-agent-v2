@@ -18,6 +18,7 @@ import {
   normalizeBrandImageryDirection,
   type NormalizedBrandImageryDirection,
 } from "@/lib/brand/brandImageryNormalize";
+import { STANDARDS_SUITE_NAV_ITEMS } from "@/lib/results/standardsSuiteNav";
 import type { WorkbookSectionId } from "@/lib/workbookTypes";
 import { EXAMPLE_CALLOUT, SEMANTIC_DO, SEMANTIC_DONT } from "@/src/pdf/reportVisualTokens";
 
@@ -46,11 +47,11 @@ const INNER_CARD: CSSProperties = {
   background: WHITE,
 };
 const EDIT_IN_WORKBOOK_BTN: CSSProperties = {
-  padding: "7px 12px",
+  padding: "8px 14px",
   borderRadius: 5,
-  border: `1px solid ${BORDER}`,
-  background: "#F8FBFF",
-  color: NAVY,
+  border: "none",
+  background: BLUE,
+  color: WHITE,
   fontSize: 12,
   fontWeight: 700,
   cursor: "pointer",
@@ -61,6 +62,8 @@ interface BrandStandardsTabProps {
   productTier: ProductTier;
   diagnosticData: Record<string, unknown>;
   onEditInWorkbook: (sectionId: WorkbookSectionId) => void;
+  shellRendersSectionChips?: boolean;
+  shellActiveSectionId?: string | null;
 }
 
 interface MoodBoardImageSample {
@@ -213,7 +216,7 @@ function ExampleCard({
 }) {
   return (
     <div style={{ ...INNER_CARD, padding: "14px 16px" }}>
-      <p style={{ margin: 0, fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: MID_GRAY }}>
+      <p style={{ margin: 0, fontSize: 12, fontWeight: 800, letterSpacing: "0.04em", color: MID_GRAY }}>
         {title}
       </p>
       <div style={{ marginTop: 10, display: "grid", gap: 10 }}>
@@ -236,7 +239,7 @@ function ExampleCard({
             borderRadius: 5,
           }}
         >
-          <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: SEMANTIC_DONT.label }}>Avoid this</p>
+          <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: SEMANTIC_DONT.label }}>Not this</p>
           <p style={{ margin: "4px 0 0", fontSize: 13, color: SEMANTIC_DONT.text, lineHeight: 1.55 }}>{bad}</p>
         </div>
       </div>
@@ -248,6 +251,8 @@ export default function BrandStandardsTab({
   productTier,
   diagnosticData,
   onEditInWorkbook,
+  shellRendersSectionChips = false,
+  shellActiveSectionId = null,
 }: BrandStandardsTabProps) {
   const rawImagery = diagnosticData.brand_imagery_direction ?? diagnosticData.brandImageryDirection;
   const imageryNorm: NormalizedBrandImageryDirection | null = normalizeBrandImageryDirection(rawImagery);
@@ -258,6 +263,19 @@ export default function BrandStandardsTab({
   }));
   const moodDesc = imageryNorm?.mood_board_descriptors;
   const aiImagePrompts = imageryNorm?.ai_image_generation_prompts ?? [];
+  const subjectShow = imageryNorm?.subject_matter_guidance?.show ?? [];
+  const subjectAvoid = imageryNorm?.subject_matter_guidance?.avoid ?? [];
+  const photographyDirection = (imageryNorm?.photography_style_direction ?? "").trim();
+  const hasMoodBoardFallbackFromImagery =
+    !moodDesc &&
+    moodBoardSamples.length === 0 &&
+    aiImagePrompts.length === 0 &&
+    (Boolean(photographyDirection) || subjectShow.length > 0);
+  const visualModeRaw = diagnosticData.visualSystemMode ?? diagnosticData.visual_system_mode;
+  const visualSystemMode =
+    visualModeRaw === "existing" || visualModeRaw === "optimize" || visualModeRaw === "refresh"
+      ? visualModeRaw
+      : undefined;
 
   const bsgRaw = diagnosticData.brandStandardsGuide;
   const logoGuidelinesRaw =
@@ -281,8 +299,6 @@ export default function BrandStandardsTab({
     reportLogoPlacement.length > 0 ||
     reportLogoIncorrect.length > 0;
 
-  const subjectShow = imageryNorm?.subject_matter_guidance?.show ?? [];
-  const subjectAvoid = imageryNorm?.subject_matter_guidance?.avoid ?? [];
   const stock = imageryNorm?.stock_photo_selection_criteria;
   const stockLines = stock
     ? [
@@ -504,58 +520,28 @@ export default function BrandStandardsTab({
     (plan) => tierRank[productTier] >= tierRank[plan.availableFrom],
   );
 
-  const standardsNavItems = [
-    { id: "standards-document-framework", label: "Document Versions", icon: "DV" },
-    { id: "standards-voice", label: "Voice Standards", icon: "VS" },
-    { id: "standards-messaging", label: "Messaging Standards", icon: "MS" },
-    { id: "standards-visual", label: "Visual Direction", icon: "VD" },
-    { id: "standards-imagery", label: "Imagery Suggestions", icon: "VI" },
-    { id: "standards-logo-direction", label: "Logo Direction", icon: "LD" },
-    { id: "standards-channel-do-dont", label: "Channel Do/Don't", icon: "CD" },
-    { id: "standards-implementation", label: "How to Implement", icon: "IM" },
-    { id: "standards-typography", label: "Typography", icon: "TY" },
-    { id: "standards-moodboard", label: "Mood Board", icon: "MB" },
-  ];
-
   const suiteProgressHint = getSuiteProgressHint(productTier, "standards");
 
   return (
-    <TabPageWithSidebar navTitle="Brand Standards" navItems={standardsNavItems} className="standards-tab-content">
+    <TabPageWithSidebar
+      navTitle="Brand Standards"
+      navItems={STANDARDS_SUITE_NAV_ITEMS}
+      className="standards-tab-content"
+      shellRendersSectionChips={shellRendersSectionChips}
+      shellActiveSectionId={shellActiveSectionId}
+    >
       <div style={{ marginBottom: 20 }}>
-        <div
-          style={{
-            fontSize: 14,
-            fontWeight: 700,
-            textTransform: "uppercase",
-            letterSpacing: "0.12em",
-            color: BLUE,
-            marginBottom: 8,
-          }}
-        >
-          Brand Standards
-        </div>
-        <h2 style={{ fontSize: 26, fontWeight: 700, color: NAVY, margin: "0 0 10px" }}>
-          Voice, Messaging, and Visual Direction Guidelines
-        </h2>
+        <h2 className="bs-h2 mb-2.5 mt-0">Voice, messaging, and visual direction guidelines</h2>
         {suiteProgressHint ? (
-          <p
-            style={{
-              fontSize: 13,
-              fontWeight: 600,
-              color: MID_GRAY,
-              lineHeight: 1.55,
-              maxWidth: 780,
-              margin: "0 0 10px",
-            }}
-          >
+          <p className="text-sm font-semibold text-brand-blue max-w-[780px] mb-2.5 m-0" style={{ lineHeight: 1.55 }}>
             {suiteProgressHint}
           </p>
         ) : null}
-        <p style={{ fontSize: 16, color: MID_GRAY, lineHeight: 1.6, maxWidth: 780, margin: 0 }}>
+        <p className="bs-body-sm text-brand-muted max-w-[780px] m-0 leading-relaxed">
           These standards keep {businessName} consistent across teams, channels, and campaign types.
           Use this tab as your publishing QA checkpoint before anything goes live.
         </p>
-        <p style={{ fontSize: 12, color: MID_GRAY, lineHeight: 1.55, maxWidth: 780, margin: "8px 0 0" }}>
+        <p className="bs-small text-brand-muted max-w-[780px] mt-2 mb-0">
           Included in your downloads for this tier are shown below.
         </p>
       </div>
@@ -564,8 +550,8 @@ export default function BrandStandardsTab({
         <div style={{ marginBottom: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <SectionGlyph token="framework" size={18} color={BLUE} />
-            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-              Document Versions
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.04em" }}>
+              Document versions
             </p>
           </div>
           <p style={{ margin: "4px 0 0", fontSize: 13, color: MID_GRAY }}>
@@ -607,8 +593,8 @@ export default function BrandStandardsTab({
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <SectionGlyph token="voice" size={18} color={BLUE} />
-              <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-                Voice Standards
+              <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.04em" }}>
+                Voice standards
               </p>
             </div>
             <p style={{ margin: "2px 0 0", fontSize: 13, color: MID_GRAY }}>
@@ -641,7 +627,7 @@ export default function BrandStandardsTab({
           example={`${businessName} should swap lines like “transformative growth” for specifics tied to ${firstPriority.toLowerCase()} and what actually changes for the buyer.`}
         />
         <div style={{ marginTop: 10 }}>
-          <ReportCallout label="Advanced voice controls" accentColor={BLUE}>
+          <ReportCallout label="Advanced Voice Controls" accentColor={BLUE}>
             Require a voice QA pass on organic posts, paid ads, and nurture emails. Any line that cannot be tied to proof,
             priority, or audience insight should be rewritten.
           </ReportCallout>
@@ -653,8 +639,8 @@ export default function BrandStandardsTab({
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <SectionGlyph token="messaging" size={14} color={BLUE} />
-              <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-                Messaging Standards
+              <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.04em" }}>
+                Messaging standards
               </p>
             </div>
             <p style={{ margin: "2px 0 0", fontSize: 13, color: MID_GRAY }}>
@@ -702,8 +688,8 @@ export default function BrandStandardsTab({
             borderLeft: `3px solid ${BLUE}`,
           }}
         >
-          <p style={{ margin: "0 0 8px", fontSize: 14, fontWeight: 800, color: NAVY, textTransform: "uppercase", letterSpacing: "0.07em" }}>
-            Publishing QA checklist
+          <p style={{ margin: "0 0 8px", fontSize: 14, fontWeight: 800, color: NAVY, letterSpacing: "0.03em" }}>
+            Publishing QA Checklist
           </p>
           <div style={{ display: "grid", gap: 6 }}>
             {standardsDepth.publishingChecklist.map((item, index) => (
@@ -720,8 +706,8 @@ export default function BrandStandardsTab({
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <SectionGlyph token="visual" size={18} color={BLUE} />
-              <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-                Visual Direction
+              <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.04em" }}>
+                Visual direction
               </p>
             </div>
             <p style={{ margin: "2px 0 0", fontSize: 13, color: MID_GRAY }}>
@@ -786,8 +772,8 @@ export default function BrandStandardsTab({
               borderLeft: `3px solid ${SEMANTIC_DO.border}`,
             }}
           >
-            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: SEMANTIC_DO.label, textTransform: "uppercase", letterSpacing: "0.07em" }}>
-              Visual Do
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: SEMANTIC_DO.label, letterSpacing: "0.03em" }}>
+              Visual do
             </p>
             <div style={{ display: "grid", gap: 5, marginTop: 6 }}>
               {standardsDepth.visualDo.map((item, index) => (
@@ -805,8 +791,8 @@ export default function BrandStandardsTab({
               borderLeft: `3px solid ${SEMANTIC_DONT.border}`,
             }}
           >
-            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: SEMANTIC_DONT.label, textTransform: "uppercase", letterSpacing: "0.07em" }}>
-              Visual Don&apos;t
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: SEMANTIC_DONT.label, letterSpacing: "0.03em" }}>
+              Visual don&apos;t
             </p>
             <div style={{ display: "grid", gap: 5, marginTop: 6 }}>
               {standardsDepth.visualDont.map((item, index) => (
@@ -820,8 +806,8 @@ export default function BrandStandardsTab({
       </section>
 
       <section id="standards-channel-do-dont" style={SECTION_SHELL}>
-        <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-          Channel Do / Don&apos;t Matrix
+        <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.04em" }}>
+          Channel do / don&apos;t matrix
         </p>
         <p style={{ margin: "6px 0 10px", fontSize: 13, color: MID_GRAY }}>
           User-specific standards for execution consistency across channels.
@@ -843,7 +829,7 @@ export default function BrandStandardsTab({
             example={`${businessName} search pages: one buyer goal per page and one path to convert.`}
           />
           <PersonalizedGuidanceCard
-            title="Thought Leadership / Social"
+            title="Thought leadership / social"
             doText={socialPlan || `Use recurring POV themes tied to ${firstPriority.toLowerCase()} and ${secondPriority.toLowerCase()}.`}
             dontText="Post hot takes that do not tie back to how you help buyers."
             example={`${businessName} weekly format: sharp insight, proof, practical step, one next step to engage.`}
@@ -852,8 +838,8 @@ export default function BrandStandardsTab({
       </section>
 
       <section id="standards-imagery" style={SECTION_SHELL}>
-        <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-          Imagery Suggestions
+        <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.04em" }}>
+          Imagery suggestions
         </p>
         <p style={{ margin: "6px 0 10px", fontSize: 13, color: MID_GRAY }}>
           Recommended image style system for campaign assets, website blocks, and social content.
@@ -891,8 +877,8 @@ export default function BrandStandardsTab({
                 borderLeft: `3px solid ${SEMANTIC_DO.border}`,
               }}
             >
-              <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: SEMANTIC_DO.label, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                Show / emphasize
+              <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: SEMANTIC_DO.label, letterSpacing: "0.03em" }}>
+                Show / Emphasize
               </p>
               {subjectShow.length > 0 ? (
                 <ul style={{ margin: "5px 0 0", paddingLeft: 18, color: SEMANTIC_DO.text, fontSize: 13, lineHeight: 1.5 }}>
@@ -916,8 +902,8 @@ export default function BrandStandardsTab({
                 borderLeft: `3px solid ${SEMANTIC_DONT.border}`,
               }}
             >
-              <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: SEMANTIC_DONT.label, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                De-emphasize / avoid
+              <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: SEMANTIC_DONT.label, letterSpacing: "0.03em" }}>
+                De-emphasize / Avoid
               </p>
               {subjectAvoid.length > 0 ? (
                 <ul style={{ margin: "5px 0 0", paddingLeft: 18, color: SEMANTIC_DONT.text, fontSize: 13, lineHeight: 1.5 }}>
@@ -968,8 +954,8 @@ export default function BrandStandardsTab({
       <section id="standards-logo-direction" style={SECTION_SHELL}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 8 }}>
           <div>
-            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-              Logo Design Direction
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.04em" }}>
+              Logo design direction
             </p>
             <p style={{ margin: "6px 0 0", fontSize: 13, color: MID_GRAY }}>
               Usage rules from your Blueprint+ standards, plus a practical path when you do not have a final mark yet.
@@ -1023,7 +1009,7 @@ export default function BrandStandardsTab({
                   borderLeft: `3px solid ${SEMANTIC_DONT.border}`,
                 }}
               >
-                <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: SEMANTIC_DONT.label, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: SEMANTIC_DONT.label, letterSpacing: "0.03em" }}>
                   Misuse to avoid
                 </p>
                 <ul style={{ margin: "6px 0 0", paddingLeft: 18, color: SEMANTIC_DONT.text, fontSize: 13, lineHeight: 1.5 }}>
@@ -1046,7 +1032,7 @@ export default function BrandStandardsTab({
             </p>
             <p style={{ margin: "8px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.55 }}>
               For exploration only (not legal/trademark-ready “comps”), you can use the reference prompts in{" "}
-              <strong>Mood Board</strong> below in tools like Midjourney or Firefly—then brief a designer with those directions
+              <strong>Mood board</strong> below in tools like Midjourney or Firefly—then brief a designer with those directions
               plus this standards page.
             </p>
           </div>
@@ -1061,7 +1047,7 @@ export default function BrandStandardsTab({
                 borderLeft: `3px solid ${SEMANTIC_DO.border}`,
               }}
             >
-              <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: SEMANTIC_DO.label, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: SEMANTIC_DO.label, letterSpacing: "0.03em" }}>
                 Recommended lockups
               </p>
               <p style={{ margin: "5px 0 0", fontSize: 13, color: SEMANTIC_DO.text, lineHeight: 1.5 }}>
@@ -1077,7 +1063,7 @@ export default function BrandStandardsTab({
                 borderLeft: `3px solid ${SEMANTIC_DONT.border}`,
               }}
             >
-              <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: SEMANTIC_DONT.label, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: SEMANTIC_DONT.label, letterSpacing: "0.03em" }}>
                 Misuse to avoid
               </p>
               <p style={{ margin: "5px 0 0", fontSize: 13, color: SEMANTIC_DONT.text, lineHeight: 1.5 }}>
@@ -1090,8 +1076,8 @@ export default function BrandStandardsTab({
       </section>
 
       <section id="standards-implementation" style={SECTION_SHELL}>
-        <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-          Implementation Examples
+        <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.04em" }}>
+          Implementation examples
         </p>
         <p style={{ margin: "6px 0 10px", fontSize: 13, color: MID_GRAY }}>
           Specific ways to apply voice, messaging, and visual standards in daily execution.
@@ -1099,7 +1085,7 @@ export default function BrandStandardsTab({
 
         <div style={{ display: "grid", gap: 10 }}>
           <div style={{ ...INNER_CARD, padding: "12px 14px" }}>
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Example 1: Paid / organic social refresh</p>
+            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Example 1: paid / organic social refresh</p>
             <p style={{ margin: "6px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.55 }}>
               <strong>Voice:</strong> confident + practical, no vague claims. <strong>Messaging:</strong> one pillar-led promise + one proof + one CTA.
               <br />
@@ -1110,7 +1096,7 @@ export default function BrandStandardsTab({
           </div>
 
           <div style={{ ...INNER_CARD, padding: "12px 14px" }}>
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Example 2: Thought Leadership Post Template</p>
+            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Example 2: Thought leadership post template</p>
             <p style={{ margin: "6px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.55 }}>
               <strong>Voice:</strong> insight-first, no hype. <strong>Messaging:</strong> contrarian insight - evidence - practical move - CTA.
               <br />
@@ -1121,7 +1107,7 @@ export default function BrandStandardsTab({
           </div>
 
           <div style={{ ...INNER_CARD, padding: "12px 14px" }}>
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Example 3: Sales Follow-up Email Standard</p>
+            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Example 3: Sales follow-up email standard</p>
             <p style={{ margin: "6px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.55 }}>
               <strong>Voice:</strong> direct and supportive. <strong>Messaging:</strong> recap diagnostic insight + one recommended next step.
               <br />
@@ -1134,8 +1120,8 @@ export default function BrandStandardsTab({
       </section>
 
       <section id="standards-typography" style={SECTION_SHELL}>
-        <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-          Typography Standards
+        <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.04em" }}>
+          Typography standards
         </p>
         <p style={{ margin: "6px 0 10px", fontSize: 13, color: MID_GRAY, lineHeight: 1.55 }}>
           Wunderbar Digital standard: <strong style={{ color: NAVY }}>Lato</strong> for all customer-facing surfaces, with{" "}
@@ -1181,18 +1167,69 @@ export default function BrandStandardsTab({
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <SectionGlyph token="visual" size={18} color={BLUE} />
-              <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-                Mood Board
+              <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.04em" }}>
+                Mood board
               </p>
             </div>
-            <p style={{ margin: "4px 0 0", fontSize: 13, color: MID_GRAY }}>
-              Textual mood direction from your report, optional reference images, and AI exploration prompts.
+            <p style={{ margin: "4px 0 0", fontSize: 13, color: MID_GRAY, maxWidth: 720, lineHeight: 1.55 }}>
+              This <strong>Brand Standards</strong> section shows report-derived mood direction, optional reference thumbnails,
+              and exploration prompts. HTTPS reference stills are edited in{" "}
+              <strong>Workbook → Mood Board Reference Images</strong> and appear here and in exported brand standards PDFs.
             </p>
           </div>
           <button type="button" onClick={() => onEditInWorkbook("mood-board")} style={EDIT_IN_WORKBOOK_BTN}>
             Edit mood board in Workbook
           </button>
         </div>
+        {visualSystemMode ? (
+          <ReportCallout
+            label={
+              visualSystemMode === "existing"
+                ? "Existing brand system"
+                : visualSystemMode === "optimize"
+                  ? "Existing system + optimization"
+                  : "Strategic visual refresh"
+            }
+            accentColor={BLUE}
+          >
+            {visualSystemMode === "existing"
+              ? "Foundation is set to preserve your current logo, palette, and typography. Use this mood board for consistency, vendor briefs, and QA—not as a signal to replace working assets. For “optimization” in the go-to-market sense, lean on ICP and persona guidance in Strategy and Foundation so creative and proof stay aligned with how priority buyers decide."
+              : visualSystemMode === "optimize"
+                ? "Foundation keeps your core identity while tightening execution. Pair these mood cues and channel standards with Blueprint ICP and persona outputs: optimize imagery and layout for clarity, proof, and the conversion paths each segment needs—not a wholesale rebrand."
+                : "Foundation allows evolving selected visual elements. Treat prompts and samples as exploration inputs; reconcile any refresh with positioning and ICP messaging so new visuals still support priority segments. Strategy and Activation link execution to those buyer realities."}
+          </ReportCallout>
+        ) : (
+          <p style={{ margin: "0 0 14px", fontSize: 13, color: MID_GRAY, lineHeight: 1.55, maxWidth: 720 }}>
+            If you already have branding in place, choose <strong>Use existing</strong>, <strong>Optimize</strong>, or{" "}
+            <strong>Refresh</strong> under Foundation (visual identity). That choice saves to your workbook and surfaces here
+            so this tab matches how you want to evolve creative.
+          </p>
+        )}
+        {hasMoodBoardFallbackFromImagery ? (
+          <div style={{ ...INNER_CARD, padding: "12px 14px", marginBottom: 12 }}>
+            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Mood direction from your report</p>
+            {photographyDirection ? (
+              <p style={{ margin: "6px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.55 }}>{photographyDirection}</p>
+            ) : null}
+            {subjectShow.length > 0 ? (
+              <>
+                <p style={{ margin: "10px 0 0", fontSize: 12, fontWeight: 800, color: NAVY }}>Favor these subjects and settings</p>
+                <ul style={{ margin: "6px 0 0", paddingLeft: 18, fontSize: 13, color: BODY_TEXT, lineHeight: 1.5 }}>
+                  {subjectShow.slice(0, 8).map((item) => (
+                    <li key={item} style={{ marginBottom: 4 }}>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
+            <p style={{ margin: "10px 0 0", fontSize: 12, color: MID_GRAY, lineHeight: 1.55 }}>
+              Structured mood tags (keywords, textures, designer brief) appear when your report includes{" "}
+              <strong>moodBoardDescriptors</strong>—included on new Blueprint reports. Blueprint+ adds AI exploration prompts.
+              Full stock criteria and show/avoid lists are in <strong>Imagery Suggestions</strong> above.
+            </p>
+          </div>
+        ) : null}
         {moodDesc ? (
           <div style={{ ...INNER_CARD, padding: "12px 14px", marginBottom: 12 }}>
             <MoodTagRow label="Mood keywords" items={moodDesc.adjectives} />
@@ -1230,8 +1267,8 @@ export default function BrandStandardsTab({
         ) : null}
         {moodBoardSamples.length > 0 ? (
           <div style={{ marginBottom: 12 }}>
-            <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: MID_GRAY }}>
-              Reference image samples
+            <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 800, letterSpacing: "0.04em", color: MID_GRAY }}>
+              Reference Image Samples
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 10 }}>
               {moodBoardSamples.map((sample, index) => (
@@ -1266,7 +1303,7 @@ export default function BrandStandardsTab({
               {aiImagePrompts.slice(0, 4).map((row, i) => (
                 <div key={`ai-prompt-${i}`} style={{ padding: "8px 10px", borderRadius: 5, border: `1px solid ${BORDER}`, background: "#FCFDFF" }}>
                   {row.useCase ? (
-                    <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                    <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: BLUE, letterSpacing: "0.03em" }}>
                       {row.useCase}
                     </p>
                   ) : null}
@@ -1283,11 +1320,15 @@ export default function BrandStandardsTab({
             </div>
           </div>
         ) : null}
-        {!moodDesc && moodBoardSamples.length === 0 && aiImagePrompts.length === 0 ? (
+        {!moodDesc &&
+        moodBoardSamples.length === 0 &&
+        aiImagePrompts.length === 0 &&
+        !hasMoodBoardFallbackFromImagery ? (
           <ReportCallout label="Why this can look empty" accentColor={BLUE}>
-            Blueprint+ fills <strong>moodBoardDescriptors</strong> as text keywords and notes; thumbnails only appear when
-            reference URLs exist (for example from your workbook&apos;s mood board samples). Once your report includes imagery
-            data or you add image links in the workbook export path, this section populates automatically.
+            The mood board reads from <strong>brandImageryDirection</strong> in your report. If there is no imagery block yet
+            (for example Snapshot-only data), generate or open a Blueprint report. Thumbnails need HTTPS reference URLs from{" "}
+            <strong>Workbook → Mood Board Reference Images</strong>. Blueprint+ adds extra AI prompts; structured mood tags come
+            from <strong>moodBoardDescriptors</strong> on new Blueprint reports.
           </ReportCallout>
         ) : moodBoardSamples.length === 0 ? (
           <p style={{ margin: 0, fontSize: 13, color: MID_GRAY, lineHeight: 1.55 }}>

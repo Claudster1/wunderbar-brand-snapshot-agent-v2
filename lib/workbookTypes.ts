@@ -1,5 +1,6 @@
 export type WorkbookSectionId =
   | "positioning-statement"
+  | "strategic-offer-context"
   | "messaging-framework"
   | "voice-attributes"
   | "brand-story"
@@ -34,6 +35,16 @@ export const WORKBOOK_SECTIONS: WorkbookSection[] = [
       "Paste your positioning statement here. Use the F1 prompt output as a starting point, or write it from scratch.",
     pillar: "Positioning",
     availableFrom: "snapshot-plus",
+  },
+  {
+    id: "strategic-offer-context",
+    label: "Strategic offer & portfolio",
+    description:
+      "What you sell (product, service, or program), the buyer job it serves, scope boundaries, and how channels should reinforce the same offer—Blueprint methodology slice for GTM and Activation.",
+    placeholder:
+      "Primary offer name and one-line pitch. Job statement (When…, I want to…, so I can…). Pains relieved, outcomes, in-scope vs out-of-scope, leading signals to review, and channel alignment notes.",
+    pillar: "Positioning",
+    availableFrom: "blueprint",
   },
   {
     id: "messaging-framework",

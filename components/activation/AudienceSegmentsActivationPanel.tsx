@@ -27,8 +27,7 @@ function SectionKicker({ children }: { children: ReactNode }) {
         fontSize: 11,
         fontWeight: 800,
         color: MID,
-        textTransform: "uppercase",
-        letterSpacing: "0.07em",
+        letterSpacing: "0.03em",
       }}
     >
       {children}
@@ -164,7 +163,7 @@ export default function AudienceSegmentsActivationPanel({
     <div style={{ display: "grid", gap: 16 }}>
       {icpDefBlocks.length > 0 ? (
         <div>
-          <SectionKicker>ICP &amp; audience definitions</SectionKicker>
+          <SectionKicker>ICP &amp; Audience Definitions</SectionKicker>
           <div style={{ display: "grid", gap: 12 }}>
             {icpDefBlocks.map((block, i) => (
               <CardShell key={`${block.title}-${i}`} title={block.title}>
@@ -184,7 +183,7 @@ export default function AudienceSegmentsActivationPanel({
 
       {conversionProfiles.length > 0 ? (
         <div>
-          <SectionKicker>ICP conversion profiles</SectionKicker>
+          <SectionKicker>ICP Conversion Profiles</SectionKicker>
           <div style={{ display: "grid", gap: 10 }}>
             {conversionProfiles.slice(0, 6).map((raw, i) => {
               const p = asRecord(raw) ?? {};
@@ -205,7 +204,7 @@ export default function AudienceSegmentsActivationPanel({
 
       {matrix.length > 0 ? (
         <div>
-          <SectionKicker>Content × funnel matrix</SectionKicker>
+          <SectionKicker>Content × Funnel Matrix</SectionKicker>
           <div style={{ overflowX: "auto", border: `1px solid ${BORDER}`, borderRadius: 10, background: "#FFFFFF" }}>
             <table
               style={{
@@ -219,16 +218,16 @@ export default function AudienceSegmentsActivationPanel({
               <thead>
                 <tr style={{ background: NAVY, color: "#FFFFFF" }}>
                   {[
-                    "ICP tier",
+                    "ICP Tier",
                     "Stage",
-                    "Winning format",
+                    "Winning Format",
                     "CTA",
                     "Pillar",
-                    "Why it converts",
-                    "Example headline",
-                    "Draft copy",
-                    "Image prompt",
-                    "Video prompt",
+                    "Why It Converts",
+                    "Example Headline",
+                    "Draft Copy",
+                    "Image Prompt",
+                    "Video Prompt",
                   ].map((h) => (
                     <th
                       key={h}
@@ -238,8 +237,7 @@ export default function AudienceSegmentsActivationPanel({
                         padding: "10px 10px",
                         fontWeight: 700,
                         fontSize: 10,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.06em",
+                        letterSpacing: "0.02em",
                       }}
                     >
                       {h}
@@ -295,7 +293,7 @@ export default function AudienceSegmentsActivationPanel({
 
       {mechanics.length > 0 ? (
         <div>
-          <SectionKicker>Channel-level conversion mechanics</SectionKicker>
+          <SectionKicker>Channel-Level Conversion Mechanics</SectionKicker>
           <div style={{ display: "grid", gap: 10 }}>
             {mechanics.slice(0, 10).map((raw, i) => {
               const m = asRecord(raw) ?? {};
@@ -326,7 +324,7 @@ export default function AudienceSegmentsActivationPanel({
 
       {sequences.length > 0 ? (
         <div>
-          <SectionKicker>Multi-touch sequences</SectionKicker>
+          <SectionKicker>Multi-Touch Sequences</SectionKicker>
           <div style={{ display: "grid", gap: 12 }}>
             {sequences.slice(0, 4).map((raw, i) => {
               const seq = asRecord(raw) ?? {};
@@ -388,7 +386,7 @@ export default function AudienceSegmentsActivationPanel({
 
       {signals.length > 0 ? (
         <div>
-          <SectionKicker>Behavioral triggers → plays</SectionKicker>
+          <SectionKicker>Behavioral Triggers → Plays</SectionKicker>
           <div style={{ display: "grid", gap: 12 }}>
             {signals.slice(0, 12).map((raw, i) => {
               const s = asRecord(raw) ?? {};
@@ -421,7 +419,7 @@ export default function AudienceSegmentsActivationPanel({
 
       {hooks.length > 0 ? (
         <div>
-          <SectionKicker>Hook types — use vs avoid</SectionKicker>
+          <SectionKicker>Hook Types — Use vs Avoid</SectionKicker>
           <div style={{ display: "grid", gap: 10 }}>
             {hooks.slice(0, 4).map((raw, i) => {
               const h = asRecord(raw) ?? {};
@@ -472,7 +470,7 @@ export default function AudienceSegmentsActivationPanel({
 
       {segStrategy || segments.length > 0 ? (
         <div>
-          <SectionKicker>Persona-driven segments</SectionKicker>
+          <SectionKicker>Persona-Driven Segments</SectionKicker>
           {segStrategy ? (
             <p style={{ margin: "0 0 12px", fontSize: 14, color: "#2D3A4A", lineHeight: 1.6, whiteSpace: "pre-line" }}>
               {segStrategy}

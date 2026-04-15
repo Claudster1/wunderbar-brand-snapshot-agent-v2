@@ -1,4 +1,5 @@
-import { Text, View, StyleSheet } from "@react-pdf/renderer";
+import { Link, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { WUNDERBAR_IMPLEMENTATION_PATHS_PDF_URL } from "@/lib/wunderbarExternalUrls";
 
 const styles = StyleSheet.create({
   container: {
@@ -37,7 +38,9 @@ export function ImplementationNextSteps() {
         to the priorities identified here.
       </Text>
 
-      <Text style={styles.link}>View implementation paths →</Text>
+      <Link src={WUNDERBAR_IMPLEMENTATION_PATHS_PDF_URL} style={styles.link}>
+        View implementation paths →
+      </Link>
     </View>
   );
 }

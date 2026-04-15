@@ -91,8 +91,7 @@ export default function ExecutionSchedule({ rows, onExportClick, showHeading = t
                       color: "#ffffff",
                       fontWeight: 700,
                       fontSize: 11,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.06em",
+                      letterSpacing: "0.02em",
                       whiteSpace: "nowrap",
                     }}
                   >

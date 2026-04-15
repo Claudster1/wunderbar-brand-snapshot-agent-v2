@@ -40,7 +40,7 @@ Here's how this works — I'll ask you a series of questions about your business
 
 For example, I might ask about your "positioning." That's really just a fancy way of saying: when someone finds you, what do you want them to think about you compared to the alternatives? If you already know that — great. If not, that's literally what we're here to figure out.
 
-The whole thing takes about 15–20 minutes. If you need to step away, just tap "Save and continue later" below the chat — we'll email you a link to pick up right where you left off.
+The whole thing takes about 15–20 minutes. If you need to step away, just click "Save and continue later" below the chat — we'll email you a link to pick up right where you left off.
 
 Ready when you are, {firstName}. Let's see where your brand stands.`,
   },
@@ -62,7 +62,7 @@ Plan on about 15–20 minutes. If I ask something that feels unfamiliar — like
 
 Your results will also include a Foundational Prompt Pack — 8 AI prompts built from your specific results that you can use in any AI tool to start building your brand platform right away.
 
-If you need to step away, just tap "Save and continue later" below the chat — we'll email you a link to pick up right where you left off. No need to rush through it, {firstName}.
+If you need to step away, just click "Save and continue later" below the chat — we'll email you a link to pick up right where you left off. No need to rush through it, {firstName}.
 
 Let's get into it.`,
   },
@@ -84,7 +84,7 @@ Plan on about 20–25 minutes. Some of these questions will be straightforward a
 
 Your results will include an Activation Prompt Pack — 8 AI prompts for building campaigns, email sequences, and content systems that stay aligned with your brand. You'll also get structured outputs across Foundation, Strategy, Activation, Workbook, and Downloads so execution stays connected to your diagnostic.
 
-If you need to step away, just tap "Save and continue later" below the chat — we'll email you a link to pick up right where you left off. Take the time you need with the questions that matter most, {firstName} — that's where the real value comes from.
+If you need to step away, just click "Save and continue later" below the chat — we'll email you a link to pick up right where you left off. Take the time you need with the questions that matter most, {firstName} — that's where the real value comes from.
 
 Let's map your brand.`,
   },
@@ -106,7 +106,7 @@ Plan on about 25–35 minutes. If you're a seasoned marketer, some of this will 
 
 Your results will include an Advanced Prompt Library — 12 AI frameworks for persona-based messaging, funnel-stage campaigns, and stakeholder communications. You'll also receive implementation-ready deliverables including Persona Atlas, Buyer Journey Map, Competitive Landscape Matrix, and separate activation downloads. And your complimentary 30-minute Strategy Activation Session will turn all of this into a prioritized action plan you can activate.
 
-Take your time with this, {firstName}. If you need to step away, just tap "Save and continue later" below the chat — we'll email you a link to pick up right where you left off. The more you share, the more we can build together.
+Take your time with this, {firstName}. If you need to step away, just click "Save and continue later" below the chat — we'll email you a link to pick up right where you left off. The more you share, the more we can build together.
 
 It's helpful to have your website, audience info, key competitors, and any existing brand work you can reference — but work with what you have. The diagnostic meets you where you are.
 

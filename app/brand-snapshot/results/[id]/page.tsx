@@ -5,6 +5,7 @@ export const dynamic = "force-dynamic";
 
 import { ScoreGauge } from "@/src/components/ScoreGauge";
 import { PillarBreakdown } from "@/components/PillarBreakdown";
+import { ResultsSuiteVisualSummary } from "@/components/results/charts/ResultsSuiteVisualSummary";
 import { SnapshotUpgradePanel } from "@/components/SnapshotUpgradePanel";
 import { LockedResultsPreview } from "@/app/results/components/LockedResultsPreview";
 import { MarketingSpendEfficiencySignal } from "@/app/results/components/MarketingSpendEfficiencySignal";
@@ -13,9 +14,9 @@ import { HumanAssistCTA } from "@/app/results/components/HumanAssistCTA";
 import type { PillarKey } from "@/src/types/pillars";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { safeFetchJson } from "@/lib/resilience/safeFetch";
+import { resolveRuntimeBaseUrlForServerFetch } from "@/lib/server/runtimeBaseUrl";
 import { getArchetypeIcon, getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
 import { ShareButton } from "@/components/share/ShareButton";
 import { BlueprintPlusHeader } from "@/components/reports/BlueprintPlusHeader";
@@ -50,30 +51,8 @@ function extractLikelyArchetype(report: Record<string, unknown>, answers: Record
   return null;
 }
 
-async function resolveBaseUrlFromHeaders() {
-  const hdrs = await headers();
-  const host = hdrs.get("x-forwarded-host") || hdrs.get("host");
-  if (!host) return null;
-  const proto = hdrs.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
-  return `${proto}://${host}`;
-}
-
-async function resolveRuntimeBaseUrl() {
-  const requestBaseUrl = await resolveBaseUrlFromHeaders();
-  if (process.env.NODE_ENV !== "production") {
-    return requestBaseUrl || process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  }
-  return (
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
-    requestBaseUrl ||
-    "http://localhost:3000"
-  );
-}
-
 async function getReport(id: string): Promise<any | null> {
-  // Prefer explicit env URL, otherwise derive from the current request host (works for :3010 preview).
-  const baseUrl = await resolveRuntimeBaseUrl();
+  const baseUrl = await resolveRuntimeBaseUrlForServerFetch();
   const response = await safeFetchJson<any>(
     `${baseUrl}/api/snapshot/get?id=${encodeURIComponent(id)}`,
     { cache: "no-store", retries: 2, timeoutMs: 7000 },
@@ -95,7 +74,7 @@ export async function generateMetadata({
   const { id } = await params;
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const report = await getReport(id);
-  const baseUrl = await resolveRuntimeBaseUrl();
+  const baseUrl = await resolveRuntimeBaseUrlForServerFetch();
   const sectionLabels: Record<string, string> = {
     overview: "Overview",
     foundation: "Foundation",
@@ -267,7 +246,7 @@ export default async function SnapshotResultPage({
 
   return (
     <main className="min-h-screen bg-brand-bg font-brand">
-      <div className="bs-container-wide bs-section px-4 sm:px-6 md:px-8 space-y-12 md:space-y-14">
+      <div className="bs-container-wide bs-section px-4 sm:px-6 md:px-8 space-y-16 md:space-y-20">
         <BlueprintPlusHeader
           productName="WunderBrand Snapshot™"
           reportId={report.report_id}
@@ -315,8 +294,8 @@ export default async function SnapshotResultPage({
         )}
 
         {activeSection === "foundation" && (
-          <section id="foundation" className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
-            <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+          <section id="foundation" className="bs-card rounded-xl p-6 sm:p-7 border border-brand-border">
+            <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-4">
               Executive Summary
             </p>
             <h2 className="bs-h3 mb-3">Decision Snapshot</h2>
@@ -347,7 +326,7 @@ export default async function SnapshotResultPage({
         )}
 
         {activeSection === "score" && (
-          <section id="score" className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
+          <section id="score" className="bs-card rounded-xl p-6 sm:p-7 border border-brand-border">
             <h2 className="bs-h3 mb-4">Your WunderBrand Score™</h2>
             <div className="flex justify-center">
               <ScoreGauge value={displayBrandScore} showLegend />
@@ -357,7 +336,8 @@ export default async function SnapshotResultPage({
 
         {activeSection === "strategy" && (
           <>
-            <div id="strategy">
+            <div id="strategy" className="space-y-8">
+              <ResultsSuiteVisualSummary pillars={(pillar_scores || {}) as Partial<Record<PillarKey, number>>} />
               <PillarBreakdown
                 pillars={pillar_scores || {}}
                 insights={insights || {}}
@@ -367,8 +347,8 @@ export default async function SnapshotResultPage({
             </div>
 
             {likelyArchetype && (
-              <section id="archetype" className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
-                <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+              <section id="archetype" className="bs-card rounded-xl p-6 sm:p-7 border border-brand-border">
+                <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-4">
                   Your Brand Archetype
                 </p>
                 <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-brand-blue/10 border border-brand-blue/20">
@@ -391,8 +371,8 @@ export default async function SnapshotResultPage({
         {activeSection === "activation" && (
           <>
             {recommendationsList.length > 0 && (
-              <section className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
-                <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+              <section className="bs-card rounded-xl p-6 sm:p-7 border border-brand-border">
+                <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-4">
                   Priority Actions
                 </p>
                 <h2 className="bs-h3 mb-2">What to focus on next</h2>
@@ -406,7 +386,7 @@ export default async function SnapshotResultPage({
               </section>
             )}
 
-            <div id="activation" className="space-y-12 md:space-y-14">
+            <div id="activation" className="space-y-16 md:space-y-20">
               <MarketingSpendEfficiencySignal
                 businessType={businessType}
                 monthlyMarketingBudget={monthlyMarketingBudget}

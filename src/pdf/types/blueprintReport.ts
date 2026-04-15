@@ -51,6 +51,41 @@ export interface PromptPack {
   prompts: PromptItem[];
 }
 
+/** Primary commercial offer — JTBD-aligned slice for Strategy + channel plans (Blueprint / Blueprint+). */
+export interface StrategicOfferPrimaryOffer {
+  name: string;
+  offerType: string;
+  oneLinePitch: string;
+  whoItsFor: string;
+  substitutesConsidered: string;
+  whyTheySwitch: string;
+}
+
+export interface StrategicOfferSecondaryOffer {
+  name: string;
+  role: string;
+}
+
+export interface StrategicOfferSuccessSignal {
+  signal: string;
+  reviewCadence: string;
+  whyItMatters: string;
+}
+
+export interface StrategicOfferContext {
+  methodologyFraming: string;
+  jobStatement: string;
+  primaryOffer: StrategicOfferPrimaryOffer;
+  secondaryOffers: StrategicOfferSecondaryOffer[];
+  painsRelieved: string[];
+  outcomesEnabled: string[];
+  scopeIn: string[];
+  scopeOut: string[];
+  leadingSuccessSignals: StrategicOfferSuccessSignal[];
+  channelExecutionAlignment: string;
+  riskiestAssumption: string;
+}
+
 /**
  * Ideal Customer Profile (ICP) — the segment you prioritize (company/account or consumer cohort).
  * Optional `icpLabel` is the human-readable slot label shown in reports and matched by buyer personas.
@@ -129,6 +164,23 @@ export interface ConversionIntelligenceReference {
   funnelStage: string;
   matrixCell: string;
   note?: string;
+}
+
+/** Per-ICP sales + marketing alignment: strategy ladder, campaign needs, tactics, ICI anchor, competitive cues. */
+export interface IcpGoToMarketPlan {
+  /** Must match primaryICP / secondaryICP / additionalICPs `icpLabel` (or aligned `name` when icpLabel absent). */
+  icpLabel: string;
+  /** How this segment advances the company’s top goals and overall brand/GTM strategy (2–4 sentences). */
+  alignmentToBusinessStrategy: string;
+  /** What “winning” with this ICP means in-market (1–2 sentences). */
+  strategicFocus: string;
+  /** Campaign and content building blocks this ICP needs (hooks, assets, proof, landing angles). */
+  campaignContentNeeds: string[];
+  /** Prioritized ~90-day tactics aligned to measurement and channel strategy. */
+  priorityTactics: string[];
+  conversion_intelligence_reference: ConversionIntelligenceReference;
+  /** Talk-track cues vs alternatives for this ICP (not generic). */
+  competitiveConversationCues: string;
 }
 
 export interface ICPConversionProfile {
@@ -448,6 +500,11 @@ export interface BlueprintEngineOutput {
       timeline: string;
     };
   };
+  /**
+   * One plan per ICP in audiencePersonas — ties campaigns, sales enablement, and ICI matrix to the same segment story.
+   * Omitted on older reports.
+   */
+  icpGoToMarketPlans?: IcpGoToMarketPlan[];
   buyerPersonas: BuyerPersona[];
   brandArchetypeActivation: {
     primaryArchetype: string;
@@ -477,6 +534,8 @@ export interface BlueprintEngineOutput {
       confidence: SpendRecommendationContext["confidence"];
     };
   };
+  /** Product/offer layer (JTBD, scope, signals, channel alignment). Omitted on older reports. */
+  strategicOfferContext?: StrategicOfferContext;
   executionPromptPack: PromptPack;
   competitivePositioning: {
     positioningAxis1: { label: string; lowEnd: string; highEnd: string };
@@ -613,7 +672,14 @@ export interface BlueprintEngineOutput {
     overview: string;
     perSectionKPIs: { section: string; recommendation: string; kpi: string; target: string }[];
     leadingIndicators: { indicator: string; whatItMeans: string; timeframe: string }[];
-    trackingRecommendations: { metric: string; tool: string; howToSetUp: string; frequency: string }[];
+    trackingRecommendations: {
+      metric: string;
+      tool: string;
+      howToSetUp: string;
+      frequency: string;
+      /** Optional one-line parallel for briefings; does not replace howToSetUp. */
+      readerFriendlyOneLiner?: string;
+    }[];
   };
   contentCalendarFramework?: {
     overview: string;
@@ -673,6 +739,14 @@ export interface BlueprintEngineOutput {
     };
     imageDonts: { dont: string; why: string; alternative: string }[];
     colorApplicationInImagery: string;
+    moodBoardDescriptors?: {
+      adjectives: string[];
+      textures: string[];
+      environments: string[];
+      lightingConditions: string;
+      colorMoods: string;
+      designerNote: string;
+    };
   };
   assetAlignmentNotes?: {
     summary: string;

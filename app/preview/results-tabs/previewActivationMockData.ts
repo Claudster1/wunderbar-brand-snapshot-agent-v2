@@ -218,7 +218,7 @@ export const previewIcpConversionIntelligenceFramework = {
           headlineOrSubject: "Still seeing clicks that never become qualified conversations?",
           subhead: "Founder-led teams fix this first—not with more budget, with one storyline.",
           primaryCopy:
-            "Most B2B services brands do not have a demand problem. They have a translation problem: the ad says speed, the landing says depth, the SDR says something else. We mapped how one team realigned hero, ad, and first email in two weeks—and what happened to CPL after. Tap through for the one-page before/after (no gate).",
+            "Most B2B services brands do not have a demand problem. They have a translation problem: the ad says speed, the landing says depth, the SDR says something else. We mapped how one team realigned hero, ad, and first email in two weeks—and what happened to CPL after. Click through for the one-page before/after (no gate).",
           cta: "Read the one-page map",
           imagePrompt:
             "1080x1080 static: split panel left cluttered analytics (muted), right calm message map on laptop; navy #021859 and sky #07B0F2; no logos except small client-safe geometric mark.",

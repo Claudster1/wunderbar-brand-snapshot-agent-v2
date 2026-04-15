@@ -24,7 +24,7 @@ export function BlueprintCTA({
 
       <a
         href="/blueprint"
-        className="inline-block px-6 py-3 bg-brand-blue rounded-md font-semibold"
+        className="inline-block px-6 py-3 bg-brand-blue text-white rounded-[5px] font-semibold hover:bg-brand-blueHover transition"
       >
         Explore WunderBrand Blueprint™ →
       </a>

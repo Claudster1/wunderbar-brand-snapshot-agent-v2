@@ -204,7 +204,7 @@ export function MessagingMatrix({ productTier, diagnosticData }: Props) {
   return (
     <section className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border space-y-4">
       <div>
-        <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+        <p className="text-xs font-bold tracking-[0.04em] text-brand-muted mb-2">
           Cross-Channel Messaging Matrix
         </p>
         <h2 className="bs-h3 mb-2">Anchor layer above all plans</h2>
@@ -228,8 +228,8 @@ export function MessagingMatrix({ productTier, diagnosticData }: Props) {
           Narrow by ICP segment, channel, or funnel stage to focus planning and handoffs.
         </p>
         <div className="mt-3 grid grid-cols-1 md:grid-cols-4 gap-3">
-          <label className="text-xs font-semibold text-brand-muted uppercase tracking-wide">
-            ICP segment
+          <label className="text-xs font-semibold text-brand-muted tracking-[0.04em]">
+            ICP Segment
             <select
               value={selectedSegmentId}
               onChange={(event) => setSelectedSegmentId(event.target.value)}
@@ -244,7 +244,7 @@ export function MessagingMatrix({ productTier, diagnosticData }: Props) {
               ))}
             </select>
           </label>
-          <label className="text-xs font-semibold text-brand-muted uppercase tracking-wide">
+          <label className="text-xs font-semibold text-brand-muted tracking-[0.04em]">
             Channel
             <select
               value={selectedChannel}
@@ -260,8 +260,8 @@ export function MessagingMatrix({ productTier, diagnosticData }: Props) {
               ))}
             </select>
           </label>
-          <label className="text-xs font-semibold text-brand-muted uppercase tracking-wide">
-            Funnel stage
+          <label className="text-xs font-semibold text-brand-muted tracking-[0.04em]">
+            Funnel Stage
             <select
               value={selectedStage}
               onChange={(event) =>

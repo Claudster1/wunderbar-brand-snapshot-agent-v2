@@ -2,7 +2,7 @@
 import React from "react";
 import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/renderer";
 import { pdfTheme } from "../theme";
-import type { BlueprintEngineOutput } from "../types/blueprintReport";
+import type { BlueprintEngineOutput, IcpGoToMarketPlan } from "../types/blueprintReport";
 import { DisclaimerPage } from "../components/DisclaimerPage";
 import { SectionDividerPage } from "../components/SectionDividerPage";
 
@@ -71,12 +71,85 @@ function lines(value: string | undefined): string[] {
     .slice(0, 4);
 }
 
+function stringList(items: string[] | undefined, max: number): string[] {
+  if (!Array.isArray(items)) return [];
+  return items.map((x) => (typeof x === "string" ? x.trim() : "")).filter(Boolean).slice(0, max);
+}
+
+function IcpPlanCard({ plan, index }: { plan: IcpGoToMarketPlan; index: number }) {
+  const ref = plan.conversion_intelligence_reference;
+  const refLine = ref
+    ? [ref.icpTier, ref.funnelStage, ref.matrixCell].filter(Boolean).join(" | ")
+    : "";
+  const needs = stringList(plan.campaignContentNeeds, 12);
+  const tactics = stringList(plan.priorityTactics, 12);
+
+  return (
+    <View style={s.card} wrap={false}>
+      <Text style={s.h2}>{plan.icpLabel?.trim() || `ICP ${index + 1}`}</Text>
+
+      {plan.alignmentToBusinessStrategy?.trim() ? (
+        <>
+          <Text style={s.label}>Strategy tie-in</Text>
+          <Text style={s.body}>{plan.alignmentToBusinessStrategy.trim()}</Text>
+        </>
+      ) : null}
+
+      {plan.strategicFocus?.trim() ? (
+        <>
+          <Text style={s.label}>Segment focus</Text>
+          <Text style={s.body}>{plan.strategicFocus.trim()}</Text>
+        </>
+      ) : null}
+
+      {refLine ? (
+        <>
+          <Text style={s.label}>Conversion intelligence anchor</Text>
+          <Text style={s.body}>{refLine}</Text>
+          {ref?.note?.trim() ? <Text style={s.body}>{ref.note.trim()}</Text> : null}
+        </>
+      ) : null}
+
+      {needs.length > 0 ? (
+        <>
+          <Text style={s.label}>Campaign & content needs</Text>
+          {needs.map((line, i) => (
+            <Text key={i} style={s.body}>
+              • {line}
+            </Text>
+          ))}
+        </>
+      ) : null}
+
+      {tactics.length > 0 ? (
+        <>
+          <Text style={s.label}>Priority tactics (90-day)</Text>
+          {tactics.map((line, i) => (
+            <Text key={i} style={s.body}>
+              • {line}
+            </Text>
+          ))}
+        </>
+      ) : null}
+
+      {plan.competitiveConversationCues?.trim() ? (
+        <>
+          <Text style={s.label}>Competitive conversation cues</Text>
+          <Text style={s.body}>{plan.competitiveConversationCues.trim()}</Text>
+        </>
+      ) : null}
+    </View>
+  );
+}
+
 export function BattleCardsDocument({ data, brandName }: Props) {
   const players = data.competitivePositioning?.players ?? [];
   const fallbackDifferentiation =
     data.competitivePositioning?.differentiationSummary || data.brandFoundation?.differentiationNarrative || "";
   const vulnerabilities = data.competitivePositioning?.vulnerabilities || "";
   const salesRef = data.salesConversationGuide?.conversion_intelligence_reference;
+  const icpPlans = Array.isArray(data.icpGoToMarketPlans) ? data.icpGoToMarketPlans : [];
+  const hasIcpPlans = icpPlans.length > 0;
 
   return (
     <Document>
@@ -91,9 +164,33 @@ export function BattleCardsDocument({ data, brandName }: Props) {
         <Text style={{ ...s.coverMeta, marginTop: 34, fontSize: 8 }}>CONFIDENTIAL — Internal sales enablement</Text>
       </Page>
 
+      {hasIcpPlans ? (
+        <>
+          <SectionDividerPage
+            label="Section"
+            title="ICP playbooks"
+            subtitle="Per-segment strategy, campaign support, 90-day tactics, and conversion-intelligence anchors for sales and marketing."
+          />
+          <Page size="A4" style={s.page} wrap>
+            <View style={s.footer} fixed>
+              <Text style={s.footerText}>Battle Cards — {brandName}</Text>
+              <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
+            </View>
+            <Text style={s.h1}>ICP playbooks</Text>
+            <Text style={s.body}>
+              Use one playbook per prioritized segment so field conversations, nurture, and creative all reinforce the same
+              story, proof, and matrix cell from your ICI framework.
+            </Text>
+            {icpPlans.map((plan, i) => (
+              <IcpPlanCard key={`${plan.icpLabel}-${i}`} plan={plan} index={i} />
+            ))}
+          </Page>
+        </>
+      ) : null}
+
       <SectionDividerPage
         label="Section"
-        title="Competitive Conversations"
+        title={hasIcpPlans ? "Competitive battle cards" : "Competitive Conversations"}
         subtitle="How to position, differentiate, and win in live buyer conversations."
       />
 
@@ -103,8 +200,8 @@ export function BattleCardsDocument({ data, brandName }: Props) {
           <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
         </View>
 
-        <Text style={s.h1}>Battle Cards</Text>
-        {salesRef ? (
+        <Text style={s.h1}>{hasIcpPlans ? "Competitive battle cards" : "Battle Cards"}</Text>
+        {!hasIcpPlans && salesRef ? (
           <View style={s.card}>
             <Text style={s.label}>ICP Conversion Intelligence Link</Text>
             <Text style={s.body}>
@@ -113,8 +210,9 @@ export function BattleCardsDocument({ data, brandName }: Props) {
           </View>
         ) : null}
         <Text style={s.body}>
-          Use these cards in live sales and marketing conversations. Each one translates competitive context into
-          "what to say", "what to avoid", and "how we win" guidance.
+          {hasIcpPlans
+            ? "Named-competitor cards below complement the ICP playbooks: use them when displacement or bake-off conversations come up."
+            : 'Use these cards in live sales and marketing conversations. Each one translates competitive context into "what to say", "what to avoid", and "how we win" guidance.'}
         </Text>
 
         {players.length > 0 ? (
@@ -127,13 +225,17 @@ export function BattleCardsDocument({ data, brandName }: Props) {
 
               <Text style={s.label}>Likely Angle</Text>
               {lines(player.narrative || fallbackDifferentiation).map((line, i) => (
-                <Text key={i} style={s.body}>• {line}</Text>
+                <Text key={i} style={s.body}>
+                  • {line}
+                </Text>
               ))}
 
               <Text style={s.label}>How We Win</Text>
               {lines(fallbackDifferentiation).length > 0 ? (
                 lines(fallbackDifferentiation).map((line, i) => (
-                  <Text key={i} style={s.body}>• {line}</Text>
+                  <Text key={i} style={s.body}>
+                    • {line}
+                  </Text>
                 ))
               ) : (
                 <Text style={s.body}>• Reinforce our differentiated value narrative with concrete proof.</Text>
@@ -148,7 +250,9 @@ export function BattleCardsDocument({ data, brandName }: Props) {
         ) : (
           <View style={s.card}>
             <Text style={s.h2}>Competitive Context</Text>
-            <Text style={s.body}>{fallbackDifferentiation || "Competitive differentiation details are limited in this report."}</Text>
+            <Text style={s.body}>
+              {fallbackDifferentiation || "Competitive differentiation details are limited in this report."}
+            </Text>
           </View>
         )}
 
@@ -156,7 +260,9 @@ export function BattleCardsDocument({ data, brandName }: Props) {
           <View style={s.card}>
             <Text style={s.h2}>Watchouts</Text>
             {lines(vulnerabilities).map((line, i) => (
-              <Text key={i} style={s.body}>• {line}</Text>
+              <Text key={i} style={s.body}>
+                • {line}
+              </Text>
             ))}
           </View>
         )}

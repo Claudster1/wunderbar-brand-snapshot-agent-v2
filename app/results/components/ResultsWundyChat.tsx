@@ -1,8 +1,7 @@
 "use client";
 
 import WundyChat from "@/components/wundy/WundyChat";
-
-type ProductTier = "snapshot" | "snapshot_plus" | "blueprint" | "blueprint_plus";
+import type { ProductTier } from "@/components/results/tabConfig";
 
 type Props = {
   reportId: string;
@@ -14,8 +13,12 @@ export function ResultsWundyChat({ reportId, productTier }: Props) {
     return <WundyChat mode="general" />;
   }
 
+  if (!reportId?.trim()) {
+    return <WundyChat mode="general" />;
+  }
+
   const tier =
-    productTier === "snapshot_plus"
+    productTier === "snapshot-plus"
       ? "snapshot-plus"
       : productTier === "blueprint"
         ? "blueprint"

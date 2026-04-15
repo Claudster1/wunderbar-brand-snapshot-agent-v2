@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, Suspense, useEffect, useMemo, useState } from "react";
+import { ReactNode, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import LockedTabPrompt from "@/components/LockedTabPrompt";
 import ResultsTabNav, { ProductTier, ResultsTab } from "@/components/ResultsTabNav";
 import {
@@ -14,24 +14,34 @@ import {
 import CompactResultsHeader from "@/components/results/CompactResultsHeader";
 import HowToUseBanner from "@/components/results/HowToUseBanner";
 import { getSuiteTabIntro, TAB_SECTION_NAV_HINT_CHIPS_ONLY } from "@/lib/copy/resultsSuiteGuidance";
+import { TabIntroGuidanceBlock } from "@/components/results/TabIntroGuidanceBlock";
 import TabSectionMenu from "@/components/results/TabSectionMenu";
+import { useActiveSectionInView } from "@/components/results/useActiveSectionInView";
 import StrategyTab from "@/components/tabs/StrategyTab";
 import BrandStandardsTab from "@/components/tabs/BrandStandardsTab";
 import ActivationTab from "@/components/tabs/ActivationTab";
 import WorkbookTab from "@/components/tabs/WorkbookTab";
-import DownloadsTab from "@/components/tabs/DownloadsTab";
+import DownloadsTab, { buildDownloadsNavModel } from "@/components/tabs/DownloadsTab";
+import { buildActivationNavMenuItems } from "@/lib/activation/activationTabNav";
+import { STANDARDS_SUITE_NAV_ITEMS } from "@/lib/results/standardsSuiteNav";
+import { buildStrategyNavMenuItems } from "@/lib/strategy/strategyNavMenu";
+import { buildWorkbookNavMenuItems } from "@/lib/workbook/workbookNavMenu";
 import type { Prompt } from "@/lib/promptPackData";
 import type { ScheduleRow } from "@/components/ExecutionSchedule";
 import {
   SUITE_ACCENT_BRIGHT,
+  SUITE_ACCENT_HOVER,
+  SUITE_RADIUS_BUTTON,
   SUITE_BG_PAGE,
   SUITE_CHIP_CARD_STYLE,
   SUITE_CONTENT_MAX_PX,
   SUITE_FONT_UI,
   SUITE_INTRO_BAND_STYLE,
-  SUITE_MUTED,
-  SUITE_NAVY,
+  SUITE_INTRO_EYEBROW_TEXT_STYLE,
+  SUITE_INTRO_GUIDANCE_TEXT_STYLE,
+  SUITE_INTRO_TITLE_TEXT_STYLE,
   SUITE_SHADOW_CARD,
+  SUITE_TAB_BODY_SHELL,
   SUITE_TEXT_PRIMARY,
 } from "@/components/results/suiteBrandTokens";
 import type { NormalizedImagerySample } from "@/lib/brand/brandImageryNormalize";
@@ -43,6 +53,11 @@ import {
   type WorkbookVersion,
 } from "@/lib/workbookTypes";
 import { buildActivationPlanSectionsList } from "@/lib/activation/activationPlanModel";
+import { WUNDERBAR_SUITE_LOCKED_TAB_URL } from "@/lib/wunderbarExternalUrls";
+import { ResultsSuiteNavContext, type ResultsSuiteNav } from "@/components/results/ResultsSuiteNavContext";
+import { ResultsWundyChat } from "@/app/results/components/ResultsWundyChat";
+import SuiteWundyGuideBar from "@/components/results/SuiteWundyGuideBar";
+import ResultsActivationRoutingCallout from "@/components/results/ResultsActivationRoutingCallout";
 
 const LOCKED_TAB_FEATURES: Record<
   Exclude<ResultsTab, "results">,
@@ -115,6 +130,8 @@ interface ResultsTabsShellProps {
   initialWorkbookSectionId?: WorkbookSectionId | null;
   /** Optional deep link/source plan id for workbook editing. */
   initialActivationPlanId?: ActivationPlanSectionId;
+  /** From `?activationFocus=` — read on the server (or preview client) so this shell does not call `useSearchParams`. */
+  activationFocus?: string | null;
 }
 
 function resolveInitialActiveTab(tier: ProductTier, requested: ResultsTab | undefined): ResultsTab {
@@ -421,6 +438,14 @@ const SECTION_TO_DOCUMENTS: Record<string, DocumentId[]> = {
     "role-pack-leadership",
     "role-pack-sales",
   ],
+  "strategic-offer-context": [
+    "brand-strategy",
+    "activation-plan",
+    "digital-marketing-strategy",
+    "brand-playbook",
+    "role-pack-marketing",
+    "role-pack-sales",
+  ],
   "messaging-framework": [
     "brand-strategy",
     "icp-conversion-snapshot",
@@ -503,15 +528,6 @@ const SECTION_TO_DOCUMENTS: Record<string, DocumentId[]> = {
   ],
 };
 
-const RESULTS_MENU_ITEMS = [
-  { id: "score-overview", label: "Score Overview", icon: "SO" },
-  { id: "pillar-analysis", label: "Brand Pillar Analysis", icon: "BP" },
-  { id: "priority-actions", label: "Priority Actions", icon: "PA" },
-  { id: "context-coverage", label: "Context Coverage", icon: "CC" },
-  { id: "implementation", label: "Implementation", icon: "IM" },
-  { id: "next-steps", label: "Next Steps", icon: "NS" },
-];
-
 const FOUNDATION_MENU_ITEMS = [
   { id: "brand-story-proof", label: "Identity", icon: "ID" },
   { id: "positioning-platform", label: "Positioning", icon: "PO" },
@@ -530,6 +546,7 @@ export default function ResultsTabsShell({
   initialActiveTab,
   initialWorkbookSectionId,
   initialActivationPlanId,
+  activationFocus: activationFocusProp,
 }: ResultsTabsShellProps) {
   const productTier = normalizeProductTierString(String(productTierProp ?? "snapshot"));
   const [activeTab, setActiveTab] = useState<ResultsTab>(() =>
@@ -560,6 +577,7 @@ export default function ResultsTabsShell({
   );
   const [pendingActivationPlanId, setPendingActivationPlanId] =
     useState<ActivationPlanSectionId | null>(() => initialActivationPlanId ?? null);
+  const [pendingFoundationSectionId, setPendingFoundationSectionId] = useState<string | null>(null);
   const [documentStates, setDocumentStates] =
     useState<DocumentTileState[]>(INITIAL_DOCUMENT_STATES);
   const productDisplayName =
@@ -571,24 +589,45 @@ export default function ResultsTabsShell({
           ? "WunderBrand Blueprint"
           : "WunderBrand Blueprint+";
 
-  const resultsTabIntro = useMemo(() => getSuiteTabIntro(productTier, "results"), [productTier]);
-  const foundationTabIntro = useMemo(() => getSuiteTabIntro(productTier, "foundation"), [productTier]);
+  const suiteCompanyName = useMemo(() => {
+    if (typeof diagnosticData.businessName === "string" && diagnosticData.businessName.trim())
+      return diagnosticData.businessName.trim();
+    if (typeof diagnosticData.companyName === "string" && diagnosticData.companyName.trim())
+      return diagnosticData.companyName.trim();
+    return undefined;
+  }, [diagnosticData.businessName, diagnosticData.companyName]);
 
-  const resultsSectionMenuItems = useMemo(() => {
-    const hasContext = diagnosticData.contextCoverage != null;
-    const hasPriority = diagnosticData.hasPriorityActions === true;
-    return RESULTS_MENU_ITEMS.filter((item) => {
-      if (item.id === "context-coverage") return hasContext;
-      if (item.id === "priority-actions") return hasPriority;
-      return true;
-    });
-  }, [diagnosticData]);
+  const introOpts = useMemo(() => ({ businessName: suiteCompanyName }), [suiteCompanyName]);
+
+  const resultsTabIntro = useMemo(() => getSuiteTabIntro(productTier, "results", introOpts), [productTier, introOpts]);
+  const foundationTabIntro = useMemo(
+    () => getSuiteTabIntro(productTier, "foundation", introOpts),
+    [productTier, introOpts],
+  );
+  const strategyTabIntro = useMemo(() => getSuiteTabIntro(productTier, "strategy", introOpts), [productTier, introOpts]);
+  const standardsTabIntro = useMemo(
+    () => getSuiteTabIntro(productTier, "standards", introOpts),
+    [productTier, introOpts],
+  );
+  const activationTabIntro = useMemo(
+    () => getSuiteTabIntro(productTier, "activation", introOpts),
+    [productTier, introOpts],
+  );
+  const workbookTabIntro = useMemo(() => getSuiteTabIntro(productTier, "workbook", introOpts), [productTier, introOpts]);
+  const downloadsTabIntro = useMemo(
+    () => getSuiteTabIntro(productTier, "downloads", introOpts),
+    [productTier, introOpts],
+  );
 
   const foundationNavItems = useMemo(() => {
     const audienceIds = FOUNDATION_AUDIENCE_SUBSECTION_IDS_BY_TIER[productTier] ?? [];
     const hasAudienceSection = audienceIds.length > 0;
     if (hasAudienceSection) return FOUNDATION_MENU_ITEMS;
     return FOUNDATION_MENU_ITEMS.filter((item) => item.id !== "icp-persona-foundation");
+  }, [productTier]);
+  const foundationTabAvailable = useMemo(() => {
+    const ft = TAB_DEFINITIONS.find((t) => t.id === "foundation");
+    return ft ? isTabAvailable(ft, productTier) : false;
   }, [productTier]);
   const documentStateStorageKey = reportId
     ? `wb-document-states:${reportId}`
@@ -607,6 +646,40 @@ export default function ResultsTabsShell({
       versions: [],
     };
   });
+
+  const activationFocusRaw =
+    typeof activationFocusProp === "string" && activationFocusProp.trim() ? activationFocusProp.trim() : null;
+
+  const strategyNavItems = useMemo(
+    () => buildStrategyNavMenuItems(productTier, diagnosticData),
+    [productTier, diagnosticData],
+  );
+  const strategyNavKey = activeTab === "strategy" ? strategyNavItems.map((i) => i.id).join("\0") : "";
+  const strategyShellActiveId = useActiveSectionInView(strategyNavKey);
+
+  const standardsNavKey =
+    activeTab === "standards" ? STANDARDS_SUITE_NAV_ITEMS.map((i) => i.id).join("\0") : "";
+  const standardsShellActiveId = useActiveSectionInView(standardsNavKey);
+
+  const workbookNavItemsForShell = useMemo(
+    () => buildWorkbookNavMenuItems(productTier, workbookState.versions.length),
+    [productTier, workbookState.versions.length],
+  );
+  const workbookNavKey = activeTab === "workbook" ? workbookNavItemsForShell.map((i) => i.id).join("\0") : "";
+  const workbookShellActiveId = useActiveSectionInView(workbookNavKey);
+
+  const downloadsNavForShell = useMemo(() => buildDownloadsNavModel(productTier), [productTier]);
+  const downloadsNavKey =
+    activeTab === "downloads" ? downloadsNavForShell.navItems.map((i) => i.id).join("\0") : "";
+  const downloadsShellActiveId = useActiveSectionInView(downloadsNavKey);
+
+  const activationNavItemsForShell = useMemo(
+    () => buildActivationNavMenuItems(productTier, diagnosticData, scheduleRows, activationFocusRaw),
+    [productTier, diagnosticData, scheduleRows, activationFocusRaw],
+  );
+  const activationNavKey =
+    activeTab === "activation" ? activationNavItemsForShell.map((i) => i.id).join("\0") : "";
+  const activationShellActiveId = useActiveSectionInView(activationNavKey);
 
   function handleAskWundy(prompt: Prompt) {
     window.dispatchEvent(
@@ -1094,6 +1167,18 @@ export default function ResultsTabsShell({
     });
   }
 
+  const openFoundationSection = useCallback(
+    (sectionDomId: string) => {
+      if (!foundationTabAvailable) return;
+      const id = sectionDomId.trim();
+      if (!id) return;
+      setLockedTabContext(null);
+      setPendingFoundationSectionId(id);
+      setActiveTab("foundation");
+    },
+    [foundationTabAvailable],
+  );
+
   function jumpToWorkbookSection(sectionId: WorkbookSectionId, activationPlanId?: string): void {
     if (productTier === "snapshot") {
       openOrLockTab("workbook");
@@ -1137,6 +1222,19 @@ export default function ResultsTabsShell({
     setPendingActivationPlanId(null);
   }, [pendingActivationPlanId, productTier, diagnosticData, scheduleRows]);
 
+  useEffect(() => {
+    if (activeTab !== "foundation" || !pendingFoundationSectionId) return;
+    const id = pendingFoundationSectionId;
+    const timer = window.setTimeout(() => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+      setPendingFoundationSectionId(null);
+    }, 100);
+    return () => window.clearTimeout(timer);
+  }, [activeTab, pendingFoundationSectionId]);
+
   const handoffActions = useMemo(() => {
     const foundationTab = TAB_DEFINITIONS.find((t) => t.id === "foundation");
     const standardsTab = TAB_DEFINITIONS.find((t) => t.id === "standards");
@@ -1173,7 +1271,12 @@ export default function ResultsTabsShell({
     return [];
   }, [activeTab, productTier]);
 
+  const suiteNavContextValue: ResultsSuiteNav = foundationTabAvailable
+    ? { openTab: openOrLockTab, openFoundationSection }
+    : { openTab: openOrLockTab };
+
   return (
+    <ResultsSuiteNavContext.Provider value={suiteNavContextValue}>
     <div
       className="results-suite-root"
       style={{ backgroundColor: SUITE_BG_PAGE, minHeight: "100vh", fontFamily: SUITE_FONT_UI }}
@@ -1217,7 +1320,7 @@ export default function ResultsTabsShell({
           tabLabel={lockedTabContext.tabLabel}
           availableFrom={lockedTabContext.availableFrom}
           featuresPreview={LOCKED_TAB_FEATURES[lockedTabContext.tabId]?.features ?? []}
-          seeWhatsIncludedUrl="https://wunderbardigital.com/wunderbrand-suite"
+          seeWhatsIncludedUrl={WUNDERBAR_SUITE_LOCKED_TAB_URL}
           talkToExpertUrl="https://calendly.com/wunderbardigital/expert-call"
           onDismiss={() => {
             setLockedTabContext(null);
@@ -1227,110 +1330,111 @@ export default function ResultsTabsShell({
       )}
 
       {!lockedTabContext && activeTab === "results" && (
-        <div
-          className="results-tab-content"
-          style={{ maxWidth: SUITE_CONTENT_MAX_PX, margin: "0 auto", padding: "28px 24px 88px" }}
-        >
+        <div className="results-tab-content" style={SUITE_TAB_BODY_SHELL}>
           <div style={SUITE_INTRO_BAND_STYLE}>
-            <p
-              style={{
-                margin: "0 0 8px",
-                fontSize: 11,
-                fontWeight: 600,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                color: SUITE_ACCENT_BRIGHT,
-              }}
-            >
+            <p style={SUITE_INTRO_EYEBROW_TEXT_STYLE}>
               {resultsTabIntro.eyebrow}
             </p>
-            <p
-              style={{
-                margin: "0 0 6px",
-                fontSize: 20,
-                fontWeight: 600,
-                letterSpacing: "-0.02em",
-                lineHeight: 1.25,
-                color: SUITE_NAVY,
-              }}
-            >
+            <h1 style={SUITE_INTRO_TITLE_TEXT_STYLE}>
               {resultsTabIntro.title}
-            </p>
-            <p style={{ margin: 0, fontSize: 14, color: SUITE_MUTED, lineHeight: 1.55, fontWeight: 400 }}>
-              {resultsTabIntro.guidance}
-            </p>
+            </h1>
+            <TabIntroGuidanceBlock intro={resultsTabIntro} guidanceStyle={SUITE_INTRO_GUIDANCE_TEXT_STYLE} />
           </div>
-          <div style={SUITE_CHIP_CARD_STYLE}>
-            <TabSectionMenu title="Results" items={resultsSectionMenuItems} description={TAB_SECTION_NAV_HINT_CHIPS_ONLY} />
-          </div>
+          <ResultsActivationRoutingCallout
+            productTier={productTier}
+            onOpenActivation={() => openOrLockTab("activation")}
+          />
           {resultsContent}
         </div>
       )}
       {!lockedTabContext && activeTab === "foundation" && (
-        <div
-          className="foundation-tab-content"
-          style={{
-            maxWidth: SUITE_CONTENT_MAX_PX,
-            margin: "0 auto",
-            padding: "28px 24px 88px",
-            fontFamily: SUITE_FONT_UI,
-          }}
-        >
+        <div className="foundation-tab-content" style={SUITE_TAB_BODY_SHELL}>
           <div style={SUITE_INTRO_BAND_STYLE}>
-            <p
-              style={{
-                margin: "0 0 8px",
-                fontSize: 11,
-                fontWeight: 600,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                color: SUITE_ACCENT_BRIGHT,
-              }}
-            >
+            <p style={SUITE_INTRO_EYEBROW_TEXT_STYLE}>
               {foundationTabIntro.eyebrow}
             </p>
-            <p
-              style={{
-                margin: "0 0 6px",
-                fontSize: 20,
-                fontWeight: 600,
-                letterSpacing: "-0.02em",
-                lineHeight: 1.25,
-                color: SUITE_NAVY,
-              }}
-            >
+            <p style={SUITE_INTRO_TITLE_TEXT_STYLE}>
               {foundationTabIntro.title}
             </p>
-            <p style={{ margin: 0, fontSize: 14, color: SUITE_MUTED, lineHeight: 1.55, fontWeight: 400 }}>
-              {foundationTabIntro.guidance}
-            </p>
+            <TabIntroGuidanceBlock intro={foundationTabIntro} guidanceStyle={SUITE_INTRO_GUIDANCE_TEXT_STYLE} />
           </div>
           <div style={SUITE_CHIP_CARD_STYLE}>
-            <TabSectionMenu title="Foundation" items={foundationNavItems} description={TAB_SECTION_NAV_HINT_CHIPS_ONLY} />
+            <TabSectionMenu
+              title="Foundation"
+              items={foundationNavItems}
+              description={TAB_SECTION_NAV_HINT_CHIPS_ONLY}
+              suiteChipCardEmbed
+            />
           </div>
           {foundationContent}
         </div>
       )}
       {!lockedTabContext && activeTab === "strategy" && (
-        <div className="strategy-tab-content">
+        <div className="strategy-tab-content" style={SUITE_TAB_BODY_SHELL}>
+          <div style={SUITE_INTRO_BAND_STYLE}>
+            <p style={SUITE_INTRO_EYEBROW_TEXT_STYLE}>{strategyTabIntro.eyebrow}</p>
+            <p style={SUITE_INTRO_TITLE_TEXT_STYLE}>{strategyTabIntro.title}</p>
+            <TabIntroGuidanceBlock intro={strategyTabIntro} guidanceStyle={SUITE_INTRO_GUIDANCE_TEXT_STYLE} />
+          </div>
+          <div style={SUITE_CHIP_CARD_STYLE}>
+            <TabSectionMenu
+              title="Strategy"
+              items={strategyNavItems}
+              description={TAB_SECTION_NAV_HINT_CHIPS_ONLY}
+              suiteChipCardEmbed
+              activeSectionId={strategyShellActiveId}
+            />
+          </div>
           <StrategyTab
             productTier={productTier}
             diagnosticData={diagnosticData}
             onEditInWorkbook={jumpToWorkbookSection}
+            shellRendersSectionChips
+            shellActiveSectionId={strategyShellActiveId}
           />
         </div>
       )}
       {!lockedTabContext && activeTab === "standards" && (
-        <div className="standards-tab-content">
+        <div className="standards-tab-content" style={SUITE_TAB_BODY_SHELL}>
+          <div style={SUITE_INTRO_BAND_STYLE}>
+            <p style={SUITE_INTRO_EYEBROW_TEXT_STYLE}>{standardsTabIntro.eyebrow}</p>
+            <p style={SUITE_INTRO_TITLE_TEXT_STYLE}>{standardsTabIntro.title}</p>
+            <TabIntroGuidanceBlock intro={standardsTabIntro} guidanceStyle={SUITE_INTRO_GUIDANCE_TEXT_STYLE} />
+          </div>
+          <div style={SUITE_CHIP_CARD_STYLE}>
+            <TabSectionMenu
+              title="Brand Standards"
+              items={STANDARDS_SUITE_NAV_ITEMS}
+              description={TAB_SECTION_NAV_HINT_CHIPS_ONLY}
+              suiteChipCardEmbed
+              activeSectionId={standardsShellActiveId}
+            />
+          </div>
           <BrandStandardsTab
             productTier={productTier}
             diagnosticData={diagnosticDataForStandards}
             onEditInWorkbook={jumpToWorkbookSection}
+            shellRendersSectionChips
+            shellActiveSectionId={standardsShellActiveId}
           />
         </div>
       )}
       {!lockedTabContext && activeTab === "activation" && (
-        <div className="activation-tab-content">
+        <div className="activation-tab-content" style={SUITE_TAB_BODY_SHELL}>
+          <div style={SUITE_INTRO_BAND_STYLE}>
+            <p style={SUITE_INTRO_EYEBROW_TEXT_STYLE}>{activationTabIntro.eyebrow}</p>
+            <p style={SUITE_INTRO_TITLE_TEXT_STYLE}>{activationTabIntro.title}</p>
+            <TabIntroGuidanceBlock intro={activationTabIntro} guidanceStyle={SUITE_INTRO_GUIDANCE_TEXT_STYLE} />
+          </div>
+          <div style={SUITE_CHIP_CARD_STYLE}>
+            <TabSectionMenu
+              title="Activation"
+              items={activationNavItemsForShell}
+              description={TAB_SECTION_NAV_HINT_CHIPS_ONLY}
+              suiteChipCardEmbed
+              activeSectionId={activationShellActiveId}
+            />
+          </div>
           <Suspense fallback={<div style={{ padding: 28, fontSize: 14, color: "#64748B" }}>Loading activation…</div>}>
             <ActivationTab
               productTier={productTier}
@@ -1338,12 +1442,32 @@ export default function ResultsTabsShell({
               scheduleRows={scheduleRows}
               onExportSchedule={() => setActiveTab("downloads")}
               onEditInWorkbook={jumpToWorkbookSection}
+              onOpenStrategyTab={() => {
+                setLockedTabContext(null);
+                setActiveTab("strategy");
+              }}
+              shellRendersSectionChips
+              shellActiveSectionId={activationShellActiveId}
             />
           </Suspense>
         </div>
       )}
       {!lockedTabContext && activeTab === "workbook" && (
-        <div className="workbook-tab-content">
+        <div className="workbook-tab-content" style={SUITE_TAB_BODY_SHELL}>
+          <div style={SUITE_INTRO_BAND_STYLE}>
+            <p style={SUITE_INTRO_EYEBROW_TEXT_STYLE}>{workbookTabIntro.eyebrow}</p>
+            <p style={SUITE_INTRO_TITLE_TEXT_STYLE}>{workbookTabIntro.title}</p>
+            <TabIntroGuidanceBlock intro={workbookTabIntro} guidanceStyle={SUITE_INTRO_GUIDANCE_TEXT_STYLE} />
+          </div>
+          <div style={SUITE_CHIP_CARD_STYLE}>
+            <TabSectionMenu
+              title="Workbook"
+              items={workbookNavItemsForShell}
+              description={TAB_SECTION_NAV_HINT_CHIPS_ONLY}
+              suiteChipCardEmbed
+              activeSectionId={workbookShellActiveId}
+            />
+          </div>
           <WorkbookTab
             productTier={productTier}
             diagnosticData={diagnosticData}
@@ -1358,11 +1482,27 @@ export default function ResultsTabsShell({
             onRestoreVersion={handleRestoreVersion}
             onExportWorkbook={() => setActiveTab("downloads")}
             onAskWundy={handleAskWundy}
+            shellRendersSectionChips
+            shellActiveSectionId={workbookShellActiveId}
           />
         </div>
       )}
       {!lockedTabContext && activeTab === "downloads" && (
-        <div className="downloads-tab-content">
+        <div className="downloads-tab-content" style={SUITE_TAB_BODY_SHELL}>
+          <div style={SUITE_INTRO_BAND_STYLE}>
+            <p style={SUITE_INTRO_EYEBROW_TEXT_STYLE}>{downloadsTabIntro.eyebrow}</p>
+            <p style={SUITE_INTRO_TITLE_TEXT_STYLE}>{downloadsTabIntro.title}</p>
+            <TabIntroGuidanceBlock intro={downloadsTabIntro} guidanceStyle={SUITE_INTRO_GUIDANCE_TEXT_STYLE} />
+          </div>
+          <div style={SUITE_CHIP_CARD_STYLE}>
+            <TabSectionMenu
+              title="Downloads"
+              items={downloadsNavForShell.navItems}
+              description={TAB_SECTION_NAV_HINT_CHIPS_ONLY}
+              suiteChipCardEmbed
+              activeSectionId={downloadsShellActiveId}
+            />
+          </div>
           <DownloadsTab
             productTier={productTier}
             documentStates={documentStates}
@@ -1371,6 +1511,8 @@ export default function ResultsTabsShell({
             onDownloadAll={
               productTier === "blueprint-plus" && !isPreviewMode ? handleDownloadAll : undefined
             }
+            shellRendersSectionChips
+            shellActiveSectionId={downloadsShellActiveId}
           />
         </div>
       )}
@@ -1379,7 +1521,7 @@ export default function ResultsTabsShell({
           style={{
             maxWidth: SUITE_CONTENT_MAX_PX,
             margin: "8px auto 56px",
-            padding: "0 24px",
+            padding: "0 min(24px, 4vw)",
             fontFamily: SUITE_FONT_UI,
           }}
         >
@@ -1407,14 +1549,14 @@ export default function ResultsTabsShell({
                   type="button"
                   onClick={() => openOrLockTab(action.id)}
                   onMouseEnter={(event) => {
-                    event.currentTarget.style.backgroundColor = SUITE_NAVY;
+                    event.currentTarget.style.backgroundColor = SUITE_ACCENT_HOVER;
                   }}
                   onMouseLeave={(event) => {
                     event.currentTarget.style.backgroundColor = SUITE_ACCENT_BRIGHT;
                   }}
                   style={{
                     border: "none",
-                    borderRadius: 980,
+                    borderRadius: SUITE_RADIUS_BUTTON,
                     backgroundColor: SUITE_ACCENT_BRIGHT,
                     color: "#FFFFFF",
                     padding: "10px 18px",
@@ -1433,6 +1575,9 @@ export default function ResultsTabsShell({
           </div>
         </div>
       )}
+
+      <ResultsWundyChat reportId={reportId} productTier={productTier} />
     </div>
+    </ResultsSuiteNavContext.Provider>
   );
 }

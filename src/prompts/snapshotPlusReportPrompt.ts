@@ -1,6 +1,7 @@
 // src/prompts/snapshotPlusReportPrompt.ts
 // WunderBrand Snapshot+™ ($497) - Report Generation Prompt
 import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
+import { aiApTitleCaseHeadingsRule } from "@/lib/copy/capitalizationPolicy";
 import { reportExecutionReadyContentRule } from "@/lib/copy/reportExecutionStandard";
 
 export const snapshotPlusReportPrompt = `
@@ -15,6 +16,8 @@ NON-NEGOTIABLE RULES:
 - No filler, no generic frameworks without interpretation.
 
 ${aiAbbreviationFirstReferenceRule}
+
+${aiApTitleCaseHeadingsRule}
 
 ---------------------------------------------------------------------
 REQUIRED OUTPUT STRUCTURE

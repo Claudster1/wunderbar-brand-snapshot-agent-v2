@@ -23,7 +23,7 @@ export function DownloadsTabContent({ productTier, reportId, email }: Props) {
     return (
       <section className="space-y-6">
         <section className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
-          <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+          <p className="text-xs font-bold tracking-[0.04em] text-brand-muted mb-2">
             Downloads
           </p>
           <h2 className="bs-h3 mb-2">Foundation brief download</h2>
@@ -47,7 +47,7 @@ export function DownloadsTabContent({ productTier, reportId, email }: Props) {
   return (
     <section className="space-y-6">
       <section className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
-        <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+        <p className="text-xs font-bold tracking-[0.04em] text-brand-muted mb-2">
           Available Downloads
         </p>
         <h2 className="bs-h3 mb-2">Team-ready document set</h2>
@@ -73,7 +73,7 @@ export function DownloadsTabContent({ productTier, reportId, email }: Props) {
       </section>
       {productTier === "blueprint_plus" && (
         <section className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
-          <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+          <p className="text-xs font-bold tracking-[0.04em] text-brand-muted mb-2">
             Role-Based Packs
           </p>
           <p className="bs-body-sm text-brand-muted mb-4">
@@ -88,7 +88,7 @@ export function DownloadsTabContent({ productTier, reportId, email }: Props) {
         </section>
       )}
       <section className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
-        <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+        <p className="text-xs font-bold tracking-[0.04em] text-brand-muted mb-2">
           Activation Tools
         </p>
         <p className="bs-body-sm text-brand-muted mb-4">

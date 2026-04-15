@@ -1,6 +1,7 @@
 // src/prompts/blueprintPlusReportPrompt.ts
 // WunderBrand Blueprint+™ ($1,997) - Report Generation Prompt
 import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
+import { aiApTitleCaseHeadingsRule } from "@/lib/copy/capitalizationPolicy";
 import { reportExecutionReadyContentRule } from "@/lib/copy/reportExecutionStandard";
 
 export const blueprintPlusReportPrompt = `
@@ -18,14 +19,17 @@ ABSOLUTE RULES:
 - Every recommendation must include HOW to implement it, not just WHAT to do.
 - Include ready-to-use templates and copy wherever possible.
 - **Not a to-do memo:** depth means **filled-in deliverables** (templates with brackets only where the user must substitute a proper noun), not lists of initiatives without copy.
+- **measurementFramework.trackingRecommendations:** every row must include readerFriendlyOneLiner—one sentence a founder or finance partner can skim. It parallels howToSetUp (define UTM, SQL, CRM, etc. in plain words when used above); howToSetUp remains the operator-grade source of truth for experienced marketers.
 
-ACTIVATION SURFACE (IN-APP): The product UI surfaces **emailMarketingFramework**, **socialMediaStrategy**, **seoStrategy**, **aeoStrategy**, **customerJourneyMap**, **thoughtLeadershipStrategy**, **paidMediaStrategy**, **competitivePositioning** (movementPlan / differentiationSummary), **icpConversionIntelligenceFramework**, **personaDrivenSegmentation**, and **ninetyDayRoadmap** as **live channel plans** for $2K buyers. In those sections, write **deployable assets** — named ICP tiers and buyer personas, real subject lines, hooks, stage copy, and budget/channel lines — not bulk imperatives like "build a nurture" or "optimize SEO" without the actual sequence or page targets. The **primary free offer** in **conversionStrategy.leadCaptureRecommendations** (whether **optimize_existing** or **create_new**) must show up **by name or clear paraphrase** in email + social + calendar sections, not only in conversionStrategy. **emailMarketingFramework** must spell out a **full-funnel nurture** (awareness → consideration → decision → retention/re-engagement) with **concrete sequence steps** (subject + purpose + key message per email or per batch). **socialMediaStrategy** must include an explicit **90-day phased calendar** (e.g. days 1–30, 31–60, 61–90) describing what shifts in themes, cadence, and tests each month.
+ACTIVATION SURFACE (IN-APP): The product UI surfaces **emailMarketingFramework**, **socialMediaStrategy**, **seoStrategy**, **aeoStrategy**, **customerJourneyMap**, **thoughtLeadershipStrategy**, **paidMediaStrategy**, **competitivePositioning** (movementPlan / differentiationSummary), **icpConversionIntelligenceFramework**, **personaDrivenSegmentation**, **icpGoToMarketPlans** (one per ICP: strategy ladder, campaign content needs, 90-day tactics, ICI matrix anchor, competitive talk-track cues for sales + marketing), and **ninetyDayRoadmap** as **live channel plans** for $2K buyers. In those sections, write **deployable assets** — named ICP tiers and buyer personas, real subject lines, hooks, stage copy, and budget/channel lines — not bulk imperatives like "build a nurture" or "optimize SEO" without the actual sequence or page targets. The **primary free offer** in **conversionStrategy.leadCaptureRecommendations** (whether **optimize_existing** or **create_new**) must show up **by name or clear paraphrase** in email + social + calendar sections, not only in conversionStrategy — and must stay **aligned with strategicOfferContext.primaryOffer** and **strategicOfferContext.channelExecutionAlignment** (same offer name, no promises that contradict **scopeOut**). **emailMarketingFramework** must spell out a **full-funnel nurture** (awareness → consideration → decision → retention/re-engagement) with **concrete sequence steps** (subject + purpose + key message per email or per batch). **socialMediaStrategy** must include an explicit **90-day phased calendar** (e.g. days 1–30, 31–60, 61–90) describing what shifts in themes, cadence, and tests each month.
 
 **paidMediaStrategy** — Include **platformsCovered** as a string array naming every distinct **platform** you use (use real platform names: e.g. "LinkedIn", "Meta", "Google Ads", "Microsoft Advertising", "YouTube", "Programmatic / DSP", not vague labels like "social" or "search"). You MUST output **at least three (3) distinct channels[] rows**, each on a **different primary platform** when possible (e.g. LinkedIn + Meta + Google Ads). Each **channels[]** row MUST set **platform** (same vocabulary as platformsCovered) and **placement** (the ad surface/format, e.g. "Sponsored Content — Feed", "Conversion — Advantage+", "Search — non-brand", "Demand Gen", "In-stream — YouTube", "Reels / Shorts"). Set **channel** to a readable title that combines platform and placement (for example: LinkedIn — Sponsored Content — Feed). Then populate **headline**, **subheadline** (if the placement uses one), **bodyCopy** (primary ad text / description where applicable), **imagePrompt** (detailed still/visual brief for designers or AI image tools: subject, scene, lighting, brand palette, safe text zones, what to avoid), **videoPrompt** (for motion placements only—YouTube, Meta Reels, Shorts, in-stream, CTV: hook in first 1–2s, on-screen text beats, VO or caption tone, shot list or B-roll, target length and aspect ratio, brand cues, legal/safety; use "" when the row is static image or text-only), and **cta** (button or destination wording), plus objective, audienceAngle, offerStrategy, and kpiToTrack. Do not leave these empty with only generic "creativeDirection" prose; use creativeDirection only as a short extra note if needed.
 
 ${reportExecutionReadyContentRule}
 
 ${aiAbbreviationFirstReferenceRule}
+
+${aiApTitleCaseHeadingsRule}
 
 ---------------------------------------------------------------------
 CONTEXT-AWARE PERSONALIZATION (CRITICAL — HIGHEST TIER)
@@ -239,6 +243,17 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       timeline: Phased 90-day transition plan
     }
 
+17B. ICP Go-To-Market Plans (REQUIRED — root key **icpGoToMarketPlans**)
+    **BLUEPRINT+ EXCLUSIVE** — One object per ICP from section 17 so campaigns, sales battle cards, and strategy stay synchronized.
+    • Emit **icpGoToMarketPlans** as a **top-level** JSON array (same depth as **audiencePersonaDefinition** / persona blocks).
+    • **Exactly one row** per ICP: primaryICP, secondaryICP, and each **additionalICPs[]** item when present. **icpLabel** must match that ICP's **icpLabel** string exactly (same string **buyerPersonas** use in **icpAlignment**).
+    • **alignmentToBusinessStrategy**: link this segment to executive priorities, positioning, and **strategicOfferContext** (not generic fluff).
+    • **campaignContentNeeds**: concrete assets and hooks this ICP needs from marketing.
+    • **priorityTactics**: ordered ~90-day tactics; must not contradict **strategicOfferContext.scopeOut**.
+    • **conversion_intelligence_reference**: must align with **icpConversionIntelligenceFramework** for that tier (icpTier, funnelStage, matrixCell coherent with your matrix rows).
+    • **competitiveConversationCues**: differentiation and landmines for **this ICP** in live conversations.
+    • **salesConversationGuide.conversion_intelligence_reference** (singular): duplicate the **primary** (or revenue-critical) ICP plan's reference object for legacy surfaces.
+
 18. Buyer Persona Ecosystem
     **BLUEPRINT+ EXCLUSIVE** — Full buyer persona system for marketing segmentation and messaging.
     
@@ -388,16 +403,21 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
         - body: Full email body copy (2–3 paragraphs, use \\n for line breaks)
       - At least one email must **drive to primaryPickTitle** (optimize or create path)
 
-25. Execution Prompt Pack (8 prompts)
+25. Strategic Offer & Portfolio (**strategicOfferContext** — REQUIRED; same object as WunderBrand Blueprint™)
+    Product-management lenses: **JTBD** (job statement for the economic buyer), **outcomes over outputs**, **scope discipline** (scopeIn / scopeOut), **leading success signals** with review cadence, **channelExecutionAlignment** (how email, social, site, paid, and sales each reinforce **primaryOffer** without contradicting scopeOut), and **one riskiest assumption** with a cheap validation step.
+    - **primaryOffer** must align with what **conversionStrategy.leadCaptureRecommendations** promotes: same name or clearly the same concept; **primaryPickTitle** should map to **primaryOffer.name** (or be explicitly framed as the lead magnet / entry path for that offer).
+    - **channelExecutionAlignment** must name how live Activation sections (email, social, paid, SEO/AEO, journey) stay coherent with this offer layer.
+
+26. Execution Prompt Pack (8 prompts)
     packName, description, promptCount: 8, prompts [{ category, title, instruction, prompt, whyItMatters }]
 
 === BLUEPRINT+ EXCLUSIVE SECTIONS ===
 
-26. Strategic Overview
+27. Strategic Overview
     - wherePositioned: Where this brand is positioned to go (strategic trajectory)
     - leverageCreated: What leverage this complete blueprint creates
 
-27. Persona-Driven Marketing Segmentation
+28. Persona-Driven Marketing Segmentation
     **BLUEPRINT+ EXCLUSIVE** — Connects the buyer personas (section 18) to actionable marketing segments.
     This is the operational bridge between "who these people are" and "how we reach and convert each one."
     
@@ -418,7 +438,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       }
     - crossSegmentOpportunities: 2–3 marketing initiatives that serve multiple segments simultaneously
 
-28. Advanced Messaging Matrix
+29. Advanced Messaging Matrix
     **WITH EXAMPLE COPY FOR EVERY ENTRY — MAPPED TO BUYER PERSONAS:**
     - byPersona: Array of entries for each buyer persona (from section 18), each with:
       - persona: persona name
@@ -433,10 +453,10 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       - exampleCopy: Specific copy example for this channel
       - personaNotes: Which personas to prioritize on this channel
 
-29. Brand Architecture & Expansion
+30. Brand Architecture & Expansion
     howBrandCanStretch, subBrandAlignment
 
-30. Campaign & Content Strategy
+31. Campaign & Content Strategy
     **BLUEPRINT+ ENHANCED** — Persona-informed content strategy:
     campaignThemes [], narrativeArcs [], longTermStorytelling
     personaContentCalendar: {
@@ -447,17 +467,17 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
         - contentPieces: Array of 3–4 pieces with format, topic, channel, and persona alignment
     }
 
-31. Advanced AI Prompt Library (12 prompts)
+32. Advanced AI Prompt Library (12 prompts)
     packName: "Advanced Prompt Library", description, promptCount: 12
     prompts [{ category, title, instruction, prompt, whyItMatters }]
     These should be the MOST SOPHISTICATED prompts — campaign-level, funnel optimization, scaling, AEO.
     AT LEAST 3 prompts should be persona-specific (e.g., "Generate email sequence for [persona name]", "Write LinkedIn ad targeting [persona name]").
 
-32. Measurement & Optimization
+33. Measurement & Optimization
     whatToTrack [], signalsThatMatter [], howToAdapt
     personaMetrics: For each buyer persona, which leading indicators show the messaging is resonating
 
-33. Brand Consistency Checklist & Review Criteria
+34. Brand Consistency Checklist & Review Criteria
     **BLUEPRINT+ ENHANCED** — A comprehensive brand governance system with persona-specific consistency rules, delegation frameworks, and team onboarding tools.
     
     This is NOT a generic checklist — it must be calibrated to [businessName]'s specific brand persona, archetype, messaging pillars, voice traits, visual direction, and buyer personas from earlier sections of this report. Blueprint+ adds audience-specific consistency rules and team scaling guidelines.
@@ -514,7 +534,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       maintainingIntegrityAtScale: "A 2–3 paragraph narrative on how [businessName] can maintain brand integrity as the team grows, channels multiply, and content volume increases. Include specific strategies calibrated to their current stage and growth trajectory."
     }
 
-34. Competitive Positioning Map
+35. Competitive Positioning Map
     **BLUEPRINT+ EXCLUSIVE** — Strategic competitive intelligence.
     IMPORTANT: If competitorNames are provided, use them. If not, use industry archetypes (e.g., "Typical [industry] incumbent," "Low-cost disruptor," "Premium boutique," "Digital-first challenger").
     
@@ -537,7 +557,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
     - B2B: Specialization ↔ Generalization, Self-Serve ↔ High-Touch, Price ↔ Value, Speed ↔ Thoroughness
     - B2C: Luxury ↔ Accessible, Niche ↔ Mass, Traditional ↔ Innovative, Local ↔ Global
 
-35. Strategic Trade-Offs
+36. Strategic Trade-Offs
     **BLUEPRINT+ EXCLUSIVE** — Every brand strategy involves trade-offs. Making them EXPLICIT is what separates strategic thinking from generic advice. This section helps [businessName] make informed, intentional decisions rather than drifting into default positions.
     
     strategicTradeOffs: [
@@ -572,7 +592,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
     - Voice: Authority vs. relatability
     - Channel: Concentrate vs. diversify marketing investment
 
-36. 90-Day Strategic Roadmap
+37. 90-Day Strategic Roadmap
     **BLUEPRINT+ EXCLUSIVE** — A phased implementation plan that transforms insights into action. This is NOT a vague timeline — it's a week-by-week execution plan with specific deliverables, accountability markers, and success metrics.
     
     ninetyDayRoadmap: {
@@ -622,7 +642,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       }
     }
 
-37. Brand Health Scorecard
+38. Brand Health Scorecard
     **BLUEPRINT+ ENHANCED** — An advanced diagnostic framework [businessName] can use to measure brand health on an ongoing basis. Blueprint+ version includes deeper threshold calibration and extended indicators.
     
     brandHealthScorecard: {
@@ -671,7 +691,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       ] (4–5 lagging indicators)
     }
 
-38. Tagline & Slogan Recommendations
+39. Tagline & Slogan Recommendations
     **BLUEPRINT+ ENHANCED** — Provide 3–5 tagline/slogan options with audience-specific variations.
     
     taglineRecommendations: [
@@ -688,7 +708,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       }
     ] (3–5 options)
 
-39. Brand Story & Origin Narrative
+40. Brand Story & Origin Narrative
     **BLUEPRINT+ ENHANCED** — A comprehensive brand story with multiple versions for different contexts.
     
     IMPORTANT: If brandOriginStory was provided by the user, USE IT as the foundation. Weave their actual origin into the narrative — enhance the storytelling but preserve the facts, spirit, and personal elements they shared. If null, construct the story from other inputs (industry, whatMakesYouDifferent, brandPurpose, etc.).
@@ -702,7 +722,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       investorVersion: "A 1-paragraph version emphasizing market opportunity and traction"
     }
 
-40. Customer Journey Map
+41. Customer Journey Map
     **BLUEPRINT+ ENHANCED** — Detailed customer journey with persona-specific variations and optimization points.
     
     customerJourneyMap: {
@@ -725,7 +745,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       dropOffRisks: [{ stage: "Which stage", risk: "What causes drop-off", mitigation: "How to prevent it" }]
     }
 
-41. SEO & Keyword Strategy
+42. SEO & Keyword Strategy
     **BLUEPRINT+ ENHANCED** — Comprehensive keyword strategy with content mapping, competitive gaps, and implementation priority.
     
     seoStrategy: {
@@ -755,7 +775,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       localSEOStrategy: "If applicable: local SEO recommendations specific to [businessName]'s geographic scope"
     }
 
-42. AEO & AI Search Strategy
+43. AEO & AI Search Strategy
     **BLUEPRINT+ COMPREHENSIVE** — Full Answer Engine Optimization strategy with implementation roadmap and competitive intelligence.
     
     aeoStrategy: {
@@ -825,7 +845,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       }
     }
 
-43. Email Marketing Strategy
+44. Email Marketing Strategy
     **BLUEPRINT+ ENHANCED** — Full email ecosystem with sequences, automation, and segmentation.
     
     emailMarketingFramework: {
@@ -867,7 +887,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       automationTriggers: ["4–5 behavioral triggers that should fire automated emails"]
     }
 
-44. Social Media Platform Strategy
+45. Social Media Platform Strategy
     **BLUEPRINT+ ENHANCED** — Platform-specific strategy with content calendars and competitive positioning.
     
     socialMediaStrategy: {
@@ -896,7 +916,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       crossPlatformStrategy: "How to repurpose content across platforms efficiently"
     }
 
-45. Content Calendar Framework
+46. Content Calendar Framework
     **BLUEPRINT+ EXCLUSIVE** — A structured content calendar template with themes, topics, and scheduling cadence.
     
     contentCalendarFramework: {
@@ -926,7 +946,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       repurposingPlaybook: "How to turn one piece of content into 5+ formats"
     }
 
-46. SWOT Analysis
+47. SWOT Analysis
     **BLUEPRINT+ ENHANCED** — A formal SWOT analysis connecting brand diagnostics to strategic positioning, with deeper strategic implications and scenario modeling.
     
     swotAnalysis: {
@@ -946,7 +966,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       strategicImplications: "A 2–3 sentence synthesis connecting the SWOT to [businessName]'s immediate priorities"
     }
 
-47. Brand Glossary & Terminology Guide
+48. Brand Glossary & Terminology Guide
     **BLUEPRINT+ ENHANCED** — A comprehensive reference guide for brand-consistent language across all communications, with expanded industry jargon guidance.
     
     brandGlossary: {
@@ -969,7 +989,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       }
     }
 
-48. Thought Leadership & PR Positioning
+49. Thought Leadership & PR Positioning
     **BLUEPRINT+ EXCLUSIVE** — A strategic plan for establishing [businessName] as a recognized authority in [industry]. Includes media angles, speaking topic recommendations, and authority content positioning. This complements the Digital Marketing Strategy and positions [businessName] for earned media and industry recognition.
     
     thoughtLeadershipStrategy: {
@@ -1013,15 +1033,15 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       }
     }
 
-49. Credibility & Trust Signal Strategy
+50. Credibility & Trust Signal Strategy
     **BLUEPRINT+ ENHANCED** — Everything in Blueprint's credibility strategy plus deeper persona-specific proof point mapping, advanced authority-building tactics, and thought leadership integration.
     (See Blueprint credibilityStrategy schema — Blueprint+ generates the same structure with enhanced depth)
 
-50. Website Copy Direction
+51. Website Copy Direction
     **BLUEPRINT+ ENHANCED** — Everything in Blueprint's website copy direction plus persona-specific messaging variations and ready-to-use copy for each page.
     (See Blueprint websiteCopyDirection schema — Blueprint+ generates the same structure with enhanced depth)
 
-51. Company Description
+52. Company Description
     **BLUEPRINT+ ENHANCED** — Ready-to-use company descriptions in multiple lengths and contexts, with audience-specific variations.
     
     companyDescription: {
@@ -1033,7 +1053,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       recruitingVersion: "A version optimized for job postings and employer branding — emphasizes culture, mission, and growth."
     }
 
-52. Value & Pricing Communication Framework
+53. Value & Pricing Communication Framework
     **BLUEPRINT+ ENHANCED** — Everything in Blueprint's pricing framework, plus persona-specific pricing narratives and enhanced proposal templates.
     
     valuePricingFramework: {
@@ -1067,7 +1087,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       competitiveValueDifferentiation: "How [businessName] should position their pricing relative to competitors or alternatives — not by being cheaper, but by being different. Include specific language for the 'why us vs. them' conversation. (Blueprint+ exclusive)"
     }
 
-53. Sales Conversation Guide
+54. Sales Conversation Guide
     **BLUEPRINT+ ENHANCED** — Everything in Blueprint's sales guide, plus persona-specific conversation tracks and scenario scripts.
     
     salesConversationGuide: {
@@ -1130,7 +1150,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       }
     }
 
-54. Measurement & KPI Framework
+55. Measurement & KPI Framework
     **BLUEPRINT+ ENHANCED** — Everything in Blueprint's measurement framework, plus persona metrics, quarterly review template, and corrective action guidance.
     
     measurementFramework: {
@@ -1161,13 +1181,14 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
           tool: "The specific tool or platform to use"
           howToSetUp: "Brief setup guidance"
           frequency: "How often to check"
+          readerFriendlyOneLiner: "One sentence anyone on the leadership team can follow—parallel to howToSetUp, not a replacement. Define acronyms (UTM, SQL, CRM, etc.) in plain words when they appear above. Experienced marketers can ignore this field and execute from howToSetUp alone."
         }
       ] (6–8 recommendations)
       
       quarterlyReviewTemplate: "A structured quarterly review template — specific questions to answer, metrics to pull, and decisions to make. Should take 60–90 minutes to complete. (Blueprint+ exclusive)"
     }
 
-55. Brand Strategy Rollout Guide
+56. Brand Strategy Rollout Guide
     **BLUEPRINT+ ENHANCED** — Everything in Blueprint's rollout guide, plus presentation-ready content and team-scale tools.
     
     brandStrategyRollout: {
@@ -1214,7 +1235,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       brandInFiveMinutes: "The absolute essentials compressed into a quick reference card format — positioning, voice, do's and don'ts, approved descriptions, and who to ask when unsure. Designed for speed: if someone has 5 minutes to understand the brand, this is what they read. (Blueprint+ exclusive)"
     }
 
-56. Brand Imagery & Photography Direction
+57. Brand Imagery & Photography Direction
     **BLUEPRINT+ ENHANCED** — Everything in Blueprint's imagery direction, plus platform-specific guidance, mood board descriptors, persona-based imagery, and AI image generation prompts.
     
     brandImageryDirection: {
@@ -1288,7 +1309,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       ] (3–5 prompts — Blueprint+ exclusive)
     }
 
-57. Asset Optimization Playbook (Blueprint+ Exclusive)
+58. Asset Optimization Playbook (Blueprint+ Exclusive)
     **ONLY include this section if the user uploaded marketing assets and asset analysis data was provided in the prompt context.**
     If no asset data is present, omit the "assetOptimizationPlaybook" key entirely.
 
@@ -1336,7 +1357,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       }
     }
 
-58. Brand Standards Guide Content (Blueprint+ Exclusive)
+59. Brand Standards Guide Content (Blueprint+ Exclusive)
     This section generates content specifically for the Brand Standards & Guidelines PDF.
     These fields power the exported guide used by marketing teams, contractors, agencies, and anyone creating brand content.
     
@@ -1520,6 +1541,15 @@ Return valid JSON with ALL these keys:
       "matrix": [{ "touchpoint": "", "personaMessages": [{ "personaName": "", "message": "" }] }]
     }
   },
+  "icpGoToMarketPlans": [{
+    "icpLabel": "",
+    "alignmentToBusinessStrategy": "",
+    "strategicFocus": "",
+    "campaignContentNeeds": [],
+    "priorityTactics": [],
+    "conversion_intelligence_reference": { "type": "ref", "framework": "icp_conversion_intelligence_framework", "icpTier": "", "funnelStage": "", "matrixCell": "", "note": "" },
+    "competitiveConversationCues": ""
+  }],
   "brandArchetypeActivation": {
     "primaryArchetype": "", "secondaryArchetype": "",
     "activation": {
@@ -1556,6 +1586,26 @@ Return valid JSON with ALL these keys:
       "description": "",
       "emails": [{ "timing": "", "subject": "", "purpose": "", "body": "" }]
     }
+  },
+  "strategicOfferContext": {
+    "methodologyFraming": "",
+    "jobStatement": "",
+    "primaryOffer": {
+      "name": "",
+      "offerType": "service",
+      "oneLinePitch": "",
+      "whoItsFor": "",
+      "substitutesConsidered": "",
+      "whyTheySwitch": ""
+    },
+    "secondaryOffers": [{ "name": "", "role": "entry" }],
+    "painsRelieved": [],
+    "outcomesEnabled": [],
+    "scopeIn": [],
+    "scopeOut": [],
+    "leadingSuccessSignals": [{ "signal": "", "reviewCadence": "monthly", "whyItMatters": "" }],
+    "channelExecutionAlignment": "",
+    "riskiestAssumption": ""
   },
   "icpConversionIntelligenceFramework": {
     "overview": "",
@@ -1790,7 +1840,7 @@ Return valid JSON with ALL these keys:
     "overview": "",
     "perSectionKPIs": [{ "section": "", "recommendation": "", "kpi": "", "target": "", "personaImpact": "" }],
     "leadingIndicators": [{ "indicator": "", "whatItMeans": "", "timeframe": "", "actionIfFlat": "" }],
-    "trackingRecommendations": [{ "metric": "", "tool": "", "howToSetUp": "", "frequency": "" }],
+    "trackingRecommendations": [{ "metric": "", "tool": "", "howToSetUp": "", "frequency": "", "readerFriendlyOneLiner": "" }],
     "quarterlyReviewTemplate": ""
   },
   "brandStrategyRollout": {
@@ -1948,6 +1998,11 @@ For Messaging Matrix example copy:
 For Email Nurture Template:
 - Include 4 complete emails with timing, subject, purpose, and full body copy
 - Emails should form a coherent nurture sequence that builds trust and moves toward conversion
+
+For Strategic Offer & Portfolio (**strategicOfferContext**):
+- Populate every field with business-specific detail (no placeholder labels).
+- **conversionStrategy.leadCaptureRecommendations.primaryPickTitle** must clearly map to **primaryOffer.name** (or be explicitly the lead-magnet entry path for that same offer).
+- Email, social, paid, and sales copy must not promise anything listed in **scopeOut**.
 
 For Archetype Activation examples:
 - Include 2–3 on-brand/off-brand comparisons per area

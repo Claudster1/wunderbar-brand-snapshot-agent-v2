@@ -53,7 +53,7 @@ export default function HowToUseBanner({
       style={{
         maxWidth: SUITE_CONTENT_MAX_PX,
         margin: "16px auto 0",
-        padding: "0 24px",
+        padding: "0 min(24px, 4vw)",
       }}
     >
       <div

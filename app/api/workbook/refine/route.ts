@@ -9,6 +9,7 @@ import { logger } from "@/lib/logger";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { getWorkbookEditability } from "@/lib/workbookAccess";
 import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
+import { aiApTitleCaseHeadingsRule } from "@/lib/copy/capitalizationPolicy";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -52,6 +53,8 @@ Quality requirements:
 - Preserve the user's original intent and factual constraints.
 
 ${aiAbbreviationFirstReferenceRule}
+
+${aiApTitleCaseHeadingsRule}
 `;
 
 function fallbackRefine(content: string, businessName?: string): string {

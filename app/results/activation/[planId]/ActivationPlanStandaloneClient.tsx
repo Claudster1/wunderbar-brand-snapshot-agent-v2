@@ -178,13 +178,12 @@ export default function ActivationPlanStandaloneClient({
           style={{
             fontSize: 12,
             fontWeight: 700,
-            textTransform: "uppercase",
-            letterSpacing: "0.12em",
+            letterSpacing: "0.04em",
             color: BLUE,
             marginBottom: 6,
           }}
         >
-          Activation plan
+          Activation Plan
         </div>
         <h1 style={{ fontSize: 26, fontWeight: 700, color: NAVY, margin: "0 0 8px", lineHeight: 1.2 }}>
           {section.label}

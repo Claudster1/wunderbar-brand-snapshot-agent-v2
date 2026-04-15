@@ -91,7 +91,7 @@ Blueprint™ includes the strategic framework and refined messaging needed to st
             onClick={onUpgrade}
             className="
               bg-brand-blue hover:bg-brand-blueHover 
-              text-white font-semibold rounded-md 
+              text-white font-semibold rounded-[5px] 
               px-10 py-3 shadow-md shadow-brand-blue/30 transition
             "
           >

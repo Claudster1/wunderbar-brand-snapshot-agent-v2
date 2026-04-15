@@ -69,7 +69,7 @@ export function ExecutionPromptCards({
 
   return (
     <section className="space-y-4">
-      <p className="text-xs font-bold uppercase tracking-wide text-brand-muted">
+      <p className="text-xs font-bold tracking-[0.04em] text-brand-muted">
         Ready-to-Use AI Prompts For This Section
       </p>
       {prompts.map((prompt) => {
@@ -137,7 +137,7 @@ export function ExecutionPromptCards({
           <article key={prompt.ref} className="bs-card rounded-xl border border-brand-border p-4 sm:p-5">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-1">
+                <p className="text-xs font-bold tracking-[0.04em] text-brand-muted mb-1">
                   <span className={packMetaByTier[prompt.tier].colorClass}>
                     {packMetaByTier[prompt.tier].label}
                   </span>{" "}

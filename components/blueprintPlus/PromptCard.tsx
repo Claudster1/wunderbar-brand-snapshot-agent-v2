@@ -25,7 +25,7 @@ export function PromptCard({ prompt }: { prompt: Prompt }) {
       <div className="flex gap-3">
         <button
           onClick={() => navigator.clipboard.writeText(prompt.body)}
-          className="px-4 py-2 text-sm bg-brand-blue text-white rounded-md hover:bg-brand-blueHover"
+          className="px-4 py-2 text-sm bg-brand-blue text-white rounded-[5px] hover:bg-brand-blueHover"
         >
           Copy Prompt
         </button>

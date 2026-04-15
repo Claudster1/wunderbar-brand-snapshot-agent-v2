@@ -9,8 +9,6 @@ const BLUE = "#07B0F2";
 const SUB = "#5A6B7E";
 const BORDER = "#D6DFE8";
 const WHITE = "#FFFFFF";
-const PURPLE = "#6D28D9";
-
 type HistoryItem = {
   id: string;
   businessName: string;
@@ -45,7 +43,7 @@ const TIER_CONFIG: Record<string, { label: string; color: string; bg: string }> 
   snapshot: { label: "Snapshot", color: "#5A6B7E", bg: "#F0F2F5" },
   snapshot_plus: { label: "Snapshot+", color: "#07B0F2", bg: "#E8F7FE" },
   blueprint: { label: "Blueprint", color: "#021859", bg: "#E6EAF2" },
-  blueprint_plus: { label: "Blueprint+", color: "#6D28D9", bg: "#EDE9FE" },
+  blueprint_plus: { label: "Blueprint+", color: NAVY, bg: "#E8F6FE" },
 };
 
 function TierBadge({ tier }: { tier: string }) {
@@ -221,8 +219,8 @@ function ReportCard({ item }: { item: HistoryItem }) {
                 style={{
                   fontSize: 10,
                   fontWeight: 700,
-                  color: PURPLE,
-                  background: "#F0EAFF",
+                  color: NAVY,
+                  background: "#E8F6FE",
                   padding: "2px 8px",
                   borderRadius: 10,
                   letterSpacing: 0.3,
@@ -321,9 +319,9 @@ function ReportCard({ item }: { item: HistoryItem }) {
               gap: 6,
               padding: "6px 14px",
               borderRadius: 6,
-              border: `1px solid ${expanded ? PURPLE : BORDER}`,
-              background: expanded ? "#F0EAFF" : "#FAFBFF",
-              color: expanded ? PURPLE : SUB,
+              border: `1px solid ${expanded ? BLUE : BORDER}`,
+              background: expanded ? "#E8F6FE" : "#FAFBFF",
+              color: expanded ? NAVY : SUB,
               fontWeight: 600,
               fontSize: 12,
               cursor: "pointer",

@@ -139,8 +139,7 @@ function SectionCard({
             fontSize: 11,
             fontWeight: 700,
             color: MID_GRAY,
-            textTransform: "uppercase",
-            letterSpacing: "0.06em",
+            letterSpacing: "0.03em",
             flexShrink: 0,
           }}
         >
@@ -184,11 +183,10 @@ export default function ActivationPlanReadableBody({ body }: Props) {
             fontSize: 11,
             fontWeight: 800,
             color: BLUE,
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
+            letterSpacing: "0.04em",
           }}
         >
-          On this page
+          On This Page
         </p>
         <nav aria-label="Section navigation" style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
           {sections.map((sec) => (

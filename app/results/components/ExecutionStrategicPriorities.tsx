@@ -14,7 +14,7 @@ export function ExecutionStrategicPriorities({ recommendations, primaryPillar }:
 
   return (
     <section className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border">
-      <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+      <p className="text-xs font-bold tracking-[0.04em] text-brand-muted mb-2">
         Strategic Priorities
       </p>
       <h2 className="bs-h3 mb-2">What to do first</h2>
@@ -24,7 +24,7 @@ export function ExecutionStrategicPriorities({ recommendations, primaryPillar }:
       <div className="space-y-3">
         {priorities.map((item, idx) => (
           <article key={`${idx}-${item.slice(0, 20)}`} className="rounded-lg border border-brand-border p-4">
-            <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-1">
+            <p className="text-xs font-bold tracking-[0.04em] text-brand-muted mb-1">
               Priority {idx + 1}
             </p>
             <p className="bs-body-sm text-brand-midnight">{item}</p>

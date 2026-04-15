@@ -183,8 +183,7 @@ export default function WorkbookSectionComponent({
               fontSize: 11,
               fontWeight: 800,
               color: MID_GRAY,
-              textTransform: "uppercase",
-              letterSpacing: "0.08em",
+              letterSpacing: "0.04em",
             }}
           >
             Recommended Format

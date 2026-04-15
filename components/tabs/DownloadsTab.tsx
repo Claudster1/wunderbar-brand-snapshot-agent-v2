@@ -1,12 +1,15 @@
 "use client";
 
+import { useMemo } from "react";
 import type { ProductTier } from "@/components/ResultsTabNav";
 import TabPageWithSidebar from "@/components/results/TabPageWithSidebar";
 import {
   SUITE_ACCENT_BRIGHT,
   SUITE_BORDER,
+  SUITE_FONT_UI,
   SUITE_MUTED,
   SUITE_NAVY,
+  SUITE_RADIUS_BUTTON,
 } from "@/components/results/suiteBrandTokens";
 import { getSuiteProgressHint } from "@/lib/copy/resultsSuiteGuidance";
 
@@ -332,6 +335,54 @@ const TIER_RANK: Record<ProductTier, number> = {
   "blueprint-plus": 3,
 };
 
+const DOWNLOADS_GROUPS: Array<"core" | "strategy" | "activation" | "role-packs"> = [
+  "core",
+  "strategy",
+  "activation",
+  "role-packs",
+];
+
+/** Shared by `ResultsTabsShell` (chips) and `DownloadsTab` — keep nav ids aligned with on-page anchors. */
+export function buildDownloadsNavModel(productTier: ProductTier): {
+  navItems: (typeof DOWNLOADS_NAV_ITEMS)[number][];
+  sidebarGroups: Array<{ label: string; items: (typeof DOWNLOADS_NAV_ITEMS)[number][] }>;
+} {
+  const tierRank = TIER_RANK[productTier] ?? 0;
+  const availableDocs = DOCUMENT_DEFS.filter((doc) => TIER_RANK[doc.availableFrom] <= tierRank);
+  const downloadsNavItems = [
+    DOWNLOADS_NAV_ITEMS[0],
+    ...DOWNLOADS_GROUPS.map((group) => {
+      const count = availableDocs.filter((doc) => doc.group === group).length;
+      if (count === 0) return null;
+      const item = DOWNLOADS_NAV_ITEMS.find(
+        (nav) =>
+          (group === "core" && nav.id === "downloads-core") ||
+          (group === "strategy" && nav.id === "downloads-strategy") ||
+          (group === "activation" && nav.id === "downloads-activation") ||
+          (group === "role-packs" && nav.id === "downloads-role-packs"),
+      );
+      return item ?? null;
+    }).filter(Boolean),
+  ] as typeof DOWNLOADS_NAV_ITEMS;
+
+  const sidebarGroups: Array<{ label: string; items: (typeof DOWNLOADS_NAV_ITEMS)[number][] }> = [
+    { label: "Overview", items: [DOWNLOADS_NAV_ITEMS[0]] },
+  ];
+  for (const groupKey of DOWNLOADS_GROUPS) {
+    const groupDocs = availableDocs.filter((doc) => doc.group === groupKey);
+    if (groupDocs.length === 0) continue;
+    const navItem = DOWNLOADS_NAV_ITEMS.find(
+      (nav) =>
+        (groupKey === "core" && nav.id === "downloads-core") ||
+        (groupKey === "strategy" && nav.id === "downloads-strategy") ||
+        (groupKey === "activation" && nav.id === "downloads-activation") ||
+        (groupKey === "role-packs" && nav.id === "downloads-role-packs"),
+    );
+    if (navItem) sidebarGroups.push({ label: GROUP_LABELS[groupKey], items: [navItem] });
+  }
+  return { navItems: downloadsNavItems, sidebarGroups };
+}
+
 export interface DocumentTileState {
   documentId: DocumentId;
   lastGeneratedAt?: string;
@@ -345,6 +396,8 @@ interface DownloadsTabProps {
   onDownload: (documentId: DocumentId) => void;
   onGenerate: (documentId: DocumentId) => Promise<void>;
   onDownloadAll?: () => void;
+  shellRendersSectionChips?: boolean;
+  shellActiveSectionId?: string | null;
 }
 
 function DocumentTile({
@@ -404,7 +457,7 @@ function DocumentTile({
       <div style={{ marginBottom: 8 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
           <span style={{ fontSize: 15, fontWeight: 700, color: NAVY }}>{doc.label}</span>
-          <span style={{ padding: "1px 8px", borderRadius: 10, fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", backgroundColor: LIGHT, color: MID_GRAY }}>
+          <span style={{ padding: "1px 8px", borderRadius: 10, fontSize: 10, fontWeight: 700, letterSpacing: "0.03em", backgroundColor: LIGHT, color: MID_GRAY }}>
             {formatLabel[doc.format]}
           </span>
           <span
@@ -413,8 +466,7 @@ function DocumentTile({
               borderRadius: 10,
               fontSize: 10,
               fontWeight: 700,
-              textTransform: "uppercase",
-              letterSpacing: "0.06em",
+              letterSpacing: "0.03em",
               backgroundColor: lifecycleColorMap[lifecycle].bg,
               color: lifecycleColorMap[lifecycle].text,
             }}
@@ -422,8 +474,8 @@ function DocumentTile({
             {lifecycleLabelMap[lifecycle]}
           </span>
           {isWorkbookLinked && (
-            <span style={{ padding: "1px 8px", borderRadius: 10, fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", backgroundColor: "#E8F6FE", color: BLUE }}>
-              Workbook-linked
+            <span style={{ padding: "1px 8px", borderRadius: 10, fontSize: 10, fontWeight: 700, letterSpacing: "0.03em", backgroundColor: "#E8F6FE", color: BLUE }}>
+              Workbook-Linked
             </span>
           )}
         </div>
@@ -441,8 +493,7 @@ function DocumentTile({
                   border: "1px solid #CFE6FA",
                   borderRadius: 999,
                   padding: "3px 8px",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
+                  letterSpacing: "0.02em",
                 }}
               >
                 {SECTION_LABELS[sectionId] ?? sectionId}
@@ -460,11 +511,11 @@ function DocumentTile({
         )}
       </div>
       {isWorkbookLinked && (!hasGenerated || needsRegen) ? (
-        <button onClick={() => onGenerate(doc.id)} style={{ padding: "10px 16px", backgroundColor: needsRegen ? AMBER : BLUE, color: "#ffffff", border: "none", borderRadius: 6, fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "'Lato', sans-serif", alignSelf: "flex-start" }}>
+        <button onClick={() => onGenerate(doc.id)} style={{ padding: "10px 16px", backgroundColor: needsRegen ? AMBER : BLUE, color: "#ffffff", border: "none", borderRadius: SUITE_RADIUS_BUTTON, fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: SUITE_FONT_UI, alignSelf: "flex-start" }}>
           {needsRegen ? "Regenerate & Download" : "Generate & Download"}
         </button>
       ) : (
-        <button onClick={() => onDownload(doc.id)} style={{ padding: "10px 16px", backgroundColor: "transparent", color: NAVY, border: `2px solid ${BORDER}`, borderRadius: 6, fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "'Lato', sans-serif", alignSelf: "flex-start" }}>
+        <button onClick={() => onDownload(doc.id)} style={{ padding: "10px 16px", backgroundColor: BLUE, color: "#ffffff", border: "none", borderRadius: SUITE_RADIUS_BUTTON, fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: SUITE_FONT_UI, alignSelf: "flex-start" }}>
           Download
         </button>
       )}
@@ -478,6 +529,8 @@ export default function DownloadsTab({
   onDownload,
   onGenerate,
   onDownloadAll,
+  shellRendersSectionChips = false,
+  shellActiveSectionId = null,
 }: DownloadsTabProps) {
   const tierRank = TIER_RANK[productTier] ?? 0;
   const isBlueprintPlus = productTier === "blueprint-plus";
@@ -485,38 +538,26 @@ export default function DownloadsTab({
   const stateMap = Object.fromEntries(
     documentStates.map((state) => [state.documentId, state]),
   ) as Record<DocumentId, DocumentTileState | undefined>;
-  const groups: Array<"core" | "strategy" | "activation" | "role-packs"> = [
-    "core",
-    "strategy",
-    "activation",
-    "role-packs",
-  ];
   const docsNeedingRegen = availableDocs.filter((doc) => stateMap[doc.id]?.needsRegeneration).length;
 
-  const downloadsNavItems = [
-    DOWNLOADS_NAV_ITEMS[0],
-    ...groups
-      .map((group) => {
-        const count = availableDocs.filter((doc) => doc.group === group).length;
-        if (count === 0) return null;
-        const item = DOWNLOADS_NAV_ITEMS.find(
-          (nav) =>
-            (group === "core" && nav.id === "downloads-core") ||
-            (group === "strategy" && nav.id === "downloads-strategy") ||
-            (group === "activation" && nav.id === "downloads-activation") ||
-            (group === "role-packs" && nav.id === "downloads-role-packs"),
-        );
-        return item ?? null;
-      })
-      .filter(Boolean),
-  ] as typeof DOWNLOADS_NAV_ITEMS;
+  const { navItems: downloadsNavItems, sidebarGroups: downloadsSidebarGroups } = useMemo(
+    () => buildDownloadsNavModel(productTier),
+    [productTier],
+  );
 
   const suiteProgressHint = getSuiteProgressHint(productTier, "downloads");
 
   return (
-    <TabPageWithSidebar navTitle="Downloads" navItems={downloadsNavItems}>
+    <TabPageWithSidebar
+      navTitle="Downloads"
+      navItems={downloadsNavItems}
+      sidebarGroups={downloadsSidebarGroups}
+      shellRendersSectionChips={shellRendersSectionChips}
+      shellActiveSectionId={shellActiveSectionId}
+    >
       <div
         id="downloads-overview"
+        className="rounded-2xl"
         style={{
           display: "flex",
           justifyContent: "space-between",
@@ -525,54 +566,41 @@ export default function DownloadsTab({
           flexWrap: "wrap",
           gap: 16,
           scrollMarginTop: 120,
-          padding: "14px 16px",
+          padding: "18px 20px",
           border: `1px solid ${BORDER}`,
-          borderLeft: `4px solid ${BLUE}`,
-          borderRadius: 8,
-          background: "linear-gradient(135deg, #FFFFFF 0%, #F7FBFF 100%)",
-          boxShadow: "0 8px 20px rgba(2,24,89,0.05)",
+          borderLeft: `3px solid rgba(7, 176, 242, 0.55)`,
+          background: "linear-gradient(165deg, rgba(7, 176, 242, 0.09) 0%, rgba(255, 255, 255, 0.97) 55%, #FFFFFF 100%)",
+          boxShadow: "0 2px 16px rgba(0, 0, 0, 0.06), 0 0 1px rgba(0, 0, 0, 0.06)",
         }}
       >
         <div>
-          <div style={{ fontSize: 14, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: BLUE, marginBottom: 8 }}>
-            Downloads
-          </div>
-          <h2 style={{ fontSize: 26, fontWeight: 700, color: NAVY, margin: "0 0 8px" }}>Your Deliverables</h2>
+          <h2 className="bs-h2 mb-2 mt-0">Your deliverables</h2>
           {suiteProgressHint ? (
-            <p
-              style={{
-                fontSize: 13,
-                fontWeight: 600,
-                color: "#0369A1",
-                lineHeight: 1.55,
-                maxWidth: 720,
-                margin: "0 0 10px",
-              }}
-            >
+            <p className="text-sm font-semibold text-brand-blue max-w-[720px] mb-2.5 m-0" style={{ lineHeight: 1.55 }}>
               {suiteProgressHint}
             </p>
           ) : null}
-          <p style={{ fontSize: 15, color: MID_GRAY, lineHeight: 1.5, maxWidth: 620, margin: 0 }}>
+          <p className="bs-body-sm text-brand-muted max-w-[620px] m-0">
             {docsNeedingRegen > 0
               ? `${docsNeedingRegen} document${docsNeedingRegen > 1 ? "s are" : " is"} updated since last generation.`
               : "All documents are current. Workbook-linked documents regenerate after workbook updates."}
           </p>
-          <p style={{ fontSize: 12, color: MID_GRAY, lineHeight: 1.55, maxWidth: 720, margin: "8px 0 0" }}>
+          <p className="bs-small text-brand-muted max-w-[720px] mt-2 mb-0">
             Organize by document type and export what each stakeholder needs.
           </p>
-          <p style={{ fontSize: 12, color: MID_GRAY, lineHeight: 1.55, maxWidth: 720, margin: "8px 0 0" }}>
+          <p className="bs-small text-brand-muted max-w-[720px] mt-2 mb-0">
             Everything you see and refine in the tabs is included in your downloadable deliverables.
             Workbook-linked documents pull the latest version of tab content (strategy, standards, and activation)
             at generation time.
           </p>
         </div>
         {isBlueprintPlus && onDownloadAll && (
-          <button onClick={onDownloadAll} style={{ padding: "11px 22px", backgroundColor: NAVY, color: "#ffffff", border: "none", borderRadius: 6, fontWeight: 700, fontSize: 14, cursor: "pointer", fontFamily: "'Lato', sans-serif", flexShrink: 0 }}>
+          <button onClick={onDownloadAll} style={{ padding: "11px 22px", backgroundColor: BLUE, color: "#ffffff", border: "none", borderRadius: SUITE_RADIUS_BUTTON, fontWeight: 700, fontSize: 14, cursor: "pointer", fontFamily: SUITE_FONT_UI, flexShrink: 0 }}>
             Download All as .zip
           </button>
         )}
       </div>
-      {groups.map((group) => {
+      {DOWNLOADS_GROUPS.map((group) => {
         const groupDocs = availableDocs.filter((doc) => doc.group === group);
         if (groupDocs.length === 0) return null;
         const groupId =
@@ -585,7 +613,7 @@ export default function DownloadsTab({
                 : "downloads-role-packs";
         return (
           <div key={group} id={groupId} style={{ marginBottom: 40, scrollMarginTop: 120 }}>
-            <h3 style={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.09em", color: MID_GRAY, margin: "0 0 16px", paddingBottom: 10, borderBottom: `1px solid ${BORDER}` }}>
+            <h3 style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.04em", color: MID_GRAY, margin: "0 0 16px", paddingBottom: 10, borderBottom: `1px solid ${BORDER}` }}>
               {GROUP_LABELS[group]}
             </h3>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16 }}>

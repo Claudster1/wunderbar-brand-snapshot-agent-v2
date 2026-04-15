@@ -111,7 +111,7 @@ export default function ScoreRevealModal({
             onClick={onClose}
             className="
               bg-brand-blue hover:bg-brand-blueHover 
-              text-white font-semibold rounded-md 
+              text-white font-semibold rounded-[5px] 
               px-8 py-3 shadow-md shadow-brand-blue/30 transition
             "
           >

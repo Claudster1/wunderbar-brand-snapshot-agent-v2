@@ -18,6 +18,7 @@ import {
   SUITE_NAVY,
   SUITE_SHADOW_TAB_PILL,
   SUITE_CONTENT_MAX_PX,
+  SUITE_RADIUS_BUTTON,
 } from "@/components/results/suiteBrandTokens";
 
 const HEADER_CHROME_HEIGHT = 56;
@@ -48,7 +49,7 @@ export default function ResultsTabNav({
   function tabButtonStyle(isActive: boolean, locked: boolean): CSSProperties {
     return {
       padding: "9px 14px",
-      borderRadius: 9,
+      borderRadius: SUITE_RADIUS_BUTTON,
       border: "none",
       background: isActive ? SUITE_BG_CARD : "transparent",
       color: locked ? "#C7C7CC" : isActive ? SUITE_NAVY : SUITE_CHROME_MUTED,
@@ -81,7 +82,7 @@ export default function ResultsTabNav({
         style={{
           maxWidth: SUITE_CONTENT_MAX_PX,
           margin: "0 auto",
-          padding: "10px 24px 12px",
+          padding: "10px min(24px, 4vw) 12px",
           overflowX: "auto",
           scrollbarWidth: "none",
           msOverflowStyle: "none",

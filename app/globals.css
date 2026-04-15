@@ -87,7 +87,7 @@
 }
 .bs-eyebrow {
   font-family: var(--font-brand);
-  font-size: 0.75rem;
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -268,17 +268,17 @@ body:has(.app-root) {
 }
 
 @layer components {
-  /* Wunderbar buttons: 54px height, padding, hover transform + shadow */
+  /* Wunderbar buttons: bright blue, white label, 5px corners (reports + app UI) */
   .btn-primary {
-    @apply inline-flex items-center justify-center h-[54px] min-h-[54px] px-6 bg-brand-blue text-white font-bold rounded-md shadow-md hover:bg-brand-blueHover hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2;
+    @apply inline-flex items-center justify-center h-[54px] min-h-[54px] px-6 bg-brand-blue text-white font-bold rounded-[5px] shadow-md hover:bg-brand-blueHover hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 border-0;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center h-[54px] min-h-[54px] px-6 border-2 border-brand-blue text-brand-blue font-bold rounded-md bg-transparent hover:bg-brand-gray hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2;
+    @apply inline-flex items-center justify-center h-[54px] min-h-[54px] px-6 bg-brand-blue text-white font-bold rounded-[5px] shadow-md hover:bg-brand-blueHover hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 border-0;
   }
 
   .btn-primary-inverse {
-    @apply inline-flex items-center justify-center h-[54px] min-h-[54px] px-6 bg-brand-blue text-white font-bold rounded-md shadow hover:bg-brand-blueHover hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2;
+    @apply inline-flex items-center justify-center h-[54px] min-h-[54px] px-6 bg-brand-blue text-white font-bold rounded-[5px] shadow-md hover:bg-brand-blueHover hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 border-0;
   }
 }
 
@@ -636,9 +636,14 @@ body:has(.app-root) {
 }
 
 .chat-reset {
-  background: #ffffff;
-  color: #07b0f2;
-  border: 1px solid #cbd5f5;
+  background: #07b0f2;
+  color: #ffffff;
+  border: 2px solid #07b0f2;
+}
+
+.chat-reset:hover:not(:disabled) {
+  background: #0590c7;
+  border-color: #0590c7;
 }
 
 .chat-skip {
@@ -1246,7 +1251,7 @@ a.sr-only:focus {
   justify-content: center;
   height: 44px;
   padding: 0 22px;
-  border-radius: 4px;
+  border-radius: 5px;
   font-family: var(--font-brand);
   font-size: 11px;
   font-weight: 700;
@@ -1272,14 +1277,14 @@ a.sr-only:focus {
 }
 
 .wunder-btn-outline {
-  background-color: #ffffff;
-  color: #07B0F2;
+  background-color: #07B0F2;
+  color: #ffffff;
 }
 
 .wunder-btn-outline:hover {
-  background-color: #07B0F2;
+  background-color: #0590c7;
   color: #ffffff;
-  border-color: #07B0F2;
+  border-color: #0590c7;
 }
 
 /* Mobile Toggle */
@@ -1768,7 +1773,7 @@ a.sr-only:focus {
   justify-content: center;
   height: 44px;
   padding: 0 22px;
-  border-radius: 4px;
+  border-radius: 5px;
   font-family: var(--font-brand);
   font-size: 11px;
   font-weight: 700;
@@ -1812,14 +1817,14 @@ a.sr-only:focus {
 }
 
 .btn-outline {
-  background-color: #ffffff;
-  color: #07B0F2;
+  background-color: #07B0F2;
+  color: #ffffff;
 }
 
 .btn-outline:hover {
-  background-color: #07B0F2;
+  background-color: #0590c7;
   color: #ffffff;
-  border-color: #07B0F2;
+  border-color: #0590c7;
 }
 
 .wunder-mobile-ctas .btn-base {
@@ -2341,21 +2346,102 @@ a.sr-only:focus {
   }
 }
 
-/* Suite tab pages: left nav + main column — stack on narrow viewports */
-@media (max-width: 960px) {
-  .tab-page-with-sidebar {
-    padding-left: 20px !important;
-    padding-right: 20px !important;
-  }
-  .tab-page-sidebar-row {
-    flex-direction: column !important;
-    gap: 20px !important;
-  }
-  .tab-page-sidebar {
-    position: relative !important;
-    top: auto !important;
-    width: 100% !important;
-    max-height: none !important;
-    overflow-y: visible !important;
-  }
+/* Suite tabs (Strategy, Standards, etc.): `TabPageWithSidebar` = full-width chip card + content, same pattern as Foundation */
+
+/* Ensure Strategy main column never collapses to 0 height when flex/aside layout or hydration glitches */
+.strategy-tab-content .tab-page-main {
+  min-height: 240px;
+  min-height: min(40vh, 560px);
+}
+
+.strategy-tab-content details.strategy-impl-details > summary {
+  list-style: none;
+}
+
+.strategy-tab-content details.strategy-impl-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Strategy buyer journey: responsive tiles — explicit gap + card chrome so stages read as separate steps */
+.journey-map-visual-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+.strategy-tab-content ul.strategy-suite-ul {
+  list-style-type: disc;
+  /* Match Foundation-style readable lists (~pl-4); components may override via utilities */
+  padding-left: 1rem;
+}
+
+.strategy-tab-content ul.strategy-suite-ul > li::marker {
+  color: #07b0f2;
+}
+
+.strategy-tab-content ul.strategy-suite-ul.strategy-suite-ul--muted > li::marker {
+  color: rgba(7, 176, 242, 0.45);
+}
+
+.strategy-tab-content .strategy-impl-summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #07b0f2;
+  letter-spacing: 0.08em;
+  text-transform: none;
+  padding: 12px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.2s ease;
+}
+
+.strategy-tab-content .strategy-impl-summary-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.strategy-tab-content .strategy-impl-summary::after {
+  content: "";
+  flex-shrink: 0;
+  width: 0.45em;
+  height: 0.45em;
+  margin-bottom: 2px;
+  border-right: 2px solid #07b0f2;
+  border-bottom: 2px solid #07b0f2;
+  transform: rotate(45deg);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.strategy-tab-content details.strategy-impl-details[open] > .strategy-impl-summary::after {
+  transform: rotate(-135deg);
+  margin-bottom: -2px;
+}
+
+.strategy-tab-content .strategy-impl-summary:hover {
+  color: #059bd8;
+}
+
+.strategy-tab-content .strategy-impl-summary:hover::after {
+  border-right-color: #059bd8;
+  border-bottom-color: #059bd8;
+}
+
+.strategy-tab-content .strategy-workbook-btn {
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+
+.strategy-tab-content .strategy-workbook-btn:hover {
+  background: #e6f7fe;
+  border-color: rgba(7, 176, 242, 0.45);
+  box-shadow: 0 2px 10px rgba(7, 176, 242, 0.15);
+}
+
+.strategy-tab-content .strategy-workbook-btn:active {
+  background: #d8f2fc;
 }

@@ -1,23 +1,38 @@
-import { Suspense } from "react";
 import PreviewResultsTabsClient from "./PreviewResultsTabsClient";
+import { parseActivationPlanSectionId, parseResultsTabId } from "@/components/results/tabConfig";
+import { isWorkbookSectionId, type WorkbookSectionId } from "@/lib/workbookTypes";
 
 export const dynamic = "force-dynamic";
 
-export default function PreviewResultsTabsPage() {
+function firstQueryString(
+  value: string | string[] | undefined,
+): string | undefined {
+  if (typeof value === "string") return value;
+  if (Array.isArray(value) && value.length > 0) return value[0];
+  return undefined;
+}
+
+type PageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function PreviewResultsTabsPage({ searchParams }: PageProps) {
+  const sp = searchParams != null ? await searchParams : {};
+  const initialActiveTab = parseResultsTabId(firstQueryString(sp.tab));
+  const initialActivationPlanId = parseActivationPlanSectionId(
+    firstQueryString(sp.activationPlanId),
+  );
+  const workbookSectionRaw = firstQueryString(sp.workbookSection);
+  const initialWorkbookSectionId: WorkbookSectionId | undefined =
+    isWorkbookSectionId(workbookSectionRaw) ? workbookSectionRaw : undefined;
+  const activationFocus = firstQueryString(sp.activationFocus) ?? null;
+
   return (
-    <Suspense
-      fallback={
-        <main
-          className="min-h-screen font-brand flex items-center justify-center px-4"
-          style={{ backgroundColor: "#F5F5F7" }}
-        >
-          <p className="text-sm" style={{ color: "#86868B" }}>
-            Loading preview…
-          </p>
-        </main>
-      }
-    >
-      <PreviewResultsTabsClient />
-    </Suspense>
+    <PreviewResultsTabsClient
+      initialActiveTab={initialActiveTab}
+      initialActivationPlanId={initialActivationPlanId}
+      initialWorkbookSectionId={initialWorkbookSectionId}
+      activationFocus={activationFocus}
+    />
   );
 }

@@ -302,6 +302,15 @@ export function snapshotReportToActivationWorkspace(
     ...(activationDx.competitiveMatrixSummary ? { competitiveMatrixSummary: activationDx.competitiveMatrixSummary } : {}),
   };
 
+  if (Array.isArray(fullReport?.buyerPersonas) && fullReport.buyerPersonas.length > 0) {
+    diagnosticData.buyerPersonas = fullReport.buyerPersonas;
+  } else {
+    const bpe = fullReport?.buyerPersonaEcosystem as { buyerPersonas?: unknown[] } | undefined;
+    if (Array.isArray(bpe?.buyerPersonas) && bpe.buyerPersonas.length > 0) {
+      diagnosticData.buyerPersonas = bpe.buyerPersonas;
+    }
+  }
+
   const spendRaw = fullReport?.spendRecommendationContext ?? fullReport?.spend_recommendation_context;
   if (spendRaw && typeof spendRaw === "object") {
     diagnosticData.spendRecommendationContext = spendRaw;
@@ -336,6 +345,10 @@ export function snapshotReportToActivationWorkspace(
   const brandStandardsGuide = fullReport?.brandStandardsGuide;
   if (brandStandardsGuide && typeof brandStandardsGuide === "object" && !Array.isArray(brandStandardsGuide)) {
     diagnosticData.brandStandardsGuide = brandStandardsGuide;
+  }
+
+  if (Array.isArray(fullReport?.icpGoToMarketPlans) && fullReport.icpGoToMarketPlans.length > 0) {
+    diagnosticData.icpGoToMarketPlans = fullReport.icpGoToMarketPlans;
   }
 
   return { diagnosticData, scheduleRows, productTier };

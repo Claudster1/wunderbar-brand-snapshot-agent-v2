@@ -14,8 +14,8 @@ function LockedCard({
   lockedCopy: string;
 }) {
   return (
-    <article className="relative overflow-hidden rounded-xl border border-brand-border bg-white p-5">
-      <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">{title}</p>
+    <article className="relative overflow-hidden rounded-xl border border-brand-border bg-white p-6 sm:p-7">
+      <p className="text-xs font-bold tracking-[0.04em] text-brand-muted mb-4">{title}</p>
       <p className="bs-body-sm text-brand-midnight">{visibleLead}</p>
       <div className="mt-3 rounded-lg border border-brand-border bg-slate-50/90 p-3 backdrop-blur">
         <p className="bs-small text-brand-muted blur-[1px] select-none">{lockedCopy}</p>
@@ -27,9 +27,9 @@ function LockedCard({
 
 export function FoundationLockedPreview({ likelyArchetype }: Props) {
   return (
-    <section className="space-y-4">
+    <section className="space-y-5 sm:space-y-6">
       <div>
-        <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+        <p className="text-xs font-bold tracking-[0.04em] text-brand-muted mb-4">
           Foundation Locked Preview
         </p>
         <h3 className="bs-h3">See what is identified in your diagnostic</h3>

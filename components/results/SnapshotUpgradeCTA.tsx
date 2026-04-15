@@ -21,7 +21,7 @@ export function SnapshotUpgradeCTA({ primaryPillar, stage }: Props) {
 
       <Link
         href="/snapshot-plus"
-        className="inline-block rounded-md bg-white px-5 py-3 text-sm font-medium text-slate-900"
+        className="inline-block rounded-[5px] bg-brand-blue px-5 py-3 text-sm font-medium text-white hover:bg-brand-blueHover transition"
       >
         Take it further with Snapshot+™
       </Link>

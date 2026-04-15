@@ -2,6 +2,7 @@
  * Shared rule: spell out abbreviations on first reference so readers without
  * marketing fluency can follow. Import into Wundy and engine prompts; use
  * `uiAbbreviationNote` in high-traffic UI surfaces.
+ * Heading capitalization: `capitalizationPolicy.ts` (`aiApTitleCaseHeadingsRule`).
  */
 
 export const aiAbbreviationFirstReferenceRule = `

@@ -1,113 +1,103 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useMemo, type ReactNode } from "react";
+import FoundationStyleSuiteSidebar, {
+  type FoundationSuiteSidebarGroup,
+} from "@/components/results/FoundationStyleSuiteSidebar";
 import TabSectionMenu, { type TabSectionMenuItem } from "@/components/results/TabSectionMenu";
-import { SUITE_CHIP_CARD_STYLE } from "@/components/results/suiteBrandTokens";
-import { TAB_SECTION_NAV_HINT } from "@/lib/copy/resultsSuiteGuidance";
+import { SUITE_CHIP_CARD_STYLE, SUITE_FONT_UI } from "@/components/results/suiteBrandTokens";
+import { TAB_SECTION_NAV_HINT_SUITE_SIDEBAR } from "@/lib/copy/resultsSuiteGuidance";
 import { useActiveSectionInView } from "@/components/results/useActiveSectionInView";
 
+export type { FoundationSuiteSidebarGroup };
+
 type Props = {
-  /** Page name for the section jump bar (shown uppercase, e.g. Brand Standards). */
+  /** Page name for the section jump bar (AP-style title case for headings, e.g. Brand Standards). */
   navTitle: string;
   navItems: TabSectionMenuItem[];
   children: ReactNode;
   /** Optional class on outer wrapper for tab-specific styling */
   className?: string;
-  /** Hint under the chips title; set false to hide. Default explains scroll-to-section behavior. */
+  /**
+   * When true, `ResultsTabsShell` (or another parent) renders `SUITE_CHIP_CARD_STYLE` + `TabSectionMenu`
+   * above this layout — same pattern as the Foundation tab. Pass `shellActiveSectionId` from the parent’s scroll spy.
+   */
+  shellRendersSectionChips?: boolean;
+  /** Current section id when the parent renders section chips (`shellRendersSectionChips`). */
+  shellActiveSectionId?: string | null;
+  /** Hint under the chips title; set false to hide. */
   sectionNavHint?: string | false;
   /**
    * Leading glyphs in section nav. Default true — they help users scan long lists; set false for text-only.
    */
   sectionNavIcons?: boolean;
+  /**
+   * Optional Foundation-style sidebar cards (same pattern as Foundation tab domains).
+   * When omitted, one card titled `navTitle` lists all `navItems`.
+   */
+  sidebarGroups?: FoundationSuiteSidebarGroup[];
 };
 
-/** Sticky offset below CompactResultsHeader (64px) + ResultsTabNav (~56px). */
-const SECTION_NAV_STICKY_TOP = 120;
-
 /**
- * Section jump chips + sticky left nav + main content.
- * Chips are sticky in the main column so in-tab section navigation stays visible while scrolling (not only the sidebar).
+ * Foundation-aligned: full-width chip card (`SUITE_CHIP_CARD_STYLE`), then flex row with
+ * Foundation-style left sidebar + main column (matches `FoundationBlueprintContent` aside).
  */
 export default function TabPageWithSidebar({
   navTitle,
   navItems,
   children,
   className,
+  shellRendersSectionChips = false,
+  shellActiveSectionId = null,
   sectionNavHint,
   sectionNavIcons = true,
+  sidebarGroups: sidebarGroupsProp,
 }: Props) {
-  const chipsHint = sectionNavHint === false ? undefined : (sectionNavHint ?? TAB_SECTION_NAV_HINT);
-  const sectionIdsKey = navItems.map((item) => item.id).join("\0");
-  const activeSectionId = useActiveSectionInView(sectionIdsKey);
+  const chipsHint =
+    sectionNavHint === false ? undefined : (sectionNavHint ?? TAB_SECTION_NAV_HINT_SUITE_SIDEBAR);
+
+  const flatNavItems = useMemo(() => {
+    if (sidebarGroupsProp?.length) return sidebarGroupsProp.flatMap((g) => g.items);
+    return navItems;
+  }, [sidebarGroupsProp, navItems]);
+
+  const sidebarGroups = useMemo((): FoundationSuiteSidebarGroup[] => {
+    if (sidebarGroupsProp?.length) return sidebarGroupsProp;
+    return [{ label: navTitle, items: navItems }];
+  }, [sidebarGroupsProp, navTitle, navItems]);
+
+  const sectionIdsKey = shellRendersSectionChips ? "" : flatNavItems.map((item) => item.id).join("\0");
+  const internalActiveSectionId = useActiveSectionInView(sectionIdsKey);
+  const activeSectionId = shellRendersSectionChips ? shellActiveSectionId : internalActiveSectionId;
 
   return (
     <div
-      className={`tab-page-with-sidebar ${className ?? ""}`.trim()}
+      className={`tab-page-with-section-nav ${className ?? ""}`.trim()}
       style={{
         width: "100%",
-        maxWidth: 1100,
-        margin: "0 auto",
-        padding: "32px 28px 80px",
+        maxWidth: "100%",
+        margin: 0,
+        padding: 0,
         boxSizing: "border-box",
-        fontFamily: "'Lato', sans-serif",
+        fontFamily: SUITE_FONT_UI,
       }}
     >
-      <div
-        className="tab-page-sidebar-row"
-        style={{
-          display: "flex",
-          gap: 28,
-          alignItems: "flex-start",
-        }}
-      >
-        <aside
-          className="tab-page-sidebar"
-          style={{
-            width: 236,
-            flexShrink: 0,
-            position: "sticky",
-            top: SECTION_NAV_STICKY_TOP,
-            alignSelf: "flex-start",
-            maxHeight: "calc(100dvh - 9rem)",
-            overflowY: "auto",
-            overscrollBehavior: "contain",
-          }}
-        >
+      {shellRendersSectionChips ? null : (
+        <div style={SUITE_CHIP_CARD_STYLE}>
           <TabSectionMenu
             title={navTitle}
-            items={navItems}
-            variant="sidebar"
+            items={flatNavItems}
+            variant="chips"
+            suiteChipCardEmbed
+            description={chipsHint}
             activeSectionId={activeSectionId}
             showIcons={sectionNavIcons}
           />
-        </aside>
-        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
-          <div
-            style={{
-              position: "sticky",
-              top: SECTION_NAV_STICKY_TOP,
-              zIndex: 50,
-              marginBottom: 16,
-              paddingBottom: 4,
-              backgroundColor: "#F5F7FA",
-              boxShadow: "0 6px 16px rgba(2, 24, 89, 0.06)",
-            }}
-          >
-            <div style={SUITE_CHIP_CARD_STYLE}>
-              <TabSectionMenu
-                title={navTitle}
-                items={navItems}
-                variant="chips"
-                description={chipsHint}
-                activeSectionId={activeSectionId}
-                showIcons={sectionNavIcons}
-              />
-            </div>
-          </div>
-          <div className="tab-page-main" style={{ flex: 1, minWidth: 0 }}>
-            {children}
-          </div>
         </div>
+      )}
+      <div className="flex w-full flex-col items-stretch gap-8 lg:flex-row lg:gap-10">
+        <FoundationStyleSuiteSidebar groups={sidebarGroups} activeSectionId={activeSectionId} />
+        <div className="tab-page-main min-w-0 flex-1">{children}</div>
       </div>
     </div>
   );

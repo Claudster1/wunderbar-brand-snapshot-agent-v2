@@ -53,7 +53,7 @@ export function ExecutionReadyDrafts({ productTier, brandContext, messagePillars
   return (
     <section className="bs-card rounded-xl p-5 sm:p-6 border border-brand-border space-y-4">
       <div>
-        <p className="text-xs font-bold uppercase tracking-wide text-brand-muted mb-2">
+        <p className="text-xs font-bold tracking-[0.04em] text-brand-muted mb-2">
           Ready-to-Use Content Drafts
         </p>
         <h2 className="bs-h3 mb-2">Activation copy you can use right away</h2>

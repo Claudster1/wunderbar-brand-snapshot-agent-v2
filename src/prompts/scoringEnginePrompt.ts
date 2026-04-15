@@ -1,5 +1,6 @@
 // src/prompts/scoringEnginePrompt.ts
 import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
+import { aiApTitleCaseHeadingsRule } from "@/lib/copy/capitalizationPolicy";
 import { reportExecutionReadyContentRule } from "@/lib/copy/reportExecutionStandard";
 
 export const scoringEnginePrompt = `
@@ -14,6 +15,8 @@ You DO NOT use emojis.
 You DO NOT speculate about information the user did not provide.
 
 ${aiAbbreviationFirstReferenceRule}
+
+${aiApTitleCaseHeadingsRule}
 
 ${reportExecutionReadyContentRule}
 

@@ -16,25 +16,25 @@ export function buildActivationGuidanceMaps(diagnosticData: Record<string, unkno
 
   return {
     "audience-segments": {
-      title: "Audience targeting quality",
+      title: "Audience Targeting Quality",
       doText: "Group people by what they do (visits, clicks, replies) and give each group one clear goal.",
       dontText: "Send the same message to everyone, no matter how ready they are to buy.",
       example: `People who match ${audienceShort} get proof-focused follow-up. People who visit pricing twice get a clear offer and next step.`,
     },
     "journey-orchestration": {
-      title: "Lifecycle flow",
+      title: "Lifecycle Flow",
       doText: "Line up touches from first touch to purchase, with clear rules for when sales steps in.",
       dontText: "Use each channel on its own with no nod to what came before.",
       example: `Example touch order: social point of view, then email proof, then a landing page, then sales when someone shows strong intent.`,
     },
     "competitive-motion-plan": {
-      title: "Competitive response plan",
+      title: "Competitive Response Plan",
       doText: "Write short answers and proof points in advance for when competitors come up.",
       dontText: "Wait until a live call to figure out what to say.",
       example: `When a competitor is named, send a proof asset that shows how ${companyName} delivers on the promise.`,
     },
     "email-lifecycle": {
-      title: "Email clarity",
+      title: "Email Clarity",
       doText: "Give each email one job and one clear next step.",
       dontText: "Send long newsletters that mix many goals and hide the next step.",
       example: `Email 1: insight. Email 2: proof. Email 3: next step tied to ${firstPriority.toLowerCase()}.`,
@@ -46,25 +46,25 @@ export function buildActivationGuidanceMaps(diagnosticData: Record<string, unkno
       example: `Answer top ${industry.toLowerCase()} questions buyers ask, with proof blocks and a single next step on each page.`,
     },
     "paid-ads": {
-      title: "Paid conversion mechanics",
+      title: "Paid Conversion Mechanics",
       doText: "Test a few messages and send winners to landing pages that match the ad.",
       dontText: "Spend more because clicks went up, without checking lead quality.",
       example: `Try three angles around ${primaryPillar.toLowerCase()}. Keep the one that brings better leads, not just more clicks.`,
     },
     "thought-leadership": {
-      title: "Authority building",
+      title: "Authority Building",
       doText: "Publish on a steady schedule with your point of view and practical steps.",
       dontText: `Chase trends with no clear take from ${companyName} or no next step.`,
       example: `${companyName} shares weekly ideas tied to ${firstPriority.toLowerCase()} and ends each piece with one next step.`,
     },
     "pr-plan": {
-      title: "Visibility leverage",
+      title: "Visibility Leverage",
       doText: "Pitch stories that tie to real outcomes your buyers care about.",
       dontText: "Lead with vanity announcements that do not show why you are different.",
       example: `Each quarter, pitch a story that links progress to buyer pain and a sensible next step for readers.`,
     },
     "execution-roadmap": {
-      title: "Execution governance",
+      title: "Execution Governance",
       doText: "Give every item an owner, due date, what it depends on, and how you will know it worked.",
       dontText: "Track tasks with no owner and no clear link to results.",
       example: `Weekly check: Phase 1 (${firstPriority}), then Phase 2 (${secondPriority}), then Phase 3 (${thirdPriority}).`,

@@ -22,6 +22,8 @@
 :root {
   --brand-navy: #021859;
   --brand-blue: #07B0F2;
+  /* Bullet discs & custom dots (strategy-suite-ul, offer cards) */
+  --wb-bullet-accent: #07b0f2;
   --brand-aqua: #27CDF2;
   --brand-midnight: #0C1526;
   --brand-gray: #F2F2F2;
@@ -2369,17 +2371,30 @@ a.sr-only:focus {
   gap: 16px;
 }
 
-.strategy-tab-content ul.strategy-suite-ul {
+/* Product bullet lists: bright blue markers, outside discs, stable padding & row gap (app-wide) */
+ul.strategy-suite-ul {
   list-style-type: disc;
-  /* Match Foundation-style readable lists (~pl-4); components may override via utilities */
-  padding-left: 1rem;
+  list-style-position: outside;
+  padding-inline-start: 1.5rem;
+  margin-inline: 0;
+  box-sizing: border-box;
 }
 
-.strategy-tab-content ul.strategy-suite-ul > li::marker {
-  color: #07b0f2;
+ul.strategy-suite-ul > li {
+  margin-inline-start: 0;
+  padding-inline-start: 0;
+  margin-block: 0;
 }
 
-.strategy-tab-content ul.strategy-suite-ul.strategy-suite-ul--muted > li::marker {
+ul.strategy-suite-ul > li + li {
+  margin-top: 0.5rem;
+}
+
+ul.strategy-suite-ul > li::marker {
+  color: var(--wb-bullet-accent);
+}
+
+ul.strategy-suite-ul.strategy-suite-ul--muted > li::marker {
   color: rgba(7, 176, 242, 0.45);
 }
 

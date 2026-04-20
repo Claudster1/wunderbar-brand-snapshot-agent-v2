@@ -2,8 +2,14 @@
 
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { Suspense, useEffect, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import ResultsTabsShell from "@/components/results/ResultsTabsShell";
-import type { ActivationPlanSectionId, ResultsTab } from "@/components/results/tabConfig";
+import {
+  parseResultsTabId,
+  type ActivationPlanSectionId,
+  type ResultsTab,
+} from "@/components/results/tabConfig";
 import {
   SUITE_CHIP_CARD_STYLE,
   SUITE_CONTENT_MAX_PX,
@@ -126,7 +132,7 @@ const diagnosticData = {
     "Visibility gains depend on tighter messaging discipline so every channel reinforces the same narrative.",
   strategicOfferContext: {
     methodologyFraming:
-      "JTBD for the economic buyer, explicit scope boundaries, leading indicators with review cadence, and channel alignment so GTM stays coherent.",
+      "Jobs to be done (JTBD) for the economic buyer, explicit scope boundaries, leading indicators with review cadence, and channel alignment so go-to-market (GTM) stays coherent.",
     jobStatement:
       "When pipeline quality is uncertain, I want one narrative spine and named checkpoints, so I can defend spend to finance and sales without another generic strategy deck.",
     primaryOffer: {
@@ -892,12 +898,27 @@ export type PreviewResultsTabsClientProps = {
   activationFocus?: string | null;
 };
 
-export default function PreviewResultsTabsClient({
+function PreviewResultsTabsClientInner({
   initialActiveTab,
   initialActivationPlanId,
   initialWorkbookSectionId,
   activationFocus,
 }: PreviewResultsTabsClientProps) {
+  const searchParams = useSearchParams();
+  const resolvedTab = useMemo((): ResultsTab => {
+    const raw = searchParams.get("tab");
+    if (!raw?.trim()) return initialActiveTab ?? "strategy";
+    return parseResultsTabId(raw) ?? "results";
+  }, [searchParams, initialActiveTab]);
+
+  useEffect(() => {
+    if (resolvedTab !== "strategy") return;
+    const id = window.setTimeout(() => {
+      document.getElementById("strategy-sales-alignment")?.scrollIntoView({ block: "start", behavior: "smooth" });
+    }, 350);
+    return () => window.clearTimeout(id);
+  }, [resolvedTab]);
+
   return (
     <main className="min-h-screen font-brand" style={{ backgroundColor: "#F5F7FA" }}>
       <ResultsTabsShell
@@ -905,7 +926,7 @@ export default function PreviewResultsTabsClient({
         resultsContent={resultsContent}
         foundationContent={foundationContent}
         diagnosticData={diagnosticData}
-        initialActiveTab={initialActiveTab}
+        initialActiveTab={resolvedTab}
         initialWorkbookSectionId={initialWorkbookSectionId}
         initialActivationPlanId={initialActivationPlanId}
         activationFocus={activationFocus}
@@ -913,12 +934,29 @@ export default function PreviewResultsTabsClient({
 
       <div style={{ maxWidth: SUITE_CONTENT_MAX_PX, margin: "0 auto", padding: "0 min(28px, 4vw) 28px" }}>
         <p style={{ fontSize: 12, color: "#5A6B7E", margin: 0 }}>
-          Preview mode with mock data.{" "}
+          Preview mode with mock data (URL defaults to <code style={{ fontSize: 11 }}>?tab=strategy</code>; use{" "}
+          <code style={{ fontSize: 11 }}>?tab=results</code> for the scores overview).{" "}
           <Link href="/preview" style={{ color: "#021859", textDecoration: "underline", fontWeight: 700 }}>
             Back to all previews
           </Link>
         </p>
       </div>
     </main>
+  );
+}
+
+export default function PreviewResultsTabsClient(props: PreviewResultsTabsClientProps) {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen font-brand" style={{ backgroundColor: "#F5F7FA" }}>
+          <div style={{ maxWidth: SUITE_CONTENT_MAX_PX, margin: "0 auto", padding: "min(28px, 4vw)" }}>
+            <p style={{ fontSize: 14, color: "#5A6B7E", margin: 0 }}>Loading preview suite…</p>
+          </div>
+        </main>
+      }
+    >
+      <PreviewResultsTabsClientInner {...props} />
+    </Suspense>
   );
 }

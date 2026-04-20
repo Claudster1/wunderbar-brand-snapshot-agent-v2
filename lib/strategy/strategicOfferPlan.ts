@@ -1,6 +1,6 @@
 /**
  * Renders `strategicOfferContext` from Blueprint / Blueprint+ reports for the Strategy tab.
- * Framing: JTBD-style job statement, outcome/scope discipline, leading signals, channel alignment.
+ * Framing: job statement in jobs-to-be-done (JTBD) style, plus outcome/scope discipline, leading signals, channel alignment.
  */
 
 function asStr(v: unknown): string {

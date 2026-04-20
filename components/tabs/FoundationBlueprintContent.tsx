@@ -3526,7 +3526,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
           `Persona 2 - Functional champion: prioritizes implementation clarity, role ownership, and execution speed.`,
           `Persona 3 - Stakeholder influencer: prioritizes consistency, governance, and cross-team adoption.`,
           topPriority?.title ? `Primary buying narrative: ${topPriority.title}.` : null,
-          `In use (Paid carousel ad): Economic, champion, and influencer each get one card—trigger line, proof, CTA tuned to ${audience.toLowerCase()}.`,
+          `In use (Paid carousel ad): Economic, champion, and influencer each get one card—trigger line, proof, call to action (CTA) tuned to ${audience.toLowerCase()}.`,
           `In use (Retargeting): ROI proof for economic buyers; checklist rollout for champions—parallel tracks.`,
           `Next step: For each persona, write one “day in the life” paragraph + top 3 objections + preferred proof format—store next to CRM stage definitions.`,
           `Next step: Tag five recent wins by persona type; pull one quote per type for the next landing refresh.`,
@@ -3534,14 +3534,14 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
         ]);
       case "audience-jtbd":
         return compact([
-          `Functional JTBD: improve ${primaryPillar.toLowerCase()} performance while maintaining cross-channel brand consistency.`,
-          `Emotional JTBD: increase confidence in strategy decisions and reduce anxiety around execution quality.`,
-          `Social JTBD: be recognized internally as the team that turns strategy into measurable business outcomes.`,
+          `Functional job to be done (JTBD): improve ${primaryPillar.toLowerCase()} performance while maintaining cross-channel brand consistency.`,
+          `Emotional job to be done (JTBD): increase confidence in strategy decisions and reduce anxiety around execution quality.`,
+          `Social job to be done (JTBD): be recognized internally as the team that turns strategy into measurable business outcomes.`,
           `Current workaround being replaced: fragmented messaging and ad hoc campaign execution.`,
           `In use (Lead magnet / webinar): "Rank the job—functional, emotional, social—we will map ${primaryPillar.toLowerCase()} work to what wins first."`,
           `In use (Social hook): The job-to-be-done headline lands before features or methodology.`,
-          `Next step: Workshop (45 min): for each JTBD, list the workaround buyers use today and the “firing” trigger that would make them switch to ${brandName}.`,
-          `Next step: Add JTBD language to one nurture email subject line A/B this month—functional vs emotional framing.`,
+          `Next step: Workshop (45 min): for each JTBD lens, list the workaround buyers use today and the “firing” trigger that would make them switch to ${brandName}.`,
+          `Next step: Add jobs-to-be-done (JTBD) language to one nurture email subject line A/B this month—functional vs emotional framing.`,
           `Use this when: product wants feature-first copy—flip to job headline, then map features as proof of job completion.`,
         ]);
       case "audience-journey":
@@ -3553,10 +3553,10 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
           `Primary Conversion Route: ${firstChannelRoute}`,
           `Audience Sequencing: primary sees conversion outcome first; secondary gets implementation detail; tertiary gets risk/ROI validation.`,
           `In use (Considering → Evaluating): "See how teams like yours proved ${primaryPillar.toLowerCase()} gains before expanding spend."`,
-          `Decision-Stage KPI: increase conversion confidence through one proof-rich CTA pathway per ICP tier.`,
-          `In use (Retargeting email): One touch per stage from awareness through evaluation—CTA matches readiness, not a hard ask in the first touch.`,
+          `Decision-stage KPI: increase conversion confidence through one proof-rich call to action (CTA) pathway per ideal customer profile (ICP) tier.`,
+          `In use (Retargeting email): One touch per stage from awareness through evaluation—call to action (CTA) matches readiness, not a hard ask in the first touch.`,
           `In use (Retargeting touch): Proof depth follows where they are on ${firstChannelRoute.split(":")[0] || "the funnel"}—same story, stage-appropriate detail.`,
-          `Next step: Map one proof asset and one CTA to each journey stage in a table; highlight any stage with no asset—fill that gap first.`,
+          `Next step: Map one proof asset and one call to action (CTA) to each journey stage in a table; highlight any stage with no asset—fill that gap first.`,
           `Next step: ${executionOwner} reviews journey CTAs quarterly to remove stage-mismatch asks (e.g. demo ask on first touch).`,
           `This connects to: scheduled actions ${scheduleRows.length > 0 ? `(${scheduleRows.length} in your plan)` : "in your activation plan"} should line up to stage exits, not random calendar density.`,
         ]);

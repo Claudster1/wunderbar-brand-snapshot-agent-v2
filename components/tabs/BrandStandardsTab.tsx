@@ -1,9 +1,10 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 import type { ProductTier } from "@/components/ResultsTabNav";
 import { SectionGlyph } from "@/components/results/BrandIcons";
+import { MoodOutputsGraphic } from "@/components/results/MoodOutputsGraphic";
 import PersonalizedGuidanceCard from "@/components/results/PersonalizedGuidanceCard";
 import { ReportCallout } from "@/components/results/ReportDesignPrimitives";
 import TabPageWithSidebar from "@/components/results/TabPageWithSidebar";
@@ -57,6 +58,8 @@ const EDIT_IN_WORKBOOK_BTN: CSSProperties = {
   cursor: "pointer",
   fontFamily: "'Lato', sans-serif",
 };
+
+const FONT_STACK = "'Lato', system-ui, sans-serif";
 
 interface BrandStandardsTabProps {
   productTier: ProductTier;
@@ -120,32 +123,6 @@ function asStringListLoose(value: unknown): string[] {
   }
   const one = asStringLoose(value);
   return one ? [one] : [];
-}
-
-function MoodTagRow({ label, items }: { label: string; items?: string[] }) {
-  if (!items?.length) return null;
-  return (
-    <div style={{ marginTop: 10 }}>
-      <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>{label}</p>
-      <div style={{ marginTop: 6, display: "flex", flexWrap: "wrap", gap: 6 }}>
-        {items.map((t, i) => (
-          <span
-            key={`${label}-${t}-${i}`}
-            style={{
-              padding: "4px 10px",
-              borderRadius: 999,
-              background: `${BLUE}14`,
-              border: `1px solid ${BORDER}`,
-              fontSize: 12,
-              color: NAVY,
-            }}
-          >
-            {t}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
 }
 
 function hexToRgb(hexInput: string): string {
@@ -242,6 +219,165 @@ function ExampleCard({
           <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: SEMANTIC_DONT.label }}>Not this</p>
           <p style={{ margin: "4px 0 0", fontSize: 13, color: SEMANTIC_DONT.text, lineHeight: 1.55 }}>{bad}</p>
         </div>
+      </div>
+    </div>
+  );
+}
+
+const IMPLEMENTATION_CARD_ACCENTS: ReadonlyArray<{ rail: string; badgeBg: string; badgeText: string; wash: string }> = [
+  { rail: "#07B0F2", badgeBg: "rgba(7, 176, 242, 0.14)", badgeText: "#024E70", wash: "linear-gradient(145deg, #F0FAFF 0%, #FFFFFF 52%)" },
+  { rail: "#6366F1", badgeBg: "rgba(99, 102, 241, 0.12)", badgeText: "#312E81", wash: "linear-gradient(145deg, #F8F7FF 0%, #FFFFFF 52%)" },
+  { rail: "#0D9488", badgeBg: "rgba(13, 148, 136, 0.12)", badgeText: "#134E4A", wash: "linear-gradient(145deg, #F0FDF9 0%, #FFFFFF 52%)" },
+];
+
+/** Lato roles aligned with “Typography standards” below (sizes scaled for in-card previews vs full-page web). */
+const IMPL_TYPO = {
+  specTag: {
+    margin: 0,
+    marginBottom: 6,
+    fontFamily: FONT_STACK,
+    fontWeight: 700,
+    fontSize: 9,
+    letterSpacing: "0.1em",
+    textTransform: "uppercase" as const,
+    color: MID_GRAY,
+  },
+  headline: {
+    fontFamily: FONT_STACK,
+    fontWeight: 800,
+    fontSize: 22,
+    lineHeight: 1.22,
+    color: NAVY,
+    letterSpacing: "-0.02em",
+  },
+  subhead: {
+    fontFamily: FONT_STACK,
+    fontWeight: 650,
+    fontSize: 17,
+    lineHeight: 1.35,
+    color: NAVY,
+  },
+  body: {
+    fontFamily: FONT_STACK,
+    fontWeight: 450,
+    fontSize: 15,
+    lineHeight: 1.65,
+    color: BODY_TEXT,
+  },
+  metaCaption: {
+    fontFamily: FONT_STACK,
+    fontWeight: 500,
+    fontSize: 12,
+    lineHeight: 1.55,
+    color: MID_GRAY,
+  },
+  channelLabel: {
+    fontFamily: FONT_STACK,
+    fontWeight: 700,
+    fontSize: 10,
+    letterSpacing: "0.12em",
+    textTransform: "uppercase" as const,
+    color: MID_GRAY,
+  },
+  cta: {
+    fontFamily: FONT_STACK,
+    fontWeight: 700,
+    fontSize: 14,
+    lineHeight: 1.35,
+    color: BLUE,
+  },
+} satisfies Record<string, CSSProperties>;
+
+function ImplementationTypoBlock({
+  specTitle,
+  style,
+  children,
+}: {
+  specTitle: string;
+  style: CSSProperties;
+  children: ReactNode;
+}) {
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <p style={IMPL_TYPO.specTag}>{specTitle}</p>
+      <div style={style}>{children}</div>
+    </div>
+  );
+}
+
+function ImplementationExampleCard({
+  index,
+  glyphToken,
+  eyebrow,
+  title,
+  blocks,
+}: {
+  index: number;
+  glyphToken: "paid" | "thought" | "email";
+  eyebrow: string;
+  title: string;
+  blocks: Array<{
+    specTitle: string;
+    role: "headline" | "subhead" | "body" | "metaCaption" | "channelLabel" | "cta";
+    content: ReactNode;
+  }>;
+}) {
+  const accent = IMPLEMENTATION_CARD_ACCENTS[(index - 1) % IMPLEMENTATION_CARD_ACCENTS.length]!;
+  const roleStyle: Record<(typeof blocks)[number]["role"], CSSProperties> = {
+    headline: IMPL_TYPO.headline,
+    subhead: IMPL_TYPO.subhead,
+    body: IMPL_TYPO.body,
+    metaCaption: IMPL_TYPO.metaCaption,
+    channelLabel: IMPL_TYPO.channelLabel,
+    cta: IMPL_TYPO.cta,
+  };
+
+  return (
+    <div
+      className="flex h-full flex-col overflow-hidden rounded-lg border border-black/[0.07]"
+      style={{
+        background: accent.wash,
+        borderLeft: `4px solid ${accent.rail}`,
+        boxShadow: "0 2px 16px rgba(2, 24, 89, 0.06)",
+      }}
+    >
+      <div className="flex flex-wrap items-start gap-3 px-4 pb-2 pt-4 sm:px-5">
+        <span
+          className="inline-flex shrink-0 items-center justify-center rounded-lg font-extrabold tabular-nums"
+          style={{
+            minWidth: 36,
+            height: 36,
+            fontSize: 13,
+            letterSpacing: "0.06em",
+            background: accent.badgeBg,
+            color: accent.badgeText,
+            fontFamily: FONT_STACK,
+          }}
+          aria-hidden
+        >
+          {String(index).padStart(2, "0")}
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <SectionGlyph token={glyphToken} size={20} color={accent.rail} />
+            <div>
+              <p className="m-0" style={IMPL_TYPO.channelLabel}>
+                {eyebrow}
+              </p>
+              <p className="m-0 mt-1" style={IMPL_TYPO.subhead}>
+                {title}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-black/[0.06] bg-white/85 px-4 py-4 sm:px-5">
+        {blocks.map((b, i) => (
+          <ImplementationTypoBlock key={i} specTitle={b.specTitle} style={{ ...roleStyle[b.role], margin: 0 }}>
+            {typeof b.content === "string" ? <p style={{ margin: 0 }}>{b.content}</p> : b.content}
+          </ImplementationTypoBlock>
+        ))}
       </div>
     </div>
   );
@@ -366,6 +502,13 @@ export default function BrandStandardsTab({
   const firstPriority = strategicPriorities[0]?.title || `Close ${topGap.toLowerCase()}`;
   const secondPriority =
     strategicPriorities[1]?.title || `Scale ${topStrength.toLowerCase()} across channels`;
+  const positioningSnippet =
+    typeof diagnosticData.positioningMessagingFramework === "string" &&
+    diagnosticData.positioningMessagingFramework.trim()
+      ? firstSentence(diagnosticData.positioningMessagingFramework)
+      : typeof diagnosticData.topOpportunity === "string" && diagnosticData.topOpportunity.trim()
+        ? firstSentence(diagnosticData.topOpportunity)
+        : "";
 
   const palette =
     (diagnosticData.enriched_color_palette as Array<{
@@ -453,23 +596,26 @@ export default function BrandStandardsTab({
               "A cool near-white surface creates breathing room and separation, making complex frameworks easier to consume.",
           },
         ];
+  const accentHex = paletteRows[0]?.hex ?? "#07B0F2";
+  const accentName = paletteRows[0]?.name ?? "Primary accent";
+  const authorityHex = paletteRows[1]?.hex ?? NAVY;
   const standardsDepth = {
     publishingChecklist: [
-      "Claim is specific and tied to one message pillar.",
-      "At least one proof element is visible before primary CTA.",
-      "Voice matches archetype and approved tone attributes.",
-      "CTA language reflects stage intent (aware, consider, decide).",
-      "Asset includes one measurable success signal.",
+      `The claim names a concrete outcome for ${audienceShort} and ties to your ${primaryPillar.toLowerCase()} pillar—not a generic category line anyone in ${industry.toLowerCase()} could use.`,
+      `At least one proof element (metric, logo row, quote, or outcome detail) appears before the primary CTA so ${businessName} earns the next step.`,
+      `Copy sounds ${voiceAttributes.slice(0, 2).join(" and ").toLowerCase()}—aligned with the ${archetype} archetype you committed to in the workbook.`,
+      `The CTA matches funnel intent (learn / compare / decide) and points to a next step related to ${firstPriority.toLowerCase()} where that channel fits.`,
+      `The asset states one measurable signal buyers can track (timeline, lift, risk removed) for ${primaryPillar.toLowerCase()}—not vibes-only language.`,
     ],
     visualDo: [
-      "Use clear headline hierarchy with generous whitespace.",
-      "Place proof blocks near decision CTAs.",
-      "Keep color usage role-based (anchor, action, support).",
+      `Lead key blocks with clear hierarchy and breathing room so ${businessName} reads credible in ${industry.toLowerCase()}—headline, proof, then action.`,
+      `Place proof modules beside the decision CTA (${accentName} ${accentHex} buttons), not five screens below generic body copy.`,
+      `Keep color roles disciplined: ${authorityHex} for authority headlines, ${accentHex} for interactive emphasis—decoration never competes with ${topStrength.toLowerCase()} proof.`,
     ],
     visualDont: [
-      "Do not use decorative visuals that compete with strategic content.",
-      "Do not bury evidence below long generic body copy.",
-      "Do not mix multiple CTA intents in one hero block.",
+      `Avoid decorative stock scenes that fight the story while ${topGap.toLowerCase()} is still what ${audienceShort} worry about.`,
+      `Don’t bury evidence under long intros—if someone skims, they should still see why ${businessName} before they bounce.`,
+      `Don’t stack competing asks (“book,” “download,” “reply”) in one hero; one intent per block, mapped to ${firstPriority.toLowerCase()} or a single funnel stage.`,
     ],
   };
   const standardsDocPlans: StandardsDocPlan[] = [
@@ -538,13 +684,122 @@ export default function BrandStandardsTab({
           </p>
         ) : null}
         <p className="bs-body-sm text-brand-muted max-w-[780px] m-0 leading-relaxed">
-          These standards keep {businessName} consistent across teams, channels, and campaign types.
-          Use this tab as your publishing QA checkpoint before anything goes live.
+          These standards keep {businessName} consistent across teams, channels, and campaign types—grounded in your diagnostic,
+          not generic marketing rules. Start with the <strong className="text-brand-navy">Brand snapshot</strong>, then use
+          each section as a QA checkpoint before anything goes live.
         </p>
         <p className="bs-small text-brand-muted max-w-[780px] mt-2 mb-0">
           Included in your downloads for this tier are shown below.
         </p>
       </div>
+
+      <section id="standards-brand-context" style={SECTION_SHELL}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 8 }}>
+          <SectionGlyph token="positioning" size={20} color={BLUE} />
+          <div>
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.04em" }}>Brand snapshot</p>
+            <p style={{ margin: "4px 0 0", fontSize: 13, color: MID_GRAY, lineHeight: 1.55, maxWidth: 720 }}>
+              Shared context for {businessName}: who you serve, what you are doubling down on, and what you are fixing next.
+              The checklists and examples below plug into this spine so the tab reads like your playbook—not only do/don&apos;t
+              lists.
+            </p>
+          </div>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10 }}>
+          <div style={{ ...INNER_CARD, padding: "12px 14px" }}>
+            <p
+              style={{
+                margin: 0,
+                fontSize: 11,
+                fontWeight: 800,
+                letterSpacing: "0.08em",
+                color: MID_GRAY,
+                textTransform: "uppercase",
+              }}
+            >
+              Who you serve
+            </p>
+            <p style={{ margin: "8px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.55 }}>
+              <strong style={{ color: NAVY }}>{businessName}</strong> in <strong style={{ color: NAVY }}>{industry}</strong>.
+              Primary audience: {audience}
+            </p>
+          </div>
+          <div style={{ ...INNER_CARD, padding: "12px 14px" }}>
+            <p
+              style={{
+                margin: 0,
+                fontSize: 11,
+                fontWeight: 800,
+                letterSpacing: "0.08em",
+                color: MID_GRAY,
+                textTransform: "uppercase",
+              }}
+            >
+              Strategic spine
+            </p>
+            <p style={{ margin: "8px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.55 }}>
+              Lead pillar: <strong style={{ color: NAVY }}>{primaryPillar}</strong>. Archetype:{" "}
+              <strong style={{ color: NAVY }}>{archetype}</strong> with {voiceAttributes.join(", ").toLowerCase()} delivery.
+              Lean into <strong style={{ color: NAVY }}>{topStrength.toLowerCase()}</strong>; close the gap on{" "}
+              <strong style={{ color: NAVY }}>{topGap.toLowerCase()}</strong>.
+            </p>
+          </div>
+          <div style={{ ...INNER_CARD, padding: "12px 14px" }}>
+            <p
+              style={{
+                margin: 0,
+                fontSize: 11,
+                fontWeight: 800,
+                letterSpacing: "0.08em",
+                color: MID_GRAY,
+                textTransform: "uppercase",
+              }}
+            >
+              Execution focus
+            </p>
+            {strategicPriorities.length > 0 ? (
+              <ul
+                className="strategy-suite-ul"
+                style={{ margin: "8px 0 0", paddingLeft: 18, color: BODY_TEXT, fontSize: 13, lineHeight: 1.55 }}
+              >
+                {strategicPriorities.map((p, i) => (
+                  <li key={`brand-snap-p-${i}`}>
+                    <strong style={{ color: NAVY }}>{p.title}</strong>
+                    {p.pillar ? <span style={{ color: MID_GRAY }}> — {p.pillar}</span> : null}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p style={{ margin: "8px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.55 }}>{prioritySnippet}</p>
+            )}
+          </div>
+        </div>
+        {positioningSnippet ? (
+          <div
+            style={{
+              marginTop: 12,
+              ...INNER_CARD,
+              padding: "12px 14px",
+              borderLeft: `3px solid ${BLUE}`,
+              background: "#FCFDFF",
+            }}
+          >
+            <p
+              style={{
+                margin: 0,
+                fontSize: 11,
+                fontWeight: 800,
+                letterSpacing: "0.08em",
+                color: MID_GRAY,
+                textTransform: "uppercase",
+              }}
+            >
+              Positioning line (from your workbook)
+            </p>
+            <p style={{ margin: "8px 0 0", fontSize: 14, color: NAVY, lineHeight: 1.55, fontWeight: 600 }}>{positioningSnippet}</p>
+          </div>
+        ) : null}
+      </section>
 
       <section id="standards-document-framework" style={SECTION_SHELL}>
         <div style={{ marginBottom: 10 }}>
@@ -598,7 +853,7 @@ export default function BrandStandardsTab({
               </p>
             </div>
             <p style={{ margin: "2px 0 0", fontSize: 13, color: MID_GRAY }}>
-              Archetype-aligned tone rules with do/don&apos;t phrasing.
+              Before/after lines use your audience, pillar, and priorities—then the enforcement card shows how to apply them.
             </p>
           </div>
           <button type="button" onClick={() => onEditInWorkbook("voice-attributes")} style={EDIT_IN_WORKBOOK_BTN}>
@@ -607,6 +862,11 @@ export default function BrandStandardsTab({
         </div>
         <p style={{ margin: 0, fontSize: 14, color: BODY_TEXT, lineHeight: 1.6 }}>
           Primary archetype: <strong>{archetype}</strong>. Audience context: {audience}
+        </p>
+        <p style={{ margin: "10px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.6, maxWidth: 720 }}>
+          For {businessName}, “on brand” means proof-backed lines that sound {voiceAttributes.join(", ").toLowerCase()}—not a
+          generic {industry.toLowerCase()} voice. The examples are written as if they were drafted for your next campaign, then
+          corrected.
         </p>
         <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 10 }}>
           <ExampleCard
@@ -628,8 +888,9 @@ export default function BrandStandardsTab({
         />
         <div style={{ marginTop: 10 }}>
           <ReportCallout label="Advanced Voice Controls" accentColor={BLUE}>
-            Require a voice QA pass on organic posts, paid ads, and nurture emails. Any line that cannot be tied to proof,
-            priority, or audience insight should be rewritten.
+            Require a voice QA pass on {businessName} organic posts, paid ads, and nurture emails. Any line that cannot be tied
+            to proof, {primaryPillar.toLowerCase()} strategy, or a concrete buyer insight from {audienceShort} should be
+            rewritten before publish.
           </ReportCallout>
         </div>
       </section>
@@ -644,7 +905,7 @@ export default function BrandStandardsTab({
               </p>
             </div>
             <p style={{ margin: "2px 0 0", fontSize: 13, color: MID_GRAY }}>
-              Approved claim format, proof expectations, and next-step wording.
+              Claim ladder and CTAs tailored to {businessName}—plus a worked example using your pillar and proof.
             </p>
           </div>
           <button type="button" onClick={() => onEditInWorkbook("messaging-framework")} style={EDIT_IN_WORKBOOK_BTN}>
@@ -672,6 +933,25 @@ export default function BrandStandardsTab({
             </p>
           </div>
         </div>
+        <div
+          style={{
+            marginTop: 12,
+            padding: "12px 14px",
+            borderRadius: 5,
+            border: `1px solid ${BORDER}`,
+            background: "linear-gradient(135deg, #FFFFFF 0%, #F6FAFF 100%)",
+            borderLeft: `3px solid ${BLUE}`,
+          }}
+        >
+          <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>In practice for {businessName}</p>
+          <p style={{ margin: "8px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.6 }}>
+            A prospect in {industry.toLowerCase()} compares you on {topGap.toLowerCase()}. Your page or deck should open with the
+            claim formula, show one proof point tied to {topStrength.toLowerCase()}, then invite{" "}
+            <strong style={{ color: NAVY }}>{audienceShort}</strong> to take a single step aligned with{" "}
+            {firstPriority.toLowerCase()}—for example the CTAs on the left, not a generic &quot;Learn more&quot; with no proof
+            path.
+          </p>
+        </div>
         <PersonalizedGuidanceCard
           title="Messaging QA"
           doText="Before you publish, check: claim, proof, outcome, then one clear next step."
@@ -680,24 +960,98 @@ export default function BrandStandardsTab({
         />
         <div
           style={{
-            marginTop: 10,
-            padding: "12px 14px",
-            borderRadius: 5,
-            background: `${BLUE}08`,
+            marginTop: 14,
+            borderRadius: 8,
+            overflow: "hidden",
             border: `1px solid ${BORDER}`,
-            borderLeft: `3px solid ${BLUE}`,
+            borderLeft: `4px solid ${BLUE}`,
+            background: "linear-gradient(165deg, #F5FAFF 0%, #FFFFFF 42%, #FFFFFF 100%)",
+            boxShadow: "0 2px 18px rgba(2, 24, 89, 0.06)",
           }}
         >
-          <p style={{ margin: "0 0 8px", fontSize: 14, fontWeight: 800, color: NAVY, letterSpacing: "0.03em" }}>
-            Publishing QA Checklist
-          </p>
-          <div style={{ display: "grid", gap: 6 }}>
-            {standardsDepth.publishingChecklist.map((item, index) => (
-              <p key={`msg-check-${index}`} style={{ margin: 0, fontSize: 13, color: BODY_TEXT, lineHeight: 1.5 }}>
-                {index + 1}. {item}
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "flex-start",
+              gap: 12,
+              padding: "14px 16px 12px",
+              borderBottom: `1px solid ${BORDER}`,
+              background: "rgba(255,255,255,0.65)",
+            }}
+          >
+            <SectionGlyph token="checklist" size={22} color={BLUE} />
+            <div style={{ flex: "1 1 200px", minWidth: 0 }}>
+              <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY, letterSpacing: "0.03em" }}>
+                Publishing QA checklist
               </p>
-            ))}
+              <p style={{ margin: "4px 0 0", fontSize: 12, color: MID_GRAY, lineHeight: 1.5, maxWidth: 520 }}>
+                {standardsDepth.publishingChecklist.length} pass/fail checks before anything goes live—covering claim, proof,
+                voice, CTA intent, and measurable signals.
+              </p>
+            </div>
+            <span
+              style={{
+                alignSelf: "center",
+                padding: "4px 10px",
+                borderRadius: 999,
+                fontSize: 10,
+                fontWeight: 800,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: "#024E70",
+                background: `${BLUE}18`,
+                fontFamily: FONT_STACK,
+                whiteSpace: "nowrap",
+              }}
+            >
+              Pre-publish
+            </span>
           </div>
+          <ul
+            role="list"
+            style={{
+              listStyle: "none",
+              margin: 0,
+              padding: 0,
+              fontFamily: FONT_STACK,
+            }}
+          >
+            {standardsDepth.publishingChecklist.map((item, index) => (
+              <li
+                key={`msg-check-${index}`}
+                className="transition-colors hover:bg-slate-50/90"
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 14,
+                  padding: "12px 16px",
+                  borderBottom: index < standardsDepth.publishingChecklist.length - 1 ? `1px solid ${BORDER}` : undefined,
+                }}
+              >
+                <span
+                  aria-hidden
+                  style={{
+                    flexShrink: 0,
+                    width: 30,
+                    height: 30,
+                    borderRadius: 8,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 12,
+                    fontWeight: 800,
+                    color: NAVY,
+                    background: `${BLUE}14`,
+                    boxShadow: `inset 0 0 0 1px ${BLUE}33`,
+                  }}
+                >
+                  {index + 1}
+                </span>
+                <p style={{ margin: 0, paddingTop: 4, fontSize: 13, color: BODY_TEXT, lineHeight: 1.55 }}>{item}</p>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
@@ -711,7 +1065,7 @@ export default function BrandStandardsTab({
               </p>
             </div>
             <p style={{ margin: "2px 0 0", fontSize: 13, color: MID_GRAY }}>
-              Practical examples for color, hierarchy, and composition.
+              Palette, type, and layout cues for {businessName}, with do/don&apos;t rows tied to your pillar and proof story.
             </p>
           </div>
           <button type="button" onClick={() => onEditInWorkbook("channel-notes")} style={EDIT_IN_WORKBOOK_BTN}>
@@ -773,7 +1127,7 @@ export default function BrandStandardsTab({
             }}
           >
             <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: SEMANTIC_DO.label, letterSpacing: "0.03em" }}>
-              Visual do
+              Visual do ({businessName})
             </p>
             <div style={{ display: "grid", gap: 5, marginTop: 6 }}>
               {standardsDepth.visualDo.map((item, index) => (
@@ -792,7 +1146,7 @@ export default function BrandStandardsTab({
             }}
           >
             <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: SEMANTIC_DONT.label, letterSpacing: "0.03em" }}>
-              Visual don&apos;t
+              Visual don&apos;t ({businessName})
             </p>
             <div style={{ display: "grid", gap: 5, marginTop: 6 }}>
               {standardsDepth.visualDont.map((item, index) => (
@@ -809,14 +1163,15 @@ export default function BrandStandardsTab({
         <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.04em" }}>
           Channel do / don&apos;t matrix
         </p>
-        <p style={{ margin: "6px 0 10px", fontSize: 13, color: MID_GRAY }}>
-          User-specific standards for execution consistency across channels.
+        <p style={{ margin: "6px 0 10px", fontSize: 13, color: MID_GRAY, lineHeight: 1.55, maxWidth: 720 }}>
+          How {businessName} should show up by channel in {industry.toLowerCase()}: each row pairs your plan (or a default tied
+          to {primaryPillar.toLowerCase()}) with a concrete example—not abstract channel tips.
         </p>
         <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 10 }}>
           <PersonalizedGuidanceCard
             title="Email"
             doText={emailPlan || `Lead with one insight and one next action tied to ${firstPriority.toLowerCase()}.`}
-            dontText="Pack several offers into one email or hide the main action under long filler."
+            dontText={`Send one ${businessName} email with multiple competing offers, or bury the CTA under filler that does not reference ${topGap.toLowerCase()}.`}
             example={`${businessName} email next step: “Review your ${primaryPillar} rollout plan” after one short proof story.`}
           />
           <PersonalizedGuidanceCard
@@ -825,13 +1180,13 @@ export default function BrandStandardsTab({
               seoAeoPlan ||
               `Answer high-intent ${industry.toLowerCase()} questions with proof in the right place and one clear next step.`
             }
-            dontText="Publish early-stage fluff with no path to contact you or see evidence."
+            dontText={`Publish thin ${industry.toLowerCase()} content with no way to verify ${businessName} or move to a real next step.`}
             example={`${businessName} search pages: one buyer goal per page and one path to convert.`}
           />
           <PersonalizedGuidanceCard
             title="Thought leadership / social"
             doText={socialPlan || `Use recurring POV themes tied to ${firstPriority.toLowerCase()} and ${secondPriority.toLowerCase()}.`}
-            dontText="Post hot takes that do not tie back to how you help buyers."
+            dontText={`Post opinions that never connect to how ${businessName} helps ${audienceShort} with ${topGap.toLowerCase()}.`}
             example={`${businessName} weekly format: sharp insight, proof, practical step, one next step to engage.`}
           />
         </div>
@@ -859,11 +1214,9 @@ export default function BrandStandardsTab({
                 "Compose with clear focal subject + negative space for overlays. Use role-based color accents from your palette and maintain consistent contrast. Avoid over-saturated filters, heavy vignettes, and gimmick effects."}
             </p>
             {stockLines.length > 0 ? (
-              <ul style={{ margin: "8px 0 0", paddingLeft: 18, color: BODY_TEXT, fontSize: 13, lineHeight: 1.55 }}>
+              <ul className="strategy-suite-ul" style={{ margin: "8px 0 0", color: BODY_TEXT, fontSize: 13, lineHeight: 1.55 }}>
                 {stockLines.map((line, li) => (
-                  <li key={`stock-${li}`} style={{ marginBottom: 4 }}>
-                    {line}
-                  </li>
+                  <li key={`stock-${li}`}>{line}</li>
                 ))}
               </ul>
             ) : null}
@@ -881,11 +1234,9 @@ export default function BrandStandardsTab({
                 Show / Emphasize
               </p>
               {subjectShow.length > 0 ? (
-                <ul style={{ margin: "5px 0 0", paddingLeft: 18, color: SEMANTIC_DO.text, fontSize: 13, lineHeight: 1.5 }}>
+                <ul className="strategy-suite-ul" style={{ margin: "5px 0 0", color: SEMANTIC_DO.text, fontSize: 13, lineHeight: 1.5 }}>
                   {subjectShow.map((item) => (
-                    <li key={item} style={{ marginBottom: 4 }}>
-                      {item}
-                    </li>
+                    <li key={item}>{item}</li>
                   ))}
                 </ul>
               ) : (
@@ -906,11 +1257,9 @@ export default function BrandStandardsTab({
                 De-emphasize / Avoid
               </p>
               {subjectAvoid.length > 0 ? (
-                <ul style={{ margin: "5px 0 0", paddingLeft: 18, color: SEMANTIC_DONT.text, fontSize: 13, lineHeight: 1.5 }}>
+                <ul className="strategy-suite-ul" style={{ margin: "5px 0 0", color: SEMANTIC_DONT.text, fontSize: 13, lineHeight: 1.5 }}>
                   {subjectAvoid.map((item) => (
-                    <li key={item} style={{ marginBottom: 4 }}>
-                      {item}
-                    </li>
+                    <li key={item}>{item}</li>
                   ))}
                 </ul>
               ) : (
@@ -991,11 +1340,9 @@ export default function BrandStandardsTab({
             {reportLogoPlacement.length > 0 ? (
               <div style={{ ...INNER_CARD, padding: "12px 14px" }}>
                 <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Placement</p>
-                <ul style={{ margin: "6px 0 0", paddingLeft: 18, color: BODY_TEXT, fontSize: 13, lineHeight: 1.55 }}>
+                <ul className="strategy-suite-ul" style={{ margin: "6px 0 0", color: BODY_TEXT, fontSize: 13, lineHeight: 1.55 }}>
                   {reportLogoPlacement.map((rule) => (
-                    <li key={rule} style={{ marginBottom: 4 }}>
-                      {rule}
-                    </li>
+                    <li key={rule}>{rule}</li>
                   ))}
                 </ul>
               </div>
@@ -1012,11 +1359,9 @@ export default function BrandStandardsTab({
                 <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: SEMANTIC_DONT.label, letterSpacing: "0.03em" }}>
                   Misuse to avoid
                 </p>
-                <ul style={{ margin: "6px 0 0", paddingLeft: 18, color: SEMANTIC_DONT.text, fontSize: 13, lineHeight: 1.5 }}>
+                <ul className="strategy-suite-ul" style={{ margin: "6px 0 0", color: SEMANTIC_DONT.text, fontSize: 13, lineHeight: 1.5 }}>
                   {reportLogoIncorrect.map((item) => (
-                    <li key={item} style={{ marginBottom: 4 }}>
-                      {item}
-                    </li>
+                    <li key={item}>{item}</li>
                   ))}
                 </ul>
               </div>
@@ -1076,46 +1421,112 @@ export default function BrandStandardsTab({
       </section>
 
       <section id="standards-implementation" style={SECTION_SHELL}>
-        <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.04em" }}>
-          Implementation examples
-        </p>
-        <p style={{ margin: "6px 0 10px", fontSize: 13, color: MID_GRAY }}>
-          Specific ways to apply voice, messaging, and visual standards in daily execution.
-        </p>
-
-        <div style={{ display: "grid", gap: 10 }}>
-          <div style={{ ...INNER_CARD, padding: "12px 14px" }}>
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Example 1: paid / organic social refresh</p>
-            <p style={{ margin: "6px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.55 }}>
-              <strong>Voice:</strong> confident + practical, no vague claims. <strong>Messaging:</strong> one pillar-led promise + one proof + one CTA.
-              <br />
-              <strong>Suggested structure:</strong> Hook line, one-sentence value statement, one proof strip (client outcome), one CTA.
-              <br />
-              <strong>Applied copy for {businessName}:</strong> “{businessName} helps {audienceShort} fix {topGap.toLowerCase()} and scale {topStrength.toLowerCase()} with a clear 90-day activation system.”
+        <div className="flex flex-wrap items-start gap-3">
+          <SectionGlyph token="roadmap" size={22} color={BLUE} />
+          <div className="min-w-0 flex-1">
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.04em" }}>
+              Implementation examples
+            </p>
+            <p style={{ margin: "6px 0 0", fontSize: 13, color: MID_GRAY, lineHeight: 1.55 }}>
+              Specific ways to apply voice, messaging, and visual standards in daily execution. Sample lines use the Lato roles
+              in <strong style={{ color: NAVY }}>Typography standards</strong> (headline, subhead, body, meta, CTA)—scaled to fit
+              these cards.
             </p>
           </div>
+        </div>
 
-          <div style={{ ...INNER_CARD, padding: "12px 14px" }}>
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Example 2: Thought leadership post template</p>
-            <p style={{ margin: "6px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.55 }}>
-              <strong>Voice:</strong> insight-first, no hype. <strong>Messaging:</strong> contrarian insight - evidence - practical move - CTA.
-              <br />
-              <strong>Visual direction:</strong> use one branded card visual with headline + one metric; avoid stock-heavy collage style.
-              <br />
-              <strong>Execution cadence:</strong> 1 post/week tied to {firstPriority.toLowerCase()} and 1 post/week tied to {secondPriority.toLowerCase()}.
-            </p>
-          </div>
-
-          <div style={{ ...INNER_CARD, padding: "12px 14px" }}>
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Example 3: Sales follow-up email standard</p>
-            <p style={{ margin: "6px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.55 }}>
-              <strong>Voice:</strong> direct and supportive. <strong>Messaging:</strong> recap diagnostic insight + one recommended next step.
-              <br />
-              <strong>Format:</strong> 4 short paragraphs max; one CTA only; include one proof reference.
-              <br />
-              <strong>Sample CTA:</strong> “Review your {primaryPillar} rollout plan”.
-            </p>
-          </div>
+        <div className="mt-5 grid gap-4 lg:grid-cols-3">
+          <ImplementationExampleCard
+            index={1}
+            glyphToken="paid"
+            eyebrow="Paid / organic social"
+            title="Social refresh"
+            blocks={[
+              {
+                specTitle: "Headline (H1 / H2)",
+                role: "headline",
+                content: `Fix ${topGap.toLowerCase()}. Scale ${topStrength.toLowerCase()}.`,
+              },
+              {
+                specTitle: "Subhead (H3 / section lead)",
+                role: "subhead",
+                content: `${businessName} for ${audienceShort}`,
+              },
+              {
+                specTitle: "Body copy",
+                role: "body",
+                content: (
+                  <>
+                    <p style={{ margin: "0 0 10px" }}>
+                      Voice: confident and practical, with no vague claims. Messaging: one pillar-led promise, one proof point,
+                      one CTA. Structure: hook line, one-sentence value statement, one proof strip (client outcome), one CTA.
+                    </p>
+                    <p style={{ margin: 0 }}>
+                      {`${businessName} helps ${audienceShort} fix ${topGap.toLowerCase()} and scale ${topStrength.toLowerCase()} with a clear 90-day activation system.`}
+                    </p>
+                  </>
+                ),
+              },
+              {
+                specTitle: "CTA buttons",
+                role: "cta",
+                content: "See your 90-day activation plan",
+              },
+            ]}
+          />
+          <ImplementationExampleCard
+            index={2}
+            glyphToken="thought"
+            eyebrow="Thought leadership"
+            title="Post template"
+            blocks={[
+              {
+                specTitle: "Headline (H1 / H2)",
+                role: "headline",
+                content: "The budget isn’t the bottleneck—clarity is.",
+              },
+              {
+                specTitle: "Subhead (H3 / section lead)",
+                role: "subhead",
+                content: "Contrarian insight → evidence → practical move → CTA.",
+              },
+              {
+                specTitle: "Body copy",
+                role: "body",
+                content:
+                  "Voice: insight-first, no hype. Visual: one branded card with headline and one metric; avoid stock-heavy collage style.",
+              },
+              {
+                specTitle: "Meta / captions / labels",
+                role: "metaCaption",
+                content: `Execution cadence: 1 post/week tied to ${firstPriority.toLowerCase()} and 1 post/week tied to ${secondPriority.toLowerCase()}.`,
+              },
+            ]}
+          />
+          <ImplementationExampleCard
+            index={3}
+            glyphToken="email"
+            eyebrow="Sales follow-up"
+            title="Email standard"
+            blocks={[
+              {
+                specTitle: "Subhead (H3 / section lead)",
+                role: "subhead",
+                content: `Re: Your ${primaryPillar} rollout — recommended next step`,
+              },
+              {
+                specTitle: "Body copy",
+                role: "body",
+                content:
+                  "Voice: direct and supportive. Recap the diagnostic insight, add one proof reference, and recommend a single next move. Keep to four short paragraphs max with one CTA only.",
+              },
+              {
+                specTitle: "CTA buttons",
+                role: "cta",
+                content: `Review your ${primaryPillar} rollout plan`,
+              },
+            ]}
+          />
         </div>
       </section>
 
@@ -1214,11 +1625,9 @@ export default function BrandStandardsTab({
             {subjectShow.length > 0 ? (
               <>
                 <p style={{ margin: "10px 0 0", fontSize: 12, fontWeight: 800, color: NAVY }}>Favor these subjects and settings</p>
-                <ul style={{ margin: "6px 0 0", paddingLeft: 18, fontSize: 13, color: BODY_TEXT, lineHeight: 1.5 }}>
+                <ul className="strategy-suite-ul" style={{ margin: "6px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.5 }}>
                   {subjectShow.slice(0, 8).map((item) => (
-                    <li key={item} style={{ marginBottom: 4 }}>
-                      {item}
-                    </li>
+                    <li key={item}>{item}</li>
                   ))}
                 </ul>
               </>
@@ -1231,38 +1640,8 @@ export default function BrandStandardsTab({
           </div>
         ) : null}
         {moodDesc ? (
-          <div style={{ ...INNER_CARD, padding: "12px 14px", marginBottom: 12 }}>
-            <MoodTagRow label="Mood keywords" items={moodDesc.adjectives} />
-            <MoodTagRow label="Textures" items={moodDesc.textures} />
-            <MoodTagRow label="Environments" items={moodDesc.environments} />
-            {moodDesc.lighting_conditions ? (
-              <div style={{ marginTop: 10 }}>
-                <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Lighting</p>
-                <p style={{ margin: "4px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.55 }}>{moodDesc.lighting_conditions}</p>
-              </div>
-            ) : null}
-            {moodDesc.color_moods ? (
-              <div style={{ marginTop: 10 }}>
-                <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Color mood</p>
-                <p style={{ margin: "4px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.55 }}>{moodDesc.color_moods}</p>
-              </div>
-            ) : null}
-            {moodDesc.designer_note ? (
-              <div
-                style={{
-                  marginTop: 12,
-                  padding: "10px 12px",
-                  borderRadius: 5,
-                  background: `${BLUE}0D`,
-                  borderLeft: `3px solid ${BLUE}`,
-                }}
-              >
-                <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Designer brief</p>
-                <p style={{ margin: "4px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.55, fontStyle: "italic" }}>
-                  {moodDesc.designer_note}
-                </p>
-              </div>
-            ) : null}
+          <div style={{ marginBottom: 12 }}>
+            <MoodOutputsGraphic moodDesc={moodDesc} />
           </div>
         ) : null}
         {moodBoardSamples.length > 0 ? (

@@ -40,7 +40,7 @@ export const WORKBOOK_SECTIONS: WorkbookSection[] = [
     id: "strategic-offer-context",
     label: "Strategic offer & portfolio",
     description:
-      "What you sell (product, service, or program), the buyer job it serves, scope boundaries, and how channels should reinforce the same offer—Blueprint methodology slice for GTM and Activation.",
+      "What you sell (product, service, or program), the buyer job it serves, scope boundaries, and how channels should reinforce the same offer—Blueprint methodology slice for go-to-market (GTM) and Activation.",
     placeholder:
       "Primary offer name and one-line pitch. Job statement (When…, I want to…, so I can…). Pains relieved, outcomes, in-scope vs out-of-scope, leading signals to review, and channel alignment notes.",
     pillar: "Positioning",
@@ -95,17 +95,17 @@ export const WORKBOOK_SECTIONS: WorkbookSection[] = [
     inputTemplate:
       "Persona: VP Marketing - Series B SaaS\n" +
       "Role: Economic buyer\n" +
-      "Primary JTBD: Build predictable pipeline without rising CAC\n" +
+      "Primary job to be done (JTBD): Build predictable pipeline without rising customer acquisition cost (CAC)\n" +
       "Core Frustration: Channel efforts are fragmented and hard to attribute\n" +
       "Primary Motivation: Hit growth targets with clearer performance visibility\n" +
       "Key Objections: Implementation risk, internal bandwidth, unclear ROI timeline\n" +
       "Preferred Channels: LinkedIn, Search, Email\n" +
       "Messaging Angle: Evidence-backed roadmap that aligns strategy and execution\n" +
       "Sample Headline: Reduce channel waste and improve qualified pipeline in 90 days\n" +
-      "Sample CTA: Review my priority rollout plan\n\n" +
+      "Sample call to action (CTA): Review my priority rollout plan\n\n" +
       "Persona: Head of Demand Gen - Mid-Market B2B\n" +
       "Role: Champion\n" +
-      "Primary JTBD: Increase conversion from existing traffic and campaigns\n" +
+      "Primary job to be done (JTBD): Increase conversion from existing traffic and campaigns\n" +
       "Core Frustration: Strong content output but weak mid-funnel conversion\n" +
       "Primary Motivation: Improve lead quality and campaign efficiency\n" +
       "Key Objections: Lack of proof assets, unclear sequencing, team misalignment\n" +
@@ -119,7 +119,7 @@ export const WORKBOOK_SECTIONS: WorkbookSection[] = [
     description:
       "Stage-by-stage map of buyer questions, touchpoints, proof assets, and conversion triggers.",
     placeholder:
-      "Document journey stages (awareness to decision), buyer questions, objections, touchpoints, content assets, and stage-exit CTAs.",
+      "Document journey stages (awareness to decision), buyer questions, objections, touchpoints, content assets, and stage-exit calls to action (CTAs).",
     inputTemplate:
       "Stage: Awareness\n" +
       "Primary Question: Is this a messaging problem or a channel execution problem?\n" +
@@ -128,7 +128,7 @@ export const WORKBOOK_SECTIONS: WorkbookSection[] = [
       "Touchpoints: LinkedIn post, thought-leadership article, webinar snippet\n" +
       "Content Types: Insight article, diagnostic checklist\n" +
       "Messaging Focus: Clarify the hidden cost of fragmented messaging\n" +
-      "Stage-Exit CTA: Run the brand diagnostic\n" +
+      "Stage-exit call to action (CTA): Run the brand diagnostic\n" +
       "Conversion Metric: Qualified diagnostic completions\n\n" +
       "Stage: Consideration\n" +
       "Primary Question: What approach will actually improve conversion quality?\n" +
@@ -137,7 +137,7 @@ export const WORKBOOK_SECTIONS: WorkbookSection[] = [
       "Touchpoints: Case study page, email nurture, comparison guide\n" +
       "Content Types: Case study, framework explainer\n" +
       "Messaging Focus: Show measurable outcomes with clear implementation steps\n" +
-      "Stage-Exit CTA: Review a sample 90-day plan\n" +
+      "Stage-exit call to action (CTA): Review a sample 90-day plan\n" +
       "Conversion Metric: Strategy call bookings",
     availableFrom: "blueprint",
   },
@@ -147,11 +147,11 @@ export const WORKBOOK_SECTIONS: WorkbookSection[] = [
     description:
       "Competitor positioning and your counter-positioning narrative for sales and marketing alignment.",
     placeholder:
-      "For each competitor include: their core claim, ICP overlap, strengths, weaknesses, where you win, and your displacement narrative.",
+      "For each competitor include: their core claim, ideal customer profile (ICP) overlap, strengths, weaknesses, where you win, and your displacement narrative.",
     inputTemplate:
       "Competitor: Competitor A\n" +
       "Their Headline Claim: AI-powered growth engine for modern teams\n" +
-      "Primary ICP Overlap: VP Marketing at B2B SaaS (50-500 employees)\n" +
+      "Primary ideal customer profile (ICP) overlap: VP Marketing at B2B SaaS (50-500 employees)\n" +
       "Strengths: Strong category visibility, polished outbound narrative\n" +
       "Weaknesses: Generic positioning, low implementation depth, weak proof specificity\n" +
       "Where We Win: More tailored strategic sequencing and stronger proof architecture\n" +
@@ -159,7 +159,7 @@ export const WORKBOOK_SECTIONS: WorkbookSection[] = [
       "Traps to Avoid: Avoid broad 'all-in-one' claims that mirror their messaging\n\n" +
       "Competitor: Competitor B\n" +
       "Their Headline Claim: Fast brand refresh for growth-stage teams\n" +
-      "Primary ICP Overlap: Founder-led teams preparing to scale GTM\n" +
+      "Primary ideal customer profile (ICP) overlap: Founder-led teams preparing to scale go-to-market (GTM)\n" +
       "Strengths: Speed and visual polish\n" +
       "Weaknesses: Limited depth in journey mapping and conversion systems\n" +
       "Where We Win: Better linkage between messaging, activation, and measurable outcomes\n" +
@@ -170,9 +170,9 @@ export const WORKBOOK_SECTIONS: WorkbookSection[] = [
     id: "icp-conversion-intelligence",
     label: "ICP Conversion Intelligence Framework",
     description:
-      "ICP-tier conversion mechanics that bridge Messaging Framework to channel activation execution.",
+      "Ideal customer profile (ICP) tier conversion mechanics that bridge Messaging Framework to channel activation execution.",
     placeholder:
-      "Capture ICP conversion profile, hook performance, channel mechanics, multi-touch sequence, content matrix, and behavioral triggers per ICP tier.",
+      "Capture ideal customer profile (ICP) conversion profile, hook performance, channel mechanics, multi-touch sequence, content matrix, and behavioral triggers per ICP tier.",
     inputTemplate:
       "ICP Tier: Primary ICP\n" +
       "Buying Cycle Length: 30-60 days\n" +
@@ -181,8 +181,8 @@ export const WORKBOOK_SECTIONS: WorkbookSection[] = [
       "Conversion Behavior Pattern: Consumes one authority asset + one proof asset before booking\n" +
       "Hook Types That Convert: Data-led insight, peer social proof, contrarian diagnosis\n" +
       "Hook Types To Avoid: Generic hype claims, abstract inspiration without proof\n" +
-      "Channel Mechanics: Email (120-220 words, one CTA); LinkedIn (insight+proof post); Search (answer-first page)\n" +
-      "Critical Touch: Case-study proof page view + CTA click\n" +
+      "Channel mechanics: Email (120-220 words, one call to action (CTA)); LinkedIn (insight+proof post); Search (answer-first page)\n" +
+      "Critical touch: Case-study proof page view + CTA click\n" +
       "Sales Handoff Trigger: Return visit to services/pricing within 7 days\n" +
       "Matrix Cell Ref: primary-icp:consideration:case-study-proof-page\n" +
       "Behavioral Signal -> Action: Case-study download -> trigger objection-aware nurture email\n\n" +

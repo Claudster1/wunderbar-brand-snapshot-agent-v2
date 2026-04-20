@@ -13,13 +13,51 @@ function slugPart(input: string, max = 40): string {
   return s || "section";
 }
 
+function stripLeadingRule(content: string): string {
+  return content.replace(/^---+(\s*\n)*/u, "").trim();
+}
+
+function parseMarkdownChunk(
+  chunk: string,
+  idx: number,
+  level: "h2" | "h3",
+): ActivationBodySection | null {
+  const trimmed = chunk.trim();
+  if (!trimmed) return null;
+  const lines = trimmed.split("\n");
+  const first = lines[0]?.trim() ?? "";
+  const re = level === "h2" ? /^##\s+(.+)$/ : /^###\s+(.+)$/;
+  const m = first.match(re);
+  const title = m ? m[1].trim() : idx === 0 ? "Overview" : `Section ${idx + 1}`;
+  const content = stripLeadingRule((m ? lines.slice(1) : lines).join("\n").trim());
+  return {
+    id: `ap-${level}-${idx}-${slugPart(title)}`,
+    title,
+    content,
+  };
+}
+
 /**
  * Splits long activation playbook prose into navigable sections.
- * Detects lines like `1) Title` or `2. Title` as section boundaries.
+ * Prefers Markdown `##` / `###` headings (email + channel playbooks), then numbered `1)` / `2.` boundaries.
  */
 export function splitActivationBodyIntoSections(body: string): ActivationBodySection[] {
   const trimmed = body.trim();
   if (!trimmed) return [];
+
+  const hasH2 = /(?:^|\n)##\s/m.test(trimmed);
+  if (hasH2) {
+    const parts = trimmed.split(/\n(?=##\s)/m).map((p) => p.trim()).filter(Boolean);
+    const out = parts.map((chunk, idx) => parseMarkdownChunk(chunk, idx, "h2")).filter((x): x is ActivationBodySection => x !== null);
+    if (out.length > 0) return out;
+  }
+
+  const hasH3 = /(?:^|\n)###\s/m.test(trimmed);
+  if (hasH3) {
+    const parts = trimmed.split(/\n(?=###\s)/m).map((p) => p.trim()).filter(Boolean);
+    const out = parts.map((chunk, idx) => parseMarkdownChunk(chunk, idx, "h3")).filter((x): x is ActivationBodySection => x !== null);
+    if (out.length > 0) return out;
+  }
 
   const parts = trimmed.split(/\n(?=\s*\d+[).]\s+)/);
   const out: ActivationBodySection[] = [];

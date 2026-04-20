@@ -17,7 +17,7 @@ export function WhatWeUsed({ contextCoverage }: { contextCoverage: number }) {
         We analyzed:
       </p>
 
-      <ul className="list-disc pl-5 text-sm text-slate-700">
+      <ul className="strategy-suite-ul text-sm text-slate-700">
         <li>Your positioning and offer clarity</li>
         <li>Your messaging consistency and tone</li>
         <li>Your visibility across web and/or social channels</li>

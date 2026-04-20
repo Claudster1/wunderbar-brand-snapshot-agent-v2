@@ -37,7 +37,7 @@ export default function StartSnapshotModal({ isOpen, onClose }: StartSnapshotMod
 
         {/* VALUE LIST */}
         <div className="bg-brand-gray/60 rounded-lg p-4 border border-brand-border">
-          <ul className="list-disc pl-5 space-y-1 text-[15px] text-brand-midnight">
+          <ul className="strategy-suite-ul text-[15px] text-brand-midnight">
             <li>5-pillar brand clarity analysis</li>
             <li>WunderBrand Score™ (your overall market-readiness rating)</li>
             <li>Instant insights once completed</li>

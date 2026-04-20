@@ -44,12 +44,9 @@ export function SnapshotSummary({
           <h2 className="text-lg font-semibold text-brand-navy mb-4">
             Recommended Next Steps
           </h2>
-          <ul className="space-y-2">
+          <ul className="strategy-suite-ul text-slate-700">
             {recommendations.map((rec, i) => (
-              <li key={i} className="flex items-start">
-                <span className="text-brand-blue mr-2">•</span>
-                <span className="text-slate-700">{rec}</span>
-              </li>
+              <li key={i}>{rec}</li>
             ))}
           </ul>
         </div>

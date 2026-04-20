@@ -236,7 +236,7 @@ export function buildStrategyNavMenuItems(
         const label = [archetype, secondaryArchetypeNav].filter(Boolean).join(" + ");
         const named = label ? `Your suite labels this pattern as ${label}. ` : "";
         return (
-          `${named}For GTM and Activation, treat archetype and voice as fixed inputs: briefs should say “stay on the Foundation definition,” not reinterpret the archetype per channel.\n\n` +
+          `${named}For go-to-market (GTM) and Activation, treat archetype and voice as fixed inputs: briefs should say “stay on the Foundation definition,” not reinterpret the archetype per channel.\n\n` +
           `Open Foundation → Voice & Expression for the canonical copy, primary/secondary behavior, and channel-specific voice examples—then use “Applying this topic” on Strategy for planning checks only.`
         );
       })(),
@@ -246,7 +246,7 @@ export function buildStrategyNavMenuItems(
       id: "icp-personas",
       label: "Audience Profiles",
       summary:
-        "Snapshot answers plus ICP depth from your deliverable—segments, pains, objections, and transition plan when present.",
+        "Snapshot answers plus ideal customer profile (ICP) depth from your deliverable—segments, pains, objections, and transition plan when present.",
       body: buildAudienceProfilesBody({
         companyName,
         industry,

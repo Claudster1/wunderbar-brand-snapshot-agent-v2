@@ -6,12 +6,14 @@ import { Document, Page, Text, View, Image, StyleSheet } from "@react-pdf/render
 import { pdfTheme } from "../theme";
 import { DisclaimerPage } from "../components/DisclaimerPage";
 import { SectionDividerPage } from "../components/SectionDividerPage";
+import { PdfHeader } from "../components/PdfHeader";
 import type { BlueprintEngineOutput } from "../types/blueprintReport";
+import { parseHexAccent } from "@/src/pdf/lib/promptPackDisplay";
+import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
 
-const LOGO_URL = "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp";
 
 const s = StyleSheet.create({
-  page: { padding: 42, paddingBottom: 66, fontFamily: "Helvetica", fontSize: 10, color: "#2D3A4A", lineHeight: 1.6 },
+  page: { padding: 48, paddingBottom: 92, fontFamily: "Helvetica", fontSize: 10, color: "#2D3A4A", lineHeight: 1.6 },
   cover: { padding: 42, fontFamily: "Helvetica", justifyContent: "center", alignItems: "center", backgroundColor: pdfTheme.colors.navy },
   logo: { width: 100, marginBottom: 30, opacity: 0.9 },
   coverTitle: { fontSize: 26, fontWeight: "bold", color: "#FFFFFF", textAlign: "center", marginBottom: 6 },
@@ -33,7 +35,7 @@ const s = StyleSheet.create({
   tag: { backgroundColor: "#DBEAFE", borderRadius: 3, paddingHorizontal: 6, paddingVertical: 2, marginRight: 4, marginBottom: 3 },
   tagText: { fontSize: 8, color: pdfTheme.colors.blue, fontWeight: "bold" },
   tagsRow: { flexDirection: "row", flexWrap: "wrap", marginBottom: 4 },
-  footer: { position: "absolute", bottom: 18, left: 42, right: 42, flexDirection: "row", justifyContent: "space-between" },
+  footer: { position: "absolute", bottom: 22, left: 48, right: 48, flexDirection: "row", justifyContent: "space-between" },
   footerText: { fontSize: 7, color: "#9CA3AF" },
 });
 
@@ -46,6 +48,9 @@ function formatRef(ref?: BlueprintEngineOutput["emailMarketingFramework"]["conve
 
 export function DigitalStrategyDocument({ data, brandName }: Props) {
   const d = data;
+  const palette = d.visualDirection?.colorPalette as Array<{ hex?: string }> | undefined;
+  const brandAccent = parseHexAccent(Array.isArray(palette) ? palette.map((entry) => entry?.hex).find(Boolean) : undefined) || pdfTheme.colors.blue;
+  const printedDate = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
   const contentRef = d.contentCalendarFramework?.conversion_intelligence_reference;
   const emailRef = d.emailMarketingFramework?.conversion_intelligence_reference;
   const paidRef = d.paidMediaStrategy?.conversion_intelligence_reference;
@@ -65,10 +70,11 @@ export function DigitalStrategyDocument({ data, brandName }: Props) {
     <Document>
       <Page size="A4" style={s.cover}>
         {/* eslint-disable-next-line jsx-a11y/alt-text */}
-        <Image src={LOGO_URL} style={s.logo} />
+        <Image src={PDF_WUNDERBAR_LOGO_SRC} style={s.logo} />
         <Text style={s.coverTitle}>Digital Marketing Strategy</Text>
         <Text style={s.coverSub}>{brandName}</Text>
-        <Text style={{ ...s.coverMeta, marginTop: 26 }}>{new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</Text>
+        <View style={{ width: 76, height: 3, borderRadius: 999, backgroundColor: brandAccent, marginTop: 10, marginBottom: 16 }} />
+        <Text style={{ ...s.coverMeta, marginTop: 26 }}>{printedDate}</Text>
         <Text style={{ ...s.coverMeta, marginTop: 34, fontSize: 8 }}>From your WunderBrand Blueprint™</Text>
       </Page>
 
@@ -76,6 +82,7 @@ export function DigitalStrategyDocument({ data, brandName }: Props) {
         label="Section"
         title="Customer Journey"
         subtitle="Stage-by-stage journey, touchpoints, and messaging focus."
+        accentHex={brandAccent}
       />
 
       <Page size="A4" style={s.page} wrap>
@@ -83,6 +90,8 @@ export function DigitalStrategyDocument({ data, brandName }: Props) {
           <Text style={s.footerText}>Digital Marketing Strategy — {brandName}</Text>
           <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
         </View>
+
+        <PdfHeader title="Digital Marketing Strategy" businessName={brandName} date={printedDate} accentHex={brandAccent} />
 
         {/* Customer Journey */}
         <Text style={s.h1}>Customer Journey Map</Text>
@@ -115,6 +124,7 @@ export function DigitalStrategyDocument({ data, brandName }: Props) {
         label="Section"
         title="Search Strategy"
         subtitle="SEO priorities and AI answer engine readiness."
+        accentHex={brandAccent}
       />
 
       <Page size="A4" style={s.page} wrap>
@@ -122,6 +132,8 @@ export function DigitalStrategyDocument({ data, brandName }: Props) {
           <Text style={s.footerText}>Digital Marketing Strategy — {brandName}</Text>
           <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
         </View>
+
+        <PdfHeader title="Digital Marketing Strategy" businessName={brandName} date={printedDate} accentHex={brandAccent} />
 
         {/* SEO */}
         <Text style={s.h1}>SEO & Keyword Strategy</Text>
@@ -165,6 +177,7 @@ export function DigitalStrategyDocument({ data, brandName }: Props) {
         label="Section"
         title="Lifecycle Channels"
         subtitle="Email and social channel strategy for consistent execution."
+        accentHex={brandAccent}
       />
 
       <Page size="A4" style={s.page} wrap>
@@ -172,6 +185,8 @@ export function DigitalStrategyDocument({ data, brandName }: Props) {
           <Text style={s.footerText}>Digital Marketing Strategy — {brandName}</Text>
           <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
         </View>
+
+        <PdfHeader title="Digital Marketing Strategy" businessName={brandName} date={printedDate} accentHex={brandAccent} />
 
         {/* Email */}
         <Text style={s.h1}>Email Marketing Strategy</Text>
@@ -314,6 +329,7 @@ export function DigitalStrategyDocument({ data, brandName }: Props) {
         label="Section"
         title="Conversion Pathways"
         subtitle="Trust-building and CTA hierarchy designed to drive action."
+        accentHex={brandAccent}
       />
 
       <Page size="A4" style={s.page} wrap>
@@ -321,6 +337,8 @@ export function DigitalStrategyDocument({ data, brandName }: Props) {
           <Text style={s.footerText}>Digital Marketing Strategy — {brandName}</Text>
           <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
         </View>
+
+        <PdfHeader title="Digital Marketing Strategy" businessName={brandName} date={printedDate} accentHex={brandAccent} />
 
         {/* Conversion */}
         <Text style={s.h1}>Conversion Strategy</Text>

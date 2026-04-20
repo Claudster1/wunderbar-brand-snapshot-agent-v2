@@ -431,7 +431,7 @@ export default function AudienceSegmentsActivationPanel({
                     {good.length > 0 ? (
                       <div>
                         <p style={{ margin: "0 0 6px", fontSize: 12, fontWeight: 800, color: NAVY }}>Use</p>
-                        <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: "#334155", lineHeight: 1.5 }}>
+                        <ul className="strategy-suite-ul" style={{ margin: 0, fontSize: 13, color: "#334155", lineHeight: 1.5 }}>
                           {good.slice(0, 5).map((gr, j) => {
                             const g = asRecord(gr) ?? {};
                             return (
@@ -447,7 +447,7 @@ export default function AudienceSegmentsActivationPanel({
                     {bad.length > 0 ? (
                       <div>
                         <p style={{ margin: "0 0 6px", fontSize: 12, fontWeight: 800, color: MID }}>Avoid</p>
-                        <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: "#64748b", lineHeight: 1.5 }}>
+                        <ul className="strategy-suite-ul" style={{ margin: 0, fontSize: 13, color: "#64748b", lineHeight: 1.5 }}>
                           {bad.slice(0, 4).map((br, j) => {
                             const b = asRecord(br) ?? {};
                             return (

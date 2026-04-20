@@ -4,6 +4,7 @@ import {
   StrategyDomainSection,
   strategyDomainGradient,
 } from "@/components/strategy/StrategyDomainSection";
+import IcpPlaybookStructuredLayout from "@/components/strategy/IcpPlaybookStructuredLayout";
 import SalesMarketingFlowVisual from "@/components/strategy/SalesMarketingFlowVisual";
 import StrategyProseBody from "@/components/strategy/StrategyProseBody";
 import {
@@ -52,6 +53,13 @@ function icpPlaybookAccent(playbookIndex1Based: number) {
   return ICP_PLAYBOOK_ACCENTS[(Math.max(1, playbookIndex1Based) - 1) % ICP_PLAYBOOK_ACCENTS.length]!;
 }
 
+/** Replaces "ICP 1 of 3" style counters with standard tier language. */
+function icpTierEyebrowLabel(index1Based: number): string {
+  if (index1Based <= 1) return "Primary ICP";
+  if (index1Based === 2) return "Secondary ICP";
+  return "Additional ICP";
+}
+
 function isIcpPlaybookBlock(b: StrategyNarrativeBlock): boolean {
   return (
     b.visualVariant === "icp-playbook" ||
@@ -63,19 +71,18 @@ function inferIcpPlaybookMeta(
   section: StrategyPlanSection,
   block: StrategyNarrativeBlock,
   blockIndex: number,
-): { index: number; total: number } | null {
+): { index: number } | null {
   if (!isIcpPlaybookBlock(block)) return null;
   const blocks = section.blocks ?? [];
-  const total = Math.max(1, blocks.filter(isIcpPlaybookBlock).length);
 
   if (block.visualVariant === "icp-playbook" && typeof block.icpPlaybookIndex === "number") {
-    return { index: block.icpPlaybookIndex, total };
+    return { index: block.icpPlaybookIndex };
   }
   let inferred = 0;
   for (let i = 0; i <= blockIndex; i++) {
     if (isIcpPlaybookBlock(blocks[i]!)) inferred += 1;
   }
-  return { index: inferred, total };
+  return { index: inferred };
 }
 
 /**
@@ -118,7 +125,6 @@ export default function StrategyPlanNarrativePanels({
                 const icpMeta = inferIcpPlaybookMeta(section, b, bi);
                 if (icpMeta) {
                   const accent = icpPlaybookAccent(icpMeta.index);
-                  const showSegmentLabel = icpMeta.total > 1;
                   return (
                     <div
                       key={`${section.id}-block-${bi}`}
@@ -142,25 +148,19 @@ export default function StrategyPlanNarrativePanels({
                           fontFamily: SUITE_FONT_UI,
                         }}
                       >
-                        {showSegmentLabel ? (
-                          <>
-                            <span
-                              style={{
-                                display: "inline-block",
-                                marginRight: 8,
-                                padding: "3px 8px",
-                                borderRadius: 6,
-                                background: accent.badgeBg,
-                                color: accent.badgeText,
-                              }}
-                            >
-                              ICP {icpMeta.index} of {icpMeta.total}
-                            </span>
-                            Go-to-market playbook
-                          </>
-                        ) : (
-                          <span style={{ opacity: 0.92 }}>Go-to-market playbook</span>
-                        )}
+                        <span
+                          style={{
+                            display: "inline-block",
+                            marginRight: 8,
+                            padding: "3px 8px",
+                            borderRadius: 6,
+                            background: accent.badgeBg,
+                            color: accent.badgeText,
+                          }}
+                        >
+                          {icpTierEyebrowLabel(icpMeta.index)}
+                        </span>
+                        <span style={{ opacity: 0.92 }}>Go-to-market playbook</span>
                       </p>
                       <p
                         style={{
@@ -178,7 +178,9 @@ export default function StrategyPlanNarrativePanels({
                       >
                         {b.title.replace(/^ICP playbook —\s*/i, "").trim() || b.title}
                       </p>
-                      {b.body.trim() ? (
+                      {b.icpPlaybookBody ? (
+                        <IcpPlaybookStructuredLayout data={b.icpPlaybookBody} accent={{ rail: accent.rail }} />
+                      ) : b.body.trim() ? (
                         <div className="mt-3">
                           <StrategyProseBody
                             text={b.body}

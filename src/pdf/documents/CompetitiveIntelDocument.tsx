@@ -7,12 +7,14 @@ import { Document, Page, Text, View, Image, StyleSheet } from "@react-pdf/render
 import { pdfTheme } from "../theme";
 import { DisclaimerPage } from "../components/DisclaimerPage";
 import { SectionDividerPage } from "../components/SectionDividerPage";
+import { PdfHeader } from "../components/PdfHeader";
 import type { BlueprintEngineOutput } from "../types/blueprintReport";
+import { parseHexAccent } from "@/src/pdf/lib/promptPackDisplay";
+import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
 
-const LOGO_URL = "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp";
 
 const s = StyleSheet.create({
-  page: { padding: 42, paddingBottom: 66, fontFamily: "Helvetica", fontSize: 10, color: "#2D3A4A", lineHeight: 1.6 },
+  page: { padding: 48, paddingBottom: 92, fontFamily: "Helvetica", fontSize: 10, color: "#2D3A4A", lineHeight: 1.6 },
   cover: { padding: 42, fontFamily: "Helvetica", justifyContent: "center", alignItems: "center", backgroundColor: pdfTheme.colors.navy },
   logo: { width: 100, marginBottom: 30, opacity: 0.9 },
   coverTitle: { fontSize: 26, fontWeight: "bold", color: "#FFFFFF", textAlign: "center", marginBottom: 6 },
@@ -31,7 +33,7 @@ const s = StyleSheet.create({
   bullet: { fontSize: 10, lineHeight: 1.55, marginBottom: 3, paddingLeft: 10 },
   row: { flexDirection: "row", marginBottom: 6 },
   col2: { width: "50%", paddingRight: 8 },
-  footer: { position: "absolute", bottom: 18, left: 42, right: 42, flexDirection: "row", justifyContent: "space-between" },
+  footer: { position: "absolute", bottom: 22, left: 48, right: 48, flexDirection: "row", justifyContent: "space-between" },
   footerText: { fontSize: 7, color: "#9CA3AF" },
 });
 
@@ -39,15 +41,19 @@ interface Props { data: BlueprintEngineOutput; brandName: string }
 
 export function CompetitiveIntelDocument({ data, brandName }: Props) {
   const d = data;
+  const palette = d.visualDirection?.colorPalette as Array<{ hex?: string }> | undefined;
+  const brandAccent = parseHexAccent(Array.isArray(palette) ? palette.map((entry) => entry?.hex).find(Boolean) : undefined) || pdfTheme.colors.blue;
+  const printedDate = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
   const salesRef = d.salesConversationGuide?.conversion_intelligence_reference;
   return (
     <Document>
       <Page size="A4" style={s.cover}>
         {/* eslint-disable-next-line jsx-a11y/alt-text */}
-        <Image src={LOGO_URL} style={s.logo} />
+        <Image src={PDF_WUNDERBAR_LOGO_SRC} style={s.logo} />
         <Text style={s.coverTitle}>Competitive Intelligence Brief</Text>
         <Text style={s.coverSub}>{brandName}</Text>
-        <Text style={{ ...s.coverMeta, marginTop: 26 }}>{new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</Text>
+        <View style={{ width: 76, height: 3, borderRadius: 999, backgroundColor: brandAccent, marginTop: 10, marginBottom: 16 }} />
+        <Text style={{ ...s.coverMeta, marginTop: 26 }}>{printedDate}</Text>
         <Text style={{ ...s.coverMeta, marginTop: 34, fontSize: 8 }}>CONFIDENTIAL — For sales & leadership</Text>
       </Page>
 
@@ -55,6 +61,7 @@ export function CompetitiveIntelDocument({ data, brandName }: Props) {
         label="Section"
         title="Positioning and Trade-Offs"
         subtitle="Competitive landscape, strategic whitespace, and decision trade-offs."
+        accentHex={brandAccent}
       />
 
       <Page size="A4" style={s.page} wrap>
@@ -62,6 +69,8 @@ export function CompetitiveIntelDocument({ data, brandName }: Props) {
           <Text style={s.footerText}>Competitive Intelligence — {brandName}</Text>
           <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
         </View>
+
+        <PdfHeader title="Competitive Intelligence Brief" businessName={brandName} date={printedDate} accentHex={brandAccent} />
 
         {/* Positioning Map */}
         <Text style={s.h1}>Competitive Positioning Map</Text>
@@ -112,6 +121,7 @@ export function CompetitiveIntelDocument({ data, brandName }: Props) {
         label="Section"
         title="Value and Pricing"
         subtitle="Price positioning language and objection reframing."
+        accentHex={brandAccent}
       />
 
       <Page size="A4" style={s.page} wrap>
@@ -119,6 +129,8 @@ export function CompetitiveIntelDocument({ data, brandName }: Props) {
           <Text style={s.footerText}>Competitive Intelligence — {brandName}</Text>
           <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
         </View>
+
+        <PdfHeader title="Competitive Intelligence Brief" businessName={brandName} date={printedDate} accentHex={brandAccent} />
 
         {/* Value & Pricing */}
         <Text style={s.h1}>Value & Pricing Communication</Text>
@@ -144,6 +156,7 @@ export function CompetitiveIntelDocument({ data, brandName }: Props) {
         label="Section"
         title="Sales Conversation Guide"
         subtitle="Discovery, objection handling, and closing language."
+        accentHex={brandAccent}
       />
 
       <Page size="A4" style={s.page} wrap>
@@ -151,6 +164,8 @@ export function CompetitiveIntelDocument({ data, brandName }: Props) {
           <Text style={s.footerText}>Competitive Intelligence — {brandName}</Text>
           <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
         </View>
+
+        <PdfHeader title="Competitive Intelligence Brief" businessName={brandName} date={printedDate} accentHex={brandAccent} />
 
         {/* Sales Conversation Guide */}
         <Text style={s.h1}>Sales Conversation Guide</Text>

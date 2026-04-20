@@ -247,7 +247,7 @@ function IcpDetailCard({
                 <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-rose-800/90">
                   Pain points
                 </p>
-                <ul className="mb-0 mt-2 list-disc space-y-1.5 pl-4 text-[13px] leading-relaxed text-brand-midnight sm:text-sm">
+                <ul className="strategy-suite-ul mb-0 mt-2 text-[13px] leading-relaxed text-brand-midnight sm:text-sm">
                   {detail.painPoints.map((p, idx) => (
                     <li key={`${idx}-${p.slice(0, 40)}`}>{p}</li>
                   ))}
@@ -259,7 +259,7 @@ function IcpDetailCard({
                 <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-amber-900/85">
                   Typical objections
                 </p>
-                <ul className="mb-0 mt-2 list-disc space-y-1.5 pl-4 text-[13px] leading-relaxed text-brand-midnight sm:text-sm">
+                <ul className="strategy-suite-ul mb-0 mt-2 text-[13px] leading-relaxed text-brand-midnight sm:text-sm">
                   {detail.objections.map((o, idx) => (
                     <li key={`${idx}-${o.slice(0, 40)}`}>{o}</li>
                   ))}

@@ -36,14 +36,24 @@ export function useActiveSectionInView(sectionIdsKey: string): string | null {
       }
     }
 
+    let scrollRaf = 0;
+    const scheduleCompute = () => {
+      if (scrollRaf) return;
+      scrollRaf = window.requestAnimationFrame(() => {
+        scrollRaf = 0;
+        compute();
+      });
+    };
+
     compute();
     const t = window.setTimeout(compute, 120);
-    window.addEventListener("scroll", compute, { passive: true });
-    window.addEventListener("resize", compute);
+    window.addEventListener("scroll", scheduleCompute, { passive: true });
+    window.addEventListener("resize", scheduleCompute);
     return () => {
       clearTimeout(t);
-      window.removeEventListener("scroll", compute);
-      window.removeEventListener("resize", compute);
+      if (scrollRaf) window.cancelAnimationFrame(scrollRaf);
+      window.removeEventListener("scroll", scheduleCompute);
+      window.removeEventListener("resize", scheduleCompute);
     };
   }, [sectionIdsKey]);
 

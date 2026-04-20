@@ -15,18 +15,19 @@ import {
 import { DisclaimerPage } from "../components/DisclaimerPage";
 import { SectionDividerPage } from "../components/SectionDividerPage";
 import type { BlueprintEngineOutput } from "../types/blueprintReport";
+import { normalizePromptItemForPdf } from "@/src/pdf/lib/promptPackDisplay";
+import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
 
-const LOGO_URL = "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp";
 
 const s = StyleSheet.create({
-  page: { padding: 42, paddingBottom: 66, fontFamily: "Helvetica", fontSize: 10, color: "#2D3A4A", lineHeight: 1.6 },
+  page: { padding: 42, paddingBottom: 92, fontFamily: "Helvetica", fontSize: 10, color: "#2D3A4A", lineHeight: 1.6 },
   coverPage: { padding: 42, fontFamily: "Helvetica", justifyContent: "center", alignItems: "center", backgroundColor: pdfTheme.colors.navy },
   coverLogo: { width: 120, marginBottom: 40, opacity: 0.9 },
   coverTitle: { fontSize: 32, fontWeight: "bold", color: "#FFFFFF", textAlign: "center", marginBottom: 8 },
   coverSubtitle: { fontSize: 14, color: pdfTheme.colors.aqua, textAlign: "center", marginBottom: 32 },
   coverMeta: { fontSize: 10, color: "#FFFFFF", textAlign: "center", opacity: 0.7, marginTop: 4 },
 
-  tocPage: { padding: 42, paddingBottom: 66, fontFamily: "Helvetica", fontSize: 10, color: "#2D3A4A" },
+  tocPage: { padding: 42, paddingBottom: 92, fontFamily: "Helvetica", fontSize: 10, color: "#2D3A4A" },
   tocTitle: { fontSize: 24, fontWeight: "bold", color: pdfTheme.colors.navy, marginBottom: 24 },
   tocPart: { fontSize: 13, fontWeight: "bold", color: pdfTheme.colors.navy, marginTop: 16, marginBottom: 6 },
   tocItem: { fontSize: 10, color: "#4B5563", paddingLeft: 12, marginBottom: 3, lineHeight: 1.6 },
@@ -62,7 +63,7 @@ const s = StyleSheet.create({
   swatch: { width: 20, height: 20, borderRadius: 4, marginRight: 6, border: "1 solid #E5E7EB" },
   swatchRow: { flexDirection: "row", alignItems: "center", marginBottom: 6 },
 
-  footer: { position: "absolute", bottom: 18, left: 42, right: 42, flexDirection: "row", justifyContent: "space-between" },
+  footer: { position: "absolute", bottom: 22, left: 48, right: 48, flexDirection: "row", justifyContent: "space-between" },
   footerText: { fontSize: 7, color: "#9CA3AF" },
 
   tag: { backgroundColor: "#DBEAFE", borderRadius: 3, paddingHorizontal: 6, paddingVertical: 2, marginRight: 4, marginBottom: 3 },
@@ -113,7 +114,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
       {/* ═══ COVER ═══ */}
       <Page size="A4" style={s.coverPage}>
         {/* eslint-disable-next-line jsx-a11y/alt-text */}
-        <Image src={LOGO_URL} style={s.coverLogo} />
+        <Image src={PDF_WUNDERBAR_LOGO_SRC} style={s.coverLogo} />
         <Text style={s.coverTitle}>WunderBrand Blueprint™</Text>
         <Text style={s.coverSubtitle}>Your Complete Brand Operating System</Text>
         <View style={{ marginTop: 30 }}>
@@ -1359,17 +1360,24 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
 
         <Text style={s.h1}>{d.executionPromptPack?.packName || "Execution Prompt Pack"}</Text>
         <Text style={s.body}>{d.executionPromptPack?.description}</Text>
-        {d.executionPromptPack?.prompts?.map((p, i) => (
-          <View key={i} style={s.card} wrap={false}>
-            <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 4 }}>
-              <Text style={s.cardTitle}>{p.title}</Text>
-              <View style={s.tag}><Text style={s.tagText}>{p.category}</Text></View>
+        {d.executionPromptPack?.prompts?.map((p, i) => {
+          const n = normalizePromptItemForPdf(p, {});
+          return (
+            <View key={i} style={s.card} wrap={false}>
+              <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 4 }}>
+                <Text style={s.cardTitle}>{n.title}</Text>
+                <View style={s.tag}>
+                  <Text style={s.tagText}>{n.category}</Text>
+                </View>
+              </View>
+              {n.instructionBlock ? <Text style={s.body}>{n.instructionBlock}</Text> : null}
+              <View style={s.accentCard}>
+                <Text style={{ ...s.body, fontFamily: "Courier" }}>{n.copyBlock}</Text>
+              </View>
+              {n.whyItMatters ? <Text style={s.small}>{n.whyItMatters}</Text> : null}
             </View>
-            <Text style={s.body}>{p.instruction}</Text>
-            <View style={s.accentCard}><Text style={{ ...s.body, fontFamily: "Courier" }}>{p.prompt}</Text></View>
-            <Text style={s.small}>{p.whyItMatters}</Text>
-          </View>
-        ))}
+          );
+        })}
       </Page>
 
       {/* ═══ DISCLAIMER ═══ */}

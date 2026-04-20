@@ -68,16 +68,18 @@ interface Props {
   subtitle?: string;
   label?: string;
   eyebrow?: string;
+  /** Optional brand accent from client palette (validated hex) — aligns divider with company PDF styling. */
+  accentHex?: string;
 }
 
-export function SectionDividerPage({ title, subtitle, label, eyebrow }: Props) {
+export function SectionDividerPage({ title, subtitle, label, eyebrow, accentHex }: Props) {
   const displayLabel = label || eyebrow || "Section";
   return (
     <Page size="A4" style={s.page}>
       <View style={s.panel}>
         <Text style={s.eyebrow}>{displayLabel}</Text>
         <View style={s.ruleWrap}>
-          <View style={s.rule} />
+          <View style={[s.rule, accentHex ? { backgroundColor: accentHex } : {}]} />
         </View>
         <Text style={s.title}>{title}</Text>
         {subtitle ? <Text style={s.subtitle}>{subtitle}</Text> : null}

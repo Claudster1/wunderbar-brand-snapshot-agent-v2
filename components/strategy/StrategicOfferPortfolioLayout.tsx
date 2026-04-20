@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties } from "react";
 
 import {
   SUITE_ACCENT_BRIGHT,
@@ -105,32 +105,42 @@ function roleTone(role: string): { bg: string; color: string; border: string } {
   return { bg: "rgba(2, 24, 89, 0.06)", color: SUITE_NAVY, border: "rgba(2, 24, 89, 0.12)" };
 }
 
-function ListBlock({ items, icon }: { items: string[]; icon: ReactNode }) {
+/** Icon column (22px) + gap-2 (8px): aligns list with eyebrow row that leads with the same icon */
+const LIST_INDENT_MATCH_ICON_HEADER_PX = 30;
+
+function ListBlock({
+  items,
+  indentToMatchIconHeader,
+}: {
+  items: string[];
+  /** When the card title row starts with a 22px icon + gap, indent the list so dots line up with that title text */
+  indentToMatchIconHeader?: boolean;
+}) {
   if (items.length === 0) return null;
   return (
     <ul
-      className="m-0 list-none space-y-2.5 p-0"
-      style={{ fontFamily: SUITE_FONT_UI, fontSize: 14, lineHeight: 1.55, color: SUITE_TEXT_PRIMARY }}
+      className="m-0 flex list-none flex-col gap-2 p-0"
+      style={{
+        fontFamily: SUITE_FONT_UI,
+        fontSize: 14,
+        lineHeight: 1.55,
+        color: SUITE_TEXT_PRIMARY,
+        ...(indentToMatchIconHeader ? { paddingLeft: LIST_INDENT_MATCH_ICON_HEADER_PX } : undefined),
+      }}
     >
       {items.map((line, i) => (
-        <li key={i} className="flex gap-2.5">
-          <span className="mt-1.5 flex-shrink-0 opacity-80" aria-hidden>
-            {icon}
-          </span>
-          <span className="min-w-0">{line}</span>
+        <li key={i} className="flex items-start gap-2.5">
+          <span
+            className="mt-[0.55em] size-1.5 shrink-0 rounded-full"
+            style={{ background: "var(--wb-bullet-accent, #07b0f2)" }}
+            aria-hidden
+          />
+          <span className="min-w-0 flex-1">{line}</span>
         </li>
       ))}
     </ul>
   );
 }
-
-const miniBullet = (
-  <span
-    className="mt-2 inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full"
-    style={{ background: SUITE_ACCENT_BRIGHT }}
-    aria-hidden
-  />
-);
 
 type Props = { model: StrategicOfferViewModel };
 
@@ -309,7 +319,7 @@ export default function StrategicOfferPortfolioLayout({ model }: Props) {
                 <IconWave />
                 <p style={{ ...LABEL, margin: 0, color: "rgba(154, 52, 18, 0.85)" }}>Pains relieved</p>
               </div>
-              <ListBlock items={model.painsRelieved} icon={miniBullet} />
+              <ListBlock items={model.painsRelieved} indentToMatchIconHeader />
             </div>
           ) : null}
           {model.outcomesEnabled.length > 0 ? (
@@ -326,7 +336,7 @@ export default function StrategicOfferPortfolioLayout({ model }: Props) {
                 <IconTarget />
                 <p style={{ ...LABEL, margin: 0, color: "rgba(5, 120, 85, 0.9)" }}>Outcomes enabled</p>
               </div>
-              <ListBlock items={model.outcomesEnabled} icon={miniBullet} />
+              <ListBlock items={model.outcomesEnabled} indentToMatchIconHeader />
             </div>
           ) : null}
         </div>
@@ -345,7 +355,7 @@ export default function StrategicOfferPortfolioLayout({ model }: Props) {
               }}
             >
               <p style={{ ...LABEL, color: "rgba(5, 100, 72, 0.9)" }}>In scope</p>
-              <ListBlock items={model.scopeIn} icon={miniBullet} />
+              <ListBlock items={model.scopeIn} />
             </div>
           ) : null}
           {model.scopeOut.length > 0 ? (
@@ -365,7 +375,7 @@ export default function StrategicOfferPortfolioLayout({ model }: Props) {
               >
                 Do not promise these in sales or marketing copy.
               </p>
-              <ListBlock items={model.scopeOut} icon={miniBullet} />
+              <ListBlock items={model.scopeOut} />
             </div>
           ) : null}
         </div>

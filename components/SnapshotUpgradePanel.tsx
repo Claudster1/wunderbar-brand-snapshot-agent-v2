@@ -55,7 +55,7 @@ export function SnapshotUpgradePanel({
           </p>
 
           {/* Benefits List — value of upgrading */}
-          <ul className="list-disc pl-6 text-brand-midnight mb-6 space-y-2">
+          <ul className="strategy-suite-ul mb-6 text-brand-midnight">
             <li>Expanded breakdown of your five pillars with priority actions</li>
             <li>Messaging clarity and offer positioning review</li>
             <li>Visual + verbal consistency scan</li>

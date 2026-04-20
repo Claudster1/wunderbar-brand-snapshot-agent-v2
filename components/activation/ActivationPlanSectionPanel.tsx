@@ -15,18 +15,18 @@ import {
 import {
   SUITE_ACCENT_BRIGHT,
   SUITE_BORDER,
+  SUITE_FONT_UI,
   SUITE_INSIGHT_CARD_BASE,
   SUITE_INSIGHT_CARD_RAIL_LEFT,
   SUITE_MUTED,
   SUITE_NAVY,
   SUITE_PANEL_RAIL,
+  SUITE_RADIUS_LG,
   SUITE_RADIUS_MD,
+  SUITE_SHADOW_CARD,
 } from "@/components/results/suiteBrandTokens";
 import type { ActivationPlanSection } from "@/lib/activation/activationPlanModel";
-import {
-  ACTIVATION_SECTION_ICON_TOKEN,
-  ACTIVATION_SECTION_THEME,
-} from "@/lib/activation/activationPlanModel";
+import { ACTIVATION_SECTION_ICON_TOKEN } from "@/lib/activation/activationPlanModel";
 import {
   buildActivationGuidanceMaps,
   buildExpandedActivationContent,
@@ -125,7 +125,6 @@ export default function ActivationPlanSectionPanel({
 
   const activationGuidance = buildActivationGuidanceMaps(diagnosticData);
   const expandedActivationContent = buildExpandedActivationContent();
-  const tint = ACTIVATION_SECTION_THEME[section.id]?.tint ?? "#F8FBFF";
   const iconToken = ACTIVATION_SECTION_ICON_TOKEN[section.id] || "channel";
   const isFoundationPlan = isActivationAudienceJourneySectionId(section.id);
   const isCampaignPlan = !isFoundationPlan;
@@ -135,12 +134,13 @@ export default function ActivationPlanSectionPanel({
       id={sectionDomId}
       style={{
         border: `1px solid ${BORDER}`,
-        borderLeft: `4px solid ${SUITE_PANEL_RAIL}`,
-        borderRadius: 10,
-        background: `linear-gradient(135deg, ${tint} 0%, #FFFFFF 100%)`,
-        padding: "16px 18px",
+        borderLeft: `3px solid ${SUITE_PANEL_RAIL}`,
+        borderRadius: SUITE_RADIUS_LG,
+        background: "#FFFFFF",
+        padding: "22px 24px 24px",
         scrollMarginTop: 120,
-        boxShadow: "0 8px 20px rgba(2,24,89,0.05)",
+        boxShadow: SUITE_SHADOW_CARD,
+        fontFamily: SUITE_FONT_UI,
       }}
     >
       <div
@@ -160,15 +160,18 @@ export default function ActivationPlanSectionPanel({
               style={{
                 margin: 0,
                 fontSize: 11,
-                fontWeight: 800,
+                fontWeight: 700,
                 color: BLUE,
-                letterSpacing: "0.04em",
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
               }}
             >
               {section.label}
             </p>
           </div>
-          <p style={{ margin: "2px 0 0", fontSize: 13, color: MID_GRAY }}>{section.summary}</p>
+          <p style={{ margin: "6px 0 0", fontSize: 14, color: MID_GRAY, lineHeight: 1.55, maxWidth: 720 }}>
+            {section.summary}
+          </p>
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
           {extraHeaderActions}
@@ -267,7 +270,7 @@ export default function ActivationPlanSectionPanel({
       ) : null}
 
       {!showPaidStructured && !showAudienceStructured ? (
-        <ActivationPlanReadableBody body={section.body} />
+        <ActivationPlanReadableBody body={section.body} sectionId={section.id} />
       ) : null}
       {showInstructionalSidebars && expandedActivationContent[section.id] && (
         <div style={{ marginTop: 12, display: "grid", gap: 10 }}>

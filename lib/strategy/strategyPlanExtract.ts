@@ -14,6 +14,16 @@ function asString(v: unknown): string {
   return typeof v === "string" ? v.trim() : "";
 }
 
+/** Structured ideal customer profile (ICP) / go-to-market playbook — rendered as sub-sections in Strategy (avoids one prose wall). */
+export type IcpPlaybookStructuredBody = {
+  strategyTieIn?: string;
+  segmentFocus?: string;
+  conversionRows?: { label: string; value: string }[];
+  campaignNeeds?: string[];
+  priorityTactics?: string[];
+  competitiveCues?: string;
+};
+
 export type StrategyNarrativeBlock = {
   title: string;
   body: string;
@@ -21,6 +31,8 @@ export type StrategyNarrativeBlock = {
   visualVariant?: "icp-playbook";
   /** 1-based index among ICP playbook blocks in the section (accent rotation). */
   icpPlaybookIndex?: number;
+  /** When set, Strategy tab renders scannable sub-blocks; `body` stays a plain-text fallback. */
+  icpPlaybookBody?: IcpPlaybookStructuredBody;
 };
 
 export type StrategyPlanTableRow = {
@@ -468,13 +480,19 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
       const focus = asString(r.strategicFocus);
       const cues = asString(r.competitiveConversationCues);
       const planRef = asRecord(r.conversion_intelligence_reference);
-      const refBody = planRef
-        ? joinParagraphs(
-            asString(planRef.icpTier) && `ICP tier: ${asString(planRef.icpTier)}`,
-            asString(planRef.funnelStage) && `Funnel stage: ${asString(planRef.funnelStage)}`,
-            asString(planRef.matrixCell) && `Intelligence matrix cell: ${asString(planRef.matrixCell)}`,
-            asString(planRef.note) && asString(planRef.note),
-          )
+      const conversionRows: { label: string; value: string }[] = [];
+      if (planRef) {
+        const tier = asString(planRef.icpTier);
+        const stage = asString(planRef.funnelStage);
+        const cell = asString(planRef.matrixCell);
+        const note = asString(planRef.note);
+        if (tier) conversionRows.push({ label: "ICP tier", value: tier });
+        if (stage) conversionRows.push({ label: "Funnel stage", value: stage });
+        if (cell) conversionRows.push({ label: "Intelligence matrix", value: cell });
+        if (note) conversionRows.push({ label: "Call to action (CTA) / anchor note", value: note });
+      }
+      const refBody = conversionRows.length
+        ? conversionRows.map((row) => `${row.label}: ${row.value}`).join("\n")
         : "";
       const needs = Array.isArray(r.campaignContentNeeds)
         ? r.campaignContentNeeds.filter((x): x is string => typeof x === "string" && x.trim().length > 0)
@@ -496,12 +514,28 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
         tacticsBlock,
         cues ? `Competitive conversation cues: ${cues}` : "",
       );
+      const icpPlaybookBody: IcpPlaybookStructuredBody = {
+        strategyTieIn: align || undefined,
+        segmentFocus: focus || undefined,
+        conversionRows: conversionRows.length ? conversionRows : undefined,
+        campaignNeeds: needs.length ? needs.map((n) => n.trim()) : undefined,
+        priorityTactics: tactics.length ? tactics.map((n) => n.trim()) : undefined,
+        competitiveCues: cues || undefined,
+      };
+      const hasStructured =
+        icpPlaybookBody.strategyTieIn ||
+        icpPlaybookBody.segmentFocus ||
+        (icpPlaybookBody.conversionRows?.length ?? 0) > 0 ||
+        (icpPlaybookBody.campaignNeeds?.length ?? 0) > 0 ||
+        (icpPlaybookBody.priorityTactics?.length ?? 0) > 0 ||
+        icpPlaybookBody.competitiveCues;
       if (body)
         blocks.push({
           title: `ICP playbook — ${label}`,
           body,
           visualVariant: "icp-playbook",
           icpPlaybookIndex: idx + 1,
+          ...(hasStructured ? { icpPlaybookBody } : {}),
         });
     });
   }

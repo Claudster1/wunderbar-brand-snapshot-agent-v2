@@ -29,4 +29,4 @@ ABBREVIATIONS — FIRST REFERENCE (MANDATORY FOR ALL USER-FACING OUTPUT):
 
 /** Short line for tooltips, accordions, or tab intros (not a substitute for in-copy spell-out). */
 export const uiAbbreviationNote =
-  "We spell out abbreviations on first use (for example: key performance indicator (KPI), call to action (CTA)).";
+  "We spell out abbreviations on first use (for example: key performance indicator (KPI), call to action (CTA), jobs to be done (JTBD), go-to-market (GTM)).";

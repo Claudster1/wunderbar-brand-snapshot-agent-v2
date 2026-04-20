@@ -1,4 +1,17 @@
 import type { WorkbookSectionId } from "@/lib/workbookTypes";
+import {
+  type ActivationDevelopedContext,
+  buildDevelopedAudiencePlan,
+  buildDevelopedCompetitivePlan,
+  buildDevelopedEmailPlan,
+  buildDevelopedExecutionRoadmap,
+  buildDevelopedJourneyPlan,
+  buildDevelopedLeadMagnetPlan,
+  buildDevelopedPaidCreativesPack,
+  buildDevelopedPrPlan,
+  buildDevelopedSeoAeoPlan,
+  buildDevelopedThoughtLeadershipPack,
+} from "@/lib/activation/activationDevelopedPlansCopy";
 
 export type ActivationPlanSection = {
   id: string;
@@ -284,6 +297,29 @@ function isBlueprintPlusTier(diagnosticData: Record<string, unknown>): boolean {
   return diagnosticData.productTier === "blueprint-plus";
 }
 
+function developedContextFromD(d: ReturnType<typeof extractActivationDerivatives>): ActivationDevelopedContext {
+  return {
+    companyName: d.companyName,
+    industry: d.industry,
+    primaryPillar: d.primaryPillar,
+    firstPriority: d.firstPriority,
+    secondPriority: d.secondPriority,
+    thirdPriority: d.thirdPriority,
+    audienceShort: d.audienceShort,
+    audienceSummary: d.audienceSummary,
+  };
+}
+
+/** When report/workbook copy is already long, keep it alone; otherwise append paste-ready developed pack. */
+function appendDevelopedPack(report: string, pack: string, minCompleteChars: number): string {
+  const trimmed = report.trim();
+  if (trimmed.length >= minCompleteChars) return report;
+  if (!pack.trim()) return report;
+  const sep = "\n\n---\n\n";
+  if (!trimmed.length) return pack;
+  return `${trimmed}${sep}${pack}`;
+}
+
 function blueprintPlusEmptyBlockMessage(companyName: string, topic: string): string {
   return [
     `${topic} (${companyName})`,
@@ -404,37 +440,91 @@ function pickPaidAdsBody(
   return buildDefaultPaidAdsPlanBody(d);
 }
 
-function buildFullFunnelEmailLifecycleScaffold(d: ReturnType<typeof extractActivationDerivatives>): string {
-  const a = d.audienceShort;
-  const fp = d.firstPriority.toLowerCase();
-  const sp = d.secondPriority.toLowerCase();
-  const tp = d.thirdPriority.toLowerCase();
+/** Pull email touches from ICP conversion intelligence when the engine populated them — grouped by ICP tier. */
+function buildIcpEmailTouchesAppendix(diagnosticData: Record<string, unknown>): string {
+  const raw = diagnosticData.icpConversionIntelligenceFramework;
+  const fw = raw && typeof raw === "object" && !Array.isArray(raw) ? (raw as Record<string, unknown>) : null;
+  if (!fw) return "";
+  const mts = fw.multiTouchConversionSequence;
+  if (!Array.isArray(mts)) return "";
+  const byTier: string[] = [];
+
+  for (const rawBlock of mts) {
+    const b =
+      rawBlock && typeof rawBlock === "object" && !Array.isArray(rawBlock)
+        ? (rawBlock as Record<string, unknown>)
+        : null;
+    if (!b) continue;
+    const icpTier = String(b.icpTier ?? "ICP").trim() || "ICP";
+    const sequence = b.sequence;
+    if (!Array.isArray(sequence)) continue;
+    const emailChunks: string[] = [];
+
+    for (const step of sequence) {
+      const s = step && typeof step === "object" && !Array.isArray(step) ? (step as Record<string, unknown>) : null;
+      if (!s) continue;
+      const ch = String(s.channel ?? "").toLowerCase();
+      if (!ch.includes("email")) continue;
+      const title = String(s.touchType ?? "Email touch").trim();
+      const orderLabel = typeof s.order === "number" ? `Step ${s.order}` : "Touch";
+      const subj = String(s.headlineOrSubject ?? "").trim();
+      const sub = String(s.subhead ?? "").trim();
+      const body = String(s.primaryCopy ?? "").trim();
+      const cta = String(s.cta ?? "").trim();
+      const img = String(s.imagePrompt ?? "").trim();
+      const vid = String(s.videoPrompt ?? "").trim();
+      const lines: string[] = [`${title} · ${orderLabel}`, ""];
+      if (subj) lines.push(`- **Subject line:** ${subj}`);
+      if (sub) lines.push(`- **Preheader (inbox preview):** ${sub}`);
+      if (body) {
+        lines.push("- **Body (paste-ready):**", "", body);
+      }
+      if (cta) lines.push(`- **Primary CTA:** ${cta}`);
+      if (img) lines.push(`- **Hero image prompt:** ${img}`);
+      if (vid) lines.push(`- **Video prompt:** ${vid}`);
+      if (typeof s.performanceRationale === "string" && s.performanceRationale.trim()) {
+        lines.push(`- **Why it works:** ${String(s.performanceRationale).trim()}`);
+      }
+      if (lines.length > 1) emailChunks.push(lines.join("\n"));
+    }
+
+    if (emailChunks.length === 0) continue;
+    byTier.push(
+      [
+        `## ICP: ${icpTier}`,
+        "",
+        "_Only **email** steps from this ICP’s multi-touch sequence appear here. Other channels (LinkedIn, etc.) stay in your PDF and Strategy views._",
+        "",
+        emailChunks.join("\n\n"),
+      ].join("\n"),
+    );
+  }
+
+  if (!byTier.length) return "";
   return [
-    "Email nurture — full funnel (scaffold)",
+    "## ICP-specific email touches (conversion intelligence)",
     "",
-    "### Awareness (emails 1–2)",
-    `- Email 1 — Subject: [Specific question about ${a}'s bottleneck]`,
-    `  Purpose: Open with a recognizable pain; introduce your POV on ${fp} without a hard pitch.`,
-    `- Email 2 — Subject: [Proof you understand their world]`,
-    `  Purpose: One credible proof point or micro-story; bridge toward ${sp}.`,
+    "Organized **by ICP tier** (Primary, Secondary, …). Each **ICP:** section below is one tier. Within a tier, each block starts with the touch name, then **subject line** → **preheader** (inbox preview, not a second subject) → **body** → CTAs and prompts.",
     "",
-    "### Consideration (emails 3–5)",
-    "- Email 3 — Trust / risk objection; show governance, process, or safety.",
-    "- Email 4 — Outcome proof: customer, metric, or before/after (specifics).",
-    "- Email 5 — Decision criteria: how to evaluate options ethically; favor your methodology.",
+    ...byTier,
+  ].join("\n\n");
+}
+
+function buildEmailLifecycleHowToReadMarkdown(): string {
+  return [
+    "## How to read this email plan",
     "",
-    "### Decision (emails 6–7)",
-    "- Email 6 — Offer clarity: deliverables, timeline, who it fits / who it does not.",
-    "- Email 7 — Honest urgency (capacity, cohort, or seasonal) + single primary CTA.",
+    "Up to **three layers** appear in this view (use the **On This page** chips to jump). They are independent sources — not three subject lines for one email.",
     "",
-    "### Retention & re-engagement (email 8+)",
-    `- Customers: new tips, roadmap, and upsell only when value is obvious.`,
-    `- Cold leads: fresh POV on ${tp} with a low-friction re-entry CTA.`,
+    "1. **Report notes** — Email channel copy from your export when the engine filled `channelPlans.email`.",
+    "2. **ICP-specific touches** — From your conversion intelligence, **grouped by ICP tier**. Only email-channel steps are listed.",
+    "3. **Starter nurture sequence** — Paste-ready lifecycle emails (`## Email 1 …` onward). Each block is **one** email: **subject line** → **preheader** (the short inbox preview line; **not** a second subject) → body → image prompt → CTAs.",
     "",
-    "### 12-week operational rhythm",
-    "- Weeks 1–4: up to 2 emails/week (education + proof).",
-    "- Weeks 5–8: 1–2 emails/week (deeper cases + offer ramp).",
-    "- Weeks 9–12: refresh underperforming subject lines; pause series lines below ~12% open after 3 sends.",
+    "### Where to edit and export",
+    "- **Update copy:** **Workbook** → Channel notes (and version history). Regenerate the report when you want a full engine rewrite from inputs.",
+    "- **All activation sections at once:** **Download activation pack (.md)** on this tab.",
+    "- **PDFs and bundles:** **Downloads** tab.",
+    "- **Single plan PDF:** open **Open plan** for a channel, then **Download plan (PDF)** on that page.",
   ].join("\n");
 }
 
@@ -443,20 +533,44 @@ function pickEmailLifecycleBody(
   d: ReturnType<typeof extractActivationDerivatives>,
 ): string {
   const e = typeof d.channelPlans.email === "string" ? d.channelPlans.email.trim() : "";
-  const scaffold = buildFullFunnelEmailLifecycleScaffold(d);
-  const MIN_EMAIL_BEFORE_SCAFFOLD = 600;
-  if (e.length >= MIN_EMAIL_BEFORE_SCAFFOLD) return e;
+  const developed = buildDevelopedEmailPlan(developedContextFromD(d));
+  const icpAppendix = buildIcpEmailTouchesAppendix(diagnosticData);
+  const guide = buildEmailLifecycleHowToReadMarkdown();
+  /** If the report already shipped a very long email playbook, avoid duplicating the developed pack. */
+  const REPORT_EMAIL_COMPLETE_MIN = 2800;
+  if (e.length >= REPORT_EMAIL_COMPLETE_MIN) {
+    return [guide, e, icpAppendix].filter((x) => x.trim().length > 0).join("\n\n---\n\n");
+  }
+
+  const fragments: string[] = [guide];
+
+  if (isBlueprintPlusTier(diagnosticData) && e.length === 0) {
+    fragments.push(
+      [
+        "## Generation notes",
+        "",
+        blueprintPlusEmptyBlockMessage(d.companyName, "Email lifecycle"),
+        "",
+        "_The starter sequence below is generated so you still leave with paste-ready copy; regenerate the report if you expected populated channel notes._",
+      ].join("\n"),
+    );
+  } else if (e.length === 0 && !isBlueprintPlusTier(diagnosticData)) {
+    fragments.push(
+      [
+        "## Context",
+        "",
+        `Lifecycle email plan focused on ${d.firstPriority.toLowerCase()} — starter copy follows.`,
+      ].join("\n"),
+    );
+  }
+
   if (e.length > 0) {
-    return [e, "", "---", "", scaffold].join("\n");
+    fragments.push(`## From your report (channelPlans.email)\n\n${e}`);
   }
-  if (isBlueprintPlusTier(diagnosticData)) {
-    return [blueprintPlusEmptyBlockMessage(d.companyName, "Email lifecycle"), "", scaffold].join("\n");
-  }
-  return [
-    `Lifecycle email plan focused on ${d.firstPriority.toLowerCase()} — use the sequence below as your default spine.`,
-    "",
-    scaffold,
-  ].join("\n");
+  if (icpAppendix.trim()) fragments.push(icpAppendix);
+  if (developed.trim()) fragments.push(developed);
+
+  return fragments.filter((x) => x.trim().length > 0).join("\n\n---\n\n");
 }
 
 function pickSeoAeoBody(
@@ -468,12 +582,23 @@ function pickSeoAeoBody(
     (typeof d.channelPlans.seo === "string" && d.channelPlans.seo.trim()) ||
     (typeof d.channelPlans.aeo === "string" && d.channelPlans.aeo.trim()) ||
     "";
-  if (a.length > 0) return a;
-  if (isBlueprintPlusTier(diagnosticData)) {
-    return blueprintPlusEmptyBlockMessage(d.companyName, "SEO & AI discovery");
+  const developed = buildDevelopedSeoAeoPlan(developedContextFromD(d));
+  const SEO_COMPLETE_MIN = 2200;
+  if (a.length >= SEO_COMPLETE_MIN) return a;
+  if (a.length > 0) {
+    return [a, developed].join("\n\n---\n\n");
   }
-  return `Publish intent-mapped pages answering top ${d.industry.toLowerCase()} questions from ${d.audienceShort}, each tied to ${d.firstPriority.toLowerCase()} and a single conversion path.`;
+  if (isBlueprintPlusTier(diagnosticData)) {
+    return [blueprintPlusEmptyBlockMessage(d.companyName, "SEO & AI discovery"), "", developed].join("\n\n");
+  }
+  return [
+    `Publish intent-mapped pages answering top ${d.industry.toLowerCase()} questions from ${d.audienceShort}, each tied to ${d.firstPriority.toLowerCase()} and a single conversion path.`,
+    "",
+    developed,
+  ].join("\n\n");
 }
+
+const PR_VISIBILITY_COMPLETE_MIN_CHARS = 2000;
 
 function pickPrVisibilityBody(
   diagnosticData: Record<string, unknown>,
@@ -483,11 +608,18 @@ function pickPrVisibilityBody(
     (typeof d.channelPlans.pr === "string" && d.channelPlans.pr.trim()) ||
     (typeof d.channelPlans.visibility === "string" && d.channelPlans.visibility.trim()) ||
     "";
-  if (pr.length > 0) return pr;
+  const developed = buildDevelopedPrPlan(developedContextFromD(d));
+  if (pr.length >= PR_VISIBILITY_COMPLETE_MIN_CHARS) return pr;
+  if (pr.length > 0) return appendDevelopedPack(pr, developed, PR_VISIBILITY_COMPLETE_MIN_CHARS);
   if (isBlueprintPlusTier(diagnosticData)) {
-    return blueprintPlusEmptyBlockMessage(d.companyName, "PR & visibility");
+    return appendDevelopedPack(
+      blueprintPlusEmptyBlockMessage(d.companyName, "PR & visibility"),
+      developed,
+      PR_VISIBILITY_COMPLETE_MIN_CHARS,
+    );
   }
-  return `Create quarterly PR hooks tied to measurable outcomes from ${d.thirdPriority.toLowerCase()}. Prioritize placements where ${d.audienceShort} already evaluates vendors and strategic partners.`;
+  const baseline = `Create quarterly PR hooks tied to measurable outcomes from ${d.thirdPriority.toLowerCase()}. Prioritize placements where ${d.audienceShort} already evaluates vendors and strategic partners.`;
+  return appendDevelopedPack(baseline, developed, PR_VISIBILITY_COMPLETE_MIN_CHARS);
 }
 
 function buildLeadMagnetSectionBody(
@@ -496,10 +628,8 @@ function buildLeadMagnetSectionBody(
 ): string {
   const lm = typeof d.channelPlans["lead-magnet"] === "string" ? d.channelPlans["lead-magnet"].trim() : "";
   if (lm.length > 80) return lm;
-  if (isBlueprintPlusTier(diagnosticData)) {
-    return blueprintPlusEmptyBlockMessage(d.companyName, "Lead magnet & conversion");
-  }
-  return [
+  const developed = buildDevelopedLeadMagnetPlan(developedContextFromD(d));
+  const scaffold = [
     `Lead magnet strategy for ${d.companyName}`,
     "",
     "1) Core objective",
@@ -532,6 +662,10 @@ function buildLeadMagnetSectionBody(
     "- Nurture progression (open/click/step completion).",
     "- Downstream conversion from magnet to pipeline action.",
   ].join("\n");
+  const base = isBlueprintPlusTier(diagnosticData)
+    ? blueprintPlusEmptyBlockMessage(d.companyName, "Lead magnet & conversion")
+    : scaffold;
+  return appendDevelopedPack(base, developed, 4000);
 }
 
 export function buildActivationPlanSectionsList(
@@ -556,8 +690,38 @@ export function buildActivationPlanSectionsList(
   } = d;
 
   const tierBp = isBlueprintPlusTier(diagnosticData);
-  const thoughtBody = pickSocialThoughtLeadershipBody(diagnosticData, d);
-  const paidBody = pickPaidAdsBody(diagnosticData, d);
+  const ctx = developedContextFromD(d);
+  const thoughtBody = appendDevelopedPack(
+    pickSocialThoughtLeadershipBody(diagnosticData, d),
+    buildDevelopedThoughtLeadershipPack(ctx),
+    2600,
+  );
+  const paidBody = appendDevelopedPack(
+    pickPaidAdsBody(diagnosticData, d),
+    buildDevelopedPaidCreativesPack(ctx),
+    4200,
+  );
+
+  const audienceBase =
+    activationSegmentPlansBody ||
+    (tierBp
+      ? blueprintPlusEmptyBlockMessage(companyName, "Audience segments & triggers")
+      : `Primary audience: ${audienceSummary}. Build segment-level trigger points (intent signal, engagement signal, buying-stage signal) and map each trigger to one campaign objective for ${companyName}.`);
+  const audienceBody = appendDevelopedPack(audienceBase, buildDevelopedAudiencePlan(ctx), 2600);
+  const journeyBody = appendDevelopedPack(buyerJourneySummary, buildDevelopedJourneyPlan(ctx), 2400);
+  const competitiveBody = appendDevelopedPack(
+    competitiveMatrixSummary,
+    buildDevelopedCompetitivePlan(ctx),
+    2600,
+  );
+  const roadmapBase =
+    activationRoadmapPlansBody ||
+    (tierBp && scheduleRowsCount === 0
+      ? blueprintPlusEmptyBlockMessage(companyName, "90-day roadmap")
+      : scheduleRowsCount > 0
+        ? `Current schedule has ${scheduleRowsCount} planned items. Phase 1: ${firstPriority}. Phase 2: ${secondPriority}. Phase 3: ${thirdPriority}. Review owners, due windows, and bottlenecks weekly.`
+        : `Define a 30/60/90 plan: (30) ${firstPriority}, (60) ${secondPriority}, (90) ${thirdPriority}, each with owner, due date, dependency, and success check.`);
+  const executionBody = appendDevelopedPack(roadmapBase, buildDevelopedExecutionRoadmap(ctx), 2200);
 
   return [
     {
@@ -566,11 +730,7 @@ export function buildActivationPlanSectionsList(
       summary: activationSegmentPlansBody
         ? "ICP tiers, personas, and segment-level plays from your conversion intelligence."
         : "Who each campaign is for and what event should trigger outreach.",
-      body:
-        activationSegmentPlansBody ||
-        (tierBp
-          ? blueprintPlusEmptyBlockMessage(companyName, "Audience segments & triggers")
-          : `Primary audience: ${audienceSummary}. Build segment-level trigger points (intent signal, engagement signal, buying-stage signal) and map each trigger to one campaign objective for ${companyName}.`),
+      body: audienceBody,
       workbookSectionId: "audience-profile",
     },
     {
@@ -580,7 +740,7 @@ export function buildActivationPlanSectionsList(
         typeof diagnosticData.buyerJourneySummary === "string" && diagnosticData.buyerJourneySummary.trim()
           ? "Stage-by-stage journey with persona-specific adaptations from your customer journey map."
           : "Stage-aware sequencing across channels and lifecycle touchpoints.",
-      body: buyerJourneySummary,
+      body: journeyBody,
       workbookSectionId: "buyer-journey-map",
     },
     {
@@ -590,7 +750,7 @@ export function buildActivationPlanSectionsList(
         typeof diagnosticData.competitiveMatrixSummary === "string" && diagnosticData.competitiveMatrixSummary.trim()
           ? "Differentiation, whitespace, and competitive motion pulled from your positioning analysis."
           : "How campaigns and sales motion respond to competitive pressure.",
-      body: competitiveMatrixSummary,
+      body: competitiveBody,
       workbookSectionId: "competitive-landscape-matrix",
     },
     {
@@ -667,13 +827,7 @@ export function buildActivationPlanSectionsList(
       id: "execution-roadmap",
       label: "90-Day Execution Roadmap",
       summary: "Phased weeks, tasks, and deliverables from your 90-day roadmap.",
-      body:
-        activationRoadmapPlansBody ||
-        (tierBp && scheduleRowsCount === 0
-          ? blueprintPlusEmptyBlockMessage(companyName, "90-day roadmap")
-          : scheduleRowsCount > 0
-            ? `Current schedule has ${scheduleRowsCount} planned items. Phase 1: ${firstPriority}. Phase 2: ${secondPriority}. Phase 3: ${thirdPriority}. Review owners, due windows, and bottlenecks weekly.`
-            : `Define a 30/60/90 plan: (30) ${firstPriority}, (60) ${secondPriority}, (90) ${thirdPriority}, each with owner, due date, dependency, and success check.`),
+      body: executionBody,
       workbookSectionId: "action-plan",
     },
   ];

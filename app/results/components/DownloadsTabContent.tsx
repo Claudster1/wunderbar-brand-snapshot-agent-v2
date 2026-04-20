@@ -32,9 +32,9 @@ export function DownloadsTabContent({ productTier, reportId, email }: Props) {
             WunderBrand Blueprint™ and Blueprint+™.
           </p>
           <div className="flex flex-wrap gap-3 mt-4">
-            <Link href={productTier === "snapshot_plus" ? snapshotPlusHref : snapshotHref} className="btn-secondary">
+            <a href={productTier === "snapshot_plus" ? snapshotPlusHref : snapshotHref} className="btn-secondary">
               Download Foundation Brief
-            </Link>
+            </a>
             <Link href="/brand-blueprint" className="btn-primary">
               See What's Included
             </Link>
@@ -55,18 +55,18 @@ export function DownloadsTabContent({ productTier, reportId, email }: Props) {
           Download role-specific artifacts for leadership, marketing, sales, and implementation handoff.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
-          <Link href={blueprintDocHref("complete", baseBlueprintTier)} className="btn-secondary">Complete {baseBlueprintLabel}</Link>
-          <Link href={blueprintDocHref("executive", baseBlueprintTier)} className="btn-secondary">Executive Summary</Link>
-          <Link href={blueprintDocHref("messaging", baseBlueprintTier)} className="btn-secondary">Brand Messaging Playbook</Link>
-          <Link href={blueprintDocHref("prompts", baseBlueprintTier)} className="btn-secondary">AI Prompt Library</Link>
-          <Link href={blueprintDocHref("voice-checklist", baseBlueprintTier)} className="btn-secondary">Voice Checklist</Link>
+          <a href={blueprintDocHref("complete", baseBlueprintTier)} className="btn-secondary">Complete {baseBlueprintLabel}</a>
+          <a href={blueprintDocHref("executive", baseBlueprintTier)} className="btn-secondary">Executive Summary</a>
+          <a href={blueprintDocHref("messaging", baseBlueprintTier)} className="btn-secondary">Brand Messaging Playbook</a>
+          <a href={blueprintDocHref("prompts", baseBlueprintTier)} className="btn-secondary">AI Prompt Library</a>
+          <a href={blueprintDocHref("voice-checklist", baseBlueprintTier)} className="btn-secondary">Voice Checklist</a>
           {productTier === "blueprint_plus" && (
             <>
-              <Link href={blueprintDocHref("activation", "blueprint-plus")} className="btn-secondary">90-Day Activation Plan</Link>
-              <Link href={blueprintDocHref("digital", "blueprint-plus")} className="btn-secondary">Digital Marketing Strategy</Link>
-              <Link href={blueprintDocHref("competitive", "blueprint-plus")} className="btn-secondary">Competitive Intelligence Brief</Link>
-              <Link href={blueprintDocHref("battle-cards", "blueprint-plus")} className="btn-secondary">Sales Battle Cards</Link>
-              <Link href={blueprintDocHref("standards", "blueprint-plus")} className="btn-secondary">Brand Standards Guide</Link>
+              <a href={blueprintDocHref("activation", "blueprint-plus")} className="btn-secondary">90-Day Activation Plan</a>
+              <a href={blueprintDocHref("digital", "blueprint-plus")} className="btn-secondary">Digital Marketing Strategy</a>
+              <a href={blueprintDocHref("competitive", "blueprint-plus")} className="btn-secondary">Competitive Intelligence Brief</a>
+              <a href={blueprintDocHref("battle-cards", "blueprint-plus")} className="btn-secondary">Sales Battle Cards</a>
+              <a href={blueprintDocHref("standards", "blueprint-plus")} className="btn-secondary">Brand Standards Guide</a>
             </>
           )}
         </div>
@@ -80,10 +80,10 @@ export function DownloadsTabContent({ productTier, reportId, email }: Props) {
             Quick role pack downloads for leadership, marketing, sales, and design handoff.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <Link href={blueprintDocHref("executive", "blueprint-plus")} className="btn-secondary">Leadership Pack</Link>
-            <Link href={blueprintDocHref("messaging", "blueprint-plus")} className="btn-secondary">Marketing Pack</Link>
-            <Link href={blueprintDocHref("battle-cards", "blueprint-plus")} className="btn-secondary">Sales Battle Cards</Link>
-            <Link href={blueprintDocHref("standards", "blueprint-plus")} className="btn-secondary">Design Pack</Link>
+            <a href={blueprintDocHref("executive", "blueprint-plus")} className="btn-secondary">Leadership Pack</a>
+            <a href={blueprintDocHref("messaging", "blueprint-plus")} className="btn-secondary">Marketing Pack</a>
+            <a href={blueprintDocHref("battle-cards", "blueprint-plus")} className="btn-secondary">Sales Battle Cards</a>
+            <a href={blueprintDocHref("standards", "blueprint-plus")} className="btn-secondary">Design Pack</a>
           </div>
         </section>
       )}
@@ -94,9 +94,9 @@ export function DownloadsTabContent({ productTier, reportId, email }: Props) {
         <p className="bs-body-sm text-brand-muted mb-4">
           Export your activation schedule in spreadsheet format for team collaboration and weekly updates.
         </p>
-        <Link href={scheduleXlsxHref} className="btn-secondary">
+        <a href={scheduleXlsxHref} className="btn-secondary">
           Download Activation Schedule (.xlsx)
-        </Link>
+        </a>
       </section>
     </section>
   );

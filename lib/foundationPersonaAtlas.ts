@@ -82,15 +82,14 @@ function tabLabelFromRole(role: string, index: number): string {
   return `Persona ${index + 1}`;
 }
 
-const STATIC_ATLAS: FoundationPersonaAtlasEntry[] = [
+/** Sample roles when the diagnostic has no `buyerPersonas` — portraits are generated (DiceBear), not fixed SVGs. */
+const STATIC_ATLAS_BASE: Array<Omit<FoundationPersonaAtlasEntry, "portraitSrc" | "portraitRemote" | "messageAngle">> = [
   {
     key: "static-vp-ops",
     tabLabel: "VP Operations",
     title: "Sarah Chen",
     role: "VP Operations",
-    portraitSrc: "/assets/persona-icons/persona-vp-operations.svg",
-    portraitAlt: "Illustrated portrait for Sarah Chen, VP Operations persona",
-    portraitRemote: false,
+    portraitAlt: "Avatar for Sarah Chen, VP Operations (sample persona)",
     goals: [
       "Build coordination infrastructure before the next hiring wave.",
       "Reduce leadership escalations caused by cross-team misalignment.",
@@ -99,7 +98,6 @@ const STATIC_ATLAS: FoundationPersonaAtlasEntry[] = [
       "Buying another tool that creates implementation overhead.",
       "Failing to show finance-legible ROI for operations investments.",
     ],
-    messageAngle: "", // filled at runtime in UI with brandName + topGap
     channels: "LinkedIn thought leadership, operations-focused landing pages, diagnostic call follow-up email.",
     cta: "Review my operations rollout plan",
   },
@@ -108,9 +106,7 @@ const STATIC_ATLAS: FoundationPersonaAtlasEntry[] = [
     tabLabel: "CFO / COO",
     title: "David Park",
     role: "CFO / COO",
-    portraitSrc: "/assets/persona-icons/persona-cfo-coo.svg",
-    portraitAlt: "Illustrated portrait for David Park, CFO / COO persona",
-    portraitRemote: false,
+    portraitAlt: "Avatar for David Park, CFO / COO (sample persona)",
     goals: [
       "Increase revenue efficiency from current headcount investments.",
       "Reduce operational waste and duplicated execution costs.",
@@ -119,7 +115,6 @@ const STATIC_ATLAS: FoundationPersonaAtlasEntry[] = [
       "Unclear payback period and soft strategic claims without measurable outcomes.",
       "Platform risk that creates financial and change-management drag.",
     ],
-    messageAngle: "",
     channels: "Executive summary, ROI email brief, finance-review one-pager.",
     cta: "See the financial impact model",
   },
@@ -128,9 +123,7 @@ const STATIC_ATLAS: FoundationPersonaAtlasEntry[] = [
     tabLabel: "RevOps / Chief of Staff",
     title: "Alex Rivera",
     role: "Head of RevOps / Chief of Staff",
-    portraitSrc: "/assets/persona-icons/persona-revops.svg",
-    portraitAlt: "Illustrated portrait for Alex Rivera, RevOps / Chief of Staff persona",
-    portraitRemote: false,
+    portraitAlt: "Avatar for Alex Rivera, RevOps / Chief of Staff (sample persona)",
     goals: [
       "Create one trusted data narrative across GTM teams.",
       "Improve implementation confidence without adding integration sprawl.",
@@ -139,7 +132,6 @@ const STATIC_ATLAS: FoundationPersonaAtlasEntry[] = [
       "Conflicting data models and added systems complexity.",
       "Technical promises that are not operationally defensible.",
     ],
-    messageAngle: "",
     channels: "Technical validation call, implementation doc, RevOps enablement sequence.",
     cta: "Validate integration and ownership plan",
   },
@@ -158,15 +150,33 @@ export function buildFoundationPersonaAtlasEntries(params: {
   const gap = params.topGap.toLowerCase();
 
   if (raw.length === 0) {
-    return STATIC_ATLAS.map((row) => ({
-      ...row,
-      messageAngle:
-        row.key === "static-vp-ops"
-          ? `${brandName} helps operations leaders remove ${gap} with owner-ready rollout sequencing.`
-          : row.key === "static-cfo-coo"
-            ? `${brandName} improves ${pillar} outcomes with measurable impact on decision velocity and execution efficiency.`
-            : `${brandName} gives RevOps leaders a clarity-first operating model that keeps cross-functional execution accountable.`,
-    }));
+    return STATIC_ATLAS_BASE.map((row, index) => {
+      const seed = buildPersonaPortraitSeed({
+        reportId: params.reportId,
+        companyName: brandName,
+        personaName: row.title,
+        role: row.role,
+        index,
+      });
+      const portraitSrc = dicebearPersonaPortraitUrlForPersona({
+        seed,
+        index,
+        diagnostic: params.diagnosticData,
+        personaName: row.title,
+        personaRecord: null,
+      });
+      return {
+        ...row,
+        portraitSrc,
+        portraitRemote: true,
+        messageAngle:
+          row.key === "static-vp-ops"
+            ? `${brandName} helps operations leaders remove ${gap} with owner-ready rollout sequencing.`
+            : row.key === "static-cfo-coo"
+              ? `${brandName} improves ${pillar} outcomes with measurable impact on decision velocity and execution efficiency.`
+              : `${brandName} gives RevOps leaders a clarity-first operating model that keeps cross-functional execution accountable.`,
+      };
+    });
   }
 
   return raw.slice(0, 3).map((item, index) => {

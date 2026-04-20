@@ -1,5 +1,5 @@
 /**
- * Optional “parallel” phrasing for dense GTM / measurement rows.
+ * Optional “parallel” phrasing for dense go-to-market (GTM) / measurement rows.
  * Model-provided copy wins; heuristics only fill gaps so existing reports still improve in UI.
  */
 
@@ -35,7 +35,7 @@ function jargonGloss(tool: string, how: string, metric: string): string | null {
   }
   if (/\bsql\b/.test(blob) && !/\bstructured query\b/i.test(how + metric)) {
     out.push(
-      'In GTM contexts "SQL" usually means a sales-qualified lead—agreed criteria that a prospect is ready for direct sales follow-up.',
+      'In go-to-market (GTM) contexts "SQL" usually means a sales-qualified lead—agreed criteria that a prospect is ready for direct sales follow-up.',
     );
   }
   if (/\bcrm\b/.test(blob) && /stage|pipeline|funnel|deal/.test(blob)) {

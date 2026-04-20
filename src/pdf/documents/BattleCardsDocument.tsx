@@ -5,14 +5,12 @@ import { pdfTheme } from "../theme";
 import type { BlueprintEngineOutput, IcpGoToMarketPlan } from "../types/blueprintReport";
 import { DisclaimerPage } from "../components/DisclaimerPage";
 import { SectionDividerPage } from "../components/SectionDividerPage";
-
-const LOGO_URL =
-  "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp";
+import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
 
 const s = StyleSheet.create({
   page: {
     padding: 42,
-    paddingBottom: 66,
+    paddingBottom: 92,
     fontFamily: "Helvetica",
     fontSize: 10,
     color: "#2D3A4A",
@@ -155,7 +153,7 @@ export function BattleCardsDocument({ data, brandName }: Props) {
     <Document>
       <Page size="A4" style={s.cover}>
         {/* eslint-disable-next-line jsx-a11y/alt-text */}
-        <Image src={LOGO_URL} style={s.logo} />
+        <Image src={PDF_WUNDERBAR_LOGO_SRC} style={s.logo} />
         <Text style={s.coverTitle}>Sales Battle Cards</Text>
         <Text style={s.coverSub}>{brandName} — WunderBrand Blueprint+™</Text>
         <Text style={s.coverMeta}>

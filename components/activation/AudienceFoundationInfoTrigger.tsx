@@ -133,9 +133,9 @@ export default function AudienceFoundationInfoTrigger({ links, variant = "compac
           <p style={{ margin: "10px 0 6px", fontSize: 11, fontWeight: 800, color: NAVY, letterSpacing: "0.04em" }}>
             Open a brief
           </p>
-          <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: NAVY, lineHeight: 1.5 }}>
+          <ul className="strategy-suite-ul" style={{ margin: 0, fontSize: 12, color: NAVY, lineHeight: 1.5 }}>
             {links.map((item) => (
-              <li key={item.href} style={{ marginBottom: 5 }}>
+              <li key={item.href}>
                 <Link
                   href={item.href}
                   onClick={close}

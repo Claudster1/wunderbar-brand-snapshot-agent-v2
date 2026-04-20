@@ -479,7 +479,7 @@ export default function StrategyTab({
       id: "strategic-offer",
       label: "Strategic offer & portfolio",
       summary:
-        "What you sell (product, service, or program), the buyer job, scope boundaries, success signals, and how channels should reinforce the same offer—JTBD and outcome-oriented framing for GTM and Activation.",
+        "What you sell (product, service, or program), the buyer job, scope boundaries, success signals, and how channels should reinforce the same offer—jobs to be done (JTBD) and outcome-oriented framing for go-to-market (GTM) and Activation.",
       body: (() => {
         const built = buildStrategicOfferPlanBody(diagnosticData as Record<string, unknown>);
         if (built) return built;
@@ -510,7 +510,7 @@ export default function StrategyTab({
         const label = [archetype, secondaryArchetype].filter(Boolean).join(" + ");
         const named = label ? `Your suite labels this pattern as ${label}. ` : "";
         return (
-          `${named}For GTM and Activation, treat archetype and voice as fixed inputs: briefs should say “stay on the Foundation definition,” not reinterpret the archetype per channel.\n\n` +
+          `${named}For go-to-market (GTM) and Activation, treat archetype and voice as fixed inputs: briefs should say “stay on the Foundation definition,” not reinterpret the archetype per channel.\n\n` +
           `Open Foundation → Voice & Expression for the canonical copy, primary/secondary behavior, and channel-specific voice examples—then use “Applying this topic” below for planning checks only.`
         );
       })(),
@@ -520,7 +520,7 @@ export default function StrategyTab({
       id: "icp-personas",
       label: "Audience Profiles",
       summary:
-        "Snapshot answers plus ICP depth from your deliverable—segments, pains, objections, and transition plan when present.",
+        "Snapshot answers plus ideal customer profile (ICP) depth from your deliverable—segments, pains, objections, and transition plan when present.",
       body: buildAudienceProfilesBody({
         companyName,
         industry,
@@ -1137,7 +1137,7 @@ export default function StrategyTab({
                         const insight = typeof row?.insight === "string" ? row.insight : "";
                         if (!insight) return null;
                         return (
-                          <li key={`ref-${i}`} style={{ marginBottom: 10 }}>
+                          <li key={`ref-${i}`}>
                             {pillars ? <strong style={{ color: NAVY }}>{pillars}: </strong> : null}
                             {insight}
                           </li>
@@ -1194,7 +1194,7 @@ export default function StrategyTab({
                             {ms.supportingMessages
                               .filter((x): x is string => typeof x === "string" && x.trim().length > 0)
                               .map((s) => (
-                                <li key={s} style={{ marginBottom: 8 }}>
+                                <li key={s}>
                                   {s}
                                 </li>
                               ))}
@@ -1209,7 +1209,7 @@ export default function StrategyTab({
                             {ms.proofPoints
                               .filter((x): x is string => typeof x === "string" && x.trim().length > 0)
                               .map((s) => (
-                                <li key={s} style={{ marginBottom: 8 }}>
+                                <li key={s}>
                                   {s}
                                 </li>
                               ))}
@@ -1250,7 +1250,7 @@ export default function StrategyTab({
                           .filter((x): x is string => typeof x === "string" && x.trim().length > 0)
                           .slice(0, 8)
                           .map((line) => (
-                            <li key={line} style={{ marginBottom: 8 }}>
+                            <li key={line}>
                               {line}
                             </li>
                           ))}
@@ -1612,7 +1612,7 @@ export default function StrategyTab({
                       <div style={EXEC_DO_GUIDANCE_CARD}>
                         <p style={{ ...STRATEGY_IMPL_SUBHEAD, color: SEMANTIC_DO.label }}>Do</p>
                         <ul
-                          className="strategy-suite-ul m-0 mt-2 list-disc space-y-1.5 pl-4 text-sm leading-relaxed sm:text-[15px]"
+                          className="strategy-suite-ul m-0 mt-2 text-sm leading-relaxed sm:text-[15px]"
                           style={{ fontFamily: SUITE_FONT_UI, color: SEMANTIC_DO.text }}
                         >
                           {doDontGuidance[section.id].do.map((item, index) => (
@@ -1625,7 +1625,7 @@ export default function StrategyTab({
                       <div style={EXEC_DONT_GUIDANCE_CARD}>
                         <p style={{ ...STRATEGY_IMPL_SUBHEAD, color: SEMANTIC_DONT.label }}>Don&apos;t</p>
                         <ul
-                          className="strategy-suite-ul m-0 mt-2 list-disc space-y-1.5 pl-4 text-sm leading-relaxed sm:text-[15px]"
+                          className="strategy-suite-ul m-0 mt-2 text-sm leading-relaxed sm:text-[15px]"
                           style={{ fontFamily: SUITE_FONT_UI, color: SEMANTIC_DONT.text }}
                         >
                           {doDontGuidance[section.id].dont.map((item, index) => (

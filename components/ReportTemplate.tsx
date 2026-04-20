@@ -155,7 +155,7 @@ export function ReportTemplate({ data }: { data: any }) {
       <section className="mt-12">
         <h2 className="text-xl font-semibold text-brand-navy">Top Recommendations</h2>
 
-        <ul className="mt-4 space-y-3 list-disc pl-6 text-gray-700">
+        <ul className="strategy-suite-ul mt-4 text-gray-700">
           {(recommendations || []).map((rec: string, index: number) => (
             <li key={index}>{rec}</li>
           ))}

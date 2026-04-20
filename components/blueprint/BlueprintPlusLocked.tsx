@@ -37,7 +37,7 @@ export function BlueprintPlusLocked({ userRole }: BlueprintPlusLockedProps = {})
         </p>
       </div>
 
-      <ul className="list-disc pl-5 mb-6 text-sm">
+      <ul className="strategy-suite-ul mb-6 text-sm">
         <li>AI Answer Engine (AEO) + SEO strategy</li>
         <li>Campaign-level messaging prompts</li>
         <li>Cross-pillar orchestration</li>

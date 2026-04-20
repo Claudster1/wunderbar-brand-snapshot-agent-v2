@@ -23,7 +23,7 @@ type Props = {
 
 /**
  * Renders strategy prose with real list markup where lines use `-`, `*`, `•`, or `1.` / `1)` prefixes.
- * Unordered lists use `strategy-suite-ul` (aligned with Foundation-style suite lists: spacing, midnight body).
+ * Unordered lists use `strategy-suite-ul` (bright blue `::marker`, padding, 0.5rem row gap — see `globals.css`).
  */
 export default function StrategyProseBody({
   text,
@@ -47,7 +47,7 @@ export default function StrategyProseBody({
           return (
             <ul
               key={`ul-${i}`}
-              className="strategy-suite-ul m-0 list-disc space-y-1.5 pl-4 text-sm leading-relaxed text-brand-midnight sm:text-[15px]"
+              className="strategy-suite-ul m-0 text-sm leading-relaxed text-brand-midnight sm:text-[15px]"
               style={{ fontFamily: SUITE_FONT_UI }}
             >
               {b.items.map((item, j) => (

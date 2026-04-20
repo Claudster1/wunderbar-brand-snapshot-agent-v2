@@ -98,11 +98,15 @@ export function PricingCard({
 
       <p className="mt-3 text-[14.5px] leading-relaxed text-[#0C1526]">{description}</p>
 
-      <ul className="mt-5 space-y-2 text-[14.5px] text-[#0C1526]">
+      <ul className="mt-5 flex flex-col gap-2 text-[14.5px] text-[#0C1526]">
         {features.map((f) => (
-          <li key={f} className="flex gap-2">
-            <span className="mt-[6px] inline-block h-2 w-2 rounded-full bg-[#07B0F2]" />
-            <span>{f}</span>
+          <li key={f} className="flex items-start gap-2.5">
+            <span
+              className="mt-[0.55em] size-1.5 shrink-0 rounded-full"
+              style={{ background: "var(--wb-bullet-accent, #07b0f2)" }}
+              aria-hidden
+            />
+            <span className="min-w-0 flex-1">{f}</span>
           </li>
         ))}
       </ul>

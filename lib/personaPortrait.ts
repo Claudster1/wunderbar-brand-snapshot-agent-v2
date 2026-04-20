@@ -1,23 +1,70 @@
 /**
  * Deterministic illustrated portraits for buyer personas.
- * Uses DiceBear (SVG) so each company + persona name + role maps to a stable face.
- * One DiceBear style per report (from business context + stable report key); faces differ by seed; backgrounds vary slightly by persona index.
- * When a persona display name implies a gendered presentation, we bias DiceBear options so Lorelei (female-leaning) is not used for clearly male names, and facial hair is suppressed for inferred-female names on Micah / Notionists.
+ * Uses DiceBear 7.x (SVG) so each company + persona name + role + slot index maps to a stable avatar.
+ * **Style variety:** a large per-audience style pool rotates **per persona slot** (not one style locked for the whole report),
+ * so a 3-persona atlas can show three different illustration systems while staying deterministic.
+ * Background tints shift by persona index; inferred gender adjusts Lorelei→Micah for male-leaning names only.
  * CSP: img-src allows https:; no cookies sent if using plain <img>.
  */
 const DICEBEAR_VERSION = "7.x";
 const DEFAULT_STYLE = "notionists";
 
-/** Professional-leaning illustration sets */
-const STYLES_B2B = ["notionists", "micah"] as const;
-/** Consumer / warmer sets — still abstract, not photos */
-const STYLES_B2C = ["lorelei", "notionists", "micah"] as const;
-/** When business model is unclear, rotate across styles */
-const STYLES_NEUTRAL = ["notionists", "micah", "lorelei"] as const;
+/**
+ * Large, non-overlapping DiceBear 7.x style pools so each persona slot can pick a distinct illustration system.
+ * B2B leans neutral/professional; B2C allows warmer character sets; unknown rotates a balanced mix.
+ * @see https://www.dicebear.com/styles/
+ */
+const PERSONA_STYLE_POOL_B2B: readonly string[] = [
+  "notionists",
+  "notionists-neutral",
+  "micah",
+  "open-peeps",
+  "personas",
+  "adventurer-neutral",
+  "big-smile",
+  "avataaars-neutral",
+  "lorelei-neutral",
+  "miniavs",
+  "dylan",
+  "croodles-neutral",
+  "bottts-neutral",
+];
 
-const BG_B2B = ["e8f6fe", "e6f0ff", "eef6ff"] as const;
-const BG_B2C = ["fff4ec", "fef3e2", "fdf2f8"] as const;
-const BG_NEUTRAL = ["e8f6fe", "f4f0ff", "f0f9ff"] as const;
+const PERSONA_STYLE_POOL_B2C: readonly string[] = [
+  "lorelei",
+  "lorelei-neutral",
+  "open-peeps",
+  "personas",
+  "avataaars",
+  "big-smile",
+  "adventurer",
+  "micah",
+  "notionists",
+  "fun-emoji",
+  "miniavs",
+  "croodles",
+  "big-ears-neutral",
+];
+
+const PERSONA_STYLE_POOL_NEUTRAL: readonly string[] = [
+  "notionists",
+  "micah",
+  "lorelei-neutral",
+  "open-peeps",
+  "personas",
+  "adventurer-neutral",
+  "big-smile",
+  "avataaars-neutral",
+  "miniavs",
+  "dylan",
+  "notionists-neutral",
+  "croodles-neutral",
+  "pixel-art-neutral",
+];
+
+const BG_B2B = ["e8f6fe", "e6f0ff", "eef6ff", "e0f2fe", "f0f4ff"] as const;
+const BG_B2C = ["fff4ec", "fef3e2", "fdf2f8", "fff1f2", "fef9c3"] as const;
+const BG_NEUTRAL = ["e8f6fe", "f4f0ff", "f0f9ff", "ecfdf5", "fdf4ff"] as const;
 
 export type PersonaAudienceKind = "b2b" | "b2c" | "unknown";
 
@@ -275,26 +322,27 @@ export function resolvePersonaPortraitDiceBear(params: {
   });
 
   const kind = inferPersonaAudienceKind(params.diagnostic ?? undefined);
-  const styles =
-    kind === "b2c" ? STYLES_B2C : kind === "b2b" ? STYLES_B2B : STYLES_NEUTRAL;
+  const pool =
+    kind === "b2c"
+      ? PERSONA_STYLE_POOL_B2C
+      : kind === "b2b"
+        ? PERSONA_STYLE_POOL_B2B
+        : PERSONA_STYLE_POOL_NEUTRAL;
   const bgs = kind === "b2c" ? BG_B2C : kind === "b2b" ? BG_B2B : BG_NEUTRAL;
   const reportKey = reportPortraitKey(params.diagnostic ?? undefined, params.seed);
-  const stylePick = hashToUint(`${reportKey}|${kind}|style`);
-  let style = styles[stylePick % styles.length] ?? DEFAULT_STYLE;
+  /** One style per persona slot (not one per report) so multi-persona atlases stay visually distinct. */
+  const slotPick = hashToUint(`${reportKey}|${params.seed}|slot:${params.index}|${kind}`);
+  let style = pool[slotPick % pool.length] ?? DEFAULT_STYLE;
   /** Caller may already suffix seed (e.g. persona-gender) for DiceBear PRNG + bg tint. */
   const h = hashToUint(`${params.seed}|bg`);
   const backgroundColor = bgs[(h + params.index * 7) % bgs.length] ?? "e8f6fe";
 
   /**
-   * Lorelei is female-leaning; Micah/Notionists are mixed. When we infer gender from a first name,
-   * pick a style set that matches presentation (per-portrait override beats "one style per report"
-   * so Marcus/Priya-type labels match faces).
+   * Lorelei variants read female-leaning; swap to Micah for inferred-male names so portraits stay plausible.
+   * We intentionally do NOT force all women into Lorelei — that collapsed variety across personas.
    */
-  if (gender === "male" && style === "lorelei") {
+  if (gender === "male" && (style === "lorelei" || style === "lorelei-neutral")) {
     style = "micah";
-  }
-  if (gender === "female" && (style === "notionists" || style === "micah")) {
-    style = "lorelei";
   }
 
   const out: {

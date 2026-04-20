@@ -4,6 +4,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
@@ -817,23 +818,30 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 
   return (
     <main className="min-h-screen font-brand" style={{ backgroundColor: "#F5F7FA" }}>
-      <ResultsTabsShell
-        key={[
-          data.reportId,
-          initialResultsTab ?? "_",
-          initialWorkbookSectionId ?? "_",
-          initialActivationPlanId ?? "_",
-          activationFocusFromUrl ?? "_",
-        ].join("|")}
-        productTier={tabTier}
-        resultsContent={resultsContent}
-        foundationContent={foundationContent}
-        diagnosticData={diagnosticData}
-        initialActiveTab={initialResultsTab}
-        initialWorkbookSectionId={initialWorkbookSectionId}
-        initialActivationPlanId={initialActivationPlanId}
-        activationFocus={activationFocusFromUrl}
-      />
+      <Suspense
+        fallback={
+          <div className="flex min-h-[40vh] items-center justify-center px-4 text-sm text-brand-muted">
+            Loading results…
+          </div>
+        }
+      >
+        <ResultsTabsShell
+          key={[
+            data.reportId,
+            initialResultsTab ?? "_",
+            initialWorkbookSectionId ?? "_",
+            initialActivationPlanId ?? "_",
+          ].join("|")}
+          productTier={tabTier}
+          resultsContent={resultsContent}
+          foundationContent={foundationContent}
+          diagnosticData={diagnosticData}
+          initialActiveTab={initialResultsTab}
+          initialWorkbookSectionId={initialWorkbookSectionId}
+          initialActivationPlanId={initialActivationPlanId}
+          activationFocus={activationFocusFromUrl}
+        />
+      </Suspense>
     </main>
   );
 }

@@ -9,9 +9,7 @@ import { registerPdfFonts } from "../registerFonts";
 import { DisclaimerPage } from "../components/DisclaimerPage";
 import { ColorSwatch } from "../components/ColorSwatch";
 import { getArchetypeIcon, getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
-
-const LOGO_URL =
-  "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp";
+import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
 
 // Register fonts
 registerPdfFonts();
@@ -244,7 +242,7 @@ export const BrandBlueprintPlusPDF = ({
       {/* PAGE 1 — COVER */}
       <Page style={stylePresets.page}>
         {/* eslint-disable-next-line jsx-a11y/alt-text */}
-        <Image src={LOGO_URL} style={{ width: 132, marginBottom: spacing.md }} />
+        <Image src={PDF_WUNDERBAR_LOGO_SRC} style={{ width: 132, marginBottom: spacing.md }} />
         <View style={{ borderBottom: `3px solid ${colors.navy}`, paddingBottom: spacing.lg, marginBottom: spacing["2xl"] }}>
           <Text style={{ ...stylePresets.h1, fontSize: 32, marginBottom: 4 }}>WunderBrand Blueprint+™</Text>
           <Text style={{ fontSize: fonts.md, color: colors.textSecondary, fontWeight: fonts.medium }}>

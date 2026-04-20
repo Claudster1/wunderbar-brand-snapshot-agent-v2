@@ -19,7 +19,7 @@ export function ContextOpportunity({
         the areas below would allow us to go deeper:
       </p>
 
-      <ul className="list-disc pl-5 text-sm text-slate-700">
+      <ul className="strategy-suite-ul text-sm text-slate-700">
         {gaps.map((gap) => (
           <li key={gap}>{gap}</li>
         ))}

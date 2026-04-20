@@ -42,7 +42,7 @@ export function PromptPackPanel() {
           <h3 className="font-semibold mb-2">{pack.title}</h3>
           <p className="text-sm text-slate-600 mb-4">{pack.description}</p>
 
-          <ul className="text-sm list-disc pl-5 space-y-1">
+          <ul className="strategy-suite-ul text-sm">
             {pack.examples.map((ex) => (
               <li key={ex}>{ex}</li>
             ))}

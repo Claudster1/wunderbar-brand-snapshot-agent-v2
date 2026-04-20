@@ -3,14 +3,14 @@ import { Document, Page, Text, View, Image, StyleSheet } from "@react-pdf/render
 import { pdfTheme } from "../theme";
 import { DisclaimerPage } from "../components/DisclaimerPage";
 import { SectionDividerPage } from "../components/SectionDividerPage";
+import { PdfHeader } from "../components/PdfHeader";
 import type { BlueprintEngineOutput } from "../types/blueprintReport";
-
-const LOGO_URL =
-  "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp";
+import { parseHexAccent } from "@/src/pdf/lib/promptPackDisplay";
+import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
 
 const s = StyleSheet.create({
   cover: {
-    padding: 42,
+    padding: 48,
     fontFamily: "Helvetica",
     justifyContent: "center",
     alignItems: "center",
@@ -20,8 +20,8 @@ const s = StyleSheet.create({
   coverTitle: { fontSize: 24, fontWeight: "bold", color: "#FFFFFF", textAlign: "center", marginBottom: 8 },
   coverSub: { fontSize: 12, color: pdfTheme.colors.aqua, textAlign: "center" },
   page: {
-    padding: 42,
-    paddingBottom: 66,
+    padding: 48,
+    paddingBottom: 92,
     fontFamily: "Helvetica",
     fontSize: 10,
     color: "#2D3A4A",
@@ -77,7 +77,7 @@ const s = StyleSheet.create({
     color: "#991B1B",
   },
   listItem: { fontSize: 10, marginBottom: 4, lineHeight: 1.5 },
-  footer: { position: "absolute", bottom: 18, left: 42, right: 42, flexDirection: "row", justifyContent: "space-between" },
+  footer: { position: "absolute", bottom: 22, left: 48, right: 48, flexDirection: "row", justifyContent: "space-between" },
   footerText: { fontSize: 7, color: "#9CA3AF" },
 });
 
@@ -87,6 +87,9 @@ interface Props {
 }
 
 export function VoiceChecklistDocument({ data, brandName }: Props) {
+  const palette = data.visualDirection?.colorPalette as Array<{ hex?: string }> | undefined;
+  const brandAccent = parseHexAccent(Array.isArray(palette) ? palette.map((entry) => entry?.hex).find(Boolean) : undefined) || pdfTheme.colors.blue;
+  const printedDate = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
   const tone = data.brandPersona?.communicationStyle?.tone || "Clear, confident, practical";
   const pace = data.brandPersona?.communicationStyle?.pace || "Direct and structured";
   const energy = data.brandPersona?.communicationStyle?.energy || "Warm authority";
@@ -110,15 +113,18 @@ export function VoiceChecklistDocument({ data, brandName }: Props) {
   return (
     <Document>
       <Page size="A4" style={s.cover}>
-        <Image src={LOGO_URL} style={s.logo} />
+        <Image src={PDF_WUNDERBAR_LOGO_SRC} style={s.logo} />
         <Text style={s.coverTitle}>Voice Do and Don&apos;t Checklist</Text>
         <Text style={s.coverSub}>{brandName} Brand Language Guardrails</Text>
+        <View style={{ width: 76, height: 3, borderRadius: 999, backgroundColor: brandAccent, marginTop: 10, marginBottom: 16 }} />
+        <Text style={s.small}>{printedDate}</Text>
       </Page>
 
       <SectionDividerPage
         label="Section"
         title="Voice Profile and Rules"
         subtitle="Core tone profile plus approved and off-brand language patterns."
+        accentHex={brandAccent}
       />
 
       <Page size="A4" style={s.page} wrap>
@@ -126,6 +132,7 @@ export function VoiceChecklistDocument({ data, brandName }: Props) {
           <Text style={s.footerText}>Voice Checklist - {brandName}</Text>
           <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
         </View>
+        <PdfHeader title="Voice Checklist" businessName={brandName} date={printedDate} accentHex={brandAccent} />
 
         <Text style={s.h1}>Core Voice Profile</Text>
         <View style={s.card} wrap={false}>

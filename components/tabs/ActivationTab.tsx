@@ -260,8 +260,14 @@ export default function ActivationTab({
     reportId === "preview-results-tabs" ||
     reportId === "preview-mock";
 
-  const activationPlanSections = buildActivationPlanSectionsList(diagnosticData, scheduleRows.length);
-  const activationPlanSectionsVisible = filterActivationPlanSections(productTier, activationPlanSections);
+  const activationPlanSections = useMemo(
+    () => buildActivationPlanSectionsList(diagnosticData, scheduleRows.length),
+    [diagnosticData, scheduleRows.length],
+  );
+  const activationPlanSectionsVisible = useMemo(
+    () => filterActivationPlanSections(productTier, activationPlanSections),
+    [productTier, activationPlanSections],
+  );
   const { audienceJourney, campaigns: campaignSections } = useMemo(
     () => splitActivationSectionsByAudienceVsCampaign(activationPlanSectionsVisible),
     [activationPlanSectionsVisible],
@@ -283,7 +289,7 @@ export default function ActivationTab({
     return filterActivationSectionsByTabFocus(activationPlanSectionsVisible, activationFocus);
   }, [showFoundationCampaignToggle, activationPlanSectionsVisible, activationFocus]);
 
-  /** Deep link: `/results?...&activationPlanId=paid-ads` → scroll to that playbook row. */
+  /** Deep link: `/results?...&activationPlanId=paid-ads` → scroll to that playbook row (once per URL change, not every render). */
   useEffect(() => {
     const raw = searchParams.get("activationPlanId");
     const planId = typeof raw === "string" ? raw.trim() : "";
@@ -293,12 +299,15 @@ export default function ActivationTab({
       const el = document.getElementById(targetId);
       if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
     };
-    const raf = window.requestAnimationFrame(() => {
-      run();
-      window.setTimeout(run, 120);
-    });
-    return () => window.cancelAnimationFrame(raf);
-  }, [searchParamsKey, sectionsForTable, searchParams]);
+    const raf = window.requestAnimationFrame(run);
+    const t1 = window.setTimeout(run, 120);
+    const t2 = window.setTimeout(run, 400);
+    return () => {
+      window.cancelAnimationFrame(raf);
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+  }, [searchParamsKey]);
 
   const setActivationFocusInUrl = (next: ActivationTabFocus) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -669,6 +678,16 @@ export default function ActivationTab({
             </button>
           ) : null}
         </div>
+        <p
+          className="m-0 max-w-[900px] text-xs leading-relaxed text-brand-muted"
+          style={{ marginTop: 10, fontFamily: "'Lato', sans-serif" }}
+        >
+          <span className="font-semibold text-brand-midnight">Exports:</span> this button downloads every activation
+          playbook as one Markdown file (great for Notion, Docs, or handoff). Editable source of truth for channel copy
+          lives in <strong className="text-brand-midnight">Workbook</strong> (refine, version history, prompts). Packaged{" "}
+          <strong className="text-brand-midnight">PDFs and bundles</strong> are on the <strong className="text-brand-midnight">Downloads</strong> tab;
+          opening <strong className="text-brand-midnight">Open plan</strong> for one channel also offers a single-plan PDF.
+        </p>
         <div
           style={{
             overflowX: "auto",

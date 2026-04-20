@@ -8,12 +8,14 @@ import { pdfTheme } from "../theme";
 import { EXAMPLE_CALLOUT, SEMANTIC_DO, SEMANTIC_DONT } from "../reportVisualTokens";
 import { DisclaimerPage } from "../components/DisclaimerPage";
 import { SectionDividerPage } from "../components/SectionDividerPage";
+import { PdfHeader } from "../components/PdfHeader";
 import type { BlueprintEngineOutput } from "../types/blueprintReport";
+import { parseHexAccent } from "@/src/pdf/lib/promptPackDisplay";
+import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
 
-const LOGO_URL = "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp";
 
 const s = StyleSheet.create({
-  page: { padding: 42, paddingBottom: 66, fontFamily: "Helvetica", fontSize: 10, color: "#2D3A4A", lineHeight: 1.6 },
+  page: { padding: 48, paddingBottom: 92, fontFamily: "Helvetica", fontSize: 10, color: "#2D3A4A", lineHeight: 1.6 },
   cover: { padding: 42, fontFamily: "Helvetica", justifyContent: "center", alignItems: "center", backgroundColor: pdfTheme.colors.navy },
   logo: { width: 100, marginBottom: 30, opacity: 0.9 },
   coverTitle: { fontSize: 26, fontWeight: "bold", color: "#FFFFFF", textAlign: "center", marginBottom: 6 },
@@ -48,7 +50,7 @@ const s = StyleSheet.create({
   row: { flexDirection: "row", marginBottom: 6 },
   col2: { width: "50%", paddingRight: 8 },
   col3: { width: "33%", paddingRight: 6 },
-  footer: { position: "absolute", bottom: 18, left: 42, right: 42, flexDirection: "row", justifyContent: "space-between" },
+  footer: { position: "absolute", bottom: 22, left: 48, right: 48, flexDirection: "row", justifyContent: "space-between" },
   footerText: { fontSize: 7, color: "#9CA3AF" },
 });
 
@@ -56,14 +58,18 @@ interface Props { data: BlueprintEngineOutput; brandName: string }
 
 export function MessagingPlaybookDocument({ data, brandName }: Props) {
   const d = data;
+  const palette = d.visualDirection?.colorPalette as Array<{ hex?: string }> | undefined;
+  const brandAccent = parseHexAccent(Array.isArray(palette) ? palette.map((entry) => entry?.hex).find(Boolean) : undefined) || pdfTheme.colors.blue;
+  const printedDate = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
   return (
     <Document>
       <Page size="A4" style={s.cover}>
         {/* eslint-disable-next-line jsx-a11y/alt-text */}
-        <Image src={LOGO_URL} style={s.logo} />
+        <Image src={PDF_WUNDERBAR_LOGO_SRC} style={s.logo} />
         <Text style={s.coverTitle}>Brand Messaging Playbook</Text>
         <Text style={s.coverSub}>{brandName}</Text>
-        <Text style={{ ...s.coverMeta, marginTop: 26 }}>{new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</Text>
+        <View style={{ width: 76, height: 3, borderRadius: 999, backgroundColor: brandAccent, marginTop: 10, marginBottom: 16 }} />
+        <Text style={{ ...s.coverMeta, marginTop: 26 }}>{printedDate}</Text>
         <Text style={{ ...s.coverMeta, marginTop: 34, fontSize: 8 }}>CONFIDENTIAL — For marketing team use</Text>
       </Page>
 
@@ -71,6 +77,7 @@ export function MessagingPlaybookDocument({ data, brandName }: Props) {
         label="Section"
         title="Voice and Messaging Foundations"
         subtitle="Persona, voice rules, and the core messaging system."
+        accentHex={brandAccent}
       />
 
       <Page size="A4" style={s.page} wrap>
@@ -78,6 +85,8 @@ export function MessagingPlaybookDocument({ data, brandName }: Props) {
           <Text style={s.footerText}>Messaging Playbook — {brandName}</Text>
           <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
         </View>
+
+        <PdfHeader title="Messaging Playbook" businessName={brandName} date={printedDate} accentHex={brandAccent} />
 
         <Text style={s.h1}>Brand Voice & Persona</Text>
         <Text style={s.body}>{d.brandPersona?.personaSummary}</Text>
@@ -134,6 +143,7 @@ export function MessagingPlaybookDocument({ data, brandName }: Props) {
         label="Section"
         title="Pillars and Taglines"
         subtitle="Message architecture, content themes, and positioning language."
+        accentHex={brandAccent}
       />
 
       <Page size="A4" style={s.page} wrap>
@@ -141,6 +151,8 @@ export function MessagingPlaybookDocument({ data, brandName }: Props) {
           <Text style={s.footerText}>Messaging Playbook — {brandName}</Text>
           <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
         </View>
+
+        <PdfHeader title="Messaging Playbook" businessName={brandName} date={printedDate} accentHex={brandAccent} />
 
         <Text style={s.h1}>Messaging Pillars</Text>
         {d.messagingPillars?.map((mp, i) => (
@@ -193,6 +205,7 @@ export function MessagingPlaybookDocument({ data, brandName }: Props) {
         label="Section"
         title="Ready-to-Use Copy"
         subtitle="Practical copy assets and headline / CTA references."
+        accentHex={brandAccent}
       />
 
       <Page size="A4" style={s.page} wrap>
@@ -200,6 +213,8 @@ export function MessagingPlaybookDocument({ data, brandName }: Props) {
           <Text style={s.footerText}>Messaging Playbook — {brandName}</Text>
           <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
         </View>
+
+        <PdfHeader title="Messaging Playbook" businessName={brandName} date={printedDate} accentHex={brandAccent} />
 
         <Text style={s.h1}>Ready-to-Use Copy</Text>
         <Text style={s.label}>One-Liner</Text>

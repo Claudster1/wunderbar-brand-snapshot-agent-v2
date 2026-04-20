@@ -3,15 +3,16 @@
 
 import { View, Text, Image, StyleSheet } from "@react-pdf/renderer";
 import { pdfTheme } from "../theme";
+import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
 
-const LOGO_URL = "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp";
 
 const styles = StyleSheet.create({
   container: {
     paddingTop: 14,
     paddingBottom: 10,
     paddingHorizontal: 22,
-    borderBottom: `1px solid #E4EBF7`,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E4EBF7",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -47,8 +48,7 @@ const styles = StyleSheet.create({
   },
   logo: {
     width: 94,
-    height: 12.5,
-    objectFit: "contain",
+    height: 22,
     marginTop: 1,
   },
 });
@@ -57,10 +57,17 @@ interface PdfHeaderProps {
   title: string;
   businessName?: string;
   date?: string;
+  /** Optional validated brand hex — hairline accent under header for client-aligned PDFs. */
+  accentHex?: string;
 }
 
-export const PdfHeader = ({ title, businessName, date }: PdfHeaderProps) => (
-  <View style={styles.container}>
+export const PdfHeader = ({ title, businessName, date, accentHex }: PdfHeaderProps) => (
+  <View
+    style={[
+      styles.container,
+      accentHex ? { borderBottomWidth: 2, borderBottomColor: accentHex } : {},
+    ]}
+  >
     <View style={styles.leftCol}>
       <Text style={styles.kicker}>WunderBrand Report</Text>
       <Text style={styles.title}>{title}</Text>
@@ -70,6 +77,6 @@ export const PdfHeader = ({ title, businessName, date }: PdfHeaderProps) => (
       {date && <Text style={styles.date}>{date}</Text>}
     </View>
     {/* eslint-disable-next-line jsx-a11y/alt-text */}
-    <Image style={styles.logo} src={LOGO_URL} />
+    <Image style={styles.logo} src={PDF_WUNDERBAR_LOGO_SRC} />
   </View>
 );

@@ -2,6 +2,7 @@ import type { TabSectionMenuItem } from "@/components/results/TabSectionMenu";
 
 /** Brand Standards section targets — shared by shell chips and `BrandStandardsTab`. */
 export const STANDARDS_SUITE_NAV_ITEMS: TabSectionMenuItem[] = [
+  { id: "standards-brand-context", label: "Brand snapshot", icon: "BS" },
   { id: "standards-document-framework", label: "Document Versions", icon: "DV" },
   { id: "standards-voice", label: "Voice Standards", icon: "VS" },
   { id: "standards-messaging", label: "Messaging Standards", icon: "MS" },

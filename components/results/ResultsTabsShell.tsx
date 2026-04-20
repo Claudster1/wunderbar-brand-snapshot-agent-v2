@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode, Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import LockedTabPrompt from "@/components/LockedTabPrompt";
 import ResultsTabNav, { ProductTier, ResultsTab } from "@/components/ResultsTabNav";
 import {
@@ -259,21 +260,21 @@ function buildWorkbookSeedContent(
   sectionContent["persona-atlas"] = [
     "Persona Tier 1: Primary Decision Maker",
     "Role: Economic buyer",
-    `Primary JTBD: Improve ${primaryPillar.toLowerCase()} performance in ${industry.toLowerCase()}`,
+    `Primary job to be done (JTBD): Improve ${primaryPillar.toLowerCase()} performance in ${industry.toLowerCase()}`,
     `Core Frustration: ${topOpportunity || "Current strategy does not convert consistently."}`,
     `Messaging Angle: ${company} provides a practical, owner-ready implementation roadmap.`,
     "",
     "Persona Tier 2: Secondary Audience Operator",
     "Role: Functional champion",
     `Audience Segment: ${secondaryAudience}`,
-    `Primary JTBD: Execute plans without losing brand consistency for ${audience.toLowerCase()}`,
+    `Primary job to be done (JTBD): Execute plans without losing brand consistency for ${audience.toLowerCase()}`,
     "Core Frustration: Team execution and message consistency are misaligned.",
     `Messaging Angle: Clear sequence, reusable templates, and measurable weekly milestones.`,
     "",
     "Persona Tier 3: Tertiary Influencer",
     "Role: Cross-functional stakeholder",
     `Audience Segment: ${tertiaryAudience}`,
-    "Primary JTBD: Validate risk, ROI confidence, and implementation feasibility before approval.",
+    "Primary job to be done (JTBD): Validate risk, return on investment (ROI) confidence, and implementation feasibility before approval.",
     "Core Frustration: Strategic proposals lack clear ownership and impact visibility.",
     `Messaging Angle: Emphasize proof architecture, governance model, and low-friction handoff to execution.`,
   ].join("\n");
@@ -647,8 +648,16 @@ export default function ResultsTabsShell({
     };
   });
 
+  const searchParams = useSearchParams();
+  const activationFocusQueryParam = searchParams.get("activationFocus");
+  const activationFocusFromQuery =
+    typeof activationFocusQueryParam === "string" && activationFocusQueryParam.trim()
+      ? activationFocusQueryParam.trim()
+      : null;
+  /** Prefer live URL (client toggles) so chips + scroll spy match the table rows still mounted. */
   const activationFocusRaw =
-    typeof activationFocusProp === "string" && activationFocusProp.trim() ? activationFocusProp.trim() : null;
+    activationFocusFromQuery ??
+    (typeof activationFocusProp === "string" && activationFocusProp.trim() ? activationFocusProp.trim() : null);
 
   const strategyNavItems = useMemo(
     () => buildStrategyNavMenuItems(productTier, diagnosticData),
@@ -1576,7 +1585,7 @@ export default function ResultsTabsShell({
         </div>
       )}
 
-      <ResultsWundyChat reportId={reportId} productTier={productTier} />
+      <ResultsWundyChat reportId={isPreviewMode ? "" : reportId} productTier={productTier} />
     </div>
     </ResultsSuiteNavContext.Provider>
   );

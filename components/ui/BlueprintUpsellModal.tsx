@@ -70,14 +70,14 @@ Blueprint™ includes the strategic framework and refined messaging needed to st
             What Your Blueprint™ Delivers
           </h3>
 
-          <ul className="space-y-2 text-[15px] text-brand-midnight">
-            <li>• A complete brand positioning system tailored to your business</li>
-            <li>• A refined brand narrative, value statements, and on-brand language</li>
-            <li>• Brand personality, tone, and communication guidelines</li>
-            <li>• AI-ready prompts for writing on-brand content across platforms</li>
-            <li>• Messaging frameworks for your website, campaigns, and sales content</li>
-            <li>• A clarity-first structure you (and AI tools) can use instantly</li>
-            <li>• Delivered as a polished, presentation-ready PDF</li>
+          <ul className="strategy-suite-ul text-[15px] text-brand-midnight">
+            <li>A complete brand positioning system tailored to your business</li>
+            <li>A refined brand narrative, value statements, and on-brand language</li>
+            <li>Brand personality, tone, and communication guidelines</li>
+            <li>AI-ready prompts for writing on-brand content across platforms</li>
+            <li>Messaging frameworks for your website, campaigns, and sales content</li>
+            <li>A clarity-first structure you (and AI tools) can use instantly</li>
+            <li>Delivered as a polished, presentation-ready PDF</li>
           </ul>
         </div>
 

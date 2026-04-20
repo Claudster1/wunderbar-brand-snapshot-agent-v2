@@ -38,7 +38,7 @@ export default function BlueprintPlusModal({ isOpen, onClose }: BlueprintPlusMod
 
         {/* Value Section */}
         <div className="bg-brand-gray/70 p-6 rounded-xl border border-brand-border">
-          <ul className="space-y-3 text-[15px] leading-relaxed text-brand-midnight">
+          <ul className="strategy-suite-ul text-[15px] leading-relaxed text-brand-midnight">
             <li>
               <strong>Complete Brand System:</strong> Positioning, messaging, personality, tone,
               brand pillars, narrative frameworks, and value architecture.

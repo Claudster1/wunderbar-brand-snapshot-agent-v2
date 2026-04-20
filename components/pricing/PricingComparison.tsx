@@ -172,49 +172,49 @@ export function PricingComparison() {
         <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-lg border border-[#E0E3EA] bg-white p-4">
             <h4 className="text-sm font-semibold text-[#021859]">WunderBrand Snapshot™</h4>
-            <ul className="mt-2 space-y-1.5 text-sm leading-relaxed text-[#0C1526]">
-              <li>• WunderBrand Score™</li>
-              <li>• 5-pillar diagnostic breakdown</li>
-              <li>• Primary pillar diagnosis</li>
-              <li>• Foundational next-step guidance</li>
+            <ul className="strategy-suite-ul mt-2 text-sm leading-relaxed text-[#0C1526]">
+              <li>WunderBrand Score™</li>
+              <li>5-pillar diagnostic breakdown</li>
+              <li>Primary pillar diagnosis</li>
+              <li>Foundational next-step guidance</li>
             </ul>
           </div>
 
           <div className="rounded-lg border border-[#E0E3EA] bg-white p-4">
             <h4 className="text-sm font-semibold text-[#021859]">WunderBrand Snapshot+™</h4>
-            <ul className="mt-2 space-y-1.5 text-sm leading-relaxed text-[#0C1526]">
-              <li>• Everything in Snapshot™</li>
-              <li>• Expanded pillar analysis</li>
-              <li>• Prioritized strategic recommendations</li>
-              <li>• Foundational prompt pack (positioning, messaging, voice, social, planning)</li>
-              <li>• Visibility & Discoverability Prompt</li>
-              <li>• Downloadable PDF report</li>
+            <ul className="strategy-suite-ul mt-2 text-sm leading-relaxed text-[#0C1526]">
+              <li>Everything in Snapshot™</li>
+              <li>Expanded pillar analysis</li>
+              <li>Prioritized strategic recommendations</li>
+              <li>Foundational prompt pack (positioning, messaging, voice, social, planning)</li>
+              <li>Visibility & Discoverability Prompt</li>
+              <li>Downloadable PDF report</li>
             </ul>
           </div>
 
           <div className="rounded-lg border border-[#E0E3EA] bg-white p-4">
             <h4 className="text-sm font-semibold text-[#021859]">WunderBrand Blueprint™</h4>
-            <ul className="mt-2 space-y-1.5 text-sm leading-relaxed text-[#0C1526]">
-              <li>• Everything in Snapshot+™</li>
-              <li>• Brand Archetype</li>
-              <li>• Messaging Framework</li>
-              <li>• Activation prompt library (email, website, SEO/content, lead-gen, campaigns)</li>
-              <li>• SEO + AEO prompts</li>
-              <li>• Interactive Brand Workbook</li>
-              <li>• PDF + workbook outputs</li>
+            <ul className="strategy-suite-ul mt-2 text-sm leading-relaxed text-[#0C1526]">
+              <li>Everything in Snapshot+™</li>
+              <li>Brand Archetype</li>
+              <li>Messaging Framework</li>
+              <li>Activation prompt library (email, website, SEO/content, lead-gen, campaigns)</li>
+              <li>SEO + AEO prompts</li>
+              <li>Interactive Brand Workbook</li>
+              <li>PDF + workbook outputs</li>
             </ul>
           </div>
 
           <div className="rounded-lg border border-[#E0E3EA] bg-white p-4">
             <h4 className="text-sm font-semibold text-[#021859]">WunderBrand Blueprint+™</h4>
-            <ul className="mt-2 space-y-1.5 text-sm leading-relaxed text-[#0C1526]">
-              <li>• Everything in Blueprint™</li>
-              <li>• Messaging Matrix</li>
-              <li>• Campaign Architecture</li>
-              <li>• Advanced prompt system (marketing, sales enablement, funnel orchestration, PR)</li>
-              <li>• AEO Advanced authority system</li>
-              <li>• Strategy Activation Session (30 min)</li>
-              <li>• Advanced strategic deliverables</li>
+            <ul className="strategy-suite-ul mt-2 text-sm leading-relaxed text-[#0C1526]">
+              <li>Everything in Blueprint™</li>
+              <li>Messaging Matrix</li>
+              <li>Campaign Architecture</li>
+              <li>Advanced prompt system (marketing, sales enablement, funnel orchestration, PR)</li>
+              <li>AEO Advanced authority system</li>
+              <li>Strategy Activation Session (30 min)</li>
+              <li>Advanced strategic deliverables</li>
             </ul>
           </div>
         </div>

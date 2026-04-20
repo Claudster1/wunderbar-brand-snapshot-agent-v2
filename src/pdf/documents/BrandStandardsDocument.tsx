@@ -24,10 +24,10 @@ import { ILLUSTRATION_AFTER, ILLUSTRATION_BEFORE, SEMANTIC_DONT, SEMANTIC_DO } f
 import { DisclaimerPage } from "../components/DisclaimerPage";
 import { registerPdfFonts } from "../registerFonts";
 import { sampleStyleForRole } from "../typography/brandStandardsTypeSamples";
+import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
 
 registerPdfFonts();
 
-const LOGO_URL = "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp";
 
 // ─── Types ───
 
@@ -592,7 +592,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
       <Page size="A4" style={s.coverPage}>
         <View style={s.coverInner}>
           {/* eslint-disable-next-line jsx-a11y/alt-text */}
-          <Image style={s.coverLogo} src={LOGO_URL} />
+          <Image style={s.coverLogo} src={PDF_WUNDERBAR_LOGO_SRC} />
           <Text style={s.coverTitle}>Brand Standards{"\n"}& Guidelines</Text>
           <Text style={s.coverSubtitle}>WunderBrand Blueprint+{"\u2122"}</Text>
           <Text style={s.coverPreparedLabel}>Prepared for</Text>

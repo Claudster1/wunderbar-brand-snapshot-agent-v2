@@ -27,11 +27,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Guard public webhook env usage
+        run: npm run guard:webhook-public-env
+
       - name: TypeScript check
         run: npx tsc --noEmit
 
       - name: Build
-        run: npx next build
+        run: npm run build
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
@@ -43,3 +46,71 @@ jobs:
           STRIPE_PRICE_SNAPSHOT_PLUS: price_placeholder
           STRIPE_PRICE_BLUEPRINT: price_placeholder
           STRIPE_PRICE_BLUEPRINT_PLUS: price_placeholder
+
+  performance-gate:
+    name: Performance Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: build
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build standalone app
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
+          NEXT_PUBLIC_BASE_URL: https://placeholder.com
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY: placeholder
+          OPENAI_API_KEY: sk-placeholder
+          STRIPE_SECRET_KEY: sk_test_placeholder
+          STRIPE_WEBHOOK_SECRET: whsec_placeholder
+          STRIPE_PRICE_SNAPSHOT_PLUS: price_placeholder
+          STRIPE_PRICE_BLUEPRINT: price_placeholder
+          STRIPE_PRICE_BLUEPRINT_PLUS: price_placeholder
+
+      - name: Start standalone server
+        run: |
+          PORT=3030 node ".next/standalone/server.js" > stress-server.log 2>&1 &
+          echo $! > server.pid
+          for i in {1..30}; do
+            if curl -fsS http://localhost:3030/access > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Server failed to start in time"
+          exit 1
+
+      - name: Run standard stress gate (PR)
+        if: github.event_name == 'pull_request'
+        run: npm run stress:compare:ci | tee stress-results.txt
+
+      - name: Run strict stress gate (main)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: npm run stress:compare:ci:strict | tee stress-results.txt
+
+      - name: Upload stress artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stress-results-${{ github.run_id }}
+          path: |
+            stress-results.txt
+            stress-server.log
+
+      - name: Stop standalone server
+        if: always()
+        run: |
+          if [ -f server.pid ]; then
+            kill "$(cat server.pid)" || true
+          fi

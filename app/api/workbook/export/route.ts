@@ -9,11 +9,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { logger } from "@/lib/logger";
 import React from "react";
+import { optimizeSectionsForDelivery } from "@/lib/personalizationOptimizer";
+import { normalizeBrandImageryDirection } from "@/lib/brand/brandImageryNormalize";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+function asText(value: unknown): string {
+  if (typeof value === "string") return value.trim();
+  if (typeof value === "number") return String(value);
+  return "";
+}
 
 function extractBrandStandardsData(report: any): Record<string, any> {
   const r = report.engine_results || report.results || {};
@@ -164,6 +170,24 @@ function extractBrandStandardsData(report: any): Record<string, any> {
     bsd.governance_template = r.brandStandardsGuide.governanceTemplate;
   }
 
+  // Brand imagery direction + optional workbook mood-board URLs
+  const imagery = r.brandImageryDirection || r.brand_imagery_direction || r.visualDirection?.brandImageryDirection;
+  const workbookMoodSamples = r.brandStandardsGuide?.moodBoardImageSamples;
+  const mergedImagery =
+    imagery && typeof imagery === "object"
+      ? {
+          ...imagery,
+          moodBoardImageSamples:
+            workbookMoodSamples ?? imagery.moodBoardImageSamples ?? imagery.mood_board_image_samples,
+        }
+      : workbookMoodSamples
+        ? { moodBoardImageSamples: workbookMoodSamples }
+        : null;
+  const normalizedImagery = normalizeBrandImageryDirection(mergedImagery);
+  if (normalizedImagery) {
+    bsd.brand_imagery_direction = normalizedImagery;
+  }
+
   return bsd;
 }
 
@@ -211,6 +235,18 @@ export async function GET(req: NextRequest) {
       brandStandardsData = { ...extracted, ...brandStandardsData };
     }
 
+    const csMood = workbook.custom_sections?.mood_board_image_samples;
+    if (Array.isArray(csMood) && csMood.length > 0) {
+      const prev = brandStandardsData.brand_imagery_direction;
+      const mergedImagery = normalizeBrandImageryDirection({
+        ...(typeof prev === "object" && prev && !Array.isArray(prev) ? prev : {}),
+        moodBoardImageSamples: csMood,
+      });
+      if (mergedImagery) {
+        brandStandardsData.brand_imagery_direction = mergedImagery;
+      }
+    }
+
     // Also check blueprint_reports for Blueprint+ data
     const { data: bpReport } = await supabaseAdmin
       .from("blueprint_reports")
@@ -227,9 +263,41 @@ export async function GET(req: NextRequest) {
     }
 
     // Build the complete data object for the PDF
+    const reportSections =
+      workbook.custom_sections?.report_sections &&
+      typeof workbook.custom_sections.report_sections === "object"
+        ? workbook.custom_sections.report_sections
+        : {};
+    const optimizedSections = optimizeSectionsForDelivery(reportSections, {
+      businessName: asText(workbook.business_name),
+      audience: asText(
+        workbook.primary_audience?.description ||
+          (typeof workbook.primary_audience === "string" ? workbook.primary_audience : "")
+      ),
+      differentiator: asText(
+        workbook.competitive_differentiation ||
+          workbook.unique_value_proposition ||
+          workbook.positioning_statement
+      ),
+      primaryPillar: asText(workbook.primary_pillar) || "messaging",
+    });
+
+    const nextCustomSections = {
+      ...(workbook.custom_sections || {}),
+      report_sections: optimizedSections.optimizedSections,
+      personalization_quality: {
+        scope: "export",
+        optimized_at: new Date().toISOString(),
+        changed_keys: optimizedSections.changedKeys,
+        overall_score: optimizedSections.quality.overallScore,
+        failed_sections: optimizedSections.quality.failedSections,
+      },
+    };
+
     const pdfData = {
       ...workbook,
       brand_standards_data: brandStandardsData,
+      custom_sections: nextCustomSections,
     };
 
     const { renderToBuffer } = await import("@react-pdf/renderer");
@@ -243,6 +311,7 @@ export async function GET(req: NextRequest) {
       .update({
         last_exported_at: new Date().toISOString(),
         export_count: (workbook.export_count || 0) + 1,
+        custom_sections: nextCustomSections,
       })
       .eq("report_id", reportId);
 

@@ -3,6 +3,12 @@
 // Docs: https://developers.cloudflare.com/turnstile/get-started/server-side-validation/
 
 const TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
+const ENABLE_IN_DEV =
+  process.env.ENABLE_TURNSTILE_DEV === "true" ||
+  process.env.NEXT_PUBLIC_ENABLE_TURNSTILE_DEV === "true";
+const HAS_SITE_KEY = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
+const SHOULD_ENFORCE_TURNSTILE =
+  process.env.NODE_ENV === "production" || (ENABLE_IN_DEV && HAS_SITE_KEY);
 
 export interface TurnstileResult {
   success: boolean;
@@ -24,16 +30,18 @@ export async function verifyTurnstileToken(
   token: string | null | undefined,
   remoteIp?: string
 ): Promise<TurnstileResult> {
+  // Keep Turnstile optional in local/dev by default.
+  // This matches the client widget behavior and avoids false negatives in local QA.
+  if (!SHOULD_ENFORCE_TURNSTILE) {
+    return { success: true };
+  }
+
   const secret = process.env.TURNSTILE_SECRET_KEY;
 
-  // Dev mode: skip if secret isn't configured
+  // In enforced mode, missing key is always a hard failure.
   if (!secret) {
-    if (process.env.NODE_ENV === "production") {
-      console.error("[Turnstile] TURNSTILE_SECRET_KEY not set in production — blocking request");
-      return { success: false, "error-codes": ["missing-secret-key"] };
-    }
-    console.warn("[Turnstile] TURNSTILE_SECRET_KEY not set — skipping verification (dev mode)");
-    return { success: true };
+    console.error("[Turnstile] TURNSTILE_SECRET_KEY not set while enforcement is enabled — blocking request");
+    return { success: false, "error-codes": ["missing-secret-key"] };
   }
 
   // Missing token = failed challenge

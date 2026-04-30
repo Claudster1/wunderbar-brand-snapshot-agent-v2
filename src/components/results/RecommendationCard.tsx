@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import { trackEvent } from "@/lib/analytics";
 import { trackUpgradeNudgeClick } from "@/lib/trackUpgradeNudgeClick";
 import { getUpgradeNudgeCopy } from "@/lib/upgrade/ctaCopy";
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
 
 interface RecommendationCardProps {
   primaryPillar: string;
@@ -20,7 +22,7 @@ export function RecommendationCard({ primaryPillar }: RecommendationCardProps) {
   }, []);
 
   return (
-    <div className="bs-card rounded-xl p-5 sm:p-6 h-full flex flex-col">
+    <div className="bs-card rounded-xl border-l-4 border-l-brand-blue p-6 sm:p-7 h-full flex flex-col shadow-md">
       <div className="flex items-start justify-between gap-3 mb-3">
         <span className="bs-badge bg-brand-blue/15 text-brand-blue shrink-0">
           Recommended for you
@@ -32,8 +34,12 @@ export function RecommendationCard({ primaryPillar }: RecommendationCardProps) {
       <p className="bs-body-sm text-brand-muted mb-4 flex-1">
         {copy.detail}
       </p>
-      <a
-        href={`/snapshot-plus?focus=${primaryPillar}`}
+      <Link
+        href={getTrackedCheckoutUrl({
+          product: "snapshot-plus",
+          medium: "results_cta",
+          content: `results_recommendation_${primaryPillar.replace(/[^a-z0-9_-]/gi, "_")}`,
+        })}
         onClick={() => {
           trackEvent("UPGRADE_CLICKED", { target: "Snapshot+", primaryPillar });
           trackUpgradeNudgeClick(primaryPillar);
@@ -41,7 +47,7 @@ export function RecommendationCard({ primaryPillar }: RecommendationCardProps) {
         className="btn-secondary w-full sm:w-auto inline-flex items-center justify-center"
       >
         {copy.ctaLabel}
-      </a>
+      </Link>
     </div>
   );
 }

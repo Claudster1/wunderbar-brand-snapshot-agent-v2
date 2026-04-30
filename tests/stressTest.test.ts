@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { calculateBrandSnapshotScores, calculateScores, type PillarScores } from '../src/lib/brandSnapshotEngine';
+import { computeWeightedBrandAlignmentScore } from '../src/lib/pillarWeights';
 import { generateReport, type ReportData } from '../src/services/reportGenerator';
 
 function makeRandomAnswers(): Record<string, number> {
@@ -17,11 +18,11 @@ function makeRandomAnswers(): Record<string, number> {
 
 function makeRandomPillarScores(): PillarScores {
   return {
-    positioning: Math.floor(Math.random() * 21) + 5,
-    messaging: Math.floor(Math.random() * 21) + 5,
-    visibility: Math.floor(Math.random() * 21) + 5,
-    credibility: Math.floor(Math.random() * 21) + 5,
-    conversion: Math.floor(Math.random() * 21) + 5,
+    positioning: Math.floor(Math.random() * 21),
+    messaging: Math.floor(Math.random() * 21),
+    visibility: Math.floor(Math.random() * 21),
+    credibility: Math.floor(Math.random() * 21),
+    conversion: Math.floor(Math.random() * 21),
   };
 }
 
@@ -32,8 +33,8 @@ describe('stress tests', () => {
       for (let i = 0; i < 10_000; i++) {
         const result = calculateBrandSnapshotScores(makeRandomAnswers());
         expect(result).toHaveProperty('brandAlignmentScore');
-        expect(result.brandAlignmentScore).toBeGreaterThanOrEqual(5);
-        expect(result.brandAlignmentScore).toBeLessThanOrEqual(25);
+        expect(result.brandAlignmentScore).toBeGreaterThanOrEqual(0);
+        expect(result.brandAlignmentScore).toBeLessThanOrEqual(100);
       }
       const elapsed = performance.now() - start;
       console.log(`10,000 scoring calculations: ${elapsed.toFixed(0)}ms (${(elapsed / 10_000).toFixed(3)}ms/calc)`);
@@ -82,8 +83,8 @@ describe('stress tests', () => {
       const results = await Promise.all(promises);
       expect(results.length).toBe(1_000);
       for (const r of results) {
-        expect(r.brandAlignmentScore).toBeGreaterThanOrEqual(5);
-        expect(r.brandAlignmentScore).toBeLessThanOrEqual(25);
+        expect(r.brandAlignmentScore).toBeGreaterThanOrEqual(0);
+        expect(r.brandAlignmentScore).toBeLessThanOrEqual(100);
       }
       const elapsed = performance.now() - start;
       console.log(`1,000 concurrent scoring calls: ${elapsed.toFixed(0)}ms`);
@@ -93,9 +94,7 @@ describe('stress tests', () => {
       const start = performance.now();
       const promises = Array.from({ length: 1_000 }, () => {
         const pillarScores = makeRandomPillarScores();
-        const brandAlignmentScore = Math.round(
-          (pillarScores.positioning + pillarScores.messaging + pillarScores.visibility + pillarScores.credibility + pillarScores.conversion) / 5
-        );
+        const brandAlignmentScore = computeWeightedBrandAlignmentScore(pillarScores);
         return Promise.resolve(generateReport({ brandAlignmentScore, pillarScores }));
       });
       const results = await Promise.all(promises);
@@ -152,11 +151,11 @@ describe('stress tests', () => {
       for (let i = 0; i < 5_000; i++) {
         const result = calculateBrandSnapshotScores(makeRandomAnswers());
         for (const pillar of ['positioning', 'messaging', 'visibility', 'credibility', 'conversion'] as const) {
-          expect(result.pillarScores[pillar]).toBeGreaterThanOrEqual(5);
-          expect(result.pillarScores[pillar]).toBeLessThanOrEqual(25);
+          expect(result.pillarScores[pillar]).toBeGreaterThanOrEqual(0);
+          expect(result.pillarScores[pillar]).toBeLessThanOrEqual(20);
         }
-        expect(result.brandAlignmentScore).toBeGreaterThanOrEqual(5);
-        expect(result.brandAlignmentScore).toBeLessThanOrEqual(25);
+        expect(result.brandAlignmentScore).toBeGreaterThanOrEqual(0);
+        expect(result.brandAlignmentScore).toBeLessThanOrEqual(100);
       }
     });
 
@@ -190,7 +189,7 @@ describe('stress tests', () => {
       }
       const result = calculateBrandSnapshotScores(answers);
       expect(result).toHaveProperty('brandAlignmentScore');
-      expect(result.brandAlignmentScore).toBeGreaterThanOrEqual(5);
+      expect(result.brandAlignmentScore).toBeGreaterThanOrEqual(0);
     });
 
     it('handles input with very long string values in extra fields', () => {

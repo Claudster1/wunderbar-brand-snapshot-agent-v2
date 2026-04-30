@@ -98,9 +98,10 @@ export default function ScoreRevealModal({
           </div>
 
           <p className="text-[14px] text-slate-600 mt-4 leading-relaxed">
-            These five pillars form the foundation of your WunderBrand Score™. Together, they
-            reveal how clearly you communicate value, how consistently your brand shows up across
-            touchpoints, and how effectively your marketing converts interest into action.
+            These five pillars form the foundation of your WunderBrand Score™. Your overall 0–100
+            score weights them by strategic importance (positioning, messaging, and credibility count
+            most). Together, they show how clearly you communicate value, how consistently you show
+            up, and how well you convert interest into action.
           </p>
         </div>
 
@@ -110,7 +111,7 @@ export default function ScoreRevealModal({
             onClick={onClose}
             className="
               bg-brand-blue hover:bg-brand-blueHover 
-              text-white font-semibold rounded-md 
+              text-white font-semibold rounded-[5px] 
               px-8 py-3 shadow-md shadow-brand-blue/30 transition
             "
           >

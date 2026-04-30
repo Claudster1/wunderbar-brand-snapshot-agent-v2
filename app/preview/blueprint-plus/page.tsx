@@ -7,6 +7,8 @@ export const dynamic = "force-dynamic";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import nextDynamic from "next/dynamic";
+import Image from "next/image";
+import StrategyProseBody from "@/components/strategy/StrategyProseBody";
 
 // Lazy-load heavy interactive components to reduce initial bundle size
 const ReportNav = nextDynamic(() => import("@/components/reports/ReportNav"), { ssr: false });
@@ -30,6 +32,57 @@ const RED_S = "#EF4444";
 const ACCENT_BG = "#E8F6FE";
 const GOOD_GREEN = "#4ADE80";
 
+type PreviewTab = "foundation" | "strategy" | "execution" | "workbook" | "downloads";
+
+const PREVIEW_SECTION_TAB: Record<string, PreviewTab> = {
+  "executive-summary": "foundation",
+  "brand-alignment-score": "foundation",
+  "context-coverage": "foundation",
+  "focus-area-diagnosis": "foundation",
+  "pillar-deep-dives": "foundation",
+  "strategic-alignment": "foundation",
+  "strategic-signals": "foundation",
+  "strategic-overview": "strategy",
+  "blueprint-overview": "strategy",
+  "brand-foundation": "strategy",
+  "brand-archetypes": "strategy",
+  "messaging-system": "strategy",
+  "messaging-pillars": "strategy",
+  "content-pillars": "strategy",
+  "messaging-matrix": "strategy",
+  "brand-persona": "strategy",
+  "audience-persona": "strategy",
+  "audience-segmentation": "strategy",
+  "competitive-positioning": "strategy",
+  "visibility-discovery": "strategy",
+  "visual-direction": "strategy",
+  "conversion-strategy": "strategy",
+  "brand-architecture": "strategy",
+  "campaign-strategy": "strategy",
+  "strategic-action-plan": "execution",
+  "prompt-library": "execution",
+  "execution-guardrails": "execution",
+  "measurement-optimization": "execution",
+  "strategic-guardrails": "execution",
+  "strategic-trade-offs": "execution",
+  "ninety-day-roadmap": "execution",
+  "brand-health-scorecard": "execution",
+  "tagline-recommendations": "execution",
+  "brand-story": "execution",
+  "company-description": "execution",
+  "customer-journey": "execution",
+  "seo-strategy": "execution",
+  "aeo-strategy": "execution",
+  "email-framework": "execution",
+  "social-media-strategy": "execution",
+  "content-calendar": "execution",
+  "swot-analysis": "strategy",
+  "brand-glossary": "strategy",
+  "activation-session": "execution",
+  "work-with-us": "execution",
+  "document-library": "downloads",
+};
+
 /* ─── UTM base ─── */
 const UTM_BASE = "https://wunderbardigital.com/?utm_source=brand_blueprint_plus_report&utm_medium=report_nav&utm_campaign=nav_header_logo&utm_content=blueprint_plus_logo";
 
@@ -47,6 +100,12 @@ function scoreLabel(pct: number) {
   if (pct >= 40) return "Fair";
   if (pct >= 20) return "Weak";
   return "Critical";
+}
+
+function weakestPillarCallout(pct: number) {
+  if (pct >= 60) return "Opportunity";
+  if (pct >= 40) return "Improvement Opportunity";
+  return "Needs Attention";
 }
 
 /* ─── AnimNum ─── */
@@ -178,7 +237,7 @@ function PillarMeter({ score, maxScore = 20, label }: { score: number; maxScore?
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
         <span style={{ fontSize: 14, fontWeight: 700, color: NAVY }}>{label}</span>
-        <span style={{ fontSize: 16, fontWeight: 900, color }}>{score}<span style={{ fontWeight: 400, color: SUB }}>/{maxScore}</span></span>
+        <span style={{ fontSize: 16, fontWeight: 900, color }}>{score}<span style={{ fontWeight: 700, color }}>/{maxScore}</span></span>
       </div>
       <div style={{ height: 8, borderRadius: 5, background: "#E2E8F0", overflow: "hidden" }}>
         <div style={{ height: "100%", borderRadius: 5, background: "linear-gradient(90deg, #EF4444 0%, #F97316 25%, #EAB308 50%, #4ADE80 75%, #16A34A 100%)", backgroundSize: `${100 / (width / 100 || 0.01)}% 100%`, width: `${width}%`, transition: "width 1.2s cubic-bezier(0.22,1,0.36,1)" }} />
@@ -189,8 +248,9 @@ function PillarMeter({ score, maxScore = 20, label }: { score: number; maxScore?
 
 /* ─── Section & SectionTitle ─── */
 function Section({ children, style, pageBreak, id }: { children: React.ReactNode; style?: React.CSSProperties; pageBreak?: boolean; id?: string }) {
+  const previewTab = id ? PREVIEW_SECTION_TAB[id] ?? "foundation" : undefined;
   return (
-    <div id={id} data-section data-page-break={pageBreak || undefined} style={{ background: WHITE, borderRadius: 5, border: `1px solid ${BORDER}`, padding: "32px 32px", ...style }}>
+    <div id={id} data-section data-preview-tab={previewTab} data-page-break={pageBreak || undefined} style={{ background: WHITE, borderRadius: 5, border: `1px solid ${BORDER}`, padding: "32px 32px", ...style }}>
       {children}
     </div>
   );
@@ -426,11 +486,11 @@ const REPORT = {
         { do: "End with one clear action", example: "\u2018Take the 2-minute WunderBrand Snapshot™\u2019 not \u2018Contact us to learn more about our services\u2019" },
       ],
       donts: [
-        { dont: "Don\u2019t use jargon without context", example: "Avoid: \u2018synergistic omnichannel brand activation\u2019 \u2014 Say: \u2018showing up consistently where your audience already spends time\u2019" },
-        { dont: "Don\u2019t be vague about outcomes", example: "Avoid: \u2018We\u2019ll help you grow\u2019 \u2014 Say: \u2018We\u2019ll increase qualified inbound leads by 40% in 90 days\u2019" },
-        { dont: "Don\u2019t lead with features", example: "Avoid: \u2018Our engagement includes 12 deliverables\u2019 \u2014 Say: \u2018You\u2019ll walk away with a complete brand playbook your team can execute tomorrow\u2019" },
-        { dont: "Don\u2019t be generic", example: "Avoid: \u2018We work with businesses of all sizes\u2019 \u2014 Say: \u2018We work with B2B service companies doing $1M\u2013$10M who\u2019ve outgrown their marketing\u2019" },
-        { dont: "Don\u2019t sound desperate", example: "Avoid: \u2018Limited time offer! Act now!\u2019 \u2014 Say: \u2018When you\u2019re ready, here\u2019s the next step\u2019" },
+        { dont: "Don\u2019t use jargon without context", example: "Not this: \u2018synergistic omnichannel brand activation\u2019 \u2014 Do this: \u2018showing up consistently where your audience already spends time\u2019" },
+        { dont: "Don\u2019t be vague about outcomes", example: "Not this: \u2018We\u2019ll help you grow\u2019 \u2014 Do this: \u2018We\u2019ll increase qualified inbound leads by 40% in 90 days\u2019" },
+        { dont: "Don\u2019t lead with features", example: "Not this: \u2018Our engagement includes 12 deliverables\u2019 \u2014 Do this: \u2018You\u2019ll walk away with a complete brand playbook your team can activate tomorrow\u2019" },
+        { dont: "Don\u2019t be generic", example: "Not this: \u2018We work with businesses of all sizes\u2019 \u2014 Do this: \u2018We work with B2B service companies doing $1M\u2013$10M who\u2019ve outgrown their marketing\u2019" },
+        { dont: "Don\u2019t sound desperate", example: "Not this: \u2018Limited time offer! Act now!\u2019 \u2014 Do this: \u2018When you\u2019re ready, here\u2019s the next step\u2019" },
       ],
     },
   },
@@ -620,8 +680,8 @@ const REPORT = {
 
   // Blueprint-specific content
   blueprintOverview: {
-    whatThisEnables: "This WunderBrand Blueprint+™ is your operational system for consistent, strategic brand execution. It defines how your brand speaks, looks, converts, and maintains integrity across every touchpoint. Use it as the source of truth for marketing decisions, content creation, sales conversations, and team alignment.",
-    howToUse: "Reference this document before creating any external communication. Share relevant sections with contractors, agencies, and team members. Review quarterly to ensure execution matches strategy. Update only when business fundamentals change — not based on trends or preferences.",
+    whatThisEnables: "This WunderBrand Blueprint+™ is your operational system for consistent, strategic brand activation. It defines how your brand speaks, looks, converts, and maintains integrity across every touchpoint. Use it as the source of truth for marketing decisions, content creation, sales conversations, and team alignment.",
+    howToUse: "Reference this document before creating any external communication. Share relevant sections with contractors, agencies, and team members. Review quarterly to ensure activation matches strategy. Update only when business fundamentals change — not based on trends or preferences.",
   },
   brandFoundation: {
     brandPurpose: "To eliminate the gap between what businesses deliver and how they're perceived — so that great work gets the recognition it deserves.",
@@ -631,7 +691,7 @@ const REPORT = {
   },
   audiencePersonaDefinition: {
     primaryAudience: "B2B service company founders and marketing leaders (typically 10-100 employees) who have built something valuable but feel invisible or misunderstood in the market. They've tried various marketing approaches but nothing seems to capture their true value.",
-    secondaryAudience: "Marketing team members at mid-sized B2B companies who need frameworks and language to execute consistently. They have skills but lack strategic clarity from leadership.",
+    secondaryAudience: "Marketing team members at mid-sized B2B companies who need frameworks and language to activate consistently. They have skills but lack strategic clarity from leadership.",
     decisionDrivers: [
       "Proof that we understand their specific challenge (not generic marketing talk)",
       "Clear methodology that feels structured but not rigid",
@@ -689,7 +749,7 @@ const REPORT = {
       "Your brand has value. The problem is communication, not substance.",
       "Most marketing fails because it's disconnected from reality. We start with what's true.",
       "We don't make you look good. We make you understood — which is better.",
-      "Strategy without execution is a document. We build systems you can actually use.",
+      "Strategy without activation is a document. We build systems you can actually use.",
     ],
     proofPoints: [
       "87% of clients report measurable ROI within 90 days",
@@ -715,7 +775,7 @@ const REPORT = {
       channelExamples: { website: "We don't add complexity — we eliminate it. Acme Co turns brand confusion into strategic clarity.", social: "Most B2B companies know what they do. Very few can explain why it matters. Here's a 3-step framework to close that gap.", email: "Subject: The one thing standing between your brand and growth (it's not what you think)" },
       audienceVariations: [
         { audience: "Founders", adaptation: "Emphasize speed to clarity — founders are time-poor and want to see the path quickly.", exampleCopy: "You built something real. We make sure the world sees it that way — in weeks, not months." },
-        { audience: "Marketing Leaders", adaptation: "Emphasize systematic clarity — marketing leaders need frameworks they can operationalize across teams.", exampleCopy: "Stop reinventing your messaging every quarter. We build the system once so your team can execute with confidence." },
+        { audience: "Marketing Leaders", adaptation: "Emphasize systematic clarity — marketing leaders need frameworks they can operationalize across teams.", exampleCopy: "Stop reinventing your messaging every quarter. We build the system once so your team can activate with confidence." },
       ],
       funnelStageUsage: { awareness: "Use frameworks and educational content to demonstrate clarity before they engage.", consideration: "Show how you simplify their specific problem — make their complexity feel solvable.", decision: "Present the clear path forward: timeline, deliverables, and expected outcomes in plain language." },
     },
@@ -1085,17 +1145,17 @@ Prioritize ruthlessly. A brand trying to fix everything at once fixes nothing.`,
     ],
   },
   executionPromptPack: {
-    packName: "Execution Prompt Pack",
-    description: "Campaign, content, and messaging execution prompts that keep every touchpoint aligned with your brand platform. These turn your brand foundation into consistent, on-brand output across every channel.",
+    packName: "Activation Prompt Pack",
+    description: "Campaign, content, and messaging activation prompts that keep every touchpoint aligned with your brand platform. These turn your brand foundation into consistent, on-brand output across every channel.",
     promptCount: 8,
     prompts: [
       { category: "Campaign Messaging", title: "Campaign Messaging System Builder", instruction: "Copy and paste into ChatGPT, Claude, or any AI tool.", prompt: "You are a campaign strategist building a complete messaging system for Acme Co.\n\nBrand platform:\n- Archetype: The Sage / The Caregiver\n- Brand Voice: Insightful, confident, supportive, clear\n- Positioning: We help B2B service companies close the gap between what they deliver and how they're perceived\n- Message Pillars: Strategic clarity, Proof-backed credibility, Authentic authority\n- Campaign Goal: [DESCRIBE — e.g., launch, awareness, lead gen, rebrand]\n- Target Audience Segment: B2B service company founders (10–100 employees)\n\nBuild a complete campaign messaging kit:\n\n1. Campaign Concept — a unifying creative theme that reflects our Sage personality\n2. Campaign Tagline — 5–8 words, memorable and ownable\n3. Three Headline Variations — different angles on the same theme for testing\n4. Body Copy Template — a flexible structure: hook → problem → our approach → proof → CTA. Write one complete example.\n5. CTA Spectrum — 5 calls-to-action ranging from soft (learn more) to direct (buy/hire), all in brand voice\n6. Social Proof Integration — how to weave testimonials and results in our Sage tone (provide templates)\n7. Objection Anticipation — top 3 likely objections this audience has, with on-brand responses\n\nEvery element should feel like it came from the same brand.", whyItMatters: "Campaigns fail when each touchpoint sounds like a different company wrote it. A messaging system ensures your ad, your email, your landing page, and your sales follow-up all feel like one conversation." },
       { category: "Campaign Messaging", title: "Email Sequence Architect", instruction: "Copy and paste into ChatGPT, Claude, or any AI tool.", prompt: "You are an email strategist designing a 5-email sequence for Acme Co.\n\nBrand voice: Insightful, confident, supportive, clear\nArchetype: The Sage / The Caregiver\nSequence Purpose: [welcome series / nurture / launch / re-engagement / post-purchase]\nAudience: B2B service company founders and marketing leaders\nDesired Action: Book a discovery call\n\nFor each email:\n1. Send timing\n2. Email purpose\n3. Emotional progression\n4. Subject line + A/B variant\n5. Preview text\n6. Body copy structure\n7. CTA button text\n8. P.S. line\n\nAlso include: the thread, escalation strategy, and re-engagement fork.", whyItMatters: "Disconnected emails erode brand trust. A sequence with a narrative arc converts significantly better than random sends." },
-      { category: "Content Execution", title: "Social Media Content System", instruction: "Copy and paste into ChatGPT, Claude, or any AI tool.", prompt: "You are a social media strategist building a repeatable content system for Acme Co.\n\nBrand platform:\n- Archetype: The Sage / The Caregiver\n- Voice: Insightful, confident, supportive, clear\n- Platforms: LinkedIn (primary)\n- Posting: 3x per week\n\nBuild:\n1. Content Pillars (4–5 categories)\n2. Signature Formats (3 recurring templates with examples)\n3. Four-Week Rotation calendar\n4. Hook Library (10 first lines)\n5. CTA Toolkit (8 CTAs for social)", whyItMatters: "A content system eliminates ‘what should I post?’ and ensures your social presence tells a coherent brand story." },
-      { category: "Content Execution", title: "Website Copy Alignment Auditor", instruction: "Paste your current website copy where indicated.", prompt: "You are a brand-focused copywriter auditing Acme Co's website.\n\nBrand standards:\n- Archetype: The Sage / The Caregiver\n- Voice: Insightful, confident, supportive, clear\n- Positioning: We help B2B service companies close the gap between what they deliver and how they're perceived\n\nPaste page copy and audit against: Voice Consistency, Positioning Clarity, Message Pillar Presence, Emotional Arc, CTA Strength, Proof Integration, Differentiation (score each 1–10).", whyItMatters: "Your website is the most viewed expression of your brand. If it doesn't reflect your positioning, nothing downstream will either." },
+      { category: "Content Activation", title: "Social Media Content System", instruction: "Copy and paste into ChatGPT, Claude, or any AI tool.", prompt: "You are a social media strategist building a repeatable content system for Acme Co.\n\nBrand platform:\n- Archetype: The Sage / The Caregiver\n- Voice: Insightful, confident, supportive, clear\n- Platforms: LinkedIn (primary)\n- Posting: 3x per week\n\nBuild:\n1. Content Pillars (4–5 categories)\n2. Signature Formats (3 recurring templates with examples)\n3. Four-Week Rotation calendar\n4. Hook Library (10 first lines)\n5. CTA Toolkit (8 CTAs for social)", whyItMatters: "A content system eliminates ‘what should I post?’ and ensures your social presence tells a coherent brand story." },
+      { category: "Content Activation", title: "Website Copy Alignment Auditor", instruction: "Paste your current website copy where indicated.", prompt: "You are a brand-focused copywriter auditing Acme Co's website.\n\nBrand standards:\n- Archetype: The Sage / The Caregiver\n- Voice: Insightful, confident, supportive, clear\n- Positioning: We help B2B service companies close the gap between what they deliver and how they're perceived\n\nPaste page copy and audit against: Voice Consistency, Positioning Clarity, Message Pillar Presence, Emotional Arc, CTA Strength, Proof Integration, Differentiation (score each 1–10).", whyItMatters: "Your website is the most viewed expression of your brand. If it doesn't reflect your positioning, nothing downstream will either." },
       { category: "Messaging Consistency", title: "Brand Consistency Checker", instruction: "Use this prompt every time you create content.", prompt: "You are a brand QA editor for Acme Co. Check content for brand consistency.\n\nBrand standards:\n- Archetype: The Sage / The Caregiver\n- Voice: Insightful, confident, supportive, clear\n- On-Brand: Clarity, evidence, insight, strategic, partnership, proven\n- Off-Brand: Crush it, game-changing, ninja, guru, leverage, synergy\n\n[PASTE DRAFT] — Score: Voice, Message, Audience, Differentiation, Action (1–10 each).", whyItMatters: "Brand consistency is a system, not a gut feeling. This turns 'does this feel right?' into a measurable standard." },
       { category: "Messaging Consistency", title: "Sales-to-Brand Voice Alignment Script", instruction: "Copy and paste into ChatGPT, Claude, or any AI tool.", prompt: "You are a sales enablement consultant for Acme Co.\n\nCreate on-brand scripts for: Discovery Call Opening, 'What Do You Do?' Response, Differentiator Delivery, Objection Handling, Proposal Introduction, Follow-Up Email.\n\nInclude 'say this / not that' for each.", whyItMatters: "The fastest way to break brand trust is when sales sounds nothing like marketing." },
-      { category: "Content Execution", title: "Blog & Long-Form Content Framework", instruction: "Copy and paste into ChatGPT, Claude, or any AI tool.", prompt: "You are a content strategist for Acme Co.\n\nCreate: Title Options (3), Content Structure with proof integration points, CTA Strategy, Distribution Plan (social teasers, email intro, repurposing suggestions).\n\nTopic: [SPECIFIC TOPIC]\nFormat: [Blog / Guide / White paper]\nGoal: [Thought leadership / SEO / Lead gen]", whyItMatters: "Long-form content is where brand authority is built." },
+      { category: "Content Activation", title: "Blog & Long-Form Content Framework", instruction: "Copy and paste into ChatGPT, Claude, or any AI tool.", prompt: "You are a content strategist for Acme Co.\n\nCreate: Title Options (3), Content Structure with proof integration points, CTA Strategy, Distribution Plan (social teasers, email intro, repurposing suggestions).\n\nTopic: [SPECIFIC TOPIC]\nFormat: [Blog / Guide / White paper]\nGoal: [Thought leadership / SEO / Lead gen]", whyItMatters: "Long-form content is where brand authority is built." },
       { category: "Campaign Messaging", title: "Lead Magnet & Conversion Asset Builder", instruction: "Copy and paste into ChatGPT, Claude, or any AI tool.", prompt: "You are a conversion strategist for Acme Co.\n\nBuild: Format Recommendation, Title Options (3), Content Outline (5–7 sections), Design Direction, Delivery Sequence (3 emails), Landing Page Copy.\n\nAudience Pain Point: [SPECIFIC PROBLEM]\nNext Step After Download: Book a discovery call", whyItMatters: "A lead magnet is often someone's first real brand experience. Make it unmistakably yours." },
     ],
   },
@@ -1125,20 +1185,20 @@ Prioritize ruthlessly. A brand trying to fix everything at once fixes nothing.`,
 
   // ─── Blueprint+ Exclusive Content ───
   strategicOverview: {
-    wherePositioned: "Acme Co is positioned to become the definitive brand clarity partner for B2B service companies in the $1M-$50M revenue range. The market is saturated with tactical marketing agencies but underserved by strategic brand partners who combine clarity with execution. This gap is your opportunity.",
+    wherePositioned: "Acme Co is positioned to become the definitive brand clarity partner for B2B service companies in the $1M-$50M revenue range. The market is saturated with tactical marketing agencies but underserved by strategic brand partners who combine clarity with activation. This gap is your opportunity.",
     leverageCreated: "This Blueprint+ creates leverage in three ways: (1) A messaging system that scales across channels without losing consistency, (2) Audience segmentation that enables personalized outreach without personalized effort, (3) An AI prompt library that allows anyone on your team to produce on-brand content. The result: more output, less chaos, compounding brand equity.",
   },
   advancedAudienceSegmentation: {
     coreSegments: [
       { segment: "Founders (Decision Makers)", messagingDifferentiation: "Focus on strategic outcomes: clarity, confidence, competitive advantage. They care about results, not process. Lead with transformation, not methodology.", channelRelevance: "LinkedIn (primary), Email (nurture), Direct outreach (high-value), Podcast appearances" },
-      { segment: "Marketing Leaders (Influencers)", messagingDifferentiation: "Focus on execution and tools: frameworks, templates, systems. They need ammunition to present internally and resources to do their job better.", channelRelevance: "LinkedIn, Email, Blog/SEO, Webinars, Community forums" },
+      { segment: "Marketing Leaders (Influencers)", messagingDifferentiation: "Focus on activation and tools: frameworks, templates, systems. They need ammunition to present internally and resources to do their job better.", channelRelevance: "LinkedIn, Email, Blog/SEO, Webinars, Community forums" },
       { segment: "Marketing Team Members (Users)", messagingDifferentiation: "Focus on clarity and confidence: how to know if they're doing it right. They want guardrails and examples, not theory.", channelRelevance: "Blog/SEO, Social (educational content), Templates and downloads, Newsletter" },
     ],
   },
   advancedMessagingMatrix: {
     byAudience: [
       { audience: "Founders", message: "Your brand has value. The problem is communication, not substance. We make what\u2019s true visible.", exampleCopy: "LinkedIn ad: \u2018You didn\u2019t build your company by guessing. Stop guessing with your marketing. Acme Co brings the same strategic clarity to your brand that you bring to your clients.\u2019" },
-      { audience: "Marketing Leaders", message: "Stop reinventing the wheel. We give you the system and language to execute with confidence.", exampleCopy: "Email subject: \u2018The brand messaging cheat sheet your team actually needs\u2019 \u2014 Body: \u2018Your team knows the product. They just need the words. This framework gives them both.\u2019" },
+      { audience: "Marketing Leaders", message: "Stop reinventing the wheel. We give you the system and language to activate with confidence.", exampleCopy: "Email subject: \u2018The brand messaging cheat sheet your team actually needs\u2019 \u2014 Body: \u2018Your team knows the product. They just need the words. This framework gives them both.\u2019" },
       { audience: "Marketing Teams", message: "Know exactly what to say, how to say it, and why it works. Clarity removes guesswork.", exampleCopy: "Blog title: \u20185 Brand Voice Templates That Make Every Piece of Content Sound Like Your Brand\u2019 \u2014 Practical, immediately usable, demonstrates expertise." },
     ],
     byFunnelStage: {
@@ -1175,7 +1235,7 @@ Prioritize ruthlessly. A brand trying to fix everything at once fixes nothing.`,
   },
   advancedPromptLibrary: {
     packName: "Advanced Prompt Library",
-    description: "Persona-based, funnel-stage, and campaign system prompts for sophisticated brand execution. These give you a strategic operating system — not just tools, but interconnected frameworks that scale your brand across audiences, channels, and growth stages.",
+    description: "Persona-based, funnel-stage, and campaign system prompts for sophisticated brand activation. These give you a strategic operating system — not just tools, but interconnected frameworks that scale your brand across audiences, channels, and growth stages.",
     promptCount: 12,
     prompts: [
       { category: "Persona-Based Messaging", title: "Audience Persona Messaging Map", instruction: "Run this prompt once per persona (typically 2–4 personas). Each output creates a complete messaging playbook for one audience segment.", prompt: "You are a persona-based messaging strategist for Acme Co.\n\nBrand platform:\n- Archetype: The Sage / The Caregiver\n- Voice: Insightful, confident, supportive, clear\n- Core Positioning: We help B2B service companies close the gap between what they deliver and how they're perceived\n- Message Pillars: Strategic clarity, Proof-backed credibility, Authentic authority\n\nPersona: [PERSONA NAME]\n- Role/Title: [ROLE]\n- Key Pain Points: [TOP 3]\n- Goals/Aspirations: [TOP 3]\n- Decision Drivers: [WHAT INFLUENCES THEIR BUYING DECISION]\n- Primary Objections: [TOP 2 HESITATIONS]\n- Content Channels: [WHERE THEY CONSUME CONTENT]\n- Awareness Level: [Unaware / Problem-Aware / Solution-Aware / Product-Aware]\n\nCreate a complete persona messaging map:\n1. Persona-Specific Value Prop\n2. Messaging Angle\n3. Hook Library — 5 attention-grabbing openers\n4. Pain-to-Promise Bridge\n5. Proof Strategy\n6. Objection Scripts\n7. Content Journey — 5-step path from first touch to conversion\n8. Micro-Copy Library — 3 headlines, 3 email subject lines, 3 ad hooks, and 3 CTAs\n\nThe brand voice stays constant. The emphasis, examples, and entry points shift for this persona.", whyItMatters: "One message for all audiences is a message for no one. Persona maps let you personalize at scale without fragmenting your brand." },
@@ -1228,15 +1288,15 @@ Prioritize ruthlessly. A brand trying to fix everything at once fixes nothing.`,
     maintainingIntegrityAtScale: "As you grow, brand drift becomes the biggest risk. Prevent it by: (1) Making this WunderBrand Blueprint+™ the onboarding foundation for every hire and contractor, (2) Reviewing content against guardrails monthly, (3) Empowering team members to flag inconsistencies without hierarchy, (4) Updating the WunderBrand Blueprint+™ annually to reflect learnings while maintaining core identity.",
   },
   competitivePositioning: {
-    positioningAxis1: { label: "Service Depth", lowEnd: "Tactical Execution", highEnd: "Strategic Advisory" },
+    positioningAxis1: { label: "Service Depth", lowEnd: "Tactical Activation", highEnd: "Strategic Advisory" },
     positioningAxis2: { label: "Client Focus", lowEnd: "Generalist (All Industries)", highEnd: "Specialist (B2B Services)" },
     players: [
       { name: "Acme Co", position: { x: "high", y: "high" }, narrative: "Acme Co occupies the strategic-advisory, B2B-specialist quadrant \u2014 a defensible position because it requires both deep expertise and industry-specific credibility." },
       { name: "Large Agency Incumbents", position: { x: "mid", y: "low" }, narrative: "Full-service agencies offer breadth but lack the specialized depth that B2B service companies need." },
-      { name: "Freelance Strategists", position: { x: "high", y: "mid" }, narrative: "Individual strategists can offer deep thinking but struggle with execution capacity and scalability." },
-      { name: "Marketing Automation Platforms", position: { x: "low", y: "low" }, narrative: "Tool-first solutions provide execution infrastructure but no strategic guidance \u2014 they\u2019re complementary to Acme Co, not competitive." },
+      { name: "Freelance Strategists", position: { x: "high", y: "mid" }, narrative: "Individual strategists can offer deep thinking but struggle with activation capacity and scalability." },
+      { name: "Marketing Automation Platforms", position: { x: "low", y: "low" }, narrative: "Tool-first solutions provide activation infrastructure but no strategic guidance \u2014 they\u2019re complementary to Acme Co, not competitive." },
     ],
-    strategicWhitespace: "The intersection of \u2018strategic advisory + B2B specialist + execution capability\u2019 is remarkably uncrowded. Most competitors are either strategic but generalist, or specialized but tactical. Acme Co can own this space.",
+    strategicWhitespace: "The intersection of \u2018strategic advisory + B2B specialist + activation capability\u2019 is remarkably uncrowded. Most competitors are either strategic but generalist, or specialized but tactical. Acme Co can own this space.",
     differentiationSummary: "Acme Co\u2019s position is defensible because it requires both deep B2B expertise AND strategic capability \u2014 a combination that takes years to build and is difficult for generalist agencies to replicate.",
     vulnerabilities: "Acme Co is most exposed to well-funded boutique firms that decide to specialize in B2B services. The primary defense is building visible thought leadership and a portfolio of named client results.",
     movementPlan: "In 12 months, Acme Co should aim to solidify the \u2018high-high\u2019 quadrant position by publishing 3\u20135 deep case studies, launching a thought leadership platform, and formalizing its methodology \u2014 making the position increasingly difficult to replicate.",
@@ -1261,7 +1321,7 @@ Prioritize ruthlessly. A brand trying to fix everything at once fixes nothing.`,
       phase1Success: "Credibility is visible at key touchpoints, a second conversion path exists, and baseline metrics are established for ongoing measurement.",
     },
     phase2: {
-      name: "Execution",
+      name: "Activation",
       objective: "Activate the credibility foundation through strategic content, refine messaging, and build visibility momentum.",
       weeks: [
         { weekNumber: 5, focus: "Content Strategy Launch", tasks: [{ task: "Create 4-week pillar-based content calendar", pillar: "Visibility", deliverable: "Content calendar with topics, formats, and pillar alignment", timeEstimate: "3 hours", resources: "Google Sheets or Notion" }, { task: "Write and publish first pillar-aligned LinkedIn post", pillar: "Visibility", deliverable: "First strategic post live on LinkedIn", timeEstimate: "1 hour", resources: "LinkedIn" }, { task: "Publish TechNova case study on website", pillar: "Credibility", deliverable: "Case study page live with CTA", timeEstimate: "2 hours", resources: "Website CMS" }], milestone: "Content strategy is activated with pillar alignment." },
@@ -1307,7 +1367,7 @@ Prioritize ruthlessly. A brand trying to fix everything at once fixes nothing.`,
         { step: "Gather metrics (Week before review)", detail: "Pull data for all 8 scorecard dimensions. Use the measurement methods specified above. Document in a single spreadsheet or dashboard.", timeEstimate: "2 hours" },
         { step: "Score each dimension (Red/Yellow/Green)", detail: "Compare current metrics to thresholds. Be honest \u2014 yellow is not green. Document the score AND the evidence.", timeEstimate: "30 minutes" },
         { step: "Identify the 2 biggest wins since last quarter", detail: "What improved? Why? What can be replicated? Document so the team can see progress and stay motivated.", timeEstimate: "20 minutes" },
-        { step: "Identify the 2 biggest risks or declines", detail: "What\u2019s trending down or stuck? Is it a resource issue, strategy issue, or execution issue? Be specific.", timeEstimate: "20 minutes" },
+        { step: "Identify the 2 biggest risks or declines", detail: "What\u2019s trending down or stuck? Is it a resource issue, strategy issue, or activation issue? Be specific.", timeEstimate: "20 minutes" },
         { step: "Set 3 priorities for next quarter", detail: "Based on wins and risks, choose 3 focus areas. Each should have a specific metric target, an owner, and a deadline.", timeEstimate: "30 minutes" },
         { step: "Update this WunderBrand Blueprint+™ if needed", detail: "Has anything changed about the business, audience, or market that should be reflected? Update relevant sections to keep the document alive.", timeEstimate: "20 minutes" },
       ],
@@ -1502,7 +1562,7 @@ Prioritize ruthlessly. A brand trying to fix everything at once fixes nothing.`,
       { item: "Conversion path complexity", evidence: "Conversion scored 14/20 \u2014 the path from awareness to purchase has too many steps.", mitigation: "Simplify the CTA hierarchy and implement the conversion strategy recommendations." },
     ],
     opportunities: [
-      { item: "AI search is a wide-open field", context: "No competitor in B2B brand consulting has established AEO authority yet.", action: "Execute the AEO strategy aggressively over the next 3\u20136 months to establish first-mover advantage." },
+      { item: "AI search is a wide-open field", context: "No competitor in B2B brand consulting has established AEO authority yet.", action: "Activate the AEO strategy aggressively over the next 3\u20136 months to establish first-mover advantage." },
       { item: "Content-driven lead generation", context: "B2B buyers self-educate through content before engaging vendors.", action: "Invest in the content pillar strategy and SEO/AEO playbook to capture top-of-funnel demand." },
       { item: "Product-led growth through free diagnostic", context: "The free WunderBrand Snapshot™ is a powerful entry point \u2014 few competitors offer anything comparable.", action: "Optimize the free-to-paid conversion funnel and build automated upgrade pathways." },
       { item: "Partnership and co-marketing potential", context: "Adjacent service providers (agencies, SaaS tools) could amplify reach.", action: "Identify 5\u201310 potential co-marketing partners and propose joint content or referral arrangements." },
@@ -1517,7 +1577,7 @@ Prioritize ruthlessly. A brand trying to fix everything at once fixes nothing.`,
   brandGlossary: {
     overview: "Use this glossary to ensure consistent language across all communications \u2014 website, social, sales, emails, and internal documents. Consistency builds trust; inconsistency erodes it.",
     termsToUse: [
-      { term: "brand alignment", insteadOf: "brand consistency", context: "When discussing the relationship between brand strategy and execution", example: "Our brand alignment diagnostic reveals where strategy and execution diverge." },
+      { term: "brand alignment", insteadOf: "brand consistency", context: "When discussing the relationship between brand strategy and activation", example: "Our brand alignment diagnostic reveals where strategy and activation diverge." },
       { term: "strategic partner", insteadOf: "vendor / agency / contractor", context: "When describing Acme Co's relationship with clients", example: "As your strategic partner, we'll guide you through implementation." },
       { term: "diagnostic", insteadOf: "test / quiz / assessment", context: "When referring to the WunderBrand Snapshot™ product", example: "Complete your brand diagnostic to uncover your alignment score." },
       { term: "brand system", insteadOf: "brand package / branding", context: "When describing the comprehensive brand deliverable", example: "Your WunderBrand Blueprint™ is a complete brand system \u2014 not just a logo and guidelines." },
@@ -1563,6 +1623,7 @@ ARCHETYPE_META["The Guide"] = ARCHETYPE_META["The Sage"];
 /* ─── Main Component ─── */
 export default function BrandBlueprintPlusReport() {
   const r = REPORT;
+  const [activePreviewTab, setActivePreviewTab] = useState<PreviewTab>("foundation");
   const [selectedFocus, setSelectedFocus] = useState<"primary" | "secondary">("primary");
   const [selectedArchetype, setSelectedArchetype] = useState<"primary" | "secondary">("primary");
   const [blueprintReportId, setBlueprintReportId] = useState<string | null>(null);
@@ -1575,9 +1636,13 @@ export default function BrandBlueprintPlusReport() {
     if (em) setBlueprintEmail(em);
   }, []);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [activePreviewTab]);
+
   return (
     <>
-    <div data-report style={{ minHeight: "100vh", background: LIGHT_BG, fontFamily: "'Lato', sans-serif" }}>
+    <div data-report data-active-preview-tab={activePreviewTab} style={{ minHeight: "100vh", background: LIGHT_BG, fontFamily: "'Lato', sans-serif" }}>
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -1608,6 +1673,11 @@ export default function BrandBlueprintPlusReport() {
           [data-two-col] { grid-template-columns: 1fr !important; }
           [data-three-col] { grid-template-columns: 1fr !important; }
         }
+        [data-report][data-active-preview-tab="foundation"] [data-preview-tab]:not([data-preview-tab="foundation"]) { display: none !important; }
+        [data-report][data-active-preview-tab="strategy"] [data-preview-tab]:not([data-preview-tab="strategy"]) { display: none !important; }
+        [data-report][data-active-preview-tab="execution"] [data-preview-tab]:not([data-preview-tab="execution"]) { display: none !important; }
+        [data-report][data-active-preview-tab="downloads"] [data-preview-tab]:not([data-preview-tab="downloads"]) { display: none !important; }
+        [data-report][data-active-preview-tab="workbook"] [data-preview-tab] { display: none !important; }
         @media (prefers-reduced-motion: reduce) {
           *, *::before, *::after {
             animation-duration: 0.01ms !important;
@@ -1623,7 +1693,12 @@ export default function BrandBlueprintPlusReport() {
         <div style={{ maxWidth: 900, margin: "0 auto", padding: "0 24px", position: "relative", zIndex: 1 }}>
           <div data-header-top style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 0", borderBottom: `1px solid ${BORDER}` }}>
             <a href={UTM_BASE} target="_blank" rel="noopener noreferrer">
-              <img src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp" alt="Wunderbar Digital" style={{ height: 26, objectFit: "contain" }} />
+              <Image
+                src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp"
+                alt="Wunderbar Digital"
+                width={160}
+                height={26}
+              />
             </a>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
               <span style={{ fontSize: 22, fontWeight: 700, color: NAVY, lineHeight: 1 }}>WunderBrand Blueprint+™</span>
@@ -1643,55 +1718,9 @@ export default function BrandBlueprintPlusReport() {
             <p style={{ fontSize: 11, fontWeight: 600, color: "#8A97A8", margin: "8px 0 0", letterSpacing: "0.04em" }}>Confidential — Prepared exclusively for {r.businessName}</p>
           </div>
           <div data-header-actions style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
-            <div style={{ display: "flex", gap: 8 }}>
-              <button aria-label="Print report" onClick={() => window.print()} style={{
-                display: "inline-flex", alignItems: "center", gap: 5,
-                padding: "8px 16px", minHeight: 36, borderRadius: 5,
-                border: `1.5px solid ${BORDER}`, background: WHITE,
-                color: SUB, fontSize: 12, fontWeight: 700, cursor: "pointer",
-                fontFamily: "Lato, sans-serif",
-                transition: "border-color 0.2s ease, color 0.2s ease",
-              }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = BLUE; e.currentTarget.style.color = BLUE; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.color = SUB; }}
-              >
-                <svg viewBox="0 0 20 20" fill="none" style={{ width: 14, height: 14 }}>
-                  <path d="M5 8V3h10v5M5 14h10v3H5v-3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-                  <path d="M3 8h14v6H3V8z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-                  <circle cx="13" cy="11" r="0.8" fill="currentColor"/>
-                </svg>
-                Print
-              </button>
-              <button aria-label="Download report" onClick={() => {
-                const el = document.querySelector('[data-report]') || document.querySelector('main') || document.body;
-                if (el) {
-                  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>WunderBrand Blueprint+™ - ${r.businessName}</title><link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet"><style>body{margin:0;font-family:Lato,sans-serif;}</style></head><body>${el.outerHTML}</body></html>`;
-                  const blob = new Blob([html], { type: 'text/html' });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = `Brand-Blueprint-Plus-${r.businessName.replace(/\s+/g, '-')}.html`;
-                  a.click();
-                  URL.revokeObjectURL(url);
-                }
-              }} style={{
-                display: "inline-flex", alignItems: "center", gap: 5,
-                padding: "8px 16px", minHeight: 36, borderRadius: 5,
-                border: `1.5px solid ${BLUE}`, background: `${BLUE}08`,
-                color: BLUE, fontSize: 12, fontWeight: 700, cursor: "pointer",
-                fontFamily: "Lato, sans-serif",
-                transition: "background 0.2s ease",
-              }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = `${BLUE}15`; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = `${BLUE}08`; }}
-              >
-                <svg viewBox="0 0 20 20" fill="none" style={{ width: 14, height: 14 }}>
-                  <path d="M10 3v10M10 13l-3.5-3.5M10 13l3.5-3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M3 14v2a1 1 0 001 1h12a1 1 0 001-1v-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                </svg>
-                Download
-              </button>
-            </div>
+            <p style={{ margin: 0, fontSize: 12, color: SUB, textAlign: "right", maxWidth: 320 }}>
+              Downloads are available in the <strong style={{ color: NAVY }}>Downloads</strong> tab.
+            </p>
           </div>
         </div>
         </div>
@@ -1715,6 +1744,53 @@ export default function BrandBlueprintPlusReport() {
           </div>
         </div>
 
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {(
+            [
+              { id: "foundation", label: "Foundation" },
+              { id: "strategy", label: "Strategy" },
+              { id: "execution", label: "Activation" },
+              { id: "workbook", label: "Workbook" },
+              { id: "downloads", label: "Downloads" },
+            ] as Array<{ id: PreviewTab; label: string }>
+          ).map((tab) => {
+            const selected = activePreviewTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActivePreviewTab(tab.id)}
+                style={{
+                  border: selected ? `2px solid ${NAVY}` : `1px solid ${BORDER}`,
+                  background: selected ? NAVY : WHITE,
+                  color: selected ? WHITE : NAVY,
+                  padding: "8px 14px",
+                  borderRadius: 8,
+                  fontSize: 12,
+                  fontWeight: 800,
+                  letterSpacing: "0.05em",
+                  textTransform: "uppercase",
+                  cursor: "pointer",
+                  fontFamily: "Lato, sans-serif",
+                }}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {activePreviewTab === "workbook" && (
+          <div style={{ padding: "22px 24px", borderRadius: 8, border: `1px solid ${BORDER}`, background: WHITE }}>
+            <div style={{ fontSize: 11, fontWeight: 800, color: BLUE, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
+              Workbook Preview
+            </div>
+            <h3 style={{ margin: "0 0 8px", fontSize: 22, color: NAVY }}>Refine & Own Your Plan</h3>
+            <p style={{ margin: 0, color: SUB, fontSize: 15, lineHeight: 1.6 }}>
+              Workbook mode is where teams edit strategic outputs, update activation details, and save versioned refinements before exporting final plans.
+            </p>
+          </div>
+        )}
+
         {/* ═══ 1. EXECUTIVE SUMMARY ═══ */}
         <Section id="executive-summary">
           <SectionTitle hero description="A strategic overview of your brand's alignment with prioritized focus areas.">Executive Summary</SectionTitle>
@@ -1727,10 +1803,12 @@ export default function BrandBlueprintPlusReport() {
             const overallPct = overallScore;
             const strongPct = (strongest.score / 20) * 100;
             const weakPct = (weakest.score / 20) * 100;
+            const weakestLabel = weakestPillarCallout(weakPct);
+            const weakestIconColor = BLUE;
             const cards = [
               { label: "Overall Score", value: String(overallScore), sub: "out of 100", pct: overallPct, pill: null as string | null, icon: <svg viewBox="0 0 24 24" fill="none" style={{ width: 22, height: 22 }}><circle cx="12" cy="12" r="10" stroke={BLUE} strokeWidth="2"/><path d="M12 6v6l4 2" stroke={BLUE} strokeWidth="2" strokeLinecap="round"/></svg> },
-              { label: "Strongest Pillar", value: `${strongest.score}/20`, sub: null as string | null, pct: strongPct, pill: strongest.label, icon: <svg viewBox="0 0 24 24" fill="none" style={{ width: 22, height: 22 }}><path d="M12 2l3 7h7l-5.5 4.5 2 7L12 16l-6.5 4.5 2-7L2 9h7z" stroke={GREEN} strokeWidth="2" strokeLinejoin="round"/></svg> },
-              { label: "Needs Attention", value: `${weakest.score}/20`, sub: null as string | null, pct: weakPct, pill: weakest.label, icon: <svg viewBox="0 0 24 24" fill="none" style={{ width: 22, height: 22 }}><path d="M12 9v4M12 17h.01" stroke={ORANGE} strokeWidth="2" strokeLinecap="round"/><path d="M10.3 3.2L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.2a2 2 0 00-3.4 0z" stroke={ORANGE} strokeWidth="2" strokeLinejoin="round"/></svg> },
+              { label: "Strongest Pillar", value: `${strongest.score}/20`, sub: null as string | null, pct: strongPct, pill: strongest.label, icon: <svg viewBox="0 0 24 24" fill="none" style={{ width: 22, height: 22 }}><path d="M12 2l3 7h7l-5.5 4.5 2 7L12 16l-6.5 4.5 2-7L2 9h7z" stroke={BLUE} strokeWidth="2" strokeLinejoin="round"/></svg> },
+              { label: weakestLabel, value: `${weakest.score}/20`, sub: null as string | null, pct: weakPct, pill: weakest.label, icon: <svg viewBox="0 0 24 24" fill="none" style={{ width: 22, height: 22 }}><path d="M12 9v4M12 17h.01" stroke={weakestIconColor} strokeWidth="2" strokeLinecap="round"/><path d="M10.3 3.2L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.2a2 2 0 00-3.4 0z" stroke={weakestIconColor} strokeWidth="2" strokeLinejoin="round"/></svg> },
             ];
             return (
               <>
@@ -1743,7 +1821,14 @@ export default function BrandBlueprintPlusReport() {
                         {card.icon}
                         <div style={{ fontSize: 14, fontWeight: 700, color: NAVY, marginTop: 8 }}>{card.label}</div>
                         <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginTop: 10 }}>
-                          <span style={{ fontSize: 30, fontWeight: 700, color: tierColor, lineHeight: 1 }}>{card.value}</span>
+                          <span style={{ fontSize: 34, fontWeight: 800, color: tierColor, lineHeight: 1 }}>
+                            {card.value.includes("/") ? card.value.split("/")[0] : card.value}
+                          </span>
+                          <span style={{ fontSize: 16, fontWeight: 700, color: tierColor, opacity: 0.9 }}>
+                            {card.value.includes("/")
+                              ? `/${card.value.split("/")[1]}`
+                              : "/100"}
+                          </span>
                           <span style={{ fontSize: 12, fontWeight: 700, color: tierColor, textTransform: "uppercase" }}>{tierLabel}</span>
                         </div>
                         {card.sub && <div style={{ fontSize: 12, color: SUB, marginTop: 4 }}>{card.sub}</div>}
@@ -1767,6 +1852,26 @@ export default function BrandBlueprintPlusReport() {
           })()}
         </Section>
 
+        {/* ═══ 2. BRAND ALIGNMENT SCORE + FOCUS TOGGLE ═══ */}
+        <Section id="brand-alignment-score">
+          <SectionTitle hero description="A composite score measuring how well your brand communicates across five key pillars.">WunderBrand Score™</SectionTitle>
+          <MainGauge score={r.executiveSummary.brandAlignmentScore} />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 28 }}>
+            <button aria-pressed={selectedFocus === "primary"} onClick={() => setSelectedFocus("primary")} style={{ padding: "18px 20px", borderRadius: 5, textAlign: "left", background: selectedFocus === "primary" ? `${BLUE}12` : WHITE, border: selectedFocus === "primary" ? `2px solid ${BLUE}` : `1px solid ${BORDER}`, cursor: "pointer", transition: "all 0.2s ease", position: "relative", overflow: "hidden" }}>
+              {selectedFocus === "primary" && <div style={{ position: "absolute", top: 8, right: 8 }}><svg viewBox="0 0 20 20" fill="none" style={{ width: 20, height: 20 }}><circle cx="10" cy="10" r="10" fill={BLUE}/><path d="M6 10l2.5 2.5L14 7" stroke={WHITE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></div>}
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}><div style={{ width: 32, height: 32, borderRadius: "50%", background: BLUE, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 900 }}>1</div><div style={{ fontSize: 12, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.1em" }}>Primary Focus Area</div></div>
+              <div style={{ fontSize: 22, fontWeight: 900, color: NAVY }}>{r.executiveSummary.primaryFocusArea}</div>
+              <div style={{ fontSize: 13, color: SUB, marginTop: 6 }}>Highest leverage opportunity</div>
+            </button>
+            <button aria-pressed={selectedFocus === "secondary"} onClick={() => setSelectedFocus("secondary")} style={{ padding: "18px 20px", borderRadius: 5, textAlign: "left", background: selectedFocus === "secondary" ? `${NAVY}10` : WHITE, border: selectedFocus === "secondary" ? `2px solid ${NAVY}` : `1px solid ${BORDER}`, cursor: "pointer", transition: "all 0.2s ease", position: "relative", overflow: "hidden" }}>
+              {selectedFocus === "secondary" && <div style={{ position: "absolute", top: 8, right: 8 }}><svg viewBox="0 0 20 20" fill="none" style={{ width: 20, height: 20 }}><circle cx="10" cy="10" r="10" fill={NAVY}/><path d="M6 10l2.5 2.5L14 7" stroke={WHITE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></div>}
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}><div style={{ width: 32, height: 32, borderRadius: "50%", background: NAVY, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 900 }}>2</div><div style={{ fontSize: 12, fontWeight: 700, color: SUB, textTransform: "uppercase", letterSpacing: "0.1em" }}>Secondary Focus Area</div></div>
+              <div style={{ fontSize: 22, fontWeight: 900, color: NAVY }}>{r.executiveSummary.secondaryFocusArea}</div>
+              <div style={{ fontSize: 13, color: SUB, marginTop: 6 }}>Supporting priority area</div>
+            </button>
+          </div>
+        </Section>
+
         {/* ═══ CONTEXT COVERAGE ═══ */}
         <Section id="context-coverage">
           <SectionTitle description="How thoroughly we were able to analyze your brand based on the information provided.">
@@ -1786,6 +1891,19 @@ export default function BrandBlueprintPlusReport() {
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 18, fontWeight: 700, color: NAVY, marginBottom: 4 }}>Overall Context Coverage</div>
               <div style={{ fontSize: 15, color: SUB, lineHeight: 1.55 }}>We had sufficient information to provide a {r.contextCoverage.overallPercent >= 80 ? "highly detailed" : r.contextCoverage.overallPercent >= 60 ? "thorough" : "foundational"} analysis.</div>
+              {r.contextCoverage.overallPercent < 85 ? (
+                <p style={{ fontSize: 13, color: SUB, lineHeight: 1.5, margin: "10px 0 0" }}>
+                  Add detail in a quick follow-up to raise coverage.{" "}
+                  <a
+                    href="/refine/preview-blueprint-plus"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: BLUE, fontWeight: 700, textDecoration: "underline" }}
+                  >
+                    Refine now →
+                  </a>
+                </p>
+              ) : null}
             </div>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
@@ -1854,26 +1972,6 @@ export default function BrandBlueprintPlusReport() {
           </div>
         )}
 
-        {/* ═══ 2. BRAND ALIGNMENT SCORE + FOCUS TOGGLE ═══ */}
-        <Section id="brand-alignment-score">
-          <SectionTitle hero description="A composite score measuring how well your brand communicates across five key pillars.">WunderBrand Score™</SectionTitle>
-          <MainGauge score={r.executiveSummary.brandAlignmentScore} />
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 28 }}>
-            <button aria-pressed={selectedFocus === "primary"} onClick={() => setSelectedFocus("primary")} style={{ padding: "18px 20px", borderRadius: 5, textAlign: "left", background: selectedFocus === "primary" ? `${BLUE}12` : WHITE, border: selectedFocus === "primary" ? `2px solid ${BLUE}` : `1px solid ${BORDER}`, cursor: "pointer", transition: "all 0.2s ease", position: "relative", overflow: "hidden" }}>
-              {selectedFocus === "primary" && <div style={{ position: "absolute", top: 8, right: 8 }}><svg viewBox="0 0 20 20" fill="none" style={{ width: 20, height: 20 }}><circle cx="10" cy="10" r="10" fill={BLUE}/><path d="M6 10l2.5 2.5L14 7" stroke={WHITE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></div>}
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}><div style={{ width: 32, height: 32, borderRadius: "50%", background: BLUE, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 900 }}>1</div><div style={{ fontSize: 12, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.1em" }}>Primary Focus Area</div></div>
-              <div style={{ fontSize: 22, fontWeight: 900, color: NAVY }}>{r.executiveSummary.primaryFocusArea}</div>
-              <div style={{ fontSize: 13, color: SUB, marginTop: 6 }}>Highest leverage opportunity</div>
-            </button>
-            <button aria-pressed={selectedFocus === "secondary"} onClick={() => setSelectedFocus("secondary")} style={{ padding: "18px 20px", borderRadius: 5, textAlign: "left", background: selectedFocus === "secondary" ? `${NAVY}10` : WHITE, border: selectedFocus === "secondary" ? `2px solid ${NAVY}` : `1px solid ${BORDER}`, cursor: "pointer", transition: "all 0.2s ease", position: "relative", overflow: "hidden" }}>
-              {selectedFocus === "secondary" && <div style={{ position: "absolute", top: 8, right: 8 }}><svg viewBox="0 0 20 20" fill="none" style={{ width: 20, height: 20 }}><circle cx="10" cy="10" r="10" fill={NAVY}/><path d="M6 10l2.5 2.5L14 7" stroke={WHITE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></div>}
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}><div style={{ width: 32, height: 32, borderRadius: "50%", background: NAVY, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 900 }}>2</div><div style={{ fontSize: 12, fontWeight: 700, color: SUB, textTransform: "uppercase", letterSpacing: "0.1em" }}>Secondary Focus Area</div></div>
-              <div style={{ fontSize: 22, fontWeight: 900, color: NAVY }}>{r.executiveSummary.secondaryFocusArea}</div>
-              <div style={{ fontSize: 13, color: SUB, marginTop: 6 }}>Supporting priority area</div>
-            </button>
-          </div>
-        </Section>
-
         {/* ═══ 3. FOCUS AREA DIAGNOSIS (Both rendered, inactive hidden for print) ═══ */}
         <div id="focus-area-diagnosis">
           {/* Primary Focus Area Diagnosis */}
@@ -1902,10 +2000,9 @@ export default function BrandBlueprintPlusReport() {
 
         {/* ═══ 4. PILLAR DEEP DIVES ═══ */}
         <Section id="pillar-deep-dives" pageBreak>
-          <SectionTitle description="Strategic analysis of each pillar with examples, step-by-step implementation guides, and recommended tools.">Pillar Deep Dives</SectionTitle>
+          <SectionTitle description="Strategic analysis of each pillar with examples, step-by-step implementation guides, and recommended tools.">Brand Pillar Analysis</SectionTitle>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px 32px", padding: "20px 24px", background: LIGHT_BG, borderRadius: 5, marginBottom: 24 }}>{PILLARS.map((p) => (<div key={p} style={{ display: "flex", alignItems: "center", gap: 10 }}><PillarIcon pillar={p} size={20} /><div style={{ flex: 1 }}><PillarMeter score={r.pillarDeepDives[p].score} label={PILLAR_LABELS[p]} /></div></div>))}</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>{PILLARS.map((p) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const d = r.pillarDeepDives[p] as any;
             const pct = (d.score / 20) * 100;
             return (
@@ -2028,7 +2125,9 @@ export default function BrandBlueprintPlusReport() {
 
             <div style={{ padding: "20px 24px", background: `${BLUE}08`, borderRadius: 5, borderLeft: `4px solid ${BLUE}` }}>
               <div style={{ fontSize: 12, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>Positioning Statement</div>
-              <div style={{ fontSize: 17, color: "#1a1a2e", lineHeight: 1.65, fontStyle: "italic", fontWeight: 500 }}>"{r.brandFoundation.positioningStatement}"</div>
+              <div style={{ fontSize: 17, color: "#1a1a2e", lineHeight: 1.65, fontStyle: "italic", fontWeight: 500 }}>
+                &ldquo;{r.brandFoundation.positioningStatement}&rdquo;
+              </div>
             </div>
 
             <div>
@@ -2491,7 +2590,6 @@ export default function BrandBlueprintPlusReport() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}><div style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{ fontSize: 14, fontWeight: 900, color: NAVY, textTransform: "uppercase", letterSpacing: "0.08em" }}>AEO Readiness Review</span></div><span style={{ fontSize: 12, fontWeight: 700, padding: "4px 12px", borderRadius: 10, background: r.visibilityDiscovery.aeoReadiness.score === "High" ? `${GREEN}15` : r.visibilityDiscovery.aeoReadiness.score.includes("Moderate") ? `${YELLOW}15` : `${RED_S}10`, color: r.visibilityDiscovery.aeoReadiness.score === "High" ? GREEN : r.visibilityDiscovery.aeoReadiness.score.includes("Moderate") ? "#92700C" : RED_S }}>{r.visibilityDiscovery.aeoReadiness.score}</span></div>
             <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.65, marginBottom: 16 }}>{r.visibilityDiscovery.aeoReadiness.explanation}</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {r.visibilityDiscovery.aeoReadiness.recommendations.map((rec: any, i: number) => (
                 <div key={i} style={{ padding: "14px 18px", borderRadius: 6, border: `1px solid ${BORDER}`, background: WHITE }}>
                   <div style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: rec.detail ? 8 : 0 }}>
@@ -2512,7 +2610,6 @@ export default function BrandBlueprintPlusReport() {
               <span style={{ fontSize: 14, fontWeight: 900, color: NAVY, textTransform: "uppercase", letterSpacing: "0.08em" }}>Visibility Priorities — Implementation Roadmap</span>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {r.visibilityDiscovery.visibilityPriorities.map((vp: any, i: number) => (
                 <div key={i} style={{ borderRadius: 6, border: `1px solid ${i === 0 ? BLUE + "25" : BORDER}`, background: WHITE, overflow: "hidden" }}>
                   <div style={{ display: "flex", gap: 16, alignItems: "flex-start", padding: "14px 18px", background: i === 0 ? `${BLUE}06` : LIGHT_BG, borderBottom: `1px solid ${BORDER}` }}>
@@ -2775,7 +2872,6 @@ export default function BrandBlueprintPlusReport() {
 
           {/* CTA Hierarchy with Templates */}
           {(() => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const cs = r.conversionStrategy as any;
             return (<>
           <div style={{ marginBottom: 28 }}>
@@ -2916,7 +3012,6 @@ export default function BrandBlueprintPlusReport() {
         <Section id="strategic-action-plan">
           <SectionTitle description="Five prioritized actions with step-by-step implementation guides, ready-to-use templates, and examples you can apply today.">Strategic Action Plan</SectionTitle>
           <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {r.strategicActionPlan.map((item: any, idx: number) => (
               <div key={idx} style={{ borderRadius: 8, border: `1px solid ${BORDER}`, background: WHITE, overflow: "hidden" }}>
                 {/* Header */}
@@ -3013,34 +3108,23 @@ export default function BrandBlueprintPlusReport() {
 
         {/* ═══ AI PROMPT LIBRARY ═══ */}
         <Section pageBreak>
-          <SectionTitle hero description="Complete AI prompt library combining foundational brand building prompts with execution-focused prompts — all calibrated to your brand.">
+          <SectionTitle hero description="Complete AI prompt library combining foundational brand building prompts with activation-focused prompts — all calibrated to your brand.">
             <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <svg viewBox="0 0 24 24" fill="none" style={{ width: 24, height: 24 }}><rect x="3" y="3" width="18" height="18" rx="3" stroke={BLUE} strokeWidth="1.5"/><path d="M8 10l3 3-3 3" stroke={BLUE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M14 16h3" stroke={BLUE} strokeWidth="2" strokeLinecap="round"/></svg>
               AI Prompt Library
             </span>
           </SectionTitle>
 
-          {/* Overall header with total count */}
-          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 32, padding: "14px 20px", background: `${BLUE}06`, borderRadius: 5, border: `1px solid ${BLUE}18` }}>
-            <div style={{ width: 40, height: 40, borderRadius: "50%", background: `${BLUE}15`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <span style={{ fontSize: 18, fontWeight: 900, color: BLUE }}>28</span>
-            </div>
-            <div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: NAVY }}>28 AI Prompts — Calibrated to {r.businessName}</div>
-              <div style={{ fontSize: 13, color: SUB, lineHeight: 1.4 }}>Complete library: Foundational (8) + Execution (8) + Advanced (12). Copy directly into ChatGPT, Claude, or any AI tool.</div>
-            </div>
+          <div style={{ fontSize: 14, color: SUB, lineHeight: 1.6, marginBottom: 28 }}>
+            Prompt packs are calibrated to {r.businessName}. Copy directly into ChatGPT, Claude, or any AI tool.
           </div>
 
           {/* ═══ FOUNDATIONAL PROMPT PACK ═══ */}
           <div style={{ marginBottom: 40 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+            <div style={{ marginBottom: 16 }}>
               <div>
                 <div style={{ fontSize: 18, fontWeight: 900, color: NAVY, marginBottom: 4 }}>{r.foundationalPromptPack.packName}</div>
                 <div style={{ fontSize: 13, color: SUB, lineHeight: 1.4 }}>{r.foundationalPromptPack.description}</div>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ padding: "6px 12px", borderRadius: 5, background: `${BLUE}12`, fontSize: 12, fontWeight: 700, color: BLUE }}>{r.foundationalPromptPack.promptCount} Prompts</div>
-                <div style={{ padding: "6px 12px", borderRadius: 5, background: `${GREEN}12`, fontSize: 12, fontWeight: 700, color: GREEN }}>Included from WunderBrand Snapshot+™</div>
               </div>
             </div>
 
@@ -3073,14 +3157,10 @@ export default function BrandBlueprintPlusReport() {
 
           {/* ═══ EXECUTION PROMPT PACK ═══ */}
           <div style={{ marginBottom: 24 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+            <div style={{ marginBottom: 16 }}>
               <div>
                 <div style={{ fontSize: 18, fontWeight: 900, color: NAVY, marginBottom: 4 }}>{r.executionPromptPack.packName}</div>
                 <div style={{ fontSize: 13, color: SUB, lineHeight: 1.4 }}>{r.executionPromptPack.description}</div>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ padding: "6px 12px", borderRadius: 5, background: `${BLUE}12`, fontSize: 12, fontWeight: 700, color: BLUE }}>{r.executionPromptPack.promptCount} Prompts</div>
-                <div style={{ padding: "6px 12px", borderRadius: 5, background: `${GREEN}12`, fontSize: 12, fontWeight: 700, color: GREEN }}>Included from WunderBrand Blueprint™</div>
               </div>
             </div>
 
@@ -3113,14 +3193,10 @@ export default function BrandBlueprintPlusReport() {
 
           {/* ═══ ADVANCED PROMPT LIBRARY (Blueprint+ Exclusive) ═══ */}
           <div style={{ marginTop: 40 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+            <div style={{ marginBottom: 16 }}>
               <div>
                 <div style={{ fontSize: 18, fontWeight: 900, color: NAVY, marginBottom: 4 }}>{r.advancedPromptLibrary.packName}</div>
                 <div style={{ fontSize: 13, color: SUB, lineHeight: 1.4 }}>{r.advancedPromptLibrary.description}</div>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ padding: "6px 12px", borderRadius: 5, background: `${BLUE}12`, fontSize: 12, fontWeight: 700, color: BLUE }}>{r.advancedPromptLibrary.promptCount} Prompts</div>
-                <div style={{ padding: "6px 12px", borderRadius: 5, background: `${BLUE}15`, fontSize: 12, fontWeight: 700, color: BLUE }}>Blueprint+ Exclusive</div>
               </div>
             </div>
 
@@ -3157,7 +3233,7 @@ export default function BrandBlueprintPlusReport() {
           <SectionTitle hero description="What to protect, what to avoid, and the early warning signs of brand drift.">
             <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <svg viewBox="0 0 24 24" fill="none" style={{ width: 24, height: 24 }}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke={BLUE} strokeWidth="1.5" strokeLinejoin="round"/><path d="M9 12l2 2 4-4" stroke={BLUE} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              Execution Guardrails
+              Activation Guardrails
             </span>
           </SectionTitle>
 
@@ -3634,7 +3710,13 @@ export default function BrandBlueprintPlusReport() {
               Brand Story
             </SectionTitle>
             <div style={{ fontSize: 22, fontStyle: "italic", fontWeight: 600, color: NAVY, marginBottom: 20, lineHeight: 1.4 }}>{(r as any).brandStory.headline}</div>
-            <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.75, whiteSpace: "pre-line", marginBottom: 24 }}>{(r as any).brandStory.narrative}</div>
+            <div style={{ marginBottom: 24 }}>
+              <StrategyProseBody
+                text={(r as any).brandStory.narrative}
+                paragraphStyle={{ margin: 0, fontSize: 15, color: "#1a1a2e", lineHeight: 1.75, whiteSpace: "pre-line" }}
+                blockGapClassName="gap-2.5"
+              />
+            </div>
             <div style={{ padding: "20px 24px", borderRadius: 5, background: ACCENT_BG, borderLeft: `4px solid ${BLUE}`, marginBottom: 20 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>Elevator Pitch</div>
               <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.6 }}>{(r as any).brandStory.elevatorPitch}</div>
@@ -4209,9 +4291,9 @@ export default function BrandBlueprintPlusReport() {
         <Section id="work-with-us">
           <div style={{ textAlign: "center", marginBottom: 28 }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 }}>What&apos;s Next</div>
-            <h2 style={{ fontSize: 24, fontWeight: 700, color: NAVY, margin: "0 0 12px", lineHeight: 1.3 }}>Ready to Execute Your Brand System?</h2>
+            <h2 style={{ fontSize: 24, fontWeight: 700, color: NAVY, margin: "0 0 12px", lineHeight: 1.3 }}>Ready to Activate Your Brand System?</h2>
             <p style={{ fontSize: 16, color: SUB, lineHeight: 1.65, maxWidth: 620, margin: "0 auto" }}>
-              You now have the most comprehensive brand operating system available. The next step is execution. Whether you need hands-on marketing support or AI strategy guidance, our team is ready to help you turn this system into results.
+              You now have the most comprehensive brand operating system available. The next step is activation. Whether you need hands-on marketing support or AI strategy guidance, our team is ready to help you turn this system into results.
             </p>
           </div>
 
@@ -4228,10 +4310,10 @@ export default function BrandBlueprintPlusReport() {
                 </div>
               </div>
               <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.65, marginBottom: 20 }}>
-                We execute your brand strategy — content creation, campaign management, performance optimization, and ongoing brand stewardship. Your Blueprint+ becomes the playbook our team follows.
+                We activate your brand strategy — content creation, campaign management, performance optimization, and ongoing brand stewardship. Your Blueprint+ becomes the playbook our team follows.
               </div>
               <div style={{ flex: 1, marginBottom: 20 }}>
-                {["Full execution of your WunderBrand Blueprint+™ strategy", "Content creation aligned to your brand system", "Campaign management across all channels", "Monthly performance reporting & optimization", "Direct access to brand strategists"].map((f, i) => (
+                {["Full activation of your WunderBrand Blueprint+™ strategy", "Content creation aligned to your brand system", "Campaign management across all channels", "Monthly performance reporting & optimization", "Direct access to brand strategists"].map((f, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                     <svg viewBox="0 0 20 20" fill="none" style={{ width: 16, height: 16, flexShrink: 0 }}><circle cx="10" cy="10" r="9" fill={BLUE} opacity="0.15"/><path d="M6 10.5l2.5 2.5L14 7.5" stroke={BLUE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     <span style={{ fontSize: 13, color: "#1a1a2e" }}>{f}</span>
@@ -4284,6 +4366,38 @@ export default function BrandBlueprintPlusReport() {
           </div>
         </Section>
 
+        <Section id="strategic-signals">
+          <SectionTitle description="Executive-level diagnostic signals with implementation implications for growth and profitability.">
+            Strategic Signals
+          </SectionTitle>
+          <div style={{ display: "grid", gap: 14 }}>
+            <div style={{ border: `1px solid ${BORDER}`, borderRadius: 5, padding: 16, background: WHITE }}>
+              <div style={{ fontSize: 14, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
+                Competitive Vulnerability Signal
+              </div>
+              <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.65 }}>
+                Your strongest moat is strategic authority; your current exposure is proof distribution and differentiation consistency across channels. Rivals with tighter narrative continuity can out-position you in final-stage evaluations despite weaker underlying capability.
+              </div>
+            </div>
+            <div style={{ border: `1px solid ${BORDER}`, borderRadius: 5, padding: 16, background: WHITE }}>
+              <div style={{ fontSize: 14, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
+                Marketing Spend Efficiency Signal
+              </div>
+              <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.65 }}>
+                Spend dilution is concentrated in cross-channel message drift and under-leveraged high-intent pathways. Reallocating budget toward aligned journeys and conversion-ready assets should raise blended ROAS and improve CAC efficiency.
+              </div>
+            </div>
+            <div style={{ border: `1px solid ${BORDER}`, borderRadius: 5, padding: 16, background: WHITE }}>
+              <div style={{ fontSize: 14, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
+                Revenue Impact Statement
+              </div>
+              <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.65 }}>
+                The primary upside vector is conversion-quality lift from clearer positioning, stronger proof hierarchy, and tighter activation governance. Resolving these constraints increases forecast reliability and unlocks sustainable revenue acceleration.
+              </div>
+            </div>
+          </div>
+        </Section>
+
         {/* ═══ DOCUMENT LIBRARY ═══ */}
         {blueprintReportId && (
           <Section id="document-library">
@@ -4295,7 +4409,12 @@ export default function BrandBlueprintPlusReport() {
         <footer style={{ textAlign: "center", padding: "20px 0 0", borderTop: `1px solid ${BORDER}` }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8 }}>
             <a href={UTM_BASE} target="_blank" rel="noopener noreferrer">
-              <img src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp" alt="Wunderbar Digital" style={{ height: 20, objectFit: "contain" }} />
+              <Image
+                src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp"
+                alt="Wunderbar Digital"
+                width={124}
+                height={20}
+              />
             </a>
           </div>
           <p style={{ fontSize: 14, color: SUB, marginBottom: 4 }}>
@@ -4311,7 +4430,7 @@ export default function BrandBlueprintPlusReport() {
           </p>
           <p style={{ fontSize: 11, color: '#8A97A8', textAlign: 'center', marginTop: 24, padding: '16px 0', borderTop: '1px solid #E6EAF2', fontFamily: 'Lato, sans-serif' }}>
             This report is licensed for internal use by the commissioning organization. Redistribution or resale is prohibited.
-            {' '}&copy; {new Date().getFullYear()} Wunderbar Digital &middot;{' '}
+            {' '}&copy; 2026 Wunderbar Digital &middot;{' '}
             <a href="https://wunderbardigital.com/terms-of-service?utm_source=wunderbrand_app&utm_medium=report_footer&utm_campaign=legal" target="_blank" rel="noopener noreferrer" style={{ color: '#8A97A8', textDecoration: 'underline' }}>Terms of Use</a>
           </p>
         </footer>
@@ -4319,50 +4438,50 @@ export default function BrandBlueprintPlusReport() {
       </div>
     </div>
     <ReportNav reportTitle="WunderBrand Blueprint+™" sections={[
-      { id: "executive-summary", label: "Executive Summary", group: "Diagnostic" },
-      { id: "context-coverage", label: "Context Coverage", group: "Diagnostic" },
-      { id: "brand-alignment-score", label: "WunderBrand Score™", group: "Diagnostic" },
-      { id: "focus-area-diagnosis", label: "Focus Area Diagnosis", group: "Diagnostic" },
-      { id: "pillar-deep-dives", label: "Pillar Deep Dives", group: "Diagnostic" },
-      { id: "strategic-alignment", label: "Strategic Alignment", group: "Diagnostic" },
-      { id: "strategic-overview", label: "Strategic Overview", group: "Strategic Foundation" },
-      { id: "blueprint-overview", label: "Blueprint+ Overview", group: "Strategic Foundation" },
-      { id: "brand-foundation", label: "Brand Foundation", group: "Strategic Foundation" },
-      { id: "brand-archetypes", label: "Brand Archetypes", group: "Strategic Foundation" },
-      { id: "messaging-system", label: "Messaging System", group: "Messaging & Content" },
-      { id: "messaging-pillars", label: "Messaging Pillars", group: "Messaging & Content" },
-      { id: "content-pillars", label: "Content Pillars", group: "Messaging & Content" },
-      { id: "messaging-matrix", label: "Messaging Matrix", group: "Messaging & Content" },
-      { id: "brand-persona", label: "Your Brand Persona", group: "Messaging & Content" },
-      { id: "audience-persona", label: "Audience & Persona", group: "Audience & Positioning" },
-      { id: "audience-segmentation", label: "Audience Segmentation", group: "Audience & Positioning" },
-      { id: "competitive-positioning", label: "Competitive Positioning", group: "Audience & Positioning" },
-      { id: "visibility-discovery", label: "Visibility & Discovery", group: "Visibility & Growth" },
-      { id: "visual-direction", label: "Visual Direction", group: "Visibility & Growth" },
-      { id: "conversion-strategy", label: "Conversion Strategy", group: "Visibility & Growth" },
-      { id: "brand-architecture", label: "Brand Architecture", group: "Visibility & Growth" },
-      { id: "campaign-strategy", label: "Campaign Strategy", group: "Visibility & Growth" },
-      { id: "strategic-action-plan", label: "Strategic Action Plan", group: "Implementation" },
-      { id: "prompt-library", label: "AI Prompt Library (28)", group: "Implementation" },
-      { id: "execution-guardrails", label: "Execution Guardrails", group: "Implementation" },
-      { id: "measurement-optimization", label: "Measurement & Optimization", group: "Implementation" },
-      { id: "strategic-guardrails", label: "Strategic Guardrails", group: "Implementation" },
-      { id: "strategic-trade-offs", label: "Strategic Trade-Offs", group: "Implementation" },
-      { id: "ninety-day-roadmap", label: "90-Day Roadmap", group: "Implementation" },
-      { id: "brand-health-scorecard", label: "Brand Health Scorecard", group: "Implementation" },
-      { id: "tagline-recommendations", label: "Tagline Recommendations", group: "Brand Assets" },
-      { id: "brand-story", label: "Brand Story", group: "Brand Assets" },
-      { id: "company-description", label: "Company Description", group: "Brand Assets" },
-      { id: "customer-journey", label: "Customer Journey", group: "Channel Strategy" },
-      { id: "seo-strategy", label: "SEO & Keywords", group: "Channel Strategy" },
-      { id: "aeo-strategy", label: "AEO & AI Search", group: "Channel Strategy" },
-      { id: "email-framework", label: "Email Framework", group: "Channel Strategy" },
-      { id: "social-media-strategy", label: "Social Media Strategy", group: "Channel Strategy" },
-      { id: "content-calendar", label: "Content Calendar", group: "Channel Strategy" },
-      { id: "swot-analysis", label: "SWOT Analysis", group: "Reference" },
-      { id: "brand-glossary", label: "Brand Glossary", group: "Reference" },
-      { id: "activation-session", label: "Strategy Activation Session", group: "Reference" },
-      { id: "work-with-us", label: "Work with Us", group: "Reference" },
+      { id: "executive-summary", label: "Executive Summary", group: "Foundation" },
+      { id: "brand-alignment-score", label: "WunderBrand Score™", group: "Foundation" },
+      { id: "context-coverage", label: "Context Coverage", group: "Foundation" },
+      { id: "focus-area-diagnosis", label: "Focus Area Diagnosis", group: "Foundation" },
+      { id: "pillar-deep-dives", label: "Brand Pillar Analysis", group: "Foundation" },
+      { id: "strategic-alignment", label: "Strategic Alignment", group: "Foundation" },
+      { id: "strategic-signals", label: "Strategic Signals", group: "Foundation" },
+      { id: "strategic-overview", label: "Strategic Overview", group: "Strategy" },
+      { id: "blueprint-overview", label: "Blueprint+ Overview", group: "Strategy" },
+      { id: "brand-foundation", label: "Brand Foundation", group: "Strategy" },
+      { id: "brand-archetypes", label: "Brand Archetypes", group: "Strategy" },
+      { id: "messaging-system", label: "Messaging System", group: "Strategy" },
+      { id: "messaging-pillars", label: "Messaging Pillars", group: "Strategy" },
+      { id: "content-pillars", label: "Content Pillars", group: "Strategy" },
+      { id: "messaging-matrix", label: "Messaging Matrix", group: "Strategy" },
+      { id: "brand-persona", label: "Your Brand Persona", group: "Strategy" },
+      { id: "audience-segmentation", label: "Audience Segmentation", group: "Strategy" },
+      { id: "competitive-positioning", label: "Competitive Positioning", group: "Strategy" },
+      { id: "visibility-discovery", label: "Visibility & Discovery", group: "Strategy" },
+      { id: "visual-direction", label: "Visual Direction", group: "Strategy" },
+      { id: "conversion-strategy", label: "Conversion Strategy", group: "Strategy" },
+      { id: "brand-architecture", label: "Brand Architecture", group: "Strategy" },
+      { id: "campaign-strategy", label: "Campaign Strategy", group: "Strategy" },
+      { id: "strategic-action-plan", label: "Strategic Action Plan", group: "Activation" },
+      { id: "prompt-library", label: "AI Prompt Library (28)", group: "Activation" },
+      { id: "execution-guardrails", label: "Activation Guardrails", group: "Activation" },
+      { id: "measurement-optimization", label: "Measurement & Optimization", group: "Activation" },
+      { id: "strategic-guardrails", label: "Strategic Guardrails", group: "Activation" },
+      { id: "strategic-trade-offs", label: "Strategic Trade-Offs", group: "Activation" },
+      { id: "ninety-day-roadmap", label: "90-Day Roadmap", group: "Activation" },
+      { id: "brand-health-scorecard", label: "Brand Health Scorecard", group: "Activation" },
+      { id: "tagline-recommendations", label: "Tagline Recommendations", group: "Activation" },
+      { id: "brand-story", label: "Brand Story", group: "Activation" },
+      { id: "company-description", label: "Company Description", group: "Activation" },
+      { id: "customer-journey", label: "Customer Journey", group: "Activation" },
+      { id: "seo-strategy", label: "SEO & Keywords", group: "Activation" },
+      { id: "aeo-strategy", label: "AEO & AI Search", group: "Activation" },
+      { id: "email-framework", label: "Email Framework", group: "Activation" },
+      { id: "social-media-strategy", label: "Social Media Strategy", group: "Activation" },
+      { id: "content-calendar", label: "Content Calendar", group: "Activation" },
+      { id: "swot-analysis", label: "SWOT Analysis", group: "Strategy" },
+      { id: "brand-glossary", label: "Brand Glossary", group: "Strategy" },
+      { id: "activation-session", label: "Strategy Activation Session", group: "Activation" },
+      { id: "work-with-us", label: "Work with Us", group: "Activation" },
       { id: "document-library", label: "Document Library", group: "Downloads" },
     ]} />
 

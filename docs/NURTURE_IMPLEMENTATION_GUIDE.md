@@ -5,6 +5,18 @@
 
 ---
 
+## Strategy v3 Language Guardrails
+
+To stay aligned with the current rebuild strategy:
+
+- Use **inference-and-confirm** framing for business model classification in any diagnostic-related copy.
+- Do **not** describe classification as a visible user selection list; the six business types are internal routing targets.
+- Refer to diagnostic data as **signals extracted from conversation**, not rigid question blocks.
+- For revenue impact messaging, use **fallback without fabrication** language when a signal is not captured.
+- Avoid form-style phrasing like "selects I don't track this"; use conversational non-answer wording instead.
+
+---
+
 ## Sequence Map
 
 | # | Name | Trigger | Emails | Exit Condition |
@@ -65,6 +77,16 @@ Strategy Activation Completed → Seq 21 → [services relevant] intro branch OR
 
 Connect Form Inquiry → Seq 22 → [team responded] confirmation branch OR [no response] gentle follow-up
 ```
+
+---
+
+## Workbook Update Trigger (Blueprint / Blueprint+)
+
+- **Backend event now fired:** `workbook_recomputed` (from `/api/workbook/recompute`)
+- **Tags applied with event:** `workbook:updated`, `workbook:updated:{tier}`
+- **Blueprint+ bonus tags:** `session:pending`, `nurture:other-services`
+- **Recommended automation:** send "Your updated version is ready" email with `%WORKBOOK_LINK%`, `%REPORT_LINK%`, and (for Blueprint+) Strategy Activation CTA
+- **Recommended timing:** send immediately after recompute, then optional +3 day reminder if no `session:activation-scheduled` and no `services:call-booked`
 
 ---
 

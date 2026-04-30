@@ -6,11 +6,12 @@ import { pdfTheme } from "../theme";
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: pdfTheme.spacing.sm,
-    paddingBottom: pdfTheme.spacing.md,
-    paddingHorizontal: pdfTheme.spacing.xl,
-    borderTop: `1px solid ${pdfTheme.colors.border}`,
-    fontFamily: "Inter",
+    paddingTop: 8,
+    paddingBottom: 9,
+    paddingHorizontal: 22,
+    borderTop: `1px solid #E4EBF7`,
+    fontFamily: "Helvetica",
+    backgroundColor: "#FBFDFF",
   },
   row: {
     flexDirection: "row",
@@ -18,27 +19,27 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   text: {
-    fontSize: pdfTheme.fontSizes.xs,
+    fontSize: 7.2,
     color: pdfTheme.colors.midnight,
-    opacity: 0.6,
+    opacity: 0.76,
   },
   confidential: {
-    fontSize: 7,
-    color: "#9CA3AF",
+    fontSize: 6.8,
+    color: "#8C9AB2",
     textAlign: "center",
-    marginTop: 4,
+    marginTop: 3,
   },
   terms: {
-    fontSize: 7,
+    fontSize: 6.5,
     color: "#9CA3AF",
     textAlign: "center",
-    marginTop: 4,
+    marginTop: 3,
   },
   url: {
-    fontSize: pdfTheme.fontSizes.xs,
+    fontSize: 7.2,
     color: "#07B0F2",
     textDecoration: "none",
-    opacity: 0.8,
+    opacity: 0.98,
   },
 });
 

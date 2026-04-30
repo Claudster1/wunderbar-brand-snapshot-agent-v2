@@ -99,8 +99,8 @@ describe('API route logic (snapshot)', () => {
     it('processes sample Wundy input end-to-end', () => {
       const scores = calculateBrandSnapshotScores(sampleWundyInput);
 
-      expect(scores.brandAlignmentScore).toBeGreaterThanOrEqual(5);
-      expect(scores.brandAlignmentScore).toBeLessThanOrEqual(25);
+      expect(scores.brandAlignmentScore).toBeGreaterThanOrEqual(0);
+      expect(scores.brandAlignmentScore).toBeLessThanOrEqual(100);
 
       const pillarInsights = buildPillarInsightsFromScores(scores.pillarScores as any);
       expect(pillarInsights).toHaveProperty('positioning');
@@ -118,7 +118,7 @@ describe('API route logic (snapshot)', () => {
       const entries = Object.entries(scores.pillarScores);
       const weakest = entries.reduce((min, [pillar, score]) =>
         (score as number) < (min[1] as number) ? [pillar, score] : min,
-        ['positioning', 25]
+        ['positioning', 20]
       );
       const cta = buildUpgradeCta(weakest[0] as string, 'Bloom Studio');
       expect(cta).toContain('Bloom Studio');
@@ -196,7 +196,7 @@ describe('API route logic (snapshot)', () => {
         ctaClarity: 5, funnelStrength: 5, leadCapture: 5, offerMessaging: 5, salesReadiness: 5,
       };
       const scores = calculateBrandSnapshotScores(input);
-      expect(scores.brandAlignmentScore).toBe(25);
+      expect(scores.brandAlignmentScore).toBe(100);
       expect(scores.insights.length).toBe(0);
       expect(scores.recommendations.length).toBe(0);
     });
@@ -210,7 +210,7 @@ describe('API route logic (snapshot)', () => {
         ctaClarity: 1, funnelStrength: 1, leadCapture: 1, offerMessaging: 1, salesReadiness: 1,
       };
       const scores = calculateBrandSnapshotScores(input);
-      expect(scores.brandAlignmentScore).toBe(5);
+      expect(scores.brandAlignmentScore).toBe(20);
       expect(scores.insights.length).toBe(5);
       expect(scores.recommendations.length).toBe(5);
     });
@@ -224,8 +224,8 @@ describe('API route logic (snapshot)', () => {
         ctaClarity: 3, funnelStrength: 2, leadCapture: 2, offerMessaging: 3, salesReadiness: 3,
       };
       const scores = calculateBrandSnapshotScores(input);
-      expect(scores.brandAlignmentScore).toBeGreaterThanOrEqual(10);
-      expect(scores.brandAlignmentScore).toBeLessThanOrEqual(20);
+      expect(scores.brandAlignmentScore).toBeGreaterThanOrEqual(40);
+      expect(scores.brandAlignmentScore).toBeLessThanOrEqual(80);
     });
 
     it('handles Wundy input with extra conversational fields (ignored safely)', () => {
@@ -246,7 +246,7 @@ describe('API route logic (snapshot)', () => {
         brandVoiceDescription: 'professional yet approachable',
       };
       const scores = calculateBrandSnapshotScores(input);
-      expect(scores.brandAlignmentScore).toBe(15);
+      expect(scores.brandAlignmentScore).toBe(60);
     });
   });
 });

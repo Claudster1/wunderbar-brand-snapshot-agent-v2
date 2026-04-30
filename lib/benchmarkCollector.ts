@@ -143,11 +143,14 @@ export async function recordBenchmarkData(input: BenchmarkInput): Promise<void> 
   }
 }
 
+/** Minimum assessments in a segment before peer percentiles / public benchmark claims. */
+export const BENCHMARK_MIN_PEER_SAMPLE_SIZE = 20;
+
 /**
  * Query benchmark percentile for a given score within a segment.
- * Returns null if insufficient data (< MIN_SAMPLE_SIZE data points in segment).
+ * Returns null if insufficient data (< BENCHMARK_MIN_PEER_SAMPLE_SIZE data points in segment).
  */
-const MIN_SAMPLE_SIZE = 20;
+const MIN_SAMPLE_SIZE = BENCHMARK_MIN_PEER_SAMPLE_SIZE;
 
 export async function getBenchmarkPercentile(params: {
   score: number;

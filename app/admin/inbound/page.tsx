@@ -15,7 +15,12 @@ const RED = "#EF4444";
 const MOBILE_BREAKPOINT = 768;
 
 type InquiryStatus = "new" | "in_progress" | "responded" | "closed";
-type InquirySource = "connect_form" | "quo_call" | "quo_voicemail" | "manual";
+type InquirySource =
+  | "connect_form"
+  | "results_human_assist_branch"
+  | "quo_call"
+  | "quo_voicemail"
+  | "manual";
 type TaskStatus = "open" | "done" | "cancelled";
 
 type Contact = {
@@ -130,6 +135,7 @@ const STATUS_LABEL: Record<InquiryStatus, string> = {
 
 const SOURCE_LABEL: Record<InquirySource, string> = {
   connect_form: "Connect Form",
+  results_human_assist_branch: "Human Assist",
   quo_call: "Quo Call",
   quo_voicemail: "Quo Voicemail",
   manual: "Manual",
@@ -820,6 +826,7 @@ export default function InboundInboxPage() {
           >
             <option value="all">All sources</option>
             <option value="connect_form">Connect Form</option>
+            <option value="results_human_assist_branch">Results Human Assist</option>
             <option value="quo_call">Quo Call</option>
             <option value="quo_voicemail">Quo Voicemail</option>
             <option value="manual">Manual</option>

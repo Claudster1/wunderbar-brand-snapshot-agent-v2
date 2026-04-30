@@ -2,6 +2,19 @@
 
 Use the **design preview** pages to view all report layouts with mock data — no database, completed snapshot, or API keys required.
 
+## Paths did not change (no “new” URLs)
+
+The mock routes are still the same paths as before, for example:
+
+- `/preview` — index  
+- `/preview/results-tabs` — full tabbed results suite (mock)  
+- `/preview/results-tabs/activation/paid-ads` — sample full-page activation plan (change the last segment for other plans)  
+- `/preview/results`, `/preview/snapshot-plus`, `/preview/blueprint`, `/preview/blueprint-plus`, `/preview/report`
+
+Only the **origin** changes: `http://localhost:3000`, your **Vercel preview** URL for a branch, or `https://app.wunderbrand.ai` once **production** has shipped that commit on **`main`**.
+
+If **`/preview/results-tabs` returns 404** on production, the live site is almost certainly still on an older **`main`** build. Production does not automatically use a feature branch unless you configure it. Open **`/preview`** on that host: it lists **copy-paste absolute links** for the deployment you are on.
+
 ## How to view
 
 1. **Stop any other Next.js dev server**  
@@ -17,7 +30,8 @@ Use the **design preview** pages to view all report layouts with mock data — n
 3. **Open the preview index**
    - In the browser go to: **http://localhost:3010/preview**
 
-4. **Open any preview** (direct URLs: /preview/results, /preview/snapshot-plus, /preview/report, /preview/blueprint, /preview/blueprint-plus)
+4. **Open any preview** (direct URLs: /preview/results-tabs, /preview/results, /preview/snapshot-plus, /preview/report, /preview/blueprint, /preview/blueprint-plus)
+   - **Updated Results Tabs UI** — New shell with compact header, executive summary above tabs, and Foundation → Strategy → Activation → Workbook → Downloads flow.
    - **WunderBrand Snapshot™ results** — New results UI: gauge, score breakdown, context coverage, upgrade CTAs.
    - **Snapshot+™ report** — Score, pillars, persona, archetype, voice, palette, roadmap, Blueprint upsell.
    - **Legacy report** — Classic WunderBrand Snapshot™ report layout with Snapshot+ upsell.
@@ -31,6 +45,13 @@ All of these use **inline mock/dummy data** only. No Supabase, OpenAI, or Stripe
 - **Viewing** every report type with realistic content.
 - **Layout and styling** — Use these pages for design and copy review.
 - **Navigation** — “← All previews” and links between previews (e.g. Blueprint → Blueprint+).
+
+## If a preview route spins forever or stays blank
+
+1. **Use the URL that matches your dev server port** — `npm run dev` is **http://localhost:3000/preview**; `npm run dev:preview` is **http://localhost:3010/preview**. Opening 3010 while only 3000 is running (or the reverse) will not load.
+2. **Free the port** if the dev server failed to start (`EADDRINUSE`): stop other Next processes or run the `lsof`/`kill` step in the section above.
+3. **Hard refresh** after upgrading Next.js (Cmd+Shift+R / Ctrl+Shift+R). Heavy preview routes (`/preview/results-tabs`, `/preview/blueprint`) stream client UI; a stuck cache can look like a blank page.
+4. **Production / `next start` with `output: 'standalone'`** — the CLI may warn that `next start` is not the right entry; use `node .next/standalone/server.js` (or your host’s documented command). Vercel ignores `standalone` for serverless and serves the app normally.
 
 ## What does not work from preview
 

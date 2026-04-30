@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import React from "react";
 import { logger } from "@/lib/logger";
-import { ReportDocument } from "@/app/reports/ReportDocument";
+import { generatePdfResponse, type PDFDocumentType } from "@/src/pdf/generatePdf";
 
 export const dynamic = "force-dynamic";
 
@@ -11,20 +10,19 @@ export async function POST(req: Request) {
   if (!guard.passed) return guard.errorResponse;
 
   try {
-    const data = await req.json();
+    const body = await req.json();
+    const requestedType = typeof body?.type === "string" ? body.type : undefined;
+    const validTypes: PDFDocumentType[] = ["snapshot", "snapshot-plus", "blueprint", "blueprint-plus"];
+    const documentType: PDFDocumentType =
+      requestedType && validTypes.includes(requestedType as PDFDocumentType)
+        ? (requestedType as PDFDocumentType)
+        : "snapshot-plus";
 
-    const { renderToBuffer } = await import("@react-pdf/renderer");
-
-    const pdfBuffer = await renderToBuffer(
-      React.createElement(ReportDocument, { data }) as any
-    );
-
-    return new NextResponse(pdfBuffer as any, {
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": 'attachment; filename="snapshot-plus.pdf"',
-        "Content-Length": pdfBuffer.length.toString(),
-      },
+    const payload = body?.data ?? body;
+    return generatePdfResponse({
+      documentType,
+      data: payload,
+      filename: `${documentType}.pdf`,
     });
   } catch (err: unknown) {
     logger.error("[/api/report] PDF generation failed", { error: err instanceof Error ? err.message : String(err) });

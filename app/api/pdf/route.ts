@@ -14,6 +14,165 @@ import {
 
 export const dynamic = "force-dynamic";
 
+const SAMPLE_REPORTS_BY_TYPE: Record<PDFDocumentType, Record<string, any>> = {
+  snapshot: {
+    "sample-ecommerce": {
+      report_id: "sample-ecommerce",
+      company_name: "Lumen & Co.",
+      user_name: "Casey",
+      user_email: "sample@wunderbar.ai",
+      brand_alignment_score: 58,
+      pillar_scores: {
+        positioning: 61,
+        messaging: 57,
+        visibility: 62,
+        credibility: 55,
+        conversion: 52,
+      },
+      pillar_insights: {
+        positioning:
+          "Your visual identity is distinctive and recognizable, but your unique value is not explicit enough in product copy.",
+        messaging:
+          "Tone is on-brand and consistent, while product pages still need clearer problem-solution framing.",
+        visibility:
+          "Organic and social traffic volume is healthy, but channel mix is not prioritized by conversion quality.",
+        credibility:
+          "Customer sentiment is positive, but trust signals are buried below the fold on key pages.",
+        conversion:
+          "Cart initiation is acceptable, but checkout friction and weak urgency cues reduce completion rate.",
+      },
+      recommendations: {
+        positioning: "Clarify your differentiation at the top of each high-intent product page.",
+        messaging: "Lead with customer outcomes before feature detail blocks.",
+        visibility: "Prioritize two channels by profitability rather than reach.",
+        credibility: "Move reviews and proof badges higher in the purchase journey.",
+        conversion: "Reduce checkout friction and tighten urgency language.",
+      },
+      full_report: {
+        answers: {
+          businessType: "ecommerce",
+          likelyArchetype: "Creator",
+          monthlyMarketingBudget: "5000_plus",
+          monthlyRevenueRange: "50k_150k",
+          revenueRange: "1M-5M",
+          averageTransactionValue: "95",
+          conversionRateEstimate: "2.3%",
+        },
+      },
+    },
+  },
+  "snapshot-plus": {
+    "sample-ecommerce": {
+      business_name: "Lumen & Co.",
+      user_name: "Casey",
+      industry: "Ecommerce",
+      brand_alignment_score: 64,
+      pillar_scores: {
+        positioning: 15,
+        messaging: 13,
+        visibility: 14,
+        credibility: 12,
+        conversion: 10,
+      },
+      pillar_insights: {
+        positioning: "Distinctive identity, but product-level differentiation needs sharper framing.",
+        messaging: "Tone is strong, but key objections are not resolved early enough.",
+        visibility: "Traffic is healthy; channel prioritization by profitability is the next lever.",
+        credibility: "Trust proof exists, but appears too late in the journey.",
+        conversion: "Checkout and next-step sequencing are suppressing completion.",
+      },
+      enriched_persona:
+        "Style-conscious buyers who convert when trust and clarity are visible before checkout friction.",
+      enriched_archetype: {
+        name: "The Creator",
+        summary:
+          "Your edge is identity and expression. Pair it with explicit commercial proof to improve conversion confidence.",
+      },
+      enriched_voice: {
+        summary:
+          "Expressive and premium, with clearer outcome framing and confidence-building proof.",
+        pillars: ["Aspirational", "Specific", "Trust-building"],
+      },
+      enriched_color_palette: [
+        { name: "Brand Blue", hex: "#07B0F2", role: "Primary", meaning: "Clarity and action" },
+        { name: "Midnight", hex: "#021859", role: "Anchor", meaning: "Trust and depth" },
+      ],
+      opportunities_map:
+        "Top opportunities: trust-first merchandising, objection-aware product copy, and checkout friction reduction.",
+      roadmap_30: "Improve product-page proof hierarchy and tighten CTA clarity.",
+      roadmap_60: "Refactor top categories by conversion quality and buyer intent stage.",
+      roadmap_90: "Scale profitable channels with standardized conversion playbooks.",
+      content_format_channel_snapshot:
+        "Blend social proof reels, creator stories, and comparison-focused PDP modules.",
+      marketing_spend_audit_signal:
+        "Reallocate spend from broad reach to high-intent retargeting and trust-led conversion assets.",
+      competitive_vulnerability_signal:
+        "Competitors that surface social proof earlier will continue to win checkout confidence.",
+      revenue_impact_statement:
+        "Reducing checkout friction and improving trust visibility can materially improve ROAS and margin.",
+      brand_opportunities:
+        "Unify brand expression with conversion architecture so creative strength also drives revenue efficiency.",
+      full_report: {},
+      user_email: "sample@wunderbar.ai",
+    },
+    "sample-ecommerce-plus": {
+      business_name: "Lumen & Co.",
+      user_name: "Casey",
+      industry: "Ecommerce",
+      brand_alignment_score: 64,
+      pillar_scores: {
+        positioning: 15,
+        messaging: 13,
+        visibility: 14,
+        credibility: 12,
+        conversion: 10,
+      },
+      pillar_insights: {
+        positioning: "Distinctive identity, but product-level differentiation needs sharper framing.",
+        messaging: "Tone is strong, but key objections are not resolved early enough.",
+        visibility: "Traffic is healthy; channel prioritization by profitability is the next lever.",
+        credibility: "Trust proof exists, but appears too late in the journey.",
+        conversion: "Checkout and next-step sequencing are suppressing completion.",
+      },
+      enriched_persona:
+        "Style-conscious buyers who convert when trust and clarity are visible before checkout friction.",
+      enriched_archetype: {
+        name: "The Creator",
+        summary:
+          "Your edge is identity and expression. Pair it with explicit commercial proof to improve conversion confidence.",
+      },
+      enriched_voice: {
+        summary:
+          "Expressive and premium, with clearer outcome framing and confidence-building proof.",
+        pillars: ["Aspirational", "Specific", "Trust-building"],
+      },
+      enriched_color_palette: [
+        { name: "Brand Blue", hex: "#07B0F2", role: "Primary", meaning: "Clarity and action" },
+        { name: "Midnight", hex: "#021859", role: "Anchor", meaning: "Trust and depth" },
+      ],
+      opportunities_map:
+        "Top opportunities: trust-first merchandising, objection-aware product copy, and checkout friction reduction.",
+      roadmap_30: "Improve product-page proof hierarchy and tighten CTA clarity.",
+      roadmap_60: "Refactor top categories by conversion quality and buyer intent stage.",
+      roadmap_90: "Scale profitable channels with standardized conversion playbooks.",
+      content_format_channel_snapshot:
+        "Blend social proof reels, creator stories, and comparison-focused PDP modules.",
+      marketing_spend_audit_signal:
+        "Reallocate spend from broad reach to high-intent retargeting and trust-led conversion assets.",
+      competitive_vulnerability_signal:
+        "Competitors that surface social proof earlier will continue to win checkout confidence.",
+      revenue_impact_statement:
+        "Reducing checkout friction and improving trust visibility can materially improve ROAS and margin.",
+      brand_opportunities:
+        "Unify brand expression with conversion architecture so creative strength also drives revenue efficiency.",
+      full_report: {},
+      user_email: "sample@wunderbar.ai",
+    },
+  },
+  blueprint: {},
+  "blueprint-plus": {},
+};
+
 /**
  * GET /api/pdf
  * 
@@ -54,6 +213,12 @@ export async function GET(req: Request) {
         { error: "Missing required parameter: id" },
         { status: 400 }
       );
+    }
+
+    const sampleReport = SAMPLE_REPORTS_BY_TYPE[documentType]?.[reportId];
+    if (sampleReport) {
+      const filename = getFilename(reportId, documentType);
+      return generatePdfResponseFromReport(sampleReport, documentType, filename);
     }
 
     const supabase = supabaseServer();

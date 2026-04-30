@@ -1,6 +1,7 @@
 // src/pdf/BrandBlueprintPDF.tsx
 // WunderBrand Blueprint™ PDF Document ($997)
 // Includes AEO integrated with brand strategy
+/* eslint-disable react/no-unescaped-entities */
 
 import {
   Document,
@@ -20,42 +21,120 @@ import { ColorSwatch } from "./components/ColorSwatch";
 import { pdfTheme } from "./theme";
 import { registerPdfFonts } from "./registerFonts";
 import { DisclaimerPage } from "./components/DisclaimerPage";
+import { getArchetypeIcon, getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
 
 // Register fonts
 registerPdfFonts();
 
+function normalizeRoadmapItems(text: string): string[] {
+  return text
+    .split(/[•\n;]+/g)
+    .map((item) => item.replace(/^\d+[\).\-\s]+/, "").trim())
+    .filter(Boolean)
+    .slice(0, 6);
+}
+
+function getBlueprintRoadmap(campaignArchitectureStarter?: string) {
+  if (!campaignArchitectureStarter || campaignArchitectureStarter.trim().length === 0) {
+    return {
+      next30: [
+        "Align positioning and messaging hierarchy across top customer touchpoints.",
+        "Publish one authority-led narrative asset tied to your primary buyer need.",
+      ],
+      next60: [
+        "Deploy channel-specific campaign variants with a shared brand core.",
+        "Strengthen trust proof placement on conversion-critical pages.",
+      ],
+      next90: [
+        "Scale highest-performing campaign structure and retire low-yield tactics.",
+        "Review performance trends and lock the next quarter operating plan.",
+      ],
+    };
+  }
+  const lines = normalizeRoadmapItems(campaignArchitectureStarter);
+  const chunk = Math.max(1, Math.ceil(lines.length / 3));
+  return {
+    next30: lines.slice(0, chunk),
+    next60: lines.slice(chunk, chunk * 2),
+    next90: lines.slice(chunk * 2),
+  };
+}
+
 // Styles
 const styles = StyleSheet.create({
   page: {
-    fontFamily: "Inter",
-    fontSize: pdfTheme.fontSizes.base,
+    fontFamily: "Helvetica",
+    fontSize: 11,
     paddingBottom: pdfTheme.spacing.xl,
-    paddingTop: pdfTheme.spacing.lg,
+    paddingTop: pdfTheme.spacing.md,
+    backgroundColor: "#FFFFFF",
   },
   heading: {
-    fontSize: pdfTheme.fontSizes.xl,
+    fontSize: 15,
     fontWeight: 600,
-    color: pdfTheme.colors.navy,
-    marginBottom: pdfTheme.spacing.sm,
+    color: "#0F2A57",
+    marginBottom: 6,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
   },
   subheading: {
-    fontSize: pdfTheme.fontSizes.md,
+    fontSize: 12,
     fontWeight: 600,
     color: pdfTheme.colors.midnight,
-    marginTop: pdfTheme.spacing.md,
-    marginBottom: pdfTheme.spacing.sm,
+    marginTop: 8,
+    marginBottom: 6,
   },
   para: {
-    fontSize: pdfTheme.fontSizes.base,
+    fontSize: 11,
     color: pdfTheme.colors.midnight,
-    lineHeight: 1.5,
-    marginBottom: pdfTheme.spacing.md,
+    lineHeight: 1.55,
+    marginBottom: 10,
+  },
+  heroCard: {
+    backgroundColor: "#F3F8FF",
+    border: "1px solid #DCE7F5",
+    borderRadius: 10,
+    padding: 14,
+  },
+  signalCard: {
+    backgroundColor: "#F7FAFF",
+    border: "1px solid #DCE7F5",
+    borderRadius: 10,
+    padding: 14,
+    marginBottom: 8,
   },
 });
 
 export interface BrandBlueprintReport {
   userName: string;
   businessName: string;
+  brandAlignmentScore?: number;
+  pillarScores?: {
+    positioning: number;
+    messaging: number;
+    visibility: number;
+    credibility: number;
+    conversion: number;
+  };
+  pillarInsights?: {
+    positioning?: string;
+    messaging?: string;
+    visibility?: string;
+    credibility?: string;
+    conversion?: string;
+  };
+  recommendations?: {
+    positioning?: string;
+    messaging?: string;
+    visibility?: string;
+    credibility?: string;
+    conversion?: string;
+  };
+  contextCoverage?: number;
+  opportunitiesMap?: string;
+  roadmap30?: string;
+  roadmap60?: string;
+  roadmap90?: string;
   industry?: string;
   targetCustomers?: string;
   competitorNames?: string[];
@@ -76,6 +155,11 @@ export interface BrandBlueprintReport {
   aiPrompts?: string[];
   visualDirection?: string;
   opportunities?: string;
+  campaignArchitectureStarter?: string;
+  revenueMappedWorkbook?: string;
+  competitiveVulnerabilitySignal?: string;
+  marketingSpendEfficiencySignal?: string;
+  revenueImpactStatement?: string;
   // AEO integrated strategy (required for Blueprint tier)
   aeoIntegratedStrategy?: {
     messagingFramework?: string;
@@ -100,6 +184,14 @@ export const BrandBlueprintPDF = ({
   const {
     userName,
     businessName,
+    brandAlignmentScore,
+    pillarScores,
+    recommendations,
+    contextCoverage,
+    opportunitiesMap,
+    roadmap30,
+    roadmap60,
+    roadmap90,
     industry,
     targetCustomers,
     competitorNames = [],
@@ -120,11 +212,109 @@ export const BrandBlueprintPDF = ({
     aiPrompts = [],
     visualDirection,
     opportunities,
+    campaignArchitectureStarter,
+    revenueMappedWorkbook,
+    competitiveVulnerabilitySignal,
+    marketingSpendEfficiencySignal,
+    revenueImpactStatement,
     aeoIntegratedStrategy,
   } = report;
+  const archetypeMeaning = getArchetypeMeaning(brandArchetype);
+  const archetypeIcon = getArchetypeIcon(brandArchetype);
+  const roadmap = getBlueprintRoadmap(campaignArchitectureStarter);
 
   return (
     <Document>
+      {/* ------------ FOUNDATION CONTEXT (IF AVAILABLE) ------------ */}
+      {(typeof brandAlignmentScore === "number" || pillarScores) && (
+        <Page size="A4" style={styles.page}>
+          <PdfHeader title="Foundation Context" />
+          <PageTitle
+            title="Snapshot Foundation Carryover"
+            subtitle="Baseline diagnostics carried into your Blueprint strategy"
+          />
+
+          {typeof brandAlignmentScore === "number" && (
+            <Section>
+              <Text style={styles.heading}>WunderBrand Score™ Baseline</Text>
+              <View style={styles.heroCard}>
+                <Text style={{ ...styles.para, fontSize: 26, fontWeight: 700, color: pdfTheme.colors.blue }}>
+                  {brandAlignmentScore}/100
+                </Text>
+                <Text style={styles.para}>
+                  This baseline provides the strategic context for Blueprint recommendations and sequencing.
+                </Text>
+              </View>
+            </Section>
+          )}
+
+          {pillarScores && (
+            <Section>
+              <Text style={styles.heading}>Five-Pillar Baseline</Text>
+              {Object.entries(pillarScores).map(([pillar, score]) => (
+                <Text key={pillar} style={styles.para}>
+                  • {pillar.charAt(0).toUpperCase() + pillar.slice(1)}: {score}/20
+                </Text>
+              ))}
+            </Section>
+          )}
+
+          {recommendations && (
+            <Section>
+              <Text style={styles.heading}>Priority Activation Focus</Text>
+              {Object.entries(recommendations)
+                .filter(([, value]) => typeof value === "string" && value.trim().length > 0)
+                .slice(0, 3)
+                .map(([pillar, value]) => (
+                  <Text key={pillar} style={styles.para}>
+                    • {pillar.charAt(0).toUpperCase() + pillar.slice(1)}: {value}
+                  </Text>
+                ))}
+            </Section>
+          )}
+
+          {typeof contextCoverage === "number" && (
+            <Section>
+              <Text style={styles.heading}>Context Coverage</Text>
+              <View style={styles.signalCard}>
+                <Text style={{ ...styles.para, fontSize: 24, color: pdfTheme.colors.blue, fontWeight: 700 }}>
+                  {Math.max(0, Math.min(100, Math.round(contextCoverage)))}%
+                </Text>
+              </View>
+            </Section>
+          )}
+
+          {opportunitiesMap && (
+            <Section>
+              <Text style={styles.heading}>Opportunities Map</Text>
+              <View style={styles.signalCard}>
+                <Text style={styles.para}>{opportunitiesMap}</Text>
+              </View>
+            </Section>
+          )}
+
+          {(roadmap30 || roadmap60 || roadmap90) && (
+            <Section>
+              <Text style={styles.heading}>Snapshot+ 30/60/90 Continuity</Text>
+              {[
+                { title: "Next 30 Days", body: roadmap30 },
+                { title: "Next 60 Days", body: roadmap60 },
+                { title: "Next 90 Days", body: roadmap90 },
+              ]
+                .filter((phase) => typeof phase.body === "string" && phase.body.trim().length > 0)
+                .map((phase, idx) => (
+                  <View key={`${phase.title}-${idx}`} style={styles.signalCard}>
+                    <Text style={styles.subheading}>{phase.title}</Text>
+                    <Text style={styles.para}>{phase.body}</Text>
+                  </View>
+                ))}
+            </Section>
+          )}
+
+          <PdfFooter businessName={businessName} productName="WunderBrand Blueprint™" />
+        </Page>
+      )}
+
       {/* ------------ PAGE 1 — EXECUTIVE SUMMARY ------------ */}
       <Page size="A4" style={styles.page}>
         <PdfHeader title="WunderBrand Blueprint™" businessName={businessName} date={reportDate} />
@@ -136,17 +326,18 @@ export const BrandBlueprintPDF = ({
 
         <Section>
           <Text style={styles.heading}>Executive Summary</Text>
-          <Text style={styles.para}>
-            This WunderBrand Blueprint™ captures the essential elements of your brand —
-            including your positioning, narrative, voice, personality, audience,
-            differentiation, and visual direction. It serves as the foundation for
-            consistent communication, effective marketing, and AI-powered brand application.
-          </Text>
-
-          <Text style={styles.para}>
-            It is designed to support both human teams and AI systems, ensuring your
-            brand shows up with clarity, consistency, and confidence across every channel.
-          </Text>
+          <View style={styles.heroCard}>
+            <Text style={styles.para}>
+              This WunderBrand Blueprint™ captures the essential elements of your brand —
+              including your positioning, narrative, voice, personality, audience,
+              differentiation, and visual direction. It serves as the foundation for
+              consistent communication, effective marketing, and AI-powered brand application.
+            </Text>
+            <Text style={styles.para}>
+              It is designed to support both human teams and AI systems, ensuring your
+              brand shows up with clarity, consistency, and confidence across every channel.
+            </Text>
+          </View>
         </Section>
 
         <PdfFooter businessName={businessName} productName="WunderBrand Blueprint™" />
@@ -313,7 +504,8 @@ export const BrandBlueprintPDF = ({
         {brandArchetype && (
           <Section>
             <Text style={styles.subheading}>Brand Archetype</Text>
-            <Text style={styles.para}>{brandArchetype}</Text>
+            <Text style={styles.para}>{archetypeIcon ? `${archetypeIcon} ` : ""}{brandArchetype}</Text>
+            {archetypeMeaning ? <Text style={styles.para}>{archetypeMeaning}</Text> : null}
           </Section>
         )}
 
@@ -400,6 +592,47 @@ export const BrandBlueprintPDF = ({
 
         <PdfFooter businessName={businessName} productName="WunderBrand Blueprint™" />
       </Page>
+
+      {/* ------------ STRATEGIC SIGNALS ------------ */}
+      {(competitiveVulnerabilitySignal || marketingSpendEfficiencySignal || revenueImpactStatement) && (
+        <Page size="A4" style={styles.page}>
+          <PdfHeader title="Strategic Signals" />
+
+          <PageTitle
+            title="Strategic Signals"
+            subtitle="Priority exposure, spend efficiency, and revenue pathway"
+          />
+
+          {competitiveVulnerabilitySignal && (
+            <Section>
+              <Text style={styles.heading}>Competitive Vulnerability Signal</Text>
+              <View style={styles.signalCard}>
+                <Text style={styles.para}>{competitiveVulnerabilitySignal}</Text>
+              </View>
+            </Section>
+          )}
+
+          {marketingSpendEfficiencySignal && (
+            <Section>
+              <Text style={styles.heading}>Marketing Spend Efficiency Signal</Text>
+              <View style={styles.signalCard}>
+                <Text style={styles.para}>{marketingSpendEfficiencySignal}</Text>
+              </View>
+            </Section>
+          )}
+
+          {revenueImpactStatement && (
+            <Section>
+              <Text style={styles.heading}>Revenue Impact Statement</Text>
+              <View style={styles.signalCard}>
+                <Text style={styles.para}>{revenueImpactStatement}</Text>
+              </View>
+            </Section>
+          )}
+
+          <PdfFooter businessName={businessName} productName="WunderBrand Blueprint™" />
+        </Page>
+      )}
 
       {/* ------------ PAGE 10 — CONTENT STRATEGY & AEO ------------ */}
       <Page size="A4" style={styles.page}>
@@ -490,6 +723,36 @@ export const BrandBlueprintPDF = ({
             applying this blueprint to your marketing, content, or website, Wunderbar
             Digital offers additional support and implementation services.
           </Text>
+        </Section>
+
+        <Section>
+          <Text style={styles.subheading}>Revenue-Mapped Implementation Modules</Text>
+          <Text style={styles.para}>
+            {revenueMappedWorkbook ||
+              "Blueprint implementation is organized around six execution modules: Audience Clarity, Positioning for Conversion, Channel-Mapped Messaging, Content Architecture, Conversion Path Audit, and Marketing Spend Allocation. Use this as your 90-day operating structure."}
+          </Text>
+        </Section>
+
+        <Section>
+          <Text style={styles.subheading}>Campaign Architecture Starter (90 Days)</Text>
+          <View style={styles.signalCard}>
+            <Text style={styles.subheading}>Next 30 Days</Text>
+            {roadmap.next30.map((item, idx) => (
+              <Text key={`bp-30-${idx}`} style={styles.para}>• {item}</Text>
+            ))}
+          </View>
+          <View style={styles.signalCard}>
+            <Text style={styles.subheading}>Next 60 Days</Text>
+            {(roadmap.next60.length > 0 ? roadmap.next60 : ["Refine conversion pathways and trust reinforcement in campaign assets."]).map((item, idx) => (
+              <Text key={`bp-60-${idx}`} style={styles.para}>• {item}</Text>
+            ))}
+          </View>
+          <View style={styles.signalCard}>
+            <Text style={styles.subheading}>Next 90 Days</Text>
+            {(roadmap.next90.length > 0 ? roadmap.next90 : ["Scale repeatable campaign architecture with KPI-based optimization cycles."]).map((item, idx) => (
+              <Text key={`bp-90-${idx}`} style={styles.para}>• {item}</Text>
+            ))}
+          </View>
         </Section>
 
         <Section>

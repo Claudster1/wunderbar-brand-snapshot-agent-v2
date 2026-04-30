@@ -1,6 +1,7 @@
 // src/pdf/documents/SnapshotPlusPDF.tsx
 // WunderBrand Snapshot+™ PDF Document ($497)
 // Includes full structured AEO section as required for this tier
+/* eslint-disable react/no-unescaped-entities */
 
 import React from "react";
 import { Document, Page, Text, View } from "@react-pdf/renderer";
@@ -147,8 +148,9 @@ export const SnapshotPlusPDF = ({
         <Text style={stylePresets.h1}>WunderBrand Score™ Deep Dive</Text>
 
         <Text style={stylePresets.body}>
-          Your WunderBrand Score™ is calculated as the average of your five pillar scores,
-          each measured on a 0–20 scale.
+          Your WunderBrand Score™ (0–100) combines your five pillar scores (each 0–20) using
+          strategic weights: positioning and messaging matter most for brand strength, then credibility,
+          then visibility and conversion.
         </Text>
 
         <View style={{ marginTop: spacing.lg }}>

@@ -18,12 +18,17 @@ export function ResultsUpgradeCTA({
   hasPurchasedPlus: boolean;
   email?: string;
 }) {
-  const [variant] = useState<"A" | "B">(() =>
-    getOrAssignVariant<"A" | "B">("results_cta_variant", ["A", "B"])
-  );
-  const [presence] = useState<"single" | "dual">(() =>
-    getOrAssignVariant<"single" | "dual">("results_cta_presence", ["single", "dual"])
-  );
+  // Keep the initial render deterministic (server + first client render match),
+  // then assign/read A/B variants after mount.
+  const [variant, setVariant] = useState<"A" | "B">("A");
+  const [presence, setPresence] = useState<"single" | "dual">("single");
+
+  useEffect(() => {
+    setVariant(getOrAssignVariant<"A" | "B">("results_cta_variant", ["A", "B"]));
+    setPresence(
+      getOrAssignVariant<"single" | "dual">("results_cta_presence", ["single", "dual"])
+    );
+  }, []);
 
   const copy = RESULTS_CTA_COPY[variant];
 
@@ -77,9 +82,9 @@ export function ResultsUpgradeCTA({
   };
 
   return (
-    <section className="mt-16 bs-card rounded-xl p-6 sm:p-8">
+    <section className="bs-card rounded-xl p-6 sm:p-7">
       <h3 className="bs-h2 mb-2">{copy.headline}</h3>
-      <p className="bs-body text-brand-midnight mb-6 max-w-xl">{copy.body}</p>
+      <p className="bs-body text-brand-midnight mb-7 max-w-xl">{copy.body}</p>
 
       <div className="flex flex-wrap gap-4">
         <button type="button" onClick={onPrimaryClick} className="btn-primary">

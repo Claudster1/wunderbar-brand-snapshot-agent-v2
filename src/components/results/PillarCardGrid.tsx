@@ -35,7 +35,7 @@ export function PillarCardGrid({
 
   return (
     <section className="space-y-4 pt-6 border-t border-brand-border">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2.5">
         <h2 className="bs-h2 mb-0">
           Pillar-by-pillar analysis
         </h2>

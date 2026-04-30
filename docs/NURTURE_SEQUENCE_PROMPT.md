@@ -4,6 +4,18 @@ Copy and paste everything below this line into Claude to generate all email copy
 
 ---
 
+## STRATEGY V3 ALIGNMENT RULES (DIAGNOSTIC REFERENCES)
+
+When any sequence references diagnostic logic or report methodology, enforce these rules:
+
+- Business type is established with **inference-and-confirm**, not a user-facing taxonomy list.
+- The six business categories are **internal routing targets** and should not be presented as a visible selector.
+- Capture framing is **signal extraction from conversation**, not fixed question-order/form language.
+- Revenue fallback language must be **"fallback without fabrication"** when a signal is missing.
+- Do not imply the user clicked a form option like "I don't track this"; use conversational non-answer phrasing.
+
+---
+
 ## PROMPT STARTS HERE
 
 You are writing the complete email nurture sequences for **WunderBrand** (by Wunderbar Digital). These emails will be built in ActiveCampaign (AC) and triggered by tags and events sent from the WunderBrand app.
@@ -46,10 +58,10 @@ Your job is to write every email for every sequence listed below — complete wi
 
 | Product | Price | What It Delivers |
 |---------|-------|-----------------|
-| **WunderBrand Snapshot™** | Free | WunderBrand Score, 5-pillar analysis, top-level insights, 1 primary pillar identified |
-| **WunderBrand Snapshot+™** | $497 | Everything in Snapshot + deeper pillar analysis, persona-aligned messaging, strategic recommendations, Foundational Prompt Pack (8 AI prompts) |
-| **WunderBrand Blueprint™** | $997 | Everything in Snapshot+ + brand archetype, messaging framework, Interactive Brand Workbook, Brand Standards PDF export |
-| **WunderBrand Blueprint+™** | $1,997 | Everything in Blueprint + advanced audience segmentation, Messaging Matrix, Campaign Architecture, AEO strategy, Advanced Prompt Library, complimentary 30-min Strategy Activation Session |
+| **WunderBrand Snapshot™** | Free | Proprietary WunderBrand Score™ + 5-pillar analysis + top-level insights + 1 primary pillar identified |
+| **WunderBrand Snapshot+™** | $497 | Everything in Snapshot + deeper pillar analysis + persona-aligned messaging + strategic recommendations + Foundational Prompt Pack (8 AI prompts) + structured results across Foundation/Strategy/Activation/Workbook/Downloads |
+| **WunderBrand Blueprint™** | $997 | Everything in Snapshot+ + brand archetype + messaging framework + expanded strategy and activation deliverables + interactive workbook and downloadable strategy assets |
+| **WunderBrand Blueprint+™** | $1,997 | Everything in Blueprint + Persona Atlas + Buyer Journey Map + Competitive Landscape Matrix + separate activation downloads + Advanced Prompt Library + complimentary 30-min Strategy Activation Session |
 | **Snapshot+ Quarterly Refresh** | $47 | Re-run the Snapshot+ diagnostic to track progress |
 | **Blueprint Quarterly Refresh** | $97 | Re-run the Blueprint diagnostic to track progress |
 
@@ -514,7 +526,7 @@ Theme: 10 days left to book. 30-day window closes soon. Mention Brand Standards 
 Theme: You were looking at our managed services — let's talk. What we do, who it's for ($3,500/month retainer). Strategic extension of your team, not a production house. Calendly link.
 
 **Email 2** — Send: +4 days (if no call booked)
-Theme: What working together actually looks like. Demand generation plan, content strategy, campaign execution, regular check-ins. What it isn't: content mill, social management, ads-only. Calendly link.
+Theme: What working together actually looks like. Demand generation plan, content strategy, campaign activation, regular check-ins. What it isn't: content mill, social management, ads-only. Calendly link.
 
 **No further automated follow-up after Email 2 — move to manual follow-up or Sequence 15.**
 **Note:** Replace CALENDLY_SERVICES_LINK with live Calendly URL.
@@ -625,7 +637,7 @@ Theme: A bit about who we are. Claudine intro — 25 years, WunderBrand story. C
 **Available fields:** `%FIRSTNAME%`, `%COMPANY_NAME%`, `%PRIMARY_PILLAR%`, `%SERVICES_URL%`
 
 **Email 1** — Your diagnostic told you what to fix — we can help you fix it. Managed marketing intro. Not a vendor, a strategic partner. $3,500/month retainer.
-**Email 2** — +10 days: What a managed engagement actually looks like. Start with WunderBrand data, build demand generation plan, content/campaign execution, performance tracking. Not a content mill, not social management, not ads-only.
+**Email 2** — +10 days: What a managed engagement actually looks like. Start with WunderBrand data, build demand generation plan, content/campaign activation, performance tracking. Not a content mill, not social management, not ads-only.
 **Email 3** — +20 days: Strategy doesn't have to be a solo project. Expert call as honest conversation about fit. Reference WunderBrand score and %PRIMARY_PILLAR%.
 **Email 4** — +30 days: Your brand deserves more than a dashboard. Final soft close. No further automated follow-up.
 

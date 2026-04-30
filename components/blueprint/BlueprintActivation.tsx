@@ -44,7 +44,7 @@ export function BlueprintActivation({
         ) : (
           <strong>leading your brand forward</strong>
         )}{" "}
-        with clarity you can execute on.
+        with clarity you can activate.
       </p>
 
       {pack.prompts.map((p, i) => (

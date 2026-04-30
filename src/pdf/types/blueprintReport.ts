@@ -51,7 +51,58 @@ export interface PromptPack {
   prompts: PromptItem[];
 }
 
+/**
+ * Every major channel strategy should state the same macro conversion and offer spine,
+ * plus this section’s job on the path (Blueprint+ activation contract).
+ */
+export interface ConversionSpineBlock {
+  primaryMacroConversion: string;
+  primaryOfferAnchor: string;
+  advancesConversion: string;
+}
+
+/** Primary commercial offer — JTBD-aligned slice for Strategy + channel plans (Blueprint / Blueprint+). */
+export interface StrategicOfferPrimaryOffer {
+  name: string;
+  offerType: string;
+  oneLinePitch: string;
+  whoItsFor: string;
+  substitutesConsidered: string;
+  whyTheySwitch: string;
+}
+
+export interface StrategicOfferSecondaryOffer {
+  name: string;
+  role: string;
+}
+
+export interface StrategicOfferSuccessSignal {
+  signal: string;
+  reviewCadence: string;
+  whyItMatters: string;
+}
+
+export interface StrategicOfferContext {
+  methodologyFraming: string;
+  jobStatement: string;
+  primaryOffer: StrategicOfferPrimaryOffer;
+  secondaryOffers: StrategicOfferSecondaryOffer[];
+  painsRelieved: string[];
+  outcomesEnabled: string[];
+  scopeIn: string[];
+  scopeOut: string[];
+  leadingSuccessSignals: StrategicOfferSuccessSignal[];
+  channelExecutionAlignment: string;
+  riskiestAssumption: string;
+}
+
+/**
+ * Ideal Customer Profile (ICP) — the segment you prioritize (company/account or consumer cohort).
+ * Optional `icpLabel` is the human-readable slot label shown in reports and matched by buyer personas.
+ */
 export interface ICP {
+  /** Display label for this ICP slot, e.g. "Primary — best-fit customers" or "Tertiary — partner channel". */
+  icpLabel?: string;
   name: string;
   summary: string;
   demographics: string;
@@ -64,8 +115,16 @@ export interface ICP {
   objections: string[];
 }
 
+/** Third+ segments beyond primary/secondary — each must include `icpLabel` for clear tagging. */
+export interface AdditionalICP extends ICP {
+  icpLabel: string;
+  /** Optional stable id for prompts/tooling, e.g. "tertiary", "expansion", "partner" */
+  icpKey?: string;
+}
+
 export interface BuyerPersona {
   personaName: string;
+  /** Must match the `icpLabel` of exactly one ICP (primary, secondary, or an additional ICP). */
   icpAlignment: string;
   role: string;
   coreFrustration: string;
@@ -108,6 +167,160 @@ export interface JourneyStage {
   kpiToTrack: string;
 }
 
+export interface ConversionIntelligenceReference {
+  type: "ref";
+  framework: "icp_conversion_intelligence_framework";
+  icpTier: string;
+  funnelStage: string;
+  matrixCell: string;
+  note?: string;
+}
+
+/** Per-ICP sales + marketing alignment: strategy ladder, campaign needs, tactics, ICI anchor, competitive cues. */
+export interface IcpGoToMarketPlan {
+  /** Must match primaryICP / secondaryICP / additionalICPs `icpLabel` (or aligned `name` when icpLabel absent). */
+  icpLabel: string;
+  /** How this segment advances the company’s top goals and overall brand/GTM strategy (2–4 sentences). */
+  alignmentToBusinessStrategy: string;
+  /** What “winning” with this ICP means in-market (1–2 sentences). */
+  strategicFocus: string;
+  /** Campaign and content building blocks this ICP needs (hooks, assets, proof, landing angles). */
+  campaignContentNeeds: string[];
+  /** Prioritized ~90-day tactics aligned to measurement and channel strategy. */
+  priorityTactics: string[];
+  conversion_intelligence_reference: ConversionIntelligenceReference;
+  /** Talk-track cues vs alternatives for this ICP (not generic). */
+  competitiveConversationCues: string;
+}
+
+export interface ICPConversionProfile {
+  icpTier: string;
+  buyingCycleLength: string;
+  primaryConversionBarrier: string;
+  decisionTrigger: string;
+  conversionBehaviorPattern: string;
+}
+
+export interface ICPHookTypePerformance {
+  icpTier: string;
+  reliableHookTypes: { hookType: string; whyItConverts: string }[];
+  hookTypesToAvoid: { hookType: string; whyToAvoid: string }[];
+}
+
+export interface ICPChannelConversionMechanic {
+  icpTier: string;
+  channel: string;
+  convertingFormats: string[];
+  optimalMessageLength: string;
+  conversionAction: string;
+  followUpLogic: string;
+  failurePatterns: string[];
+}
+
+export interface ICPMultiTouchSequenceStep {
+  order: number;
+  channel: string;
+  touchType: string;
+  objective: string;
+  conversionSignal: string;
+  /** Paste-ready: email subject, ad headline, or DM opener */
+  headlineOrSubject?: string;
+  subhead?: string;
+  /** Full primary text: email body, ad primary text, or script */
+  primaryCopy?: string;
+  cta?: string;
+  /** Visual brief for designers / AI image tools */
+  imagePrompt?: string;
+  /** Shot list / motion brief for video, Reels, Shorts, in-stream (empty when touch is static-only) */
+  videoPrompt?: string;
+  /** Why this touch should win (ties to matrix / hooks) */
+  performanceRationale?: string;
+}
+
+export interface ICPMultiTouchConversionSequence {
+  icpTier: string;
+  sequence: ICPMultiTouchSequenceStep[];
+  criticalTouch: string;
+  salesHandoffTrigger: string;
+}
+
+export interface ICPContentTypeConversionMatrixRow {
+  icpTier: string;
+  funnelStage: string;
+  highestConvertingContentType: string;
+  whyItConverts: string;
+  requiredContentAttributes: string[];
+  leadMessagePillar: string;
+  convertingCTA: string;
+  /** Paste-ready hero line / subject for this cell */
+  exampleHeadline?: string;
+  /** Draft body: landing intro, email body, or ad primary text */
+  examplePrimaryCopy?: string;
+  exampleImagePrompt?: string;
+  /** When the winning format is video / Reels / YouTube / in-stream */
+  exampleVideoPrompt?: string;
+}
+
+export interface ICPBehavioralSignal {
+  icpTier: string;
+  signal: string;
+  indicatesStageTransition: string;
+  triggeredAction: string;
+  /** Platforms/channels to run the triggered play on */
+  recommendedChannels?: string[];
+  primaryHeadline?: string;
+  subhead?: string;
+  primaryBody?: string;
+  cta?: string;
+  imagePrompt?: string;
+  videoPrompt?: string;
+  /** Tie to hookTypePerformance / matrix row so copy is on-brief */
+  performanceRationale?: string;
+}
+
+export interface SpendAllocationRow {
+  channel: string;
+  percent: number;
+  monthlySpend: number;
+  rationale?: string;
+}
+
+export interface SpendRecommendationContext {
+  currentMonthlySpend: number;
+  currentSpendBand: string;
+  paidAdsMonthlySpend: number;
+  paidAdsSpendBand: string;
+  confidence: "high" | "medium" | "low";
+  assumptions: string[];
+  budgetConstrainedPlan: {
+    focus: string;
+    allocation: SpendAllocationRow[];
+    nowActions: string[];
+    efficiencyGuardrails: string[];
+  };
+  growthRoadmap: {
+    goalFrame: string;
+    phases: { phase: "30_days" | "60_days" | "90_days"; monthlySpend: number; milestone: string }[];
+    scenarios: {
+      label: "conservative" | "base" | "accelerated";
+      monthlySpend: number;
+      objectiveFit: string;
+      expectedOutcome: string;
+      allocation: SpendAllocationRow[];
+      unlockConditions: string[];
+    }[];
+  };
+}
+
+export interface ICPConversionIntelligenceScoringSignals {
+  icpConversionPathCoverage: number;
+  contentMatrixCompleteness: number;
+  behavioralSignalCoverage: number;
+  channelConversionDataPopulated: number;
+  activeTestCoverage: string;
+  lastReviewedAt: string;
+}
+
 export interface SEOKeyword {
   keyword: string;
   intent: string;
@@ -124,6 +337,8 @@ export interface SocialPlatform {
   postingFrequency: string;
   contentMix: string;
   examplePosts: string[];
+  exampleImagePrompts?: string[];
+  exampleVideoPrompts?: string[];
   kpiToTrack: string;
 }
 
@@ -283,6 +498,8 @@ export interface BlueprintEngineOutput {
   audiencePersonas: {
     primaryICP: ICP;
     secondaryICP: ICP;
+    /** 1–2 extra segments when the business clearly serves more than two distinct ICPs (e.g. expansion market, partners). */
+    additionalICPs?: AdditionalICP[];
     audienceTransitionPlan?: {
       currentAudience: string;
       idealAudience: string;
@@ -293,6 +510,11 @@ export interface BlueprintEngineOutput {
       timeline: string;
     };
   };
+  /**
+   * One plan per ICP in audiencePersonas — ties campaigns, sales enablement, and ICI matrix to the same segment story.
+   * Omitted on older reports.
+   */
+  icpGoToMarketPlans?: IcpGoToMarketPlan[];
   buyerPersonas: BuyerPersona[];
   brandArchetypeActivation: {
     primaryArchetype: string;
@@ -316,7 +538,14 @@ export interface BlueprintEngineOutput {
     howTrustIsBuilt: string;
     howClarityDrivesAction: string;
     ctaHierarchy: { level: string; action: string; context: string }[];
+    spendAlignmentPlan?: {
+      currentBudgetPlan: SpendRecommendationContext["budgetConstrainedPlan"];
+      growthRoadmap: SpendRecommendationContext["growthRoadmap"];
+      confidence: SpendRecommendationContext["confidence"];
+    };
   };
+  /** Product/offer layer (JTBD, scope, signals, channel alignment). Omitted on older reports. */
+  strategicOfferContext?: StrategicOfferContext;
   executionPromptPack: PromptPack;
   competitivePositioning: {
     positioningAxis1: { label: string; lowEnd: string; highEnd: string };
@@ -338,8 +567,20 @@ export interface BlueprintEngineOutput {
     overview: string;
     stages: JourneyStage[];
   };
+  icpConversionIntelligenceFramework?: {
+    overview: string;
+    conversionProfile: ICPConversionProfile[];
+    hookTypePerformance: ICPHookTypePerformance[];
+    channelLevelConversionMechanics: ICPChannelConversionMechanic[];
+    multiTouchConversionSequence: ICPMultiTouchConversionSequence[];
+    contentTypeConversionMatrix: ICPContentTypeConversionMatrixRow[];
+    behavioralSignalLibrary: ICPBehavioralSignal[];
+    scoringSignals: ICPConversionIntelligenceScoringSignals;
+  };
   seoStrategy: {
     overview: string;
+    /** Optional: same macro conversion + offer anchor as other channel plans; SEO’s role on the path. */
+    conversionSpine?: ConversionSpineBlock;
     primaryKeywords: SEOKeyword[];
     longTailOpportunities: { keyword: string; searchIntent: string; contentRecommendation: string }[];
     technicalPriorities: string[];
@@ -347,6 +588,7 @@ export interface BlueprintEngineOutput {
   };
   aeoStrategy: {
     overview: string;
+    conversionSpine?: ConversionSpineBlock;
     entityOptimization: {
       currentEntityStatus: string;
       entityBuildingActions: string[];
@@ -362,6 +604,8 @@ export interface BlueprintEngineOutput {
   };
   emailMarketingFramework: {
     overview: string;
+    conversionSpine?: ConversionSpineBlock;
+    conversion_intelligence_reference?: ConversionIntelligenceReference;
     welcomeSequence: { description: string; emails: WelcomeEmail[] };
     segmentationStrategy: string;
     subjectLineFormulas: string[];
@@ -369,8 +613,42 @@ export interface BlueprintEngineOutput {
   };
   socialMediaStrategy: {
     overview: string;
+    conversionSpine?: ConversionSpineBlock;
+    conversion_intelligence_reference?: ConversionIntelligenceReference;
     platforms: SocialPlatform[];
     platformsToAvoid: { platforms: string[]; reasoning: string };
+  };
+  paidMediaStrategy?: {
+    overview: string;
+    conversionSpine?: ConversionSpineBlock;
+    /** Explicit list of paid platforms/surfaces (e.g. LinkedIn, Meta, Google Ads) for UI summary */
+    platformsCovered?: string[];
+    conversion_intelligence_reference?: ConversionIntelligenceReference;
+    channels: {
+      /** Display line; can mirror "platform — placement" */
+      channel: string;
+      /** e.g. LinkedIn, Meta, Google Ads */
+      platform?: string;
+      /** e.g. Sponsored Content, Conversion, Search */
+      placement?: string;
+      objective: string;
+      audienceAngle: string;
+      /** Deployable ad copy — primary text for the placement */
+      headline?: string;
+      subheadline?: string;
+      bodyCopy?: string;
+      /** Generative or design-brief visual direction */
+      imagePrompt?: string;
+      /** Motion / shot-list brief for video placements (empty string if static-only) */
+      videoPrompt?: string;
+      cta?: string;
+      /** Legacy catch-all when structured fields are absent */
+      creativeDirection?: string;
+      offerStrategy: string;
+      kpiToTrack: string;
+    }[];
+    budgetScenarios?: SpendRecommendationContext["growthRoadmap"]["scenarios"];
+    allocationGuidance?: SpendAllocationRow[];
   };
   companyDescription: {
     oneLiner: string;
@@ -399,6 +677,7 @@ export interface BlueprintEngineOutput {
     whyUsAtThisPrice: string;
   };
   salesConversationGuide: {
+    conversion_intelligence_reference?: ConversionIntelligenceReference;
     openingFramework: string;
     discoveryQuestions: { question: string; whyThisQuestion: string; listenFor: string }[];
     proofPointDeployment: { persona: string; stage: string; proofPoint: string; howToDeliver: string }[];
@@ -409,7 +688,50 @@ export interface BlueprintEngineOutput {
     overview: string;
     perSectionKPIs: { section: string; recommendation: string; kpi: string; target: string }[];
     leadingIndicators: { indicator: string; whatItMeans: string; timeframe: string }[];
-    trackingRecommendations: { metric: string; tool: string; howToSetUp: string; frequency: string }[];
+    trackingRecommendations: {
+      metric: string;
+      tool: string;
+      howToSetUp: string;
+      frequency: string;
+      /** Optional one-line parallel for briefings; does not replace howToSetUp. */
+      readerFriendlyOneLiner?: string;
+    }[];
+  };
+  contentCalendarFramework?: {
+    overview: string;
+    conversion_intelligence_reference?: ConversionIntelligenceReference;
+    monthlyThemes: {
+      month: string;
+      theme: string;
+      contentPillarFocus: string;
+      keyTopics: string[];
+    }[];
+    weeklyStructure: {
+      description: string;
+      days: {
+        day: string;
+        contentType: string;
+        platform: string;
+        contentPillar: string;
+        exampleTopic: string;
+      }[];
+    };
+    batchingStrategy: string;
+    repurposingPlaybook: string;
+  };
+  thoughtLeadershipStrategy?: {
+    overview: string;
+    conversionSpine?: ConversionSpineBlock;
+    conversion_intelligence_reference?: ConversionIntelligenceReference;
+    authorityPositioning: {
+      expertiseAreas: string[];
+      uniquePerspective: string;
+      targetOutlets: string[];
+    };
+    speakingTopics: { topic: string; audience: string; angle: string; formats: string }[];
+    mediaAngles: { angle: string; hook: string; targetMedia: string; talkingPoints: string[] }[];
+    authorityContentPlan: { pillarContent: string[]; distributionStrategy: string; cadence: string };
+    prPositioning: { mediaReadyBio: string; boilerplate: string; mediaKitRecommendations: string };
   };
   brandStrategyRollout: {
     brandStrategyOnePager: string;
@@ -434,6 +756,14 @@ export interface BlueprintEngineOutput {
     };
     imageDonts: { dont: string; why: string; alternative: string }[];
     colorApplicationInImagery: string;
+    moodBoardDescriptors?: {
+      adjectives: string[];
+      textures: string[];
+      environments: string[];
+      lightingConditions: string;
+      colorMoods: string;
+      designerNote: string;
+    };
   };
   assetAlignmentNotes?: {
     summary: string;
@@ -506,5 +836,6 @@ export interface BlueprintEngineOutput {
     servicesPage: { pageStructure: string; serviceFramework: string; pricingLanguage: string };
     copyPrinciples: { principle: string; example: string }[];
   };
+  spendRecommendationContext?: SpendRecommendationContext;
   disclaimer: string;
 }

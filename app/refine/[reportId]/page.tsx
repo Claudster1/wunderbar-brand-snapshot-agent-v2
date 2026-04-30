@@ -5,6 +5,7 @@
 import { FormEvent, useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import { useRefinementChat } from "@/src/hooks/useRefinementChat";
+import { ChatMarkdown } from "@/components/chat/ChatMarkdown";
 import Image from "next/image";
 
 /* ─── Brand tokens ─── */
@@ -16,6 +17,27 @@ const SUB = "#5A6B7E";
 const BORDER = "#D6DFE8";
 const GREEN = "#22C55E";
 const RED = "#EF4444";
+
+function ScoreDelta({ before, after, label }: { before: number; after: number; label: string }) {
+  const delta = after - before;
+  const color = delta > 0 ? GREEN : delta < 0 ? RED : SUB;
+  const arrow = delta > 0 ? "↑" : delta < 0 ? "↓" : "–";
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0", borderBottom: `1px solid ${BORDER}` }}>
+      <span style={{ fontSize: 13, color: NAVY, fontWeight: 600 }}>{label}</span>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <span style={{ fontSize: 13, color: SUB }}>{before}</span>
+        <span style={{ fontSize: 13, color: SUB }}>→</span>
+        <span style={{ fontSize: 14, fontWeight: 700, color: NAVY }}>{after}</span>
+        {delta !== 0 && (
+          <span style={{ fontSize: 12, fontWeight: 700, color, padding: "2px 6px", borderRadius: 4, background: `${color}15` }}>
+            {arrow}{Math.abs(delta)}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function RefinePage() {
   const params = useParams();
@@ -57,28 +79,6 @@ export default function RefinePage() {
     if (!inputValue.trim()) return;
     await sendMessage(inputValue);
     setInputValue("");
-  };
-
-  // Score change indicator
-  const ScoreDelta = ({ before, after, label }: { before: number; after: number; label: string }) => {
-    const delta = after - before;
-    const color = delta > 0 ? GREEN : delta < 0 ? RED : SUB;
-    const arrow = delta > 0 ? "↑" : delta < 0 ? "↓" : "–";
-    return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0", borderBottom: `1px solid ${BORDER}` }}>
-        <span style={{ fontSize: 13, color: NAVY, fontWeight: 600 }}>{label}</span>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 13, color: SUB }}>{before}</span>
-          <span style={{ fontSize: 13, color: SUB }}>→</span>
-          <span style={{ fontSize: 14, fontWeight: 700, color: NAVY }}>{after}</span>
-          {delta !== 0 && (
-            <span style={{ fontSize: 12, fontWeight: 700, color, padding: "2px 6px", borderRadius: 4, background: `${color}15` }}>
-              {arrow}{Math.abs(delta)}
-            </span>
-          )}
-        </div>
-      </div>
-    );
   };
 
   // Loading state
@@ -123,7 +123,7 @@ export default function RefinePage() {
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <a href="https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=refine_page&utm_campaign=brand_navigation&utm_content=header_logo" target="_blank" rel="noopener noreferrer">
-            <img
+            <Image
               src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp"
               alt="Wunderbar Digital"
               width={160}
@@ -271,7 +271,7 @@ export default function RefinePage() {
               alt="Wundy™"
               width={32}
               height={32}
-              style={{ borderRadius: "50%" }}
+              style={{ borderRadius: "50%", background: "#fff" }}
             />
             <div>
               <div style={{ fontSize: 14, fontWeight: 700, color: NAVY }}>Wundy™</div>
@@ -304,6 +304,7 @@ export default function RefinePage() {
                 }}
               >
                 <div
+                  className={msg.role === "user" ? "wundy-msg-user" : "wundy-msg-assistant"}
                   style={{
                     maxWidth: "80%",
                     padding: "10px 16px",
@@ -315,16 +316,7 @@ export default function RefinePage() {
                     fontFamily: "Lato, sans-serif",
                   }}
                 >
-                  {msg.text.split("\n\n").map((p, i) => (
-                    <p key={i} style={{ margin: i === 0 ? 0 : "8px 0 0" }}>
-                      {p.split("\n").map((line, j) => (
-                        <span key={j}>
-                          {j > 0 && <br />}
-                          {line}
-                        </span>
-                      ))}
-                    </p>
-                  ))}
+                  <ChatMarkdown text={msg.text} />
                 </div>
               </div>
             ))}

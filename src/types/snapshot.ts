@@ -11,6 +11,14 @@ export type UserRoleContext =
 export interface SnapshotInput {
   userName: string;
   businessName: string;
+  businessType?:
+    | "service_b2b"
+    | "service_b2c"
+    | "retail"
+    | "ecommerce"
+    | "saas"
+    | "local_service";
+  primaryRevenueDriver?: string | null;
   industry: string;
   website?: string;
   socials: string[];

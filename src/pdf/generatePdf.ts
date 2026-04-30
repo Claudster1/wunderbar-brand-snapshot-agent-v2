@@ -156,6 +156,10 @@ export function transformReportDataForPdf(
 
   switch (documentType) {
     case "snapshot":
+      const answers =
+        report?.full_report?.answers && typeof report.full_report.answers === "object"
+          ? (report.full_report.answers as Record<string, unknown>)
+          : {};
       return {
         ...baseProps,
         brandAlignmentScore:
@@ -198,9 +202,64 @@ export function transformReportDataForPdf(
           report?.color_palette ||
           report?.enriched_color_palette ||
           [],
+        fullReportAnswers:
+          answers,
+        businessType: typeof answers.businessType === "string" ? answers.businessType : null,
+        monthlyMarketingBudget:
+          typeof answers.monthlyMarketingBudget === "string" ? answers.monthlyMarketingBudget : null,
+        monthlyRevenueRange:
+          typeof answers.monthlyRevenueRange === "string" ? answers.monthlyRevenueRange : null,
+        annualRevenueRange: typeof answers.revenueRange === "string" ? answers.revenueRange : null,
+        averageTransactionValue:
+          typeof answers.averageTransactionValue === "string" ? answers.averageTransactionValue : null,
+        conversionRateEstimate:
+          typeof answers.conversionRateEstimate === "string" ? answers.conversionRateEstimate : null,
+        likelyArchetype:
+          typeof answers.likelyArchetype === "string"
+            ? answers.likelyArchetype
+            : typeof (report?.likely_archetype) === "string"
+              ? report.likely_archetype
+              : null,
       } as unknown as BrandSnapshotReport;
 
     case "snapshot-plus": {
+      const pickFirst = (...values: unknown[]) =>
+        values.find((value) => typeof value === "string" && value.trim().length > 0) as string | undefined;
+      const roadmapFromObject =
+        r.roadmap && typeof r.roadmap === "object" ? (r.roadmap as Record<string, unknown>) : {};
+      const archetypeSource =
+        r.enriched_archetype && typeof r.enriched_archetype === "object"
+          ? (r.enriched_archetype as Record<string, unknown>)
+          : r.archetype && typeof r.archetype === "object"
+            ? (r.archetype as Record<string, unknown>)
+            : {};
+      const archetype = {
+        ...archetypeSource,
+        name:
+          pickFirst(
+            archetypeSource.name,
+            typeof r.enriched_archetype === "string" ? r.enriched_archetype : undefined,
+            typeof r.archetype === "string" ? r.archetype : undefined,
+            r.brand_archetype,
+            r.likely_archetype
+          ) ?? "",
+        summary: pickFirst(archetypeSource.summary, archetypeSource.description),
+        risk: pickFirst(archetypeSource.risk, r.archetype_risk),
+        languageTone: pickFirst(archetypeSource.languageTone, r.archetype_language_tone),
+        behaviorGuide: pickFirst(archetypeSource.behaviorGuide, r.archetype_behavior_guide),
+        secondary:
+          archetypeSource.secondary ??
+          (typeof r.secondary_archetype === "string"
+            ? { name: r.secondary_archetype, summary: pickFirst(r.secondary_archetype_summary) }
+            : undefined),
+        pairingGuidance: pickFirst(archetypeSource.pairingGuidance, r.archetype_pairing_guidance),
+        activation:
+          archetypeSource.activation && typeof archetypeSource.activation === "object"
+            ? archetypeSource.activation
+            : r.archetype_activation && typeof r.archetype_activation === "object"
+              ? r.archetype_activation
+              : undefined,
+      };
       const pillarScores = r.pillar_scores || r.pillarScores || report?.pillar_scores || {
         positioning: 0,
         messaging: 0,
@@ -258,24 +317,120 @@ export function transformReportDataForPdf(
         brandOpportunities: r.brand_opportunities || r.brandOpportunities || report?.brand_opportunities,
         messagingGaps: r.messaging_gaps || r.messagingGaps || report?.messaging_gaps,
         visibilityPlan: r.visibility_plan || r.visibilityPlan || report?.visibility_plan,
+        contentFormatChannelSnapshot:
+          r.content_format_channel_snapshot ||
+          r.contentFormatChannelSnapshot ||
+          report?.content_format_channel_snapshot,
+        marketingSpendAuditSignal:
+          r.marketing_spend_audit_signal ||
+          r.marketingSpendAuditSignal ||
+          report?.marketing_spend_audit_signal,
+        competitiveVulnerabilitySignal:
+          r.competitive_vulnerability_signal ||
+          r.competitiveVulnerabilitySignal ||
+          report?.competitive_vulnerability_signal,
+        revenueImpactStatement:
+          r.revenue_impact_statement ||
+          r.revenueImpactStatement ||
+          report?.revenue_impact_statement,
         visualIdentityNotes: r.visual_identity_notes || r.visualIdentityNotes || report?.visual_identity_notes,
         aiPrompts: r.ai_prompts || r.aiPrompts || report?.ai_prompts || [],
         aeoRecommendations: r.aeo_recommendations || r.aeoRecommendations || report?.aeo_recommendations,
         contextCoverage: r.contextCoverage ?? r.context_coverage ?? report?.context_coverage,
         persona: r.enriched_persona ?? r.persona ?? report?.enriched_persona,
-        archetype: r.enriched_archetype ?? r.archetype ?? report?.enriched_archetype,
+        archetype,
         voice: r.enriched_voice ?? r.voice ?? report?.enriched_voice,
         colorPalette: r.enriched_color_palette ?? r.color_palette ?? r.colorPalette ?? report?.enriched_color_palette ?? [],
-        roadmap_30: r.roadmap_30 ?? report?.roadmap_30,
-        roadmap_60: r.roadmap_60 ?? report?.roadmap_60,
-        roadmap_90: r.roadmap_90 ?? report?.roadmap_90,
+        roadmap_30: pickFirst(
+          r.roadmap_30,
+          r.roadmap30,
+          report?.roadmap_30,
+          r.thirtyDayPlan,
+          r.plan30,
+          roadmapFromObject.next30Days,
+          roadmapFromObject.day30,
+          roadmapFromObject.thirtyDay
+        ),
+        roadmap_60: pickFirst(
+          r.roadmap_60,
+          r.roadmap60,
+          report?.roadmap_60,
+          r.sixtyDayPlan,
+          r.plan60,
+          roadmapFromObject.next60Days,
+          roadmapFromObject.day60,
+          roadmapFromObject.sixtyDay
+        ),
+        roadmap_90: pickFirst(
+          r.roadmap_90,
+          r.roadmap90,
+          report?.roadmap_90,
+          r.ninetyDayPlan,
+          r.plan90,
+          roadmapFromObject.next90Days,
+          roadmapFromObject.day90,
+          roadmapFromObject.ninetyDay
+        ),
         opportunities_map: r.opportunities_map ?? report?.opportunities_map,
       } as BrandSnapshotPlusReport;
     }
 
     case "blueprint":
+      const blueprintPillarScores = r.pillar_scores || r.pillarScores || report?.pillar_scores;
+      const blueprintPillarInsights = r.pillar_insights || r.pillarInsights || report?.pillar_insights;
+      const blueprintRecommendations = r.recommendations || report?.recommendations;
+      const pickBlueprintRoadmap = (...values: unknown[]) =>
+        values.find((value) => typeof value === "string" && value.trim().length > 0) as string | undefined;
+      const blueprintRoadmap =
+        r.roadmap && typeof r.roadmap === "object" ? (r.roadmap as Record<string, unknown>) : {};
       return {
         ...baseProps,
+        brandAlignmentScore:
+          r.brand_alignment_score ||
+          r.brandAlignmentScore ||
+          report?.brand_alignment_score ||
+          undefined,
+        pillarScores: blueprintPillarScores,
+        pillarInsights: blueprintPillarInsights,
+        recommendations:
+          blueprintRecommendations && typeof blueprintRecommendations === "object"
+            ? {
+                positioning: blueprintRecommendations.positioning || "",
+                messaging: blueprintRecommendations.messaging || "",
+                visibility: blueprintRecommendations.visibility || "",
+                credibility: blueprintRecommendations.credibility || "",
+                conversion: blueprintRecommendations.conversion || "",
+              }
+            : undefined,
+        contextCoverage: r.context_coverage ?? r.contextCoverage ?? report?.context_coverage,
+        opportunitiesMap: r.opportunities_map ?? r.opportunitiesMap ?? report?.opportunities_map,
+        roadmap30: pickBlueprintRoadmap(
+          r.roadmap_30,
+          r.roadmap30,
+          report?.roadmap_30,
+          r.thirtyDayPlan,
+          r.plan30,
+          blueprintRoadmap.next30Days,
+          blueprintRoadmap.day30
+        ),
+        roadmap60: pickBlueprintRoadmap(
+          r.roadmap_60,
+          r.roadmap60,
+          report?.roadmap_60,
+          r.sixtyDayPlan,
+          r.plan60,
+          blueprintRoadmap.next60Days,
+          blueprintRoadmap.day60
+        ),
+        roadmap90: pickBlueprintRoadmap(
+          r.roadmap_90,
+          r.roadmap90,
+          report?.roadmap_90,
+          r.ninetyDayPlan,
+          r.plan90,
+          blueprintRoadmap.next90Days,
+          blueprintRoadmap.day90
+        ),
         industry: r.industry || report?.industry,
         targetCustomers: r.target_customers || r.targetCustomers || report?.target_customers,
         competitorNames: r.competitor_names || r.competitorNames || report?.competitor_names || [],
@@ -296,12 +451,106 @@ export function transformReportDataForPdf(
         aiPrompts: r.ai_prompts || r.aiPrompts || report?.ai_prompts || [],
         visualDirection: r.visual_direction || report?.visual_direction,
         opportunities: r.opportunities || report?.opportunities,
+        campaignArchitectureStarter:
+          r.campaign_architecture_starter ||
+          r.campaignArchitectureStarter ||
+          report?.campaign_architecture_starter,
+        revenueMappedWorkbook:
+          r.revenue_mapped_workbook ||
+          r.revenueMappedWorkbook ||
+          report?.revenue_mapped_workbook,
+        competitiveVulnerabilitySignal:
+          r.competitive_vulnerability_signal ||
+          r.competitiveVulnerabilitySignal ||
+          report?.competitive_vulnerability_signal ||
+          report?.competitiveVulnerabilitySignal,
+        marketingSpendEfficiencySignal:
+          r.marketing_spend_efficiency_signal ||
+          r.marketingSpendEfficiencySignal ||
+          r.marketing_spend_audit_signal ||
+          r.marketingSpendAuditSignal ||
+          report?.marketing_spend_efficiency_signal ||
+          report?.marketingSpendEfficiencySignal ||
+          report?.marketing_spend_audit_signal ||
+          report?.marketingSpendAuditSignal,
+        revenueImpactStatement:
+          r.revenue_impact_statement ||
+          r.revenueImpactStatement ||
+          report?.revenue_impact_statement ||
+          report?.revenueImpactStatement,
         aeoIntegratedStrategy: r.aeo_integrated_strategy || r.aeoIntegratedStrategy || report?.aeo_integrated_strategy,
       } as BrandBlueprintReport;
 
     case "blueprint-plus":
+      const blueprintPlusPillarScores = r.pillar_scores || r.pillarScores || report?.pillar_scores;
+      const blueprintPlusPillarInsights = r.pillar_insights || r.pillarInsights || report?.pillar_insights;
+      const blueprintPlusRecommendations = r.recommendations || report?.recommendations;
+      const pickBlueprintPlusRoadmap = (...values: unknown[]) =>
+        values.find((value) => typeof value === "string" && value.trim().length > 0) as string | undefined;
+      const blueprintPlusRoadmap =
+        r.roadmap && typeof r.roadmap === "object" ? (r.roadmap as Record<string, unknown>) : {};
       return {
         ...baseProps,
+        brandAlignmentScore:
+          r.brand_alignment_score ||
+          r.brandAlignmentScore ||
+          report?.brand_alignment_score ||
+          undefined,
+        pillarScores: blueprintPlusPillarScores,
+        pillarInsights: blueprintPlusPillarInsights,
+        recommendations:
+          blueprintPlusRecommendations && typeof blueprintPlusRecommendations === "object"
+            ? {
+                positioning: blueprintPlusRecommendations.positioning || "",
+                messaging: blueprintPlusRecommendations.messaging || "",
+                visibility: blueprintPlusRecommendations.visibility || "",
+                credibility: blueprintPlusRecommendations.credibility || "",
+                conversion: blueprintPlusRecommendations.conversion || "",
+              }
+            : undefined,
+        persona: r.enriched_persona ?? r.persona ?? report?.enriched_persona,
+        archetype:
+          r.enriched_archetype ??
+          r.archetype ??
+          report?.enriched_archetype ??
+          r.brand_archetype ??
+          r.likely_archetype,
+        voice: r.enriched_voice ?? r.voice ?? report?.enriched_voice,
+        colorPalette:
+          r.enriched_color_palette ??
+          r.color_palette ??
+          r.colorPalette ??
+          report?.enriched_color_palette ??
+          [],
+        contextCoverage: r.context_coverage ?? r.contextCoverage ?? report?.context_coverage,
+        opportunitiesMap: r.opportunities_map ?? r.opportunitiesMap ?? report?.opportunities_map,
+        roadmap30: pickBlueprintPlusRoadmap(
+          r.roadmap_30,
+          r.roadmap30,
+          report?.roadmap_30,
+          r.thirtyDayPlan,
+          r.plan30,
+          blueprintPlusRoadmap.next30Days,
+          blueprintPlusRoadmap.day30
+        ),
+        roadmap60: pickBlueprintPlusRoadmap(
+          r.roadmap_60,
+          r.roadmap60,
+          report?.roadmap_60,
+          r.sixtyDayPlan,
+          r.plan60,
+          blueprintPlusRoadmap.next60Days,
+          blueprintPlusRoadmap.day60
+        ),
+        roadmap90: pickBlueprintPlusRoadmap(
+          r.roadmap_90,
+          r.roadmap90,
+          report?.roadmap_90,
+          r.ninetyDayPlan,
+          r.plan90,
+          blueprintPlusRoadmap.next90Days,
+          blueprintPlusRoadmap.day90
+        ),
         brandStory: r.brand_story || report?.brand_story,
         positioning: r.positioning || report?.positioning,
         journey: r.journey || report?.journey || [],
@@ -311,6 +560,33 @@ export function transformReportDataForPdf(
         decisionFilters: r.decision_filters || report?.decision_filters || [],
         aiPrompts: r.ai_prompts || report?.ai_prompts || [],
         completeAEOSystem: r.complete_aeo_system || report?.complete_aeo_system,
+        marketingRoiPrioritization:
+          r.marketing_roi_prioritization ||
+          r.marketingRoiPrioritization ||
+          report?.marketing_roi_prioritization,
+        activationSessionPlan:
+          r.activation_session_plan ||
+          r.activationSessionPlan ||
+          report?.activation_session_plan,
+        competitiveVulnerabilitySignal:
+          r.competitive_vulnerability_signal ||
+          r.competitiveVulnerabilitySignal ||
+          report?.competitive_vulnerability_signal ||
+          report?.competitiveVulnerabilitySignal,
+        marketingSpendEfficiencySignal:
+          r.marketing_spend_efficiency_signal ||
+          r.marketingSpendEfficiencySignal ||
+          r.marketing_spend_audit_signal ||
+          r.marketingSpendAuditSignal ||
+          report?.marketing_spend_efficiency_signal ||
+          report?.marketingSpendEfficiencySignal ||
+          report?.marketing_spend_audit_signal ||
+          report?.marketingSpendAuditSignal,
+        revenueImpactStatement:
+          r.revenue_impact_statement ||
+          r.revenueImpactStatement ||
+          report?.revenue_impact_statement ||
+          report?.revenueImpactStatement,
       } as BrandBlueprintPlusPDFProps;
 
     default:

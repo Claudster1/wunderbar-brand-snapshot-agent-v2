@@ -3,7 +3,7 @@ export const blueprintCopy = {
     title: "WunderBrand Blueprint\u2122",
     subtitle: "Your complete brand operating system \u2014 built once, used everywhere",
     intro:
-      "WunderBrand Blueprint\u2122 transforms your Snapshot+ diagnostic into a comprehensive, execution-ready brand system \u2014 covering positioning, messaging, audience personas, competitive mapping, visual direction, content strategy, sales playbooks, and measurement frameworks. Hand it to your team or agency and say \u2018build this.\u2019",
+      "WunderBrand Blueprint\u2122 transforms your Snapshot+ diagnostic into a comprehensive, activation-ready brand system \u2014 covering positioning, messaging, audience personas, competitive mapping, visual direction, content strategy, sales playbooks, and measurement frameworks. Hand it to your team or agency and say \u2018build this.\u2019",
   },
 
   includes: [
@@ -17,11 +17,11 @@ export const blueprintCopy = {
     "Sales conversation guide with discovery questions and objection-handling scripts",
     "Measurement and KPI framework with leading/lagging indicators",
     "Brand health scorecard, SWOT analysis, and 12-month rollout guide",
-    "16 AI prompts (Foundational + Execution packs) calibrated to your brand",
+    "16 AI prompts (Foundational + Activation packs) calibrated to your brand",
   ],
 
   activation: {
-    headline: "Designed for execution, not decoration",
+    headline: "Designed for activation, not decoration",
     description:
       "Every section of Blueprint\u2122 is implementation-ready \u2014 structured so your team, freelancers, or agency can act on it immediately. This isn\u2019t a strategy deck that sits in a drawer. It\u2019s the operating system your brand runs on.",
   },

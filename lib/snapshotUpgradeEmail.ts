@@ -10,10 +10,11 @@ export function snapshotUpgradeEmail({
     body: `
 Your WunderBrand Snapshot™ revealed that ${pillar} is the key opportunity for ${brandName}.
 
-Snapshot+™ expands this into:
-• Clear root-cause analysis
-• Prioritized next moves
-• Strategic clarity across channels
+That result comes from Wunderbar Digital's proprietary scoring and diagnostic methodology — and Snapshot+™ takes it further with implementation-level guidance:
+• Clear root-cause analysis tied to your strongest and weakest pillars
+• Prioritized next moves by strategic leverage
+• Structured outputs across Foundation, Strategy, Activation, Workbook, and Downloads
+• 8 AI prompts calibrated to your brand context
 
 Your full results are ready when you are.
     `.trim(),

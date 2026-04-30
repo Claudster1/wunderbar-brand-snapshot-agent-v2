@@ -1,5 +1,8 @@
 // src/prompts/snapshotPlusReportPrompt.ts
 // WunderBrand Snapshot+™ ($497) - Report Generation Prompt
+import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
+import { aiApTitleCaseHeadingsRule } from "@/lib/copy/capitalizationPolicy";
+import { reportExecutionReadyContentRule } from "@/lib/copy/reportExecutionStandard";
 
 export const snapshotPlusReportPrompt = `
 You are generating the WunderBrand Snapshot+™ report for Wunderbar Digital.
@@ -11,6 +14,10 @@ NON-NEGOTIABLE RULES:
 - Include at least ONE example per pillar (headline, phrase, structure).
 - Use decisive, advisory language. This is not exploratory.
 - No filler, no generic frameworks without interpretation.
+
+${aiAbbreviationFirstReferenceRule}
+
+${aiApTitleCaseHeadingsRule}
 
 ---------------------------------------------------------------------
 REQUIRED OUTPUT STRUCTURE
@@ -36,7 +43,7 @@ REQUIRED OUTPUT STRUCTURE
    c. whatsHappeningNow: Specific, direct assessment of current state
    d. whyItMattersCommercially: Why this affects revenue/growth
    e. concreteExample: { before: "current weak version", after: "improved version" }
-   f. strategicRecommendation: High-level strategic direction (not tactics)
+   f. strategicRecommendation: Strategic direction **plus** at least one **ready-to-use** line (headline, claim, structure, or criterion) — not vague tasks alone
    g. successLooksLike: What the resolved state looks like
 
 4. Context Coverage
@@ -67,6 +74,7 @@ REQUIRED OUTPUT STRUCTURE
      - behaviorGuide: How the brand should behave in interactions
    - secondary: Same structure as primary (different archetype)
    - howTheyWorkTogether: How the two archetypes complement each other
+   - **Demonstration copy (no new keys):** In **primary.behaviorGuide**, append three blocks separated by blank lines: (1) Homepage hero **as a visitor sees it**—headline, subhead, then button text and secondary link on one line—**no** “H1:” / “Subhead:” labels; (2) one **Content** opening paragraph as published; (3) **Sales** as a **quoted** talk track only. No “you should” lines inside the samples.
 
 7. Brand Persona
    This is about the COMPANY's brand persona (not the target audience).
@@ -79,13 +87,10 @@ REQUIRED OUTPUT STRUCTURE
      - tone: Description of the brand's tone of voice
      - pace: How the brand paces its communication
      - energy: The energy level and style of the brand's presence
-   - messagingExamples: Concrete before/after examples for messaging:
-     - headlines: { avoid: ["weak headline examples"], use: ["strong headline examples"] }
-     - ctaButtons: { avoid: ["weak CTA examples"], use: ["strong CTA examples"] }
-     - socialPosts: { avoid: ["weak social post examples"], use: ["strong social post examples"] }
+   - messagingExamples: For headlines, ctaButtons, socialPosts — each object with use[] and avoid[] arrays (**plain sample lines** for **Do this** / **Not this** columns in PDF/UI). Do **not** prefix strings with "Avoid:", "Avoid example:", or "Example:" — headers supply meaning.
    - doAndDont: Communication guidelines with examples:
      - do: Array of { guideline: "what to do", example: "example of doing it" }
-     - dont: Array of { guideline: "what not to do", example: "example of what to avoid" }
+     - dont: Array of { guideline: "what not to do", example: "contrast as **Not this:** … **Do this:** … (not 'Avoid example:')" }
 
 8. Visual & Verbal Brand Direction
    A foundational visual identity system — enough to brief a designer, maintain consistency, and make confident visual decisions.
@@ -349,9 +354,9 @@ CONTENT QUALITY REQUIREMENTS
 ---------------------------------------------------------------------
 
 For EVERY recommendation, action item, or strategic direction:
-- Include a CONCRETE example specific to the user's business
-- Explain WHY it matters (not just what to do)
-- Make it immediately actionable (they should be able to start today)
+- Include **paste-ready or verify-ready material** (sample copy, headline, line, or criterion) — not "work on X" alone
+- Explain WHY it matters briefly **after** the artifact
+- "Actionable" = they can **execute or check** from your text today without inventing the deliverable themselves
 
 For the AI Prompt Pack:
 - Every prompt must be calibrated to THIS specific business

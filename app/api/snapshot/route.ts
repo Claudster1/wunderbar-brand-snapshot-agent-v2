@@ -13,6 +13,11 @@ import { triggerUpgradeEmails } from "@/lib/triggerUpgradeEmails";
 import { randomUUID } from "crypto";
 import { getPrimaryPillar } from "@/lib/pillars/getPrimaryPillar";
 import { fireACEvent } from "@/lib/fireACEvent";
+import {
+  applyActiveCampaignTags,
+  removeActiveCampaignTags,
+  setContactFields,
+} from "@/lib/applyActiveCampaignTags";
 import { apiGuard } from "@/lib/security/apiGuard";
 import { AI_RATE_LIMIT } from "@/lib/security/rateLimit";
 import { sanitizeString, isValidEmail } from "@/lib/security/inputValidation";
@@ -23,11 +28,91 @@ import {
 } from "@/lib/benchmarkCollector";
 import { logger } from "@/lib/logger";
 import { generateAIInsights } from "@/lib/ai/freeReportEnhancer";
+import { inferLikelyArchetype } from "@/lib/archetype/likelyArchetype";
 import { z } from "zod";
+import { createCrmSyncLog } from "@/lib/crm/inbound";
 
 export const dynamic = "force-dynamic";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://app.wunderbrand.ai";
+
+function normalizeBusinessType(raw: unknown): string | null {
+  if (typeof raw !== "string") return null;
+  const value = raw.trim().toLowerCase();
+  if (!value) return null;
+  if (value.includes("service_b2b") || value.includes("b2b service")) return "service_b2b";
+  if (value.includes("service_b2c") || value.includes("b2c service")) return "service_b2c";
+  if (value.includes("retail")) return "retail";
+  if (value.includes("ecommerce") || value.includes("e-commerce") || value.includes("product brand")) return "ecommerce";
+  if (value.includes("saas") || value.includes("software") || value.includes("app")) return "saas";
+  if (value.includes("local_service") || value.includes("local service")) return "local_service";
+  return null;
+}
+
+function inferBusinessTypeFromAnswers(answers: Record<string, unknown>): string {
+  const corpus = [
+    answers.businessName,
+    answers.industry,
+    answers.what_you_do,
+    answers.response_1,
+    answers.response_2,
+    answers.response_3,
+  ]
+    .filter((x): x is string => typeof x === "string")
+    .join(" ")
+    .toLowerCase();
+
+  if (/\bsaas|software|app|subscription\b/.test(corpus)) return "saas";
+  if (/\be-?commerce|shopify|amazon|dtc|product\b/.test(corpus)) return "ecommerce";
+  if (/\bretail|storefront|restaurant|boutique|food|beverage\b/.test(corpus)) return "retail";
+  if (/\blocal|dental|medical|legal|salon|studio|clinic|contractor|trade\b/.test(corpus)) return "local_service";
+  if (/\bb2c|consumer|clients|customers\b/.test(corpus)) return "service_b2c";
+  return "service_b2b";
+}
+
+function normalizeAnswers(answers: Record<string, unknown>): Record<string, unknown> {
+  const normalized = { ...answers };
+  const explicitBusinessType =
+    normalizeBusinessType(answers.businessType) ||
+    normalizeBusinessType(answers.business_type) ||
+    normalizeBusinessType(answers.primaryRevenueModel);
+
+  normalized.businessType = explicitBusinessType || inferBusinessTypeFromAnswers(answers);
+
+  if (typeof answers.monthlyRevenueRange !== "string" && typeof answers.monthly_revenue_range === "string") {
+    normalized.monthlyRevenueRange = answers.monthly_revenue_range;
+  }
+  if (typeof answers.averageTransactionValue !== "string" && typeof answers.average_transaction_value === "string") {
+    normalized.averageTransactionValue = answers.average_transaction_value;
+  }
+  if (typeof answers.conversionRateEstimate !== "string" && typeof answers.conversion_rate_estimate === "string") {
+    normalized.conversionRateEstimate = answers.conversion_rate_estimate;
+  }
+  if (typeof answers.monthlyMarketingBudget !== "string" && typeof answers.monthly_marketing_budget === "string") {
+    normalized.monthlyMarketingBudget = answers.monthly_marketing_budget;
+  }
+  if (typeof answers.contentCreationCapacity !== "string" && typeof answers.content_creation_capacity === "string") {
+    normalized.contentCreationCapacity = answers.content_creation_capacity;
+  }
+
+  return normalized;
+}
+
+function asStringOrNull(value: unknown): string | null {
+  return typeof value === "string" ? value : null;
+}
+
+function asStringOrUndefined(value: unknown): string | undefined {
+  return typeof value === "string" ? value : undefined;
+}
+
+function asBooleanOrNull(value: unknown): boolean | null {
+  return typeof value === "boolean" ? value : null;
+}
+
+function asStringOrEmpty(value: unknown): string {
+  return typeof value === "string" ? value : "";
+}
 
 function buildSummary(
   scores: { brandAlignmentScore: number; pillarScores: Record<string, number> },
@@ -67,27 +152,47 @@ function buildUpgradeCta(
 ): string {
   const pillarLabel = primaryPillar.charAt(0).toUpperCase() + primaryPillar.slice(1);
   const name = companyName ? ` For ${companyName}, ` : " ";
-  return `Your top opportunity is ${pillarLabel}.${name}Snapshot+™ gives you a detailed roadmap, persona-aligned messaging, and actionable next steps so you can improve this pillar and your overall score.`;
+  return `Your top opportunity is ${pillarLabel}.${name}Your full results are ready to unlock in Snapshot+™. See Your Full Results — $497 to get a detailed roadmap, persona-aligned messaging, and actionable next steps.`;
 }
 
-function buildPillarInsightsFromScores(pillarScores: Record<string, number>) {
+function humanizeBusinessType(value: string | null | undefined): string | null {
+  if (!value) return null;
+  const v = value.toLowerCase();
+  if (v.includes("service_b2b")) return "B2B service";
+  if (v.includes("service_b2c")) return "B2C service";
+  if (v.includes("local_service")) return "local service";
+  if (v.includes("ecommerce")) return "ecommerce";
+  if (v.includes("saas")) return "SaaS";
+  if (v.includes("retail")) return "retail";
+  return null;
+}
+
+function buildPillarInsightsFromScores(
+  pillarScores: Record<string, number>,
+  options?: { companyName?: string | null; businessType?: string | null },
+) {
+  const subject = options?.companyName?.trim() || "your brand";
+  const businessType = humanizeBusinessType(options?.businessType);
+  const contextLead = businessType
+    ? `For a ${businessType} business like ${subject}, `
+    : `For ${subject}, `;
   const mk = (pillar: string, score: number) => {
     if (score >= 18) {
       return {
-        strength: `Your ${pillar} is a clear strength right now — the foundation is working.`,
-        opportunity: `Keep tightening consistency so this pillar stays an advantage as you scale.`,
-        action: `Document the 2–3 patterns that are working best in ${pillar}, and apply them everywhere you show up.`,
+        strength: `${contextLead}${pillar} is a clear strength right now — the foundation is working.`,
+        opportunity: `Keep tightening consistency so this pillar stays an advantage as ${subject} scales.`,
+        action: `Document the 2–3 patterns that are working best in ${pillar} for ${subject}, and apply them everywhere you show up.`,
       };
     }
     if (score >= 14) {
       return {
-        strength: `Your ${pillar} has a solid baseline — you’re not starting from zero.`,
+        strength: `${contextLead}${pillar} has a solid baseline — you’re not starting from zero.`,
         opportunity: `A few focused refinements would make this pillar feel sharper and more intentional.`,
         action: `Choose one change in ${pillar} that removes confusion (headline, positioning line, CTA, proof point) and implement it this week.`,
       };
     }
     return {
-      strength: `There’s meaningful upside in your ${pillar} — improving this will lift the whole system.`,
+      strength: `${contextLead}there’s meaningful upside in ${pillar} — improving this will lift the whole system.`,
       opportunity: `Right now this pillar likely creates friction or uncertainty for new customers.`,
       action: `Start with one high-impact fix in ${pillar} (clarify the offer, simplify the narrative, add proof, or improve CTAs) and measure the change.`,
     };
@@ -100,6 +205,115 @@ function buildPillarInsightsFromScores(pillarScores: Record<string, number>) {
     credibility: mk("credibility", pillarScores.credibility ?? 0),
     conversion: mk("conversion", pillarScores.conversion ?? 0),
   };
+}
+
+function buildPillarRecommendationsFromScores(
+  pillarScores: Record<string, number>,
+  options?: { companyName?: string | null; businessType?: string | null },
+): Record<string, string> {
+  const subject = options?.companyName?.trim() || "your brand";
+  const businessType = humanizeBusinessType(options?.businessType);
+  const contextLead = businessType
+    ? `For a ${businessType} business like ${subject}, `
+    : `For ${subject}, `;
+  const mk = (pillar: string, score: number): string => {
+    if (score >= 18) {
+      return `${contextLead}protect ${pillar} as a strength by codifying what is already working and replicating it across channels.`;
+    }
+    if (score >= 14) {
+      return `${contextLead}prioritize one focused ${pillar} refinement this sprint to tighten clarity and reduce buyer friction.`;
+    }
+    return `${contextLead}treat ${pillar} as an immediate priority and ship one high-impact fix this week before layering new tactics.`;
+  };
+  return {
+    positioning: mk("positioning", pillarScores.positioning ?? 0),
+    messaging: mk("messaging", pillarScores.messaging ?? 0),
+    visibility: mk("visibility", pillarScores.visibility ?? 0),
+    credibility: mk("credibility", pillarScores.credibility ?? 0),
+    conversion: mk("conversion", pillarScores.conversion ?? 0),
+  };
+}
+
+function extractNumericTokens(values: Array<string | null | undefined>): Set<string> {
+  const out = new Set<string>();
+  const rx = /(\$?\d+(?:\.\d+)?%?)/g;
+  for (const value of values) {
+    if (!value) continue;
+    const matches = value.match(rx) || [];
+    for (const m of matches) out.add(m.toLowerCase());
+  }
+  return out;
+}
+
+function extractContextTokens(values: Array<string | null | undefined>): Set<string> {
+  const out = new Set<string>();
+  for (const value of values) {
+    if (!value) continue;
+    const parts = value
+      .toLowerCase()
+      .replace(/[^a-z0-9\s_-]/g, " ")
+      .split(/\s+/)
+      .map((p) => p.trim())
+      .filter((p) => p.length >= 4);
+    for (const token of parts) out.add(token);
+  }
+  return out;
+}
+
+function hasUnsupportedQuantitativeClaim(text: string, allowedTokens: Set<string>): boolean {
+  const matches = text.match(/(\$?\d+(?:\.\d+)?%?)/g) || [];
+  if (matches.length === 0) return false;
+  return matches.some((m) => !allowedTokens.has(m.toLowerCase()));
+}
+
+function hasGroundingReference(text: string, contextTokens: Set<string>): boolean {
+  if (contextTokens.size === 0) return true;
+  const normalized = text.toLowerCase();
+  for (const token of contextTokens) {
+    if (normalized.includes(token)) return true;
+  }
+  return false;
+}
+
+function normalizeAiMap(
+  aiMap: Record<string, string> | null,
+  fallbackMap: Record<string, string>,
+  allowedNumericTokens: Set<string>,
+  requiredContextTokens: Set<string>,
+): Record<string, string> {
+  const pillars = ["positioning", "messaging", "visibility", "credibility", "conversion"] as const;
+  const normalized: Record<string, string> = {};
+  for (const pillar of pillars) {
+    const candidate = aiMap?.[pillar];
+    if (!candidate || typeof candidate !== "string") {
+      normalized[pillar] = fallbackMap[pillar];
+      continue;
+    }
+    const cleaned = candidate.trim();
+    if (
+      !cleaned ||
+      hasUnsupportedQuantitativeClaim(cleaned, allowedNumericTokens) ||
+      !hasGroundingReference(cleaned, requiredContextTokens)
+    ) {
+      normalized[pillar] = fallbackMap[pillar];
+      continue;
+    }
+    normalized[pillar] = cleaned;
+  }
+  return normalized;
+}
+
+function flattenInsightMap(
+  input: Record<string, { strength?: string; opportunity?: string; action?: string }>,
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [pillar, value] of Object.entries(input || {})) {
+    const parts = [value?.strength, value?.opportunity, value?.action].filter(
+      (part): part is string => typeof part === "string" && part.trim().length > 0,
+    );
+    out[pillar] = parts.join(" ").trim();
+  }
+  return out;
 }
 
 const snapshotBodySchema = z.object({
@@ -144,20 +358,23 @@ export async function POST(req: Request) {
     if (body.businessName != null) body.businessName = sanitizeString(body.businessName);
     if (body.brandName != null) body.brandName = sanitizeString(body.brandName);
 
-    const snapshotInput = body.answers || {};
+    const snapshotInput = normalizeAnswers((body.answers || {}) as Record<string, unknown>);
+    const archetypeInference = inferLikelyArchetype(snapshotInput);
+    if (archetypeInference.likelyArchetype) {
+      snapshotInput.likelyArchetype = archetypeInference.likelyArchetype;
+    }
     const scores = calculateBrandSnapshotScores(snapshotInput);
     const supabase = supabaseServer();
 
     // Use report_id (string) as the public identifier everywhere in the app
     const report_id = randomUUID();
 
-    const pillar_insights =
-      body.pillar_insights ||
-      buildPillarInsightsFromScores(scores.pillarScores as any);
-
     const companyName =
       body.companyName || body.businessName || body.brandName || null;
-    const primaryResult = getPrimaryPillar(scores.pillarScores as any);
+    const businessType = asStringOrNull(snapshotInput.businessType);
+    const primaryResult = getPrimaryPillar(scores.pillarScores as any, {
+      businessType: asStringOrNull(snapshotInput.businessType),
+    });
     const primaryPillar =
       primaryResult.type === "tie"
         ? primaryResult.pillars?.[0] ?? primaryResult.pillar
@@ -183,23 +400,23 @@ export async function POST(req: Request) {
           brandAlignmentScore: scores.brandAlignmentScore,
           pillarScores: scores.pillarScores as any,
           primaryPillar,
-          industry: snapshotInput.industry ?? null,
-          audienceType: snapshotInput.audienceType ?? null,
-          geographicScope: snapshotInput.geographicScope ?? null,
-          revenueRange: snapshotInput.revenueRange ?? null,
-          teamSize: snapshotInput.teamSize ?? null,
-          yearsInBusiness: snapshotInput.yearsInBusiness ?? null,
-          hasBrandGuidelines: snapshotInput.hasBrandGuidelines ?? null,
-          hasWebsite: !!snapshotInput.website,
-          previousBrandWork: snapshotInput.previousBrandWork ?? null,
+          industry: asStringOrNull(snapshotInput.industry),
+          audienceType: asStringOrNull(snapshotInput.audienceType),
+          geographicScope: asStringOrNull(snapshotInput.geographicScope),
+          revenueRange: asStringOrNull(snapshotInput.revenueRange),
+          teamSize: asStringOrNull(snapshotInput.teamSize),
+          yearsInBusiness: asStringOrNull(snapshotInput.yearsInBusiness),
+          hasBrandGuidelines: asBooleanOrNull(snapshotInput.hasBrandGuidelines),
+          hasWebsite: Boolean(asStringOrNull(snapshotInput.website)),
+          previousBrandWork: asStringOrNull(snapshotInput.previousBrandWork),
         }).catch(() => {}),
         // Query peer benchmarks for the report
         getFullBenchmarkReport({
           brandAlignmentScore: scores.brandAlignmentScore,
           pillarScores: scores.pillarScores as any,
-          industry: snapshotInput.industry ?? undefined,
-          audienceType: snapshotInput.audienceType ?? undefined,
-          revenueRange: snapshotInput.revenueRange ?? undefined,
+          industry: asStringOrUndefined(snapshotInput.industry),
+          audienceType: asStringOrUndefined(snapshotInput.audienceType),
+          revenueRange: asStringOrUndefined(snapshotInput.revenueRange),
         }).catch(() => null),
       ]);
 
@@ -238,9 +455,52 @@ export async function POST(req: Request) {
       });
     }
 
-    // Use AI insights if available, otherwise use deterministic templates
-    const finalInsights = aiInsights ?? pillar_insights;
-    const finalRecommendations = aiRecommendations ?? scores.recommendations;
+    // Enforce no-hallucination guardrails:
+    // - Reject AI text with quantitative claims not present in captured signals.
+    // - Fallback to deterministic, company-contextualized text per pillar.
+    const fallbackInsightsByPillar = buildPillarInsightsFromScores(scores.pillarScores as any, {
+      companyName,
+      businessType,
+    });
+    const fallbackRecommendationsByPillar = buildPillarRecommendationsFromScores(
+      scores.pillarScores as any,
+      { companyName, businessType },
+    );
+    const allowedNumericTokens = extractNumericTokens([
+      asStringOrNull(snapshotInput.monthlyRevenueRange),
+      asStringOrNull(snapshotInput.revenueRange),
+      asStringOrNull(snapshotInput.averageTransactionValue),
+      asStringOrNull(snapshotInput.conversionRateEstimate),
+      asStringOrNull(snapshotInput.monthlyMarketingBudget),
+      String(scores.brandAlignmentScore),
+      String(scores.pillarScores.positioning ?? 0),
+      String(scores.pillarScores.messaging ?? 0),
+      String(scores.pillarScores.visibility ?? 0),
+      String(scores.pillarScores.credibility ?? 0),
+      String(scores.pillarScores.conversion ?? 0),
+    ]);
+    const requiredContextTokens = extractContextTokens([
+      companyName,
+      asStringOrNull(snapshotInput.industry),
+      asStringOrNull(snapshotInput.businessType),
+      asStringOrNull(snapshotInput.audienceType),
+      asStringOrNull(snapshotInput.primaryAcquisitionChannel),
+      asStringOrNull(snapshotInput.biggestChallenge),
+      asStringOrNull(snapshotInput.currentCustomers),
+      asStringOrNull(snapshotInput.idealCustomers),
+    ]);
+    const finalInsights = normalizeAiMap(
+      aiInsights,
+      flattenInsightMap(fallbackInsightsByPillar),
+      allowedNumericTokens,
+      requiredContextTokens,
+    );
+    const finalRecommendations = normalizeAiMap(
+      aiRecommendations,
+      fallbackRecommendationsByPillar,
+      allowedNumericTokens,
+      requiredContextTokens,
+    );
 
     // ─── Save Report ───
     const { data, error } = await supabase
@@ -258,10 +518,11 @@ export async function POST(req: Request) {
         opportunities_summary,
         upgrade_cta,
         full_report: {
-          answers: body.answers || {},
+          answers: snapshotInput,
           scores,
           insights: scores.insights,
           aiEnhanced: !!aiInsights,
+          archetypeInference,
           servicesInterest: snapshotInput.servicesInterest ?? null,
           expertConversation: snapshotInput.expertConversation ?? null,
           contentOptIn: snapshotInput.contentOptIn ?? null,
@@ -286,8 +547,8 @@ export async function POST(req: Request) {
         registerBrand({
           email: userEmail,
           brandName: companyName!,
-          industry: snapshotInput.industry ?? null,
-          website: snapshotInput.website ?? null,
+          industry: asStringOrNull(snapshotInput.industry),
+          website: asStringOrNull(snapshotInput.website),
           score: scores.brandAlignmentScore,
           reportId: report_id,
           reportTier: "snapshot",
@@ -295,8 +556,22 @@ export async function POST(req: Request) {
       ).catch(() => {});
     }
 
-    if (userEmail && process.env.ACTIVE_CAMPAIGN_WEBHOOK) {
+    const hasAcWebhook =
+      Boolean(process.env.ACTIVE_CAMPAIGN_WEBHOOK) ||
+      Boolean(process.env.ACTIVECAMPAIGN_WEBHOOK_URL);
+    const hasAcApi = Boolean(process.env.ACTIVE_CAMPAIGN_API_URL) && Boolean(process.env.ACTIVE_CAMPAIGN_API_KEY);
+
+    if (userEmail && (hasAcWebhook || hasAcApi)) {
       const coverage = buildContextCoverageMap(snapshotInput);
+      const businessTypeForAc = asStringOrNull(snapshotInput.businessType);
+      const monthlyRevenueRangeForAc = asStringOrNull(snapshotInput.monthlyRevenueRange);
+      const annualRevenueRangeForAc = asStringOrNull(snapshotInput.revenueRange);
+      const averageTransactionValueForAc = asStringOrNull(snapshotInput.averageTransactionValue);
+      const conversionRateEstimateForAc = asStringOrNull(snapshotInput.conversionRateEstimate);
+      const primaryAcquisitionChannelForAc = asStringOrNull(snapshotInput.primaryAcquisitionChannel);
+      const monthlyMarketingBudgetForAc = asStringOrNull(snapshotInput.monthlyMarketingBudget);
+      const contentCreationCapacityForAc = asStringOrNull(snapshotInput.contentCreationCapacity);
+      const primaryRevenueDriverForAc = asStringOrNull(snapshotInput.primaryRevenueDriver);
 
       const reportLink = `${BASE_URL}/brand-snapshot/results/${report_id}`;
       const acFields: Record<string, string | number> = {
@@ -310,6 +585,13 @@ export async function POST(req: Request) {
         primary_pillar: primaryPillar ?? "positioning",
         experience_survey_link: `${BASE_URL}/experience-survey?tier=snapshot&reportId=${encodeURIComponent(report_id)}&email=${encodeURIComponent(userEmail)}`,
         experience_tier: "snapshot",
+        business_type: asStringOrEmpty(businessTypeForAc),
+        monthly_revenue_range: asStringOrEmpty(monthlyRevenueRangeForAc),
+        average_transaction_value: asStringOrEmpty(averageTransactionValueForAc),
+        conversion_rate_estimate: asStringOrEmpty(conversionRateEstimateForAc),
+        primary_acquisition_channel: asStringOrEmpty(primaryAcquisitionChannelForAc),
+        monthly_marketing_budget: asStringOrEmpty(monthlyMarketingBudgetForAc),
+        content_creation_capacity: asStringOrEmpty(contentCreationCapacityForAc),
       };
       if (process.env.AC_FIELD_REPORT_LINK) {
         acFields[process.env.AC_FIELD_REPORT_LINK] = reportLink;
@@ -347,6 +629,26 @@ export async function POST(req: Request) {
         }
       }
 
+      if (businessTypeForAc) {
+        acTags.push(`snapshot:business-type:${businessTypeForAc}`);
+      }
+      const missingRevenueBaseline =
+        !monthlyRevenueRangeForAc && !annualRevenueRangeForAc && !averageTransactionValueForAc;
+      if (!conversionRateEstimateForAc) {
+        acTags.push("snapshot:signal-missing:conversion-rate");
+      }
+      if (missingRevenueBaseline) {
+        acTags.push("snapshot:signal-missing:revenue-baseline");
+      }
+
+      const removeSignalTags: string[] = [];
+      if (conversionRateEstimateForAc) {
+        removeSignalTags.push("snapshot:signal-missing:conversion-rate");
+      }
+      if (!missingRevenueBaseline) {
+        removeSignalTags.push("snapshot:signal-missing:revenue-baseline");
+      }
+
       // Fire AC event + upgrade emails in parallel (non-blocking)
       Promise.all([
         fireACEvent({
@@ -360,6 +662,68 @@ export async function POST(req: Request) {
           coverage,
           primaryPillar,
         }).catch((err) => logger.warn("[Snapshot API] Upgrade emails failed", { error: err instanceof Error ? err.message : String(err) })),
+        (async () => {
+          const directFields: Record<string, string> = {
+            snapshot_business_type: businessTypeForAc ?? "",
+            snapshot_primary_revenue_driver: primaryRevenueDriverForAc ?? "",
+            snapshot_monthly_revenue_range: monthlyRevenueRangeForAc ?? annualRevenueRangeForAc ?? "",
+            snapshot_average_transaction_value: averageTransactionValueForAc ?? "",
+            snapshot_conversion_rate_estimate: conversionRateEstimateForAc ?? "",
+            snapshot_primary_acquisition_channel: primaryAcquisitionChannelForAc ?? "",
+            snapshot_monthly_marketing_budget: monthlyMarketingBudgetForAc ?? "",
+            snapshot_content_creation_capacity: contentCreationCapacityForAc ?? "",
+          };
+
+          const directTags: string[] = [];
+          if (businessTypeForAc) {
+            directTags.push(`snapshot:business-type:${businessTypeForAc}`);
+          }
+          if (!conversionRateEstimateForAc) {
+            directTags.push("snapshot:signal-missing:conversion-rate");
+          }
+          if (missingRevenueBaseline) {
+            directTags.push("snapshot:signal-missing:revenue-baseline");
+          }
+
+          try {
+            await Promise.all([
+              directTags.length > 0
+                ? applyActiveCampaignTags({ email: userEmail, tags: directTags })
+                : Promise.resolve(),
+              removeSignalTags.length > 0
+                ? removeActiveCampaignTags({ email: userEmail, tags: removeSignalTags })
+                : Promise.resolve(),
+              setContactFields({ email: userEmail, fields: directFields }),
+            ]);
+
+            await createCrmSyncLog({
+              status: "success",
+              eventType: "ac.snapshot.strategy_signals",
+              payload: {
+                email: userEmail,
+                report_id,
+                business_type: businessTypeForAc,
+                missing_conversion_rate: !conversionRateEstimateForAc,
+                missing_revenue_baseline: missingRevenueBaseline,
+              },
+            });
+          } catch (err) {
+            await createCrmSyncLog({
+              status: "failed",
+              eventType: "ac.snapshot.strategy_signals",
+              errorMessage: err instanceof Error ? err.message : String(err),
+              payload: {
+                email: userEmail,
+                report_id,
+              },
+            });
+            throw err;
+          }
+        })().catch((err) =>
+          logger.warn("[Snapshot API] AC direct field/tag sync failed", {
+            error: err instanceof Error ? err.message : String(err),
+          }),
+        ),
       ]);
     }
 

@@ -37,13 +37,13 @@ export function ReportTemplate({ data }: { data: any }) {
           Your WunderBrand Snapshot™ Report
         </h1>
         <p className="mt-2 text-gray-600">
-          Hi {userName}, here's your personalized WunderBrand Score™ and the insights that matter most for your brand right now.
+          Hi {userName}, here&apos;s your personalized WunderBrand Score™ and the insights that matter most for your brand right now.
         </p>
 
         <div className="flex flex-wrap gap-4 mt-6">
           <Link
-            href={`/api/report/pdf?id=${data.reportId}`}
-            className="px-5 py-3 bg-brand-blue text-white rounded-md"
+            href={`/api/snapshot/pdf?id=${data.reportId}`}
+            className="px-5 py-3 bg-brand-blue text-white rounded-[5px]"
           >
             Download PDF
           </Link>
@@ -155,7 +155,7 @@ export function ReportTemplate({ data }: { data: any }) {
       <section className="mt-12">
         <h2 className="text-xl font-semibold text-brand-navy">Top Recommendations</h2>
 
-        <ul className="mt-4 space-y-3 list-disc pl-6 text-gray-700">
+        <ul className="strategy-suite-ul mt-4 text-gray-700">
           {(recommendations || []).map((rec: string, index: number) => (
             <li key={index}>{rec}</li>
           ))}

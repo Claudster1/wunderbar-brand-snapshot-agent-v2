@@ -16,7 +16,7 @@ interface DocItem {
 }
 
 const DOCUMENTS: DocItem[] = [
-  // --- Blueprint ($997): 4 core documents ---
+  // --- Blueprint ($997): 5 core documents ---
   {
     type: "complete",
     label: "Complete WunderBrand Blueprint™",
@@ -29,7 +29,7 @@ const DOCUMENTS: DocItem[] = [
   {
     type: "executive",
     label: "Executive Summary",
-    description: "WunderBrand Score, pillar breakdown, priority areas, and top strategic actions at a glance.",
+    description: "Pillar breakdown, priority areas, and top strategic actions at a glance.",
     audience: "Leadership & Stakeholders",
     icon: "📊",
     pages: "2–4 pages",
@@ -53,11 +53,40 @@ const DOCUMENTS: DocItem[] = [
     pages: "12–16 pages",
     minTier: "blueprint",
   },
-  // --- Blueprint+ ($1,997): 4 additional documents ---
+  {
+    type: "voice-checklist",
+    label: "Voice Do/Don't Checklist",
+    description: "Quick reference for approved phrasing, tone guardrails, and off-brand language to avoid across all content.",
+    audience: "Writers, Sales, Marketing, Agencies",
+    icon: "🧭",
+    pages: "2–4 pages",
+    minTier: "blueprint",
+  },
+  {
+    type: "icp-conversion-snapshot",
+    label: "ICP Conversion Snapshot",
+    description:
+      "Lite conversion intelligence layer: ICP barriers, hook guidance, and stage-level conversion CTA recommendations.",
+    audience: "Marketing & Sales",
+    icon: "🧩",
+    pages: "4–8 pages",
+    minTier: "blueprint",
+  },
+  // --- Blueprint+ ($1,997): additional documents ---
+  {
+    type: "icp-conversion-intelligence",
+    label: "ICP Conversion Intelligence Framework",
+    description:
+      "The performance optimization backbone connecting master messaging to channel execution by ICP tier and funnel stage.",
+    audience: "Marketing, Sales & RevOps",
+    icon: "🧠",
+    pages: "14–20 pages",
+    minTier: "blueprint-plus",
+  },
   {
     type: "activation",
     label: "90-Day Brand Activation Plan",
-    description: "Week-by-week implementation roadmap, rollout talking points, approved language, KPIs, and execution guardrails.",
+    description: "Week-by-week implementation roadmap, rollout talking points, approved language, KPIs, and activation guardrails.",
     audience: "Implementation Team",
     icon: "🚀",
     pages: "12–18 pages",
@@ -82,9 +111,18 @@ const DOCUMENTS: DocItem[] = [
     minTier: "blueprint-plus",
   },
   {
+    type: "battle-cards",
+    label: "Sales Battle Cards",
+    description: "Frontline objection-handling and differentiation cues for real sales conversations.",
+    audience: "Sales & Business Development",
+    icon: "🛡️",
+    pages: "6–10 pages",
+    minTier: "blueprint-plus",
+  },
+  {
     type: "standards",
     label: "Brand Standards Guide",
-    description: "Logo guidelines, visual identity, writing rules, sample executions, and governance — for anyone who touches the brand.",
+    description: "Logo guidelines, visual identity, writing rules, sample activations, and governance — for anyone who touches the brand.",
     audience: "Designers, Agencies & Contractors",
     icon: "📐",
     pages: "20–30 pages",
@@ -189,11 +227,7 @@ export function BlueprintDocumentLibrary({ reportId, email, tier = "blueprint" }
                 <button
                   onClick={() => handleDownload(doc.type)}
                   disabled={isDownloading || downloading !== null}
-                  className={`flex-shrink-0 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-                    isMaster
-                      ? "bg-[#07B0F2] text-white hover:bg-[#0599d5] disabled:opacity-50"
-                      : "bg-[#F1F5F9] text-[#021859] hover:bg-[#E2E8F0] disabled:opacity-50"
-                  } disabled:cursor-not-allowed`}
+                  className={`flex-shrink-0 px-4 py-2 rounded-[5px] text-xs font-bold transition-all bg-[#07B0F2] text-white hover:bg-[#0599d5] disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   {isDownloading ? (
                     <span className="flex items-center gap-1.5">
@@ -270,7 +304,7 @@ export function BlueprintDocumentLibrary({ reportId, email, tier = "blueprint" }
                 href="https://wunderbardigital.com/wunderbrand-blueprint-plus?utm_source=document_library&utm_medium=upgrade_nudge&utm_campaign=blueprint_to_plus"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-[#07B0F2] text-white text-xs font-bold px-5 py-2.5 rounded-lg hover:bg-[#0599d5] transition-colors"
+                className="inline-flex items-center gap-2 bg-[#07B0F2] text-white text-xs font-bold px-5 py-2.5 rounded-[5px] hover:bg-[#0599d5] transition-colors"
               >
                 Upgrade to Blueprint+™
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

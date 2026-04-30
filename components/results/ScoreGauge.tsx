@@ -7,7 +7,8 @@ interface ScoreGaugeProps {
 }
 
 export function ScoreGauge({ score, size = 64 }: ScoreGaugeProps) {
-  const radius = size / 2 - 6;
+  const strokeWidth = 5;
+  const radius = Math.max(8, size / 2 - strokeWidth - 6);
   const circumference = 2 * Math.PI * radius;
   const progress = (score / 20) * circumference;
   const percent = (score / 20) * 100;
@@ -51,7 +52,7 @@ export function ScoreGauge({ score, size = 64 }: ScoreGaugeProps) {
         className="absolute inset-0 flex items-center justify-center pointer-events-none"
         style={{ width: size, height: size }}
       >
-        <span className="text-sm font-semibold text-brand-navy">
+        <span className="px-1 text-center text-sm font-semibold leading-tight text-brand-navy">
           {score}/20
         </span>
       </div>

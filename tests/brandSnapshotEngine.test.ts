@@ -4,6 +4,7 @@ import {
   calculateScores,
   type PillarScores,
 } from '../src/lib/brandSnapshotEngine';
+import { computeWeightedBrandAlignmentScore } from '../src/lib/pillarWeights';
 
 function makeAnswers(overrides: Record<string, number> = {}): Record<string, number> {
   return {
@@ -47,17 +48,17 @@ describe('brandSnapshotEngine', () => {
       expect(typeof result.brandAlignmentScore).toBe('number');
     });
 
-    it('scores all-3 inputs to 15 per pillar (3*5)', () => {
+    it('scores all-3 inputs to 12 per pillar (0-20 scale)', () => {
       const result = calculateBrandSnapshotScores(makeAnswers());
-      expect(result.pillarScores.positioning).toBe(15);
-      expect(result.pillarScores.messaging).toBe(15);
-      expect(result.pillarScores.visibility).toBe(15);
-      expect(result.pillarScores.credibility).toBe(15);
-      expect(result.pillarScores.conversion).toBe(15);
-      expect(result.brandAlignmentScore).toBe(15);
+      expect(result.pillarScores.positioning).toBe(12);
+      expect(result.pillarScores.messaging).toBe(12);
+      expect(result.pillarScores.visibility).toBe(12);
+      expect(result.pillarScores.credibility).toBe(12);
+      expect(result.pillarScores.conversion).toBe(12);
+      expect(result.brandAlignmentScore).toBe(60);
     });
 
-    it('scores all-5 inputs to 25 per pillar', () => {
+    it('scores all-5 inputs to 20 per pillar', () => {
       const answers: Record<string, number> = {};
       const keys = [
         'marketClarity', 'targetCustomerDefinition', 'uniqueValue', 'marketDifferentiation', 'offerClarity',
@@ -68,11 +69,11 @@ describe('brandSnapshotEngine', () => {
       ];
       keys.forEach(k => answers[k] = 5);
       const result = calculateBrandSnapshotScores(answers);
-      expect(result.pillarScores.positioning).toBe(25);
-      expect(result.brandAlignmentScore).toBe(25);
+      expect(result.pillarScores.positioning).toBe(20);
+      expect(result.brandAlignmentScore).toBe(100);
     });
 
-    it('scores all-1 inputs to 5 per pillar', () => {
+    it('scores all-1 inputs to 4 per pillar', () => {
       const answers: Record<string, number> = {};
       const keys = [
         'marketClarity', 'targetCustomerDefinition', 'uniqueValue', 'marketDifferentiation', 'offerClarity',
@@ -83,18 +84,18 @@ describe('brandSnapshotEngine', () => {
       ];
       keys.forEach(k => answers[k] = 1);
       const result = calculateBrandSnapshotScores(answers);
-      expect(result.pillarScores.positioning).toBe(5);
-      expect(result.brandAlignmentScore).toBe(5);
+      expect(result.pillarScores.positioning).toBe(4);
+      expect(result.brandAlignmentScore).toBe(20);
     });
 
     it('clamps values above 5 to 5', () => {
       const result = calculateBrandSnapshotScores(makeAnswers({ marketClarity: 100 }));
-      expect(result.pillarScores.positioning).toBe(15 + 2); // 5 instead of 3, +2 diff
+      expect(result.pillarScores.positioning).toBe(14);
     });
 
     it('clamps values below 1 to 1', () => {
       const result = calculateBrandSnapshotScores(makeAnswers({ marketClarity: -10 }));
-      expect(result.pillarScores.positioning).toBe(15 - 2); // 1 instead of 3, -2 diff
+      expect(result.pillarScores.positioning).toBe(10);
     });
 
     it('generates insights for low-scoring pillars', () => {
@@ -102,7 +103,7 @@ describe('brandSnapshotEngine', () => {
         marketClarity: 1, targetCustomerDefinition: 1, uniqueValue: 1, marketDifferentiation: 1, offerClarity: 1,
       });
       const result = calculateBrandSnapshotScores(answers);
-      expect(result.pillarScores.positioning).toBe(5);
+      expect(result.pillarScores.positioning).toBe(4);
       expect(result.insights.length).toBeGreaterThan(0);
       expect(result.insights.some(i => i.toLowerCase().includes('positioning'))).toBe(true);
     });
@@ -112,7 +113,7 @@ describe('brandSnapshotEngine', () => {
         marketClarity: 5, targetCustomerDefinition: 5, uniqueValue: 5, marketDifferentiation: 5, offerClarity: 5,
       });
       const result = calculateBrandSnapshotScores(answers);
-      expect(result.pillarScores.positioning).toBe(25);
+      expect(result.pillarScores.positioning).toBe(20);
       expect(result.insights.some(i => i.toLowerCase().includes('positioning'))).toBe(false);
     });
 
@@ -144,17 +145,57 @@ describe('brandSnapshotEngine', () => {
       expect(result.recommendations.length).toBe(0);
     });
 
-    it('handles NaN input values by clamping to 1', () => {
+    it('treats NaN numeric factors as missing (0)', () => {
       const result = calculateBrandSnapshotScores(makeAnswers({ marketClarity: NaN }));
-      // NaN goes through Math.min(Math.max(NaN, 1), 5) -> NaN, then sum = NaN
-      // This is a known edge case — the normalize function doesn't guard NaN
       expect(typeof result.pillarScores.positioning).toBe('number');
+      expect(Number.isFinite(result.pillarScores.positioning)).toBe(true);
     });
 
-    it('handles undefined input fields by producing NaN (known behavior)', () => {
+    it('derives scores from Wundy-shaped assessment when numeric factor keys are absent', () => {
+      const wundyLike = {
+        industry:
+          'B2B SaaS for dental practice management and patient scheduling workflows',
+        geographicScope: 'national',
+        audienceType: 'B2B',
+        currentCustomers: 'Independent dental practices with one to three locations',
+        idealCustomers: 'Growing DSO groups evaluating unified practice software',
+        idealDiffersFromCurrent: true,
+        whatMakesYouDifferent: 'Deep FHIR integrations and same-day onboarding',
+        competitorNames: ['Dentrix', 'Eaglesoft', 'Open Dental'],
+        offerClarity: 'very clear',
+        messagingClarity: 'somewhat clear',
+        brandConsistency: 'strong',
+        website: 'https://example.com',
+        socials: ['https://linkedin.com/company/foo', 'https://instagram.com/foo'],
+        marketingChannels: ['SEO', 'AEO (Answer Engine Optimization)', 'Email marketing'],
+        customerAcquisitionSource: ['Referrals', 'Paid search', 'Content'],
+        contentCreationCapacity: '5_10_hours',
+        missionStatement: 'We help practices run calmer front offices.',
+        keyTopicsAndThemes: 'Scheduling automation and revenue cycle efficiency for clinics.',
+        primaryGoals: ['Pipeline', 'Retention'],
+        hasBrandGuidelines: true,
+        hasTestimonials: true,
+        hasCaseStudies: true,
+        visualConfidence: 'somewhat confident',
+        hasClearCTA: true,
+        hasEmailList: true,
+        hasLeadMagnet: true,
+        leadMagnetDetails: {
+          title: 'Checklist',
+          summary: 'Ten steps to calmer scheduling',
+        },
+      };
+      const result = calculateBrandSnapshotScores(wundyLike);
+      expect(result.brandAlignmentScore).toBe(
+        computeWeightedBrandAlignmentScore(result.pillarScores)
+      );
+      expect(result.brandAlignmentScore).toBeGreaterThan(45);
+    });
+
+    it('handles empty object using derived defaults', () => {
       const result = calculateBrandSnapshotScores({});
-      // undefined normalized = Math.min(Math.max(undefined, 1), 5) = NaN
       expect(typeof result.brandAlignmentScore).toBe('number');
+      expect(Number.isFinite(result.brandAlignmentScore)).toBe(true);
     });
   });
 
@@ -173,7 +214,7 @@ describe('brandSnapshotEngine', () => {
 
     it('calculates correct alignment score', () => {
       const result = calculateScores({ positioning: 10, messaging: 10, visibility: 10, credibility: 10, conversion: 10 });
-      expect(result.brandAlignmentScore).toBe(10);
+      expect(result.brandAlignmentScore).toBe(50);
     });
 
     it('identifies weakest pillar', () => {

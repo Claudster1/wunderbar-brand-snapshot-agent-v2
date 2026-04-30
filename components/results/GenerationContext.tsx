@@ -24,7 +24,7 @@ export function GenerationContext({ coveragePercent }: Props) {
       )}
 
       <p className="text-xs text-slate-600 mt-4">
-        You've already completed the hard part — your WunderBrand Snapshot™.
+        You&apos;ve already completed the hard part — your WunderBrand Snapshot™.
         Everything in your report reflects what you shared, and you can return anytime
         to explore deeper context or expand your strategy.
       </p>

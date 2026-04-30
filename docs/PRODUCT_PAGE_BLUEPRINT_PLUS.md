@@ -1,7 +1,7 @@
 # WunderBrand Blueprint+™ — Product Page Content ($1,997)
 
 > Headline: The Only Brand Strategy Document You'll Ever Need
-> Subhead: A comprehensive, implementation-ready brand operating system — from diagnostic to strategy to execution playbooks, with 28 custom AI prompts and a complimentary 30-minute strategy session with our team.
+> Subhead: A comprehensive, implementation-ready brand operating system — from diagnostic to strategy to activation playbooks, with 28 custom AI prompts and a complimentary 30-minute strategy session with our team.
 
 ---
 
@@ -252,9 +252,9 @@ Blueprint+ is for businesses that don't just want to know what to do — they wa
 - **Strategic Moves** — Specific actions to exploit identified competitive gaps
 - **Counter-Positioning Strategies** — How to respond when competitors make moves in your space
 - **Sequencing Guidance** — A recommended order for strategic moves, based on priority and dependencies
-- **Opportunity Playbook** — A prioritized list of competitive opportunities with execution guidance
+- **Opportunity Playbook** — A prioritized list of competitive opportunities with activation guidance
 
-**Why it matters:** Knowing your competitors' potential weaknesses is step one. Having a playbook with timing and execution guidance is the advantage that separates reactive businesses from proactive ones.
+**Why it matters:** Knowing your competitors' potential weaknesses is step one. Having a playbook with timing and activation guidance is the advantage that separates reactive businesses from proactive ones.
 
 **How it helps your business:** Move from defense to offense. Turn competitive intelligence into market opportunities — with a clear sense of what to do and when.
 
@@ -391,7 +391,7 @@ Blueprint+ is for businesses that don't just want to know what to do — they wa
 ---
 
 ### 27. 90-Day Action Plan — Week-by-Week Deliverables & Milestones
-**What it is:** A granular 90-day execution plan broken into weekly deliverables:
+**What it is:** A granular 90-day activation plan broken into weekly deliverables:
 - **Week 1–4 (Foundation)** — What to complete, what to deliver, what "done" looks like
 - **Week 5–8 (Build)** — Expanding on the foundation with content, campaigns, and systems
 - **Week 9–12 (Optimize)** — Measuring results, adjusting strategy, building on wins
@@ -463,7 +463,7 @@ Blueprint+ is for businesses that don't just want to know what to do — they wa
 - **Advanced Email Prompts** — Nurture campaigns, re-engagement sequences, segmented messaging
 - **Campaign Development Prompts** — Multi-channel campaign concepts tied to your narrative arcs
 
-Combined with the 8 Foundational (Snapshot+) and 8 Execution (Blueprint) prompts, you have **28 total brand-calibrated AI prompts** — a complete creative and strategic toolkit.
+Combined with the 8 Foundational (Snapshot+) and 8 Activation (Blueprint) prompts, you have **28 total brand-calibrated AI prompts** — a complete creative and strategic toolkit.
 
 **Why it matters:** As your brand matures, your AI needs evolve. You're past "write me a blog post" — you need "analyze my competitive positioning and draft a differentiation argument for enterprise buyers." These prompts handle the complex, strategic work.
 
@@ -508,7 +508,7 @@ Combined with the 8 Foundational (Snapshot+) and 8 Execution (Blueprint) prompts
 | Financial framing | Gap identification | Estimated business impact & 12-month scenarios |
 | Messaging guidance | Pillars & examples | Full messaging matrix (Audience × Funnel × Channel) |
 | Content planning | Content pillars | Full calendar with repurposing playbook |
-| Execution support | Recommendations | Step-by-step guides with fill-in-the-blank templates |
+| Activation support | Recommendations | Step-by-step guides with fill-in-the-blank templates |
 | AI tools | 8–16 prompts | 28 brand-calibrated AI prompts |
 | Customer data | AI analysis only | VOC Brand Perception Survey with real customer feedback |
 | Human touchpoint | AI-only | 30-min strategy session with a real strategist |

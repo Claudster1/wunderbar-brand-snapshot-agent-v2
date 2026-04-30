@@ -1,30 +1,33 @@
+import { SNAPSHOT_PLUS_LOCKED_PROMPT_TITLES } from "@/src/lib/prompts/promptLibrary";
+
 export function PromptPackPanel() {
   const promptPacks = [
     {
-      title: "Positioning Prompts",
+      title: "Snapshot+ Prompt Pack",
+      description: "Put your brand to work immediately with day-one prompts.",
+      examples: SNAPSHOT_PLUS_LOCKED_PROMPT_TITLES,
+    },
+    {
+      title: "Blueprint Prompt Systems",
       description:
-        "Clarify how your brand should be described, compared, and positioned in any context.",
+        "Build repeatable channel systems for email, social, website, conversion, SEO, and AEO.",
       examples: [
-        "Explain our value proposition to a new customer",
-        "Position our brand against a common alternative",
+        "Core Messaging Framework",
+        "Email Sequence Architect",
+        "Social Media Content System",
+        "SEO Strategy Prompt (S1)",
+        "AEO / Answer Engine Optimization Prompt (A0)",
       ],
     },
     {
-      title: "Messaging Prompts",
+      title: "Blueprint+ Strategic Library",
       description:
-        "Ensure consistent tone, clarity, and language across all touchpoints.",
+        "Scale with persona-level, funnel-level, and campaign-cycle operating systems.",
       examples: [
-        "Rewrite this message in our brand voice",
-        "Create a short homepage headline",
-      ],
-    },
-    {
-      title: "Visibility & AEO Prompts",
-      description:
-        "Help AI systems and search engines clearly understand and surface your brand.",
-      examples: [
-        "Generate AI-friendly brand summaries",
-        "Structure content for answer engines",
+        "Audience Persona Messaging Map",
+        "Quarterly Campaign Planning Framework",
+        "Full-Funnel Messaging Architecture",
+        "AEO Advanced: Thought Leadership & Authority System (AA1)",
       ],
     },
   ];
@@ -39,7 +42,7 @@ export function PromptPackPanel() {
           <h3 className="font-semibold mb-2">{pack.title}</h3>
           <p className="text-sm text-slate-600 mb-4">{pack.description}</p>
 
-          <ul className="text-sm list-disc pl-5 space-y-1">
+          <ul className="strategy-suite-ul text-sm">
             {pack.examples.map((ex) => (
               <li key={ex}>{ex}</li>
             ))}

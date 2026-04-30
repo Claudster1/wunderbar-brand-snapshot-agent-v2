@@ -8,6 +8,8 @@ import { withRetry } from "@/lib/openaiRetry";
 import { logger } from "@/lib/logger";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { getWorkbookEditability } from "@/lib/workbookAccess";
+import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
+import { aiApTitleCaseHeadingsRule } from "@/lib/copy/capitalizationPolicy";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -32,18 +34,66 @@ const SECTION_PROMPTS: Record<string, string> = {
   archetype_application: `You are a brand strategist. Refine this section on how to apply the brand archetype. Make it practical with specific examples of how the archetype should influence content, visuals, and customer interactions. Return only the refined text.`,
 };
 
+const LOCKED_DIAGNOSTIC_SECTIONS = new Set([
+  "brand_alignment_score",
+  "pillar_scores",
+  "primary_pillar",
+  "brand_archetype",
+  "archetype_description",
+  "archetype_application",
+  "voice_attributes",
+  "brand_voice_attributes",
+]);
+
+const REFINEMENT_QUALITY_APPENDIX = `
+Quality requirements:
+- Keep this hyper-specific to the business context provided. Avoid generic language.
+- Prioritize conversion clarity: clear value, proof-aware framing, and a specific next-step action when relevant.
+- Use concrete audience language and outcome language over abstract branding terms.
+- Preserve the user's original intent and factual constraints.
+
+${aiAbbreviationFirstReferenceRule}
+
+${aiApTitleCaseHeadingsRule}
+`;
+
+function fallbackRefine(content: string, businessName?: string): string {
+  const normalized = content
+    .split(/\s+/)
+    .join(" ")
+    .replace(/\s+([.,;:!?])/g, "$1")
+    .trim();
+  if (!normalized) return content;
+  const withPrefix =
+    businessName && !normalized.toLowerCase().includes(businessName.toLowerCase())
+      ? `${businessName}: ${normalized}`
+      : normalized;
+  return withPrefix.charAt(0).toUpperCase() + withPrefix.slice(1);
+}
+
 export async function POST(req: NextRequest) {
   const { apiGuard } = await import("@/lib/security/apiGuard");
   const { AI_RATE_LIMIT } = await import("@/lib/security/rateLimit");
   const guard = apiGuard(req, { routeId: "workbook-refine", rateLimit: AI_RATE_LIMIT });
   if (!guard.passed) return guard.errorResponse;
 
+  let requestBody: any = null;
   try {
     const body = await req.json();
-    const { section, content, businessName, context, reportId, email } = body;
+    requestBody = body;
+    const { section, content, businessName, context, reportId, email, archetypeName, voiceTraits } = body;
 
     if (!section || typeof section !== "string") {
       return NextResponse.json({ error: "section is required." }, { status: 400 });
+    }
+    if (LOCKED_DIAGNOSTIC_SECTIONS.has(section)) {
+      return NextResponse.json(
+        {
+          error:
+            "This field is diagnosis-derived and locked. Re-run the questionnaire to update underlying assessment results.",
+        },
+        { status: 403 }
+      );
     }
     if (!content || typeof content !== "string" || content.length < 5) {
       return NextResponse.json({ error: "Content must be at least 5 characters." }, { status: 400 });
@@ -52,11 +102,28 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Content too long (max 5000 chars)." }, { status: 400 });
     }
 
+    // In preview/sample mode, return a deterministic local refinement immediately.
+    const isSampleMode =
+      reportId === "preview" ||
+      (typeof reportId === "string" && (reportId.startsWith("sample-") || reportId.startsWith("preview-")));
+    if (isSampleMode) {
+      return NextResponse.json({
+        refined: fallbackRefine(content, businessName),
+        section,
+        fallback: true,
+      });
+    }
+
     // Check editability if reportId and email are provided
+    let resolvedArchetype = typeof archetypeName === "string" ? archetypeName.trim() : "";
+    let resolvedVoiceTraits = Array.isArray(voiceTraits)
+      ? voiceTraits.map((v: unknown) => String(v).trim()).filter(Boolean)
+      : [];
+
     if (reportId && email && supabaseAdmin) {
       const { data: workbook } = await supabaseAdmin
         .from("brand_workbook")
-        .select("product_tier, created_at, finalized_at")
+        .select("product_tier, created_at, finalized_at, brand_archetype, brand_voice_attributes")
         .eq("report_id", reportId)
         .single();
 
@@ -74,9 +141,20 @@ export async function POST(req: NextRequest) {
           }, { status: 403 });
         }
       }
+      if (workbook) {
+        if (!resolvedArchetype && typeof workbook.brand_archetype === "string") {
+          resolvedArchetype = workbook.brand_archetype.trim();
+        }
+        if (resolvedVoiceTraits.length === 0 && Array.isArray(workbook.brand_voice_attributes)) {
+          resolvedVoiceTraits = workbook.brand_voice_attributes
+            .map((v: unknown) => String(v).trim())
+            .filter(Boolean);
+        }
+      }
     }
 
-    const systemPrompt = SECTION_PROMPTS[section] || `You are a brand strategist. Refine this brand content to be clearer, more compelling, and more professional. Keep the core message and intent. Return only the refined text, no explanation or preamble.`;
+    const baseSystemPrompt = SECTION_PROMPTS[section] || `You are a brand strategist. Refine this brand content to be clearer, more compelling, and more professional. Keep the core message and intent. Return only the refined text, no explanation or preamble.`;
+    const systemPrompt = `${baseSystemPrompt}\n\n${REFINEMENT_QUALITY_APPENDIX}`.trim();
 
     let userMessage = content;
     if (businessName) {
@@ -84,6 +162,20 @@ export async function POST(req: NextRequest) {
     }
     if (context) {
       userMessage += `\n\nAdditional context: ${context}`;
+    }
+    const styleGuard = [
+      resolvedArchetype ? `Archetype: ${resolvedArchetype}` : "",
+      resolvedVoiceTraits.length > 0 ? `Voice traits: ${resolvedVoiceTraits.join(", ")}` : "",
+      "Constraint: keep style aligned to archetype and voice traits; stay specific, practical, and channel-ready.",
+    ]
+      .filter(Boolean)
+      .join("\n");
+    if (styleGuard) {
+      userMessage += `\n\nStyle guardrails:\n${styleGuard}`;
+    }
+
+    if (!process.env.OPENAI_API_KEY) {
+      return NextResponse.json({ refined: fallbackRefine(content, businessName), section, fallback: true });
     }
 
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -111,6 +203,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ refined, section });
   } catch (err) {
     logger.error("[Workbook Refine] Error", { error: err instanceof Error ? err.message : String(err) });
+    const content = typeof requestBody?.content === "string" ? requestBody.content : "";
+    const businessName = typeof requestBody?.businessName === "string" ? requestBody.businessName : undefined;
+    if (content.trim().length >= 5) {
+      return NextResponse.json({
+        refined: fallbackRefine(content, businessName),
+        section: requestBody?.section || "generic",
+        fallback: true,
+      });
+    }
     return NextResponse.json({ error: "Refinement failed." }, { status: 500 });
   }
 }

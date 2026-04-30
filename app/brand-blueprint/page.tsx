@@ -2,6 +2,7 @@
 // Blueprint™ landing page (minimal stub).
 
 import Link from "next/link";
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +19,11 @@ export default function BrandBlueprintPage() {
 
       <div style={{ marginTop: 20, display: "flex", gap: 12, flexWrap: "wrap" }}>
         <Link
-          href="/upgrade/blueprint"
+          href={getTrackedCheckoutUrl({
+            product: "blueprint",
+            medium: "landing_cta",
+            content: "brand_blueprint_landing_primary",
+          })}
           style={{
             display: "inline-block",
             padding: "12px 16px",

@@ -9,8 +9,6 @@ const BLUE = "#07B0F2";
 const SUB = "#5A6B7E";
 const BORDER = "#D6DFE8";
 const WHITE = "#FFFFFF";
-const PURPLE = "#6D28D9";
-
 type HistoryItem = {
   id: string;
   businessName: string;
@@ -45,7 +43,7 @@ const TIER_CONFIG: Record<string, { label: string; color: string; bg: string }> 
   snapshot: { label: "Snapshot", color: "#5A6B7E", bg: "#F0F2F5" },
   snapshot_plus: { label: "Snapshot+", color: "#07B0F2", bg: "#E8F7FE" },
   blueprint: { label: "Blueprint", color: "#021859", bg: "#E6EAF2" },
-  blueprint_plus: { label: "Blueprint+", color: "#6D28D9", bg: "#EDE9FE" },
+  blueprint_plus: { label: "Blueprint+", color: NAVY, bg: "#E8F6FE" },
 };
 
 function TierBadge({ tier }: { tier: string }) {
@@ -80,9 +78,10 @@ type Deliverable = {
 
 const BLUEPRINT_DELIVERABLES: Deliverable[] = [
   { type: "complete", label: "Complete WunderBrand Blueprint\u2122", description: "Full brand operating system", audience: "Everyone", pages: "60\u201380 pages" },
-  { type: "executive", label: "Executive Summary", description: "Score, pillars, priorities, and top actions", audience: "Leadership", pages: "2\u20134 pages" },
+  { type: "executive", label: "Executive Summary", description: "Pillars, priorities, and top actions", audience: "Leadership", pages: "2\u20134 pages" },
   { type: "messaging", label: "Brand Messaging Playbook", description: "Messaging pillars, content pillars, taglines, tone guide", audience: "Marketing", pages: "10\u201315 pages" },
   { type: "prompts", label: "AI Prompt Library", description: "Custom prompts calibrated to your brand", audience: "AI Users", pages: "12\u201316 pages" },
+  { type: "voice-checklist", label: "Voice Checklist", description: "Quick QA guardrails before publishing", audience: "Writers, Sales, Marketing", pages: "2\u20134 pages" },
 ];
 
 const BLUEPRINT_PLUS_DELIVERABLES: Deliverable[] = [
@@ -90,6 +89,7 @@ const BLUEPRINT_PLUS_DELIVERABLES: Deliverable[] = [
   { type: "activation", label: "90-Day Activation Plan", description: "Week-by-week roadmap, KPIs, guardrails", audience: "Implementation", pages: "12\u201318 pages" },
   { type: "digital", label: "Digital Marketing Strategy", description: "Journey, SEO/AEO, email, social, content calendar", audience: "Digital Marketing", pages: "18\u201324 pages" },
   { type: "competitive", label: "Competitive Intelligence Brief", description: "Positioning, trade-offs, pricing, sales scripts", audience: "Sales & BD", pages: "14\u201318 pages" },
+  { type: "battle-cards", label: "Sales Battle Cards", description: "Objection handling and differentiation cues", audience: "Sales & BD", pages: "6\u201310 pages" },
   { type: "standards", label: "Brand Standards Guide", description: "Logo, visual identity, writing rules, governance", audience: "Designers & Agencies", pages: "20\u201330 pages" },
 ];
 
@@ -219,8 +219,8 @@ function ReportCard({ item }: { item: HistoryItem }) {
                 style={{
                   fontSize: 10,
                   fontWeight: 700,
-                  color: PURPLE,
-                  background: "#F0EAFF",
+                  color: NAVY,
+                  background: "#E8F6FE",
                   padding: "2px 8px",
                   borderRadius: 10,
                   letterSpacing: 0.3,
@@ -319,9 +319,9 @@ function ReportCard({ item }: { item: HistoryItem }) {
               gap: 6,
               padding: "6px 14px",
               borderRadius: 6,
-              border: `1px solid ${expanded ? PURPLE : BORDER}`,
-              background: expanded ? "#F0EAFF" : "#FAFBFF",
-              color: expanded ? PURPLE : SUB,
+              border: `1px solid ${expanded ? BLUE : BORDER}`,
+              background: expanded ? "#E8F6FE" : "#FAFBFF",
+              color: expanded ? NAVY : SUB,
               fontWeight: 600,
               fontSize: 12,
               cursor: "pointer",
@@ -381,13 +381,12 @@ function ReportCard({ item }: { item: HistoryItem }) {
 
 export default function DashboardHistory() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const email = getPersistedEmail();
+  const [loading, setLoading] = useState<boolean>(() => Boolean(email));
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterTier, setFilterTier] = useState<string>("all");
   const [activeBrand, setActiveBrand] = useState<string | null>(null);
-
-  const email = getPersistedEmail();
 
   const fetchHistory = useCallback((emailAddr: string, signal?: AbortSignal) => {
     fetch(`/api/history?email=${encodeURIComponent(emailAddr)}`, { signal })
@@ -406,10 +405,7 @@ export default function DashboardHistory() {
   }, []);
 
   useEffect(() => {
-    if (!email) {
-      setLoading(false);
-      return;
-    }
+    if (!email) return;
     const controller = new AbortController();
     fetchHistory(email, controller.signal);
     return () => controller.abort();

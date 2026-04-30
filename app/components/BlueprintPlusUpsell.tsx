@@ -13,7 +13,7 @@ export default function BlueprintPlusUpsell() {
 
       <a
         href="/blueprint-plus"
-        className="inline-block mt-6 px-6 py-3 bg-brand-blue text-white rounded-lg shadow hover:bg-brand-blueHover transition"
+        className="inline-block mt-6 px-6 py-3 bg-brand-blue text-white rounded-[5px] shadow hover:bg-brand-blueHover transition"
       >
         Explore WunderBrand Blueprint+™ →
       </a>

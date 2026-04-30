@@ -13,7 +13,7 @@ export function BrandAlignmentHero({
   return (
     <section className="card text-center">
       <h1 className="text-2xl font-semibold mb-2">
-        {brandName}'s WunderBrand Score™
+        {brandName}&apos;s WunderBrand Score™
       </h1>
 
       <ScoreGauge value={score} />

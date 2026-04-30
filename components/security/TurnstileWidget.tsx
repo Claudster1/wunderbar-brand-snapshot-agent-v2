@@ -28,6 +28,9 @@ interface TurnstileWidgetProps {
 }
 
 const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "";
+const ENABLE_IN_DEV = process.env.NEXT_PUBLIC_ENABLE_TURNSTILE_DEV === "true";
+const SHOULD_ENABLE_TURNSTILE =
+  Boolean(SITE_KEY) && (process.env.NODE_ENV === "production" || ENABLE_IN_DEV);
 
 export function TurnstileWidget({ onToken, onError }: TurnstileWidgetProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -53,8 +56,7 @@ export function TurnstileWidget({ onToken, onError }: TurnstileWidgetProps) {
   }, [onToken, onError]);
 
   useEffect(() => {
-    // If no site key configured, skip (dev mode)
-    if (!SITE_KEY) return;
+    if (!SHOULD_ENABLE_TURNSTILE) return;
 
     // If Turnstile script is already loaded, render immediately
     if (window.turnstile) {
@@ -87,8 +89,9 @@ export function TurnstileWidget({ onToken, onError }: TurnstileWidgetProps) {
     };
   }, [renderWidget]);
 
-  // Don't render anything if no site key (dev mode)
-  if (!SITE_KEY) return null;
+  // Keep Turnstile disabled outside production by default
+  // to avoid local Cloudflare challenge failures.
+  if (!SHOULD_ENABLE_TURNSTILE) return null;
 
   return (
     <div

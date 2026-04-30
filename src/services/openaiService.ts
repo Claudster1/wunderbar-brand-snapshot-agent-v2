@@ -5,6 +5,7 @@ import type { BrandChatMessage } from '../types';
 const API_URL = '/api/brand-snapshot';
 
 type ApiMessage = { role: 'user' | 'assistant'; content: string };
+type ProductTier = 'snapshot' | 'snapshot-plus' | 'blueprint' | 'blueprint-plus';
 
 // Build messages array - system prompt is added by the API handler
 // IMPORTANT: Only send user and assistant messages, never system messages
@@ -16,9 +17,13 @@ const buildApiMessages = (history: BrandChatMessage[]): ApiMessage[] =>
   }));
 
 export async function getBrandSnapshotReply(
-  history: BrandChatMessage[]
+  history: BrandChatMessage[],
+  options?: { productTier?: ProductTier }
 ): Promise<string> {
-  const payload = { messages: buildApiMessages(history) };
+  const payload = {
+    messages: buildApiMessages(history),
+    productTier: options?.productTier,
+  };
 
   try {
     const response = await fetch(API_URL, {

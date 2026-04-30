@@ -16,7 +16,7 @@ export function PromptExportControls({
     <div className="mt-12 flex gap-4">
       <button
         onClick={onDownloadPDF}
-        className="px-5 py-2 bg-brand-blue text-white rounded-md text-sm shadow hover:bg-brand-blueHover transition"
+        className="px-5 py-2 bg-brand-blue text-white rounded-[5px] text-sm shadow hover:bg-brand-blueHover transition"
       >
         Download Prompt Pack (PDF)
       </button>

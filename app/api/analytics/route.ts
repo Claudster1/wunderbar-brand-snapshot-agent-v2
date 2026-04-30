@@ -6,6 +6,7 @@ const EVENT_CATEGORIES: Record<string, string> = {
   SNAPSHOT_STARTED: "product",
   SNAPSHOT_COMPLETED: "conversion",
   RESULTS_VIEWED: "engagement",
+  HUMAN_ASSIST_CLICKED: "conversion",
   UPGRADE_CLICKED: "conversion",
   UPGRADE_ABANDONED: "engagement",
   UPGRADE_NUDGE_CLICKED: "conversion",
@@ -139,6 +140,10 @@ export async function POST(req: Request) {
 
     if (body.event === "UPGRADE_CLICKED") {
       tags.push("snapshot:clicked-upgrade");
+    }
+
+    if (body.event === "HUMAN_ASSIST_CLICKED") {
+      tags.push("snapshot:clicked-human-assist");
     }
 
     if (body.event === "SNAPSHOT_COMPLETED") {

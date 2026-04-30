@@ -2,7 +2,12 @@
 // Dev preview: legacy WunderBrand Snapshot™ report layout with mock data (no DB).
 
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import SnapshotPlusUpsell from "@/components/SnapshotPlusUpsell";
+import { BlueprintPlusHeader } from "@/components/reports/BlueprintPlusHeader";
+import { SectionOverviewTiles } from "@/components/reports/SectionOverviewTiles";
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
 
 // Static page — uses mock data only, no DB
 
@@ -44,8 +49,51 @@ function getInsightText(insight: unknown): string {
   return "No insight available.";
 }
 
-export default function PreviewReportPage() {
+const PREVIEW_SECTION_LABELS: Record<string, string> = {
+  overview: "Overview",
+  foundation: "Foundation",
+  score: "Score",
+  strategy: "Strategy",
+  activation: "Activation",
+  "next-steps": "Next Steps",
+};
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams?: Promise<{ section?: string }>;
+}): Promise<Metadata> {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const section = typeof resolvedSearchParams?.section === "string" ? resolvedSearchParams.section : "overview";
+  const sectionLabel = PREVIEW_SECTION_LABELS[section] || PREVIEW_SECTION_LABELS.foundation;
+  return {
+    title: `Preview • WunderBrand Snapshot™ • ${sectionLabel}`,
+  };
+}
+
+export default async function PreviewReportPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ section?: string }>;
+}) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const reportId = "preview-mock";
+  const requestedSection =
+    typeof resolvedSearchParams?.section === "string" ? resolvedSearchParams.section : undefined;
+  const validSections = new Set(["overview", "foundation", "score", "strategy", "activation", "next-steps"]);
+  if (!requestedSection || !validSections.has(requestedSection)) {
+    redirect("/preview/report?section=overview");
+  }
+  const activeSection = requestedSection;
+  const sectionHref = (section: string) => `/preview/report?section=${section}`;
+  const navItems = [
+    { id: "overview", label: "Overview", href: sectionHref("overview") },
+    { id: "foundation", label: "Foundation", href: sectionHref("foundation") },
+    { id: "score", label: "Score", href: sectionHref("score") },
+    { id: "strategy", label: "Strategy", href: sectionHref("strategy") },
+    { id: "activation", label: "Activation", href: sectionHref("activation") },
+    { id: "next-steps", label: "Next Steps", href: sectionHref("next-steps") },
+  ];
   const {
     brand_alignment_score,
     pillar_scores,
@@ -73,6 +121,18 @@ export default function PreviewReportPage() {
     credibility: "Credibility",
     conversion: "Conversion",
   };
+  const weakestPillar =
+    Object.entries(pillar_scores || {})
+      .filter((entry): entry is [string, number] => typeof entry[1] === "number")
+      .sort((a, b) => a[1] - b[1])[0]?.[0] || "positioning";
+  const strongestPillar =
+    Object.entries(pillar_scores || {})
+      .filter((entry): entry is [string, number] => typeof entry[1] === "number")
+      .sort((a, b) => b[1] - a[1])[0]?.[0] || "messaging";
+  const decisionAction =
+    recommendations.length > 0
+      ? recommendations[0]
+      : `Prioritize ${pillarDisplay[weakestPillar as keyof typeof pillarDisplay] || "Positioning"} updates across your highest-traffic pages this week.`;
 
   const css = `
     body {
@@ -209,45 +269,142 @@ export default function PreviewReportPage() {
       </div>
 
       <div className="report-container">
-        <h1>Your WunderBrand Snapshot™ Results</h1>
-        <p>
-          Here’s your personalized WunderBrand Score™ and a concise breakdown of how your brand is
-          performing across the five strategic pillars. Each insight is tailored to help you understand
-          where you’re strong today — and where small refinements can unlock clarity, consistency, and conversion.
-        </p>
-
-        <div className="score-card">
-          <div className="score-number">{score}</div>
-          <p>{scoreLabel}</p>
-        </div>
-
-        <h2>How Your Brand Performs Across the Five Pillars</h2>
-        <div className="pillars">
-          {pillarOrder.map((pillar) => {
-            const insight = pillar_insights[pillar];
-            const insightText = getInsightText(insight);
-            return (
-              <div className="pillar" key={pillar}>
-                <div className="pillar-title">{pillarDisplay[pillar]}</div>
-                <p>{insightText}</p>
-              </div>
-            );
-          })}
-        </div>
-
-        <SnapshotPlusUpsell
-          href="/checkout/snapshot-plus"
-          copy={
-            typeof snapshot_upsell === "string" && snapshot_upsell.trim().length > 0
-              ? snapshot_upsell
-              : undefined
-          }
-          businessName={businessName}
+        <BlueprintPlusHeader
+          productName="WunderBrand Snapshot™"
+          reportId={reportId}
+          utmMedium="preview_report"
+          navItems={navItems}
+          activeSectionId={activeSection}
         />
+
+        {activeSection === "overview" && (
+          <SectionOverviewTiles
+            productName="WunderBrand Snapshot™ preview report"
+            tiles={[
+              {
+                id: "foundation",
+                label: "Foundation",
+                description: "Decision snapshot with your current state, risk, and immediate action.",
+                href: sectionHref("foundation"),
+              },
+              {
+                id: "score",
+                label: "Score",
+                description: "View your score and benchmark-style interpretation.",
+                href: sectionHref("score"),
+              },
+              {
+                id: "strategy",
+                label: "Strategy",
+                description: "Inspect insight detail across all five pillars.",
+                href: sectionHref("strategy"),
+              },
+              {
+                id: "activation",
+                label: "Activation",
+                description: "See the top priority actions this report recommends.",
+                href: sectionHref("activation"),
+              },
+              {
+                id: "next-steps",
+                label: "Next Steps",
+                description: "Review the upgrade CTA and immediate follow-on path.",
+                href: sectionHref("next-steps"),
+              },
+            ]}
+          />
+        )}
+
+        {activeSection === "foundation" && (
+          <div id="foundation" style={{ marginTop: 20 }}>
+            <h1>Your WunderBrand Snapshot™ Results</h1>
+            <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
+              <p style={{ margin: 0 }}>
+                <strong>Current state:</strong> You are at {score}/100. {scoreLabel}
+              </p>
+              <p style={{ margin: 0 }}>
+                <strong>Biggest risk:</strong>{" "}
+                {pillarDisplay[weakestPillar as keyof typeof pillarDisplay] || "Positioning"} is your
+                lowest-scoring pillar and is likely constraining conversion consistency.
+              </p>
+              <p style={{ margin: 0 }}>
+                <strong>Biggest leverage:</strong>{" "}
+                {pillarDisplay[strongestPillar as keyof typeof pillarDisplay] || "Messaging"} is already
+                a relative strength you can scale while shoring up weak spots.
+              </p>
+              <p style={{ margin: 0 }}>
+                <strong>Next action (this week):</strong> {decisionAction}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {activeSection === "score" && (
+          <div id="score" className="score-card">
+            <div className="score-number">{score}</div>
+            <p>{scoreLabel}</p>
+          </div>
+        )}
+
+        {activeSection === "strategy" && (
+          <>
+            <h2 id="strategy">How Your Brand Performs Across the Five Pillars</h2>
+            <div className="pillars">
+              {pillarOrder.map((pillar) => {
+                const insight = pillar_insights[pillar];
+                const insightText = getInsightText(insight);
+                return (
+                  <div className="pillar" key={pillar}>
+                    <div className="pillar-title">{pillarDisplay[pillar]}</div>
+                    <p>{insightText}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {activeSection === "activation" && (
+          <div id="activation" style={{ marginTop: 24 }}>
+            <h2 style={{ marginTop: 0 }}>Priority Actions</h2>
+            <div>
+              {recommendations.length > 0 ? (
+                recommendations.slice(0, 5).map((item, idx) => (
+                  <p key={`${idx}-${item.slice(0, 30)}`}>
+                    {idx + 1}. {item}
+                  </p>
+                ))
+              ) : (
+                <p>
+                  No explicit priority actions were generated for this preview. Start by improving your
+                  lowest-confidence pillar and validating those changes with a refreshed diagnostic pass.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeSection === "next-steps" && (
+          <div id="next-steps">
+            <SnapshotPlusUpsell
+              href={getTrackedCheckoutUrl({
+                product: "snapshot-plus",
+                medium: "report_cta",
+                content: "preview_report_next_steps",
+              })}
+              copy={
+                typeof snapshot_upsell === "string" && snapshot_upsell.trim().length > 0
+                  ? snapshot_upsell
+                  : undefined
+              }
+              businessName={businessName}
+            />
+          </div>
+        )}
 
         <p style={{ marginTop: "24px" }}>
           <a
-            href={`/api/report/pdf?id=${reportId}`}
+            href={`/api/snapshot/pdf?id=${reportId}`}
             style={{ textDecoration: "underline", color: "#021859" }}
           >
             Download PDF →

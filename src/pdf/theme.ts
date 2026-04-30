@@ -166,35 +166,40 @@ export const layout = {
 export const stylePresets = StyleSheet.create({
   // Page base
   page: {
-    padding: layout.page.padding,
+    paddingTop: 36,
+    paddingHorizontal: layout.page.padding,
+    paddingBottom: 32,
     fontFamily: fonts.primary,
     fontSize: pdfTheme.fontSizes.base,
     lineHeight: fonts.normal,
     color: pdfTheme.colors.text,
+    backgroundColor: "#FFFFFF",
   },
   
   // Typography
   h1: {
-    fontSize: pdfTheme.fontSizes.xxl,
+    fontSize: 24,
     fontWeight: fonts.bold,
     color: pdfTheme.colors.navy,
-    marginBottom: pdfTheme.spacing.md,
+    marginBottom: 10,
   },
   
   h2: {
-    fontSize: pdfTheme.fontSizes.lg,
+    fontSize: 17,
     fontWeight: fonts.bold,
     color: pdfTheme.colors.navy,
-    marginTop: pdfTheme.spacing.xl,
-    marginBottom: pdfTheme.spacing.sm,
+    marginTop: 18,
+    marginBottom: 8,
   },
   
   h3: {
-    fontSize: pdfTheme.fontSizes.md,
+    fontSize: 13,
     fontWeight: fonts.semibold,
-    marginTop: pdfTheme.spacing.lg,
-    marginBottom: pdfTheme.spacing.xs,
+    marginTop: 12,
+    marginBottom: 4,
     color: pdfTheme.colors.navy,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
   },
   
   h4: {
@@ -206,7 +211,7 @@ export const stylePresets = StyleSheet.create({
   },
   
   body: {
-    fontSize: pdfTheme.fontSizes.base,
+    fontSize: 11,
     lineHeight: fonts.normal,
     color: pdfTheme.colors.text,
   },
@@ -223,8 +228,8 @@ export const stylePresets = StyleSheet.create({
   
   // Layout containers
   section: {
-    marginTop: spacing.xl,
-    marginBottom: spacing.md,
+    marginTop: 14,
+    marginBottom: 10,
   },
   
   container: {
@@ -259,10 +264,11 @@ export const stylePresets = StyleSheet.create({
   
   // Card/block styles
   card: {
-    padding: pdfTheme.spacing.md,
-    borderRadius: layout.radius.md,
-    backgroundColor: pdfTheme.colors.gray,
-    marginBottom: pdfTheme.spacing.md,
+    padding: 12,
+    borderRadius: layout.radius.lg,
+    backgroundColor: "#F7FAFF",
+    border: `1px solid #DCE7F5`,
+    marginBottom: 10,
   },
   
   // Divider
@@ -273,10 +279,10 @@ export const stylePresets = StyleSheet.create({
   
   // Footer
   footer: {
-    marginTop: spacing["2xl"],
-    fontSize: pdfTheme.fontSizes.sm,
+    marginTop: 18,
+    fontSize: 8,
     textAlign: "center",
-    color: colors.textSecondary,
+    color: "#6D7A94",
   },
   
   // Utility classes
@@ -370,7 +376,7 @@ export const getPillarScoreLabel = (score: number): string => {
 // ============================================================
 // EXPORTS
 // ============================================================
-export default {
+const theme = {
   pdfTheme,
   colors,
   fonts,
@@ -386,3 +392,5 @@ export default {
     getPillarScoreLabel,
   },
 };
+
+export default theme;

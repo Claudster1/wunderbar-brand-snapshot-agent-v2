@@ -16,7 +16,7 @@ export default function SnapshotPlusPanel({ score }: { score?: number }) {
 
       <Link
         href="/snapshot-plus"
-        className="inline-block mt-6 px-6 py-3 bg-brand-blue text-white rounded-lg shadow hover:bg-brand-blueHover transition"
+        className="inline-block mt-6 px-6 py-3 bg-brand-blue text-white rounded-[5px] shadow hover:bg-brand-blueHover transition"
       >
         Take it further with Snapshot+™ →
       </Link>

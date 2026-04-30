@@ -22,10 +22,12 @@ import { ColorSwatch } from "./components/ColorSwatch";
 import { BrandAlignmentScorePanel } from "./components/BrandAlignmentScorePanel";
 import { ContextCoverageMeter } from "./components/ContextCoverageMeter";
 import { pdfTheme } from "./theme";
+import { EXAMPLE_CALLOUT, SEMANTIC_DO, SEMANTIC_DONT } from "./reportVisualTokens";
 import { registerPdfFonts } from "./registerFonts";
 import { getPrimaryPillar } from "@/src/lib/pillars/getPrimaryPillar";
 import { PILLAR_COPY } from "@/lib/pillars/pillarCopy";
 import type { PillarKey } from "@/src/types/pillars";
+import { getArchetypeIcon, getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
 
 // Types
 import { BrandSnapshotReport } from "./BrandSnapshotPDF";
@@ -35,7 +37,7 @@ registerPdfFonts();
 
 const styles = StyleSheet.create({
   page: {
-    fontFamily: "Inter",
+    fontFamily: "Helvetica",
     fontSize: pdfTheme.fontSizes.base,
     paddingBottom: pdfTheme.spacing.xl,
   },
@@ -67,7 +69,19 @@ const styles = StyleSheet.create({
 
 /** Persona/archetype/voice can be string or object from Snapshot+ enrichment. */
 export type PersonaContent = string | { summary?: string; description?: string };
-export type ArchetypeContent = string | { name?: string; summary?: string; description?: string };
+export type ArchetypeContent =
+  | string
+  | {
+      name?: string;
+      summary?: string;
+      description?: string;
+      risk?: string;
+      languageTone?: string;
+      behaviorGuide?: string;
+      secondary?: string | { name?: string; summary?: string; description?: string };
+      pairingGuidance?: string;
+      activation?: Record<string, unknown>;
+    };
 export type VoiceContent = string | { summary?: string; description?: string; pillars?: string[] };
 export interface ColorPaletteItem {
   name?: string;
@@ -84,8 +98,12 @@ export interface BrandSnapshotPlusReport extends BrandSnapshotReport {
   brandOpportunities?: string;
   messagingGaps?: string;
   visibilityPlan?: string;
+  contentFormatChannelSnapshot?: string;
+  marketingSpendAuditSignal?: string;
+  competitiveVulnerabilitySignal?: string;
+  revenueImpactStatement?: string;
   visualIdentityNotes?: string;
-  aiPrompts?: string[];
+  aiPrompts?: Array<string | { name?: string; prompt?: string }>;
   contextCoverage?: number; // 0-100 percentage
   /** Brand persona (mirrors report view). */
   persona?: PersonaContent;
@@ -134,6 +152,36 @@ export const BrandSnapshotPlusPDF = ({
 }: {
   report: BrandSnapshotPlusReport;
 }) => {
+  const asText = (value: unknown): string => {
+    if (typeof value === "string") return value;
+    if (typeof value === "number" || typeof value === "boolean") return String(value);
+    if (value && typeof value === "object") {
+      const obj = value as Record<string, unknown>;
+      if (typeof obj.name === "string" && typeof obj.prompt === "string") {
+        return `${obj.name}: ${obj.prompt}`;
+      }
+      if (typeof obj.prompt === "string") return obj.prompt;
+      if (typeof obj.name === "string") return obj.name;
+      return JSON.stringify(obj);
+    }
+    return "";
+  };
+  const toText = (value: unknown): string => {
+    if (typeof value === "string") return value;
+    if (typeof value === "number" || typeof value === "boolean") return String(value);
+    return "";
+  };
+  const extractDeliverables = (value: unknown): string[] => {
+    const text = toText(value);
+    if (!text.trim()) return ["Define one measurable milestone and owner for this phase."];
+    const parts = text
+      .split(/[•\n;]+/g)
+      .map((item) => item.replace(/^\d+[\).\-\s]+/, "").trim())
+      .filter((item) => item.length > 0)
+      .slice(0, 5);
+    return parts.length > 0 ? parts : [text];
+  };
+
   const reportDate = new Date().toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -156,6 +204,10 @@ export const BrandSnapshotPlusPDF = ({
     brandOpportunities,
     messagingGaps,
     visibilityPlan,
+    contentFormatChannelSnapshot,
+    marketingSpendAuditSignal,
+    competitiveVulnerabilitySignal,
+    revenueImpactStatement,
     visualIdentityNotes,
     aiPrompts = [],
     aeoRecommendations,
@@ -175,6 +227,32 @@ export const BrandSnapshotPlusPDF = ({
     primaryResult.type === "tie" ? primaryResult.pillars?.[0] ?? primaryResult.pillar : primaryResult.pillar;
   const primaryPillarKey = primaryPillar ?? "positioning";
   const primaryPillarCopy = PILLAR_COPY[primaryPillarKey as PillarKey];
+  const archetypeObj = archetype && typeof archetype === "object"
+    ? (archetype as Record<string, unknown>)
+    : null;
+  const primaryArchetypeName = toText(archetypeObj?.name) || (typeof archetype === "string" ? archetype : "");
+  const primaryArchetypeSummary =
+    toText(archetypeObj?.summary) ||
+    toText(archetypeObj?.description) ||
+    (typeof archetype === "string" ? archetype : "");
+  const primaryArchetypeRisk = toText(archetypeObj?.risk);
+  const primaryArchetypeLanguageTone = toText(archetypeObj?.languageTone);
+  const primaryArchetypeBehaviorGuide = toText(archetypeObj?.behaviorGuide);
+  const archetypePairingGuidance = toText(archetypeObj?.pairingGuidance);
+  const secondaryArchetype = archetypeObj?.secondary;
+  const secondaryArchetypeName =
+    typeof secondaryArchetype === "string"
+      ? secondaryArchetype
+      : toText((secondaryArchetype as Record<string, unknown> | undefined)?.name);
+  const secondaryArchetypeSummary =
+    typeof secondaryArchetype === "string"
+      ? ""
+      : toText((secondaryArchetype as Record<string, unknown> | undefined)?.summary) ||
+        toText((secondaryArchetype as Record<string, unknown> | undefined)?.description);
+  const activationEntries =
+    archetypeObj?.activation && typeof archetypeObj.activation === "object"
+      ? Object.entries(archetypeObj.activation as Record<string, unknown>).slice(0, 4)
+      : [];
 
   return (
     <Document>
@@ -183,14 +261,14 @@ export const BrandSnapshotPlusPDF = ({
         <PdfHeader title={`WunderBrand Snapshot+\u2122 \u2014 ${businessName}`} businessName={businessName} date={reportDate} />
 
         <PageTitle
-          title={`${businessName} \u2014 Strategic Brand Diagnostic`}
-          subtitle="WunderBrand Snapshot+\u2122 \u2014 Personalized brand analysis with prioritized strategic recommendations"
+          title="Snapshot+™ Brand Intelligence Report"
+          subtitle="Expanded strategic analysis across brand clarity, voice, visuals, audience, archetype, and next-step priorities."
         />
 
         <Section>
-          <Text style={styles.heading}>Executive Summary</Text>
+          <Text style={styles.heading}>Report Overview</Text>
           <Text style={styles.para}>
-            This report delivers a comprehensive analysis of how {businessName}{"\u2019"}s brand performs across five core pillars \u2014 positioning, messaging, visibility, credibility, and conversion. Each section connects diagnosis to commercial impact, with concrete examples and prioritized actions calibrated to {businessName}{"\u2019"}s industry, stage, and growth objectives.
+            This expanded analysis builds on your WunderBrand Snapshot™ results and adds deeper strategic insight across brand clarity, voice, visuals, audience, archetype, and next-step priorities.
           </Text>
 
           {/* WunderBrand Score™ Panel with Legend */}
@@ -213,10 +291,49 @@ export const BrandSnapshotPlusPDF = ({
             </Text>
           </View>
 
+          <View style={{ marginTop: pdfTheme.spacing.md }}>
+            <Text style={styles.subheading}>Pillar Analysis</Text>
+            <Text style={styles.para}>
+              Your detailed pillar analysis highlights what is currently strong and where refinement will unlock the most strategic lift.
+            </Text>
+          </View>
+
           {/* Context Coverage Meter */}
           {contextCoverage !== undefined && (
             <ContextCoverageMeter percent={contextCoverage} />
           )}
+        </Section>
+
+        <Section>
+          <Text style={styles.heading}>Content Format & Channel Snapshot</Text>
+          <Text style={styles.para}>
+            {contentFormatChannelSnapshot ||
+              "This section maps your audience to the most effective content formats, highest-leverage channels, and funnel-stage priorities so execution starts with the right sequence."}
+          </Text>
+        </Section>
+
+        <Section>
+          <Text style={styles.heading}>Marketing Spend Efficiency Signal</Text>
+          <Text style={styles.para}>
+            {marketingSpendAuditSignal ||
+              "This section highlights whether current spend allocation aligns with audience behavior and where budget efficiency can improve before scaling channel complexity."}
+          </Text>
+        </Section>
+
+        <Section>
+          <Text style={styles.heading}>Competitive Vulnerability Signal</Text>
+          <Text style={styles.para}>
+            {competitiveVulnerabilitySignal ||
+              "This section identifies where competitors are most likely to out-position your brand and what to address first to reduce exposure."}
+          </Text>
+        </Section>
+
+        <Section>
+          <Text style={styles.heading}>Revenue Impact Statement</Text>
+          <Text style={styles.para}>
+            {revenueImpactStatement ||
+              "This section frames the likely business impact of your current strategic gaps and where corrective actions can create measurable upside."}
+          </Text>
         </Section>
 
         {brandOpportunities && (
@@ -270,28 +387,75 @@ export const BrandSnapshotPlusPDF = ({
           {archetype && (
             <Section>
               <Text style={styles.heading}>Brand Archetype</Text>
-              {typeof archetype === "string" ? (
-                <Text style={styles.para}>{archetype}</Text>
-              ) : (
+              {primaryArchetypeName ? (
+                <Text style={styles.subheading}>
+                  {getArchetypeIcon(primaryArchetypeName)} {primaryArchetypeName}
+                </Text>
+              ) : null}
+              {primaryArchetypeSummary ? (
+                <Text style={styles.para}>{primaryArchetypeSummary}</Text>
+              ) : null}
+              {primaryArchetypeName && getArchetypeMeaning(primaryArchetypeName) ? (
+                <Text style={styles.para}>
+                  <Text style={{ fontWeight: 600 }}>Core pattern: </Text>
+                  {getArchetypeMeaning(primaryArchetypeName)}
+                </Text>
+              ) : null}
+              {primaryArchetypeRisk ? (
+                <Text style={styles.para}>
+                  <Text style={{ fontWeight: 600 }}>Risk if overused: </Text>
+                  {primaryArchetypeRisk}
+                </Text>
+              ) : null}
+              {primaryArchetypeLanguageTone ? (
+                <Text style={styles.para}>
+                  <Text style={{ fontWeight: 600 }}>How it should sound: </Text>
+                  {primaryArchetypeLanguageTone}
+                </Text>
+              ) : null}
+              {primaryArchetypeBehaviorGuide ? (
+                <Text style={styles.para}>
+                  <Text style={{ fontWeight: 600 }}>How it impacts your brand: </Text>
+                  {primaryArchetypeBehaviorGuide}
+                </Text>
+              ) : null}
+              {secondaryArchetypeName ? (
+                <Text style={styles.para}>
+                  <Text style={{ fontWeight: 600 }}>Secondary archetype: </Text>
+                  {secondaryArchetypeName}
+                  {secondaryArchetypeSummary ? ` — ${secondaryArchetypeSummary}` : ""}
+                </Text>
+              ) : null}
+              {archetypePairingGuidance ? (
+                <Text style={styles.para}>
+                  <Text style={{ fontWeight: 600 }}>Archetype mix guidance: </Text>
+                  {archetypePairingGuidance}
+                </Text>
+              ) : null}
+              {activationEntries.length > 0 ? (
                 <>
-                  {(archetype as { name?: string }).name && (
-                    <Text style={styles.subheading}>
-                      {(archetype as { name?: string }).name}
-                    </Text>
-                  )}
-                  <Text style={styles.para}>
-                    {(archetype as { summary?: string; description?: string }).summary ??
-                      (archetype as { description?: string }).description ??
-                      ""}
-                  </Text>
+                  <Text style={styles.subheading}>Activation Guidance</Text>
+                  {activationEntries.map(([key, value], idx) => {
+                    const guidance =
+                      toText(value) ||
+                      (value && typeof value === "object"
+                        ? toText((value as Record<string, unknown>).guidance)
+                        : "");
+                    if (!guidance) return null;
+                    return (
+                      <Text key={`${key}-${idx}`} style={styles.para}>
+                        • {key.replace(/([A-Z])/g, " $1").trim()}: {guidance}
+                      </Text>
+                    );
+                  })}
                 </>
-              )}
+              ) : null}
             </Section>
           )}
 
           {voice && (
             <Section>
-              <Text style={styles.heading}>Brand Voice</Text>
+              <Text style={styles.heading}>Brand Voice Guidance</Text>
               {typeof voice === "string" ? (
                 <Text style={styles.para}>{voice}</Text>
               ) : (
@@ -305,7 +469,7 @@ export const BrandSnapshotPlusPDF = ({
                     <>
                       <Text style={styles.subheading}>Tone pillars</Text>
                       {(voice as { pillars: string[] }).pillars.map((p, i) => (
-                        <Text key={i} style={styles.para}>• {p}</Text>
+                        <Text key={i} style={styles.para}>• {asText(p)}</Text>
                       ))}
                     </>
                   ) : null}
@@ -326,7 +490,10 @@ export const BrandSnapshotPlusPDF = ({
                     <View key={i} style={{ marginBottom: 6 }}>
                       <Text style={{ ...styles.para, fontWeight: 600 }}>{vt.trait}</Text>
                       <Text style={{ ...styles.para, fontSize: pdfTheme.fontSizes.sm }}>{vt.whatItMeans}</Text>
-                      <Text style={{ ...styles.para, fontSize: pdfTheme.fontSizes.sm, fontStyle: "italic", color: "#6B7280" }}>Example: {vt.example}</Text>
+                      <Text style={{ ...styles.para, fontSize: pdfTheme.fontSizes.sm, fontWeight: 700, color: EXAMPLE_CALLOUT.labelColor }}>
+                        {EXAMPLE_CALLOUT.labelPrefix}
+                      </Text>
+                      <Text style={{ ...styles.para, fontSize: pdfTheme.fontSizes.sm, fontStyle: "italic", color: EXAMPLE_CALLOUT.bodyColor }}>{vt.example}</Text>
                     </View>
                   ))}
                 </>
@@ -341,7 +508,7 @@ export const BrandSnapshotPlusPDF = ({
                 <>
                   <Text style={styles.subheading}>Phrases to Use</Text>
                   {report.voiceToneGuide.phrasesToUse.map((p, i) => (
-                    <Text key={i} style={{ ...styles.para, color: "#047857" }}>✓ {p}</Text>
+                    <Text key={i} style={{ ...styles.para, color: SEMANTIC_DO.label }}>✓ {asText(p)}</Text>
                   ))}
                 </>
               )}
@@ -350,7 +517,7 @@ export const BrandSnapshotPlusPDF = ({
                 <>
                   <Text style={styles.subheading}>Phrases to Avoid</Text>
                   {report.voiceToneGuide.phrasesToAvoid.map((p, i) => (
-                    <Text key={i} style={{ ...styles.para, color: "#DC2626" }}>✗ {p}</Text>
+                    <Text key={i} style={{ ...styles.para, color: SEMANTIC_DONT.label }}>✗ {asText(p)}</Text>
                   ))}
                 </>
               )}
@@ -420,7 +587,7 @@ export const BrandSnapshotPlusPDF = ({
           <PdfHeader title="Strategic Roadmap" />
 
           <PageTitle
-            title="30/60/90-Day Roadmap & Opportunities"
+            title="Recommended 30/60/90-Day Roadmap"
             subtitle="Prioritized next steps"
           />
 
@@ -435,6 +602,11 @@ export const BrandSnapshotPlusPDF = ({
             <Section>
               <Text style={styles.subheading}>Next 30 Days</Text>
               <Text style={styles.para}>{roadmap_30}</Text>
+              {extractDeliverables(roadmap_30).map((item, i) => (
+                <Text key={`roadmap30-${i}`} style={{ ...styles.para, fontSize: pdfTheme.fontSizes.sm }}>
+                  • {item}
+                </Text>
+              ))}
             </Section>
           )}
 
@@ -442,6 +614,11 @@ export const BrandSnapshotPlusPDF = ({
             <Section>
               <Text style={styles.subheading}>Next 60 Days</Text>
               <Text style={styles.para}>{roadmap_60}</Text>
+              {extractDeliverables(roadmap_60).map((item, i) => (
+                <Text key={`roadmap60-${i}`} style={{ ...styles.para, fontSize: pdfTheme.fontSizes.sm }}>
+                  • {item}
+                </Text>
+              ))}
             </Section>
           )}
 
@@ -449,6 +626,11 @@ export const BrandSnapshotPlusPDF = ({
             <Section>
               <Text style={styles.subheading}>Next 90 Days</Text>
               <Text style={styles.para}>{roadmap_90}</Text>
+              {extractDeliverables(roadmap_90).map((item, i) => (
+                <Text key={`roadmap90-${i}`} style={{ ...styles.para, fontSize: pdfTheme.fontSizes.sm }}>
+                  • {item}
+                </Text>
+              ))}
             </Section>
           )}
 
@@ -652,7 +834,7 @@ export const BrandSnapshotPlusPDF = ({
         </Page>
       )}
 
-      {/* ---------------- PAGE 7 — AI PROMPTS & NEXT STEPS ---------------- */}
+      {/* ---------------- PAGE 7 — AI PROMPTS ---------------- */}
       {aiPrompts && aiPrompts.length > 0 && (
         <Page size="A4" style={styles.page}>
           <PdfHeader title="AI Prompt Pack" />
@@ -663,7 +845,9 @@ export const BrandSnapshotPlusPDF = ({
           />
 
           <Section>
-            {aiPrompts.map((p, i) => (
+            {aiPrompts.map((p, i) => {
+              const promptText = asText(p);
+              return (
               <Text
                 key={i}
                 style={{
@@ -672,23 +856,36 @@ export const BrandSnapshotPlusPDF = ({
                   lineHeight: 1.5,
                 }}
               >
-                {i + 1}. {p}
+                {i + 1}. {promptText}
               </Text>
-            ))}
-          </Section>
-
-          <Section>
-            <Text style={styles.heading}>Next Steps</Text>
-            <Text style={styles.para}>
-            Your report gives you a strong foundation. For a complete, AI-ready brand
-            system — messaging, voice, positioning, personality, and visual direction —
-            consider upgrading to WunderBrand Blueprint™.
-            </Text>
+              );
+            })}
           </Section>
 
           <PdfFooter businessName={businessName} productName="WunderBrand Snapshot+™" />
         </Page>
       )}
+
+      {/* ---------------- NEXT STEP — BLUEPRINT CTA ---------------- */}
+      <Page size="A4" style={styles.page}>
+        <PdfHeader title="Next Step: Blueprint™" />
+
+        <PageTitle
+          title="Ready for Blueprint™?"
+          subtitle="Turn strategy into a complete brand foundation."
+        />
+
+        <Section>
+          <Text style={styles.para}>
+            Blueprint™ is where your strategy becomes a complete brand foundation — messaging, identity, audience segmentation, competitor positioning, visual direction, and a full marketing roadmap.
+          </Text>
+          <Text style={{ ...styles.para, fontWeight: 600, color: pdfTheme.colors.blue }}>
+            Explore WunderBrand Blueprint™
+          </Text>
+        </Section>
+
+        <PdfFooter businessName={businessName} productName="WunderBrand Snapshot+™" />
+      </Page>
 
       <DisclaimerPage tier="snapshot_plus" />
     </Document>

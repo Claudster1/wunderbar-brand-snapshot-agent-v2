@@ -14,9 +14,9 @@ export function ContextOpportunities({ gaps }: Props) {
         Where deeper context could unlock more value
       </h3>
 
-      <ul className="text-sm text-slate-700 space-y-1">
+      <ul className="strategy-suite-ul text-sm text-slate-700">
         {gaps.map((gap) => (
-          <li key={gap}>• {gap}</li>
+          <li key={gap}>{gap}</li>
         ))}
       </ul>
 

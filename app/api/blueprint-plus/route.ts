@@ -16,6 +16,8 @@ import { generateAIReport } from "@/lib/ai/reportGeneration";
 import type { AssessmentInput } from "@/lib/ai/reportGeneration";
 import { randomUUID } from "crypto";
 import { logger } from "@/lib/logger";
+import { buildTierSignals } from "@/lib/signals/tierSignals";
+import { generatePdfResponse, transformReportDataForPdf } from "@/src/pdf/generatePdf";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300; // 5 minutes for Blueprint+ multi-call pipeline
@@ -90,6 +92,11 @@ export async function POST(req: Request) {
 
     // ─── Generate AI report (multi-call pipeline) ───
     const generatedReport = await generateAIReport("blueprint_plus", assessmentData);
+    const tierSignals = buildTierSignals(
+      "blueprint_plus",
+      assessmentData as Record<string, unknown>,
+      (generatedReport.content as Record<string, unknown>) ?? {},
+    );
 
     // ─── Save to database ───
     const email = rawEmail ? sanitizeString(rawEmail).toLowerCase() : null;
@@ -97,6 +104,7 @@ export async function POST(req: Request) {
 
     const full_report = {
       ...generatedReport.content,
+      ...tierSignals,
       _meta: {
         tier: "blueprint_plus",
         generatedAt: generatedReport.generatedAt,
@@ -135,20 +143,14 @@ export async function POST(req: Request) {
     // ─── If PDF format requested, generate and return PDF ───
     if (format === "pdf") {
       try {
-        const React = (await import("react")).default;
-        const { renderToBuffer } = await import("@react-pdf/renderer");
-        const { BlueprintPlusDocument } = await import("@/app/reports/BlueprintPlusDocument");
-
-        const pdfBuffer = await renderToBuffer(
-          React.createElement(BlueprintPlusDocument, { data: generatedReport.content }) as any
+        const pdfData = transformReportDataForPdf(
+          { ...generatedReport.content, ...tierSignals },
+          "blueprint-plus",
         );
-
-        return new NextResponse(pdfBuffer as any, {
-          headers: {
-            "Content-Type": "application/pdf",
-            "Content-Disposition": 'attachment; filename="brand-blueprint-plus.pdf"',
-            "Content-Length": pdfBuffer.length.toString(),
-          },
+        return await generatePdfResponse({
+          documentType: "blueprint-plus",
+          data: pdfData,
+          filename: "brand-blueprint-plus.pdf",
         });
       } catch (pdfErr) {
         logger.error("[Blueprint+ API] PDF generation failed", {

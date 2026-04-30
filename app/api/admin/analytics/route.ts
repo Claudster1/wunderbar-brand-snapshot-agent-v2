@@ -121,6 +121,7 @@ async function getFunnelData(since: string) {
     "SNAPSHOT_STARTED",
     "SNAPSHOT_COMPLETED",
     "RESULTS_VIEWED",
+    "HUMAN_ASSIST_CLICKED",
     "UPGRADE_CLICKED",
     "UPGRADE_NUDGE_CLICKED",
     "PDF_DOWNLOADED",

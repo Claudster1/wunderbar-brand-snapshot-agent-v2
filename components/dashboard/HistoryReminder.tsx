@@ -1,24 +1,22 @@
 // components/dashboard/HistoryReminder.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { trackEvent } from "@/lib/activeCampaignTracking";
 import Link from "next/link";
 
 export function HistoryReminder() {
-  const [show, setShow] = useState(false);
-
-  useEffect(() => {
+  const [show] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
     const completedAt = localStorage.getItem("snapshot_completed_at");
     const hasPaid = localStorage.getItem("has_paid_plan") === "true";
 
-    if (!completedAt || hasPaid) return;
+    if (!completedAt || hasPaid) return false;
 
     const daysSince =
       (Date.now() - Number(completedAt)) / (1000 * 60 * 60 * 24);
-
-    if (daysSince >= 7) setShow(true);
-  }, []);
+    return daysSince >= 7;
+  });
 
   if (!show) return null;
 

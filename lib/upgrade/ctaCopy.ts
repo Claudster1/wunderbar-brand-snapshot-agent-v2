@@ -23,8 +23,9 @@ export function getUpgradeNudgeCopy({ primaryPillar, tiePillars }: CopyContext) 
       )}. Snapshot+\u2122 analyzes the downstream impact of each to determine which move creates the most cascading improvement.`,
       detail:
         "You\u2019ll receive a full strategic report with commercial impact analysis, before-and-after examples, a prioritized action plan, and 8 AI prompts calibrated to your brand.",
-      note: "Priority is determined by system-wide impact, not surface-level scores.",
-      ctaLabel: "Get your strategic roadmap with Snapshot+\u2122",
+      note:
+        "Priority is determined by Wunderbar Digital's proprietary scoring methodology using system-wide impact, not surface-level signals.",
+      ctaLabel: "See Your Full Results — $497",
     };
   }
 
@@ -33,8 +34,9 @@ export function getUpgradeNudgeCopy({ primaryPillar, tiePillars }: CopyContext) 
     body: `Your diagnostic identified ${primaryPillar} as the pillar where focused investment will create the most cascading impact across your entire brand system.`,
     detail:
       "Snapshot+\u2122 transforms this score into a strategic roadmap \u2014 with commercial impact analysis, concrete before-and-after examples, a prioritized 30/60/90-day action plan, and 8 AI prompts calibrated to your brand.",
-    note: "Priority is determined by system-wide impact and downstream effects.",
-    ctaLabel: "Get your Snapshot+\u2122 strategy report",
+    note:
+      "Priority is determined by Wunderbar Digital's proprietary scoring methodology using system-wide impact and downstream effects.",
+    ctaLabel: "See Your Full Results — $497",
   };
 }
 
@@ -74,6 +76,6 @@ export function getSnapshotPlusCTA(
       stage === "early"
         ? `Get a prioritized strategy with specific actions, before-and-after examples, and an action plan calibrated to ${brandName}\u2019s stage and industry.`
         : `Turn this diagnostic into an implementation-ready system \u2014 with concrete recommendations, competitive context, and a 30/60/90-day action plan.`,
-    button: "Get your Snapshot+\u2122 strategy report"
+    button: "See Your Full Results — $497"
   };
 }

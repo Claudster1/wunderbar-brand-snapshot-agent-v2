@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { persistEmail } from "@/lib/persistEmail";
 import Link from "next/link";
+import Image from "next/image";
 
 const NAVY = "#021859";
 const BLUE = "#07B0F2";
@@ -71,10 +72,12 @@ export default function AccessPage() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <img
-              src="/assets/og/logo-wunderbar.svg"
+            <Image
+              src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp"
               alt="Wunderbar Digital"
-              style={{ height: 36, margin: "0 auto" }}
+              width={198}
+              height={36}
+              style={{ height: 36, width: "auto", margin: "0 auto" }}
             />
           </a>
         </div>

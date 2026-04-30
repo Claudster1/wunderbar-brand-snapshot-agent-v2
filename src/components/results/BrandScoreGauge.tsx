@@ -14,14 +14,14 @@ interface BrandScoreGaugeProps {
 export function BrandScoreGauge({ score, userRoleContext }: BrandScoreGaugeProps) {
   return (
     <section className="text-center px-4 py-6 sm:py-8">
-      <div className="flex items-center justify-center gap-2 mb-4 sm:mb-5">
+      <div className="flex items-center justify-center gap-2.5 mb-4 sm:mb-5">
         <h1 className="bs-h1">
           WunderBrand Score™
         </h1>
         <TooltipIcon
           content={
             <>
-              Your overall alignment across all five pillars (positioning, messaging, visibility, credibility, conversion). 0–100 scale: higher means your brand is clearer and more consistent. The needle shows where you land; green = strong, red = biggest opportunity.
+              Weighted index across all five pillars (positioning, messaging, visibility, credibility, conversion). Each pillar is scored 0–20; the headline 0–100 score emphasizes positioning, messaging, and credibility more than visibility and conversion. Higher means clearer, more consistent brand strength.
             </>
           }
         />

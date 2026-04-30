@@ -9,8 +9,8 @@ export function PromptPackIntro() {
       </h2>
 
       <p className="text-[15px] leading-relaxed">
-        These prompts aren't generic AI commands. Each one is designed to help you
-        apply your brand strategy consistently — whether you're writing copy,
+        These prompts aren&apos;t generic AI commands. Each one is designed to help you
+        apply your brand strategy consistently — whether you&apos;re writing copy,
         briefing a team, or planning a campaign.
       </p>
 

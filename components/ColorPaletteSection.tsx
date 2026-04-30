@@ -24,7 +24,7 @@ export function ColorPaletteSection({ palette }: ColorPaletteSectionProps) {
           Your Recommended Brand Color Palette
         </h2>
         <p className="text-slate-600 mb-6">
-          Each color plays a role in how your brand is perceived. Here's the palette WUNDY™ generated for you, with the meaning behind each choice:
+          Each color plays a role in how your brand is perceived. Here&apos;s the palette WUNDY™ generated for you, with the meaning behind each choice:
         </p>
         
         <div className="overflow-x-auto">
@@ -71,7 +71,7 @@ export function ColorPaletteSection({ palette }: ColorPaletteSectionProps) {
         </div>
 
         <p className="text-slate-600 mt-6 text-sm">
-          If you'd like WUNDY™ to turn this into a fully realized visual identity system—including brand pillars, persona, archetype, typography, and a polished brand guide—you're a perfect fit for Snapshot+™.
+          If you&apos;d like WUNDY™ to turn this into a fully realized visual identity system—including brand pillars, persona, archetype, typography, and a polished brand guide—you&apos;re a perfect fit for Snapshot+™.
         </p>
       </div>
     </div>

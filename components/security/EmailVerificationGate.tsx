@@ -30,8 +30,10 @@ export function EmailVerificationGate({
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
-  const [smsOptedIn, setSmsOptedIn] = useState<boolean>(false);
-  const [emailMarketingOptedIn, setEmailMarketingOptedIn] = useState<boolean>(false);
+  const [smsOptedIn, setSmsOptedIn] = useState<boolean>(() => getSmsOptInPreference());
+  const [emailMarketingOptedIn, setEmailMarketingOptedIn] = useState<boolean>(() =>
+    getEmailMarketingOptInPreference(),
+  );
   const [phoneMobile, setPhoneMobile] = useState("");
   const codeRefs = useRef<(HTMLInputElement | null)[]>([]);
   const emailRef = useRef<HTMLInputElement>(null);
@@ -40,8 +42,6 @@ export function EmailVerificationGate({
   // Auto-focus email input on mount; cleanup abort controller on unmount
   useEffect(() => {
     emailRef.current?.focus();
-    setSmsOptedIn(getSmsOptInPreference());
-    setEmailMarketingOptedIn(getEmailMarketingOptInPreference());
     return () => { abortRef.current?.abort(); };
   }, []);
 

@@ -6,20 +6,24 @@ import { pdfTheme } from "../theme";
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: pdfTheme.spacing.lg,
+    marginBottom: pdfTheme.spacing.md,
+    paddingHorizontal: pdfTheme.spacing.xl,
+    paddingVertical: pdfTheme.spacing.md,
+    backgroundColor: "#F3F8FF",
+    borderBottom: "1px solid #DDE6F2",
   },
   title: {
-    fontFamily: "Inter",
-    fontSize: pdfTheme.fontSizes.xxl,
+    fontFamily: "Helvetica",
+    fontSize: 24,
     fontWeight: 700,
     color: pdfTheme.colors.navy,
-    marginBottom: pdfTheme.spacing.sm,
+    marginBottom: 6,
   },
   subtitle: {
-    fontFamily: "Inter",
-    fontSize: pdfTheme.fontSizes.base,
-    color: pdfTheme.colors.midnight,
-    opacity: 0.7,
+    fontFamily: "Helvetica",
+    fontSize: pdfTheme.fontSizes.sm,
+    color: "#34445E",
+    lineHeight: 1.45,
   },
 });
 

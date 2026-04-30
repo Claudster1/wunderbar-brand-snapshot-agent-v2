@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { trackEvent } from "@/lib/analytics";
 import { trackUpgradeNudgeClick } from "@/lib/trackUpgradeNudgeClick";
 import { getUpgradeNudgeCopy } from "@/lib/upgrade/ctaCopy";
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
 
 export function UpgradeNudge({
   primaryPillar,
@@ -37,7 +38,11 @@ export function UpgradeNudge({
       <p className="bs-small mb-4 text-brand-muted">{copy.note}</p>
 
       <a
-        href={`/snapshot-plus?focus=${primaryPillar}`}
+        href={getTrackedCheckoutUrl({
+          product: "snapshot-plus",
+          medium: "results_cta",
+          content: `upgrade_nudge_${primaryPillar.replace(/[^a-z0-9_-]/gi, "_")}`,
+        })}
         onClick={() => {
           trackEvent("UPGRADE_CLICKED", {
             target: "Snapshot+",

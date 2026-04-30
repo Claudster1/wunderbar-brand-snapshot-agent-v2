@@ -7,6 +7,7 @@ import { BlueprintModule } from "@/components/blueprint/BlueprintModule";
 import { blueprintCopyByPillar, PillarKey } from "@/lib/blueprintCopyByPillar";
 import { fireACEvent } from "@/lib/fireACEvent";
 import { BlueprintActivationPaths } from "@/components/blueprint/BlueprintActivationPaths";
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
 
 export default function BlueprintPage() {
   const [primaryPillar] = useState<PillarKey>(() => {
@@ -78,9 +79,13 @@ export default function BlueprintPage() {
       />
 
       <Link
-        href="/checkout/blueprint"
+        href={getTrackedCheckoutUrl({
+          product: "blueprint",
+          medium: "landing_cta",
+          content: "blueprint_page_primary",
+        })}
         onClick={onBlueprintClick}
-        className="inline-flex rounded-[10px] bg-[#07B0F2] px-6 py-3 text-sm font-semibold text-white hover:bg-[#059BD8] no-underline"
+        className="inline-flex rounded-[5px] bg-[#07B0F2] px-6 py-3 text-sm font-semibold text-white hover:bg-[#059BD8] no-underline"
       >
         Activate Blueprint™ →
       </Link>

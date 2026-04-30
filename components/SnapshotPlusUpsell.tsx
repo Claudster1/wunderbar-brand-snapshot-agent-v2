@@ -1,9 +1,14 @@
 // components/SnapshotPlusUpsell.tsx
 
 import { snapshotPlusCopy } from "@/src/content/snapshotPlus.copy";
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
 
 export default function SnapshotPlusUpsell({
-  href = "/checkout/snapshot-plus",
+  href = getTrackedCheckoutUrl({
+    product: "snapshot-plus",
+    medium: "report_cta",
+    content: "snapshot_plus_upsell_default",
+  }),
   copy,
   businessName,
 }: {

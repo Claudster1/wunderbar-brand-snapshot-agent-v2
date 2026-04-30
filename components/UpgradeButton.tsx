@@ -4,7 +4,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { getPersistedEmail } from "@/lib/persistEmail";
 import {
   getSmsOptInPreference,
@@ -29,18 +29,16 @@ const productConfig: Record<Product, { label: string }> = {
 
 export function UpgradeButton({ product }: { product: Product }) {
   const [loading, setLoading] = useState(false);
-  const [smsOptedIn, setSmsOptedIn] = useState(false);
-  const [emailMarketingOptedIn, setEmailMarketingOptedIn] = useState(false);
-  const [showCommsPrefs, setShowCommsPrefs] = useState(false);
-  const config = productConfig[product];
-
-  useEffect(() => {
+  const [smsOptedIn, setSmsOptedIn] = useState<boolean>(() => getSmsOptInPreference());
+  const [emailMarketingOptedIn, setEmailMarketingOptedIn] = useState<boolean>(() =>
+    getEmailMarketingOptInPreference(),
+  );
+  const [showCommsPrefs, setShowCommsPrefs] = useState<boolean>(() => {
     const smsPref = getSmsOptInPreference();
     const emailPref = getEmailMarketingOptInPreference();
-    setSmsOptedIn(smsPref);
-    setEmailMarketingOptedIn(emailPref);
-    setShowCommsPrefs(smsPref || emailPref);
-  }, []);
+    return smsPref || emailPref;
+  });
+  const config = productConfig[product];
 
   const handleClick = async () => {
     setLoading(true);

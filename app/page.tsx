@@ -1,16 +1,16 @@
 'use client'
 
 import { FormEvent, useState, useEffect, useRef, useCallback, useMemo, Suspense } from "react";
-import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useBrandChat } from "../src/hooks/useBrandChat";
-import WundyLogo from "@/assets/wundy-logo.jpeg";
 import { TurnstileWidget } from "@/components/security/TurnstileWidget";
 import { BehaviorTracker } from "@/lib/security/behavioralScoring";
 import { EmailVerificationGate } from "@/components/security/EmailVerificationGate";
 import { parseTierFromParam, getChatTierConfig, interpolateWelcomeBack, type ChatTier } from "@/lib/chatTierConfig";
 import { AssetUploadPanel } from "@/components/assets/AssetUploadPanel";
-import "./globals.css";
+import { ChatMarkdown, renderChatMarkdownInline } from "@/components/chat/ChatMarkdown";
+import WundyLogo from "@/src/assets/wundy-logo.jpeg";
+import { staticImageUrl } from "@/lib/staticImageUrl";
 
 export default function Home() {
   return (
@@ -21,6 +21,10 @@ export default function Home() {
 }
 
 function HomeContent() {
+  const WUNDY_AVATAR_SRC = staticImageUrl(WundyLogo);
+  const WUNDY_AVATAR_FALLBACK = "/assets/og/wundy-outline.svg";
+  const WUNDY_AVATAR_FINAL_FALLBACK = "/assets/og/wundy-outline.svg";
+  const [wundyAvatarSrc, setWundyAvatarSrc] = useState<string>(WUNDY_AVATAR_SRC);
   // ─── Product tier + customer name detection ───
   const searchParams = useSearchParams();
   const tier = useMemo(() => parseTierFromParam(searchParams.get("tier")), [searchParams]);
@@ -92,6 +96,7 @@ function HomeContent() {
     onComplete: handleAssessmentComplete,
     customGreeting: resolvedGreeting,
     welcomeBackTemplate: !customerName ? activeTierConfig.welcomeBack : undefined,
+    productTier: activeTier,
   });
   const [inputValue, setInputValue] = useState("");
   const [progress, setProgress] = useState(0);
@@ -99,6 +104,7 @@ function HomeContent() {
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveEmail, setSaveEmail] = useState("");
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [saveErrorMessage, setSaveErrorMessage] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatMessagesRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -179,22 +185,45 @@ function HomeContent() {
   const handleSaveAndExit = async () => {
     if (!saveEmail.trim() || !saveEmail.includes("@")) return;
     setSaveStatus("saving");
+    setSaveErrorMessage(null);
     try {
       // Persist the email
       const { persistEmail } = await import("@/lib/persistEmail");
       persistEmail(saveEmail.trim());
 
       // Send resume link via API
-      await fetch("/api/snapshot/save-exit", {
+      const saveExitRes = await fetch("/api/snapshot/save-exit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           reportId,
           email: saveEmail.trim(),
+          turnstileToken,
         }),
       });
+      if (!saveExitRes.ok) {
+        let message = "Something went wrong. Please try again.";
+        try {
+          const payload = await saveExitRes.json();
+          if (typeof payload?.error === "string" && payload.error.trim()) {
+            message = payload.error;
+          }
+        } catch {
+          // Ignore JSON parse failures and keep fallback message.
+        }
+        if (saveExitRes.status === 429) {
+          message = "Too many attempts. Please wait a moment, then try again.";
+        }
+        throw new Error(message);
+      }
       setSaveStatus("saved");
-    } catch {
+      setSaveErrorMessage(null);
+    } catch (error) {
+      const message =
+        error instanceof Error && error.message
+          ? error.message
+          : "Something went wrong. Please try again.";
+      setSaveErrorMessage(message);
       setSaveStatus("error");
     }
   };
@@ -278,33 +307,45 @@ function HomeContent() {
 
               // Report iframe height to parent window for auto-expanding
               useEffect(() => {
-                function reportHeight() {
-                  if (typeof window !== 'undefined' && window.parent !== window) {
+                const reportHeight = () => {
+                  if (typeof window !== "undefined" && window.parent !== window) {
                     const height = document.documentElement.scrollHeight;
                     // Support both message types for compatibility
                     window.parent.postMessage({ type: "BS_IFRAME_HEIGHT", height }, "*");
                     window.parent.postMessage({ type: "RESIZE_IFRAME", height }, "*");
                   }
-                }
+                };
 
-                // Report initial height
-                reportHeight();
+                let rafId = 0;
+                const queueReport = () => {
+                  if (rafId) return;
+                  rafId = window.requestAnimationFrame(() => {
+                    rafId = 0;
+                    reportHeight();
+                  });
+                };
 
-                // Watch for size changes
-                const resizeObserver = new ResizeObserver(() => {
-                  reportHeight();
-                });
-
+                // Report initial height and keep observing layout changes once.
+                queueReport();
+                const resizeObserver = new ResizeObserver(queueReport);
                 resizeObserver.observe(document.body);
 
-                // Also report on messages/loading changes
-                const timeoutId = setTimeout(reportHeight, 100);
-
                 return () => {
+                  if (rafId) window.cancelAnimationFrame(rafId);
                   resizeObserver.disconnect();
-                  clearTimeout(timeoutId);
                 };
-              }, [messages, isLoading]);
+              }, []);
+
+              // Report updates when chat content changes without recreating observers.
+              useEffect(() => {
+                if (typeof window === "undefined" || window.parent === window) return;
+                const timeoutId = window.setTimeout(() => {
+                  const height = document.documentElement.scrollHeight;
+                  window.parent.postMessage({ type: "BS_IFRAME_HEIGHT", height }, "*");
+                  window.parent.postMessage({ type: "RESIZE_IFRAME", height }, "*");
+                }, 100);
+                return () => window.clearTimeout(timeoutId);
+              }, [messages.length, isLoading]);
 
   const handleReset = () => {
     reset();
@@ -399,18 +440,24 @@ function HomeContent() {
         <section className="app-card" aria-labelledby="wundy-heading">
           <header className="app-card-header">
             <div className="app-card-avatar-wrap">
-              <Image
-                src={WundyLogo}
-                alt="Wundy™, brand specialist"
-                className="app-card-avatar"
-                width={64}
-                height={64}
-              />
+              <div className="app-card-avatar">
+                <img
+                  src={wundyAvatarSrc}
+                  alt="Wundy™, brand specialist"
+                  className="app-card-avatar-img"
+                  width={64}
+                  height={64}
+                  onError={() => {
+                    if (wundyAvatarSrc === WUNDY_AVATAR_SRC) setWundyAvatarSrc(WUNDY_AVATAR_FALLBACK);
+                    else if (wundyAvatarSrc === WUNDY_AVATAR_FALLBACK) setWundyAvatarSrc(WUNDY_AVATAR_FINAL_FALLBACK);
+                  }}
+                />
+              </div>
             </div>
 
             <div>
               <div className="app-card-eyebrow">{activeTierConfig.heading}</div>
-              <p style={{ fontSize: '14px', color: '#5A6B7E', fontWeight: 400, textAlign: 'center', marginTop: '8px', marginBottom: 0 }}>
+              <p style={{ fontSize: '14px', color: '#5A6B7E', fontWeight: 400, textAlign: 'center', marginTop: '6px', marginBottom: 0 }}>
                 {activeTierConfig.valueProp}
               </p>
             </div>
@@ -443,7 +490,7 @@ function HomeContent() {
           <div className="app-body">
             <p className="assessment-inline-confidence">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#07B0F2" width="14" height="14" style={{ display: 'inline-block', verticalAlign: '-1px', marginRight: '4px', flexShrink: 0 }}><path d="M18 10h-1V7A5 5 0 0 0 7 7v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2ZM9 7a3 3 0 1 1 6 0v3H9V7Z"/></svg>
-              Your responses are confidential and won't be shared with third parties.{' '}
+              Your responses are confidential and won&apos;t be shared with third parties.{' '}
               <a
                 href="https://wunderbardigital.com/privacy-policy?utm_source=diagnostic_flow&utm_medium=diagnostic_ui&utm_campaign=confidentiality_link&utm_content=privacy_policy"
                 target="_blank"
@@ -488,7 +535,7 @@ function HomeContent() {
                         className={`chat-bubble chat-bubble-${message.role}`}
                       >
                         {contextLines.map((line, idx) => (
-                          <p key={idx}>{line}</p>
+                          <p key={idx}>{renderChatMarkdownInline(line)}</p>
                         ))}
                         <div className={isMultiSelect ? "chat-checkboxes" : "chat-radio-buttons"}>
                           {selectData.options.map((option, idx) => (
@@ -506,7 +553,7 @@ function HomeContent() {
                                 }
                                 disabled={isLoading}
                               />
-                              <span>{option}</span>
+                              <span>{renderChatMarkdownInline(option)}</span>
                             </label>
                           ))}
                         </div>
@@ -520,9 +567,7 @@ function HomeContent() {
                       key={message.id}
                       className={`chat-bubble chat-bubble-${message.role}`}
                     >
-                      {message.text.split("\n\n").map((paragraph, index) => (
-                        <p key={index}>{paragraph}</p>
-                      ))}
+                      <ChatMarkdown text={message.text} />
                     </div>
                   );
                 })}
@@ -782,6 +827,12 @@ function HomeContent() {
                   placeholder="you@company.com"
                   value={saveEmail}
                   onChange={(e) => setSaveEmail(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && saveStatus !== "saving" && saveEmail.trim()) {
+                      e.preventDefault();
+                      void handleSaveAndExit();
+                    }
+                  }}
                   style={{
                     width: "100%",
                     padding: "12px 14px",
@@ -797,9 +848,29 @@ function HomeContent() {
                   onBlur={(e) => (e.currentTarget.style.borderColor = "#D6DFE8")}
                   autoFocus
                 />
+                <p
+                  aria-live="polite"
+                  style={{
+                    minHeight: 18,
+                    margin: "0 0 8px",
+                    fontSize: 12,
+                    color:
+                      saveStatus === "error"
+                        ? "#DC2626"
+                        : saveStatus === "saving"
+                          ? "#0369A1"
+                          : "#5A6B7E",
+                  }}
+                >
+                  {saveStatus === "saving"
+                    ? "Sending your resume link..."
+                    : saveStatus === "error"
+                      ? "Could not send the link. Please check your email and try again."
+                      : "We will send a secure resume link to this address."}
+                </p>
                 {saveStatus === "error" && (
                   <p style={{ color: "#DC2626", fontSize: 13, margin: "0 0 8px" }}>
-                    Something went wrong. Please try again.
+                    {saveErrorMessage || "Something went wrong. Please try again."}
                   </p>
                 )}
                 <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>

@@ -9,7 +9,6 @@ let disposableDomains: Set<string> | null = null;
 function getDisposableDomains(): Set<string> {
   if (!disposableDomains) {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const list: string[] = require("disposable-email-domains");
       disposableDomains = new Set(list.map((d: string) => d.toLowerCase()));
     } catch {

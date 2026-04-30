@@ -20,15 +20,15 @@ export function RefinementPanel({ report }: RefinementPanelProps) {
         You can request a focused refinement based on additional context.
       </p>
 
-      <ul className="text-sm text-[#0C1526] mb-4 space-y-1">
-        <li>• Clarify positioning or audience nuance</li>
-        <li>• Incorporate new competitors or channels</li>
-        <li>• Refine messaging or conversion assumptions</li>
+      <ul className="strategy-suite-ul mb-4 text-sm text-[#0C1526]">
+        <li>Clarify positioning or audience nuance</li>
+        <li>Incorporate new competitors or channels</li>
+        <li>Refine messaging or conversion assumptions</li>
       </ul>
 
       <Link
         href={`/refinement-request?report=${report.id}`}
-        className="inline-flex rounded-[10px] bg-[#07B0F2] px-5 py-3 text-sm font-semibold text-white hover:bg-[#059BD8] no-underline"
+        className="inline-flex rounded-[5px] bg-[#07B0F2] px-5 py-3 text-sm font-semibold text-white hover:bg-[#059BD8] no-underline"
       >
         Request Refinement →
       </Link>

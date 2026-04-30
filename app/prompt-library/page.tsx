@@ -14,23 +14,23 @@ export default function PromptLibraryPage() {
       <div className="grid gap-6">
         {PROMPT_LIBRARY.map((prompt) => (
           <div
-            key={prompt.id}
+            key={prompt.ref}
             className="border rounded-xl p-6 bg-white"
           >
             <h3 className="font-medium mb-2">{prompt.title}</h3>
             <p className="text-sm text-slate-600 mb-4">
-              Pillar: {prompt.pillar} · Stage: {prompt.stage}
+              Section: {prompt.section} · Tier: {prompt.tier}
             </p>
 
             <textarea
               readOnly
               className="w-full text-sm p-4 border rounded-md"
               rows={6}
-              defaultValue={prompt.content}
+              defaultValue={prompt.template}
             />
 
             <PromptActions
-              content={prompt.content}
+              content={prompt.template}
               filename={`${prompt.title.toLowerCase().replace(/\s+/g, "-")}.txt`}
             />
           </div>

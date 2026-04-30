@@ -7,46 +7,64 @@ import { Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 
 const styles = StyleSheet.create({
   page: {
-    padding: 48,
-    fontSize: 8.5,
+    padding: 42,
+    fontSize: 9,
     fontFamily: "Helvetica",
-    color: "#4A5568",
+    color: "#425066",
     lineHeight: 1.6,
+    backgroundColor: "#FFFFFF",
+  },
+  kicker: {
+    fontSize: 8,
+    textTransform: "uppercase",
+    letterSpacing: 1.1,
+    color: "#0D5BD7",
+    fontWeight: 700,
+    marginBottom: 6,
   },
   title: {
-    fontSize: 14,
-    fontWeight: "bold",
+    fontSize: 16,
+    fontWeight: 700,
     color: "#021859",
-    marginBottom: 20,
-    letterSpacing: 0.3,
+    marginBottom: 16,
+    letterSpacing: 0.2,
+  },
+  introCard: {
+    border: "1 solid #E6ECF5",
+    borderRadius: 8,
+    backgroundColor: "#F8FBFF",
+    padding: 10,
+    marginBottom: 10,
   },
   sectionTitle: {
-    fontSize: 9.5,
-    fontWeight: "bold",
+    fontSize: 10,
+    fontWeight: 700,
     color: "#021859",
-    marginTop: 14,
-    marginBottom: 4,
+    marginTop: 10,
+    marginBottom: 5,
+    textTransform: "uppercase",
+    letterSpacing: 0.45,
   },
   body: {
-    fontSize: 8.5,
+    fontSize: 8.8,
     lineHeight: 1.6,
     color: "#4A5568",
-    marginBottom: 2,
+    marginBottom: 6,
   },
   copyright: {
-    fontSize: 8,
-    color: "#9CA3AF",
-    marginTop: 20,
+    fontSize: 7.8,
+    color: "#8D99AE",
+    marginTop: 14,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: "#E6E6E6",
+    borderTopColor: "#E6ECF5",
     lineHeight: 1.5,
   },
   divider: {
     borderBottomWidth: 1,
-    borderBottomColor: "#E6E6E6",
-    marginBottom: 16,
-    marginTop: 4,
+    borderBottomColor: "#E6ECF5",
+    marginBottom: 12,
+    marginTop: 3,
   },
 });
 
@@ -128,8 +146,16 @@ export function DisclaimerPage({ tier }: DisclaimerPageProps) {
 
   return (
     <Page size="A4" style={styles.page}>
+      <Text style={styles.kicker}>Legal & Usage</Text>
       <Text style={styles.title}>{d.title}</Text>
       <View style={styles.divider} />
+
+      <View style={styles.introCard}>
+        <Text style={styles.body}>
+          This page defines confidentiality, usage rights, and legal limitations for this
+          deliverable. Share it with anyone who will access or operationalize the report.
+        </Text>
+      </View>
 
       <Text style={styles.sectionTitle}>Confidentiality</Text>
       <Text style={styles.body}>{d.confidentiality}</Text>

@@ -41,7 +41,7 @@ export function PillarCard({
         <ScoreGauge score={score} size={64} />
 
         <div className="flex-1">
-          <div className="uppercase text-xs tracking-wide text-slate-500">
+          <div className="text-xs tracking-[0.04em] text-slate-500">
             {copy.label}
             {isPrimary && " — Primary Opportunity"}
           </div>

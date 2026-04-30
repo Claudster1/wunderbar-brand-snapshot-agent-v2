@@ -1,6 +1,11 @@
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
-type InquirySource = "connect_form" | "quo_call" | "quo_voicemail" | "manual";
+type InquirySource =
+  | "connect_form"
+  | "results_human_assist_branch"
+  | "quo_call"
+  | "quo_voicemail"
+  | "manual";
 
 function normalizeOwnerName(value: string): string {
   return value.trim();

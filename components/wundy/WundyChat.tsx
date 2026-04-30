@@ -4,8 +4,10 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import Image from "next/image";
 import { useWundyChat, WundyChatMode, WundySessionMeta } from "@/src/hooks/useWundyChat";
+import WundyLogo from "@/src/assets/wundy-logo.jpeg";
+import { staticImageUrl } from "@/lib/staticImageUrl";
+import { ChatMarkdown } from "@/components/chat/ChatMarkdown";
 
 type WundyChatProps = {
   /** Chat mode: "general" for everyone, "report" for paid tier report pages */
@@ -28,6 +30,10 @@ const WHITE = "#FFFFFF";
 const LIGHT_BG = "#F8F9FB";
 const BORDER = "#E2E8F0";
 const SUB = "#64748B";
+// Use repo-local public assets only (the previous paths no longer exist).
+const WUNDY_AVATAR_SRC = staticImageUrl(WundyLogo);
+const WUNDY_AVATAR_FALLBACK = "/assets/og/wundy-outline.svg";
+const WUNDY_AVATAR_FINAL_FALLBACK = staticImageUrl(WundyLogo);
 
 export default function WundyChat({
   mode,
@@ -40,6 +46,7 @@ export default function WundyChat({
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const [showBubble, setShowBubble] = useState(true);
+  const [avatarSrc, setAvatarSrc] = useState<string>(WUNDY_AVATAR_SRC);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -97,7 +104,34 @@ export default function WundyChat({
     }
   };
 
+  // Allow other UI surfaces to pre-seed or trigger Wundy chats.
+  useEffect(() => {
+    const handler = (event: Event) => {
+      const custom = event as CustomEvent<{ message?: string; autoSend?: boolean; open?: boolean }>;
+      if (custom.detail?.open) {
+        setIsOpen(true);
+        setShowBubble(false);
+        return;
+      }
+      const message = custom.detail?.message?.trim();
+      if (!message) return;
+      setIsOpen(true);
+      setShowBubble(false);
+      if (custom.detail?.autoSend) {
+        sendMessage(message);
+        setInput("");
+      } else {
+        setInput(message);
+      }
+    };
+
+    window.addEventListener("wundy:ask", handler as EventListener);
+    return () => window.removeEventListener("wundy:ask", handler as EventListener);
+  }, [sendMessage]);
+
   const modeLabel = mode === "report" ? "Report Companion" : "Brand Guide";
+  const bubbleColor = accentColor;
+  const bubbleTextColor = WHITE;
 
   return (
     <>
@@ -124,7 +158,7 @@ export default function WundyChat({
               height: showBubble ? 100 : 0,
               marginBottom: 0,
               animation: showBubble ? "wundyBubbleIn 0.5s ease-out 1s both" : "none",
-              filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.10))",
+              filter: "drop-shadow(0 3px 10px rgba(7,176,242,0.30))",
               opacity: showBubble ? 1 : 0,
               overflow: "hidden",
               transition: "opacity 0.5s ease, height 0.5s ease",
@@ -139,23 +173,23 @@ export default function WundyChat({
             >
               {/* Puffy cloud body — many overlapping ellipses for organic shape */}
               {/* Top bumps */}
-              <ellipse cx="60"  cy="20" rx="30" ry="18" fill={WHITE} />
-              <ellipse cx="95"  cy="14" rx="34" ry="14" fill={WHITE} />
-              <ellipse cx="135" cy="16" rx="32" ry="16" fill={WHITE} />
-              <ellipse cx="168" cy="22" rx="26" ry="18" fill={WHITE} />
+              <ellipse cx="60"  cy="20" rx="30" ry="18" fill={bubbleColor} />
+              <ellipse cx="95"  cy="14" rx="34" ry="14" fill={bubbleColor} />
+              <ellipse cx="135" cy="16" rx="32" ry="16" fill={bubbleColor} />
+              <ellipse cx="168" cy="22" rx="26" ry="18" fill={bubbleColor} />
               {/* Left bump */}
-              <ellipse cx="32"  cy="34" rx="26" ry="20" fill={WHITE} />
+              <ellipse cx="32"  cy="34" rx="26" ry="20" fill={bubbleColor} />
               {/* Right bump */}
-              <ellipse cx="188" cy="36" rx="24" ry="20" fill={WHITE} />
+              <ellipse cx="188" cy="36" rx="24" ry="20" fill={bubbleColor} />
               {/* Center fill */}
-              <ellipse cx="110" cy="34" rx="78" ry="24" fill={WHITE} />
+              <ellipse cx="110" cy="34" rx="78" ry="24" fill={bubbleColor} />
               {/* Bottom bumps */}
-              <ellipse cx="55"  cy="50" rx="32" ry="16" fill={WHITE} />
-              <ellipse cx="105" cy="52" rx="36" ry="14" fill={WHITE} />
-              <ellipse cx="155" cy="50" rx="32" ry="16" fill={WHITE} />
+              <ellipse cx="55"  cy="50" rx="32" ry="16" fill={bubbleColor} />
+              <ellipse cx="105" cy="52" rx="36" ry="14" fill={bubbleColor} />
+              <ellipse cx="155" cy="50" rx="32" ry="16" fill={bubbleColor} />
               {/* Trailing thought circles */}
-              <circle cx="182" cy="72" r="9" fill={WHITE} />
-              <circle cx="196" cy="86" r="5.5" fill={WHITE} />
+              <circle cx="182" cy="72" r="9" fill={bubbleColor} />
+              <circle cx="196" cy="86" r="5.5" fill={bubbleColor} />
             </svg>
             {/* Text overlay — centered on the cloud */}
             <div
@@ -171,7 +205,7 @@ export default function WundyChat({
                 fontFamily: "'Lato', system-ui, sans-serif",
                 fontSize: 13,
                 fontWeight: 700,
-                color: NAVY,
+                color: bubbleTextColor,
                 whiteSpace: "nowrap",
                 pointerEvents: "none",
               }}
@@ -206,12 +240,19 @@ export default function WundyChat({
               el.style.boxShadow = "0 3px 16px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.04)";
             }}
           >
-            <Image
-              src="/assets/wundy-avatar.png"
+            <img
+              src={avatarSrc}
               alt="Wundy™ — Ask a question"
               width={44}
               height={44}
               style={{ borderRadius: "50%", objectFit: "cover" }}
+              onError={() => {
+                if (avatarSrc === WUNDY_AVATAR_SRC) {
+                  setAvatarSrc(WUNDY_AVATAR_FALLBACK);
+                } else if (avatarSrc === WUNDY_AVATAR_FALLBACK) {
+                  setAvatarSrc(WUNDY_AVATAR_FINAL_FALLBACK);
+                }
+              }}
             />
           </div>
         </div>
@@ -264,12 +305,19 @@ export default function WundyChat({
                   flexShrink: 0,
                 }}
               >
-                <Image
-                  src="/assets/wundy-avatar.png"
+                <img
+                  src={avatarSrc}
                   alt="Wundy™"
                   width={32}
                   height={32}
                   style={{ borderRadius: "50%", objectFit: "cover" }}
+                  onError={() => {
+                    if (avatarSrc === WUNDY_AVATAR_SRC) {
+                      setAvatarSrc(WUNDY_AVATAR_FALLBACK);
+                    } else if (avatarSrc === WUNDY_AVATAR_FALLBACK) {
+                      setAvatarSrc(WUNDY_AVATAR_FINAL_FALLBACK);
+                    }
+                  }}
                 />
               </div>
               <div>
@@ -345,16 +393,24 @@ export default function WundyChat({
                 {/* Wundy™ avatar on assistant messages */}
                 {msg.role === "assistant" && (
                   <div style={{ width: 26, height: 26, borderRadius: "50%", overflow: "hidden", flexShrink: 0 }}>
-                    <Image
-                      src="/assets/wundy-avatar.png"
+                    <img
+                      src={avatarSrc}
                       alt="Wundy™"
                       width={26}
                       height={26}
                       style={{ borderRadius: "50%", objectFit: "cover" }}
+                      onError={() => {
+                        if (avatarSrc === WUNDY_AVATAR_SRC) {
+                          setAvatarSrc(WUNDY_AVATAR_FALLBACK);
+                        } else if (avatarSrc === WUNDY_AVATAR_FALLBACK) {
+                          setAvatarSrc(WUNDY_AVATAR_FINAL_FALLBACK);
+                        }
+                      }}
                     />
                   </div>
                 )}
                 <div
+                  className={msg.role === "user" ? "wundy-msg-user" : "wundy-msg-assistant"}
                   style={{
                     maxWidth: "80%",
                     padding: "10px 14px",
@@ -365,11 +421,10 @@ export default function WundyChat({
                     lineHeight: 1.55,
                     boxShadow: msg.role === "user" ? "none" : `0 1px 3px ${BORDER}`,
                     border: msg.role === "user" ? "none" : `1px solid ${BORDER}`,
-                    whiteSpace: "pre-wrap",
                     wordBreak: "break-word",
                   }}
                 >
-                  {msg.text}
+                  <ChatMarkdown text={msg.text} />
                 </div>
               </div>
             ))}
@@ -378,12 +433,19 @@ export default function WundyChat({
             {isLoading && (
               <div role="status" aria-label="Wundy™ is typing" style={{ display: "flex", justifyContent: "flex-start", gap: 8, alignItems: "flex-end" }}>
                 <div style={{ width: 26, height: 26, borderRadius: "50%", overflow: "hidden", flexShrink: 0 }}>
-                  <Image
-                    src="/assets/wundy-avatar.png"
+                  <img
+                    src={avatarSrc}
                     alt="Wundy™"
                     width={26}
                     height={26}
                     style={{ borderRadius: "50%", objectFit: "cover" }}
+                    onError={() => {
+                      if (avatarSrc === WUNDY_AVATAR_SRC) {
+                        setAvatarSrc(WUNDY_AVATAR_FALLBACK);
+                      } else if (avatarSrc === WUNDY_AVATAR_FALLBACK) {
+                        setAvatarSrc(WUNDY_AVATAR_FINAL_FALLBACK);
+                      }
+                    }}
                   />
                 </div>
                 <div

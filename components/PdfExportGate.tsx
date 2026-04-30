@@ -12,7 +12,7 @@ export function PdfExportGate({
   if (hasAccess) {
     return (
       <Link
-        href="/api/pdf/snapshot-plus"
+        href="/preview/pdf"
         onClick={() => trackEvent("pdf_export_clicked", {})}
         className="btn-primary"
       >

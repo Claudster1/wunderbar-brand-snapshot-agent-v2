@@ -1,6 +1,6 @@
 # WunderBrand Suite™ — Report Content Audit
 
-**Reference:** Feature comparison table on `wunderbardigital.com/brand-snapshot-suite`  
+**Reference:** Feature comparison table on `https://wunderbardigital.com/wunderbrand-suite?utm_source=wunderbrand_app&utm_medium=docs&utm_campaign=report_content_audit`  
 **Expectation:** Each report pulls in content from lower tiers; WunderBrand Blueprint+™ is the highest tier and should include **20+ pages** and comprehensive "Advanced campaign prompts."  
 **Finding:** Higher tiers do **not** aggregate lower-tier content; Blueprint+ PDF is **~8 pages** and shows only the AI prompts passed in the request (e.g. 4 prompts if that’s what’s sent).
 

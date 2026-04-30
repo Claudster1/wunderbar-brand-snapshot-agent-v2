@@ -1,0 +1,72 @@
+[
+  {
+    "id": "s1_beginner_uncertain_owner",
+    "user_input": "Honestly I am not good at marketing stuff. I run a small cleaning company and mostly just do what I can.",
+    "required_any": ["helpful context", "we can work with this", "totally fine", "absolutely fine"],
+    "required_all": ["?"],
+    "forbidden": ["you should", "basic", "obvious", "wrong answer", "you need to know"]
+  },
+  {
+    "id": "s2_advanced_operator",
+    "user_input": "We're a vertical SaaS in fintech, mostly PLG with some enterprise expansion.",
+    "required_any": ["sounds like", "is that accurate", "would you adjust", "frame your revenue model"],
+    "required_all": ["?"],
+    "forbidden": ["let me explain what SaaS is", "super simple", "easy concept"]
+  },
+  {
+    "id": "s3_jargon_clarification",
+    "user_input": "What do you mean by acquisition channel?",
+    "required_any": ["where new customers", "for example", "referrals", "google", "social", "paid ads"],
+    "required_all": ["?"],
+    "forbidden": ["just google it", "you should know"]
+  },
+  {
+    "id": "s4_metric_uncertainty",
+    "user_input": "I don't really track numbers that closely.",
+    "required_any": ["totally okay", "a lot of businesses", "ballpark", "rough"],
+    "required_all": ["?"],
+    "forbidden": ["that's a problem", "you must track", "cannot proceed"]
+  },
+  {
+    "id": "s5_hybrid_model",
+    "user_input": "We do consulting but also sell templates and a small course.",
+    "required_any": ["hybrid", "primary driver", "most want to grow"],
+    "required_all": ["?"],
+    "forbidden": ["pick one now from this list"]
+  },
+  {
+    "id": "s6_defensive_user",
+    "user_input": "Why are you asking all this?",
+    "required_any": ["fair question", "more specific", "more useful", "high-level", "want to continue"],
+    "required_all": ["?"],
+    "forbidden": ["because i said so", "just answer", "stop resisting"]
+  },
+  {
+    "id": "s7_short_answer",
+    "user_input": "Not sure. Maybe referrals.",
+    "required_any": ["that's useful", "we can mark", "for now"],
+    "required_all": ["?"],
+    "forbidden": ["be more specific", "try harder"]
+  },
+  {
+    "id": "s8_detailed_answer",
+    "user_input": "Most leads are from LinkedIn and partner intros. Deals are usually 20-40k and take 2-3 months, but close rates vary by vertical.",
+    "required_any": ["excellent detail", "actionable", "i heard", "if you track it"],
+    "required_all": ["?"],
+    "forbidden": ["too long", "keep it short next time"]
+  },
+  {
+    "id": "s9_user_skips",
+    "user_input": "Skip this one.",
+    "required_any": ["no problem", "we can work with what we have", "next quick one"],
+    "required_all": ["?"],
+    "forbidden": ["you can't skip", "must answer"]
+  },
+  {
+    "id": "s10_user_self_doubt",
+    "user_input": "I feel like my answers are probably bad.",
+    "required_any": ["you're doing great", "no perfect answers", "honest context"],
+    "required_all": ["?"],
+    "forbidden": ["they are bad", "wrong answers", "not good enough"]
+  }
+]

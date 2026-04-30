@@ -20,6 +20,7 @@ const NAV_ITEMS = [
   { href: "/admin/unified", label: "Unified" },
   { href: "/admin/followups", label: "Follow-ups" },
   { href: "/admin/analytics", label: "Analytics" },
+  { href: "/admin/benchmark-cohorts", label: "Benchmark cohorts" },
   { href: "/admin/experience-scores", label: "Experience" },
 ];
 

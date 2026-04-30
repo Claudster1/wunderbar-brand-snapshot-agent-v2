@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 
 // Lazy-load heavy interactive components to reduce initial bundle size
 const ReportNav = dynamic(() => import("@/components/reports/ReportNav"), { ssr: false });
@@ -37,6 +38,12 @@ function scoreLabel(pct: number) {
   if (pct >= 40) return "Fair";
   if (pct >= 20) return "Weak";
   return "Critical";
+}
+
+function weakestPillarCallout(pct: number) {
+  if (pct >= 60) return "Opportunity";
+  if (pct >= 40) return "Improvement Opportunity";
+  return "Needs Attention";
 }
 
 // ─── ANIMATED NUMBER ───
@@ -218,7 +225,7 @@ function PillarMeter({ score, maxScore = 20, label }: { score: number; maxScore?
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
         <span style={{ fontSize: 14, fontWeight: 700, color: NAVY }}>{label}</span>
-        <span style={{ fontSize: 16, fontWeight: 900, color }}>{score}<span style={{ fontWeight: 400, color: SUB }}>/{maxScore}</span></span>
+        <span style={{ fontSize: 16, fontWeight: 900, color }}>{score}<span style={{ fontWeight: 700, color }}>/{maxScore}</span></span>
       </div>
       <div style={{ height: 8, borderRadius: 5, background: "#E2E8F0", overflow: "hidden" }}>
         <div style={{
@@ -550,7 +557,12 @@ export default function BrandSnapshotReport() {
           {/* Top bar: logo + WunderBrand Snapshot™ lockup */}
           <div data-header-top style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 0", borderBottom: `1px solid ${BORDER}` }}>
             <a href="https://wunderbardigital.com/?utm_source=brand_snapshot_report&utm_medium=report_nav&utm_campaign=nav_header_logo&utm_content=snap_logo" target="_blank" rel="noopener noreferrer">
-              <img src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp" alt="Wunderbar Digital" style={{ height: 26, objectFit: "contain" }} />
+              <Image
+                src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp"
+                alt="Wunderbar Digital"
+                width={160}
+                height={26}
+              />
             </a>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
               <span style={{ fontSize: 22, fontWeight: 700, color: NAVY, lineHeight: 1 }}>WunderBrand Snapshot™</span>
@@ -673,6 +685,8 @@ export default function BrandSnapshotReport() {
             const overallPct = overallScore;
             const strongPct = (strongest.score / 20) * 100;
             const weakPct = (weakest.score / 20) * 100;
+            const weakestLabel = weakestPillarCallout(weakPct);
+            const weakestIconColor = BLUE;
 
             const cards = [
               {
@@ -696,20 +710,20 @@ export default function BrandSnapshotReport() {
                 pill: strongest.label,
                 icon: (
                   <svg viewBox="0 0 24 24" fill="none" style={{ width: 22, height: 22 }}>
-                    <path d="M12 2l3 7h7l-5.5 4.5 2 7L12 16l-6.5 4.5 2-7L2 9h7z" stroke={GREEN} strokeWidth="2" strokeLinejoin="round"/>
+                    <path d="M12 2l3 7h7l-5.5 4.5 2 7L12 16l-6.5 4.5 2-7L2 9h7z" stroke={BLUE} strokeWidth="2" strokeLinejoin="round"/>
                   </svg>
                 ),
               },
               {
-                label: "Needs Attention",
+                label: weakestLabel,
                 value: `${weakest.score}/20`,
                 sub: null as string | null,
                 pct: weakPct,
                 pill: weakest.label,
                 icon: (
                   <svg viewBox="0 0 24 24" fill="none" style={{ width: 22, height: 22 }}>
-                    <path d="M12 9v4M12 17h.01" stroke={ORANGE} strokeWidth="2" strokeLinecap="round"/>
-                    <path d="M10.3 3.2L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.2a2 2 0 00-3.4 0z" stroke={ORANGE} strokeWidth="2" strokeLinejoin="round"/>
+                    <path d="M12 9v4M12 17h.01" stroke={weakestIconColor} strokeWidth="2" strokeLinecap="round"/>
+                    <path d="M10.3 3.2L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.2a2 2 0 00-3.4 0z" stroke={weakestIconColor} strokeWidth="2" strokeLinejoin="round"/>
                   </svg>
                 ),
               },
@@ -730,7 +744,14 @@ export default function BrandSnapshotReport() {
                       {card.icon}
                       <div style={{ fontSize: 14, fontWeight: 700, color: NAVY, marginTop: 8 }}>{card.label}</div>
                       <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginTop: 10 }}>
-                        <span style={{ fontSize: 30, fontWeight: 700, color: tierColor, lineHeight: 1 }}>{card.value}</span>
+                        <span style={{ fontSize: 34, fontWeight: 800, color: tierColor, lineHeight: 1 }}>
+                          {card.value.includes("/") ? card.value.split("/")[0] : card.value}
+                        </span>
+                        <span style={{ fontSize: 16, fontWeight: 700, color: tierColor, opacity: 0.9 }}>
+                          {card.value.includes("/")
+                            ? `/${card.value.split("/")[1]}`
+                            : "/100"}
+                        </span>
                         <span style={{ fontSize: 12, fontWeight: 700, color: tierColor, textTransform: "uppercase" }}>{tierLabel}</span>
                       </div>
                       {card.sub && (
@@ -1090,7 +1111,12 @@ export default function BrandSnapshotReport() {
         <footer style={{ textAlign: "center", padding: "20px 0 0", borderTop: `1px solid ${BORDER}` }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8 }}>
             <a href="https://wunderbardigital.com/?utm_source=brand_snapshot_report&utm_medium=report_nav&utm_campaign=nav_header_logo&utm_content=snap_logo" target="_blank" rel="noopener noreferrer">
-              <img src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp" alt="Wunderbar Digital" style={{ height: 20, objectFit: "contain" }} />
+              <Image
+                src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp"
+                alt="Wunderbar Digital"
+                width={124}
+                height={20}
+              />
             </a>
           </div>
           <p style={{ fontSize: 14, color: SUB, marginBottom: 4 }}>
@@ -1107,19 +1133,19 @@ export default function BrandSnapshotReport() {
           </p>
           <p style={{ fontSize: 11, color: '#8A97A8', textAlign: 'center', marginTop: 24, padding: '16px 0', borderTop: '1px solid #E6EAF2', fontFamily: 'Lato, sans-serif' }}>
             This report is licensed for internal use by the commissioning organization. Redistribution or resale is prohibited.
-            {' '}&copy; {new Date().getFullYear()} Wunderbar Digital &middot;{' '}
+            {' '}&copy; 2026 Wunderbar Digital &middot;{' '}
             <a href="https://wunderbardigital.com/terms-of-service?utm_source=wunderbrand_app&utm_medium=report_footer&utm_campaign=legal" target="_blank" rel="noopener noreferrer" style={{ color: '#8A97A8', textDecoration: 'underline' }}>Terms of Use</a>
           </p>
         </footer>
       </div>
     </div>
     <ReportNav reportTitle="WunderBrand Snapshot™" sections={[
-      { id: "executive-summary", label: "Executive Summary" },
-      { id: "brand-alignment-score", label: "WunderBrand Score™" },
-      { id: "pillar-scores", label: "Brand Pillar Scores" },
-      { id: "brand-archetype", label: "Brand Archetype" },
-      { id: "next-steps", label: "Your Next Steps" },
-      { id: "whats-next", label: "What's Next" },
+      { id: "executive-summary", label: "Executive Summary", group: "Foundation" },
+      { id: "brand-alignment-score", label: "WunderBrand Score™", group: "Foundation" },
+      { id: "pillar-scores", label: "Brand Pillar Scores", group: "Foundation" },
+      { id: "brand-archetype", label: "Brand Archetype", group: "Foundation" },
+      { id: "next-steps", label: "Your Next Steps", group: "Activation" },
+      { id: "whats-next", label: "What's Next", group: "Activation" },
     ]} />
 
     {/* Wundy™ General Guide — free tier (no report data access) */}

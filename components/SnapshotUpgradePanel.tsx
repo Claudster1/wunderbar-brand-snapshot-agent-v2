@@ -4,6 +4,7 @@
 "use client";
 
 import Image from "next/image";
+import StrategyProseBody from "@/components/strategy/StrategyProseBody";
 
 const PILLAR_LABELS: Record<string, string> = {
   positioning: "Positioning",
@@ -55,7 +56,7 @@ export function SnapshotUpgradePanel({
           </p>
 
           {/* Benefits List — value of upgrading */}
-          <ul className="list-disc pl-6 text-brand-midnight mb-6 space-y-2">
+          <ul className="strategy-suite-ul mb-6 text-brand-midnight">
             <li>Expanded breakdown of your five pillars with priority actions</li>
             <li>Messaging clarity and offer positioning review</li>
             <li>Visual + verbal consistency scan</li>
@@ -66,16 +67,24 @@ export function SnapshotUpgradePanel({
           {/* Dynamic CTA (if provided) */}
           {upgradeCTA && (
             <div className="mb-6 p-4 bg-blue-50 rounded-lg border-l-4 border-brand-blue">
-              <p className="text-sm text-brand-midnight leading-relaxed whitespace-pre-line">
-                {upgradeCTA}
-              </p>
+              <StrategyProseBody
+                text={upgradeCTA}
+                paragraphStyle={{
+                  margin: 0,
+                  fontSize: 14,
+                  color: "#1e293b",
+                  lineHeight: 1.625,
+                  whiteSpace: "pre-line",
+                }}
+                blockGapClassName="gap-2"
+              />
             </div>
           )}
 
           {/* Upgrade Button */}
           <a 
             href={snapshotPlusCheckoutUrl} 
-            className="inline-block bg-brand-blue hover:bg-brand-blueHover text-white font-semibold px-6 py-3 rounded-md shadow-md transition"
+            className="inline-block bg-brand-blue hover:bg-brand-blueHover text-white font-semibold px-6 py-3 rounded-[5px] shadow-md transition"
           >
             Upgrade to Snapshot+™ →
           </a>

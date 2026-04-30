@@ -29,7 +29,7 @@ export default function StartSnapshotModal({ isOpen, onClose }: StartSnapshotMod
             how clearly and confidently your brand is showing up in the market today.
             <br />
             <br />
-            You’ll receive your WunderBrand Score™ along with a clear picture of what's working,
+            You’ll receive your WunderBrand Score™ along with a clear picture of what&apos;s working,
             what’s unclear, and where smarter refinements can create a measurable lift in trust,
             clarity, and conversion.
           </p>
@@ -37,11 +37,11 @@ export default function StartSnapshotModal({ isOpen, onClose }: StartSnapshotMod
 
         {/* VALUE LIST */}
         <div className="bg-brand-gray/60 rounded-lg p-4 border border-brand-border">
-          <ul className="list-disc pl-5 space-y-1 text-[15px] text-brand-midnight">
+          <ul className="strategy-suite-ul text-[15px] text-brand-midnight">
             <li>5-pillar brand clarity analysis</li>
             <li>WunderBrand Score™ (your overall market-readiness rating)</li>
             <li>Instant insights once completed</li>
-            <li>No email required until you're ready to unlock your full report</li>
+            <li>No email required until you&apos;re ready to unlock your full report</li>
           </ul>
         </div>
 
@@ -50,7 +50,7 @@ export default function StartSnapshotModal({ isOpen, onClose }: StartSnapshotMod
           onClick={beginSnapshot}
           className="
             bg-brand-blue hover:bg-brand-blueHover text-white 
-            font-semibold rounded-md px-6 py-3 w-full
+            font-semibold rounded-[5px] px-6 py-3 w-full
             shadow-md shadow-brand-blue/30 transition
           "
         >

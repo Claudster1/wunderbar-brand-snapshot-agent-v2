@@ -6,10 +6,13 @@ import { pdfTheme } from "../theme";
 
 const styles = StyleSheet.create({
   header: {
-    fontSize: pdfTheme.fontSizes.lg || 16,
+    fontSize: 16,
     fontWeight: 700,
     color: pdfTheme.colors.navy || "#021859",
-    marginBottom: pdfTheme.spacing.md || 12,
+    marginBottom: 10,
+    marginTop: 8,
+    letterSpacing: 0.2,
+    lineHeight: 1.3,
   },
 });
 

@@ -47,7 +47,7 @@ export function InsightDepthCTA({ userRoleContext }: InsightDepthCTAProps = {}) 
 
       <Link
         href="/snapshot-plus"
-        className="inline-block px-6 py-3 bg-brand-blue text-white rounded-md font-semibold hover:bg-brand-blueHover transition"
+        className="inline-block px-6 py-3 bg-brand-blue text-white rounded-[5px] font-semibold hover:bg-brand-blueHover transition"
       >
         See how to strengthen what matters most right now →
       </Link>

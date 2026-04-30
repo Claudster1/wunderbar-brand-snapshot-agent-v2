@@ -27,7 +27,7 @@ export const COLORS = {
   BORDER: "#D6E4F0",
   BORDER_SUBTLE: "#E2E8F0",   // Track backgrounds, subtle dividers
 
-  // Semantic / pillar
+  // Semantic / pillar (see also src/pdf/reportVisualTokens.ts + docs/REPORT_VISUAL_LANGUAGE.md — PDF uses green/red only for Do/Don’t-style guidance)
   GREEN: "#22C55E",
   GREEN_DARK: "#16A34A",
   GOOD_GREEN: "#16A34A",

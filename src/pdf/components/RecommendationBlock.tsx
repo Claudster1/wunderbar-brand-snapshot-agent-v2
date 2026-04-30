@@ -12,14 +12,14 @@ const styles = StyleSheet.create({
     border: `1px solid ${pdfTheme.colors.border}`,
   },
   title: {
-    fontFamily: "Inter",
+    fontFamily: "Helvetica",
     fontSize: pdfTheme.fontSizes.md,
     fontWeight: 600,
     color: pdfTheme.colors.navy,
     marginBottom: pdfTheme.spacing.sm,
   },
   text: {
-    fontFamily: "Inter",
+    fontFamily: "Helvetica",
     fontSize: pdfTheme.fontSizes.base,
     color: pdfTheme.colors.midnight,
     lineHeight: 1.5,

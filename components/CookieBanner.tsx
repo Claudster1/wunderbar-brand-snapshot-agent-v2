@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useSyncExternalStore } from "react";
 import {
   getConsent,
   setConsent as saveConsent,
@@ -46,6 +46,20 @@ const CATEGORIES = [
     defaultOn: false,
   },
 ];
+
+function normalizeTrackingId(value: string | undefined): string | null {
+  const cleaned = value?.trim();
+  if (!cleaned) return null;
+  const lowered = cleaned.toLowerCase();
+  if (lowered === "null" || lowered === "undefined") return null;
+  return cleaned;
+}
+
+function normalizeMetaPixelId(value: string | undefined): string | null {
+  const cleaned = normalizeTrackingId(value);
+  if (!cleaned) return null;
+  return /^\d{5,20}$/.test(cleaned) ? cleaned : null;
+}
 
 /* ─── Toggle Switch ─── */
 function Toggle({
@@ -356,36 +370,46 @@ function ConfirmToast({ message }: { message: string }) {
 /* ─── Main CookieBanner Component ─── */
 /* ═══════════════════════════════════════════ */
 export function CookieBanner() {
-  const [visible, setVisible] = useState(false);
+  const hydrated = useSyncExternalStore(
+    () => () => undefined,
+    () => true,
+    () => false
+  );
+  const initialConsent =
+    typeof window === "undefined" ? null : getConsent();
+  const [consent, setConsentState] = useState<ConsentState | null>(initialConsent);
+  const [visible, setVisible] = useState<boolean>(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
-  const [consent, setConsentState] = useState<ConsentState | null>(null);
-  const [preferences, setPreferences] = useState<Record<string, boolean>>(
-    Object.fromEntries(CATEGORIES.map((c) => [c.id, c.defaultOn])),
+  const [preferences, setPreferences] = useState<Record<string, boolean>>(() =>
+    initialConsent
+      ? {
+          essential: true,
+          analytics: initialConsent.analytics,
+          marketing: initialConsent.marketing,
+        }
+      : {
+          essential: true,
+          analytics: true,
+          marketing: false,
+        }
   );
 
-  // Check existing consent on mount
   useEffect(() => {
-    const existing = getConsent();
-    if (existing) {
-      setConsentState(existing);
-      setPreferences({
-        essential: true,
-        analytics: existing.analytics,
-        marketing: existing.marketing,
-      });
-      if (existing.analytics) injectTracking();
-      if (existing.marketing) injectMarketingPixels();
-    } else {
-      const t = setTimeout(() => setVisible(true), 800);
-      return () => clearTimeout(t);
+    if (consent) {
+      if (consent.analytics) injectTracking();
+      if (consent.marketing) injectMarketingPixels();
+      return undefined;
     }
-  }, []);
+
+    const t = setTimeout(() => setVisible(true), 800);
+    return () => clearTimeout(t);
+  }, [consent]);
 
   // Expose global function for "Cookie Settings" footer link
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (window as any).__openCookieSettings = () => {
+    type CookieWindow = Window & { __openCookieSettings?: () => void };
+    (window as CookieWindow).__openCookieSettings = () => {
       const existing = getConsent();
       if (existing) {
         setPreferences({
@@ -397,8 +421,7 @@ export function CookieBanner() {
       setModalOpen(true);
     };
     return () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (window as any).__openCookieSettings;
+      delete (window as CookieWindow).__openCookieSettings;
     };
   }, []);
 
@@ -448,6 +471,7 @@ export function CookieBanner() {
   }, [preferences, showToast]);
 
   // Don't render anything if consent exists, modal not open, and no toast
+  if (!hydrated) return null;
   if (!visible && !modalOpen && !toast && consent) return null;
   if (!visible && !modalOpen && !toast) return null;
 
@@ -667,12 +691,18 @@ const styles: Record<string, React.CSSProperties> = {
 /* ─── Inject tracking scripts when analytics consent is given ─── */
 function injectTracking() {
   if (typeof window === "undefined") return;
+  const w = window as Window & {
+    visitorGlobalObjectAlias?: string;
+    vgo?: ((...args: unknown[]) => void) & { q?: unknown[][]; l?: number };
+    dataLayer?: unknown[][];
+    gtag?: (...args: unknown[]) => void;
+  };
 
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  const w = window as any;
-
-  // AC Site Tracking (diffuser.js)
-  if (!w.vgo) {
+  // AC Site Tracking (diffuser.js) — only initialize when account id is configured.
+  const AC_SITE_TRACKING_ACCOUNT_ID = normalizeTrackingId(
+    process.env.NEXT_PUBLIC_ACTIVE_CAMPAIGN_ACCOUNT_ID
+  );
+  if (AC_SITE_TRACKING_ACCOUNT_ID && !w.vgo) {
     const script = document.createElement("script");
     script.src = "https://diffuser-cdn.app-us1.com/diffuser/diffuser.js";
     script.async = true;
@@ -688,6 +718,7 @@ function injectTracking() {
 
     script.onload = () => {
       if (typeof w.vgo === "function") {
+        w.vgo("setAccount", AC_SITE_TRACKING_ACCOUNT_ID);
         w.vgo("setTrackByDefault", true);
         w.vgo("process");
       }
@@ -696,7 +727,7 @@ function injectTracking() {
 
   // Google Analytics 4 (GA4) + Google Ads conversion tracking
   const GA_ID = "G-HFNS3KRBKH";
-  const GADS_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID;
+  const GADS_ID = normalizeTrackingId(process.env.NEXT_PUBLIC_GOOGLE_ADS_ID);
   if (!w.gtag) {
     const gtagScript = document.createElement("script");
     gtagScript.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
@@ -705,53 +736,71 @@ function injectTracking() {
 
     w.dataLayer = w.dataLayer || [];
     w.gtag = function (...args: unknown[]) {
-      w.dataLayer.push(args);
+      (w.dataLayer ??= []).push(args);
     };
     w.gtag("js", new Date());
     w.gtag("config", GA_ID);
     if (GADS_ID) w.gtag("config", GADS_ID);
   }
-  /* eslint-enable @typescript-eslint/no-explicit-any */
 }
 
 /* ─── Inject marketing pixels when marketing consent is given ─── */
 function injectMarketingPixels() {
   if (typeof window === "undefined") return;
-
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  const w = window as any;
+  type FbqFn = ((...args: unknown[]) => void) & {
+    callMethod?: (...args: unknown[]) => void;
+    queue: unknown[][];
+    push?: FbqFn;
+    loaded?: boolean;
+    version?: string;
+  };
+  const w = window as Window & {
+    fbq?: FbqFn;
+    _linkedin_data_partner_ids?: string[];
+    __metaPixelInitialized?: boolean;
+    __metaPixelScriptInjected?: boolean;
+    __linkedInInsightInjected?: boolean;
+  };
 
   // Meta Pixel (Facebook)
-  const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+  const META_PIXEL_ID = normalizeMetaPixelId(process.env.NEXT_PUBLIC_META_PIXEL_ID);
   if (META_PIXEL_ID && !w.fbq) {
-    const f = function (...args: unknown[]) {
+    const f: FbqFn = function (...args: unknown[]) {
       f.callMethod ? f.callMethod(...args) : f.queue.push(args);
-    } as any;
+    };
     f.push = f;
     f.loaded = true;
     f.version = "2.0";
     f.queue = [] as unknown[][];
     w.fbq = f;
 
-    const script = document.createElement("script");
-    script.src = "https://connect.facebook.net/en_US/fbevents.js";
-    script.async = true;
-    document.head.appendChild(script);
+    if (!w.__metaPixelScriptInjected) {
+      const script = document.createElement("script");
+      script.src = "https://connect.facebook.net/en_US/fbevents.js";
+      script.async = true;
+      document.head.appendChild(script);
+      w.__metaPixelScriptInjected = true;
+    }
+  }
 
+  if (META_PIXEL_ID && w.fbq && !w.__metaPixelInitialized) {
     w.fbq("init", META_PIXEL_ID);
     w.fbq("track", "PageView");
+    w.__metaPixelInitialized = true;
   }
 
   // LinkedIn Insight Tag
-  const LINKEDIN_PARTNER_ID = process.env.NEXT_PUBLIC_LINKEDIN_PARTNER_ID;
+  const LINKEDIN_PARTNER_ID = normalizeTrackingId(process.env.NEXT_PUBLIC_LINKEDIN_PARTNER_ID);
   if (LINKEDIN_PARTNER_ID && !w._linkedin_data_partner_ids) {
     w._linkedin_data_partner_ids = w._linkedin_data_partner_ids || [];
     w._linkedin_data_partner_ids.push(LINKEDIN_PARTNER_ID);
 
-    const script = document.createElement("script");
-    script.src = "https://snap.licdn.com/li.lms-analytics/insight.min.js";
-    script.async = true;
-    document.head.appendChild(script);
+    if (!w.__linkedInInsightInjected) {
+      const script = document.createElement("script");
+      script.src = "https://snap.licdn.com/li.lms-analytics/insight.min.js";
+      script.async = true;
+      document.head.appendChild(script);
+      w.__linkedInInsightInjected = true;
+    }
   }
-  /* eslint-enable @typescript-eslint/no-explicit-any */
 }

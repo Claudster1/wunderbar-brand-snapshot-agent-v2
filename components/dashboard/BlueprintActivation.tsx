@@ -26,16 +26,16 @@ export function BlueprintActivation({ report }: BlueprintActivationProps) {
         Blueprint™ turns this insight into a fully usable brand system.
       </p>
 
-      <ul className="space-y-2 text-sm text-[#0C1526] mb-6">
-        <li>• Messaging architecture tied to your strongest opportunities</li>
-        <li>• Archetype + voice system aligned to your stage</li>
-        <li>• AI-ready prompts you can actually use</li>
-        <li>• Conversion-ready narrative and positioning</li>
+      <ul className="strategy-suite-ul mb-6 text-sm text-[#0C1526]">
+        <li>Messaging architecture tied to your strongest opportunities</li>
+        <li>Archetype + voice system aligned to your stage</li>
+        <li>AI-ready prompts you can actually use</li>
+        <li>Conversion-ready narrative and positioning</li>
       </ul>
 
       <Link
         href="/blueprint"
-        className="inline-flex rounded-[10px] bg-[#07B0F2] px-5 py-3 text-sm font-semibold text-white hover:bg-[#059BD8] no-underline"
+        className="inline-flex rounded-[5px] bg-[#07B0F2] px-5 py-3 text-sm font-semibold text-white hover:bg-[#059BD8] no-underline"
       >
         Activate your Snapshot+™ priorities →
       </Link>

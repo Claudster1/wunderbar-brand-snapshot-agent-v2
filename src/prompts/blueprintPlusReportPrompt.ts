@@ -1,5 +1,8 @@
 // src/prompts/blueprintPlusReportPrompt.ts
 // WunderBrand Blueprint+™ ($1,997) - Report Generation Prompt
+import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
+import { aiApTitleCaseHeadingsRule } from "@/lib/copy/capitalizationPolicy";
+import { reportExecutionReadyContentRule } from "@/lib/copy/reportExecutionStandard";
 
 export const blueprintPlusReportPrompt = `
 You are generating the WunderBrand Blueprint+™ for Wunderbar Digital.
@@ -15,6 +18,23 @@ ABSOLUTE RULES:
 - Everything must ladder back to growth, scale, and leverage.
 - Every recommendation must include HOW to implement it, not just WHAT to do.
 - Include ready-to-use templates and copy wherever possible.
+- **Not a to-do memo:** depth means **filled-in deliverables** (templates with brackets only where the user must substitute a proper noun), not lists of initiatives without copy.
+- **measurementFramework.trackingRecommendations:** every row must include readerFriendlyOneLiner—one sentence a founder or finance partner can skim. It parallels howToSetUp (define UTM, SQL, CRM, etc. in plain words when used above); howToSetUp remains the operator-grade source of truth for experienced marketers.
+
+ACTIVATION SURFACE (IN-APP): The product UI surfaces **emailMarketingFramework**, **socialMediaStrategy**, **seoStrategy**, **aeoStrategy**, **customerJourneyMap**, **thoughtLeadershipStrategy**, **paidMediaStrategy**, **competitivePositioning** (movementPlan / differentiationSummary), **icpConversionIntelligenceFramework**, **personaDrivenSegmentation**, **icpGoToMarketPlans** (one per ICP: strategy ladder, campaign content needs, 90-day tactics, ICI matrix anchor, competitive talk-track cues for sales + marketing), and **ninetyDayRoadmap** as **live channel plans** for $2K buyers. In those sections, write **deployable assets** — named ICP tiers and buyer personas, real subject lines, hooks, stage copy, and budget/channel lines — not bulk imperatives like "build a nurture" or "optimize SEO" without the actual sequence or page targets. The **primary free offer** in **conversionStrategy.leadCaptureRecommendations** (whether **optimize_existing** or **create_new**) must show up **by name or clear paraphrase** in email + social + calendar sections, not only in conversionStrategy — and must stay **aligned with strategicOfferContext.primaryOffer** and **strategicOfferContext.channelExecutionAlignment** (same offer name, no promises that contradict **scopeOut**). **emailMarketingFramework** must spell out a **full-funnel nurture** (awareness → consideration → decision → retention/re-engagement) with **concrete sequence steps** (subject + purpose + key message per email or per batch). **socialMediaStrategy** must include an explicit **90-day phased calendar** (e.g. days 1–30, 31–60, 61–90) describing what shifts in themes, cadence, and tests each month. **contentCalendarFramework.monthlyThemes** must include a full-year sequence (**Q1, Q2, Q3, Q4**) with no missing quarters.
+
+**CONVERSION SPINE (REQUIRED on channel plans):** On **paidMediaStrategy**, **emailMarketingFramework**, **socialMediaStrategy**, **seoStrategy**, **aeoStrategy**, and **thoughtLeadershipStrategy**, you MUST include a **conversionSpine** object (sibling to **overview**) with exactly these string fields — all filled, no placeholders:
+- **primaryMacroConversion** — The one business outcome this program optimizes for (e.g. "Qualified demo booked with budget + timeline," "Self-serve signup + activation," "Pipeline opportunity created in CRM"). Use the **same** macro across all six sections for this brand.
+- **primaryOfferAnchor** — The **same** named offer or lead magnet readers will see (must match **strategicOfferContext.primaryOffer.name** or **conversionStrategy.leadCaptureRecommendations.primaryPickTitle** / optimized title — same vocabulary everywhere).
+- **advancesConversion** — One sentence: **this section’s job** on that path (e.g. paid: "Captures in-market clicks and retargets engagers toward the landing path for {offer}"; email: "Nurtures proof and timing until the reader takes the macro CTA"; SEO: "Earns intent-mapped visits that feed the same landing and CTA as paid"; social: "Builds trust and soft CTAs that feed the magnet or demo path"; AEO: "Surfaces direct answers that route to the same conversion pages"; thought leadership: "Earns authority touchpoints that make the macro CTA credible"). Do not contradict **primaryMacroConversion** or promise a different end state.
+
+**paidMediaStrategy** — Include **platformsCovered** as a string array naming every distinct **platform** you use (use real platform names: e.g. "LinkedIn", "Meta", "Google Ads", "Microsoft Advertising", "YouTube", "Programmatic / DSP", not vague labels like "social" or "search"). You MUST output **at least three (3) distinct channels[] rows**, each on a **different primary platform** when possible (e.g. LinkedIn + Meta + Google Ads). Each **channels[]** row MUST set **platform** (same vocabulary as platformsCovered) and **placement** (the ad surface/format, e.g. "Sponsored Content — Feed", "Conversion — Advantage+", "Search — non-brand", "Demand Gen", "In-stream — YouTube", "Reels / Shorts"). Set **channel** to a readable title that combines platform and placement (for example: LinkedIn — Sponsored Content — Feed). Then populate **headline**, **subheadline** (if the placement uses one), **bodyCopy** (primary ad text / description where applicable), **imagePrompt** (detailed still/visual brief for designers or AI image tools: subject, scene, lighting, brand palette, safe text zones, what to avoid), **videoPrompt** (for motion placements only—YouTube, Meta Reels, Shorts, in-stream, CTV: hook in first 1–2s, on-screen text beats, VO or caption tone, shot list or B-roll, target length and aspect ratio, brand cues, legal/safety; use "" when the row is static image or text-only), and **cta** (button or destination wording), plus objective, audienceAngle, offerStrategy, and kpiToTrack. Do not leave these empty with only generic "creativeDirection" prose; use creativeDirection only as a short extra note if needed.
+
+${reportExecutionReadyContentRule}
+
+${aiAbbreviationFirstReferenceRule}
+
+${aiApTitleCaseHeadingsRule}
 
 ---------------------------------------------------------------------
 CONTEXT-AWARE PERSONALIZATION (CRITICAL — HIGHEST TIER)
@@ -22,6 +42,11 @@ CONTEXT-AWARE PERSONALIZATION (CRITICAL — HIGHEST TIER)
 WunderBrand Blueprint+™ is a $1,997 strategic document. It must read as if a senior strategist spent days building it for THIS specific business. Generic content is unacceptable.
 
 The input data includes the following contextual signals — USE ALL OF THEM:
+
+LEAD MAGNET DETAILS (leadMagnetDetails — when hasLeadMagnet is true):
+  - Intake may include **title**, **format**, **summary**, and optional **urlOrLocation**. Treat these as the source of truth for what they **already** offer.
+  - **optimize_existing path:** Quote or paraphrase their title/summary in recommendations; **primaryPickTitle** should read as a tightened, conversion-ready evolution of their **leadMagnetDetails.title** (not a generic unrelated name). Address format (e.g. "your PDF checklist") and, if urlOrLocation is present, reference landing/delivery context where relevant.
+  - If hasLeadMagnet is true but leadMagnetDetails is missing or empty, note the gap briefly in supportiveContext and infer carefully from other inputs — still produce useful optimization, but prefer not to invent a fake URL.
 
 BUSINESS NAME: Reference by name in every section. Never say "your business" when you have the actual name.
 INDUSTRY: Shape every framework, benchmark, competitive insight, and example to the specific industry.
@@ -45,10 +70,18 @@ THOUGHT LEADERSHIP (thoughtLeadershipActivity):
   - CRITICAL: This is the primary data source for the Thought Leadership & PR Positioning section (Blueprint+ exclusive). Every detail matters.
 CONVERSION INFRASTRUCTURE (hasEmailList, hasLeadMagnet, hasClearCTA):
   - Blueprint+ must provide a COMPLETE conversion system design
-  - If missing: full infrastructure buildout plan with specific tools, templates, and timelines
+  - **Two valid paths (set conversionStrategy.leadCaptureRecommendations.leadPath accordingly):**
+    - **hasLeadMagnet === true (leadPath must be the string optimize_existing):** Use **leadMagnetDetails** from intake (title, format, summary, urlOrLocation) as the primary source of truth. **Review and optimize** that specific asset (landing headline upgrade, stronger CTA, nurture handoff, proof placement, format-appropriate tweaks). If **leadMagnetDetails** is missing, infer carefully from the rest of the thread and note that in supportiveContext. Give **1–2 concrete optimization variants** (not a lecture). Celebrate what works; improvements are framed as **tuning**, not replacement, unless a pivot is clearly better.
+    - **hasLeadMagnet === false (leadPath must be the string create_new):** **Create** **3–4 tailored new options** (working title, format, why it fits, outline bullets, landing headline, primary CTA). Pick **one primaryPickTitle** as the default to thread through campaigns. Tone: supportive — not having one yet is common.
+  - **Same campaign embedding rule for BOTH paths:** Whatever you set as **primaryPickTitle** (optimized current offer **or** the chosen new concept) must be woven into **emailMarketingFramework**, **socialMediaStrategy**, **campaignContentStrategy.personaContentCalendar**, and **contentCalendarFramework** with **real hooks and copy** — not only mentioned in conversionStrategy. At least one email and one social example must **promote that exact offer** by name or clear paraphrase.
+  - If other conversion pieces are thin: full infrastructure buildout with specific tools, templates, and timelines — still supportive in tone
 CUSTOMER ACQUISITION (customerAcquisitionSource):
   - Inform channel strategy, diversification plan, and growth model
   - Blueprint+ should model acquisition mix optimization
+SPEND CONTEXT (spendRecommendationContext):
+  - Treat this as a deterministic planning guardrail, not optional flavor text
+  - Ground recommendations in current spend first, then show a phased 30/60/90 growth roadmap
+  - Use scenario ranges (conservative/base/accelerated) and unlock conditions, not single-point promises
 REVENUE RANGE + PREVIOUS BRAND WORK:
   - Calibrate implementation complexity and resource assumptions
   - Higher revenue → more sophisticated implementation, team coordination
@@ -90,10 +123,10 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
    - financialImpact: Connect this pillar to specific business outcomes (e.g., "A credibility score of 8 for a B2B firm means longer sales cycles, higher cost of trust-building, and lost RFPs — improving this pillar alone could accelerate deal close rates by 15-25%." Use directional estimates calibrated to industry and stage.)
    - riskOfInaction: What specifically happens to [businessName] over the next 6-12 months if this pillar is NOT addressed (paint the realistic downside scenario with business language, not fearmongering)
    - concreteExample { before, after }
-   - strategicRecommendation, successLooksLike
+   - strategicRecommendation (include paste-ready copy or criteria — not chores alone), successLooksLike
    - implementationGuide: Array of 3–4 steps, each with:
-     - step: What to do (short title)
-     - detail: Specific instructions for this step
+     - step: Deliverable-oriented title (what exists when done)
+     - detail: **Filled-in** instructions — sample copy, checklist text, or template bones for [businessName], not "review strategy"
    - toolsAndResources: String listing recommended tools and platforms for this pillar
 
 4. Context Coverage
@@ -116,7 +149,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
      - why: Why the "right" version works better
    - communicationGuidelines:
      - dos: Array of 5 guidelines, each with { do: "guideline", example: "example" }
-     - donts: Array of 5 guidelines, each with { dont: "guideline", example: "example" }
+     - donts: Array of 5 guidelines, each with { dont: "guideline", example: "contrast pair written as **Not this:** … **Do this:** … — never start with 'Avoid example' or 'Avoid:' alone" }
 
 8. Visual & Verbal Brand Direction (inherited from Snapshot+™ foundation)
    colorPaletteDirection, colorSwatches [{ name, hex, rgb, cmyk, usage }], avoidColors [{ name, hex, reason }],
@@ -167,7 +200,9 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
     whatThisEnables, howToUse
 
 16. Brand Foundation
-    brandPurpose, brandPromise, positioningStatement, differentiationNarrative,
+    brandPurpose — Same bar as Blueprint™: **declarative purpose copy** (not marketing prescriptions). **2–3 short paragraphs (90–200 words)**; no imperatives like "must unify messaging" or "improve visibility" — those live in action plans and channel sections. Four moves: who & stake, tension, identity grounding (not a task list), tradeoff **principle**. ≥3 input threads. Distinct from promise, mission, positioning, and tactics.
+
+    brandPromise, positioningStatement, differentiationNarrative,
     mission: Craft from missionStatement if provided (may be polished or conversational — either way, honor the intent). If null, derive from businessName, industry, audienceType, whatMakesYouDifferent, and primaryGoals.
     vision: Craft from visionStatement if provided (same principle). If null, generate based on primaryGoals, industry, and brand archetype.
     
@@ -181,10 +216,17 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
     }
 
 17. Audience Persona Definition & Ideal Customer Profiles
-    **BLUEPRINT+ ENHANCED** — Full ICP system with buyer journey mapping:
+    **BLUEPRINT+ ENHANCED** — Full ICP system with buyer journey mapping.
+    
+    ICP vs. personas (CRITICAL):
+    • ICP = strategic segment (who you prioritize). Personas = named people inside that segment.
+    • Label every ICP: primaryICP.icpLabel and secondaryICP.icpLabel (required strings).
+    • additionalICPs: optional array (0–2), each with required icpLabel + optional icpKey ("tertiary", "expansion", "partner", etc.) and the same depth as primaryICP. Only include when inputs clearly describe a distinct third/fourth segment — **especially when additionalDistinctSegmentsNote** (from the diagnostic) is non-null.
+    
     primaryICP {
-      name: Memorable persona label (e.g., "The Growth-Stage Founder")
-      summary: Full persona narrative
+      icpLabel: REQUIRED (e.g. "Primary ICP — best-fit customers")
+      name: Memorable segment label (e.g., "The Growth-Stage Founder")
+      summary: Full segment narrative
       demographics, psychographics, painPoints [], goals
       buyingJourney: Discovery → evaluation → decision flow with channels, timeline, stakeholders
       languageTheyUse: Exact phrases for messaging alignment
@@ -193,7 +235,8 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       contentTopics: 5 content topics that would attract this persona
       conversionPath: The ideal journey from first touch to customer
     }
-    secondaryICP: Same depth as primaryICP
+    secondaryICP: Same depth as primaryICP (including icpLabel)
+    additionalICPs: [] optional; when present, each item includes icpLabel, icpKey?, and the same fields as primaryICP
     
     If idealDiffersFromCurrent is true:
     audienceTransitionPlan {
@@ -205,17 +248,28 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       timeline: Phased 90-day transition plan
     }
 
+17B. ICP Go-To-Market Plans (REQUIRED — root key **icpGoToMarketPlans**)
+    **BLUEPRINT+ EXCLUSIVE** — One object per ICP from section 17 so campaigns, sales battle cards, and strategy stay synchronized.
+    • Emit **icpGoToMarketPlans** as a **top-level** JSON array (same depth as **audiencePersonaDefinition** / persona blocks).
+    • **Exactly one row** per ICP: primaryICP, secondaryICP, and each **additionalICPs[]** item when present. **icpLabel** must match that ICP's **icpLabel** string exactly (same string **buyerPersonas** use in **icpAlignment**).
+    • **alignmentToBusinessStrategy**: link this segment to executive priorities, positioning, and **strategicOfferContext** (not generic fluff).
+    • **campaignContentNeeds**: concrete assets and hooks this ICP needs from marketing.
+    • **priorityTactics**: ordered ~90-day tactics; must not contradict **strategicOfferContext.scopeOut**.
+    • **conversion_intelligence_reference**: must align with **icpConversionIntelligenceFramework** for that tier (icpTier, funnelStage, matrixCell coherent with your matrix rows).
+    • **competitiveConversationCues**: differentiation and landmines for **this ICP** in live conversations.
+    • **salesConversationGuide.conversion_intelligence_reference** (singular): duplicate the **primary** (or revenue-critical) ICP plan's reference object for legacy surfaces.
+
 18. Buyer Persona Ecosystem
     **BLUEPRINT+ EXCLUSIVE** — Full buyer persona system for marketing segmentation and messaging.
     
-    IMPORTANT: ICPs (section 17) define the ideal company/customer profile. Buyer personas represent the REAL PEOPLE within those profiles — the individuals who discover, evaluate, influence, and buy. This is the bridge between "who to target" and "how to talk to them."
+    IMPORTANT: ICPs (section 17) define segments; buyer personas are people inside those segments.
     
-    For EACH ICP (primary and secondary), generate 2–3 distinct buyer personas (4–6 total):
+    For EACH ICP (primary, secondary, and each additionalICPs entry), generate 2–3 distinct buyer personas when the segment warrants it; minimum 1 persona per ICP. Total personas often 6–10 when additionalICPs is populated.
     
     buyerPersonas: [
       {
         personaName: A vivid, memorable name (e.g., "The Overwhelmed CMO", "The Side-Hustle Mom", "The Risk-Averse CFO")
-        icpAlignment: Which ICP this persona belongs to (primary or secondary)
+        icpAlignment: REQUIRED — exact string match to the icpLabel of primaryICP, secondaryICP, or one additionalICPs[] item
         narrativeSnapshot: A 3–4 sentence story that brings this persona to life — who they are, what their day looks like, what frustrates them. Written in third person.
         role: Their role or identity (B2B: job title, seniority, decision authority; B2C: life role, identity, values)
         age range and context (approximate, for messaging calibration)
@@ -286,6 +340,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
         - context: The situation (e.g., "LinkedIn post about industry trends")
         - onBrand: What on-brand looks like
         - offBrand: What off-brand looks like
+    **Required baseline samples (may live inside guidance or as the first scenario):** messaging = Homepage **as shipped** (no “H1:” / “Button:” labels); content = one **published** opening paragraph; salesConversations = **quoted** talk track only—no embedded instructions (“adapt proof”, “include CTA”).
 
 20. Messaging System
     coreMessage, supportingMessages [], proofPoints [], whatNotToSay []
@@ -331,9 +386,19 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
     Color palette must include all three formats: hex (web/CSS), rgb (digital/presentations), cmyk (print)
 
 24. Conversion Strategy
-    **BLUEPRINT+ ENHANCED** — Includes templates and email nurture sequence:
+    **BLUEPRINT+ ENHANCED** — Includes templates, lead-capture path (optimize vs. create), and email nurture sequence:
     - howTrustIsBuilt, howClarityDrivesAction
     - ctaHierarchy: Array of 3 levels [{ level, action, context, template: "ready-to-use copy" }]
+    - leadCaptureRecommendations:
+      - leadPath: Required string — exactly **"optimize_existing"** when hasLeadMagnet is true; exactly **"create_new"** when hasLeadMagnet is false
+      - supportiveContext: Normalize stage; state clearly whether you're **optimizing what they have** or **proposing new offers**
+      - options: When optimizing, 1–2 **upgrade variants** of their offer; when creating, 3–4 **new concepts** (each: workingTitle, format, whyItFits, outlineBullets, landingPageHeadline, primaryCTA, promotionHooks)
+      - primaryPickTitle: The single offer name the **rest of the report's campaigns** will promote
+      - howUsedInCampaigns: Explicit sentence naming email + social + calendar touchpoints that reference primaryPickTitle
+    - spendAlignmentPlan:
+      - currentBudgetPlan: Convert spendRecommendationContext.budgetConstrainedPlan into practical channel actions
+      - growthRoadmap: Convert spendRecommendationContext.growthRoadmap into an explicit 30/60/90 spend path
+      - confidence: Carry through spendRecommendationContext.confidence and calibrate assertiveness accordingly
     - emailNurtureTemplate:
       - description: What this email sequence achieves
       - emails: Array of 4 emails, each with:
@@ -341,17 +406,23 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
         - subject: Email subject line
         - purpose: What this email does
         - body: Full email body copy (2–3 paragraphs, use \\n for line breaks)
+      - At least one email must **drive to primaryPickTitle** (optimize or create path)
 
-25. Execution Prompt Pack (8 prompts)
+25. Strategic Offer & Portfolio (**strategicOfferContext** — REQUIRED; same object as WunderBrand Blueprint™)
+    Product-management lenses: **JTBD** (job statement for the economic buyer), **outcomes over outputs**, **scope discipline** (scopeIn / scopeOut), **leading success signals** with review cadence, **channelExecutionAlignment** (how email, social, site, paid, and sales each reinforce **primaryOffer** without contradicting scopeOut), and **one riskiest assumption** with a cheap validation step.
+    - **primaryOffer** must align with what **conversionStrategy.leadCaptureRecommendations** promotes: same name or clearly the same concept; **primaryPickTitle** should map to **primaryOffer.name** (or be explicitly framed as the lead magnet / entry path for that offer).
+    - **channelExecutionAlignment** must name how live Activation sections (email, social, paid, SEO/AEO, journey) stay coherent with this offer layer.
+
+26. Execution Prompt Pack (8 prompts)
     packName, description, promptCount: 8, prompts [{ category, title, instruction, prompt, whyItMatters }]
 
 === BLUEPRINT+ EXCLUSIVE SECTIONS ===
 
-26. Strategic Overview
+27. Strategic Overview
     - wherePositioned: Where this brand is positioned to go (strategic trajectory)
     - leverageCreated: What leverage this complete blueprint creates
 
-27. Persona-Driven Marketing Segmentation
+28. Persona-Driven Marketing Segmentation
     **BLUEPRINT+ EXCLUSIVE** — Connects the buyer personas (section 18) to actionable marketing segments.
     This is the operational bridge between "who these people are" and "how we reach and convert each one."
     
@@ -372,7 +443,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       }
     - crossSegmentOpportunities: 2–3 marketing initiatives that serve multiple segments simultaneously
 
-28. Advanced Messaging Matrix
+29. Advanced Messaging Matrix
     **WITH EXAMPLE COPY FOR EVERY ENTRY — MAPPED TO BUYER PERSONAS:**
     - byPersona: Array of entries for each buyer persona (from section 18), each with:
       - persona: persona name
@@ -387,10 +458,10 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       - exampleCopy: Specific copy example for this channel
       - personaNotes: Which personas to prioritize on this channel
 
-29. Brand Architecture & Expansion
+30. Brand Architecture & Expansion
     howBrandCanStretch, subBrandAlignment
 
-30. Campaign & Content Strategy
+31. Campaign & Content Strategy
     **BLUEPRINT+ ENHANCED** — Persona-informed content strategy:
     campaignThemes [], narrativeArcs [], longTermStorytelling
     personaContentCalendar: {
@@ -401,17 +472,17 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
         - contentPieces: Array of 3–4 pieces with format, topic, channel, and persona alignment
     }
 
-31. Advanced AI Prompt Library (12 prompts)
+32. Advanced AI Prompt Library (12 prompts)
     packName: "Advanced Prompt Library", description, promptCount: 12
     prompts [{ category, title, instruction, prompt, whyItMatters }]
     These should be the MOST SOPHISTICATED prompts — campaign-level, funnel optimization, scaling, AEO.
     AT LEAST 3 prompts should be persona-specific (e.g., "Generate email sequence for [persona name]", "Write LinkedIn ad targeting [persona name]").
 
-32. Measurement & Optimization
+33. Measurement & Optimization
     whatToTrack [], signalsThatMatter [], howToAdapt
     personaMetrics: For each buyer persona, which leading indicators show the messaging is resonating
 
-33. Brand Consistency Checklist & Review Criteria
+34. Brand Consistency Checklist & Review Criteria
     **BLUEPRINT+ ENHANCED** — A comprehensive brand governance system with persona-specific consistency rules, delegation frameworks, and team onboarding tools.
     
     This is NOT a generic checklist — it must be calibrated to [businessName]'s specific brand persona, archetype, messaging pillars, voice traits, visual direction, and buyer personas from earlier sections of this report. Blueprint+ adds audience-specific consistency rules and team scaling guidelines.
@@ -468,7 +539,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       maintainingIntegrityAtScale: "A 2–3 paragraph narrative on how [businessName] can maintain brand integrity as the team grows, channels multiply, and content volume increases. Include specific strategies calibrated to their current stage and growth trajectory."
     }
 
-34. Competitive Positioning Map
+35. Competitive Positioning Map
     **BLUEPRINT+ EXCLUSIVE** — Strategic competitive intelligence.
     IMPORTANT: If competitorNames are provided, use them. If not, use industry archetypes (e.g., "Typical [industry] incumbent," "Low-cost disruptor," "Premium boutique," "Digital-first challenger").
     
@@ -491,7 +562,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
     - B2B: Specialization ↔ Generalization, Self-Serve ↔ High-Touch, Price ↔ Value, Speed ↔ Thoroughness
     - B2C: Luxury ↔ Accessible, Niche ↔ Mass, Traditional ↔ Innovative, Local ↔ Global
 
-35. Strategic Trade-Offs
+36. Strategic Trade-Offs
     **BLUEPRINT+ EXCLUSIVE** — Every brand strategy involves trade-offs. Making them EXPLICIT is what separates strategic thinking from generic advice. This section helps [businessName] make informed, intentional decisions rather than drifting into default positions.
     
     strategicTradeOffs: [
@@ -526,7 +597,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
     - Voice: Authority vs. relatability
     - Channel: Concentrate vs. diversify marketing investment
 
-36. 90-Day Strategic Roadmap
+37. 90-Day Strategic Roadmap
     **BLUEPRINT+ EXCLUSIVE** — A phased implementation plan that transforms insights into action. This is NOT a vague timeline — it's a week-by-week execution plan with specific deliverables, accountability markers, and success metrics.
     
     ninetyDayRoadmap: {
@@ -576,7 +647,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       }
     }
 
-37. Brand Health Scorecard
+38. Brand Health Scorecard
     **BLUEPRINT+ ENHANCED** — An advanced diagnostic framework [businessName] can use to measure brand health on an ongoing basis. Blueprint+ version includes deeper threshold calibration and extended indicators.
     
     brandHealthScorecard: {
@@ -625,7 +696,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       ] (4–5 lagging indicators)
     }
 
-38. Tagline & Slogan Recommendations
+39. Tagline & Slogan Recommendations
     **BLUEPRINT+ ENHANCED** — Provide 3–5 tagline/slogan options with audience-specific variations.
     
     taglineRecommendations: [
@@ -642,7 +713,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       }
     ] (3–5 options)
 
-39. Brand Story & Origin Narrative
+40. Brand Story & Origin Narrative
     **BLUEPRINT+ ENHANCED** — A comprehensive brand story with multiple versions for different contexts.
     
     IMPORTANT: If brandOriginStory was provided by the user, USE IT as the foundation. Weave their actual origin into the narrative — enhance the storytelling but preserve the facts, spirit, and personal elements they shared. If null, construct the story from other inputs (industry, whatMakesYouDifferent, brandPurpose, etc.).
@@ -656,7 +727,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       investorVersion: "A 1-paragraph version emphasizing market opportunity and traction"
     }
 
-40. Customer Journey Map
+41. Customer Journey Map
     **BLUEPRINT+ ENHANCED** — Detailed customer journey with persona-specific variations and optimization points.
     
     customerJourneyMap: {
@@ -679,7 +750,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       dropOffRisks: [{ stage: "Which stage", risk: "What causes drop-off", mitigation: "How to prevent it" }]
     }
 
-41. SEO & Keyword Strategy
+42. SEO & Keyword Strategy
     **BLUEPRINT+ ENHANCED** — Comprehensive keyword strategy with content mapping, competitive gaps, and implementation priority.
     
     seoStrategy: {
@@ -709,7 +780,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       localSEOStrategy: "If applicable: local SEO recommendations specific to [businessName]'s geographic scope"
     }
 
-42. AEO & AI Search Strategy
+43. AEO & AI Search Strategy
     **BLUEPRINT+ COMPREHENSIVE** — Full Answer Engine Optimization strategy with implementation roadmap and competitive intelligence.
     
     aeoStrategy: {
@@ -751,11 +822,40 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       ] (3 phases)
     }
 
-43. Email Marketing Strategy
+42B. ICP Conversion Intelligence Framework
+    **BLUEPRINT+ EXCLUSIVE** — The performance optimization backbone between Master Messaging and channel activation documents.
+    
+    **IN-APP AUDIENCE SEGMENTS PLAN:** The product renders **icpConversionIntelligenceFramework** (plus **personaDrivenSegmentation** and **audiencePersonaDefinition**) as the **Audience Segments & Journey Triggers** activation playbook. This is a **$2K execution deliverable**, not strategy-only notes.
+    - **contentTypeConversionMatrix**: Every row must include **paste-ready** **convertingCTA**, concrete **highestConvertingContentType**, plus **exampleHeadline** (hero or subject), **examplePrimaryCopy** (full draft body sized to the format: e.g. email 120–220 words, LinkedIn ad primary text within platform limits, landing hero + first section for web), **exampleImagePrompt** when the winning format uses static or feed visuals, and **exampleVideoPrompt** when the winning format is short-form video, Reels, Stories, YouTube, or in-stream (shot list / motion brief; use "" if not video). Copy must align with **hookTypePerformance** and **leadMessagePillar** for that ICP.
+    - **channelLevelConversionMechanics**: **conversionAction** and **followUpLogic** must read like deployment instructions (who does what, on which channel, with what CTA)—not "optimize messaging."
+    - **multiTouchConversionSequence**: Each **sequence** step must use **real channel names** and specific **touchType**. Additionally populate **headlineOrSubject**, **subhead** (if placement uses one), **primaryCopy** (full deployable copy for that touch—not a summary), **cta**, **imagePrompt** for static/display/social feed steps, **videoPrompt** for video/Reels/YouTube/in-stream steps (use "" if not applicable), and **performanceRationale** (one line: which matrix cell or hook type this touch is designed to satisfy). Steps that are Email should read like real emails someone could paste into ESP; LinkedIn like ad or InMail primary text.
+    - **behavioralSignalLibrary**: Full **executable play**: **recommendedChannels**, **primaryHeadline**, **subhead** where used, **primaryBody** as complete first-send copy when email/InMail (not a teaser—enough to ship), **cta**, **imagePrompt** for static paid/social, **videoPrompt** when the play includes motion (Reels, in-stream, YouTube, CTV; "" if static-only), **performanceRationale** (matrix/hook alignment), plus **triggeredAction** as automation/ops summary. No vague verbs alone ("nurture", "retarget").
+    - **Performance discipline:** You cannot claim measured lift without client data; optimize **on-brief** by enforcing consistency with **contentTypeConversionMatrix**, **hookTypePerformance**, and **channelLevelConversionMechanics** so every asset is internally coherent and test-ready.
+    
+    icpConversionIntelligenceFramework: {
+      overview: "How this framework connects messaging strategy to conversion execution"
+      conversionProfile: [{ icpTier: "", buyingCycleLength: "", primaryConversionBarrier: "", decisionTrigger: "", conversionBehaviorPattern: "" }] (one per active ICP tier)
+      hookTypePerformance: [{ icpTier: "", reliableHookTypes: [{ hookType: "", whyItConverts: "" }], hookTypesToAvoid: [{ hookType: "", whyToAvoid: "" }] }] (one per active ICP tier)
+      channelLevelConversionMechanics: [{ icpTier: "", channel: "", convertingFormats: [], optimalMessageLength: "", conversionAction: "", followUpLogic: "", failurePatterns: [] }] (one row per channel per active ICP tier)
+      multiTouchConversionSequence: [{ icpTier: "", sequence: [{ order: 1, channel: "", touchType: "", objective: "", conversionSignal: "", headlineOrSubject: "", subhead: "", primaryCopy: "", cta: "", imagePrompt: "", videoPrompt: "", performanceRationale: "" }], criticalTouch: "", salesHandoffTrigger: "" }] (one sequence per active ICP tier)
+      contentTypeConversionMatrix: [{ icpTier: "", funnelStage: "", highestConvertingContentType: "", whyItConverts: "", requiredContentAttributes: [], leadMessagePillar: "", convertingCTA: "", exampleHeadline: "", examplePrimaryCopy: "", exampleImagePrompt: "", exampleVideoPrompt: "" }] (one row per ICP × funnel stage)
+      behavioralSignalLibrary: [{ icpTier: "", signal: "", indicatesStageTransition: "", triggeredAction: "", recommendedChannels: [], primaryHeadline: "", subhead: "", primaryBody: "", cta: "", imagePrompt: "", videoPrompt: "", performanceRationale: "" }]
+      scoringSignals: {
+        icpConversionPathCoverage: 0-100 (auto)
+        contentMatrixCompleteness: 0-100 (auto)
+        behavioralSignalCoverage: 0-100 (auto)
+        channelConversionDataPopulated: 0-100 (derived)
+        activeTestCoverage: "current active tests and gaps" (user)
+        lastReviewedAt: "ISO date string" (user)
+      }
+    }
+
+44. Email Marketing Strategy
     **BLUEPRINT+ ENHANCED** — Full email ecosystem with sequences, automation, and segmentation.
     
     emailMarketingFramework: {
       overview: "Email's role in [businessName]'s marketing ecosystem"
+      conversion_intelligence_reference: { type: "ref", framework: "icp_conversion_intelligence_framework", icpTier: "", funnelStage: "", matrixCell: "" }
       welcomeSequence: {
         description: "Purpose and structure"
         emails: [
@@ -792,11 +892,12 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       automationTriggers: ["4–5 behavioral triggers that should fire automated emails"]
     }
 
-44. Social Media Platform Strategy
+45. Social Media Platform Strategy
     **BLUEPRINT+ ENHANCED** — Platform-specific strategy with content calendars and competitive positioning.
     
     socialMediaStrategy: {
       overview: "Which platforms matter and why"
+      conversion_intelligence_reference: { type: "ref", framework: "icp_conversion_intelligence_framework", icpTier: "", funnelStage: "", matrixCell: "" }
       platforms: [
         {
           platform: "Platform name"
@@ -806,6 +907,8 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
           postingFrequency: "Recommended frequency"
           contentMix: "Ratio of content types"
           examplePosts: ["3–4 example post ideas"]
+          exampleImagePrompts: ["1–2 static or carousel visual briefs for designers / AI image tools (subject, layout, palette, text-safe zones)"]
+          exampleVideoPrompts: ["1–2 motion briefs for Reels/Shorts/long-form (hook, beats, VO/captions, length, aspect ratio)—use [] if this platform row is text-only"]
           kpiToTrack: "Primary metric"
           competitorInsight: "What competitors do well/poorly on this platform"
           growthTactics: ["2–3 specific growth tactics for this platform"]
@@ -818,19 +921,20 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       crossPlatformStrategy: "How to repurpose content across platforms efficiently"
     }
 
-45. Content Calendar Framework
+46. Content Calendar Framework
     **BLUEPRINT+ EXCLUSIVE** — A structured content calendar template with themes, topics, and scheduling cadence.
     
     contentCalendarFramework: {
       overview: "How to use this content calendar — the system behind consistent content"
+      conversion_intelligence_reference: { type: "ref", framework: "icp_conversion_intelligence_framework", icpTier: "", funnelStage: "", matrixCell: "" }
       monthlyThemes: [
         {
-          month: "Month 1 | Month 2 | Month 3"
-          theme: "Monthly theme tied to messaging pillars and business goals"
-          contentPillarFocus: "Which content pillar is emphasized this month"
-          keyTopics: ["3–4 specific topics for this month"]
+          month: "Q1 | Q2 | Q3 | Q4"
+          theme: "Quarter theme tied to messaging pillars and business goals"
+          contentPillarFocus: "Which content pillar is emphasized this quarter"
+          keyTopics: ["3–4 specific topics for this quarter"]
         }
-      ] (3 months)
+      ] (4 quarters — Q1 through Q4, all required)
       weeklyStructure: {
         description: "A repeatable weekly content rhythm"
         days: [
@@ -847,7 +951,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       repurposingPlaybook: "How to turn one piece of content into 5+ formats"
     }
 
-46. SWOT Analysis
+47. SWOT Analysis
     **BLUEPRINT+ ENHANCED** — A formal SWOT analysis connecting brand diagnostics to strategic positioning, with deeper strategic implications and scenario modeling.
     
     swotAnalysis: {
@@ -867,7 +971,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       strategicImplications: "A 2–3 sentence synthesis connecting the SWOT to [businessName]'s immediate priorities"
     }
 
-47. Brand Glossary & Terminology Guide
+48. Brand Glossary & Terminology Guide
     **BLUEPRINT+ ENHANCED** — A comprehensive reference guide for brand-consistent language across all communications, with expanded industry jargon guidance.
     
     brandGlossary: {
@@ -890,11 +994,12 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       }
     }
 
-48. Thought Leadership & PR Positioning
+49. Thought Leadership & PR Positioning
     **BLUEPRINT+ EXCLUSIVE** — A strategic plan for establishing [businessName] as a recognized authority in [industry]. Includes media angles, speaking topic recommendations, and authority content positioning. This complements the Digital Marketing Strategy and positions [businessName] for earned media and industry recognition.
     
     thoughtLeadershipStrategy: {
       overview: "How [businessName] can build thought leadership authority — connected to their positioning, archetype, and competitive landscape"
+      conversion_intelligence_reference: { type: "ref", framework: "icp_conversion_intelligence_framework", icpTier: "", funnelStage: "", matrixCell: "" }
       
       authorityPositioning: {
         expertiseAreas: Array of 3–4 topics where [businessName] can credibly claim authority — specific to their experience, positioning, and market gap
@@ -933,15 +1038,15 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       }
     }
 
-49. Credibility & Trust Signal Strategy
+50. Credibility & Trust Signal Strategy
     **BLUEPRINT+ ENHANCED** — Everything in Blueprint's credibility strategy plus deeper persona-specific proof point mapping, advanced authority-building tactics, and thought leadership integration.
     (See Blueprint credibilityStrategy schema — Blueprint+ generates the same structure with enhanced depth)
 
-50. Website Copy Direction
+51. Website Copy Direction
     **BLUEPRINT+ ENHANCED** — Everything in Blueprint's website copy direction plus persona-specific messaging variations and ready-to-use copy for each page.
     (See Blueprint websiteCopyDirection schema — Blueprint+ generates the same structure with enhanced depth)
 
-51. Company Description
+52. Company Description
     **BLUEPRINT+ ENHANCED** — Ready-to-use company descriptions in multiple lengths and contexts, with audience-specific variations.
     
     companyDescription: {
@@ -953,7 +1058,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       recruitingVersion: "A version optimized for job postings and employer branding — emphasizes culture, mission, and growth."
     }
 
-52. Value & Pricing Communication Framework
+53. Value & Pricing Communication Framework
     **BLUEPRINT+ ENHANCED** — Everything in Blueprint's pricing framework, plus persona-specific pricing narratives and enhanced proposal templates.
     
     valuePricingFramework: {
@@ -987,10 +1092,11 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       competitiveValueDifferentiation: "How [businessName] should position their pricing relative to competitors or alternatives — not by being cheaper, but by being different. Include specific language for the 'why us vs. them' conversation. (Blueprint+ exclusive)"
     }
 
-53. Sales Conversation Guide
+54. Sales Conversation Guide
     **BLUEPRINT+ ENHANCED** — Everything in Blueprint's sales guide, plus persona-specific conversation tracks and scenario scripts.
     
     salesConversationGuide: {
+      conversion_intelligence_reference: { type: "ref", framework: "icp_conversion_intelligence_framework", icpTier: "", funnelStage: "", matrixCell: "" }
       openingFramework: "How to lead with positioning, not product features. The first 60 seconds. Include specific language."
       
       discoveryQuestions: [
@@ -1049,7 +1155,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       }
     }
 
-54. Measurement & KPI Framework
+55. Measurement & KPI Framework
     **BLUEPRINT+ ENHANCED** — Everything in Blueprint's measurement framework, plus persona metrics, quarterly review template, and corrective action guidance.
     
     measurementFramework: {
@@ -1080,13 +1186,14 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
           tool: "The specific tool or platform to use"
           howToSetUp: "Brief setup guidance"
           frequency: "How often to check"
+          readerFriendlyOneLiner: "One sentence anyone on the leadership team can follow—parallel to howToSetUp, not a replacement. Define acronyms (UTM, SQL, CRM, etc.) in plain words when they appear above. Experienced marketers can ignore this field and execute from howToSetUp alone."
         }
       ] (6–8 recommendations)
       
       quarterlyReviewTemplate: "A structured quarterly review template — specific questions to answer, metrics to pull, and decisions to make. Should take 60–90 minutes to complete. (Blueprint+ exclusive)"
     }
 
-55. Brand Strategy Rollout Guide
+56. Brand Strategy Rollout Guide
     **BLUEPRINT+ ENHANCED** — Everything in Blueprint's rollout guide, plus presentation-ready content and team-scale tools.
     
     brandStrategyRollout: {
@@ -1133,7 +1240,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       brandInFiveMinutes: "The absolute essentials compressed into a quick reference card format — positioning, voice, do's and don'ts, approved descriptions, and who to ask when unsure. Designed for speed: if someone has 5 minutes to understand the brand, this is what they read. (Blueprint+ exclusive)"
     }
 
-56. Brand Imagery & Photography Direction
+57. Brand Imagery & Photography Direction
     **BLUEPRINT+ ENHANCED** — Everything in Blueprint's imagery direction, plus platform-specific guidance, mood board descriptors, persona-based imagery, and AI image generation prompts.
     
     brandImageryDirection: {
@@ -1207,7 +1314,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       ] (3–5 prompts — Blueprint+ exclusive)
     }
 
-57. Asset Optimization Playbook (Blueprint+ Exclusive)
+58. Asset Optimization Playbook (Blueprint+ Exclusive)
     **ONLY include this section if the user uploaded marketing assets and asset analysis data was provided in the prompt context.**
     If no asset data is present, omit the "assetOptimizationPlaybook" key entirely.
 
@@ -1255,7 +1362,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       }
     }
 
-58. Brand Standards Guide Content (Blueprint+ Exclusive)
+59. Brand Standards Guide Content (Blueprint+ Exclusive)
     This section generates content specifically for the Brand Standards & Guidelines PDF.
     These fields power the exported guide used by marketing teams, contractors, agencies, and anyone creating brand content.
     
@@ -1418,8 +1525,9 @@ Return valid JSON with ALL these keys:
   "blueprintOverview": { "whatThisEnables": "", "howToUse": "" },
   "brandFoundation": { "brandPurpose": "", "brandPromise": "", "positioningStatement": "", "differentiationNarrative": "", "mission": "", "vision": "", "brandValues": [{ "name": "", "description": "", "inAction": "", "whyItMatters": "" }] },
   "audiencePersonaDefinition": {
-    "primaryICP": { "name": "", "summary": "", "demographics": "", "psychographics": "", "painPoints": [], "goals": "", "buyingJourney": "", "languageTheyUse": "", "whereToBeFindable": "", "objections": [], "contentTopics": [], "conversionPath": "" },
-    "secondaryICP": { "name": "", "summary": "", "demographics": "", "psychographics": "", "painPoints": [], "goals": "", "buyingJourney": "", "languageTheyUse": "", "whereToBeFindable": "", "objections": [], "contentTopics": [], "conversionPath": "" },
+    "primaryICP": { "icpLabel": "", "name": "", "summary": "", "demographics": "", "psychographics": "", "painPoints": [], "goals": "", "buyingJourney": "", "languageTheyUse": "", "whereToBeFindable": "", "objections": [], "contentTopics": [], "conversionPath": "" },
+    "secondaryICP": { "icpLabel": "", "name": "", "summary": "", "demographics": "", "psychographics": "", "painPoints": [], "goals": "", "buyingJourney": "", "languageTheyUse": "", "whereToBeFindable": "", "objections": [], "contentTopics": [], "conversionPath": "" },
+    "additionalICPs": [{ "icpLabel": "", "icpKey": "", "name": "", "summary": "", "demographics": "", "psychographics": "", "painPoints": [], "goals": "", "buyingJourney": "", "languageTheyUse": "", "whereToBeFindable": "", "objections": [], "contentTopics": [], "conversionPath": "" }],
     "audienceTransitionPlan": { "currentAudience": "", "idealAudience": "", "gapDiagnosis": "", "repositioningSteps": [], "messagingShifts": [], "channelShifts": [], "contentStrategy": "", "timeline": "" }
   },
   "buyerPersonaEcosystem": {
@@ -1438,6 +1546,15 @@ Return valid JSON with ALL these keys:
       "matrix": [{ "touchpoint": "", "personaMessages": [{ "personaName": "", "message": "" }] }]
     }
   },
+  "icpGoToMarketPlans": [{
+    "icpLabel": "",
+    "alignmentToBusinessStrategy": "",
+    "strategicFocus": "",
+    "campaignContentNeeds": [],
+    "priorityTactics": [],
+    "conversion_intelligence_reference": { "type": "ref", "framework": "icp_conversion_intelligence_framework", "icpTier": "", "funnelStage": "", "matrixCell": "", "note": "" },
+    "competitiveConversationCues": ""
+  }],
   "brandArchetypeActivation": {
     "primaryArchetype": "", "secondaryArchetype": "",
     "activation": {
@@ -1454,10 +1571,56 @@ Return valid JSON with ALL these keys:
   "conversionStrategy": {
     "howTrustIsBuilt": "", "howClarityDrivesAction": "",
     "ctaHierarchy": [{ "level": "Primary", "action": "", "context": "", "template": "" }],
+    "leadCaptureRecommendations": {
+      "leadPath": "optimize_existing",
+      "supportiveContext": "",
+      "options": [{
+        "workingTitle": "", "format": "", "whyItFits": "", "outlineBullets": [],
+        "landingPageHeadline": "", "primaryCTA": "",
+        "promotionHooks": { "emailOneLiner": "", "socialHook": "", "optionalPaidAngle": "" }
+      }],
+      "primaryPickTitle": "",
+      "howUsedInCampaigns": ""
+    },
+    "spendAlignmentPlan": {
+      "currentBudgetPlan": { "focus": "", "allocation": [{ "channel": "", "percent": 0, "monthlySpend": 0, "rationale": "" }], "nowActions": [], "efficiencyGuardrails": [] },
+      "growthRoadmap": { "goalFrame": "", "phases": [{ "phase": "30_days", "monthlySpend": 0, "milestone": "" }], "scenarios": [{ "label": "conservative", "monthlySpend": 0, "objectiveFit": "", "expectedOutcome": "", "allocation": [{ "channel": "", "percent": 0, "monthlySpend": 0 }], "unlockConditions": [] }] },
+      "confidence": "medium"
+    },
     "emailNurtureTemplate": {
       "description": "",
       "emails": [{ "timing": "", "subject": "", "purpose": "", "body": "" }]
     }
+  },
+  "strategicOfferContext": {
+    "methodologyFraming": "",
+    "jobStatement": "",
+    "primaryOffer": {
+      "name": "",
+      "offerType": "service",
+      "oneLinePitch": "",
+      "whoItsFor": "",
+      "substitutesConsidered": "",
+      "whyTheySwitch": ""
+    },
+    "secondaryOffers": [{ "name": "", "role": "entry" }],
+    "painsRelieved": [],
+    "outcomesEnabled": [],
+    "scopeIn": [],
+    "scopeOut": [],
+    "leadingSuccessSignals": [{ "signal": "", "reviewCadence": "monthly", "whyItMatters": "" }],
+    "channelExecutionAlignment": "",
+    "riskiestAssumption": ""
+  },
+  "icpConversionIntelligenceFramework": {
+    "overview": "",
+    "conversionProfile": [{ "icpTier": "", "buyingCycleLength": "", "primaryConversionBarrier": "", "decisionTrigger": "", "conversionBehaviorPattern": "" }],
+    "hookTypePerformance": [{ "icpTier": "", "reliableHookTypes": [{ "hookType": "", "whyItConverts": "" }], "hookTypesToAvoid": [{ "hookType": "", "whyToAvoid": "" }] }],
+    "channelLevelConversionMechanics": [{ "icpTier": "", "channel": "", "convertingFormats": [], "optimalMessageLength": "", "conversionAction": "", "followUpLogic": "", "failurePatterns": [] }],
+    "multiTouchConversionSequence": [{ "icpTier": "", "sequence": [{ "order": 1, "channel": "", "touchType": "", "objective": "", "conversionSignal": "", "headlineOrSubject": "", "subhead": "", "primaryCopy": "", "cta": "", "imagePrompt": "", "videoPrompt": "", "performanceRationale": "" }], "criticalTouch": "", "salesHandoffTrigger": "" }],
+    "contentTypeConversionMatrix": [{ "icpTier": "", "funnelStage": "", "highestConvertingContentType": "", "whyItConverts": "", "requiredContentAttributes": [], "leadMessagePillar": "", "convertingCTA": "", "exampleHeadline": "", "examplePrimaryCopy": "", "exampleImagePrompt": "", "exampleVideoPrompt": "" }],
+    "behavioralSignalLibrary": [{ "icpTier": "", "signal": "", "indicatesStageTransition": "", "triggeredAction": "", "recommendedChannels": [], "primaryHeadline": "", "subhead": "", "primaryBody": "", "cta": "", "imagePrompt": "", "videoPrompt": "", "performanceRationale": "" }],
+    "scoringSignals": { "icpConversionPathCoverage": 0, "contentMatrixCompleteness": 0, "behavioralSignalCoverage": 0, "channelConversionDataPopulated": 0, "activeTestCoverage": "", "lastReviewedAt": "" }
   },
   "executionPromptPack": {
     "packName": "Execution Prompt Pack", "description": "", "promptCount": 8,
@@ -1578,6 +1741,7 @@ Return valid JSON with ALL these keys:
   },
   "seoStrategy": {
     "overview": "",
+    "conversionSpine": { "primaryMacroConversion": "", "primaryOfferAnchor": "", "advancesConversion": "" },
     "primaryKeywords": [{ "keyword": "", "intent": "", "difficulty": "", "contentAngle": "", "pillarConnection": "", "competitiveGap": "", "priorityLevel": "" }],
     "longTailOpportunities": [{ "keyword": "", "searchIntent": "", "contentRecommendation": "", "estimatedImpact": "" }],
     "technicalPriorities": [],
@@ -1587,6 +1751,7 @@ Return valid JSON with ALL these keys:
   },
   "aeoStrategy": {
     "overview": "",
+    "conversionSpine": { "primaryMacroConversion": "", "primaryOfferAnchor": "", "advancesConversion": "" },
     "entityOptimization": { "currentEntityStatus": "", "entityBuildingActions": [], "structuredDataRecommendations": [], "knowledgeGraphStrategy": "" },
     "contentForAICitation": { "strategy": "", "formatRecommendations": [], "topicAuthority": [], "contentTemplates": [] },
     "faqStrategy": { "overview": "", "priorityFAQs": [], "faqImplementation": "" },
@@ -1596,6 +1761,8 @@ Return valid JSON with ALL these keys:
   },
   "emailMarketingFramework": {
     "overview": "",
+    "conversionSpine": { "primaryMacroConversion": "", "primaryOfferAnchor": "", "advancesConversion": "" },
+    "conversion_intelligence_reference": { "type": "ref", "framework": "icp_conversion_intelligence_framework", "icpTier": "", "funnelStage": "", "matrixCell": "" },
     "welcomeSequence": { "description": "", "emails": [{ "timing": "", "subject": "", "purpose": "", "keyMessage": "", "ctaButton": "" }] },
     "nurtureCampaign": { "description": "", "emails": [{ "timing": "", "subject": "", "purpose": "", "keyMessage": "", "contentType": "" }] },
     "reEngagementSequence": { "trigger": "", "emails": [{ "timing": "", "subject": "", "purpose": "", "keyMessage": "" }] },
@@ -1606,13 +1773,30 @@ Return valid JSON with ALL these keys:
   },
   "socialMediaStrategy": {
     "overview": "",
-    "platforms": [{ "platform": "", "whyThisPlatform": "", "audienceOnPlatform": "", "contentStrategy": "", "postingFrequency": "", "contentMix": "", "examplePosts": [], "kpiToTrack": "", "competitorInsight": "", "growthTactics": [] }],
+    "conversionSpine": { "primaryMacroConversion": "", "primaryOfferAnchor": "", "advancesConversion": "" },
+    "conversion_intelligence_reference": { "type": "ref", "framework": "icp_conversion_intelligence_framework", "icpTier": "", "funnelStage": "", "matrixCell": "" },
+    "platforms": [{ "platform": "", "whyThisPlatform": "", "audienceOnPlatform": "", "contentStrategy": "", "postingFrequency": "", "contentMix": "", "examplePosts": [], "exampleImagePrompts": [], "exampleVideoPrompts": [], "kpiToTrack": "", "competitorInsight": "", "growthTactics": [] }],
     "platformsToAvoid": { "platforms": [], "reasoning": "" },
     "crossPlatformStrategy": ""
   },
+  "paidMediaStrategy": {
+    "overview": "",
+    "conversionSpine": { "primaryMacroConversion": "", "primaryOfferAnchor": "", "advancesConversion": "" },
+    "platformsCovered": ["LinkedIn", "Meta", "Google Ads"],
+    "conversion_intelligence_reference": { "type": "ref", "framework": "icp_conversion_intelligence_framework", "icpTier": "", "funnelStage": "", "matrixCell": "" },
+    "channels": [{ "channel": "", "platform": "", "placement": "", "objective": "", "audienceAngle": "", "headline": "", "subheadline": "", "bodyCopy": "", "imagePrompt": "", "videoPrompt": "", "cta": "", "creativeDirection": "", "offerStrategy": "", "kpiToTrack": "" }],
+    "budgetScenarios": [{ "label": "base", "monthlySpend": 0, "objectiveFit": "", "expectedOutcome": "", "allocation": [{ "channel": "", "percent": 0, "monthlySpend": 0 }], "unlockConditions": [] }],
+    "allocationGuidance": [{ "channel": "", "percent": 0, "monthlySpend": 0, "rationale": "" }]
+  },
   "contentCalendarFramework": {
     "overview": "",
-    "monthlyThemes": [{ "month": "", "theme": "", "contentPillarFocus": "", "keyTopics": [] }],
+    "conversion_intelligence_reference": { "type": "ref", "framework": "icp_conversion_intelligence_framework", "icpTier": "", "funnelStage": "", "matrixCell": "" },
+    "monthlyThemes": [
+      { "month": "Q1", "theme": "", "contentPillarFocus": "", "keyTopics": [] },
+      { "month": "Q2", "theme": "", "contentPillarFocus": "", "keyTopics": [] },
+      { "month": "Q3", "theme": "", "contentPillarFocus": "", "keyTopics": [] },
+      { "month": "Q4", "theme": "", "contentPillarFocus": "", "keyTopics": [] }
+    ],
     "weeklyStructure": { "description": "", "days": [{ "day": "", "contentType": "", "platform": "", "contentPillar": "", "exampleTopic": "" }] },
     "batchingStrategy": "",
     "repurposingPlaybook": ""
@@ -1633,6 +1817,8 @@ Return valid JSON with ALL these keys:
   },
   "thoughtLeadershipStrategy": {
     "overview": "",
+    "conversionSpine": { "primaryMacroConversion": "", "primaryOfferAnchor": "", "advancesConversion": "" },
+    "conversion_intelligence_reference": { "type": "ref", "framework": "icp_conversion_intelligence_framework", "icpTier": "", "funnelStage": "", "matrixCell": "" },
     "authorityPositioning": {
       "expertiseAreas": [],
       "uniquePerspective": "",
@@ -1656,6 +1842,7 @@ Return valid JSON with ALL these keys:
     "competitiveValueDifferentiation": ""
   },
   "salesConversationGuide": {
+    "conversion_intelligence_reference": { "type": "ref", "framework": "icp_conversion_intelligence_framework", "icpTier": "", "funnelStage": "", "matrixCell": "" },
     "openingFramework": "",
     "discoveryQuestions": [{ "question": "", "whyThisQuestion": "", "listenFor": "" }],
     "proofPointDeployment": [{ "persona": "", "stage": "", "proofPoint": "", "howToDeliver": "" }],
@@ -1669,7 +1856,7 @@ Return valid JSON with ALL these keys:
     "overview": "",
     "perSectionKPIs": [{ "section": "", "recommendation": "", "kpi": "", "target": "", "personaImpact": "" }],
     "leadingIndicators": [{ "indicator": "", "whatItMeans": "", "timeframe": "", "actionIfFlat": "" }],
-    "trackingRecommendations": [{ "metric": "", "tool": "", "howToSetUp": "", "frequency": "" }],
+    "trackingRecommendations": [{ "metric": "", "tool": "", "howToSetUp": "", "frequency": "", "readerFriendlyOneLiner": "" }],
     "quarterlyReviewTemplate": ""
   },
   "brandStrategyRollout": {
@@ -1777,6 +1964,16 @@ Return valid JSON with ALL these keys:
     "aboutPage": { "openingHook": "", "storyFramework": "", "teamPositioning": "" },
     "servicesPage": { "pageStructure": "", "serviceFramework": "", "pricingLanguage": "" },
     "copyPrinciples": [{ "principle": "", "example": "" }]
+  },
+  "spendRecommendationContext": {
+    "currentMonthlySpend": 0,
+    "currentSpendBand": "",
+    "paidAdsMonthlySpend": 0,
+    "paidAdsSpendBand": "",
+    "confidence": "medium",
+    "assumptions": [],
+    "budgetConstrainedPlan": { "focus": "", "allocation": [{ "channel": "", "percent": 0, "monthlySpend": 0, "rationale": "" }], "nowActions": [], "efficiencyGuardrails": [] },
+    "growthRoadmap": { "goalFrame": "", "phases": [{ "phase": "30_days", "monthlySpend": 0, "milestone": "" }], "scenarios": [{ "label": "conservative", "monthlySpend": 0, "objectiveFit": "", "expectedOutcome": "", "allocation": [{ "channel": "", "percent": 0, "monthlySpend": 0 }], "unlockConditions": [] }] }
   }
 }
 
@@ -1817,6 +2014,11 @@ For Messaging Matrix example copy:
 For Email Nurture Template:
 - Include 4 complete emails with timing, subject, purpose, and full body copy
 - Emails should form a coherent nurture sequence that builds trust and moves toward conversion
+
+For Strategic Offer & Portfolio (**strategicOfferContext**):
+- Populate every field with business-specific detail (no placeholder labels).
+- **conversionStrategy.leadCaptureRecommendations.primaryPickTitle** must clearly map to **primaryOffer.name** (or be explicitly the lead-magnet entry path for that same offer).
+- Email, social, paid, and sales copy must not promise anything listed in **scopeOut**.
 
 For Archetype Activation examples:
 - Include 2–3 on-brand/off-brand comparisons per area

@@ -4,7 +4,7 @@
 import { NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-import { generateSnapshotPdf } from "@/lib/generateSnapshotPdf";
+import { generatePdfResponseFromReport } from "@/src/pdf/generatePdf";
 
 export async function GET(req: Request) {
   try {
@@ -44,16 +44,7 @@ export async function GET(req: Request) {
       );
     }
 
-    // Generate PDF
-    const pdfBuffer = await generateSnapshotPdf(report);
-
-    // Return PDF as response
-    return new NextResponse(pdfBuffer as any, {
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="Brand-Snapshot-${id}.pdf"`,
-      },
-    });
+    return generatePdfResponseFromReport(report, "snapshot", `Brand-Snapshot-${id}.pdf`);
   } catch (err: any) {
     logger.error("[Reports PDF API] Error", {
       error: err instanceof Error ? err.message : String(err),

@@ -24,8 +24,17 @@ function buildPdfUrl(link: SharedLink): string {
   const encodedId = encodeURIComponent(report_id);
 
   if (document_type === "report") {
-    const apiTier = tier.replace("_", "-");
-    return `/api/pdf?id=${encodedId}&type=${apiTier}`;
+    const normalizedTier = tier.replace("_", "-");
+    if (normalizedTier === "snapshot") {
+      return `/api/snapshot/pdf?id=${encodedId}`;
+    }
+    if (normalizedTier === "snapshot-plus") {
+      return `/api/snapshot-plus/pdf?id=${encodedId}`;
+    }
+    if (normalizedTier === "blueprint") {
+      return `/api/blueprint/pdf?reportId=${encodedId}&type=complete&tier=blueprint`;
+    }
+    return `/api/blueprint/pdf?reportId=${encodedId}&type=complete&tier=blueprint-plus`;
   }
 
   const apiTier = tier === "blueprint_plus" || tier === "blueprint-plus" ? "blueprint-plus" : "blueprint";
@@ -69,7 +78,6 @@ export default async function SharePage({
     return <ExpiredPage reason="This share link has reached its maximum number of views." />;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await (supabase.from("shared_links" as any) as any).update({ access_count: link.access_count + 1 }).eq("id", link.id);
 
   const pdfUrl = buildPdfUrl(link);

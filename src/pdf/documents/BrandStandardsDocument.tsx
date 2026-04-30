@@ -20,9 +20,14 @@ import {
   Link,
 } from "@react-pdf/renderer";
 import { pdfTheme, colors } from "../theme";
+import { ILLUSTRATION_AFTER, ILLUSTRATION_BEFORE, SEMANTIC_DONT, SEMANTIC_DO } from "../reportVisualTokens";
 import { DisclaimerPage } from "../components/DisclaimerPage";
+import { registerPdfFonts } from "../registerFonts";
+import { sampleStyleForRole } from "../typography/brandStandardsTypeSamples";
+import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
 
-const LOGO_URL = "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp";
+registerPdfFonts();
+
 
 // ─── Types ───
 
@@ -73,6 +78,13 @@ interface ImageryByAudience {
   persona: string;
   visual_tone_shift: string;
   example_image_descriptions?: string[];
+}
+
+interface ImagerySample {
+  url: string;
+  caption?: string;
+  rationale?: string;
+  source?: string;
 }
 
 interface SampleExecution {
@@ -169,10 +181,12 @@ interface WorkbookData {
     platform_specific_imagery_guidance?: PlatformImagery[];
     mood_board_descriptors?: MoodBoardDescriptors;
     imagery_by_audience?: ImageryByAudience[];
+    mood_board_image_samples?: ImagerySample[];
   };
 
   // Rich brand standards data (from Blueprint+ report via JSONB column)
   brand_standards_data?: {
+    visual_system_mode?: "existing" | "optimize" | "refresh" | string;
     // Brand Foundations
     brand_story?: {
       headline?: string;
@@ -238,6 +252,7 @@ interface WorkbookData {
     sample_executions?: SampleExecution[];
     do_and_dont_pages?: DoAndDont[];
     content_pillars?: ContentPillar[];
+    brand_imagery_direction?: WorkbookData["brand_imagery_direction"];
 
     // Governance template
     governance_template?: {
@@ -382,14 +397,14 @@ const s = StyleSheet.create({
   doCol: { flex: 1 },
   doHeader: { fontSize: 12, fontWeight: 700, marginBottom: 6 },
   doCard: {
-    backgroundColor: "#F0FDF4", borderRadius: 6, padding: 10,
-    marginBottom: 8, borderLeft: "3px solid #059669",
+    backgroundColor: SEMANTIC_DO.bg, borderRadius: 6, padding: 10,
+    marginBottom: 8, borderLeft: `3px solid ${SEMANTIC_DO.border}`,
   },
   dontCard: {
-    backgroundColor: "#FEF2F2", borderRadius: 6, padding: 10,
-    marginBottom: 8, borderLeft: "3px solid #EF4444",
+    backgroundColor: SEMANTIC_DONT.bg, borderRadius: 6, padding: 10,
+    marginBottom: 8, borderLeft: `3px solid ${SEMANTIC_DONT.border}`,
   },
-  dontLabel: { fontSize: 11, fontWeight: 700, color: "#991B1B", marginBottom: 3 },
+  dontLabel: { fontSize: 11, fontWeight: 700, color: SEMANTIC_DONT.label, marginBottom: 3 },
   dontWhy: { fontSize: 10, color: "#6B7280", lineHeight: 1.5, marginBottom: 3 },
   dontAlt: { fontSize: 10, color: "#059669", fontWeight: 600, lineHeight: 1.5 },
 
@@ -438,6 +453,29 @@ const s = StyleSheet.create({
     borderRadius: 10, padding: "3px 8px", fontSize: 9,
     fontWeight: 600, marginRight: 4, marginBottom: 4,
   },
+  imageSampleGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    marginTop: 8,
+  },
+  imageSampleCard: {
+    width: "48%",
+    marginBottom: 10,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 6,
+    border: `1px solid ${colors.borderLight}`,
+    overflow: "hidden" as const,
+  },
+  imageSample: {
+    width: "100%",
+    height: 108,
+    objectFit: "cover" as const,
+    backgroundColor: "#EEF3FA",
+  },
+  imageSampleMeta: { padding: 8 },
+  imageSampleCaption: { fontSize: 9, fontWeight: 700, color: pdfTheme.colors.navy, marginBottom: 2 },
+  imageSampleRationale: { fontSize: 8, color: "#6B7280", lineHeight: 1.45 },
 
   // Governance fill-in
   fillIn: {
@@ -456,7 +494,7 @@ const s = StyleSheet.create({
 
   // Footer
   footer: {
-    position: "absolute" as const, bottom: 20, left: 48, right: 48,
+    position: "absolute" as const, bottom: 18, left: 42, right: 42,
     borderTop: `0.5px solid ${colors.borderLight}`, paddingTop: 8,
   },
   footerRow: {
@@ -516,6 +554,33 @@ function ColorSwatchBlock({ swatch }: { swatch: ColorSwatch }) {
 export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
   const biz = data.business_name || "Your Brand";
   const bsd = data.brand_standards_data || {};
+  const visualSystemMode =
+    bsd.visual_system_mode === "existing" || bsd.visual_system_mode === "optimize" || bsd.visual_system_mode === "refresh"
+      ? bsd.visual_system_mode
+      : undefined;
+  const visualSystemModeLabel =
+    visualSystemMode === "existing"
+      ? "Use Existing Brand System"
+      : visualSystemMode === "optimize"
+        ? "Use Existing + Optimization Layer"
+        : visualSystemMode === "refresh"
+          ? "Strategic Refresh"
+          : undefined;
+  const visualSystemModeSummary =
+    visualSystemMode === "existing"
+      ? "Preserve current logo, palette, and typography while enforcing consistency and accessibility."
+      : visualSystemMode === "optimize"
+        ? "Keep core brand assets and add performance-oriented usage standards for conversion clarity."
+        : visualSystemMode === "refresh"
+          ? "Refresh selected visual elements where current assets limit differentiation or usability."
+          : undefined;
+  const imageryDirection = data.brand_imagery_direction || bsd.brand_imagery_direction;
+  const tr = data.typography_recommendations;
+  const typeHeadline = sampleStyleForRole(tr?.headline, "headline");
+  const typeSub = sampleStyleForRole(tr?.subheadline, "subhead");
+  const typeBody = sampleStyleForRole(tr?.body, "body");
+  const typeCap = sampleStyleForRole(tr?.caption, "caption");
+  const typeAccent = sampleStyleForRole(tr?.accent, "accent");
   const today = new Date().toLocaleDateString("en-US", {
     year: "numeric", month: "long", day: "numeric",
   });
@@ -526,7 +591,8 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
       {/* ═══════ Cover Page ═══════ */}
       <Page size="A4" style={s.coverPage}>
         <View style={s.coverInner}>
-          <Image style={s.coverLogo} src={LOGO_URL} />
+          {/* eslint-disable-next-line jsx-a11y/alt-text */}
+          <Image style={s.coverLogo} src={PDF_WUNDERBAR_LOGO_SRC} />
           <Text style={s.coverTitle}>Brand Standards{"\n"}& Guidelines</Text>
           <Text style={s.coverSubtitle}>WunderBrand Blueprint+{"\u2122"}</Text>
           <Text style={s.coverPreparedLabel}>Prepared for</Text>
@@ -872,6 +938,17 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
       {(bsd.color_palette && bsd.color_palette.length > 0) && (
         <Page size="A4" style={s.page}>
           <Text style={s.sectionTitle}>Color Palette</Text>
+          {visualSystemModeLabel && visualSystemModeSummary && (
+            <View style={s.card}>
+              <Text style={s.cardTitle}>Visual System Mode</Text>
+              <Text style={s.bodySmall}>
+                {visualSystemModeLabel}
+              </Text>
+              <Text style={s.bodySmall}>
+                {visualSystemModeSummary}
+              </Text>
+            </View>
+          )}
 
           <Text style={s.subsectionTitle}>Primary Palette</Text>
           <View style={s.swatchRow}>
@@ -928,50 +1005,82 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
 
           <View style={s.typeSample}>
             <Text style={s.typeLevelLabel}>Headline</Text>
-            <Text style={{ fontSize: 28, fontWeight: 700, color: pdfTheme.colors.navy, lineHeight: 1.2 }}>
-              {data.typography_recommendations?.headline
-                ? `${biz}: ${data.typography_recommendations.headline.usage}`
+            <Text
+              style={{
+                fontFamily: typeHeadline.fontFamily,
+                fontSize: typeHeadline.fontSize,
+                fontWeight: typeHeadline.fontWeight,
+                color: pdfTheme.colors.navy,
+                lineHeight: 1.2,
+              }}
+            >
+              {tr?.headline
+                ? `${biz}: ${tr.headline.usage}`
                 : `${biz} Brand Headline`}
             </Text>
             <Text style={s.typeSpec}>
-              {data.typography_recommendations?.headline
-                ? `${data.typography_recommendations.headline.font} \u2022 ${data.typography_recommendations.headline.weight} \u2022 ${data.typography_recommendations.headline.size}`
+              {tr?.headline
+                ? `${tr.headline.font} \u2022 ${tr.headline.weight} \u2022 ${tr.headline.size}`
                 : "Bold \u2022 28\u201336pt \u2022 Page titles and hero sections"}
             </Text>
           </View>
 
           <View style={s.typeSample}>
             <Text style={s.typeLevelLabel}>Subheadline</Text>
-            <Text style={{ fontSize: 18, fontWeight: 600, color: pdfTheme.colors.navy, lineHeight: 1.3 }}>
+            <Text
+              style={{
+                fontFamily: typeSub.fontFamily,
+                fontSize: typeSub.fontSize,
+                fontWeight: typeSub.fontWeight,
+                color: pdfTheme.colors.navy,
+                lineHeight: 1.3,
+              }}
+            >
               Supporting message that adds clarity and context
             </Text>
             <Text style={s.typeSpec}>
-              {data.typography_recommendations?.subheadline
-                ? `${data.typography_recommendations.subheadline.font} \u2022 ${data.typography_recommendations.subheadline.weight} \u2022 ${data.typography_recommendations.subheadline.size}`
+              {tr?.subheadline
+                ? `${tr.subheadline.font} \u2022 ${tr.subheadline.weight} \u2022 ${tr.subheadline.size}`
                 : "Semibold \u2022 18\u201322pt \u2022 Section headers and card titles"}
             </Text>
           </View>
 
           <View style={s.typeSample}>
             <Text style={s.typeLevelLabel}>Body Text</Text>
-            <Text style={{ fontSize: 12, fontWeight: 400, color: pdfTheme.colors.text, lineHeight: 1.7 }}>
+            <Text
+              style={{
+                fontFamily: typeBody.fontFamily,
+                fontSize: typeBody.fontSize,
+                fontWeight: typeBody.fontWeight,
+                color: pdfTheme.colors.text,
+                lineHeight: 1.7,
+              }}
+            >
               This is {biz}{"\u2019"}s standard body text. It should be comfortable to read in paragraphs, with generous line height and clear contrast.
             </Text>
             <Text style={s.typeSpec}>
-              {data.typography_recommendations?.body
-                ? `${data.typography_recommendations.body.font} \u2022 ${data.typography_recommendations.body.weight} \u2022 ${data.typography_recommendations.body.size}`
+              {tr?.body
+                ? `${tr.body.font} \u2022 ${tr.body.weight} \u2022 ${tr.body.size}`
                 : "Regular \u2022 11\u201313pt \u2022 Paragraphs, descriptions, long-form"}
             </Text>
           </View>
 
           <View style={s.typeSample}>
             <Text style={s.typeLevelLabel}>Caption / Small Text</Text>
-            <Text style={{ fontSize: 9, fontWeight: 400, color: "#6B7280", lineHeight: 1.5 }}>
+            <Text
+              style={{
+                fontFamily: typeCap.fontFamily,
+                fontSize: typeCap.fontSize,
+                fontWeight: typeCap.fontWeight,
+                color: "#6B7280",
+                lineHeight: 1.5,
+              }}
+            >
               Photo credit \u2022 {biz} \u2022 {new Date().getFullYear()} {"\u2014"} Labels, metadata, fine print
             </Text>
             <Text style={s.typeSpec}>
-              {data.typography_recommendations?.caption
-                ? `${data.typography_recommendations.caption.font} \u2022 ${data.typography_recommendations.caption.weight} \u2022 ${data.typography_recommendations.caption.size}`
+              {tr?.caption
+                ? `${tr.caption.font} \u2022 ${tr.caption.weight} \u2022 ${tr.caption.size}`
                 : "Regular \u2022 8\u201310pt \u2022 Credits, dates, disclaimers"}
             </Text>
           </View>
@@ -980,19 +1089,37 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
             <Text style={s.typeLevelLabel}>Accent / CTA</Text>
             <View style={{ flexDirection: "row" as const, gap: 12, alignItems: "center" as const }}>
               <View style={{ backgroundColor: pdfTheme.colors.navy, borderRadius: 4, paddingVertical: 8, paddingHorizontal: 20 }}>
-                <Text style={{ fontSize: 11, fontWeight: 700, color: "#FFFFFF", textTransform: "uppercase" as const, letterSpacing: 1 }}>
+                <Text
+                  style={{
+                    fontFamily: typeAccent.fontFamily,
+                    fontSize: typeAccent.fontSize,
+                    fontWeight: Math.max(typeAccent.fontWeight, 700),
+                    color: "#FFFFFF",
+                    textTransform: "uppercase" as const,
+                    letterSpacing: 1,
+                  }}
+                >
                   Get Started
                 </Text>
               </View>
               <View style={{ borderRadius: 4, paddingVertical: 8, paddingHorizontal: 20, border: `1.5px solid ${pdfTheme.colors.blue}` }}>
-                <Text style={{ fontSize: 11, fontWeight: 700, color: pdfTheme.colors.blue, textTransform: "uppercase" as const, letterSpacing: 1 }}>
+                <Text
+                  style={{
+                    fontFamily: typeAccent.fontFamily,
+                    fontSize: typeAccent.fontSize,
+                    fontWeight: Math.max(typeAccent.fontWeight, 700),
+                    color: pdfTheme.colors.blue,
+                    textTransform: "uppercase" as const,
+                    letterSpacing: 1,
+                  }}
+                >
                   Learn More
                 </Text>
               </View>
             </View>
             <Text style={s.typeSpec}>
-              {data.typography_recommendations?.accent
-                ? `${data.typography_recommendations.accent.font} \u2022 ${data.typography_recommendations.accent.weight} \u2022 ${data.typography_recommendations.accent.size}`
+              {tr?.accent
+                ? `${tr.accent.font} \u2022 ${tr.accent.weight} \u2022 ${tr.accent.size}`
                 : "Bold \u2022 11\u201312pt \u2022 Uppercase \u2022 Buttons and navigation"}
             </Text>
           </View>
@@ -1055,34 +1182,34 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
       )}
 
       {/* Imagery & Photography Direction */}
-      {data.brand_imagery_direction && (
+      {imageryDirection && (
         <>
           <Page size="A4" style={s.page}>
             <Text style={s.sectionTitle}>Imagery & Photography</Text>
 
-            {data.brand_imagery_direction.photography_style_direction && (
+            {imageryDirection.photography_style_direction && (
               <>
                 <Text style={s.subsectionTitle}>Photography Style</Text>
-                <Text style={s.body}>{data.brand_imagery_direction.photography_style_direction}</Text>
+                <Text style={s.body}>{imageryDirection.photography_style_direction}</Text>
               </>
             )}
 
-            {data.brand_imagery_direction.subject_matter_guidance && (
+            {imageryDirection.subject_matter_guidance && (
               <>
                 <Text style={s.subsectionTitle}>Subject Matter Guidance</Text>
                 <View style={s.twoCol}>
                   <View style={s.col}>
-                    <View style={{ ...s.imageryCard, borderLeft: "3px solid #059669" }}>
-                      <Text style={{ ...s.imageryLabel, color: "#059669" }}>Show</Text>
-                      {(data.brand_imagery_direction.subject_matter_guidance.show || []).map((item, i) => (
+                    <View style={{ ...s.imageryCard, borderLeft: `3px solid ${SEMANTIC_DO.border}` }}>
+                      <Text style={{ ...s.imageryLabel, color: SEMANTIC_DO.label }}>Do this</Text>
+                      {(imageryDirection.subject_matter_guidance.show || []).map((item, i) => (
                         <Text key={i} style={{ ...s.bulletSmall }}>{"\u2713"} {item}</Text>
                       ))}
                     </View>
                   </View>
                   <View style={s.col}>
-                    <View style={{ ...s.imageryCard, borderLeft: "3px solid #EF4444" }}>
-                      <Text style={{ ...s.imageryLabel, color: "#EF4444" }}>Avoid</Text>
-                      {(data.brand_imagery_direction.subject_matter_guidance.avoid || []).map((item, i) => (
+                    <View style={{ ...s.imageryCard, borderLeft: `3px solid ${SEMANTIC_DONT.border}` }}>
+                      <Text style={{ ...s.imageryLabel, color: SEMANTIC_DONT.border }}>Not this</Text>
+                      {(imageryDirection.subject_matter_guidance.avoid || []).map((item, i) => (
                         <Text key={i} style={{ ...s.bulletSmall }}>{"\u2717"} {item}</Text>
                       ))}
                     </View>
@@ -1091,8 +1218,8 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
               </>
             )}
 
-            {data.brand_imagery_direction.stock_photo_selection_criteria && (() => {
-              const c = data.brand_imagery_direction.stock_photo_selection_criteria!;
+            {imageryDirection.stock_photo_selection_criteria && (() => {
+              const c = imageryDirection.stock_photo_selection_criteria!;
               const entries = [
                 c.lighting && { l: "Lighting", v: c.lighting },
                 c.composition && { l: "Composition", v: c.composition },
@@ -1113,10 +1240,35 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
               ) : null;
             })()}
 
-            {data.brand_imagery_direction.color_application_in_imagery && (
+            {imageryDirection.color_application_in_imagery && (
               <>
                 <Text style={s.subsectionTitle}>Color Application in Imagery</Text>
-                <Text style={s.body}>{data.brand_imagery_direction.color_application_in_imagery}</Text>
+                <Text style={s.body}>{imageryDirection.color_application_in_imagery}</Text>
+              </>
+            )}
+
+            {imageryDirection.mood_board_image_samples &&
+              imageryDirection.mood_board_image_samples.length > 0 && (
+              <>
+                <Text style={s.subsectionTitle}>Mood Board Image Samples</Text>
+                <Text style={s.body}>
+                  Curated visual references for {biz}. Use these to align photo direction, composition,
+                  and styling decisions across teams.
+                </Text>
+                <View style={s.imageSampleGrid}>
+                  {imageryDirection.mood_board_image_samples.slice(0, 8).map((sample, i) => (
+                    <View key={i} style={s.imageSampleCard}>
+                      {/* eslint-disable-next-line jsx-a11y/alt-text */}
+                      <Image src={sample.url} style={s.imageSample} />
+                      <View style={s.imageSampleMeta}>
+                        <Text style={s.imageSampleCaption}>{sample.caption || `Reference ${i + 1}`}</Text>
+                        {sample.rationale ? (
+                          <Text style={s.imageSampleRationale}>{sample.rationale}</Text>
+                        ) : null}
+                      </View>
+                    </View>
+                  ))}
+                </View>
               </>
             )}
 
@@ -1124,14 +1276,14 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
           </Page>
 
           {/* Imagery by Channel */}
-          {data.brand_imagery_direction.platform_specific_imagery_guidance &&
-            data.brand_imagery_direction.platform_specific_imagery_guidance.length > 0 && (
+          {imageryDirection.platform_specific_imagery_guidance &&
+            imageryDirection.platform_specific_imagery_guidance.length > 0 && (
             <Page size="A4" style={s.page}>
               <Text style={s.sectionTitle}>Imagery by Channel</Text>
               <Text style={s.body}>
                 Platform-specific guidance to maintain visual consistency across every touchpoint.
               </Text>
-              {data.brand_imagery_direction.platform_specific_imagery_guidance.map((platform, i) => (
+              {imageryDirection.platform_specific_imagery_guidance.map((platform, i) => (
                 <View key={i} style={s.channelCard}>
                   <Text style={s.channelName}>{platform.platform}</Text>
                   {platform.dimensions && <Text style={s.channelDimensions}>{platform.dimensions}</Text>}
@@ -1154,11 +1306,11 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
           )}
 
           {/* Mood Board + Image Don'ts */}
-          {(data.brand_imagery_direction.mood_board_descriptors ||
-            data.brand_imagery_direction.image_donts) && (
+          {(imageryDirection.mood_board_descriptors ||
+            imageryDirection.image_donts) && (
             <Page size="A4" style={s.page}>
-              {data.brand_imagery_direction.mood_board_descriptors && (() => {
-                const mood = data.brand_imagery_direction.mood_board_descriptors!;
+              {imageryDirection.mood_board_descriptors && (() => {
+                const mood = imageryDirection.mood_board_descriptors!;
                 return (
                   <>
                     <Text style={s.sectionTitle}>Visual Mood Board</Text>
@@ -1186,6 +1338,22 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
                         </View>
                       </>
                     )}
+                    {mood.lighting_conditions && (
+                      <>
+                        <Text style={{ ...s.subsectionTitle, fontSize: 12 }}>Lighting</Text>
+                        <Text style={{ fontSize: 10, color: pdfTheme.colors.text, lineHeight: 1.65, marginBottom: 6 }}>
+                          {mood.lighting_conditions}
+                        </Text>
+                      </>
+                    )}
+                    {mood.color_moods && (
+                      <>
+                        <Text style={{ ...s.subsectionTitle, fontSize: 12 }}>Color mood</Text>
+                        <Text style={{ fontSize: 10, color: pdfTheme.colors.text, lineHeight: 1.65, marginBottom: 6 }}>
+                          {mood.color_moods}
+                        </Text>
+                      </>
+                    )}
                     {mood.designer_note && (
                       <View style={{ ...s.imageryCard, borderLeft: `3px solid ${pdfTheme.colors.blue}`, marginTop: 8 }}>
                         <Text style={s.imageryLabel}>Designer Brief</Text>
@@ -1198,11 +1366,11 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
                 );
               })()}
 
-              {data.brand_imagery_direction.image_donts &&
-                data.brand_imagery_direction.image_donts.length > 0 && (
+              {imageryDirection.image_donts &&
+                imageryDirection.image_donts.length > 0 && (
                 <>
                   <Text style={{ ...s.subsectionTitle, marginTop: 16 }}>Imagery Pitfalls to Avoid</Text>
-                  {data.brand_imagery_direction.image_donts.map((item, i) => (
+                  {imageryDirection.image_donts.map((item, i) => (
                     <View key={i} style={s.dontCard}>
                       <Text style={s.dontLabel}>{"\u2717"} {item.dont}</Text>
                       <Text style={s.dontWhy}>Why: {item.why}</Text>
@@ -1261,13 +1429,13 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
         {((data.voice_dos && data.voice_dos.length > 0) || (data.voice_donts && data.voice_donts.length > 0)) && (
           <View style={s.doRow}>
             <View style={s.doCol}>
-              <Text style={{ ...s.doHeader, color: "#059669" }}>Do</Text>
+              <Text style={{ ...s.doHeader, color: SEMANTIC_DO.label }}>Do</Text>
               {(data.voice_dos || []).map((item, i) => (
                 <Text key={i} style={s.bullet}>{"\u2713"} {item}</Text>
               ))}
             </View>
             <View style={s.doCol}>
-              <Text style={{ ...s.doHeader, color: "#DC2626" }}>Don{"\u2019"}t</Text>
+              <Text style={{ ...s.doHeader, color: SEMANTIC_DONT.label }}>Don{"\u2019"}t</Text>
               {(data.voice_donts || []).map((item, i) => (
                 <Text key={i} style={s.bullet}>{"\u2717"} {item}</Text>
               ))}
@@ -1278,14 +1446,36 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
         {data.sample_rewrites && data.sample_rewrites.length > 0 && (
           <>
             <Text style={{ ...s.subsectionTitle, marginTop: 16 }}>Before & After Rewrites</Text>
+            <Text style={{ ...s.bodySmall, marginBottom: 8, color: "#6B7280", fontStyle: "italic" }}>
+              Illustrative tone shift (not a Do / Don’t pair).
+            </Text>
             {data.sample_rewrites.map((rw, i) => (
               <View key={i} style={{ marginBottom: 10 }}>
-                <View style={s.dontCard}>
-                  <Text style={{ fontSize: 9, fontWeight: 700, color: "#991B1B", marginBottom: 2 }}>Before (off-brand)</Text>
+                <View
+                  style={{
+                    borderRadius: 6,
+                    padding: 10,
+                    marginBottom: 6,
+                    borderLeft: `3px solid ${ILLUSTRATION_BEFORE.border}`,
+                    backgroundColor: ILLUSTRATION_BEFORE.bg,
+                  }}
+                >
+                  <Text style={{ fontSize: 9, fontWeight: 700, color: ILLUSTRATION_BEFORE.label, marginBottom: 2 }}>
+                    Before
+                  </Text>
                   <Text style={s.bodySmall}>{rw.before}</Text>
                 </View>
-                <View style={s.doCard}>
-                  <Text style={{ fontSize: 9, fontWeight: 700, color: "#059669", marginBottom: 2 }}>After (on-brand)</Text>
+                <View
+                  style={{
+                    borderRadius: 6,
+                    padding: 10,
+                    borderLeft: `3px solid ${ILLUSTRATION_AFTER.border}`,
+                    backgroundColor: ILLUSTRATION_AFTER.bg,
+                  }}
+                >
+                  <Text style={{ fontSize: 9, fontWeight: 700, color: ILLUSTRATION_AFTER.label, marginBottom: 2 }}>
+                    After
+                  </Text>
                   <Text style={s.bodySmall}>{rw.after}</Text>
                 </View>
               </View>
@@ -1552,13 +1742,13 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
               <View style={s.twoCol}>
                 <View style={{ ...s.col }}>
                   <View style={s.doCard}>
-                    <Text style={{ fontSize: 9, fontWeight: 700, color: "#059669", marginBottom: 2 }}>Do</Text>
+                    <Text style={{ fontSize: 9, fontWeight: 700, color: SEMANTIC_DO.label, marginBottom: 2 }}>Do</Text>
                     <Text style={s.bodySmall}>{item.do_example}</Text>
                   </View>
                 </View>
                 <View style={{ ...s.col }}>
                   <View style={s.dontCard}>
-                    <Text style={{ fontSize: 9, fontWeight: 700, color: "#991B1B", marginBottom: 2 }}>Don{"\u2019"}t</Text>
+                    <Text style={{ fontSize: 9, fontWeight: 700, color: SEMANTIC_DONT.label, marginBottom: 2 }}>Don{"\u2019"}t</Text>
                     <Text style={s.bodySmall}>{item.dont_example}</Text>
                   </View>
                 </View>
@@ -1574,15 +1764,15 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
       )}
 
       {/* Imagery by Audience */}
-      {data.brand_imagery_direction?.imagery_by_audience &&
-        data.brand_imagery_direction.imagery_by_audience.length > 0 && (
+      {imageryDirection?.imagery_by_audience &&
+        imageryDirection.imagery_by_audience.length > 0 && (
         <Page size="A4" style={s.page}>
           <Text style={s.sectionTitle}>Imagery by Audience</Text>
           <Text style={s.body}>
             How visual tone shifts when speaking to different audience segments.
           </Text>
 
-          {data.brand_imagery_direction.imagery_by_audience.map((aud, i) => (
+          {imageryDirection.imagery_by_audience.map((aud, i) => (
             <View key={i} style={s.card}>
               <Text style={s.cardTitle}>{aud.persona}</Text>
               <Text style={s.bodySmall}>{aud.visual_tone_shift}</Text>

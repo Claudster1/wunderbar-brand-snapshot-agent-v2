@@ -18,6 +18,28 @@ const CONSENT_FIELDS = [
   "email_marketing_optin_source",
 ] as const;
 
+const STRATEGY_SIGNAL_TAGS = [
+  "snapshot:business-type:service_b2b",
+  "snapshot:business-type:service_b2c",
+  "snapshot:business-type:retail",
+  "snapshot:business-type:ecommerce",
+  "snapshot:business-type:saas",
+  "snapshot:business-type:local_service",
+  "snapshot:signal-missing:conversion-rate",
+  "snapshot:signal-missing:revenue-baseline",
+] as const;
+
+const STRATEGY_SIGNAL_FIELDS = [
+  "snapshot_business_type",
+  "snapshot_primary_revenue_driver",
+  "snapshot_monthly_revenue_range",
+  "snapshot_average_transaction_value",
+  "snapshot_conversion_rate_estimate",
+  "snapshot_primary_acquisition_channel",
+  "snapshot_monthly_marketing_budget",
+  "snapshot_content_creation_capacity",
+] as const;
+
 type ProvisionResult = {
   key: string;
   ok: boolean;
@@ -45,7 +67,7 @@ export async function POST(req: NextRequest) {
   const tags: ProvisionResult[] = [];
   const fields: ProvisionResult[] = [];
 
-  for (const tagName of CONSENT_TAGS) {
+  for (const tagName of [...CONSENT_TAGS, ...STRATEGY_SIGNAL_TAGS]) {
     try {
       const id = await createTag(tagName);
       tags.push({ key: tagName, ok: Boolean(id), id });
@@ -59,7 +81,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  for (const fieldTitle of CONSENT_FIELDS) {
+  for (const fieldTitle of [...CONSENT_FIELDS, ...STRATEGY_SIGNAL_FIELDS]) {
     try {
       const id = await createCustomField(fieldTitle, "text");
       fields.push({ key: fieldTitle, ok: Boolean(id), id });
@@ -91,6 +113,7 @@ export async function POST(req: NextRequest) {
       notes: [
         "This endpoint is idempotent. Existing tags/fields are reused.",
         "Required for consent sync: sms and email marketing opt-in state.",
+        "Also provisions strategy-v3 diagnostic signal fields/tags for ActiveCampaign segmentation.",
       ],
     },
     { status: ok ? 200 : 207 },

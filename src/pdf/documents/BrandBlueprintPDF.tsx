@@ -1,12 +1,14 @@
 // src/pdf/documents/BrandBlueprintPDF.tsx
 // WunderBrand Blueprint™ PDF Document ($997)
 // AEO integrated with brand strategy
+/* eslint-disable react/no-unescaped-entities */
 
 import React from "react";
-import { Document, Page, Text, View } from "@react-pdf/renderer";
+import { Document, Page, Text, View, Image } from "@react-pdf/renderer";
 import { stylePresets, colors, fonts, spacing } from "../theme";
 import { registerPdfFonts } from "../registerFonts";
 import { DisclaimerPage } from "../components/DisclaimerPage";
+import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
 
 // Register fonts
 registerPdfFonts();
@@ -71,6 +73,8 @@ export const BrandBlueprintPDF = ({
     <Document>
       {/* PAGE 1 — COVER */}
       <Page style={stylePresets.page}>
+        {/* eslint-disable-next-line jsx-a11y/alt-text */}
+        <Image src={PDF_WUNDERBAR_LOGO_SRC} style={{ width: 132, marginBottom: spacing.md }} />
         <View style={{ borderBottom: `2px solid ${colors.navy}`, paddingBottom: spacing.md, marginBottom: spacing["2xl"] }}>
           <Text style={stylePresets.h1}>WunderBrand Blueprint™</Text>
           <Text style={stylePresets.body}>

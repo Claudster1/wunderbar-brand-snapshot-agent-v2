@@ -39,6 +39,12 @@ function scoreLabel(pct: number) {
   return "Critical";
 }
 
+function weakestPillarCallout(pct: number) {
+  if (pct >= 60) return "Opportunity";
+  if (pct >= 40) return "Improvement Opportunity";
+  return "Needs Attention";
+}
+
 // ─── ANIMATED NUMBER ───
 function AnimNum({ value, duration = 1200 }: { value: number; duration?: number }) {
   const [display, setDisplay] = useState(0);
@@ -210,7 +216,7 @@ function PillarMeter({ score, maxScore = 20, label }: { score: number; maxScore?
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
         <span style={{ fontSize: 14, fontWeight: 700, color: NAVY }}>{label}</span>
-        <span style={{ fontSize: 16, fontWeight: 900, color }}>{score}<span style={{ fontWeight: 400, color: SUB }}>/{maxScore}</span></span>
+        <span style={{ fontSize: 16, fontWeight: 900, color }}>{score}<span style={{ fontWeight: 700, color }}>/{maxScore}</span></span>
       </div>
       <div style={{ height: 8, borderRadius: 5, background: "#E2E8F0", overflow: "hidden" }}>
         <div style={{
@@ -1158,6 +1164,14 @@ export default function BrandSnapshotPlusReport() {
   const r = REPORT;
   const [selectedFocus, setSelectedFocus] = useState<"primary" | "secondary">("primary");
   const [selectedArchetype, setSelectedArchetype] = useState<"primary" | "secondary">("primary");
+  const buildDocUrl = (docType: string) => {
+    if (docType === "standards") return "/api/preview/pdf?type=brand-standards";
+    if (docType === "prompts") return "/api/preview/pdf?type=prompts";
+    if (docType === "voice-checklist") return "/api/preview/pdf?type=voice-checklist";
+    if (docType === "complete") return "/api/preview/pdf?type=snapshot-plus";
+    if (docType === "executive" || docType === "messaging") return "/api/preview/pdf?type=blueprint";
+    return "/api/preview/pdf?type=snapshot-plus";
+  };
 
   return (
     <>
@@ -1199,7 +1213,14 @@ export default function BrandSnapshotPlusReport() {
         <div style={{ maxWidth: 900, margin: "0 auto", padding: "0 24px", position: "relative", zIndex: 1 }}>
           <div data-header-top style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 0", borderBottom: `1px solid ${BORDER}` }}>
             <a href="https://wunderbardigital.com/?utm_source=brand_snapshot_plus_report&utm_medium=report_nav&utm_campaign=nav_header_logo&utm_content=snap_plus_logo" target="_blank" rel="noopener noreferrer">
-              <img src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp" alt="Wunderbar Digital" style={{ height: 26, objectFit: "contain" }} />
+              <img
+                src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp"
+                alt="Wunderbar Digital"
+                width={160}
+                height={26}
+                loading="eager"
+                style={{ width: 160, height: "auto", display: "block" }}
+              />
             </a>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
               <span style={{ fontSize: 22, fontWeight: 700, color: NAVY, lineHeight: 1 }}>WunderBrand Snapshot+™</span>
@@ -1237,25 +1258,13 @@ export default function BrandSnapshotPlusReport() {
                   </svg>
                   Print
                 </button>
-                <button onClick={() => {
-                  const el = document.querySelector('[data-report]');
-                  if (el) {
-                    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>WunderBrand Snapshot+™ - ${r.businessName}</title><link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet"><style>body{margin:0;font-family:Lato,sans-serif;}</style></head><body>${el.outerHTML}</body></html>`;
-                    const blob = new Blob([html], { type: 'text/html' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `Brand-Snapshot-Plus-${r.businessName.replace(/\s+/g, '-')}.html`;
-                    a.click();
-                    URL.revokeObjectURL(url);
-                  }
-                }} style={{
+                <a href={buildDocUrl("complete")} target="_blank" rel="noopener noreferrer" style={{
                   display: "inline-flex", alignItems: "center", gap: 5,
                   padding: "6px 12px", borderRadius: 5,
                   border: `1.5px solid ${BLUE}`, background: `${BLUE}08`,
                   color: BLUE, fontSize: 12, fontWeight: 700, cursor: "pointer",
                   fontFamily: "Lato, sans-serif",
-                  transition: "background 0.2s ease",
+                  transition: "background 0.2s ease", textDecoration: "none",
                 }}
                   onMouseEnter={(e) => { e.currentTarget.style.background = `${BLUE}15`; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = `${BLUE}08`; }}
@@ -1264,8 +1273,40 @@ export default function BrandSnapshotPlusReport() {
                     <path d="M10 3v10M10 13l-3.5-3.5M10 13l3.5-3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                     <path d="M3 14v2a1 1 0 001 1h12a1 1 0 001-1v-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                   </svg>
-                  Download
-                </button>
+                  Download Full PDF
+                </a>
+              </div>
+              <div data-download-secondary style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                {[
+                  { key: "standards", label: "Brand Standards" },
+                  { key: "executive", label: "Executive Summary" },
+                  { key: "messaging", label: "One-Page Messaging" },
+                  { key: "prompts", label: "Prompt Guide" },
+                  { key: "voice-checklist", label: "Voice Checklist" },
+                  { key: "complete", label: "Full Report PDF" },
+                ].map((doc) => (
+                  <a
+                    key={doc.key}
+                    href={buildDocUrl(doc.key)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      padding: "5px 10px",
+                      borderRadius: 999,
+                      fontSize: 11,
+                      fontWeight: 700,
+                      color: BLUE,
+                      border: `1px solid ${BLUE}33`,
+                      background: `${BLUE}0D`,
+                      textDecoration: "none",
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    {doc.label}
+                  </a>
+                ))}
               </div>
             </div>
           </div>
@@ -1314,6 +1355,8 @@ export default function BrandSnapshotPlusReport() {
             const overallPct = overallScore;
             const strongPct = (strongest.score / 20) * 100;
             const weakPct = (weakest.score / 20) * 100;
+            const weakestLabel = weakestPillarCallout(weakPct);
+            const weakestIconColor = BLUE;
 
             const cards = [
               {
@@ -1337,20 +1380,20 @@ export default function BrandSnapshotPlusReport() {
                 pill: strongest.label,
                 icon: (
                   <svg viewBox="0 0 24 24" fill="none" style={{ width: 22, height: 22 }}>
-                    <path d="M12 2l3 7h7l-5.5 4.5 2 7L12 16l-6.5 4.5 2-7L2 9h7z" stroke={GREEN} strokeWidth="2" strokeLinejoin="round"/>
+                    <path d="M12 2l3 7h7l-5.5 4.5 2 7L12 16l-6.5 4.5 2-7L2 9h7z" stroke={BLUE} strokeWidth="2" strokeLinejoin="round"/>
                   </svg>
                 ),
               },
               {
-                label: "Needs Attention",
+                label: weakestLabel,
                 value: `${weakest.score}/20`,
                 sub: null as string | null,
                 pct: weakPct,
                 pill: weakest.label,
                 icon: (
                   <svg viewBox="0 0 24 24" fill="none" style={{ width: 22, height: 22 }}>
-                    <path d="M12 9v4M12 17h.01" stroke={ORANGE} strokeWidth="2" strokeLinecap="round"/>
-                    <path d="M10.3 3.2L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.2a2 2 0 00-3.4 0z" stroke={ORANGE} strokeWidth="2" strokeLinejoin="round"/>
+                    <path d="M12 9v4M12 17h.01" stroke={weakestIconColor} strokeWidth="2" strokeLinecap="round"/>
+                    <path d="M10.3 3.2L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.2a2 2 0 00-3.4 0z" stroke={weakestIconColor} strokeWidth="2" strokeLinejoin="round"/>
                   </svg>
                 ),
               },
@@ -1371,7 +1414,14 @@ export default function BrandSnapshotPlusReport() {
                       {card.icon}
                       <div style={{ fontSize: 14, fontWeight: 700, color: NAVY, marginTop: 8 }}>{card.label}</div>
                       <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginTop: 10 }}>
-                        <span style={{ fontSize: 30, fontWeight: 700, color: tierColor, lineHeight: 1 }}>{card.value}</span>
+                        <span style={{ fontSize: 34, fontWeight: 800, color: tierColor, lineHeight: 1 }}>
+                          {card.value.includes("/") ? card.value.split("/")[0] : card.value}
+                        </span>
+                        <span style={{ fontSize: 16, fontWeight: 700, color: tierColor, opacity: 0.9 }}>
+                          {card.value.includes("/")
+                            ? `/${card.value.split("/")[1]}`
+                            : "/100"}
+                        </span>
                         <span style={{ fontSize: 12, fontWeight: 700, color: tierColor, textTransform: "uppercase" }}>{tierLabel}</span>
                       </div>
                       {card.sub && (
@@ -1420,131 +1470,6 @@ export default function BrandSnapshotPlusReport() {
             </div>
           )}
         </Section>
-
-        {/* ═══ CONTEXT COVERAGE METER ═══ */}
-        <Section id="context-coverage">
-          <SectionTitle description="How thoroughly we were able to analyze your brand based on the information provided.">
-            <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <svg viewBox="0 0 24 24" fill="none" style={{ width: 24, height: 24 }}>
-                <circle cx="12" cy="12" r="10" stroke={BLUE} strokeWidth="1.5" opacity="0.3"/>
-                <path d="M12 2a10 10 0 0 1 10 10" stroke={BLUE} strokeWidth="2.5" strokeLinecap="round"/>
-                <circle cx="12" cy="12" r="3" fill={BLUE}/>
-              </svg>
-              Context Coverage
-            </span>
-          </SectionTitle>
-
-          {/* Overall meter */}
-          <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 24, padding: "20px 24px", background: `${BLUE}06`, borderRadius: 5, border: `1px solid ${BLUE}20` }}>
-            <div style={{ position: "relative", width: 80, height: 80, flexShrink: 0 }}>
-              <svg viewBox="0 0 80 80" style={{ width: 80, height: 80 }}>
-                <circle cx="40" cy="40" r="34" fill="none" stroke={BORDER} strokeWidth="6"/>
-                <circle cx="40" cy="40" r="34" fill="none" stroke={BLUE} strokeWidth="6"
-                  strokeDasharray={`${(r.contextCoverage.overallPercent / 100) * 2 * Math.PI * 34} ${2 * Math.PI * 34}`}
-                  strokeLinecap="round" transform="rotate(-90 40 40)"/>
-              </svg>
-              <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 900, color: NAVY }}>
-                {r.contextCoverage.overallPercent}%
-              </div>
-            </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: NAVY, marginBottom: 4 }}>Overall Context Coverage</div>
-              <div style={{ fontSize: 15, color: SUB, lineHeight: 1.55 }}>
-                We had sufficient information to provide a {r.contextCoverage.overallPercent >= 80 ? "highly detailed" : r.contextCoverage.overallPercent >= 60 ? "thorough" : "foundational"} analysis. Areas with lower coverage may benefit from additional data in a follow-up diagnostic.
-              </div>
-            </div>
-          </div>
-
-          {/* Individual area bars */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-            {r.contextCoverage.areas.map((area, i) => (
-              <div key={i} style={{ padding: "14px 16px", background: WHITE, borderRadius: 5, border: `1px solid ${BORDER}` }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: NAVY }}>{area.name}</span>
-                  <span style={{
-                    fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 10,
-                    background: area.status === "strong" ? `${GREEN}15` : area.status === "moderate" ? `${YELLOW}15` : `${RED_S}10`,
-                    color: area.status === "strong" ? GREEN : area.status === "moderate" ? "#92700C" : RED_S,
-                    textTransform: "uppercase", letterSpacing: "0.05em",
-                  }}>{area.percent}%</span>
-                </div>
-                <div style={{ height: 6, borderRadius: 3, background: `${NAVY}10`, overflow: "hidden" }}>
-                  <div style={{
-                    width: `${area.percent}%`, height: "100%", borderRadius: 3,
-                    background: area.status === "strong" ? GREEN : area.status === "moderate" ? YELLOW : RED_S,
-                    transition: "width 0.6s ease",
-                  }}/>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Context gaps */}
-          {r.contextCoverage.contextGaps.length > 0 && (
-            <div style={{ marginTop: 20, padding: "16px 20px", background: `${YELLOW}08`, borderRadius: 5, border: `1px solid ${YELLOW}25` }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-                <svg viewBox="0 0 20 20" fill="none" style={{ width: 16, height: 16 }}>
-                  <circle cx="10" cy="10" r="9" stroke={YELLOW} strokeWidth="1.5"/>
-                  <path d="M10 6v5M10 14h.01" stroke={YELLOW} strokeWidth="1.8" strokeLinecap="round"/>
-                </svg>
-                <span style={{ fontSize: 13, fontWeight: 900, color: "#92700C", textTransform: "uppercase", letterSpacing: "0.08em" }}>Areas for Deeper Analysis</span>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {r.contextCoverage.contextGaps.map((gap, i) => (
-                  <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-                    <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#92700C", marginTop: 7, flexShrink: 0 }}/>
-                    <span style={{ fontSize: 14, color: "#1a1a2e", lineHeight: 1.55 }}>{gap}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </Section>
-
-        {/* ═══ STRENGTHEN YOUR ANALYSIS CTA ═══ */}
-        {r.contextCoverage.overallPercent < 85 && (
-          <div id="refine-analysis" style={{
-            margin: "8px 0 0",
-            padding: "22px 28px",
-            background: `linear-gradient(135deg, ${BLUE}06, ${BLUE}12)`,
-            borderRadius: 5,
-            border: `1.5px solid ${BLUE}25`,
-            display: "flex",
-            alignItems: "center",
-            gap: 20,
-          }}>
-            <div style={{
-              width: 44, height: 44, borderRadius: "50%",
-              background: `${BLUE}15`,
-              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-            }}>
-              <svg viewBox="0 0 24 24" fill="none" style={{ width: 22, height: 22 }}>
-                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke={BLUE} strokeWidth="2" strokeLinecap="round"/>
-              </svg>
-            </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 15, fontWeight: 900, color: NAVY, marginBottom: 3 }}>Strengthen Your Analysis</div>
-              <div style={{ fontSize: 13, color: SUB, lineHeight: 1.5 }}>
-                Your context coverage is {r.contextCoverage.overallPercent}%. Answer a few follow-up questions to sharpen your scores and get more precise recommendations.
-              </div>
-            </div>
-            <a
-              href={`/refine/preview-snapshot-plus`}
-              target="_blank" rel="noopener noreferrer"
-              style={{
-                padding: "10px 22px", borderRadius: 5,
-                background: BLUE, color: WHITE,
-                fontSize: 13, fontWeight: 700,
-                textDecoration: "none", fontFamily: "Lato, sans-serif",
-                whiteSpace: "nowrap",
-                boxShadow: `0 2px 8px ${BLUE}30`,
-                transition: "transform 0.2s ease, box-shadow 0.2s ease",
-              }}
-            >
-              Refine Now →
-            </a>
-          </div>
-        )}
 
         {/* ═══ 2. BRAND ALIGNMENT SCORE ═══ */}
         <Section id="brand-alignment-score">
@@ -1628,6 +1553,141 @@ export default function BrandSnapshotPlusReport() {
           </div>
         </Section>
 
+        {/* ═══ STRENGTHEN YOUR ANALYSIS CTA ═══ */}
+        {r.contextCoverage.overallPercent < 85 && (
+          <div id="refine-analysis" style={{
+            margin: "8px 0 0",
+            padding: "22px 28px",
+            background: `linear-gradient(135deg, ${BLUE}06, ${BLUE}12)`,
+            borderRadius: 5,
+            border: `1.5px solid ${BLUE}25`,
+            display: "flex",
+            alignItems: "center",
+            gap: 20,
+          }}>
+            <div style={{
+              width: 44, height: 44, borderRadius: "50%",
+              background: `${BLUE}15`,
+              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+            }}>
+              <svg viewBox="0 0 24 24" fill="none" style={{ width: 22, height: 22 }}>
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke={BLUE} strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 15, fontWeight: 900, color: NAVY, marginBottom: 3 }}>Strengthen Your Analysis</div>
+              <div style={{ fontSize: 13, color: SUB, lineHeight: 1.5 }}>
+                Your context coverage is {r.contextCoverage.overallPercent}%. Answer a few follow-up questions to sharpen your scores and get more precise recommendations.
+              </div>
+            </div>
+            <a
+              href={`/refine/preview-snapshot-plus`}
+              target="_blank" rel="noopener noreferrer"
+              style={{
+                padding: "10px 22px", borderRadius: 5,
+                background: BLUE, color: WHITE,
+                fontSize: 13, fontWeight: 700,
+                textDecoration: "none", fontFamily: "Lato, sans-serif",
+                whiteSpace: "nowrap",
+                boxShadow: `0 2px 8px ${BLUE}30`,
+                transition: "transform 0.2s ease, box-shadow 0.2s ease",
+              }}
+            >
+              Refine Now →
+            </a>
+          </div>
+        )}
+
+        {/* ═══ CONTEXT COVERAGE METER ═══ */}
+        <Section id="context-coverage">
+          <SectionTitle description="How thoroughly we were able to analyze your brand based on the information provided.">
+            <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <svg viewBox="0 0 24 24" fill="none" style={{ width: 24, height: 24 }}>
+                <circle cx="12" cy="12" r="10" stroke={BLUE} strokeWidth="1.5" opacity="0.3"/>
+                <path d="M12 2a10 10 0 0 1 10 10" stroke={BLUE} strokeWidth="2.5" strokeLinecap="round"/>
+                <circle cx="12" cy="12" r="3" fill={BLUE}/>
+              </svg>
+              Context Coverage
+            </span>
+          </SectionTitle>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 24, padding: "20px 24px", background: `${BLUE}06`, borderRadius: 5, border: `1px solid ${BLUE}20` }}>
+            <div style={{ position: "relative", width: 80, height: 80, flexShrink: 0 }}>
+              <svg viewBox="0 0 80 80" style={{ width: 80, height: 80 }}>
+                <circle cx="40" cy="40" r="34" fill="none" stroke={BORDER} strokeWidth="6"/>
+                <circle cx="40" cy="40" r="34" fill="none" stroke={scoreColor(r.contextCoverage.overallPercent)} strokeWidth="6"
+                  strokeDasharray={`${(r.contextCoverage.overallPercent / 100) * 2 * Math.PI * 34} ${2 * Math.PI * 34}`}
+                  strokeLinecap="round" transform="rotate(-90 40 40)"/>
+              </svg>
+              <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 900, color: scoreColor(r.contextCoverage.overallPercent) }}>
+                {r.contextCoverage.overallPercent}%
+              </div>
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 18, fontWeight: 700, color: NAVY, marginBottom: 4 }}>Overall Context Coverage</div>
+              <div style={{ fontSize: 15, color: SUB, lineHeight: 1.55 }}>
+                We had sufficient information to provide a {r.contextCoverage.overallPercent >= 80 ? "highly detailed" : r.contextCoverage.overallPercent >= 60 ? "thorough" : "foundational"} analysis. Areas with lower coverage may benefit from additional data in a follow-up diagnostic.
+              </div>
+              {r.contextCoverage.overallPercent < 85 ? (
+                <p style={{ fontSize: 13, color: SUB, lineHeight: 1.5, margin: "10px 0 0" }}>
+                  Add detail in a quick follow-up to raise coverage.{" "}
+                  <a
+                    href="/refine/preview-snapshot-plus"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: BLUE, fontWeight: 700, textDecoration: "underline" }}
+                  >
+                    Refine now →
+                  </a>
+                </p>
+              ) : null}
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+            {r.contextCoverage.areas.map((area, i) => (
+              <div key={i} style={{ padding: "14px 16px", background: WHITE, borderRadius: 5, border: `1px solid ${BORDER}` }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: NAVY }}>{area.name}</span>
+                  <span style={{
+                    fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 10,
+                    background: area.status === "strong" ? `${GREEN}15` : area.status === "moderate" ? `${YELLOW}15` : `${RED_S}10`,
+                    color: area.status === "strong" ? GREEN : area.status === "moderate" ? "#92700C" : RED_S,
+                    textTransform: "uppercase", letterSpacing: "0.05em",
+                  }}>{area.percent}%</span>
+                </div>
+                <div style={{ height: 6, borderRadius: 3, background: `${NAVY}10`, overflow: "hidden" }}>
+                  <div style={{
+                    width: `${area.percent}%`, height: "100%", borderRadius: 3,
+                    background: area.status === "strong" ? GREEN : area.status === "moderate" ? YELLOW : RED_S,
+                    transition: "width 0.6s ease",
+                  }}/>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {r.contextCoverage.contextGaps.length > 0 && (
+            <div style={{ marginTop: 20, padding: "16px 20px", background: `${YELLOW}08`, borderRadius: 5, border: `1px solid ${YELLOW}25` }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                <svg viewBox="0 0 20 20" fill="none" style={{ width: 16, height: 16 }}>
+                  <circle cx="10" cy="10" r="9" stroke={YELLOW} strokeWidth="1.5"/>
+                  <path d="M10 6v5M10 14h.01" stroke={YELLOW} strokeWidth="1.8" strokeLinecap="round"/>
+                </svg>
+                <span style={{ fontSize: 13, fontWeight: 900, color: "#92700C", textTransform: "uppercase", letterSpacing: "0.08em" }}>Areas for Deeper Analysis</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {r.contextCoverage.contextGaps.map((gap, i) => (
+                  <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                    <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#92700C", marginTop: 7, flexShrink: 0 }}/>
+                    <span style={{ fontSize: 14, color: "#1a1a2e", lineHeight: 1.55 }}>{gap}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </Section>
+
         {/* ═══ 3. FOCUS AREA DIAGNOSIS (Both rendered, inactive hidden via CSS for print) ═══ */}
         <div id="focus-area-diagnosis">
           {/* Primary Focus Area Diagnosis */}
@@ -1701,9 +1761,9 @@ export default function BrandSnapshotPlusReport() {
           </div>
         </div>
 
-        {/* ═══ 4. PILLAR DEEP DIVES ═══ */}
+        {/* ═══ 4. PILLAR-BY-PILLAR RESULTS ═══ */}
         <Section id="pillar-deep-dives" pageBreak>
-          <SectionTitle description="Strategic analysis of each pillar with examples and success metrics.">Pillar Deep Dives</SectionTitle>
+          <SectionTitle description="Strategic analysis of each pillar with examples and success metrics.">Brand Pillar Analysis</SectionTitle>
 
           <div data-pillar-meters style={{
             display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px 32px",
@@ -2321,7 +2381,7 @@ export default function BrandSnapshotPlusReport() {
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div style={{ padding: "14px 16px", borderRadius: 5, background: `${RED_S}06`, border: `1px solid ${RED_S}15` }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: RED_S, textTransform: "uppercase", marginBottom: 8 }}>Avoid</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: RED_S, textTransform: "uppercase", marginBottom: 8 }}>Not this</div>
                   {r.brandPersona.messagingExamples.headlines.avoid.map((ex, i) => (
                     <div key={i} style={{ fontSize: 14, color: "#1a1a2e", lineHeight: 1.5, marginBottom: 6, display: "flex", gap: 8 }}>
                       <span style={{ color: RED_S }}>✗</span>
@@ -2330,7 +2390,7 @@ export default function BrandSnapshotPlusReport() {
                   ))}
                 </div>
                 <div style={{ padding: "14px 16px", borderRadius: 5, background: `${GREEN}06`, border: `1px solid ${GREEN}15` }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: GREEN, textTransform: "uppercase", marginBottom: 8 }}>Use Instead</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: GREEN, textTransform: "uppercase", marginBottom: 8 }}>Do this</div>
                   {r.brandPersona.messagingExamples.headlines.use.map((ex, i) => (
                     <div key={i} style={{ fontSize: 14, color: "#1a1a2e", lineHeight: 1.5, marginBottom: 6, display: "flex", gap: 8 }}>
                       <span style={{ color: GREEN }}>✓</span>
@@ -2352,7 +2412,7 @@ export default function BrandSnapshotPlusReport() {
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div style={{ padding: "14px 16px", borderRadius: 5, background: `${RED_S}06`, border: `1px solid ${RED_S}15` }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: RED_S, textTransform: "uppercase", marginBottom: 8 }}>Avoid</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: RED_S, textTransform: "uppercase", marginBottom: 8 }}>Not this</div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                     {r.brandPersona.messagingExamples.ctaButtons.avoid.map((ex, i) => (
                       <span key={i} style={{
@@ -2364,7 +2424,7 @@ export default function BrandSnapshotPlusReport() {
                   </div>
                 </div>
                 <div style={{ padding: "14px 16px", borderRadius: 5, background: `${GREEN}06`, border: `1px solid ${GREEN}15` }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: GREEN, textTransform: "uppercase", marginBottom: 8 }}>Use Instead</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: GREEN, textTransform: "uppercase", marginBottom: 8 }}>Do this</div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                     {r.brandPersona.messagingExamples.ctaButtons.use.map((ex, i) => (
                       <span key={i} style={{
@@ -2388,7 +2448,7 @@ export default function BrandSnapshotPlusReport() {
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div style={{ padding: "14px 16px", borderRadius: 5, background: `${RED_S}06`, border: `1px solid ${RED_S}15` }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: RED_S, textTransform: "uppercase", marginBottom: 8 }}>Avoid</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: RED_S, textTransform: "uppercase", marginBottom: 8 }}>Not this</div>
                   {r.brandPersona.messagingExamples.socialPosts.avoid.map((ex, i) => (
                     <div key={i} style={{ fontSize: 13, color: "#1a1a2e", lineHeight: 1.4, marginBottom: 8, fontStyle: "italic", opacity: 0.7 }}>
                       &quot;{ex}&quot;
@@ -2396,7 +2456,7 @@ export default function BrandSnapshotPlusReport() {
                   ))}
                 </div>
                 <div style={{ padding: "14px 16px", borderRadius: 5, background: `${GREEN}06`, border: `1px solid ${GREEN}15` }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: GREEN, textTransform: "uppercase", marginBottom: 8 }}>Use Instead</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: GREEN, textTransform: "uppercase", marginBottom: 8 }}>Do this</div>
                   {r.brandPersona.messagingExamples.socialPosts.use.map((ex, i) => (
                     <div key={i} style={{ fontSize: 13, color: "#1a1a2e", lineHeight: 1.4, marginBottom: 8, fontWeight: 500 }}>
                       &quot;{ex}&quot;
@@ -2827,22 +2887,8 @@ export default function BrandSnapshotPlusReport() {
             </span>
           </SectionTitle>
 
-          {/* Pack overview badge */}
-          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20, padding: "14px 20px", background: `${BLUE}06`, borderRadius: 5, border: `1px solid ${BLUE}18` }}>
-            <div style={{
-              width: 40, height: 40, borderRadius: "50%", background: `${BLUE}15`,
-              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-            }}>
-              <span style={{ fontSize: 18, fontWeight: 900, color: BLUE }}>{r.foundationalPromptPack.promptCount}</span>
-            </div>
-            <div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: NAVY }}>
-                {r.foundationalPromptPack.promptCount} AI Prompts — Calibrated to {r.businessName}
-              </div>
-              <div style={{ fontSize: 13, color: SUB, lineHeight: 1.4 }}>
-                Pre-filled with your diagnostic data. Copy directly into ChatGPT, Claude, or any AI tool.
-              </div>
-            </div>
+          <div style={{ fontSize: 14, color: SUB, lineHeight: 1.6, marginBottom: 24 }}>
+            Prompts are calibrated to {r.businessName} and pre-filled with your diagnostic context.
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
@@ -2927,7 +2973,7 @@ export default function BrandSnapshotPlusReport() {
               <span style={{ fontSize: 13, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.08em" }}>Want More Prompts?</span>
             </div>
             <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.65 }}>
-              WunderBrand Blueprint™ includes an <strong>Execution Prompt Pack</strong> with 8 additional prompts for campaign messaging, email sequences, social media systems, website copy auditing, and more — all calibrated to your brand voice. WunderBrand Blueprint+™ unlocks a full <strong>Advanced Prompt Library</strong> of 12 strategic prompts including persona messaging maps, full-funnel architecture, and competitive war room analysis.
+              WunderBrand Blueprint™ includes an <strong>Activation Prompt Pack</strong> with 8 additional prompts for campaign messaging, email sequences, social media systems, website copy auditing, and more — all calibrated to your brand voice. WunderBrand Blueprint+™ unlocks a full <strong>Advanced Prompt Library</strong> of 12 strategic prompts including persona messaging maps, full-funnel architecture, and competitive war room analysis.
             </div>
           </div>
         </Section>
@@ -2943,7 +2989,9 @@ export default function BrandSnapshotPlusReport() {
               <div key={i} style={{ background: i === 0 ? '#F0F7FF' : WHITE, border: `1px solid ${i === 0 ? BLUE : BORDER}`, borderRadius: 10, padding: '24px 28px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
                   <div style={{ width: 32, height: 32, borderRadius: '50%', background: `${BLUE}15`, color: BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14, flexShrink: 0 }}>{i + 1}</div>
-                  <h3 style={{ fontSize: 20, fontWeight: 700, color: NAVY, margin: 0, fontStyle: 'italic' }}>"{t.tagline}"</h3>
+                  <h3 style={{ fontSize: 20, fontWeight: 700, color: NAVY, margin: 0, fontStyle: 'italic' }}>
+                    &ldquo;{t.tagline}&rdquo;
+                  </h3>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                   <div>
@@ -3031,7 +3079,7 @@ export default function BrandSnapshotPlusReport() {
                 Your diagnostic turned into an operational system — messaging frameworks, voice guidelines, and AI prompts you can use immediately.
               </div>
               <div style={{ flex: 1, marginBottom: 18 }}>
-                {["Messaging framework & brand voice", "Strategic alignment system", "Execution-ready AI prompt pack", "Downloadable PDF report"].map((f, i) => (
+                {["Messaging framework & brand voice", "Strategic alignment system", "Activation-ready AI prompt pack", "Downloadable PDF report"].map((f, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                     <svg viewBox="0 0 20 20" fill="none" style={{ width: 16, height: 16, flexShrink: 0 }}>
                       <circle cx="10" cy="10" r="9" fill={BLUE} opacity="0.15"/>
@@ -3109,7 +3157,7 @@ export default function BrandSnapshotPlusReport() {
                 Prefer Hands-On Help?
               </div>
               <p style={{ fontSize: 15, color: SUB, lineHeight: 1.55, maxWidth: 500, margin: "0 auto" }}>
-                Let our team implement your brand strategy for you — from AI-powered marketing systems to full campaign execution.
+                Let our team implement your brand strategy for you — from AI-powered marketing systems to full campaign activation.
               </p>
             </div>
 
@@ -3132,7 +3180,7 @@ export default function BrandSnapshotPlusReport() {
                   <div style={{ fontSize: 16, fontWeight: 700, color: NAVY }}>Managed Marketing</div>
                 </div>
                 <div style={{ fontSize: 14, color: SUB, lineHeight: 1.55, marginBottom: 14, flex: 1 }}>
-                  We take your brand strategy and execute it — content creation, campaign management, performance optimization, and ongoing strategic guidance.
+                  We take your brand strategy and activate it — content creation, campaign management, performance optimization, and ongoing strategic guidance.
                 </div>
                 <a
                   href="https://wunderbardigital.com/managed-marketing?utm_source=brand_snapshot_plus_report&utm_medium=report_nav&utm_campaign=nav_nav_dropdown_item&utm_content=snap_plus_managed_marketing"
@@ -3189,11 +3237,49 @@ export default function BrandSnapshotPlusReport() {
           </div>
         </Section>
 
+        <Section id="strategic-signals">
+          <SectionTitle description="Directional business signals derived from your diagnostic responses.">
+            Strategic Signals
+          </SectionTitle>
+          <div style={{ display: "grid", gap: 14 }}>
+            <div style={{ border: `1px solid ${BORDER}`, borderRadius: 5, padding: 16, background: WHITE }}>
+              <div style={{ fontSize: 14, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
+                Competitive Vulnerability Signal
+              </div>
+              <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.65 }}>
+                You are currently strongest in strategic depth but easiest to out-position on proof clarity. Competitors with clearer outcomes and case evidence will convert decision-stage buyers faster until this gap is tightened.
+              </div>
+            </div>
+            <div style={{ border: `1px solid ${BORDER}`, borderRadius: 5, padding: 16, background: WHITE }}>
+              <div style={{ fontSize: 14, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
+                Marketing Spend Efficiency Signal
+              </div>
+              <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.65 }}>
+                Current spend likely underperforms because top-of-funnel traffic and sales conversations are not guided by one proof-backed message spine. Improving positioning-message continuity should increase return from existing channels before adding new spend.
+              </div>
+            </div>
+            <div style={{ border: `1px solid ${BORDER}`, borderRadius: 5, padding: 16, background: WHITE }}>
+              <div style={{ fontSize: 14, fontWeight: 900, color: BLUE, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
+                Revenue Impact Statement
+              </div>
+              <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.65 }}>
+                If these gaps persist, revenue growth remains constrained by slower deal velocity and lower conversion confidence. Closing the highest-friction message and proof gaps creates the clearest path to near-term upside.
+              </div>
+            </div>
+          </div>
+        </Section>
+
         {/* ═══ FOOTER ═══ */}
         <footer style={{ textAlign: "center", padding: "20px 0 0", borderTop: `1px solid ${BORDER}` }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8 }}>
             <a href="https://wunderbardigital.com/?utm_source=brand_snapshot_plus_report&utm_medium=report_nav&utm_campaign=nav_header_logo&utm_content=snap_plus_logo" target="_blank" rel="noopener noreferrer">
-              <img src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp" alt="Wunderbar Digital" style={{ height: 20, objectFit: "contain" }} />
+              <img
+                src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp"
+                alt="Wunderbar Digital"
+                width={124}
+                height={20}
+                style={{ width: 124, height: "auto", display: "block" }}
+              />
             </a>
           </div>
           <p style={{ fontSize: 14, color: SUB, marginBottom: 4 }}>
@@ -3209,7 +3295,7 @@ export default function BrandSnapshotPlusReport() {
           </p>
           <p style={{ fontSize: 11, color: '#8A97A8', textAlign: 'center', marginTop: 24, padding: '16px 0', borderTop: '1px solid #E6EAF2', fontFamily: 'Lato, sans-serif' }}>
             This report is licensed for internal use by the commissioning organization. Redistribution or resale is prohibited.
-            {' '}&copy; {new Date().getFullYear()} Wunderbar Digital &middot;{' '}
+            {' '}&copy; 2026 Wunderbar Digital &middot;{' '}
             <a href="https://wunderbardigital.com/terms-of-service?utm_source=wunderbrand_app&utm_medium=report_footer&utm_campaign=legal" target="_blank" rel="noopener noreferrer" style={{ color: '#8A97A8', textDecoration: 'underline' }}>Terms of Use</a>
           </p>
         </footer>
@@ -3217,22 +3303,22 @@ export default function BrandSnapshotPlusReport() {
       </div>
     </div>
     <ReportNav reportTitle="WunderBrand Snapshot+™" sections={[
-      { id: "executive-summary", label: "Executive Summary", group: "Diagnostic" },
-      { id: "context-coverage", label: "Context Coverage", group: "Diagnostic" },
-      { id: "brand-alignment-score", label: "WunderBrand Score™", group: "Diagnostic" },
-      { id: "focus-area-diagnosis", label: "Focus Area Diagnosis", group: "Diagnostic" },
-      { id: "pillar-deep-dives", label: "Pillar Deep Dives", group: "Diagnostic" },
-      { id: "strategic-alignment", label: "Strategic Alignment", group: "Diagnostic" },
-      { id: "visibility-discovery", label: "Visibility & Discovery", group: "Brand Strategy" },
-      { id: "brand-archetypes", label: "Brand Archetypes", group: "Brand Strategy" },
-      { id: "brand-persona", label: "Your Brand Persona", group: "Brand Strategy" },
-      { id: "messaging-pillars", label: "Messaging Pillars", group: "Brand Strategy" },
-      { id: "audience-signals", label: "Audience Signals", group: "Brand Strategy" },
-      { id: "visual-verbal-signals", label: "Visual & Verbal Signals", group: "Brand Strategy" },
-      { id: "strategic-action-plan", label: "Strategic Action Plan", group: "Action & Tools" },
-      { id: "prompt-pack", label: "AI Prompt Pack", group: "Action & Tools" },
-      { id: "tagline-recommendations", label: "Tagline Recommendations", group: "Action & Tools" },
-      { id: "whats-next", label: "What's Next", group: "Action & Tools" },
+      { id: "executive-summary", label: "Executive Summary", group: "Foundation" },
+      { id: "brand-alignment-score", label: "WunderBrand Score™", group: "Foundation" },
+      { id: "context-coverage", label: "Context Coverage", group: "Foundation" },
+      { id: "focus-area-diagnosis", label: "Focus Area Diagnosis", group: "Foundation" },
+      { id: "pillar-deep-dives", label: "Brand Pillar Analysis", group: "Foundation" },
+      { id: "strategic-alignment", label: "Strategic Alignment", group: "Foundation" },
+      { id: "strategic-signals", label: "Strategic Signals", group: "Foundation" },
+      { id: "visibility-discovery", label: "Visibility & Discovery", group: "Strategy" },
+      { id: "brand-archetypes", label: "Brand Archetypes", group: "Strategy" },
+      { id: "messaging-pillars", label: "Messaging Pillars", group: "Strategy" },
+      { id: "audience-signals", label: "Audience Signals", group: "Strategy" },
+      { id: "visual-verbal-signals", label: "Visual & Verbal Signals", group: "Strategy" },
+      { id: "strategic-action-plan", label: "Strategic Action Plan", group: "Activation" },
+      { id: "prompt-pack", label: "AI Prompt Pack", group: "Activation" },
+      { id: "tagline-recommendations", label: "Tagline Recommendations", group: "Activation" },
+      { id: "whats-next", label: "What's Next", group: "Activation" },
     ]} />
 
     {/* Wundy™ Report Companion — Snapshot+ tier */}

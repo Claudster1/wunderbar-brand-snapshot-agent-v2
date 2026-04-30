@@ -76,7 +76,7 @@ export function RefinementModal({
           Request Refinement: {pillarLabels[pillar]}
         </h2>
         <p className="text-sm text-slate-600 mb-6">
-          Share additional context or ask for clarification on this pillar. We'll
+          Share additional context or ask for clarification on this pillar. We&apos;ll
           review your request and provide an updated analysis.
         </p>
 
@@ -116,7 +116,7 @@ export function RefinementModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-5 py-2.5 text-sm font-medium text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-50 transition"
+                className="px-5 py-2.5 text-sm font-semibold text-white bg-brand-blue rounded-[5px] border-0 hover:bg-brand-blueHover transition"
                 disabled={isSubmitting}
               >
                 Cancel
@@ -124,7 +124,7 @@ export function RefinementModal({
               <button
                 type="submit"
                 disabled={isSubmitting || !note.trim()}
-                className="px-5 py-2.5 text-sm font-semibold text-white bg-brand-blue rounded-lg hover:bg-brand-blueHover transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-5 py-2.5 text-sm font-semibold text-white bg-brand-blue rounded-[5px] hover:bg-brand-blueHover transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? "Submitting..." : "Submit Request"}
               </button>

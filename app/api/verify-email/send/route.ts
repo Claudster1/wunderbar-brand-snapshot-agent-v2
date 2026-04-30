@@ -11,6 +11,7 @@ import {
   removeActiveCampaignTags,
   setContactFields,
 } from "@/lib/applyActiveCampaignTags";
+import { createCrmSyncLog } from "@/lib/crm/inbound";
 
 function generateCode(): string {
   // Cryptographically random 6-digit code
@@ -111,8 +112,29 @@ export async function POST(req: Request) {
             ...(normalizedPhoneMobile ? { phone_mobile: normalizedPhoneMobile } : {}),
           },
         });
+        await createCrmSyncLog({
+          status: "success",
+          eventType: "ac.consent.verify_email_send",
+          payload: {
+            email: normalized,
+            report_id: reportId,
+            sms_opted_in: true,
+            source: "diagnostic_email_gate",
+          },
+        });
       } catch (smsErr) {
         // Non-blocking: verification should succeed even if AC sync fails.
+        await createCrmSyncLog({
+          status: "failed",
+          eventType: "ac.consent.verify_email_send",
+          errorMessage: smsErr instanceof Error ? smsErr.message : String(smsErr),
+          payload: {
+            email: normalized,
+            report_id: reportId,
+            sms_opted_in: true,
+            source: "diagnostic_email_gate",
+          },
+        });
         logger.warn("[Verify Email Send] SMS opt-in sync failed", {
           error: smsErr instanceof Error ? smsErr.message : String(smsErr),
         });
@@ -136,8 +158,29 @@ export async function POST(req: Request) {
             email_marketing_optin_source: "diagnostic_email_gate",
           },
         });
+        await createCrmSyncLog({
+          status: "success",
+          eventType: "ac.consent.verify_email_send",
+          payload: {
+            email: normalized,
+            report_id: reportId,
+            email_marketing_opted_in: true,
+            source: "diagnostic_email_gate",
+          },
+        });
       } catch (emailOptInErr) {
         // Non-blocking: verification should succeed even if AC sync fails.
+        await createCrmSyncLog({
+          status: "failed",
+          eventType: "ac.consent.verify_email_send",
+          errorMessage: emailOptInErr instanceof Error ? emailOptInErr.message : String(emailOptInErr),
+          payload: {
+            email: normalized,
+            report_id: reportId,
+            email_marketing_opted_in: true,
+            source: "diagnostic_email_gate",
+          },
+        });
         logger.warn("[Verify Email Send] Email marketing opt-in sync failed", {
           error: emailOptInErr instanceof Error ? emailOptInErr.message : String(emailOptInErr),
         });

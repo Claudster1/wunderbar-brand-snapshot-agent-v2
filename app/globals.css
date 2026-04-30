@@ -1,6 +1,7 @@
 /* app/globals.css */
 
 @import "tailwindcss";
+@import "../styles/print.css";
 
 @theme {
   --color-brand-navy: #021859;
@@ -21,6 +22,8 @@
 :root {
   --brand-navy: #021859;
   --brand-blue: #07B0F2;
+  /* Bullet discs & custom dots (strategy-suite-ul, offer cards) */
+  --wb-bullet-accent: #07b0f2;
   --brand-aqua: #27CDF2;
   --brand-midnight: #0C1526;
   --brand-gray: #F2F2F2;
@@ -86,7 +89,7 @@
 }
 .bs-eyebrow {
   font-family: var(--font-brand);
-  font-size: 0.75rem;
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -118,6 +121,40 @@
 }
 .bs-card:hover {
   box-shadow: 0 8px 24px rgba(2, 24, 89, 0.1);
+}
+
+/* WunderBrand report suite — calmer cards on the results experience */
+.results-suite-root {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+.results-suite-root .bs-card {
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06), 0 0 1px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.35s cubic-bezier(0.25, 0.1, 0.25, 1), transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.results-suite-root .bs-card:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.09), 0 4px 12px rgba(0, 0, 0, 0.04);
+  transform: translateY(-1px);
+}
+.results-suite-root .bs-h1,
+.results-suite-root .bs-h2,
+.results-suite-root .bs-h3 {
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+.results-suite-root .bs-body,
+.results-suite-root .bs-body-sm {
+  color: #1d1d1f;
+}
+.results-tab-nav-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.results-tab-nav-scroll::-webkit-scrollbar {
+  display: none;
 }
 .bs-badge {
   display: inline-flex;
@@ -233,17 +270,17 @@ body:has(.app-root) {
 }
 
 @layer components {
-  /* Wunderbar buttons: 54px height, padding, hover transform + shadow */
+  /* Wunderbar buttons: bright blue, white label, 5px corners (reports + app UI) */
   .btn-primary {
-    @apply inline-flex items-center justify-center h-[54px] min-h-[54px] px-6 bg-brand-blue text-white font-bold rounded-md shadow-md hover:bg-brand-blueHover hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2;
+    @apply inline-flex items-center justify-center h-[54px] min-h-[54px] px-6 bg-brand-blue text-white font-bold rounded-[5px] shadow-md hover:bg-brand-blueHover hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 border-0;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center h-[54px] min-h-[54px] px-6 border-2 border-brand-blue text-brand-blue font-bold rounded-md bg-transparent hover:bg-brand-gray hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2;
+    @apply inline-flex items-center justify-center h-[54px] min-h-[54px] px-6 bg-brand-blue text-white font-bold rounded-[5px] shadow-md hover:bg-brand-blueHover hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 border-0;
   }
 
   .btn-primary-inverse {
-    @apply inline-flex items-center justify-center h-[54px] min-h-[54px] px-6 bg-brand-blue text-white font-bold rounded-md shadow hover:bg-brand-blueHover hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2;
+    @apply inline-flex items-center justify-center h-[54px] min-h-[54px] px-6 bg-brand-blue text-white font-bold rounded-[5px] shadow-md hover:bg-brand-blueHover hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 border-0;
   }
 }
 
@@ -274,7 +311,7 @@ body:has(.app-root) {
   border-radius: 5px;
   border: 1px solid #e0e3ea;
   box-shadow: 0 16px 40px rgba(2, 24, 89, 0.12);
-  padding: 28px 28px 24px;
+  padding: 24px 24px 20px;
   max-height: calc(100vh - 56px - 48px); /* header + padding */
   max-height: calc(100dvh - 56px - 48px);
   display: flex;
@@ -285,7 +322,7 @@ body:has(.app-root) {
 /* Header / avatar */
 .app-card-header {
   display: flex;
-  gap: 18px;
+  gap: 14px;
   align-items: flex-start;
 }
 
@@ -294,13 +331,13 @@ body:has(.app-root) {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
 }
 
 .app-card-avatar {
-  width: 72px;
-  height: 72px;
+  width: 64px;
+  height: 64px;
   border-radius: 5px;
   overflow: hidden;
   background: #ffffff;
@@ -522,6 +559,24 @@ body:has(.app-root) {
   margin-bottom: 0;
 }
 
+/* Markdown in chat (Wundy): **bold**, *italic*, [label](url) — see components/chat/ChatMarkdown.tsx */
+.chat-md p {
+  margin: 0 0 8px;
+}
+.chat-md .chat-md-link {
+  color: #0369a1;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.chat-bubble-user .chat-md .chat-md-link,
+.wundy-msg-user .chat-md .chat-md-link {
+  color: rgba(255, 255, 255, 0.95);
+  text-decoration: underline;
+}
+.chat-md > p:last-child {
+  margin-bottom: 0;
+}
+
 .chat-bubble-assistant {
   background: #fff;
   border: 1px solid #d7def0;
@@ -583,9 +638,14 @@ body:has(.app-root) {
 }
 
 .chat-reset {
-  background: #ffffff;
-  color: #07b0f2;
-  border: 1px solid #cbd5f5;
+  background: #07b0f2;
+  color: #ffffff;
+  border: 2px solid #07b0f2;
+}
+
+.chat-reset:hover:not(:disabled) {
+  background: #0590c7;
+  border-color: #0590c7;
 }
 
 .chat-skip {
@@ -829,7 +889,13 @@ a.sr-only:focus {
   }
 
   .app-card-avatar-wrap {
-    display: none; /* Hide avatar on mobile to save space */
+    display: flex;
+    gap: 4px;
+  }
+
+  .app-card-avatar {
+    width: 44px;
+    height: 44px;
   }
 
   .app-card-eyebrow {
@@ -1106,7 +1172,7 @@ a.sr-only:focus {
   transition: color 0.2s ease;
 }
 
-.wunder-nav-link::after {
+.wunder-nav-item .wunder-nav-link::after {
   content: ' ▾';
   color: #07B0F2;
 }
@@ -1187,7 +1253,7 @@ a.sr-only:focus {
   justify-content: center;
   height: 44px;
   padding: 0 22px;
-  border-radius: 4px;
+  border-radius: 5px;
   font-family: var(--font-brand);
   font-size: 11px;
   font-weight: 700;
@@ -1213,14 +1279,14 @@ a.sr-only:focus {
 }
 
 .wunder-btn-outline {
-  background-color: #ffffff;
-  color: #07B0F2;
+  background-color: #07B0F2;
+  color: #ffffff;
 }
 
 .wunder-btn-outline:hover {
-  background-color: #07B0F2;
+  background-color: #0590c7;
   color: #ffffff;
-  border-color: #07B0F2;
+  border-color: #0590c7;
 }
 
 /* Mobile Toggle */
@@ -1668,10 +1734,10 @@ a.sr-only:focus {
 
 /* Pixel-match class aliases from Wunderbar embed spec */
 .wunder-header-final {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  display: flex;
+  flex-direction: row;
   align-items: center;
-  column-gap: 24px;
+  justify-content: space-between;
   background-color: #ffffff;
   padding: 12px 25px;
   width: 100%;
@@ -1679,23 +1745,28 @@ a.sr-only:focus {
   font-family: var(--font-brand);
   border: none;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+  z-index: 99999;
 }
 
 .wunder-header-final .wunder-logo {
-  justify-self: start;
+  display: block;
 }
 
 .wunder-header-final .wunder-nav-group {
-  margin-left: 0;
-  padding-right: 0;
-  justify-content: center;
+  display: flex;
+  gap: 30px;
+  flex-grow: 1;
+  align-items: center;
+  padding-right: 65px;
+  margin-left: 50px;
 }
 
 .wunder-header-final .wunder-btn-container {
-  justify-self: end;
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .btn-base {
@@ -1704,7 +1775,7 @@ a.sr-only:focus {
   justify-content: center;
   height: 44px;
   padding: 0 22px;
-  border-radius: 4px;
+  border-radius: 5px;
   font-family: var(--font-brand);
   font-size: 11px;
   font-weight: 700;
@@ -1715,6 +1786,24 @@ a.sr-only:focus {
   box-sizing: border-box;
   white-space: nowrap;
   transition: all 0.3s ease;
+}
+
+.wunder-header-final .wunder-nav-item .wunder-nav-link {
+  color: #021859;
+}
+
+.wunder-header-final .wunder-nav-item .wunder-nav-link::after {
+  content: ' ▾';
+  color: #07B0F2;
+}
+
+.wunder-dropdown a.wunder-dropdown-divider {
+  color: #07B0F2;
+}
+
+.wunder-dropdown a.wunder-dropdown-divider:hover {
+  background-color: #f5f8ff;
+  color: #0590c7 !important;
 }
 
 .btn-solid {
@@ -1730,14 +1819,14 @@ a.sr-only:focus {
 }
 
 .btn-outline {
-  background-color: #ffffff;
-  color: #07B0F2;
+  background-color: #07B0F2;
+  color: #ffffff;
 }
 
 .btn-outline:hover {
-  background-color: #07B0F2;
+  background-color: #0590c7;
   color: #ffffff;
-  border-color: #07B0F2;
+  border-color: #0590c7;
 }
 
 .wunder-mobile-ctas .btn-base {
@@ -1745,36 +1834,88 @@ a.sr-only:focus {
   justify-content: center;
 }
 
-.social-connect {
+#connect {
   background: #021859;
-  padding: 20px 0 10px;
+}
+
+:root {
+  --wb-blue: #07B0F2;
+  --icon-size: 36px;
 }
 
 .social-container {
   display: flex;
   justify-content: center;
-  gap: 30px;
-  padding: 0 24px;
+  gap: 28px;
+  padding: 20px 0;
 }
 
-.social-container a {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  color: #FFFFFF;
-  transition: color 0.3s ease;
-}
-
-.social-container a:hover {
-  color: #07B0F2;
-}
-
-.social-container .social-icon {
-  width: 32px;
-  height: 32px;
+.si {
   display: block;
-  fill: currentColor;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  background-color: #fff;
+  transition: background-color .2s ease, transform .2s ease;
+}
+
+.social-container a:hover .si,
+.social-container a:focus .si {
+  background-color: var(--wb-blue);
+  transform: translateY(-1px);
+}
+
+.si-svg {
+  display: block;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  color: #fff;
+  transition: color .2s ease, transform .2s ease;
+}
+
+.social-container a:hover .si-svg,
+.social-container a:focus .si-svg {
+  color: var(--wb-blue);
+  transform: translateY(-1px);
+}
+
+.social-container a:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(7, 176, 242, .35);
+  border-radius: 8px;
+}
+
+.si-youtube {
+  -webkit-mask: url("https://cdn.simpleicons.org/youtube") no-repeat center / contain;
+  mask: url("https://cdn.simpleicons.org/youtube") no-repeat center / contain;
+}
+
+.si-x {
+  -webkit-mask: url("https://cdn.simpleicons.org/x") no-repeat center / contain;
+  mask: url("https://cdn.simpleicons.org/x") no-repeat center / contain;
+}
+
+.si-tiktok {
+  -webkit-mask: url("https://cdn.simpleicons.org/tiktok") no-repeat center / contain;
+  mask: url("https://cdn.simpleicons.org/tiktok") no-repeat center / contain;
+}
+
+.si-facebook {
+  -webkit-mask: url("https://cdn.simpleicons.org/facebook") no-repeat center / contain;
+  mask: url("https://cdn.simpleicons.org/facebook") no-repeat center / contain;
+}
+
+.si-instagram {
+  -webkit-mask: url("https://cdn.simpleicons.org/instagram") no-repeat center / contain;
+  mask: url("https://cdn.simpleicons.org/instagram") no-repeat center / contain;
+}
+
+#connect i {
+  display: none !important;
+}
+
+@media (max-width: 480px) {
+  :root { --icon-size: 32px; }
+  .social-container { gap: 22px; }
 }
 
 .site-footer {
@@ -1946,27 +2087,20 @@ a.sr-only:focus {
 }
 
 @media (max-width: 1024px) {
+  .wunder-header-final .wunder-nav-group {
+    gap: 20px;
+    margin-left: 30px;
+    padding-right: 30px;
+  }
+
+  .wunder-header-final .wunder-nav-link {
+    font-size: 14px;
+  }
+
   .btn-base {
     height: 40px;
     padding: 0 18px;
     font-size: 10px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .wunder-header-final {
-    display: flex;
-    justify-content: space-between;
-    position: sticky;
-  }
-
-  .wunder-header-final .wunder-nav-group {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-left: 0;
-    padding-right: 0;
-    flex-grow: 0;
   }
 }
 
@@ -1976,9 +2110,20 @@ a.sr-only:focus {
     flex-wrap: nowrap;
     padding: 12px 20px;
   }
+
+  .wunder-header-final .wunder-nav-group {
+    display: none;
+  }
+
+  .wunder-header-final .wunder-btn-container {
+    display: none;
+  }
+
   .wunder-header-final .wunder-mobile-toggle {
     margin-left: auto;
+    display: flex;
   }
+
   .wunder-mobile-ctas .btn-base {
     height: 48px;
     padding: 0 20px;
@@ -2201,4 +2346,117 @@ a.sr-only:focus {
     height: 48px;
     font-size: 18px;
   }
+}
+
+/* Suite tabs (Strategy, Standards, etc.): `TabPageWithSidebar` = full-width chip card + content, same pattern as Foundation */
+
+/* Ensure Strategy main column never collapses to 0 height when flex/aside layout or hydration glitches */
+.strategy-tab-content .tab-page-main {
+  min-height: 240px;
+  min-height: min(40vh, 560px);
+}
+
+.strategy-tab-content details.strategy-impl-details > summary {
+  list-style: none;
+}
+
+.strategy-tab-content details.strategy-impl-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Strategy buyer journey: responsive tiles — explicit gap + card chrome so stages read as separate steps */
+.journey-map-visual-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+/* Product bullet lists: bright blue markers, outside discs, stable padding & row gap (app-wide) */
+ul.strategy-suite-ul {
+  list-style-type: disc;
+  list-style-position: outside;
+  padding-inline-start: 1.5rem;
+  margin-inline: 0;
+  box-sizing: border-box;
+}
+
+ul.strategy-suite-ul > li {
+  margin-inline-start: 0;
+  padding-inline-start: 0;
+  margin-block: 0;
+}
+
+ul.strategy-suite-ul > li + li {
+  margin-top: 0.5rem;
+}
+
+ul.strategy-suite-ul > li::marker {
+  color: var(--wb-bullet-accent);
+}
+
+ul.strategy-suite-ul.strategy-suite-ul--muted > li::marker {
+  color: rgba(7, 176, 242, 0.45);
+}
+
+.strategy-tab-content .strategy-impl-summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #07b0f2;
+  letter-spacing: 0.08em;
+  text-transform: none;
+  padding: 12px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.2s ease;
+}
+
+.strategy-tab-content .strategy-impl-summary-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.strategy-tab-content .strategy-impl-summary::after {
+  content: "";
+  flex-shrink: 0;
+  width: 0.45em;
+  height: 0.45em;
+  margin-bottom: 2px;
+  border-right: 2px solid #07b0f2;
+  border-bottom: 2px solid #07b0f2;
+  transform: rotate(45deg);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.strategy-tab-content details.strategy-impl-details[open] > .strategy-impl-summary::after {
+  transform: rotate(-135deg);
+  margin-bottom: -2px;
+}
+
+.strategy-tab-content .strategy-impl-summary:hover {
+  color: #059bd8;
+}
+
+.strategy-tab-content .strategy-impl-summary:hover::after {
+  border-right-color: #059bd8;
+  border-bottom-color: #059bd8;
+}
+
+.strategy-tab-content .strategy-workbook-btn {
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+
+.strategy-tab-content .strategy-workbook-btn:hover {
+  background: #e6f7fe;
+  border-color: rgba(7, 176, 242, 0.45);
+  box-shadow: 0 2px 10px rgba(7, 176, 242, 0.15);
+}
+
+.strategy-tab-content .strategy-workbook-btn:active {
+  background: #d8f2fc;
 }

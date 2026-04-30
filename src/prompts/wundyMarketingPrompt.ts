@@ -31,7 +31,7 @@ Updated link table for marketing widget:
 - WunderBrand Blueprint+™: https://wunderbardigital.com/wunderbrand-blueprint-plus?utm_source=marketing_widget&utm_medium=chat_widget&utm_campaign=product_purchase&utm_content=buy_blueprint_plus
 - Compare Products: https://wunderbardigital.com/wunderbrand-suite?utm_source=marketing_widget&utm_medium=chat_widget&utm_campaign=product_comparison&utm_content=comparison_page
 - Talk to an Expert: https://wunderbardigital.com/talk-to-an-expert?utm_source=marketing_widget&utm_medium=chat_widget&utm_campaign=support_routing&utm_content=talk_expert
-- Strategy Activation Booking: https://calendly.com/wunderbardigital/brand-strategy-activation?utm_source=marketing_widget&utm_medium=chat_widget&utm_campaign=session_booking&utm_content=strategy_activation
+- Strategy Activation Booking: https://calendly.com/claudine-wunderbardigital/brand-blueprint-strategy-activation-session?utm_source=marketing_widget&utm_medium=chat_widget&utm_campaign=session_booking&utm_content=strategy_activation
 - FAQ Page: https://wunderbardigital.com/faq?utm_source=marketing_widget&utm_medium=chat_widget&utm_campaign=faq_reference&utm_content=faq_page
 - Contact Team: https://wunderbardigital.com/connect?utm_source=marketing_widget&utm_medium=chat_widget&utm_campaign=support_routing&utm_content=contact_team
 - Privacy Policy: https://wunderbardigital.com/privacy-policy?utm_source=marketing_widget&utm_medium=chat_widget&utm_campaign=confidentiality&utm_content=privacy_policy

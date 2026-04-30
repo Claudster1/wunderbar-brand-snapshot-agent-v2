@@ -11,14 +11,44 @@ const VALID_DOC_TYPES = [
   "executive",
   "messaging",
   "prompts",
+  "voice-checklist",
   "activation",
   "digital",
   "competitive",
+  "battle-cards",
   "standards",
 ] as const;
+const BLUEPRINT_DOC_TYPES = ["complete", "executive", "messaging", "prompts", "voice-checklist"] as const;
+const BLUEPRINT_PLUS_ONLY_DOC_TYPES = ["activation", "digital", "competitive", "battle-cards", "standards"] as const;
 
 const MAX_EXPIRY_DAYS = 30;
 const DEFAULT_EXPIRY_DAYS = 7;
+
+function isValidTier(value: string): value is (typeof VALID_TIERS)[number] {
+  return (VALID_TIERS as readonly string[]).includes(value);
+}
+
+function isValidDocType(value: string): value is (typeof VALID_DOC_TYPES)[number] {
+  return (VALID_DOC_TYPES as readonly string[]).includes(value);
+}
+
+function isDocTypeAllowedForTier(
+  docType: (typeof VALID_DOC_TYPES)[number],
+  tier: (typeof VALID_TIERS)[number],
+): boolean {
+  if (docType === "report") return true;
+  if (tier === "snapshot" || tier === "snapshot-plus") return false;
+  if (tier === "blueprint") {
+    return (BLUEPRINT_DOC_TYPES as readonly string[]).includes(docType);
+  }
+  if (tier === "blueprint-plus") {
+    return (
+      (BLUEPRINT_DOC_TYPES as readonly string[]).includes(docType) ||
+      (BLUEPRINT_PLUS_ONLY_DOC_TYPES as readonly string[]).includes(docType)
+    );
+  }
+  return false;
+}
 
 export async function POST(req: Request) {
   const { apiGuard } = await import("@/lib/security/apiGuard");
@@ -35,13 +65,19 @@ export async function POST(req: Request) {
     }
 
     const docType = documentType || "report";
-    const reportTier = tier || "snapshot";
+    const reportTier =
+      typeof tier === "string" && tier.trim().length > 0
+        ? tier.trim().toLowerCase().replace(/_/g, "-")
+        : "snapshot";
 
-    if (!VALID_DOC_TYPES.includes(docType)) {
+    if (!isValidDocType(docType)) {
       return NextResponse.json({ error: "Invalid document type" }, { status: 400 });
     }
-    if (!VALID_TIERS.includes(reportTier)) {
+    if (!isValidTier(reportTier)) {
       return NextResponse.json({ error: "Invalid tier" }, { status: 400 });
+    }
+    if (!isDocTypeAllowedForTier(docType, reportTier)) {
+      return NextResponse.json({ error: "Document type is not available for this tier" }, { status: 400 });
     }
 
     const days = Math.min(Math.max(expiryDays || DEFAULT_EXPIRY_DAYS, 1), MAX_EXPIRY_DAYS);

@@ -3,12 +3,14 @@
 
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { ScoreGauge } from "@/src/components/ScoreGauge";
 import { resolvePillarPriority } from "@/src/lib/pillars/pillarPriority";
 import { PillarKey } from "@/src/types/pillars";
 import { PillarPanel } from "@/components/pillars/PillarPanel";
 import { getUpgradeCTA } from "@/lib/cta";
+import { WUNDERBAR_SUITE_COMPARE_URL } from "@/lib/wunderbarExternalUrls";
 
 interface BrandSnapshotResultsProps {
   brandName: string;
@@ -44,7 +46,7 @@ export function BrandSnapshotResults({
           <ScoreGauge value={brandAlignmentScore} />
         </div>
         <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-          Your brand's overall alignment across positioning, messaging, visibility,
+          Your brand&apos;s overall alignment across positioning, messaging, visibility,
           credibility, and conversion.
         </p>
       </section>
@@ -86,19 +88,21 @@ export function BrandSnapshotResults({
             Snapshot+™ expands on your {primary} results with deeper analysis,
             examples, and prioritized actions tailored to {brandName}.
           </p>
-          <a
+          <Link
             href="/snapshot-plus"
-            className="inline-block px-6 py-3 bg-brand-blue text-white rounded-md font-semibold hover:bg-brand-blueHover transition"
+            className="inline-block px-6 py-3 bg-brand-blue text-white rounded-[5px] font-semibold hover:bg-brand-blueHover transition"
           >
             See how to strengthen what matters most right now →
-          </a>
+          </Link>
         </div>
       </section>
 
       {/* 5. Secondary CTA (Explore the WunderBrand Suite™) */}
       <section className="text-center">
         <a
-          href="/brand-suite"
+          href={WUNDERBAR_SUITE_COMPARE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
           className="text-brand-blue hover:text-brand-blueHover font-medium underline"
         >
           Explore the WunderBrand Suite™ →

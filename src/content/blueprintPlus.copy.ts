@@ -3,7 +3,7 @@ export const blueprintPlusCopy = {
     title: "WunderBrand Blueprint+\u2122",
     subtitle: "The advanced brand system built for scale, AI readiness, and market leadership",
     intro:
-      "WunderBrand Blueprint+\u2122 extends your brand foundation into a full activation system \u2014 with advanced customer journey mapping, a 12-month content roadmap, complete AEO implementation, campaign architecture, and an advanced AI prompt library. Designed for brands ready to operationalize strategy into consistent, scalable execution.",
+      "WunderBrand Blueprint+\u2122 extends your brand foundation into a full activation system \u2014 with advanced customer journey mapping, a 12-month content roadmap, complete AEO implementation, campaign architecture, and an advanced AI prompt library. Designed for brands ready to operationalize strategy into consistent, scalable activation.",
   },
 
   differentiation: [
@@ -20,7 +20,7 @@ export const blueprintPlusCopy = {
     headline: "Why Blueprint+\u2122 exists",
     bullets: [
       "Scale your brand across new channels, campaigns, and team members without diluting what makes you distinctive",
-      "Execute a 12-month content strategy with AI-integrated workflows and clear measurement",
+      "Activate a 12-month content strategy with AI-integrated workflows and clear measurement",
       "Own the AI search conversation in your category with a complete AEO implementation system",
       "Launch faster, iterate with confidence, and maintain brand integrity at every touchpoint",
     ],
@@ -55,7 +55,7 @@ export const BLUEPRINT_PLUS_LAYERS = {
   campaignArchitecture: {
     title: "12-Month Campaign Architecture",
     description:
-      "Maps your brand strategy into monthly execution themes with messaging angles, growth priorities, and AEO strategies \u2014 so you\u2019re never starting from a blank page.",
+      "Maps your brand strategy into monthly activation themes with messaging angles, growth priorities, and AEO strategies \u2014 so you\u2019re never starting from a blank page.",
   },
 
   advancedAEO: {
@@ -89,7 +89,7 @@ export const blueprintPlusUpsellByPillar: Record<
     cta: "Get your Blueprint+\u2122 activation system",
   },
   messaging: {
-    headline: "Scale your messaging into a 12-month execution system",
+    headline: "Scale your messaging into a 12-month activation system",
     body:
       "Blueprint+\u2122 transforms your messaging framework into a complete campaign architecture with monthly content themes, channel-specific copy examples, and advanced AI prompts \u2014 so consistency becomes automatic, not aspirational.",
     cta: "Get your Blueprint+\u2122 activation system",

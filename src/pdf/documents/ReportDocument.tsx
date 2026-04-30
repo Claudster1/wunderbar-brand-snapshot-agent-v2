@@ -17,6 +17,8 @@ import { PillarSummaryRow, Score, Text as PillarText } from '../components/Pilla
 import { SectionHeader } from '../components/SectionHeader';
 import { BlueprintPlusSection } from '../components/BlueprintPlusSection';
 import { DisclaimerPage } from '../components/DisclaimerPage';
+import { PdfHeader } from "../components/PdfHeader";
+import { PdfFooter } from "../components/PdfFooter";
 import { resolvePillarPriority } from '@/src/lib/pillars/pillarPriority';
 import { rolePhrase } from '@/src/lib/roleLanguage';
 import { pillarCopy, PillarKey } from '@/src/copy/pillars';
@@ -29,46 +31,50 @@ registerPdfFonts();
 ----------------------------- */
 const styles = StyleSheet.create({
   page: {
-    padding: 48,
-    fontSize: 11,
+    paddingTop: 20,
+    paddingHorizontal: 32,
+    paddingBottom: 60,
+    fontSize: 10.5,
     fontFamily: 'Helvetica',
     color: '#0C1526',
-    lineHeight: 1.6,
+    lineHeight: 1.65,
+    backgroundColor: "#FFFFFF",
   },
   h1: {
-    fontSize: 24,
-    marginBottom: 12,
+    fontSize: 22,
+    marginBottom: 10,
     fontWeight: 'bold',
     color: '#021859',
   },
   h2: {
-    fontSize: 18,
-    marginTop: 28,
-    marginBottom: 10,
+    fontSize: 15,
+    marginTop: 24,
+    marginBottom: 8,
     fontWeight: 'bold',
     color: '#021859',
   },
   h3: {
-    fontSize: 14,
-    marginTop: 18,
-    marginBottom: 6,
+    fontSize: 12,
+    marginTop: 14,
+    marginBottom: 5,
     fontWeight: 'bold',
   },
   paragraph: {
-    marginBottom: 10,
+    marginBottom: 9,
   },
   muted: {
-    color: '#4A5568',
+    color: '#5A6B7E',
   },
   scoreBlock: {
-    marginTop: 12,
-    marginBottom: 18,
+    marginTop: 10,
+    marginBottom: 16,
     padding: 14,
-    backgroundColor: '#F7FAFC',
-    borderRadius: 6,
+    backgroundColor: '#F8FBFF',
+    border: "1 solid #E3EBF7",
+    borderRadius: 8,
   },
   section: {
-    marginTop: 20,
+    marginTop: 16,
     marginBottom: 12,
   },
   pillarBlock: {
@@ -84,21 +90,21 @@ const styles = StyleSheet.create({
     borderTopColor: '#E2E8F0',
   },
   pillarHeader: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: 'bold',
     marginBottom: 8,
     color: '#021859',
   },
   insight: {
-    fontSize: 11,
-    marginTop: 8,
-    marginBottom: 10,
+    fontSize: 10.5,
+    marginTop: 7,
+    marginBottom: 9,
     lineHeight: 1.6,
     color: '#0C1526',
   },
   recommendation: {
-    fontSize: 11,
-    marginTop: 10,
+    fontSize: 10.5,
+    marginTop: 7,
     lineHeight: 1.6,
     color: '#0C1526',
   },
@@ -106,13 +112,13 @@ const styles = StyleSheet.create({
     marginTop: 12,
     marginBottom: 12,
     padding: 12,
-    backgroundColor: '#F0F9FF',
+    backgroundColor: '#EFF6FF',
     borderLeftWidth: 3,
     borderLeftColor: '#07B0F2',
-    borderRadius: 4,
+    borderRadius: 6,
   },
   emphasisTitle: {
-    fontSize: 12,
+    fontSize: 11.5,
     fontWeight: 'bold',
     marginBottom: 6,
     color: '#021859',
@@ -200,6 +206,15 @@ export function ReportDocument({
   return (
     <Document>
       <Page size="A4" style={styles.page}>
+        <PdfHeader
+          title="WunderBrand Snapshot+™ — Brand Direction Summary"
+          businessName={companyName}
+          date={new Date().toLocaleDateString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+          })}
+        />
         {/* 1️⃣ COVER & SUMMARY */}
         <SectionHeader>Your WunderBrand Snapshot™ Summary</SectionHeader>
         
@@ -315,6 +330,7 @@ export function ReportDocument({
         <Text style={styles.muted}>
           Prepared by Wunderbar Digital
         </Text>
+        <PdfFooter businessName={companyName} productName="WunderBrand Snapshot+™" />
 
       </Page>
 

@@ -2,6 +2,9 @@
 // System prompt for Wundy™ when guiding a refinement conversation.
 // The user has already completed their WunderBrand Snapshot™ and wants to add more context.
 
+import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
+import { aiApTitleCaseHeadingsRule } from "@/lib/copy/capitalizationPolicy";
+
 export function buildRefinementSystemPrompt(reportContext: {
   businessName: string;
   brandAlignmentScore: number;
@@ -38,6 +41,10 @@ You are WUNDY — the brand guide for Wunderbar Digital.
 This is a REFINEMENT conversation. The user has already completed their WunderBrand Snapshot™ and is returning to add more context to strengthen their analysis.
 
 IMPORTANT: You are NOT starting from scratch. You already have their data.
+
+${aiAbbreviationFirstReferenceRule}
+
+${aiApTitleCaseHeadingsRule}
 
 YOUR ROLE:
 • Welcome them back warmly

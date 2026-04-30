@@ -12,14 +12,17 @@ const PDF_TYPES = [
   { id: "snapshot-plus", label: "WunderBrand Snapshot+™", tier: "$497" },
   { id: "blueprint", label: "WunderBrand Blueprint™", tier: "$997" },
   { id: "blueprint-plus", label: "WunderBrand Blueprint+™", tier: "$2,497" },
+  { id: "icp-conversion-snapshot", label: "ICP Conversion Snapshot", tier: "Blueprint" },
+  { id: "icp-conversion-intelligence", label: "ICP Conversion Intelligence Framework", tier: "Blueprint+" },
   { id: "brand-standards", label: "Brand Standards Guide", tier: "Blueprint+" },
 ] as const;
 
 export default function PdfPreviewPage() {
   const [activeType, setActiveType] = useState<string>("snapshot");
   const [loading, setLoading] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  const pdfUrl = `/api/preview/pdf?type=${activeType}&t=${Date.now()}`;
+  const pdfUrl = `/api/preview/pdf?type=${activeType}&t=${refreshKey}`;
 
   return (
     <div style={{ fontFamily: "'Lato', system-ui, sans-serif", background: "#F4F7FB", minHeight: "100vh" }}>
@@ -63,6 +66,7 @@ export default function PdfPreviewPage() {
               onClick={() => {
                 setActiveType(t.id);
                 setLoading(true);
+                setRefreshKey((prev) => prev + 1);
               }}
               style={{
                 padding: "14px 20px",

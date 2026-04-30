@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
 import ModalShell from "./ModalShell";
 
 interface BlueprintPlusModalProps {
@@ -13,7 +14,11 @@ export default function BlueprintPlusModal({ isOpen, onClose }: BlueprintPlusMod
 
   function upgrade() {
     onClose();
-    router.push("/checkout/blueprint-plus");
+    router.push(getTrackedCheckoutUrl({
+      product: "blueprint-plus",
+      medium: "modal_cta",
+      content: "blueprint_plus_modal_primary",
+    }));
   }
 
   return (
@@ -33,7 +38,7 @@ export default function BlueprintPlusModal({ isOpen, onClose }: BlueprintPlusMod
 
         {/* Value Section */}
         <div className="bg-brand-gray/70 p-6 rounded-xl border border-brand-border">
-          <ul className="space-y-3 text-[15px] leading-relaxed text-brand-midnight">
+          <ul className="strategy-suite-ul text-[15px] leading-relaxed text-brand-midnight">
             <li>
               <strong>Complete Brand System:</strong> Positioning, messaging, personality, tone,
               brand pillars, narrative frameworks, and value architecture.
@@ -68,7 +73,7 @@ export default function BlueprintPlusModal({ isOpen, onClose }: BlueprintPlusMod
         <button
           onClick={upgrade}
           className="
-            w-full py-3 rounded-md 
+            w-full py-3 rounded-[5px] 
             bg-brand-blue text-white font-semibold
             hover:bg-brand-blueHover shadow-lg shadow-brand-blue/30
             transition

@@ -17,13 +17,13 @@ export function BlueprintPlusLocked({ userRole }: BlueprintPlusLockedProps = {})
       </h3>
 
       <p className="mb-6 max-w-md">
-        Blueprint+™ extends everything you've already clarified —
+        Blueprint+™ extends everything you&apos;ve already clarified —
         turning it into a system designed to support you in{" "}
         <strong>{rolePhrase(userRole as UserRoleContext)}</strong> as your brand grows.
       </p>
 
       <p className="text-sm text-muted mb-6">
-        Built for brands ready to move beyond clarity and into execution —
+        Built for brands ready to move beyond clarity and into activation —
         without adding complexity to your workflow.
       </p>
 
@@ -37,7 +37,7 @@ export function BlueprintPlusLocked({ userRole }: BlueprintPlusLockedProps = {})
         </p>
       </div>
 
-      <ul className="list-disc pl-5 mb-6 text-sm">
+      <ul className="strategy-suite-ul mb-6 text-sm">
         <li>AI Answer Engine (AEO) + SEO strategy</li>
         <li>Campaign-level messaging prompts</li>
         <li>Cross-pillar orchestration</li>

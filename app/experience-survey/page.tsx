@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
 const NAVY = "#021859";
@@ -327,13 +327,6 @@ function ExperienceSurveyContent() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
-
-  // Reset NaN
-  useEffect(() => {
-    if (selectedScore !== null && isNaN(selectedScore)) {
-      setSelectedScore(null);
-    }
-  }, [selectedScore]);
 
   const category = selectedScore !== null ? getCategory(selectedScore) : null;
 

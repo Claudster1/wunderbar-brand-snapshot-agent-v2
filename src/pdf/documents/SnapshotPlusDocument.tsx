@@ -18,45 +18,58 @@ registerPdfFonts();
 
 const styles = StyleSheet.create({
   page: {
-    fontFamily: "Inter",
-    padding: 40,
+    fontFamily: "Helvetica",
+    padding: 42,
+    paddingBottom: 66,
     fontSize: 11,
+    color: "#2D3A4A",
+    lineHeight: 1.6,
+    backgroundColor: "#FFFFFF",
   },
   title: {
-    fontSize: 22,
-    marginBottom: 12,
-    fontFamily: "Inter",
+    fontSize: 20,
+    marginBottom: 10,
+    fontFamily: "Helvetica",
     fontWeight: 600,
     color: pdfTheme.colors.navy,
   },
   section: {
-    marginBottom: 20,
+    marginBottom: 16,
+    padding: 12,
+    borderRadius: 8,
+    border: "1 solid #E2EAF5",
+    backgroundColor: "#F8FBFF",
   },
   pillarTitle: {
-    fontSize: 16,
+    fontSize: 14,
     marginBottom: 6,
-    fontFamily: "Inter",
+    fontFamily: "Helvetica",
     fontWeight: 600,
     color: pdfTheme.colors.navy,
   },
   body: {
-    lineHeight: 1.5,
-    fontFamily: "Inter",
-    color: pdfTheme.colors.midnight,
+    lineHeight: 1.6,
+    fontFamily: "Helvetica",
+    color: "#2D3A4A",
     marginBottom: 8,
+    fontSize: 10.2,
   },
   recommendationsTitle: {
-    marginTop: 8,
-    fontFamily: "Inter",
+    marginTop: 6,
+    fontFamily: "Helvetica",
     fontWeight: 600,
-    color: pdfTheme.colors.navy,
+    color: "#0D5BD7",
     marginBottom: 4,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+    fontSize: 8.5,
   },
   recommendation: {
     marginBottom: 4,
-    fontFamily: "Inter",
-    color: pdfTheme.colors.midnight,
-    lineHeight: 1.5,
+    fontFamily: "Helvetica",
+    color: "#2D3A4A",
+    lineHeight: 1.6,
+    fontSize: 10,
   },
 });
 
@@ -74,7 +87,15 @@ export function SnapshotPlusDocument({ report }: { report: SnapshotPlusReport })
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <PdfHeader title="WunderBrand Snapshot+™ — Brand Direction Summary" />
+        <PdfHeader
+          title="WunderBrand Snapshot+™ — Brand Direction Summary"
+          businessName={report.businessName}
+          date={new Date().toLocaleDateString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+          })}
+        />
 
         <Text style={styles.title}>
           Brand Direction Summary for {report.businessName}
@@ -105,7 +126,7 @@ export function SnapshotPlusDocument({ report }: { report: SnapshotPlusReport })
           );
         })}
 
-        <PdfFooter />
+        <PdfFooter businessName={report.businessName} productName="WunderBrand Snapshot+™" />
       </Page>
 
       <DisclaimerPage tier="snapshot_plus" />

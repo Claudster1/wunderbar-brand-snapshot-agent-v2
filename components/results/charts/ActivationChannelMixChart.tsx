@@ -59,25 +59,37 @@ export function ActivationChannelMixChart({ rows }: Props) {
   const cy = 50;
   const r = 38;
 
-  /** Start from top (-90°). */
-  let angle = -Math.PI / 2;
-  const slices = counts.map(([channel, n], i) => {
-    const share = n / total;
-    const sweep = share * 2 * Math.PI;
-    const startRad = angle;
-    const endRad = angle + sweep;
-    angle = endRad;
-    const color = SLICE_COLORS[i % SLICE_COLORS.length]!;
-    let d: string;
-    if (counts.length === 1 || Math.abs(sweep - 2 * Math.PI) < 1e-6) {
-      d = "";
-    } else if (sweep <= 1e-9) {
-      d = "";
-    } else {
-      d = pieSlicePath(cx, cy, r, startRad, endRad);
+  /** Start from top (-90°); accumulate in a loop (avoids mutating during `.map()`). */
+  const slices = (() => {
+    let cumulative = -Math.PI / 2;
+    const out: Array<{
+      channel: string;
+      n: number;
+      share: number;
+      color: string;
+      d: string;
+      pctLabel: number;
+    }> = [];
+    for (let i = 0; i < counts.length; i++) {
+      const [channel, n] = counts[i]!;
+      const share = n / total;
+      const sweep = share * 2 * Math.PI;
+      const startRad = cumulative;
+      cumulative += sweep;
+      const endRad = cumulative;
+      const color = SLICE_COLORS[i % SLICE_COLORS.length]!;
+      let d: string;
+      if (counts.length === 1 || Math.abs(sweep - 2 * Math.PI) < 1e-6) {
+        d = "";
+      } else if (sweep <= 1e-9) {
+        d = "";
+      } else {
+        d = pieSlicePath(cx, cy, r, startRad, endRad);
+      }
+      out.push({ channel, n, share, color, d, pctLabel: Math.round(share * 100) });
     }
-    return { channel, n, share, color, d, pctLabel: Math.round(share * 100) };
-  });
+    return out;
+  })();
 
   const ariaParts = slices.map((s) => `${s.channel}: ${s.n} rows (${s.pctLabel}%)`).join("; ");
 

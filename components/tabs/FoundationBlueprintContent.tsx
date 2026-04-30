@@ -1559,18 +1559,18 @@ export default function FoundationBlueprintContent({
     () => JSON.stringify(extractBuyerPersonasRaw(data as Record<string, unknown>).slice(0, 6)),
     [data],
   );
-  const foundationPersonaAtlasEntries = useMemo(
-    () =>
-      buildFoundationPersonaAtlasEntries({
-        diagnosticData: data as Record<string, unknown>,
-        businessName: brandName,
-        reportId: asString(data.reportId),
-        topGap: (topGaps[0] || "message inconsistency").toLowerCase(),
-        primaryPillar,
-      }),
-    [brandName, primaryPillar, asString(data.reportId), topGaps[0], buyerPersonaFingerprint],
-  );
   const reportId = asString(data.reportId);
+  const foundationPersonaAtlasEntries = useMemo(() => {
+    const gaps = asStringList(data.topGaps);
+    const atlasTopGap = (gaps[0] || "message inconsistency").toLowerCase();
+    return buildFoundationPersonaAtlasEntries({
+      diagnosticData: data as Record<string, unknown>,
+      businessName: brandName,
+      reportId,
+      topGap: atlasTopGap,
+      primaryPillar,
+    });
+  }, [brandName, buyerPersonaFingerprint, data, primaryPillar, reportId]);
   const userEmail = asString(data.userEmail).toLowerCase();
   const tierRaw = asString(data.productTier || data.product_tier).toLowerCase();
   const normalizedTier = tierRaw.replace(/_/g, "-");

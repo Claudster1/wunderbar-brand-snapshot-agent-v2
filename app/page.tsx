@@ -10,6 +10,7 @@ import { parseTierFromParam, getChatTierConfig, interpolateWelcomeBack, type Cha
 import { AssetUploadPanel } from "@/components/assets/AssetUploadPanel";
 import { ChatMarkdown, renderChatMarkdownInline } from "@/components/chat/ChatMarkdown";
 import WundyLogo from "@/src/assets/wundy-logo.jpeg";
+import { staticImageUrl } from "@/lib/staticImageUrl";
 
 export default function Home() {
   return (
@@ -20,10 +21,10 @@ export default function Home() {
 }
 
 function HomeContent() {
-  const WUNDY_AVATAR_SRC = WundyLogo.src;
+  const WUNDY_AVATAR_SRC = staticImageUrl(WundyLogo);
   const WUNDY_AVATAR_FALLBACK = "/assets/og/wundy-outline.svg";
   const WUNDY_AVATAR_FINAL_FALLBACK = "/assets/og/wundy-outline.svg";
-  const [wundyAvatarSrc, setWundyAvatarSrc] = useState(WUNDY_AVATAR_SRC);
+  const [wundyAvatarSrc, setWundyAvatarSrc] = useState<string>(WUNDY_AVATAR_SRC);
   // ─── Product tier + customer name detection ───
   const searchParams = useSearchParams();
   const tier = useMemo(() => parseTierFromParam(searchParams.get("tier")), [searchParams]);

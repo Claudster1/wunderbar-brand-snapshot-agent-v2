@@ -6,6 +6,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useWundyChat, WundyChatMode, WundySessionMeta } from "@/src/hooks/useWundyChat";
 import WundyLogo from "@/src/assets/wundy-logo.jpeg";
+import { staticImageUrl } from "@/lib/staticImageUrl";
 import { ChatMarkdown } from "@/components/chat/ChatMarkdown";
 
 type WundyChatProps = {
@@ -30,9 +31,9 @@ const LIGHT_BG = "#F8F9FB";
 const BORDER = "#E2E8F0";
 const SUB = "#64748B";
 // Use repo-local public assets only (the previous paths no longer exist).
-const WUNDY_AVATAR_SRC = WundyLogo.src;
+const WUNDY_AVATAR_SRC = staticImageUrl(WundyLogo);
 const WUNDY_AVATAR_FALLBACK = "/assets/og/wundy-outline.svg";
-const WUNDY_AVATAR_FINAL_FALLBACK = WundyLogo.src;
+const WUNDY_AVATAR_FINAL_FALLBACK = staticImageUrl(WundyLogo);
 
 export default function WundyChat({
   mode,
@@ -45,7 +46,7 @@ export default function WundyChat({
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const [showBubble, setShowBubble] = useState(true);
-  const [avatarSrc, setAvatarSrc] = useState(WUNDY_AVATAR_SRC);
+  const [avatarSrc, setAvatarSrc] = useState<string>(WUNDY_AVATAR_SRC);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 

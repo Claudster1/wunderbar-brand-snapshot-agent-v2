@@ -4,6 +4,7 @@
 "use client";
 
 import Image from "next/image";
+import StrategyProseBody from "@/components/strategy/StrategyProseBody";
 
 const PILLAR_LABELS: Record<string, string> = {
   positioning: "Positioning",
@@ -66,9 +67,17 @@ export function SnapshotUpgradePanel({
           {/* Dynamic CTA (if provided) */}
           {upgradeCTA && (
             <div className="mb-6 p-4 bg-blue-50 rounded-lg border-l-4 border-brand-blue">
-              <p className="text-sm text-brand-midnight leading-relaxed whitespace-pre-line">
-                {upgradeCTA}
-              </p>
+              <StrategyProseBody
+                text={upgradeCTA}
+                paragraphStyle={{
+                  margin: 0,
+                  fontSize: 14,
+                  color: "#1e293b",
+                  lineHeight: 1.625,
+                  whiteSpace: "pre-line",
+                }}
+                blockGapClassName="gap-2"
+              />
             </div>
           )}
 

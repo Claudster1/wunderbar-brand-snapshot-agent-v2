@@ -6,10 +6,45 @@ import {
   SUITE_MUTED,
   SUITE_NAVY,
 } from "@/components/results/suiteBrandTokens";
+import { parseStrategyProseToBlocks } from "@/lib/strategy/strategyProseBlocks";
 
 const NAVY = SUITE_NAVY;
 const MID = SUITE_MUTED;
 const BORDER = SUITE_BORDER;
+
+function RichTextCell({ text }: { text: string }) {
+  const blocks = parseStrategyProseToBlocks(text);
+  if (blocks.length === 0) return null;
+  return (
+    <div style={{ display: "grid", gap: 8 }}>
+      {blocks.map((block, idx) => {
+        if (block.type === "paragraph") {
+          return (
+            <p key={`p-${idx}`} style={{ margin: 0, whiteSpace: "pre-line" }}>
+              {block.text}
+            </p>
+          );
+        }
+        if (block.type === "ul") {
+          return (
+            <ul key={`ul-${idx}`} className="strategy-suite-ul" style={{ margin: 0, paddingLeft: 18 }}>
+              {block.items.map((item, i) => (
+                <li key={`${idx}-${i}`}>{item}</li>
+              ))}
+            </ul>
+          );
+        }
+        return (
+          <ol key={`ol-${idx}`} style={{ margin: 0, paddingLeft: 18 }}>
+            {block.items.map((item, i) => (
+              <li key={`${idx}-${i}`}>{item}</li>
+            ))}
+          </ol>
+        );
+      })}
+    </div>
+  );
+}
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
@@ -98,11 +133,10 @@ function FieldTable(rows: { label: string; value: string }[]) {
                 padding: "8px 10px",
                 color: "#1e293b",
                 lineHeight: 1.55,
-                whiteSpace: "pre-wrap",
                 wordBreak: "break-word",
               }}
             >
-              {value}
+              <RichTextCell text={value} />
             </td>
           </tr>
         ))}
@@ -177,7 +211,9 @@ export default function AudienceSegmentsActivationPanel({
       {overview ? (
         <div>
           <SectionKicker>Conversion intelligence overview</SectionKicker>
-          <p style={{ margin: 0, fontSize: 14, color: "#2D3A4A", lineHeight: 1.6, whiteSpace: "pre-line" }}>{overview}</p>
+          <div style={{ fontSize: 14, color: "#2D3A4A", lineHeight: 1.6 }}>
+            <RichTextCell text={overview} />
+          </div>
         </div>
       ) : null}
 
@@ -472,9 +508,9 @@ export default function AudienceSegmentsActivationPanel({
         <div>
           <SectionKicker>Persona-Driven Segments</SectionKicker>
           {segStrategy ? (
-            <p style={{ margin: "0 0 12px", fontSize: 14, color: "#2D3A4A", lineHeight: 1.6, whiteSpace: "pre-line" }}>
-              {segStrategy}
-            </p>
+            <div style={{ marginBottom: 12, fontSize: 14, color: "#2D3A4A", lineHeight: 1.6 }}>
+              <RichTextCell text={segStrategy} />
+            </div>
           ) : null}
           <div style={{ display: "grid", gap: 10 }}>
             {segments.slice(0, 6).map((raw, i) => {

@@ -9,6 +9,8 @@ import {
   SUITE_MUTED,
   SUITE_NAVY,
 } from "@/components/results/suiteBrandTokens";
+import { getJourneyMapTileChrome, journeyStageTitleColor } from "@/lib/strategy/journeyMapTileChrome";
+import { getOfferFlowTileChrome } from "@/lib/strategy/offerFlowTileChrome";
 
 const NAVY = SUITE_NAVY;
 const BLUE = SUITE_BLUE;
@@ -111,14 +113,14 @@ function HubAndSpokeDiagram({
   const spokeId = `hub-spoke-${uid}`;
   const cx = 200;
   const cy = 180;
-  const rHub = 54;
-  const rRing = 118;
+  const rHub = 56;
+  const rRing = 124;
   const n = Math.max(1, nodes.length);
   const hub = hubLabel.trim() || "Your brand";
   const hubPrimary = hub.length > 20 ? `${hub.slice(0, 18)}…` : hub;
-  /** Spoke cards: extra height so two-line labels clear rect edges */
-  const w = 114;
-  const h = 54;
+  /** Spoke cards: room for wrapped title + sub-label */
+  const w = 128;
+  const h = 64;
 
   return (
     <svg
@@ -153,10 +155,10 @@ function HubAndSpokeDiagram({
             <line
               x1={x0}
               y1={y0}
-              x2={x - (w / 2 - 8) * Math.cos(angle)}
-              y2={y - (h / 2 - 8) * Math.sin(angle)}
+              x2={x - (w / 2 - 10) * Math.cos(angle)}
+              y2={y - (h / 2 - 10) * Math.sin(angle)}
               stroke={`url(#${spokeId})`}
-              strokeWidth={2.25}
+              strokeWidth={2.75}
               strokeLinecap="round"
             />
             <rect
@@ -165,14 +167,14 @@ function HubAndSpokeDiagram({
               width={w}
               height={h}
               rx={10}
-              fill="#FFFFFF"
-              stroke={BORDER}
-              strokeWidth={1}
-              style={{ filter: "drop-shadow(0 2px 6px rgba(2,24,89,0.07))" }}
+              fill="#EEF6FC"
+              stroke="rgba(2, 24, 89, 0.16)"
+              strokeWidth={1.25}
+              style={{ filter: "drop-shadow(0 2px 8px rgba(2,24,89,0.1))" }}
             />
             <text
               x={x}
-              y={y - h / 2 + 14}
+              y={y - h / 2 + 16}
               textAnchor="middle"
               dominantBaseline="hanging"
               fill={NAVY}
@@ -182,11 +184,11 @@ function HubAndSpokeDiagram({
             </text>
             <text
               x={x}
-              y={y - h / 2 + 30}
+              y={y - h / 2 + 34}
               textAnchor="middle"
               dominantBaseline="hanging"
-              fill={SUB}
-              style={{ fontSize: 9.5, fontFamily: "system-ui, sans-serif" }}
+              fill={BLUE_DEEP}
+              style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.06em", fontFamily: "system-ui, sans-serif" }}
             >
               {ch.sub}
             </text>
@@ -197,10 +199,10 @@ function HubAndSpokeDiagram({
         cx={cx}
         cy={cy}
         r={rHub}
-        fill="#FFFFFF"
+        fill="#F5FAFD"
         stroke={BLUE}
-        strokeWidth={2.5}
-        style={{ filter: "drop-shadow(0 3px 10px rgba(7,176,242,0.25))" }}
+        strokeWidth={2.75}
+        style={{ filter: "drop-shadow(0 3px 12px rgba(7,176,242,0.28))" }}
       />
       <text
         x={cx}
@@ -227,13 +229,27 @@ function HubAndSpokeDiagram({
 }
 
 const SPOKE_CARD: CSSProperties = {
-  padding: "12px 14px",
-  borderRadius: 10,
-  background: "#FFFFFF",
-  border: `1px solid ${BORDER}`,
-  boxShadow: "0 2px 10px rgba(2, 24, 89, 0.08)",
+  padding: "15px 17px 17px",
+  borderRadius: 13,
+  background: "linear-gradient(160deg, #F3F9FF 0%, #FFFFFF 62%)",
+  border: "1px solid rgba(2, 24, 89, 0.16)",
+  boxShadow: "0 3px 16px rgba(2, 24, 89, 0.11)",
   minWidth: 0,
   boxSizing: "border-box",
+};
+
+const SPOKE_SUB_CHIP: CSSProperties = {
+  display: "inline-block",
+  marginTop: 11,
+  padding: "3px 9px",
+  fontSize: 9.5,
+  fontWeight: 800,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
+  color: BLUE_DEEP,
+  background: "rgba(7, 176, 242, 0.18)",
+  borderRadius: 5,
+  fontFamily: SUITE_FONT_UI,
 };
 
 /**
@@ -266,8 +282,8 @@ function MessagingHubFlexibleDiagram({
       const w = Math.max(300, r.width);
       const h =
         n >= 6
-          ? Math.max(520, Math.min(700, w * 1.08))
-          : Math.max(440, Math.min(600, w * 0.9));
+          ? Math.max(510, Math.min(660, w * 1.02))
+          : Math.max(460, Math.min(620, w * 0.9));
       setDims({ w, h });
     };
     measure();
@@ -291,8 +307,9 @@ function MessagingHubFlexibleDiagram({
           style={{
             ...SPOKE_CARD,
             border: `2px solid ${BLUE}`,
-            boxShadow: "0 3px 14px rgba(7, 176, 242, 0.18)",
-            padding: "16px 18px",
+            boxShadow: "0 4px 18px rgba(7, 176, 242, 0.22)",
+            background: "linear-gradient(165deg, #FFFFFF 0%, #E8F4FC 100%)",
+            padding: "18px 20px",
             marginBottom: 16,
             textAlign: "center",
           }}
@@ -341,18 +358,7 @@ function MessagingHubFlexibleDiagram({
               >
                 {ch.label}
               </p>
-              <p
-                style={{
-                  margin: "6px 0 0",
-                  fontSize: 10,
-                  fontWeight: 600,
-                  color: SUB,
-                  letterSpacing: "0.04em",
-                  fontFamily: SUITE_FONT_UI,
-                }}
-              >
-                {ch.sub}
-              </p>
+              <span style={SPOKE_SUB_CHIP}>{ch.sub}</span>
             </div>
           ))}
         </div>
@@ -362,12 +368,15 @@ function MessagingHubFlexibleDiagram({
 
   const cx = dims.w / 2;
   const cy = dims.h / 2;
-  const rLineStart = 68;
+  const rLineStart = 88;
   const side = Math.min(dims.w, dims.h);
-  /** More nodes need a wider ring so chord gaps fit wrapped labels */
-  const R = side * (n >= 6 ? 0.48 : n >= 5 ? 0.45 : 0.42);
+  /** Balance radial spacing with larger spoke cards for readability at desktop widths. */
+  const R = side * (n >= 6 ? 0.4 : n >= 5 ? 0.37 : 0.34);
   const chord = 2 * R * Math.sin(Math.PI / n);
-  const maxSpokeW = Math.min(220, dims.w * 0.36, Math.max(108, chord * 0.5));
+  const chordCap = n >= 5 ? 0.84 : 0.9;
+  const maxSpokeW = Math.floor(
+    Math.min(304, dims.w * 0.44, Math.max(168, chord * chordCap)),
+  );
 
   return (
     <div
@@ -380,8 +389,9 @@ function MessagingHubFlexibleDiagram({
         maxWidth: 640,
         margin: "0 auto",
         minHeight: dims.h,
-        padding: "8px 10px 16px",
+        padding: "12px 14px 22px",
         boxSizing: "border-box",
+        overflow: "visible",
       }}
     >
       <svg
@@ -421,7 +431,7 @@ function MessagingHubFlexibleDiagram({
               x2={x2}
               y2={y2}
               stroke={`url(#${spokeId})`}
-              strokeWidth={2.25}
+              strokeWidth={2.85}
               strokeLinecap="round"
             />
           );
@@ -435,12 +445,12 @@ function MessagingHubFlexibleDiagram({
           top: cy,
           transform: "translate(-50%, -50%)",
           zIndex: 2,
-          maxWidth: Math.min(280, dims.w * 0.48),
-          padding: "14px 16px",
-          borderRadius: 14,
-          background: "#FFFFFF",
+          maxWidth: Math.min(380, dims.w * 0.58),
+          padding: "18px 20px 20px",
+          borderRadius: 15,
+          background: "linear-gradient(160deg, #FFFFFF 0%, #EAF6FF 100%)",
           border: `2px solid ${BLUE}`,
-          boxShadow: "0 3px 14px rgba(7, 176, 242, 0.2)",
+          boxShadow: "0 6px 22px rgba(7, 176, 242, 0.2)",
           textAlign: "center",
           pointerEvents: "none",
         }}
@@ -448,10 +458,10 @@ function MessagingHubFlexibleDiagram({
         <p
           style={{
             margin: 0,
-            fontSize: 13,
+            fontSize: 14.5,
             fontWeight: 800,
             color: NAVY,
-            lineHeight: 1.4,
+            lineHeight: 1.43,
             fontFamily: SUITE_FONT_UI,
             wordBreak: "break-word",
             overflowWrap: "anywhere",
@@ -462,7 +472,7 @@ function MessagingHubFlexibleDiagram({
         <p
           style={{
             margin: "6px 0 0",
-            fontSize: 8,
+            fontSize: 8.8,
             fontWeight: 700,
             letterSpacing: "0.12em",
             color: BLUE,
@@ -486,6 +496,7 @@ function MessagingHubFlexibleDiagram({
               left,
               top,
               transform: "translate(-50%, -50%)",
+              width: maxSpokeW,
               maxWidth: maxSpokeW,
               zIndex: 3,
               ...SPOKE_CARD,
@@ -494,10 +505,10 @@ function MessagingHubFlexibleDiagram({
             <p
               style={{
                 margin: 0,
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: 700,
                 color: NAVY,
-                lineHeight: 1.45,
+                lineHeight: 1.48,
                 fontFamily: SUITE_FONT_UI,
                 wordBreak: "break-word",
                 overflowWrap: "anywhere",
@@ -505,18 +516,7 @@ function MessagingHubFlexibleDiagram({
             >
               {ch.label}
             </p>
-            <p
-              style={{
-                margin: "6px 0 0",
-                fontSize: 10,
-                fontWeight: 600,
-                color: SUB,
-                letterSpacing: "0.04em",
-                fontFamily: SUITE_FONT_UI,
-              }}
-            >
-              {ch.sub}
-            </p>
+            <span style={SPOKE_SUB_CHIP}>{ch.sub}</span>
           </div>
         );
       })}
@@ -538,50 +538,77 @@ export function JourneyMapVisual({
   return (
     <SuiteVisualFrame marginTop={12} eyebrow={title} description={caption}>
       <div className="journey-map-visual-grid">
-        {stages.map((stage, index) => (
-          <div key={`${stage.label}-${index}`}>
-            <div
-              style={{
-                border: `1px solid ${BORDER}`,
-                borderRadius: 10,
-                background: "#FFFFFF",
-                padding: "14px 14px 15px",
-                minHeight: 92,
-                boxShadow: "0 2px 8px rgba(2, 24, 89, 0.06)",
-                borderTop: `3px solid ${BLUE}`,
-                borderLeft: `1px solid rgba(0, 0, 0, 0.06)`,
-                borderRight: `1px solid rgba(0, 0, 0, 0.06)`,
-                borderBottom: `1px solid rgba(0, 0, 0, 0.06)`,
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                <span
-                  style={{
-                    flexShrink: 0,
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: 24,
-                    height: 24,
-                    borderRadius: "999px",
-                    fontSize: 11,
-                    fontWeight: 800,
-                    color: "#FFFFFF",
-                    background: BLUE,
-                    marginTop: 1,
-                  }}
-                  aria-hidden
-                >
-                  {index + 1}
-                </span>
-                <div style={{ minWidth: 0 }}>
-                  <p style={{ margin: 0, fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", color: NAVY }}>{stage.label}</p>
-                  <p style={{ margin: "6px 0 0", fontSize: 12, color: SUB, lineHeight: 1.5 }}>{stage.focus}</p>
+        {stages.map((stage, index) => {
+          const chrome = getJourneyMapTileChrome(stage.label, index);
+          return (
+            <div key={`${stage.label}-${index}`}>
+              <div
+                style={{
+                  border: `1px solid ${chrome.border}`,
+                  borderRadius: 10,
+                  background: `linear-gradient(145deg, ${chrome.bgFrom} 0%, ${chrome.bgTo} 100%)`,
+                  padding: "14px 14px 15px",
+                  minHeight: 92,
+                  boxShadow: `0 4px 14px ${chrome.leftRail}22`,
+                  borderTopWidth: 3,
+                  borderTopStyle: "solid",
+                  borderTopColor: chrome.leftRail,
+                  borderLeftWidth: 4,
+                  borderLeftStyle: "solid",
+                  borderLeftColor: chrome.leftRail,
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                  <span
+                    style={{
+                      flexShrink: 0,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: 24,
+                      height: 24,
+                      borderRadius: "999px",
+                      fontSize: 11,
+                      fontWeight: 800,
+                      color: "#FFFFFF",
+                      background: chrome.numberBg,
+                      marginTop: 1,
+                    }}
+                    aria-hidden
+                  >
+                    {index + 1}
+                  </span>
+                  <div style={{ minWidth: 0 }}>
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: 12,
+                        fontWeight: 800,
+                        letterSpacing: "0.04em",
+                        color: journeyStageTitleColor(chrome),
+                      }}
+                    >
+                      {stage.label}
+                    </p>
+                    <p
+                      style={{
+                        margin: "4px 0 0",
+                        fontSize: 10,
+                        fontWeight: 700,
+                        letterSpacing: "0.06em",
+                        color: SUB,
+                        fontFamily: SUITE_FONT_UI,
+                      }}
+                    >
+                      {chrome.cue}
+                    </p>
+                    <p style={{ margin: "6px 0 0", fontSize: 12, color: SUB, lineHeight: 1.5 }}>{stage.focus}</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </SuiteVisualFrame>
   );
@@ -888,31 +915,76 @@ export function CampaignJourneyContextVisual() {
           alignItems: "stretch",
         }}
       >
-        {stages.map((stage, index) => (
-          <div key={stage.label} style={{ position: "relative" }}>
-            <div
-              style={{
-                border: `1px solid ${BORDER}`,
-                borderTop: `3px solid ${BLUE}`,
-                borderRadius: 6,
-                background: "#F8FBFF",
-                padding: "12px 12px",
-                minHeight: 78,
-              }}
-            >
-              <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>{stage.label}</p>
-              <p style={{ margin: "4px 0 0", fontSize: 11, color: SUB, lineHeight: 1.4 }}>{stage.hint}</p>
-            </div>
-            {index < stages.length - 1 && (
-              <span
-                aria-hidden
+        {stages.map((stage, index) => {
+          const chrome = getJourneyMapTileChrome(stage.label, index);
+          return (
+            <div key={stage.label} style={{ position: "relative" }}>
+              <div
                 style={{
-                  display: "none",
+                  border: `1px solid ${chrome.border}`,
+                  borderRadius: 10,
+                  background: `linear-gradient(145deg, ${chrome.bgFrom} 0%, ${chrome.bgTo} 100%)`,
+                  padding: "12px 12px",
+                  minHeight: 86,
+                  boxShadow: `0 4px 14px ${chrome.leftRail}22`,
+                  borderTopWidth: 3,
+                  borderTopStyle: "solid",
+                  borderTopColor: chrome.leftRail,
+                  borderLeftWidth: 4,
+                  borderLeftStyle: "solid",
+                  borderLeftColor: chrome.leftRail,
                 }}
-              />
-            )}
-          </div>
-        ))}
+              >
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                  <span
+                    style={{
+                      flexShrink: 0,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: 22,
+                      height: 22,
+                      borderRadius: "999px",
+                      fontSize: 10,
+                      fontWeight: 800,
+                      color: "#FFFFFF",
+                      background: chrome.numberBg,
+                      marginTop: 1,
+                    }}
+                    aria-hidden
+                  >
+                    {index + 1}
+                  </span>
+                  <div style={{ minWidth: 0 }}>
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: 12,
+                        fontWeight: 800,
+                        color: journeyStageTitleColor(chrome),
+                      }}
+                    >
+                      {stage.label}
+                    </p>
+                    <p
+                      style={{
+                        margin: "3px 0 0",
+                        fontSize: 10,
+                        fontWeight: 700,
+                        letterSpacing: "0.05em",
+                        color: SUB,
+                        fontFamily: SUITE_FONT_UI,
+                      }}
+                    >
+                      {chrome.cue}
+                    </p>
+                    <p style={{ margin: "5px 0 0", fontSize: 11, color: SUB, lineHeight: 1.4 }}>{stage.hint}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
       <p style={{ margin: "10px 0 0", fontSize: 11, color: SUB, lineHeight: 1.45 }}>
         Map each asset in this playbook to <strong style={{ color: NAVY }}>one primary stage</strong> so messaging and CTAs stay coherent.
@@ -931,28 +1003,80 @@ export function LeadMagnetFlowVisual() {
   return chartShell(
     "Offer flow",
     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "stretch" }}>
-      {steps.map((step, i) => (
-        <div key={step.label} style={{ display: "flex", alignItems: "center", gap: 8, flex: "1 1 140px" }}>
-          <div
-            style={{
-              flex: 1,
-              borderRadius: 6,
-              border: `1px solid ${BORDER}`,
-              borderLeft: `3px solid ${BLUE}`,
-              background: "linear-gradient(135deg, rgba(7,176,242,0.08) 0%, #FFFFFF 100%)",
-              padding: "12px 14px",
-            }}
-          >
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>{step.label}</p>
-            <p style={{ margin: "4px 0 0", fontSize: 11, color: SUB, lineHeight: 1.4 }}>{step.detail}</p>
+      {steps.map((step, i) => {
+        const chrome = getOfferFlowTileChrome(step.label, i);
+        const nextChrome =
+          i < steps.length - 1 ? getOfferFlowTileChrome(steps[i + 1]!.label, i + 1) : null;
+        return (
+          <div key={step.label} style={{ display: "flex", alignItems: "center", gap: 8, flex: "1 1 140px" }}>
+            <div
+              style={{
+                flex: 1,
+                borderRadius: 10,
+                border: `1px solid ${chrome.border}`,
+                background: `linear-gradient(145deg, ${chrome.bgFrom} 0%, ${chrome.bgTo} 100%)`,
+                padding: "12px 14px",
+                boxShadow: "0 2px 8px rgba(2, 24, 89, 0.06)",
+                borderLeftWidth: 4,
+                borderLeftStyle: "solid",
+                borderLeftColor: chrome.leftRail,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                <span
+                  style={{
+                    flexShrink: 0,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: 22,
+                    height: 22,
+                    borderRadius: "999px",
+                    fontSize: 10,
+                    fontWeight: 800,
+                    color: "#FFFFFF",
+                    background: chrome.numberBg,
+                    marginTop: 1,
+                  }}
+                  aria-hidden
+                >
+                  {i + 1}
+                </span>
+                <div style={{ minWidth: 0 }}>
+                  <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>{step.label}</p>
+                  <p
+                    style={{
+                      margin: "3px 0 0",
+                      fontSize: 10,
+                      fontWeight: 700,
+                      letterSpacing: "0.05em",
+                      color: chrome.chipText,
+                      fontFamily: SUITE_FONT_UI,
+                    }}
+                  >
+                    {chrome.cue}
+                  </p>
+                  <p style={{ margin: "5px 0 0", fontSize: 11, color: SUB, lineHeight: 1.4 }}>{step.detail}</p>
+                </div>
+              </div>
+            </div>
+            {i < steps.length - 1 ? (
+              <span
+                style={{
+                  color: nextChrome?.leftRail ?? BLUE,
+                  fontWeight: 900,
+                  fontSize: 13,
+                  flexShrink: 0,
+                  padding: "0 4px",
+                }}
+                aria-hidden
+              >
+                →
+              </span>
+            ) : null}
           </div>
-          {i < steps.length - 1 ? (
-            <span style={{ color: BLUE, fontWeight: 900, fontSize: 13, flexShrink: 0, padding: "0 4px" }} aria-hidden>
-              →
-            </span>
-          ) : null}
-        </div>
-      ))}
+        );
+      })}
     </div>,
   );
 }

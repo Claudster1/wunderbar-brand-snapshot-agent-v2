@@ -42,7 +42,7 @@ export const WORKBOOK_SECTIONS: WorkbookSection[] = [
     description:
       "What you sell (product, service, or program), the buyer job it serves, scope boundaries, and how channels should reinforce the same offer—Blueprint methodology slice for go-to-market (GTM) and Activation.",
     placeholder:
-      "Primary offer name and one-line pitch. Job statement (When…, I want to…, so I can…). Pains relieved, outcomes, in-scope vs out-of-scope, leading signals to review, and channel alignment notes.",
+      "Primary offer name and one-line pitch. Job statement (When…, I want to…, so I can…). Pains relieved, outcomes, in-scope vs out-of-scope, leading signals to review, and channel alignment notes. Pull phrasing from the Strategy tab strategic offer panel and your Blueprint positioning context.",
     pillar: "Positioning",
     availableFrom: "blueprint",
   },
@@ -89,9 +89,9 @@ export const WORKBOOK_SECTIONS: WorkbookSection[] = [
     id: "persona-atlas",
     label: "Persona Atlas",
     description:
-      "Structured ICP and buyer persona reference: JTBD, objections, goals, and buying roles.",
+      "Structured buyer persona reference aligned with your deliverable: jobs to be done, objections, goals, roles, and channel-ready lines.",
     placeholder:
-      "Capture each priority persona with: role/title, company profile, JTBD, top objections, success metrics, and preferred channels.",
+      "Capture each priority persona with: role/title, company profile, job to be done (JTBD), top objections, success metrics, and preferred channels. Mirror or extend the interactive Persona Atlas in Foundation and Strategy.",
     inputTemplate:
       "Persona: VP Marketing - Series B SaaS\n" +
       "Role: Economic buyer\n" +

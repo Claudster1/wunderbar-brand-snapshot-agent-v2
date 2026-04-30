@@ -90,6 +90,76 @@ function Bullets({ items }: { items: string[] }) {
   return <>{items?.map((item, i) => <Text key={i} style={s.bullet}>• {item}</Text>)}</>;
 }
 
+type ProseBlock = { type: "paragraph"; text: string } | { type: "ul"; items: string[] } | { type: "ol"; items: string[] };
+
+function parseProseBlocks(raw: string): ProseBlock[] {
+  const lines = raw.replace(/\r\n/g, "\n").split("\n");
+  const out: ProseBlock[] = [];
+  let para: string[] = [];
+  let listKind: "ul" | "ol" | null = null;
+  let listItems: string[] = [];
+  const ulPattern = /^\s*[-*•]\s+(.+)$/;
+  const olPattern = /^\s*\d+[.)]\s+(.+)$/;
+
+  const flushPara = () => {
+    const text = para.join("\n").trim();
+    if (text) out.push({ type: "paragraph", text });
+    para = [];
+  };
+  const flushList = () => {
+    if (listKind && listItems.length > 0) {
+      out.push(listKind === "ul" ? { type: "ul", items: [...listItems] } : { type: "ol", items: [...listItems] });
+    }
+    listKind = null;
+    listItems = [];
+  };
+
+  for (const line of lines) {
+    if (!line.trim()) {
+      flushList();
+      flushPara();
+      continue;
+    }
+    const ul = line.match(ulPattern);
+    if (ul?.[1]) {
+      flushPara();
+      if (listKind && listKind !== "ul") flushList();
+      listKind = "ul";
+      listItems.push(ul[1].trim());
+      continue;
+    }
+    const ol = line.match(olPattern);
+    if (ol?.[1]) {
+      flushPara();
+      if (listKind && listKind !== "ol") flushList();
+      listKind = "ol";
+      listItems.push(ol[1].trim());
+      continue;
+    }
+    flushList();
+    para.push(line.trimEnd());
+  }
+  flushList();
+  flushPara();
+  return out;
+}
+
+function BodyRichText({ text }: { text: unknown }) {
+  const value = typeof text === "string" ? text.trim() : "";
+  if (!value) return null;
+  const blocks = parseProseBlocks(value);
+  if (blocks.length === 0) return null;
+  return (
+    <>
+      {blocks.map((block, i) => {
+        if (block.type === "paragraph") return <Text key={`p-${i}`} style={s.body}>{block.text}</Text>;
+        if (block.type === "ul") return <Bullets key={`ul-${i}`} items={block.items} />;
+        return <Bullets key={`ol-${i}`} items={block.items.map((item, idx) => `${idx + 1}. ${item}`)} />;
+      })}
+    </>
+  );
+}
+
 function Tags({ items }: { items: string[] }) {
   return (
     <View style={s.tagsRow}>
@@ -868,18 +938,18 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
 
         {/* Customer Journey */}
         <Text style={s.h1}>Customer Journey Map</Text>
-        <Text style={s.body}>{d.customerJourneyMap?.overview}</Text>
+        <BodyRichText text={d.customerJourneyMap?.overview} />
         {d.customerJourneyMap?.stages?.map((stage, i) => (
           <View key={i} style={s.card} wrap={false}>
             <Text style={s.cardTitle}>{stage.stage}</Text>
             <Text style={s.h4}>Customer Mindset</Text>
-            <Text style={s.body}>{stage.customerMindset}</Text>
+            <BodyRichText text={stage.customerMindset} />
             <Text style={s.h4}>Key Questions</Text>
             <Bullets items={stage.keyQuestions || []} />
             <Text style={s.h4}>Touchpoints</Text>
             <Tags items={stage.touchpoints || []} />
             <Text style={s.h4}>Messaging Focus</Text>
-            <Text style={s.body}>{stage.messagingFocus}</Text>
+            <BodyRichText text={stage.messagingFocus} />
             <Text style={s.small}>Conversion Trigger: {stage.conversionTrigger} | KPI: {stage.kpiToTrack}</Text>
           </View>
         ))}
@@ -894,7 +964,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
       <Page size="A4" style={s.page} wrap>
         <Footer brandName={brandName} />
         <Text style={s.h1}>SEO & Keyword Strategy</Text>
-        <Text style={s.body}>{d.seoStrategy?.overview}</Text>
+        <BodyRichText text={d.seoStrategy?.overview} />
         <Text style={s.h3}>Primary Keywords</Text>
         {d.seoStrategy?.primaryKeywords?.map((kw, i) => (
           <View key={i} style={s.card} wrap={false}>
@@ -902,7 +972,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
               <Text style={s.cardTitle}>{kw.keyword}</Text>
               <View style={s.tagsRow}><View style={s.tag}><Text style={s.tagText}>{kw.intent}</Text></View><View style={s.tag}><Text style={s.tagText}>{kw.difficulty}</Text></View></View>
             </View>
-            <Text style={s.body}>{kw.contentAngle}</Text>
+            <BodyRichText text={kw.contentAngle} />
             <Text style={s.small}>Pillar: {kw.pillarConnection}</Text>
           </View>
         ))}
@@ -910,27 +980,27 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         {d.seoStrategy?.longTailOpportunities?.map((lt, i) => (
           <View key={i} style={s.card} wrap={false}>
             <Text style={s.cardTitle}>{lt.keyword}</Text>
-            <Text style={s.body}>{lt.contentRecommendation}</Text>
+            <BodyRichText text={lt.contentRecommendation} />
           </View>
         ))}
         <Text style={s.label}>Technical Priorities</Text>
         <Bullets items={d.seoStrategy?.technicalPriorities || []} />
         <Text style={s.label}>Content SEO Playbook</Text>
-        <View style={s.accentCard}><Text style={s.body}>{d.seoStrategy?.contentSEOPlaybook}</Text></View>
+        <View style={s.accentCard}><BodyRichText text={d.seoStrategy?.contentSEOPlaybook} /></View>
 
         <Text style={s.h1}>AEO & AI Search Strategy</Text>
-        <Text style={s.body}>{d.aeoStrategy?.overview}</Text>
+        <BodyRichText text={d.aeoStrategy?.overview} />
         <Text style={s.h3}>Entity Optimization</Text>
-        <Text style={s.body}>{d.aeoStrategy?.entityOptimization?.currentEntityStatus}</Text>
+        <BodyRichText text={d.aeoStrategy?.entityOptimization?.currentEntityStatus} />
         <Bullets items={d.aeoStrategy?.entityOptimization?.entityBuildingActions || []} />
         <Text style={s.h3}>Content for AI Citation</Text>
-        <Text style={s.body}>{d.aeoStrategy?.contentForAICitation?.strategy}</Text>
+        <BodyRichText text={d.aeoStrategy?.contentForAICitation?.strategy} />
         <Bullets items={d.aeoStrategy?.contentForAICitation?.formatRecommendations || []} />
         <Text style={s.h3}>Priority FAQs</Text>
         <Bullets items={d.aeoStrategy?.faqStrategy?.priorityFAQs || []} />
 
         <Text style={s.h1}>Email Marketing Strategy</Text>
-        <Text style={s.body}>{d.emailMarketingFramework?.overview}</Text>
+        <BodyRichText text={d.emailMarketingFramework?.overview} />
         <Text style={s.h3}>Welcome Sequence</Text>
         {d.emailMarketingFramework?.welcomeSequence?.emails?.map((e, i) => (
           <View key={i} style={s.card} wrap={false}>
@@ -938,7 +1008,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
               <Text style={s.cardTitle}>{e.subject}</Text>
               <View style={s.tag}><Text style={s.tagText}>{e.timing}</Text></View>
             </View>
-            <Text style={s.body}>{e.keyMessage}</Text>
+            <BodyRichText text={e.keyMessage} />
             <Text style={s.small}>{e.purpose}</Text>
           </View>
         ))}
@@ -947,13 +1017,13 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         <Text style={s.small}>Send Cadence: {d.emailMarketingFramework?.sendCadence}</Text>
 
         <Text style={s.h1}>Social Media Strategy</Text>
-        <Text style={s.body}>{d.socialMediaStrategy?.overview}</Text>
+        <BodyRichText text={d.socialMediaStrategy?.overview} />
         {d.socialMediaStrategy?.platforms?.map((p, i) => (
           <View key={i} style={s.card} wrap={false}>
             <Text style={s.cardTitle}>{p.platform}</Text>
-            <Text style={s.body}>{p.whyThisPlatform}</Text>
+            <BodyRichText text={p.whyThisPlatform} />
             <Text style={s.h4}>Content Strategy</Text>
-            <Text style={s.body}>{p.contentStrategy}</Text>
+            <BodyRichText text={p.contentStrategy} />
             <Text style={s.h4}>Example Posts</Text>
             <Bullets items={p.examplePosts || []} />
             {p.exampleImagePrompts && p.exampleImagePrompts.length > 0 ? (
@@ -974,14 +1044,14 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
 
         <Text style={s.h1}>Conversion Strategy</Text>
         <Text style={s.label}>How Trust Is Built</Text>
-        <Text style={s.body}>{d.conversionStrategy?.howTrustIsBuilt}</Text>
+        <BodyRichText text={d.conversionStrategy?.howTrustIsBuilt} />
         <Text style={s.label}>How Clarity Drives Action</Text>
-        <Text style={s.body}>{d.conversionStrategy?.howClarityDrivesAction}</Text>
+        <BodyRichText text={d.conversionStrategy?.howClarityDrivesAction} />
         <Text style={s.h3}>CTA Hierarchy</Text>
         {d.conversionStrategy?.ctaHierarchy?.map((cta, i) => (
           <View key={i} style={s.card} wrap={false}>
             <Text style={s.cardTitle}>{cta.level}</Text>
-            <Text style={s.body}>{cta.action}</Text>
+            <BodyRichText text={cta.action} />
             <Text style={s.small}>{cta.context}</Text>
           </View>
         ))}
@@ -990,33 +1060,33 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         {d.credibilityStrategy && (
           <>
             <Text style={s.h1}>Credibility & Trust Signal Strategy</Text>
-            <Text style={s.body}>{d.credibilityStrategy.overview}</Text>
+            <BodyRichText text={d.credibilityStrategy.overview} />
 
             <Text style={s.h2}>Proof Points to Create</Text>
             {d.credibilityStrategy.proofPointsToCreate?.map((pp, i) => (
               <View key={i} style={s.card} wrap={false}>
                 <Text style={s.cardTitle}>{pp.proofPoint}</Text>
                 <Text style={s.small}>Type: {pp.type} | Priority: {pp.priority}</Text>
-                <Text style={s.body}>{pp.howToGet}</Text>
+                <BodyRichText text={pp.howToGet} />
                 <Text style={s.small}>Display: {pp.whereToDisplay}</Text>
               </View>
             ))}
 
             <Text style={s.h2}>Testimonial Strategy</Text>
             <Text style={s.label}>Who to Ask</Text>
-            <Text style={s.body}>{d.credibilityStrategy.testimonialStrategy?.whoToAsk}</Text>
+            <BodyRichText text={d.credibilityStrategy.testimonialStrategy?.whoToAsk} />
             <Text style={s.label}>How to Ask</Text>
-            <Text style={s.body}>{d.credibilityStrategy.testimonialStrategy?.howToAsk}</Text>
+            <BodyRichText text={d.credibilityStrategy.testimonialStrategy?.howToAsk} />
             <Text style={s.label}>What to Capture</Text>
-            <Text style={s.body}>{d.credibilityStrategy.testimonialStrategy?.whatToCapture}</Text>
+            <BodyRichText text={d.credibilityStrategy.testimonialStrategy?.whatToCapture} />
             <Text style={s.label}>Where to Place</Text>
-            <Text style={s.body}>{d.credibilityStrategy.testimonialStrategy?.whereToPlace}</Text>
+            <BodyRichText text={d.credibilityStrategy.testimonialStrategy?.whereToPlace} />
 
             <Text style={s.h2}>Authority Signals</Text>
             {d.credibilityStrategy.authoritySignals?.map((as_, i) => (
               <View key={i} style={s.card} wrap={false}>
                 <Text style={s.cardTitle}>{as_.signal}</Text>
-                <Text style={s.body}>{as_.impact}</Text>
+                <BodyRichText text={as_.impact} />
                 <Text style={s.small}>Timeline: {as_.timeline}</Text>
               </View>
             ))}
@@ -1024,7 +1094,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
             {d.credibilityStrategy.trustGaps && (
               <>
                 <Text style={s.h2}>Trust Gaps</Text>
-                <View style={s.accentCard}><Text style={s.body}>{d.credibilityStrategy.trustGaps}</Text></View>
+                <View style={s.accentCard}><BodyRichText text={d.credibilityStrategy.trustGaps} /></View>
               </>
             )}
           </>
@@ -1034,35 +1104,35 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         {d.websiteCopyDirection && (
           <>
             <Text style={s.h1}>Website Copy Direction</Text>
-            <Text style={s.body}>{d.websiteCopyDirection.overview}</Text>
+            <BodyRichText text={d.websiteCopyDirection.overview} />
 
             <Text style={s.h2}>Homepage</Text>
             <Text style={s.label}>Hero Headline</Text>
             <View style={s.accentCard}><Text style={{ ...s.body, fontSize: 14, fontWeight: "bold" }}>{d.websiteCopyDirection.homepage?.heroHeadline}</Text></View>
             <Text style={s.label}>Hero Subheadline</Text>
-            <Text style={s.body}>{d.websiteCopyDirection.homepage?.heroSubheadline}</Text>
+            <BodyRichText text={d.websiteCopyDirection.homepage?.heroSubheadline} />
             <Text style={s.label}>CTA Button</Text>
-            <View style={s.card}><Text style={s.body}>{d.websiteCopyDirection.homepage?.heroCtaButton}</Text></View>
+            <View style={s.card}><BodyRichText text={d.websiteCopyDirection.homepage?.heroCtaButton} /></View>
             <Text style={s.label}>Value Proposition Section</Text>
-            <Text style={s.body}>{d.websiteCopyDirection.homepage?.valuePropSection}</Text>
+            <BodyRichText text={d.websiteCopyDirection.homepage?.valuePropSection} />
             <Text style={s.label}>Social Proof Placement</Text>
-            <Text style={s.body}>{d.websiteCopyDirection.homepage?.socialProofPlacement}</Text>
+            <BodyRichText text={d.websiteCopyDirection.homepage?.socialProofPlacement} />
 
             <Text style={s.h2}>About Page</Text>
             <Text style={s.label}>Opening Hook</Text>
-            <View style={s.accentCard}><Text style={s.body}>{d.websiteCopyDirection.aboutPage?.openingHook}</Text></View>
+            <View style={s.accentCard}><BodyRichText text={d.websiteCopyDirection.aboutPage?.openingHook} /></View>
             <Text style={s.label}>Story Framework</Text>
-            <Text style={s.body}>{d.websiteCopyDirection.aboutPage?.storyFramework}</Text>
+            <BodyRichText text={d.websiteCopyDirection.aboutPage?.storyFramework} />
             <Text style={s.label}>Team Positioning</Text>
-            <Text style={s.body}>{d.websiteCopyDirection.aboutPage?.teamPositioning}</Text>
+            <BodyRichText text={d.websiteCopyDirection.aboutPage?.teamPositioning} />
 
             <Text style={s.h2}>Services Page</Text>
             <Text style={s.label}>Page Structure</Text>
-            <Text style={s.body}>{d.websiteCopyDirection.servicesPage?.pageStructure}</Text>
+            <BodyRichText text={d.websiteCopyDirection.servicesPage?.pageStructure} />
             <Text style={s.label}>Service Framework</Text>
-            <Text style={s.body}>{d.websiteCopyDirection.servicesPage?.serviceFramework}</Text>
+            <BodyRichText text={d.websiteCopyDirection.servicesPage?.serviceFramework} />
             <Text style={s.label}>Pricing Language</Text>
-            <Text style={s.body}>{d.websiteCopyDirection.servicesPage?.pricingLanguage}</Text>
+            <BodyRichText text={d.websiteCopyDirection.servicesPage?.pricingLanguage} />
 
             {d.websiteCopyDirection.copyPrinciples?.length > 0 && (
               <>
@@ -1070,7 +1140,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
                 {d.websiteCopyDirection.copyPrinciples.map((cp, i) => (
                   <View key={i} style={s.card} wrap={false}>
                     <Text style={s.cardTitle}>{cp.principle}</Text>
-                    <Text style={s.body}>{cp.example}</Text>
+                    <BodyRichText text={cp.example} />
                   </View>
                 ))}
               </>
@@ -1080,15 +1150,15 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
 
         <Text style={s.h1}>Value & Pricing Communication</Text>
         <Text style={s.label}>Pricing Positioning</Text>
-        <View style={s.accentCard}><Text style={s.body}>{d.valuePricingFramework?.pricingPositioningStatement}</Text></View>
+        <View style={s.accentCard}><BodyRichText text={d.valuePricingFramework?.pricingPositioningStatement} /></View>
         <Text style={s.label}>Value Narrative</Text>
-        <Text style={s.body}>{d.valuePricingFramework?.valueNarrative}</Text>
+        <BodyRichText text={d.valuePricingFramework?.valueNarrative} />
         <Text style={s.h3}>Price Objection Responses</Text>
         {d.valuePricingFramework?.priceObjectionResponses?.map((obj, i) => (
           <View key={i} style={s.card} wrap={false}>
             <Text style={s.cardTitle}>"{obj.objection}"</Text>
             <Text style={s.label}>Reframe</Text>
-            <Text style={s.body}>{obj.reframe}</Text>
+            <BodyRichText text={obj.reframe} />
             <Text
               style={{
                 fontSize: 9,
@@ -1106,12 +1176,12 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
 
         <Text style={s.h1}>Sales Conversation Guide</Text>
         <Text style={s.label}>Opening Framework</Text>
-        <View style={s.accentCard}><Text style={s.body}>{d.salesConversationGuide?.openingFramework}</Text></View>
+        <View style={s.accentCard}><BodyRichText text={d.salesConversationGuide?.openingFramework} /></View>
         <Text style={s.h3}>Discovery Questions</Text>
         {d.salesConversationGuide?.discoveryQuestions?.map((q, i) => (
           <View key={i} style={s.card} wrap={false}>
             <Text style={s.cardTitle}>"{q.question}"</Text>
-            <Text style={s.body}>{q.whyThisQuestion}</Text>
+            <BodyRichText text={q.whyThisQuestion} />
             <Text style={s.small}>Listen for: {q.listenFor}</Text>
           </View>
         ))}
@@ -1119,12 +1189,12 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         {d.salesConversationGuide?.objectionHandlingPlaybook?.map((obj, i) => (
           <View key={i} style={s.card} wrap={false}>
             <Text style={s.cardTitle}>"{obj.objection}"</Text>
-            <Text style={s.body}>{obj.response}</Text>
+            <BodyRichText text={obj.response} />
             <Text style={s.small}>Pillar: {obj.pillarConnection}</Text>
           </View>
         ))}
         <Text style={s.label}>Closing Language</Text>
-        <Text style={s.body}>{d.salesConversationGuide?.closingLanguage}</Text>
+        <BodyRichText text={d.salesConversationGuide?.closingLanguage} />
       </Page>
 
       {/* ═══════════════════════════════════════════════════════════

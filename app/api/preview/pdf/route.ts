@@ -212,6 +212,12 @@ const MOCK_BLUEPRINT_PLUS_DATA = {
     },
   },
   paidMediaStrategy: {
+    conversionSpine: {
+      primaryMacroConversion: "Qualified opportunity with agreed evaluation criteria",
+      primaryOfferAnchor: "Primary offer named in strategicOfferContext — same on LP and ads",
+      advancesConversion:
+        "Paid surfaces capture and retarget in-market buyers toward the single conversion path defined in conversionStrategy.",
+    },
     conversion_intelligence_reference: {
       type: "ref",
       framework: "icp_conversion_intelligence_framework",

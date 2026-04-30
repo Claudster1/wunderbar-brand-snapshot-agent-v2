@@ -14,6 +14,7 @@ export const metadata: Metadata = {
 import nextDynamic from "next/dynamic";
 import { ResultsHeroSection } from "@/src/components/results/ResultsHeroSection";
 import { ResultsUpgradeCTA } from "@/components/results/ResultsUpgradeCTA";
+import { ReportTierUpgradeCTAs } from "@/components/results/ReportTierUpgradeCTAs";
 import { SuiteCTA } from "@/src/components/results/SuiteCTA";
 import { ResultsPageViewTracker } from "@/components/results/ResultsPageViewTracker";
 import { ImplementationIntro } from "@/components/SnapshotPlus/ImplementationIntro";
@@ -785,6 +786,15 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       {!hasSnapshotPlusAccess && <SuiteCTA />}
 
       <div id="next-steps" className="space-y-8 md:space-y-10 scroll-mt-28">
+        <div className="rounded-xl border border-brand-border bg-white p-6 sm:p-7">
+          <p className={`${SUITE_SECTION_KICKER_CLASS} m-0 mb-2`}>Upgrade paths</p>
+          <ReportTierUpgradeCTAs
+            tier={tabTier}
+            utmSource="results_page"
+            downloadsHref={`/results?reportId=${encodeURIComponent(data.reportId)}&tab=downloads`}
+            suppressSnapshotPlusPrimary={tabTier === "snapshot"}
+          />
+        </div>
         <HumanAssistCTA
           source="results_page"
           reportId={data.reportId}

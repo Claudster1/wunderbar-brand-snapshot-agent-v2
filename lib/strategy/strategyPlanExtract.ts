@@ -55,6 +55,19 @@ function joinParagraphs(...parts: string[]): string {
   return parts.filter(Boolean).join("\n\n");
 }
 
+/**
+ * Joins discrete items as `- ` lines so strategy prose renders a real HTML list (see `StrategyProseBody`).
+ * Internal newlines in an item are flattened to spaces (one bullet per item).
+ */
+export function joinAsStrategyBullets(...items: string[]): string {
+  const cleaned = items
+    .map((s) => s.replace(/\r\n/g, "\n").trim())
+    .filter(Boolean)
+    .map((s) => s.replace(/\n+/g, " ").trim());
+  if (cleaned.length === 0) return "";
+  return cleaned.map((s) => `- ${s}`).join("\n");
+}
+
 export function extractOutcomesAndMeasurement(diagnostic: Record<string, unknown>): StrategyPlanSection | null {
   const mf = asRecord(diagnostic.measurementFramework);
   const sc = asRecord(diagnostic.brandHealthScorecard);
@@ -80,7 +93,7 @@ export function extractOutcomesAndMeasurement(diagnostic: Record<string, unknown
       const kpi = asString(r.kpi);
       const target = asString(r.target);
       const rec = asString(r.recommendation);
-      const value = joinParagraphs(
+      const value = joinAsStrategyBullets(
         kpi && `KPI: ${kpi}`,
         target && `Target: ${target}`,
         rec && `Direction: ${rec}`,
@@ -115,7 +128,7 @@ export function extractOutcomesAndMeasurement(diagnostic: Record<string, unknown
       const km = asString(r.keyMetric);
       return {
         label: dim,
-        value: joinParagraphs(
+        value: joinAsStrategyBullets(
           cur && `Today: ${cur}`,
           tgt && `Aim: ${tgt}`,
           km && `Primary metric: ${km}`,
@@ -127,35 +140,31 @@ export function extractOutcomesAndMeasurement(diagnostic: Record<string, unknown
 
   const liSc = Array.isArray(sc?.leadingIndicators) ? sc.leadingIndicators : [];
   if (liSc.length > 0 && blocks.length < 4) {
-    const body = liSc
-      .slice(0, 6)
-      .map((raw) => {
+    const body = joinAsStrategyBullets(
+      ...liSc.slice(0, 6).map((raw) => {
         const r = asRecord(raw) ?? {};
         const ind = asString(r.indicator);
         const w = asString(r.whatItMeans);
         const a = asString(r.actionToTake);
         if (!ind && !w) return "";
         return joinParagraphs(ind && `${ind}`, w, a && `Implication: ${a}`);
-      })
-      .filter(Boolean)
-      .join("\n\n");
+      }),
+    );
     if (body) blocks.push({ title: "Early-warning indicators", body });
   }
 
   const lag = Array.isArray(sc?.laggingIndicators) ? sc.laggingIndicators : [];
   if (lag.length > 0) {
-    const body = lag
-      .slice(0, 5)
-      .map((raw) => {
+    const body = joinAsStrategyBullets(
+      ...lag.slice(0, 5).map((raw) => {
         const r = asRecord(raw) ?? {};
         return joinParagraphs(
           asString(r.indicator) && `${asString(r.indicator)}`,
           asString(r.whatItMeans),
           asString(r.benchmarkContext) && `Context: ${asString(r.benchmarkContext)}`,
         );
-      })
-      .filter(Boolean)
-      .join("\n\n");
+      }),
+    );
     if (body) blocks.push({ title: "Lagging outcomes", body });
   }
 
@@ -178,7 +187,7 @@ export function extractOutcomesAndMeasurement(diagnostic: Record<string, unknown
         }) ?? undefined;
       return {
         label: m,
-        value: joinParagraphs(tool && `Tool: ${tool}`, how, freq && `Review: ${freq}`),
+        value: joinAsStrategyBullets(tool && `Tool: ${tool}`, how, freq && `Review: ${freq}`),
         ...(readerFriendly ? { readerFriendly } : {}),
       };
     });
@@ -231,17 +240,15 @@ export function extractConversionAndWeb(diagnostic: Record<string, unknown>): St
 
     const principles = Array.isArray(web.copyPrinciples) ? web.copyPrinciples : [];
     if (principles.length > 0) {
-      const body = principles
-        .slice(0, 6)
-        .map((raw) => {
+      const body = joinAsStrategyBullets(
+        ...principles.slice(0, 6).map((raw) => {
           const r = asRecord(raw) ?? {};
           return joinParagraphs(
             asString(r.principle) && `${asString(r.principle)}`,
             asString(r.example) && `Example: ${asString(r.example)}`,
           );
-        })
-        .filter(Boolean)
-        .join("\n\n");
+        }),
+      );
       if (body) blocks.push({ title: "Copy principles for the experience", body });
     }
 
@@ -250,7 +257,7 @@ export function extractConversionAndWeb(diagnostic: Record<string, unknown>): St
       const parts = [asString(about.openingHook), asString(about.storyFramework), asString(about.teamPositioning)].filter(
         Boolean,
       );
-      if (parts.length) blocks.push({ title: "About page narrative", body: parts.join("\n\n") });
+      if (parts.length) blocks.push({ title: "About page narrative", body: joinAsStrategyBullets(...parts) });
     }
 
     const svc = asRecord(web.servicesPage);
@@ -258,7 +265,7 @@ export function extractConversionAndWeb(diagnostic: Record<string, unknown>): St
       const parts = [asString(svc.pageStructure), asString(svc.serviceFramework), asString(svc.pricingLanguage)].filter(
         Boolean,
       );
-      if (parts.length) blocks.push({ title: "Services and offer pages", body: parts.join("\n\n") });
+      if (parts.length) blocks.push({ title: "Services and offer pages", body: joinAsStrategyBullets(...parts) });
     }
 
     const hp = asRecord(web.homepage);
@@ -270,16 +277,15 @@ export function extractConversionAndWeb(diagnostic: Record<string, unknown>): St
         asString(hp.valuePropSection) && `How value is framed after the fold: ${asString(hp.valuePropSection)}`,
         asString(hp.socialProofPlacement) && `Where proof shows up for new visitors: ${asString(hp.socialProofPlacement)}`,
       ].filter(Boolean);
-      if (parts.length) blocks.push({ title: "Primary web narrative", body: parts.join("\n\n") });
+      if (parts.length) blocks.push({ title: "Primary web narrative", body: joinAsStrategyBullets(...parts) });
     }
   }
 
   /** CTA hierarchy last: one strategic block, prose-first (not a field-by-field todo list). */
   const cta = Array.isArray(cs?.ctaHierarchy) ? cs.ctaHierarchy : [];
   if (cta.length > 0) {
-    const body = cta
-      .slice(0, 5)
-      .map((raw) => {
+    const body = joinAsStrategyBullets(
+      ...cta.slice(0, 5).map((raw) => {
         const r = asRecord(raw) ?? {};
         const level = asString(r.level);
         const action = asString(r.action);
@@ -290,9 +296,8 @@ export function extractConversionAndWeb(diagnostic: Record<string, unknown>): St
         else if (level) bits.push(`${level}.`);
         if (ctx) bits.push(`Usually anchored on or near ${ctx}.`);
         return bits.join(" ");
-      })
-      .filter(Boolean)
-      .join("\n\n");
+      }),
+    );
 
     if (body) {
       blocks.push({
@@ -324,9 +329,8 @@ export function extractContentEditorial(diagnostic: Record<string, unknown>): St
   const tables: StrategyPlanSection["tables"] = [];
 
   if (pillars.length > 0) {
-    const body = pillars
-      .slice(0, 8)
-      .map((raw) => {
+    const body = joinAsStrategyBullets(
+      ...pillars.slice(0, 8).map((raw) => {
         const r = asRecord(raw) ?? {};
         const name = asString(r.name) || "Pillar";
         const desc = asString(r.description);
@@ -344,9 +348,8 @@ export function extractContentEditorial(diagnostic: Record<string, unknown>): St
           fmt.length ? `Formats: ${fmt.join(", ")}` : "",
           conn && `Messaging tie-in: ${conn}`,
         );
-      })
-      .filter(Boolean)
-      .join("\n\n");
+      }),
+    );
     if (body) blocks.push({ title: "Editorial pillars", body });
   }
 
@@ -365,14 +368,18 @@ export function extractContentEditorial(diagnostic: Record<string, unknown>): St
           : "";
         return {
           label: month,
-          value: joinParagraphs(theme && `Theme: ${theme}`, focus && `Pillar focus: ${focus}`, topics && `Topics: ${topics}`),
+          value: joinAsStrategyBullets(
+            theme && `Theme: ${theme}`,
+            focus && `Pillar focus: ${focus}`,
+            topics && `Topics: ${topics}`,
+          ),
         };
       });
       tables.push({ caption: "Thematic calendar (snapshot)", rows });
     }
     const batch = asString(cal.batchingStrategy);
     const rep = asString(cal.repurposingPlaybook);
-    if (batch || rep) blocks.push({ title: "Production model", body: joinParagraphs(batch, rep) });
+    if (batch || rep) blocks.push({ title: "Production model", body: joinAsStrategyBullets(batch, rep) });
   }
 
   if (blocks.length === 0 && tables.length === 0) return null;
@@ -397,7 +404,7 @@ export function extractCredibilityProof(diagnostic: Record<string, unknown>): St
 
   const ts = asRecord(cr.testimonialStrategy);
   if (ts) {
-    const body = joinParagraphs(
+    const body = joinAsStrategyBullets(
       asString(ts.whoToAsk) && `Who to feature: ${asString(ts.whoToAsk)}`,
       asString(ts.howToAsk) && `How to invite proof: ${asString(ts.howToAsk)}`,
       asString(ts.whatToCapture) && `What the story must include: ${asString(ts.whatToCapture)}`,
@@ -417,7 +424,7 @@ export function extractCredibilityProof(diagnostic: Record<string, unknown>): St
       const p = asString(r.proofPoint) || "Proof";
       return {
         label: p,
-        value: joinParagraphs(
+        value: joinAsStrategyBullets(
           asString(r.type) && `Type: ${asString(r.type)}`,
           asString(r.priority) && `Priority: ${asString(r.priority)}`,
           asString(r.howToGet) && `How to produce: ${asString(r.howToGet)}`,
@@ -434,7 +441,7 @@ export function extractCredibilityProof(diagnostic: Record<string, unknown>): St
       const r = asRecord(raw) ?? {};
       return {
         label: asString(r.signal) || "Signal",
-        value: joinParagraphs(
+        value: joinAsStrategyBullets(
           asString(r.impact) && `Impact: ${asString(r.impact)}`,
           asString(r.timeline) && `Timeline: ${asString(r.timeline)}`,
         ),
@@ -492,7 +499,10 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
         if (note) conversionRows.push({ label: "Call to action (CTA) / anchor note", value: note });
       }
       const refBody = conversionRows.length
-        ? conversionRows.map((row) => `${row.label}: ${row.value}`).join("\n")
+        ? joinParagraphs(
+            "Conversion intelligence anchor:",
+            joinAsStrategyBullets(...conversionRows.map((row) => `${row.label}: ${row.value}`)),
+          )
         : "";
       const needs = Array.isArray(r.campaignContentNeeds)
         ? r.campaignContentNeeds.filter((x): x is string => typeof x === "string" && x.trim().length > 0)
@@ -509,7 +519,7 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
       const body = joinParagraphs(
         align ? `Strategy tie-in: ${align}` : "",
         focus ? `Segment focus: ${focus}` : "",
-        refBody ? `Conversion intelligence anchor:\n${refBody}` : "",
+        refBody,
         needsBlock,
         tacticsBlock,
         cues ? `Competitive conversation cues: ${cues}` : "",
@@ -546,9 +556,8 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
       ? sg.talk_track_framework
       : [];
   if (talk.length > 0) {
-    const body = talk
-      .slice(0, 10)
-      .map((raw) => {
+    const body = joinAsStrategyBullets(
+      ...talk.slice(0, 10).map((raw) => {
         const r = asRecord(raw) ?? {};
         return joinParagraphs(
           asString(r.stage) && `Stage: ${asString(r.stage)}`,
@@ -556,9 +565,8 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
           asString(r.keyMessage) && `Key message: ${asString(r.keyMessage)}`,
           asString(r.proofToUse) && `Proof: ${asString(r.proofToUse)}`,
         );
-      })
-      .filter(Boolean)
-      .join("\n\n");
+      }),
+    );
     if (body) blocks.push({ title: "Talk track by stage", body });
   }
 
@@ -573,7 +581,7 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
       const q = asString(r.question) || "Question";
       return {
         label: q.length > 72 ? `${q.slice(0, 69)}…` : q,
-        value: joinParagraphs(
+        value: joinAsStrategyBullets(
           asString(r.whyThisQuestion) && `Why ask: ${asString(r.whyThisQuestion)}`,
           asString(r.listenFor) && `Listen for: ${asString(r.listenFor)}`,
         ),
@@ -589,7 +597,7 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
       const persona = asString(r.persona) || "Persona";
       return {
         label: `${persona} · ${asString(r.stage) || "Stage"}`,
-        value: joinParagraphs(
+        value: joinAsStrategyBullets(
           asString(r.proofPoint) && `Proof: ${asString(r.proofPoint)}`,
           asString(r.howToDeliver) && `Delivery: ${asString(r.howToDeliver)}`,
         ),
@@ -605,7 +613,7 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
       const o = asString(r.objection) || "Objection";
       return {
         label: o.length > 64 ? `${o.slice(0, 61)}…` : o,
-        value: joinParagraphs(
+        value: joinAsStrategyBullets(
           asString(r.response) && `Response: ${asString(r.response)}`,
           asString(r.pillarConnection) && `Pillar: ${asString(r.pillarConnection)}`,
           asString(r.proofPoint) && `Proof: ${asString(r.proofPoint)}`,
@@ -620,7 +628,7 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
 
   const ref = asRecord(sg.conversion_intelligence_reference);
   if (ref && icpPlans.length === 0) {
-    const refBody = joinParagraphs(
+    const refBody = joinAsStrategyBullets(
       asString(ref.icpTier) && `ICP tier: ${asString(ref.icpTier)}`,
       asString(ref.funnelStage) && `Funnel stage: ${asString(ref.funnelStage)}`,
       asString(ref.matrixCell) && `Intelligence matrix cell: ${asString(ref.matrixCell)}`,

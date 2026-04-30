@@ -12,6 +12,50 @@ export function formatJourneyStageLabel(key: string): string {
   return key;
 }
 
+/**
+ * Normalizes `customerJourneyMap.stages[].stage` labels (and similar) to canonical parser keys.
+ */
+export function normalizeEngineJourneyStageKey(label: string): "Aware" | "Consider" | "Decide" | "Commit" | "Closed/Won" | null {
+  const k = label.trim().toLowerCase().replace(/\s+/g, " ");
+  if (!k) return null;
+  if ((k.includes("closed") && k.includes("won")) || k.includes("closed/won")) return "Closed/Won";
+  if (k.includes("commit")) return "Commit";
+  if (k.includes("decide") || k.includes("decision")) return "Decide";
+  if (k.includes("consider") || k.includes("consideration")) return "Consider";
+  if (/\baware/.test(k) && !k.includes("unaware")) return "Aware";
+  return null;
+}
+
+function parseLegacyStageFieldFormat(raw: string): ParsedJourneyStage[] | null {
+  const t = raw.trim();
+  if (!t) return null;
+  const chunks = t.split(/\n{2,}/);
+  const out: ParsedJourneyStage[] = [];
+  for (const chunk of chunks) {
+    const lines = chunk
+      .split(/\n/)
+      .map((l) => l.trim())
+      .filter(Boolean);
+    if (!lines.length) continue;
+    const head = lines[0]!.match(/^Stage:\s*(.+)$/i);
+    if (!head) continue;
+    const canon = normalizeEngineJourneyStageKey(head[1]!);
+    if (!canon) continue;
+    const body = lines
+      .slice(1)
+      .join(" ")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (!body) continue;
+    out.push({
+      key: canon,
+      label: formatJourneyStageLabel(canon),
+      narrative: body,
+    });
+  }
+  return out.length >= 2 ? out : null;
+}
+
 /** Short line for the map row — full narrative lives under the eyebrow blocks below. */
 export function summarizeJourneyTile(narrative: string, maxLen = 118): string {
   const oneLine = narrative.replace(/\s+/g, " ").trim();
@@ -31,23 +75,24 @@ export function parseBuyerJourneyStages(raw: string): ParsedJourneyStage[] | nul
 
   const re = new RegExp(STAGE_SPLIT_RE.source, "gi");
   const matches = [...t.matchAll(re)];
-  if (matches.length < 2) return null;
-
-  const stages: ParsedJourneyStage[] = [];
-  for (let i = 0; i < matches.length; i++) {
-    const m = matches[i];
-    const key = m[1];
-    const start = m.index! + m[0].length;
-    const end = i + 1 < matches.length ? matches[i + 1].index! : t.length;
-    let narrative = t.slice(start, end).trim();
-    narrative = narrative.replace(/\s*[\r\n]+\s*/g, " ").replace(/\s+/g, " ");
-    if (!narrative) continue;
-    stages.push({
-      key,
-      label: formatJourneyStageLabel(key),
-      narrative,
-    });
+  if (matches.length >= 2) {
+    const stages: ParsedJourneyStage[] = [];
+    for (let i = 0; i < matches.length; i++) {
+      const m = matches[i];
+      const key = m[1];
+      const start = m.index! + m[0].length;
+      const end = i + 1 < matches.length ? matches[i + 1].index! : t.length;
+      let narrative = t.slice(start, end).trim();
+      narrative = narrative.replace(/\s*[\r\n]+\s*/g, " ").replace(/\s+/g, " ");
+      if (!narrative) continue;
+      stages.push({
+        key,
+        label: formatJourneyStageLabel(key),
+        narrative,
+      });
+    }
+    return stages.length >= 2 ? stages : null;
   }
 
-  return stages.length >= 2 ? stages : null;
+  return parseLegacyStageFieldFormat(t);
 }

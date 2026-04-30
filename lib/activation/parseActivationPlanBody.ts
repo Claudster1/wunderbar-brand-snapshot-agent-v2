@@ -1,7 +1,15 @@
+export type ActivationBodySubsection = {
+  id: string;
+  title: string;
+  content: string;
+};
+
 export type ActivationBodySection = {
   id: string;
   title: string;
   content: string;
+  /** When the `##` block contains multiple `###` headings, each becomes its own card. */
+  subsections?: ActivationBodySubsection[];
 };
 
 function slugPart(input: string, max = 40): string {
@@ -38,6 +46,80 @@ function parseMarkdownChunk(
 }
 
 /**
+ * When a `##` section body contains `###` headings, split into intro + subsection blocks
+ * so the UI can render distinct cards (lead magnet, SEO pack, etc.).
+ */
+function splitMarkdownIntoH3Blocks(
+  parentId: string,
+  content: string,
+): { intro: string; subsections: ActivationBodySubsection[] } | null {
+  const normalized = content.replace(/\r\n/g, "\n");
+  const lines = normalized.split("\n");
+  let i = 0;
+  const introLines: string[] = [];
+
+  while (i < lines.length) {
+    const trimmed = lines[i].trim();
+    if (/^###\s/.test(trimmed)) break;
+    introLines.push(lines[i]);
+    i++;
+  }
+
+  if (i >= lines.length) return null;
+
+  const subsections: ActivationBodySubsection[] = [];
+  let subIdx = 0;
+
+  while (i < lines.length) {
+    const trimmed = lines[i].trim();
+    const m = trimmed.match(/^###\s+(.+)$/);
+    if (!m) {
+      const orphan = lines[i];
+      if (subsections.length > 0) {
+        const last = subsections[subsections.length - 1]!;
+        last.content = last.content ? `${last.content}\n${orphan}` : orphan;
+      } else {
+        introLines.push(orphan);
+      }
+      i++;
+      continue;
+    }
+
+    const title = m[1].trim();
+    i++;
+    const bodyLines: string[] = [];
+    while (i < lines.length && !/^###\s/.test(lines[i].trim())) {
+      bodyLines.push(lines[i]);
+      i++;
+    }
+    const body = bodyLines.join("\n").trim();
+    subsections.push({
+      id: `${parentId}-sub-${subIdx}-${slugPart(title)}`,
+      title,
+      content: body,
+    });
+    subIdx++;
+  }
+
+  return subsections.length > 0
+    ? { intro: introLines.join("\n").trim(), subsections }
+    : null;
+}
+
+/** Split any section body that contains `###` blocks into subsection cards (all activation plan shapes). */
+function enrichAllSectionsWithNestedH3(sections: ActivationBodySection[]): ActivationBodySection[] {
+  return sections.map((sec) => {
+    const inner = splitMarkdownIntoH3Blocks(sec.id, sec.content);
+    if (!inner) return sec;
+    return {
+      ...sec,
+      content: inner.intro,
+      subsections: inner.subsections,
+    };
+  });
+}
+
+/**
  * Splits long activation playbook prose into navigable sections.
  * Prefers Markdown `##` / `###` headings (email + channel playbooks), then numbered `1)` / `2.` boundaries.
  */
@@ -47,16 +129,26 @@ export function splitActivationBodyIntoSections(body: string): ActivationBodySec
 
   const hasH2 = /(?:^|\n)##\s/m.test(trimmed);
   if (hasH2) {
-    const parts = trimmed.split(/\n(?=##\s)/m).map((p) => p.trim()).filter(Boolean);
-    const out = parts.map((chunk, idx) => parseMarkdownChunk(chunk, idx, "h2")).filter((x): x is ActivationBodySection => x !== null);
-    if (out.length > 0) return out;
+    const parts = trimmed
+      .split(/\n(?=##\s)/m)
+      .map((p) => p.trim())
+      .filter(Boolean);
+    const out = parts
+      .map((chunk, idx) => parseMarkdownChunk(chunk, idx, "h2"))
+      .filter((x): x is ActivationBodySection => x !== null);
+    if (out.length > 0) return enrichAllSectionsWithNestedH3(out);
   }
 
   const hasH3 = /(?:^|\n)###\s/m.test(trimmed);
   if (hasH3) {
-    const parts = trimmed.split(/\n(?=###\s)/m).map((p) => p.trim()).filter(Boolean);
-    const out = parts.map((chunk, idx) => parseMarkdownChunk(chunk, idx, "h3")).filter((x): x is ActivationBodySection => x !== null);
-    if (out.length > 0) return out;
+    const parts = trimmed
+      .split(/\n(?=###\s)/m)
+      .map((p) => p.trim())
+      .filter(Boolean);
+    const out = parts
+      .map((chunk, idx) => parseMarkdownChunk(chunk, idx, "h3"))
+      .filter((x): x is ActivationBodySection => x !== null);
+    if (out.length > 0) return enrichAllSectionsWithNestedH3(out);
   }
 
   const parts = trimmed.split(/\n(?=\s*\d+[).]\s+)/);
@@ -102,5 +194,5 @@ export function splitActivationBodyIntoSections(body: string): ActivationBodySec
     }
   });
 
-  return out;
+  return enrichAllSectionsWithNestedH3(out);
 }

@@ -2,7 +2,7 @@ import type { ProductTier } from "@/components/ResultsTabNav";
 import type { TabSectionMenuItem } from "@/components/results/TabSectionMenu";
 import { filterStrategySections, showStrategyPlanNarrativePanels } from "@/components/results/tabConfig";
 import { buildAudienceProfilesBody, buildCustomerProfilesDeepBody } from "@/lib/strategy/audienceNarrative";
-import { collectStrategyPlanSections } from "@/lib/strategy/strategyPlanExtract";
+import { collectStrategyPlanSections, joinAsStrategyBullets } from "@/lib/strategy/strategyPlanExtract";
 import { buildStrategicOfferPlanBody } from "@/lib/strategy/strategicOfferPlan";
 import type { WorkbookSectionId } from "@/lib/workbookTypes";
 
@@ -162,7 +162,7 @@ export function buildStrategyNavMenuItems(
         })
       : null;
   const spendPlanSummary = spendContext
-    ? [
+    ? joinAsStrategyBullets(
         spendContext.budgetConstrainedPlan?.focus || "Align channel strategy to current spend before scaling.",
         Array.isArray(spendContext.budgetConstrainedPlan?.allocation)
           ? `Current allocation: ${spendContext.budgetConstrainedPlan!.allocation!
@@ -175,9 +175,7 @@ export function buildStrategyNavMenuItems(
               .join(" → ")}.`
           : "",
         spendContext.confidence ? `Confidence: ${spendContext.confidence}.` : "",
-      ]
-        .filter(Boolean)
-        .join("\n")
+      )
     : "";
 
   const archetype = typeof diagnosticData.primaryArchetype === "string" ? diagnosticData.primaryArchetype : "";

@@ -42,6 +42,7 @@ import type { BrandPromptContext } from "@/src/lib/prompts/promptLibrary";
 import AudienceFoundationInfoTrigger from "@/components/activation/AudienceFoundationInfoTrigger";
 import { ActivationChannelMixChart } from "@/components/results/charts/ActivationChannelMixChart";
 import ActivationStrategyBridgeBanner from "@/components/activation/ActivationStrategyBridgeBanner";
+import ActivationPlanReadableBody from "@/components/activation/ActivationPlanReadableBody";
 
 const NAVY = SUITE_NAVY;
 const BLUE = SUITE_ACCENT_BRIGHT;
@@ -133,12 +134,39 @@ function clampActivationFocus(
   return focus;
 }
 
-/** Pull obvious CTA / subject / hook lines from the playbook for quick scanning. */
+/** Pull obvious CTA / subject / hook lines from the playbook for quick scanning (bullets + `**Headline**` blocks). */
 function extractCampaignHookLines(body: string): string[] {
-  const lines = body.split(/\n/).map((l) => l.trim());
+  const rawLines = body.split("\n");
+  const lines = rawLines.map((l) => l.trim());
   const out: string[] = [];
-  for (const line of lines) {
+
+  const boldHookLine =
+    /^\*{1,2}(Headline|Primary text|Subject|Preheader|CTA(?:\s+button)?|Hook|Body)\*{1,2}\s*[:\s]?\s*(.*)$/i;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
     if (!line || line.length > 220) continue;
+
+    const boldMatch = line.match(boldHookLine);
+    if (boldMatch) {
+      const label = boldMatch[1].trim();
+      let rest = (boldMatch[2] ?? "").trim();
+      if (!rest && i + 1 < lines.length) {
+        const next = lines[i + 1];
+        if (
+          next &&
+          next.length <= 220 &&
+          !next.startsWith("#") &&
+          !boldHookLine.test(next) &&
+          !/^\*{1,2}\w/.test(next)
+        ) {
+          rest = next;
+        }
+      }
+      if (rest.length >= 6) out.push(`${label}: ${rest}`);
+      continue;
+    }
+
     const isBullet = /^[-•*]\s+/.test(line);
     const cleaned = line.replace(/^[-•*]\s+/, "").trim();
     if (
@@ -343,7 +371,7 @@ export default function ActivationTab({
     if (showFoundationCampaignToggle) {
       return "Campaign playbooks (demand, authority, rollout) are separate from Audience & journey. Open foundation plans when copy references segments, ICPs, or funnel stages.";
     }
-    return "Channel plans are grouped by funnel stage (who → capture → trust → ship). Use Compact for scanning; Full playbook for copy blocks. Step 3 exports the schedule.";
+    return "Channel plans are grouped by funnel stage (who → capture → trust → ship). Use Compact to scan summaries; Full playbook to read copy in place. Download the activation pack (.md) in Step 2; Step 3 is the spreadsheet schedule export.";
   }, [showFoundationCampaignToggle, activationFocus]);
 
   const foundationPlanAnchorLinks = useMemo(() => {
@@ -762,30 +790,30 @@ export default function ActivationTab({
                           borderRight: `1px solid ${BORDER}`,
                         }}
                       >
-                        <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                          <span
-                            style={{
-                              width: 36,
-                              height: 36,
-                              borderRadius: 8,
-                              background: "#F0F9FF",
-                              border: `1px solid ${BORDER}`,
-                              display: "inline-flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              flexShrink: 0,
-                            }}
-                            aria-hidden
-                          >
-                            <SectionGlyph token={iconToken} size={18} color={BLUE} />
-                          </span>
-                          <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: NAVY, lineHeight: 1.35 }}>
-                            {section.label}
-                          </p>
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 10 }}>
+                          <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                            <span
+                              style={{
+                                width: 36,
+                                height: 36,
+                                borderRadius: 8,
+                                background: "#F0F9FF",
+                                border: `1px solid ${BORDER}`,
+                                display: "inline-flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                flexShrink: 0,
+                              }}
+                              aria-hidden
+                            >
+                              <SectionGlyph token={iconToken} size={18} color={BLUE} />
+                            </span>
+                            <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: NAVY, lineHeight: 1.35 }}>
+                              {section.label}
+                            </p>
+                          </div>
                           {!isActivationAudienceJourneySectionId(section.id) && foundationPlanAnchorLinks.length > 0 ? (
-                            <div style={{ marginTop: 8 }}>
-                              <AudienceFoundationInfoTrigger links={foundationPlanAnchorLinks} variant="compact" />
-                            </div>
+                            <AudienceFoundationInfoTrigger links={foundationPlanAnchorLinks} variant="compact" />
                           ) : null}
                         </div>
                       </td>
@@ -972,20 +1000,23 @@ export default function ActivationTab({
                       </p>
                       <div
                         style={{
-                          maxHeight: 320,
+                          maxHeight: 360,
                           overflowY: "auto",
-                          padding: "12px 14px",
+                          padding: "10px 10px 12px",
                           background: "#F8FAFC",
                           border: `1px solid ${BORDER}`,
                           borderRadius: 8,
                           fontSize: 12,
                           color: "#1e293b",
                           lineHeight: 1.55,
-                          whiteSpace: "pre-wrap",
                           wordBreak: "break-word",
                         }}
                       >
-                        {section.body.trim() || "—"}
+                        {section.body.trim() ? (
+                          <ActivationPlanReadableBody body={section.body} sectionId={section.id} variant="embedded" />
+                        ) : (
+                          "—"
+                        )}
                       </div>
                     </td>
                     <td

@@ -16,6 +16,7 @@ import {
   buildFoundationPersonaAtlasEntries,
   extractBuyerPersonasRaw,
 } from "@/lib/foundationPersonaAtlas";
+import PersonaAtlasSuite from "@/components/persona/PersonaAtlasSuite";
 
 interface FoundationBlueprintContentProps {
   businessName: string;
@@ -1538,6 +1539,22 @@ export default function FoundationBlueprintContent({
       avoid: "Avoid static reporting that does not connect outcomes to next-phase priorities.",
     },
   ];
+  const stageDurationById: Record<JourneyStageId, string> = {
+    unaware: "0-3 mo",
+    aware: "1-2 wks",
+    considering: "2-3 wks",
+    evaluating: "3-5 wks",
+    deciding: "1-2 wks",
+    retained: "1-2 wks",
+  };
+  const stageCueById: Record<JourneyStageId, string> = {
+    unaware: "Diagnose hidden cost",
+    aware: "Frame viable path",
+    considering: "Prove fit + method",
+    evaluating: "De-risk rollout",
+    deciding: "Simplify commitment",
+    retained: "Compound outcomes",
+  };
   const buyerPersonaFingerprint = useMemo(
     () => JSON.stringify(extractBuyerPersonasRaw(data as Record<string, unknown>).slice(0, 6)),
     [data],
@@ -2142,16 +2159,19 @@ export default function FoundationBlueprintContent({
           title: "Diagnostic-to-Activation Workflow",
           impact: "Reduces strategy drift between insight and execution.",
           proof: "Owner-ready plans with 30/60/90-day sequencing.",
+          tone: { border: "#60A5FA", bg: "#EFF6FF", chip: "#DBEAFE", text: "#1D4ED8" },
         },
         {
           title: "Pillar-Level Prioritization",
           impact: `Focuses teams on the highest-leverage ${primaryPillar.toLowerCase()} moves first.`,
           proof: "Priority order mapped to conversion-quality outcomes.",
+          tone: { border: "#34D399", bg: "#ECFDF5", chip: "#D1FAE5", text: "#047857" },
         },
         {
           title: "Integrated Delivery System",
           impact: "Keeps strategy, workbook execution, and downloadable assets aligned.",
           proof: "Consistent claim-proof-CTA logic across surfaces.",
+          tone: { border: "#F59E0B", bg: "#FFFBEB", chip: "#FEF3C7", text: "#B45309" },
         },
       ];
       return (
@@ -2159,8 +2179,26 @@ export default function FoundationBlueprintContent({
           <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-4">Differentiator Evidence Matrix</p>
           <div className="grid gap-2">
             {differentiators.map((item) => (
-              <div key={item.title} className="rounded-md border border-brand-border bg-white p-3">
-                <p className="text-sm sm:text-base font-medium text-brand-blue">{item.title}</p>
+              <div
+                key={item.title}
+                className="rounded-md border bg-white p-3 shadow-[0_2px_8px_rgba(2,24,89,0.05)]"
+                style={{
+                  borderColor: item.tone.border,
+                  background: `linear-gradient(145deg, ${item.tone.bg} 0%, #FFFFFF 100%)`,
+                  borderLeftWidth: 4,
+                }}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-sm sm:text-base font-medium" style={{ color: item.tone.text }}>
+                    {item.title}
+                  </p>
+                  <span
+                    className="rounded-full px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold tracking-[0.06em]"
+                    style={{ backgroundColor: item.tone.chip, color: item.tone.text }}
+                  >
+                    Differentiator
+                  </span>
+                </div>
                 <p className="text-sm sm:text-base text-brand-midnight mt-1">
                   <span className="text-brand-muted font-medium">{apStyleHeadingCase("Why it matters")}:</span>{" "}
                   {item.impact}
@@ -2595,90 +2633,14 @@ export default function FoundationBlueprintContent({
         selectedPersonaAtlasIndex,
         Math.max(0, foundationPersonaAtlasEntries.length - 1),
       );
-      const profile = foundationPersonaAtlasEntries[atlasIdx];
       return (
-        <div className="w-full min-w-0 rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
-          <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-4">Persona Atlas</p>
-          <div className="mb-3 flex w-full min-w-0 flex-col gap-2 border-b border-brand-border pb-2 sm:flex-row sm:flex-wrap sm:justify-start sm:gap-3">
-            {foundationPersonaAtlasEntries.map((entry, idx) => (
-              <button
-                key={entry.key}
-                type="button"
-                aria-pressed={atlasIdx === idx}
-                aria-label={`${entry.tabLabel}: ${entry.title}`}
-                onClick={() => setSelectedPersonaAtlasIndex(idx)}
-                className="flex w-full min-w-0 items-center gap-3 rounded-md border px-3 py-2 text-left text-xs sm:text-sm font-semibold tracking-[0.08em] transition sm:w-auto sm:max-w-none"
-                style={{
-                  borderColor: atlasIdx === idx ? "#07B0F2" : "#E0E3EA",
-                  backgroundColor: atlasIdx === idx ? "#E6F7FE" : "#FFFFFF",
-                  color: atlasIdx === idx ? "#021859" : "#5A6C8A",
-                }}
-              >
-                <img
-                  src={entry.portraitSrc}
-                  alt=""
-                  width={40}
-                  height={40}
-                  className="h-10 w-10 shrink-0 rounded-lg bg-[#E8F6FE] object-cover ring-1 ring-slate-200/80"
-                  loading="lazy"
-                  decoding="async"
-                  referrerPolicy="no-referrer"
-                />
-                <span className="min-w-0 leading-snug">{entry.tabLabel}</span>
-              </button>
-            ))}
-          </div>
-
-          <div className="mb-2 flex w-full min-w-0 flex-row items-center gap-4 rounded-md border border-brand-border bg-white p-3 sm:gap-5">
-            <img
-              src={profile.portraitSrc}
-              alt={profile.portraitAlt}
-              width={112}
-              height={112}
-              className="h-24 w-24 shrink-0 rounded-xl bg-[#E8F6FE] object-cover shadow-sm ring-1 ring-slate-200/80 sm:h-28 sm:w-28"
-              loading="lazy"
-              decoding="async"
-              referrerPolicy="no-referrer"
-            />
-            <div className="min-w-0 flex-1 text-left">
-              <p className="text-base sm:text-lg font-semibold text-brand-blue">{profile.title}</p>
-              <p className="text-sm sm:text-base text-brand-midnight mt-1">{profile.role}</p>
-            </div>
-          </div>
-
-          <div className="grid gap-2 md:grid-cols-2">
-            <div className="rounded-md border border-brand-border bg-white p-3">
-              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">Top Goals</p>
-              {profile.goals.map((goal) => (
-                <p key={goal} className="text-sm sm:text-base text-brand-midnight mt-1">
-                  - {goal}
-                </p>
-              ))}
-            </div>
-            <div className="rounded-md border border-brand-border bg-white p-3">
-              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">Top Fears</p>
-              {profile.fears.map((fear) => (
-                <p key={fear} className="text-sm sm:text-base text-brand-midnight mt-1">
-                  - {fear}
-                </p>
-              ))}
-            </div>
-          </div>
-          <div className="mt-2 grid gap-2 md:grid-cols-3">
-            <div className="rounded-md border border-brand-border bg-[#EFF6FF] p-2">
-              <p className="text-sm sm:text-base font-medium text-brand-blue">Message Angle</p>
-              <p className="text-sm sm:text-base text-brand-midnight mt-1">{profile.messageAngle}</p>
-            </div>
-            <div className="rounded-md border border-brand-border bg-[#EFF6FF] p-2">
-              <p className="text-sm sm:text-base font-medium text-brand-blue">Best Channels</p>
-              <p className="text-sm sm:text-base text-brand-midnight mt-1">{profile.channels}</p>
-            </div>
-            <div className="rounded-md border border-brand-border bg-[#EFF6FF] p-2">
-              <p className="text-sm sm:text-base font-medium text-brand-blue">Primary CTA</p>
-              <p className="text-sm sm:text-base text-brand-midnight mt-1">{profile.cta}</p>
-            </div>
-          </div>
-        </div>
+        <PersonaAtlasSuite
+          entries={foundationPersonaAtlasEntries}
+          selectedIndex={atlasIdx}
+          onSelectIndex={setSelectedPersonaAtlasIndex}
+          leadIn="Tap a role to load goals, objections, and channel-ready messaging cues. When buyer personas are not yet in your file, sample roles illustrate the layout."
+          regionLabel="Persona atlas preview"
+        />
       );
     }
 
@@ -2698,20 +2660,26 @@ export default function FoundationBlueprintContent({
             {journeyStages.map((stage) => (
               <div
                 key={`${stage.id}-bar`}
-                className="rounded-md border px-2 py-2"
-                style={{ borderColor: stage.color.border, backgroundColor: stage.color.bg }}
+                className="rounded-md border px-2.5 py-2.5 shadow-[0_2px_8px_rgba(2,24,89,0.05)]"
+                style={{
+                  borderColor: stage.color.border,
+                  background: `linear-gradient(145deg, ${stage.color.bg} 0%, #FFFFFF 100%)`,
+                  borderLeftWidth: 4,
+                }}
               >
-                <p className="text-xs sm:text-sm font-semibold tracking-[0.08em]" style={{ color: stage.color.text }}>
-                  {stage.title}
-                </p>
-                <p className="text-sm sm:text-base text-brand-midnight mt-1">
-                  {stage.id === "evaluating"
-                    ? "3-5 wks"
-                    : stage.id === "considering"
-                      ? "2-3 wks"
-                      : stage.id === "unaware"
-                        ? "0-3 mo"
-                        : "1-2 wks"}
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-xs sm:text-sm font-semibold tracking-[0.08em]" style={{ color: stage.color.text }}>
+                    {stage.title}
+                  </p>
+                  <span
+                    className="rounded-full px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold tracking-[0.06em]"
+                    style={{ backgroundColor: stage.color.chip, color: stage.color.text }}
+                  >
+                    {stageDurationById[stage.id]}
+                  </span>
+                </div>
+                <p className="text-[11px] sm:text-xs mt-1.5" style={{ color: stage.color.text }}>
+                  {stageCueById[stage.id]}
                 </p>
               </div>
             ))}
@@ -2730,8 +2698,14 @@ export default function FoundationBlueprintContent({
                 className="rounded-md border px-2 py-2 text-center transition hover:border-brand-blue/45 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/35 focus-visible:ring-offset-2"
                 style={{
                   borderColor: stage.color.border,
-                  backgroundColor: selectedJourneyStage === stage.id ? stage.color.bg : "#FFFFFF",
-                  boxShadow: selectedJourneyStage === stage.id ? "0 0 0 2px rgba(7,176,242,0.2)" : undefined,
+                  background:
+                    selectedJourneyStage === stage.id
+                      ? `linear-gradient(145deg, ${stage.color.bg} 0%, #FFFFFF 100%)`
+                      : "#FFFFFF",
+                  boxShadow:
+                    selectedJourneyStage === stage.id
+                      ? "0 0 0 2px rgba(7,176,242,0.18), 0 4px 12px rgba(2,24,89,0.06)"
+                      : "0 1px 3px rgba(2,24,89,0.03)",
                 }}
               >
                 <p
@@ -2739,6 +2713,12 @@ export default function FoundationBlueprintContent({
                   style={{ color: selectedJourneyStage === stage.id ? stage.color.text : "#0C1526" }}
                 >
                   {stage.title}
+                </p>
+                <p
+                  className="mt-1 text-[10px] sm:text-[11px] leading-snug"
+                  style={{ color: selectedJourneyStage === stage.id ? stage.color.text : "#5A6C8A" }}
+                >
+                  {stageCueById[stage.id]}
                 </p>
               </button>
             ))}

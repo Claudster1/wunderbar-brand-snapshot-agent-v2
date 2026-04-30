@@ -6,7 +6,9 @@ import {
   filterActivationPlanSections,
   type ActivationPlanSectionId,
 } from "@/components/results/tabConfig";
+import { ensurePaidMediaChannelsMinimum } from "@/lib/activation/paidMediaPlanFields";
 import {
+  getPreviewActivationEngineMerge,
   previewActivationContent,
   previewActivationScheduleRows,
   previewActivationStrategicPriorities,
@@ -15,6 +17,8 @@ import {
   previewPaidMediaStrategy,
   previewPersonaDrivenSegmentation,
 } from "@/app/preview/results-tabs/previewActivationMockData";
+
+const previewEngine = getPreviewActivationEngineMerge("Acme Co");
 
 const previewDiagnosticData: Record<string, unknown> = {
   companyName: "Acme Co",
@@ -31,11 +35,26 @@ const previewDiagnosticData: Record<string, unknown> = {
   primaryPillar: "Visibility",
   strategicPriorities: previewActivationStrategicPriorities,
   scheduleRows: previewActivationScheduleRows,
-  paidMediaStrategy: previewPaidMediaStrategy,
   icpConversionIntelligenceFramework: previewIcpConversionIntelligenceFramework,
   personaDrivenSegmentation: previewPersonaDrivenSegmentation,
   audiencePersonaDefinition: previewAudiencePersonaDefinition,
   ...previewActivationContent,
+  channelPlans: {
+    ...previewActivationContent.channelPlans,
+    ...previewEngine.channelPlans,
+  },
+  buyerJourneySummary: previewEngine.buyerJourneySummary || previewActivationContent.buyerJourneySummary,
+  competitiveMatrixSummary:
+    previewEngine.competitiveMatrixSummary || previewActivationContent.competitiveMatrixSummary,
+  activationRoadmapPlansBody:
+    previewEngine.executionRoadmapBody || previewActivationContent.activationRoadmapPlansBody,
+  activationSegmentPlansBody:
+    previewEngine.audienceSegmentsBody || previewActivationContent.activationSegmentPlansBody,
+  activationPersonaIcpBanner:
+    previewEngine.personaIcpBanner || previewActivationContent.activationPersonaIcpBanner,
+  paidMediaStrategy: ensurePaidMediaChannelsMinimum({
+    ...(previewPaidMediaStrategy as Record<string, unknown>),
+  }),
 };
 
 function isActivationPlanSectionId(id: string): id is ActivationPlanSectionId {

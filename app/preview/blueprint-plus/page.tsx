@@ -8,6 +8,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import nextDynamic from "next/dynamic";
 import Image from "next/image";
+import StrategyProseBody from "@/components/strategy/StrategyProseBody";
 
 // Lazy-load heavy interactive components to reduce initial bundle size
 const ReportNav = nextDynamic(() => import("@/components/reports/ReportNav"), { ssr: false });
@@ -3709,7 +3710,13 @@ export default function BrandBlueprintPlusReport() {
               Brand Story
             </SectionTitle>
             <div style={{ fontSize: 22, fontStyle: "italic", fontWeight: 600, color: NAVY, marginBottom: 20, lineHeight: 1.4 }}>{(r as any).brandStory.headline}</div>
-            <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.75, whiteSpace: "pre-line", marginBottom: 24 }}>{(r as any).brandStory.narrative}</div>
+            <div style={{ marginBottom: 24 }}>
+              <StrategyProseBody
+                text={(r as any).brandStory.narrative}
+                paragraphStyle={{ margin: 0, fontSize: 15, color: "#1a1a2e", lineHeight: 1.75, whiteSpace: "pre-line" }}
+                blockGapClassName="gap-2.5"
+              />
+            </div>
             <div style={{ padding: "20px 24px", borderRadius: 5, background: ACCENT_BG, borderLeft: `4px solid ${BLUE}`, marginBottom: 20 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>Elevator Pitch</div>
               <div style={{ fontSize: 15, color: "#1a1a2e", lineHeight: 1.6 }}>{(r as any).brandStory.elevatorPitch}</div>

@@ -21,7 +21,12 @@ ABSOLUTE RULES:
 - **Not a to-do memo:** depth means **filled-in deliverables** (templates with brackets only where the user must substitute a proper noun), not lists of initiatives without copy.
 - **measurementFramework.trackingRecommendations:** every row must include readerFriendlyOneLiner—one sentence a founder or finance partner can skim. It parallels howToSetUp (define UTM, SQL, CRM, etc. in plain words when used above); howToSetUp remains the operator-grade source of truth for experienced marketers.
 
-ACTIVATION SURFACE (IN-APP): The product UI surfaces **emailMarketingFramework**, **socialMediaStrategy**, **seoStrategy**, **aeoStrategy**, **customerJourneyMap**, **thoughtLeadershipStrategy**, **paidMediaStrategy**, **competitivePositioning** (movementPlan / differentiationSummary), **icpConversionIntelligenceFramework**, **personaDrivenSegmentation**, **icpGoToMarketPlans** (one per ICP: strategy ladder, campaign content needs, 90-day tactics, ICI matrix anchor, competitive talk-track cues for sales + marketing), and **ninetyDayRoadmap** as **live channel plans** for $2K buyers. In those sections, write **deployable assets** — named ICP tiers and buyer personas, real subject lines, hooks, stage copy, and budget/channel lines — not bulk imperatives like "build a nurture" or "optimize SEO" without the actual sequence or page targets. The **primary free offer** in **conversionStrategy.leadCaptureRecommendations** (whether **optimize_existing** or **create_new**) must show up **by name or clear paraphrase** in email + social + calendar sections, not only in conversionStrategy — and must stay **aligned with strategicOfferContext.primaryOffer** and **strategicOfferContext.channelExecutionAlignment** (same offer name, no promises that contradict **scopeOut**). **emailMarketingFramework** must spell out a **full-funnel nurture** (awareness → consideration → decision → retention/re-engagement) with **concrete sequence steps** (subject + purpose + key message per email or per batch). **socialMediaStrategy** must include an explicit **90-day phased calendar** (e.g. days 1–30, 31–60, 61–90) describing what shifts in themes, cadence, and tests each month.
+ACTIVATION SURFACE (IN-APP): The product UI surfaces **emailMarketingFramework**, **socialMediaStrategy**, **seoStrategy**, **aeoStrategy**, **customerJourneyMap**, **thoughtLeadershipStrategy**, **paidMediaStrategy**, **competitivePositioning** (movementPlan / differentiationSummary), **icpConversionIntelligenceFramework**, **personaDrivenSegmentation**, **icpGoToMarketPlans** (one per ICP: strategy ladder, campaign content needs, 90-day tactics, ICI matrix anchor, competitive talk-track cues for sales + marketing), and **ninetyDayRoadmap** as **live channel plans** for $2K buyers. In those sections, write **deployable assets** — named ICP tiers and buyer personas, real subject lines, hooks, stage copy, and budget/channel lines — not bulk imperatives like "build a nurture" or "optimize SEO" without the actual sequence or page targets. The **primary free offer** in **conversionStrategy.leadCaptureRecommendations** (whether **optimize_existing** or **create_new**) must show up **by name or clear paraphrase** in email + social + calendar sections, not only in conversionStrategy — and must stay **aligned with strategicOfferContext.primaryOffer** and **strategicOfferContext.channelExecutionAlignment** (same offer name, no promises that contradict **scopeOut**). **emailMarketingFramework** must spell out a **full-funnel nurture** (awareness → consideration → decision → retention/re-engagement) with **concrete sequence steps** (subject + purpose + key message per email or per batch). **socialMediaStrategy** must include an explicit **90-day phased calendar** (e.g. days 1–30, 31–60, 61–90) describing what shifts in themes, cadence, and tests each month. **contentCalendarFramework.monthlyThemes** must include a full-year sequence (**Q1, Q2, Q3, Q4**) with no missing quarters.
+
+**CONVERSION SPINE (REQUIRED on channel plans):** On **paidMediaStrategy**, **emailMarketingFramework**, **socialMediaStrategy**, **seoStrategy**, **aeoStrategy**, and **thoughtLeadershipStrategy**, you MUST include a **conversionSpine** object (sibling to **overview**) with exactly these string fields — all filled, no placeholders:
+- **primaryMacroConversion** — The one business outcome this program optimizes for (e.g. "Qualified demo booked with budget + timeline," "Self-serve signup + activation," "Pipeline opportunity created in CRM"). Use the **same** macro across all six sections for this brand.
+- **primaryOfferAnchor** — The **same** named offer or lead magnet readers will see (must match **strategicOfferContext.primaryOffer.name** or **conversionStrategy.leadCaptureRecommendations.primaryPickTitle** / optimized title — same vocabulary everywhere).
+- **advancesConversion** — One sentence: **this section’s job** on that path (e.g. paid: "Captures in-market clicks and retargets engagers toward the landing path for {offer}"; email: "Nurtures proof and timing until the reader takes the macro CTA"; SEO: "Earns intent-mapped visits that feed the same landing and CTA as paid"; social: "Builds trust and soft CTAs that feed the magnet or demo path"; AEO: "Surfaces direct answers that route to the same conversion pages"; thought leadership: "Earns authority touchpoints that make the macro CTA credible"). Do not contradict **primaryMacroConversion** or promise a different end state.
 
 **paidMediaStrategy** — Include **platformsCovered** as a string array naming every distinct **platform** you use (use real platform names: e.g. "LinkedIn", "Meta", "Google Ads", "Microsoft Advertising", "YouTube", "Programmatic / DSP", not vague labels like "social" or "search"). You MUST output **at least three (3) distinct channels[] rows**, each on a **different primary platform** when possible (e.g. LinkedIn + Meta + Google Ads). Each **channels[]** row MUST set **platform** (same vocabulary as platformsCovered) and **placement** (the ad surface/format, e.g. "Sponsored Content — Feed", "Conversion — Advantage+", "Search — non-brand", "Demand Gen", "In-stream — YouTube", "Reels / Shorts"). Set **channel** to a readable title that combines platform and placement (for example: LinkedIn — Sponsored Content — Feed). Then populate **headline**, **subheadline** (if the placement uses one), **bodyCopy** (primary ad text / description where applicable), **imagePrompt** (detailed still/visual brief for designers or AI image tools: subject, scene, lighting, brand palette, safe text zones, what to avoid), **videoPrompt** (for motion placements only—YouTube, Meta Reels, Shorts, in-stream, CTV: hook in first 1–2s, on-screen text beats, VO or caption tone, shot list or B-roll, target length and aspect ratio, brand cues, legal/safety; use "" when the row is static image or text-only), and **cta** (button or destination wording), plus objective, audienceAngle, offerStrategy, and kpiToTrack. Do not leave these empty with only generic "creativeDirection" prose; use creativeDirection only as a short extra note if needed.
 
@@ -924,12 +929,12 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       conversion_intelligence_reference: { type: "ref", framework: "icp_conversion_intelligence_framework", icpTier: "", funnelStage: "", matrixCell: "" }
       monthlyThemes: [
         {
-          month: "Month 1 | Month 2 | Month 3"
-          theme: "Monthly theme tied to messaging pillars and business goals"
-          contentPillarFocus: "Which content pillar is emphasized this month"
-          keyTopics: ["3–4 specific topics for this month"]
+          month: "Q1 | Q2 | Q3 | Q4"
+          theme: "Quarter theme tied to messaging pillars and business goals"
+          contentPillarFocus: "Which content pillar is emphasized this quarter"
+          keyTopics: ["3–4 specific topics for this quarter"]
         }
-      ] (3 months)
+      ] (4 quarters — Q1 through Q4, all required)
       weeklyStructure: {
         description: "A repeatable weekly content rhythm"
         days: [
@@ -1736,6 +1741,7 @@ Return valid JSON with ALL these keys:
   },
   "seoStrategy": {
     "overview": "",
+    "conversionSpine": { "primaryMacroConversion": "", "primaryOfferAnchor": "", "advancesConversion": "" },
     "primaryKeywords": [{ "keyword": "", "intent": "", "difficulty": "", "contentAngle": "", "pillarConnection": "", "competitiveGap": "", "priorityLevel": "" }],
     "longTailOpportunities": [{ "keyword": "", "searchIntent": "", "contentRecommendation": "", "estimatedImpact": "" }],
     "technicalPriorities": [],
@@ -1745,6 +1751,7 @@ Return valid JSON with ALL these keys:
   },
   "aeoStrategy": {
     "overview": "",
+    "conversionSpine": { "primaryMacroConversion": "", "primaryOfferAnchor": "", "advancesConversion": "" },
     "entityOptimization": { "currentEntityStatus": "", "entityBuildingActions": [], "structuredDataRecommendations": [], "knowledgeGraphStrategy": "" },
     "contentForAICitation": { "strategy": "", "formatRecommendations": [], "topicAuthority": [], "contentTemplates": [] },
     "faqStrategy": { "overview": "", "priorityFAQs": [], "faqImplementation": "" },
@@ -1754,6 +1761,7 @@ Return valid JSON with ALL these keys:
   },
   "emailMarketingFramework": {
     "overview": "",
+    "conversionSpine": { "primaryMacroConversion": "", "primaryOfferAnchor": "", "advancesConversion": "" },
     "conversion_intelligence_reference": { "type": "ref", "framework": "icp_conversion_intelligence_framework", "icpTier": "", "funnelStage": "", "matrixCell": "" },
     "welcomeSequence": { "description": "", "emails": [{ "timing": "", "subject": "", "purpose": "", "keyMessage": "", "ctaButton": "" }] },
     "nurtureCampaign": { "description": "", "emails": [{ "timing": "", "subject": "", "purpose": "", "keyMessage": "", "contentType": "" }] },
@@ -1765,6 +1773,7 @@ Return valid JSON with ALL these keys:
   },
   "socialMediaStrategy": {
     "overview": "",
+    "conversionSpine": { "primaryMacroConversion": "", "primaryOfferAnchor": "", "advancesConversion": "" },
     "conversion_intelligence_reference": { "type": "ref", "framework": "icp_conversion_intelligence_framework", "icpTier": "", "funnelStage": "", "matrixCell": "" },
     "platforms": [{ "platform": "", "whyThisPlatform": "", "audienceOnPlatform": "", "contentStrategy": "", "postingFrequency": "", "contentMix": "", "examplePosts": [], "exampleImagePrompts": [], "exampleVideoPrompts": [], "kpiToTrack": "", "competitorInsight": "", "growthTactics": [] }],
     "platformsToAvoid": { "platforms": [], "reasoning": "" },
@@ -1772,6 +1781,7 @@ Return valid JSON with ALL these keys:
   },
   "paidMediaStrategy": {
     "overview": "",
+    "conversionSpine": { "primaryMacroConversion": "", "primaryOfferAnchor": "", "advancesConversion": "" },
     "platformsCovered": ["LinkedIn", "Meta", "Google Ads"],
     "conversion_intelligence_reference": { "type": "ref", "framework": "icp_conversion_intelligence_framework", "icpTier": "", "funnelStage": "", "matrixCell": "" },
     "channels": [{ "channel": "", "platform": "", "placement": "", "objective": "", "audienceAngle": "", "headline": "", "subheadline": "", "bodyCopy": "", "imagePrompt": "", "videoPrompt": "", "cta": "", "creativeDirection": "", "offerStrategy": "", "kpiToTrack": "" }],
@@ -1781,7 +1791,12 @@ Return valid JSON with ALL these keys:
   "contentCalendarFramework": {
     "overview": "",
     "conversion_intelligence_reference": { "type": "ref", "framework": "icp_conversion_intelligence_framework", "icpTier": "", "funnelStage": "", "matrixCell": "" },
-    "monthlyThemes": [{ "month": "", "theme": "", "contentPillarFocus": "", "keyTopics": [] }],
+    "monthlyThemes": [
+      { "month": "Q1", "theme": "", "contentPillarFocus": "", "keyTopics": [] },
+      { "month": "Q2", "theme": "", "contentPillarFocus": "", "keyTopics": [] },
+      { "month": "Q3", "theme": "", "contentPillarFocus": "", "keyTopics": [] },
+      { "month": "Q4", "theme": "", "contentPillarFocus": "", "keyTopics": [] }
+    ],
     "weeklyStructure": { "description": "", "days": [{ "day": "", "contentType": "", "platform": "", "contentPillar": "", "exampleTopic": "" }] },
     "batchingStrategy": "",
     "repurposingPlaybook": ""
@@ -1802,6 +1817,7 @@ Return valid JSON with ALL these keys:
   },
   "thoughtLeadershipStrategy": {
     "overview": "",
+    "conversionSpine": { "primaryMacroConversion": "", "primaryOfferAnchor": "", "advancesConversion": "" },
     "conversion_intelligence_reference": { "type": "ref", "framework": "icp_conversion_intelligence_framework", "icpTier": "", "funnelStage": "", "matrixCell": "" },
     "authorityPositioning": {
       "expertiseAreas": [],

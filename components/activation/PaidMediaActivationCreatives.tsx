@@ -8,6 +8,7 @@ import {
   SUITE_MUTED,
   SUITE_NAVY,
 } from "@/components/results/suiteBrandTokens";
+import { extractConversionSpine } from "@/lib/activation/conversionSpineHelpers";
 import {
   derivePaidPlatformsList,
   ensurePaidMediaChannelsMinimum,
@@ -15,6 +16,7 @@ import {
   paidChannelDisplayTitle,
   type NormalizedPaidChannel,
 } from "@/lib/activation/paidMediaPlanFields";
+import StrategyProseBody from "@/components/strategy/StrategyProseBody";
 
 const NAVY = SUITE_NAVY;
 const MID = SUITE_MUTED;
@@ -59,7 +61,7 @@ function formatScenarioLine(raw: unknown): string {
   const spend = typeof b.monthlySpend === "number" ? b.monthlySpend : 0;
   const fit = typeof b.objectiveFit === "string" ? b.objectiveFit.trim() : "";
   const out = typeof b.expectedOutcome === "string" ? b.expectedOutcome.trim() : "";
-  return `• ${label || "Scenario"}: ~$${spend.toLocaleString()}/mo — ${fit || "fit TBD"} — ${out || "expected outcome"}`;
+  return `${label || "Scenario"}: ~$${spend.toLocaleString()}/mo — ${fit || "fit TBD"} — ${out || "expected outcome"}`;
 }
 
 function csvEscapeCell(value: string): string {
@@ -98,6 +100,7 @@ function channelToPlainText(ch: NormalizedPaidChannel, index: number): string {
 
 export default function PaidMediaActivationCreatives({ strategy }: { strategy: Record<string, unknown> }) {
   const s = ensurePaidMediaChannelsMinimum({ ...strategy });
+  const conversionSpine = extractConversionSpine(s);
   const overview = typeof s.overview === "string" ? s.overview.trim() : "";
   const rawChannels = Array.isArray(s.channels) ? s.channels : [];
   const scenarios = Array.isArray(s.budgetScenarios) ? s.budgetScenarios : [];
@@ -161,6 +164,48 @@ export default function PaidMediaActivationCreatives({ strategy }: { strategy: R
 
   return (
     <div style={{ display: "grid", gap: 16 }}>
+      {conversionSpine ? (
+        <div
+          style={{
+            border: `1px solid ${BORDER}`,
+            borderRadius: 10,
+            borderLeft: `4px solid ${BLUE}`,
+            padding: "14px 16px",
+            background: "linear-gradient(135deg, #F0F9FF 0%, #FFFFFF 70%)",
+          }}
+        >
+          <p
+            style={{
+              margin: "0 0 10px",
+              fontSize: 11,
+              fontWeight: 800,
+              color: BLUE,
+              letterSpacing: "0.06em",
+              textTransform: "uppercase",
+            }}
+          >
+            Conversion spine
+          </p>
+          {conversionSpine.primaryMacroConversion ? (
+            <p style={{ margin: "0 0 8px", fontSize: 13, color: NAVY, lineHeight: 1.55 }}>
+              <strong style={{ color: "#64748B", fontWeight: 700 }}>Macro conversion: </strong>
+              {conversionSpine.primaryMacroConversion}
+            </p>
+          ) : null}
+          {conversionSpine.primaryOfferAnchor ? (
+            <p style={{ margin: "0 0 8px", fontSize: 13, color: NAVY, lineHeight: 1.55 }}>
+              <strong style={{ color: "#64748B", fontWeight: 700 }}>Offer anchor: </strong>
+              {conversionSpine.primaryOfferAnchor}
+            </p>
+          ) : null}
+          {conversionSpine.advancesConversion ? (
+            <p style={{ margin: 0, fontSize: 13, color: "#2D3A4A", lineHeight: 1.55 }}>
+              <strong style={{ color: "#64748B", fontWeight: 700 }}>Paid media’s job: </strong>
+              {conversionSpine.advancesConversion}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
       {overview ? (
         <div>
           <div
@@ -188,7 +233,11 @@ export default function PaidMediaActivationCreatives({ strategy }: { strategy: R
               {copyFlash === "overview" ? "Copied" : "Copy overview"}
             </button>
           </div>
-          <p style={{ margin: 0, fontSize: 14, color: "#2D3A4A", lineHeight: 1.6, whiteSpace: "pre-line" }}>{overview}</p>
+          <StrategyProseBody
+            text={overview}
+            paragraphStyle={{ margin: 0, fontSize: 14, color: "#2D3A4A", lineHeight: 1.6, whiteSpace: "pre-line" }}
+            blockGapClassName="gap-2"
+          />
         </div>
       ) : null}
 
@@ -333,11 +382,24 @@ export default function PaidMediaActivationCreatives({ strategy }: { strategy: R
                           padding: "10px 12px",
                           color: value ? "#1e293b" : MID,
                           lineHeight: 1.55,
-                          whiteSpace: "pre-wrap",
                           wordBreak: "break-word",
                         }}
                       >
-                        {value || "—"}
+                        {value ? (
+                          <StrategyProseBody
+                            text={value}
+                            paragraphStyle={{
+                              margin: 0,
+                              fontSize: 13,
+                              color: "#1e293b",
+                              lineHeight: 1.55,
+                              whiteSpace: "pre-line",
+                            }}
+                            blockGapClassName="gap-1.5"
+                          />
+                        ) : (
+                          "—"
+                        )}
                       </td>
                     </tr>
                   );
@@ -361,13 +423,11 @@ export default function PaidMediaActivationCreatives({ strategy }: { strategy: R
           >
             Budget Scenarios
           </p>
-          <div style={{ fontSize: 13, color: "#2D3A4A", lineHeight: 1.55 }}>
+          <ul className="strategy-suite-ul" style={{ margin: 0, fontSize: 13, color: "#2D3A4A", lineHeight: 1.55 }}>
             {scenarios.slice(0, 4).map((sc, i) => (
-              <p key={i} style={{ margin: "0 0 6px" }}>
-                {formatScenarioLine(sc)}
-              </p>
+              <li key={i}>{formatScenarioLine(sc)}</li>
             ))}
-          </div>
+          </ul>
         </div>
       ) : null}
     </div>

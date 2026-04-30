@@ -4,10 +4,15 @@
  */
 
 import {
+  extractConversionSpine,
+  formatConversionSpinePlainLines,
+} from "@/lib/activation/conversionSpineHelpers";
+import {
   derivePaidPlatformsList,
   formatNormalizedPaidChannelBlock,
   normalizePaidChannel,
 } from "@/lib/activation/paidMediaPlanFields";
+import { normalizeEngineJourneyStageKey } from "@/lib/strategy/parseBuyerJourneyStages";
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
@@ -25,6 +30,8 @@ function joinBlocks(parts: string[], maxLen = 12000): string {
 function formatEmailPlan(em: Record<string, unknown> | null, companyName: string): string {
   if (!em) return "";
   const lines: string[] = [];
+  const spine = extractConversionSpine(em);
+  if (spine) lines.push([...formatConversionSpinePlainLines(spine), ""].join("\n"));
   const overview = asString(em.overview);
   if (overview) lines.push(`Email program overview\n${overview}`);
 
@@ -132,6 +139,8 @@ function formatSeoAeo(
 ): string {
   const lines: string[] = [];
   if (seo) {
+    const spineSeo = extractConversionSpine(seo);
+    if (spineSeo) lines.push([...formatConversionSpinePlainLines(spineSeo), ""].join("\n"));
     const overview = asString(seo.overview);
     if (overview) lines.push(`SEO program\n${overview}`);
     const primary = Array.isArray(seo.primaryKeywords) ? seo.primaryKeywords : [];
@@ -152,6 +161,8 @@ function formatSeoAeo(
     if (playbook) lines.push(`Content SEO playbook\n${playbook}`);
   }
   if (aeo) {
+    const spineAeo = extractConversionSpine(aeo);
+    if (spineAeo) lines.push([...formatConversionSpinePlainLines(spineAeo), ""].join("\n"));
     const overview = asString(aeo.overview);
     if (overview) lines.push(`AI discovery (AEO)\n${overview}`);
     const faq = asRecord(aeo.faqStrategy);
@@ -170,6 +181,8 @@ function formatSocialContent(
 ): string {
   const lines: string[] = [];
   if (social) {
+    const spine = extractConversionSpine(social);
+    if (spine) lines.push([...formatConversionSpinePlainLines(spine), ""].join("\n"));
     const overview = asString(social.overview);
     if (overview) lines.push(`Social program\n${overview}`);
     const platforms = Array.isArray(social.platforms) ? social.platforms : [];
@@ -228,6 +241,8 @@ function formatSocialContent(
 function formatPaid(paid: Record<string, unknown> | null): string {
   if (!paid) return "";
   const lines: string[] = [];
+  const spine = extractConversionSpine(paid);
+  if (spine) lines.push([...formatConversionSpinePlainLines(spine), ""].join("\n"));
   const overview = asString(paid.overview);
   if (overview) lines.push(`Paid media program\n${overview}`);
   const platforms = derivePaidPlatformsList(paid);
@@ -257,6 +272,8 @@ function formatPaid(paid: Record<string, unknown> | null): string {
 function formatPrThought(th: Record<string, unknown> | null): string {
   if (!th) return "";
   const lines: string[] = [];
+  const spine = extractConversionSpine(th);
+  if (spine) lines.push([...formatConversionSpinePlainLines(spine), ""].join("\n"));
   const overview = asString(th.overview);
   if (overview) lines.push(`PR & authority program\n${overview}`);
   const angles = Array.isArray(th.mediaAngles) ? th.mediaAngles : [];
@@ -288,13 +305,14 @@ function formatPrThought(th: Record<string, unknown> | null): string {
 
 function formatJourney(map: Record<string, unknown> | null): string {
   if (!map) return "";
-  const lines: string[] = [];
   const overview = asString(map.overview);
-  if (overview) lines.push(`Journey orchestration\n${overview}`);
   const stages = Array.isArray(map.stages) ? map.stages : [];
+  const canonBlocks: string[] = [];
+
   for (const raw of stages.slice(0, 8)) {
     const s = asRecord(raw) ?? {};
-    const stage = asString(s.stage);
+    const canon = normalizeEngineJourneyStageKey(asString(s.stage));
+    if (!canon) continue;
     const mindset = asString(s.customerMindset);
     const focus = asString(s.messagingFocus);
     const trigger = asString(s.conversionTrigger);
@@ -308,13 +326,36 @@ function formatJourney(map: Record<string, unknown> | null): string {
           : "";
       })
       .filter(Boolean);
+    const parts = [
+      mindset,
+      focus && `Messaging focus: ${focus}`,
+      trigger && `Conversion trigger: ${trigger}`,
+      pvl.length ? `Persona tuning: ${pvl.join("; ")}` : "",
+    ].filter(Boolean);
+    const narrative = parts.join(" ").replace(/\s+/g, " ").trim();
+    if (narrative) canonBlocks.push(`${canon}: ${narrative}`);
+  }
+
+  if (canonBlocks.length >= 2) {
+    const head = overview ? `Journey overview: ${overview.replace(/\s+/g, " ").trim()}` : "";
+    return joinBlocks([head, canonBlocks.join("\n\n")].filter(Boolean));
+  }
+
+  /** Rare fallback: unknown stage labels — keep human-readable blocks (legacy parsers may still pick up Stage: lines). */
+  const lines: string[] = [];
+  if (overview) lines.push(`Journey orchestration\n${overview}`);
+  for (const raw of stages.slice(0, 8)) {
+    const s = asRecord(raw) ?? {};
+    const stage = asString(s.stage);
+    const mindset = asString(s.customerMindset);
+    const focus = asString(s.messagingFocus);
+    const trigger = asString(s.conversionTrigger);
     lines.push(
       [
         `Stage: ${stage || "Stage"}`,
         mindset && `Buyer mindset: ${mindset}`,
         focus && `Message focus: ${focus}`,
         trigger && `Conversion trigger: ${trigger}`,
-        pvl.length && `Persona tuning:\n${pvl.map((x) => `  – ${x}`).join("\n")}`,
       ]
         .filter(Boolean)
         .join("\n"),

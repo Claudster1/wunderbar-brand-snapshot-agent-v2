@@ -300,7 +300,7 @@ export default function StrategyPlanNarrativePanels({
                             {row.label}
                           </div>
                           <div
-                            className="whitespace-pre-line text-sm leading-relaxed sm:text-[15px]"
+                            className="text-sm leading-relaxed sm:text-[15px]"
                             style={{
                               padding: "12px 14px",
                               background: "#FFFFFF",
@@ -308,7 +308,18 @@ export default function StrategyPlanNarrativePanels({
                               fontFamily: SUITE_FONT_UI,
                             }}
                           >
-                            {row.value}
+                            <StrategyProseBody
+                              text={row.value}
+                              paragraphStyle={{
+                                margin: 0,
+                                fontSize: 15,
+                                lineHeight: 1.625,
+                                color: bodyText,
+                                fontFamily: SUITE_FONT_UI,
+                                whiteSpace: "pre-line",
+                              }}
+                              blockGapClassName="gap-2 sm:gap-2.5"
+                            />
                             {row.readerFriendly ? (
                               <p
                                 className="mt-2.5 border-t border-slate-200/90 pt-2.5 text-[12px] leading-relaxed text-brand-muted sm:text-[13px]"

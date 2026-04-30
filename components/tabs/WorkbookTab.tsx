@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import type { ProductTier } from "@/components/ResultsTabNav";
 import {
   WORKBOOK_SECTIONS,
@@ -26,12 +26,53 @@ import {
   SUITE_FONT_UI,
   SUITE_MUTED,
   SUITE_NAVY,
+  SUITE_RADIUS_MD,
+  SUITE_SHADOW_CARD,
+  SUITE_TEXT_PRIMARY,
 } from "@/components/results/suiteBrandTokens";
 
 const NAVY = SUITE_NAVY;
 const BLUE = SUITE_ACCENT_BRIGHT;
 const MID_GRAY = SUITE_MUTED;
 const BORDER = SUITE_BORDER;
+const BODY = SUITE_TEXT_PRIMARY;
+
+const WORKBOOK_CALLOUT: CSSProperties = {
+  marginBottom: 24,
+  padding: "18px 22px",
+  border: `1px solid ${BORDER}`,
+  borderRadius: SUITE_RADIUS_MD,
+  background: "#FFFFFF",
+  display: "grid",
+  gap: 10,
+  scrollMarginTop: 120,
+  boxShadow: SUITE_SHADOW_CARD,
+  fontFamily: SUITE_FONT_UI,
+};
+
+const BTN_PRIMARY: CSSProperties = {
+  padding: "10px 18px",
+  backgroundColor: BLUE,
+  color: "#ffffff",
+  border: "none",
+  borderRadius: SUITE_RADIUS_MD,
+  fontWeight: 700,
+  fontSize: 13,
+  cursor: "pointer",
+  fontFamily: SUITE_FONT_UI,
+};
+
+const BTN_SECONDARY: CSSProperties = {
+  padding: "10px 18px",
+  backgroundColor: "#FFFFFF",
+  color: NAVY,
+  border: `1px solid ${BORDER}`,
+  borderRadius: SUITE_RADIUS_MD,
+  fontWeight: 600,
+  fontSize: 13,
+  cursor: "pointer",
+  fontFamily: SUITE_FONT_UI,
+};
 
 interface WorkbookTabProps {
   productTier: ProductTier;
@@ -198,90 +239,55 @@ export default function WorkbookTab({
           </p>
         </div>
 
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
           {isBlueprintPlus && (
             <button
+              type="button"
               onClick={handleSaveVersion}
               disabled={savingVersion}
-              style={{
-                padding: "9px 16px",
-                backgroundColor: BLUE,
-                color: "#ffffff",
-                border: "none",
-                borderRadius: 5,
-                fontWeight: 700,
-                fontSize: 13,
-                cursor: "pointer",
-                fontFamily: SUITE_FONT_UI,
-                opacity: savingVersion ? 0.65 : 1,
-              }}
+              style={{ ...BTN_PRIMARY, opacity: savingVersion ? 0.65 : 1 }}
             >
               {savingVersion ? "Saving..." : "Save Version"}
             </button>
           )}
           {isBlueprintPlus && workbookState.versions.length > 0 && (
             <button
+              type="button"
               onClick={() => setShowVersionHistory(true)}
-              style={{
-                padding: "9px 16px",
-                backgroundColor: BLUE,
-                color: "#ffffff",
-                border: "none",
-                borderRadius: 5,
-                fontWeight: 700,
-                fontSize: 13,
-                cursor: "pointer",
-                fontFamily: SUITE_FONT_UI,
-              }}
+              style={BTN_SECONDARY}
             >
-              Version History ({workbookState.versions.length})
+              Version history ({workbookState.versions.length})
             </button>
           )}
-          <button
-            onClick={onExportWorkbook}
-            style={{
-              padding: "9px 16px",
-              backgroundColor: BLUE,
-              color: "#ffffff",
-              border: "none",
-              borderRadius: 5,
-              fontWeight: 700,
-              fontSize: 13,
-              cursor: "pointer",
-              fontFamily: SUITE_FONT_UI,
-            }}
-          >
-            Export Workbook
+          <button type="button" onClick={onExportWorkbook} style={BTN_PRIMARY}>
+            Export workbook
           </button>
         </div>
       </div>
-      <div
-        id="workbook-deliverable"
-        style={{
-          marginBottom: 22,
-          padding: "14px 16px",
-          border: `1px solid ${BORDER}`,
-          borderLeft: `4px solid ${BLUE}`,
-          borderRadius: 8,
-          background: "linear-gradient(135deg, #FFFFFF 0%, #F7FBFF 100%)",
-          display: "grid",
-          gap: 8,
-          scrollMarginTop: 120,
-          boxShadow: "0 8px 20px rgba(2,24,89,0.05)",
-        }}
-      >
-        <p style={{ margin: 0, fontSize: 13, color: NAVY, fontWeight: 700 }}>
-          Refined final plan
+      <div id="workbook-deliverable" style={WORKBOOK_CALLOUT}>
+        <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: BLUE }}>
+          How this tab fits
         </p>
-        <p style={{ margin: 0, fontSize: 13, color: "#2D3A4A", lineHeight: 1.55 }}>
-          Use Workbook to refine copy and plans before exporting. Your diagnostic truth remains locked
-          while planning sections stay editable based on your tier. AI prompts live in Prompt library
-          below — separate from Activation channel plans.
+        <p className="m-0 text-[15px] font-semibold leading-snug" style={{ color: NAVY }}>
+          Refine copy here, then export
         </p>
-        <p style={{ margin: 0, fontSize: 12, color: MID_GRAY, lineHeight: 1.5 }}>
-          Recommended sequence: review Activation plans, refine workbook sections, use Prompt library when
-          you want AI drafting help, save versions (Blueprint+), then export from Downloads.
+        <p className="m-0 text-sm leading-relaxed" style={{ color: BODY, maxWidth: 720 }}>
+          Diagnostic truth stays locked. Editable sections follow your product tier. The Prompt Library below is for
+          drafting with AI outputs you can paste into sections — it is separate from Activation channel execution plans.
         </p>
+        <ol
+          className="m-0 grid list-decimal gap-2 pl-5 text-[13px] leading-relaxed sm:text-sm"
+          style={{ color: MID_GRAY, maxWidth: 720 }}
+        >
+          <li>Review Activation for channel-specific plans.</li>
+          <li>Update workbook sections with your final language.</li>
+          <li>Use Prompt Library when you want structured AI drafts.</li>
+          <li>
+            {isBlueprintPlus
+              ? "Save a named version, then export from Downloads."
+              : "Export from Downloads when you are ready to share."}
+          </li>
+        </ol>
       </div>
 
       <div id="workbook-diagnostic-truth" style={{ scrollMarginTop: 120 }}>
@@ -329,21 +335,13 @@ export default function WorkbookTab({
 
       {hasPromptLibrary && (
         <div id="workbook-prompt-library" style={{ scrollMarginTop: 120 }}>
-          <div
-            style={{
-              marginBottom: 16,
-              padding: "14px 16px",
-              border: `1px solid ${BORDER}`,
-              borderLeft: `4px solid ${BLUE}`,
-              borderRadius: 8,
-              background: "linear-gradient(135deg, #FFFFFF 0%, #F7FBFF 100%)",
-              boxShadow: "0 8px 20px rgba(2,24,89,0.05)",
-            }}
-          >
-            <p style={{ margin: 0, fontSize: 13, color: NAVY, fontWeight: 700 }}>Prompt Library</p>
-            <p style={{ margin: "8px 0 0", fontSize: 13, color: "#2D3A4A", lineHeight: 1.55 }}>
-              Tier-matched AI prompts by topic — kept separate from Activation so this tab stays for drafting
-              and saving outputs next to your workbook sections.
+          <div style={{ ...WORKBOOK_CALLOUT, marginBottom: 20 }}>
+            <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: BLUE }}>
+              Prompt Library
+            </p>
+            <p className="m-0 text-sm leading-relaxed sm:text-[15px]" style={{ color: BODY, maxWidth: 720 }}>
+              Tier-matched prompts by topic. Run a prompt, copy the output, and paste it into the matching workbook
+              section above. Activation tab remains the home for paid, owned, and earned channel plans.
             </p>
           </div>
           {promptPackSections.map((sectionId) => (

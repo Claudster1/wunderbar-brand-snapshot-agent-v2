@@ -51,6 +51,16 @@ export interface PromptPack {
   prompts: PromptItem[];
 }
 
+/**
+ * Every major channel strategy should state the same macro conversion and offer spine,
+ * plus this section’s job on the path (Blueprint+ activation contract).
+ */
+export interface ConversionSpineBlock {
+  primaryMacroConversion: string;
+  primaryOfferAnchor: string;
+  advancesConversion: string;
+}
+
 /** Primary commercial offer — JTBD-aligned slice for Strategy + channel plans (Blueprint / Blueprint+). */
 export interface StrategicOfferPrimaryOffer {
   name: string;
@@ -569,6 +579,8 @@ export interface BlueprintEngineOutput {
   };
   seoStrategy: {
     overview: string;
+    /** Optional: same macro conversion + offer anchor as other channel plans; SEO’s role on the path. */
+    conversionSpine?: ConversionSpineBlock;
     primaryKeywords: SEOKeyword[];
     longTailOpportunities: { keyword: string; searchIntent: string; contentRecommendation: string }[];
     technicalPriorities: string[];
@@ -576,6 +588,7 @@ export interface BlueprintEngineOutput {
   };
   aeoStrategy: {
     overview: string;
+    conversionSpine?: ConversionSpineBlock;
     entityOptimization: {
       currentEntityStatus: string;
       entityBuildingActions: string[];
@@ -591,6 +604,7 @@ export interface BlueprintEngineOutput {
   };
   emailMarketingFramework: {
     overview: string;
+    conversionSpine?: ConversionSpineBlock;
     conversion_intelligence_reference?: ConversionIntelligenceReference;
     welcomeSequence: { description: string; emails: WelcomeEmail[] };
     segmentationStrategy: string;
@@ -599,12 +613,14 @@ export interface BlueprintEngineOutput {
   };
   socialMediaStrategy: {
     overview: string;
+    conversionSpine?: ConversionSpineBlock;
     conversion_intelligence_reference?: ConversionIntelligenceReference;
     platforms: SocialPlatform[];
     platformsToAvoid: { platforms: string[]; reasoning: string };
   };
   paidMediaStrategy?: {
     overview: string;
+    conversionSpine?: ConversionSpineBlock;
     /** Explicit list of paid platforms/surfaces (e.g. LinkedIn, Meta, Google Ads) for UI summary */
     platformsCovered?: string[];
     conversion_intelligence_reference?: ConversionIntelligenceReference;
@@ -705,6 +721,7 @@ export interface BlueprintEngineOutput {
   };
   thoughtLeadershipStrategy?: {
     overview: string;
+    conversionSpine?: ConversionSpineBlock;
     conversion_intelligence_reference?: ConversionIntelligenceReference;
     authorityPositioning: {
       expertiseAreas: string[];

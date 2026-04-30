@@ -22,6 +22,7 @@ import { ResultsBlockSkeleton } from "@/components/results/ResultsBlockSkeleton"
 import { ImplementationIntro } from "@/components/SnapshotPlus/ImplementationIntro";
 import { buildResultsTabNavItems } from "@/lib/results/buildResultsTabNavItems";
 import { TAB_SECTION_NAV_HINT_CHIPS_ONLY } from "@/lib/copy/resultsSuiteGuidance";
+import { ReportTierUpgradeCTAs } from "@/components/results/ReportTierUpgradeCTAs";
 
 const PillarBreakdown = dynamic(
   () => import("@/components/PillarBreakdown").then((m) => ({ default: m.PillarBreakdown })),
@@ -42,7 +43,9 @@ const ResultsSuiteVisualSummary = dynamic(
 );
 import type { PillarKey } from "@/src/types/pillars";
 import type { WorkbookSectionId } from "@/lib/workbookTypes";
+import { ensurePaidMediaChannelsMinimum } from "@/lib/activation/paidMediaPlanFields";
 import {
+  getPreviewActivationEngineMerge,
   previewActivationContent,
   previewActivationScheduleRows,
   previewActivationStrategicPriorities,
@@ -75,6 +78,7 @@ const pillarInsights: Record<PillarKey, string> = {
 
 const strategicPriorities = previewActivationStrategicPriorities;
 const scheduleRows = previewActivationScheduleRows;
+const previewEngine = getPreviewActivationEngineMerge("Acme Co");
 
 const diagnosticData = {
   companyName: "Acme Co",
@@ -220,7 +224,6 @@ const diagnosticData = {
       "Acme Co wins when buyers need one spine across narrative, proof, and activation—not either a deck or disconnected channel tactics.",
     vulnerabilities: "If proof blocks stay buried on About, named alternatives with clearer ROI stories can win late-funnel.",
   },
-  paidMediaStrategy: previewPaidMediaStrategy,
   icpConversionIntelligenceFramework: previewIcpConversionIntelligenceFramework,
   personaDrivenSegmentation: previewPersonaDrivenSegmentation,
   audiencePersonaDefinition: previewAudiencePersonaDefinition,
@@ -619,6 +622,24 @@ const diagnosticData = {
         contentPillarFocus: "Pipeline truth",
         keyTopics: ["Leak taxonomy", "ICP fit signals"],
       },
+      {
+        month: "Q2",
+        theme: "Proof in market",
+        contentPillarFocus: "Credibility",
+        keyTopics: ["Named outcomes", "Case study slices", "Sales deck proof module"],
+      },
+      {
+        month: "Q3",
+        theme: "Scale what clears the bar",
+        contentPillarFocus: "Conversion",
+        keyTopics: ["Payback gates", "Channel reinvestment", "Creative iteration rules"],
+      },
+      {
+        month: "Q4",
+        theme: "Refresh and plan forward",
+        contentPillarFocus: "Governance",
+        keyTopics: ["Quarterly narrative audit", "Next-year theme map", "Budget reallocation"],
+      },
     ],
     weeklyStructure: { description: "", days: [] },
     batchingStrategy: "Batch founder voice on Mondays; distribute slices through Thursday.",
@@ -766,6 +787,23 @@ const diagnosticData = {
     closingLanguage:
       "Close on a time-bound pilot checkpoint with named owners—e.g. two-week journey fix plus one customer-visible artifact—not an open-ended follow-up or another scoping call.",
   },
+  channelPlans: {
+    ...previewActivationContent.channelPlans,
+    ...previewEngine.channelPlans,
+  },
+  buyerJourneySummary:
+    previewEngine.buyerJourneySummary || previewActivationContent.buyerJourneySummary,
+  competitiveMatrixSummary:
+    previewEngine.competitiveMatrixSummary || previewActivationContent.competitiveMatrixSummary,
+  activationRoadmapPlansBody:
+    previewEngine.executionRoadmapBody || previewActivationContent.activationRoadmapPlansBody,
+  activationSegmentPlansBody:
+    previewEngine.audienceSegmentsBody || previewActivationContent.activationSegmentPlansBody,
+  activationPersonaIcpBanner:
+    previewEngine.personaIcpBanner || previewActivationContent.activationPersonaIcpBanner,
+  paidMediaStrategy: ensurePaidMediaChannelsMinimum({
+    ...(previewPaidMediaStrategy as Record<string, unknown>),
+  }),
 };
 
 const previewResultsNavItems = buildResultsTabNavItems({ hasSnapshotPlusAccess: true });
@@ -872,9 +910,13 @@ const resultsContent = (
 
     <div id="next-steps" className="scroll-mt-28 rounded-xl border border-brand-border bg-white p-6 sm:p-7">
       <p className={`${SUITE_SECTION_KICKER_CLASS} m-0 mb-2`}>Next Steps</p>
-      <p className="bs-body-sm text-brand-muted m-0 max-w-2xl">
-        Preview mode: open the live Results page for expert handoff, suite links, and upgrade CTAs.
-      </p>
+      <div className="mt-1">
+        <ReportTierUpgradeCTAs
+          tier="blueprint-plus"
+          utmSource="preview_results_tabs"
+          downloadsHref="/preview/results-tabs?tab=downloads"
+        />
+      </div>
     </div>
   </div>
 );

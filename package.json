@@ -24,6 +24,7 @@
         "qa:wundy-voice": "npx tsx scripts/qa-wundy-voice.ts",
         "qa:wundy-voice:golden": "npx tsx scripts/qa-wundy-voice.ts --responses scripts/wundy-voice-responses.golden.json",
         "check:pdf-parity": "npx tsx scripts/check-pdf-parity.ts",
+        "verify:preview-samples": "npx tsx scripts/verify-preview-samples.ts",
         "resume:dev": "bash scripts/resume-dev.sh",
         "resume:dev:full": "bash scripts/resume-dev.sh --full",
         "resume:snapshot": "bash scripts/resume-snapshot.sh",

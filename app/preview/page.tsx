@@ -66,9 +66,10 @@ export default async function PreviewIndexPage() {
           >
             <p className="bs-body-sm font-bold text-brand-navy mb-2">Copy-paste links (this deployment)</p>
             <p className="bs-small text-brand-muted mb-3">
-              If a path 404s on production, the app on that host may not include the latest build yet—open a PR to{" "}
-              <code className="rounded bg-brand-navy/5 px-1">main</code> or use your Vercel preview URL for the branch that
-              has the route.
+              On <strong>app.wunderbrand.ai</strong> (Vercel Production), <code className="rounded bg-brand-navy/5 px-1">/preview</code> is
+              disabled by default for internal-only demos. Use a <strong>Vercel Preview</strong> URL, local dev, or set{" "}
+              <code className="rounded bg-brand-navy/5 px-1">ENABLE_PREVIEW_ROUTES=true</code> on Production if you ever
+              need previews on that host.
             </p>
             <ul className="space-y-2 text-sm break-all">
               {PREVIEWS.map((p) => (

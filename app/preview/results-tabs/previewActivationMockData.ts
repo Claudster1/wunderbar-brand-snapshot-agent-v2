@@ -1,3 +1,5 @@
+import { buildActivationDiagnostics, type ActivationDiagnostics } from "@/lib/results/buildActivationDiagnostics";
+
 export const previewActivationStrategicPriorities = [
   { rank: 1, title: "Unify external messaging to one positioning promise", pillar: "Messaging" },
   { rank: 2, title: "Build weekly visibility themes tied to pillar goals", pillar: "Visibility" },
@@ -47,6 +49,12 @@ export const previewActivationScheduleRows = [
 export const previewPaidMediaStrategy = {
   overview:
     "Run two parallel learning flights: LinkedIn for high-intent B2B conversations, Meta for retargeting and proof. Keep message-landing parity on every ad.",
+  conversionSpine: {
+    primaryMacroConversion: "Qualified strategy call booked with budget range and decision timeline confirmed",
+    primaryOfferAnchor: "20-minute funnel alignment audit (same CTA on ads, landing, and first nurture email)",
+    advancesConversion:
+      "Captures in-market and retargeted clicks, routes every placement to the audit landing path, and keeps headline parity so paid spend buys intent—not message drift.",
+  },
   platformsCovered: ["LinkedIn", "Meta", "Google Ads"],
   channels: [
     {
@@ -395,3 +403,254 @@ export const previewActivationContent = {
       "Track competitive shifts and adapt narrative without diluting core positioning.",
   },
 };
+
+const PREVIEW_ENGINE_MACRO =
+  "Qualified workshop scope call for the 90-Day Narrative & Channel Operating Plan (budget + timeline agreed)";
+const PREVIEW_ENGINE_OFFER = "90-Day Narrative & Channel Operating Plan";
+
+/**
+ * Blueprint+ shaped `full_report` slice — drives `buildActivationDiagnostics` so preview
+ * channelPlans / journey / roadmap copy stays aligned with engine output (regenerated sample).
+ */
+export const previewFullBlueprintReport: Record<string, unknown> = {
+  _meta: { tier: "blueprint_plus" },
+  emailMarketingFramework: {
+    overview:
+      "Lifecycle email advances the same macro conversion as paid and social: proof first, one CTA per touch, same offer name in subject and body.",
+    conversionSpine: {
+      primaryMacroConversion: PREVIEW_ENGINE_MACRO,
+      primaryOfferAnchor: PREVIEW_ENGINE_OFFER,
+      advancesConversion:
+        "Nurtures consideration-stage buyers with staged proof until they book the scope workshop or download the alignment asset tied to the primary offer.",
+    },
+    welcomeSequence: {
+      description: "Three-email spine: leak diagnosis → mechanism → bounded next step.",
+      emails: [
+        {
+          timing: "Day 0",
+          subject: "Where qualified demand gets lost (3 surfaces to check)",
+          purpose: "Diagnose message-channel drift without blaming the team.",
+          keyMessage:
+            "If hero, first outbound line, and nurture subject disagree, you are taxing your own CPL—here is the 12-week fix outline.",
+          ctaButton: "Read the 12-week plan outline",
+        },
+        {
+          timing: "Day 2",
+          subject: "How Acme fixes narrative drift in two weeks",
+          purpose: "Mechanism + one anonymized before/after frame.",
+          keyMessage: "One owner map, one metric window, three surfaces locked first—no rebrand required.",
+          ctaButton: "See the one-page map",
+        },
+        {
+          timing: "Day 5",
+          subject: "Your first 14-day activation sprint",
+          purpose: "Bounded pilot CTA matching sales talk track.",
+          keyMessage: "Book a 20-minute scope fit—we confirm goal, metric, and owners; you leave with a dated RACI.",
+          ctaButton: "Book scope fit",
+        },
+      ],
+    },
+    segmentationStrategy: "Route by intent: pricing revisits → fast-track proof branch; education-only → weekly nurture.",
+    subjectLineFormulas: ["Hidden cost: {symptom} → {mechanism}", "Proof: {metric window} on {surface}"],
+    sendCadence: "Tue/Thu sends; one re-engagement branch after 14d no click.",
+  },
+  socialMediaStrategy: {
+    overview:
+      "Social earns trust for the same offer story paid pushes—no second promise, softer CTAs early, same landing path on conversion posts.",
+    conversionSpine: {
+      primaryMacroConversion: PREVIEW_ENGINE_MACRO,
+      primaryOfferAnchor: PREVIEW_ENGINE_OFFER,
+      advancesConversion:
+        "Builds authority and repeatable hooks so cold and warm audiences recognize the same offer name before they hit paid or email retargeting.",
+    },
+    platforms: [
+      {
+        platform: "LinkedIn",
+        whyThisPlatform: "Founder and operator ICP live evaluation-mode here.",
+        audienceOnPlatform: "Primary ICP: founder-led B2B services; secondary: growth marketers.",
+        contentStrategy: "Mon POV / Wed proof / Fri tactical; each maps to one pillar.",
+        postingFrequency: "3× weekly",
+        contentMix: "40% pillar / 35% proof / 25% offer-adjacent clarity",
+        examplePosts: [
+          "Most pipeline leaks are translation leaks—same week: pick one promise across ad, LP, email.",
+          "Before/after: 12-week message map + one metric window (anonymized).",
+        ],
+        exampleImagePrompts: [
+          "1080×1080 split: noisy dashboard vs calm laptop with aligned headlines; navy/sky palette.",
+        ],
+        exampleVideoPrompts: ["9:16 hook in 2s; captions on; CTA card matches nurture subject line."],
+        kpiToTrack: "Save rate + profile visits from ICP titles",
+        competitorInsight: "Competitors post generic inspiration; you post mechanism + metric.",
+        growthTactics: ["Comment-to-DM playbook for “map” replies"],
+      },
+    ],
+    platformsToAvoid: { platforms: ["TikTok"], reasoning: "ICP not in evaluation mode there for this offer." },
+    crossPlatformStrategy: "Repurpose LinkedIn longform into email deep link + paid retarget creative using same headline.",
+  },
+  seoStrategy: {
+    overview: "SEO captures research-mode intent and routes to the same landing story as paid—not a parallel storyline.",
+    conversionSpine: {
+      primaryMacroConversion: PREVIEW_ENGINE_MACRO,
+      primaryOfferAnchor: PREVIEW_ENGINE_OFFER,
+      advancesConversion:
+        "Earns high-intent visits on problem/solution queries and lands them on pages that repeat the primary-offer headline and CTA family.",
+    },
+    primaryKeywords: [
+      {
+        keyword: "b2b messaging alignment",
+        intent: "Commercial investigation",
+        contentAngle: "Pillar page tying drift → operating plan offer",
+        pillarConnection: "Messaging",
+      },
+      {
+        keyword: "founder led services pipeline quality",
+        intent: "Problem aware",
+        contentAngle: "Supporting guide with CTA to plan outline",
+        pillarConnection: "Conversion",
+      },
+    ],
+    contentSEOPlaybook:
+      "One pillar + four supporting pages; every H2 ends with FAQ block; single stage-matched CTA per page matching email/paid vocabulary.",
+  },
+  aeoStrategy: {
+    overview: "AEO answers should route readers to the same proof modules and CTA stack as organic landing pages.",
+    conversionSpine: {
+      primaryMacroConversion: PREVIEW_ENGINE_MACRO,
+      primaryOfferAnchor: PREVIEW_ENGINE_OFFER,
+      advancesConversion:
+        "Surfaces concise, citation-friendly answers that point to the primary offer pages and FAQs sales already use.",
+    },
+    faqStrategy: {
+      overview: "FAQ targets match sales objections and matrix cells.",
+      priorityFAQs: [
+        "What is message-channel drift?",
+        "How long until we see pipeline-quality movement?",
+        "What do we get in the first 14 days of the operating plan?",
+      ],
+    },
+  },
+  thoughtLeadershipStrategy: {
+    overview: "Authority placements make the macro CTA credible—same proof language as nurture and late-funnel pages.",
+    conversionSpine: {
+      primaryMacroConversion: PREVIEW_ENGINE_MACRO,
+      primaryOfferAnchor: PREVIEW_ENGINE_OFFER,
+      advancesConversion:
+        "Earns third-party validation and speaking hooks that feed nurture proof blocks and sales leave-behinds—not a separate storyline.",
+    },
+    authorityPositioning: { expertiseAreas: ["GTM narrative"], uniquePerspective: "Diagnostic-to-shipped rhythm", targetOutlets: [] },
+    speakingTopics: [],
+    mediaAngles: [
+      {
+        angle: "Why service brands stall after traction",
+        hook: "Fragmented messaging raises CAC before competitors do",
+        targetMedia: "Operator newsletters",
+        talkingPoints: ["One metric window", "Owner map", "14-day artifact"],
+      },
+    ],
+    authorityContentPlan: { pillarContent: [], distributionStrategy: "Quarterly", cadence: "Monthly deep dives" },
+    prPositioning: { mediaReadyBio: "", boilerplate: "", mediaKitRecommendations: "" },
+  },
+  paidMediaStrategy: { ...previewPaidMediaStrategy },
+  customerJourneyMap: {
+    overview: "Journey stages align CTAs to the same macro conversion with increasing proof density.",
+    stages: [
+      {
+        stage: "Aware",
+        customerMindset: "Skeptical of another strategy engagement",
+        messagingFocus: "Name the hidden tax of drift",
+        conversionTrigger: "Soft CTA: read map / subscribe",
+        personaVariations: [{ persona: "Founder", adaptation: "Lead with revenue rhythm language" }],
+      },
+      {
+        stage: "Consider",
+        customerMindset: "Comparing vendors; needs mechanism",
+        messagingFocus: "Proof + timeline",
+        conversionTrigger: "Guide or Loom CTA",
+        personaVariations: [],
+      },
+      {
+        stage: "Decide",
+        customerMindset: "Needs bounded risk",
+        messagingFocus: "Pilot scope + owners",
+        conversionTrigger: "Book 20-min scope fit",
+        personaVariations: [],
+      },
+      {
+        stage: "Closed/Won",
+        customerMindset: "Expecting fast time-to-value without surprise scope",
+        messagingFocus: "Activation checklist + KPI baseline + weekly governance",
+        conversionTrigger: "Kickoff pack + first customer-visible artifact date",
+        personaVariations: [],
+      },
+    ],
+  },
+  competitivePositioning: {
+    differentiationSummary:
+      "Acme Co wins on diagnostic-to-shipped rhythm with named owners—not decks alone.",
+    strategicWhitespace: "Own operating checkpoints for founder-led B2B services.",
+    movementPlan: "Quarterly: refresh battle cards; monthly: proof module beside every late CTA.",
+    vulnerabilities: "If proof stays on About, rivals with clearer ROI stories win late funnel.",
+  },
+  ninetyDayRoadmap: {
+    overview: "Phased delivery with customer-visible artifacts each phase.",
+    phase1: {
+      name: "Phase 1 — Lock",
+      objective: "One storyline on hero, welcome v1, paid message matrix",
+      weeks: [
+        {
+          weekNumber: 1,
+          focus: "Audit + owner map",
+          tasks: [{ task: "Hero vs outbound vs deck opener audit", deliverable: "Redline doc" }],
+        },
+        {
+          weekNumber: 2,
+          focus: "Channel alignment",
+          tasks: [{ task: "Paid + organic headline parity", deliverable: "Message matrix v1" }],
+        },
+      ],
+    },
+    phase2: {
+      name: "Phase 2 — Proof",
+      objective: "Case snippets + comparison module",
+      weeks: [
+        {
+          weekNumber: 5,
+          focus: "Proof assets",
+          tasks: [{ task: "Late-funnel proof module", deliverable: "Web + deck slides" }],
+        },
+      ],
+    },
+    phase3: {
+      name: "Phase 3 — Scale",
+      objective: "Cadence + governance",
+      weeks: [
+        {
+          weekNumber: 9,
+          focus: "Operating rhythm",
+          tasks: [{ task: "Weekly KPI review", deliverable: "Scorecard template" }],
+        },
+      ],
+    },
+  },
+  personaDrivenSegmentation: previewPersonaDrivenSegmentation,
+  audiencePersonaDefinition: previewAudiencePersonaDefinition,
+  icpConversionIntelligenceFramework: previewIcpConversionIntelligenceFramework,
+  conversionStrategy: {
+    howTrustIsBuilt: "Mechanism-first proof; named windows.",
+    howClarityDrivesAction: "One CTA per email and landing block.",
+    ctaHierarchy: [
+      { level: "Primary", action: "Book scope fit", context: "High intent" },
+      { level: "Secondary", action: "Download plan outline", context: "Mid funnel" },
+    ],
+    leadCaptureRecommendations: {
+      leadPath: "create_new",
+      primaryPickTitle: "Message alignment kit (PDF)",
+      supportiveContext: "Threads through email, social, and paid as the soft conversion path.",
+    },
+  },
+};
+
+/** Merge engine-shaped preview diagnostics (same path as live Blueprint+ reports). */
+export function getPreviewActivationEngineMerge(companyName = "Acme Co"): ActivationDiagnostics {
+  return buildActivationDiagnostics(previewFullBlueprintReport, companyName);
+}

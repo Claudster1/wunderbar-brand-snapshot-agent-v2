@@ -209,6 +209,194 @@ function attachSpendContext(
   return patched;
 }
 
+type LooseRecord = Record<string, unknown>;
+
+function asRecord(value: unknown): LooseRecord | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  return value as LooseRecord;
+}
+
+function asString(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function asStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
+}
+
+/**
+ * Strategy must always expose a full-year thematic plan for Blueprint tiers.
+ * If AI returns partial rows (or only Q1), fill/normalize to Q1..Q4.
+ */
+function ensureQuarterlyContentCalendar(content: LooseRecord, businessName: string): void {
+  const existing = asRecord(content.contentCalendarFramework) ?? {};
+  const inputThemes = Array.isArray(existing.monthlyThemes) ? existing.monthlyThemes : [];
+  const themeByQuarter = new Map<string, LooseRecord>();
+
+  for (const raw of inputThemes) {
+    const row = asRecord(raw);
+    if (!row) continue;
+    const month = asString(row.month).toUpperCase();
+    if (month.startsWith("Q1")) themeByQuarter.set("Q1", row);
+    else if (month.startsWith("Q2")) themeByQuarter.set("Q2", row);
+    else if (month.startsWith("Q3")) themeByQuarter.set("Q3", row);
+    else if (month.startsWith("Q4")) themeByQuarter.set("Q4", row);
+  }
+
+  const defaults: Record<string, LooseRecord> = {
+    Q1: {
+      month: "Q1",
+      theme: "Positioning clarity and strategic alignment",
+      contentPillarFocus: "Messaging foundation",
+      keyTopics: [`What ${businessName} stands for`, "Audience pain points", "Differentiated value proposition"],
+    },
+    Q2: {
+      month: "Q2",
+      theme: "Proof and credibility expansion",
+      contentPillarFocus: "Credibility and trust",
+      keyTopics: ["Case-study proof", "Authority signals", "Objection-handling narratives"],
+    },
+    Q3: {
+      month: "Q3",
+      theme: "Demand capture and conversion efficiency",
+      contentPillarFocus: "Conversion and offer strength",
+      keyTopics: ["Offer-led campaigns", "Landing-page conversion patterns", "CTA sequencing by stage"],
+    },
+    Q4: {
+      month: "Q4",
+      theme: "Optimization, retention, and next-cycle planning",
+      contentPillarFocus: "Growth governance",
+      keyTopics: ["Quarterly review findings", "Scale/stop decisions", "Next-year strategic priorities"],
+    },
+  };
+
+  const monthlyThemes = ["Q1", "Q2", "Q3", "Q4"].map((quarter) => {
+    const source = themeByQuarter.get(quarter) ?? defaults[quarter]!;
+    const topics = asStringArray(source.keyTopics);
+    return {
+      month: quarter,
+      theme: asString(source.theme) || asString(defaults[quarter]!.theme),
+      contentPillarFocus:
+        asString(source.contentPillarFocus) || asString(defaults[quarter]!.contentPillarFocus),
+      keyTopics: topics.length > 0 ? topics.slice(0, 4) : asStringArray(defaults[quarter]!.keyTopics),
+    };
+  });
+
+  const weekly = asRecord(existing.weeklyStructure);
+  const weeklyDays = Array.isArray(weekly?.days) ? weekly?.days : [];
+  const normalizedDays = weeklyDays
+    .map((raw) => asRecord(raw))
+    .filter((row): row is LooseRecord => Boolean(row))
+    .slice(0, 5)
+    .map((row, idx) => ({
+      day: asString(row.day) || ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"][idx]!,
+      contentType: asString(row.contentType) || "Channel-native brand content",
+      platform: asString(row.platform) || "Primary distribution channel",
+      contentPillar: asString(row.contentPillar) || monthlyThemes[Math.min(idx, monthlyThemes.length - 1)]!.contentPillarFocus,
+      exampleTopic:
+        asString(row.exampleTopic) ||
+        (monthlyThemes[Math.min(idx, monthlyThemes.length - 1)]!.keyTopics[0] ?? "Quarterly strategic priority"),
+    }));
+
+  content.contentCalendarFramework = {
+    overview:
+      asString(existing.overview) ||
+      `Quarterly content system for ${businessName}: one strategic theme per quarter with weekly activation rhythm.`,
+    conversion_intelligence_reference: existing.conversion_intelligence_reference,
+    monthlyThemes,
+    weeklyStructure: {
+      description:
+        asString(weekly?.description) ||
+        "Run a weekly cadence that advances the active quarter theme and reinforces one message spine across channels.",
+      days:
+        normalizedDays.length > 0
+          ? normalizedDays
+          : [
+              { day: "Monday", contentType: "Theme anchor", platform: "Website/Blog", contentPillar: monthlyThemes[0]!.contentPillarFocus, exampleTopic: monthlyThemes[0]!.keyTopics[0] ?? "Q1 priority" },
+              { day: "Tuesday", contentType: "Proof asset", platform: "Social", contentPillar: monthlyThemes[1]!.contentPillarFocus, exampleTopic: monthlyThemes[1]!.keyTopics[0] ?? "Q2 priority" },
+              { day: "Wednesday", contentType: "Nurture touch", platform: "Email", contentPillar: monthlyThemes[2]!.contentPillarFocus, exampleTopic: monthlyThemes[2]!.keyTopics[0] ?? "Q3 priority" },
+              { day: "Thursday", contentType: "Conversion push", platform: "Landing page / campaign", contentPillar: monthlyThemes[2]!.contentPillarFocus, exampleTopic: monthlyThemes[2]!.keyTopics[1] ?? "Q3 conversion" },
+              { day: "Friday", contentType: "Review + optimization", platform: "Internal ops", contentPillar: monthlyThemes[3]!.contentPillarFocus, exampleTopic: monthlyThemes[3]!.keyTopics[0] ?? "Q4 review" },
+            ],
+    },
+    batchingStrategy:
+      asString(existing.batchingStrategy) ||
+      "Batch one core strategic asset per week, then repurpose into social, email, and sales-support slices.",
+    repurposingPlaybook:
+      asString(existing.repurposingPlaybook) ||
+      "Turn each anchor asset into: one email, two social variants, one sales enablement snippet, and one conversion-page update.",
+  };
+}
+
+function ensureActivationChannelCompleteness(content: LooseRecord): void {
+  const email = asRecord(content.emailMarketingFramework) ?? {};
+  const welcomeSequence = asRecord(email.welcomeSequence) ?? {};
+  const welcomeEmails = Array.isArray(welcomeSequence.emails) ? welcomeSequence.emails : [];
+  if (welcomeEmails.length < 4) {
+    welcomeSequence.emails = [
+      { timing: "Immediately", subject: "Welcome + strategic promise", purpose: "Frame value", keyMessage: "Set expectations and explain the primary outcome this program delivers." },
+      { timing: "Day 2", subject: "Diagnostic insight + proof", purpose: "Build trust", keyMessage: "Share one concrete insight and a proof point tied to buyer pains." },
+      { timing: "Day 5", subject: "How to apply this now", purpose: "Activation", keyMessage: "Provide one practical move the buyer can execute this week." },
+      { timing: "Day 8", subject: "Next best step", purpose: "Conversion", keyMessage: "Offer the next-step CTA aligned to the same macro conversion goal." },
+    ];
+  }
+  content.emailMarketingFramework = {
+    ...email,
+    overview: asString(email.overview) || "Email converts strategic intent into nurture and conversion momentum.",
+    welcomeSequence: {
+      ...welcomeSequence,
+      description: asString(welcomeSequence.description) || "Four-email onboarding sequence from orientation to conversion.",
+      emails: (Array.isArray(welcomeSequence.emails) ? welcomeSequence.emails : []).slice(0, 6),
+    },
+  };
+
+  const social = asRecord(content.socialMediaStrategy) ?? {};
+  const platforms = Array.isArray(social.platforms) ? social.platforms : [];
+  if (platforms.length === 0) {
+    social.platforms = [
+      { platform: "LinkedIn", whyThisPlatform: "B2B authority and demand capture", audienceOnPlatform: "Economic buyers and operators", contentStrategy: "Proof-led thought leadership + clear CTA handoffs", postingFrequency: "3x weekly", contentMix: "50% education, 30% proof, 20% offer", examplePosts: ["Outcome story with metric + mechanism", "Common leak and fix", "Offer-linked insight post"], kpiToTrack: "Qualified leads from social" },
+      { platform: "Email/Newsletter amplification", whyThisPlatform: "Owned distribution", audienceOnPlatform: "Warm prospects and current customers", contentStrategy: "Reinforce campaign message spine weekly", postingFrequency: "1x weekly", contentMix: "70% education, 30% conversion", examplePosts: ["Weekly insight with CTA", "Proof summary with next step"], kpiToTrack: "Click-through to conversion pages" },
+    ];
+  }
+  content.socialMediaStrategy = {
+    ...social,
+    overview: asString(social.overview) || "Platform plan aligned to one conversion spine and offer narrative.",
+    platforms: (Array.isArray(social.platforms) ? social.platforms : []).slice(0, 4),
+  };
+
+  const channelSections: Array<[keyof LooseRecord, string]> = [
+    ["seoStrategy", "SEO plan with prioritized keywords, page targets, and conversion intent mapping."],
+    ["aeoStrategy", "AEO plan with entity signals, citation-friendly content structure, and FAQ priorities."],
+    ["thoughtLeadershipStrategy", "Thought leadership plan with owned content, media angles, and distribution cadence."],
+  ];
+  for (const [key, fallback] of channelSections) {
+    const section = asRecord(content[key]) ?? {};
+    content[key] = {
+      ...section,
+      overview: asString(section.overview) || fallback,
+    };
+  }
+
+  const paid = asRecord(content.paidMediaStrategy);
+  if (paid) {
+    content.paidMediaStrategy = ensurePaidMediaChannelsMinimum(paid);
+  }
+}
+
+function ensureBlueprintExecutionCompleteness(
+  tier: ReportTier,
+  content: Record<string, unknown>,
+  input: AssessmentInput,
+): Record<string, unknown> {
+  if (tier !== "blueprint" && tier !== "blueprint_plus") return content;
+  const next = { ...content } as LooseRecord;
+  const businessName = asString(input.businessName) || "this brand";
+  ensureQuarterlyContentCalendar(next, businessName);
+  ensureActivationChannelCompleteness(next);
+  return next;
+}
+
 /**
  * Parse the AI response as JSON.
  * Handles common AI quirks: markdown code fences, trailing text after JSON.
@@ -328,7 +516,10 @@ async function generateSingleCall(
     throw new Error(`AI returned empty content for ${tier} report`);
   }
 
-  const content = attachSpendContext(parseAIJsonResponse(response.content), input);
+  const content = attachSpendContext(
+    ensureBlueprintExecutionCompleteness(tier, parseAIJsonResponse(response.content), input),
+    input,
+  );
 
   return {
     tier,
@@ -511,7 +702,10 @@ Do NOT include any other sections. Return ONLY valid JSON with the keys listed a
 
   return {
     tier: "blueprint_plus",
-    content: attachSpendContext(mergedContent, input),
+    content: attachSpendContext(
+      ensureBlueprintExecutionCompleteness("blueprint_plus", mergedContent, input),
+      input,
+    ),
     generatedAt: new Date().toISOString(),
     model: lastModel,
     provider: lastProvider,

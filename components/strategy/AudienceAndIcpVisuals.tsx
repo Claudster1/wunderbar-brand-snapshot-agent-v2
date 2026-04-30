@@ -1,9 +1,15 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import { useEffect, useMemo, useState } from "react";
 
+import PersonaAtlasSuite from "@/components/persona/PersonaAtlasSuite";
 import { SUITE_ACCENT_BRIGHT, SUITE_FONT_UI, SUITE_MUTED, SUITE_NAVY } from "@/components/results/suiteBrandTokens";
 import StrategyProseBody from "@/components/strategy/StrategyProseBody";
+import {
+  buildFoundationPersonaAtlasEntries,
+  extractBuyerPersonasRaw,
+} from "@/lib/foundationPersonaAtlas";
 import {
   buildStrategyAudienceProfilesUiModel,
   buyerPersonasToStrategyCards,
@@ -407,7 +413,7 @@ function BuyerPersonaCard({ card }: { card: StrategyBuyerPersonaCard }) {
   );
 }
 
-/** Strategy tab: role-level personas as stacked cards; optional atlas summary. */
+/** Strategy tab: interactive atlas when structured personas exist; otherwise cards or prose. */
 export function StrategyBuyerPersonasLayout(props: {
   buyerPersonas: unknown;
   summaryText: string;
@@ -415,26 +421,88 @@ export function StrategyBuyerPersonasLayout(props: {
   reportId?: string;
   companyName?: string;
   diagnostic?: Record<string, unknown> | null;
+  primaryPillar?: string;
+  topGap?: string;
 }) {
-  const cards = buyerPersonasToStrategyCards(props.buyerPersonas, {
+  const diagnosticRecord = useMemo(
+    () => (props.diagnostic ?? {}) as Record<string, unknown>,
+    [props.diagnostic],
+  );
+  const fromDiagnostic = useMemo(
+    () => extractBuyerPersonasRaw(diagnosticRecord),
+    [diagnosticRecord],
+  );
+  const fallbackList = Array.isArray(props.buyerPersonas) ? props.buyerPersonas : [];
+  const personasListForCards = fromDiagnostic.length > 0 ? fromDiagnostic : fallbackList;
+
+  const rawFingerprint = useMemo(() => JSON.stringify(fromDiagnostic.slice(0, 8)), [fromDiagnostic]);
+
+  const atlasEntries = useMemo(() => {
+    if (fromDiagnostic.length === 0) return [];
+    return buildFoundationPersonaAtlasEntries({
+      diagnosticData: diagnosticRecord,
+      businessName: (props.companyName ?? "").trim() || "Your brand",
+      reportId: props.reportId,
+      topGap: (props.topGap ?? "message inconsistency").toLowerCase(),
+      primaryPillar: (props.primaryPillar ?? "messaging").trim() || "messaging",
+    });
+  }, [
+    diagnosticRecord,
+    fromDiagnostic,
+    props.companyName,
+    props.reportId,
+    props.topGap,
+    props.primaryPillar,
+  ]);
+
+  const [atlasIdx, setAtlasIdx] = useState(0);
+  useEffect(() => {
+    setAtlasIdx(0);
+  }, [rawFingerprint]);
+
+  const cards = buyerPersonasToStrategyCards(personasListForCards, {
     reportId: props.reportId,
     companyName: props.companyName,
     diagnostic: props.diagnostic,
   });
+
+  const summary = props.summaryText.trim();
+
+  if (atlasEntries.length > 0) {
+    return (
+      <div className="flex flex-col gap-6">
+        {summary ? (
+          <div
+            className="rounded-xl border border-slate-900/[0.08] bg-white px-4 py-3.5 shadow-sm sm:px-5 sm:py-4"
+            style={{ fontFamily: SUITE_FONT_UI, boxShadow: "0 2px 16px rgba(0,0,0,0.06), 0 0 1px rgba(0,0,0,0.06)" }}
+          >
+            <SectionEyebrow>Atlas summary</SectionEyebrow>
+            <p className="mt-2 text-[13px] leading-relaxed text-brand-midnight sm:text-[15px]">{summary}</p>
+          </div>
+        ) : null}
+        <PersonaAtlasSuite
+          entries={atlasEntries}
+          selectedIndex={atlasIdx}
+          onSelectIndex={setAtlasIdx}
+          leadIn="Each tab is a buyer role from your deliverable. Goals and fears inform proof; the CTA line is a starting point for landing pages and nurture."
+          regionLabel="Persona atlas from strategy deliverable"
+        />
+      </div>
+    );
+  }
+
   if (cards.length === 0) {
     return (
       <StrategyProseBody text={props.fallbackBody} paragraphStyle={{ ...PROSE_PARA, color: "#1e293b" }} />
     );
   }
 
-  const summary = props.summaryText.trim();
-
   return (
     <div className="flex flex-col gap-6">
       {summary ? (
         <div
-          className="rounded-xl border border-slate-900/[0.08] bg-slate-50/60 px-4 py-3 sm:px-5 sm:py-4"
-          style={{ fontFamily: SUITE_FONT_UI }}
+          className="rounded-xl border border-slate-900/[0.08] bg-white px-4 py-3.5 shadow-sm sm:px-5 sm:py-4"
+          style={{ fontFamily: SUITE_FONT_UI, boxShadow: "0 2px 16px rgba(0,0,0,0.06), 0 0 1px rgba(0,0,0,0.06)" }}
         >
           <SectionEyebrow>Atlas summary</SectionEyebrow>
           <p className="mt-2 text-[13px] leading-relaxed text-brand-midnight sm:text-[15px]">{summary}</p>

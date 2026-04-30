@@ -2,13 +2,24 @@
 
 import { useEffect, useState } from "react";
 import type { WorkbookSection as WorkbookSectionType } from "@/lib/workbookTypes";
+import {
+  SUITE_ACCENT_BRIGHT,
+  SUITE_BORDER,
+  SUITE_FONT_UI,
+  SUITE_MUTED,
+  SUITE_NAVY,
+  SUITE_RADIUS_MD,
+  SUITE_SHADOW_CARD,
+  SUITE_TEXT_PRIMARY,
+} from "@/components/results/suiteBrandTokens";
 
-const NAVY = "#021859";
-const BLUE = "#07B0F2";
+const NAVY = SUITE_NAVY;
+const BLUE = SUITE_ACCENT_BRIGHT;
 const GREEN = "#16A34A";
-const MID_GRAY = "#5A6B7E";
-const BORDER = "#E0E8F0";
+const MID_GRAY = SUITE_MUTED;
+const BORDER = SUITE_BORDER;
 const LIGHT = "#F7F9FC";
+const BODY = SUITE_TEXT_PRIMARY;
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
@@ -32,6 +43,8 @@ export default function WorkbookSectionComponent({
   const [localContent, setLocalContent] = useState(content);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [formatGuideOpen, setFormatGuideOpen] = useState(false);
+  const [areaFocused, setAreaFocused] = useState(false);
   const isDirty = localContent !== content;
 
   useEffect(() => {
@@ -60,13 +73,16 @@ export default function WorkbookSectionComponent({
       id={`workbook-section-${section.id}`}
       style={{
         borderTop: `1px solid ${BORDER}`,
-        paddingTop: 32,
-        marginTop: 32,
-        fontFamily: "'Lato', sans-serif",
+        paddingTop: 36,
+        marginTop: 36,
+        fontFamily: SUITE_FONT_UI,
         scrollMarginTop: 120,
-        background: isFocused ? "#F8FBFF" : "transparent",
-        borderRadius: isFocused ? 10 : 0,
-        boxShadow: isFocused ? "0 0 0 1px rgba(7,176,242,0.25) inset" : "none",
+        background: isFocused ? "rgba(248,251,255,0.95)" : "transparent",
+        borderRadius: isFocused ? SUITE_RADIUS_MD : 0,
+        boxShadow: isFocused ? "inset 0 0 0 1px rgba(7,176,242,0.22)" : "none",
+        paddingLeft: isFocused ? 14 : 0,
+        paddingRight: isFocused ? 14 : 0,
+        paddingBottom: isFocused ? 14 : 0,
       }}
     >
       <div
@@ -74,22 +90,24 @@ export default function WorkbookSectionComponent({
           display: "flex",
           justifyContent: "space-between",
           alignItems: "flex-start",
-          marginBottom: 8,
+          marginBottom: 10,
           gap: 16,
           flexWrap: "wrap",
         }}
       >
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
-            <h3 style={{ fontSize: 17, fontWeight: 700, color: NAVY, margin: 0 }}>{section.label}</h3>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6, flexWrap: "wrap" }}>
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: NAVY, margin: 0, letterSpacing: "-0.01em" }}>
+              {section.label}
+            </h3>
             {section.pillar && (
               <span
                 style={{
-                  padding: "1px 8px",
-                  borderRadius: 10,
+                  padding: "2px 10px",
+                  borderRadius: 999,
                   fontSize: 11,
                   fontWeight: 700,
-                  backgroundColor: "#E8F6FE",
+                  backgroundColor: "rgba(7,176,242,0.1)",
                   color: BLUE,
                 }}
               >
@@ -99,19 +117,19 @@ export default function WorkbookSectionComponent({
             {!isEditable && (
               <span
                 style={{
-                  padding: "1px 8px",
-                  borderRadius: 10,
+                  padding: "2px 10px",
+                  borderRadius: 999,
                   fontSize: 11,
                   fontWeight: 700,
                   backgroundColor: "#F1F5F9",
                   color: MID_GRAY,
                 }}
               >
-                Read Only
+                Read only
               </span>
             )}
           </div>
-          <p style={{ fontSize: 13, color: MID_GRAY, margin: 0, lineHeight: 1.5 }}>{section.description}</p>
+          <p style={{ fontSize: 14, color: MID_GRAY, margin: 0, lineHeight: 1.55, maxWidth: 720 }}>{section.description}</p>
         </div>
 
         {isEditable && (
@@ -124,24 +142,28 @@ export default function WorkbookSectionComponent({
                 Save failed — try again
               </span>
             )}
-            {lastSaved && saveStatus === "idle" && (
+            {isDirty && saveStatus === "idle" && (
+              <span style={{ fontSize: 11, color: MID_GRAY, fontWeight: 600 }}>Unsaved changes</span>
+            )}
+            {lastSaved && saveStatus === "idle" && !isDirty && (
               <span style={{ fontSize: 11, color: "#94A3B8" }}>
                 Last saved {lastSaved.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
               </span>
             )}
             <button
+              type="button"
               onClick={handleSave}
               disabled={!isDirty || saveStatus === "saving"}
               style={{
-                padding: "8px 16px",
-                backgroundColor: isDirty ? BLUE : "#E2E8F0",
+                padding: "9px 18px",
+                backgroundColor: isDirty ? BLUE : "#E8ECF0",
                 color: isDirty ? "#ffffff" : "#94A3B8",
                 border: "none",
-                borderRadius: 6,
+                borderRadius: SUITE_RADIUS_MD,
                 fontWeight: 700,
                 fontSize: 13,
                 cursor: isDirty ? "pointer" : "not-allowed",
-                fontFamily: "'Lato', sans-serif",
+                fontFamily: SUITE_FONT_UI,
               }}
             >
               {saveStatus === "saving" ? "Saving..." : "Save"}
@@ -153,54 +175,79 @@ export default function WorkbookSectionComponent({
       {editWindowExpired && (
         <div
           style={{
-            padding: "10px 14px",
-            backgroundColor: "#FEF3C7",
-            border: "1px solid #FCD34D",
-            borderRadius: 6,
-            marginBottom: 12,
+            padding: "12px 16px",
+            backgroundColor: "#FFFBEB",
+            border: "1px solid #FDE68A",
+            borderRadius: SUITE_RADIUS_MD,
+            marginBottom: 14,
             fontSize: 13,
             color: "#92400E",
+            lineHeight: 1.5,
           }}
         >
-          Your 14-day edit window has closed. This section is now read-only. WunderBrand Blueprint+™
-          includes unlimited edits.
+          Your 14-day edit window has closed. This section is now read-only. WunderBrand Blueprint+™ includes unlimited
+          edits.
         </div>
       )}
 
-      {section.inputTemplate && (
-        <div
-          style={{
-            marginBottom: 12,
-            padding: "10px 12px",
-            border: `1px solid ${BORDER}`,
-            borderRadius: 8,
-            backgroundColor: "#F8FBFF",
-          }}
-        >
-          <p
+      {section.inputTemplate ? (
+        <div style={{ marginBottom: 14 }}>
+          <button
+            type="button"
+            onClick={() => setFormatGuideOpen((o) => !o)}
+            aria-expanded={formatGuideOpen}
             style={{
-              margin: "0 0 6px",
-              fontSize: 11,
-              fontWeight: 800,
-              color: MID_GRAY,
-              letterSpacing: "0.04em",
+              padding: 0,
+              border: "none",
+              background: "none",
+              cursor: "pointer",
+              fontSize: 13,
+              fontWeight: 600,
+              color: BLUE,
+              fontFamily: SUITE_FONT_UI,
+              textDecoration: "underline",
+              textUnderlineOffset: 3,
             }}
           >
-            Recommended Format
-          </p>
-          <p
-            style={{
-              margin: 0,
-              fontSize: 12,
-              color: "#2D3A4A",
-              lineHeight: 1.5,
-              whiteSpace: "pre-wrap",
-            }}
-          >
-            {section.inputTemplate}
-          </p>
+            {formatGuideOpen ? "Hide formatting guide" : "Show formatting guide"}
+          </button>
+          {formatGuideOpen ? (
+            <div
+              style={{
+                marginTop: 10,
+                padding: "14px 16px",
+                border: `1px solid ${BORDER}`,
+                borderRadius: SUITE_RADIUS_MD,
+                backgroundColor: "#FAFBFD",
+                boxShadow: SUITE_SHADOW_CARD,
+              }}
+            >
+              <p
+                style={{
+                  margin: "0 0 8px",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: MID_GRAY,
+                  letterSpacing: "0.06em",
+                }}
+              >
+                Suggested structure
+              </p>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: 13,
+                  color: BODY,
+                  lineHeight: 1.55,
+                  whiteSpace: "pre-wrap",
+                }}
+              >
+                {section.inputTemplate}
+              </p>
+            </div>
+          ) : null}
         </div>
-      )}
+      ) : null}
 
       {isEditable ? (
         <div>
@@ -208,20 +255,28 @@ export default function WorkbookSectionComponent({
             value={localContent}
             onChange={(event) => setLocalContent(event.target.value)}
             placeholder={section.placeholder}
+            onFocus={() => setAreaFocused(true)}
+            onBlur={() => setAreaFocused(false)}
             style={{
               width: "100%",
-              minHeight: 180,
-              padding: "14px 16px",
-              fontSize: 14,
-              lineHeight: 1.7,
+              minHeight: 220,
+              padding: "16px 18px",
+              fontSize: 15,
+              lineHeight: 1.65,
               color: NAVY,
               backgroundColor: "#ffffff",
-              border: `1.5px solid ${isDirty ? BLUE : BORDER}`,
-              borderRadius: 8,
+              border: `1px solid ${isDirty ? BLUE : BORDER}`,
+              borderRadius: SUITE_RADIUS_MD,
               resize: "vertical",
-              fontFamily: "'Lato', sans-serif",
+              fontFamily: SUITE_FONT_UI,
               outline: "none",
               boxSizing: "border-box",
+              boxShadow: areaFocused
+                ? "0 0 0 3px rgba(7, 176, 242, 0.22), 0 2px 12px rgba(0,0,0,0.04)"
+                : isFocused
+                  ? "0 2px 12px rgba(0,0,0,0.04)"
+                  : "none",
+              transition: "border-color 0.15s ease, box-shadow 0.15s ease",
             }}
           />
           <div
@@ -230,8 +285,8 @@ export default function WorkbookSectionComponent({
               justifyContent: "flex-end",
               fontSize: 11,
               color: "#94A3B8",
-              marginTop: 4,
-              gap: 12,
+              marginTop: 6,
+              gap: 14,
             }}
           >
             <span>{wordCount} words</span>
@@ -241,21 +296,18 @@ export default function WorkbookSectionComponent({
       ) : (
         <div
           style={{
-            padding: "14px 16px",
+            padding: "16px 18px",
             backgroundColor: LIGHT,
             border: `1px solid ${BORDER}`,
-            borderRadius: 8,
-            minHeight: 80,
+            borderRadius: SUITE_RADIUS_MD,
+            minHeight: 88,
+            boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
           }}
         >
           {localContent ? (
-            <p style={{ fontSize: 14, lineHeight: 1.7, color: NAVY, margin: 0, whiteSpace: "pre-wrap" }}>
-              {localContent}
-            </p>
+            <p style={{ fontSize: 15, lineHeight: 1.65, color: NAVY, margin: 0, whiteSpace: "pre-wrap" }}>{localContent}</p>
           ) : (
-            <p style={{ fontSize: 14, color: "#CBD5E0", margin: 0, fontStyle: "italic" }}>
-              {section.placeholder}
-            </p>
+            <p style={{ fontSize: 15, color: "#94A3B8", margin: 0, fontStyle: "italic" }}>{section.placeholder}</p>
           )}
         </div>
       )}

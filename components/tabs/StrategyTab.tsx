@@ -48,7 +48,7 @@ import { getChatTierConfig } from "@/lib/chatTierConfig";
 import { getSuiteProgressHint } from "@/lib/copy/resultsSuiteGuidance";
 import { buildAudienceProfilesBody, buildCustomerProfilesDeepBody } from "@/lib/strategy/audienceNarrative";
 import { buildStrategyNavMenuItems } from "@/lib/strategy/strategyNavMenu";
-import { collectStrategyPlanSections } from "@/lib/strategy/strategyPlanExtract";
+import { collectStrategyPlanSections, joinAsStrategyBullets } from "@/lib/strategy/strategyPlanExtract";
 import StrategicOfferPortfolioLayout from "@/components/strategy/StrategicOfferPortfolioLayout";
 import {
   buildStrategicOfferPlanBody,
@@ -56,6 +56,7 @@ import {
   strategicOfferViewModelHasContent,
 } from "@/lib/strategy/strategicOfferPlan";
 import { parseBuyerJourneyStages, summarizeJourneyTile } from "@/lib/strategy/parseBuyerJourneyStages";
+import { getJourneyMapTileChrome, journeyStageTitleColor } from "@/lib/strategy/journeyMapTileChrome";
 import { extractCompetitiveLandscapePlayers } from "@/lib/strategy/competitiveLandscapePlayers";
 import type { WorkbookSectionId } from "@/lib/workbookTypes";
 import { SEMANTIC_DO, SEMANTIC_DONT } from "@/src/pdf/reportVisualTokens";
@@ -128,13 +129,6 @@ const STRATEGY_LIST: CSSProperties = {
   fontFamily: SUITE_FONT_UI,
 };
 
-const JOURNEY_STAGE_EYEBROW: CSSProperties = {
-  ...SUITE_FOUNDATION_SUBHEAD_STYLE,
-  margin: "0 0 8px",
-  fontSize: 12,
-  textTransform: "none",
-};
-
 const JOURNEY_STAGE_BODY: CSSProperties = {
   margin: 0,
   fontSize: 15,
@@ -142,16 +136,6 @@ const JOURNEY_STAGE_BODY: CSSProperties = {
   lineHeight: 1.58,
   fontFamily: SUITE_FONT_UI,
 };
-
-/** Left accent per journey stage so narrative blocks read as separate steps (aligned with JourneyMapVisual). */
-const JOURNEY_STAGE_ACCENT_BARS = [
-  "rgba(2, 24, 89, 0.45)",
-  "rgba(7, 176, 242, 0.75)",
-  "#07b0f2",
-  "#059BD8",
-  "rgba(2, 24, 89, 0.35)",
-  "rgba(7, 176, 242, 0.55)",
-] as const;
 
 const WORKBOOK_BTN_STYLE: CSSProperties = {
   padding: "9px 16px",
@@ -433,7 +417,7 @@ export default function StrategyTab({
         })
       : null;
   const spendPlanSummary = spendContext
-    ? [
+    ? joinAsStrategyBullets(
         spendContext.budgetConstrainedPlan?.focus || "Align channel strategy to current spend before scaling.",
         Array.isArray(spendContext.budgetConstrainedPlan?.allocation)
           ? `Current allocation: ${spendContext.budgetConstrainedPlan!.allocation!
@@ -446,9 +430,7 @@ export default function StrategyTab({
               .join(" → ")}.`
           : "",
         spendContext.confidence ? `Confidence: ${spendContext.confidence}.` : "",
-      ]
-        .filter(Boolean)
-        .join("\n")
+      )
     : "";
 
   const defaultJourneyMapStages = [
@@ -1337,6 +1319,8 @@ export default function StrategyTab({
                 reportId={reportIdForPersonas}
                 companyName={companyName}
                 diagnostic={diagnosticData as Record<string, unknown>}
+                primaryPillar={primaryPillar}
+                topGap={topGaps[0] ?? topGap}
               />
             ) : null}
             {section.id === "spend-roadmap" ? <SpendRolesHubVisual hubLabel={companyName} /> : null}
@@ -1431,20 +1415,22 @@ export default function StrategyTab({
             {section.id === "buyer-journey-map" && journeyParsed ? (
               <div style={{ marginTop: 22, display: "flex", flexDirection: "column", gap: 16 }}>
                 {journeyParsed.map((stage, i) => {
-                  const bar =
-                    JOURNEY_STAGE_ACCENT_BARS[i % JOURNEY_STAGE_ACCENT_BARS.length];
+                  const chrome = getJourneyMapTileChrome(stage.label, i);
                   return (
                     <div
                       key={`${stage.key}-${i}`}
                       style={{
                         borderRadius: SUITE_RADIUS_MD,
-                        border: `1px solid ${BORDER}`,
-                        background: "linear-gradient(180deg, #F8FBFF 0%, #FFFFFF 72%)",
-                        boxShadow: SUITE_SHADOW_CARD,
+                        border: `1px solid ${chrome.border}`,
+                        background: `linear-gradient(145deg, ${chrome.bgFrom} 0%, ${chrome.bgTo} 100%)`,
+                        boxShadow: `0 4px 16px ${chrome.leftRail}24`,
                         padding: "16px 18px",
+                        borderTopWidth: 3,
+                        borderTopStyle: "solid",
+                        borderTopColor: chrome.leftRail,
                         borderLeftWidth: 4,
                         borderLeftStyle: "solid",
-                        borderLeftColor: bar,
+                        borderLeftColor: chrome.leftRail,
                       }}
                     >
                       <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
@@ -1460,7 +1446,7 @@ export default function StrategyTab({
                             fontSize: 13,
                             fontWeight: 800,
                             color: "#FFFFFF",
-                            background: BLUE,
+                            background: chrome.numberBg,
                             fontFamily: SUITE_FONT_UI,
                           }}
                           aria-hidden
@@ -1468,7 +1454,30 @@ export default function StrategyTab({
                           {i + 1}
                         </span>
                         <div style={{ minWidth: 0, flex: 1 }}>
-                          <p style={{ ...JOURNEY_STAGE_EYEBROW, margin: "0 0 10px" }}>{stage.label}</p>
+                          <p
+                            style={{
+                              margin: "0 0 6px",
+                              fontSize: 13,
+                              fontWeight: 800,
+                              letterSpacing: "0.04em",
+                              color: journeyStageTitleColor(chrome),
+                              fontFamily: SUITE_FONT_UI,
+                            }}
+                          >
+                            {stage.label}
+                          </p>
+                          <p
+                            style={{
+                              margin: "0 0 10px",
+                              fontSize: 11,
+                              fontWeight: 700,
+                              letterSpacing: "0.06em",
+                              color: MID_GRAY,
+                              fontFamily: SUITE_FONT_UI,
+                            }}
+                          >
+                            {chrome.cue}
+                          </p>
                           <p style={JOURNEY_STAGE_BODY}>{stage.narrative}</p>
                         </div>
                       </div>

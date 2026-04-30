@@ -3,6 +3,9 @@
 // Edge-level proxy for request filtering and security.
 // Runs on Vercel Edge Runtime BEFORE any API route or page renders.
 // ─────────────────────────────────────────────────────────────────
+//
+// `/preview/*` is internal-only: blocked on Vercel Production unless
+// `ENABLE_PREVIEW_ROUTES=true` is set on that environment (see app/preview-unavailable).
 
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
@@ -79,6 +82,15 @@ export function proxy(request: NextRequest) {
   const method = request.method;
   const lowerPath = pathname.toLowerCase();
 
+  const isPreviewPath = pathname === "/preview" || pathname.startsWith("/preview/");
+  if (
+    isPreviewPath &&
+    process.env.ENABLE_PREVIEW_ROUTES !== "true" &&
+    process.env.VERCEL_ENV === "production"
+  ) {
+    return NextResponse.rewrite(new URL("/preview-unavailable", request.url));
+  }
+
   if (EXACT_BLOCKED.has(lowerPath)) return new NextResponse(null, { status: 404 });
 
   for (const blocked of BLOCKED_PATHS) {
@@ -148,6 +160,8 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
+    "/preview",
+    "/preview/:path*",
     "/api/:path*",
     "/wp-admin/:path*",
     "/wp-login/:path*",

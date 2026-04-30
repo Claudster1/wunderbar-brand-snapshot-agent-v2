@@ -1040,6 +1040,8 @@ CONTENT QUALITY — McKINSEY-LEVEL STRATEGIC DEPTH
 - Brand Archetype activation must describe specific behaviors
 - Conversion Strategy ctaHierarchy should have 3 levels: Primary, Secondary, Tertiary
 - Color swatches must include real hex codes, RGB values, and CMYK values that work together
+- If **contentCalendarFramework** is present, it must include a full-year sequence (**Q1, Q2, Q3, Q4**) in monthlyThemes with no missing quarters.
+- Activation-facing sections (**emailMarketingFramework**, **socialMediaStrategy**, **seoStrategy**, **aeoStrategy**, and when relevant **thoughtLeadershipStrategy** / **paidMediaStrategy**) must be complete enough to execute: no empty shells, no placeholder-only rows, and no missing core fields after the section appears.
 
 STRATEGIC DEPTH REQUIREMENTS (CRITICAL — $997 TIER):
 - Every pillar insight MUST include a clear CAUSAL CHAIN: if [businessName] does X → Y improves because Z. No floating assertions.

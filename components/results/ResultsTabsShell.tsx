@@ -59,6 +59,7 @@ import { ResultsSuiteNavContext, type ResultsSuiteNav } from "@/components/resul
 import { ResultsWundyChat } from "@/app/results/components/ResultsWundyChat";
 import SuiteWundyGuideBar from "@/components/results/SuiteWundyGuideBar";
 import ResultsActivationRoutingCallout from "@/components/results/ResultsActivationRoutingCallout";
+import ExecutionSuiteBridge from "@/components/results/ExecutionSuiteBridge";
 
 const LOCKED_TAB_FEATURES: Record<
   Exclude<ResultsTab, "results">,
@@ -597,6 +598,8 @@ export default function ResultsTabsShell({
       return diagnosticData.companyName.trim();
     return undefined;
   }, [diagnosticData.businessName, diagnosticData.companyName]);
+
+  const executionReportLabel = useMemo(() => suiteCompanyName ?? "Your report", [suiteCompanyName]);
 
   const introOpts = useMemo(() => ({ businessName: suiteCompanyName }), [suiteCompanyName]);
 
@@ -1444,6 +1447,13 @@ export default function ResultsTabsShell({
               activeSectionId={activationShellActiveId}
             />
           </div>
+          <ExecutionSuiteBridge
+            mode="activation"
+            reportLabel={executionReportLabel}
+            onSelectPlans={() => openOrLockTab("activation")}
+            onSelectWorkbook={() => openOrLockTab("workbook")}
+            onSelectDownloads={() => openOrLockTab("downloads")}
+          />
           <Suspense fallback={<div style={{ padding: 28, fontSize: 14, color: "#64748B" }}>Loading activation…</div>}>
             <ActivationTab
               productTier={productTier}
@@ -1477,6 +1487,13 @@ export default function ResultsTabsShell({
               activeSectionId={workbookShellActiveId}
             />
           </div>
+          <ExecutionSuiteBridge
+            mode="workbook"
+            reportLabel={executionReportLabel}
+            onSelectPlans={() => openOrLockTab("activation")}
+            onSelectWorkbook={() => openOrLockTab("workbook")}
+            onSelectDownloads={() => openOrLockTab("downloads")}
+          />
           <WorkbookTab
             productTier={productTier}
             diagnosticData={diagnosticData}
@@ -1512,6 +1529,13 @@ export default function ResultsTabsShell({
               activeSectionId={downloadsShellActiveId}
             />
           </div>
+          <ExecutionSuiteBridge
+            mode="downloads"
+            reportLabel={executionReportLabel}
+            onSelectPlans={() => openOrLockTab("activation")}
+            onSelectWorkbook={() => openOrLockTab("workbook")}
+            onSelectDownloads={() => openOrLockTab("downloads")}
+          />
           <DownloadsTab
             productTier={productTier}
             documentStates={documentStates}

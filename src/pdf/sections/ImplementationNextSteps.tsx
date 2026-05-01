@@ -1,5 +1,6 @@
 import { Link, Text, View, StyleSheet } from "@react-pdf/renderer";
 import { WUNDERBAR_IMPLEMENTATION_PATHS_PDF_URL } from "@/lib/wunderbarExternalUrls";
+import { pdfTheme } from "../theme";
 
 const styles = StyleSheet.create({
   container: {
@@ -11,7 +12,7 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 14,
     fontWeight: 600,
-    color: "#021859",
+    color: pdfTheme.colors.navy,
     marginBottom: 8,
   },
   body: {
@@ -22,7 +23,7 @@ const styles = StyleSheet.create({
   link: {
     marginTop: 10,
     fontSize: 10.5,
-    color: "#07B0F2",
+    color: pdfTheme.colors.blue,
   },
 });
 

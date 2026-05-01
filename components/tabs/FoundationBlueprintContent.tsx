@@ -17,6 +17,7 @@ import {
   extractBuyerPersonasRaw,
 } from "@/lib/foundationPersonaAtlas";
 import PersonaAtlasSuite from "@/components/persona/PersonaAtlasSuite";
+import { SUITE_PANEL_RAIL, SUITE_SHADOW_CARD } from "@/components/results/suiteBrandTokens";
 
 interface FoundationBlueprintContentProps {
   businessName: string;
@@ -40,11 +41,6 @@ type Subsection = {
 type VisualSystemMode = "existing" | "optimize" | "refresh";
 type JourneyStageId = "unaware" | "aware" | "considering" | "evaluating" | "deciding" | "retained";
 type DensityMode = "comfortable" | "compact";
-
-/** Outer rail — subsection cards + domain sections (match suite-wide rails). */
-const TILE_ACCENT_NAVY = "rgba(7, 176, 242, 0.55)";
-/** Inner vertical accents — principle bars, Put it to work, in-body rails (aligns with brand blue elsewhere). */
-const TILE_ACCENT_BLUE = "#07B0F2";
 
 const FAMILY_STYLES: Record<string, { chip: string; descriptorBg: string; badgeBg: string }> = {
   identity: {
@@ -1048,13 +1044,13 @@ function SubsectionCard({ item, densityMode }: { item: Subsection; densityMode: 
   return (
     <ReportPanel
       id={item.id}
-      accentColor={TILE_ACCENT_NAVY}
+      accentColor={SUITE_PANEL_RAIL}
       tint={familyStyle.descriptorBg}
       edgeAccent="none"
       style={{
         padding: densityMode === "compact" ? "22px 24px" : "26px 28px",
         scrollMarginTop: 120,
-        boxShadow: "0 2px 14px rgba(2, 24, 89, 0.05), 0 0 1px rgba(2, 24, 89, 0.06)",
+        boxShadow: SUITE_SHADOW_CARD,
       }}
     >
       <div className="flex items-start justify-between gap-4">

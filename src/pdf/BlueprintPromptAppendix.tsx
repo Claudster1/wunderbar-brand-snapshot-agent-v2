@@ -3,6 +3,7 @@
 
 import { Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import { PromptPack } from '@/src/lib/prompts/blueprint/promptPacks';
+import { pdfTheme } from "./theme";
 
 const styles = StyleSheet.create({
   page: {
@@ -12,7 +13,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 700,
     marginBottom: 12,
-    color: '#021859',
+    color: pdfTheme.colors.navy,
   },
   packContainer: {
     marginBottom: 24,
@@ -23,7 +24,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 600,
     marginBottom: 4,
-    color: '#021859',
+    color: pdfTheme.colors.navy,
   },
   packDescription: {
     fontSize: 10,

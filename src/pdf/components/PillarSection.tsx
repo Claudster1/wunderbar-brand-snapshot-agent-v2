@@ -2,6 +2,7 @@
 
 import { View, Text } from "@react-pdf/renderer";
 import { ScoreGauge } from "../components/ScoreGauge";
+import { pdfTheme } from "../theme";
 
 interface PillarSectionProps {
   name: string;
@@ -31,7 +32,7 @@ export function PillarSection({
             style={{
               fontSize: titleSize,
               fontWeight: "bold",
-              color: "#021859",
+              color: pdfTheme.colors.navy,
               marginBottom: 6,
             }}
           >
@@ -46,7 +47,7 @@ export function PillarSection({
             <Text
               style={{
                 fontSize: 11,
-                color: "#021859",
+                color: pdfTheme.colors.navy,
                 fontWeight: "medium",
               }}
             >

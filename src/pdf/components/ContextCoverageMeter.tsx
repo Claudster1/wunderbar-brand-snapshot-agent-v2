@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
   },
   hint: {
     fontSize: 9,
-    color: "#6B7280",
+    color: pdfTheme.colors.muted,
     marginTop: 6,
     fontStyle: "italic",
   },

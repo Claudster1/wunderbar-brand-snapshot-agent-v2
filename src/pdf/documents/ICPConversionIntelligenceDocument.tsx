@@ -10,25 +10,25 @@ import { parseHexAccent } from "@/src/pdf/lib/promptPackDisplay";
 import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
 
 const s = StyleSheet.create({
-  page: { padding: 48, paddingBottom: 92, fontFamily: "Helvetica", fontSize: 10, color: "#2D3A4A", lineHeight: 1.6 },
+  page: { padding: 48, paddingBottom: 92, fontFamily: "Helvetica", fontSize: 10, color: pdfTheme.colors.text, lineHeight: 1.6 },
   cover: { padding: 42, fontFamily: "Helvetica", justifyContent: "center", alignItems: "center", backgroundColor: pdfTheme.colors.navy },
   logo: { width: 100, marginBottom: 30, opacity: 0.9 },
   coverTitle: { fontSize: 24, fontWeight: "bold", color: "#FFFFFF", textAlign: "center", marginBottom: 6 },
   coverSub: { fontSize: 12, color: pdfTheme.colors.aqua, textAlign: "center", marginBottom: 24 },
   coverMeta: { fontSize: 9, color: "#FFFFFF", textAlign: "center", opacity: 0.7, marginTop: 3 },
-  h1: { fontSize: 18, fontWeight: "bold", color: "#021859", marginBottom: 8, marginTop: 14 },
-  h2: { fontSize: 12, fontWeight: "bold", color: "#021859", marginBottom: 5, marginTop: 10 },
-  h3: { fontSize: 10, fontWeight: "bold", color: "#021859", marginBottom: 3, marginTop: 8 },
-  body: { fontSize: 10, lineHeight: 1.6, marginBottom: 6, color: "#2D3A4A" },
-  small: { fontSize: 9, color: "#6B7280", lineHeight: 1.45 },
-  card: { backgroundColor: "#F8FBFF", borderRadius: 8, padding: 12, marginBottom: 10, border: "1 solid #E2EAF5" },
+  h1: { fontSize: 18, fontWeight: "bold", color: pdfTheme.colors.navy, marginBottom: 8, marginTop: 14 },
+  h2: { fontSize: 12, fontWeight: "bold", color: pdfTheme.colors.navy, marginBottom: 5, marginTop: 10 },
+  h3: { fontSize: 10, fontWeight: "bold", color: pdfTheme.colors.navy, marginBottom: 3, marginTop: 8 },
+  body: { fontSize: 10, lineHeight: 1.6, marginBottom: 6, color: pdfTheme.colors.text },
+  small: { fontSize: 9, color: pdfTheme.colors.muted, lineHeight: 1.45 },
+  card: { backgroundColor: "#F8FBFF", borderRadius: 8, padding: 12, marginBottom: 10, border: `1 solid ${pdfTheme.colors.border}` },
   accentCard: { backgroundColor: "#EFF6FF", borderRadius: 8, padding: 12, marginBottom: 10, borderLeft: `3 solid ${pdfTheme.colors.blue}`, border: "1 solid #D9E8FF" },
   bullet: { fontSize: 10, lineHeight: 1.55, marginBottom: 3, paddingLeft: 10 },
   row: { flexDirection: "row", marginBottom: 6, alignItems: "stretch" },
   col2: { width: "50%", paddingRight: 8 },
   footer: { position: "absolute", bottom: 22, left: 48, right: 48, flexDirection: "row", justifyContent: "space-between" },
   footerText: { fontSize: 7, color: "#9CA3AF" },
-  stat: { fontSize: 10, color: "#021859", fontWeight: 700, marginBottom: 3 },
+  stat: { fontSize: 10, color: pdfTheme.colors.navy, fontWeight: 700, marginBottom: 3 },
 });
 
 interface Props {

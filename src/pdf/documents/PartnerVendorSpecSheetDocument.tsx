@@ -1,14 +1,15 @@
 import React from "react";
 import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import { pdfTheme } from "../theme";
 
 type Data = Record<string, any>;
 
 const s = StyleSheet.create({
   page: { padding: 40, fontSize: 10.5, lineHeight: 1.5, color: "#0F172A" },
-  h1: { fontSize: 22, fontWeight: 700, marginBottom: 8, color: "#021859" },
+  h1: { fontSize: 22, fontWeight: 700, marginBottom: 8, color: pdfTheme.colors.navy },
   sub: { fontSize: 10, color: "#64748B", marginBottom: 12 },
   sec: { marginBottom: 10, border: "1 solid #E2E8F0", borderRadius: 4, padding: 8, backgroundColor: "#F8FAFC" },
-  h2: { fontSize: 12, fontWeight: 700, color: "#021859", marginBottom: 4 },
+  h2: { fontSize: 12, fontWeight: 700, color: pdfTheme.colors.navy, marginBottom: 4 },
   line: { marginBottom: 2 },
   foot: { position: "absolute", bottom: 18, left: 40, right: 40, fontSize: 8, color: "#94A3B8" },
 });

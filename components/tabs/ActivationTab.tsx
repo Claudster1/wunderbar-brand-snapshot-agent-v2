@@ -10,10 +10,16 @@ import TabPageWithSidebar from "@/components/results/TabPageWithSidebar";
 import { SectionGlyph } from "@/components/results/BrandIcons";
 import {
   SUITE_ACCENT_BRIGHT,
+  SUITE_BG_CARD,
+  SUITE_BG_PAGE,
   SUITE_BORDER,
+  SUITE_FONT_UI,
   SUITE_MUTED,
   SUITE_NAVY,
   SUITE_RADIUS_BUTTON,
+  SUITE_RADIUS_MD,
+  SUITE_RADIUS_SM,
+  SUITE_SHADOW_CARD,
 } from "@/components/results/suiteBrandTokens";
 import { filterActivationPlanSections } from "@/components/results/tabConfig";
 import { getSuiteProgressHint } from "@/lib/copy/resultsSuiteGuidance";
@@ -40,7 +46,6 @@ import { ExecutionPromptCards } from "@/app/results/components/ExecutionPromptCa
 import { MessagingMatrix } from "@/app/results/components/MessagingMatrix";
 import type { BrandPromptContext } from "@/src/lib/prompts/promptLibrary";
 import AudienceFoundationInfoTrigger from "@/components/activation/AudienceFoundationInfoTrigger";
-import { ActivationChannelMixChart } from "@/components/results/charts/ActivationChannelMixChart";
 import ActivationStrategyBridgeBanner from "@/components/activation/ActivationStrategyBridgeBanner";
 import ActivationPlanReadableBody from "@/components/activation/ActivationPlanReadableBody";
 
@@ -53,12 +58,12 @@ const LINK_BTN: CSSProperties = {
   padding: "8px 14px",
   borderRadius: SUITE_RADIUS_BUTTON,
   border: `1px solid ${BORDER}`,
-  background: "#FFFFFF",
+  background: SUITE_BG_CARD,
   color: NAVY,
   fontSize: 12,
   fontWeight: 700,
   cursor: "pointer",
-  fontFamily: "'Lato', sans-serif",
+  fontFamily: SUITE_FONT_UI,
   textDecoration: "none",
   display: "inline-block",
   boxSizing: "border-box",
@@ -66,10 +71,10 @@ const LINK_BTN: CSSProperties = {
 
 /** Calm surface for stacked blocks — avoids “every card is a blue gradient”. */
 const PANEL_SURFACE: CSSProperties = {
-  background: "#FFFFFF",
+  background: SUITE_BG_CARD,
   border: `1px solid ${BORDER}`,
-  borderRadius: 10,
-  boxShadow: "0 1px 2px rgba(2, 24, 89, 0.04)",
+  borderRadius: SUITE_RADIUS_MD,
+  boxShadow: SUITE_SHADOW_CARD,
 };
 
 const SECTION_HEAD_KICKER: CSSProperties = {
@@ -706,10 +711,7 @@ export default function ActivationTab({
             </button>
           ) : null}
         </div>
-        <p
-          className="m-0 max-w-[900px] text-xs leading-relaxed text-brand-muted"
-          style={{ marginTop: 10, fontFamily: "'Lato', sans-serif" }}
-        >
+        <p className="m-0 mt-[10px] max-w-[900px] text-xs leading-relaxed text-brand-muted">
           <span className="font-semibold text-brand-midnight">Exports:</span> this button downloads every activation
           playbook as one Markdown file (great for Notion, Docs, or handoff). Editable source of truth for channel copy
           lives in <strong className="text-brand-midnight">Workbook</strong> (refine, version history, prompts). Packaged{" "}
@@ -720,9 +722,9 @@ export default function ActivationTab({
           style={{
             overflowX: "auto",
             border: `1px solid ${BORDER}`,
-            borderRadius: 10,
-            background: "#FFFFFF",
-            boxShadow: "0 1px 2px rgba(2, 24, 89, 0.04)",
+            borderRadius: SUITE_RADIUS_MD,
+            background: SUITE_BG_CARD,
+            boxShadow: SUITE_SHADOW_CARD,
           }}
         >
           {channelPlansLayout === "compact" ? (
@@ -732,7 +734,7 @@ export default function ActivationTab({
                 minWidth: 640,
                 borderCollapse: "collapse",
                 fontSize: 13,
-                fontFamily: "'Lato', sans-serif",
+                fontFamily: SUITE_FONT_UI,
               }}
             >
               <thead>
@@ -772,7 +774,7 @@ export default function ActivationTab({
                     {group.sections.map(({ section, stripeIdx }) => {
                   const fullPlanHref = buildActivationFullPlanHref(section.id, reportId, userEmail, isPreviewReport);
                   const iconToken = ACTIVATION_SECTION_ICON_TOKEN[section.id] || "channel";
-                  const rowBg = stripeIdx % 2 === 0 ? "#FFFFFF" : "#F7F9FC";
+                  const rowBg = stripeIdx % 2 === 0 ? SUITE_BG_CARD : SUITE_BG_PAGE;
                   return (
                     <tr
                       key={section.id}
@@ -897,7 +899,7 @@ export default function ActivationTab({
               minWidth: 960,
               borderCollapse: "collapse",
               fontSize: 13,
-              fontFamily: "'Lato', sans-serif",
+              fontFamily: SUITE_FONT_UI,
             }}
           >
             <thead>
@@ -936,7 +938,7 @@ export default function ActivationTab({
                 const fullPlanHref = buildActivationFullPlanHref(section.id, reportId, userEmail, isPreviewReport);
                 const iconToken = ACTIVATION_SECTION_ICON_TOKEN[section.id] || "channel";
                 const hookLines = extractCampaignHookLines(section.body);
-                const rowBg = stripeIdx % 2 === 0 ? "#FFFFFF" : "#F7F9FC";
+                const rowBg = stripeIdx % 2 === 0 ? SUITE_BG_CARD : SUITE_BG_PAGE;
                 return (
                   <tr
                     key={section.id}
@@ -959,7 +961,7 @@ export default function ActivationTab({
                           style={{
                             width: 44,
                             height: 44,
-                            borderRadius: 10,
+                            borderRadius: SUITE_RADIUS_SM,
                             background: "#F0F9FF",
                             border: `1px solid ${BORDER}`,
                             display: "inline-flex",
@@ -1127,7 +1129,6 @@ export default function ActivationTab({
             title="Activation schedule (spreadsheet)"
             description="Exportable .xlsx — separate from the 90-day narrative roadmap in Step 2. Preview shows the first 12 rows; get the full file from Downloads or below."
           />
-          <ActivationChannelMixChart rows={scheduleRows} />
           <ExecutionSchedule rows={scheduleRows} onExportClick={onExportSchedule} showHeading={false} />
         </section>
       )}

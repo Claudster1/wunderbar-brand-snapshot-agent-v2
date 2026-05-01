@@ -42,6 +42,7 @@ const ResultsSuiteVisualSummary = dynamic(
   { loading: () => <ResultsBlockSkeleton label="Loading charts" /> },
 );
 import type { PillarKey } from "@/src/types/pillars";
+import { computeWeightedBrandAlignmentScore } from "@/src/lib/pillarWeights";
 import type { WorkbookSectionId } from "@/lib/workbookTypes";
 import { ensurePaidMediaChannelsMinimum } from "@/lib/activation/paidMediaPlanFields";
 import {
@@ -62,6 +63,8 @@ const pillarScores: Record<PillarKey, number> = {
   credibility: 13,
   conversion: 12,
 };
+
+const previewWunderBrandScore = computeWeightedBrandAlignmentScore(pillarScores);
 
 const pillarInsights: Record<PillarKey, string> = {
   positioning:
@@ -100,7 +103,7 @@ const diagnosticData = {
   productTier: "blueprint-plus",
   contextCoverage: 68,
   hasPriorityActions: true,
-  wunderBrandScore: 72,
+  wunderBrandScore: previewWunderBrandScore,
   pillarScores,
   pillarInsights,
   primaryPillar: "Visibility",
@@ -820,7 +823,7 @@ const resultsContent = (
     </div>
     <section id="results-overview" className="scroll-mt-28">
       <ResultsHeroSection
-        score={72}
+        score={previewWunderBrandScore}
         primaryPillar="visibility"
         hasSnapshotPlus
         userRoleContext="founder"

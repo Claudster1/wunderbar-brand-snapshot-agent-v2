@@ -2,6 +2,7 @@
 // Circular gauge component for React-PDF
 
 import { Svg, Circle, Text, G } from "@react-pdf/renderer";
+import { pdfTheme } from "../theme";
 
 interface ScoreGaugeProps {
   score: number; // 0–100
@@ -38,7 +39,7 @@ export function ScoreGauge({
         {/* Progress — strokeDasharray/strokeDashoffset are valid SVG; @react-pdf Circle types may omit them */}
         <Circle
           r={radius}
-          stroke="#07B0F2"
+          stroke={pdfTheme.colors.blue}
           strokeWidth={strokeWidth}
           strokeDasharray={String(circumference)}
           strokeLinecap="round"
@@ -52,7 +53,7 @@ export function ScoreGauge({
         <Text
           y={6}
           textAnchor="middle"
-          fill="#021859"
+          fill={pdfTheme.colors.navy}
           style={{ fontSize: emphasis === "primary" ? 22 : 18, fontWeight: "bold" }}
         >
           {score}

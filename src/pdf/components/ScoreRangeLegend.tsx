@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 8,
     fontWeight: 700,
-    color: "#07B0F2",
+    color: pdfTheme.colors.blue,
     textTransform: "uppercase",
     letterSpacing: 1.2,
     marginBottom: 8,

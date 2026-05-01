@@ -2,6 +2,7 @@
 // PDF component explaining how the Snapshot+ report was generated
 
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
+import { pdfTheme } from "../theme";
 
 const styles = StyleSheet.create({
   container: {
@@ -13,7 +14,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 600,
     marginBottom: 6,
-    color: '#021859',
+    color: pdfTheme.colors.navy,
   },
   body: {
     fontSize: 10,

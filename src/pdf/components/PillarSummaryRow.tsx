@@ -14,13 +14,13 @@ const styles = StyleSheet.create({
   score: {
     fontSize: pdfTheme.fontSizes.base || 12,
     fontWeight: 600,
-    color: pdfTheme.colors.blue || "#07B0F2",
+    color: pdfTheme.colors.blue,
     minWidth: 50,
   },
   text: {
     flex: 1,
     fontSize: pdfTheme.fontSizes.sm || 11,
-    color: pdfTheme.colors.midnight || "#0C1526",
+    color: pdfTheme.colors.text,
     lineHeight: 1.5,
   },
 });

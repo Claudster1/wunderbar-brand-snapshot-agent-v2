@@ -10,6 +10,8 @@ import {
 import { getPlaybookSubsectionChrome } from "@/lib/strategy/journeyMapTileChrome";
 import {
   SUITE_ACCENT_BRIGHT,
+  SUITE_BG_CARD,
+  SUITE_BG_PAGE,
   SUITE_BORDER,
   SUITE_CHROME_MUTED,
   SUITE_FONT_UI,
@@ -17,6 +19,7 @@ import {
   SUITE_NAVY,
   SUITE_RADIUS_LG,
   SUITE_SHADOW_CARD,
+  SUITE_SHADOW_TAB_PILL,
   SUITE_TEXT_PRIMARY,
 } from "@/components/results/suiteBrandTokens";
 
@@ -303,7 +306,7 @@ function SectionCard({
         borderRadius: SUITE_RADIUS_LG,
         border: `1px solid ${hasSubsections ? BORDER : outerChrome.border}`,
         background: hasSubsections
-          ? "linear-gradient(180deg, #F8FAFC 0%, #FFFFFF 88%)"
+          ? `linear-gradient(180deg, ${SUITE_BG_PAGE} 0%, ${SUITE_BG_CARD} 88%)`
           : `linear-gradient(145deg, ${outerChrome.bgFrom} 0%, ${outerChrome.bgTo} 100%)`,
         boxShadow: SUITE_SHADOW_CARD,
         borderLeftWidth: 4,
@@ -424,7 +427,7 @@ export default function ActivationPlanReadableBody({ body, sectionId, variant = 
             marginBottom: 20,
             padding: "16px 18px",
             borderRadius: SUITE_RADIUS_LG,
-            background: "#FFFFFF",
+            background: SUITE_BG_CARD,
             border: `1px solid ${BORDER}`,
             boxShadow: SUITE_SHADOW_CARD,
           }}
@@ -451,14 +454,14 @@ export default function ActivationPlanReadableBody({ body, sectionId, variant = 
                   padding: entry.depth ? "7px 12px" : "8px 14px",
                   borderRadius: 999,
                   border: `1px solid ${BORDER}`,
-                  background: entry.depth ? "#FFFFFF" : "#F5F5F7",
+                  background: entry.depth ? SUITE_BG_CARD : SUITE_BG_PAGE,
                   fontSize: entry.depth ? 11 : 12,
                   fontWeight: 600,
                   color: entry.depth ? MID_GRAY : NAVY,
                   textDecoration: "none",
                   fontFamily: SUITE_FONT_UI,
                   maxWidth: "100%",
-                  boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+                  boxShadow: SUITE_SHADOW_TAB_PILL,
                   marginLeft: entry.depth ? 4 : 0,
                 }}
               >

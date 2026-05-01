@@ -286,7 +286,7 @@ export const BrandSnapshotPlusPDF = ({
               {" — "}
               {primaryPillarCopy.headline(businessName)}
             </Text>
-            <Text style={{ ...styles.para, fontSize: pdfTheme.fontSizes.sm, color: "#6B7280" }}>
+            <Text style={{ ...styles.para, fontSize: pdfTheme.fontSizes.sm, color: pdfTheme.colors.muted }}>
               {primaryPillarCopy.whyItMatters(businessName)}
             </Text>
           </View>
@@ -349,7 +349,7 @@ export const BrandSnapshotPlusPDF = ({
             <Text style={{ ...styles.para, fontWeight: 600, fontSize: pdfTheme.fontSizes.md, color: pdfTheme.colors.navy }}>
               {report.valuePropositionStatement.statement}
             </Text>
-            <Text style={{ ...styles.para, fontSize: pdfTheme.fontSizes.sm, color: "#6B7280", marginTop: 4 }}>
+            <Text style={{ ...styles.para, fontSize: pdfTheme.fontSizes.sm, color: pdfTheme.colors.muted, marginTop: 4 }}>
               Where to use it: {report.valuePropositionStatement.whereToUseIt}
             </Text>
             <Text style={{ ...styles.para, fontSize: pdfTheme.fontSizes.sm, marginTop: 4 }}>
@@ -564,7 +564,7 @@ export const BrandSnapshotPlusPDF = ({
                       style={{
                         ...styles.para,
                         fontSize: pdfTheme.fontSizes.sm,
-                        color: "#6B7280",
+                        color: pdfTheme.colors.muted,
                       }}
                     >
                       {item.name ?? "Color"}

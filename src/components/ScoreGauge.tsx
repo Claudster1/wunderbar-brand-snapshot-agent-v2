@@ -62,10 +62,7 @@ export function ScoreGauge({ value, score, size, showLegend = false }: { value?:
   const cx = 100;
   const cy = 100;
 
-  // Needle: 0% = left (180°), 50% = up (90°), 100% = right (0°). Needle drawn pointing up, then rotated.
-  const needleRotation = 90 - (clamped / 100) * 180;
-
-  // Arc segment endpoints (top semicircle: 180° left → 0° right). 20% per segment: 0–20→180°–144°, 20–40→144°–108°, 40–60→108°–72°, 60–80→72°–36°, 80–100→36°–0°.
+  // Arc segment endpoints (top semicircle: 180° left → 0° right). 20% per segment: 0–20→180°–144°, …
   const deg = (d: number) => (d * Math.PI) / 180;
   const pt = (angle: number) => ({
     x: cx + radius * Math.cos(deg(angle)),
@@ -74,7 +71,16 @@ export function ScoreGauge({ value, score, size, showLegend = false }: { value?:
   const p180 = pt(180);
   const p0 = pt(0);
 
-  const fullArcD = `M ${p180.x} ${p180.y} A ${radius} ${radius} 0 0 1 ${p0.x} ${p0.y}`;
+  // Needle tip on upper semicircle: 180° = left (0%), 90° = top (50%), 0° = right (100%).
+  const angleDeg = 180 - (clamped / 100) * 180;
+  const angleRad = deg(angleDeg);
+  const tipR = radius - 4;
+  const tipX = cx + tipR * Math.cos(angleRad);
+  const tipY = cy - tipR * Math.sin(angleRad);
+
+  // Sweep 0 = upper semicircle (y ≤ cy); sweep 1 = lower. Needle uses angles along the upper arc
+  // (same convention as `app/preview/results/page.tsx` MainGauge). Mismatch was red arc + needle in green zone.
+  const fullArcD = `M ${p180.x} ${p180.y} A ${radius} ${radius} 0 0 0 ${p0.x} ${p0.y}`;
 
   const strokeWidth = 16;
   // ViewBox: arc (y ~10–100), clear gap, then score text so needle never overlaps number
@@ -108,9 +114,8 @@ export function ScoreGauge({ value, score, size, showLegend = false }: { value?:
         strokeLinecap="round"
       />
 
-      {/* Needle: from center pointing up, then rotated to score position */}
-      <g transform={`rotate(${needleRotation} ${cx} ${cy})`} filter={`url(#${filterId})`}>
-        <line x1={cx} y1={cy} x2={cx} y2={cy - radius + 4} stroke="#021859" strokeWidth="4" strokeLinecap="round" />
+      <g filter={`url(#${filterId})`}>
+        <line x1={cx} y1={cy} x2={tipX} y2={tipY} stroke="#021859" strokeWidth="4" strokeLinecap="round" />
         <circle cx={cx} cy={cy} r="8" fill="#021859" />
       </g>
 

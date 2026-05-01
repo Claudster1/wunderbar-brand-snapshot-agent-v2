@@ -10,6 +10,7 @@ import {
   SUITE_MUTED,
   SUITE_NAVY,
   SUITE_RADIUS_BUTTON,
+  SUITE_RADIUS_SM,
 } from "@/components/results/suiteBrandTokens";
 import { getSuiteProgressHint } from "@/lib/copy/resultsSuiteGuidance";
 
@@ -457,13 +458,13 @@ function DocumentTile({
       <div style={{ marginBottom: 8 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
           <span style={{ fontSize: 15, fontWeight: 700, color: NAVY }}>{doc.label}</span>
-          <span style={{ padding: "1px 8px", borderRadius: 10, fontSize: 10, fontWeight: 700, letterSpacing: "0.03em", backgroundColor: LIGHT, color: MID_GRAY }}>
+          <span style={{ padding: "1px 8px", borderRadius: SUITE_RADIUS_SM, fontSize: 10, fontWeight: 700, letterSpacing: "0.03em", backgroundColor: LIGHT, color: MID_GRAY }}>
             {formatLabel[doc.format]}
           </span>
           <span
             style={{
               padding: "1px 8px",
-              borderRadius: 10,
+              borderRadius: SUITE_RADIUS_SM,
               fontSize: 10,
               fontWeight: 700,
               letterSpacing: "0.03em",
@@ -474,7 +475,7 @@ function DocumentTile({
             {lifecycleLabelMap[lifecycle]}
           </span>
           {isWorkbookLinked && (
-            <span style={{ padding: "1px 8px", borderRadius: 10, fontSize: 10, fontWeight: 700, letterSpacing: "0.03em", backgroundColor: "#E8F6FE", color: BLUE }}>
+            <span style={{ padding: "1px 8px", borderRadius: SUITE_RADIUS_SM, fontSize: 10, fontWeight: 700, letterSpacing: "0.03em", backgroundColor: "#E8F6FE", color: BLUE }}>
               Workbook-Linked
             </span>
           )}
@@ -505,7 +506,7 @@ function DocumentTile({
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14, marginTop: 6 }}>
         <span style={{ fontSize: 11, color: needsRegen ? AMBER : "#94A3B8" }}>{lastGenText}</span>
         {needsRegen && (
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 700, color: AMBER, backgroundColor: "#FEF3C7", padding: "2px 8px", borderRadius: 10 }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 700, color: AMBER, backgroundColor: "#FEF3C7", padding: "2px 8px", borderRadius: SUITE_RADIUS_SM }}>
             Updated since last generation
           </span>
         )}

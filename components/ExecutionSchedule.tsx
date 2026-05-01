@@ -1,9 +1,14 @@
 "use client";
 
-const NAVY = "#021859";
-const MID_GRAY = "#5A6B7E";
-const BORDER = "#E0E8F0";
-const LIGHT = "#F7F9FC";
+import { ActivationChannelMixChart } from "@/components/results/charts/ActivationChannelMixChart";
+import {
+  SUITE_BG_CARD,
+  SUITE_BG_PAGE,
+  SUITE_BORDER,
+  SUITE_FONT_UI,
+  SUITE_MUTED,
+  SUITE_NAVY,
+} from "@/components/results/suiteBrandTokens";
 
 export interface ScheduleRow {
   week: number;
@@ -23,20 +28,28 @@ interface ExecutionScheduleProps {
   onExportClick: () => void;
   /** When false, omit the built-in “Activation Schedule” title — parent supplies the section heading. */
   showHeading?: boolean;
+  /** When true (default), show row-count mix by channel (pie) above the table. */
+  showChannelMix?: boolean;
 }
 
 const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
-  "Not Started": { bg: "#F1F5F9", color: MID_GRAY },
+  "Not Started": { bg: "#F1F5F9", color: SUITE_MUTED },
   "In Progress": { bg: "#FEF3C7", color: "#92400E" },
   Done: { bg: "#F0FDF4", color: "#166534" },
   Skipped: { bg: "#FEF2F2", color: "#991B1B" },
 };
 
-export default function ExecutionSchedule({ rows, onExportClick, showHeading = true }: ExecutionScheduleProps) {
+export default function ExecutionSchedule({
+  rows,
+  onExportClick,
+  showHeading = true,
+  showChannelMix = true,
+}: ExecutionScheduleProps) {
   const preview = rows.slice(0, 12);
 
   return (
-    <div style={{ fontFamily: "'Lato', sans-serif", marginTop: showHeading ? 48 : 12 }}>
+    <div style={{ fontFamily: SUITE_FONT_UI, marginTop: showHeading ? 48 : 12 }}>
+      {showChannelMix && rows.length > 0 ? <ActivationChannelMixChart rows={rows} /> : null}
       <div
         style={{
           display: "flex",
@@ -49,11 +62,11 @@ export default function ExecutionSchedule({ rows, onExportClick, showHeading = t
       >
         <div>
           {showHeading ? (
-            <h3 style={{ fontSize: 18, fontWeight: 700, color: NAVY, margin: "0 0 4px" }}>
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: SUITE_NAVY, margin: "0 0 4px" }}>
               Activation Schedule
             </h3>
           ) : null}
-          <p style={{ fontSize: 13, color: MID_GRAY, margin: 0 }}>
+          <p style={{ fontSize: 13, color: SUITE_MUTED, margin: 0 }}>
             {showHeading
               ? "First 12 rows shown here. Full schedule is available in Downloads."
               : "First 12 rows below."}
@@ -64,13 +77,13 @@ export default function ExecutionSchedule({ rows, onExportClick, showHeading = t
           style={{
             padding: "9px 18px",
             backgroundColor: "transparent",
-            color: NAVY,
-            border: `2px solid ${BORDER}`,
+            color: SUITE_NAVY,
+            border: `2px solid ${SUITE_BORDER}`,
             borderRadius: 6,
             fontWeight: 700,
             fontSize: 13,
             cursor: "pointer",
-            fontFamily: "'Lato', sans-serif",
+            fontFamily: SUITE_FONT_UI,
           }}
         >
           Download .xlsx
@@ -80,7 +93,7 @@ export default function ExecutionSchedule({ rows, onExportClick, showHeading = t
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
           <thead>
-            <tr style={{ backgroundColor: NAVY }}>
+            <tr style={{ backgroundColor: SUITE_NAVY }}>
               {["Wk", "Channel", "Content Type", "Asset / Topic", "Pillar", "Funnel", "CTA", "Owner", "Status", "Due"].map(
                 (label) => (
                   <th
@@ -108,18 +121,18 @@ export default function ExecutionSchedule({ rows, onExportClick, showHeading = t
                 <tr
                   key={`${row.week}-${row.channel}-${index}`}
                   style={{
-                    backgroundColor: index % 2 === 0 ? "#ffffff" : LIGHT,
-                    borderBottom: `1px solid ${BORDER}`,
+                    backgroundColor: index % 2 === 0 ? SUITE_BG_CARD : SUITE_BG_PAGE,
+                    borderBottom: `1px solid ${SUITE_BORDER}`,
                   }}
                 >
-                  <td style={{ padding: "10px 12px", color: MID_GRAY, fontWeight: 600 }}>{row.week}</td>
-                  <td style={{ padding: "10px 12px", color: NAVY, fontWeight: 600 }}>{row.channel}</td>
+                  <td style={{ padding: "10px 12px", color: SUITE_MUTED, fontWeight: 600 }}>{row.week}</td>
+                  <td style={{ padding: "10px 12px", color: SUITE_NAVY, fontWeight: 600 }}>{row.channel}</td>
                   <td style={{ padding: "10px 12px", color: "#2D3A4A" }}>{row.contentType}</td>
-                  <td style={{ padding: "10px 12px", color: NAVY }}>{row.assetTopic}</td>
-                  <td style={{ padding: "10px 12px", color: MID_GRAY, whiteSpace: "nowrap" }}>{row.messagePillar}</td>
-                  <td style={{ padding: "10px 12px", color: MID_GRAY, whiteSpace: "nowrap" }}>{row.funnelStage}</td>
+                  <td style={{ padding: "10px 12px", color: SUITE_NAVY }}>{row.assetTopic}</td>
+                  <td style={{ padding: "10px 12px", color: SUITE_MUTED, whiteSpace: "nowrap" }}>{row.messagePillar}</td>
+                  <td style={{ padding: "10px 12px", color: SUITE_MUTED, whiteSpace: "nowrap" }}>{row.funnelStage}</td>
                   <td style={{ padding: "10px 12px", color: "#2D3A4A" }}>{row.primaryCta}</td>
-                  <td style={{ padding: "10px 12px", color: row.owner ? NAVY : "#CBD5E0" }}>{row.owner || "—"}</td>
+                  <td style={{ padding: "10px 12px", color: row.owner ? SUITE_NAVY : "#CBD5E0" }}>{row.owner || "—"}</td>
                   <td style={{ padding: "10px 12px" }}>
                     <span
                       style={{
@@ -136,7 +149,7 @@ export default function ExecutionSchedule({ rows, onExportClick, showHeading = t
                       {row.status}
                     </span>
                   </td>
-                  <td style={{ padding: "10px 12px", color: MID_GRAY, whiteSpace: "nowrap" }}>
+                  <td style={{ padding: "10px 12px", color: SUITE_MUTED, whiteSpace: "nowrap" }}>
                     {row.dueDate ?? "—"}
                   </td>
                 </tr>

@@ -2,19 +2,20 @@ import React from "react";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import { DisclaimerPage } from "../components/DisclaimerPage";
 import type { ProductTier } from "@/components/results/tabConfig";
+import { pdfTheme } from "../theme";
 
 const s = StyleSheet.create({
   page: {
     padding: 42,
     fontFamily: "Helvetica",
     fontSize: 10,
-    color: "#2D3A4A",
+    color: pdfTheme.colors.text,
     lineHeight: 1.6,
   },
   kicker: {
     fontSize: 11,
     fontWeight: 800,
-    color: "#021859",
+    color: pdfTheme.colors.navy,
     marginBottom: 6,
     textTransform: "uppercase",
     letterSpacing: 0.45,
@@ -22,12 +23,12 @@ const s = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: 700,
-    color: "#021859",
+    color: pdfTheme.colors.navy,
     marginBottom: 10,
   },
   meta: {
     fontSize: 9,
-    color: "#6B7280",
+    color: pdfTheme.colors.muted,
     marginBottom: 12,
   },
   label: {
@@ -40,10 +41,10 @@ const s = StyleSheet.create({
     letterSpacing: 0.5,
   },
   card: {
-    backgroundColor: "#F8FBFF",
-    borderRadius: 8,
+    backgroundColor: "#F8FCFF",
+    borderRadius: 10,
     padding: 12,
-    border: "1 solid #E2EAF5",
+    border: `1 solid ${pdfTheme.colors.border}`,
     marginBottom: 10,
   },
   paragraph: {

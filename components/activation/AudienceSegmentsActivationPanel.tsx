@@ -2,9 +2,14 @@
 
 import type { ReactNode } from "react";
 import {
+  SUITE_BG_CARD,
+  SUITE_BG_PAGE,
   SUITE_BORDER,
+  SUITE_FONT_UI,
   SUITE_MUTED,
   SUITE_NAVY,
+  SUITE_RADIUS_SM,
+  SUITE_TEXT_PRIMARY,
 } from "@/components/results/suiteBrandTokens";
 import { parseStrategyProseToBlocks } from "@/lib/strategy/strategyProseBlocks";
 
@@ -75,15 +80,15 @@ function CardShell({ title, children }: { title: string; children: ReactNode }) 
     <div
       style={{
         border: `1px solid ${BORDER}`,
-        borderRadius: 10,
+        borderRadius: SUITE_RADIUS_SM,
         overflow: "hidden",
-        background: "#FFFFFF",
+        background: SUITE_BG_CARD,
       }}
     >
       <div
         style={{
           padding: "10px 14px",
-          background: "#F8FAFC",
+          background: SUITE_BG_PAGE,
           borderBottom: `1px solid ${BORDER}`,
           fontSize: 14,
           fontWeight: 800,
@@ -106,7 +111,7 @@ function FieldTable(rows: { label: string; value: string }[]) {
         width: "100%",
         borderCollapse: "collapse",
         fontSize: 13,
-        fontFamily: "'Lato', sans-serif",
+        fontFamily: SUITE_FONT_UI,
       }}
     >
       <tbody>
@@ -122,7 +127,7 @@ function FieldTable(rows: { label: string; value: string }[]) {
                 padding: "8px 10px",
                 fontWeight: 700,
                 color: MID,
-                background: "#FAFBFC",
+                background: SUITE_BG_PAGE,
               }}
             >
               {label}
@@ -241,18 +246,18 @@ export default function AudienceSegmentsActivationPanel({
       {matrix.length > 0 ? (
         <div>
           <SectionKicker>Content × Funnel Matrix</SectionKicker>
-          <div style={{ overflowX: "auto", border: `1px solid ${BORDER}`, borderRadius: 10, background: "#FFFFFF" }}>
+          <div style={{ overflowX: "auto", border: `1px solid ${BORDER}`, borderRadius: SUITE_RADIUS_SM, background: SUITE_BG_CARD }}>
             <table
               style={{
                 width: "100%",
                 minWidth: 1120,
                 borderCollapse: "collapse",
                 fontSize: 12,
-                fontFamily: "'Lato', sans-serif",
+                fontFamily: SUITE_FONT_UI,
               }}
             >
               <thead>
-                <tr style={{ background: NAVY, color: "#FFFFFF" }}>
+                <tr style={{ background: NAVY, color: SUITE_BG_CARD }}>
                   {[
                     "ICP Tier",
                     "Stage",
@@ -291,7 +296,7 @@ export default function AudienceSegmentsActivationPanel({
                     .filter(Boolean)
                     .join("\n");
                   return (
-                    <tr key={i} style={{ borderBottom: `1px solid ${BORDER}`, background: i % 2 ? "#F8FAFC" : "#FFFFFF" }}>
+                    <tr key={i} style={{ borderBottom: `1px solid ${BORDER}`, background: i % 2 ? SUITE_BG_PAGE : SUITE_BG_CARD }}>
                       <td style={{ padding: "10px", verticalAlign: "top", fontWeight: 700, color: NAVY }}>
                         {asString(m.icpTier) || "—"}
                       </td>
@@ -303,19 +308,19 @@ export default function AudienceSegmentsActivationPanel({
                         {asString(m.convertingCTA) || "—"}
                       </td>
                       <td style={{ padding: "10px", verticalAlign: "top" }}>{asString(m.leadMessagePillar) || "—"}</td>
-                      <td style={{ padding: "10px", verticalAlign: "top", whiteSpace: "pre-wrap", color: "#334155" }}>
+                      <td style={{ padding: "10px", verticalAlign: "top", whiteSpace: "pre-wrap", color: SUITE_MUTED }}>
                         {why || "—"}
                       </td>
                       <td style={{ padding: "10px", verticalAlign: "top", whiteSpace: "pre-wrap", fontWeight: 600 }}>
                         {asString(m.exampleHeadline) || "—"}
                       </td>
-                      <td style={{ padding: "10px", verticalAlign: "top", whiteSpace: "pre-wrap", color: "#1e293b" }}>
+                      <td style={{ padding: "10px", verticalAlign: "top", whiteSpace: "pre-wrap", color: SUITE_TEXT_PRIMARY }}>
                         {asString(m.examplePrimaryCopy) || "—"}
                       </td>
-                      <td style={{ padding: "10px", verticalAlign: "top", whiteSpace: "pre-wrap", color: "#475569", fontSize: 12 }}>
+                      <td style={{ padding: "10px", verticalAlign: "top", whiteSpace: "pre-wrap", color: SUITE_MUTED, fontSize: 12 }}>
                         {asString(m.exampleImagePrompt) || "—"}
                       </td>
-                      <td style={{ padding: "10px", verticalAlign: "top", whiteSpace: "pre-wrap", color: "#475569", fontSize: 12 }}>
+                      <td style={{ padding: "10px", verticalAlign: "top", whiteSpace: "pre-wrap", color: SUITE_MUTED, fontSize: 12 }}>
                         {asString(m.exampleVideoPrompt) || "—"}
                       </td>
                     </tr>
@@ -376,9 +381,9 @@ export default function AudienceSegmentsActivationPanel({
                           key={j}
                           style={{
                             border: `1px solid ${BORDER}`,
-                            borderRadius: 8,
+                            borderRadius: SUITE_RADIUS_SM,
                             overflow: "hidden",
-                            background: "#FAFBFC",
+                            background: SUITE_BG_PAGE,
                           }}
                         >
                           <div

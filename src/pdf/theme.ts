@@ -1,21 +1,33 @@
 // src/pdf/theme.ts
 // Centralized theme configuration for all PDF documents
 // Ensures consistency across WunderBrand Snapshot™, Snapshot+™, Blueprint™, and Blueprint+™ reports
+// Brand primitives are sourced from `suiteBrandTokens` so PDFs match the in-app results suite.
 
 import { StyleSheet } from "@react-pdf/renderer";
+import {
+  SUITE_ACCENT_BRIGHT,
+  SUITE_BG_CARD,
+  SUITE_BG_PAGE,
+  SUITE_BORDER,
+  SUITE_MUTED,
+  SUITE_NAVY,
+  SUITE_TEXT_PRIMARY,
+} from "@/components/results/suiteBrandTokens";
 
 // ============================================================
 // PDF THEME
 // ============================================================
 export const pdfTheme = {
   colors: {
-    navy: "#021859",
-    blue: "#07B0F2",
+    navy: SUITE_NAVY,
+    blue: SUITE_ACCENT_BRIGHT,
     aqua: "#27CDF2",
-    midnight: "#0C1526",
-    gray: "#F2F2F2",
-    border: "#E6E6E6",
-    text: "#0C1526",
+    midnight: SUITE_NAVY,
+    gray: SUITE_BG_PAGE,
+    border: SUITE_BORDER,
+    text: SUITE_TEXT_PRIMARY,
+    muted: SUITE_MUTED,
+    canvas: SUITE_BG_CARD,
   },
   fontSizes: {
     xs: 9,
@@ -143,12 +155,12 @@ export const layout = {
     wide: "90%",
   },
   
-  // Border radius
+  // Border radius (aligned with results suite: button 5, sm 10, md 12, lg 14)
   radius: {
-    sm: 4,
-    md: 6,
-    lg: 8,
-    xl: 10,
+    sm: 5,
+    md: 10,
+    lg: 12,
+    xl: 14,
     full: 9999,
   },
   
@@ -173,7 +185,7 @@ export const stylePresets = StyleSheet.create({
     fontSize: pdfTheme.fontSizes.base,
     lineHeight: fonts.normal,
     color: pdfTheme.colors.text,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: pdfTheme.colors.canvas,
   },
   
   // Typography
@@ -266,8 +278,8 @@ export const stylePresets = StyleSheet.create({
   card: {
     padding: 12,
     borderRadius: layout.radius.lg,
-    backgroundColor: "#F7FAFF",
-    border: `1px solid #DCE7F5`,
+    backgroundColor: "#F8FCFF",
+    border: `1px solid ${pdfTheme.colors.border}`,
     marginBottom: 10,
   },
   

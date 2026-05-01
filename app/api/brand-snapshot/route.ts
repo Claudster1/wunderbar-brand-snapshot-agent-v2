@@ -17,6 +17,20 @@ type BusinessType =
   | "saas"
   | "local_service";
 
+type CaptureKey =
+  | "business_type_classifier"
+  | "monthly_revenue_range"
+  | "average_transaction_value"
+  | "conversion_rate_estimate"
+  | "primary_acquisition_channel"
+  | "monthly_marketing_budget"
+  | "content_creation_capacity"
+  | "competitive_pressure_point"
+  | "has_email_list"
+  | "has_lead_magnet"
+  | "has_clear_cta"
+  | "marketing_channel_mix";
+
 function computeBrandAlignmentFromPillars(
   pillarScores: Record<string, unknown> | null | undefined,
 ): number | null {
@@ -50,6 +64,11 @@ function inferBusinessTypeFromHistory(
   if (/\blocal service|clinic|dental|medical|legal|salon|studio|contractor|trades?\b/.test(userCorpus)) return "local_service";
   if (/\bb2b|other businesses|business clients|enterprise\b/.test(userCorpus)) return "service_b2b";
   if (/\bb2c|consumers|consumer clients|personal service\b/.test(userCorpus)) return "service_b2c";
+  if (/\b(consulting|consultants?|agency|agencies|freelance|contractors?|professional services|coaching)\b/.test(userCorpus))
+    return "service_b2b";
+  if (/\b(homeowners|patients|families|shoppers|guests)\b/.test(userCorpus)) return "service_b2c";
+  if (/\b(etsy|amazon seller|shopify|dtc|dropship)\b/.test(userCorpus)) return "ecommerce";
+  if (/\b(hvac|plumb|electric|roofing|landscap)\b/.test(userCorpus)) return "local_service";
   return null;
 }
 
@@ -80,19 +99,119 @@ function hasSignal(messages: Array<{ role: string; content: string }>, pattern: 
   return pattern.test(corpus);
 }
 
-type CaptureKey =
-  | "business_type_classifier"
-  | "monthly_revenue_range"
-  | "average_transaction_value"
-  | "conversion_rate_estimate"
-  | "primary_acquisition_channel"
-  | "monthly_marketing_budget"
-  | "content_creation_capacity"
-  | "competitive_pressure_point"
-  | "has_email_list"
-  | "has_lead_magnet"
-  | "has_clear_cta"
-  | "marketing_channel_mix";
+/** Last N user turns only — reduces false completes from old answers (e.g. “10%” in another context). */
+function recentUserCorpus(messages: Array<{ role: string; content: string }>, lastN: number): string {
+  const users = messages.filter((m) => m.role === "user").slice(-lastN);
+  return users.map((m) => m.content || "").join("\n");
+}
+
+function hasRecentUserSignal(
+  messages: Array<{ role: string; content: string }>,
+  pattern: RegExp,
+  lastN = 5,
+): boolean {
+  return pattern.test(recentUserCorpus(messages, lastN));
+}
+
+function lastUserText(messages: Array<{ role: string; content: string }>): string {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    if (messages[i].role === "user") return String(messages[i].content || "").trim();
+  }
+  return "";
+}
+
+function lastAssistantText(messages: Array<{ role: string; content: string }>): string {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    if (messages[i].role === "assistant") return String(messages[i].content || "").trim();
+  }
+  return "";
+}
+
+function isBareAffirmOrDeny(text: string): boolean {
+  const t = text.trim();
+  if (t.length > 48) return false;
+  const normalized = t.replace(/[""''`]/g, "").replace(/\s+/g, " ");
+  if (/^[yn]\.?$/i.test(normalized)) return true;
+  return /^(yes|yeah|yep|yup|no|nope|nah|naw|sure|not really|no thanks|no thank you|no gracias|sí|si|oui|non|ja|nein|vale|claro|да|нет)\.?$/i.test(
+    normalized,
+  );
+}
+
+/**
+ * US-first colloquial / shorthand for typed chat (fragments, coast-to-coast phrasing).
+ * Paired with recent-user + topic gates so we don’t over-trigger on unrelated “no idea” lines.
+ * Extend from real transcripts; regex will never catch everything.
+ */
+const US_PRE_REVENUE_OR_MONEY =
+  "pre-?money|side (hustle|gig)|main gig|moonlighting|haven'?t monetized|not monetized|bootstrapp?(ed|ing)?|ramen profitable|making (peanuts|zilch|bupkis|squat|nada)|pennies so far|not much money-?wise|riding on savings";
+
+const US_CHANNEL_SHORTHAND =
+  "mostly \\big\\b|\\binsta\\b|the gram|\\bfb\\b|face(book)?|\\byt\\b|youtube|pinterest|snap(chat)?|word of mouth|\\bwom\\b|through (my |our )?network|friends (and|&) family|guerrilla|grassroots|cold outreach|warm intros?";
+
+const US_CONVERSION_UNCERTAINTY =
+  "no (idea|clue) (on )?(conversion|close|that|this|rates?|our funnel|win rate)|\\b(conversion|close|funnel|win rate)\\b.{0,50}\\bno (idea|clue)\\b|\\bno (idea|clue)\\b.{0,50}\\b(conversion|close|funnel)\\b|couldn'?t tell you|couldn'?t say|haven'?t looked|never measured|never really tracked|wild guess|total guess|beats me|\\bidk\\b|\\bdunno\\b|who knows|clueless|shot in the dark|your guess is as good";
+
+const REVENUE_MONEY_OR_RANGE = new RegExp(
+  [
+    "\\b(no|zero|minimal) revenue\\b",
+    "not generating (much )?revenue",
+    "pre-?revenue",
+    US_PRE_REVENUE_OR_MONEY,
+    "\\bmrr\\b|\\barr\\b",
+    "monthly (sales|income|take-?home)",
+    "per month|\\/mo(nth)?\\b",
+    "ballpark|roughly|approximately",
+    "around \\$|~\\$",
+    "\\$\\d[\\d,.]*\\s*(k|m)?\\b",
+    "six-?figures|seven-?figures|five-?figures",
+    "low (six|seven)|mid six|high six",
+    "breaking even|cash-?flow positive",
+    "\\b\\d+k\\s+(per|a)\\s+month\\b",
+  ].join("|"),
+  "i",
+);
+
+const REVENUE_TOPIC =
+  /\b(revenue|mrr|arr|sales|income|month|monthly|business|figures|generate|bring in|earn|take-?home|company|quarter|ballpark|roughly|approximately)\b|~\$/i;
+
+const DEAL_OR_TRANSACTION_CONTEXT =
+  /\b(deal|order|hour|project|client|invoice|retainer|package|ticket|engagement|sale|booking|quote|proposal|session|aov)\b/i;
+
+const CONVERSION_RATE_SIGNAL = new RegExp(
+  [
+    "\\b(conversion|close|win|qual|funnel|pipeline|leads?|sql|mql|bookings?)\\b.{0,80}\\b(\\d{1,2}\\s*%|\\d+\\s*percent|one in)",
+    "\\b(\\d{1,2}\\s*%|\\d+\\s*percent)\\b.{0,80}\\b(conversion|close|win|funnel|lead|pipeline|sql|mql)\\b",
+    "one (in|out of) (every )?\\d+",
+    "haven'?t measured|no data on|we don'?t track|not tracking|n\\/a on conversions",
+    "\\bqual rate|win rate\\b.{0,40}\\d|\\d.{0,40}\\b(win rate|qual rate)\\b",
+    "\\b(conversion|close) rate\\b",
+    "\\bi don'?t track (this|it)|do not track\\b",
+    US_CONVERSION_UNCERTAINTY,
+  ].join("|"),
+  "i",
+);
+
+const ON_TOPIC_ASSISTANT_HINTS: Record<CaptureKey, RegExp> = {
+  business_type_classifier:
+    /\b(who|sell|selling|revenue|paid|clients|customers|business|model|launch|accurate|describe|get paid|primarily|reality|tailor)\b/i,
+  monthly_revenue_range:
+    /\b(revenue|mrr|arr|month|range|\$|ballpark|generate|bring|figures|roughly|month to month|numbers)\b/i,
+  average_transaction_value:
+    /\b(transaction|deal|order|ticket|hourly|project|invoice|aov|size|estimate|typical)\b/i,
+  conversion_rate_estimate:
+    /\b(conversion|close|win|rate|percent|track|funnel|pipeline|measure|don'?t track)\b/i,
+  primary_acquisition_channel:
+    /\b(channel|find you|discover|referral|search|social|paid|organic|leads?|source|customers|traffic)\b/i,
+  monthly_marketing_budget: /\b(marketing|budget|spend|ads?|paid|monthly|ballpark|\$)\b/i,
+  content_creation_capacity: /\b(content|hours|week|time|create|writing|video|capacity)\b/i,
+  competitive_pressure_point:
+    /\b(compet|prospect|lose|win|price|trust|clarity|proof|pressure|choose|instead|tilt)\b/i,
+  has_email_list: /\b(email|list|newsletter|subscribers|mailing|sending to)\b/i,
+  has_lead_magnet: /\b(lead|magnet|download|opt-?in|free|template|guide|gated|exchange)\b/i,
+  has_clear_cta: /\b(cta|call to action|next step|landing|site|profile|clear|button|mixed)\b/i,
+  marketing_channel_mix:
+    /\b(channel|marketing|social|seo|email|paid|referrals|events|youtube|linkedin|instagram|tiktok|showing up)\b/i,
+};
 
 type IntakeTier = "snapshot" | "snapshot-plus" | "blueprint" | "blueprint-plus";
 
@@ -186,7 +305,8 @@ function modelFacingCaptureHint(key: CaptureKey): string {
   }
 }
 
-const REFUSAL_PATTERN = /\b(skip|prefer not|rather not|don'?t want to|do not want to|not sure|unsure|unknown|i don'?t know)\b/i;
+const REFUSAL_PATTERN =
+  /\b(skip|prefer not to answer|rather not|don'?t want to|do not want to|not sure|unsure|unknown|i don'?t know|\bidk\b|\bdunno\b|beats me|n\/a|no idea|rather skip|pass on (that|this)|not comfortable (sharing|answering)|hard to say|couldn'?t tell you)\b/i;
 
 function getCaptureStates(
   messages: Array<{ role: string; content: string }>,
@@ -199,9 +319,37 @@ function getCaptureStates(
     .filter((m) => m.role === "user")
     .map((m) => m.content || "")
     .join(" ");
+  const lu = lastUserText(messages);
+  const la = lastAssistantText(messages);
+  const bareEmailListAnswer =
+    isBareAffirmOrDeny(lu) &&
+    /\bemail list|newsletter|mailing list|simple yes or no|sending to today\b/i.test(la);
+  const bareLeadMagnetAnswer =
+    isBareAffirmOrDeny(lu) &&
+    /\blead magnet|free download|template|guide|checklist|exchange for their email|gated content|opt-?in\b/i.test(
+      la,
+    );
 
   const refused = (topicPattern: RegExp) =>
     topicPattern.test(userCorpus) && REFUSAL_PATTERN.test(userCorpus);
+
+  const revenueLooseOk =
+    hasRecentUserSignal(messages, REVENUE_MONEY_OR_RANGE, 5) &&
+    hasRecentUserSignal(messages, REVENUE_TOPIC, 5);
+
+  const avgTxnLooseOk =
+    hasRecentUserSignal(
+      messages,
+      /\b(hourly|day rate|per hour|per project|project (fee|rate|size)|deal size|ticket size|average order|aov|typical (invoice|engagement|project)|~\$|\$\d[\d,.]*\b|smaller jobs|larger deals|varies a lot|depends on the (client|project)|retainer|package (is|starts at)|couple (hundred|grand)|few grand|few hundred bucks|north of|south of)\b/i,
+      5,
+    ) && hasRecentUserSignal(messages, DEAL_OR_TRANSACTION_CONTEXT, 5);
+
+  const marketingBudgetLooseOk =
+    hasRecentUserSignal(
+      messages,
+      /\b(zero|no) marketing spend|nothing on ads|tight budget|small budget|experimental budget|~\$|\$\d[\d,.]*\s*(per|\/)?\s*month on marketing|spend about|all-?in (around|is|about)\b/i,
+      5,
+    ) && hasRecentUserSignal(messages, /\b(marketing|ads?|spend|budget|paid media)\b/i, 5);
 
   const captures: CaptureState[] = [
     {
@@ -210,7 +358,23 @@ function getCaptureStates(
       completed:
         inferredType !== null ||
         hasSignal(messages, /\bservice_b2b|service_b2c|local_service|ecommerce|retail|saas\b/i) ||
-        hasSignal(messages, /\bit sounds like you're|based on what you shared.*business\b/i),
+        hasSignal(messages, /\bit sounds like you're|based on what you shared.*business\b/i) ||
+        // Pre-revenue / early answers still answer "who you sell to / how you get paid" — don't leave capture stuck.
+        hasSignal(
+          messages,
+          new RegExp(
+            [
+              "\\b(just )?launching|pre[- ]?revenue",
+              US_PRE_REVENUE_OR_MONEY,
+              "no clients?\\b.*\\byet\\b|no customers?\\b.*\\byet\\b|no clients? yet|no customers? yet|not selling yet",
+              "haven'?t (landed|sold|had) (a )?(paying )?(client|customer|sale)|early[- ]stage|starting out|still building|working on (my|our) first",
+              "don'?t have (any )?(paying )?clients|we (get paid|make money|earn|charge)|who (we |i )(sell|serve) to|primarily selling|selling (mostly|mainly) to",
+              "revenue (is|comes|will)|business (model|type)|\\bb2b\\b|\\bb2c\\b|consumers|businesses|founders|freelance|consulting|agency|\\bsaas\\b|e-?commerce|product|services?\\b",
+            ].join("|"),
+            "i",
+          ),
+        ) ||
+        refused(/\bhow you (get paid|make money)|who you.*sell|business model|primary revenue\b/i),
     },
     {
       key: "monthly_revenue_range",
@@ -220,28 +384,36 @@ function getCaptureStates(
           messages,
           /\bunder \$?5k|\$?5k\s*[–-]\s*\$?20k|\$?20k\s*[–-]\s*\$?50k|\$?50k\s*[–-]\s*\$?150k|\$?150k\+|monthly revenue\b/i,
         ) ||
-        refused(/\bmonthly revenue|month to month|transaction volume\b/i),
+        revenueLooseOk ||
+        refused(/\bmonthly revenue|month to month|transaction volume|how much you bring in\b/i),
     },
     {
       key: "average_transaction_value",
       label: "average transaction/deal value",
       completed:
         hasSignal(messages, /\baverage (transaction|deal|order) (value|size)\b/i) ||
-        refused(/\baverage (transaction|deal|order) (value|size)\b/i),
+        avgTxnLooseOk ||
+        refused(/\baverage (transaction|deal|order) (value|size)|typical deal\b/i),
     },
     {
       key: "conversion_rate_estimate",
       label: "conversion/close rate (or explicit 'I don't track this')",
       completed:
         hasSignal(messages, /\bconversion rate|close rate|i don't track this|do not track\b/i) ||
-        refused(/\bconversion rate|close rate\b/i),
+        hasRecentUserSignal(messages, CONVERSION_RATE_SIGNAL, 5) ||
+        refused(/\bconversion rate|close rate|win rate\b/i),
     },
     {
       key: "primary_acquisition_channel",
       label: "primary acquisition channel",
       completed:
         hasSignal(messages, /\breferral|organic search|social media|paid advertising|direct|events\b/i) ||
-        refused(/\bacquisition channel|channel\b/i),
+        hasRecentUserSignal(
+          messages,
+          /\b(word of mouth|wom|mostly referrals|google|organic|seo|sem|search ads?|linkedin|instagram|tiktok|facebook|meta|youtube|twitter|threads|\bx\b|cold (email|outreach|dm)|outbound|inbound|partnerships?|affiliates?|marketplaces?|pr\b|podcast|newsletter|community|webinars?|trade shows?|conferences?|content marketing|thought leadership)\b/i,
+          5,
+        ) ||
+        refused(/\bacquisition channel|where (customers|clients) find you|lead source\b/i),
     },
     {
       key: "monthly_marketing_budget",
@@ -251,44 +423,73 @@ function getCaptureStates(
           messages,
           /\bunder \$?500|\$?500\s*[–-]\s*\$?2,?000|\$?2,?000\s*[–-]\s*\$?5,?000|\$?5,?000\+|marketing budget\b/i,
         ) ||
-        refused(/\bmarketing budget|budget range\b/i),
+        marketingBudgetLooseOk ||
+        refused(/\bmarketing budget|budget range|ad spend\b/i),
     },
     {
       key: "content_creation_capacity",
       label: "weekly content creation capacity",
       completed:
         hasSignal(messages, /\bunder 2 hours|2[–-]5 hours|5[–-]10 hours|10\+ hours|content creation\b/i) ||
-        refused(/\bcontent creation|hours per week\b/i),
+        hasRecentUserSignal(
+          messages,
+          /\b(almost none|basically none|minimal|a few hours|couple hours|1\s*[-–]?\s*2 hours|part-?time|full-?time|we don'?t really create|outsourc(e|ed) content|agency handles content)\b/i,
+          5,
+        ) ||
+        refused(/\bcontent creation|hours per week|time for content\b/i),
     },
     {
       key: "competitive_pressure_point",
       label: "competitive pressure point",
       completed:
-        hasSignal(
+        hasRecentUserSignal(
           messages,
           /\bwhere .*lose deals|lose to competitors|competitive pressure|prospects choose.*instead|win[- ]?loss|why buyers choose competitors\b/i,
+          5,
         ) ||
-        refused(/\bcompetitor|competitive pressure|lose deals|win[- ]?loss\b/i),
+        hasRecentUserSignal(
+          messages,
+          /\b(they|competitors?|other (vendors|shops|brands)|buyers?|prospects?).*\b(price|cheaper|pricing|trust|brand|awareness|faster|speed|features|reputation|bigger|more established|credibility|experience|relationship|incumbent|legacy)\b/i,
+          5,
+        ) ||
+        hasRecentUserSignal(
+          messages,
+          /\b(usually|often|a lot of the time) (lose|lost) (to|against)|picked the other (guy|company|firm)|went with (a )?competitor|undercut on|can'?t compete on|gets? beat on (price|trust|speed)|kinda (lose|losing) (on |to )?|always the bridesmaid\b/i,
+          5,
+        ) ||
+        refused(/\bcompetitor|competitive pressure|lose deals|win[- ]?loss|why (they|customers) pick\b/i),
     },
     {
       key: "has_email_list",
       label: "email list status",
       completed:
+        bareEmailListAnswer ||
         hasSignal(
           messages,
           /\bemail list|newsletter list|mailing list|we (have|don't have|do not have) an email list|no email list|not yet|starting|building (a )?list|small list\b/i,
         ) ||
-        refused(/\bemail list|newsletter\b/i),
+        hasRecentUserSignal(
+          messages,
+          /\b(mailchimp|klaviyo|hubspot|convertkit|beehiiv|substack|constant contact|activecampaign|sendgrid|drip|flodesk)\b|\b\d{2,6}\s+(subscribers|contacts on (our )?list)\b|\b(yes|yeah|yep),?\s*(we have|there is|there's)\b.*\b(list|newsletter|subscribers)\b|\b(nope|no),?\s*(we )?(don'?t|do not) (have )?(an? )?(email )?list\b/i,
+          5,
+        ) ||
+        refused(/\bemail list|newsletter|mailing list\b/i),
     },
     {
       key: "has_lead_magnet",
       label: "free offer / lead capture status",
       completed:
+        bareLeadMagnetAnswer ||
         hasSignal(
           messages,
           /\blead magnet|lead capture|opt-?in|downloadable guide|free checklist|gated content|lead form|free resource|not yet|don't have|do not have|haven't|no we don't|nothing yet|we're not|we are not|skipped|no,? not really\b/i,
         ) ||
-        refused(/\blead magnet|lead capture|opt-?in|free (download|resource)\b/i),
+        hasRecentUserSignal(
+          messages,
+          /\b(freebie|whitepaper|white paper|case study (download|pdf)|webinar replay|template pack|free tool|free audit|free trial signup|quiz results|resource library)\b/i,
+          5,
+        ) ||
+        refused(/\blead magnet|lead capture|opt-?in|free (download|resource|offer)\b/i),
     },
     {
       key: "has_clear_cta",
@@ -298,7 +499,12 @@ function getCaptureStates(
           messages,
           /\bclear cta|call to action|book a call|get started|schedule (a )?demo|request a quote|next step is clear|next step|a bit mixed|still figuring|not sure yet\b/i,
         ) ||
-        refused(/\bcall to action|cta|next step\b/i),
+        hasRecentUserSignal(
+          messages,
+          /\b(pretty clear|fairly obvious|one main (button|cta)|too many (buttons|choices|ctas)|confus|unclear|muddy|visitors (get )?lost|not sure what to click|kinda messy|sorta clear|sort of a mess|meh,? it'?s fine|could be clearer)\b/i,
+          5,
+        ) ||
+        refused(/\bcall to action|cta|next step|main action on (the )?site\b/i),
     },
     {
       key: "marketing_channel_mix",
@@ -308,7 +514,19 @@ function getCaptureStates(
           messages,
           /\bmarketing channels|active channels|we use (email|social|paid ads|seo|search|events|referrals|youtube|linkedin|instagram)\b/i,
         ) ||
-        refused(/\bmarketing channels|active channels\b/i),
+        hasRecentUserSignal(
+          messages,
+          new RegExp(
+            [
+              "\\b(we'?re on|mostly|primarily|heavy on|double down on|invest in)\\s+(tiktok|instagram|linkedin|youtube|facebook|meta|google|twitter|threads|reddit|podcasts?|email|newsletter|seo|ppc|paid search|events?|pr\\b|influencers?)\\b",
+              "\\b(multi-?channel|omnichannel|channel mix is)\\b",
+              US_CHANNEL_SHORTHAND,
+            ].join("|"),
+            "i",
+          ),
+          5,
+        ) ||
+        refused(/\bmarketing channels|active channels|which channels\b/i),
     },
   ];
 
@@ -318,11 +536,45 @@ function getCaptureStates(
   });
 }
 
+/** Treat stuck keys as completed for one turn so routing advances (anti-loop). */
+function getEffectiveCaptureStates(
+  messages: Array<{ role: string; content: string }>,
+  options?: { includeBudgetCapture?: boolean; tier?: IntakeTier },
+  softSkipKeys?: ReadonlySet<CaptureKey>,
+): CaptureState[] {
+  return getCaptureStates(messages, options).map((c) =>
+    softSkipKeys?.has(c.key) ? { ...c, completed: true } : c,
+  );
+}
+
 function getNextPendingCapture(
   messages: Array<{ role: string; content: string }>,
   options?: { includeBudgetCapture?: boolean; tier?: IntakeTier },
+  softSkipKeys?: ReadonlySet<CaptureKey>,
 ): CaptureState | null {
-  return getCaptureStates(messages, options).find((x) => !x.completed) ?? null;
+  return getEffectiveCaptureStates(messages, options, softSkipKeys).find((x) => !x.completed) ?? null;
+}
+
+/** Assistant turns that reused the same forced capture line (verbatim or distinctive prefix). */
+function forcedPromptRepeatCount(
+  messages: Array<{ role: string; content: string }>,
+  forcedPrompt: string,
+): number {
+  const t = forcedPrompt.trim();
+  if (!t) return 0;
+  const assistants = messages.filter((m) => m.role === "assistant");
+  const exact = assistants.filter((m) => (m.content || "").trim() === t).length;
+  if (exact >= 2) return exact;
+  const needle = t.slice(0, Math.min(96, t.length));
+  if (needle.length < 28) return exact;
+  return Math.max(exact, assistants.filter((m) => (m.content || "").includes(needle)).length);
+}
+
+function shouldSoftSkipDueToForcedPromptLoop(
+  messages: Array<{ role: string; content: string }>,
+  forcedPrompt: string,
+): boolean {
+  return forcedPromptRepeatCount(messages, forcedPrompt) >= 2;
 }
 
 function buildCaptureQuestion(
@@ -390,29 +642,29 @@ function buildCaptureQuestion(
 function capturePromptPatternForKey(key: CaptureKey): RegExp {
   switch (key) {
     case "business_type_classifier":
-      return /\b(primary revenue|how you generate revenue|how do you get paid|it sounds like you're|business model)\b/i;
+      return /\b(primary revenue|how you generate revenue|how do you get paid|it sounds like you're|business model|launching|pre[- ]?launch|no clients yet|thank you for sharing|based on what you|who you|selling to|revenue model|next question|does that feel accurate|describe your revenue)\b/i;
     case "monthly_revenue_range":
-      return /\bmonthly revenue|under \$?5k|\$?5k|\$?20k|\$?50k|\$?150k\+\b/i;
+      return /\b(monthly revenue|month to month|mrr|arr|under \$?5k|\$?5k|\$?20k|\$?50k|\$?150k|ballpark|roughly|range|generate|bring in|figures)\b/i;
     case "average_transaction_value":
-      return /\baverage (transaction|deal|order) (value|size)\b/i;
+      return /\b(average (transaction|deal|order)|deal size|ticket|hourly|project fee|typical (invoice|project)|order value)\b/i;
     case "conversion_rate_estimate":
-      return /\bconversion rate|close rate|i don't track this\b/i;
+      return /\b(conversion rate|close rate|win rate|don't track|do not track|percentage|percent|track|no idea|no clue|idk|guess|haven'?t looked)\b/i;
     case "primary_acquisition_channel":
-      return /\b(acquisition channel|qualified opportunities|referral|organic search|social media|paid ads|events)\b/i;
+      return /\b(acquisition channel|qualified opportunities|referral|organic|search|social|paid|events|linkedin|instagram|tiktok|youtube|google|outbound|inbound|where .*find you|how (people|customers) (find|discover)|ig|insta|word of mouth|network)\b/i;
     case "monthly_marketing_budget":
-      return /\bmonthly marketing budget|under \$?500|\$?2,?000|\$?5,?000\+\b/i;
+      return /\b(monthly marketing budget|marketing spend|ad spend|under \$?500|\$?2,?000|\$?5,?000|budget)\b/i;
     case "content_creation_capacity":
-      return /\bcontent creation|hours per week|under 2 hours|2-5 hours|5-10 hours|10\+ hours\b/i;
+      return /\b(content creation|hours per week|under 2 hours|2[–-]5 hours|5[–-]10 hours|10\+ hours|time.*content|how much time)\b/i;
     case "competitive_pressure_point":
-      return /\blose deals|competitive pressure|price|trust|clarity|proof|fit|why buyers choose competitors\b/i;
+      return /\b(lose deals|competitive|competitor|prospects choose|price|trust|clarity|proof|fit|why buyers|tilts? toward|compared to)\b/i;
     case "has_email_list":
-      return /\bemail list|newsletter list|mailing list|small list|starting\b/i;
+      return /\b(email list|newsletter|mailing list|subscribers|mailchimp|klaviyo|list today|yes or no)\b/i;
     case "has_lead_magnet":
-      return /\blead magnet|lead capture|opt-?in|gated content|downloadable|not yet|don't have|do not have|haven't|nothing yet\b/i;
+      return /\b(lead magnet|lead capture|opt-?in|gated|downloadable|free (download|resource|offer)|not yet|don't have)\b/i;
     case "has_clear_cta":
-      return /\bcta|call to action|book a call|get started|next step|mixed\b/i;
+      return /\b(cta|call to action|next step|landing|site|profile|clear|mixed|confus)\b/i;
     case "marketing_channel_mix":
-      return /\bmarketing channels|email|social|seo|search|paid ads|referrals|events|youtube|linkedin|instagram\b/i;
+      return /\b(marketing channels|active channels|showing up|email|social|seo|search|paid|referrals|events|youtube|linkedin|instagram|tiktok|channels you)\b/i;
     default:
       return /\?/;
   }
@@ -420,6 +672,23 @@ function capturePromptPatternForKey(key: CaptureKey): RegExp {
 
 function responseRequestsExpectedCapture(content: string, key: CaptureKey): boolean {
   return capturePromptPatternForKey(key).test(content);
+}
+
+/**
+ * If the model asked a substantive follow-up that still touches the pending capture theme,
+ * do not replace with verbatim capture text (avoids repeat loops and off-topic rambles passing).
+ */
+function assistantReplyLooksOnTopicForCapture(content: string, key: CaptureKey): boolean {
+  const t = content.trim();
+  if (t.length < 55 || !/\?/.test(t)) return false;
+  return ON_TOPIC_ASSISTANT_HINTS[key].test(t);
+}
+
+function shouldForceCapturePrompt(finalContent: string, forcedPrompt: string, pendingKey: CaptureKey): boolean {
+  if (responseRequestsExpectedCapture(finalContent, pendingKey)) return false;
+  if (assistantReplyLooksOnTopicForCapture(finalContent, pendingKey)) return false;
+  if (finalContent.trim() === forcedPrompt.trim()) return false;
+  return true;
 }
 
 function normalizeBusinessTypeLabel(raw: unknown): BusinessType | null {
@@ -495,11 +764,12 @@ function normalizeStoredAnswers(raw: unknown): Record<string, unknown> {
 function buildDeterministicRoutingGuard(
   messages: Array<{ role: string; content: string }>,
   options?: { includeBudgetCapture?: boolean; tier?: IntakeTier },
+  softSkipKeys?: ReadonlySet<CaptureKey>,
 ): string {
   const tier = options?.tier ?? "snapshot";
   const includeBudgetCapture = options?.includeBudgetCapture === true;
   const inferredType = inferBusinessTypeFromHistory(messages);
-  const captureStates = getCaptureStates(messages, { includeBudgetCapture, tier });
+  const captureStates = getEffectiveCaptureStates(messages, { includeBudgetCapture, tier }, softSkipKeys);
   const pending = captureStates.filter((x) => !x.completed);
   const nextCapture = pending[0]?.label ?? "none";
   const completionPercent = Math.round(
@@ -514,6 +784,11 @@ function buildDeterministicRoutingGuard(
     `- Next required capture (strict order): ${nextCapture}.`,
     `- Pending required captures right now: ${pending.length ? pending.map((x) => x.label).join(", ") : "none"}.`,
     `- Tier capture policy: ${tier}.`,
+    ...(softSkipKeys && softSkipKeys.size > 0
+      ? [
+          `- Anti-loop: server advanced past stuck capture key(s): ${[...softSkipKeys].join(", ")} — do not re-ask them this turn.`,
+        ]
+      : []),
     `- Step-state map (json): ${JSON.stringify(
       captureStates.reduce<Record<string, boolean>>((acc, c) => {
         acc[c.key] = c.completed;
@@ -662,22 +937,33 @@ export async function POST(req: Request) {
     const intakeTier = normalizeIntakeTier(productTier);
     const includeBudgetCapture = isActivationPlanningTier(productTier);
     const inferredType = inferBusinessTypeFromHistory(messages);
-    const nextPendingCapture = getNextPendingCapture(messages, {
-      includeBudgetCapture,
-      tier: intakeTier,
-    });
+    const captureOpts = { includeBudgetCapture, tier: intakeTier };
+
+    const rawPending = getNextPendingCapture(messages, captureOpts);
+    const rawForced = rawPending ? buildCaptureQuestion(rawPending.key, inferredType) : null;
+    const softSkipKeys = new Set<CaptureKey>();
+    if (rawPending && rawForced && shouldSoftSkipDueToForcedPromptLoop(messages, rawForced)) {
+      softSkipKeys.add(rawPending.key);
+    }
+
+    const nextPendingCapture = getNextPendingCapture(messages, captureOpts, softSkipKeys);
     const forcedCapturePrompt = nextPendingCapture
       ? buildCaptureQuestion(nextPendingCapture.key, inferredType)
       : null;
 
-    // Build universal messages with server-side deterministic routing guard
-    const routingGuard = buildDeterministicRoutingGuard(messages, {
-      includeBudgetCapture,
-      tier: intakeTier,
-    });
+    const routingGuard = buildDeterministicRoutingGuard(messages, captureOpts, softSkipKeys);
+    const antiLoopSystem =
+      softSkipKeys.size > 0
+        ? [
+            "ANTI-LOOP CONTROL (mandatory): The same required intake question was already asked twice. The user's reply may not have registered in automation.",
+            "Do not repeat that question. Optionally acknowledge in one short sentence, then ask ONLY the next single topic from the routing guard — or continue normally if no captures remain.",
+          ].join(" ")
+        : null;
+
     const aiMessages: ChatMessage[] = [
       { role: "system", content: wundySystemPrompt },
       { role: "system", content: routingGuard },
+      ...(antiLoopSystem ? [{ role: "system" as const, content: antiLoopSystem }] : []),
       ...(!includeBudgetCapture
         ? [
             {
@@ -721,7 +1007,7 @@ export async function POST(req: Request) {
     if (
       nextPendingCapture &&
       forcedCapturePrompt &&
-      !responseRequestsExpectedCapture(finalContent, nextPendingCapture.key)
+      shouldForceCapturePrompt(finalContent, forcedCapturePrompt, nextPendingCapture.key)
     ) {
       finalContent = forcedCapturePrompt;
     }

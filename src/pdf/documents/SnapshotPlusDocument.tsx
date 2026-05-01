@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
     padding: 42,
     paddingBottom: 66,
     fontSize: 11,
-    color: "#2D3A4A",
+    color: pdfTheme.colors.text,
     lineHeight: 1.6,
     backgroundColor: "#FFFFFF",
   },
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     padding: 12,
     borderRadius: 8,
-    border: "1 solid #E2EAF5",
+    border: `1 solid ${pdfTheme.colors.border}`,
     backgroundColor: "#F8FBFF",
   },
   pillarTitle: {
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
   body: {
     lineHeight: 1.6,
     fontFamily: "Helvetica",
-    color: "#2D3A4A",
+    color: pdfTheme.colors.text,
     marginBottom: 8,
     fontSize: 10.2,
   },
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
   recommendation: {
     marginBottom: 4,
     fontFamily: "Helvetica",
-    color: "#2D3A4A",
+    color: pdfTheme.colors.text,
     lineHeight: 1.6,
     fontSize: 10,
   },

@@ -11,8 +11,13 @@ import TabPageWithSidebar from "@/components/results/TabPageWithSidebar";
 import {
   SUITE_ACCENT_BRIGHT,
   SUITE_BORDER,
+  SUITE_FONT_UI,
   SUITE_MUTED,
   SUITE_NAVY,
+  SUITE_PANEL_RAIL,
+  SUITE_RADIUS_BUTTON,
+  SUITE_RADIUS_MD,
+  SUITE_SHADOW_CARD,
 } from "@/components/results/suiteBrandTokens";
 import { getSuiteProgressHint } from "@/lib/copy/resultsSuiteGuidance";
 import {
@@ -30,36 +35,33 @@ const BORDER = SUITE_BORDER;
 const WHITE = "#FFFFFF";
 /** Wunderbar Digital long-form body (aligned with PDF example / narrative text). */
 const BODY_TEXT = EXAMPLE_CALLOUT.bodyColor;
-const SUITE_PANEL_SHADOW = "0 8px 24px rgba(2, 24, 89, 0.08)";
 const SECTION_SHELL: CSSProperties = {
   border: `1px solid ${BORDER}`,
-  borderRadius: 5,
+  borderRadius: SUITE_RADIUS_MD,
   borderTop: `2px solid ${BLUE}30`,
-  borderLeft: `3px solid ${BLUE}`,
+  borderLeft: `3px solid ${SUITE_PANEL_RAIL}`,
   background: "linear-gradient(135deg, #FFFFFF 0%, #F8FBFF 100%)",
   padding: "18px 20px",
   marginBottom: 14,
   scrollMarginTop: 120,
-  boxShadow: SUITE_PANEL_SHADOW,
+  boxShadow: SUITE_SHADOW_CARD,
 };
 const INNER_CARD: CSSProperties = {
   border: `1px solid ${BORDER}`,
-  borderRadius: 5,
+  borderRadius: SUITE_RADIUS_MD,
   background: WHITE,
 };
 const EDIT_IN_WORKBOOK_BTN: CSSProperties = {
   padding: "8px 14px",
-  borderRadius: 5,
+  borderRadius: SUITE_RADIUS_BUTTON,
   border: "none",
   background: BLUE,
   color: WHITE,
   fontSize: 12,
   fontWeight: 700,
   cursor: "pointer",
-  fontFamily: "'Lato', sans-serif",
+  fontFamily: SUITE_FONT_UI,
 };
-
-const FONT_STACK = "'Lato', system-ui, sans-serif";
 
 interface BrandStandardsTabProps {
   productTier: ProductTier;
@@ -235,7 +237,7 @@ const IMPL_TYPO = {
   specTag: {
     margin: 0,
     marginBottom: 6,
-    fontFamily: FONT_STACK,
+    fontFamily: SUITE_FONT_UI,
     fontWeight: 700,
     fontSize: 9,
     letterSpacing: "0.1em",
@@ -243,7 +245,7 @@ const IMPL_TYPO = {
     color: MID_GRAY,
   },
   headline: {
-    fontFamily: FONT_STACK,
+    fontFamily: SUITE_FONT_UI,
     fontWeight: 800,
     fontSize: 22,
     lineHeight: 1.22,
@@ -251,28 +253,28 @@ const IMPL_TYPO = {
     letterSpacing: "-0.02em",
   },
   subhead: {
-    fontFamily: FONT_STACK,
+    fontFamily: SUITE_FONT_UI,
     fontWeight: 650,
     fontSize: 17,
     lineHeight: 1.35,
     color: NAVY,
   },
   body: {
-    fontFamily: FONT_STACK,
+    fontFamily: SUITE_FONT_UI,
     fontWeight: 450,
     fontSize: 15,
     lineHeight: 1.65,
     color: BODY_TEXT,
   },
   metaCaption: {
-    fontFamily: FONT_STACK,
+    fontFamily: SUITE_FONT_UI,
     fontWeight: 500,
     fontSize: 12,
     lineHeight: 1.55,
     color: MID_GRAY,
   },
   channelLabel: {
-    fontFamily: FONT_STACK,
+    fontFamily: SUITE_FONT_UI,
     fontWeight: 700,
     fontSize: 10,
     letterSpacing: "0.12em",
@@ -280,7 +282,7 @@ const IMPL_TYPO = {
     color: MID_GRAY,
   },
   cta: {
-    fontFamily: FONT_STACK,
+    fontFamily: SUITE_FONT_UI,
     fontWeight: 700,
     fontSize: 14,
     lineHeight: 1.35,
@@ -351,7 +353,7 @@ function ImplementationExampleCard({
             letterSpacing: "0.06em",
             background: accent.badgeBg,
             color: accent.badgeText,
-            fontFamily: FONT_STACK,
+            fontFamily: SUITE_FONT_UI,
           }}
           aria-hidden
         >
@@ -1001,7 +1003,7 @@ export default function BrandStandardsTab({
                 textTransform: "uppercase",
                 color: "#024E70",
                 background: `${BLUE}18`,
-                fontFamily: FONT_STACK,
+                fontFamily: SUITE_FONT_UI,
                 whiteSpace: "nowrap",
               }}
             >
@@ -1014,7 +1016,7 @@ export default function BrandStandardsTab({
               listStyle: "none",
               margin: 0,
               padding: 0,
-              fontFamily: FONT_STACK,
+              fontFamily: SUITE_FONT_UI,
             }}
           >
             {standardsDepth.publishingChecklist.map((item, index) => (

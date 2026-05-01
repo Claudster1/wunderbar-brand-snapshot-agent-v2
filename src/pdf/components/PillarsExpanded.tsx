@@ -2,6 +2,7 @@
 // Expanded pillar insights component for PDF documents
 
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
+import { pdfTheme } from "../theme";
 
 const styles = StyleSheet.create({
   container: {
@@ -10,14 +11,14 @@ const styles = StyleSheet.create({
   pillarTitle: {
     fontSize: 16,
     fontWeight: 600,
-    color: "#021859",
+    color: pdfTheme.colors.navy,
     marginBottom: 8,
     textTransform: "capitalize",
   },
   insight: {
     fontSize: 12,
     lineHeight: 1.6,
-    color: "#0C1526",
+    color: pdfTheme.colors.text,
     marginBottom: 12,
   },
 });

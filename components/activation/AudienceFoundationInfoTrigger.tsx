@@ -4,9 +4,14 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import {
   SUITE_ACCENT_BRIGHT,
+  SUITE_BG_CARD,
   SUITE_BORDER,
+  SUITE_FONT_UI,
   SUITE_MUTED,
   SUITE_NAVY,
+  SUITE_RADIUS_SM,
+  SUITE_SECTION_ACTIVE_BG,
+  SUITE_SHADOW_FLOAT,
 } from "@/components/results/suiteBrandTokens";
 
 const NAVY = SUITE_NAVY;
@@ -85,7 +90,7 @@ export default function AudienceFoundationInfoTrigger({ links, variant = "compac
           height: 22,
           borderRadius: "50%",
           border: `1px solid ${open ? BLUE : BORDER}`,
-          background: open ? "#E8F6FE" : "#FFFFFF",
+          background: open ? SUITE_SECTION_ACTIVE_BG : SUITE_BG_CARD,
           color: NAVY,
           cursor: "pointer",
           fontSize: 12,
@@ -117,23 +122,34 @@ export default function AudienceFoundationInfoTrigger({ links, variant = "compac
             minWidth: 272,
             maxWidth: "min(340px, calc(100vw - 48px))",
             padding: "12px 14px",
-            borderRadius: 8,
+            borderRadius: SUITE_RADIUS_SM,
             border: `1px solid ${BORDER}`,
-            background: "#FFFFFF",
-            boxShadow: "0 10px 28px rgba(2, 24, 89, 0.14)",
+            background: SUITE_BG_CARD,
+            boxShadow: SUITE_SHADOW_FLOAT,
           }}
         >
           <p
             id={`${headingId}-title`}
-            style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}
+            style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY, fontFamily: SUITE_FONT_UI }}
           >
             Audience &amp; strategy foundation
           </p>
-          <p style={{ margin: "8px 0 0", fontSize: 12, color: MID_GRAY, lineHeight: 1.55 }}>{POPOVER_BODY}</p>
-          <p style={{ margin: "10px 0 6px", fontSize: 11, fontWeight: 800, color: NAVY, letterSpacing: "0.04em" }}>
+          <p style={{ margin: "8px 0 0", fontSize: 12, color: MID_GRAY, lineHeight: 1.55, fontFamily: SUITE_FONT_UI }}>
+            {POPOVER_BODY}
+          </p>
+          <p
+            style={{
+              margin: "10px 0 6px",
+              fontSize: 11,
+              fontWeight: 800,
+              color: NAVY,
+              letterSpacing: "0.04em",
+              fontFamily: SUITE_FONT_UI,
+            }}
+          >
             Open a brief
           </p>
-          <ul className="strategy-suite-ul" style={{ margin: 0, fontSize: 12, color: NAVY, lineHeight: 1.5 }}>
+          <ul className="strategy-suite-ul" style={{ margin: 0, fontSize: 12, color: NAVY, lineHeight: 1.5, fontFamily: SUITE_FONT_UI }}>
             {links.map((item) => (
               <li key={item.href}>
                 <Link

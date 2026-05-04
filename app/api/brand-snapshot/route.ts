@@ -8,6 +8,11 @@ import { wundySystemPrompt } from "@/src/prompts/wundySystemPrompt";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { randomUUID } from "crypto";
 import { completeWithFallback, type ChatMessage } from "@/lib/ai";
+import {
+  flexibleDirectCaptureComplete,
+  isBareAffirmOrDeny,
+  type CaptureKey,
+} from "@/lib/intake/flexibleDirectCaptureComplete";
 
 type BusinessType =
   | "service_b2b"
@@ -16,20 +21,6 @@ type BusinessType =
   | "ecommerce"
   | "saas"
   | "local_service";
-
-type CaptureKey =
-  | "business_type_classifier"
-  | "monthly_revenue_range"
-  | "average_transaction_value"
-  | "conversion_rate_estimate"
-  | "primary_acquisition_channel"
-  | "monthly_marketing_budget"
-  | "content_creation_capacity"
-  | "competitive_pressure_point"
-  | "has_email_list"
-  | "has_lead_magnet"
-  | "has_clear_cta"
-  | "marketing_channel_mix";
 
 function computeBrandAlignmentFromPillars(
   pillarScores: Record<string, unknown> | null | undefined,
@@ -125,16 +116,6 @@ function lastAssistantText(messages: Array<{ role: string; content: string }>): 
     if (messages[i].role === "assistant") return String(messages[i].content || "").trim();
   }
   return "";
-}
-
-function isBareAffirmOrDeny(text: string): boolean {
-  const t = text.trim();
-  if (t.length > 48) return false;
-  const normalized = t.replace(/[""''`]/g, "").replace(/\s+/g, " ");
-  if (/^[yn]\.?$/i.test(normalized)) return true;
-  return /^(yes|yeah|yep|yup|no|nope|nah|naw|sure|not really|no thanks|no thank you|no gracias|sí|si|oui|non|ja|nein|vale|claro|да|нет)\.?$/i.test(
-    normalized,
-  );
 }
 
 /**
@@ -374,7 +355,8 @@ function getCaptureStates(
             "i",
           ),
         ) ||
-        refused(/\bhow you (get paid|make money)|who you.*sell|business model|primary revenue\b/i),
+        refused(/\bhow you (get paid|make money)|who you.*sell|business model|primary revenue\b/i) ||
+        flexibleDirectCaptureComplete("business_type_classifier", la, lu),
     },
     {
       key: "monthly_revenue_range",
@@ -385,7 +367,8 @@ function getCaptureStates(
           /\bunder \$?5k|\$?5k\s*[–-]\s*\$?20k|\$?20k\s*[–-]\s*\$?50k|\$?50k\s*[–-]\s*\$?150k|\$?150k\+|monthly revenue\b/i,
         ) ||
         revenueLooseOk ||
-        refused(/\bmonthly revenue|month to month|transaction volume|how much you bring in\b/i),
+        refused(/\bmonthly revenue|month to month|transaction volume|how much you bring in\b/i) ||
+        flexibleDirectCaptureComplete("monthly_revenue_range", la, lu),
     },
     {
       key: "average_transaction_value",
@@ -401,7 +384,8 @@ function getCaptureStates(
       completed:
         hasSignal(messages, /\bconversion rate|close rate|i don't track this|do not track\b/i) ||
         hasRecentUserSignal(messages, CONVERSION_RATE_SIGNAL, 5) ||
-        refused(/\bconversion rate|close rate|win rate\b/i),
+        refused(/\bconversion rate|close rate|win rate\b/i) ||
+        flexibleDirectCaptureComplete("conversion_rate_estimate", la, lu),
     },
     {
       key: "primary_acquisition_channel",
@@ -413,7 +397,8 @@ function getCaptureStates(
           /\b(word of mouth|wom|mostly referrals|google|organic|seo|sem|search ads?|linkedin|instagram|tiktok|facebook|meta|youtube|twitter|threads|\bx\b|cold (email|outreach|dm)|outbound|inbound|partnerships?|affiliates?|marketplaces?|pr\b|podcast|newsletter|community|webinars?|trade shows?|conferences?|content marketing|thought leadership)\b/i,
           5,
         ) ||
-        refused(/\bacquisition channel|where (customers|clients) find you|lead source\b/i),
+        refused(/\bacquisition channel|where (customers|clients) find you|lead source\b/i) ||
+        flexibleDirectCaptureComplete("primary_acquisition_channel", la, lu),
     },
     {
       key: "monthly_marketing_budget",
@@ -424,7 +409,8 @@ function getCaptureStates(
           /\bunder \$?500|\$?500\s*[–-]\s*\$?2,?000|\$?2,?000\s*[–-]\s*\$?5,?000|\$?5,?000\+|marketing budget\b/i,
         ) ||
         marketingBudgetLooseOk ||
-        refused(/\bmarketing budget|budget range|ad spend\b/i),
+        refused(/\bmarketing budget|budget range|ad spend\b/i) ||
+        flexibleDirectCaptureComplete("monthly_marketing_budget", la, lu),
     },
     {
       key: "content_creation_capacity",
@@ -436,7 +422,8 @@ function getCaptureStates(
           /\b(almost none|basically none|minimal|a few hours|couple hours|1\s*[-–]?\s*2 hours|part-?time|full-?time|we don'?t really create|outsourc(e|ed) content|agency handles content)\b/i,
           5,
         ) ||
-        refused(/\bcontent creation|hours per week|time for content\b/i),
+        refused(/\bcontent creation|hours per week|time for content\b/i) ||
+        flexibleDirectCaptureComplete("content_creation_capacity", la, lu),
     },
     {
       key: "competitive_pressure_point",
@@ -457,7 +444,8 @@ function getCaptureStates(
           /\b(usually|often|a lot of the time) (lose|lost) (to|against)|picked the other (guy|company|firm)|went with (a )?competitor|undercut on|can'?t compete on|gets? beat on (price|trust|speed)|kinda (lose|losing) (on |to )?|always the bridesmaid\b/i,
           5,
         ) ||
-        refused(/\bcompetitor|competitive pressure|lose deals|win[- ]?loss|why (they|customers) pick\b/i),
+        refused(/\bcompetitor|competitive pressure|lose deals|win[- ]?loss|why (they|customers) pick\b/i) ||
+        flexibleDirectCaptureComplete("competitive_pressure_point", la, lu),
     },
     {
       key: "has_email_list",
@@ -473,7 +461,8 @@ function getCaptureStates(
           /\b(mailchimp|klaviyo|hubspot|convertkit|beehiiv|substack|constant contact|activecampaign|sendgrid|drip|flodesk)\b|\b\d{2,6}\s+(subscribers|contacts on (our )?list)\b|\b(yes|yeah|yep),?\s*(we have|there is|there's)\b.*\b(list|newsletter|subscribers)\b|\b(nope|no),?\s*(we )?(don'?t|do not) (have )?(an? )?(email )?list\b/i,
           5,
         ) ||
-        refused(/\bemail list|newsletter|mailing list\b/i),
+        refused(/\bemail list|newsletter|mailing list\b/i) ||
+        flexibleDirectCaptureComplete("has_email_list", la, lu),
     },
     {
       key: "has_lead_magnet",
@@ -489,7 +478,8 @@ function getCaptureStates(
           /\b(freebie|whitepaper|white paper|case study (download|pdf)|webinar replay|template pack|free tool|free audit|free trial signup|quiz results|resource library)\b/i,
           5,
         ) ||
-        refused(/\blead magnet|lead capture|opt-?in|free (download|resource|offer)\b/i),
+        refused(/\blead magnet|lead capture|opt-?in|free (download|resource|offer)\b/i) ||
+        flexibleDirectCaptureComplete("has_lead_magnet", la, lu),
     },
     {
       key: "has_clear_cta",
@@ -504,7 +494,8 @@ function getCaptureStates(
           /\b(pretty clear|fairly obvious|one main (button|cta)|too many (buttons|choices|ctas)|confus|unclear|muddy|visitors (get )?lost|not sure what to click|kinda messy|sorta clear|sort of a mess|meh,? it'?s fine|could be clearer)\b/i,
           5,
         ) ||
-        refused(/\bcall to action|cta|next step|main action on (the )?site\b/i),
+        refused(/\bcall to action|cta|next step|main action on (the )?site\b/i) ||
+        flexibleDirectCaptureComplete("has_clear_cta", la, lu),
     },
     {
       key: "marketing_channel_mix",
@@ -526,7 +517,8 @@ function getCaptureStates(
           ),
           5,
         ) ||
-        refused(/\bmarketing channels|active channels|which channels\b/i),
+        refused(/\bmarketing channels|active channels|which channels\b/i) ||
+        flexibleDirectCaptureComplete("marketing_channel_mix", la, lu),
     },
   ];
 
@@ -555,6 +547,15 @@ function getNextPendingCapture(
   return getEffectiveCaptureStates(messages, options, softSkipKeys).find((x) => !x.completed) ?? null;
 }
 
+/** Align forced prompt vs assistant text for repeat detection (approved wording uses **bold**; models often omit markers). */
+function stripChatMarkdownBold(s: string): string {
+  return s.replace(/\*\*([^*]+)\*\*/g, "$1");
+}
+
+function normalizedCapturePromptSlice(s: string): string {
+  return stripChatMarkdownBold(s).replace(/\s+/g, " ").trim();
+}
+
 /** Assistant turns that reused the same forced capture line (verbatim or distinctive prefix). */
 function forcedPromptRepeatCount(
   messages: Array<{ role: string; content: string }>,
@@ -562,12 +563,19 @@ function forcedPromptRepeatCount(
 ): number {
   const t = forcedPrompt.trim();
   if (!t) return 0;
+  const tNorm = normalizedCapturePromptSlice(t);
   const assistants = messages.filter((m) => m.role === "assistant");
-  const exact = assistants.filter((m) => (m.content || "").trim() === t).length;
+  const exact = assistants.filter((m) => {
+    const c = (m.content || "").trim();
+    return c === t || normalizedCapturePromptSlice(c) === tNorm;
+  }).length;
   if (exact >= 2) return exact;
-  const needle = t.slice(0, Math.min(96, t.length));
+  const needle = tNorm.slice(0, Math.min(96, tNorm.length));
   if (needle.length < 28) return exact;
-  return Math.max(exact, assistants.filter((m) => (m.content || "").includes(needle)).length);
+  return Math.max(
+    exact,
+    assistants.filter((m) => normalizedCapturePromptSlice(m.content || "").includes(needle)).length,
+  );
 }
 
 function shouldSoftSkipDueToForcedPromptLoop(
@@ -610,32 +618,32 @@ function buildCaptureQuestion(
       return inferredType
         ? `Quick gut check so I can tailor this to your reality: it sounds like you're primarily running a ${businessTypeLabel(
             inferredType,
-          )} business. Does that feel accurate, or would you describe your revenue model differently?`
-        : "Quick context check before we go deeper: in one sentence, how do you primarily get paid, and who are you mainly selling to?";
+          )} business. **Does that feel accurate, or would you describe your revenue model differently?**`
+        : "Quick context check before we go deeper: **in one sentence, how do you primarily get paid, and who are you mainly selling to?**";
     case "monthly_revenue_range":
-      return "To keep your impact framing grounded in your real numbers, roughly what does the business generate month to month? A range is perfect.";
+      return "**Roughly what does the business generate month to month?** A range is perfect — it keeps your impact framing grounded in real numbers.";
     case "average_transaction_value":
-      return "About what is your average transaction value or deal size today? A rough estimate is absolutely fine.";
+      return "**About what is your average transaction value or deal size today?** A rough estimate is absolutely fine.";
     case "conversion_rate_estimate":
-      return "If you track it, what is your approximate conversion or close rate today? If not, totally okay — just say you don't track it yet.";
+      return "**What is your approximate conversion or close rate today, if you track it?** If not, totally okay — just say you don't track it yet.";
     case "primary_acquisition_channel":
-      return "Where do most new customers find you right now (for example: referral, organic search, social, paid ads, direct, or events)? Whatever comes to mind first is fine.";
+      return "**Where do most new customers find you right now** — referral, organic search, social, paid ads, direct, events, or something else? Whatever comes to mind first is fine.";
     case "monthly_marketing_budget":
-      return "What is your approximate monthly marketing budget today? Ballpark is perfect — this just helps prioritize what is realistic for you.";
+      return "**What is your approximate monthly marketing budget today?** Ballpark is perfect — this just helps prioritize what is realistic for you.";
     case "content_creation_capacity":
-      return "How much time can your team realistically invest in content creation each week? Even a rough range works — no need to overthink it.";
+      return "**How much time can your team realistically invest in content creation each week?** Even a rough range works — no need to overthink it.";
     case "competitive_pressure_point":
-      return "When prospects choose a competitor over you, what reason comes up most often (for example: price, trust, clarity, speed, proof, or fit)?";
+      return "**When prospects choose a competitor over you, what reason comes up most often** — price, trust, clarity, speed, proof, or fit?";
     case "has_email_list":
-      return `One gentle logistics question — do you have an email list you're sending to today (even a small one is perfect)? A simple yes or no is totally enough. If you're just starting, that's okay too — your report can include a friendly path forward.`;
+      return `One gentle logistics question — **do you have an email list you're sending to today** (even a small one is perfect)? A simple yes or no is totally enough. If you're just starting, that's okay too — your report can include a friendly path forward.`;
     case "has_lead_magnet":
-      return `Lots of strong brands don't use a "lead magnet" yet — totally normal. Do you have any free download, template, guide, or similar that people get in exchange for their email? If the answer is no, that's useful too: say something like "not yet" or "we don't," and your plan can include a short list of ideas we'll weave into the email and social campaigns we draft for you.`;
+      return `Lots of strong brands don't use a "lead magnet" yet — totally normal. **Do you have any free download, template, guide, or similar that people get in exchange for their email?** If the answer is no, that's useful too: say something like "not yet" or "we don't," and your plan can include a short list of ideas we'll weave into the email and social campaigns we draft for you.`;
     case "has_clear_cta":
-      return `When someone lands on your site or main profile, how clear does the next step feel — pretty obvious (like one main button or action), or still a little mixed? Whatever you share is the right answer.`;
+      return `When someone lands on your site or main profile, **how clear does the next step feel** — pretty obvious (like one main button or action), or still a little mixed? Whatever you share is the right answer.`;
     case "marketing_channel_mix":
-      return `Where are you showing up for people lately — things like email, social, SEO or search, paid ads, referrals, events, YouTube, or something else? Name whatever fits; "mostly one channel" is a great answer too.`;
+      return "**Where are you showing up for people lately** — email, social, SEO or search, paid ads, referrals, events, YouTube, or something else? Name whatever fits; \"mostly one channel\" is a great answer too.";
     default:
-      return `Great context so far. Let's grab one more input so your recommendations stay precise.${typeHint}`;
+      return `Great context so far. **Let's grab one more input** so your recommendations stay precise.${typeHint}`;
   }
 }
 
@@ -688,6 +696,7 @@ function shouldForceCapturePrompt(finalContent: string, forcedPrompt: string, pe
   if (responseRequestsExpectedCapture(finalContent, pendingKey)) return false;
   if (assistantReplyLooksOnTopicForCapture(finalContent, pendingKey)) return false;
   if (finalContent.trim() === forcedPrompt.trim()) return false;
+  if (normalizedCapturePromptSlice(finalContent) === normalizedCapturePromptSlice(forcedPrompt)) return false;
   return true;
 }
 

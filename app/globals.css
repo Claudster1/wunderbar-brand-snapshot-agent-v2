@@ -577,6 +577,12 @@ body:has(.app-root) {
   margin-bottom: 0;
 }
 
+.chat-bubble-assistant .chat-md strong,
+.wundy-msg-assistant .chat-md strong {
+  font-weight: 700;
+  color: #0c1526;
+}
+
 .chat-bubble-assistant {
   background: #fff;
   border: 1px solid #d7def0;

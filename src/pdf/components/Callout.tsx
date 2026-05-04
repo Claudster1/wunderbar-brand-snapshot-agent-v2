@@ -8,7 +8,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 12,
     backgroundColor: "#EFF6FF",
-    borderLeft: `3px solid ${pdfTheme.colors.blue || "#07B0F2"}`,
+    borderLeft: `3px solid ${pdfTheme.colors.blue}`,
     marginBottom: 10,
     borderRadius: 6,
     border: "1 solid #DCE9FF",

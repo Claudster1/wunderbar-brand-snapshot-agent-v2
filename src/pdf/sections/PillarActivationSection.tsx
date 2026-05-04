@@ -1,4 +1,5 @@
 import { View, Text } from "@react-pdf/renderer";
+import { pdfTheme } from "../theme";
 
 export function PillarActivationSection({
   pillar,
@@ -17,7 +18,7 @@ export function PillarActivationSection({
         style={{
           fontSize: emphasis === "primary" ? 18 : 15,
           fontWeight: "bold",
-          color: "#021859",
+          color: pdfTheme.colors.navy,
           marginBottom: 6,
         }}
       >
@@ -34,7 +35,7 @@ export function PillarActivationSection({
             key={idx}
             style={{
               fontSize: 11,
-              color: "#021859",
+              color: pdfTheme.colors.navy,
               marginBottom: 6,
             }}
           >

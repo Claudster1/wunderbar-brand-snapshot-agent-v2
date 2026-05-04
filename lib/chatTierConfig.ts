@@ -42,7 +42,7 @@ For example, I might ask about your "positioning." That's really just a fancy wa
 
 The whole thing takes about 15–20 minutes. If you need to step away, just click "Save and continue later" below the chat — we'll email you a link to pick up right where you left off.
 
-Ready when you are, {firstName}. Let's see where your brand stands.`,
+Okay, {firstName} — let's get started. What's the name of your business?`,
   },
 
   // ─── WunderBrand Snapshot+™ ($497) ──────────────────────────────
@@ -64,7 +64,7 @@ Your results will also include a Foundational Prompt Pack — 8 AI prompts built
 
 If you need to step away, just click "Save and continue later" below the chat — we'll email you a link to pick up right where you left off. No need to rush through it, {firstName}.
 
-Let's get into it.`,
+Alright, {firstName} — first up: what's your business called?`,
   },
 
   // ─── WunderBrand Blueprint™ ($997) ──────────────────────────────
@@ -86,7 +86,7 @@ Your results will include an Activation Prompt Pack — 8 AI prompts for buildin
 
 If you need to step away, just click "Save and continue later" below the chat — we'll email you a link to pick up right where you left off. Take the time you need with the questions that matter most, {firstName} — that's where the real value comes from.
 
-Let's map your brand.`,
+Okay, {firstName} — let's dive in. What's the name of the business we're mapping today?`,
   },
 
   // ─── WunderBrand Blueprint+™ ($1,997) ──────────────────────────
@@ -110,7 +110,7 @@ Take your time with this, {firstName}. If you need to step away, just click "Sav
 
 It's helpful to have your website, audience info, key competitors, and any existing brand work you can reference — but work with what you have. The diagnostic meets you where you are.
 
-Let's build something strategic.`,
+{firstName}, let's begin — what's the name of your business?`,
   },
 };
 

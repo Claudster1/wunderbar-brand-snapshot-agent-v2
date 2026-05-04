@@ -20,14 +20,14 @@ import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
 
 
 const s = StyleSheet.create({
-  page: { padding: 42, paddingBottom: 92, fontFamily: "Helvetica", fontSize: 10, color: "#2D3A4A", lineHeight: 1.6 },
+  page: { padding: 42, paddingBottom: 92, fontFamily: "Helvetica", fontSize: 10, color: pdfTheme.colors.text, lineHeight: 1.6 },
   coverPage: { padding: 42, fontFamily: "Helvetica", justifyContent: "center", alignItems: "center", backgroundColor: pdfTheme.colors.navy },
   coverLogo: { width: 120, marginBottom: 40, opacity: 0.9 },
   coverTitle: { fontSize: 32, fontWeight: "bold", color: "#FFFFFF", textAlign: "center", marginBottom: 8 },
   coverSubtitle: { fontSize: 14, color: pdfTheme.colors.aqua, textAlign: "center", marginBottom: 32 },
   coverMeta: { fontSize: 10, color: "#FFFFFF", textAlign: "center", opacity: 0.7, marginTop: 4 },
 
-  tocPage: { padding: 42, paddingBottom: 92, fontFamily: "Helvetica", fontSize: 10, color: "#2D3A4A" },
+  tocPage: { padding: 42, paddingBottom: 92, fontFamily: "Helvetica", fontSize: 10, color: pdfTheme.colors.text },
   tocTitle: { fontSize: 24, fontWeight: "bold", color: pdfTheme.colors.navy, marginBottom: 24 },
   tocPart: { fontSize: 13, fontWeight: "bold", color: pdfTheme.colors.navy, marginTop: 16, marginBottom: 6 },
   tocItem: { fontSize: 10, color: "#4B5563", paddingLeft: 12, marginBottom: 3, lineHeight: 1.6 },
@@ -37,15 +37,15 @@ const s = StyleSheet.create({
   partTitle: { fontSize: 28, fontWeight: "bold", color: "#FFFFFF", textAlign: "center", marginBottom: 8 },
   partDesc: { fontSize: 11, color: "#FFFFFF", textAlign: "center", opacity: 0.7, maxWidth: 400 },
 
-  h1: { fontSize: 20, fontWeight: "bold", color: "#021859", marginBottom: 8, marginTop: 20 },
-  h2: { fontSize: 14, fontWeight: "bold", color: "#021859", marginBottom: 6, marginTop: 15 },
+  h1: { fontSize: 20, fontWeight: "bold", color: pdfTheme.colors.navy, marginBottom: 8, marginTop: 20 },
+  h2: { fontSize: 14, fontWeight: "bold", color: pdfTheme.colors.navy, marginBottom: 6, marginTop: 15 },
   h3: { fontSize: 12, fontWeight: "bold", color: pdfTheme.colors.navy, marginBottom: 4, marginTop: 14 },
   h4: { fontSize: 10, fontWeight: "bold", color: pdfTheme.colors.navy, marginBottom: 3, marginTop: 10 },
-  body: { fontSize: 10, lineHeight: 1.6, marginBottom: 6, color: "#2D3A4A" },
-  small: { fontSize: 9, color: "#6B7280", lineHeight: 1.5 },
+  body: { fontSize: 10, lineHeight: 1.6, marginBottom: 6, color: pdfTheme.colors.text },
+  small: { fontSize: 9, color: pdfTheme.colors.muted, lineHeight: 1.5 },
   label: { fontSize: 8, fontWeight: "bold", color: "#0D5BD7", textTransform: "uppercase", letterSpacing: 1.1, marginBottom: 3, marginTop: 10 },
 
-  card: { backgroundColor: "#F8FBFF", borderRadius: 8, padding: 12, marginBottom: 10, border: "1 solid #E2EAF5" },
+  card: { backgroundColor: "#F8FBFF", borderRadius: 8, padding: 12, marginBottom: 10, border: `1 solid ${pdfTheme.colors.border}` },
   cardTitle: { fontSize: 11, fontWeight: "bold", color: pdfTheme.colors.navy, marginBottom: 4 },
   accentCard: { backgroundColor: "#EFF6FF", borderRadius: 8, padding: 12, marginBottom: 10, borderLeft: `3 solid ${pdfTheme.colors.blue}`, border: "1 solid #D9E8FF" },
   warnCard: { backgroundColor: "#FFFBEB", borderRadius: 8, padding: 12, marginBottom: 10, borderLeft: "3 solid #F59E0B", border: "1 solid #FDE68A" },

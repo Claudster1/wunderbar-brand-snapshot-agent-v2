@@ -4,9 +4,13 @@ import type { CSSProperties } from "react";
 import { useEffect, useState } from "react";
 import {
   SUITE_ACCENT_BRIGHT,
+  SUITE_BG_CARD,
   SUITE_BORDER,
+  SUITE_FONT_UI,
   SUITE_MUTED,
   SUITE_NAVY,
+  SUITE_RADIUS_BUTTON,
+  SUITE_SECTION_ACTIVE_BG,
 } from "@/components/results/suiteBrandTokens";
 import { extractConversionSpine } from "@/lib/activation/conversionSpineHelpers";
 import {
@@ -41,14 +45,14 @@ const ROWS: { key: keyof NormalizedPaidChannel; label: string }[] = [
 
 const BTN: CSSProperties = {
   padding: "7px 12px",
-  borderRadius: 7,
+  borderRadius: SUITE_RADIUS_BUTTON,
   border: `1px solid ${BORDER}`,
-  background: "#FFFFFF",
+  background: SUITE_BG_CARD,
   color: NAVY,
   fontSize: 12,
   fontWeight: 700,
   cursor: "pointer",
-  fontFamily: "'Lato', sans-serif",
+  fontFamily: SUITE_FONT_UI,
 };
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -171,7 +175,7 @@ export default function PaidMediaActivationCreatives({ strategy }: { strategy: R
             borderRadius: 10,
             borderLeft: `4px solid ${BLUE}`,
             padding: "14px 16px",
-            background: "linear-gradient(135deg, #F0F9FF 0%, #FFFFFF 70%)",
+            background: `linear-gradient(135deg, #F0F9FF 0%, ${SUITE_BG_CARD} 70%)`,
           }}
         >
           <p
@@ -247,7 +251,7 @@ export default function PaidMediaActivationCreatives({ strategy }: { strategy: R
             border: `1px solid ${BORDER}`,
             borderRadius: 10,
             overflow: "hidden",
-            background: "#FFFFFF",
+            background: SUITE_BG_CARD,
           }}
         >
           <div
@@ -300,7 +304,7 @@ export default function PaidMediaActivationCreatives({ strategy }: { strategy: R
               flexWrap: "wrap",
               gap: 8,
               borderBottom: `1px solid ${BORDER}`,
-              background: "#FFFFFF",
+              background: SUITE_BG_CARD,
             }}
           >
             {normalizedChannels.map((ch, index) => {
@@ -316,12 +320,12 @@ export default function PaidMediaActivationCreatives({ strategy }: { strategy: R
                     padding: "8px 14px",
                     borderRadius: 999,
                     border: `1px solid ${selected ? BLUE : BORDER}`,
-                    background: selected ? "#E8F6FE" : "#FFFFFF",
+                    background: selected ? SUITE_SECTION_ACTIVE_BG : SUITE_BG_CARD,
                     color: NAVY,
                     fontSize: 12,
                     fontWeight: 700,
                     cursor: "pointer",
-                    fontFamily: "'Lato', sans-serif",
+                    fontFamily: SUITE_FONT_UI,
                     maxWidth: "100%",
                     textAlign: "left",
                   }}
@@ -338,7 +342,7 @@ export default function PaidMediaActivationCreatives({ strategy }: { strategy: R
                 width: "100%",
                 borderCollapse: "collapse",
                 fontSize: 13,
-                fontFamily: "'Lato', sans-serif",
+                fontFamily: SUITE_FONT_UI,
               }}
             >
               <caption

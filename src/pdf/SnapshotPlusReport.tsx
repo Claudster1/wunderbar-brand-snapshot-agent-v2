@@ -9,6 +9,7 @@ import {
   Rect,
 } from "@react-pdf/renderer";
 import { DisclaimerPage } from "./components/DisclaimerPage";
+import { pdfTheme } from "./theme";
 
 /* -----------------------------
    SVG Gauge (PDF-safe)
@@ -108,7 +109,7 @@ const styles = StyleSheet.create({
     marginTop: 32,
     padding: 20,
     borderRadius: 8,
-    backgroundColor: "#021859",
+    backgroundColor: pdfTheme.colors.navy,
     color: "#FFFFFF",
   },
 });

@@ -7,6 +7,7 @@ import {
 } from "@react-pdf/renderer";
 import { ScoreGauge } from "../components/ScoreGauge";
 import { DisclaimerPage } from "../components/DisclaimerPage";
+import { pdfTheme } from "../theme";
 
 type PillarScore = {
   name: string;
@@ -27,7 +28,7 @@ const styles = StyleSheet.create({
     padding: 42,
     paddingBottom: 66,
     fontFamily: "Helvetica",
-    color: "#021859",
+    color: pdfTheme.colors.navy,
     fontSize: 10.5,
     lineHeight: 1.6,
   },
@@ -74,13 +75,13 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingLeft: 10,
     borderLeftWidth: 3,
-    borderLeftColor: "#07B0F2",
+    borderLeftColor: pdfTheme.colors.blue,
   },
   ctaBlock: {
     marginTop: 28,
     padding: 14,
     borderRadius: 8,
-    backgroundColor: "#021859",
+    backgroundColor: pdfTheme.colors.navy,
     color: "#fff",
   },
   ctaTitle: {

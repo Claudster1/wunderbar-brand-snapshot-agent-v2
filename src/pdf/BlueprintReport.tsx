@@ -1,4 +1,5 @@
 import { Document, Page, Text, View } from "@react-pdf/renderer";
+import { pdfTheme } from "./theme";
 import { PillarActivationSection } from "./sections/PillarActivationSection";
 import { ArchetypeSection } from "./sections/ArchetypeSection";
 import { DisclaimerPage } from "./components/DisclaimerPage";
@@ -43,7 +44,7 @@ export function BlueprintReport({
     <Document>
     <Page size="A4" style={{ padding: 56, fontFamily: "Helvetica" }}>
       {/* Header */}
-      <Text style={{ fontSize: 26, fontWeight: "bold", color: "#021859" }}>
+      <Text style={{ fontSize: 26, fontWeight: "bold", color: pdfTheme.colors.navy }}>
         {brandName} — WunderBrand Blueprint™
       </Text>
 

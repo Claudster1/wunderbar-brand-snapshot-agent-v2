@@ -3,6 +3,7 @@
 
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
 import { ScoreGauge } from "../components/ScoreGauge";
+import { pdfTheme } from "../theme";
 import { stageModifier, archetypeModifier } from "@/src/lib/pillars/pillarModifiers";
 import { PILLAR_COPY, PillarKey } from "@/src/lib/pillars/pillarCopy";
 import { SnapshotContext } from "@/src/lib/pillars/types";
@@ -18,7 +19,7 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   primary: {
-    borderColor: "#07B0F2",
+    borderColor: pdfTheme.colors.blue,
     backgroundColor: "#F7FBFF",
   },
   header: {
@@ -39,7 +40,7 @@ const styles = StyleSheet.create({
   headline: {
     fontSize: 17,
     fontWeight: 600,
-    color: "#021859",
+    color: pdfTheme.colors.navy,
   },
   body: {
     fontSize: 12,

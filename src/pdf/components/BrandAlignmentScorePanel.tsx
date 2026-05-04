@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#F8FAFC",
     borderWidth: 1.5,
-    borderColor: "#07B0F2",
+    borderColor: pdfTheme.colors.blue,
     borderRadius: 8,
     padding: 20,
     gap: 24,

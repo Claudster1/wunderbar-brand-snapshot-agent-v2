@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
   signalCard: {
     backgroundColor: "#F7FAFF",
     border: "1px solid #DCE7F5",
-    borderLeft: "4px solid #07B0F2",
+    borderLeft: `4px solid ${pdfTheme.colors.blue}`,
     borderRadius: 10,
     padding: 14,
   },
@@ -459,7 +459,12 @@ export const BrandSnapshotPDF = ({
         </Section>
 
         <Section>
-          <View style={{ ...styles.signalCard, borderLeft: "4px solid #021859" }}>
+          <View
+            style={{
+              ...styles.signalCard,
+              borderLeft: `4px solid ${pdfTheme.colors.navy}`,
+            }}
+          >
             <Text style={{ ...styles.smallHeading, marginBottom: 8 }}>Revenue Impact Statement</Text>
             <Text style={styles.body}>
               {canEstimateRevenueImpact && estimatedLift

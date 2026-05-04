@@ -12,10 +12,10 @@ const s = StyleSheet.create({
     color: "#1F2937",
     lineHeight: 1.6,
   },
-  h1: { fontSize: 22, fontWeight: 700, color: "#021859", marginBottom: 8 },
-  h2: { fontSize: 12, fontWeight: 700, color: "#021859", marginTop: 14, marginBottom: 6 },
+  h1: { fontSize: 22, fontWeight: 700, color: pdfTheme.colors.navy, marginBottom: 8 },
+  h2: { fontSize: 12, fontWeight: 700, color: pdfTheme.colors.navy, marginTop: 14, marginBottom: 6 },
   body: { fontSize: 10.5, marginBottom: 6 },
-  small: { fontSize: 9, color: "#6B7280", marginBottom: 4 },
+  small: { fontSize: 9, color: pdfTheme.colors.muted, marginBottom: 4 },
   card: {
     border: "1 solid #E5E7EB",
     borderLeft: `3 solid ${pdfTheme.colors.blue}`,

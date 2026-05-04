@@ -1,4 +1,5 @@
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { pdfTheme } from "../theme";
 import { BlueprintCover } from "../sections/BlueprintCover";
 import { BlueprintContinuity } from "../sections/BlueprintContinuity";
 import { PillarActivation } from "../sections/PillarActivation";
@@ -12,20 +13,20 @@ const styles = StyleSheet.create({
     padding: 42,
     fontSize: 10.5,
     fontFamily: "Helvetica",
-    color: "#0C1526",
+    color: pdfTheme.colors.text,
     lineHeight: 1.6,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: 700,
-    color: "#021859",
+    color: pdfTheme.colors.navy,
     marginBottom: 10,
     marginTop: 20,
   },
   subsectionTitle: {
     fontSize: 11.5,
     fontWeight: 700,
-    color: "#0B5FCC",
+    color: pdfTheme.colors.blue,
     marginBottom: 6,
     marginTop: 12,
     textTransform: "uppercase",
@@ -34,7 +35,7 @@ const styles = StyleSheet.create({
   body: {
     fontSize: 10.3,
     lineHeight: 1.62,
-    color: "#2D3A4A",
+    color: pdfTheme.colors.text,
     marginBottom: 6,
   },
   card: {
@@ -42,12 +43,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     marginBottom: 10,
-    border: "1 solid #E2EAF5",
+    border: `1 solid ${pdfTheme.colors.border}`,
   },
   cardTitle: {
     fontSize: 11,
     fontWeight: 700,
-    color: "#021859",
+    color: pdfTheme.colors.navy,
     marginBottom: 4,
   },
   bullet: {

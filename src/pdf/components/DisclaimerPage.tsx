@@ -4,6 +4,7 @@
 
 import React from "react";
 import { Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { pdfTheme } from "../theme";
 
 const styles = StyleSheet.create({
   page: {
@@ -12,7 +13,7 @@ const styles = StyleSheet.create({
     fontFamily: "Helvetica",
     color: "#425066",
     lineHeight: 1.6,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: pdfTheme.colors.canvas,
   },
   kicker: {
     fontSize: 8,
@@ -25,7 +26,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: 700,
-    color: "#021859",
+    color: pdfTheme.colors.navy,
     marginBottom: 16,
     letterSpacing: 0.2,
   },
@@ -39,7 +40,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 10,
     fontWeight: 700,
-    color: "#021859",
+    color: pdfTheme.colors.navy,
     marginTop: 10,
     marginBottom: 5,
     textTransform: "uppercase",

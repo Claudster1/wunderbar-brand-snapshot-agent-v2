@@ -14,6 +14,7 @@ import {
 } from "@/components/results/StoryVisuals";
 import {
   SUITE_ACCENT_BRIGHT,
+  SUITE_BG_CARD,
   SUITE_BORDER,
   SUITE_FONT_UI,
   SUITE_INSIGHT_CARD_BASE,
@@ -21,9 +22,12 @@ import {
   SUITE_MUTED,
   SUITE_NAVY,
   SUITE_PANEL_RAIL,
+  SUITE_RADIUS_BUTTON,
   SUITE_RADIUS_LG,
   SUITE_RADIUS_MD,
+  SUITE_RADIUS_SM,
   SUITE_SHADOW_CARD,
+  SUITE_TEXT_PRIMARY,
 } from "@/components/results/suiteBrandTokens";
 import type { ActivationPlanSection } from "@/lib/activation/activationPlanModel";
 import { ACTIVATION_SECTION_ICON_TOKEN } from "@/lib/activation/activationPlanModel";
@@ -69,14 +73,14 @@ export type ActivationPlanSectionPanelProps = {
 
 const BTN_STYLE: React.CSSProperties = {
   padding: "7px 12px",
-  borderRadius: 7,
+  borderRadius: SUITE_RADIUS_BUTTON,
   border: `1px solid ${BORDER}`,
-  background: "#F8FBFF",
+  background: SUITE_BG_CARD,
   color: NAVY,
   fontSize: 12,
   fontWeight: 700,
   cursor: "pointer",
-  fontFamily: "'Lato', sans-serif",
+  fontFamily: SUITE_FONT_UI,
   textDecoration: "none",
   display: "inline-block",
   boxSizing: "border-box",
@@ -136,7 +140,7 @@ export default function ActivationPlanSectionPanel({
         border: `1px solid ${BORDER}`,
         borderLeft: `3px solid ${SUITE_PANEL_RAIL}`,
         borderRadius: SUITE_RADIUS_LG,
-        background: "#FFFFFF",
+        background: SUITE_BG_CARD,
         padding: "22px 24px 24px",
         scrollMarginTop: 120,
         boxShadow: SUITE_SHADOW_CARD,
@@ -277,7 +281,7 @@ export default function ActivationPlanSectionPanel({
           <div
             style={{
               padding: "12px 14px",
-              borderRadius: 6,
+              borderRadius: SUITE_RADIUS_SM,
               background: `${BLUE}14`,
               borderLeft: `3px solid ${BLUE}`,
             }}
@@ -293,11 +297,18 @@ export default function ActivationPlanSectionPanel({
             >
               Why This Matters
             </p>
-            <p style={{ margin: "6px 0 0", fontSize: 13, color: "#1A1A2E", lineHeight: 1.55 }}>
+            <p style={{ margin: "6px 0 0", fontSize: 13, color: SUITE_TEXT_PRIMARY, lineHeight: 1.55 }}>
               {expandedActivationContent[section.id].why}
             </p>
           </div>
-          <div style={{ padding: "12px 14px", borderRadius: 6, background: "#FFFFFF", border: `1px solid ${BORDER}` }}>
+          <div
+            style={{
+              padding: "12px 14px",
+              borderRadius: SUITE_RADIUS_SM,
+              background: SUITE_BG_CARD,
+              border: `1px solid ${BORDER}`,
+            }}
+          >
             <p
               style={{
                 margin: "0 0 8px",
@@ -313,7 +324,7 @@ export default function ActivationPlanSectionPanel({
               {expandedActivationContent[section.id].actions.map((item, index) => (
                 <p
                   key={`${section.id}-check-${index}`}
-                  style={{ margin: 0, fontSize: 13, color: "#243447", lineHeight: 1.55 }}
+                  style={{ margin: 0, fontSize: 13, color: SUITE_TEXT_PRIMARY, lineHeight: 1.55 }}
                 >
                   {index + 1}. {item}
                 </p>
@@ -324,7 +335,7 @@ export default function ActivationPlanSectionPanel({
             <div
               style={{
                 padding: "12px 14px",
-                borderRadius: 8,
+                borderRadius: SUITE_RADIUS_SM,
                 background: SEMANTIC_DO.bg,
                 border: "1px solid rgba(5, 150, 105, 0.22)",
                 borderLeft: `4px solid ${SEMANTIC_DO.border}`,
@@ -348,7 +359,7 @@ export default function ActivationPlanSectionPanel({
             <div
               style={{
                 padding: "12px 14px",
-                borderRadius: 8,
+                borderRadius: SUITE_RADIUS_SM,
                 background: SEMANTIC_DONT.bg,
                 border: "1px solid rgba(239, 68, 68, 0.2)",
                 borderLeft: `4px solid ${SEMANTIC_DONT.border}`,
@@ -385,7 +396,7 @@ export default function ActivationPlanSectionPanel({
           <div
             style={{
               padding: "12px 14px",
-              borderRadius: 8,
+              borderRadius: SUITE_RADIUS_SM,
               background: SEMANTIC_DO.bg,
               border: "1px solid rgba(5, 150, 105, 0.22)",
               borderLeft: `4px solid ${SEMANTIC_DO.border}`,
@@ -413,7 +424,7 @@ export default function ActivationPlanSectionPanel({
           <div
             style={{
               padding: "12px 14px",
-              borderRadius: 8,
+              borderRadius: SUITE_RADIUS_SM,
               background: SEMANTIC_DONT.bg,
               border: "1px solid rgba(239, 68, 68, 0.2)",
               borderLeft: `4px solid ${SEMANTIC_DONT.border}`,

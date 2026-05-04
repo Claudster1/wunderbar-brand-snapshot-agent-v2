@@ -405,7 +405,7 @@ const s = StyleSheet.create({
     marginBottom: 8, borderLeft: `3px solid ${SEMANTIC_DONT.border}`,
   },
   dontLabel: { fontSize: 11, fontWeight: 700, color: SEMANTIC_DONT.label, marginBottom: 3 },
-  dontWhy: { fontSize: 10, color: "#6B7280", lineHeight: 1.5, marginBottom: 3 },
+  dontWhy: { fontSize: 10, color: pdfTheme.colors.muted, lineHeight: 1.5, marginBottom: 3 },
   dontAlt: { fontSize: 10, color: "#059669", fontWeight: 600, lineHeight: 1.5 },
 
   // Color swatch
@@ -417,7 +417,7 @@ const s = StyleSheet.create({
   swatchColor: { height: 48 },
   swatchInfo: { padding: 8, backgroundColor: "#fff" },
   swatchName: { fontSize: 9, fontWeight: 700, color: pdfTheme.colors.navy, marginBottom: 2 },
-  swatchHex: { fontSize: 8, color: "#6B7280" },
+  swatchHex: { fontSize: 8, color: pdfTheme.colors.muted },
   swatchUsage: { fontSize: 8, color: "#9CA3AF", marginTop: 2 },
 
   // Typography
@@ -430,7 +430,7 @@ const s = StyleSheet.create({
     textTransform: "uppercase" as const, letterSpacing: 1.5, marginBottom: 6,
   },
   typeSpec: { fontSize: 9, color: "#9CA3AF", marginTop: 6 },
-  typeUsage: { fontSize: 10, color: "#6B7280", marginTop: 4, lineHeight: 1.5 },
+  typeUsage: { fontSize: 10, color: pdfTheme.colors.muted, marginTop: 4, lineHeight: 1.5 },
 
   // Imagery
   imageryCard: {
@@ -475,7 +475,7 @@ const s = StyleSheet.create({
   },
   imageSampleMeta: { padding: 8 },
   imageSampleCaption: { fontSize: 9, fontWeight: 700, color: pdfTheme.colors.navy, marginBottom: 2 },
-  imageSampleRationale: { fontSize: 8, color: "#6B7280", lineHeight: 1.45 },
+  imageSampleRationale: { fontSize: 8, color: pdfTheme.colors.muted, lineHeight: 1.45 },
 
   // Governance fill-in
   fillIn: {
@@ -627,7 +627,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
               </Text>
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 14, fontWeight: 700, color: pdfTheme.colors.navy }}>{item.title}</Text>
-                <Text style={{ fontSize: 10, color: "#6B7280", marginTop: 2 }}>{item.desc}</Text>
+                <Text style={{ fontSize: 10, color: pdfTheme.colors.muted, marginTop: 2 }}>{item.desc}</Text>
               </View>
             </View>
           ))}
@@ -978,7 +978,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
                   )}
                   <View style={{ flex: 1 }}>
                     <Text style={{ fontSize: 10, fontWeight: 700, color: "#991B1B" }}>{ac.name}</Text>
-                    <Text style={{ fontSize: 9, color: "#6B7280" }}>{ac.reason}</Text>
+                    <Text style={{ fontSize: 9, color: pdfTheme.colors.muted }}>{ac.reason}</Text>
                   </View>
                 </View>
               ))}
@@ -1072,7 +1072,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
                 fontFamily: typeCap.fontFamily,
                 fontSize: typeCap.fontSize,
                 fontWeight: typeCap.fontWeight,
-                color: "#6B7280",
+                color: pdfTheme.colors.muted,
                 lineHeight: 1.5,
               }}
             >
@@ -1293,7 +1293,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
                   {platform.examples && platform.examples.length > 0 && (
                     <View style={{ marginTop: 4 }}>
                       {platform.examples.map((ex, j) => (
-                        <Text key={j} style={{ fontSize: 9, color: "#6B7280", paddingLeft: 8, marginBottom: 2 }}>
+                        <Text key={j} style={{ fontSize: 9, color: pdfTheme.colors.muted, paddingLeft: 8, marginBottom: 2 }}>
                           {"\u2022"} {ex}
                         </Text>
                       ))}
@@ -1446,7 +1446,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
         {data.sample_rewrites && data.sample_rewrites.length > 0 && (
           <>
             <Text style={{ ...s.subsectionTitle, marginTop: 16 }}>Before & After Rewrites</Text>
-            <Text style={{ ...s.bodySmall, marginBottom: 8, color: "#6B7280", fontStyle: "italic" }}>
+            <Text style={{ ...s.bodySmall, marginBottom: 8, color: pdfTheme.colors.muted, fontStyle: "italic" }}>
               Illustrative tone shift (not a Do / Don’t pair).
             </Text>
             {data.sample_rewrites.map((rw, i) => (
@@ -1676,7 +1676,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
               <Text style={s.bodySmall}>{pillar.description}</Text>
               {pillar.example_topics && pillar.example_topics.length > 0 && (
                 <View style={{ marginTop: 6 }}>
-                  <Text style={{ fontSize: 9, fontWeight: 700, color: "#6B7280", marginBottom: 3 }}>Example topics:</Text>
+                  <Text style={{ fontSize: 9, fontWeight: 700, color: pdfTheme.colors.muted, marginBottom: 3 }}>Example topics:</Text>
                   {pillar.example_topics.map((t, j) => (
                     <Text key={j} style={s.bulletSmall}>{"\u2022"} {t}</Text>
                   ))}
@@ -1684,7 +1684,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
               )}
               {pillar.suggested_formats && pillar.suggested_formats.length > 0 && (
                 <View style={{ marginTop: 4 }}>
-                  <Text style={{ fontSize: 9, fontWeight: 700, color: "#6B7280", marginBottom: 3 }}>Formats:</Text>
+                  <Text style={{ fontSize: 9, fontWeight: 700, color: pdfTheme.colors.muted, marginBottom: 3 }}>Formats:</Text>
                   <View style={s.tagRow}>
                     {pillar.suggested_formats.map((f, j) => (
                       <Text key={j} style={{ ...s.tag, fontSize: 8 }}>{f}</Text>
@@ -1753,7 +1753,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
                   </View>
                 </View>
               </View>
-              <Text style={{ fontSize: 9, color: "#6B7280", fontStyle: "italic" as const, paddingLeft: 4 }}>
+              <Text style={{ fontSize: 9, color: pdfTheme.colors.muted, fontStyle: "italic" as const, paddingLeft: 4 }}>
                 Why: {item.why}
               </Text>
             </View>
@@ -1778,9 +1778,9 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
               <Text style={s.bodySmall}>{aud.visual_tone_shift}</Text>
               {aud.example_image_descriptions && aud.example_image_descriptions.length > 0 && (
                 <View style={{ marginTop: 6 }}>
-                  <Text style={{ fontSize: 9, fontWeight: 700, color: "#6B7280", marginBottom: 3 }}>Example imagery:</Text>
+                  <Text style={{ fontSize: 9, fontWeight: 700, color: pdfTheme.colors.muted, marginBottom: 3 }}>Example imagery:</Text>
                   {aud.example_image_descriptions.map((desc, j) => (
-                    <Text key={j} style={{ fontSize: 9, color: "#6B7280", paddingLeft: 8, marginBottom: 2 }}>
+                    <Text key={j} style={{ fontSize: 9, color: pdfTheme.colors.muted, paddingLeft: 8, marginBottom: 2 }}>
                       {"\u2022"} {desc}
                     </Text>
                   ))}

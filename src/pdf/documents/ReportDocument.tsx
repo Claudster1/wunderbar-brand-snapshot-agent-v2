@@ -22,6 +22,7 @@ import { PdfFooter } from "../components/PdfFooter";
 import { resolvePillarPriority } from '@/src/lib/pillars/pillarPriority';
 import { rolePhrase } from '@/src/lib/roleLanguage';
 import { pillarCopy, PillarKey } from '@/src/copy/pillars';
+import { pdfTheme } from '../theme';
 
 // Register fonts
 registerPdfFonts();
@@ -44,14 +45,14 @@ const styles = StyleSheet.create({
     fontSize: 22,
     marginBottom: 10,
     fontWeight: 'bold',
-    color: '#021859',
+    color: pdfTheme.colors.navy,
   },
   h2: {
     fontSize: 15,
     marginTop: 24,
     marginBottom: 8,
     fontWeight: 'bold',
-    color: '#021859',
+    color: pdfTheme.colors.navy,
   },
   h3: {
     fontSize: 12,
@@ -63,15 +64,15 @@ const styles = StyleSheet.create({
     marginBottom: 9,
   },
   muted: {
-    color: '#5A6B7E',
+    color: pdfTheme.colors.muted,
   },
   scoreBlock: {
     marginTop: 10,
     marginBottom: 16,
     padding: 14,
-    backgroundColor: '#F8FBFF',
-    border: "1 solid #E3EBF7",
-    borderRadius: 8,
+    backgroundColor: "#F8FCFF",
+    border: `1 solid ${pdfTheme.colors.border}`,
+    borderRadius: 10,
   },
   section: {
     marginTop: 16,
@@ -81,47 +82,47 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingTop: 14,
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: pdfTheme.colors.border,
   },
   pillarSection: {
     marginTop: 20,
     paddingTop: 14,
     borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
+    borderTopColor: pdfTheme.colors.border,
   },
   pillarHeader: {
     fontSize: 13,
     fontWeight: 'bold',
     marginBottom: 8,
-    color: '#021859',
+    color: pdfTheme.colors.navy,
   },
   insight: {
     fontSize: 10.5,
     marginTop: 7,
     marginBottom: 9,
     lineHeight: 1.6,
-    color: '#0C1526',
+    color: pdfTheme.colors.text,
   },
   recommendation: {
     fontSize: 10.5,
     marginTop: 7,
     lineHeight: 1.6,
-    color: '#0C1526',
+    color: pdfTheme.colors.text,
   },
   primaryEmphasisBox: {
     marginTop: 12,
     marginBottom: 12,
     padding: 12,
-    backgroundColor: '#EFF6FF',
+    backgroundColor: "#EFF6FF",
     borderLeftWidth: 3,
-    borderLeftColor: '#07B0F2',
-    borderRadius: 6,
+    borderLeftColor: pdfTheme.colors.blue,
+    borderRadius: 10,
   },
   emphasisTitle: {
     fontSize: 11.5,
     fontWeight: 'bold',
     marginBottom: 6,
-    color: '#021859',
+    color: pdfTheme.colors.navy,
   },
   emphasis: {
     fontWeight: 'bold',

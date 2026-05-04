@@ -8,7 +8,7 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 16,
     fontWeight: 700,
-    color: pdfTheme.colors.navy || "#021859",
+    color: pdfTheme.colors.navy,
     marginBottom: 10,
     marginTop: 8,
     letterSpacing: 0.2,

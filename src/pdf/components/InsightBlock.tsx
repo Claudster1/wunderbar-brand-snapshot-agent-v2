@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
   text: {
     fontFamily: "Helvetica",
     fontSize: 10,
-    color: "#2D3A4A",
+    color: pdfTheme.colors.text,
     lineHeight: 1.62,
   },
 });

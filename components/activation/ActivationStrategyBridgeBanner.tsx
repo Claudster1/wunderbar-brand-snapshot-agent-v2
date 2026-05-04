@@ -3,10 +3,14 @@
 import type { CSSProperties } from "react";
 import {
   SUITE_ACCENT_BRIGHT,
+  SUITE_BG_CARD,
+  SUITE_BG_PAGE,
+  SUITE_BORDER,
   SUITE_FONT_UI,
   SUITE_MUTED,
   SUITE_NAVY,
   SUITE_RADIUS_MD,
+  SUITE_RADIUS_SM,
 } from "@/components/results/suiteBrandTokens";
 import { strategicOfferPrimaryLabel } from "@/lib/strategy/strategicOfferPlan";
 
@@ -49,9 +53,9 @@ function buildActivationStrategyBridgeLines(diagnosticData: Record<string, unkno
 const BTN: CSSProperties = {
   marginTop: 14,
   padding: "9px 16px",
-  borderRadius: 8,
+  borderRadius: SUITE_RADIUS_SM,
   border: `1px solid ${SUITE_NAVY}`,
-  background: "#FFFFFF",
+  background: SUITE_BG_CARD,
   color: SUITE_NAVY,
   fontSize: 13,
   fontWeight: 700,
@@ -105,9 +109,9 @@ export default function ActivationStrategyBridgeBanner({ diagnosticData, onOpenS
           style={{
             margin: "12px 0 0",
             padding: "10px 12px",
-            borderRadius: 8,
-            background: "#FFFFFF",
-            border: "1px solid rgba(0,0,0,0.06)",
+            borderRadius: SUITE_RADIUS_SM,
+            background: SUITE_BG_CARD,
+            border: `1px solid ${SUITE_BORDER}`,
             fontSize: 13,
             color: SUITE_NAVY,
             lineHeight: 1.5,

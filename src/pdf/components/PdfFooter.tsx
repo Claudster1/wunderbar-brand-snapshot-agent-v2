@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
   },
   url: {
     fontSize: 7.2,
-    color: "#07B0F2",
+    color: pdfTheme.colors.blue,
     textDecoration: "none",
     opacity: 0.98,
   },

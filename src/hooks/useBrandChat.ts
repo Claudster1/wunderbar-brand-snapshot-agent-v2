@@ -213,6 +213,8 @@ export function useBrandChat(options?: UseBrandChatOptions) {
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [reportId, setReportId] = useState<string | null>(null);
+  /** Set when scoring/save succeeds — full URL to open the diagnostic results UI. */
+  const [resultsEntryUrl, setResultsEntryUrl] = useState<string | null>(null);
   const [lastFailedInput, setLastFailedInput] = useState<string | null>(null);
   const hasReceivedName = useRef(false);
   const allowIncompleteSubmissionRef = useRef(false);
@@ -481,13 +483,14 @@ export function useBrandChat(options?: UseBrandChatOptions) {
         if (typeof window !== 'undefined') {
           sessionStorage.setItem('wundy_report_id', finalReportId);
         }
+        const redirectUrl = `/results?reportId=${finalReportId}`;
+        setResultsEntryUrl(redirectUrl);
         const handoffMessage = createMessage('assistant', assistantText);
         const completedHistory = [...nextHistory, handoffMessage];
         setMessages(completedHistory);
         saveProgress('completed', completedHistory);
 
         if (typeof window !== 'undefined') {
-          const redirectUrl = `/results?reportId=${finalReportId}`;
           if (window.parent && window.parent !== window) {
             window.parent.postMessage({ type: 'BRAND_SNAPSHOT_COMPLETE', data: { report_id: finalReportId, redirectUrl } }, '*');
             if (onCompleteRef.current) onCompleteRef.current(finalReportId, redirectUrl);
@@ -599,6 +602,8 @@ export function useBrandChat(options?: UseBrandChatOptions) {
               const scoringResult = await scoringRes.json();
               const finalReportId = scoringResult.reportId;
               setReportId(finalReportId);
+              const redirectUrl = `/results?reportId=${finalReportId}`;
+              setResultsEntryUrl(redirectUrl);
               if (typeof window !== 'undefined') {
                 sessionStorage.setItem('wundy_report_id', finalReportId);
               }
@@ -623,7 +628,6 @@ export function useBrandChat(options?: UseBrandChatOptions) {
 
               // Navigate to results
               if (typeof window !== 'undefined') {
-                const redirectUrl = `/results?reportId=${finalReportId}`;
                 if (window.parent && window.parent !== window) {
                   window.parent.postMessage({ type: 'BRAND_SNAPSHOT_COMPLETE', data: { report_id: finalReportId, redirectUrl } }, '*');
                   // Also trigger local completion callback so in-app email gate can appear
@@ -760,7 +764,8 @@ export function useBrandChat(options?: UseBrandChatOptions) {
                 // Use PDF report ID if available, otherwise use save report ID
                 const finalReportId = pdfResult?.reportId || saveResult.reportId;
                 const redirectUrl = saveResult.redirectUrl || `/report/${finalReportId}`;
-                
+                setResultsEntryUrl(redirectUrl);
+
                 // Send scores to parent page via postMessage (for visual display)
                 if (typeof window !== 'undefined') {
                   // Check if we're in an iframe
@@ -900,6 +905,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
   const reset = () => {
     setMessages([INITIAL_ASSISTANT_MESSAGE]);
     setLastFailedInput(null);
+    setResultsEntryUrl(null);
   };
 
   // Calculate assessment progress based on assistant question count
@@ -916,6 +922,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     canRetry: !!lastFailedInput,
     reset,
     reportId,
+    resultsEntryUrl,
     assessmentProgress,
     questionsAnswered,
     totalQuestions: TOTAL_QUESTIONS,

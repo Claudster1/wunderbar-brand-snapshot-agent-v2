@@ -104,7 +104,19 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     setShowEmailVerification(true);
   }, []);
 
-  const { messages, isLoading, sendMessage, retry, canRetry, reset, reportId, assessmentProgress, questionsAnswered, totalQuestions } = useBrandChat({
+  const {
+    messages,
+    isLoading,
+    sendMessage,
+    retry,
+    canRetry,
+    reset,
+    reportId,
+    resultsEntryUrl,
+    assessmentProgress,
+    questionsAnswered,
+    totalQuestions,
+  } = useBrandChat({
     onComplete: handleAssessmentComplete,
     customGreeting: resolvedGreeting,
     welcomeBackTemplate: !customerName ? activeTierConfig.welcomeBack : undefined,
@@ -200,6 +212,21 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     if (!userCorpus) return false;
     return /\b(pre[-\s]?revenue|just getting started|new business|starting out|haven'?t launched|not launched yet|early stage|still figuring out|no customers yet|first customers)\b/i.test(userCorpus);
   }, [messages]);
+
+  /** Model promised an in-chat reveal or "below" but scoring URL never registered — offer recovery. */
+  const handoffPromisedNoEntryUrl = useMemo(() => {
+    if (resultsEntryUrl || isLoading) return false;
+    const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
+    if (!lastAssistant) return false;
+    const t = lastAssistant.text.toLowerCase();
+    return (
+      (t.includes("being generated") ||
+        t.includes("results will appear below") ||
+        t.includes("appear below") ||
+        t.includes("open full diagnostic")) &&
+      messages.filter((m) => m.role === "user").length >= 3
+    );
+  }, [messages, resultsEntryUrl, isLoading]);
 
   // Skip the current question
   const handleSkip = async () => {
@@ -788,6 +815,81 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                     }}
                   >
                     Retry
+                  </button>
+                </div>
+              )}
+
+              {resultsEntryUrl && !postVerifyDestination && (
+                <div
+                  style={{
+                    padding: "14px 12px",
+                    marginBottom: 10,
+                    borderRadius: 10,
+                    background: "linear-gradient(180deg, #E0F2FE 0%, #DBEAFE 100%)",
+                    border: "1px solid #7DD3FC",
+                  }}
+                >
+                  <p style={{ margin: "0 0 10px", fontSize: 14, fontWeight: 700, color: "#0C4A6E" }}>
+                    Your {activeTierConfig.productName} is ready
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      window.location.href = resultsEntryUrl;
+                    }}
+                    style={{
+                      width: "100%",
+                      padding: "12px 16px",
+                      borderRadius: 8,
+                      border: "none",
+                      background: "#07B0F2",
+                      color: "#fff",
+                      fontWeight: 700,
+                      fontSize: 15,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Open full diagnostic
+                  </button>
+                  {showEmailVerification && (
+                    <p style={{ margin: "10px 0 0", fontSize: 12, color: "#075985", lineHeight: 1.45 }}>
+                      If an email confirmation step is open on top of this page, complete it first — then use this
+                      button (or the bar at the top) to open your full results.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {handoffPromisedNoEntryUrl && !resultsEntryUrl && !isLoading && (
+                <div
+                  style={{
+                    padding: "12px",
+                    marginBottom: 10,
+                    borderRadius: 8,
+                    background: "#FFFBEB",
+                    border: "1px solid #FDE68A",
+                  }}
+                >
+                  <p style={{ margin: "0 0 8px", fontSize: 13, color: "#92400E", lineHeight: 1.45 }}>
+                    Still finalizing your diagnostic. If nothing happened after the last message, tap{" "}
+                    <strong>Continue</strong> — we&apos;ll try to complete the handoff.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => void sendMessage("Continue")}
+                    style={{
+                      width: "100%",
+                      padding: "10px 14px",
+                      borderRadius: 8,
+                      border: "1px solid #D97706",
+                      background: "#fff",
+                      color: "#B45309",
+                      fontWeight: 700,
+                      fontSize: 14,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Continue
                   </button>
                 </div>
               )}

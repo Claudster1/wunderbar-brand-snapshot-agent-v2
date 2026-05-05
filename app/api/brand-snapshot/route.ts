@@ -16,6 +16,8 @@ import {
   isBareAffirmOrDeny,
   type CaptureKey,
 } from "@/lib/intake/flexibleDirectCaptureComplete";
+import { sanitizeTierAssistantReply } from "@/lib/assistantCopy/sanitizeTierAssistantReply";
+import type { ChatTier } from "@/lib/chatTierConfig";
 
 type BusinessType =
   | "service_b2b"
@@ -1183,31 +1185,10 @@ export async function POST(req: Request) {
       finalContent = forcedCapturePrompt;
     }
 
-    // Safety rail: Snapshot tiers cannot upload files in chat and should not see upload guidance.
-    if (!hasChatAssetUploads) {
-      finalContent = finalContent
-        .replace(/[^\n]*(paperclip|attach|upload)[^\n]*/gi, "")
-        .replace(/\n{3,}/g, "\n\n")
-        .trim();
-    }
-
-    // Safety rail: user-facing copy should say "diagnostic", not "report".
-    const firstJsonBrace = finalContent.indexOf("{");
-    if (firstJsonBrace >= 0) {
-      const prefix = finalContent.slice(0, firstJsonBrace);
-      const suffix = finalContent.slice(firstJsonBrace);
-      finalContent = `${prefix
-        .replace(/\byour report\b/gi, "your diagnostic")
-        .replace(/\bthe report\b/gi, "the diagnostic")
-        .replace(/\breport\b/gi, "diagnostic")
-        .replace(/\n{3,}/g, "\n\n")
-        .trim()}${suffix ? `\n${suffix}` : ""}`;
-    } else {
-      finalContent = finalContent
-        .replace(/\byour report\b/gi, "your diagnostic")
-        .replace(/\bthe report\b/gi, "the diagnostic")
-        .replace(/\breport\b/gi, "diagnostic");
-    }
+    finalContent = sanitizeTierAssistantReply(finalContent, {
+      hasInChatUploads: hasChatAssetUploads,
+      intakeTier: intakeTier as ChatTier,
+    });
 
     return NextResponse.json({
       content: finalContent,

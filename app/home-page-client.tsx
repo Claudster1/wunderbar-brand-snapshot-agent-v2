@@ -671,6 +671,25 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
               />
             )}
 
+            {!isUploadTier && conversationStarted && (
+              <p
+                style={{
+                  margin: "0 0 12px",
+                  padding: "10px 12px",
+                  borderRadius: 8,
+                  background: "#F8FAFC",
+                  border: "1px solid #E2E8F0",
+                  fontSize: 12,
+                  color: "#475569",
+                  lineHeight: 1.5,
+                }}
+              >
+                <strong style={{ color: "#021859" }}>Text-only chat.</strong>{" "}
+                {activeTierConfig.productName} doesn&apos;t include a file-attachment button here — describe
+                any guidelines, decks, or visuals in your messages and Wundy™ will use that context.
+              </p>
+            )}
+
             <div className="chat-panel">
               <div ref={chatMessagesRef} className="chat-messages" aria-live="polite">
                 {messages.map((message) => {

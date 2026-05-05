@@ -151,6 +151,23 @@ export function getChatTierConfig(tier: ChatTier): ChatTierConfig {
   return TIER_CONFIGS[tier];
 }
 
+/** PDF download path for a completed diagnostic, by product tier. */
+export function pdfDownloadPathForTier(tier: ChatTier, reportId: string): string {
+  const id = encodeURIComponent(reportId);
+  switch (tier) {
+    case "snapshot":
+      return `/api/snapshot/pdf?id=${id}`;
+    case "snapshot-plus":
+      return `/api/snapshot-plus/pdf?id=${id}`;
+    case "blueprint":
+      return `/api/pdf?id=${id}&type=blueprint`;
+    case "blueprint-plus":
+      return `/api/pdf?id=${id}&type=blueprint-plus`;
+    default:
+      return `/api/snapshot/pdf?id=${id}`;
+  }
+}
+
 /**
  * Interpolate {firstName} into any chat template (greeting or welcomeBack).
  */

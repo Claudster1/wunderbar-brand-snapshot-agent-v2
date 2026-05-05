@@ -17,12 +17,15 @@ interface EmailVerificationGateProps {
   onVerified: (email: string) => void;
   /** Pre-filled email if already collected (e.g., from save-and-exit) */
   initialEmail?: string;
+  /** Product label for unlock copy (e.g. WunderBrand Snapshot™). */
+  productName?: string;
 }
 
 export function EmailVerificationGate({
   reportId,
   onVerified,
   initialEmail = "",
+  productName = "WunderBrand Snapshot™",
 }: EmailVerificationGateProps) {
   const [step, setStep] = useState<"email" | "code">("email");
   const [email, setEmail] = useState(initialEmail);
@@ -221,7 +224,7 @@ export function EmailVerificationGate({
           </h2>
           <p className="email-verification-subtitle">
             {step === "email"
-              ? "Enter your email to unlock your WunderBrand Snapshot™ results."
+              ? `Enter your email to unlock your full ${productName}. Next, you'll open the results experience — scores, insights, and PDF download — in one place.`
               : `We sent a 6-digit code to ${email}`}
           </p>
         </div>

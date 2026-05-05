@@ -5,7 +5,13 @@ import { useBrandChat } from "../src/hooks/useBrandChat";
 import { TurnstileWidget } from "@/components/security/TurnstileWidget";
 import { BehaviorTracker } from "@/lib/security/behavioralScoring";
 import { EmailVerificationGate } from "@/components/security/EmailVerificationGate";
-import { parseTierFromParam, getChatTierConfig, interpolateWelcomeBack, type ChatTier } from "@/lib/chatTierConfig";
+import {
+  parseTierFromParam,
+  getChatTierConfig,
+  interpolateWelcomeBack,
+  pdfDownloadPathForTier,
+  type ChatTier,
+} from "@/lib/chatTierConfig";
 import { AssetUploadPanel } from "@/components/assets/AssetUploadPanel";
 import { ChatMarkdown, renderChatMarkdownInline } from "@/components/chat/ChatMarkdown";
 import WundyLogo from "@/src/assets/wundy-logo.jpeg";
@@ -179,6 +185,12 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
   const [showEmailVerification, setShowEmailVerification] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
   const pendingRedirectRef = useRef<string | null>(null);
+  /** After email verification: show a top bar with primary navigation to results + PDF (not buried in chat). */
+  const [postVerifyDestination, setPostVerifyDestination] = useState<{
+    resultsUrl: string;
+    reportId: string;
+    email: string;
+  } | null>(null);
 
   const isEarlyStageMode = useMemo(() => {
     const userCorpus = messages
@@ -367,6 +379,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     reset();
     setInputValue("");
     setSelectedOptions([]);
+    setPostVerifyDestination(null);
   };
 
   // Parse select options from assistant message (multi-select or single-select)
@@ -441,20 +454,108 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
       {showEmailVerification && !emailVerified && reportId && (
         <EmailVerificationGate
           reportId={reportId}
+          productName={activeTierConfig.productName}
           initialEmail={typeof window !== "undefined" ? getPersistedEmail() ?? "" : ""}
           onVerified={(verifiedEmail) => {
             persistEmail(verifiedEmail);
             setEmailVerified(true);
             setShowEmailVerification(false);
-            // If we have a pending redirect, navigate now
-            if (pendingRedirectRef.current) {
-              window.location.href = pendingRedirectRef.current;
+            const url = pendingRedirectRef.current;
+            const rid = reportId;
+            if (url && rid) {
+              setPostVerifyDestination({
+                resultsUrl: url,
+                reportId: rid,
+                email: verifiedEmail,
+              });
+            } else if (url) {
+              window.location.href = url;
+            } else if (rid) {
+              setPostVerifyDestination({
+                resultsUrl: `/results?reportId=${encodeURIComponent(rid)}`,
+                reportId: rid,
+                email: verifiedEmail,
+              });
             }
           }}
         />
       )}
 
-      <div className="app-shell">
+      {postVerifyDestination && (
+        <div
+          role="region"
+          aria-label="Your results are ready"
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 10001,
+            background: "#021859",
+            color: "#fff",
+            padding: "14px 18px",
+            boxShadow: "0 4px 24px rgba(0, 0, 0, 0.22)",
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "14px 20px",
+          }}
+        >
+          <div style={{ flex: "1 1 240px", minWidth: 0, textAlign: "center", maxWidth: 560 }}>
+            <p style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>
+              Your {activeTierConfig.productName} is ready
+            </p>
+            <p style={{ margin: "8px 0 0", fontSize: 13, opacity: 0.92, lineHeight: 1.5 }}>
+              Open the full results experience for scores, insights, and sharing. We also saved this session to{" "}
+              <span style={{ fontWeight: 700, wordBreak: "break-all" }}>{postVerifyDestination.email}</span> so you
+              can reopen your link from email anytime.
+            </p>
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center" }}>
+            <button
+              type="button"
+              onClick={() => {
+                window.location.href = postVerifyDestination.resultsUrl;
+              }}
+              style={{
+                padding: "12px 22px",
+                borderRadius: 8,
+                border: "none",
+                background: "#07B0F2",
+                color: "#fff",
+                fontWeight: 700,
+                fontSize: 15,
+                cursor: "pointer",
+              }}
+            >
+              Open full results
+            </button>
+            <a
+              href={pdfDownloadPathForTier(activeTier, postVerifyDestination.reportId)}
+              style={{
+                padding: "12px 22px",
+                borderRadius: 8,
+                border: "1px solid rgba(255, 255, 255, 0.4)",
+                color: "#fff",
+                fontWeight: 600,
+                fontSize: 15,
+                textDecoration: "none",
+                display: "inline-flex",
+                alignItems: "center",
+                boxSizing: "border-box",
+              }}
+            >
+              Download PDF
+            </a>
+          </div>
+        </div>
+      )}
+
+      <div
+        className="app-shell"
+        style={postVerifyDestination ? { paddingTop: "clamp(96px, 22vw, 160px)" } : undefined}
+      >
         <section className="app-card" aria-labelledby="wundy-heading">
           <header className="app-card-header">
             <div className="app-card-avatar-wrap">

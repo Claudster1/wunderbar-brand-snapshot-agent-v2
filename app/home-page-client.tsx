@@ -10,6 +10,8 @@ import { AssetUploadPanel } from "@/components/assets/AssetUploadPanel";
 import { ChatMarkdown, renderChatMarkdownInline } from "@/components/chat/ChatMarkdown";
 import WundyLogo from "@/src/assets/wundy-logo.jpeg";
 import { staticImageUrl } from "@/lib/staticImageUrl";
+import { getPersistedEmail, persistEmail } from "@/lib/persistEmail";
+import { LeadMagnetEmailCard } from "@/components/lead/LeadMagnetEmailCard";
 
 export type HomePageClientProps = {
   tierParam: string | null;
@@ -63,9 +65,17 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
       });
   }, [tier, tierTokenParam]);
 
-  // Use the validated tier's config (paid access must be verified)
-  const activeTier = validatedTier === "pending" ? "snapshot" : validatedTier as ChatTier;
+  // Use URL tier optimistically while validating token so resume + upgrade continuation use paid intake rules immediately.
+  const activeTier: ChatTier =
+    validatedTier === "pending" && tier !== "snapshot" && tierTokenParam
+      ? tier
+      : validatedTier === "pending"
+        ? "snapshot"
+        : (validatedTier as ChatTier);
   const activeTierConfig = useMemo(() => getChatTierConfig(activeTier), [activeTier]);
+  /** Wait for /api/validate-tier before loading ?resume= so paid upgrade continuation uses the correct product tier. */
+  const resumeHoldUntilValidated =
+    tier !== "snapshot" && Boolean(tierTokenParam) && validatedTier === "pending";
 
   // Greeting resolution:
   //   Name known (any tier) → interpolate {firstName} in greeting, complete intro in one message
@@ -93,6 +103,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     customGreeting: resolvedGreeting,
     welcomeBackTemplate: !customerName ? activeTierConfig.welcomeBack : undefined,
     productTier: activeTier,
+    resumeHoldUntilValidated,
   });
   const [inputValue, setInputValue] = useState("");
   const [progress, setProgress] = useState(0);
@@ -168,6 +179,15 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
   const [showEmailVerification, setShowEmailVerification] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
   const pendingRedirectRef = useRef<string | null>(null);
+
+  const isEarlyStageMode = useMemo(() => {
+    const userCorpus = messages
+      .filter((m) => m.role === "user")
+      .map((m) => m.text.toLowerCase())
+      .join(" ");
+    if (!userCorpus) return false;
+    return /\b(pre[-\s]?revenue|just getting started|new business|starting out|haven'?t launched|not launched yet|early stage|still figuring out|no customers yet|first customers)\b/i.test(userCorpus);
+  }, [messages]);
 
   // Skip the current question
   const handleSkip = async () => {
@@ -421,7 +441,9 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
       {showEmailVerification && !emailVerified && reportId && (
         <EmailVerificationGate
           reportId={reportId}
+          initialEmail={typeof window !== "undefined" ? getPersistedEmail() ?? "" : ""}
           onVerified={(verifiedEmail) => {
+            persistEmail(verifiedEmail);
             setEmailVerified(true);
             setShowEmailVerification(false);
             // If we have a pending redirect, navigate now
@@ -456,8 +478,50 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
               <p style={{ fontSize: '14px', color: '#5A6B7E', fontWeight: 400, textAlign: 'center', marginTop: '6px', marginBottom: 0 }}>
                 {activeTierConfig.valueProp}
               </p>
+              {isEarlyStageMode && (
+                <>
+                  <div
+                    style={{
+                      marginTop: "10px",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      border: "1px solid #07B0F233",
+                      background: "#07B0F212",
+                      color: "#065E8E",
+                      borderRadius: "999px",
+                      padding: "4px 10px",
+                      fontSize: "12px",
+                      fontWeight: 700,
+                    }}
+                    aria-label="Starter mode enabled"
+                  >
+                    Starter Mode
+                  </div>
+                  <p
+                    style={{
+                      margin: "6px 0 0",
+                      fontSize: "12px",
+                      color: "#5A6B7E",
+                      fontWeight: 500,
+                    }}
+                  >
+                    We&apos;ll focus on foundation-first moves you can act on right now.
+                  </p>
+                </>
+              )}
             </div>
           </header>
+
+          <LeadMagnetEmailCard
+            reportId={reportId}
+            turnstileToken={turnstileToken}
+            productTier={activeTier}
+            firstNameHint={customerName ?? undefined}
+            onSaved={(addr) => {
+              if (isUploadTier) setChatEmail(addr);
+            }}
+          />
 
           {/* Assessment Progress Indicator — visible after conversation starts */}
           {conversationStarted && (

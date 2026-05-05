@@ -39,6 +39,12 @@ export function EmailVerificationGate({
   const emailRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
+  // Pre-fill when parent passes a known email (e.g. save-and-exit or local persistence).
+  useEffect(() => {
+    const next = initialEmail?.trim();
+    if (next) setEmail(next);
+  }, [initialEmail, reportId]);
+
   // Auto-focus email input on mount; cleanup abort controller on unmount
   useEffect(() => {
     emailRef.current?.focus();

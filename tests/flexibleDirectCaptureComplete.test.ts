@@ -32,6 +32,10 @@ const LA = {
   leadMagnet: "Do you have any free download or guide in exchange for their email?",
   cta: "How clear does the next step feel on your site or main profile?",
   channelMix: "Where are you showing up for people lately — email, social, paid, or something else?",
+  website: "Do you have a website URL to share today — even a simple landing page?",
+  socialPlatforms: "Where does your brand show up on social today?",
+  otherSurfaces:
+    "Outside your website and those socials, where else are you investing attention — email, SEO, paid, or mostly referrals?",
 } as const;
 
 describe("flexibleDirectCaptureComplete", () => {
@@ -59,6 +63,40 @@ describe("flexibleDirectCaptureComplete", () => {
     });
     it("rejects empty reply", () => {
       expect(flexibleDirectCaptureComplete("monthly_revenue_range", LA.revenue, "")).toBe(false);
+    });
+  });
+
+  describe("website_presence", () => {
+    it("accepts a URL after a website question", () => {
+      expect(flexibleDirectCaptureComplete("website_presence", LA.website, "https://acme.com")).toBe(true);
+      expect(flexibleDirectCaptureComplete("website_presence", LA.website, "acme.io")).toBe(true);
+    });
+    it("accepts explicit no-site answers", () => {
+      expect(flexibleDirectCaptureComplete("website_presence", LA.website, "no website yet")).toBe(true);
+      expect(flexibleDirectCaptureComplete("website_presence", LA.website, "instagram only")).toBe(true);
+    });
+  });
+
+  describe("social_platform_presence", () => {
+    it("accepts platform tokens or @handle", () => {
+      expect(flexibleDirectCaptureComplete("social_platform_presence", LA.socialPlatforms, "LinkedIn + IG")).toBe(
+        true,
+      );
+      expect(flexibleDirectCaptureComplete("social_platform_presence", LA.socialPlatforms, "@acmeco")).toBe(true);
+      expect(flexibleDirectCaptureComplete("social_platform_presence", LA.socialPlatforms, "not really active")).toBe(
+        true,
+      );
+    });
+  });
+
+  describe("additional_marketing_surfaces", () => {
+    it("accepts channel breadth answers", () => {
+      expect(flexibleDirectCaptureComplete("additional_marketing_surfaces", LA.otherSurfaces, "seo and newsletter")).toBe(
+        true,
+      );
+      expect(flexibleDirectCaptureComplete("additional_marketing_surfaces", LA.otherSurfaces, "mostly referrals")).toBe(
+        true,
+      );
     });
   });
 
@@ -123,6 +161,9 @@ describe("flexibleDirectCaptureComplete", () => {
   it.each(smokeKeys)("smoke: %s still accepts a typical terse answer", (key) => {
     const table: Record<CaptureKey, { la: string; lu: string }> = {
       business_type_classifier: { la: LA.business, lu: "local service business" },
+      website_presence: { la: LA.website, lu: "https://example.com" },
+      social_platform_presence: { la: LA.socialPlatforms, lu: "linkedin and instagram" },
+      additional_marketing_surfaces: { la: LA.otherSurfaces, lu: "seo + events" },
       monthly_revenue_range: { la: LA.revenue, lu: "~10k" },
       average_transaction_value: { la: LA.avgDeal, lu: "$800 avg" },
       conversion_rate_estimate: { la: LA.conversion, lu: "don't track" },

@@ -49,7 +49,7 @@ Okay, {firstName} — let's get started. What's the name of your business?`,
   "snapshot-plus": {
     heading: "WUNDERBRAND SNAPSHOT+™",
     productName: "WunderBrand Snapshot+™",
-    valueProp: "A deeper diagnostic with strategic recommendations tailored to your business.",
+    valueProp: "A deeper diagnostic with strategic recommendations tailored to your business — even if you're early-stage.",
     timeEstimate: "about 15–20 minutes",
 
     greeting: `Hi {firstName}, I'm Wundy™ — your brand guide here at Wunderbar Digital. I'm here to make sure our diagnostic gets everything it needs to give you a sharp, personalized picture of your brand — where you're strong, where there's opportunity, and what to focus on first. We're going to have a real conversation about your business, your customers, and how your brand shows up in the world. Some questions will be easy, some might make you think. Either way, I've got you — just answer naturally and we'll get where we need to go. Let's get started.`,
@@ -71,7 +71,7 @@ Alright, {firstName} — first up: what's your business called?`,
   blueprint: {
     heading: "WUNDERBRAND BLUEPRINT™",
     productName: "WunderBrand Blueprint™",
-    valueProp: "Your brand strategy, mapped — with an activation-ready action plan.",
+    valueProp: "Your brand strategy, mapped — with an activation-ready action plan, whether you're starting or scaling.",
     timeEstimate: "about 20–25 minutes",
 
     greeting: `Hi {firstName}, I'm Wundy™ — your brand guide here at Wunderbar Digital. We've got a good conversation ahead of us. My job is to get a complete picture of your business — your positioning, your audience, how your brand shows up across every channel — so our diagnostic can build you something you can actually use. We'll cover more ground than a quick check-in, so take your time with each answer. No prep needed, no wrong answers — the more honest you are, the better your results will be. Let's get into it.`,
@@ -93,7 +93,7 @@ Okay, {firstName} — let's dive in. What's the name of the business we're mappi
   "blueprint-plus": {
     heading: "WUNDERBRAND BLUEPRINT+™",
     productName: "WunderBrand Blueprint+™",
-    valueProp: "The complete strategic diagnostic — with a 1:1 Strategy Activation Session.",
+    valueProp: "The complete strategic diagnostic — with a 1:1 Strategy Activation Session and startup-friendly guidance.",
     timeEstimate: "about 25–35 minutes",
 
     greeting: `Hi {firstName}, I'm Wundy™ — your brand guide here at Wunderbar Digital. I want to make sure we get the most out of this conversation, because what comes out of it matters — your results feed directly into your Strategy Activation Session with our team. My job is to understand your business as thoroughly as possible — your positioning, your audience, your goals, and how your brand shows up across every touchpoint. We'll cover a lot of ground, and I'll be with you the whole way. Answer naturally, be as specific as you can, and don't worry if you don't have everything figured out — that's exactly what we're here for. Let's begin.`,
@@ -119,6 +119,21 @@ It's helpful to have your website, audience info, key competitors, and any exist
  * Accepts formats like "snapshot-plus", "snapshot_plus", "blueprint", etc.
  * Returns "snapshot" (free) as the default if unrecognized.
  */
+/** First assistant message after checkout when prior Snapshot answers are on file but chat transcript is not restored. */
+export function buildUpgradeGapFillAssistantMessage(
+  tier: ChatTier,
+  firstNameHint?: string | null,
+): string {
+  const first =
+    firstNameHint?.trim().split(/\s+/)[0] ||
+    (firstNameHint?.trim() ? firstNameHint.trim() : "");
+  const namePart = first ? `, ${first}` : "";
+  const productName = TIER_CONFIGS[tier]?.productName ?? "your upgraded diagnostic";
+  return `Welcome back${namePart}! Your WunderBrand Snapshot™ answers are already on file — we won't redo that work. For **${productName}**, I'll only cover what's **still missing** for this tier.
+
+When you're ready, say **continue** or just dive into the first question — either works.`;
+}
+
 export function parseTierFromParam(param: string | null | undefined): ChatTier {
   if (!param) return "snapshot";
   const normalized = param.toLowerCase().replace(/_/g, "-").trim();

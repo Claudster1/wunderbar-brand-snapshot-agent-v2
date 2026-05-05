@@ -8,6 +8,8 @@ import {
   getBrandSnapshotReply,
 } from '../services/openaiService';
 import { useGenerateReport } from './useGenerateReport';
+import { getPersistedEmail } from '@/lib/persistEmail';
+import { buildUpgradeGapFillAssistantMessage, type ChatTier } from '@/lib/chatTierConfig';
 
 const createMessage = (
   role: BrandChatMessage['role'],
@@ -129,24 +131,39 @@ function getMissingHighImpactSignals(
   snapshotData: Record<string, unknown>,
   productTier?: 'snapshot' | 'snapshot-plus' | 'blueprint' | 'blueprint-plus',
 ): string[] {
+  const tier = productTier ?? 'snapshot';
   const hasBusinessType = isNonEmptyString(snapshotData.businessType);
+  const hasAcquisitionChannel =
+    isNonEmptyString(snapshotData.primaryAcquisitionChannel) ||
+    isNonEmptyString(snapshotData.topAcquisitionChannel) ||
+    (Array.isArray(snapshotData.customerAcquisitionSource) &&
+      (snapshotData.customerAcquisitionSource as unknown[]).length > 0);
+
   const hasRevenueRange =
     isNonEmptyString(snapshotData.monthlyRevenueRange) ||
     isNonEmptyString(snapshotData.revenueRange);
   const hasAvgTransactionValue = isNonEmptyString(snapshotData.averageTransactionValue);
   const hasConversionRate = isNonEmptyString(snapshotData.conversionRateEstimate);
-  const hasAcquisitionChannel = isNonEmptyString(snapshotData.primaryAcquisitionChannel);
   const hasMarketingBudget = isNonEmptyString(snapshotData.monthlyMarketingBudget);
   const hasContentCapacity = isNonEmptyString(snapshotData.contentCreationCapacity);
 
   const missing: string[] = [];
   if (!hasBusinessType) missing.push('Business type');
-  if (!hasRevenueRange) missing.push('Monthly or annual revenue range');
-  if (!hasAvgTransactionValue) missing.push('Average transaction value / deal size');
-  if (!hasConversionRate) missing.push('Conversion or close rate estimate');
   if (!hasAcquisitionChannel) missing.push('Primary acquisition channel');
-  if (!hasMarketingBudget) missing.push('Monthly marketing budget');
-  if (!hasContentCapacity) missing.push('Content creation capacity');
+
+  // Match server tier policy: Snapshot does not collect revenue / conversion / budget / capacity.
+  const needsPerformanceSignals =
+    tier === 'snapshot-plus' || tier === 'blueprint' || tier === 'blueprint-plus';
+  if (needsPerformanceSignals) {
+    if (!hasRevenueRange) missing.push('Monthly or annual revenue range');
+    if (!hasAvgTransactionValue) missing.push('Average transaction value / deal size');
+    if (!hasConversionRate) missing.push('Conversion or close rate estimate');
+    if (!hasContentCapacity) missing.push('Content creation capacity');
+  }
+
+  if (tier === 'blueprint' || tier === 'blueprint-plus') {
+    if (!hasMarketingBudget) missing.push('Monthly marketing budget');
+  }
 
   if (snapshotData.hasLeadMagnet === true && !hasLeadMagnetDetailSignal(snapshotData)) {
     missing.push("Your current free offer: what it's called and what people get (a line each is enough)");
@@ -179,6 +196,11 @@ interface UseBrandChatOptions {
   welcomeBackTemplate?: string;
   /** Active product tier for tier-aware intake behavior. */
   productTier?: 'snapshot' | 'snapshot-plus' | 'blueprint' | 'blueprint-plus';
+  /**
+   * When true, `?resume=` is not loaded until the parent finishes tier-token validation
+   * (paid checkout → home with token).
+   */
+  resumeHoldUntilValidated?: boolean;
 }
 
 export function useBrandChat(options?: UseBrandChatOptions) {
@@ -195,6 +217,9 @@ export function useBrandChat(options?: UseBrandChatOptions) {
   const hasReceivedName = useRef(false);
   const allowIncompleteSubmissionRef = useRef(false);
   const sendingRef = useRef(false); // Synchronous guard against double-sends
+  /** First paid-tier API call after upgrade may attach prior Snapshot JSON from this report id. */
+  const continuationReportIdForApiRef = useRef<string | null>(null);
+  const resumeLoadedReportIdRef = useRef<string | null>(null);
   const router = useRouter();
   const { generateReport, loading: pdfLoading } = useGenerateReport();
   const onCompleteRef = useRef(options?.onComplete);
@@ -211,59 +236,91 @@ export function useBrandChat(options?: UseBrandChatOptions) {
   // Initialize: create draft report or load resume
   // Also persist reportId in sessionStorage so a page refresh can recover.
   useEffect(() => {
-    if (isInitialized.current || typeof window === 'undefined') return;
-    isInitialized.current = true;
+    if (typeof window === 'undefined') return;
 
-    // Check for resume query param
     const urlParams = new URLSearchParams(window.location.search);
     const resumeId = urlParams.get('resume');
 
-    // For explicit resume links, load existing progress from API.
     if (resumeId) {
-      // Load existing progress
-      fetch(`/api/snapshot/resume?reportId=${resumeId}`)
+      if (options?.resumeHoldUntilValidated) return;
+
+      if (resumeLoadedReportIdRef.current === resumeId) return;
+      resumeLoadedReportIdRef.current = resumeId;
+
+      fetch(`/api/snapshot/resume?reportId=${encodeURIComponent(resumeId)}`)
         .then((res) => res.json())
         .then((data) => {
-          if (data.reportId && data.progress) {
-            setReportId(data.reportId);
-            sessionStorage.setItem('wundy_report_id', data.reportId);
-
-            // Restore messages from progress if available
-            if (data.progress.messages && Array.isArray(data.progress.messages)) {
-              const savedMessages = data.progress.messages as BrandChatMessage[];
-
-              // Mark that we already have the name (so the welcome-back template is skipped)
-              hasReceivedName.current = true;
-
-              // Build a personalized welcome-back message
-              const firstName = extractFirstNameFromHistory(savedMessages);
-              const lastTopic = detectLastTopic(savedMessages);
-              const answeredCount = savedMessages.filter((m: BrandChatMessage) => m.role === 'user').length;
-              const resumeGreeting = buildResumeGreeting(firstName, lastTopic, answeredCount, TOTAL_QUESTIONS);
-              const resumeMessage = createMessage('assistant', resumeGreeting);
-
-              setMessages([...savedMessages, resumeMessage]);
-            }
-          } else {
+          const resumeOk =
+            data.reportId &&
+            (data.continuationMode === 'answers_only' || data.progress != null);
+          if (!resumeOk) {
             createDraft();
+            return;
           }
+
+          setReportId(data.reportId);
+          sessionStorage.setItem('wundy_report_id', data.reportId);
+
+          const paidTier =
+            options?.productTier &&
+            options.productTier !== 'snapshot';
+
+          if (
+            data.continuationMode === 'answers_only' &&
+            paidTier &&
+            data.priorAnswers &&
+            typeof data.priorAnswers === 'object'
+          ) {
+            hasReceivedName.current = true;
+            const rawName = (data.priorAnswers as Record<string, unknown>).userName;
+            const firstName = typeof rawName === 'string' ? rawName : null;
+            const intro = buildUpgradeGapFillAssistantMessage(
+              options!.productTier as ChatTier,
+              firstName,
+            );
+            setMessages([createMessage('assistant', intro)]);
+            continuationReportIdForApiRef.current = data.reportId;
+            return;
+          }
+
+          if (data.progress?.messages && Array.isArray(data.progress.messages)) {
+            const savedMessages = data.progress.messages as BrandChatMessage[];
+            hasReceivedName.current = true;
+            const firstName = extractFirstNameFromHistory(savedMessages);
+            const lastTopic = detectLastTopic(savedMessages);
+            const answeredCount = savedMessages.filter((m: BrandChatMessage) => m.role === 'user').length;
+            const resumeGreeting = buildResumeGreeting(firstName, lastTopic, answeredCount, TOTAL_QUESTIONS);
+            const resumeMessage = createMessage('assistant', resumeGreeting);
+            setMessages([...savedMessages, resumeMessage]);
+            continuationReportIdForApiRef.current = null;
+            return;
+          }
+
+          createDraft();
         })
         .catch(() => {
           createDraft();
         });
+      return;
+    }
+
+    if (isInitialized.current) return;
+    isInitialized.current = true;
+
+    const sessionReportId = sessionStorage.getItem('wundy_report_id');
+    if (sessionReportId) {
+      setReportId(sessionReportId);
     } else {
-      // On normal entry, avoid auto-resume network calls (prevents noisy 404s from stale IDs).
-      // Keep any session-stored id so progress saves can continue on refresh.
-      const sessionReportId = sessionStorage.getItem('wundy_report_id');
-      if (sessionReportId) {
-        setReportId(sessionReportId);
-      } else {
-        createDraft();
-      }
+      createDraft();
     }
 
     function createDraft() {
-      fetch('/api/snapshot/draft', { method: 'POST' })
+      const persistedEmail = getPersistedEmail();
+      fetch('/api/snapshot/draft', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(persistedEmail ? { userEmail: persistedEmail } : {}),
+      })
         .then(async (res) => {
           if (!res.ok) return null;
           return res.json();
@@ -280,7 +337,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
           assignLocalDraftId();
         });
     }
-  }, []);
+  }, [options?.resumeHoldUntilValidated]);
 
   // Extract answers from conversation history
   const extractAnswers = (history: BrandChatMessage[]): Record<string, any> => {
@@ -383,8 +440,13 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     }
 
     try {
+      const continuationReportId = continuationReportIdForApiRef.current;
+      if (continuationReportId) {
+        continuationReportIdForApiRef.current = null;
+      }
       const replyText = await getBrandSnapshotReply(nextHistory, {
         productTier: options?.productTier,
+        continuationReportId: continuationReportId ?? undefined,
       });
 
       // Check if the response contains JSON (should NOT be displayed in chat).
@@ -453,7 +515,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
                   : '';
               const nudge = createMessage(
                 'assistant',
-                `${activationWarmth}Before I generate your report, here's what would still sharpen things:\n\n${missingList}\n\nShare what feels easy — short answers are perfect. You can also say "continue anyway" whenever you're ready.`,
+                `${activationWarmth}Before we finalize your diagnostic, here's what would still sharpen things:\n\n${missingList}\n\nShare what feels easy — short answers are perfect. You can also say "continue anyway" whenever you're ready.`,
               );
               const updatedHistory = [...nextHistory, nudge];
               setMessages(updatedHistory);
@@ -467,6 +529,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
             // Collected inputs — route through server-side scoring
 
             const turnstileToken = typeof window !== 'undefined' ? (window as any).__turnstileToken : undefined;
+            const persistedEmail = typeof window !== 'undefined' ? getPersistedEmail() : null;
 
             const scoringRes = await fetch('/api/snapshot', {
               method: 'POST',
@@ -476,6 +539,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
                 name: snapshotData.userName,
                 companyName: snapshotData.businessName,
                 businessName: snapshotData.businessName,
+                ...(persistedEmail ? { email: persistedEmail } : {}),
                 turnstileToken,
               }),
             });
@@ -483,6 +547,10 @@ export function useBrandChat(options?: UseBrandChatOptions) {
             if (scoringRes.ok) {
               const scoringResult = await scoringRes.json();
               const finalReportId = scoringResult.reportId;
+              setReportId(finalReportId);
+              if (typeof window !== 'undefined') {
+                sessionStorage.setItem('wundy_report_id', finalReportId);
+              }
 
               // Persist brand name for cross-page use (checkout, dashboard, etc.)
               if (snapshotData.businessName && typeof window !== 'undefined') {

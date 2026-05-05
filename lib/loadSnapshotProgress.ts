@@ -1,16 +1,13 @@
 // lib/loadSnapshotProgress.ts
 // Function to load snapshot progress from database
 
-import { supabaseServer } from "@/lib/supabase";
+import { findBrandSnapshotReportByPublicId } from "@/lib/brandSnapshotReportLookup";
 
 export async function loadSnapshotProgress(reportId: string) {
-  const supabase = supabaseServer();
-
-  const { data } = await supabase
-    .from("brand_snapshot_reports")
-    .select("last_step, progress")
-    .eq("id", reportId)
-    .single();
-
-  return data;
+  const row = await findBrandSnapshotReportByPublicId(reportId);
+  if (!row) return null;
+  return {
+    last_step: (row as { last_step?: string }).last_step,
+    progress: (row as { progress?: unknown }).progress,
+  };
 }

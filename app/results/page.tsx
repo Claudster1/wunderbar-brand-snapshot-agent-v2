@@ -809,6 +809,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
           stage={data.stage}
           hasPurchasedPlus={hasSnapshotPlusAccess}
           email={data.userEmail}
+          reportId={data.reportId}
         />
       </div>
     </div>

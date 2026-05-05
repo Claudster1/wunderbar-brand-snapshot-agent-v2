@@ -38,6 +38,11 @@ export async function GET(req: NextRequest) {
     // Determine product tier from session metadata and generate a signed access token
     const metadata = session.metadata || {};
     const rawProduct = metadata.product || metadata.product_key || metadata.productKey || "";
+    const resumeReportIdRaw = metadata.snapshot_id || metadata.snapshotId || "";
+    const resumeReportId =
+      typeof resumeReportIdRaw === "string" && /^[0-9a-f-]{36}$/i.test(resumeReportIdRaw.trim())
+        ? resumeReportIdRaw.trim()
+        : null;
     let tierToken: string | null = null;
     if (rawProduct && email) {
       try {
@@ -48,7 +53,7 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    return NextResponse.json({ email: email.toLowerCase(), name, tierToken });
+    return NextResponse.json({ email: email.toLowerCase(), name, tierToken, resumeReportId });
   } catch (err) {
     logger.error("[Session Email] Stripe error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "Unable to retrieve session" }, { status: 500 });

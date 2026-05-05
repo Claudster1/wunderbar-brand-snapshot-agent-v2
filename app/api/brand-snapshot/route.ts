@@ -5,6 +5,9 @@
 import { NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { wundySystemPrompt } from "@/src/prompts/wundySystemPrompt";
+import { wundySnapshotTierFragment } from "@/src/prompts/wundySnapshotTierFragment";
+import { wundyUpgradeContinuationFragment } from "@/src/prompts/wundyUpgradeContinuationFragment";
+import { wundyEarlyStageBuildModeFragment } from "@/src/prompts/wundyEarlyStageBuildModeFragment";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { randomUUID } from "crypto";
 import { completeWithFallback, type ChatMessage } from "@/lib/ai";
@@ -175,6 +178,11 @@ const CONVERSION_RATE_SIGNAL = new RegExp(
 const ON_TOPIC_ASSISTANT_HINTS: Record<CaptureKey, RegExp> = {
   business_type_classifier:
     /\b(who|sell|selling|revenue|paid|clients|customers|business|model|launch|accurate|describe|get paid|primarily|reality|tailor)\b/i,
+  website_presence: /\b(website|url|domain|site|landing|\.com|web address|online)\b/i,
+  social_platform_presence:
+    /\b(social|instagram|linkedin|tiktok|platform|handle|@|youtube|facebook|threads|not active|none)\b/i,
+  additional_marketing_surfaces:
+    /\b(email|seo|paid|events|referrals|channels|newsletter|content|surfaces|beyond|outside|word of mouth)\b/i,
   monthly_revenue_range:
     /\b(revenue|mrr|arr|month|range|\$|ballpark|generate|bring|figures|roughly|month to month|numbers)\b/i,
   average_transaction_value:
@@ -196,6 +204,34 @@ const ON_TOPIC_ASSISTANT_HINTS: Record<CaptureKey, RegExp> = {
 
 type IntakeTier = "snapshot" | "snapshot-plus" | "blueprint" | "blueprint-plus";
 
+const CONTINUATION_REPORT_UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+async function loadPriorSnapshotAnswersForContinuation(
+  reportId: string,
+): Promise<Record<string, unknown> | null> {
+  if (!CONTINUATION_REPORT_UUID_RE.test(reportId) || !supabaseAdmin) return null;
+  const { data, error } = await supabaseAdmin
+    .from("brand_snapshot_reports")
+    .select("full_report")
+    .or(`report_id.eq.${reportId},id.eq.${reportId}`)
+    .maybeSingle();
+  if (error || !data?.full_report || typeof data.full_report !== "object") return null;
+  const answers = (data.full_report as { answers?: unknown }).answers;
+  if (!answers || typeof answers !== "object" || Array.isArray(answers)) return null;
+  return answers as Record<string, unknown>;
+}
+
+function serializeAnswersForContinuationPrompt(answers: Record<string, unknown>): string {
+  const max = 14_000;
+  try {
+    const s = JSON.stringify(answers);
+    return s.length <= max ? s : `${s.slice(0, max)}…[truncated]`;
+  } catch {
+    return "{}";
+  }
+}
+
 function normalizeIntakeTier(raw: unknown): IntakeTier {
   if (typeof raw !== "string") return "snapshot";
   const tier = raw.trim().toLowerCase().replace(/_/g, "-");
@@ -210,15 +246,20 @@ function isActivationPlanningTier(raw: unknown): boolean {
   return tier === "blueprint" || tier === "blueprint-plus";
 }
 
+/** Snapshot / Snapshot+ — grounds Visibility + channel scoring without duplicating full Blueprint mix. */
+const SNAPSHOT_DIGITAL_BASELINE: CaptureKey[] = [
+  "website_presence",
+  "social_platform_presence",
+  "additional_marketing_surfaces",
+];
+
 function shouldIncludeCaptureForTier(capture: CaptureKey, tier: IntakeTier): boolean {
-  // Base captures for all tiers.
   const core: CaptureKey[] = [
     "business_type_classifier",
     "primary_acquisition_channel",
     "competitive_pressure_point",
   ];
 
-  // Snapshot+ and above need stronger performance signal coverage.
   const advanced: CaptureKey[] = [
     "monthly_revenue_range",
     "average_transaction_value",
@@ -226,25 +267,23 @@ function shouldIncludeCaptureForTier(capture: CaptureKey, tier: IntakeTier): boo
     "content_creation_capacity",
   ];
 
-  if (core.includes(capture)) return true;
+  const blueprintConversion: CaptureKey[] = [
+    "monthly_marketing_budget",
+    "has_email_list",
+    "has_lead_magnet",
+    "has_clear_cta",
+    "marketing_channel_mix",
+  ];
 
-  if (tier === "snapshot") return false;
-  if (tier === "snapshot-plus") return advanced.includes(capture);
-
-  // Blueprint tiers include advanced captures and budget for activation planning.
-  if (tier === "blueprint" || tier === "blueprint-plus") {
-    return (
-      advanced.includes(capture) ||
-      [
-        "monthly_marketing_budget",
-        "has_email_list",
-        "has_lead_magnet",
-        "has_clear_cta",
-        "marketing_channel_mix",
-      ].includes(capture)
-    );
+  if (tier === "snapshot") {
+    return core.includes(capture) || SNAPSHOT_DIGITAL_BASELINE.includes(capture);
   }
-
+  if (tier === "snapshot-plus") {
+    return core.includes(capture) || advanced.includes(capture) || SNAPSHOT_DIGITAL_BASELINE.includes(capture);
+  }
+  if (tier === "blueprint" || tier === "blueprint-plus") {
+    return core.includes(capture) || advanced.includes(capture) || blueprintConversion.includes(capture);
+  }
   return false;
 }
 
@@ -259,6 +298,12 @@ function modelFacingCaptureHint(key: CaptureKey): string {
   switch (key) {
     case "business_type_classifier":
       return "how you primarily get paid and who you sell to";
+    case "website_presence":
+      return "whether you have a live website URL (or are not on the web yet)";
+    case "social_platform_presence":
+      return "which social platforms you actively use (or that you are not really on social yet)";
+    case "additional_marketing_surfaces":
+      return "other marketing surfaces beyond the site and socials — email, SEO, paid, events, or mostly referrals";
     case "monthly_revenue_range":
       return "roughly what the business brings in month to month";
     case "average_transaction_value":
@@ -357,6 +402,65 @@ function getCaptureStates(
         ) ||
         refused(/\bhow you (get paid|make money)|who you.*sell|business model|primary revenue\b/i) ||
         flexibleDirectCaptureComplete("business_type_classifier", la, lu),
+    },
+    {
+      key: "website_presence",
+      label: "website or primary online home",
+      completed:
+        hasSignal(
+          messages,
+          /\b(https?:\/\/|www\.)\S+|[a-z0-9][-a-z0-9]{0,48}\.(com|io|ai|co|org|net|app|dev|us|uk|shop)(\b|[/.?#])/i,
+        ) ||
+        hasRecentUserSignal(
+          messages,
+          /\b(https?:\/\/|www\.)\S+|[a-z0-9][-a-z0-9]{0,48}\.(com|io|ai|co|org|net|app|dev|us|uk)(\b|[/.?#])/i,
+          6,
+        ) ||
+        hasRecentUserSignal(
+          messages,
+          /\b(no website|no site yet|don'?t have (a )?(website|site)|not live yet|instagram only|facebook only|linkedin only|linktr\.ee|etsy (only|shop)|marketplace only|coming soon page|not on the web)\b/i,
+          6,
+        ) ||
+        refused(/\b(website|url|domain|your site|web address)\b/i) ||
+        flexibleDirectCaptureComplete("website_presence", la, lu),
+    },
+    {
+      key: "social_platform_presence",
+      label: "social platform presence",
+      completed:
+        hasRecentUserSignal(
+          messages,
+          /@[a-z0-9_]{2,}|\b(instagram|ig|linkedin|tiktok|facebook|fb|meta|youtube|yt|threads|twitter|\bx\b|pinterest|snapchat|reddit|bluesky)\b/i,
+          6,
+        ) ||
+        hasRecentUserSignal(
+          messages,
+          /\b(not (on|using)|don'?t use|no social|inactive on social|barely post|we skip social|not really on social|none yet|not active)\b/i,
+          6,
+        ) ||
+        refused(/\b(social platforms?|instagram|linkedin|tiktok|where.*social)\b/i) ||
+        flexibleDirectCaptureComplete("social_platform_presence", la, lu),
+    },
+    {
+      key: "additional_marketing_surfaces",
+      label: "additional marketing channels beyond site/social",
+      completed:
+        hasSignal(
+          messages,
+          /\b(we (also )?run|invest in|focus on|double down).*\b(seo\b|paid ads?|email|newsletter|events|podcast|pr\b)/i,
+        ) ||
+        hasRecentUserSignal(
+          messages,
+          /\b(seo|content (marketing|blog)|paid (social|search|ads?)|google ads|meta ads|newsletter|email (list|marketing)|webinars?|events?|partnerships?|podcast|pr\b)\b/i,
+          6,
+        ) ||
+        hasRecentUserSignal(
+          messages,
+          /\b(mostly referrals|word of mouth|no paid|not doing paid|nothing else|that'?s (pretty much |basically )?it|just organic|only referrals)\b/i,
+          6,
+        ) ||
+        refused(/\b(other channels|marketing surfaces|beyond your site|outside your)\b/i) ||
+        flexibleDirectCaptureComplete("additional_marketing_surfaces", la, lu),
     },
     {
       key: "monthly_revenue_range",
@@ -620,6 +724,12 @@ function buildCaptureQuestion(
             inferredType,
           )} business. **Does that feel accurate, or would you describe your revenue model differently?**`
         : "Quick context check before we go deeper: **in one sentence, how do you primarily get paid, and who are you mainly selling to?**";
+    case "website_presence":
+      return "**Do you have a website URL to share today** — even a simple landing page or store link? If you are not on the web yet, just say so; that is useful too.";
+    case "social_platform_presence":
+      return "**Where does your brand show up on social today?** Name the platforms that matter (or say *none / not really active yet*).";
+    case "additional_marketing_surfaces":
+      return "**Outside your website and those socials, where else are you investing attention** — email to a list, SEO or content, paid ads, events, partnerships — or mostly referrals / word of mouth?";
     case "monthly_revenue_range":
       return "**Roughly what does the business generate month to month?** A range is perfect — it keeps your impact framing grounded in real numbers.";
     case "average_transaction_value":
@@ -635,7 +745,7 @@ function buildCaptureQuestion(
     case "competitive_pressure_point":
       return "**When prospects choose a competitor over you, what reason comes up most often** — price, trust, clarity, speed, proof, or fit?";
     case "has_email_list":
-      return `One gentle logistics question — **do you have an email list you're sending to today** (even a small one is perfect)? A simple yes or no is totally enough. If you're just starting, that's okay too — your report can include a friendly path forward.`;
+      return `One gentle logistics question — **do you have an email list you're sending to today** (even a small one is perfect)? A simple yes or no is totally enough. If you're just starting, that's okay too — your diagnostic can include a friendly path forward.`;
     case "has_lead_magnet":
       return `Lots of strong brands don't use a "lead magnet" yet — totally normal. **Do you have any free download, template, guide, or similar that people get in exchange for their email?** If the answer is no, that's useful too: say something like "not yet" or "we don't," and your plan can include a short list of ideas we'll weave into the email and social campaigns we draft for you.`;
     case "has_clear_cta":
@@ -651,6 +761,12 @@ function capturePromptPatternForKey(key: CaptureKey): RegExp {
   switch (key) {
     case "business_type_classifier":
       return /\b(primary revenue|how you generate revenue|how do you get paid|it sounds like you're|business model|launching|pre[- ]?launch|no clients yet|thank you for sharing|based on what you|who you|selling to|revenue model|next question|does that feel accurate|describe your revenue)\b/i;
+    case "website_presence":
+      return /\b(website|url|domain|landing|site to share|web address|\.com|not on the web)\b/i;
+    case "social_platform_presence":
+      return /\b(social|instagram|linkedin|tiktok|platform|handle|@|not active|none yet|show up)\b/i;
+    case "additional_marketing_surfaces":
+      return /\b(outside|beyond|channels|email|seo|paid|events|referrals|word of mouth|marketing surfaces|investing attention)\b/i;
     case "monthly_revenue_range":
       return /\b(monthly revenue|month to month|mrr|arr|under \$?5k|\$?5k|\$?20k|\$?50k|\$?150k|ballpark|roughly|range|generate|bring in|figures)\b/i;
     case "average_transaction_value":
@@ -808,6 +924,11 @@ function buildDeterministicRoutingGuard(
     includeBudgetCapture
       ? "- Activation planning tier detected: monthly marketing budget capture is required."
       : "- Non-activation tier detected: do NOT ask budget questions (monthlyMarketingBudget, paidAdsBudgetBand, paidAdsPrimaryObjective). Keep these as null.",
+    ...(tier === "snapshot" || tier === "snapshot-plus"
+      ? [
+          "- Snapshot-tier depth: when website / social / broader marketing-surface captures are pending, complete them before wrap-up — they anchor the WunderBrand Score™ (especially Visibility). Hold revenue, conversion, list/lead-magnet detail, and full activation-style channel mix for Snapshot+™ / Blueprint™; mention upgrades only after pending captures are handled, never as a substitute.",
+        ]
+      : []),
   ].join("\n");
 }
 
@@ -934,7 +1055,9 @@ export async function POST(req: Request) {
     }
 
     // Otherwise, treat as chat/conversation request
-    const { messages, productTier } = body || {};
+    const { messages, productTier, continuationReportId: continuationReportIdRaw } = body || {};
+    const continuationReportId =
+      typeof continuationReportIdRaw === "string" ? continuationReportIdRaw.trim() : "";
 
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json(
@@ -947,6 +1070,22 @@ export async function POST(req: Request) {
     const includeBudgetCapture = isActivationPlanningTier(productTier);
     const inferredType = inferBusinessTypeFromHistory(messages);
     const captureOpts = { includeBudgetCapture, tier: intakeTier };
+
+    const useUpgradeContinuation =
+      intakeTier !== "snapshot" &&
+      continuationReportId.length > 0 &&
+      CONTINUATION_REPORT_UUID_RE.test(continuationReportId);
+
+    let continuationAnswersPrimer: string | null = null;
+    if (useUpgradeContinuation) {
+      const prior = await loadPriorSnapshotAnswersForContinuation(continuationReportId);
+      if (prior && Object.keys(prior).length > 0) {
+        continuationAnswersPrimer = [
+          "PRIOR WUNDERBRAND SNAPSHOT™ INTAKE (structured JSON — authoritative; merge into final output, do not re-ask unless missing/ambiguous):",
+          serializeAnswersForContinuationPrompt(prior),
+        ].join("\n\n");
+      }
+    }
 
     const rawPending = getNextPendingCapture(messages, captureOpts);
     const rawForced = rawPending ? buildCaptureQuestion(rawPending.key, inferredType) : null;
@@ -969,9 +1108,28 @@ export async function POST(req: Request) {
           ].join(" ")
         : null;
 
+    const hasChatAssetUploads = isActivationPlanningTier(productTier);
+    const externalVoiceAndUploadGuard = [
+      'EXTERNAL VOICE (mandatory): When addressing the user about what WunderBrand Snapshot™ delivers, say **diagnostic** — never "report". Natural phrasing: your diagnostic, the diagnostic, your diagnostic results. Do not read internal JSON field names aloud.',
+      hasChatAssetUploads
+        ? "FILE UPLOADS (Blueprint / Blueprint+ only): In-chat optional uploads use a paperclip-style control beside the message field (and the expandable asset panel). Q42 applies. Only mention the paperclip when guiding through Q42 on these tiers."
+        : "FILE UPLOADS (Snapshot / Snapshot+): There is **no** in-chat file attachment on this tier. Never mention a paperclip, attaching files, or uploading brand materials in this chat. Skip Q42 entirely. If they described having guidelines or decks, thank them — their typed answers are enough.",
+    ].join("\n\n");
+
     const aiMessages: ChatMessage[] = [
       { role: "system", content: wundySystemPrompt },
+      ...(intakeTier === "snapshot"
+        ? [{ role: "system" as const, content: wundySnapshotTierFragment }]
+        : []),
+      { role: "system" as const, content: wundyEarlyStageBuildModeFragment },
+      ...(useUpgradeContinuation
+        ? [{ role: "system" as const, content: wundyUpgradeContinuationFragment }]
+        : []),
+      ...(continuationAnswersPrimer
+        ? [{ role: "system" as const, content: continuationAnswersPrimer }]
+        : []),
       { role: "system", content: routingGuard },
+      { role: "system", content: externalVoiceAndUploadGuard },
       ...(antiLoopSystem ? [{ role: "system" as const, content: antiLoopSystem }] : []),
       ...(!includeBudgetCapture
         ? [

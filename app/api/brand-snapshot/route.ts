@@ -1118,6 +1118,10 @@ export async function POST(req: Request) {
 
     const aiMessages: ChatMessage[] = [
       { role: "system", content: wundySystemPrompt },
+      {
+        role: "system" as const,
+        content: `CURRENT PRODUCT TIER: ${intakeTier}. Strictly follow tier capabilities for this turn.`,
+      },
       ...(intakeTier === "snapshot"
         ? [{ role: "system" as const, content: wundySnapshotTierFragment }]
         : []),
@@ -1177,6 +1181,32 @@ export async function POST(req: Request) {
       shouldForceCapturePrompt(finalContent, forcedCapturePrompt, nextPendingCapture.key)
     ) {
       finalContent = forcedCapturePrompt;
+    }
+
+    // Safety rail: Snapshot tiers cannot upload files in chat and should not see upload guidance.
+    if (!hasChatAssetUploads) {
+      finalContent = finalContent
+        .replace(/[^\n]*(paperclip|attach|upload)[^\n]*/gi, "")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+    }
+
+    // Safety rail: user-facing copy should say "diagnostic", not "report".
+    const firstJsonBrace = finalContent.indexOf("{");
+    if (firstJsonBrace >= 0) {
+      const prefix = finalContent.slice(0, firstJsonBrace);
+      const suffix = finalContent.slice(firstJsonBrace);
+      finalContent = `${prefix
+        .replace(/\byour report\b/gi, "your diagnostic")
+        .replace(/\bthe report\b/gi, "the diagnostic")
+        .replace(/\breport\b/gi, "diagnostic")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim()}${suffix ? `\n${suffix}` : ""}`;
+    } else {
+      finalContent = finalContent
+        .replace(/\byour report\b/gi, "your diagnostic")
+        .replace(/\bthe report\b/gi, "the diagnostic")
+        .replace(/\breport\b/gi, "diagnostic");
     }
 
     return NextResponse.json({

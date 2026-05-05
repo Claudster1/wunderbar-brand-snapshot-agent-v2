@@ -449,6 +449,57 @@ export function useBrandChat(options?: UseBrandChatOptions) {
         continuationReportId: continuationReportId ?? undefined,
       });
 
+      const maybeCompleteWithoutJson = async (assistantText: string): Promise<boolean> => {
+        const normalized = assistantText.toLowerCase();
+        const soundsLikeFinalHandoff =
+          (normalized.includes("being generated now") || normalized.includes("results will appear below"))
+          && !normalized.includes("{");
+        if (!soundsLikeFinalHandoff) return false;
+
+        const fallbackAnswers = extractAnswers(nextHistory);
+        const meaningful = Object.values(fallbackAnswers).filter((v) => v !== null && v !== undefined && v !== "");
+        if (meaningful.length < 3) return false;
+
+        const turnstileToken = typeof window !== 'undefined' ? (window as any).__turnstileToken : undefined;
+        const persistedEmail = typeof window !== 'undefined' ? getPersistedEmail() : null;
+        const scoringRes = await fetch('/api/snapshot', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            answers: fallbackAnswers,
+            ...(persistedEmail ? { email: persistedEmail } : {}),
+            turnstileToken,
+          }),
+        });
+        if (!scoringRes.ok) return false;
+
+        const scoringResult = await scoringRes.json();
+        const finalReportId = scoringResult.reportId;
+        if (!finalReportId) return false;
+
+        setReportId(finalReportId);
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('wundy_report_id', finalReportId);
+        }
+        const handoffMessage = createMessage('assistant', assistantText);
+        const completedHistory = [...nextHistory, handoffMessage];
+        setMessages(completedHistory);
+        saveProgress('completed', completedHistory);
+
+        if (typeof window !== 'undefined') {
+          const redirectUrl = `/results?reportId=${finalReportId}`;
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'BRAND_SNAPSHOT_COMPLETE', data: { report_id: finalReportId, redirectUrl } }, '*');
+            if (onCompleteRef.current) onCompleteRef.current(finalReportId, redirectUrl);
+          } else if (onCompleteRef.current) {
+            onCompleteRef.current(finalReportId, redirectUrl);
+          } else {
+            router.push(redirectUrl);
+          }
+        }
+        return true;
+      };
+
       // Check if the response contains JSON (should NOT be displayed in chat).
       // Wundy outputs either:
       //   A) Collected inputs: { userName, businessName, industry, ... }
@@ -808,6 +859,9 @@ export function useBrandChat(options?: UseBrandChatOptions) {
             setMessages((prev) => [...prev, handoffMessage]);
           }
         } else {
+          if (await maybeCompleteWithoutJson(replyText)) {
+            return;
+          }
           // Normal text response - add to chat as usual
           const assistantMessage = createMessage('assistant', replyText);
           const updatedHistory = [...nextHistory, assistantMessage];

@@ -16,8 +16,8 @@ type Props = {
 };
 
 /**
- * Early lead capture: transactional email for diagnostic delivery + resume link,
- * with explicit optional marketing opt-in (unchecked by default).
+ * Mid-flow lead capture: transactional email for diagnostic delivery + resume link.
+ * Marketing opt-in is off by default and tucked under <details> so the primary path is one field + one CTA.
  */
 export function LeadMagnetEmailCard({
   reportId,
@@ -27,8 +27,7 @@ export function LeadMagnetEmailCard({
   onSaved,
 }: Props) {
   const [email, setEmail] = useState("");
-  /** Default on: strong list growth; users may uncheck. */
-  const [marketingOptIn, setMarketingOptIn] = useState(true);
+  const [marketingOptIn, setMarketingOptIn] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -124,16 +123,17 @@ export function LeadMagnetEmailCard({
         padding: "14px 16px",
         borderRadius: 10,
         border: "1px solid #D6DFE8",
+        borderLeft: "4px solid #07B0F2",
         background: "#FAFBFC",
         textAlign: "left",
       }}
     >
       <p style={{ margin: "0 0 6px", fontSize: 13, fontWeight: 700, color: "#021859" }}>
-        Get your free diagnostic by email
+        Where should we email your diagnostic?
       </p>
       <p style={{ margin: "0 0 12px", fontSize: 12, color: "#5A6B7E", lineHeight: 1.45 }}>
-        Add your email so we can send your results, a save link if you step away, and upgrade options that
-        fit your tier. Same free diagnostic — we just don&apos;t lose you if life interrupts.
+        One address is enough: we&apos;ll send your results link, a save-and-continue link if you step away,
+        and tier-appropriate upgrade options. Your chat progress is already saved on our side.
       </p>
       <form onSubmit={handleSubmit}>
         <label htmlFor="lead-magnet-email" className="sr-only">
@@ -143,7 +143,9 @@ export function LeadMagnetEmailCard({
           id="lead-magnet-email"
           type="email"
           name="lead-magnet-email"
+          inputMode="email"
           autoComplete="email"
+          enterKeyHint="done"
           value={email}
           onChange={(ev) => {
             setEmail(ev.target.value);
@@ -161,30 +163,44 @@ export function LeadMagnetEmailCard({
             fontSize: 14,
           }}
         />
-        <label
+        <details
           style={{
-            display: "flex",
-            alignItems: "flex-start",
-            gap: 8,
             marginBottom: 12,
             fontSize: 12,
             color: "#5A6B7E",
-            lineHeight: 1.45,
-            cursor: "pointer",
           }}
         >
-          <input
-            type="checkbox"
-            checked={marketingOptIn}
-            onChange={(ev) => setMarketingOptIn(ev.target.checked)}
-            disabled={saving}
-            style={{ marginTop: 2, flexShrink: 0 }}
-          />
-          <span>
-            Yes — include me on occasional brand &amp; marketing tips by email. Uncheck if you only want
-            diagnostic-related messages. Unsubscribe anytime.
-          </span>
-        </label>
+          <summary
+            style={{
+              cursor: "pointer",
+              color: "#475569",
+              fontWeight: 600,
+            }}
+          >
+            Optional: brand &amp; marketing tips by email
+          </summary>
+          <label
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 8,
+              marginTop: 10,
+              lineHeight: 1.45,
+              cursor: "pointer",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={marketingOptIn}
+              onChange={(ev) => setMarketingOptIn(ev.target.checked)}
+              disabled={saving}
+              style={{ marginTop: 2, flexShrink: 0 }}
+            />
+            <span>
+              Yes — include me on occasional tips. You can unsubscribe anytime; diagnostic email still goes through either way.
+            </span>
+          </label>
+        </details>
         {error ? (
           <p style={{ margin: "0 0 10px", fontSize: 12, color: "#B91C1C" }} role="alert">
             {error}
@@ -205,11 +221,10 @@ export function LeadMagnetEmailCard({
             cursor: saving ? "wait" : "pointer",
           }}
         >
-          {saving ? "Saving…" : "Save my email for results"}
+          {saving ? "Saving…" : "Email me my diagnostic link"}
         </button>
         <p style={{ margin: "10px 0 0", fontSize: 11, color: "#64748B", lineHeight: 1.4 }}>
-          By continuing, you agree we may email you about this diagnostic. Marketing tips are on by default;
-          uncheck the box above if you only want diagnostic-related email.{" "}
+          We&apos;ll only use this for diagnostic delivery unless you opt in above.{" "}
           <a
             href="https://wunderbardigital.com/privacy-policy?utm_source=diagnostic_flow&utm_medium=lead_capture&utm_campaign=privacy&utm_content=privacy_policy"
             target="_blank"

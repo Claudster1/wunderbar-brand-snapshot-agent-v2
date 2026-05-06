@@ -440,14 +440,6 @@ body:has(.app-root) {
   font-weight: 500;
 }
 
-.lead-magnet-email-card details summary {
-  list-style: none;
-}
-
-.lead-magnet-email-card details summary::-webkit-details-marker {
-  display: none;
-}
-
 /* Social Proof Strip */
 .social-proof-strip {
   background: linear-gradient(135deg, #021859 0%, #0A2E6E 100%);

@@ -126,11 +126,12 @@ export async function POST(req: Request) {
       logger.error("[Save-Exit] AC field sync failed", { error: describeError(fieldErr) });
     }
 
-    // Fire AC event to send the resume email (non-blocking fallback).
-    // If AC is temporarily unavailable, still return success so users
-    // can continue without being blocked by third-party delivery issues.
+    // Fire AC site tracking webhook so an automation can send the resume email.
+    // Email timing is on ActiveCampaign (usually seconds–few minutes). If the webhook
+    // is missing or fails, we still return success and include resumeUrl for copy/paste.
+    let resumeEventSent = false;
     try {
-      await fireACEvent({
+      resumeEventSent = await fireACEvent({
         email: normalized,
         eventName: "assessment_paused",
         tags: ["snapshot:paused", "snapshot:resume-link-sent"],
@@ -141,11 +142,23 @@ export async function POST(req: Request) {
           product_tier: tier,
         },
       });
+      if (!resumeEventSent) {
+        logger.warn("[Save-Exit] ActiveCampaign webhook did not accept event (missing env, non-2xx, or network)", {
+          event: "assessment_paused",
+          hasWebhookUrl: Boolean(
+            process.env.ACTIVECAMPAIGN_WEBHOOK_URL || process.env.ACTIVE_CAMPAIGN_WEBHOOK,
+          ),
+        });
+      }
     } catch (acErr) {
       logger.error("[Save-Exit] AC event failed", { error: describeError(acErr) });
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      resumeUrl: resumeLink,
+      resumeEventSent,
+    });
   } catch (err) {
     logger.error("[Save-Exit API] Error", { error: describeError(err) });
     return NextResponse.json(

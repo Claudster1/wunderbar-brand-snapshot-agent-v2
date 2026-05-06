@@ -146,6 +146,9 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
   const [saveEmail, setSaveEmail] = useState("");
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [saveErrorMessage, setSaveErrorMessage] = useState<string | null>(null);
+  /** Populated after successful save-exit so users can resume even if AC email is delayed or misconfigured. */
+  const [saveResumeUrl, setSaveResumeUrl] = useState<string | null>(null);
+  const [saveResumeEventSent, setSaveResumeEventSent] = useState<boolean | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatMessagesRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -300,6 +303,18 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
         }
         throw new Error(message);
       }
+      let payload: { resumeUrl?: string; resumeEventSent?: boolean } = {};
+      try {
+        payload = await saveExitRes.json();
+      } catch {
+        /* ignore */
+      }
+      if (typeof payload.resumeUrl === "string" && payload.resumeUrl.startsWith("http")) {
+        setSaveResumeUrl(payload.resumeUrl);
+      } else {
+        setSaveResumeUrl(null);
+      }
+      setSaveResumeEventSent(typeof payload.resumeEventSent === "boolean" ? payload.resumeEventSent : null);
       setSaveStatus("saved");
       setSaveErrorMessage(null);
       syncChatEmailFromStorage();
@@ -1058,7 +1073,11 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
               }}>
                 <button
                   type="button"
-                  onClick={() => setShowSaveModal(true)}
+                  onClick={() => {
+                    setSaveResumeUrl(null);
+                    setSaveResumeEventSent(null);
+                    setShowSaveModal(true);
+                  }}
                   style={{
                     background: "none",
                     border: "none",
@@ -1091,7 +1110,11 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
             padding: 20,
           }}
           onClick={() => {
-            if (saveStatus !== "saving") setShowSaveModal(false);
+            if (saveStatus !== "saving") {
+              setShowSaveModal(false);
+              setSaveResumeUrl(null);
+              setSaveResumeEventSent(null);
+            }
           }}
         >
           <div
@@ -1117,12 +1140,67 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                 <h3 style={{ color: "#021859", fontSize: 18, fontWeight: 700, margin: "0 0 8px" }}>
                   Progress saved
                 </h3>
-                <p style={{ color: "#5A6B7E", fontSize: 14, lineHeight: 1.6, margin: "0 0 20px" }}>
-                  Check your email for a link to pick up right where you left off. Your answers are saved and Wundy™ will be waiting.
+                <p style={{ color: "#5A6B7E", fontSize: 14, lineHeight: 1.6, margin: "0 0 12px" }}>
+                  {saveResumeEventSent === false
+                    ? "We saved your progress. We couldn’t queue the automated resume email (check ActiveCampaign webhook / automation). Use the link below to continue anytime."
+                    : "Check your email within a few minutes for your resume link (ActiveCampaign automations usually send quickly). Your answers are already saved — Wundy™ will be waiting."}
                 </p>
+                {saveResumeUrl ? (
+                  <div style={{ margin: "0 0 16px", textAlign: "left" }}>
+                    <p style={{ margin: "0 0 6px", fontSize: 12, fontWeight: 700, color: "#021859" }}>
+                      Your resume link
+                    </p>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 8,
+                        alignItems: "stretch",
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <code
+                        style={{
+                          flex: "1 1 180px",
+                          fontSize: 11,
+                          wordBreak: "break-all",
+                          padding: "10px 10px",
+                          background: "#F1F5F9",
+                          borderRadius: 8,
+                          border: "1px solid #E2E8F0",
+                          color: "#0F172A",
+                        }}
+                      >
+                        {saveResumeUrl}
+                      </code>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          void navigator.clipboard.writeText(saveResumeUrl).catch(() => {});
+                        }}
+                        style={{
+                          padding: "10px 14px",
+                          borderRadius: 8,
+                          border: "1px solid #CBD5E1",
+                          background: "#fff",
+                          color: "#021859",
+                          fontSize: 13,
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          flexShrink: 0,
+                        }}
+                      >
+                        Copy link
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
                 <button
                   type="button"
-                  onClick={() => setShowSaveModal(false)}
+                  onClick={() => {
+                    setShowSaveModal(false);
+                    setSaveResumeUrl(null);
+                    setSaveResumeEventSent(null);
+                  }}
                   style={{
                     padding: "10px 24px",
                     borderRadius: 8,

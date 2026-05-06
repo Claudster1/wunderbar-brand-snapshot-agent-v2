@@ -220,6 +220,11 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     reportId: string;
     email: string;
   } | null>(null);
+  const [postVerifyResultsLinkCopied, setPostVerifyResultsLinkCopied] = useState(false);
+
+  useEffect(() => {
+    setPostVerifyResultsLinkCopied(false);
+  }, [postVerifyDestination?.resultsUrl, postVerifyDestination?.email]);
 
   useEffect(() => {
     syncChatEmailFromStorage();
@@ -459,6 +464,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     setInputValue("");
     setSelectedOptions([]);
     setPostVerifyDestination(null);
+    setPostVerifyResultsLinkCopied(false);
   };
 
   // Parse select options from assistant message (multi-select or single-select)
@@ -593,6 +599,9 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
               <span style={{ fontWeight: 700, wordBreak: "break-all" }}>{postVerifyDestination.email}</span> so you
               can reopen your link from email anytime.
             </p>
+            <p style={{ margin: "10px 0 0", fontSize: 12, opacity: 0.85, lineHeight: 1.45 }}>
+              Save or share your results page: use <strong>Copy results link</strong> below (full URL to clipboard).
+            </p>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center" }}>
             <button
@@ -612,6 +621,36 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
               }}
             >
               Open full results
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const rel = postVerifyDestination.resultsUrl;
+                const abs =
+                  rel.startsWith("http://") || rel.startsWith("https://")
+                    ? rel
+                    : `${window.location.origin}${rel.startsWith("/") ? rel : `/${rel}`}`;
+                void navigator.clipboard.writeText(abs).then(
+                  () => {
+                    setPostVerifyResultsLinkCopied(true);
+                    window.setTimeout(() => setPostVerifyResultsLinkCopied(false), 2500);
+                  },
+                  () => {},
+                );
+              }}
+              style={{
+                padding: "12px 22px",
+                borderRadius: 8,
+                border: "1px solid rgba(255, 255, 255, 0.4)",
+                background: "transparent",
+                color: "#fff",
+                fontWeight: 600,
+                fontSize: 15,
+                cursor: "pointer",
+                boxSizing: "border-box",
+              }}
+            >
+              {postVerifyResultsLinkCopied ? "Copied!" : "Copy results link"}
             </button>
             <a
               href={pdfDownloadPathForTier(activeTier, postVerifyDestination.reportId)}

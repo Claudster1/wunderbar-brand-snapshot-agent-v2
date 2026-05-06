@@ -272,3 +272,30 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
       return false;
   }
 }
+
+/**
+ * True when some assistant turn asked about `key` (per flexibleDirectCaptureComplete "asked" rules)
+ * and the first following user turn satisfies flexibleDirectCaptureComplete for that key.
+ *
+ * The API route also pairs only the *latest* assistant + user messages; a model follow-up after a valid
+ * answer (e.g. a thank-you + next question) breaks that pairing and leaves captures falsely incomplete,
+ * which forces the same intake question again.
+ */
+export function captureKeySatisfiedFromHistory(
+  key: CaptureKey,
+  messages: Array<{ role: string; content: string }>,
+): boolean {
+  for (let i = 0; i < messages.length; i++) {
+    if (messages[i].role !== "assistant") continue;
+    const la = String(messages[i].content || "");
+    for (let j = i + 1; j < messages.length; j++) {
+      if (messages[j].role === "assistant") break;
+      if (messages[j].role === "user") {
+        const lu = String(messages[j].content || "").trim();
+        if (flexibleDirectCaptureComplete(key, la, lu)) return true;
+        break;
+      }
+    }
+  }
+  return false;
+}

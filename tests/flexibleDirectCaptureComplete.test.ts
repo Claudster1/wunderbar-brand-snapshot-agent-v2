@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  captureKeySatisfiedFromHistory,
   flexibleDirectCaptureComplete,
   splitTerseEnumeration,
   type CaptureKey,
@@ -178,5 +179,29 @@ describe("flexibleDirectCaptureComplete", () => {
     };
     const { la, lu } = table[key];
     expect(flexibleDirectCaptureComplete(key, la, lu)).toBe(true);
+  });
+});
+
+describe("captureKeySatisfiedFromHistory", () => {
+  it("marks competitive_pressure complete when a model follow-up breaks last-user / last-assistant pairing", () => {
+    const messages = [
+      { role: "assistant", content: LA.otherSurfaces },
+      { role: "user", content: "email nurture to funnel, seo/aeo, content" },
+      { role: "assistant", content: LA.competitive },
+      { role: "user", content: "proof" },
+      { role: "assistant", content: "Thanks! What do you want ideal customers to think when they first discover you?" },
+      { role: "user", content: "approachable experts" },
+    ];
+    expect(captureKeySatisfiedFromHistory("additional_marketing_surfaces", messages)).toBe(true);
+    expect(captureKeySatisfiedFromHistory("competitive_pressure_point", messages)).toBe(true);
+  });
+
+  it("still requires a valid answer after the capture question", () => {
+    const messages = [
+      { role: "assistant", content: LA.competitive },
+      { role: "user", content: "maybe" },
+      { role: "assistant", content: "What is your favorite color?" },
+    ];
+    expect(captureKeySatisfiedFromHistory("competitive_pressure_point", messages)).toBe(false);
   });
 });

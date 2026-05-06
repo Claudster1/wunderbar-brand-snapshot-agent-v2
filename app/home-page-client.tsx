@@ -239,8 +239,8 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     setSaveStatus("saving");
     setSaveErrorMessage(null);
     try {
-      // Persist the email
-      const { persistEmail } = await import("@/lib/persistEmail");
+      // Persist the email (use the static import — a dynamic import here loads a separate chunk
+      // that breaks with "Failed to load chunk" after a deploy while the tab still has an old bundle).
       persistEmail(saveEmail.trim());
 
       // Send resume link via API
@@ -271,11 +271,17 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
       setSaveStatus("saved");
       setSaveErrorMessage(null);
     } catch (error) {
-      const message =
+      const raw =
         error instanceof Error && error.message
           ? error.message
           : "Something went wrong. Please try again.";
-      setSaveErrorMessage(message);
+      const isStaleBundle =
+        /failed to load chunk|loading chunk \d+|dynamically imported module/i.test(raw);
+      setSaveErrorMessage(
+        isStaleBundle
+          ? "This page was updated while you had it open. Refresh the page (Cmd+Shift+R or Ctrl+Shift+R), then try Save and continue again."
+          : raw,
+      );
       setSaveStatus("error");
     }
   };
@@ -1139,19 +1145,16 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                         : saveStatus === "saving"
                           ? "#0369A1"
                           : "#5A6B7E",
+                    lineHeight: 1.45,
                   }}
                 >
                   {saveStatus === "saving"
                     ? "Sending your resume link..."
                     : saveStatus === "error"
-                      ? "Could not send the link. Please check your email and try again."
+                      ? saveErrorMessage ||
+                        "Could not send the link. Please check your email and try again."
                       : "We will send a secure resume link to this address."}
                 </p>
-                {saveStatus === "error" && (
-                  <p style={{ color: "#DC2626", fontSize: 13, margin: "0 0 8px" }}>
-                    {saveErrorMessage || "Something went wrong. Please try again."}
-                  </p>
-                )}
                 <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
                   <button
                     type="button"

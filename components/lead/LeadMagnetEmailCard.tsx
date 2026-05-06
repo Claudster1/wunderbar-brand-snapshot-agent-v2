@@ -179,27 +179,43 @@ export function LeadMagnetEmailCard({
           >
             Optional: brand &amp; marketing tips by email
           </summary>
-          <label
+          <div
             style={{
-              display: "flex",
-              alignItems: "flex-start",
-              gap: 8,
               marginTop: 10,
-              lineHeight: 1.45,
-              cursor: "pointer",
+              padding: "12px 14px",
+              borderRadius: 8,
+              background: "#07B0F2",
+              color: "#fff",
             }}
           >
-            <input
-              type="checkbox"
-              checked={marketingOptIn}
-              onChange={(ev) => setMarketingOptIn(ev.target.checked)}
-              disabled={saving}
-              style={{ marginTop: 2, flexShrink: 0 }}
-            />
-            <span>
-              Yes — include me on occasional tips. You can unsubscribe anytime; diagnostic email still goes through either way.
-            </span>
-          </label>
+            <label
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                gap: 8,
+                lineHeight: 1.45,
+                cursor: "pointer",
+                color: "#fff",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={marketingOptIn}
+                onChange={(ev) => setMarketingOptIn(ev.target.checked)}
+                disabled={saving}
+                style={{
+                  marginTop: 2,
+                  flexShrink: 0,
+                  width: 18,
+                  height: 18,
+                  accentColor: "#021859",
+                }}
+              />
+              <span>
+                Yes — include me on occasional tips. You can unsubscribe anytime; diagnostic email still goes through either way.
+              </span>
+            </label>
+          </div>
         </details>
         {error ? (
           <p style={{ margin: "0 0 10px", fontSize: 12, color: "#B91C1C" }} role="alert">

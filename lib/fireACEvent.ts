@@ -5,15 +5,16 @@ const AC_WEBHOOK_URL =
   process.env.ACTIVE_CAMPAIGN_WEBHOOK ||
   "";
 
+/** @returns true if a webhook request was sent and returned 2xx; false if misconfigured, failed, or errored. */
 export async function fireACEvent(event: {
   email?: string;
   eventName: string;
   tags?: string[];
   fields?: Record<string, string | number>;
-}) {
-  if (!AC_WEBHOOK_URL) return;
+}): Promise<boolean> {
+  if (!AC_WEBHOOK_URL) return false;
   try {
-    await fetch(AC_WEBHOOK_URL, {
+    const res = await fetch(AC_WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -23,7 +24,8 @@ export async function fireACEvent(event: {
         fields: event.fields,
       }),
     });
+    return res.ok;
   } catch (_) {
-    // No-op when webhook is unavailable (e.g. client without env, network error)
+    return false;
   }
 }

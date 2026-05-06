@@ -149,6 +149,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
   /** Populated after successful save-exit so users can resume even if AC email is delayed or misconfigured. */
   const [saveResumeUrl, setSaveResumeUrl] = useState<string | null>(null);
   const [saveResumeEventSent, setSaveResumeEventSent] = useState<boolean | null>(null);
+  const [saveResumeLinkCopied, setSaveResumeLinkCopied] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatMessagesRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -1076,6 +1077,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                   onClick={() => {
                     setSaveResumeUrl(null);
                     setSaveResumeEventSent(null);
+                    setSaveResumeLinkCopied(false);
                     setShowSaveModal(true);
                   }}
                   style={{
@@ -1114,6 +1116,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
               setShowSaveModal(false);
               setSaveResumeUrl(null);
               setSaveResumeEventSent(null);
+              setSaveResumeLinkCopied(false);
             }
           }}
         >
@@ -1175,7 +1178,13 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                       <button
                         type="button"
                         onClick={() => {
-                          void navigator.clipboard.writeText(saveResumeUrl).catch(() => {});
+                          void navigator.clipboard.writeText(saveResumeUrl).then(
+                            () => {
+                              setSaveResumeLinkCopied(true);
+                              window.setTimeout(() => setSaveResumeLinkCopied(false), 2500);
+                            },
+                            () => {},
+                          );
                         }}
                         style={{
                           padding: "10px 14px",
@@ -1189,9 +1198,12 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                           flexShrink: 0,
                         }}
                       >
-                        Copy link
+                        {saveResumeLinkCopied ? "Copied!" : "Copy link"}
                       </button>
                     </div>
+                    <p style={{ margin: "8px 0 0", fontSize: 12, color: "#64748B", lineHeight: 1.45 }}>
+                      Or select the link above and copy manually (⌘C / Ctrl+C).
+                    </p>
                   </div>
                 ) : null}
                 <button
@@ -1200,6 +1212,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                     setShowSaveModal(false);
                     setSaveResumeUrl(null);
                     setSaveResumeEventSent(null);
+                    setSaveResumeLinkCopied(false);
                   }}
                   style={{
                     padding: "10px 24px",

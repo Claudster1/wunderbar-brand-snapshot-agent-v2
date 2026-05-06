@@ -10,6 +10,7 @@ import {
 import { useGenerateReport } from './useGenerateReport';
 import { getPersistedEmail } from '@/lib/persistEmail';
 import { buildUpgradeGapFillAssistantMessage, type ChatTier } from '@/lib/chatTierConfig';
+import { isAssistantFinalHandoffWithoutJsonBlock } from '@/lib/intake/assistantFinalHandoff';
 
 const createMessage = (
   role: BrandChatMessage['role'],
@@ -452,11 +453,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
       });
 
       const maybeCompleteWithoutJson = async (assistantText: string): Promise<boolean> => {
-        const normalized = assistantText.toLowerCase();
-        const soundsLikeFinalHandoff =
-          (normalized.includes("being generated now") || normalized.includes("results will appear below"))
-          && !normalized.includes("{");
-        if (!soundsLikeFinalHandoff) return false;
+        if (!isAssistantFinalHandoffWithoutJsonBlock(assistantText)) return false;
 
         const fallbackAnswers = extractAnswers(nextHistory);
         const meaningful = Object.values(fallbackAnswers).filter((v) => v !== null && v !== undefined && v !== "");

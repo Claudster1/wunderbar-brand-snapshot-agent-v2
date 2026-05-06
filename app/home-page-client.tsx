@@ -19,6 +19,7 @@ import { staticImageUrl } from "@/lib/staticImageUrl";
 import { getPersistedEmail, persistEmail } from "@/lib/persistEmail";
 import { LeadMagnetEmailCard } from "@/components/lead/LeadMagnetEmailCard";
 import { assistantPromisedExternalResultsEntry } from "@/lib/intake/assistantFinalHandoff";
+import { ResultsScoreTeaserGate } from "@/components/diagnostic/ResultsScoreTeaserGate";
 
 export type HomePageClientProps = {
   tierParam: string | null;
@@ -114,6 +115,8 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     reset,
     reportId,
     resultsEntryUrl,
+    pendingScoreTeaser,
+    applyScoreTeaserUnlock,
     assessmentProgress,
     questionsAnswered,
     totalQuestions,
@@ -124,6 +127,20 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     productTier: activeTier,
     resumeHoldUntilValidated,
   });
+
+  const handleScoreTeaserUnlocked = useCallback(
+    (detail: { email: string; reportId: string; redirectUrl: string }) => {
+      applyScoreTeaserUnlock(detail.redirectUrl, detail.reportId);
+      setShowEmailVerification(false);
+      setEmailVerified(true);
+      setPostVerifyDestination({
+        resultsUrl: detail.redirectUrl,
+        reportId: detail.reportId,
+        email: detail.email,
+      });
+    },
+    [applyScoreTeaserUnlock],
+  );
   const [inputValue, setInputValue] = useState("");
   const [progress, setProgress] = useState(0);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
@@ -216,18 +233,18 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
 
   /** Model promised an in-chat reveal or "below" but scoring URL never registered — offer recovery. */
   const handoffPromisedNoEntryUrl = useMemo(() => {
-    if (resultsEntryUrl || isLoading) return false;
+    if (resultsEntryUrl || isLoading || pendingScoreTeaser) return false;
     const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
     if (!lastAssistant) return false;
     return (
       assistantPromisedExternalResultsEntry(lastAssistant.text) &&
       messages.filter((m) => m.role === "user").length >= 3
     );
-  }, [messages, resultsEntryUrl, isLoading]);
+  }, [messages, resultsEntryUrl, isLoading, pendingScoreTeaser]);
 
   // Skip the current question
   const handleSkip = async () => {
-    if (isLoading) return;
+    if (isLoading || pendingScoreTeaser) return;
     await sendMessage("Skip");
     setSelectedOptions([]);
     setInputValue("");
@@ -346,6 +363,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!inputValue.trim()) return;
+    if (pendingScoreTeaser) return;
 
     // ─── Security: Honeypot check (bots fill hidden fields) ───
     if (honeypot) {
@@ -410,7 +428,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                   window.parent.postMessage({ type: "RESIZE_IFRAME", height }, "*");
                 }, 100);
                 return () => window.clearTimeout(timeoutId);
-              }, [messages.length, isLoading]);
+              }, [messages.length, isLoading, pendingScoreTeaser]);
 
   const handleReset = () => {
     reset();
@@ -472,7 +490,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
 
   // Handle submit with checkboxes/radio buttons
   const handleSubmitWithOptions = async () => {
-    if (selectedOptions.length === 0) return;
+    if (selectedOptions.length === 0 || pendingScoreTeaser) return;
     const response = selectedOptions.join(', ');
     await sendMessage(response);
     setSelectedOptions([]);
@@ -770,7 +788,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                                   ? handleCheckboxToggle(option)
                                   : handleRadioSelect(option)
                                 }
-                                disabled={isLoading}
+                                disabled={isLoading || !!pendingScoreTeaser}
                               />
                               <span>{renderChatMarkdownInline(option)}</span>
                             </label>
@@ -829,6 +847,17 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                     Retry
                   </button>
                 </div>
+              )}
+
+              {pendingScoreTeaser && (
+                <ResultsScoreTeaserGate
+                  teaser={pendingScoreTeaser}
+                  turnstileToken={turnstileToken}
+                  productTier={activeTier}
+                  firstNameHint={customerName}
+                  productName={activeTierConfig.productName}
+                  onUnlocked={handleScoreTeaserUnlocked}
+                />
               )}
 
               {resultsEntryUrl && !postVerifyDestination && (
@@ -913,7 +942,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                     type="button"
                     className="chat-send"
                     onClick={handleSubmitWithOptions}
-                    disabled={isLoading || selectedOptions.length === 0}
+                    disabled={isLoading || selectedOptions.length === 0 || !!pendingScoreTeaser}
                   >
                     {isLoading ? "Sending…" : "Continue"}
                   </button>
@@ -922,7 +951,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                       type="button"
                       className="chat-skip"
                       onClick={handleSkip}
-                      disabled={isLoading}
+                      disabled={isLoading || !!pendingScoreTeaser}
                       title="Skip this question — you can come back to it"
                     >
                       Skip
@@ -963,7 +992,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                         type="button"
                         className="chat-attach"
                         onClick={() => fileInputRef.current?.click()}
-                        disabled={isLoading || isUploading}
+                        disabled={isLoading || isUploading || !!pendingScoreTeaser}
                         title="Attach a file (brand guidelines, style guide, logo, etc.)"
                         aria-label="Attach file"
                       >
@@ -983,13 +1012,13 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                       behaviorTrackerRef.current?.recordKeystroke();
                     }}
                     placeholder={isUploading ? "Uploading file…" : "Type your reply…"}
-                    disabled={isLoading || isUploading}
+                    disabled={isLoading || isUploading || !!pendingScoreTeaser}
                     autoFocus
                   />
                   <button
                     type="submit"
                     className="chat-send"
-                    disabled={isLoading || isUploading || !inputValue.trim()}
+                    disabled={isLoading || isUploading || !inputValue.trim() || !!pendingScoreTeaser}
                   >
                     {isUploading ? "Uploading…" : isLoading ? "Sending…" : "Send"}
                   </button>
@@ -998,7 +1027,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                       type="button"
                       className="chat-skip"
                       onClick={handleSkip}
-                      disabled={isLoading || isUploading}
+                      disabled={isLoading || isUploading || !!pendingScoreTeaser}
                       title="Skip this question — you can come back to it"
                     >
                       Skip

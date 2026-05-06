@@ -727,7 +727,12 @@ export async function POST(req: Request) {
       ]);
     }
 
-    return NextResponse.json({ reportId: (data as any).report_id });
+    return NextResponse.json({
+      reportId: (data as any).report_id,
+      brandAlignmentScore: scores.brandAlignmentScore,
+      pillarScores: scores.pillarScores,
+      primaryPillar: primaryPillar ?? null,
+    });
   } catch (err: any) {
     logger.error("[Snapshot API] Error", { error: err?.message ?? String(err) });
     return NextResponse.json(

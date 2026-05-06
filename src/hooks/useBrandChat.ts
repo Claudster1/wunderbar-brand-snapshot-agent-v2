@@ -1,7 +1,7 @@
 // src/hooks/useBrandChat.ts
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   BrandChatMessage,
@@ -11,6 +11,7 @@ import { useGenerateReport } from './useGenerateReport';
 import { getPersistedEmail } from '@/lib/persistEmail';
 import { buildUpgradeGapFillAssistantMessage, type ChatTier } from '@/lib/chatTierConfig';
 import { isAssistantFinalHandoffWithoutJsonBlock } from '@/lib/intake/assistantFinalHandoff';
+import type { ScoreTeaserPayload } from '@/lib/diagnostic/scoreTeaserCopy';
 
 const createMessage = (
   role: BrandChatMessage['role'],
@@ -204,6 +205,55 @@ interface UseBrandChatOptions {
   resumeHoldUntilValidated?: boolean;
 }
 
+type ProductTierOption = UseBrandChatOptions['productTier'];
+
+function wantsSnapshotScoreTeaserEmailGate(
+  tier: ProductTierOption | undefined,
+  persistedEmail: string | null,
+): boolean {
+  if (tier !== 'snapshot' && tier !== 'snapshot-plus') return false;
+  return !persistedEmail;
+}
+
+function scoreTeaserFromApiPayload(
+  scoringResult: Record<string, unknown>,
+  finalReportId: string,
+): ScoreTeaserPayload | null {
+  const bas = scoringResult.brandAlignmentScore;
+  const ps = scoringResult.pillarScores;
+  if (typeof bas !== 'number' || !Number.isFinite(bas)) return null;
+  if (!ps || typeof ps !== 'object' || Array.isArray(ps)) return null;
+  const pillarScores: Record<string, number> = {};
+  for (const [k, v] of Object.entries(ps as Record<string, unknown>)) {
+    if (typeof v === 'number' && Number.isFinite(v)) pillarScores[k] = v;
+  }
+  if (Object.keys(pillarScores).length === 0) return null;
+  const primaryPillar = scoringResult.primaryPillar;
+  return {
+    reportId: finalReportId,
+    redirectUrl: `/results?reportId=${encodeURIComponent(finalReportId)}`,
+    brandAlignmentScore: bas,
+    pillarScores,
+    primaryPillar: typeof primaryPillar === 'string' ? primaryPillar : null,
+  };
+}
+
+function decideSnapshotCompletion(
+  tier: ProductTierOption | undefined,
+  persistedEmail: string | null,
+  scoringResult: Record<string, unknown>,
+  finalReportId: string,
+):
+  | { mode: 'teaser'; payload: ScoreTeaserPayload }
+  | { mode: 'direct'; redirectUrl: string } {
+  const redirectUrl = `/results?reportId=${encodeURIComponent(finalReportId)}`;
+  const teaser = scoreTeaserFromApiPayload(scoringResult, finalReportId);
+  if (teaser && wantsSnapshotScoreTeaserEmailGate(tier, persistedEmail)) {
+    return { mode: 'teaser', payload: teaser };
+  }
+  return { mode: 'direct', redirectUrl };
+}
+
 export function useBrandChat(options?: UseBrandChatOptions) {
   const initialMessage = options?.customGreeting
     ? createMessage('assistant', options.customGreeting)
@@ -216,6 +266,8 @@ export function useBrandChat(options?: UseBrandChatOptions) {
   const [reportId, setReportId] = useState<string | null>(null);
   /** Set when scoring/save succeeds — full URL to open the diagnostic results UI. */
   const [resultsEntryUrl, setResultsEntryUrl] = useState<string | null>(null);
+  /** Snapshot / Snapshot+ only: score teaser shown until email unlock (no persisted email). */
+  const [pendingScoreTeaser, setPendingScoreTeaser] = useState<ScoreTeaserPayload | null>(null);
   const [lastFailedInput, setLastFailedInput] = useState<string | null>(null);
   const hasReceivedName = useRef(false);
   const allowIncompleteSubmissionRef = useRef(false);
@@ -228,6 +280,17 @@ export function useBrandChat(options?: UseBrandChatOptions) {
   const onCompleteRef = useRef(options?.onComplete);
   useEffect(() => { onCompleteRef.current = options?.onComplete; }, [options?.onComplete]);
   const isInitialized = useRef(false);
+
+  const applyScoreTeaserUnlock = useCallback((redirectUrl: string, reportIdForMessage: string) => {
+    setPendingScoreTeaser(null);
+    setResultsEntryUrl(redirectUrl);
+    if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
+      window.parent.postMessage(
+        { type: 'BRAND_SNAPSHOT_COMPLETE', data: { report_id: reportIdForMessage, redirectUrl } },
+        '*',
+      );
+    }
+  }, []);
 
   const assignLocalDraftId = () => {
     if (typeof window === 'undefined') return;
@@ -472,22 +535,32 @@ export function useBrandChat(options?: UseBrandChatOptions) {
         });
         if (!scoringRes.ok) return false;
 
-        const scoringResult = await scoringRes.json();
-        const finalReportId = scoringResult.reportId;
+        const scoringResult = (await scoringRes.json()) as Record<string, unknown>;
+        const finalReportId = scoringResult.reportId as string | undefined;
         if (!finalReportId) return false;
 
         setReportId(finalReportId);
         if (typeof window !== 'undefined') {
           sessionStorage.setItem('wundy_report_id', finalReportId);
         }
-        const redirectUrl = `/results?reportId=${finalReportId}`;
-        setResultsEntryUrl(redirectUrl);
+        const completion = decideSnapshotCompletion(
+          options?.productTier,
+          persistedEmail,
+          scoringResult,
+          finalReportId,
+        );
+        if (completion.mode === 'teaser') {
+          setPendingScoreTeaser(completion.payload);
+        } else {
+          setResultsEntryUrl(completion.redirectUrl);
+        }
         const handoffMessage = createMessage('assistant', assistantText);
         const completedHistory = [...nextHistory, handoffMessage];
         setMessages(completedHistory);
         saveProgress('completed', completedHistory);
 
-        if (typeof window !== 'undefined') {
+        if (typeof window !== 'undefined' && completion.mode === 'direct') {
+          const redirectUrl = completion.redirectUrl;
           if (window.parent && window.parent !== window) {
             window.parent.postMessage({ type: 'BRAND_SNAPSHOT_COMPLETE', data: { report_id: finalReportId, redirectUrl } }, '*');
             if (onCompleteRef.current) onCompleteRef.current(finalReportId, redirectUrl);
@@ -596,13 +669,28 @@ export function useBrandChat(options?: UseBrandChatOptions) {
             });
 
             if (scoringRes.ok) {
-              const scoringResult = await scoringRes.json();
-              const finalReportId = scoringResult.reportId;
+              const scoringResult = (await scoringRes.json()) as Record<string, unknown>;
+              const finalReportId = scoringResult.reportId as string | undefined;
+              if (!finalReportId) {
+                setIsLoading(false);
+                sendingRef.current = false;
+                return;
+              }
               setReportId(finalReportId);
-              const redirectUrl = `/results?reportId=${finalReportId}`;
-              setResultsEntryUrl(redirectUrl);
               if (typeof window !== 'undefined') {
                 sessionStorage.setItem('wundy_report_id', finalReportId);
+              }
+
+              const completion = decideSnapshotCompletion(
+                options?.productTier,
+                persistedEmail,
+                scoringResult,
+                finalReportId,
+              );
+              if (completion.mode === 'teaser') {
+                setPendingScoreTeaser(completion.payload);
+              } else {
+                setResultsEntryUrl(completion.redirectUrl);
               }
 
               // Persist brand name for cross-page use (checkout, dashboard, etc.)
@@ -623,12 +711,10 @@ export function useBrandChat(options?: UseBrandChatOptions) {
 
               saveProgress('completed', nextHistory);
 
-              // Navigate to results
-              if (typeof window !== 'undefined') {
+              if (typeof window !== 'undefined' && completion.mode === 'direct') {
+                const redirectUrl = completion.redirectUrl;
                 if (window.parent && window.parent !== window) {
                   window.parent.postMessage({ type: 'BRAND_SNAPSHOT_COMPLETE', data: { report_id: finalReportId, redirectUrl } }, '*');
-                  // Also trigger local completion callback so in-app email gate can appear
-                  // even when embedded contexts are present.
                   if (onCompleteRef.current) {
                     onCompleteRef.current(finalReportId, redirectUrl);
                   }
@@ -903,6 +989,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     setMessages([INITIAL_ASSISTANT_MESSAGE]);
     setLastFailedInput(null);
     setResultsEntryUrl(null);
+    setPendingScoreTeaser(null);
   };
 
   // Calculate assessment progress based on assistant question count
@@ -920,6 +1007,8 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     reset,
     reportId,
     resultsEntryUrl,
+    pendingScoreTeaser,
+    applyScoreTeaserUnlock,
     assessmentProgress,
     questionsAnswered,
     totalQuestions: TOTAL_QUESTIONS,

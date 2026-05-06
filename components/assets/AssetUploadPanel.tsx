@@ -244,7 +244,7 @@ export function AssetUploadPanel({
           >
             Share your existing brand materials — style guides, logos,
             pitch decks, marketing collateral, or anything that represents
-            your brand today. We&apos;ll factor them into your report.{" "}
+            your brand today. We&apos;ll factor them into your diagnostic.{" "}
             <strong>
               {config.label}: up to {config.maxFiles} files
             </strong>{" "}

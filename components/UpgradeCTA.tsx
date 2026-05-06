@@ -18,9 +18,12 @@ import { useState, useEffect } from "react";
 export function UpgradeCTA({
   primaryPillar,
   productKey,
+  baseSnapshotReportId,
 }: {
   primaryPillar: string;
   productKey: string;
+  /** Prior free Snapshot report — passed through Stripe metadata as snapshot_id for post-checkout resume. */
+  baseSnapshotReportId?: string | null;
 }) {
   const [loading, setLoading] = useState(false);
   const [smsOptedIn, setSmsOptedIn] = useState(false);
@@ -75,6 +78,9 @@ export function UpgradeCTA({
             primary_pillar: primaryPillar,
             variant,
             brand_name: brandName,
+            ...(baseSnapshotReportId && /^[0-9a-f-]{36}$/i.test(baseSnapshotReportId.trim())
+              ? { snapshot_id: baseSnapshotReportId.trim() }
+              : {}),
           },
         }),
       });

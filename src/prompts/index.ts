@@ -26,6 +26,9 @@ export { blueprintPlusReportPrompt } from "./blueprintPlusReportPrompt";
 
 // Wundy™ system prompt (chatbot — original conversation flow)
 export { wundySystemPrompt } from "./wundySystemPrompt";
+export { wundySnapshotTierFragment } from "./wundySnapshotTierFragment";
+export { wundyUpgradeContinuationFragment } from "./wundyUpgradeContinuationFragment";
+export { wundyEarlyStageBuildModeFragment } from "./wundyEarlyStageBuildModeFragment";
 
 // Wundy™ Guide & Companion modes (two-mode chat system)
 export { wundyGuidePrompt } from "./wundyGuidePrompt";

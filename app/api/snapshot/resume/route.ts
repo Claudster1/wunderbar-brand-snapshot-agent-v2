@@ -1,10 +1,9 @@
 // app/api/snapshot/resume/route.ts
-// API route for resuming a draft snapshot
+// API route for resuming a draft snapshot or continuing after upgrade (prior answers on file).
 
 import { NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
-import { loadSnapshotProgress } from "@/lib/loadSnapshotProgress";
-import { supabaseServer } from "@/lib/supabase";
+import { findBrandSnapshotReportByPublicId } from "@/lib/brandSnapshotReportLookup";
 
 export async function GET(req: Request) {
   try {
@@ -18,59 +17,59 @@ export async function GET(req: Request) {
     const reportId = searchParams.get("reportId");
 
     if (!reportId) {
-      return NextResponse.json(
-        { error: "Missing reportId parameter" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing reportId parameter" }, { status: 400 });
     }
     if (!isValidUUID(reportId)) {
       return NextResponse.json({ error: "Invalid ID format" }, { status: 400 });
     }
 
-    // Load progress data
-    const progressData = await loadSnapshotProgress(reportId);
-
-    if (!progressData) {
-      return NextResponse.json(
-        { error: "Report not found" },
-        { status: 404 }
-      );
+    const row = await findBrandSnapshotReportByPublicId(reportId);
+    if (!row) {
+      return NextResponse.json({ error: "Report not found" }, { status: 404 });
     }
 
-    // Also get full report data for context
-    const supabase = supabaseServer();
-    const { data: reportRow, error } = await supabase
-      .from("brand_snapshot_reports")
-      .select("*")
-      .eq("report_id", reportId)
-      .single();
+    const r = row as {
+      report_id?: string;
+      id?: string;
+      last_step?: string;
+      progress?: { messages?: unknown } | null;
+      full_report?: { answers?: unknown } | null;
+      business_name?: string | null;
+      brand_name?: string | null;
+      user_email?: string | null;
+    };
 
-    if (error || !reportRow) {
-      return NextResponse.json(
-        { error: "Report not found" },
-        { status: 404 }
-      );
-    }
+    const canonicalId = (typeof r.report_id === "string" && r.report_id.trim() ? r.report_id : null) || String(r.id ?? reportId);
 
-    const report = reportRow as { business_name?: string; brand_name?: string; user_email?: string };
-    const progress = progressData as { last_step?: string; progress?: unknown };
+    const progress = r.progress;
+    const messages = progress?.messages;
+    const hasTranscript = Array.isArray(messages) && messages.length > 0;
+
+    const fullReport = r.full_report;
+    const rawAnswers = fullReport && typeof fullReport === "object" ? fullReport.answers : null;
+    const priorAnswers =
+      rawAnswers && typeof rawAnswers === "object" && !Array.isArray(rawAnswers)
+        ? (rawAnswers as Record<string, unknown>)
+        : null;
+
+    const continuationMode: "transcript" | "answers_only" =
+      !hasTranscript && priorAnswers && Object.keys(priorAnswers).length > 0 ? "answers_only" : "transcript";
 
     return NextResponse.json({
-      reportId,
-      lastStep: progress.last_step,
-      progress: progress.progress,
+      reportId: canonicalId,
+      lastStep: r.last_step,
+      progress,
+      continuationMode,
+      priorAnswers: continuationMode === "answers_only" ? priorAnswers : undefined,
       report: {
-        business_name: report.business_name || report.brand_name,
-        user_email: report.user_email,
+        business_name: r.business_name || r.brand_name,
+        user_email: r.user_email,
       },
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     logger.error("[Snapshot Resume API] Error", {
       error: err instanceof Error ? err.message : String(err),
     });
-    return NextResponse.json(
-      { error: "Failed to load resume data" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to load resume data" }, { status: 500 });
   }
 }

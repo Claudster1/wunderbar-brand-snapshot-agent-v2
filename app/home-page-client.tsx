@@ -5,11 +5,19 @@ import { useBrandChat } from "../src/hooks/useBrandChat";
 import { TurnstileWidget } from "@/components/security/TurnstileWidget";
 import { BehaviorTracker } from "@/lib/security/behavioralScoring";
 import { EmailVerificationGate } from "@/components/security/EmailVerificationGate";
-import { parseTierFromParam, getChatTierConfig, interpolateWelcomeBack, type ChatTier } from "@/lib/chatTierConfig";
+import {
+  parseTierFromParam,
+  getChatTierConfig,
+  interpolateWelcomeBack,
+  pdfDownloadPathForTier,
+  type ChatTier,
+} from "@/lib/chatTierConfig";
 import { AssetUploadPanel } from "@/components/assets/AssetUploadPanel";
 import { ChatMarkdown, renderChatMarkdownInline } from "@/components/chat/ChatMarkdown";
 import WundyLogo from "@/src/assets/wundy-logo.jpeg";
 import { staticImageUrl } from "@/lib/staticImageUrl";
+import { getPersistedEmail, persistEmail } from "@/lib/persistEmail";
+import { LeadMagnetEmailCard } from "@/components/lead/LeadMagnetEmailCard";
 
 export type HomePageClientProps = {
   tierParam: string | null;
@@ -63,9 +71,17 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
       });
   }, [tier, tierTokenParam]);
 
-  // Use the validated tier's config (paid access must be verified)
-  const activeTier = validatedTier === "pending" ? "snapshot" : validatedTier as ChatTier;
+  // Use URL tier optimistically while validating token so resume + upgrade continuation use paid intake rules immediately.
+  const activeTier: ChatTier =
+    validatedTier === "pending" && tier !== "snapshot" && tierTokenParam
+      ? tier
+      : validatedTier === "pending"
+        ? "snapshot"
+        : (validatedTier as ChatTier);
   const activeTierConfig = useMemo(() => getChatTierConfig(activeTier), [activeTier]);
+  /** Wait for /api/validate-tier before loading ?resume= so paid upgrade continuation uses the correct product tier. */
+  const resumeHoldUntilValidated =
+    tier !== "snapshot" && Boolean(tierTokenParam) && validatedTier === "pending";
 
   // Greeting resolution:
   //   Name known (any tier) → interpolate {firstName} in greeting, complete intro in one message
@@ -88,11 +104,24 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     setShowEmailVerification(true);
   }, []);
 
-  const { messages, isLoading, sendMessage, retry, canRetry, reset, reportId, assessmentProgress, questionsAnswered, totalQuestions } = useBrandChat({
+  const {
+    messages,
+    isLoading,
+    sendMessage,
+    retry,
+    canRetry,
+    reset,
+    reportId,
+    resultsEntryUrl,
+    assessmentProgress,
+    questionsAnswered,
+    totalQuestions,
+  } = useBrandChat({
     onComplete: handleAssessmentComplete,
     customGreeting: resolvedGreeting,
     welcomeBackTemplate: !customerName ? activeTierConfig.welcomeBack : undefined,
     productTier: activeTier,
+    resumeHoldUntilValidated,
   });
   const [inputValue, setInputValue] = useState("");
   const [progress, setProgress] = useState(0);
@@ -168,6 +197,36 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
   const [showEmailVerification, setShowEmailVerification] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
   const pendingRedirectRef = useRef<string | null>(null);
+  /** After email verification: show a top bar with primary navigation to results + PDF (not buried in chat). */
+  const [postVerifyDestination, setPostVerifyDestination] = useState<{
+    resultsUrl: string;
+    reportId: string;
+    email: string;
+  } | null>(null);
+
+  const isEarlyStageMode = useMemo(() => {
+    const userCorpus = messages
+      .filter((m) => m.role === "user")
+      .map((m) => m.text.toLowerCase())
+      .join(" ");
+    if (!userCorpus) return false;
+    return /\b(pre[-\s]?revenue|just getting started|new business|starting out|haven'?t launched|not launched yet|early stage|still figuring out|no customers yet|first customers)\b/i.test(userCorpus);
+  }, [messages]);
+
+  /** Model promised an in-chat reveal or "below" but scoring URL never registered — offer recovery. */
+  const handoffPromisedNoEntryUrl = useMemo(() => {
+    if (resultsEntryUrl || isLoading) return false;
+    const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
+    if (!lastAssistant) return false;
+    const t = lastAssistant.text.toLowerCase();
+    return (
+      (t.includes("being generated") ||
+        t.includes("results will appear below") ||
+        t.includes("appear below") ||
+        t.includes("open full diagnostic")) &&
+      messages.filter((m) => m.role === "user").length >= 3
+    );
+  }, [messages, resultsEntryUrl, isLoading]);
 
   // Skip the current question
   const handleSkip = async () => {
@@ -347,6 +406,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     reset();
     setInputValue("");
     setSelectedOptions([]);
+    setPostVerifyDestination(null);
   };
 
   // Parse select options from assistant message (multi-select or single-select)
@@ -421,18 +481,108 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
       {showEmailVerification && !emailVerified && reportId && (
         <EmailVerificationGate
           reportId={reportId}
+          productName={activeTierConfig.productName}
+          initialEmail={typeof window !== "undefined" ? getPersistedEmail() ?? "" : ""}
           onVerified={(verifiedEmail) => {
+            persistEmail(verifiedEmail);
             setEmailVerified(true);
             setShowEmailVerification(false);
-            // If we have a pending redirect, navigate now
-            if (pendingRedirectRef.current) {
-              window.location.href = pendingRedirectRef.current;
+            const url = pendingRedirectRef.current;
+            const rid = reportId;
+            if (url && rid) {
+              setPostVerifyDestination({
+                resultsUrl: url,
+                reportId: rid,
+                email: verifiedEmail,
+              });
+            } else if (url) {
+              window.location.href = url;
+            } else if (rid) {
+              setPostVerifyDestination({
+                resultsUrl: `/results?reportId=${encodeURIComponent(rid)}`,
+                reportId: rid,
+                email: verifiedEmail,
+              });
             }
           }}
         />
       )}
 
-      <div className="app-shell">
+      {postVerifyDestination && (
+        <div
+          role="region"
+          aria-label="Your results are ready"
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 10001,
+            background: "#021859",
+            color: "#fff",
+            padding: "14px 18px",
+            boxShadow: "0 4px 24px rgba(0, 0, 0, 0.22)",
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "14px 20px",
+          }}
+        >
+          <div style={{ flex: "1 1 240px", minWidth: 0, textAlign: "center", maxWidth: 560 }}>
+            <p style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>
+              Your {activeTierConfig.productName} is ready
+            </p>
+            <p style={{ margin: "8px 0 0", fontSize: 13, opacity: 0.92, lineHeight: 1.5 }}>
+              Open the full results experience for scores, insights, and sharing. We also saved this session to{" "}
+              <span style={{ fontWeight: 700, wordBreak: "break-all" }}>{postVerifyDestination.email}</span> so you
+              can reopen your link from email anytime.
+            </p>
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center" }}>
+            <button
+              type="button"
+              onClick={() => {
+                window.location.href = postVerifyDestination.resultsUrl;
+              }}
+              style={{
+                padding: "12px 22px",
+                borderRadius: 8,
+                border: "none",
+                background: "#07B0F2",
+                color: "#fff",
+                fontWeight: 700,
+                fontSize: 15,
+                cursor: "pointer",
+              }}
+            >
+              Open full results
+            </button>
+            <a
+              href={pdfDownloadPathForTier(activeTier, postVerifyDestination.reportId)}
+              style={{
+                padding: "12px 22px",
+                borderRadius: 8,
+                border: "1px solid rgba(255, 255, 255, 0.4)",
+                color: "#fff",
+                fontWeight: 600,
+                fontSize: 15,
+                textDecoration: "none",
+                display: "inline-flex",
+                alignItems: "center",
+                boxSizing: "border-box",
+              }}
+            >
+              Download PDF
+            </a>
+          </div>
+        </div>
+      )}
+
+      <div
+        className="app-shell"
+        style={postVerifyDestination ? { paddingTop: "clamp(96px, 22vw, 160px)" } : undefined}
+      >
         <section className="app-card" aria-labelledby="wundy-heading">
           <header className="app-card-header">
             <div className="app-card-avatar-wrap">
@@ -456,8 +606,50 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
               <p style={{ fontSize: '14px', color: '#5A6B7E', fontWeight: 400, textAlign: 'center', marginTop: '6px', marginBottom: 0 }}>
                 {activeTierConfig.valueProp}
               </p>
+              {isEarlyStageMode && (
+                <>
+                  <div
+                    style={{
+                      marginTop: "10px",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      border: "1px solid #07B0F233",
+                      background: "#07B0F212",
+                      color: "#065E8E",
+                      borderRadius: "999px",
+                      padding: "4px 10px",
+                      fontSize: "12px",
+                      fontWeight: 700,
+                    }}
+                    aria-label="Starter mode enabled"
+                  >
+                    Starter Mode
+                  </div>
+                  <p
+                    style={{
+                      margin: "6px 0 0",
+                      fontSize: "12px",
+                      color: "#5A6B7E",
+                      fontWeight: 500,
+                    }}
+                  >
+                    We&apos;ll focus on foundation-first moves you can act on right now.
+                  </p>
+                </>
+              )}
             </div>
           </header>
+
+          <LeadMagnetEmailCard
+            reportId={reportId}
+            turnstileToken={turnstileToken}
+            productTier={activeTier}
+            firstNameHint={customerName ?? undefined}
+            onSaved={(addr) => {
+              if (isUploadTier) setChatEmail(addr);
+            }}
+          />
 
           {/* Assessment Progress Indicator — visible after conversation starts */}
           {conversationStarted && (
@@ -504,6 +696,25 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                 tier={activeTier as "blueprint" | "blueprint-plus"}
                 sessionId={reportId || undefined}
               />
+            )}
+
+            {!isUploadTier && conversationStarted && (
+              <p
+                style={{
+                  margin: "0 0 12px",
+                  padding: "10px 12px",
+                  borderRadius: 8,
+                  background: "#F8FAFC",
+                  border: "1px solid #E2E8F0",
+                  fontSize: 12,
+                  color: "#475569",
+                  lineHeight: 1.5,
+                }}
+              >
+                <strong style={{ color: "#021859" }}>Text-only chat.</strong>{" "}
+                {activeTierConfig.productName} doesn&apos;t include a file-attachment button here — describe
+                any guidelines, decks, or visuals in your messages and Wundy™ will use that context.
+              </p>
             )}
 
             <div className="chat-panel">
@@ -604,6 +815,81 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                     }}
                   >
                     Retry
+                  </button>
+                </div>
+              )}
+
+              {resultsEntryUrl && !postVerifyDestination && (
+                <div
+                  style={{
+                    padding: "14px 12px",
+                    marginBottom: 10,
+                    borderRadius: 10,
+                    background: "linear-gradient(180deg, #E0F2FE 0%, #DBEAFE 100%)",
+                    border: "1px solid #7DD3FC",
+                  }}
+                >
+                  <p style={{ margin: "0 0 10px", fontSize: 14, fontWeight: 700, color: "#0C4A6E" }}>
+                    Your {activeTierConfig.productName} is ready
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      window.location.href = resultsEntryUrl;
+                    }}
+                    style={{
+                      width: "100%",
+                      padding: "12px 16px",
+                      borderRadius: 8,
+                      border: "none",
+                      background: "#07B0F2",
+                      color: "#fff",
+                      fontWeight: 700,
+                      fontSize: 15,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Open full diagnostic
+                  </button>
+                  {showEmailVerification && (
+                    <p style={{ margin: "10px 0 0", fontSize: 12, color: "#075985", lineHeight: 1.45 }}>
+                      If an email confirmation step is open on top of this page, complete it first — then use this
+                      button (or the bar at the top) to open your full results.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {handoffPromisedNoEntryUrl && !resultsEntryUrl && !isLoading && (
+                <div
+                  style={{
+                    padding: "12px",
+                    marginBottom: 10,
+                    borderRadius: 8,
+                    background: "#FFFBEB",
+                    border: "1px solid #FDE68A",
+                  }}
+                >
+                  <p style={{ margin: "0 0 8px", fontSize: 13, color: "#92400E", lineHeight: 1.45 }}>
+                    Still finalizing your diagnostic. If nothing happened after the last message, tap{" "}
+                    <strong>Continue</strong> — we&apos;ll try to complete the handoff.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => void sendMessage("Continue")}
+                    style={{
+                      width: "100%",
+                      padding: "10px 14px",
+                      borderRadius: 8,
+                      border: "1px solid #D97706",
+                      background: "#fff",
+                      color: "#B45309",
+                      fontWeight: 700,
+                      fontSize: 14,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Continue
                   </button>
                 </div>
               )}

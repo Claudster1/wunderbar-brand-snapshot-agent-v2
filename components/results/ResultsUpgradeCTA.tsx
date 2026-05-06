@@ -12,11 +12,14 @@ export function ResultsUpgradeCTA({
   stage,
   hasPurchasedPlus,
   email,
+  reportId,
 }: {
   primaryPillar: string;
   stage: string;
   hasPurchasedPlus: boolean;
   email?: string;
+  /** Free Snapshot report id — keeps intake when user continues to Snapshot+ checkout from the app. */
+  reportId?: string;
 }) {
   // Keep the initial render deterministic (server + first client render match),
   // then assign/read A/B variants after mount.
@@ -63,7 +66,11 @@ export function ResultsUpgradeCTA({
     });
     trackUpgradeClick({ fromTier: "snapshot", toTier: "snapshot-plus", value: 497 });
 
-    window.location.href = "/snapshot-plus";
+    const q =
+      reportId && /^[0-9a-f-]{36}$/i.test(reportId.trim())
+        ? `?baseReportId=${encodeURIComponent(reportId.trim())}`
+        : "";
+    window.location.href = `/snapshot-plus${q}`;
   };
 
   const onSecondaryClick = () => {

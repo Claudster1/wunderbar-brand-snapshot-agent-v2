@@ -35,6 +35,7 @@ function SuccessContent() {
     null
   );
   const [tierToken, setTierToken] = useState<string | null>(null);
+  const [resumeReportId, setResumeReportId] = useState<string | null>(reportId);
   const [customerEmail, setCustomerEmail] = useState<string | null>(
     emailParam || getPersistedEmail()
   );
@@ -58,6 +59,9 @@ function SuccessContent() {
           if (data?.tierToken) {
             setTierToken(data.tierToken);
           }
+          if (data?.resumeReportId) {
+            setResumeReportId(data.resumeReportId);
+          }
         })
         .catch(() => {});
     }
@@ -78,7 +82,7 @@ function SuccessContent() {
     });
   }, [product, sessionId, copy.eyebrow]);
 
-  const startHref = `/?tier=${product}${customerFirstName ? `&name=${encodeURIComponent(customerFirstName)}` : ""}${tierToken ? `&token=${encodeURIComponent(tierToken)}` : ""}`;
+  const startHref = `/?tier=${product}${customerFirstName ? `&name=${encodeURIComponent(customerFirstName)}` : ""}${tierToken ? `&token=${encodeURIComponent(tierToken)}` : ""}${resumeReportId ? `&resume=${encodeURIComponent(resumeReportId)}` : ""}`;
 
   return (
     <main

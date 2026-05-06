@@ -1,5 +1,9 @@
 // SECURITY: Use server-side env var only. Never expose webhook URLs to the client.
-const AC_WEBHOOK_URL = process.env.ACTIVECAMPAIGN_WEBHOOK_URL ?? "";
+// Align with other routes (snapshot, stripe, ac/event) so automations fire when any AC webhook URL is set.
+const AC_WEBHOOK_URL =
+  process.env.ACTIVECAMPAIGN_WEBHOOK_URL ||
+  process.env.ACTIVE_CAMPAIGN_WEBHOOK ||
+  "";
 
 export async function fireACEvent(event: {
   email?: string;

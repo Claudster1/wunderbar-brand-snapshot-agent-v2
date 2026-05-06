@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import ModalShell from "@/components/ui/ModalShell";
 import ScoreRevealModal from "@/components/ui/ScoreRevealModal";
+import { publicSnapshotAppUrl } from "@/lib/publicSnapshotAppUrl";
 
 export type SnapshotModalProps = {
   isOpen: boolean;
@@ -16,7 +17,7 @@ export type SnapshotModalProps = {
 export default function SnapshotModal({
   isOpen,
   onClose,
-  iframeSrc = "https://wunderbar-brand-snapshot-agent-v2-8.vercel.app/",
+  iframeSrc = publicSnapshotAppUrl("/"),
   resultsPathBase = "/brand-snapshot/results",
 }: SnapshotModalProps) {
   const [iframeHeight, setIframeHeight] = useState("700px");

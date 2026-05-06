@@ -27,6 +27,7 @@ export async function POST(req: Request) {
       .from("brand_snapshot_reports")
       .insert({
         id: reportId,
+        report_id: reportId,
         user_email: userEmail || null,
         brand_name: "Draft",
         brand_alignment_score: 0,

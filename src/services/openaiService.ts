@@ -18,12 +18,19 @@ const buildApiMessages = (history: BrandChatMessage[]): ApiMessage[] =>
 
 export async function getBrandSnapshotReply(
   history: BrandChatMessage[],
-  options?: { productTier?: ProductTier }
+  options?: { productTier?: ProductTier; continuationReportId?: string | null }
 ): Promise<string> {
-  const payload = {
+  const payload: {
+    messages: ReturnType<typeof buildApiMessages>;
+    productTier?: ProductTier;
+    continuationReportId?: string;
+  } = {
     messages: buildApiMessages(history),
     productTier: options?.productTier,
   };
+  if (options?.continuationReportId) {
+    payload.continuationReportId = options.continuationReportId;
+  }
 
   try {
     const response = await fetch(API_URL, {

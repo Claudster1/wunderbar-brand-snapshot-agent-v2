@@ -5,6 +5,9 @@
 
 export type CaptureKey =
   | "business_type_classifier"
+  | "website_presence"
+  | "social_platform_presence"
+  | "additional_marketing_surfaces"
   | "monthly_revenue_range"
   | "average_transaction_value"
   | "conversion_rate_estimate"
@@ -146,6 +149,38 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
         /\d\s*%|\d+\s*percent|one in \d|don'?t track|do not track|not tracking|no data|n\/a|roughly|approx|wild guess|haven'?t measured/i.test(
           t,
         );
+      return asked && answered;
+    }
+    case "website_presence": {
+      const asked =
+        /\b(website|url|web address|domain|site to share|online home|\.com)\b/i.test(la) ||
+        /\b(have (a )?website|do you have.*site)\b/i.test(la);
+      const urlAnswer =
+        /\b(https?:\/\/|www\.)\S+|[a-z0-9][-a-z0-9]{0,48}\.(com|io|ai|co|org|net|app|dev|us|uk|shop)\b/i.test(t);
+      const noSite =
+        /\b(no|nope|don'?t|do not) (have|got)|not yet|no website|no site|instagram only|facebook only|linkedin only|linktr|linktree|etsy only|marketplace only|coming soon|building (the )?site|not live\b/i.test(
+          t,
+        );
+      return asked && (urlAnswer || noSite);
+    }
+    case "social_platform_presence": {
+      const asked =
+        /\b(social|instagram|linkedin|tiktok|platforms|show up|handles?|profiles?)\b/i.test(la);
+      const answered =
+        /\b(instagram|ig|linkedin|tiktok|facebook|fb|meta|youtube|yt|threads|twitter|\bx\b|pinterest|snapchat|reddit|bluesky|none|not really|not active|don'?t use|skip|n\/a)\b/i.test(t) ||
+        /@[a-z0-9_]{2,}/i.test(t) ||
+        terseMultiItemAllMatch(t, 2, CHUNK_CHANNEL);
+      return asked && answered;
+    }
+    case "additional_marketing_surfaces": {
+      const asked =
+        /\b(outside|beyond|other channels|marketing surfaces|investing attention|else are you|beyond your (website|site))\b/i.test(
+          la,
+        );
+      const answered =
+        /\b(email|newsletter|seo|search|content|paid|ads?|ppc|events?|webinars?|partners|referrals|word of mouth|wom|podcast|pr\b|nothing else|not much|mostly|just|only organic)\b/i.test(
+          t,
+        ) || terseMultiItemAllMatch(t, 2, CHUNK_CHANNEL);
       return asked && answered;
     }
     case "primary_acquisition_channel": {

@@ -17,7 +17,6 @@ import { ChatMarkdown, renderChatMarkdownInline } from "@/components/chat/ChatMa
 import WundyLogo from "@/src/assets/wundy-logo.jpeg";
 import { staticImageUrl } from "@/lib/staticImageUrl";
 import { getPersistedEmail, persistEmail } from "@/lib/persistEmail";
-import { LeadMagnetEmailCard } from "@/components/lead/LeadMagnetEmailCard";
 import { assistantPromisedExternalResultsEntry } from "@/lib/intake/assistantFinalHandoff";
 import { ResultsScoreTeaserGate } from "@/components/diagnostic/ResultsScoreTeaserGate";
 
@@ -100,9 +99,22 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
       .replace(/let's begin\./i, "But first — what's your name?");
   }, [activeTierConfig, customerName]);
 
-  // When the assessment completes, show email verification instead of auto-redirecting
+  // When the assessment completes: if we already have a persisted email, skip the OTP gate and go straight to results bar (single capture).
   const handleAssessmentComplete = useCallback((completedReportId: string, redirectUrl: string) => {
     pendingRedirectRef.current = redirectUrl;
+    if (typeof window !== "undefined") {
+      const existing = getPersistedEmail();
+      if (existing && existing.includes("@")) {
+        setEmailVerified(true);
+        setShowEmailVerification(false);
+        setPostVerifyDestination({
+          resultsUrl: redirectUrl,
+          reportId: completedReportId,
+          email: existing,
+        });
+        return;
+      }
+    }
     setShowEmailVerification(true);
   }, []);
 
@@ -127,20 +139,6 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     productTier: activeTier,
     resumeHoldUntilValidated,
   });
-
-  const handleScoreTeaserUnlocked = useCallback(
-    (detail: { email: string; reportId: string; redirectUrl: string }) => {
-      applyScoreTeaserUnlock(detail.redirectUrl, detail.reportId);
-      setShowEmailVerification(false);
-      setEmailVerified(true);
-      setPostVerifyDestination({
-        resultsUrl: detail.redirectUrl,
-        reportId: detail.reportId,
-        email: detail.email,
-      });
-    },
-    [applyScoreTeaserUnlock],
-  );
   const [inputValue, setInputValue] = useState("");
   const [progress, setProgress] = useState(0);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
@@ -170,15 +168,13 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
   const isUploadTier = activeTier === "blueprint" || activeTier === "blueprint-plus";
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
-  useEffect(() => {
+
+  /** Blueprint uploads need an email on the upload API — sync from localStorage whenever it may have changed. */
+  const syncChatEmailFromStorage = useCallback(() => {
     if (!isUploadTier) return;
-    const tryLoadEmail = async () => {
-      const { getPersistedEmail } = await import("@/lib/persistEmail");
-      const email = getPersistedEmail();
-      if (email) setChatEmail(email);
-    };
-    tryLoadEmail();
-  }, [isUploadTier, messages.length]);
+    const email = getPersistedEmail();
+    if (email) setChatEmail(email);
+  }, [isUploadTier]);
 
   const handleFileUpload = useCallback(async (file: File) => {
     if (!chatEmail || isUploading) return;
@@ -221,6 +217,25 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     reportId: string;
     email: string;
   } | null>(null);
+
+  useEffect(() => {
+    syncChatEmailFromStorage();
+  }, [syncChatEmailFromStorage, messages.length, postVerifyDestination?.email, emailVerified]);
+
+  const handleScoreTeaserUnlocked = useCallback(
+    (detail: { email: string; reportId: string; redirectUrl: string }) => {
+      applyScoreTeaserUnlock(detail.redirectUrl, detail.reportId);
+      setShowEmailVerification(false);
+      setEmailVerified(true);
+      setPostVerifyDestination({
+        resultsUrl: detail.redirectUrl,
+        reportId: detail.reportId,
+        email: detail.email,
+      });
+      syncChatEmailFromStorage();
+    },
+    [applyScoreTeaserUnlock, syncChatEmailFromStorage],
+  );
 
   const isEarlyStageMode = useMemo(() => {
     const userCorpus = messages
@@ -287,6 +302,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
       }
       setSaveStatus("saved");
       setSaveErrorMessage(null);
+      syncChatEmailFromStorage();
     } catch (error) {
       const raw =
         error instanceof Error && error.message
@@ -305,13 +321,6 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
 
   // Only show save/skip after the conversation has started (more than just the greeting)
   const conversationStarted = messages.filter((m) => m.role === "user").length >= 1;
-
-  /** Lead email after name + at least one follow-up (usually company / what you do) — reduces drop-off from email-first friction. */
-  const userTurnCount = useMemo(
-    () => messages.filter((m) => m.role === "user").length,
-    [messages],
-  );
-  const showLeadMagnetEmailCard = userTurnCount >= 2;
 
   useEffect(() => {
     if (isLoading) {
@@ -515,6 +524,9 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
             persistEmail(verifiedEmail);
             setEmailVerified(true);
             setShowEmailVerification(false);
+            if (activeTier === "blueprint" || activeTier === "blueprint-plus") {
+              setChatEmail(verifiedEmail);
+            }
             const url = pendingRedirectRef.current;
             const rid = reportId;
             if (url && rid) {
@@ -669,7 +681,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
             </div>
           </header>
 
-          {/* Progress first — momentum before the email ask (completion-optimized ordering). */}
+          {/* Progress during the conversation */}
           {conversationStarted && (
             <div className="assessment-progress-wrap">
               <div className="assessment-progress-bar">
@@ -691,18 +703,6 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                 <span>{assessmentProgress}% complete</span>
               </div>
             </div>
-          )}
-
-          {showLeadMagnetEmailCard && (
-            <LeadMagnetEmailCard
-              reportId={reportId}
-              turnstileToken={turnstileToken}
-              productTier={activeTier}
-              firstNameHint={customerName ?? undefined}
-              onSaved={(addr) => {
-                if (isUploadTier) setChatEmail(addr);
-              }}
-            />
           )}
 
           <div className="app-body">

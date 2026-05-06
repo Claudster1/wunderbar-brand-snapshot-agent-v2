@@ -310,12 +310,16 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     if (resumeId) {
       if (options?.resumeHoldUntilValidated) return;
 
-      if (resumeLoadedReportIdRef.current === resumeId) return;
-      resumeLoadedReportIdRef.current = resumeId;
+      const ac = new AbortController();
 
-      fetch(`/api/snapshot/resume?reportId=${encodeURIComponent(resumeId)}`)
-        .then((res) => res.json())
+      fetch(`/api/snapshot/resume?reportId=${encodeURIComponent(resumeId)}`, { signal: ac.signal })
+        .then((res) => {
+          if (ac.signal.aborted) return null;
+          return res.json();
+        })
         .then((data) => {
+          if (ac.signal.aborted || data == null) return;
+
           const resumeOk =
             data.reportId &&
             (data.continuationMode === 'answers_only' || data.progress != null);
@@ -323,6 +327,9 @@ export function useBrandChat(options?: UseBrandChatOptions) {
             createDraft();
             return;
           }
+
+          if (resumeLoadedReportIdRef.current === resumeId) return;
+          resumeLoadedReportIdRef.current = resumeId;
 
           setReportId(data.reportId);
           sessionStorage.setItem('wundy_report_id', data.reportId);
@@ -357,17 +364,27 @@ export function useBrandChat(options?: UseBrandChatOptions) {
             const answeredCount = savedMessages.filter((m: BrandChatMessage) => m.role === 'user').length;
             const resumeGreeting = buildResumeGreeting(firstName, lastTopic, answeredCount, TOTAL_QUESTIONS);
             const resumeMessage = createMessage('assistant', resumeGreeting);
-            setMessages([...savedMessages, resumeMessage]);
+            const last = savedMessages[savedMessages.length - 1];
+            const alreadyHasSameResume =
+              last?.role === 'assistant' && last.text.trim() === resumeGreeting.trim();
+            setMessages(alreadyHasSameResume ? savedMessages : [...savedMessages, resumeMessage]);
             continuationReportIdForApiRef.current = null;
             return;
           }
 
           createDraft();
         })
-        .catch(() => {
+        .catch((err: unknown) => {
+          if (ac.signal.aborted) return;
+          const name =
+            typeof err === 'object' && err !== null && 'name' in err ? (err as { name: string }).name : '';
+          if (name === 'AbortError') return;
           createDraft();
         });
-      return;
+
+      return () => {
+        ac.abort();
+      };
     }
 
     if (isInitialized.current) return;
@@ -990,6 +1007,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     setLastFailedInput(null);
     setResultsEntryUrl(null);
     setPendingScoreTeaser(null);
+    resumeLoadedReportIdRef.current = null;
   };
 
   // Calculate assessment progress based on assistant question count

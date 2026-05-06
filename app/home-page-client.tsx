@@ -651,19 +651,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
             </div>
           </header>
 
-          {showLeadMagnetEmailCard && (
-            <LeadMagnetEmailCard
-              reportId={reportId}
-              turnstileToken={turnstileToken}
-              productTier={activeTier}
-              firstNameHint={customerName ?? undefined}
-              onSaved={(addr) => {
-                if (isUploadTier) setChatEmail(addr);
-              }}
-            />
-          )}
-
-          {/* Assessment Progress Indicator — visible after conversation starts */}
+          {/* Progress first — momentum before the email ask (completion-optimized ordering). */}
           {conversationStarted && (
             <div className="assessment-progress-wrap">
               <div className="assessment-progress-bar">
@@ -685,6 +673,18 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                 <span>{assessmentProgress}% complete</span>
               </div>
             </div>
+          )}
+
+          {showLeadMagnetEmailCard && (
+            <LeadMagnetEmailCard
+              reportId={reportId}
+              turnstileToken={turnstileToken}
+              productTier={activeTier}
+              firstNameHint={customerName ?? undefined}
+              onSaved={(addr) => {
+                if (isUploadTier) setChatEmail(addr);
+              }}
+            />
           )}
 
           <div className="app-body">

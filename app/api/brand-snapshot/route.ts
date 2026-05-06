@@ -12,6 +12,7 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 import { randomUUID } from "crypto";
 import { completeWithFallback, type ChatMessage } from "@/lib/ai";
 import {
+  captureKeySatisfiedFromHistory,
   flexibleDirectCaptureComplete,
   isBareAffirmOrDeny,
   type CaptureKey,
@@ -462,7 +463,8 @@ function getCaptureStates(
           6,
         ) ||
         refused(/\b(other channels|marketing surfaces|beyond your site|outside your)\b/i) ||
-        flexibleDirectCaptureComplete("additional_marketing_surfaces", la, lu),
+        flexibleDirectCaptureComplete("additional_marketing_surfaces", la, lu) ||
+        captureKeySatisfiedFromHistory("additional_marketing_surfaces", messages),
     },
     {
       key: "monthly_revenue_range",
@@ -551,7 +553,8 @@ function getCaptureStates(
           5,
         ) ||
         refused(/\bcompetitor|competitive pressure|lose deals|win[- ]?loss|why (they|customers) pick\b/i) ||
-        flexibleDirectCaptureComplete("competitive_pressure_point", la, lu),
+        flexibleDirectCaptureComplete("competitive_pressure_point", la, lu) ||
+        captureKeySatisfiedFromHistory("competitive_pressure_point", messages),
     },
     {
       key: "has_email_list",

@@ -18,6 +18,7 @@ import WundyLogo from "@/src/assets/wundy-logo.jpeg";
 import { staticImageUrl } from "@/lib/staticImageUrl";
 import { getPersistedEmail, persistEmail } from "@/lib/persistEmail";
 import { LeadMagnetEmailCard } from "@/components/lead/LeadMagnetEmailCard";
+import { assistantPromisedExternalResultsEntry } from "@/lib/intake/assistantFinalHandoff";
 
 export type HomePageClientProps = {
   tierParam: string | null;
@@ -218,12 +219,8 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     if (resultsEntryUrl || isLoading) return false;
     const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
     if (!lastAssistant) return false;
-    const t = lastAssistant.text.toLowerCase();
     return (
-      (t.includes("being generated") ||
-        t.includes("results will appear below") ||
-        t.includes("appear below") ||
-        t.includes("open full diagnostic")) &&
+      assistantPromisedExternalResultsEntry(lastAssistant.text) &&
       messages.filter((m) => m.role === "user").length >= 3
     );
   }, [messages, resultsEntryUrl, isLoading]);

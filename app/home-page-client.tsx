@@ -99,9 +99,22 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
       .replace(/let's begin\./i, "But first — what's your name?");
   }, [activeTierConfig, customerName]);
 
-  // When the assessment completes, show email verification instead of auto-redirecting
+  // When the assessment completes: if we already have a persisted email, skip the OTP gate and go straight to results bar (single capture).
   const handleAssessmentComplete = useCallback((completedReportId: string, redirectUrl: string) => {
     pendingRedirectRef.current = redirectUrl;
+    if (typeof window !== "undefined") {
+      const existing = getPersistedEmail();
+      if (existing && existing.includes("@")) {
+        setEmailVerified(true);
+        setShowEmailVerification(false);
+        setPostVerifyDestination({
+          resultsUrl: redirectUrl,
+          reportId: completedReportId,
+          email: existing,
+        });
+        return;
+      }
+    }
     setShowEmailVerification(true);
   }, []);
 

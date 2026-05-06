@@ -289,6 +289,13 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
   // Only show save/skip after the conversation has started (more than just the greeting)
   const conversationStarted = messages.filter((m) => m.role === "user").length >= 1;
 
+  /** Lead email after name + at least one follow-up (usually company / what you do) — reduces drop-off from email-first friction. */
+  const userTurnCount = useMemo(
+    () => messages.filter((m) => m.role === "user").length,
+    [messages],
+  );
+  const showLeadMagnetEmailCard = userTurnCount >= 2;
+
   useEffect(() => {
     if (isLoading) {
       setProgress(0);
@@ -644,15 +651,17 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
             </div>
           </header>
 
-          <LeadMagnetEmailCard
-            reportId={reportId}
-            turnstileToken={turnstileToken}
-            productTier={activeTier}
-            firstNameHint={customerName ?? undefined}
-            onSaved={(addr) => {
-              if (isUploadTier) setChatEmail(addr);
-            }}
-          />
+          {showLeadMagnetEmailCard && (
+            <LeadMagnetEmailCard
+              reportId={reportId}
+              turnstileToken={turnstileToken}
+              productTier={activeTier}
+              firstNameHint={customerName ?? undefined}
+              onSaved={(addr) => {
+                if (isUploadTier) setChatEmail(addr);
+              }}
+            />
+          )}
 
           {/* Assessment Progress Indicator — visible after conversation starts */}
           {conversationStarted && (

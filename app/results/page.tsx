@@ -44,6 +44,8 @@ import { normalizeBrandImageryDirection } from "@/lib/brand/brandImageryNormaliz
 import { TAB_SECTION_NAV_HINT_CHIPS_ONLY } from "@/lib/copy/resultsSuiteGuidance";
 import { resolveRuntimeBaseUrlForServerFetch } from "@/lib/server/runtimeBaseUrl";
 import { SUITE_CHIP_CARD_STYLE, SUITE_SECTION_KICKER_CLASS } from "@/components/results/suiteBrandTokens";
+import { SnapshotResultsLeadEmail } from "@/app/results/components/SnapshotResultsLeadEmail";
+import { getChatTierConfig, type ChatTier } from "@/lib/chatTierConfig";
 
 const PillarBreakdown = nextDynamic(
   () => import("@/components/PillarBreakdown").then((m) => ({ default: m.PillarBreakdown })),
@@ -439,6 +441,15 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       : productTier === "blueprint_plus"
         ? "blueprint-plus"
         : productTier;
+  const showSnapshotLeadEmail =
+    (productTier === "snapshot" || productTier === "snapshot_plus") &&
+    !(typeof data.userEmail === "string" && data.userEmail.trim());
+  const snapshotLeadChatTier: ChatTier = productTier === "snapshot_plus" ? "snapshot-plus" : "snapshot";
+  const snapshotLeadProductName = getChatTierConfig(snapshotLeadChatTier).productName;
+  const snapshotLeadFirstNameHint =
+    typeof reportAnswers.userName === "string" && reportAnswers.userName.trim()
+      ? reportAnswers.userName.trim().split(/\s+/)[0]
+      : undefined;
   const upstreamPillar = getUpstreamPillar(data.pillarScores, primaryPillarStr);
   const primaryRecommendation = recommendationsList[0] ?? "Align your top-of-funnel narrative to the strongest audience need.";
   const competitiveSeverity: SignalSeverity =
@@ -687,6 +698,17 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
           }}
         />
       </section>
+
+      {showSnapshotLeadEmail ? (
+        <div id="email-results" className="scroll-mt-28 px-4 sm:px-0">
+          <SnapshotResultsLeadEmail
+            reportId={data.reportId}
+            productTier={snapshotLeadChatTier === "snapshot-plus" ? "snapshot-plus" : "snapshot"}
+            productName={snapshotLeadProductName}
+            {...(snapshotLeadFirstNameHint ? { firstNameHint: snapshotLeadFirstNameHint } : {})}
+          />
+        </div>
+      ) : null}
 
       <ResultsSuiteVisualSummary pillars={data.pillarScores} />
 

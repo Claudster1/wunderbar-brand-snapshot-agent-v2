@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  assistantAskedDedicatedSocialPlatformPresence,
   captureKeySatisfiedFromHistory,
   flexibleDirectCaptureComplete,
+  socialPresenceImmediateRefusalAfterDedicatedPrompt,
   splitTerseEnumeration,
   type CaptureKey,
 } from "../lib/intake/flexibleDirectCaptureComplete";
@@ -25,6 +27,8 @@ const LA = {
   avgDeal: "About what is your average transaction value or deal size today?",
   conversion: "What is your approximate conversion or close rate today, if you track it?",
   channel: "Where do most new customers find you right now?",
+  acquisitionForcedPrompt:
+    "**Where do most new customers find you right now** — referral, organic search, social, paid ads, direct, events, or something else? Whatever comes to mind first is fine.",
   budget: "What is your approximate monthly marketing budget today?",
   content: "How much time can your team realistically invest in content creation each week?",
   competitive:
@@ -35,8 +39,12 @@ const LA = {
   channelMix: "Where are you showing up for people lately — email, social, paid, or something else?",
   website: "Do you have a website URL to share today — even a simple landing page?",
   socialPlatforms: "Where does your brand show up on social today?",
+  socialParaphrasePlatformsMatter:
+    "**Quick question — which platforms actually matter for the brand socially right now**, even if you are pretty quiet?",
   otherSurfaces:
     "Outside your website and those socials, where else are you investing attention — email, SEO, paid, or mostly referrals?",
+  leadMagnetForcedPrompt:
+    "**Do you have any free download, template, guide, or similar** that people get in exchange for their email? Lots of brands also mention email + social campaigns here — ignoring that for now.",
 } as const;
 
 describe("flexibleDirectCaptureComplete", () => {
@@ -87,6 +95,47 @@ describe("flexibleDirectCaptureComplete", () => {
       expect(flexibleDirectCaptureComplete("social_platform_presence", LA.socialPlatforms, "not really active")).toBe(
         true,
       );
+      expect(flexibleDirectCaptureComplete("social_platform_presence", LA.socialPlatforms, "linked in only")).toBe(
+        true,
+      );
+      expect(flexibleDirectCaptureComplete("social_platform_presence", LA.socialPlatforms, "Mastodon")).toBe(true);
+      expect(flexibleDirectCaptureComplete("social_platform_presence", LA.socialPlatforms, "linkedin")).toBe(true);
+      expect(flexibleDirectCaptureComplete("social_platform_presence", LA.socialPlatforms, "no")).toBe(true);
+    });
+
+    it("accepts a long narrative reply that includes a platform mid-paragraph", () => {
+      const long =
+        "Thanks for asking — right now we are pretty heads-down on product. Our main public touchpoint is occasional thought leadership on LinkedIn because that is where buyers actually hang out for us. We are not doing Instagram reels or TikTok; it has just not been a priority this quarter versus shipping.";
+      expect(flexibleDirectCaptureComplete("social_platform_presence", LA.socialPlatforms, long)).toBe(true);
+    });
+
+    it("accepts a long low-activity answer without naming a platform", () => {
+      const long =
+        "Honestly we have been almost entirely outbound and partner intros. Posting is basically nonexistent — we might reshare something once in a blue moon but there is no steady social rhythm or follower play right now.";
+      expect(flexibleDirectCaptureComplete("social_platform_presence", LA.socialPlatforms, long)).toBe(true);
+    });
+
+    it("does not confuse acquisition-channel mix ('organic + paid social') with owned social surfaces", () => {
+      expect(
+        flexibleDirectCaptureComplete("social_platform_presence", LA.socialPlatforms, "organic and paid social"),
+      ).toBe(false);
+    });
+
+    it("still accepts terse 'social + platform' mixes", () => {
+      expect(flexibleDirectCaptureComplete("social_platform_presence", LA.socialPlatforms, "social and tiktok")).toBe(
+        true,
+      );
+    });
+
+    it("accepts model paraphrases that ask which platforms matter without saying 'on social'", () => {
+      expect(assistantAskedDedicatedSocialPlatformPresence(LA.socialParaphrasePlatformsMatter)).toBe(true);
+      expect(
+        flexibleDirectCaptureComplete(
+          "social_platform_presence",
+          LA.socialParaphrasePlatformsMatter,
+          "Pretty much just LinkedIn.",
+        ),
+      ).toBe(true);
     });
   });
 
@@ -182,7 +231,34 @@ describe("flexibleDirectCaptureComplete", () => {
   });
 });
 
+describe("assistantAskedDedicatedSocialPlatformPresence", () => {
+  it("matches dedicated Snapshot social prompts", () => {
+    expect(assistantAskedDedicatedSocialPlatformPresence(LA.socialPlatforms)).toBe(true);
+  });
+  it("does not treat acquisition channel, carousel channel-mix, or beyond-site prompts as dedicated social asks", () => {
+    expect(assistantAskedDedicatedSocialPlatformPresence(LA.channel)).toBe(false);
+    expect(assistantAskedDedicatedSocialPlatformPresence(LA.channelMix)).toBe(false);
+    expect(assistantAskedDedicatedSocialPlatformPresence(LA.otherSurfaces)).toBe(false);
+    expect(assistantAskedDedicatedSocialPlatformPresence(LA.acquisitionForcedPrompt)).toBe(false);
+    expect(assistantAskedDedicatedSocialPlatformPresence(LA.leadMagnetForcedPrompt)).toBe(false);
+    expect(assistantAskedDedicatedSocialPlatformPresence(LA.cta)).toBe(false);
+  });
+});
+
 describe("captureKeySatisfiedFromHistory", () => {
+  it("marks social_platform_presence complete when a thank-you assistant turn breaks latest la/lu pairing", () => {
+    const messages = [
+      { role: "assistant", content: LA.website },
+      { role: "user", content: "https://northline.example" },
+      { role: "assistant", content: LA.socialPlatforms },
+      { role: "user", content: "Mostly LinkedIn and Instagram." },
+      { role: "assistant", content: "Thanks — that helps. One more on channels." },
+      { role: "user", content: "email newsletter monthly" },
+    ];
+    expect(captureKeySatisfiedFromHistory("social_platform_presence", messages)).toBe(true);
+    expect(captureKeySatisfiedFromHistory("website_presence", messages)).toBe(true);
+  });
+
   it("marks competitive_pressure complete when a model follow-up breaks last-user / last-assistant pairing", () => {
     const messages = [
       { role: "assistant", content: LA.otherSurfaces },
@@ -203,5 +279,38 @@ describe("captureKeySatisfiedFromHistory", () => {
       { role: "assistant", content: "What is your favorite color?" },
     ];
     expect(captureKeySatisfiedFromHistory("competitive_pressure_point", messages)).toBe(false);
+  });
+
+  it("does not pair acquisition-channel Q&A with social_platform_presence", () => {
+    const messages = [
+      { role: "assistant", content: LA.channel },
+      { role: "user", content: "Mostly LinkedIn and referrals." },
+    ];
+    expect(captureKeySatisfiedFromHistory("social_platform_presence", messages)).toBe(false);
+  });
+
+  it("does not pair carousel email/social/paid prompts with social_platform_presence", () => {
+    const messages = [
+      { role: "assistant", content: LA.channelMix },
+      { role: "user", content: "LinkedIn plus some paid search." },
+    ];
+    expect(captureKeySatisfiedFromHistory("social_platform_presence", messages)).toBe(false);
+  });
+
+  it("does not pair beyond-site / socials-bridge prompts with social_platform_presence", () => {
+    const messages = [
+      { role: "assistant", content: LA.otherSurfaces },
+      { role: "user", content: "Mostly TikTok snippets + weekly newsletter." },
+    ];
+    expect(captureKeySatisfiedFromHistory("social_platform_presence", messages)).toBe(false);
+  });
+
+  it("marks social_platform_presence complete on immediate refusal after a dedicated social ask", () => {
+    const messages = [
+      { role: "assistant", content: LA.socialPlatforms },
+      { role: "user", content: "I'd prefer not to answer that." },
+    ];
+    expect(captureKeySatisfiedFromHistory("social_platform_presence", messages)).toBe(false);
+    expect(socialPresenceImmediateRefusalAfterDedicatedPrompt(messages)).toBe(true);
   });
 });

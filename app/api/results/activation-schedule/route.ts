@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import * as XLSX from "xlsx";
+import writeXlsxFile from "write-excel-file/node";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { apiGuard } from "@/lib/security/apiGuard";
 import { GENERAL_RATE_LIMIT } from "@/lib/security/rateLimit";
@@ -77,6 +77,25 @@ function buildRows({
   return rows;
 }
 
+/** Column order and widths for the activation schedule export. */
+const ROW_KEYS: (keyof Row)[] = [
+  "Week",
+  "Channel",
+  "Content Type",
+  "Audience Segment",
+  "Funnel Stage",
+  "Message Pillar",
+  "Asset / Topic",
+  "Primary CTA",
+  "Owner",
+  "Status",
+  "Due Date",
+  "KPI Target",
+  "Result",
+];
+
+const COLUMN_WIDTHS = [8, 12, 14, 18, 16, 18, 42, 18, 14, 12, 12, 14, 12];
+
 export async function GET(req: Request) {
   const guard = apiGuard(req, {
     routeId: "results-activation-schedule",
@@ -127,16 +146,20 @@ export async function GET(req: Request) {
   );
 
   const rows = buildRows({ recommendations, messagePillars, startDate });
-  const workbook = XLSX.utils.book_new();
-  const sheet = XLSX.utils.json_to_sheet(rows);
-  XLSX.utils.book_append_sheet(workbook, sheet, "Activation Schedule");
-  const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
+  const headerRow = ROW_KEYS.map((k) => k);
+  const dataRows = rows.map((r) => ROW_KEYS.map((k) => r[k]));
+  const sheetData = [headerRow, ...dataRows];
+  const output = writeXlsxFile(sheetData, {
+    sheet: "Activation Schedule",
+    columns: COLUMN_WIDTHS.map((width) => ({ width })),
+  });
+  const buffer = await output.toBuffer();
 
   const company = (data as { company_name?: string }).company_name || "brand";
   const safeCompany = company.replace(/[^a-z0-9-_]+/gi, "_");
   const filename = `${safeCompany}_activation_schedule.xlsx`;
 
-  return new NextResponse(buffer as BodyInit, {
+  return new NextResponse(Buffer.from(buffer), {
     status: 200,
     headers: {
       "Content-Type":

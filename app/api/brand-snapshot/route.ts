@@ -11,12 +11,16 @@ import { wundyEarlyStageBuildModeFragment } from "@/src/prompts/wundyEarlyStageB
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { randomUUID } from "crypto";
 import { completeWithFallback, type ChatMessage } from "@/lib/ai";
+import { CAPTURE_REFUSAL_PATTERN } from "@/lib/intake/captureRefusal";
 import {
+  assistantAskedDedicatedSocialPlatformPresence,
   captureKeySatisfiedFromHistory,
   flexibleDirectCaptureComplete,
   isBareAffirmOrDeny,
+  socialPresenceImmediateRefusalAfterDedicatedPrompt,
   type CaptureKey,
 } from "@/lib/intake/flexibleDirectCaptureComplete";
+import { dedupeAssistantRepeatedParagraphChunks } from "@/lib/assistantCopy/dedupeAssistantParagraphRepeats";
 import { sanitizeTierAssistantReply } from "@/lib/assistantCopy/sanitizeTierAssistantReply";
 import type { ChatTier } from "@/lib/chatTierConfig";
 
@@ -334,8 +338,7 @@ function modelFacingCaptureHint(key: CaptureKey): string {
   }
 }
 
-const REFUSAL_PATTERN =
-  /\b(skip|prefer not to answer|rather not|don'?t want to|do not want to|not sure|unsure|unknown|i don'?t know|\bidk\b|\bdunno\b|beats me|n\/a|no idea|rather skip|pass on (that|this)|not comfortable (sharing|answering)|hard to say|couldn'?t tell you)\b/i;
+const REFUSAL_PATTERN = CAPTURE_REFUSAL_PATTERN;
 
 function getCaptureStates(
   messages: Array<{ role: string; content: string }>,
@@ -425,24 +428,16 @@ function getCaptureStates(
           6,
         ) ||
         refused(/\b(website|url|domain|your site|web address)\b/i) ||
-        flexibleDirectCaptureComplete("website_presence", la, lu),
+        flexibleDirectCaptureComplete("website_presence", la, lu) ||
+        captureKeySatisfiedFromHistory("website_presence", messages),
     },
     {
       key: "social_platform_presence",
       label: "social platform presence",
       completed:
-        hasRecentUserSignal(
-          messages,
-          /@[a-z0-9_]{2,}|\b(instagram|ig|linkedin|tiktok|facebook|fb|meta|youtube|yt|threads|twitter|\bx\b|pinterest|snapchat|reddit|bluesky)\b/i,
-          6,
-        ) ||
-        hasRecentUserSignal(
-          messages,
-          /\b(not (on|using)|don'?t use|no social|inactive on social|barely post|we skip social|not really on social|none yet|not active)\b/i,
-          6,
-        ) ||
-        refused(/\b(social platforms?|instagram|linkedin|tiktok|where.*social)\b/i) ||
-        flexibleDirectCaptureComplete("social_platform_presence", la, lu),
+        socialPresenceImmediateRefusalAfterDedicatedPrompt(messages) ||
+        flexibleDirectCaptureComplete("social_platform_presence", la, lu) ||
+        captureKeySatisfiedFromHistory("social_platform_presence", messages),
     },
     {
       key: "additional_marketing_surfaces",
@@ -821,6 +816,26 @@ function shouldForceCapturePrompt(finalContent: string, forcedPrompt: string, pe
   return true;
 }
 
+/** Observability for regex drift — extend `assistantAskedDedicatedSocialPlatformPresence` using logged `outboundPreview`. */
+function maybeWarnSocialDedicatedPromptDetectorGap(
+  pendingKey: CaptureKey | undefined,
+  outboundReply: string,
+  replacedWithApprovedWording: boolean,
+): void {
+  if (!pendingKey || pendingKey !== "social_platform_presence") return;
+  if (assistantAskedDedicatedSocialPlatformPresence(outboundReply)) return;
+
+  logger.warn(
+    "[brand-snapshot intake] social_platform_presence pending but outbound reply did not match dedicated-social prompt heuristics",
+    {
+      intakeEvent: "social_presence_prompt_detector_gap",
+      replacedWithApprovedWording,
+      outboundPreview: normalizedCapturePromptSlice(outboundReply).slice(0, 360),
+      outboundLength: outboundReply.length,
+    },
+  );
+}
+
 function normalizeBusinessTypeLabel(raw: unknown): BusinessType | null {
   if (typeof raw !== "string") return null;
   const value = raw.trim().toLowerCase();
@@ -1178,6 +1193,7 @@ export async function POST(req: Request) {
     const fallbackMessage =
       "Sorry, I had trouble creating your WunderBrand Snapshot™. Please try again.";
     let finalContent = completion.content || fallbackMessage;
+    let replacedSocialCaptureWithApprovedWording = false;
 
     // Hard guard: if required capture is still pending but model drifted, force the expected question.
     if (
@@ -1186,12 +1202,21 @@ export async function POST(req: Request) {
       shouldForceCapturePrompt(finalContent, forcedCapturePrompt, nextPendingCapture.key)
     ) {
       finalContent = forcedCapturePrompt;
+      replacedSocialCaptureWithApprovedWording = nextPendingCapture.key === "social_platform_presence";
     }
+
+    finalContent = dedupeAssistantRepeatedParagraphChunks(finalContent);
 
     finalContent = sanitizeTierAssistantReply(finalContent, {
       hasInChatUploads: hasChatAssetUploads,
       intakeTier: intakeTier as ChatTier,
     });
+
+    maybeWarnSocialDedicatedPromptDetectorGap(
+      nextPendingCapture?.key,
+      finalContent,
+      replacedSocialCaptureWithApprovedWording,
+    );
 
     return NextResponse.json({
       content: finalContent,

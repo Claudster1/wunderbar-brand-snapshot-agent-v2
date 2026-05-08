@@ -3,6 +3,8 @@
  * Uses general rules for common chat patterns (e.g. comma / "and" lists mirroring option-style questions).
  */
 
+import { CAPTURE_REFUSAL_PATTERN } from "@/lib/intake/captureRefusal";
+
 export type CaptureKey =
   | "business_type_classifier"
   | "website_presence"
@@ -51,6 +53,13 @@ const ENUM_ITEM_MAX_LEN = 44;
 
 const MEANINGLESS_ACK_ONLY = /^(ok+|k\.?|kk|thanks?!?|thank you|ty|got it|cool|sure|nice|great|perfect)\.?$/i;
 
+/** Narrative answers are typical — skipping the global 200-char cap avoids false incomplete captures & repeat questions. */
+const FLEXIBLE_CAPTURE_ALLOWS_LONG_REPLY: CaptureKey[] = [
+  "social_platform_presence",
+  "website_presence",
+  "additional_marketing_surfaces",
+];
+
 /**
  * Splits user text into items when people answer option-style questions as lists
  * ("x and y", "x, y", "x / y", "x + y", "x or y") — general pattern, not question-specific.
@@ -75,9 +84,163 @@ const CHUNK_COMPETITIVE_FACTOR = (chunk: string) =>
   );
 
 const CHUNK_CHANNEL = (chunk: string) =>
-  /\b(organic|seo|search|google|referral|referrals|social|linkedin|instagram|tiktok|facebook|fb|meta|youtube|yt|paid|ppc|sem|ads?|direct|email|events|wom|word of mouth|pr\b|newsletter|podcast|content|cold|outbound|inbound|partners|partner|marketplace|community|threads|pinterest|snapchat|reddit)\b/i.test(
+  /\b(organic|seo|search|google|referral|referrals|social|linked\s*in|linkedin|instagram|tiktok|facebook|fb|meta|youtube|yt|paid|ppc|sem|ads?|direct|email|events|wom|word of mouth|pr\b|newsletter|podcast|content|cold|outbound|inbound|partners|partner|marketplace|community|threads|pinterest|snapchat|reddit|mastodon|discord|twitch|telegram|slack|medium|substack|behance|dribbble|github)\b/i.test(
     chunk,
   );
+
+/** Named networks / surfaces — distinct from generic channel words like "organic" or "paid social". */
+const SOCIAL_PLATFORM_TOKEN_RE =
+  /\b(instagram|ig|linked\s*in|linkedin|tiktok|facebook|fb|meta|youtube|yt|threads|twitter|\bx\b|pinterest|snapchat|reddit|bluesky|mastodon|discord|twitch|medium|substack|be\s*real|whatsapp|telegram|behance|dribbble|github|slack|tik tok)\b/i;
+
+function isOrganicPaidSocialBundlePhrase(chunk: string): boolean {
+  return /^(organic|paid|native|programmatic)\s+social$/i.test(chunk.trim());
+}
+
+function chunkIsExplicitSocialPlatformName(chunk: string): boolean {
+  if (isOrganicPaidSocialBundlePhrase(chunk)) return false;
+  return SOCIAL_PLATFORM_TOKEN_RE.test(chunk.trim());
+}
+
+/**
+ * Lists like "LinkedIn + Instagram" count; "organic and paid social" does not — those are acquisition
+ * mix phrases where every terse chunk matches CHUNK_CHANNEL but names no owned profile.
+ */
+function socialPresenceTerseListSignal(t: string): boolean {
+  const chunks = splitTerseEnumeration(t);
+  if (chunks.length < 2) return false;
+  const itemOk = (ch: string) => {
+    const s = ch.trim();
+    if (!s) return false;
+    if (/^(social|socials?)$/i.test(s)) return true;
+    return chunkIsExplicitSocialPlatformName(ch);
+  };
+  if (!chunks.every(itemOk)) return false;
+  return chunks.some(chunkIsExplicitSocialPlatformName);
+}
+
+const SINGLE_TERSE_SOCIAL_PLATFORM_CHUNK = (chunk: string) => {
+  const s = chunk.trim();
+  if (!s) return false;
+  if (/^(social|socials?)$/i.test(s)) return true;
+  return chunkIsExplicitSocialPlatformName(chunk);
+};
+
+function socialPresenceAnswerSignal(t: string): boolean {
+  return (
+    SOCIAL_PLATFORM_TOKEN_RE.test(t) ||
+    /\b(?:none\b|none yet|nowhere|nothing really|mostly nowhere|minimal (social )?presence|light (social )?presence|not much there|barely there online)\b|^no\.?$/i.test(
+      t,
+    ) ||
+    /\b(nah|nope|not really|no social|not active|not actively|inactive|skipped social|haven'?t prioritized|barely post|hardly post|don'?t (really )?post|lurking|lurker|ghost (town|profiles?)|(don'?t|doesn'?t) have much of a social|no steady social(\s+rhythm)?|not a social (brand|shop)|we skip social|inactive on social|not really on social)\b/i.test(
+      t,
+    ) ||
+    /\bbarely\b.{0,48}\bsocial\b|\bsocial\b.{0,48}\bbarely\b/i.test(t) ||
+    /@[a-z0-9_]{2,}/i.test(t) ||
+    socialPresenceTerseListSignal(t)
+  );
+}
+
+/**
+ * Carousel / breadth prompts that mention "social" alongside email+paid aren't the dedicated Snapshot
+ * "where does the brand live on social" capture — pairing those with platform tokens would falsely
+ * complete `social_platform_presence`.
+ */
+function isBreadthChannelMixCarouselPrompt(la: string): boolean {
+  return (
+    /\bwhere\b.{0,40}\bshow(ing)?\s+up\s+for people\b/i.test(la) ||
+    /\bshowing up for people\b/i.test(la) ||
+    /\bwhich\s+(marketing\s+)?channels\b.{0,100}\b(actively|running|using)\b/i.test(la) ||
+    /\bemail\b.{0,120}\bsocial\b.{0,120}\bpaid\b/i.test(la) ||
+    /\bemail\b.{0,120}\bpaid\b.{0,120}\bsocial\b/i.test(la) ||
+    /\borganic\b.{0,90}\bpaid\b.{0,90}\bsocial\b/i.test(la) ||
+    /\b(channel|marketing)\s+mix\b/i.test(la)
+  );
+}
+
+/** "Where do customers find you?" style prompts — includes "…social, paid…" enumeration. */
+function isAcquisitionCustomerDiscoveryPrompt(la: string): boolean {
+  return (
+    /\bwhere\b.{0,120}\b(customers|clients|buyers|prospects)\b.{0,60}\b(find you|finding you|discover|heard about|come from|learn about)\b/i.test(
+      la,
+    ) || /\b(most\s+new\s+customers|new\s+customers)\b.{0,40}\bfind\b/i.test(la)
+  );
+}
+
+/** Lead magnet / gated-content prompts sometimes mention email + social campaigns; not social presence intake. */
+function isLeadMagnetOrEmailGatePrompt(la: string): boolean {
+  return (
+    /\blead magnet\b/i.test(la) ||
+    /\bopt-?in\b/i.test(la) ||
+    /\bgated content\b/i.test(la) ||
+    /\bin exchange for.{0,50}their email\b/i.test(la) ||
+    /\bin exchange for.{0,50}email\b/i.test(la)
+  );
+}
+
+/** CTA clarity on site/profile — `\bprofiles?\b` overlaps dedicated-social heuristics. */
+function isSiteOrMainProfileNextStepPrompt(la: string): boolean {
+  return /\bhow clear\b.{0,180}\b(your site|main profile|landing|next step|\bcta\b|call to action)\b/i.test(la);
+}
+
+function dedicatedSocialPresenceAskSignals(la: string): boolean {
+  if (
+    /\*\*where does your brand show up on social/i.test(la) ||
+    /\bwhere does your brand show up on social\b/i.test(la) ||
+    /\bbrand show up on social\b/i.test(la) ||
+    /\bwhere\b.{0,54}\byour brand\b.{0,64}\b(on social|social)\b/i.test(la) ||
+    /\bplatforms that matter\b/i.test(la) ||
+    /\bname the platforms\b/i.test(la) ||
+    (/\bor say\b.{0,80}\bnone\b/i.test(la) && /\bsocial\b/i.test(la)) ||
+    (/\bnot really active yet\b/i.test(la) && /\bsocial\b/i.test(la))
+  ) {
+    return true;
+  }
+
+  const whichPlatformBreadth =
+    /\b(which|what)\b.{0,56}\bplatforms\b/i.test(la) &&
+    /\b(matter|use|post|posting|active|maintain|prioritize|focus|running|care)\b/i.test(la);
+
+  const whichNetworks =
+    /\b(which|what)\b.{0,44}\bnetworks?\b/i.test(la) &&
+    /\b(you|your|brand|still|actually|really|mostly)\b/i.test(la);
+
+  return (
+    /\bsocial media\b/i.test(la) ||
+    /\bsocial platforms?\b/i.test(la) ||
+    /\bwhere\b.{0,100}\bsocial\b/i.test(la) ||
+    /\bsocial\b.{0,40}\b(today|right now|these days|for the brand)\b/i.test(la) ||
+    /\b(show up|showing up)\b.{0,48}\bon social\b/i.test(la) ||
+    /\bon social\b.{0,36}\b(today|now|these days|\?)/i.test(la) ||
+    /\b(those socials|your socials|other socials)\b/i.test(la) ||
+    whichPlatformBreadth ||
+    whichNetworks
+  );
+}
+
+/**
+ * Detects assistant turns that explicitly ask where the brand is on social / which profiles matter.
+ * Narrow on purpose: a bare `\bsocial\b` inside acquisition ("organic, social, paid") or lead-magnet copy
+ * is not this capture.
+ */
+export function assistantAskedDedicatedSocialPlatformPresence(la: string): boolean {
+  const s = la.trim();
+  if (!s || isBreadthChannelMixCarouselPrompt(la)) return false;
+  /** Bridges into email/SEO/paid (`additional_marketing_surfaces`). */
+  if (/\b(beyond|outside)\s+your\s+(website|site)\b/i.test(la)) return false;
+  if (isAcquisitionCustomerDiscoveryPrompt(la)) return false;
+  if (isLeadMagnetOrEmailGatePrompt(la)) return false;
+  if (isSiteOrMainProfileNextStepPrompt(la)) return false;
+  return dedicatedSocialPresenceAskSignals(la);
+}
+
+function socialPresenceUserReplyMatchesFlexibleCapture(lu: string): boolean {
+  const t = lu.trim();
+  if (!t) return false;
+  return (
+    socialPresenceAnswerSignal(t) ||
+    (t.length <= 48 && terseMultiItemAllMatch(t, 1, SINGLE_TERSE_SOCIAL_PLATFORM_CHUNK))
+  );
+}
 
 const CHUNK_BUSINESS_MODEL = (chunk: string) =>
   /\b(b2b|b2c|saas|e-?commerce|ecommerce|retail|consult|consulting|agency|freelanc|product|local|service|software|app|subscription|shopify|amazon|coaching|contractor|clinic|restaurant|consumer|businesses|founders|dtc|marketplace|nonprofit|wholesale|manufactur)\b/i.test(
@@ -106,7 +269,8 @@ export function isBareAffirmOrDeny(text: string): boolean {
 export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: string): boolean {
   if (!la || !lu) return false;
   const t = lu.trim();
-  if (t.length === 0 || t.length > SHORT_CAPTURE_REPLY_MAX) return false;
+  if (t.length === 0) return false;
+  if (t.length > SHORT_CAPTURE_REPLY_MAX && !FLEXIBLE_CAPTURE_ALLOWS_LONG_REPLY.includes(key)) return false;
   if (MEANINGLESS_ACK_ONLY.test(t)) return false;
 
   switch (key) {
@@ -164,12 +328,8 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
       return asked && (urlAnswer || noSite);
     }
     case "social_platform_presence": {
-      const asked =
-        /\b(social|instagram|linkedin|tiktok|platforms|show up|handles?|profiles?)\b/i.test(la);
-      const answered =
-        /\b(instagram|ig|linkedin|tiktok|facebook|fb|meta|youtube|yt|threads|twitter|\bx\b|pinterest|snapchat|reddit|bluesky|none|not really|not active|don'?t use|skip|n\/a)\b/i.test(t) ||
-        /@[a-z0-9_]{2,}/i.test(t) ||
-        terseMultiItemAllMatch(t, 2, CHUNK_CHANNEL);
+      const asked = assistantAskedDedicatedSocialPlatformPresence(la);
+      const answered = socialPresenceUserReplyMatchesFlexibleCapture(lu);
       return asked && answered;
     }
     case "additional_marketing_surfaces": {
@@ -271,6 +431,25 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
     default:
       return false;
   }
+}
+
+/** User declines in the immediate turn after a dedicated social prompt — no global user corpus. */
+export function socialPresenceImmediateRefusalAfterDedicatedPrompt(
+  messages: Array<{ role: string; content: string }>,
+): boolean {
+  for (let i = 0; i < messages.length; i++) {
+    if (messages[i].role !== "assistant") continue;
+    const la = String(messages[i].content || "");
+    if (!assistantAskedDedicatedSocialPlatformPresence(la)) continue;
+    for (let j = i + 1; j < messages.length; j++) {
+      if (messages[j].role === "assistant") break;
+      if (messages[j].role !== "user") continue;
+      const lu = String(messages[j].content || "").trim();
+      if (lu && CAPTURE_REFUSAL_PATTERN.test(lu)) return true;
+      break;
+    }
+  }
+  return false;
 }
 
 /**

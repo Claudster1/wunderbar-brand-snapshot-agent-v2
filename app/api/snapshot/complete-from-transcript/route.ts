@@ -1,0 +1,118 @@
+import { NextResponse } from "next/server";
+import { apiGuard } from "@/lib/security/apiGuard";
+import { AI_RATE_LIMIT } from "@/lib/security/rateLimit";
+import { completeWithFallback, type ChatMessage } from "@/lib/ai";
+import { SNAPSHOT_TRANSCRIPT_EXTRACT_SYSTEM } from "@/src/prompts/snapshotTranscriptExtractPrompt";
+import { snapshotAnswersRecordSchema } from "@/lib/snapshot/snapshotAnswersSchema";
+import { logger } from "@/lib/logger";
+
+export const dynamic = "force-dynamic";
+
+type IncomingMsg = { role?: string; text?: string; content?: string };
+
+function transcriptFromMessages(messages: IncomingMsg[]): string {
+  return messages
+    .map((m) => {
+      const role = m.role === "assistant" ? "Assistant" : "User";
+      const body = (typeof m.text === "string" ? m.text : typeof m.content === "string" ? m.content : "").trim();
+      return body ? `${role}: ${body}` : "";
+    })
+    .filter(Boolean)
+    .join("\n\n");
+}
+
+function extractJsonObject(raw: string): Record<string, unknown> | null {
+  const trimmed = raw.trim();
+  const tryParse = (s: string) => {
+    try {
+      const v = JSON.parse(s) as unknown;
+      return v && typeof v === "object" && !Array.isArray(v) ? (v as Record<string, unknown>) : null;
+    } catch {
+      return null;
+    }
+  };
+
+  let parsed = tryParse(trimmed);
+  if (parsed) return parsed;
+
+  const fence = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fence?.[1]) {
+    parsed = tryParse(fence[1].trim());
+    if (parsed) return parsed;
+  }
+
+  const start = trimmed.indexOf("{");
+  const end = trimmed.lastIndexOf("}");
+  if (start >= 0 && end > start) {
+    parsed = tryParse(trimmed.slice(start, end + 1));
+    if (parsed) return parsed;
+  }
+
+  return null;
+}
+
+export async function POST(req: Request) {
+  const guard = apiGuard(req, {
+    routeId: "snapshot_transcript",
+    rateLimit: AI_RATE_LIMIT,
+    maxBodySize: 400_000,
+  });
+  if (!guard.passed) return guard.errorResponse;
+
+  try {
+    const body = (await req.json().catch(() => ({}))) as {
+      messages?: IncomingMsg[];
+      productTier?: string;
+    };
+
+    const messages = Array.isArray(body.messages) ? body.messages : [];
+    if (messages.length < 4) {
+      return NextResponse.json({ error: "Not enough conversation to extract answers." }, { status: 400 });
+    }
+
+    const transcript = transcriptFromMessages(messages);
+    if (transcript.length < 120) {
+      return NextResponse.json({ error: "Transcript too short." }, { status: 400 });
+    }
+
+    const tierNote =
+      typeof body.productTier === "string" && body.productTier.trim()
+        ? `Product tier (for field depth): ${body.productTier.trim()}.`
+        : "";
+
+    const aiMessages: ChatMessage[] = [
+      { role: "system", content: SNAPSHOT_TRANSCRIPT_EXTRACT_SYSTEM },
+      {
+        role: "user",
+        content: `${tierNote}\n\n--- CHAT TRANSCRIPT ---\n\n${transcript}`,
+      },
+    ];
+
+    const completion = await completeWithFallback("snapshot_transcript_extract", {
+      messages: aiMessages,
+    });
+
+    const content = completion.content?.trim() || "";
+    const extracted = extractJsonObject(content);
+    if (!extracted) {
+      logger.warn("[complete-from-transcript] No JSON in model output", {
+        preview: content.slice(0, 200),
+      });
+      return NextResponse.json(
+        { error: "Could not extract structured answers. Try again in a moment." },
+        { status: 422 }
+      );
+    }
+
+    const parsed = snapshotAnswersRecordSchema.safeParse(extracted);
+    if (!parsed.success) {
+      const msg = parsed.error.issues[0]?.message ?? "Invalid extracted answers.";
+      return NextResponse.json({ error: msg }, { status: 422 });
+    }
+
+    return NextResponse.json({ answers: parsed.data });
+  } catch (err: unknown) {
+    logger.error("[complete-from-transcript]", { error: err instanceof Error ? err.message : String(err) });
+    return NextResponse.json({ error: "Failed to complete from transcript." }, { status: 500 });
+  }
+}

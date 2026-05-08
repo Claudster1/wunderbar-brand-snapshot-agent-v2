@@ -33,6 +33,8 @@ export type UseCase =
   | "wundy_general"         // Wundy™ chat — general/FAQ mode (everyone)
   | "wundy_report"          // Wundy™ chat — report companion mode (paid tiers)
   | "assessment_chat"       // WunderBrand Snapshot™ assessment conversation
+  /** One-shot: structured answers JSON from an existing chat transcript (recovery / handoff). */
+  | "snapshot_transcript_extract"
   | "refine_chat"           // Refinement conversation
   | "report_free"           // Free WunderBrand Snapshot™ report generation
   | "report_snapshot_plus"  // Snapshot+ report generation
@@ -81,6 +83,15 @@ const DEFAULT_ROUTES: Record<UseCase, ModelRoute> = {
     temperature: 0.6,
     maxTokens: 2000,
     timeoutMs: 25_000,
+  },
+  snapshot_transcript_extract: {
+    provider: "openai",
+    model: "gpt-4o-mini",
+    fallbackProvider: "gemini",
+    fallbackModel: "gemini-2.0-flash",
+    temperature: 0.2,
+    maxTokens: 8000,
+    timeoutMs: 45_000,
   },
   refine_chat: {
     provider: "openai",

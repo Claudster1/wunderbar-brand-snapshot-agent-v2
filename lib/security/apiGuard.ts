@@ -19,14 +19,17 @@ export interface ApiGuardConfig {
   maxBodySize?: number;
 }
 
-export interface ApiGuardResult {
-  /** Whether the request passed all checks */
-  passed: boolean;
-  /** Pre-built error response if checks failed (return this from your handler) */
-  errorResponse?: NextResponse;
-  /** Client IP address (for logging without PII) */
-  clientIp: string;
-}
+export type ApiGuardResult =
+  | {
+      passed: true;
+      clientIp: string;
+    }
+  | {
+      passed: false;
+      clientIp: string;
+      /** Pre-built error response — always set when passed is false */
+      errorResponse: NextResponse;
+    };
 
 /**
  * Run security checks on an incoming API request.
@@ -49,7 +52,7 @@ export function apiGuard(
   const rl = checkRateLimit(clientIp, config.routeId, rateConfig);
   if (!rl.allowed) {
     return {
-      passed: false,
+      passed: false as const,
       clientIp,
       errorResponse: NextResponse.json(
         { error: "Too many requests. Please try again later." },
@@ -71,7 +74,7 @@ export function apiGuard(
   const maxSize = config.maxBodySize ?? 100_000; // 100KB default
   if (contentLength && parseInt(contentLength, 10) > maxSize) {
     return {
-      passed: false,
+      passed: false as const,
       clientIp,
       errorResponse: NextResponse.json(
         { error: "Request body too large." },
@@ -80,7 +83,7 @@ export function apiGuard(
     };
   }
 
-  return { passed: true, clientIp };
+  return { passed: true as const, clientIp };
 }
 
 /**

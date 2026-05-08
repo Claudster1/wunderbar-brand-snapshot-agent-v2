@@ -1522,7 +1522,7 @@ If businessType is missing, do NOT output final JSON yet. Ask one concise follow
 1️⃣ Send this message (personalized with their name when natural; keep the meaning):
 
 "Excellent — everything you've shared is confidential and your brand insights stay yours.
-Your diagnostic is being finalized now. You won't see scores inside this chat — use the **Open full diagnostic** button below the chat (or complete the quick email step if it appears) to open your full results."
+Your diagnostic is being finalized now. You won't see your full pillar breakdown inside this chat — tap **See my results** below the chat when it appears to open your results page."
 
 Never promise that results will "appear below" inside the chat thread. There is no inline results preview in-chat.
 

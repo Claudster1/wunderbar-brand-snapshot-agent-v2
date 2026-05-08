@@ -9,9 +9,21 @@ import {
 } from '../services/openaiService';
 import { useGenerateReport } from './useGenerateReport';
 import { getPersistedEmail } from '@/lib/persistEmail';
-import { buildUpgradeGapFillAssistantMessage, type ChatTier } from '@/lib/chatTierConfig';
-import { isAssistantFinalHandoffWithoutJsonBlock } from '@/lib/intake/assistantFinalHandoff';
-import type { ScoreTeaserPayload } from '@/lib/diagnostic/scoreTeaserCopy';
+import {
+  buildUpgradeGapFillAssistantMessage,
+  intakeProgressDenominator,
+  type ChatTier,
+} from '@/lib/chatTierConfig';
+import {
+  assistantPromisedExternalResultsEntry,
+  conversationSuggestsIntakeComplete,
+  isAssistantFinalHandoffWithoutJsonBlock,
+  textContainsScoringJsonPayload,
+} from '@/lib/intake/assistantFinalHandoff';
+
+function snapshotResultsEntryUrl(finalReportId: string): string {
+  return `/results?reportId=${encodeURIComponent(finalReportId)}`;
+}
 
 const createMessage = (
   role: BrandChatMessage['role'],
@@ -21,9 +33,6 @@ const createMessage = (
   role,
   text,
 });
-
-// Total questions in the diagnostic (used for progress tracking and resume context)
-const TOTAL_QUESTIONS = 41;
 
 // First assistant message that appears in the chat
 // Must match the system prompt's first greeting exactly
@@ -205,56 +214,9 @@ interface UseBrandChatOptions {
   resumeHoldUntilValidated?: boolean;
 }
 
-type ProductTierOption = UseBrandChatOptions['productTier'];
-
-function wantsSnapshotScoreTeaserEmailGate(
-  tier: ProductTierOption | undefined,
-  persistedEmail: string | null,
-): boolean {
-  if (tier !== 'snapshot' && tier !== 'snapshot-plus') return false;
-  return !persistedEmail;
-}
-
-function scoreTeaserFromApiPayload(
-  scoringResult: Record<string, unknown>,
-  finalReportId: string,
-): ScoreTeaserPayload | null {
-  const bas = scoringResult.brandAlignmentScore;
-  const ps = scoringResult.pillarScores;
-  if (typeof bas !== 'number' || !Number.isFinite(bas)) return null;
-  if (!ps || typeof ps !== 'object' || Array.isArray(ps)) return null;
-  const pillarScores: Record<string, number> = {};
-  for (const [k, v] of Object.entries(ps as Record<string, unknown>)) {
-    if (typeof v === 'number' && Number.isFinite(v)) pillarScores[k] = v;
-  }
-  if (Object.keys(pillarScores).length === 0) return null;
-  const primaryPillar = scoringResult.primaryPillar;
-  return {
-    reportId: finalReportId,
-    redirectUrl: `/results?reportId=${encodeURIComponent(finalReportId)}`,
-    brandAlignmentScore: bas,
-    pillarScores,
-    primaryPillar: typeof primaryPillar === 'string' ? primaryPillar : null,
-  };
-}
-
-function decideSnapshotCompletion(
-  tier: ProductTierOption | undefined,
-  persistedEmail: string | null,
-  scoringResult: Record<string, unknown>,
-  finalReportId: string,
-):
-  | { mode: 'teaser'; payload: ScoreTeaserPayload }
-  | { mode: 'direct'; redirectUrl: string } {
-  const redirectUrl = `/results?reportId=${encodeURIComponent(finalReportId)}`;
-  const teaser = scoreTeaserFromApiPayload(scoringResult, finalReportId);
-  if (teaser && wantsSnapshotScoreTeaserEmailGate(tier, persistedEmail)) {
-    return { mode: 'teaser', payload: teaser };
-  }
-  return { mode: 'direct', redirectUrl };
-}
-
 export function useBrandChat(options?: UseBrandChatOptions) {
+  const progressTotal = intakeProgressDenominator((options?.productTier ?? 'snapshot') as ChatTier);
+
   const initialMessage = options?.customGreeting
     ? createMessage('assistant', options.customGreeting)
     : INITIAL_ASSISTANT_MESSAGE;
@@ -266,8 +228,8 @@ export function useBrandChat(options?: UseBrandChatOptions) {
   const [reportId, setReportId] = useState<string | null>(null);
   /** Set when scoring/save succeeds — full URL to open the diagnostic results UI. */
   const [resultsEntryUrl, setResultsEntryUrl] = useState<string | null>(null);
-  /** Snapshot / Snapshot+ only: score teaser shown until email unlock (no persisted email). */
-  const [pendingScoreTeaser, setPendingScoreTeaser] = useState<ScoreTeaserPayload | null>(null);
+  const [finalizeError, setFinalizeError] = useState<string | null>(null);
+  const [isFinalizing, setIsFinalizing] = useState(false);
   const [lastFailedInput, setLastFailedInput] = useState<string | null>(null);
   const hasReceivedName = useRef(false);
   const allowIncompleteSubmissionRef = useRef(false);
@@ -280,17 +242,11 @@ export function useBrandChat(options?: UseBrandChatOptions) {
   const onCompleteRef = useRef(options?.onComplete);
   useEffect(() => { onCompleteRef.current = options?.onComplete; }, [options?.onComplete]);
   const isInitialized = useRef(false);
-
-  const applyScoreTeaserUnlock = useCallback((redirectUrl: string, reportIdForMessage: string) => {
-    setPendingScoreTeaser(null);
-    setResultsEntryUrl(redirectUrl);
-    if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
-      window.parent.postMessage(
-        { type: 'BRAND_SNAPSHOT_COMPLETE', data: { report_id: reportIdForMessage, redirectUrl } },
-        '*',
-      );
-    }
-  }, []);
+  const messagesRef = useRef(messages);
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+  const finalizingRef = useRef(false);
 
   const assignLocalDraftId = () => {
     if (typeof window === 'undefined') return;
@@ -362,7 +318,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
             const firstName = extractFirstNameFromHistory(savedMessages);
             const lastTopic = detectLastTopic(savedMessages);
             const answeredCount = savedMessages.filter((m: BrandChatMessage) => m.role === 'user').length;
-            const resumeGreeting = buildResumeGreeting(firstName, lastTopic, answeredCount, TOTAL_QUESTIONS);
+            const resumeGreeting = buildResumeGreeting(firstName, lastTopic, answeredCount, progressTotal);
             const resumeMessage = createMessage('assistant', resumeGreeting);
             const last = savedMessages[savedMessages.length - 1];
             const alreadyHasSameResume =
@@ -420,7 +376,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
           assignLocalDraftId();
         });
     }
-  }, [options?.resumeHoldUntilValidated]);
+  }, [options?.resumeHoldUntilValidated, progressTotal]);
 
   // Extract answers from conversation history
   const extractAnswers = (history: BrandChatMessage[]): Record<string, any> => {
@@ -457,17 +413,22 @@ export function useBrandChat(options?: UseBrandChatOptions) {
   };
 
   // Save progress after assistant responds
-  const saveProgress = async (step: string, history: BrandChatMessage[]) => {
-    if (!reportId) return;
-    
+  const saveProgress = async (
+    step: string,
+    history: BrandChatMessage[],
+    explicitReportId?: string | null,
+  ) => {
+    const rid = explicitReportId ?? reportId;
+    if (!rid) return;
+
     const answers = extractAnswers(history);
-    
+
     try {
       await fetch('/api/snapshot/progress', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          reportId,
+          reportId: rid,
           lastStep: step,
           progress: {
             ...answers,
@@ -481,9 +442,124 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     }
   };
 
+  /**
+   * Server-side transcript → structured answers → /api/snapshot.
+   * Pass explicit `history` when React state/refs may not have flushed yet.
+   */
+  const runTranscriptFinalizeCore = async (history: BrandChatMessage[]): Promise<boolean> => {
+    if (finalizingRef.current) return false;
+    if (history.length < 4) {
+      setFinalizeError('Not enough conversation to generate your diagnostic yet.');
+      return false;
+    }
+    finalizingRef.current = true;
+    setIsFinalizing(true);
+    setFinalizeError(null);
+    try {
+      const ext = await fetch('/api/snapshot/complete-from-transcript', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: history.map((m) => ({ role: m.role, text: m.text })),
+          productTier: options?.productTier,
+        }),
+      });
+      const extBody = await ext.text();
+      let extJson: { error?: string; answers?: Record<string, unknown> } = {};
+      try {
+        extJson = JSON.parse(extBody) as typeof extJson;
+      } catch {
+        /* ignore */
+      }
+      if (!ext.ok) {
+        setFinalizeError(extJson.error || 'Could not read your answers from the chat. Please try again.');
+        return false;
+      }
+      const answers = extJson.answers;
+      if (!answers || typeof answers !== 'object') {
+        setFinalizeError('Unexpected response from the server. Please try again.');
+        return false;
+      }
+
+      const turnstileToken = typeof window !== 'undefined' ? (window as any).__turnstileToken : undefined;
+      const persistedEmail = typeof window !== 'undefined' ? getPersistedEmail() : null;
+
+      const scoringRes = await fetch('/api/snapshot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          answers,
+          name: typeof answers.userName === 'string' ? answers.userName : undefined,
+          companyName: typeof answers.businessName === 'string' ? answers.businessName : undefined,
+          businessName: typeof answers.businessName === 'string' ? answers.businessName : undefined,
+          ...(persistedEmail ? { email: persistedEmail } : {}),
+          turnstileToken,
+        }),
+      });
+      const scoreText = await scoringRes.text();
+      let scoreJson: Record<string, unknown> = {};
+      try {
+        scoreJson = JSON.parse(scoreText) as Record<string, unknown>;
+      } catch {
+        /* ignore */
+      }
+      if (!scoringRes.ok) {
+        const msg =
+          typeof scoreJson.error === 'string' && scoreJson.error.trim()
+            ? scoreJson.error
+            : 'Scoring failed. Please try again in a moment.';
+        setFinalizeError(msg);
+        return false;
+      }
+
+      const finalReportId = scoreJson.reportId as string | undefined;
+      if (!finalReportId) {
+        setFinalizeError('No report was created. Please try again.');
+        return false;
+      }
+
+      setReportId(finalReportId);
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('wundy_report_id', finalReportId);
+      }
+
+      const redirectUrl = snapshotResultsEntryUrl(finalReportId);
+      setResultsEntryUrl(redirectUrl);
+
+      await saveProgress('completed', history, finalReportId);
+
+      if (typeof window !== 'undefined') {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage(
+            { type: 'BRAND_SNAPSHOT_COMPLETE', data: { report_id: finalReportId, redirectUrl } },
+            '*',
+          );
+          if (onCompleteRef.current) {
+            onCompleteRef.current(finalReportId, redirectUrl);
+          }
+        } else if (onCompleteRef.current) {
+          onCompleteRef.current(finalReportId, redirectUrl);
+        } else {
+          router.push(redirectUrl);
+        }
+      }
+
+      return true;
+    } catch (e) {
+      console.error('[useBrandChat] runTranscriptFinalizeCore', e);
+      setFinalizeError('Something went wrong. Please try again.');
+      return false;
+    } finally {
+      finalizingRef.current = false;
+      setIsFinalizing(false);
+    }
+  };
+
+  const finalizeFromTranscript = async (): Promise<boolean> => runTranscriptFinalizeCore(messagesRef.current);
+
   const sendMessage = async (text: string) => {
     const trimmed = text.trim();
-    if (!trimmed || isLoading || sendingRef.current) return; // Prevent double submission
+    if (!trimmed || isLoading || sendingRef.current || finalizingRef.current) return; // Prevent double submission
     if (isContinueAnyway(trimmed)) {
       allowIncompleteSubmissionRef.current = true;
     } else {
@@ -533,60 +609,24 @@ export function useBrandChat(options?: UseBrandChatOptions) {
       });
 
       const maybeCompleteWithoutJson = async (assistantText: string): Promise<boolean> => {
-        if (!isAssistantFinalHandoffWithoutJsonBlock(assistantText)) return false;
+        if (textContainsScoringJsonPayload(assistantText)) return false;
 
-        const fallbackAnswers = extractAnswers(nextHistory);
-        const meaningful = Object.values(fallbackAnswers).filter((v) => v !== null && v !== undefined && v !== "");
-        if (meaningful.length < 3) return false;
+        /* Any “results live outside chat” / wrap-up cue → server transcript extract (replacing weak client extractAnswers). */
+        const finalizeCue =
+          isAssistantFinalHandoffWithoutJsonBlock(assistantText) ||
+          assistantPromisedExternalResultsEntry(assistantText);
+        if (!finalizeCue) return false;
 
-        const turnstileToken = typeof window !== 'undefined' ? (window as any).__turnstileToken : undefined;
-        const persistedEmail = typeof window !== 'undefined' ? getPersistedEmail() : null;
-        const scoringRes = await fetch('/api/snapshot', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            answers: fallbackAnswers,
-            ...(persistedEmail ? { email: persistedEmail } : {}),
-            turnstileToken,
-          }),
-        });
-        if (!scoringRes.ok) return false;
+        const userTurns = nextHistory.filter((m) => m.role === 'user').length;
+        if (userTurns < 3) return false;
 
-        const scoringResult = (await scoringRes.json()) as Record<string, unknown>;
-        const finalReportId = scoringResult.reportId as string | undefined;
-        if (!finalReportId) return false;
-
-        setReportId(finalReportId);
-        if (typeof window !== 'undefined') {
-          sessionStorage.setItem('wundy_report_id', finalReportId);
-        }
-        const completion = decideSnapshotCompletion(
-          options?.productTier,
-          persistedEmail,
-          scoringResult,
-          finalReportId,
-        );
-        if (completion.mode === 'teaser') {
-          setPendingScoreTeaser(completion.payload);
-        } else {
-          setResultsEntryUrl(completion.redirectUrl);
-        }
         const handoffMessage = createMessage('assistant', assistantText);
         const completedHistory = [...nextHistory, handoffMessage];
+        messagesRef.current = completedHistory;
         setMessages(completedHistory);
-        saveProgress('completed', completedHistory);
+        await saveProgress('handoff_attempt', completedHistory);
 
-        if (typeof window !== 'undefined' && completion.mode === 'direct') {
-          const redirectUrl = completion.redirectUrl;
-          if (window.parent && window.parent !== window) {
-            window.parent.postMessage({ type: 'BRAND_SNAPSHOT_COMPLETE', data: { report_id: finalReportId, redirectUrl } }, '*');
-            if (onCompleteRef.current) onCompleteRef.current(finalReportId, redirectUrl);
-          } else if (onCompleteRef.current) {
-            onCompleteRef.current(finalReportId, redirectUrl);
-          } else {
-            router.push(redirectUrl);
-          }
-        }
+        await runTranscriptFinalizeCore(completedHistory);
         return true;
       };
 
@@ -698,17 +738,8 @@ export function useBrandChat(options?: UseBrandChatOptions) {
                 sessionStorage.setItem('wundy_report_id', finalReportId);
               }
 
-              const completion = decideSnapshotCompletion(
-                options?.productTier,
-                persistedEmail,
-                scoringResult,
-                finalReportId,
-              );
-              if (completion.mode === 'teaser') {
-                setPendingScoreTeaser(completion.payload);
-              } else {
-                setResultsEntryUrl(completion.redirectUrl);
-              }
+              const redirectUrl = snapshotResultsEntryUrl(finalReportId);
+              setResultsEntryUrl(redirectUrl);
 
               // Persist brand name for cross-page use (checkout, dashboard, etc.)
               if (snapshotData.businessName && typeof window !== 'undefined') {
@@ -728,8 +759,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
 
               saveProgress('completed', nextHistory);
 
-              if (typeof window !== 'undefined' && completion.mode === 'direct') {
-                const redirectUrl = completion.redirectUrl;
+              if (typeof window !== 'undefined') {
                 if (window.parent && window.parent !== window) {
                   window.parent.postMessage({ type: 'BRAND_SNAPSHOT_COMPLETE', data: { report_id: finalReportId, redirectUrl } }, '*');
                   if (onCompleteRef.current) {
@@ -945,10 +975,24 @@ export function useBrandChat(options?: UseBrandChatOptions) {
             // The scores will appear below the chatbox via postMessage
           }
         } catch (parseError) {
-          // Not valid JSON - treat as normal message
-          // Not valid JSON — fall through to normal message rendering
+          // Model pasted invalid / partial JSON — treat as plain assistant text; if it reads like handoff, finalize from transcript.
           const assistantMessage = createMessage('assistant', replyText);
-          setMessages((prev) => [...prev, assistantMessage]);
+          const badJsonHistory = [...nextHistory, assistantMessage];
+          messagesRef.current = badJsonHistory;
+          setMessages(badJsonHistory);
+          const t = replyText.trim();
+          const userTurns = badJsonHistory.filter((m) => m.role === 'user').length;
+          const handoffLikely =
+            userTurns >= 3 &&
+            !textContainsScoringJsonPayload(t) &&
+            (isAssistantFinalHandoffWithoutJsonBlock(t) || assistantPromisedExternalResultsEntry(t));
+          if (handoffLikely) {
+            await saveProgress('handoff_attempt_invalid_json', badJsonHistory);
+            await runTranscriptFinalizeCore(badJsonHistory);
+            return;
+          }
+          const step = `step_${badJsonHistory.filter((m) => m.role === 'assistant').length}`;
+          await saveProgress(step, badJsonHistory);
         }
       } else {
         // Check if response contains score numbers but no JSON (should also be filtered)
@@ -980,12 +1024,22 @@ export function useBrandChat(options?: UseBrandChatOptions) {
       }
     } catch (err: any) {
       console.error('[useBrandChat] Error:', err);
-      setLastFailedInput(trimmed);
-      const errorMessage = createMessage(
-        'assistant',
-        'I ran into a connection issue. Your progress is saved — click "Retry" to try again, or rephrase your answer.'
-      );
-      setMessages((prev) => [...prev, errorMessage]);
+      const errMsg = err instanceof Error ? err.message : String(err);
+      const timedOut = /timed out/i.test(errMsg);
+      const heavyChat = nextHistory.filter((m) => m.role === 'user').length >= 4;
+
+      if (timedOut && heavyChat) {
+        messagesRef.current = nextHistory;
+        setMessages(nextHistory);
+        await runTranscriptFinalizeCore(nextHistory);
+      } else {
+        setLastFailedInput(trimmed);
+        const errorMessage = createMessage(
+          'assistant',
+          'I ran into a connection issue. Your progress is saved — click "Retry" to try again, or rephrase your answer.',
+        );
+        setMessages((prev) => [...prev, errorMessage]);
+      }
     } finally {
       setIsLoading(false);
       sendingRef.current = false;
@@ -1006,7 +1060,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     setMessages([INITIAL_ASSISTANT_MESSAGE]);
     setLastFailedInput(null);
     setResultsEntryUrl(null);
-    setPendingScoreTeaser(null);
+    setFinalizeError(null);
     resumeLoadedReportIdRef.current = null;
   };
 
@@ -1014,7 +1068,11 @@ export function useBrandChat(options?: UseBrandChatOptions) {
   const assistantTurns = messages.filter((m) => m.role === 'assistant').length;
   // Subtract 1 for the initial greeting, clamp to 0
   const questionsAnswered = Math.max(0, assistantTurns - 1);
-  const assessmentProgress = Math.min(Math.round((questionsAnswered / TOTAL_QUESTIONS) * 100), 99);
+  const rawProgressPct = Math.min(Math.round((questionsAnswered / progressTotal) * 100), 99);
+  const intakeLooksComplete =
+    !!resultsEntryUrl ||
+    conversationSuggestsIntakeComplete(messages as BrandChatMessage[]);
+  const assessmentProgress = intakeLooksComplete ? 100 : rawProgressPct;
 
   return {
     messages,
@@ -1025,10 +1083,12 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     reset,
     reportId,
     resultsEntryUrl,
-    pendingScoreTeaser,
-    applyScoreTeaserUnlock,
     assessmentProgress,
     questionsAnswered,
-    totalQuestions: TOTAL_QUESTIONS,
+    totalQuestions: progressTotal,
+    finalizeFromTranscript,
+    isFinalizing,
+    finalizeError,
+    clearFinalizeError: () => setFinalizeError(null),
   };
 }

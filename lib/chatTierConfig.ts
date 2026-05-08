@@ -151,6 +151,26 @@ export function getChatTierConfig(tier: ChatTier): ChatTierConfig {
   return TIER_CONFIGS[tier];
 }
 
+/**
+ * Denominator for the intake progress bar (assistant turns vs expected depth).
+ * Snapshot completes in fewer turns than Blueprint+; using one global count made Snapshot look “stuck” in the 50–65% range at the real end.
+ */
+export function intakeProgressDenominator(tier: ChatTier): number {
+  switch (tier) {
+    /** Typical Snapshot thread is short vs Blueprint; denominator only affects the bar until wrap-up copy (then 100%). */
+    case "snapshot":
+      return 14;
+    case "snapshot-plus":
+      return 32;
+    case "blueprint":
+      return 38;
+    case "blueprint-plus":
+      return 41;
+    default:
+      return 22;
+  }
+}
+
 /** PDF download path for a completed diagnostic, by product tier. */
 export function pdfDownloadPathForTier(tier: ChatTier, reportId: string): string {
   const id = encodeURIComponent(reportId);

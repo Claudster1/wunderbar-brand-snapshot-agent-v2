@@ -31,6 +31,7 @@ import { generateAIInsights } from "@/lib/ai/freeReportEnhancer";
 import { inferLikelyArchetype } from "@/lib/archetype/likelyArchetype";
 import { z } from "zod";
 import { createCrmSyncLog } from "@/lib/crm/inbound";
+import { snapshotAnswersRecordSchema } from "@/lib/snapshot/snapshotAnswersSchema";
 
 export const dynamic = "force-dynamic";
 
@@ -322,15 +323,7 @@ const snapshotBodySchema = z.object({
   companyName: z.string().max(200).optional().nullable(),
   businessName: z.string().max(200).optional().nullable(),
   brandName: z.string().max(200).optional().nullable(),
-  answers: z.record(z.string(), z.unknown()).refine(
-    (obj) => {
-      const meaningful = Object.values(obj).filter(
-        (v) => v !== null && v !== undefined && v !== ""
-      );
-      return meaningful.length >= 3;
-    },
-    { message: "At least 3 answered questions are required to generate a report." }
-  ),
+  answers: snapshotAnswersRecordSchema,
   pillar_insights: z.unknown().optional(),
 });
 

@@ -17,8 +17,10 @@ import { ChatMarkdown, renderChatMarkdownInline } from "@/components/chat/ChatMa
 import WundyLogo from "@/src/assets/wundy-logo.jpeg";
 import { staticImageUrl } from "@/lib/staticImageUrl";
 import { getPersistedEmail, persistEmail } from "@/lib/persistEmail";
-import { assistantPromisedExternalResultsEntry } from "@/lib/intake/assistantFinalHandoff";
-import { ResultsScoreTeaserGate } from "@/components/diagnostic/ResultsScoreTeaserGate";
+import {
+  assistantPromisedExternalResultsEntry,
+  conversationSuggestsIntakeComplete,
+} from "@/lib/intake/assistantFinalHandoff";
 
 export type HomePageClientProps = {
   tierParam: string | null;
@@ -99,9 +101,10 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
       .replace(/let's begin\./i, "But first — what's your name?");
   }, [activeTierConfig, customerName]);
 
-  // When the assessment completes: if we already have a persisted email, skip the OTP gate and go straight to results bar (single capture).
+  // Snapshot / Snapshot+: send people to the results page first; email capture happens there. Paid tiers still use the OTP gate when no email on file.
   const handleAssessmentComplete = useCallback((completedReportId: string, redirectUrl: string) => {
     pendingRedirectRef.current = redirectUrl;
+    const snapshotish = activeTier === "snapshot" || activeTier === "snapshot-plus";
     if (typeof window !== "undefined") {
       const existing = getPersistedEmail();
       if (existing && existing.includes("@")) {
@@ -115,8 +118,12 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
         return;
       }
     }
+    if (snapshotish) {
+      setShowEmailVerification(false);
+      return;
+    }
     setShowEmailVerification(true);
-  }, []);
+  }, [activeTier]);
 
   const {
     messages,
@@ -127,11 +134,13 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     reset,
     reportId,
     resultsEntryUrl,
-    pendingScoreTeaser,
-    applyScoreTeaserUnlock,
     assessmentProgress,
     questionsAnswered,
     totalQuestions,
+    finalizeFromTranscript,
+    isFinalizing,
+    finalizeError,
+    clearFinalizeError,
   } = useBrandChat({
     onComplete: handleAssessmentComplete,
     customGreeting: resolvedGreeting,
@@ -230,44 +239,68 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     syncChatEmailFromStorage();
   }, [syncChatEmailFromStorage, messages.length, postVerifyDestination?.email, emailVerified]);
 
-  const handleScoreTeaserUnlocked = useCallback(
-    (detail: { email: string; reportId: string; redirectUrl: string }) => {
-      applyScoreTeaserUnlock(detail.redirectUrl, detail.reportId);
-      setShowEmailVerification(false);
-      setEmailVerified(true);
-      setPostVerifyDestination({
-        resultsUrl: detail.redirectUrl,
-        reportId: detail.reportId,
-        email: detail.email,
-      });
-      syncChatEmailFromStorage();
-    },
-    [applyScoreTeaserUnlock, syncChatEmailFromStorage],
-  );
-
-  const isEarlyStageMode = useMemo(() => {
-    const userCorpus = messages
-      .filter((m) => m.role === "user")
-      .map((m) => m.text.toLowerCase())
-      .join(" ");
-    if (!userCorpus) return false;
-    return /\b(pre[-\s]?revenue|just getting started|new business|starting out|haven'?t launched|not launched yet|early stage|still figuring out|no customers yet|first customers)\b/i.test(userCorpus);
-  }, [messages]);
-
   /** Model promised an in-chat reveal or "below" but scoring URL never registered — offer recovery. */
   const handoffPromisedNoEntryUrl = useMemo(() => {
-    if (resultsEntryUrl || isLoading || pendingScoreTeaser) return false;
+    if (resultsEntryUrl || isLoading) return false;
     const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
     if (!lastAssistant) return false;
     return (
       assistantPromisedExternalResultsEntry(lastAssistant.text) &&
       messages.filter((m) => m.role === "user").length >= 3
     );
-  }, [messages, resultsEntryUrl, isLoading, pendingScoreTeaser]);
+  }, [messages, resultsEntryUrl, isLoading]);
+
+  /** Progress can show 100% while scoring URL is still missing — always surface the same primary CTA as the success path. */
+  const needsResultsRecovery = useMemo(() => {
+    if (resultsEntryUrl || postVerifyDestination || isLoading) return false;
+    return conversationSuggestsIntakeComplete(messages);
+  }, [messages, resultsEntryUrl, postVerifyDestination, isLoading]);
+
+  /** Auto-run transcript finalize once when the model clearly wrapped up but no results URL (avoids “click Continue” loops). */
+  const finalizeFnRef = useRef(finalizeFromTranscript);
+  finalizeFnRef.current = finalizeFromTranscript;
+  const autoTranscriptFinalizeConsumedRef = useRef(false);
+  const autoTranscriptFinalizeAttemptsRef = useRef(0);
+
+  useEffect(() => {
+    if (!handoffPromisedNoEntryUrl || resultsEntryUrl) {
+      autoTranscriptFinalizeConsumedRef.current = false;
+      autoTranscriptFinalizeAttemptsRef.current = 0;
+    }
+  }, [handoffPromisedNoEntryUrl, resultsEntryUrl]);
+
+  useEffect(() => {
+    if (
+      finalizeError &&
+      handoffPromisedNoEntryUrl &&
+      !isFinalizing &&
+      !resultsEntryUrl
+    ) {
+      autoTranscriptFinalizeConsumedRef.current = false;
+    }
+  }, [finalizeError, handoffPromisedNoEntryUrl, isFinalizing, resultsEntryUrl]);
+
+  useEffect(() => {
+    if (!handoffPromisedNoEntryUrl || resultsEntryUrl) return;
+    if (isLoading || isFinalizing || autoTranscriptFinalizeConsumedRef.current) return;
+    if (autoTranscriptFinalizeAttemptsRef.current >= 2) return;
+    autoTranscriptFinalizeConsumedRef.current = true;
+    autoTranscriptFinalizeAttemptsRef.current += 1;
+    const t = window.setTimeout(() => {
+      void finalizeFnRef.current();
+    }, 600);
+    return () => window.clearTimeout(t);
+  }, [
+    handoffPromisedNoEntryUrl,
+    resultsEntryUrl,
+    isLoading,
+    isFinalizing,
+    finalizeError,
+  ]);
 
   // Skip the current question
   const handleSkip = async () => {
-    if (isLoading || pendingScoreTeaser) return;
+    if (isLoading || isFinalizing) return;
     await sendMessage("Skip");
     setSelectedOptions([]);
     setInputValue("");
@@ -392,7 +425,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!inputValue.trim()) return;
-    if (pendingScoreTeaser) return;
+    if (isFinalizing || isLoading) return;
 
     // ─── Security: Honeypot check (bots fill hidden fields) ───
     if (honeypot) {
@@ -457,7 +490,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                   window.parent.postMessage({ type: "RESIZE_IFRAME", height }, "*");
                 }, 100);
                 return () => window.clearTimeout(timeoutId);
-              }, [messages.length, isLoading, pendingScoreTeaser]);
+              }, [messages.length, isLoading]);
 
   const handleReset = () => {
     reset();
@@ -520,7 +553,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
 
   // Handle submit with checkboxes/radio buttons
   const handleSubmitWithOptions = async () => {
-    if (selectedOptions.length === 0 || pendingScoreTeaser) return;
+    if (selectedOptions.length === 0 || isLoading || isFinalizing) return;
     const response = selectedOptions.join(', ');
     await sendMessage(response);
     setSelectedOptions([]);
@@ -620,7 +653,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                 cursor: "pointer",
               }}
             >
-              Open full results
+              See my results
             </button>
             <button
               type="button"
@@ -700,38 +733,6 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
               <p style={{ fontSize: '14px', color: '#5A6B7E', fontWeight: 400, textAlign: 'center', marginTop: '6px', marginBottom: 0 }}>
                 {activeTierConfig.valueProp}
               </p>
-              {isEarlyStageMode && (
-                <>
-                  <div
-                    style={{
-                      marginTop: "10px",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "6px",
-                      border: "1px solid #07B0F233",
-                      background: "#07B0F212",
-                      color: "#065E8E",
-                      borderRadius: "999px",
-                      padding: "4px 10px",
-                      fontSize: "12px",
-                      fontWeight: 700,
-                    }}
-                    aria-label="Starter mode enabled"
-                  >
-                    Starter Mode
-                  </div>
-                  <p
-                    style={{
-                      margin: "6px 0 0",
-                      fontSize: "12px",
-                      color: "#5A6B7E",
-                      fontWeight: 500,
-                    }}
-                  >
-                    We&apos;ll focus on foundation-first moves you can act on right now.
-                  </p>
-                </>
-              )}
             </div>
           </header>
 
@@ -782,25 +783,6 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
               />
             )}
 
-            {!isUploadTier && conversationStarted && (
-              <p
-                style={{
-                  margin: "0 0 12px",
-                  padding: "10px 12px",
-                  borderRadius: 8,
-                  background: "#F8FAFC",
-                  border: "1px solid #E2E8F0",
-                  fontSize: 12,
-                  color: "#475569",
-                  lineHeight: 1.5,
-                }}
-              >
-                <strong style={{ color: "#021859" }}>Text-only chat.</strong>{" "}
-                {activeTierConfig.productName} doesn&apos;t include a file-attachment button here — describe
-                any guidelines, decks, or visuals in your messages and Wundy™ will use that context.
-              </p>
-            )}
-
             <div className="chat-panel">
               <div ref={chatMessagesRef} className="chat-messages" aria-live="polite">
                 {messages.map((message) => {
@@ -842,7 +824,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                                   ? handleCheckboxToggle(option)
                                   : handleRadioSelect(option)
                                 }
-                                disabled={isLoading || !!pendingScoreTeaser}
+                                disabled={isLoading || isFinalizing}
                               />
                               <span>{renderChatMarkdownInline(option)}</span>
                             </label>
@@ -862,9 +844,11 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                     </div>
                   );
                 })}
-                {isLoading && (
+                {(isLoading || isFinalizing) && (
                   <div className="chat-bubble chat-bubble-assistant pending">
-                    Wundy™ is thinking…
+                    {isFinalizing
+                      ? "Building your diagnostic from this conversation…"
+                      : "Wundy™ is thinking…"}
                   </div>
                 )}
                 <div ref={messagesEndRef} />
@@ -903,17 +887,6 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                 </div>
               )}
 
-              {pendingScoreTeaser && (
-                <ResultsScoreTeaserGate
-                  teaser={pendingScoreTeaser}
-                  turnstileToken={turnstileToken}
-                  productTier={activeTier}
-                  firstNameHint={customerName}
-                  productName={activeTierConfig.productName}
-                  onUnlocked={handleScoreTeaserUnlocked}
-                />
-              )}
-
               {resultsEntryUrl && !postVerifyDestination && (
                 <div
                   style={{
@@ -926,6 +899,10 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                 >
                   <p style={{ margin: "0 0 10px", fontSize: 14, fontWeight: 700, color: "#0C4A6E" }}>
                     Your {activeTierConfig.productName} is ready
+                  </p>
+                  <p style={{ margin: "0 0 12px", fontSize: 13, color: "#075985", lineHeight: 1.45 }}>
+                    Open your results to see your WunderBrand Score™. If you haven&apos;t added an email yet, you&apos;ll
+                    confirm it there to finish saving everything.
                   </p>
                   <button
                     type="button"
@@ -944,48 +921,76 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                       cursor: "pointer",
                     }}
                   >
-                    Open full diagnostic
+                    See my results
                   </button>
                   {showEmailVerification && (
                     <p style={{ margin: "10px 0 0", fontSize: 12, color: "#075985", lineHeight: 1.45 }}>
-                      If an email confirmation step is open on top of this page, complete it first — then use this
-                      button (or the bar at the top) to open your full results.
+                      If an email confirmation step is open on top of this page, complete it first — then tap{" "}
+                      <strong>See my results</strong> (or use the bar at the top).
                     </p>
                   )}
                 </div>
               )}
 
-              {handoffPromisedNoEntryUrl && !resultsEntryUrl && !isLoading && (
+              {needsResultsRecovery && (
                 <div
                   style={{
-                    padding: "12px",
+                    padding: "14px 12px",
                     marginBottom: 10,
-                    borderRadius: 8,
-                    background: "#FFFBEB",
-                    border: "1px solid #FDE68A",
+                    borderRadius: 10,
+                    background: "linear-gradient(180deg, #E0F2FE 0%, #DBEAFE 100%)",
+                    border: "1px solid #7DD3FC",
                   }}
                 >
-                  <p style={{ margin: "0 0 8px", fontSize: 13, color: "#92400E", lineHeight: 1.45 }}>
-                    Still finalizing your diagnostic. If nothing happened after the last message, tap{" "}
-                    <strong>Continue</strong> — we&apos;ll try to complete the handoff.
+                  <p style={{ margin: "0 0 10px", fontSize: 14, fontWeight: 700, color: "#0C4A6E" }}>
+                    Almost there
                   </p>
+                  <p style={{ margin: "0 0 12px", fontSize: 13, color: "#075985", lineHeight: 1.45 }}>
+                    Tap below to finish saving your diagnostic and open your results. If something failed on the first try,
+                    this runs the handoff again — same button as when your link is ready.
+                  </p>
+                  {finalizeError && (
+                    <p style={{ margin: "0 0 10px", fontSize: 12, color: "#991B1B", lineHeight: 1.45 }}>
+                      {finalizeError}
+                    </p>
+                  )}
                   <button
                     type="button"
-                    onClick={() => void sendMessage("Continue")}
+                    onClick={() => void finalizeFromTranscript()}
+                    disabled={isFinalizing}
                     style={{
                       width: "100%",
-                      padding: "10px 14px",
+                      padding: "12px 16px",
                       borderRadius: 8,
-                      border: "1px solid #D97706",
-                      background: "#fff",
-                      color: "#B45309",
+                      border: "none",
+                      background: isFinalizing ? "#94D8F7" : "#07B0F2",
+                      color: "#fff",
                       fontWeight: 700,
-                      fontSize: 14,
-                      cursor: "pointer",
+                      fontSize: 15,
+                      cursor: isFinalizing ? "wait" : "pointer",
                     }}
                   >
-                    Continue
+                    {isFinalizing ? "Opening…" : "See my results"}
                   </button>
+                  {finalizeError && (
+                    <button
+                      type="button"
+                      onClick={() => clearFinalizeError()}
+                      style={{
+                        marginTop: 8,
+                        padding: 0,
+                        border: "none",
+                        background: "none",
+                        color: "#0369A1",
+                        fontSize: 12,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        textDecoration: "underline",
+                      }}
+                    >
+                      Dismiss message
+                    </button>
+                  )}
                 </div>
               )}
 
@@ -996,16 +1001,16 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                     type="button"
                     className="chat-send"
                     onClick={handleSubmitWithOptions}
-                    disabled={isLoading || selectedOptions.length === 0 || !!pendingScoreTeaser}
+                    disabled={isLoading || isFinalizing || selectedOptions.length === 0}
                   >
-                    {isLoading ? "Sending…" : "Continue"}
+                    {isLoading || isFinalizing ? "Sending…" : "Continue"}
                   </button>
                   {conversationStarted && (
                     <button
                       type="button"
                       className="chat-skip"
                       onClick={handleSkip}
-                      disabled={isLoading || !!pendingScoreTeaser}
+                      disabled={isLoading || isFinalizing}
                       title="Skip this question — you can come back to it"
                     >
                       Skip
@@ -1046,7 +1051,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                         type="button"
                         className="chat-attach"
                         onClick={() => fileInputRef.current?.click()}
-                        disabled={isLoading || isUploading || !!pendingScoreTeaser}
+                        disabled={isLoading || isFinalizing || isUploading}
                         title="Attach a file (brand guidelines, style guide, logo, etc.)"
                         aria-label="Attach file"
                       >
@@ -1066,22 +1071,22 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                       behaviorTrackerRef.current?.recordKeystroke();
                     }}
                     placeholder={isUploading ? "Uploading file…" : "Type your reply…"}
-                    disabled={isLoading || isUploading || !!pendingScoreTeaser}
+                    disabled={isLoading || isFinalizing || isUploading}
                     autoFocus
                   />
                   <button
                     type="submit"
                     className="chat-send"
-                    disabled={isLoading || isUploading || !inputValue.trim() || !!pendingScoreTeaser}
+                    disabled={isLoading || isFinalizing || isUploading || !inputValue.trim()}
                   >
-                    {isUploading ? "Uploading…" : isLoading ? "Sending…" : "Send"}
+                    {isUploading ? "Uploading…" : isLoading || isFinalizing ? "Sending…" : "Send"}
                   </button>
                   {conversationStarted && (
                     <button
                       type="button"
                       className="chat-skip"
                       onClick={handleSkip}
-                      disabled={isLoading || isUploading || !!pendingScoreTeaser}
+                      disabled={isLoading || isFinalizing || isUploading}
                       title="Skip this question — you can come back to it"
                     >
                       Skip

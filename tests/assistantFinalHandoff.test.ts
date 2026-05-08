@@ -7,8 +7,16 @@ import {
 describe("isAssistantFinalHandoffWithoutJsonBlock", () => {
   it("matches current system-prompt closing copy (no JSON)", () => {
     const text =
-      "Thank you for your insights, Claudine. Your diagnostic is being finalized now. You won't see scores inside this chat — use the **Open full diagnostic** button below the chat (or complete the quick email step if it appears) to open your full results.";
+      "Thank you for your insights, Claudine. Your diagnostic is being finalized now. You won't see your full pillar breakdown inside this chat — tap **See my results** below the chat when it appears to open your results page.";
     expect(isAssistantFinalHandoffWithoutJsonBlock(text)).toBe(true);
+  });
+
+  it("matches “see my results” wording", () => {
+    expect(
+      isAssistantFinalHandoffWithoutJsonBlock(
+        "All set — tap **See my results** below the chat to open your results page.",
+      ),
+    ).toBe(true);
   });
 
   it("matches “open the full diagnostic” wording", () => {
@@ -20,7 +28,30 @@ describe("isAssistantFinalHandoffWithoutJsonBlock", () => {
   });
 
   it("replies containing JSON are not treated as jsonless handoff", () => {
-    expect(isAssistantFinalHandoffWithoutJsonBlock('Thanks! {"userName":"x"}')).toBe(false);
+    expect(
+      isAssistantFinalHandoffWithoutJsonBlock('Thanks! {"userName":"x","businessName":"y","industry":"z"}'),
+    ).toBe(false);
+  });
+
+  it("matches wrap-up copy when the model omits JSON (completed-all / finalize variants)", () => {
+    expect(
+      isAssistantFinalHandoffWithoutJsonBlock(
+        "It seems we've completed all the necessary questions for your diagnostic. I'll finalize your diagnostic now so you can access your insights.",
+      ),
+    ).toBe(true);
+    expect(
+      isAssistantFinalHandoffWithoutJsonBlock(
+        "Thank you! Your diagnostic will be available shortly — you won't see scores inside this chat.",
+      ),
+    ).toBe(true);
+  });
+
+  it("does not treat a stray brace as scoring JSON", () => {
+    expect(
+      isAssistantFinalHandoffWithoutJsonBlock(
+        "Your diagnostic is being finalized now — use **Open full diagnostic** below. (Example token: {abc})",
+      ),
+    ).toBe(true);
   });
 
   it("rejects random mid-conversation text", () => {
@@ -29,9 +60,9 @@ describe("isAssistantFinalHandoffWithoutJsonBlock", () => {
 });
 
 describe("assistantPromisedExternalResultsEntry", () => {
-  it("is true for finalized + open full results phrasing", () => {
+  it("is true for finalized + see my results phrasing", () => {
     const text =
-      "Your diagnostic is being finalized now. Use the Open full diagnostic button below the chat to open your full results.";
+      "Your diagnostic is being finalized now. Tap See my results below the chat to open your results page.";
     expect(assistantPromisedExternalResultsEntry(text)).toBe(true);
   });
 });

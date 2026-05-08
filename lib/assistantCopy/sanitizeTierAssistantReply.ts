@@ -67,6 +67,6 @@ function applySnapshotDiagnosticWording(prefix: string, tier: ChatTier): string 
     .replace(/\byour report\b/gi, "your diagnostic")
     .replace(/\bthe report\b/gi, "the diagnostic")
     .replace(/\bgenerate your report\b/gi, `deliver your ${product}`)
-    .replace(/results will appear below[^.!?]*/gi, "use **Open full diagnostic** below the chat to view your results")
+    .replace(/results will appear below[^.!?]*/gi, "use **See my results** below the chat to open your results page")
     .replace(/\breport\b/gi, "diagnostic");
 }

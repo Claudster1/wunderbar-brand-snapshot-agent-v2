@@ -4,6 +4,9 @@ import type { BrandChatMessage } from '../types';
 
 const API_URL = '/api/brand-snapshot';
 
+/** Browser fetch can hang on slow proxies — bail out so the UI can recover (transcript finalize, retry). */
+const BRAND_SNAPSHOT_CHAT_TIMEOUT_MS = 95_000;
+
 type ApiMessage = { role: 'user' | 'assistant'; content: string };
 type ProductTier = 'snapshot' | 'snapshot-plus' | 'blueprint' | 'blueprint-plus';
 
@@ -32,6 +35,12 @@ export async function getBrandSnapshotReply(
     payload.continuationReportId = options.continuationReportId;
   }
 
+  const controller = new AbortController();
+  const timeoutMs = BRAND_SNAPSHOT_CHAT_TIMEOUT_MS;
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  if (typeof setTimeout !== 'undefined') {
+    timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  }
   try {
     const response = await fetch(API_URL, {
       method: 'POST',
@@ -39,6 +48,7 @@ export async function getBrandSnapshotReply(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(payload),
+      signal: controller.signal,
     });
 
     if (!response.ok) {
@@ -74,10 +84,17 @@ export async function getBrandSnapshotReply(
     return content;
   } catch (err: any) {
     console.error('[WunderBrand Snapshot™ Agent] Fetch error:', err);
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      throw new Error(
+        `The chat timed out after ${timeoutMs / 1000}s. Your replies are saved — we'll try generating your diagnostic from the transcript.`,
+      );
+    }
     if (err instanceof Error) {
       throw err;
     }
     throw new Error('There was an issue reaching the WunderBrand Snapshot™ specialist. Please try again in a moment.');
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 

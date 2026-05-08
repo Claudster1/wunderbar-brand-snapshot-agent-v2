@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { persistEmail } from "@/lib/persistEmail";
 import { setEmailMarketingOptInPreference } from "@/lib/smsConsent";
 import { TurnstileWidget } from "@/components/security/TurnstileWidget";
+import type { SnapshotContentOptIn } from "@/lib/snapshot/snapshotContentOptIn";
 
 type Props = {
   reportId: string;
@@ -14,11 +15,19 @@ type Props = {
   firstNameHint?: string;
 };
 
+const INSIGHTS_CHOICES: Array<{ value: SnapshotContentOptIn; label: string }> = [
+  { value: "marketing_trends", label: "Marketing trends & brand strategy tips" },
+  { value: "ai_updates", label: "AI tools & automation for business" },
+  { value: "both", label: "Both — send me everything useful" },
+  { value: "no_thanks", label: "No thanks — just the diagnostic" },
+];
+
 /**
- * Snapshot / Snapshot+ only: collect email after the hero score so CRM + report association match the old chat teaser funnel.
+ * Snapshot / Snapshot+ only: collect email after the hero score, then content preferences (same order as chat Q41, post-email).
  */
 export function SnapshotResultsLeadEmail({ reportId, productTier, productName, firstNameHint }: Props) {
   const router = useRouter();
+  const [step, setStep] = useState<"email" | "insights">("email");
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const handleTurnstileToken = useCallback((token: string) => {
     setTurnstileToken(token);
@@ -28,11 +37,11 @@ export function SnapshotResultsLeadEmail({ reportId, productTier, productName, f
   }, []);
 
   const [email, setEmail] = useState("");
-  const [marketingOptIn, setMarketingOptIn] = useState(true);
+  const [contentOptIn, setContentOptIn] = useState<SnapshotContentOptIn | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = useCallback(
+  const handleEmailSubmit = useCallback(
     async (e: FormEvent) => {
       e.preventDefault();
       setError(null);
@@ -59,7 +68,6 @@ export function SnapshotResultsLeadEmail({ reportId, productTier, productName, f
           body: JSON.stringify({
             reportId,
             email: trimmed,
-            marketingOptIn,
             turnstileToken,
             productTier,
             ...(firstName ? { firstName } : {}),
@@ -71,7 +79,54 @@ export function SnapshotResultsLeadEmail({ reportId, productTier, productName, f
           return;
         }
         persistEmail(trimmed);
-        setEmailMarketingOptInPreference(marketingOptIn);
+        setStep("insights");
+        setContentOptIn(null);
+        setError(null);
+      } catch {
+        setError("Network error. Please try again.");
+      } finally {
+        setSaving(false);
+      }
+    },
+    [email, firstNameHint, reportId, productTier, turnstileToken],
+  );
+
+  const handleInsightsSubmit = useCallback(
+    async (e: FormEvent) => {
+      e.preventDefault();
+      setError(null);
+      if (!contentOptIn) {
+        setError("Choose one option above.");
+        return;
+      }
+      if (!turnstileToken) {
+        setError("Security check is still loading — wait a second and try again.");
+        return;
+      }
+      const trimmed = email.trim().toLowerCase();
+      if (!trimmed.includes("@")) {
+        setError("Something went wrong — go back and re-enter your email.");
+        return;
+      }
+
+      setSaving(true);
+      try {
+        const res = await fetch("/api/snapshot/marketing-insights-preference", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            reportId,
+            email: trimmed,
+            contentOptIn,
+            turnstileToken,
+          }),
+        });
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        if (!res.ok) {
+          setError(typeof data.error === "string" ? data.error : "Could not save preference. Try again.");
+          return;
+        }
+        setEmailMarketingOptInPreference(contentOptIn !== "no_thanks");
         router.refresh();
       } catch {
         setError("Network error. Please try again.");
@@ -79,7 +134,7 @@ export function SnapshotResultsLeadEmail({ reportId, productTier, productName, f
         setSaving(false);
       }
     },
-    [email, marketingOptIn, firstNameHint, reportId, productTier, router, turnstileToken],
+    [contentOptIn, email, reportId, router, turnstileToken],
   );
 
   return (
@@ -91,67 +146,123 @@ export function SnapshotResultsLeadEmail({ reportId, productTier, productName, f
       <p className="m-0 mb-2 text-xs font-extrabold uppercase tracking-[0.06em] text-sky-800">
         Finish saving your diagnostic
       </p>
-      <h2 className="bs-h3 m-0 mb-2 text-brand-midnight">Get your complete {productName}</h2>
-      <p className="bs-body-sm m-0 mb-5 max-w-2xl text-brand-muted leading-relaxed">
-        Your score summary is above. Add your email so we can link this report to you, send access links,
-        and (if you choose) occasional brand insights.
-      </p>
-      <form onSubmit={handleSubmit} className="max-w-md">
-        <label htmlFor="results-lead-email" className="sr-only">
-          Email for complete results
-        </label>
-        <input
-          id="results-lead-email"
-          type="email"
-          inputMode="email"
-          autoComplete="email"
-          enterKeyHint="done"
-          value={email}
-          onChange={(ev) => {
-            setEmail(ev.target.value);
-            setError(null);
-          }}
-          placeholder="you@company.com"
-          disabled={saving}
-          className="mb-3 w-full box-border rounded-lg border border-slate-300 px-[14px] py-3 text-[15px]"
-        />
-        <label className="mb-4 flex cursor-pointer items-start gap-2.5 text-[13px] leading-snug text-slate-600">
-          <input
-            type="checkbox"
-            checked={marketingOptIn}
-            onChange={(ev) => setMarketingOptIn(ev.target.checked)}
-            disabled={saving}
-            className="mt-0.5 size-[18px] shrink-0 accent-[#021859]"
-          />
-          <span>
-            Yes — include me on occasional brand &amp; marketing tips by email (recommended). Uncheck for
-            diagnostic-only email. Unsubscribe anytime.
-          </span>
-        </label>
-        {error ? (
-          <p className="m-0 mb-3 text-[13px] text-red-700" role="alert">
-            {error}
+
+      {step === "email" ? (
+        <>
+          <h2 className="bs-h3 m-0 mb-2 text-brand-midnight">Get your complete {productName}</h2>
+          <p className="bs-body-sm m-0 mb-5 max-w-2xl text-brand-muted leading-relaxed">
+            Your score summary is above. Add your email so we can link this report to you and send access links.
+            On the next step you can choose whether you want occasional brand and marketing tips — only after your
+            email is saved.
           </p>
-        ) : null}
-        <button
-          type="submit"
-          disabled={saving || !email.trim()}
-          className="w-full rounded-lg border-0 bg-[#07B0F2] px-4 py-[14px] text-base font-extrabold text-white hover:brightness-105 disabled:cursor-wait disabled:bg-slate-400"
-        >
-          {saving ? "Saving…" : `Email my complete ${productName}`}
-        </button>
-        <p className="mt-3 m-0 text-[11px] leading-snug text-slate-500">
-          We use your email to deliver this diagnostic and save your links.{" "}
-          <a
-            href="https://wunderbardigital.com/privacy-policy?utm_source=results_page&utm_medium=lead_email&utm_campaign=privacy&utm_content=privacy_policy"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-semibold text-sky-600"
-          >
-            Privacy Policy
-          </a>
-        </p>
-      </form>
+          <form onSubmit={handleEmailSubmit} className="max-w-md">
+            <label htmlFor="results-lead-email" className="sr-only">
+              Email for complete results
+            </label>
+            <input
+              id="results-lead-email"
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              enterKeyHint="done"
+              value={email}
+              onChange={(ev) => {
+                setEmail(ev.target.value);
+                setError(null);
+              }}
+              placeholder="you@company.com"
+              disabled={saving}
+              className="mb-3 w-full box-border rounded-lg border border-slate-300 px-[14px] py-3 text-[15px]"
+            />
+            {error ? (
+              <p className="m-0 mb-3 text-[13px] text-red-700" role="alert">
+                {error}
+              </p>
+            ) : null}
+            <button
+              type="submit"
+              disabled={saving || !email.trim()}
+              className="w-full rounded-lg border-0 bg-[#07B0F2] px-4 py-[14px] text-base font-extrabold text-white hover:brightness-105 disabled:cursor-wait disabled:bg-slate-400"
+            >
+              {saving ? "Saving…" : "Continue"}
+            </button>
+            <p className="mt-3 m-0 text-[11px] leading-snug text-slate-500">
+              We use your email to deliver this diagnostic and save your links.{" "}
+              <a
+                href="https://wunderbardigital.com/privacy-policy?utm_source=results_page&utm_medium=lead_email&utm_campaign=privacy&utm_content=privacy_policy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-sky-600"
+              >
+                Privacy Policy
+              </a>
+            </p>
+          </form>
+        </>
+      ) : (
+        <>
+          <h2 className="bs-h3 m-0 mb-2 text-brand-midnight">Almost done</h2>
+          <p className="bs-body-sm m-0 mb-4 max-w-2xl text-brand-muted leading-relaxed">
+            We share occasional insights to help businesses like yours stay ahead. Anything here sound useful?
+          </p>
+          <form onSubmit={handleInsightsSubmit} className="max-w-md">
+            <fieldset className="m-0 mb-4 border-0 p-0">
+              <legend className="sr-only">Email content preferences</legend>
+              <div className="flex flex-col gap-2.5">
+                {INSIGHTS_CHOICES.map(({ value, label }) => (
+                  <label
+                    key={value}
+                    className={
+                      "flex cursor-pointer items-start gap-2.5 rounded-lg border px-3 py-2.5 text-[14px] leading-snug " +
+                      (contentOptIn === value
+                        ? "border-[#07B0F2] bg-sky-50/80 text-slate-800"
+                        : "border-slate-200 bg-white/80 text-slate-800")
+                    }
+                  >
+                    <input
+                      type="radio"
+                      name="content-opt-in"
+                      value={value}
+                      checked={contentOptIn === value}
+                      onChange={() => {
+                        setContentOptIn(value);
+                        setError(null);
+                      }}
+                      disabled={saving}
+                      className="mt-1 size-[18px] shrink-0 accent-[#021859]"
+                    />
+                    <span>{label}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            {error ? (
+              <p className="m-0 mb-3 text-[13px] text-red-700" role="alert">
+                {error}
+              </p>
+            ) : null}
+            <button
+              type="submit"
+              disabled={saving || !contentOptIn}
+              className="w-full rounded-lg border-0 bg-[#07B0F2] px-4 py-[14px] text-base font-extrabold text-white hover:brightness-105 disabled:cursor-not-allowed disabled:bg-slate-400"
+            >
+              {saving ? "Saving…" : `Save & open my full ${productName}`}
+            </button>
+            <button
+              type="button"
+              className="mt-3 w-full border-0 bg-transparent text-[13px] font-semibold text-sky-700 underline"
+              disabled={saving}
+              onClick={() => {
+                setStep("email");
+                setError(null);
+                setContentOptIn(null);
+              }}
+            >
+              Back to email
+            </button>
+          </form>
+        </>
+      )}
     </section>
   );
 }

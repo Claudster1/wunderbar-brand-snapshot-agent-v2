@@ -536,6 +536,13 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
   const selectOptions = lastAssistantMessage 
     ? parseSelectOptions(lastAssistantMessage.text)
     : null;
+  /** Once the user sends a reply, the thread ends with a user bubble — don't keep showing stale radios (Continue would stay disabled). */
+  const lastThreadMessage = messages.length > 0 ? messages[messages.length - 1] : undefined;
+  const chatAwaitingChoiceOnLatestAssistant =
+    !!lastThreadMessage &&
+    lastThreadMessage.role === "assistant" &&
+    !isLoading &&
+    !isFinalizing;
 
   // Handle checkbox toggle (multi-select)
   const handleCheckboxToggle = (option: string) => {
@@ -786,9 +793,12 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
             <div className="chat-panel">
               <div ref={chatMessagesRef} className="chat-messages" aria-live="polite">
                 {messages.map((message) => {
-                  const isLastAssistant = message.role === 'assistant' && message.id === lastAssistantMessage?.id;
+                  const isLastAssistant =
+                    message.role === "assistant" &&
+                    message.id === lastAssistantMessage?.id &&
+                    chatAwaitingChoiceOnLatestAssistant;
 
-                  // Only the LAST assistant message gets interactive options
+                  // Only the latest assistant turn (no user reply yet) gets interactive options
                   const selectData = isLastAssistant
                     ? parseSelectOptions(message.text)
                     : null;
@@ -994,7 +1004,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                 </div>
               )}
 
-              {selectOptions && selectOptions.options.length > 0 ? (
+              {selectOptions && selectOptions.options.length > 0 && chatAwaitingChoiceOnLatestAssistant ? (
                 // Show submit button for checkboxes / radio
                 <div className="chat-input-row">
                   <button

@@ -213,7 +213,7 @@ export function EmailVerificationGate({
       setError("Something went wrong. Please try again.");
       setLoading(false);
     }
-  }, [loading, reportId, email]);
+  }, [loading, reportId]);
 
   const handleInsightsSubmit = useCallback(
     async (e: FormEvent) => {

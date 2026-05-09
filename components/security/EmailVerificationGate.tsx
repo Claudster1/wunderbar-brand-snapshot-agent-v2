@@ -2,15 +2,16 @@
 
 // components/security/EmailVerificationGate.tsx
 // Full-screen overlay shown after the assessment completes but before results are revealed.
-// User enters their email → receives a 6-digit code → enters it → results unlock.
+// User enters their email → receives a 6-digit code → optional marketing insights choice → results unlock.
 
 import { useState, useRef, useEffect, useCallback, FormEvent } from "react";
 import {
   getSmsOptInPreference,
   setSmsOptInPreference,
-  getEmailMarketingOptInPreference,
   setEmailMarketingOptInPreference,
 } from "@/lib/smsConsent";
+import { TurnstileWidget } from "@/components/security/TurnstileWidget";
+import type { SnapshotContentOptIn } from "@/lib/snapshot/snapshotContentOptIn";
 
 interface EmailVerificationGateProps {
   reportId: string;
@@ -27,20 +28,26 @@ export function EmailVerificationGate({
   initialEmail = "",
   productName = "WunderBrand Snapshot™",
 }: EmailVerificationGateProps) {
-  const [step, setStep] = useState<"email" | "code">("email");
+  const [step, setStep] = useState<"email" | "code" | "insights">("email");
   const [email, setEmail] = useState(initialEmail);
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [smsOptedIn, setSmsOptedIn] = useState<boolean>(() => getSmsOptInPreference());
-  const [emailMarketingOptedIn, setEmailMarketingOptedIn] = useState<boolean>(() =>
-    getEmailMarketingOptInPreference(),
-  );
   const [phoneMobile, setPhoneMobile] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [contentOptIn, setContentOptIn] = useState<SnapshotContentOptIn | null>(null);
   const codeRefs = useRef<(HTMLInputElement | null)[]>([]);
   const emailRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+
+  const handleTurnstile = useCallback((token: string) => {
+    setTurnstileToken(token);
+    if (typeof window !== "undefined") {
+      (window as unknown as { __turnstileToken?: string }).__turnstileToken = token;
+    }
+  }, []);
 
   // Pre-fill when parent passes a known email (e.g. save-and-exit or local persistence).
   useEffect(() => {
@@ -128,12 +135,7 @@ export function EmailVerificationGate({
       setError("Please add a valid mobile number with country code for SMS updates (example: +16575003620).");
       return;
     }
-    const success = await sendCode(
-      trimmed,
-      smsOptedIn,
-      emailMarketingOptedIn,
-      normalizedPhone,
-    );
+    const success = await sendCode(trimmed, smsOptedIn, false, normalizedPhone);
     if (success) {
       setStep("code");
       // Focus first code input after a short delay
@@ -192,7 +194,10 @@ export function EmailVerificationGate({
         signal: controller.signal,
       });
       const data = await res.json();
-      if (controller.signal.aborted) return;
+      if (controller.signal.aborted) {
+        setLoading(false);
+        return;
+      }
       if (!res.ok) {
         setError(data.error || "Verification failed.");
         setCode(["", "", "", "", "", ""]);
@@ -200,16 +205,62 @@ export function EmailVerificationGate({
         setLoading(false);
         return;
       }
-      onVerified(email.trim().toLowerCase());
+      setLoading(false);
+      setContentOptIn(null);
+      setStep("insights");
     } catch (err: unknown) {
       if ((err as Error)?.name === "AbortError") return;
       setError("Something went wrong. Please try again.");
       setLoading(false);
     }
-  }, [loading, reportId, email, onVerified]);
+  }, [loading, reportId]);
+
+  const handleInsightsSubmit = useCallback(
+    async (e: FormEvent) => {
+      e.preventDefault();
+      if (loading) return;
+      setError("");
+      if (!contentOptIn) {
+        setError("Choose one option to continue.");
+        return;
+      }
+      if (!turnstileToken) {
+        setError("Security check is still loading — wait a second and try again.");
+        return;
+      }
+      const normalized = email.trim().toLowerCase();
+      setLoading(true);
+      try {
+        const res = await fetch("/api/snapshot/marketing-insights-preference", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            reportId,
+            email: normalized,
+            contentOptIn,
+            turnstileToken,
+          }),
+        });
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        if (!res.ok) {
+          setError(typeof data.error === "string" ? data.error : "Could not save your preference. Try again.");
+          setLoading(false);
+          return;
+        }
+        setEmailMarketingOptInPreference(contentOptIn !== "no_thanks");
+        onVerified(normalized);
+      } catch {
+        setError("Something went wrong. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [loading, contentOptIn, turnstileToken, email, reportId, onVerified],
+  );
 
   return (
     <div className="email-verification-gate">
+      <TurnstileWidget onToken={handleTurnstile} />
       <div className="email-verification-card">
         {/* Header */}
         <div className="email-verification-header">
@@ -220,12 +271,18 @@ export function EmailVerificationGate({
             </svg>
           </div>
           <h2 className="email-verification-title">
-            {step === "email" ? "Your results are ready!" : "Check your email"}
+            {step === "email"
+              ? "Your results are ready!"
+              : step === "code"
+                ? "Check your email"
+                : "One last thing"}
           </h2>
           <p className="email-verification-subtitle">
             {step === "email"
               ? `Enter your email to unlock your full ${productName}. Next, you'll open the results experience — scores, insights, and PDF download — in one place.`
-              : `We sent a 6-digit code to ${email}`}
+              : step === "code"
+                ? `We sent a 6-digit code to ${email}`
+                : `We share occasional insights to help businesses like yours stay ahead. Choose what (if anything) you'd like by email — then we'll open your ${productName}.`}
           </p>
         </div>
 
@@ -286,34 +343,6 @@ export function EmailVerificationGate({
                   style={{ marginBottom: 10 }}
                 />
               )}
-              <label
-                style={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  gap: 10,
-                  marginTop: 0,
-                  marginBottom: 10,
-                  color: "#5A6B7E",
-                  fontSize: 13,
-                  lineHeight: 1.5,
-                  textAlign: "left",
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={emailMarketingOptedIn}
-                  onChange={(e) => {
-                    const checked = e.target.checked;
-                    setEmailMarketingOptedIn(checked);
-                    setEmailMarketingOptInPreference(checked);
-                  }}
-                  disabled={loading}
-                  style={{ marginTop: 2 }}
-                />
-                <span>
-                  Send me occasional product tips and offers by email.
-                </span>
-              </label>
             <button
               type="submit"
               className="email-verification-btn"
@@ -364,7 +393,7 @@ export function EmailVerificationGate({
                     setError("Please add a valid mobile number with country code for SMS updates (example: +16575003620).");
                     return;
                   }
-                  await sendCode(email.trim(), smsOptedIn, emailMarketingOptedIn, normalizedPhone);
+                  await sendCode(email.trim(), smsOptedIn, false, normalizedPhone);
                 }}
                 disabled={loading || resendCooldown > 0}
               >
@@ -372,6 +401,63 @@ export function EmailVerificationGate({
               </button>
             </div>
           </div>
+        )}
+
+        {step === "insights" && (
+          <form onSubmit={handleInsightsSubmit} className="email-verification-form">
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 10,
+                marginBottom: 14,
+                textAlign: "left",
+              }}
+            >
+              {(
+                [
+                  { value: "marketing_trends" as const, label: "Marketing trends & brand strategy tips" },
+                  { value: "ai_updates" as const, label: "AI tools & automation for business" },
+                  { value: "both" as const, label: "Both — send me everything useful" },
+                  { value: "no_thanks" as const, label: "No thanks — just the diagnostic" },
+                ] as const
+              ).map(({ value, label }) => (
+                <label
+                  key={value}
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: 10,
+                    padding: "10px 12px",
+                    borderRadius: 8,
+                    border: contentOptIn === value ? "2px solid #07B0F2" : "1px solid #E2E8F0",
+                    background: contentOptIn === value ? "#f0f9ff" : "#fff",
+                    cursor: "pointer",
+                    fontSize: 14,
+                    color: "#334155",
+                    lineHeight: 1.45,
+                  }}
+                >
+                  <input
+                    type="radio"
+                    name="insights-opt-in"
+                    checked={contentOptIn === value}
+                    onChange={() => {
+                      setContentOptIn(value);
+                      setError("");
+                    }}
+                    disabled={loading}
+                    style={{ marginTop: 3 }}
+                  />
+                  <span>{label}</span>
+                </label>
+              ))}
+            </div>
+            {error && <p className="email-verification-error">{error}</p>}
+            <button type="submit" className="email-verification-btn" disabled={loading || !contentOptIn}>
+              {loading ? "Opening…" : "Continue to results"}
+            </button>
+          </form>
         )}
       </div>
     </div>

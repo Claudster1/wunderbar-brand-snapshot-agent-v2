@@ -75,4 +75,4 @@ Required shape (fill every key; use null only where the type allows null):
   "mentionedAssets": string[]
 }
 
-For Snapshot free tier, many advanced fields may be unknown — infer reasonable defaults (e.g. servicesInterest "not_now", expertConversation false, contentOptIn "no_thanks") rather than leaving keys out.`;
+For Snapshot free tier, many advanced fields may be unknown — infer reasonable defaults (e.g. servicesInterest "not_now", expertConversation false). Set **contentOptIn** to **null** — that preference is collected only after email on the results / verification flow, not from chat.`;

@@ -526,10 +526,18 @@ export async function POST(req: Request) {
       .single();
 
     if (error || !data) {
-      logger.error("[Snapshot API] Failed to save", { error: error?.message });
+      // Surface the underlying Postgres error to logs so we can diagnose schema / RLS issues, but
+      // keep the client message generic — never leak DB hints to end users.
+      logger.error("[Snapshot API] Failed to save", {
+        error: error?.message,
+        code: (error as { code?: string } | undefined)?.code,
+        details: (error as { details?: string } | undefined)?.details,
+        hint: (error as { hint?: string } | undefined)?.hint,
+        report_id,
+      });
       return NextResponse.json(
-        { error: "Failed to save snapshot" },
-        { status: 500 }
+        { error: "We couldn't save your snapshot. Please try again in a moment." },
+        { status: 500 },
       );
     }
 

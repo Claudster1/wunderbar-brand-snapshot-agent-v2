@@ -256,6 +256,19 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     return conversationSuggestsIntakeComplete(messages);
   }, [messages, resultsEntryUrl, postVerifyDestination, isLoading]);
 
+  /**
+   * Once the user has reached the end of intake (results URL ready, recovery panel up, finalize
+   * running, or post-verify) the chat input/Send/Skip should be hidden — they have nothing left to
+   * type and seeing the box invites confusion as in the support screenshots.
+   */
+  const intakeInputHidden =
+    !!resultsEntryUrl ||
+    !!postVerifyDestination ||
+    isFinalizing ||
+    needsResultsRecovery ||
+    handoffPromisedNoEntryUrl ||
+    conversationSuggestsIntakeComplete(messages);
+
   /** Auto-run transcript finalize once when the model clearly wrapped up but no results URL (avoids “click Continue” loops). */
   const finalizeFnRef = useRef(finalizeFromTranscript);
   finalizeFnRef.current = finalizeFromTranscript;
@@ -1004,7 +1017,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                 </div>
               )}
 
-              {selectOptions && selectOptions.options.length > 0 && chatAwaitingChoiceOnLatestAssistant ? (
+              {intakeInputHidden ? null : selectOptions && selectOptions.options.length > 0 && chatAwaitingChoiceOnLatestAssistant ? (
                 // Show submit button for checkboxes / radio
                 <div className="chat-input-row">
                   <button
@@ -1119,8 +1132,8 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
               </div>
             )}
 
-            {/* Save & Continue Later link — only visible after conversation starts */}
-            {conversationStarted && !isLoading && (
+            {/* Save & Continue Later link — only visible while there are still questions to answer */}
+            {conversationStarted && !isLoading && !intakeInputHidden && (
               <div style={{
                 textAlign: "center",
                 padding: "8px 0 4px",

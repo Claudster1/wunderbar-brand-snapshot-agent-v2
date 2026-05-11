@@ -263,6 +263,68 @@ export function isBareAffirmOrDeny(text: string): boolean {
 }
 
 /**
+ * Mirrors the `asked` regex inside each switch arm of `flexibleDirectCaptureComplete`.
+ * Used so a refusal-style user reply to the same topic can satisfy the capture and stop the loop.
+ */
+function assistantTurnAsksAboutCapture(key: CaptureKey, la: string): boolean {
+  switch (key) {
+    case "business_type_classifier":
+      return /\b(get paid|who (are you |do you )?(mainly )?selling|revenue model|business model|one sentence|describe your|gut check|feel accurate|primarily running|tailor this|how do you)\b/i.test(
+        la,
+      );
+    case "monthly_revenue_range":
+      return /\b(month to month|monthly|bring in|generate|revenue|figures|mrr|arr|ballpark|how much.*business)\b/i.test(
+        la,
+      );
+    case "average_transaction_value":
+      return (
+        /\b(average|deal size|transaction|order value|ticket|rough estimate|ballpark).*\b(value|size|today)\b|\b(how much|what).*\b(deal|order|transaction|project|hour)\b/i.test(
+          la,
+        )
+      );
+    case "conversion_rate_estimate":
+      return /\b(conversion|close rate|win rate|track it|do you track)\b/i.test(la);
+    case "website_presence":
+      return (
+        /\b(website|url|web address|domain|site to share|online home|\.com)\b/i.test(la) ||
+        /\b(have (a )?website|do you have.*site)\b/i.test(la)
+      );
+    case "social_platform_presence":
+      return assistantAskedDedicatedSocialPlatformPresence(la);
+    case "additional_marketing_surfaces":
+      return /\b(outside|beyond|other channels|marketing surfaces|investing attention|else are you|beyond your (website|site))\b/i.test(
+        la,
+      );
+    case "primary_acquisition_channel":
+      return /\b(where|find you|finding you|channel|coming from|most new|customers|clients|discovery|acquisition)\b/i.test(
+        la,
+      );
+    case "monthly_marketing_budget":
+      return /\b(marketing budget|spend on marketing|ad spend|monthly.*budget)\b/i.test(la);
+    case "content_creation_capacity":
+      return /\b(content creation|hours|per week|time.*content|invest in content)\b/i.test(la);
+    case "competitive_pressure_point":
+      return /\b(competitor|competition|choose (a )?competitor|over you|instead of you|why (they|people|buyers|prospects) (pick|choose)|pressure point|lose (deals|a deal)|comes up most often)\b/i.test(
+        la,
+      );
+    case "has_email_list":
+      return /\b(email list|newsletter|mailing list|sending to)\b/i.test(la);
+    case "has_lead_magnet":
+      return /\b(lead magnet|free download|template|guide|checklist|exchange for.*email|gated|opt-?in|free.*email)\b/i.test(
+        la,
+      );
+    case "has_clear_cta":
+      return /\b(next step|how clear|cta|call to action|landing|site|main profile|button|action)\b/i.test(la);
+    case "marketing_channel_mix":
+      return /\b(showing up|channels|where.*lately|marketing channel|actively using|putting your marketing)\b/i.test(
+        la,
+      );
+    default:
+      return false;
+  }
+}
+
+/**
  * Marks a capture complete when the assistant just asked about this topic (la) and the user
  * answered in a short, substantive way (lu) — without requiring narrative phrasing.
  */
@@ -272,6 +334,16 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
   if (t.length === 0) return false;
   if (t.length > SHORT_CAPTURE_REPLY_MAX && !FLEXIBLE_CAPTURE_ALLOWS_LONG_REPLY.includes(key)) return false;
   if (MEANINGLESS_ACK_ONLY.test(t)) return false;
+
+  /**
+   * Universal refusal short-circuit: if the assistant just asked about this capture and the user
+   * responded with a refusal / uncertainty phrase ("skip", "idk", "not sure"), record null and move on
+   * instead of looping. Per-case `asked` regexes still gate this so we only accept refusals to the
+   * relevant question — not stray "not sure" in unrelated chatter.
+   */
+  if (CAPTURE_REFUSAL_PATTERN.test(t) && assistantTurnAsksAboutCapture(key, la)) {
+    return true;
+  }
 
   switch (key) {
     case "business_type_classifier": {
@@ -312,7 +384,11 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
         /\$|€|£|\d{1,3}(,\d{3})+\b|\d+k\b|\d+\s*k\/mo|six-?figures|seven-?figures|pre-?revenue|not much|next to nothing/i.test(
           t,
         );
-      return asked && answered;
+      const earlyStageHint =
+        /\b(barely (anything|any)|just (starting|getting started|launched|launching)|very small|tiny so far|nothing yet|haven'?t (made|earned|booked)|first (client|sale) (still )?pending|no revenue yet|early days)\b/i.test(
+          t,
+        );
+      return asked && (answered || earlyStageHint);
     }
     case "average_transaction_value": {
       const asked =
@@ -359,7 +435,8 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
         /\b(email|newsletter|seo|search|content|paid|ads?|ppc|events?|webinars?|partners|referrals|word of mouth|wom|podcast|pr\b|nothing else|not much|mostly|just|only organic)\b/i.test(
           t,
         ) || terseMultiItemAllMatch(t, 2, CHUNK_CHANNEL);
-      return asked && answered;
+      const bareNone = /^(no|nope|none|nothing|n\/a|not really|not at the moment|nada)\.?$/i.test(t);
+      return asked && (answered || bareNone);
     }
     case "primary_acquisition_channel": {
       const asked =
@@ -403,7 +480,11 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
         /\b(price|pricing|cheaper|trust|clarity|speed|proof|fit|reputation|features|support|brand|timing|awareness)\b/i.test(
           t,
         );
-      return listAnswer || singleFactor;
+      const dontKnow =
+        /\b(haven'?t (thought|noticed)|no idea|not sure|don'?t (really )?know|hard to say|no clear|nothing specific|nobody (specific|in particular)|don'?t (track|notice)|no direct competitor|no real competitor)\b/i.test(
+          t,
+        );
+      return listAnswer || singleFactor || dontKnow;
     }
     case "has_email_list": {
       const asked = /\b(email list|newsletter|mailing list|sending to)\b/i.test(la);
@@ -430,11 +511,12 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
       const asked =
         /\b(next step|how clear|cta|call to action|landing|site|main profile|button|action)\b/i.test(la);
       const single =
-        /\b(clear|obvious|confus|mixed|muddy|unclear|pretty|fairly|sort of|kind of|meh|one main|too many|obvious|straightforward)\b/i.test(
+        /\b(clear|obvious|confus|mixed|muddy|unclear|pretty|fairly|sort of|kind of|meh|one main|too many|obvious|straightforward|i think so|i guess so|yeah it'?s|yep it'?s|no it'?s not|not really clear)\b/i.test(
           t,
         );
       const listAnswer = asked && terseMultiItemAllMatch(t, 2, CHUNK_CTA_CLARITY);
-      return asked && (single || listAnswer);
+      const bareYesNoToCtaAsk = asked && isBareAffirmOrDeny(t);
+      return asked && (single || listAnswer || bareYesNoToCtaAsk);
     }
     case "marketing_channel_mix": {
       const asked =

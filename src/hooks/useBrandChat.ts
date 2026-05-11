@@ -455,15 +455,36 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     finalizingRef.current = true;
     setIsFinalizing(true);
     setFinalizeError(null);
+    /**
+     * The server transcript-extract has a 45s LLM timeout + a fallback retry, so without a client-side
+     * abort an unlucky cold start could leave the user staring at "Opening…" for ~90s. These ceilings
+     * are well above the typical 4–8s response and surface a recoverable error instead.
+     */
+    const EXTRACT_TIMEOUT_MS = 60_000;
+    const SCORING_TIMEOUT_MS = 30_000;
     try {
-      const ext = await fetch('/api/snapshot/complete-from-transcript', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: history.map((m) => ({ role: m.role, text: m.text })),
-          productTier: options?.productTier,
-        }),
-      });
+      const extController = new AbortController();
+      const extTimer = setTimeout(() => extController.abort(), EXTRACT_TIMEOUT_MS);
+      let ext: Response;
+      try {
+        ext = await fetch('/api/snapshot/complete-from-transcript', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: history.map((m) => ({ role: m.role, text: m.text })),
+            productTier: options?.productTier,
+          }),
+          signal: extController.signal,
+        });
+      } catch (e) {
+        if ((e as Error)?.name === 'AbortError') {
+          setFinalizeError('That took longer than expected. Tap See my results to try again.');
+          return false;
+        }
+        throw e;
+      } finally {
+        clearTimeout(extTimer);
+      }
       const extBody = await ext.text();
       let extJson: { error?: string; answers?: Record<string, unknown> } = {};
       try {
@@ -484,18 +505,32 @@ export function useBrandChat(options?: UseBrandChatOptions) {
       const turnstileToken = typeof window !== 'undefined' ? (window as any).__turnstileToken : undefined;
       const persistedEmail = typeof window !== 'undefined' ? getPersistedEmail() : null;
 
-      const scoringRes = await fetch('/api/snapshot', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          answers,
-          name: typeof answers.userName === 'string' ? answers.userName : undefined,
-          companyName: typeof answers.businessName === 'string' ? answers.businessName : undefined,
-          businessName: typeof answers.businessName === 'string' ? answers.businessName : undefined,
-          ...(persistedEmail ? { email: persistedEmail } : {}),
-          turnstileToken,
-        }),
-      });
+      const scoringController = new AbortController();
+      const scoringTimer = setTimeout(() => scoringController.abort(), SCORING_TIMEOUT_MS);
+      let scoringRes: Response;
+      try {
+        scoringRes = await fetch('/api/snapshot', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            answers,
+            name: typeof answers.userName === 'string' ? answers.userName : undefined,
+            companyName: typeof answers.businessName === 'string' ? answers.businessName : undefined,
+            businessName: typeof answers.businessName === 'string' ? answers.businessName : undefined,
+            ...(persistedEmail ? { email: persistedEmail } : {}),
+            turnstileToken,
+          }),
+          signal: scoringController.signal,
+        });
+      } catch (e) {
+        if ((e as Error)?.name === 'AbortError') {
+          setFinalizeError('Scoring is taking longer than expected. Tap See my results to try again.');
+          return false;
+        }
+        throw e;
+      } finally {
+        clearTimeout(scoringTimer);
+      }
       const scoreText = await scoringRes.text();
       let scoreJson: Record<string, unknown> = {};
       try {

@@ -81,7 +81,11 @@ const DEFAULT_ROUTES: Record<UseCase, ModelRoute> = {
     fallbackProvider: "anthropic",
     fallbackModel: "claude-sonnet-4-20250514",
     temperature: 0.6,
-    maxTokens: 2000,
+    /**
+     * Chat turns typically use ~250 tokens; the cap matters for the final handoff JSON which can run long
+     * with many intake fields. 1200 trims worst-case latency vs. the prior 2000 cap while leaving headroom.
+     */
+    maxTokens: 1200,
     timeoutMs: 25_000,
   },
   snapshot_transcript_extract: {

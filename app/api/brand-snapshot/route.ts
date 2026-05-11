@@ -300,6 +300,28 @@ type CaptureState = {
   completed: boolean;
 };
 
+/**
+ * Cap how much chat history we send to the model each turn.
+ * Routing guards, prior-answer primer, and detectors carry forward what matters; the model just needs
+ * recent context to continue naturally. Keeps prompt size (and time-to-first-token) bounded as chats grow.
+ */
+const MAX_TRANSCRIPT_MESSAGES = 24;
+
+function buildModelTranscriptWindow(
+  messages: Array<{ role: string; content: string }>,
+): Array<{ role: string; content: string }> {
+  if (!Array.isArray(messages) || messages.length <= MAX_TRANSCRIPT_MESSAGES) {
+    return messages ?? [];
+  }
+  /** The very first user message is typically the user's name; preserving it keeps salutations consistent. */
+  const firstUserIdx = messages.findIndex((m) => m?.role === "user");
+  const tail = messages.slice(-MAX_TRANSCRIPT_MESSAGES);
+  if (firstUserIdx === -1) return tail;
+  const firstUser = messages[firstUserIdx];
+  if (!firstUser) return tail;
+  return tail.some((m) => m === firstUser) ? tail : [firstUser, ...tail];
+}
+
 /** Plain-language hint for the model only — keep internal `label` for logs/debug. */
 function modelFacingCaptureHint(key: CaptureKey): string {
   switch (key) {
@@ -1180,7 +1202,7 @@ export async function POST(req: Request) {
             },
           ]
         : []),
-      ...messages.map((m: { role: string; content: string }) => ({
+      ...buildModelTranscriptWindow(messages).map((m: { role: string; content: string }) => ({
         role: m.role as "user" | "assistant",
         content: m.content,
       })),

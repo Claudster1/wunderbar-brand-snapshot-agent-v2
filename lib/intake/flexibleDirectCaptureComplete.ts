@@ -374,7 +374,26 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
           t,
         );
       const listAnswer = asked && terseMultiItemAllMatch(t, 2, CHUNK_BUSINESS_MODEL);
-      return (asked && (answered || audienceDescriptor)) || listAnswer || confirmedShort;
+      /**
+       * Open-question fallback: when the *open* prompt was asked (not the confirmation variant) and
+       * the user typed something substantive (≥ 2 words, not a bare ack), accept it. The downstream
+       * transcript extract pulls the actual business model from the wider conversation — looping the
+       * same question on natural answers like "i do everything right now" / "i help families with X"
+       * is the loop users report, not improved data quality.
+       */
+      const openQuestionAsked = asked && !askedAsConfirmation;
+      const wordCount = t.split(/\s+/).filter(Boolean).length;
+      const substantiveOpenAnswer =
+        openQuestionAsked &&
+        wordCount >= 2 &&
+        !isBareAffirmOrDeny(t) &&
+        !/^(?:idk|dunno|huh|wat|hmm+|uh+|um+)\.?$/i.test(t);
+      return (
+        (asked && (answered || audienceDescriptor)) ||
+        listAnswer ||
+        confirmedShort ||
+        substantiveOpenAnswer
+      );
     }
     case "monthly_revenue_range": {
       const asked =

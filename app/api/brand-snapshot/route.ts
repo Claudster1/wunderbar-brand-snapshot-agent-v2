@@ -501,7 +501,9 @@ function getCaptureStates(
       completed:
         hasSignal(messages, /\baverage (transaction|deal|order) (value|size)\b/i) ||
         avgTxnLooseOk ||
-        refused(/\baverage (transaction|deal|order) (value|size)|typical deal\b/i),
+        refused(/\baverage (transaction|deal|order) (value|size)|typical deal\b/i) ||
+        flexibleDirectCaptureComplete("average_transaction_value", la, lu) ||
+        captureKeySatisfiedFromHistory("average_transaction_value", messages),
     },
     {
       key: "conversion_rate_estimate",

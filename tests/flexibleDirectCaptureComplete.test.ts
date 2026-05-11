@@ -310,7 +310,10 @@ describe("captureKeySatisfiedFromHistory", () => {
       { role: "assistant", content: LA.socialPlatforms },
       { role: "user", content: "I'd prefer not to answer that." },
     ];
-    expect(captureKeySatisfiedFromHistory("social_platform_presence", messages)).toBe(false);
+    // Universal refusal short-circuit in flexibleDirectCaptureComplete + the dedicated
+    // socialPresenceImmediateRefusalAfterDedicatedPrompt path both mark the capture complete so we
+    // don't re-ask after the user has declined.
+    expect(captureKeySatisfiedFromHistory("social_platform_presence", messages)).toBe(true);
     expect(socialPresenceImmediateRefusalAfterDedicatedPrompt(messages)).toBe(true);
   });
 });

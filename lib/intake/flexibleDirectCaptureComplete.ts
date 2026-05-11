@@ -279,12 +279,30 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
         /\b(get paid|who (are you |do you )?(mainly )?selling|revenue model|business model|one sentence|describe your|gut check|feel accurate|primarily running|tailor this|how do you)\b/i.test(
           la,
         );
+      /**
+       * When Wundy proposed an inferred business model and the user briefly confirms, that closes the capture.
+       * Without this, "yes / yep / sounds right" loops the model back into the same question.
+       */
+      const askedAsConfirmation =
+        /\b(does that (feel|sound) (accurate|right)|is that (right|accurate)|primarily running a|sounds? like you'?re|describe (your|the) (revenue|business) model differently)\b/i.test(
+          la,
+        );
+      const confirmedShort = askedAsConfirmation && isBareAffirmOrDeny(t);
       const answered =
         /\b(b2b|b2c|saas|e-?commerce|ecommerce|retail|consult|consulting|agency|freelanc|product|local|service|software|app|subscription|shopify|amazon|coaching|contractor|clinic|restaurant|consumer|businesses|founders|dtc|dtc brand|marketplace|nonprofit|wholesale|manufactur)\b/i.test(
           t,
         );
+      /**
+       * Plain audience descriptors ("smbs and startups", "small businesses", "founders") answer the
+       * "who are you selling to" half of the prompt. Pair with business_type inference upstream so we
+       * don't re-ask just because they led with their customer, not their model.
+       */
+      const audienceDescriptor =
+        /\b(smbs?|smb|smbs|smb's|smbs'|startups?|scale[- ]?ups?|enterprises?|mid[- ]?market|small businesses?|mid[- ]?size(d)? businesses?|founders?|ceos?|owners?|operators?|marketers?|marketing (teams?|leads?)|teams?|brands?|agencies|individuals|professionals|consumers?|clients|customers)\b/i.test(
+          t,
+        );
       const listAnswer = asked && terseMultiItemAllMatch(t, 2, CHUNK_BUSINESS_MODEL);
-      return (asked && answered) || listAnswer;
+      return (asked && (answered || audienceDescriptor)) || listAnswer || confirmedShort;
     }
     case "monthly_revenue_range": {
       const asked =

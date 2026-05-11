@@ -706,11 +706,28 @@ function forcedPromptRepeatCount(
   );
 }
 
+/**
+ * Soft-skip when the same capture has already been asked once. Previously required `>= 2`, which
+ * meant users had to see the question twice (and reply twice) before the system gave up. That was
+ * the visible "repeating question" loop. Now: if the forced prompt has appeared *or* the model has
+ * already paraphrased the same capture topic, we treat the next pending check as soft-skipped so
+ * the conversation moves on. The downstream transcript extract still pulls whatever the user said.
+ */
 function shouldSoftSkipDueToForcedPromptLoop(
   messages: Array<{ role: string; content: string }>,
   forcedPrompt: string,
+  pendingKey?: CaptureKey,
 ): boolean {
-  return forcedPromptRepeatCount(messages, forcedPrompt) >= 2;
+  const verbatim = forcedPromptRepeatCount(messages, forcedPrompt);
+  if (verbatim >= 1) return true;
+  if (!pendingKey) return false;
+  const paraphraseCount = messages
+    .filter((m) => m.role === "assistant")
+    .reduce(
+      (n, m) => (responseRequestsExpectedCapture(m.content || "", pendingKey) ? n + 1 : n),
+      0,
+    );
+  return paraphraseCount >= 1;
 }
 
 function buildCaptureQuestion(
@@ -784,7 +801,13 @@ function buildCaptureQuestion(
 function capturePromptPatternForKey(key: CaptureKey): RegExp {
   switch (key) {
     case "business_type_classifier":
-      return /\b(primary revenue|how you generate revenue|how do you get paid|it sounds like you're|business model|launching|pre[- ]?launch|no clients yet|thank you for sharing|based on what you|who you|selling to|revenue model|next question|does that feel accurate|describe your revenue)\b/i;
+      /**
+       * Was previously over-broad ("thank you for sharing", "next question", "based on what you")
+       * which marked unrelated transitional assistant turns as "asking the business-type capture",
+       * letting the force-prompt step skip and causing the user-reported repeating loop. Now
+       * limited to phrasing that actually concerns revenue model / who you sell to.
+       */
+      return /\b(primary revenue|how you generate revenue|how do you get paid|primarily get paid|it sounds like you'?re primarily|business model|launching|pre[- ]?launch|no clients yet|selling to|revenue model|describe (?:your|the) revenue|does that feel accurate)\b/i;
     case "website_presence":
       return /\b(website|url|domain|landing|site to share|web address|\.com|not on the web)\b/i;
     case "social_platform_presence":
@@ -1134,7 +1157,11 @@ export async function POST(req: Request) {
     const rawPending = getNextPendingCapture(messages, captureOpts);
     const rawForced = rawPending ? buildCaptureQuestion(rawPending.key, inferredType) : null;
     const softSkipKeys = new Set<CaptureKey>();
-    if (rawPending && rawForced && shouldSoftSkipDueToForcedPromptLoop(messages, rawForced)) {
+    if (
+      rawPending &&
+      rawForced &&
+      shouldSoftSkipDueToForcedPromptLoop(messages, rawForced, rawPending.key)
+    ) {
       softSkipKeys.add(rawPending.key);
     }
 

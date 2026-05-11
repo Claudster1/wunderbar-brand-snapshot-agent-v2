@@ -63,6 +63,36 @@ describe("flexibleDirectCaptureComplete", () => {
         false,
       );
     });
+    /**
+     * Regression: previously these natural-language replies didn't hit the `answered` or
+     * `audienceDescriptor` regexes and forced the assistant to re-ask the verbatim "Quick context
+     * check before we go deeper…" prompt — the exact user-reported repeating loop.
+     */
+    it("accepts substantive natural-language replies to the open business-type question", () => {
+      expect(flexibleDirectCaptureComplete("business_type_classifier", LA.business, "i do everything right now")).toBe(
+        true,
+      );
+      expect(
+        flexibleDirectCaptureComplete(
+          "business_type_classifier",
+          LA.business,
+          "I help families plan their finances",
+        ),
+      ).toBe(true);
+      expect(
+        flexibleDirectCaptureComplete(
+          "business_type_classifier",
+          LA.business,
+          "we make handmade soap for people who love natural skincare",
+        ),
+      ).toBe(true);
+    });
+    it("still rejects bare acks / single-word non-answers to the open question", () => {
+      expect(flexibleDirectCaptureComplete("business_type_classifier", LA.business, "")).toBe(false);
+      expect(flexibleDirectCaptureComplete("business_type_classifier", LA.business, "yes")).toBe(false);
+      expect(flexibleDirectCaptureComplete("business_type_classifier", LA.business, "thanks")).toBe(false);
+      expect(flexibleDirectCaptureComplete("business_type_classifier", LA.business, "idk")).toBe(true); // refusal short-circuit
+    });
   });
 
   describe("monthly_revenue_range", () => {

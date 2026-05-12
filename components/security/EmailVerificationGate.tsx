@@ -38,6 +38,8 @@ export function EmailVerificationGate({
   const [phoneMobile, setPhoneMobile] = useState("");
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [contentOptIn, setContentOptIn] = useState<SnapshotContentOptIn | null>(null);
+  // Honeypot: invisible to humans, bots auto-fill. Same pattern as the chat home + lead-email form.
+  const [honeypot, setHoneypot] = useState("");
   const codeRefs = useRef<(HTMLInputElement | null)[]>([]);
   const emailRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -102,6 +104,7 @@ export function EmailVerificationGate({
           smsOptedIn: includeSmsOptIn,
           emailMarketingOptedIn: includeEmailMarketingOptIn,
           phoneMobile: mobilePhone || null,
+          honeypot,
         }),
         signal: controller.signal,
       });
@@ -121,10 +124,14 @@ export function EmailVerificationGate({
       setLoading(false);
       return false;
     }
-  }, [loading, reportId]);
+  }, [loading, reportId, honeypot]);
 
   const handleEmailSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (honeypot) {
+      // Bot-shaped submission — silently no-op (no error, no progress). The bot gets no signal.
+      return;
+    }
     const trimmed = email.trim();
     if (!trimmed || !trimmed.includes("@")) {
       setError("Please enter a valid email address.");
@@ -298,6 +305,17 @@ export function EmailVerificationGate({
               className="email-verification-input"
               disabled={loading}
               autoComplete="email"
+            />
+            {/* Honeypot — invisible to humans, bots auto-fill. */}
+            <input
+              type="text"
+              name="company_url"
+              value={honeypot}
+              onChange={(e) => setHoneypot(e.target.value)}
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              style={{ position: "absolute", left: "-9999px", width: 0, height: 0, opacity: 0 }}
             />
             {error && <p className="email-verification-error">{error}</p>}
             <label

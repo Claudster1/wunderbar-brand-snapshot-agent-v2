@@ -194,8 +194,24 @@ export async function GET(req: Request) {
       .single();
     
     if (error || !data) {
+      const debugRequested = req.headers.get("x-snapshot-debug") === "1";
+      const pgCode = (error as { code?: string } | undefined)?.code;
+      logger.error("[Snapshot Get API] Report not found / select error", {
+        report_id: id,
+        error: error?.message,
+        code: pgCode,
+        details: (error as { details?: string } | undefined)?.details,
+      });
       return NextResponse.json(
-        { error: "Report not found" },
+        {
+          error: "Report not found",
+          ...(debugRequested
+            ? {
+                errorCode: pgCode || "no_rows",
+                errorDiagnostic: error?.message?.slice(0, 240),
+              }
+            : {}),
+        },
         { status: 404 }
       );
     }

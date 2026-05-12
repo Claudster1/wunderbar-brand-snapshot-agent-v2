@@ -184,12 +184,15 @@ export async function GET(req: Request) {
     // Schema notes (production schema, not the local schema.sql seed):
     //   • `company_name:brand_name` is a PostgREST alias — canonical column is `brand_name`,
     //     response key stays `company_name` so downstream consumers don't change.
-    //   • `summary`, `opportunities_summary`, `upgrade_cta`, `product_tier` are NOT top-level
-    //     columns in production. They live inside `full_report` JSON; the transform below
-    //     hoists them out so the response shape the results page expects is preserved.
+    //   • `summary`, `opportunities_summary`, `upgrade_cta`, `product_tier`, `email_verified`
+    //     are NOT top-level columns in production. They live inside `full_report` JSON or
+    //     simply default; the transform below hoists / defaults them so the response shape
+    //     the results page expects is preserved. Selecting non-existent columns produces
+    //     PostgREST 42703 ("column does not exist") which the catch-all wraps into a 404 —
+    //     i.e. successfully-saved reports become unreadable. That was the prior bug.
     const { data, error } = await supabaseAdmin
       .from("brand_snapshot_reports")
-      .select("report_id, company_name:brand_name, brand_alignment_score, pillar_scores, pillar_insights, recommendations, full_report, user_name, user_email, email_verified, created_at")
+      .select("report_id, company_name:brand_name, brand_alignment_score, pillar_scores, pillar_insights, recommendations, full_report, user_name, user_email, created_at")
       .eq("report_id", id)
       .single();
     
@@ -224,9 +227,16 @@ export async function GET(req: Request) {
     }
 
     // ─── Enforcement: email must be verified before report data is served ───
-    // If this report has gone through the verification flow (has a non-null email_verified column)
-    // and is NOT yet verified, block access.
-    if ((data as any).email_verified === false) {
+    // The production `brand_snapshot_reports` schema doesn't expose `email_verified` as a top
+    // level column, so we look for it inside full_report (where the verify-email flow can
+    // stash it) and fall back to "verified" when absent. Selecting a non-existent column would
+    // make the entire SELECT fail and turn every successful save into a 404.
+    const fullReportForGate = (data as any)?.full_report as Record<string, unknown> | null;
+    const emailVerifiedFromFullReport =
+      fullReportForGate && typeof fullReportForGate === "object"
+        ? (fullReportForGate as { email_verified?: unknown }).email_verified
+        : undefined;
+    if (emailVerifiedFromFullReport === false) {
       return NextResponse.json(
         { error: "Email not yet verified. Please complete verification to view your results." },
         { status: 403 }

@@ -45,24 +45,29 @@ export async function POST(req: Request) {
       );
     }
 
-    // Canonical column is `brand_name` (see migration_brand_snapshot_reports.sql); any
-    // `company_name` write produces PGRST204 and silently fails the entire upsert.
+    // Schema notes (mirrors app/api/snapshot/route.ts):
+    //   • Canonical brand column is `brand_name`, not `company_name` (PGRST204 otherwise).
+    //   • `summary`, `overall_interpretation`, `opportunities_summary`, `upgrade_cta`,
+    //     `website`, `industry`, `insights` are NOT top-level columns in production — nest
+    //     them inside `full_report` so the insert succeeds without a Supabase migration.
     const { error } = await supabaseAdmin
       .from("brand_snapshot_reports")
       .insert({
         report_id,
         user_name: user_name || null,
         brand_name: company_name || null,
-        website: website || null,
-        industry: industry || null,
         brand_alignment_score: brand_alignment_score || null,
         pillar_scores: pillar_scores || null,
-        insights: insights || null,
         recommendations: recommendations || null,
-        summary: summary || null,
-        overall_interpretation: overall_interpretation || null,
-        opportunities_summary: opportunities_summary || null,
-        upgrade_cta: upgrade_cta || null,
+        full_report: {
+          website: website || null,
+          industry: industry || null,
+          insights: insights || null,
+          summary: summary || null,
+          overall_interpretation: overall_interpretation || null,
+          opportunities_summary: opportunities_summary || null,
+          upgrade_cta: upgrade_cta || null,
+        },
       });
 
     if (error) {

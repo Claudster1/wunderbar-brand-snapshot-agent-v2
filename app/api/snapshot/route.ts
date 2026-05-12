@@ -496,11 +496,13 @@ export async function POST(req: Request) {
     );
 
     // ─── Save Report ───
-    // The canonical column on `brand_snapshot_reports` is `brand_name` — see
-    // database/migration_brand_snapshot_reports.sql + database/migration_add_user_brands.sql,
-    // which migrated any legacy `company_name` data into `brand_name` and made it the source of
-    // truth. Writing to `company_name` produces PGRST204 ("column not in schema cache") and was
-    // the cause of the production "Failed to save snapshot" cycling.
+    // Schema notes:
+    //   • Canonical brand column is `brand_name` (see migration_brand_snapshot_reports.sql +
+    //     migration_add_user_brands.sql). Writing to legacy `company_name` produces PGRST204.
+    //   • `summary`, `opportunities_summary`, `upgrade_cta` are NOT present in the production
+    //     schema (only in the local schema.sql seed), so they're nested inside `full_report`
+    //     and re-hoisted by the get route. This keeps the API response shape unchanged without
+    //     requiring a Supabase migration to unblock saves.
     const { data, error } = await supabase
       .from("brand_snapshot_reports")
       .insert({
@@ -512,9 +514,6 @@ export async function POST(req: Request) {
         pillar_scores: scores.pillarScores,
         pillar_insights: finalInsights,
         recommendations: finalRecommendations,
-        summary,
-        opportunities_summary,
-        upgrade_cta,
         full_report: {
           answers: snapshotInput,
           scores,
@@ -525,6 +524,9 @@ export async function POST(req: Request) {
           expertConversation: snapshotInput.expertConversation ?? null,
           contentOptIn: snapshotInput.contentOptIn ?? null,
           benchmarkContext: benchmarkContext ?? null,
+          summary,
+          opportunities_summary,
+          upgrade_cta,
         },
       } as any)
       .select("report_id")

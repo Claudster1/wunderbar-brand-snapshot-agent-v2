@@ -526,17 +526,35 @@ export async function POST(req: Request) {
       .single();
 
     if (error || !data) {
+      const pgCode = (error as { code?: string } | undefined)?.code;
+      const pgDetails = (error as { details?: string } | undefined)?.details;
+      const pgHint = (error as { hint?: string } | undefined)?.hint;
       // Surface the underlying Postgres error to logs so we can diagnose schema / RLS issues, but
       // keep the client message generic — never leak DB hints to end users.
       logger.error("[Snapshot API] Failed to save", {
         error: error?.message,
-        code: (error as { code?: string } | undefined)?.code,
-        details: (error as { details?: string } | undefined)?.details,
-        hint: (error as { hint?: string } | undefined)?.hint,
+        code: pgCode,
+        details: pgDetails,
+        hint: pgHint,
         report_id,
       });
+      // Postgres SQLSTATE codes (e.g. 23502 not-null, 42703 missing column, 42501 RLS denial) are
+      // public-knowledge categories — including them in the response lets the chat surface a
+      // self-explanatory "Save failed: <code>" so the user / on-call can act without guessing.
+      // The full error message is only returned when the caller opts in via the debug header.
+      const debugRequested = req.headers.get("x-snapshot-debug") === "1";
       return NextResponse.json(
-        { error: "We couldn't save your snapshot. Please try again in a moment." },
+        {
+          error: "We couldn't save your snapshot. Please try again in a moment.",
+          errorCode: pgCode || "unknown",
+          ...(debugRequested
+            ? {
+                errorDiagnostic: error?.message?.slice(0, 240),
+                errorDetails: pgDetails?.slice(0, 240),
+                errorHint: pgHint?.slice(0, 240),
+              }
+            : {}),
+        },
         { status: 500 },
       );
     }

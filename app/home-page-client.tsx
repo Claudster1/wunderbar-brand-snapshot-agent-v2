@@ -269,36 +269,26 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     handoffPromisedNoEntryUrl ||
     conversationSuggestsIntakeComplete(messages);
 
-  /** Auto-run transcript finalize once when the model clearly wrapped up but no results URL (avoids “click Continue” loops). */
+  /**
+   * Auto-run transcript finalize **once** when the model clearly wrapped up but no results URL.
+   * Previously this would auto-retry on errors, which caused the "Opening… → See my results"
+   * cycling support keeps screenshotting. Now: one auto-attempt; on failure the user sees the
+   * error and can manually retry, and the previous error stays visible the whole time.
+   */
   const finalizeFnRef = useRef(finalizeFromTranscript);
   finalizeFnRef.current = finalizeFromTranscript;
   const autoTranscriptFinalizeConsumedRef = useRef(false);
-  const autoTranscriptFinalizeAttemptsRef = useRef(0);
 
   useEffect(() => {
     if (!handoffPromisedNoEntryUrl || resultsEntryUrl) {
       autoTranscriptFinalizeConsumedRef.current = false;
-      autoTranscriptFinalizeAttemptsRef.current = 0;
     }
   }, [handoffPromisedNoEntryUrl, resultsEntryUrl]);
 
   useEffect(() => {
-    if (
-      finalizeError &&
-      handoffPromisedNoEntryUrl &&
-      !isFinalizing &&
-      !resultsEntryUrl
-    ) {
-      autoTranscriptFinalizeConsumedRef.current = false;
-    }
-  }, [finalizeError, handoffPromisedNoEntryUrl, isFinalizing, resultsEntryUrl]);
-
-  useEffect(() => {
     if (!handoffPromisedNoEntryUrl || resultsEntryUrl) return;
     if (isLoading || isFinalizing || autoTranscriptFinalizeConsumedRef.current) return;
-    if (autoTranscriptFinalizeAttemptsRef.current >= 2) return;
     autoTranscriptFinalizeConsumedRef.current = true;
-    autoTranscriptFinalizeAttemptsRef.current += 1;
     const t = window.setTimeout(() => {
       void finalizeFnRef.current();
     }, 600);
@@ -308,7 +298,6 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     resultsEntryUrl,
     isLoading,
     isFinalizing,
-    finalizeError,
   ]);
 
   // Skip the current question

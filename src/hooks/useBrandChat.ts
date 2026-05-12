@@ -454,7 +454,8 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     }
     finalizingRef.current = true;
     setIsFinalizing(true);
-    setFinalizeError(null);
+    // Don't blank the previous error on retry — that's what made the panel look like it was
+    // resetting on every cycle. Only clear once we actually succeed.
     /**
      * The server transcript-extract has a 45s LLM timeout + a fallback retry, so without a client-side
      * abort an unlucky cold start could leave the user staring at "Opening…" for ~90s. These ceilings
@@ -539,10 +540,24 @@ export function useBrandChat(options?: UseBrandChatOptions) {
         /* ignore */
       }
       if (!scoringRes.ok) {
-        const msg =
+        const baseMsg =
           typeof scoreJson.error === 'string' && scoreJson.error.trim()
             ? scoreJson.error
             : 'Scoring failed. Please try again in a moment.';
+        const code =
+          typeof scoreJson.errorCode === 'string' && scoreJson.errorCode.trim()
+            ? scoreJson.errorCode
+            : null;
+        // The Postgres SQLSTATE code (e.g. 23502 not-null, 42703 missing column, 42501 RLS denial)
+        // tells us at-a-glance what bucket the failure falls into — surface it so support / on-call
+        // can act without round-tripping to logs.
+        const msg = code ? `${baseMsg} (code: ${code})` : baseMsg;
+        // Always log the full payload so a screenshot of DevTools' Console gives us everything.
+        // eslint-disable-next-line no-console
+        console.error('[useBrandChat] /api/snapshot failed', {
+          status: scoringRes.status,
+          body: scoreJson,
+        });
         setFinalizeError(msg);
         return false;
       }
@@ -560,6 +575,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
 
       const redirectUrl = snapshotResultsEntryUrl(finalReportId);
       setResultsEntryUrl(redirectUrl);
+      setFinalizeError(null);
 
       await saveProgress('completed', history, finalReportId);
 

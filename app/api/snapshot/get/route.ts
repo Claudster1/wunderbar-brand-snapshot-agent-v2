@@ -180,10 +180,12 @@ export async function GET(req: Request) {
       );
     }
 
-    // Fetch only the columns the results page needs (avoid SELECT *)
+    // Fetch only the columns the results page needs (avoid SELECT *).
+    // PostgREST alias syntax `company_name:brand_name` returns the canonical `brand_name` column
+    // under the response key `company_name` so downstream consumers / sample data keep their shape.
     const { data, error } = await supabaseAdmin
       .from("brand_snapshot_reports")
-      .select("report_id, company_name, product_tier, brand_alignment_score, pillar_scores, pillar_insights, recommendations, summary, opportunities_summary, upgrade_cta, full_report, user_name, user_email, email_verified, created_at")
+      .select("report_id, company_name:brand_name, product_tier, brand_alignment_score, pillar_scores, pillar_insights, recommendations, summary, opportunities_summary, upgrade_cta, full_report, user_name, user_email, email_verified, created_at")
       .eq("report_id", id)
       .single();
     

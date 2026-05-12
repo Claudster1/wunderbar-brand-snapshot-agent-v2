@@ -496,13 +496,18 @@ export async function POST(req: Request) {
     );
 
     // ─── Save Report ───
+    // The canonical column on `brand_snapshot_reports` is `brand_name` — see
+    // database/migration_brand_snapshot_reports.sql + database/migration_add_user_brands.sql,
+    // which migrated any legacy `company_name` data into `brand_name` and made it the source of
+    // truth. Writing to `company_name` produces PGRST204 ("column not in schema cache") and was
+    // the cause of the production "Failed to save snapshot" cycling.
     const { data, error } = await supabase
       .from("brand_snapshot_reports")
       .insert({
         report_id,
         user_email: body.email?.toLowerCase() ?? null,
         user_name: body.name ?? null,
-        company_name: companyName,
+        brand_name: companyName,
         brand_alignment_score: scores.brandAlignmentScore,
         pillar_scores: scores.pillarScores,
         pillar_insights: finalInsights,

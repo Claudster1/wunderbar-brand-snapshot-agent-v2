@@ -45,12 +45,14 @@ export async function POST(req: Request) {
       );
     }
 
+    // Canonical column is `brand_name` (see migration_brand_snapshot_reports.sql); any
+    // `company_name` write produces PGRST204 and silently fails the entire upsert.
     const { error } = await supabaseAdmin
       .from("brand_snapshot_reports")
       .insert({
         report_id,
         user_name: user_name || null,
-        company_name: company_name || null,
+        brand_name: company_name || null,
         website: website || null,
         industry: industry || null,
         brand_alignment_score: brand_alignment_score || null,

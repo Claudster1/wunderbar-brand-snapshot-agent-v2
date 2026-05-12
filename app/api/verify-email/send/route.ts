@@ -7,6 +7,7 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 import { validateEmail } from "@/lib/security/emailValidation";
 import { fireACEvent } from "@/lib/fireACEvent";
 import {
+  addContactToList,
   applyActiveCampaignTags,
   removeActiveCampaignTags,
   setContactFields,
@@ -122,6 +123,19 @@ export async function POST(req: Request) {
         });
         return NextResponse.json({ error: "Failed to save email." }, { status: 500 });
       }
+    }
+
+    // Subscribe contact to the canonical Brand Snapshot Leads list once we have a valid
+    // email. Per-list membership is required for AC's deliverability dashboard, engagement
+    // reports, and the engagement-decay automation. Marketing eligibility is still gated
+    // by the `email:marketing-opted-in` / `-opted-out` tags downstream.
+    const brandSnapshotListId = process.env.AC_LIST_BRAND_SNAPSHOT_LEADS;
+    if (brandSnapshotListId) {
+      await addContactToList({ email: normalized, listId: brandSnapshotListId }).catch((err) =>
+        logger.warn("[Verify Email Send] AC list subscription failed", {
+          error: err instanceof Error ? err.message : String(err),
+        })
+      );
     }
 
     if (smsOptedIn === true) {

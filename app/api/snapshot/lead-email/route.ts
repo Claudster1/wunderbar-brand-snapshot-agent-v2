@@ -164,29 +164,69 @@ export async function POST(req: Request) {
 
     if (marketingOptIn === true) {
       try {
-        await applyActiveCampaignTags({
+        // Double-opt-in: stamp intent (`email:marketing-pending`) instead of flipping the
+        // marketing-eligible tag directly. AC welcome automation should be triggered by
+        // `email:marketing-pending` and include `{{marketing_confirmation_link}}` as the CTA.
+        // /api/marketing/confirm flips the contact to `email:marketing-opted-in` on click.
+        //
+        // If MARKETING_CONFIRM_SECRET isn't set yet, signMarketingConfirmationToken returns
+        // null and we fall back to the legacy direct opt-in behavior so production isn't
+        // broken by a missing env var.
+        const { signMarketingConfirmationToken } = await import("@/lib/marketing/confirmationToken");
+        const { buildMarketingConfirmationUrl } = await import("@/lib/marketing/buildConfirmationUrl");
+        const confirmationToken = signMarketingConfirmationToken({
           email: normalized,
-          tags: ["email:marketing-opted-in"],
+          reportId,
+          source: "diagnostic_lead_capture",
         });
-        await removeActiveCampaignTags({
-          email: normalized,
-          tags: ["email:marketing-opted-out"],
-        });
-        await setContactFields({
-          email: normalized,
-          fields: {
-            email_marketing_opted_in: "true",
-            email_marketing_optin_source: "diagnostic_lead_capture",
-          },
-        });
+        const doubleOptInEnabled = confirmationToken !== null;
+
+        if (doubleOptInEnabled) {
+          const confirmationLink = buildMarketingConfirmationUrl(confirmationToken);
+          await applyActiveCampaignTags({
+            email: normalized,
+            tags: ["email:marketing-pending"],
+          });
+          await removeActiveCampaignTags({
+            email: normalized,
+            tags: ["email:marketing-opted-out"],
+          });
+          await setContactFields({
+            email: normalized,
+            fields: {
+              email_marketing_opt_in_intent: "true",
+              email_marketing_optin_source: "diagnostic_lead_capture",
+              marketing_confirmation_link: confirmationLink,
+            },
+          });
+        } else {
+          // Legacy direct-opt-in path (kept until MARKETING_CONFIRM_SECRET is configured).
+          await applyActiveCampaignTags({
+            email: normalized,
+            tags: ["email:marketing-opted-in"],
+          });
+          await removeActiveCampaignTags({
+            email: normalized,
+            tags: ["email:marketing-opted-out"],
+          });
+          await setContactFields({
+            email: normalized,
+            fields: {
+              email_marketing_opted_in: "true",
+              email_marketing_optin_source: "diagnostic_lead_capture",
+            },
+          });
+        }
         await createCrmSyncLog({
           status: "success",
           eventType: "ac.consent.lead_email",
           payload: {
             email: normalized,
             report_id: reportId,
-            email_marketing_opted_in: true,
+            email_marketing_opted_in: !doubleOptInEnabled,
+            email_marketing_opt_in_intent: doubleOptInEnabled,
             source: "diagnostic_lead_capture",
+            double_opt_in: doubleOptInEnabled,
           },
         });
       } catch (optErr) {

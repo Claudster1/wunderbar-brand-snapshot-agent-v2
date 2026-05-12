@@ -181,11 +181,15 @@ export async function GET(req: Request) {
     }
 
     // Fetch only the columns the results page needs (avoid SELECT *).
-    // PostgREST alias syntax `company_name:brand_name` returns the canonical `brand_name` column
-    // under the response key `company_name` so downstream consumers / sample data keep their shape.
+    // Schema notes:
+    //   • `company_name:brand_name` is a PostgREST alias — canonical column is `brand_name`,
+    //     response key stays `company_name` so downstream consumers don't change.
+    //   • `summary`, `opportunities_summary`, `upgrade_cta` live inside `full_report` JSON in
+    //     production (not as top-level columns). The transform below hoists them out so the
+    //     response shape the results page expects is preserved.
     const { data, error } = await supabaseAdmin
       .from("brand_snapshot_reports")
-      .select("report_id, company_name:brand_name, product_tier, brand_alignment_score, pillar_scores, pillar_insights, recommendations, summary, opportunities_summary, upgrade_cta, full_report, user_name, user_email, email_verified, created_at")
+      .select("report_id, company_name:brand_name, product_tier, brand_alignment_score, pillar_scores, pillar_insights, recommendations, full_report, user_name, user_email, email_verified, created_at")
       .eq("report_id", id)
       .single();
     
@@ -220,6 +224,21 @@ export async function GET(req: Request) {
     }
     if (!out.insights && (data as any).pillar_insights) {
       out.insights = (data as any).pillar_insights;
+    }
+    // Hoist summary / opportunities_summary / upgrade_cta out of full_report — they live there
+    // because the production `brand_snapshot_reports` table doesn't have those columns. See the
+    // matching nesting in app/api/snapshot/route.ts.
+    const fullReport = (data as any)?.full_report as Record<string, unknown> | null;
+    if (fullReport && typeof fullReport === "object") {
+      if (out.summary == null && typeof fullReport.summary === "string") {
+        out.summary = fullReport.summary;
+      }
+      if (out.opportunities_summary == null && typeof fullReport.opportunities_summary === "string") {
+        out.opportunities_summary = fullReport.opportunities_summary;
+      }
+      if (out.upgrade_cta == null && typeof fullReport.upgrade_cta === "string") {
+        out.upgrade_cta = fullReport.upgrade_cta;
+      }
     }
     // Cache report data for 60 seconds (revalidate in background)
     return NextResponse.json(out, {

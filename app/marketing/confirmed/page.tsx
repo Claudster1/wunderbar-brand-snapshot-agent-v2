@@ -59,9 +59,7 @@ function StatusBlock({ status }: { status: Status }) {
   );
 }
 
-function ConfirmedInner({ searchParams }: { searchParams: Record<string, string | string[] | undefined> }) {
-  const raw = typeof searchParams.status === "string" ? searchParams.status : "ok";
-  const status: Status = raw === "invalid" || raw === "expired" || raw === "error" ? raw : "ok";
+function ConfirmedInner({ status }: { status: Status }) {
   return (
     <main className="mx-auto flex min-h-[60vh] max-w-2xl flex-col items-start justify-center px-6 py-12">
       <StatusBlock status={status} />
@@ -75,14 +73,18 @@ function ConfirmedInner({ searchParams }: { searchParams: Record<string, string 
   );
 }
 
-export default function MarketingConfirmedPage({
+// Next.js 15: searchParams is a Promise on the server side. Await it before reading.
+export default async function MarketingConfirmedPage({
   searchParams,
 }: {
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const params = (await searchParams) ?? {};
+  const raw = typeof params.status === "string" ? params.status : "ok";
+  const status: Status = raw === "invalid" || raw === "expired" || raw === "error" ? raw : "ok";
   return (
     <Suspense fallback={<main className="px-6 py-12">Loading…</main>}>
-      <ConfirmedInner searchParams={searchParams} />
+      <ConfirmedInner status={status} />
     </Suspense>
   );
 }

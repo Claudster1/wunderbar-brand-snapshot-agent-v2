@@ -1,8 +1,18 @@
 "use client";
 
 // components/security/EmailVerificationGate.tsx
-// Full-screen overlay shown after the assessment completes but before results are revealed.
-// User enters their email → receives a 6-digit code → optional marketing insights choice → results unlock.
+//
+// Full-screen overlay shown after the assessment completes but before results are revealed
+// (Blueprint / Blueprint+ tiers — Snapshot has its own gate-less component on the results page).
+//
+// Flow today: email entry → marketing insights choice → results unlock.
+//
+// History: this used to be a 3-step flow with a 6-digit OTP between email and insights. The OTP
+// was dropped because (a) the production DB never received the `email_verified` migration so the
+// gate it backed was a no-op anyway, (b) the OTP step had a 15–35% drop-off and was the largest
+// single source of lead loss in the funnel. We still POST to /api/verify-email/send (with
+// `skipOtp: true`) because it carries the SMS / marketing opt-in side-effects that haven't been
+// migrated to /api/snapshot/lead-email yet.
 
 import { useState, useRef, useEffect, useCallback, FormEvent } from "react";
 import {
@@ -28,19 +38,16 @@ export function EmailVerificationGate({
   initialEmail = "",
   productName = "WunderBrand Snapshot™",
 }: EmailVerificationGateProps) {
-  const [step, setStep] = useState<"email" | "code" | "insights">("email");
+  const [step, setStep] = useState<"email" | "insights">("email");
   const [email, setEmail] = useState(initialEmail);
-  const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [resendCooldown, setResendCooldown] = useState(0);
   const [smsOptedIn, setSmsOptedIn] = useState<boolean>(() => getSmsOptInPreference());
   const [phoneMobile, setPhoneMobile] = useState("");
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [contentOptIn, setContentOptIn] = useState<SnapshotContentOptIn | null>(null);
   // Honeypot: invisible to humans, bots auto-fill. Same pattern as the chat home + lead-email form.
   const [honeypot, setHoneypot] = useState("");
-  const codeRefs = useRef<(HTMLInputElement | null)[]>([]);
   const emailRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -63,13 +70,6 @@ export function EmailVerificationGate({
     return () => { abortRef.current?.abort(); };
   }, []);
 
-  // Resend cooldown timer
-  useEffect(() => {
-    if (resendCooldown <= 0) return;
-    const timer = setTimeout(() => setResendCooldown((c) => c - 1), 1000);
-    return () => clearTimeout(timer);
-  }, [resendCooldown]);
-
   const normalizePhoneToE164 = useCallback((input: string): string => {
     const cleaned = input.trim().replace(/[^\d+]/g, "");
     if (!cleaned) return "";
@@ -82,13 +82,17 @@ export function EmailVerificationGate({
     return "";
   }, []);
 
-  const sendCode = useCallback(async (
-    emailToVerify: string,
+  /**
+   * Save the email + SMS / marketing intent and unlock the insights step. POSTs to
+   * /api/verify-email/send with `skipOtp: true` — that route still owns the SMS opt-in and
+   * marketing intent side-effects, just without the 6-digit code branch.
+   */
+  const captureEmail = useCallback(async (
+    emailToCapture: string,
     includeSmsOptIn: boolean,
-    includeEmailMarketingOptIn: boolean,
     mobilePhone?: string,
   ) => {
-    if (loading) return false; // Guard against double-submit
+    if (loading) return false;
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -99,23 +103,24 @@ export function EmailVerificationGate({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: emailToVerify,
+          email: emailToCapture,
           reportId,
           smsOptedIn: includeSmsOptIn,
-          emailMarketingOptedIn: includeEmailMarketingOptIn,
+          // Marketing opt-in is captured in the next step (`insights`) — not here.
+          emailMarketingOptedIn: false,
           phoneMobile: mobilePhone || null,
           honeypot,
+          skipOtp: true,
         }),
         signal: controller.signal,
       });
       const data = await res.json();
       if (controller.signal.aborted) return false;
       if (!res.ok) {
-        setError(data.error || "Failed to send verification code.");
+        setError(data.error || "Failed to save email.");
         setLoading(false);
         return false;
       }
-      setResendCooldown(60);
       setLoading(false);
       return true;
     } catch (err: unknown) {
@@ -142,85 +147,12 @@ export function EmailVerificationGate({
       setError("Please add a valid mobile number with country code for SMS updates (example: +16575003620).");
       return;
     }
-    const success = await sendCode(trimmed, smsOptedIn, false, normalizedPhone);
+    const success = await captureEmail(trimmed, smsOptedIn, normalizedPhone);
     if (success) {
-      setStep("code");
-      // Focus first code input after a short delay
-      setTimeout(() => codeRefs.current[0]?.focus(), 100);
-    }
-  };
-
-  const handleCodeChange = (index: number, value: string) => {
-    // Only allow digits
-    const digit = value.replace(/\D/g, "").slice(-1);
-    const newCode = [...code];
-    newCode[index] = digit;
-    setCode(newCode);
-    setError("");
-
-    // Auto-advance to next input
-    if (digit && index < 5) {
-      codeRefs.current[index + 1]?.focus();
-    }
-
-    // Auto-submit when all 6 digits are entered
-    if (digit && index === 5 && newCode.every((d) => d !== "")) {
-      verifyCode(newCode.join(""));
-    }
-  };
-
-  const handleCodeKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === "Backspace" && !code[index] && index > 0) {
-      codeRefs.current[index - 1]?.focus();
-    }
-  };
-
-  const handleCodePaste = (e: React.ClipboardEvent) => {
-    e.preventDefault();
-    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
-    if (pasted.length === 6) {
-      const newCode = pasted.split("");
-      setCode(newCode);
-      codeRefs.current[5]?.focus();
-      verifyCode(pasted);
-    }
-  };
-
-  const verifyCode = useCallback(async (codeStr: string) => {
-    if (loading) return; // Guard against double-submit
-    abortRef.current?.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
-    setLoading(true);
-    setError("");
-    try {
-      const res = await fetch("/api/verify-email/confirm", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reportId, code: codeStr }),
-        signal: controller.signal,
-      });
-      const data = await res.json();
-      if (controller.signal.aborted) {
-        setLoading(false);
-        return;
-      }
-      if (!res.ok) {
-        setError(data.error || "Verification failed.");
-        setCode(["", "", "", "", "", ""]);
-        codeRefs.current[0]?.focus();
-        setLoading(false);
-        return;
-      }
-      setLoading(false);
       setContentOptIn(null);
       setStep("insights");
-    } catch (err: unknown) {
-      if ((err as Error)?.name === "AbortError") return;
-      setError("Something went wrong. Please try again.");
-      setLoading(false);
     }
-  }, [loading, reportId]);
+  };
 
   const handleInsightsSubmit = useCallback(
     async (e: FormEvent) => {
@@ -278,18 +210,12 @@ export function EmailVerificationGate({
             </svg>
           </div>
           <h2 className="email-verification-title">
-            {step === "email"
-              ? "Your results are ready!"
-              : step === "code"
-                ? "Check your email"
-                : "One last thing"}
+            {step === "email" ? "Your results are ready!" : "One last thing"}
           </h2>
           <p className="email-verification-subtitle">
             {step === "email"
-              ? `Enter your email to unlock your full ${productName}. Next, you'll open the results experience — scores, insights, and PDF download — in one place.`
-              : step === "code"
-                ? `We sent a 6-digit code to ${email}`
-                : `We share occasional insights to help businesses like yours stay ahead. Choose what (if anything) you'd like by email — then we'll open your ${productName}.`}
+              ? `Add your email to unlock your full ${productName}. Next, you'll open the results experience — scores, insights, and PDF download — in one place.`
+              : `We share occasional insights to help businesses like yours stay ahead. Choose what (if anything) you'd like by email — then we'll open your ${productName}.`}
           </p>
         </div>
 
@@ -366,59 +292,12 @@ export function EmailVerificationGate({
               className="email-verification-btn"
               disabled={loading || !email.trim()}
             >
-              {loading ? "Sending..." : "Send verification code"}
+              {loading ? "Saving…" : "Continue"}
             </button>
             <p className="email-verification-note">
-              We&apos;ll also save your results to this email so you can access them later.
+              We&apos;ll save your results to this email so you can access them later.
             </p>
           </form>
-        )}
-
-        {/* Code step */}
-        {step === "code" && (
-          <div className="email-verification-form">
-            <div className="email-verification-code-inputs" onPaste={handleCodePaste}>
-              {code.map((digit, i) => (
-                <input
-                  key={i}
-                  ref={(el) => { codeRefs.current[i] = el; }}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => handleCodeChange(i, e.target.value)}
-                  onKeyDown={(e) => handleCodeKeyDown(i, e)}
-                  className="email-verification-code-digit"
-                  disabled={loading}
-                  autoComplete="one-time-code"
-                />
-              ))}
-            </div>
-            {error && <p className="email-verification-error">{error}</p>}
-            <div className="email-verification-actions">
-              <button
-                className="email-verification-link"
-                onClick={() => { setStep("email"); setCode(["", "", "", "", "", ""]); setError(""); }}
-                disabled={loading}
-              >
-                Change email
-              </button>
-              <button
-                className="email-verification-link"
-                onClick={async () => {
-                  const normalizedPhone = normalizePhoneToE164(phoneMobile);
-                  if (smsOptedIn && !normalizedPhone) {
-                    setError("Please add a valid mobile number with country code for SMS updates (example: +16575003620).");
-                    return;
-                  }
-                  await sendCode(email.trim(), smsOptedIn, false, normalizedPhone);
-                }}
-                disabled={loading || resendCooldown > 0}
-              >
-                {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend code"}
-              </button>
-            </div>
-          </div>
         )}
 
         {step === "insights" && (

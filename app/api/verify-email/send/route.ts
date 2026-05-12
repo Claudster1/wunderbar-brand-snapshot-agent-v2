@@ -45,7 +45,7 @@ export async function POST(req: Request) {
     const sizeCheck = checkBodySize(req, BODY_LIMITS.EMAIL_FORM);
     if (sizeCheck) return sizeCheck;
 
-    const { email, reportId, smsOptedIn, emailMarketingOptedIn, phoneMobile, honeypot } = await req.json();
+    const { email, reportId, smsOptedIn, emailMarketingOptedIn, phoneMobile, honeypot, skipOtp } = await req.json();
 
     // Honeypot — silently drop bot-shaped submissions. Same pattern as /api/snapshot/lead-email.
     if (typeof honeypot === "string" && honeypot.length > 0) {
@@ -69,36 +69,60 @@ export async function POST(req: Request) {
 
     const normalized = email.trim().toLowerCase();
     const normalizedPhoneMobile = normalizePhoneToE164(phoneMobile);
-    const code = generateCode();
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15 minutes
 
-    // Store verification code in the report record
-    if (supabaseAdmin) {
+    /**
+     * skipOtp=true is the lead-capture-only path (Blueprint gate after we dropped the OTP step).
+     * In that mode we:
+     *   • record the email + SMS/marketing intent (handled below as before),
+     *   • skip generating a 6-digit code, the DB write of code/expiry/verified, and the AC
+     *     event that would email the code to the user.
+     * This lets the same endpoint serve both legacy OTP (snapshot-plus, blueprint sensitive paths
+     * that still want it) and the new no-OTP capture without forking SMS / marketing logic.
+     */
+    const wantsOtp = skipOtp !== true;
+    if (wantsOtp) {
+      const code = generateCode();
+      const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15 minutes
+      // Store verification code in the report record
+      if (supabaseAdmin) {
+        const { error: dbError } = await (supabaseAdmin as any)
+          .from("brand_snapshot_reports")
+          .update({
+            user_email: normalized,
+            email_verification_code: code,
+            email_verification_expires: expiresAt,
+            email_verified: false,
+          })
+          .eq("report_id", reportId);
+        if (dbError) {
+          logger.error("[Verify Email Send] Supabase update error", { error: dbError instanceof Error ? dbError.message : String(dbError) });
+          return NextResponse.json({ error: "Failed to save verification code." }, { status: 500 });
+        }
+      }
+      // Send verification email via ActiveCampaign
+      await fireACEvent({
+        email: normalized,
+        eventName: "email_verification",
+        tags: ["snapshot:email-verification"],
+        fields: {
+          verification_code: code,
+          report_id: reportId,
+        },
+      });
+    } else if (supabaseAdmin) {
+      // No-OTP path still needs to associate the email with the report row so downstream tagging
+      // and the marketing-insights step can resolve the same email back from `user_email`.
       const { error: dbError } = await (supabaseAdmin as any)
         .from("brand_snapshot_reports")
-        .update({
-          user_email: normalized,
-          email_verification_code: code,
-          email_verification_expires: expiresAt,
-          email_verified: false,
-        })
+        .update({ user_email: normalized })
         .eq("report_id", reportId);
       if (dbError) {
-        logger.error("[Verify Email Send] Supabase update error", { error: dbError instanceof Error ? dbError.message : String(dbError) });
-        return NextResponse.json({ error: "Failed to save verification code." }, { status: 500 });
+        logger.error("[Verify Email Send] Supabase update error (skipOtp)", {
+          error: dbError instanceof Error ? dbError.message : String(dbError),
+        });
+        return NextResponse.json({ error: "Failed to save email." }, { status: 500 });
       }
     }
-
-    // Send verification email via ActiveCampaign
-    await fireACEvent({
-      email: normalized,
-      eventName: "email_verification",
-      tags: ["snapshot:email-verification"],
-      fields: {
-        verification_code: code,
-        report_id: reportId,
-      },
-    });
 
     if (smsOptedIn === true) {
       try {

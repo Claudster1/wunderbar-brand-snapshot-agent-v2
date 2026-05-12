@@ -140,7 +140,7 @@ export async function POST(req: Request) {
 
     if (hasAcApi) {
       try {
-        const { setContactFields, getOrCreateContactId, applyActiveCampaignTags } = await import(
+        const { setContactFields, getOrCreateContactId, applyActiveCampaignTags, addContactToList } = await import(
           "@/lib/applyActiveCampaignTags"
         );
         await getOrCreateContactId(normalized, firstName ? { firstName } : undefined);
@@ -157,6 +157,16 @@ export async function POST(req: Request) {
           email: normalized,
           tags: ["snapshot:lead-email-captured"],
         });
+
+        // Subscribe to the canonical Brand Snapshot Leads list so the contact appears in
+        // AC's per-list deliverability and engagement dashboards. Marketing send eligibility
+        // is still gated by the `email:marketing-opted-in` / `-opted-out` tags downstream.
+        const listId = process.env.AC_LIST_BRAND_SNAPSHOT_LEADS;
+        if (listId) {
+          await addContactToList({ email: normalized, listId }).catch((err) =>
+            logger.warn("[Lead Email] AC list subscription failed", { error: describeError(err) })
+          );
+        }
       } catch (apiErr) {
         logger.warn("[Lead Email] ActiveCampaign API sync failed", { error: describeError(apiErr) });
       }

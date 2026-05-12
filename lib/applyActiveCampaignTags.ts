@@ -196,6 +196,42 @@ export async function setContactFields({
   }
 }
 
+// ─── Lists ───
+//
+// AC contacts can exist without belonging to any list (the snapshot funnel ran in that mode
+// for months — every list showed near-zero counts even though contacts were getting tagged).
+// Subscribing leads to a canonical list is required for accurate deliverability reports,
+// engagement metrics, and segment health in the AC dashboard.
+//
+// `status` values: 1 = active, 2 = unsubscribed. We always use 1 here — opt-out preferences
+// are tracked separately via the `email:marketing-opted-out` tag, which marketing automations
+// filter on.
+
+export async function addContactToList({
+  email,
+  listId,
+}: {
+  email: string;
+  listId: string | number;
+}): Promise<boolean> {
+  const contactId = await getOrCreateContactId(email);
+  if (!contactId) return false;
+
+  const { res } = await fetchJson(`${AC_API_URL}/api/3/contactLists`, {
+    method: "POST",
+    headers: acHeaders(),
+    body: JSON.stringify({
+      contactList: {
+        list: String(listId),
+        contact: contactId,
+        status: 1,
+      },
+    }),
+  });
+
+  return res.ok;
+}
+
 // ─── Automations ───
 
 export async function addContactToAutomation({

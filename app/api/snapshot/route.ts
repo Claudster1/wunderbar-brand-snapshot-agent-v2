@@ -14,6 +14,7 @@ import { randomUUID } from "crypto";
 import { getPrimaryPillar } from "@/lib/pillars/getPrimaryPillar";
 import { fireACEvent } from "@/lib/fireACEvent";
 import {
+  addContactToList,
   applyActiveCampaignTags,
   removeActiveCampaignTags,
   setContactFields,
@@ -720,6 +721,15 @@ export async function POST(req: Request) {
                 ? removeActiveCampaignTags({ email: userEmail, tags: removeSignalTags })
                 : Promise.resolve(),
               setContactFields({ email: userEmail, fields: directFields }),
+              // Subscribe completed snapshots to the canonical Brand Snapshot Leads list.
+              // No-op if the user already arrived from the lead-email step (AC's contactLists
+              // POST is idempotent for active subscriptions).
+              process.env.AC_LIST_BRAND_SNAPSHOT_LEADS
+                ? addContactToList({
+                    email: userEmail,
+                    listId: process.env.AC_LIST_BRAND_SNAPSHOT_LEADS,
+                  })
+                : Promise.resolve(),
             ]);
 
             await createCrmSyncLog({

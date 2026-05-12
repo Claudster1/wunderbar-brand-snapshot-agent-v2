@@ -272,16 +272,21 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
   /**
    * Auto-run transcript finalize **once** when the model clearly wrapped up but no results URL.
    * Previously this would auto-retry on errors, which caused the "Opening… → See my results"
-   * cycling support keeps screenshotting. Now: one auto-attempt; on failure the user sees the
-   * error and can manually retry, and the previous error stays visible the whole time.
+   * cycling support keeps screenshotting. Now: one auto-attempt; on failure a compact inline
+   * error appears with a single Try Again action, escalating to a contact-support message after
+   * MAX_FINALIZE_RETRIES attempts. The "Building your diagnostic…" pending bubble in the chat
+   * thread is the progress indicator — no big CTA panels.
    */
+  const MAX_FINALIZE_RETRIES = 2;
   const finalizeFnRef = useRef(finalizeFromTranscript);
   finalizeFnRef.current = finalizeFromTranscript;
   const autoTranscriptFinalizeConsumedRef = useRef(false);
+  const [finalizeRetryCount, setFinalizeRetryCount] = useState(0);
 
   useEffect(() => {
     if (!handoffPromisedNoEntryUrl || resultsEntryUrl) {
       autoTranscriptFinalizeConsumedRef.current = false;
+      setFinalizeRetryCount(0);
     }
   }, [handoffPromisedNoEntryUrl, resultsEntryUrl]);
 
@@ -299,6 +304,12 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     isLoading,
     isFinalizing,
   ]);
+
+  const retryFinalize = useCallback(() => {
+    setFinalizeRetryCount((n) => n + 1);
+    clearFinalizeError();
+    void finalizeFnRef.current();
+  }, [clearFinalizeError]);
 
   // Skip the current question
   const handleSkip = async () => {
@@ -944,66 +955,74 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                 </div>
               )}
 
-              {needsResultsRecovery && (
-                <div
-                  style={{
-                    padding: "14px 12px",
-                    marginBottom: 10,
-                    borderRadius: 10,
-                    background: "linear-gradient(180deg, #E0F2FE 0%, #DBEAFE 100%)",
-                    border: "1px solid #7DD3FC",
-                  }}
-                >
-                  <p style={{ margin: "0 0 10px", fontSize: 14, fontWeight: 700, color: "#0C4A6E" }}>
-                    Almost there
-                  </p>
-                  <p style={{ margin: "0 0 12px", fontSize: 13, color: "#075985", lineHeight: 1.45 }}>
-                    Tap below to finish saving your diagnostic and open your results. If something failed on the first try,
-                    this runs the handoff again — same button as when your link is ready.
-                  </p>
-                  {finalizeError && (
-                    <p style={{ margin: "0 0 10px", fontSize: 12, color: "#991B1B", lineHeight: 1.45 }}>
-                      {finalizeError}
-                    </p>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => void finalizeFromTranscript()}
-                    disabled={isFinalizing}
+              {/*
+                Recovery for the case where the model wrapped up the chat but no results URL has
+                registered yet. Three states:
+                  1) Auto-finalize is still running → the "Building your diagnostic…" pending
+                     bubble in the chat thread above is the progress indicator. Render nothing
+                     here so we don't add a competing CTA panel.
+                  2) Auto-finalize failed but the user can still retry → compact inline error
+                     bar with a single Try again action (matches the existing API-failure
+                     retry bar style).
+                  3) Retries exhausted → escalate to a contact-support message; no more retry
+                     buttons that look broken.
+              */}
+              {needsResultsRecovery && finalizeError && !isFinalizing && (
+                finalizeRetryCount >= MAX_FINALIZE_RETRIES ? (
+                  <div
                     style={{
-                      width: "100%",
-                      padding: "12px 16px",
-                      borderRadius: 8,
-                      border: "none",
-                      background: isFinalizing ? "#94D8F7" : "#07B0F2",
-                      color: "#fff",
-                      fontWeight: 700,
-                      fontSize: 15,
-                      cursor: isFinalizing ? "wait" : "pointer",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 6,
+                      padding: "10px 12px",
+                      marginBottom: 10,
+                      background: "#FEF2F2",
+                      borderRadius: 6,
+                      border: "1px solid #FECACA",
                     }}
                   >
-                    {isFinalizing ? "Opening…" : "See my results"}
-                  </button>
-                  {finalizeError && (
+                    <span style={{ fontSize: 13, color: "#991B1B", lineHeight: 1.45 }}>
+                      We&apos;re having trouble saving your snapshot right now. Your answers are safe — please email{" "}
+                      <a href="mailto:hello@wunderbrand.ai" style={{ color: "#991B1B", textDecoration: "underline" }}>
+                        hello@wunderbrand.ai
+                      </a>{" "}
+                      and we&apos;ll send your results manually. {finalizeError}
+                    </span>
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      padding: "8px 12px",
+                      marginBottom: 10,
+                      background: "#FEF2F2",
+                      borderRadius: 5,
+                      border: "1px solid #FECACA",
+                    }}
+                  >
+                    <span style={{ fontSize: 13, color: "#991B1B", flex: 1 }}>
+                      {finalizeError}
+                    </span>
                     <button
                       type="button"
-                      onClick={() => clearFinalizeError()}
+                      onClick={retryFinalize}
                       style={{
-                        marginTop: 8,
-                        padding: 0,
+                        padding: "6px 14px",
+                        borderRadius: 5,
                         border: "none",
-                        background: "none",
-                        color: "#0369A1",
-                        fontSize: 12,
-                        fontWeight: 600,
+                        background: "#07b0f2",
+                        color: "#fff",
+                        fontSize: 13,
+                        fontWeight: 700,
                         cursor: "pointer",
-                        textDecoration: "underline",
                       }}
                     >
-                      Dismiss message
+                      Try again
                     </button>
-                  )}
-                </div>
+                  </div>
+                )
               )}
 
               {intakeInputHidden ? null : selectOptions && selectOptions.options.length > 0 && chatAwaitingChoiceOnLatestAssistant ? (

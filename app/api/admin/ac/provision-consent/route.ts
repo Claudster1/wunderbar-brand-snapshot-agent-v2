@@ -8,6 +8,9 @@ const CONSENT_TAGS = [
   "sms:opted-out",
   "email:marketing-opted-in",
   "email:marketing-opted-out",
+  // Double-opt-in (added with /api/marketing/confirm): user intent recorded immediately,
+  // confirmed only after they click the link in their welcome email.
+  "email:marketing-pending",
 ] as const;
 
 const CONSENT_FIELDS = [
@@ -16,7 +19,20 @@ const CONSENT_FIELDS = [
   "phone_mobile",
   "email_marketing_opted_in",
   "email_marketing_optin_source",
+  // Double-opt-in fields. `marketing_confirmation_link` is rendered as the CTA in the AC
+  // welcome email; the others let AC automations filter on confirmed-vs-unconfirmed state.
+  "email_marketing_opt_in_intent",
+  "email_marketing_confirmed",
+  "marketing_confirmation_link",
 ] as const;
+
+/**
+ * Fields that should be created with a non-text AC type. Kept separate from CONSENT_FIELDS so
+ * the bulk-create loop stays simple.
+ */
+const TYPED_FIELDS: ReadonlyArray<{ title: string; type: "text" | "textarea" | "date" | "dropdown" | "hidden" }> = [
+  { title: "email_marketing_confirmed_at", type: "date" },
+];
 
 const STRATEGY_SIGNAL_TAGS = [
   "snapshot:business-type:service_b2b",
@@ -95,6 +111,21 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // Fields with explicit non-text types (e.g. date for timestamps).
+  for (const { title, type } of TYPED_FIELDS) {
+    try {
+      const id = await createCustomField(title, type);
+      fields.push({ key: `${title} (${type})`, ok: Boolean(id), id });
+    } catch (err) {
+      fields.push({
+        key: `${title} (${type})`,
+        ok: false,
+        id: null,
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
+  }
+
   const ok = [...tags, ...fields].every((item) => item.ok);
   if (!ok) {
     logger.warn("[Admin AC Provision Consent] Partial failure", {
@@ -114,6 +145,7 @@ export async function POST(req: NextRequest) {
         "This endpoint is idempotent. Existing tags/fields are reused.",
         "Required for consent sync: sms and email marketing opt-in state.",
         "Also provisions strategy-v3 diagnostic signal fields/tags for ActiveCampaign segmentation.",
+        "Provisions double-opt-in objects (email:marketing-pending, marketing_confirmation_link, email_marketing_opt_in_intent, email_marketing_confirmed, email_marketing_confirmed_at) for /api/marketing/confirm.",
       ],
     },
     { status: ok ? 200 : 207 },

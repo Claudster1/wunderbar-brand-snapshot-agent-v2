@@ -173,29 +173,63 @@ export async function POST(req: Request) {
 
     if (emailMarketingOptedIn === true) {
       try {
-        await applyActiveCampaignTags({
+        // Double-opt-in mirror of /api/snapshot/lead-email + marketing-insights-preference.
+        // Apply intent tag now; flip to opted-in only after the user clicks the link in
+        // their AC welcome email (see /api/marketing/confirm).
+        const { signMarketingConfirmationToken } = await import("@/lib/marketing/confirmationToken");
+        const { buildMarketingConfirmationUrl } = await import("@/lib/marketing/buildConfirmationUrl");
+        const confirmationToken = signMarketingConfirmationToken({
           email: normalized,
-          tags: ["email:marketing-opted-in"],
+          reportId,
+          source: "diagnostic_email_gate",
         });
-        await removeActiveCampaignTags({
-          email: normalized,
-          tags: ["email:marketing-opted-out"],
-        });
-        await setContactFields({
-          email: normalized,
-          fields: {
-            email_marketing_opted_in: "true",
-            email_marketing_optin_source: "diagnostic_email_gate",
-          },
-        });
+        const doubleOptInEnabled = confirmationToken !== null;
+
+        if (doubleOptInEnabled) {
+          const confirmationLink = buildMarketingConfirmationUrl(confirmationToken);
+          await applyActiveCampaignTags({
+            email: normalized,
+            tags: ["email:marketing-pending"],
+          });
+          await removeActiveCampaignTags({
+            email: normalized,
+            tags: ["email:marketing-opted-out"],
+          });
+          await setContactFields({
+            email: normalized,
+            fields: {
+              email_marketing_opt_in_intent: "true",
+              email_marketing_optin_source: "diagnostic_email_gate",
+              marketing_confirmation_link: confirmationLink,
+            },
+          });
+        } else {
+          await applyActiveCampaignTags({
+            email: normalized,
+            tags: ["email:marketing-opted-in"],
+          });
+          await removeActiveCampaignTags({
+            email: normalized,
+            tags: ["email:marketing-opted-out"],
+          });
+          await setContactFields({
+            email: normalized,
+            fields: {
+              email_marketing_opted_in: "true",
+              email_marketing_optin_source: "diagnostic_email_gate",
+            },
+          });
+        }
         await createCrmSyncLog({
           status: "success",
           eventType: "ac.consent.verify_email_send",
           payload: {
             email: normalized,
             report_id: reportId,
-            email_marketing_opted_in: true,
+            email_marketing_opted_in: !doubleOptInEnabled,
+            email_marketing_opt_in_intent: doubleOptInEnabled,
             source: "diagnostic_email_gate",
+            double_opt_in: doubleOptInEnabled,
           },
         });
       } catch (emailOptInErr) {

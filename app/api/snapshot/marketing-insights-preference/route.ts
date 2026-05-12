@@ -154,22 +154,57 @@ export async function POST(req: Request) {
 
     if (hasAcApi) {
       try {
-        await applyActiveCampaignTags({
+        // Double-opt-in mirror of /api/snapshot/lead-email: stamp intent + content tags now,
+        // flip the marketing-eligible tag only after the user clicks the confirmation link
+        // (see /api/marketing/confirm). Content tags still apply immediately so the user's
+        // chosen topics are recorded — only the master "opted-in" flag is gated.
+        const { signMarketingConfirmationToken } = await import("@/lib/marketing/confirmationToken");
+        const { buildMarketingConfirmationUrl } = await import("@/lib/marketing/buildConfirmationUrl");
+        const confirmationToken = signMarketingConfirmationToken({
           email: normalized,
-          tags: ["email:marketing-opted-in"],
+          reportId,
+          contentOptIn,
+          source: "diagnostic_post_email",
         });
-        await removeActiveCampaignTags({
-          email: normalized,
-          tags: ["email:marketing-opted-out"],
-        });
-        await setContactFields({
-          email: normalized,
-          fields: {
-            email_marketing_opted_in: "true",
-            email_marketing_optin_source: "diagnostic_post_email",
-            content_opt_in_choice: contentOptIn,
-          },
-        });
+        const doubleOptInEnabled = confirmationToken !== null;
+
+        if (doubleOptInEnabled) {
+          const confirmationLink = buildMarketingConfirmationUrl(confirmationToken);
+          await applyActiveCampaignTags({
+            email: normalized,
+            tags: ["email:marketing-pending"],
+          });
+          await removeActiveCampaignTags({
+            email: normalized,
+            tags: ["email:marketing-opted-out"],
+          });
+          await setContactFields({
+            email: normalized,
+            fields: {
+              email_marketing_opt_in_intent: "true",
+              email_marketing_optin_source: "diagnostic_post_email",
+              content_opt_in_choice: contentOptIn,
+              marketing_confirmation_link: confirmationLink,
+            },
+          });
+        } else {
+          await applyActiveCampaignTags({
+            email: normalized,
+            tags: ["email:marketing-opted-in"],
+          });
+          await removeActiveCampaignTags({
+            email: normalized,
+            tags: ["email:marketing-opted-out"],
+          });
+          await setContactFields({
+            email: normalized,
+            fields: {
+              email_marketing_opted_in: "true",
+              email_marketing_optin_source: "diagnostic_post_email",
+              content_opt_in_choice: contentOptIn,
+            },
+          });
+        }
 
         if (contentOptIn === "marketing_trends" || contentOptIn === "both") {
           await applyActiveCampaignTags({ email: normalized, tags: ["email:content-opt-marketing-trends"] });
@@ -186,6 +221,7 @@ export async function POST(req: Request) {
             report_id: reportId,
             content_opt_in: contentOptIn,
             source: "diagnostic_post_email",
+            double_opt_in: doubleOptInEnabled,
           },
         });
       } catch (optErr) {

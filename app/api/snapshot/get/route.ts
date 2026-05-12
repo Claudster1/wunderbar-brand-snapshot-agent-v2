@@ -181,15 +181,15 @@ export async function GET(req: Request) {
     }
 
     // Fetch only the columns the results page needs (avoid SELECT *).
-    // Schema notes:
+    // Schema notes (production schema, not the local schema.sql seed):
     //   • `company_name:brand_name` is a PostgREST alias — canonical column is `brand_name`,
     //     response key stays `company_name` so downstream consumers don't change.
-    //   • `summary`, `opportunities_summary`, `upgrade_cta` live inside `full_report` JSON in
-    //     production (not as top-level columns). The transform below hoists them out so the
-    //     response shape the results page expects is preserved.
+    //   • `summary`, `opportunities_summary`, `upgrade_cta`, `product_tier` are NOT top-level
+    //     columns in production. They live inside `full_report` JSON; the transform below
+    //     hoists them out so the response shape the results page expects is preserved.
     const { data, error } = await supabaseAdmin
       .from("brand_snapshot_reports")
-      .select("report_id, company_name:brand_name, product_tier, brand_alignment_score, pillar_scores, pillar_insights, recommendations, full_report, user_name, user_email, email_verified, created_at")
+      .select("report_id, company_name:brand_name, brand_alignment_score, pillar_scores, pillar_insights, recommendations, full_report, user_name, user_email, email_verified, created_at")
       .eq("report_id", id)
       .single();
     
@@ -241,9 +241,9 @@ export async function GET(req: Request) {
     if (!out.insights && (data as any).pillar_insights) {
       out.insights = (data as any).pillar_insights;
     }
-    // Hoist summary / opportunities_summary / upgrade_cta out of full_report — they live there
-    // because the production `brand_snapshot_reports` table doesn't have those columns. See the
-    // matching nesting in app/api/snapshot/route.ts.
+    // Hoist non-column fields out of full_report — they live there because the production
+    // `brand_snapshot_reports` table doesn't have those columns. See the matching nesting in
+    // app/api/snapshot/route.ts.
     const fullReport = (data as any)?.full_report as Record<string, unknown> | null;
     if (fullReport && typeof fullReport === "object") {
       if (out.summary == null && typeof fullReport.summary === "string") {
@@ -255,6 +255,13 @@ export async function GET(req: Request) {
       if (out.upgrade_cta == null && typeof fullReport.upgrade_cta === "string") {
         out.upgrade_cta = fullReport.upgrade_cta;
       }
+      if (out.product_tier == null && typeof fullReport.product_tier === "string") {
+        out.product_tier = fullReport.product_tier;
+      }
+    }
+    // Default product_tier so the results page's tier-aware logic always has a value.
+    if (out.product_tier == null) {
+      out.product_tier = "snapshot";
     }
     // Cache report data for 60 seconds (revalidate in background)
     return NextResponse.json(out, {

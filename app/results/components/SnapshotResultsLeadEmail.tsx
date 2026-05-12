@@ -40,11 +40,18 @@ export function SnapshotResultsLeadEmail({ reportId, productTier, productName, f
   const [contentOptIn, setContentOptIn] = useState<SnapshotContentOptIn | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Honeypot — humans never touch it (hidden, tabIndex=-1, autoComplete=off, off-screen),
+  // bots that auto-fill all inputs will populate it. Server treats it as silent rejection.
+  const [honeypot, setHoneypot] = useState("");
 
   const handleEmailSubmit = useCallback(
     async (e: FormEvent) => {
       e.preventDefault();
       setError(null);
+      if (honeypot) {
+        // Pretend success — bot gets no useful signal back.
+        return;
+      }
       const trimmed = email.trim().toLowerCase();
       if (!trimmed.includes("@")) {
         setError("Enter a valid email address.");
@@ -70,6 +77,8 @@ export function SnapshotResultsLeadEmail({ reportId, productTier, productName, f
             email: trimmed,
             turnstileToken,
             productTier,
+            // Echo honeypot so the server can catch bots that bypass the client check.
+            honeypot,
             ...(firstName ? { firstName } : {}),
           }),
         });
@@ -88,7 +97,7 @@ export function SnapshotResultsLeadEmail({ reportId, productTier, productName, f
         setSaving(false);
       }
     },
-    [email, firstNameHint, reportId, productTier, turnstileToken],
+    [email, firstNameHint, honeypot, reportId, productTier, turnstileToken],
   );
 
   const handleInsightsSubmit = useCallback(
@@ -173,6 +182,17 @@ export function SnapshotResultsLeadEmail({ reportId, productTier, productName, f
               placeholder="you@company.com"
               disabled={saving}
               className="mb-3 w-full box-border rounded-lg border border-slate-300 px-[14px] py-3 text-[15px]"
+            />
+            {/* Honeypot — invisible to humans, bots auto-fill it. Same pattern as the chat form. */}
+            <input
+              type="text"
+              name="company_url"
+              value={honeypot}
+              onChange={(ev) => setHoneypot(ev.target.value)}
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              style={{ position: "absolute", left: "-9999px", width: 0, height: 0, opacity: 0 }}
             />
             {error ? (
               <p className="m-0 mb-3 text-[13px] text-red-700" role="alert">

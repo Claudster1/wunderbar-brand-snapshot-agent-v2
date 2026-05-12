@@ -32,13 +32,22 @@ export async function POST(req: Request) {
     if (sizeCheck) return sizeCheck;
 
     const body = await req.json();
-    const { reportId, email, marketingOptIn, firstName: rawFirstName, productTier: rawTier } = body as {
+    const { reportId, email, marketingOptIn, firstName: rawFirstName, productTier: rawTier, honeypot } = body as {
       reportId?: string;
       email?: string;
       marketingOptIn?: boolean;
       firstName?: string;
       productTier?: string;
+      honeypot?: string;
     };
+
+    // Honeypot — humans never touch the hidden field, bots auto-fill it. Mirror the chat-form
+    // pattern: respond 200 with a generic-looking shape so the bot has no useful signal,
+    // but skip the AC sync + DB write entirely.
+    if (typeof honeypot === "string" && honeypot.length > 0) {
+      logger.warn("[Lead Email] Honeypot tripped — dropping submission silently");
+      return NextResponse.json({ success: true, email: null });
+    }
 
     const { verifyTurnstileToken } = await import("@/lib/security/turnstile");
     const turnstileResult = await verifyTurnstileToken(

@@ -45,7 +45,13 @@ export async function POST(req: Request) {
     const sizeCheck = checkBodySize(req, BODY_LIMITS.EMAIL_FORM);
     if (sizeCheck) return sizeCheck;
 
-    const { email, reportId, smsOptedIn, emailMarketingOptedIn, phoneMobile } = await req.json();
+    const { email, reportId, smsOptedIn, emailMarketingOptedIn, phoneMobile, honeypot } = await req.json();
+
+    // Honeypot — silently drop bot-shaped submissions. Same pattern as /api/snapshot/lead-email.
+    if (typeof honeypot === "string" && honeypot.length > 0) {
+      logger.warn("[Verify Email Send] Honeypot tripped — dropping submission silently");
+      return NextResponse.json({ success: true });
+    }
 
     if (!email || !reportId) {
       return NextResponse.json({ error: "Email and reportId are required" }, { status: 400 });

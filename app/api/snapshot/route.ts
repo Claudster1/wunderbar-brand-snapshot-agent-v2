@@ -12,7 +12,7 @@ import { buildContextCoverageMap } from "@/lib/enrichment/coverage";
 import { triggerUpgradeEmails } from "@/lib/triggerUpgradeEmails";
 import { randomUUID } from "crypto";
 import { getPrimaryPillar } from "@/lib/pillars/getPrimaryPillar";
-import { fireACEvent } from "@/lib/fireACEvent";
+import { fireACEvent, trackActiveCampaignSiteEvent } from "@/lib/fireACEvent";
 import {
   addContactToList,
   applyActiveCampaignTags,
@@ -676,14 +676,14 @@ export async function POST(req: Request) {
         removeSignalTags.push("snapshot:signal-missing:revenue-baseline");
       }
 
-      // Fire AC event + upgrade emails in parallel (non-blocking)
+      const useAcEventTracking = Boolean(
+        process.env.ACTIVE_CAMPAIGN_EVENT_TRACKING_KEY && process.env.ACTIVE_CAMPAIGN_EVENT_TRACKING_ACTID,
+      );
+
+      // AC: sync contact via API, then either Event Tracking (trackcmp.net/event) for automation
+      // triggers, or fall back to the legacy generic webhook JSON (fireACEvent).
+      // See https://developers.activecampaign.com/reference/track-event
       Promise.all([
-        fireACEvent({
-          email: userEmail,
-          eventName: "snapshot_completed",
-          tags: acTags,
-          fields: acFields,
-        }).catch((err) => logger.warn("[Snapshot API] AC event failed", { error: err instanceof Error ? err.message : String(err) })),
         triggerUpgradeEmails({
           email: userEmail,
           coverage,
@@ -712,51 +712,89 @@ export async function POST(req: Request) {
             directTags.push("snapshot:signal-missing:revenue-baseline");
           }
 
-          try {
-            await Promise.all([
-              directTags.length > 0
-                ? applyActiveCampaignTags({ email: userEmail, tags: directTags })
-                : Promise.resolve(),
-              removeSignalTags.length > 0
-                ? removeActiveCampaignTags({ email: userEmail, tags: removeSignalTags })
-                : Promise.resolve(),
-              setContactFields({ email: userEmail, fields: directFields }),
-              // Subscribe completed snapshots to the canonical Brand Snapshot Leads list.
-              // No-op if the user already arrived from the lead-email step (AC's contactLists
-              // POST is idempotent for active subscriptions).
-              process.env.AC_LIST_BRAND_SNAPSHOT_LEADS
-                ? addContactToList({
-                    email: userEmail,
-                    listId: process.env.AC_LIST_BRAND_SNAPSHOT_LEADS,
-                  })
-                : Promise.resolve(),
-            ]);
+          const acFieldsStrings: Record<string, string> = Object.fromEntries(
+            Object.entries(acFields).map(([k, v]) => [k, typeof v === "number" ? String(v) : String(v)]),
+          );
+          const mergedContactFields: Record<string, string> = { ...acFieldsStrings, ...directFields };
 
-            await createCrmSyncLog({
-              status: "success",
-              eventType: "ac.snapshot.strategy_signals",
-              payload: {
-                email: userEmail,
-                report_id,
-                business_type: businessTypeForAc,
-                missing_conversion_rate: !conversionRateEstimateForAc,
-                missing_revenue_baseline: missingRevenueBaseline,
-              },
+          if (hasAcApi) {
+            try {
+              await applyActiveCampaignTags({ email: userEmail, tags: acTags });
+              await Promise.all([
+                directTags.length > 0
+                  ? applyActiveCampaignTags({ email: userEmail, tags: directTags })
+                  : Promise.resolve(),
+                removeSignalTags.length > 0
+                  ? removeActiveCampaignTags({ email: userEmail, tags: removeSignalTags })
+                  : Promise.resolve(),
+                setContactFields({ email: userEmail, fields: mergedContactFields }),
+                process.env.AC_LIST_BRAND_SNAPSHOT_LEADS
+                  ? addContactToList({
+                      email: userEmail,
+                      listId: process.env.AC_LIST_BRAND_SNAPSHOT_LEADS,
+                    })
+                  : Promise.resolve(),
+              ]);
+
+              await createCrmSyncLog({
+                status: "success",
+                eventType: "ac.snapshot.strategy_signals",
+                payload: {
+                  email: userEmail,
+                  report_id,
+                  business_type: businessTypeForAc,
+                  missing_conversion_rate: !conversionRateEstimateForAc,
+                  missing_revenue_baseline: missingRevenueBaseline,
+                },
+              });
+
+              if (useAcEventTracking) {
+                const tracked = await trackActiveCampaignSiteEvent({
+                  email: userEmail,
+                  eventName: "snapshot_completed",
+                  eventData: reportLink,
+                });
+                if (!tracked) {
+                  logger.warn("[Snapshot API] AC Event Tracking (snapshot_completed) did not return success");
+                  if (hasAcWebhook) {
+                    await fireACEvent({
+                      email: userEmail,
+                      eventName: "snapshot_completed",
+                      tags: acTags,
+                      fields: acFields,
+                    });
+                  }
+                }
+              } else if (hasAcWebhook) {
+                await fireACEvent({
+                  email: userEmail,
+                  eventName: "snapshot_completed",
+                  tags: acTags,
+                  fields: acFields,
+                });
+              }
+            } catch (err) {
+              await createCrmSyncLog({
+                status: "failed",
+                eventType: "ac.snapshot.strategy_signals",
+                errorMessage: err instanceof Error ? err.message : String(err),
+                payload: {
+                  email: userEmail,
+                  report_id,
+                },
+              });
+              throw err;
+            }
+          } else if (hasAcWebhook) {
+            await fireACEvent({
+              email: userEmail,
+              eventName: "snapshot_completed",
+              tags: acTags,
+              fields: acFields,
             });
-          } catch (err) {
-            await createCrmSyncLog({
-              status: "failed",
-              eventType: "ac.snapshot.strategy_signals",
-              errorMessage: err instanceof Error ? err.message : String(err),
-              payload: {
-                email: userEmail,
-                report_id,
-              },
-            });
-            throw err;
           }
         })().catch((err) =>
-          logger.warn("[Snapshot API] AC direct field/tag sync failed", {
+          logger.warn("[Snapshot API] AC sync / event failed", {
             error: err instanceof Error ? err.message : String(err),
           }),
         ),

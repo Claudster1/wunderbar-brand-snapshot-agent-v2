@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { fireACEvent } from "@/lib/fireACEvent";
-import { applyActiveCampaignTags, removeActiveCampaignTags, setContactFields } from "@/lib/applyActiveCampaignTags";
+import { applyActiveCampaignTags, createTag, removeActiveCampaignTags, setContactFields } from "@/lib/applyActiveCampaignTags";
 import { createCrmSyncLog } from "@/lib/crm/inbound";
 
 function describeError(err: unknown): string {
@@ -142,6 +142,9 @@ export async function POST(req: Request) {
       try {
         const { setContactFields, getOrCreateContactId, applyActiveCampaignTags, addContactToList } = await import(
           "@/lib/applyActiveCampaignTags"
+        );
+        await createTag("snapshot:lead-email-captured").catch((err) =>
+          logger.warn("[Lead Email] AC create tag snapshot:lead-email-captured failed", { error: describeError(err) }),
         );
         await getOrCreateContactId(normalized, firstName ? { firstName } : undefined);
         await setContactFields({

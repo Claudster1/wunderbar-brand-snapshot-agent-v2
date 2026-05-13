@@ -31,6 +31,8 @@ const RULES: EnvRule[] = [
   // ─── ActiveCampaign ───
   { key: "ACTIVE_CAMPAIGN_API_URL", required: false, label: "ActiveCampaign API URL" },
   { key: "ACTIVE_CAMPAIGN_API_KEY", required: false, label: "ActiveCampaign API key" },
+  { key: "ACTIVE_CAMPAIGN_EVENT_TRACKING_KEY", required: false, label: "ActiveCampaign Event Tracking key (Site Tracking)" },
+  { key: "ACTIVE_CAMPAIGN_EVENT_TRACKING_ACTID", required: false, label: "ActiveCampaign Event Tracking actid" },
 
   // ─── Security ───
   { key: "NEXT_PUBLIC_TURNSTILE_SITE_KEY", required: false, label: "Turnstile site key" },

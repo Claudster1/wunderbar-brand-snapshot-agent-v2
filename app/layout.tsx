@@ -1,5 +1,6 @@
 import '@/lib/env'
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import { Lato } from 'next/font/google'
 import './globals.css'
 import { ConditionalGlobalFooter, ConditionalGlobalHeader } from '@/components/layout/ConditionalGlobalChrome'
@@ -53,6 +54,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   const shouldLoadPlausible = process.env.NODE_ENV === 'production'
+  const shouldLoadActiveCampaignSiteTracking = process.env.NODE_ENV === 'production'
 
   return (
     <html lang="en" className={lato.variable}>
@@ -68,6 +70,18 @@ export default function RootLayout({
       </head>
       <body className="font-brand antialiased">
         <a href="#main-content" className="sr-only" style={{ position: "absolute", top: 0, left: 0, padding: "8px 16px", background: "#07B0F2", color: "#fff", zIndex: 100000, fontWeight: 700 }}>Skip to main content</a>
+        {shouldLoadActiveCampaignSiteTracking ? (
+          <Script
+            id="activecampaign-site-tracking"
+            strategy="afterInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `(function(e,t,o,n,p,r,i){e.visitorGlobalObjectAlias=n;e[e.visitorGlobalObjectAlias]=e[e.visitorGlobalObjectAlias]||function(){(e[e.visitorGlobalObjectAlias].q=e[e.visitorGlobalObjectAlias].q||[]).push(arguments)};e[e.visitorGlobalObjectAlias].l=(new Date).getTime();r=t.createElement("script");r.src=o;r.async=true;i=t.getElementsByTagName("script")[0];i.parentNode.insertBefore(r,i)})(window,document,"https://diffuser-cdn.app-us1.com/diffuser/diffuser.js","vgo");
+vgo("setAccount","28930520");
+vgo("setTrackByDefault",true);
+vgo("process");`,
+            }}
+          />
+        ) : null}
         <script
           dangerouslySetInnerHTML={{
             __html: `

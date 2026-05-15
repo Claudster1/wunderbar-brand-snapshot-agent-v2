@@ -4,6 +4,15 @@ import { AI_RATE_LIMIT } from "@/lib/security/rateLimit";
 import { completeWithFallback, type ChatMessage } from "@/lib/ai";
 import { SNAPSHOT_TRANSCRIPT_EXTRACT_SYSTEM } from "@/src/prompts/snapshotTranscriptExtractPrompt";
 import { snapshotAnswersRecordSchema } from "@/lib/snapshot/snapshotAnswersSchema";
+import {
+  buildFallbackAnswersFromMessages,
+  mergeExtractedWithFallback,
+} from "@/lib/intake/transcriptAnswerFallback";
+import { mergePriorWithExtracted } from "@/lib/intake/mergePriorAnswers";
+import {
+  CONTINUATION_REPORT_UUID_RE,
+  loadPriorSnapshotAnswers,
+} from "@/lib/intake/loadPriorSnapshotAnswers";
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -19,6 +28,13 @@ function transcriptFromMessages(messages: IncomingMsg[]): string {
     })
     .filter(Boolean)
     .join("\n\n");
+}
+
+function toIntakeMessages(messages: IncomingMsg[]) {
+  return messages.map((m) => ({
+    role: m.role === "assistant" ? "assistant" : "user",
+    content: typeof m.text === "string" ? m.text : typeof m.content === "string" ? m.content : "",
+  }));
 }
 
 function extractJsonObject(raw: string): Record<string, unknown> | null {
@@ -51,6 +67,57 @@ function extractJsonObject(raw: string): Record<string, unknown> | null {
   return null;
 }
 
+async function extractWithModel(
+  transcript: string,
+  tierNote: string,
+  repairHint?: string,
+): Promise<string> {
+  const aiMessages: ChatMessage[] = [
+    { role: "system", content: SNAPSHOT_TRANSCRIPT_EXTRACT_SYSTEM },
+    {
+      role: "user",
+      content: repairHint
+        ? `${tierNote}\n\nREPAIR: ${repairHint}\n\n--- CHAT TRANSCRIPT ---\n\n${transcript}`
+        : `${tierNote}\n\n--- CHAT TRANSCRIPT ---\n\n${transcript}`,
+    },
+  ];
+
+  const completion = await completeWithFallback("snapshot_transcript_extract", {
+    messages: aiMessages,
+  });
+
+  return completion.content?.trim() || "";
+}
+
+function resolveAnswers(
+  messages: IncomingMsg[],
+  extracted: Record<string, unknown> | null,
+  priorAnswers?: Record<string, unknown> | null,
+): { answers: Record<string, unknown> | null; usedFallback: boolean } {
+  const intakeMsgs = toIntakeMessages(messages);
+
+  if (extracted && Object.keys(extracted).length > 0) {
+    let merged = mergeExtractedWithFallback(extracted, intakeMsgs);
+    if (priorAnswers) merged = mergePriorWithExtracted(priorAnswers, merged);
+    const parsed = snapshotAnswersRecordSchema.safeParse(merged);
+    if (parsed.success) {
+      return { answers: parsed.data, usedFallback: false };
+    }
+    logger.warn("[complete-from-transcript] Schema failed after merge", {
+      issue: parsed.error.issues[0]?.message,
+    });
+  }
+
+  let fallbackOnly = buildFallbackAnswersFromMessages(intakeMsgs);
+  if (priorAnswers) fallbackOnly = mergePriorWithExtracted(priorAnswers, fallbackOnly);
+  const fallbackParsed = snapshotAnswersRecordSchema.safeParse(fallbackOnly);
+  if (fallbackParsed.success) {
+    return { answers: fallbackParsed.data, usedFallback: true };
+  }
+
+  return { answers: null, usedFallback: true };
+}
+
 export async function POST(req: Request) {
   const guard = apiGuard(req, {
     routeId: "snapshot_transcript",
@@ -63,6 +130,7 @@ export async function POST(req: Request) {
     const body = (await req.json().catch(() => ({}))) as {
       messages?: IncomingMsg[];
       productTier?: string;
+      continuationReportId?: string;
     };
 
     const messages = Array.isArray(body.messages) ? body.messages : [];
@@ -80,37 +148,38 @@ export async function POST(req: Request) {
         ? `Product tier (for field depth): ${body.productTier.trim()}.`
         : "";
 
-    const aiMessages: ChatMessage[] = [
-      { role: "system", content: SNAPSHOT_TRANSCRIPT_EXTRACT_SYSTEM },
-      {
-        role: "user",
-        content: `${tierNote}\n\n--- CHAT TRANSCRIPT ---\n\n${transcript}`,
-      },
-    ];
+    const continuationId =
+      typeof body.continuationReportId === "string" ? body.continuationReportId.trim() : "";
+    const priorAnswers =
+      continuationId && CONTINUATION_REPORT_UUID_RE.test(continuationId)
+        ? await loadPriorSnapshotAnswers(continuationId)
+        : null;
 
-    const completion = await completeWithFallback("snapshot_transcript_extract", {
-      messages: aiMessages,
-    });
+    let content = await extractWithModel(transcript, tierNote);
+    let extracted = extractJsonObject(content);
 
-    const content = completion.content?.trim() || "";
-    const extracted = extractJsonObject(content);
     if (!extracted) {
-      logger.warn("[complete-from-transcript] No JSON in model output", {
+      logger.warn("[complete-from-transcript] No JSON in first pass", {
         preview: content.slice(0, 200),
       });
+      content = await extractWithModel(
+        transcript,
+        tierNote,
+        "Your previous reply was not valid JSON. Reply with ONLY one JSON object matching the required shape.",
+      );
+      extracted = extractJsonObject(content);
+    }
+
+    let { answers, usedFallback } = resolveAnswers(messages, extracted, priorAnswers);
+
+    if (!answers) {
       return NextResponse.json(
         { error: "Could not extract structured answers. Try again in a moment." },
-        { status: 422 }
+        { status: 422 },
       );
     }
 
-    const parsed = snapshotAnswersRecordSchema.safeParse(extracted);
-    if (!parsed.success) {
-      const msg = parsed.error.issues[0]?.message ?? "Invalid extracted answers.";
-      return NextResponse.json({ error: msg }, { status: 422 });
-    }
-
-    return NextResponse.json({ answers: parsed.data });
+    return NextResponse.json({ answers, usedFallback });
   } catch (err: unknown) {
     logger.error("[complete-from-transcript]", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "Failed to complete from transcript." }, { status: 500 });

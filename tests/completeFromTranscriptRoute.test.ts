@@ -149,24 +149,25 @@ describe("POST /api/snapshot/complete-from-transcript (mocked AI)", () => {
     expect(data.error).toBe("Transcript too short.");
   });
 
-  it("returns 422 when the model returns no extractable JSON", async () => {
+  it("returns 200 with heuristic fallback when the model returns no extractable JSON", async () => {
     completeWithFallbackMock.mockResolvedValue({ content: "Thanks — all set!", provider: "x", model: "y" });
     const res = await POST(postJson({ messages: longTurns() }));
-    expect(res.status).toBe(422);
-    const data = (await res.json()) as { error: string };
-    expect(data.error).toMatch(/Could not extract structured answers/i);
+    expect(res.status).toBe(200);
+    const data = (await res.json()) as { answers?: Record<string, unknown>; usedFallback?: boolean };
+    expect(data.answers).toBeTruthy();
+    expect(data.usedFallback).toBe(true);
   });
 
-  it("returns 422 when JSON parses but fails snapshotAnswersRecordSchema", async () => {
+  it("returns 200 with merged fallback when JSON fails snapshotAnswersRecordSchema", async () => {
     completeWithFallbackMock.mockResolvedValue({
       content: JSON.stringify({ onlyOne: "x", two: "y" }),
       provider: "x",
       model: "y",
     });
     const res = await POST(postJson({ messages: longTurns() }));
-    expect(res.status).toBe(422);
-    const data = (await res.json()) as { error: string };
-    expect(data.error.length).toBeGreaterThan(0);
+    expect(res.status).toBe(200);
+    const data = (await res.json()) as { answers?: Record<string, unknown>; usedFallback?: boolean };
+    expect(data.answers).toBeTruthy();
   });
 
   it("returns 200 with answers when stub returns valid JSON (raw object)", async () => {

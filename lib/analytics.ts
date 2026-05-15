@@ -14,7 +14,11 @@ export type AnalyticsEvent =
   | "UPGRADE_NUDGE_CLICKED"
   | "PDF_DOWNLOADED"
   | "BLUEPRINT_STARTED"
-  | "BLUEPRINT_COMPLETED";
+  | "BLUEPRINT_COMPLETED"
+  | "INTAKE_PROGRESS_MILESTONE"
+  | "INTAKE_READY_FINALIZE"
+  | "INTAKE_FINALIZE_STARTED"
+  | "INTAKE_FINALIZE_FAILED";
 
 /**
  * Track a product event with automatic attribution enrichment.

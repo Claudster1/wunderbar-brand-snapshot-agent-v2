@@ -42,3 +42,5 @@ next-env.d.ts
 tmp-screenshots/
 tmp-*
 test-results/
+playwright-report/
+blob-report/

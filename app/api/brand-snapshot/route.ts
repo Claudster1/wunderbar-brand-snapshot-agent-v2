@@ -5,7 +5,9 @@
 import { NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { wundySystemPrompt } from "@/src/prompts/wundySystemPrompt";
-import { wundySnapshotTierFragment } from "@/src/prompts/wundySnapshotTierFragment";
+import { wundySnapshotIntakePrompt } from "@/src/prompts/wundySnapshotIntakePrompt";
+import { buildIntakeResponseMeta } from "@/lib/intake/buildIntakeResponseMeta";
+import { buildNarrativeRoutingLines } from "@/lib/intake/narrativeMilestones";
 import { wundyUpgradeContinuationFragment } from "@/src/prompts/wundyUpgradeContinuationFragment";
 import { wundyEarlyStageBuildModeFragment } from "@/src/prompts/wundyEarlyStageBuildModeFragment";
 import { supabaseAdmin } from "@/lib/supabase-admin";
@@ -22,6 +24,16 @@ import {
 } from "@/lib/intake/flexibleDirectCaptureComplete";
 import { dedupeAssistantRepeatedParagraphChunks } from "@/lib/assistantCopy/dedupeAssistantParagraphRepeats";
 import { sanitizeTierAssistantReply } from "@/lib/assistantCopy/sanitizeTierAssistantReply";
+import {
+  buildIntakeTopicResumeLines,
+  buildIntakeWrapUpGuardLines,
+} from "@/lib/intake/buildIntakeTopicResume";
+import { applyPriorAnswersToCaptureStates } from "@/lib/intake/priorAnswersCapture";
+import {
+  CONTINUATION_REPORT_UUID_RE,
+  loadPriorSnapshotAnswers,
+  serializePriorAnswersForPrompt,
+} from "@/lib/intake/loadPriorSnapshotAnswers";
 import type { ChatTier } from "@/lib/chatTierConfig";
 
 type BusinessType =
@@ -210,34 +222,6 @@ const ON_TOPIC_ASSISTANT_HINTS: Record<CaptureKey, RegExp> = {
 };
 
 type IntakeTier = "snapshot" | "snapshot-plus" | "blueprint" | "blueprint-plus";
-
-const CONTINUATION_REPORT_UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
-async function loadPriorSnapshotAnswersForContinuation(
-  reportId: string,
-): Promise<Record<string, unknown> | null> {
-  if (!CONTINUATION_REPORT_UUID_RE.test(reportId) || !supabaseAdmin) return null;
-  const { data, error } = await supabaseAdmin
-    .from("brand_snapshot_reports")
-    .select("full_report")
-    .or(`report_id.eq.${reportId},id.eq.${reportId}`)
-    .maybeSingle();
-  if (error || !data?.full_report || typeof data.full_report !== "object") return null;
-  const answers = (data.full_report as { answers?: unknown }).answers;
-  if (!answers || typeof answers !== "object" || Array.isArray(answers)) return null;
-  return answers as Record<string, unknown>;
-}
-
-function serializeAnswersForContinuationPrompt(answers: Record<string, unknown>): string {
-  const max = 14_000;
-  try {
-    const s = JSON.stringify(answers);
-    return s.length <= max ? s : `${s.slice(0, max)}…[truncated]`;
-  } catch {
-    return "{}";
-  }
-}
 
 function normalizeIntakeTier(raw: unknown): IntakeTier {
   if (typeof raw !== "string") return "snapshot";
@@ -658,20 +642,30 @@ function getCaptureStates(
   });
 }
 
+type CaptureEngineOptions = {
+  includeBudgetCapture?: boolean;
+  tier?: IntakeTier;
+  priorAnswers?: Record<string, unknown> | null;
+};
+
 /** Treat stuck keys as completed for one turn so routing advances (anti-loop). */
 function getEffectiveCaptureStates(
   messages: Array<{ role: string; content: string }>,
-  options?: { includeBudgetCapture?: boolean; tier?: IntakeTier },
+  options?: CaptureEngineOptions,
   softSkipKeys?: ReadonlySet<CaptureKey>,
 ): CaptureState[] {
-  return getCaptureStates(messages, options).map((c) =>
-    softSkipKeys?.has(c.key) ? { ...c, completed: true } : c,
+  const tier = options?.tier ?? "snapshot";
+  const withPrior = applyPriorAnswersToCaptureStates(
+    getCaptureStates(messages, options),
+    options?.priorAnswers,
+    tier,
   );
+  return withPrior.map((c) => (softSkipKeys?.has(c.key) ? { ...c, completed: true } : c));
 }
 
 function getNextPendingCapture(
   messages: Array<{ role: string; content: string }>,
-  options?: { includeBudgetCapture?: boolean; tier?: IntakeTier },
+  options?: CaptureEngineOptions,
   softSkipKeys?: ReadonlySet<CaptureKey>,
 ): CaptureState | null {
   return getEffectiveCaptureStates(messages, options, softSkipKeys).find((x) => !x.completed) ?? null;
@@ -955,67 +949,29 @@ function normalizeStoredAnswers(raw: unknown): Record<string, unknown> {
   return answers;
 }
 
-/**
- * Full-user-thread signals (not windowed) so the model does not replay early playbook steps after
- * the transcript tail no longer shows those answers.
- */
-function buildIntakeTopicResumeLines(messages: Array<{ role: string; content: string }>): string[] {
-  const userCorpus = messages
-    .filter((m) => m.role === "user")
-    .map((m) => m.content || "")
-    .join("\n");
-  if (!userCorpus.trim()) return [];
-  const lines: string[] = [];
-  const urlLike =
-    /\b(https?:\/\/|www\.)\S+|[a-z0-9][-a-z0-9]{0,48}\.(com|io|ai|co|org|net|app|dev|us|uk|shop)(\b|[/.?#])/i;
-  if (urlLike.test(userCorpus) || /\b(no website|no site yet|not on the web|not on the web yet)\b/i.test(userCorpus)) {
-    lines.push(
-      "PRIMARY WEBSITE / ONLINE HOME: already answered somewhere in this thread — do **not** ask for the URL again (main prompt §9). Acknowledge only if the user brings it up.",
-    );
-  }
-  if (
-    /\b(instagram|ig|linked\s*in|linkedin|tiktok|facebook|fb|meta|youtube|yt|threads|twitter|\bx\b|pinterest|snapchat|reddit|bluesky)\b/i.test(
-      userCorpus,
-    ) ||
-    /@[a-z0-9_]{2,}/i.test(userCorpus) ||
-    /\b(no social|not really on social|not active on social|none on social)\b/i.test(userCorpus)
-  ) {
-    lines.push(
-      "SOCIAL PLATFORMS: already answered — do **not** re-run the social discovery pass (main prompt §10) unless the user asks to change their answer.",
-    );
-  }
-  if (/\b(competitor|competition|competing|versus|vs\.|who else|similar in your space|agencies targeting)\b/i.test(userCorpus)) {
-    lines.push(
-      "COMPETITORS / ALTERNATIVES: already discussed — do **not** ask the competitor discovery question again (main prompt §11) unless they request a revision.",
-    );
-  }
-  if (
-    /\b(current customers|customers today|who's actually buying|ideal customers?|perfect fit|client roster|no customers? yet|no clients? yet|just launching|don'?t have clients)\b/i.test(
-      userCorpus,
-    )
-  ) {
-    lines.push(
-      "CURRENT / IDEAL CUSTOMERS: already explored — do **not** repeat the full current-vs-ideal sequence (main prompt §12–13) unless the user asks to revisit.",
-    );
-  }
-  return lines;
-}
-
 function buildDeterministicRoutingGuard(
   messages: Array<{ role: string; content: string }>,
-  options?: { includeBudgetCapture?: boolean; tier?: IntakeTier },
+  options?: CaptureEngineOptions,
   softSkipKeys?: ReadonlySet<CaptureKey>,
 ): string {
   const tier = options?.tier ?? "snapshot";
   const includeBudgetCapture = options?.includeBudgetCapture === true;
+  const priorAnswers = options?.priorAnswers;
   const inferredType = inferBusinessTypeFromHistory(messages);
-  const captureStates = getEffectiveCaptureStates(messages, { includeBudgetCapture, tier }, softSkipKeys);
+  const captureStates = getEffectiveCaptureStates(messages, options, softSkipKeys);
   const pending = captureStates.filter((x) => !x.completed);
+  const capturesComplete = pending.length === 0;
   const nextCapture = pending[0]?.label ?? "none";
   const completionPercent = Math.round(
     (captureStates.filter((x) => x.completed).length / captureStates.length) * 100,
   );
-  const topicResume = buildIntakeTopicResumeLines(messages);
+  const narrativeLines = buildNarrativeRoutingLines(messages, tier, capturesComplete, priorAnswers);
+  const topicResume = buildIntakeTopicResumeLines(messages, priorAnswers);
+  const wrapUpOnly = buildIntakeWrapUpGuardLines(
+    messages,
+    completionPercent,
+    pending.map((x) => x.label),
+  );
 
   return [
     "DETERMINISTIC ROUTING GUARD (SERVER ENFORCED):",
@@ -1045,6 +1001,14 @@ function buildDeterministicRoutingGuard(
           "- Snapshot-tier depth: when website / social / broader marketing-surface captures are pending, complete them before wrap-up — they anchor the WunderBrand Score™ (especially Visibility). Hold revenue, conversion, list/lead-magnet detail, and full activation-style channel mix for Snapshot+™ / Blueprint™; mention upgrades only after pending captures are handled, never as a substitute.",
         ]
       : []),
+    ...(priorAnswers && Object.keys(priorAnswers).length > 0
+      ? [
+          "",
+          "PRIOR TIER DATA (STRUCTURED — SERVER ENFORCED):",
+          "Required captures and playbook topics already present in prior intake JSON are marked complete.",
+          "Ask only net-new fields for this product tier; merge all prior fields into final JSON.",
+        ]
+      : []),
     ...(topicResume.length
       ? [
           "",
@@ -1053,6 +1017,12 @@ function buildDeterministicRoutingGuard(
           ...topicResume.map((line) => `- ${line}`),
           "If a line appears above, treat that playbook topic as **done** — continue at the next unanswered numbered step; never re-ask as if the user had not answered.",
         ]
+      : []),
+    ...(wrapUpOnly.length
+      ? ["", ...wrapUpOnly.map((line) => `- ${line}`)]
+      : []),
+    ...(narrativeLines.length
+      ? ["", ...narrativeLines.map((line) => `- ${line}`)]
       : []),
   ].join("\n");
 }
@@ -1194,23 +1164,28 @@ export async function POST(req: Request) {
     const intakeTier = normalizeIntakeTier(productTier);
     const includeBudgetCapture = isActivationPlanningTier(productTier);
     const inferredType = inferBusinessTypeFromHistory(messages);
-    const captureOpts = { includeBudgetCapture, tier: intakeTier };
-
     const useUpgradeContinuation =
       intakeTier !== "snapshot" &&
       continuationReportId.length > 0 &&
       CONTINUATION_REPORT_UUID_RE.test(continuationReportId);
 
+    let priorAnswers: Record<string, unknown> | null = null;
     let continuationAnswersPrimer: string | null = null;
     if (useUpgradeContinuation) {
-      const prior = await loadPriorSnapshotAnswersForContinuation(continuationReportId);
-      if (prior && Object.keys(prior).length > 0) {
+      priorAnswers = await loadPriorSnapshotAnswers(continuationReportId);
+      if (priorAnswers && Object.keys(priorAnswers).length > 0) {
         continuationAnswersPrimer = [
           "PRIOR WUNDERBRAND SNAPSHOT™ INTAKE (structured JSON — authoritative; merge into final output, do not re-ask unless missing/ambiguous):",
-          serializeAnswersForContinuationPrompt(prior),
+          serializePriorAnswersForPrompt(priorAnswers),
         ].join("\n\n");
       }
     }
+
+    const captureOpts: CaptureEngineOptions = {
+      includeBudgetCapture,
+      tier: intakeTier,
+      priorAnswers,
+    };
 
     const rawPending = getNextPendingCapture(messages, captureOpts);
     const rawForced = rawPending ? buildCaptureQuestion(rawPending.key, inferredType) : null;
@@ -1252,7 +1227,7 @@ export async function POST(req: Request) {
         content: `CURRENT PRODUCT TIER: ${intakeTier}. Strictly follow tier capabilities for this turn.`,
       },
       ...(intakeTier === "snapshot"
-        ? [{ role: "system" as const, content: wundySnapshotTierFragment }]
+        ? [{ role: "system" as const, content: wundySnapshotIntakePrompt }]
         : []),
       { role: "system" as const, content: wundyEarlyStageBuildModeFragment },
       ...(useUpgradeContinuation
@@ -1327,8 +1302,18 @@ export async function POST(req: Request) {
       replacedSocialCaptureWithApprovedWording,
     );
 
+    const postCaptureStates = getEffectiveCaptureStates(messages, captureOpts, softSkipKeys);
+    const intakeMeta = buildIntakeResponseMeta({
+      messages,
+      tier: intakeTier as ChatTier,
+      captureStates: postCaptureStates,
+      nextPendingKey: nextPendingCapture?.key ?? null,
+      priorAnswers,
+    });
+
     return NextResponse.json({
       content: finalContent,
+      meta: intakeMeta,
       _ai: { provider: completion.provider, model: completion.model },
     });
   } catch (err: any) {

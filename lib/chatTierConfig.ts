@@ -120,6 +120,21 @@ It's helpful to have your website, audience info, key competitors, and any exist
  * Returns "snapshot" (free) as the default if unrecognized.
  */
 /** First assistant message after checkout when prior Snapshot answers are on file but chat transcript is not restored. */
+/** Rough remaining questions after Snapshot → paid upgrade (prior answers on file). */
+export function estimateUpgradeQuestionsRemaining(tier: ChatTier): number {
+  const full = intakeProgressDenominator(tier);
+  switch (tier) {
+    case "snapshot-plus":
+      return Math.max(8, Math.round(full * 0.45));
+    case "blueprint":
+      return Math.max(12, Math.round(full * 0.55));
+    case "blueprint-plus":
+      return Math.max(14, Math.round(full * 0.6));
+    default:
+      return Math.max(6, Math.round(full * 0.35));
+  }
+}
+
 export function buildUpgradeGapFillAssistantMessage(
   tier: ChatTier,
   firstNameHint?: string | null,
@@ -129,7 +144,8 @@ export function buildUpgradeGapFillAssistantMessage(
     (firstNameHint?.trim() ? firstNameHint.trim() : "");
   const namePart = first ? `, ${first}` : "";
   const productName = TIER_CONFIGS[tier]?.productName ?? "your upgraded diagnostic";
-  return `Welcome back${namePart}! Your WunderBrand Snapshot™ answers are already on file — we won't redo that work. For **${productName}**, I'll only cover what's **still missing** for this tier.
+  const approx = estimateUpgradeQuestionsRemaining(tier);
+  return `Welcome back${namePart}! Your WunderBrand Snapshot™ answers are already on file — we won't redo that work. For **${productName}**, I'll only cover what's **still missing** for this tier — about **${approx} focused questions** from here.
 
 When you're ready, say **continue** or just dive into the first question — either works.`;
 }

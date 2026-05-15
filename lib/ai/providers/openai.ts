@@ -65,6 +65,28 @@ function extractToolCalls(
     }));
 }
 
+/** Stream text deltas from OpenAI chat completions (assessment chat). */
+export async function* streamOpenAIChat(
+  model: string,
+  options: CompletionOptions,
+): AsyncGenerator<string> {
+  const client = getClient();
+  const stream = await client.chat.completions.create({
+    model,
+    messages: toOpenAIMessages(options.messages),
+    temperature: options.temperature ?? 0.6,
+    max_tokens: options.maxTokens ?? 2000,
+    stream: true,
+  });
+
+  for await (const chunk of stream) {
+    const delta = chunk.choices?.[0]?.delta?.content;
+    if (typeof delta === "string" && delta.length > 0) {
+      yield delta;
+    }
+  }
+}
+
 export function createOpenAIProvider(model: string): AIProviderClient {
   return {
     provider: "openai",

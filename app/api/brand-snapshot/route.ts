@@ -13,6 +13,8 @@ import { wundyEarlyStageBuildModeFragment } from "@/src/prompts/wundyEarlyStageB
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { randomUUID } from "crypto";
 import { completeWithFallback, type ChatMessage } from "@/lib/ai";
+import { streamWithFallback } from "@/lib/ai/streamWithFallback";
+import { encodeBrandSnapshotSse } from "@/lib/intake/brandSnapshotSse";
 import { CAPTURE_REFUSAL_PATTERN } from "@/lib/intake/captureRefusal";
 import {
   assistantAskedDedicatedSocialPlatformPresence,
@@ -1150,7 +1152,8 @@ export async function POST(req: Request) {
     }
 
     // Otherwise, treat as chat/conversation request
-    const { messages, productTier, continuationReportId: continuationReportIdRaw } = body || {};
+    const { messages, productTier, continuationReportId: continuationReportIdRaw, stream: streamRequested } =
+      body || {};
     const continuationReportId =
       typeof continuationReportIdRaw === "string" ? continuationReportIdRaw.trim() : "";
 
@@ -1270,37 +1273,32 @@ export async function POST(req: Request) {
       })),
     ];
 
-    const completion = await completeWithFallback("assessment_chat", {
-      messages: aiMessages,
-    });
-
     const fallbackMessage =
       "Sorry, I had trouble creating your WunderBrand Snapshot™. Please try again.";
-    let finalContent = completion.content || fallbackMessage;
-    let replacedSocialCaptureWithApprovedWording = false;
 
-    // Hard guard: if required capture is still pending but model drifted, force the expected question.
-    if (
-      nextPendingCapture &&
-      forcedCapturePrompt &&
-      shouldForceCapturePrompt(finalContent, forcedCapturePrompt, nextPendingCapture.key)
-    ) {
-      finalContent = forcedCapturePrompt;
-      replacedSocialCaptureWithApprovedWording = nextPendingCapture.key === "social_platform_presence";
-    }
-
-    finalContent = dedupeAssistantRepeatedParagraphChunks(finalContent);
-
-    finalContent = sanitizeTierAssistantReply(finalContent, {
-      hasInChatUploads: hasChatAssetUploads,
-      intakeTier: intakeTier as ChatTier,
-    });
-
-    maybeWarnSocialDedicatedPromptDetectorGap(
-      nextPendingCapture?.key,
-      finalContent,
-      replacedSocialCaptureWithApprovedWording,
-    );
+    const applyPostProcess = (raw: string) => {
+      let finalContent = raw || fallbackMessage;
+      let replacedSocialCaptureWithApprovedWording = false;
+      if (
+        nextPendingCapture &&
+        forcedCapturePrompt &&
+        shouldForceCapturePrompt(finalContent, forcedCapturePrompt, nextPendingCapture.key)
+      ) {
+        finalContent = forcedCapturePrompt;
+        replacedSocialCaptureWithApprovedWording = nextPendingCapture.key === "social_platform_presence";
+      }
+      finalContent = dedupeAssistantRepeatedParagraphChunks(finalContent);
+      finalContent = sanitizeTierAssistantReply(finalContent, {
+        hasInChatUploads: hasChatAssetUploads,
+        intakeTier: intakeTier as ChatTier,
+      });
+      maybeWarnSocialDedicatedPromptDetectorGap(
+        nextPendingCapture?.key,
+        finalContent,
+        replacedSocialCaptureWithApprovedWording,
+      );
+      return finalContent;
+    };
 
     const postCaptureStates = getEffectiveCaptureStates(messages, captureOpts, softSkipKeys);
     const intakeMeta = buildIntakeResponseMeta({
@@ -1310,6 +1308,54 @@ export async function POST(req: Request) {
       nextPendingKey: nextPendingCapture?.key ?? null,
       priorAnswers,
     });
+
+    if (streamRequested === true) {
+      const stream = new ReadableStream({
+        async start(controller) {
+          try {
+            let accumulated = "";
+            for await (const token of streamWithFallback("assessment_chat", { messages: aiMessages })) {
+              accumulated += token;
+              controller.enqueue(encodeBrandSnapshotSse({ type: "token", text: token }));
+            }
+            const finalContent = applyPostProcess(accumulated);
+            controller.enqueue(
+              encodeBrandSnapshotSse({
+                type: "done",
+                content: finalContent,
+                meta: intakeMeta,
+                _ai: { provider: "openai", model: "stream" },
+              }),
+            );
+          } catch (streamErr) {
+            controller.enqueue(
+              encodeBrandSnapshotSse({
+                type: "error",
+                message:
+                  streamErr instanceof Error
+                    ? streamErr.message
+                    : "There was an issue reaching the WunderBrand Snapshot™ specialist.",
+              }),
+            );
+          } finally {
+            controller.close();
+          }
+        },
+      });
+      return new Response(stream, {
+        headers: {
+          "Content-Type": "text/event-stream; charset=utf-8",
+          "Cache-Control": "no-cache, no-transform",
+          Connection: "keep-alive",
+        },
+      });
+    }
+
+    const completion = await completeWithFallback("assessment_chat", {
+      messages: aiMessages,
+    });
+
+    const finalContent = applyPostProcess(completion.content || "");
 
     return NextResponse.json({
       content: finalContent,

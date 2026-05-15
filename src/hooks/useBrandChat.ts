@@ -227,6 +227,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     initialMessage,
   ]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
   const [reportId, setReportId] = useState<string | null>(null);
   /** Set when scoring/save succeeds — full URL to open the diagnostic results UI. */
   const [resultsEntryUrl, setResultsEntryUrl] = useState<string | null>(null);
@@ -690,11 +691,28 @@ export function useBrandChat(options?: UseBrandChatOptions) {
       const continuationReportId = paidTier
         ? continuationReportIdForApiRef.current ?? reportId
         : null;
+      const streamingMessage = createMessage('assistant', '');
+      const streamingMessageId = streamingMessage.id;
+      setMessages([...nextHistory, streamingMessage]);
+      setIsStreaming(true);
+
       const reply = await getBrandSnapshotReply(nextHistory, {
         productTier: options?.productTier,
         continuationReportId: continuationReportId ?? undefined,
+        stream: true,
+        onToken: (token) => {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === streamingMessageId ? { ...m, text: m.text + token } : m,
+            ),
+          );
+        },
       });
       const replyText = reply.content;
+
+      setMessages((prev) =>
+        prev.map((m) => (m.id === streamingMessageId ? { ...m, text: replyText } : m)),
+      );
       if (reply.meta) {
         setIntakeMeta(reply.meta);
         if (reply.meta.overallProgressPercent >= 50 && !intakeMilestoneFiredRef.current) {
@@ -1160,6 +1178,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
       }
     } finally {
       setIsLoading(false);
+      setIsStreaming(false);
       sendingRef.current = false;
     }
   };
@@ -1202,6 +1221,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
   return {
     messages,
     isLoading,
+    isStreaming,
     sendMessage,
     retry,
     canRetry: !!lastFailedInput,

@@ -128,6 +128,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
   const {
     messages,
     isLoading,
+    isStreaming,
     sendMessage,
     retry,
     canRetry,
@@ -1211,7 +1212,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                 </form>
               )}
             </div>
-            {isLoading && (
+            {isLoading && !isStreaming && (
               <div className="app-loading-status">
                 <div className="app-progress-bar">
                   <div

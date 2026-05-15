@@ -229,7 +229,7 @@ export async function POST(req: NextRequest) {
 
             await applyActiveCampaignTags({
               email: refundEmail,
-              tags: ["purchase:refunded"],
+              tags: ["purchased:refunded", "purchase:refunded"],
             }).catch(() => {});
 
             logger.info("[Stripe Webhook] Refund processed", { email: refundEmail });

@@ -141,6 +141,10 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     isFinalizing,
     finalizeError,
     clearFinalizeError,
+    intakeReadyForFinalize,
+    suggestedReplies,
+    capturedSummary,
+    questionsRemainingEstimate,
   } = useBrandChat({
     onComplete: handleAssessmentComplete,
     customGreeting: resolvedGreeting,
@@ -158,6 +162,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
   /** Populated after successful save-exit so users can resume even if AC email is delayed or misconfigured. */
   const [saveResumeUrl, setSaveResumeUrl] = useState<string | null>(null);
   const [saveResumeEventSent, setSaveResumeEventSent] = useState<boolean | null>(null);
+  const [capturedSummaryOpen, setCapturedSummaryOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatMessagesRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -360,8 +365,14 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
       } catch {
         /* ignore */
       }
+      const fallbackResume =
+        reportId && typeof window !== "undefined"
+          ? `${window.location.origin}/?resume=${encodeURIComponent(reportId)}`
+          : null;
       if (typeof payload.resumeUrl === "string" && payload.resumeUrl.startsWith("http")) {
         setSaveResumeUrl(payload.resumeUrl);
+      } else if (fallbackResume) {
+        setSaveResumeUrl(fallbackResume);
       } else {
         setSaveResumeUrl(null);
       }
@@ -556,6 +567,15 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     lastThreadMessage.role === "assistant" &&
     !isLoading &&
     !isFinalizing;
+
+  const serverQuickReplies =
+    suggestedReplies &&
+    suggestedReplies.length > 0 &&
+    chatAwaitingChoiceOnLatestAssistant &&
+    !(selectOptions && selectOptions.options.length > 0)
+      ? { options: suggestedReplies, isMultiSelect: false as const }
+      : null;
+  const activeSelectOptions = selectOptions?.options.length ? selectOptions : serverQuickReplies;
 
   // Handle checkbox toggle (multi-select)
   const handleCheckboxToggle = (option: string) => {
@@ -775,8 +795,47 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                     ? "Almost there..."
                     : "Wrapping up!"}
                 </span>
-                <span>{assessmentProgress}% complete</span>
+                <span>
+                  {assessmentProgress}% complete
+                  {questionsRemainingEstimate != null && assessmentProgress < 100
+                    ? ` · ~${questionsRemainingEstimate} questions left`
+                    : ""}
+                </span>
               </div>
+            </div>
+          )}
+
+          {conversationStarted && capturedSummary.length > 0 && !intakeInputHidden && (
+            <div style={{ margin: "0 16px 12px", borderRadius: 10, border: "1px solid #E2E8F0", background: "#F8FAFC" }}>
+              <button
+                type="button"
+                onClick={() => setCapturedSummaryOpen((o) => !o)}
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  padding: "10px 14px",
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: "#021859",
+                }}
+              >
+                What I&apos;ve noted so far
+                <span style={{ fontWeight: 500, color: "#64748B" }}>{capturedSummaryOpen ? "Hide" : "Show"}</span>
+              </button>
+              {capturedSummaryOpen && (
+                <ul style={{ margin: 0, padding: "0 14px 12px 28px", fontSize: 13, color: "#334155", lineHeight: 1.5 }}>
+                  {capturedSummary.map((item) => (
+                    <li key={item.label}>
+                      <strong>{item.label}:</strong> {item.value}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           )}
 
@@ -1025,7 +1084,33 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                 )
               )}
 
-              {intakeInputHidden ? null : selectOptions && selectOptions.options.length > 0 && chatAwaitingChoiceOnLatestAssistant ? (
+              {intakeReadyForFinalize && !intakeInputHidden && !resultsEntryUrl && (
+                <div style={{ marginBottom: 10, textAlign: "center" }}>
+                  <button
+                    type="button"
+                    onClick={() => void finalizeFromTranscript()}
+                    disabled={isLoading || isFinalizing}
+                    style={{
+                      width: "100%",
+                      padding: "12px 16px",
+                      borderRadius: 8,
+                      border: "1px solid #07B0F2",
+                      background: "#fff",
+                      color: "#021859",
+                      fontWeight: 700,
+                      fontSize: 14,
+                      cursor: isLoading || isFinalizing ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    {isFinalizing ? "Building your diagnostic…" : "Finish and generate diagnostic"}
+                  </button>
+                  <p style={{ margin: "6px 0 0", fontSize: 12, color: "#64748B" }}>
+                    Ready when you are — or keep chatting if you want to add more detail.
+                  </p>
+                </div>
+              )}
+
+              {intakeInputHidden ? null : activeSelectOptions && activeSelectOptions.options.length > 0 && chatAwaitingChoiceOnLatestAssistant ? (
                 // Show submit button for checkboxes / radio
                 <div className="chat-input-row">
                   <button

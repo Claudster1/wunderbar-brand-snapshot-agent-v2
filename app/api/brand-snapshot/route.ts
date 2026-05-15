@@ -5,7 +5,9 @@
 import { NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { wundySystemPrompt } from "@/src/prompts/wundySystemPrompt";
-import { wundySnapshotTierFragment } from "@/src/prompts/wundySnapshotTierFragment";
+import { wundySnapshotIntakePrompt } from "@/src/prompts/wundySnapshotIntakePrompt";
+import { buildIntakeResponseMeta } from "@/lib/intake/buildIntakeResponseMeta";
+import { buildNarrativeRoutingLines } from "@/lib/intake/narrativeMilestones";
 import { wundyUpgradeContinuationFragment } from "@/src/prompts/wundyUpgradeContinuationFragment";
 import { wundyEarlyStageBuildModeFragment } from "@/src/prompts/wundyEarlyStageBuildModeFragment";
 import { supabaseAdmin } from "@/lib/supabase-admin";
@@ -22,6 +24,10 @@ import {
 } from "@/lib/intake/flexibleDirectCaptureComplete";
 import { dedupeAssistantRepeatedParagraphChunks } from "@/lib/assistantCopy/dedupeAssistantParagraphRepeats";
 import { sanitizeTierAssistantReply } from "@/lib/assistantCopy/sanitizeTierAssistantReply";
+import {
+  buildIntakeTopicResumeLines,
+  buildIntakeWrapUpGuardLines,
+} from "@/lib/intake/buildIntakeTopicResume";
 import type { ChatTier } from "@/lib/chatTierConfig";
 
 type BusinessType =
@@ -955,52 +961,6 @@ function normalizeStoredAnswers(raw: unknown): Record<string, unknown> {
   return answers;
 }
 
-/**
- * Full-user-thread signals (not windowed) so the model does not replay early playbook steps after
- * the transcript tail no longer shows those answers.
- */
-function buildIntakeTopicResumeLines(messages: Array<{ role: string; content: string }>): string[] {
-  const userCorpus = messages
-    .filter((m) => m.role === "user")
-    .map((m) => m.content || "")
-    .join("\n");
-  if (!userCorpus.trim()) return [];
-  const lines: string[] = [];
-  const urlLike =
-    /\b(https?:\/\/|www\.)\S+|[a-z0-9][-a-z0-9]{0,48}\.(com|io|ai|co|org|net|app|dev|us|uk|shop)(\b|[/.?#])/i;
-  if (urlLike.test(userCorpus) || /\b(no website|no site yet|not on the web|not on the web yet)\b/i.test(userCorpus)) {
-    lines.push(
-      "PRIMARY WEBSITE / ONLINE HOME: already answered somewhere in this thread — do **not** ask for the URL again (main prompt §9). Acknowledge only if the user brings it up.",
-    );
-  }
-  if (
-    /\b(instagram|ig|linked\s*in|linkedin|tiktok|facebook|fb|meta|youtube|yt|threads|twitter|\bx\b|pinterest|snapchat|reddit|bluesky)\b/i.test(
-      userCorpus,
-    ) ||
-    /@[a-z0-9_]{2,}/i.test(userCorpus) ||
-    /\b(no social|not really on social|not active on social|none on social)\b/i.test(userCorpus)
-  ) {
-    lines.push(
-      "SOCIAL PLATFORMS: already answered — do **not** re-run the social discovery pass (main prompt §10) unless the user asks to change their answer.",
-    );
-  }
-  if (/\b(competitor|competition|competing|versus|vs\.|who else|similar in your space|agencies targeting)\b/i.test(userCorpus)) {
-    lines.push(
-      "COMPETITORS / ALTERNATIVES: already discussed — do **not** ask the competitor discovery question again (main prompt §11) unless they request a revision.",
-    );
-  }
-  if (
-    /\b(current customers|customers today|who's actually buying|ideal customers?|perfect fit|client roster|no customers? yet|no clients? yet|just launching|don'?t have clients)\b/i.test(
-      userCorpus,
-    )
-  ) {
-    lines.push(
-      "CURRENT / IDEAL CUSTOMERS: already explored — do **not** repeat the full current-vs-ideal sequence (main prompt §12–13) unless the user asks to revisit.",
-    );
-  }
-  return lines;
-}
-
 function buildDeterministicRoutingGuard(
   messages: Array<{ role: string; content: string }>,
   options?: { includeBudgetCapture?: boolean; tier?: IntakeTier },
@@ -1011,11 +971,18 @@ function buildDeterministicRoutingGuard(
   const inferredType = inferBusinessTypeFromHistory(messages);
   const captureStates = getEffectiveCaptureStates(messages, { includeBudgetCapture, tier }, softSkipKeys);
   const pending = captureStates.filter((x) => !x.completed);
+  const capturesComplete = pending.length === 0;
   const nextCapture = pending[0]?.label ?? "none";
   const completionPercent = Math.round(
     (captureStates.filter((x) => x.completed).length / captureStates.length) * 100,
   );
+  const narrativeLines = buildNarrativeRoutingLines(messages, tier, capturesComplete);
   const topicResume = buildIntakeTopicResumeLines(messages);
+  const wrapUpOnly = buildIntakeWrapUpGuardLines(
+    messages,
+    completionPercent,
+    pending.map((x) => x.label),
+  );
 
   return [
     "DETERMINISTIC ROUTING GUARD (SERVER ENFORCED):",
@@ -1053,6 +1020,12 @@ function buildDeterministicRoutingGuard(
           ...topicResume.map((line) => `- ${line}`),
           "If a line appears above, treat that playbook topic as **done** — continue at the next unanswered numbered step; never re-ask as if the user had not answered.",
         ]
+      : []),
+    ...(wrapUpOnly.length
+      ? ["", ...wrapUpOnly.map((line) => `- ${line}`)]
+      : []),
+    ...(narrativeLines.length
+      ? ["", ...narrativeLines.map((line) => `- ${line}`)]
       : []),
   ].join("\n");
 }
@@ -1252,7 +1225,7 @@ export async function POST(req: Request) {
         content: `CURRENT PRODUCT TIER: ${intakeTier}. Strictly follow tier capabilities for this turn.`,
       },
       ...(intakeTier === "snapshot"
-        ? [{ role: "system" as const, content: wundySnapshotTierFragment }]
+        ? [{ role: "system" as const, content: wundySnapshotIntakePrompt }]
         : []),
       { role: "system" as const, content: wundyEarlyStageBuildModeFragment },
       ...(useUpgradeContinuation
@@ -1327,8 +1300,17 @@ export async function POST(req: Request) {
       replacedSocialCaptureWithApprovedWording,
     );
 
+    const postCaptureStates = getEffectiveCaptureStates(messages, captureOpts, softSkipKeys);
+    const intakeMeta = buildIntakeResponseMeta({
+      messages,
+      tier: intakeTier as ChatTier,
+      captureStates: postCaptureStates,
+      nextPendingKey: nextPendingCapture?.key ?? null,
+    });
+
     return NextResponse.json({
       content: finalContent,
+      meta: intakeMeta,
       _ai: { provider: completion.provider, model: completion.model },
     });
   } catch (err: any) {

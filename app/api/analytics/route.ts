@@ -13,6 +13,10 @@ const EVENT_CATEGORIES: Record<string, string> = {
   PDF_DOWNLOADED: "engagement",
   BLUEPRINT_STARTED: "product",
   BLUEPRINT_COMPLETED: "conversion",
+  INTAKE_PROGRESS_MILESTONE: "product",
+  INTAKE_READY_FINALIZE: "product",
+  INTAKE_FINALIZE_STARTED: "product",
+  INTAKE_FINALIZE_FAILED: "product",
 };
 
 const DEFAULT_ALLOWED_ORIGINS = [

@@ -1,6 +1,7 @@
 // src/services/openaiService.ts
 
 import type { BrandChatMessage } from '../types';
+import type { BrandSnapshotChatResponse } from '@/lib/intake/intakeTypes';
 
 const API_URL = '/api/brand-snapshot';
 
@@ -22,7 +23,7 @@ const buildApiMessages = (history: BrandChatMessage[]): ApiMessage[] =>
 export async function getBrandSnapshotReply(
   history: BrandChatMessage[],
   options?: { productTier?: ProductTier; continuationReportId?: string | null }
-): Promise<string> {
+): Promise<BrandSnapshotChatResponse> {
   const payload: {
     messages: ReturnType<typeof buildApiMessages>;
     productTier?: ProductTier;
@@ -73,7 +74,7 @@ export async function getBrandSnapshotReply(
       throw new Error(errorMessage);
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as BrandSnapshotChatResponse;
     const content = data?.content;
     
     if (!content) {
@@ -81,8 +82,8 @@ export async function getBrandSnapshotReply(
       throw new Error('Sorry, I had trouble generating a response. Please try again.');
     }
     
-    return content;
-  } catch (err: any) {
+    return { content, meta: data.meta, _ai: data._ai };
+  } catch (err: unknown) {
     console.error('[WunderBrand Snapshot™ Agent] Fetch error:', err);
     if (err instanceof DOMException && err.name === 'AbortError') {
       throw new Error(

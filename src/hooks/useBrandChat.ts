@@ -14,6 +14,8 @@ import {
   intakeProgressDenominator,
   type ChatTier,
 } from '@/lib/chatTierConfig';
+import type { IntakeResponseMeta } from '@/lib/intake/intakeTypes';
+import { trackIntakeEvent } from '@/lib/intake/trackIntakeEvent';
 import {
   assistantPromisedExternalResultsEntry,
   conversationSuggestsIntakeComplete,
@@ -231,6 +233,9 @@ export function useBrandChat(options?: UseBrandChatOptions) {
   const [finalizeError, setFinalizeError] = useState<string | null>(null);
   const [isFinalizing, setIsFinalizing] = useState(false);
   const [lastFailedInput, setLastFailedInput] = useState<string | null>(null);
+  const [intakeMeta, setIntakeMeta] = useState<IntakeResponseMeta | null>(null);
+  const intakeMilestoneFiredRef = useRef(false);
+  const intakeReadyFiredRef = useRef(false);
   const hasReceivedName = useRef(false);
   const allowIncompleteSubmissionRef = useRef(false);
   const sendingRef = useRef(false); // Synchronous guard against double-sends
@@ -446,14 +451,21 @@ export function useBrandChat(options?: UseBrandChatOptions) {
    * Server-side transcript → structured answers → /api/snapshot.
    * Pass explicit `history` when React state/refs may not have flushed yet.
    */
-  const runTranscriptFinalizeCore = async (history: BrandChatMessage[]): Promise<boolean> => {
-    if (finalizingRef.current) return false;
+  const runTranscriptFinalizeCore = async (
+    history: BrandChatMessage[],
+    attempt = 0,
+  ): Promise<boolean> => {
+    if (finalizingRef.current && attempt === 0) return false;
     if (history.length < 4) {
       setFinalizeError('Not enough conversation to generate your diagnostic yet.');
       return false;
     }
     finalizingRef.current = true;
     setIsFinalizing(true);
+    trackIntakeEvent('INTAKE_FINALIZE_STARTED', {
+      reportId: reportId ?? undefined,
+      productTier: options?.productTier,
+    });
     // Don't blank the previous error on retry — that's what made the panel look like it was
     // resetting on every cycle. Only clear once we actually succeed.
     /**
@@ -494,7 +506,18 @@ export function useBrandChat(options?: UseBrandChatOptions) {
         /* ignore */
       }
       if (!ext.ok) {
-        setFinalizeError(extJson.error || 'Could not read your answers from the chat. Please try again.');
+        const errMsg =
+          extJson.error || 'Could not read your answers from the chat. Please try again.';
+        if (attempt < 1 && (ext.status === 422 || ext.status >= 500)) {
+          finalizingRef.current = false;
+          setIsFinalizing(false);
+          return runTranscriptFinalizeCore(history, attempt + 1);
+        }
+        setFinalizeError(errMsg);
+        trackIntakeEvent('INTAKE_FINALIZE_FAILED', {
+          reportId: reportId ?? undefined,
+          status: ext.status,
+        });
         return false;
       }
       const answers = extJson.answers;
@@ -559,6 +582,10 @@ export function useBrandChat(options?: UseBrandChatOptions) {
           body: scoreJson,
         });
         setFinalizeError(msg);
+        trackIntakeEvent('INTAKE_FINALIZE_FAILED', {
+          reportId: reportId ?? undefined,
+          status: scoringRes.status,
+        });
         return false;
       }
 
@@ -599,6 +626,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     } catch (e) {
       console.error('[useBrandChat] runTranscriptFinalizeCore', e);
       setFinalizeError('Something went wrong. Please try again.');
+      trackIntakeEvent('INTAKE_FINALIZE_FAILED', { reportId: reportId ?? undefined });
       return false;
     } finally {
       finalizingRef.current = false;
@@ -654,10 +682,29 @@ export function useBrandChat(options?: UseBrandChatOptions) {
       if (continuationReportId) {
         continuationReportIdForApiRef.current = null;
       }
-      const replyText = await getBrandSnapshotReply(nextHistory, {
+      const reply = await getBrandSnapshotReply(nextHistory, {
         productTier: options?.productTier,
         continuationReportId: continuationReportId ?? undefined,
       });
+      const replyText = reply.content;
+      if (reply.meta) {
+        setIntakeMeta(reply.meta);
+        if (reply.meta.overallProgressPercent >= 50 && !intakeMilestoneFiredRef.current) {
+          intakeMilestoneFiredRef.current = true;
+          trackIntakeEvent('INTAKE_PROGRESS_MILESTONE', {
+            percent: reply.meta.overallProgressPercent,
+            capturePercent: reply.meta.captureCompletionPercent,
+            productTier: options?.productTier,
+          });
+        }
+        if (reply.meta.intakeReadyForFinalize && !intakeReadyFiredRef.current) {
+          intakeReadyFiredRef.current = true;
+          trackIntakeEvent('INTAKE_READY_FINALIZE', {
+            productTier: options?.productTier,
+            questionsRemaining: reply.meta.questionsRemainingEstimate,
+          });
+        }
+      }
 
       const maybeCompleteWithoutJson = async (assistantText: string): Promise<boolean> => {
         if (textContainsScoringJsonPayload(assistantText)) return false;
@@ -739,7 +786,13 @@ export function useBrandChat(options?: UseBrandChatOptions) {
               snapshotData as Record<string, unknown>,
               options?.productTier,
             );
-            if (missingSignals.length > 0 && !allowIncompleteSubmissionRef.current) {
+            const userTurnCount = nextHistory.filter((m) => m.role === 'user').length;
+            const skipCompletenessNudge =
+              allowIncompleteSubmissionRef.current ||
+              (options?.productTier === 'snapshot' && userTurnCount >= 10) ||
+              userTurnCount >= 14;
+
+            if (missingSignals.length > 0 && !skipCompletenessNudge) {
               const missingList = missingSignals.map((item) => `- ${item}`).join('\n');
               const activationWarmth =
                 options?.productTier === 'blueprint' || options?.productTier === 'blueprint-plus'
@@ -823,7 +876,13 @@ export function useBrandChat(options?: UseBrandChatOptions) {
                 }
               }
             } else {
-              console.error('[useBrandChat] Scoring API failed:', await scoringRes.text());
+              const failText = await scoringRes.text();
+              console.error('[useBrandChat] Scoring API failed:', failText);
+              setFinalizeError(
+                'We could not score your answers from that message. Tap See my results to build your diagnostic from the full conversation.',
+              );
+              messagesRef.current = nextHistory;
+              await runTranscriptFinalizeCore(nextHistory);
             }
 
             setIsLoading(false);
@@ -1112,18 +1171,25 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     setLastFailedInput(null);
     setResultsEntryUrl(null);
     setFinalizeError(null);
+    setIntakeMeta(null);
+    intakeMilestoneFiredRef.current = false;
+    intakeReadyFiredRef.current = false;
     resumeLoadedReportIdRef.current = null;
   };
 
-  // Calculate assessment progress based on assistant question count
+  // Progress: prefer server capture + narrative blend; fall back to turn count
   const assistantTurns = messages.filter((m) => m.role === 'assistant').length;
-  // Subtract 1 for the initial greeting, clamp to 0
   const questionsAnswered = Math.max(0, assistantTurns - 1);
-  const rawProgressPct = Math.min(Math.round((questionsAnswered / progressTotal) * 100), 99);
+  const turnBasedProgressPct = Math.min(Math.round((questionsAnswered / progressTotal) * 100), 99);
   const intakeLooksComplete =
     !!resultsEntryUrl ||
     conversationSuggestsIntakeComplete(messages as BrandChatMessage[]);
-  const assessmentProgress = intakeLooksComplete ? 100 : rawProgressPct;
+  const serverProgress = intakeMeta?.overallProgressPercent;
+  const assessmentProgress = intakeLooksComplete
+    ? 100
+    : typeof serverProgress === 'number'
+      ? Math.min(serverProgress, 99)
+      : turnBasedProgressPct;
 
   return {
     messages,
@@ -1137,6 +1203,11 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     assessmentProgress,
     questionsAnswered,
     totalQuestions: progressTotal,
+    intakeMeta,
+    intakeReadyForFinalize: intakeMeta?.intakeReadyForFinalize ?? false,
+    suggestedReplies: intakeMeta?.suggestedReplies ?? null,
+    capturedSummary: intakeMeta?.capturedSummary ?? [],
+    questionsRemainingEstimate: intakeMeta?.questionsRemainingEstimate ?? null,
     finalizeFromTranscript,
     isFinalizing,
     finalizeError,

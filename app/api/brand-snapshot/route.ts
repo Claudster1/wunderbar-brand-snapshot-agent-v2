@@ -198,12 +198,14 @@ const CONVERSION_RATE_SIGNAL = new RegExp(
 
 const ON_TOPIC_ASSISTANT_HINTS: Record<CaptureKey, RegExp> = {
   business_type_classifier:
-    /\b(who|sell|selling|revenue|paid|clients|customers|business|model|launch|accurate|describe|get paid|primarily|reality|tailor)\b/i,
+    /\b(revenue|paid|model|launch|accurate|describe|get paid|primarily|service|product|saas|e-?commerce|tailor)\b/i,
+  audience_type_classifier:
+    /\b(who|sell|selling|b2b|b2c|customers|clients|buyers|audience|businesses|consumers)\b/i,
   website_presence: /\b(website|url|domain|site|landing|\.com|web address|online)\b/i,
   social_platform_presence:
     /\b(social|instagram|linkedin|tiktok|platform|handle|@|youtube|facebook|threads|not active|none)\b/i,
   additional_marketing_surfaces:
-    /\b(email|seo|paid|events|referrals|channels|newsletter|content|surfaces|beyond|outside|word of mouth)\b/i,
+    /\b(email|seo|paid|events|referrals|channels|newsletter|content|surfaces|beyond|outside|word of mouth|budget|time|prospect)\b/i,
   monthly_revenue_range:
     /\b(revenue|mrr|arr|month|range|\$|ballpark|generate|bring|figures|roughly|month to month|numbers)\b/i,
   average_transaction_value:
@@ -211,16 +213,17 @@ const ON_TOPIC_ASSISTANT_HINTS: Record<CaptureKey, RegExp> = {
   conversion_rate_estimate:
     /\b(conversion|close|win|rate|percent|track|funnel|pipeline|measure|don'?t track)\b/i,
   primary_acquisition_channel:
-    /\b(channel|find you|discover|referral|search|social|paid|organic|leads?|source|customers|traffic)\b/i,
+    /\b(channel|find you|discover|prospect|net-?new|referral|search|social|paid|organic|leads?|source|customers|traffic)\b/i,
   monthly_marketing_budget: /\b(marketing|budget|spend|ads?|paid|monthly|ballpark|\$)\b/i,
   content_creation_capacity: /\b(content|hours|week|time|create|writing|video|capacity)\b/i,
   competitive_pressure_point:
     /\b(compet|prospect|lose|win|price|trust|clarity|proof|pressure|choose|instead|tilt)\b/i,
   has_email_list: /\b(email|list|newsletter|subscribers|mailing|sending to)\b/i,
   has_lead_magnet: /\b(lead|magnet|download|opt-?in|free|template|guide|gated|exchange)\b/i,
-  has_clear_cta: /\b(cta|call to action|next step|landing|site|profile|clear|button|mixed)\b/i,
+  has_clear_cta:
+    /\b(cta|call to action|next step|landing|site|profile|clear|button|mixed|pick one|primary|grading)\b/i,
   marketing_channel_mix:
-    /\b(channel|marketing|social|seo|email|paid|referrals|events|youtube|linkedin|instagram|tiktok|showing up)\b/i,
+    /\b(channel|marketing|social|seo|email|paid|referrals|events|youtube|linkedin|instagram|tiktok|showing up|actively|breadth)\b/i,
 };
 
 type IntakeTier = "snapshot" | "snapshot-plus" | "blueprint" | "blueprint-plus";
@@ -249,6 +252,7 @@ const SNAPSHOT_DIGITAL_BASELINE: CaptureKey[] = [
 function shouldIncludeCaptureForTier(capture: CaptureKey, tier: IntakeTier): boolean {
   const core: CaptureKey[] = [
     "business_type_classifier",
+    "audience_type_classifier",
     "primary_acquisition_channel",
     "competitive_pressure_point",
   ];
@@ -314,13 +318,15 @@ function buildModelTranscriptWindow(
 function modelFacingCaptureHint(key: CaptureKey): string {
   switch (key) {
     case "business_type_classifier":
-      return "how you primarily get paid and who you sell to";
+      return "how you earn revenue (services, product, SaaS, retail, etc.) — not yet who the customer is";
+    case "audience_type_classifier":
+      return "who you mainly sell to — other businesses (B2B), consumers (B2C), or a real mix";
     case "website_presence":
       return "whether you have a live website URL (or are not on the web yet)";
     case "social_platform_presence":
       return "which social platforms you actively use (or that you are not really on social yet)";
     case "additional_marketing_surfaces":
-      return "other marketing surfaces beyond the site and socials — email, SEO, paid, events, or mostly referrals";
+      return "time or budget beyond the website and socials (email, SEO, paid, events, referrals) — not the same as where new leads first discover you";
     case "monthly_revenue_range":
       return "roughly what the business brings in month to month";
     case "average_transaction_value":
@@ -328,7 +334,7 @@ function modelFacingCaptureHint(key: CaptureKey): string {
     case "conversion_rate_estimate":
       return "how you think about conversion or close rates — or if you do not track that yet";
     case "primary_acquisition_channel":
-      return "where most new customers find you today";
+      return "where net-new prospects usually discover you first (discovery), distinct from every channel you maintain";
     case "monthly_marketing_budget":
       return "what you are comfortable spending on marketing each month";
     case "content_creation_capacity":
@@ -340,9 +346,9 @@ function modelFacingCaptureHint(key: CaptureKey): string {
     case "has_lead_magnet":
       return "whether you offer something simple and free (guide, checklist, template, etc.) when someone shares their email — or not yet";
     case "has_clear_cta":
-      return "how clear the main next step feels when someone lands on your site or profile";
+      return "how clear the next step is on one chosen primary destination (main site or the profile you push people toward)";
     case "marketing_channel_mix":
-      return "which channels you are actively using to show up for people";
+      return "which channels you actively run for marketing breadth — distinct from the primary acquisition / first-touch discovery channel";
     default:
       return "one more detail to tailor your plan";
   }
@@ -410,14 +416,26 @@ function getCaptureStates(
               US_PRE_REVENUE_OR_MONEY,
               "no clients?\\b.*\\byet\\b|no customers?\\b.*\\byet\\b|no clients? yet|no customers? yet|not selling yet",
               "haven'?t (landed|sold|had) (a )?(paying )?(client|customer|sale)|early[- ]stage|starting out|still building|working on (my|our) first",
-              "don'?t have (any )?(paying )?clients|we (get paid|make money|earn|charge)|who (we |i )(sell|serve) to|primarily selling|selling (mostly|mainly) to",
-              "revenue (is|comes|will)|business (model|type)|\\bb2b\\b|\\bb2c\\b|consumers|businesses|founders|freelance|consulting|agency|\\bsaas\\b|e-?commerce|product|services?\\b",
+              "don'?t have (any )?(paying )?clients|we (get paid|make money|earn|charge)",
+              "revenue (is|comes|will)|business (model|type)|freelance|consulting|agency|\\bsaas\\b|e-?commerce|product|services?\\b",
             ].join("|"),
             "i",
           ),
         ) ||
-        refused(/\bhow you (get paid|make money)|who you.*sell|business model|primary revenue\b/i) ||
+        refused(/\bhow you (get paid|make money)|business model|primary revenue\b/i) ||
         flexibleDirectCaptureComplete("business_type_classifier", la, lu),
+    },
+    {
+      key: "audience_type_classifier",
+      label: "primary customer type (B2B vs B2C)",
+      completed:
+        hasSignal(
+          messages,
+          /\b(mostly |primarily )?(b2b|b2c)\b|\bhybrid\s*\/\s*both\b|\bmix (of )?both\b|\bb2b\b.*\b(b2c|and)\b|\bb2c\b.*\b(b2b|and)\b/i,
+        ) ||
+        refused(/\bwho (do )?you (mainly )?sell|b2b or b2c|target (customer|audience)|ideal customer\b/i) ||
+        flexibleDirectCaptureComplete("audience_type_classifier", la, lu) ||
+        captureKeySatisfiedFromHistory("audience_type_classifier", messages),
     },
     {
       key: "website_presence",
@@ -732,18 +750,18 @@ function buildCaptureQuestion(
   key: CaptureKey,
   inferredType: BusinessType | null
 ): string {
-  const businessTypeLabel = (type: BusinessType) => {
+  /** Revenue / offer shape only — avoids baking B2B/B2C into the business-type step. */
+  const revenueOnlyLabel = (type: BusinessType) => {
     switch (type) {
       case "service_b2b":
-        return "B2B service";
       case "service_b2c":
-        return "B2C service";
+        return "services / consulting";
       case "retail":
         return "retail";
       case "ecommerce":
-        return "e-commerce/product";
+        return "e-commerce or product-led";
       case "saas":
-        return "SaaS/software";
+        return "SaaS / software";
       case "local_service":
         return "local service";
       default:
@@ -759,16 +777,18 @@ function buildCaptureQuestion(
   switch (key) {
     case "business_type_classifier":
       return inferredType
-        ? `Quick gut check so I can tailor this to your reality: it sounds like you're primarily running a ${businessTypeLabel(
+        ? `Quick gut check on **how you earn revenue**: it sounds like you're primarily in a **${revenueOnlyLabel(
             inferredType,
-          )} business. **Does that feel accurate, or would you describe your revenue model differently?**`
-        : "Quick context check before we go deeper: **in one sentence, how do you primarily get paid, and who are you mainly selling to?**";
+          )}** business. **Does that match how you'd describe your offer, or would you describe it differently?**`
+        : "**How do you primarily get paid today** — mostly services/consulting, a physical or digital product, SaaS/subscription, retail, or something else? A short phrase is enough **(we'll ask who you sell to next).**";
+    case "audience_type_classifier":
+      return "**Who do you mainly sell to** — mostly other businesses (B2B), mostly consumers (B2C), or a meaningful mix of both?";
     case "website_presence":
       return "**Do you have a website URL to share today** — even a simple landing page or store link? If you are not on the web yet, just say so; that is useful too.";
     case "social_platform_presence":
       return "**Where does your brand show up on social today?** Name the platforms that matter (or say *none / not really active yet*).";
     case "additional_marketing_surfaces":
-      return "**Outside your website and those socials, where else are you investing attention** — email to a list, SEO or content, paid ads, events, partnerships — or mostly referrals / word of mouth?";
+      return "**Beyond your website and social profiles, where else are you putting real time or budget** — email to a list, SEO or content, paid ads, events, partnerships — or mostly referrals / word of mouth? *(Different from the next question about where new prospects first discover you.)*";
     case "monthly_revenue_range":
       return "**Roughly what does the business generate month to month?** A range is perfect — it keeps your impact framing grounded in real numbers.";
     case "average_transaction_value":
@@ -776,7 +796,7 @@ function buildCaptureQuestion(
     case "conversion_rate_estimate":
       return "**What is your approximate conversion or close rate today, if you track it?** If not, totally okay — just say you don't track it yet.";
     case "primary_acquisition_channel":
-      return "**Where do most new customers find you right now** — referral, organic search, social, paid ads, direct, events, or something else? Whatever comes to mind first is fine.";
+      return "**When a brand-new prospect first discovers you, where does that usually happen** — referral, organic search, social, paid ads, direct, events, or something else? *(This is about discovery, not every channel you maintain.)*";
     case "monthly_marketing_budget":
       return "**What is your approximate monthly marketing budget today?** Ballpark is perfect — this just helps prioritize what is realistic for you.";
     case "content_creation_capacity":
@@ -788,9 +808,9 @@ function buildCaptureQuestion(
     case "has_lead_magnet":
       return `Lots of strong brands don't use a "lead magnet" yet — totally normal. **Do you have any free download, template, guide, or similar that people get in exchange for their email?** If the answer is no, that's useful too: say something like "not yet" or "we don't," and your plan can include a short list of ideas we'll weave into the email and social campaigns we draft for you.`;
     case "has_clear_cta":
-      return `When someone lands on your site or main profile, **how clear does the next step feel** — pretty obvious (like one main button or action), or still a little mixed? Whatever you share is the right answer.`;
+      return `**Pick one primary place** you're grading — your main website **or** the profile you most often send people to (not both at once). **How clear is the next step there** — pretty obvious (one main action), or still a little mixed? Whatever you share is the right answer.`;
     case "marketing_channel_mix":
-      return "**Where are you showing up for people lately** — email, social, SEO or search, paid ads, referrals, events, YouTube, or something else? Name whatever fits; \"mostly one channel\" is a great answer too.";
+      return "**Across the marketing channels you actively run** (not only where new leads first discover you), where are you showing up for people lately — email, social, SEO or search, paid ads, referrals, events, YouTube, or something else? \"Mostly one channel\" is a great answer too.";
     default:
       return `Great context so far. **Let's grab one more input** so your recommendations stay precise.${typeHint}`;
   }
@@ -803,15 +823,17 @@ function capturePromptPatternForKey(key: CaptureKey): RegExp {
        * Was previously over-broad ("thank you for sharing", "next question", "based on what you")
        * which marked unrelated transitional assistant turns as "asking the business-type capture",
        * letting the force-prompt step skip and causing the user-reported repeating loop. Now
-       * limited to phrasing that actually concerns revenue model / who you sell to.
+       * limited to phrasing that actually concerns revenue model / how you get paid.
        */
-      return /\b(primary revenue|how you generate revenue|how do you get paid|primarily get paid|it sounds like you'?re primarily|business model|launching|pre[- ]?launch|no clients yet|selling to|revenue model|describe (?:your|the) revenue|does that feel accurate)\b/i;
+      return /\b(primary revenue|how you generate revenue|how do you get paid|primarily get paid|earn revenue|it sounds like you'?re primarily|business model|revenue model|describe (?:your|the) revenue|services vs product|offer \(services|does that match|how do you primarily get paid)\b/i;
+    case "audience_type_classifier":
+      return /\b(who do you (mainly )?sell|selling to|mainly (b2b|b2c)|b2b or b2c|mix of both|meaningful mix|consumers \(b2c\)|businesses \(b2b\)|target customer|ideal customer)\b/i;
     case "website_presence":
       return /\b(website|url|domain|landing|site to share|web address|\.com|not on the web)\b/i;
     case "social_platform_presence":
       return /\b(social|instagram|linkedin|tiktok|platform|handle|@|not active|none yet|show up)\b/i;
     case "additional_marketing_surfaces":
-      return /\b(outside|beyond|channels|email|seo|paid|events|referrals|word of mouth|marketing surfaces|investing attention)\b/i;
+      return /\b(outside|beyond|channels|email|seo|paid|events|referrals|word of mouth|marketing surfaces|investing attention|time or budget|putting (real )?time|prospect.*discover)\b/i;
     case "monthly_revenue_range":
       return /\b(monthly revenue|month to month|mrr|arr|under \$?5k|\$?5k|\$?20k|\$?50k|\$?150k|ballpark|roughly|range|generate|bring in|figures)\b/i;
     case "average_transaction_value":
@@ -819,7 +841,7 @@ function capturePromptPatternForKey(key: CaptureKey): RegExp {
     case "conversion_rate_estimate":
       return /\b(conversion rate|close rate|win rate|don't track|do not track|percentage|percent|track|no idea|no clue|idk|guess|haven'?t looked)\b/i;
     case "primary_acquisition_channel":
-      return /\b(acquisition channel|qualified opportunities|referral|organic|search|social|paid|events|linkedin|instagram|tiktok|youtube|google|outbound|inbound|where .*find you|how (people|customers) (find|discover)|ig|insta|word of mouth|network)\b/i;
+      return /\b(acquisition channel|qualified opportunities|referral|organic|search|social|paid|events|linkedin|instagram|tiktok|youtube|google|outbound|inbound|where .*find you|how (people|customers) (find|discover)|discovers you|brand-?new|net-?new|ig|insta|word of mouth|network)\b/i;
     case "monthly_marketing_budget":
       return /\b(monthly marketing budget|marketing spend|ad spend|under \$?500|\$?2,?000|\$?5,?000|budget)\b/i;
     case "content_creation_capacity":

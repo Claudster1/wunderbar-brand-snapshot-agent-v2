@@ -33,6 +33,10 @@ export function getPriorSatisfiedCaptureKeys(
     done.add("business_type_classifier");
   }
 
+  if (str(prior.audienceType)) {
+    done.add("audience_type_classifier");
+  }
+
   const website = prior.website;
   if (website === null || website === false) {
     done.add("website_presence");

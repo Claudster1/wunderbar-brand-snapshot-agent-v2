@@ -606,7 +606,8 @@ body:has(.app-root) {
   align-items: center;
 }
 
-.chat-input-row input {
+.chat-input-row input,
+.chat-input-row textarea {
   flex: 1 1 100%;
   font-size: 0.95rem;
   padding: 10px 12px;
@@ -617,13 +618,22 @@ body:has(.app-root) {
   box-sizing: border-box;
 }
 
-.chat-input-row input:focus-visible {
+.chat-input-row textarea {
+  min-height: 88px;
+  resize: vertical;
+  line-height: 1.45;
+  font-family: inherit;
+}
+
+.chat-input-row input:focus-visible,
+.chat-input-row textarea:focus-visible {
   outline: none;
   border-color: var(--brand-blue);
   box-shadow: 0 0 0 3px rgba(7, 176, 242, 0.15);
 }
 
-.chat-input-row input:disabled {
+.chat-input-row input:disabled,
+.chat-input-row textarea:disabled {
   opacity: 0.7;
 }
 
@@ -935,7 +945,8 @@ a.sr-only:focus {
     padding: 10px 12px;
   }
 
-  .chat-input-row input {
+  .chat-input-row input,
+  .chat-input-row textarea {
     font-size: 16px; /* Prevent iOS zoom on focus */
   }
 

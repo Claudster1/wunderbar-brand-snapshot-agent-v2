@@ -5,12 +5,16 @@ export function getSuggestedRepliesForCapture(key: CaptureKey): string[] {
   switch (key) {
     case "business_type_classifier":
       return [
-        "Yes, that sounds right",
-        "Mostly B2B services",
-        "Mostly B2C",
-        "Hybrid / both",
+        "Services / consulting",
+        "SaaS / software / app",
+        "E‑commerce / DTC product",
+        "Retail or in-person",
+        "Physical product / wholesale",
+        "Marketplace or platform",
         "Let me describe it differently",
       ];
+    case "audience_type_classifier":
+      return ["Mostly B2B", "Mostly B2C", "Meaningful mix of both", "Nonprofit / community-focused", "I'll describe my customers"];
     case "website_presence":
       return ["Yes, here's the URL", "No website yet", "Social / marketplace only", "Coming soon"];
     case "social_platform_presence":

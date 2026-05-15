@@ -121,8 +121,9 @@ Create these tags in ActiveCampaign (Settings → Tags) so the webhook can apply
 - **Tag added: `nurture:other-services`**  
   → Nurture for managed marketing and AI consulting (for Blueprint+ purchasers only).
 
-- **Tag added: `brand_snapshot_completed`** (from WunderBrand Snapshot™ flow, not Stripe)  
-  → Send report email with `%BRANDSNAPSHOTREPORTLINK%` CTA.
+- **Tag added: `purchased:snapshot`** (free WunderBrand Snapshot™ completed — from `app/api/snapshot/route.ts`, not Stripe)  
+  → Send report email with `%BRANDSNAPSHOTREPORTLINK%` CTA (or merge tag for your report-link field).  
+- **Optional:** **Site event `snapshot_completed`** (Event Tracking) — same completion moment when `ACTIVE_CAMPAIGN_EVENT_TRACKING_KEY` + `ACTIVE_CAMPAIGN_EVENT_TRACKING_ACTID` are set; use as an alternative or additional automation start (“Event is recorded”).
 
 ---
 

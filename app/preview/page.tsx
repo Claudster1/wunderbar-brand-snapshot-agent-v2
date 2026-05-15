@@ -95,9 +95,9 @@ export default async function PreviewIndexPage() {
         ) : null}
 
         <p className="bs-small text-brand-muted mb-6">
-          Local dev: <code className="bg-brand-navy/5 px-1 rounded">npm run dev</code> →{" "}
-          <strong>http://localhost:3000/preview</strong> or <code className="bg-brand-navy/5 px-1 rounded">npm run dev:preview</code>{" "}
-          → <strong>http://localhost:3010/preview</strong> (match the port to the command).
+          Local dev: <code className="bg-brand-navy/5 px-1 rounded">npm run dev</code> or{" "}
+          <code className="bg-brand-navy/5 px-1 rounded">npm run dev:preview</code> → pinned port <strong>3010</strong> →{" "}
+          <strong>http://localhost:3010/preview</strong> (use that origin in the browser and in Cursor&apos;s Simple Browser).
         </p>
         <ul className="space-y-4">
           {PREVIEWS.map(({ href, title, description }) => (

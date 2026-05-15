@@ -74,6 +74,7 @@ These add columns, constraints, or indexes to tables that must already exist.
 | # | File | Purpose |
 |---|------|---------|
 | 28 | `migration_enable_rls.sql` | Enables RLS on all public tables |
+| 28a | `migration_user_brands_enable_rls.sql` | Enables RLS on `user_brands` if that table predates or was skipped by migration 28 (Supabase Advisor); app uses service role only |
 | 29 | `migration_rls_policies.sql` | Creates initial RLS policies |
 | 30 | `migration_add_missing_rls_policies.sql` | Fills in missing service-role policies |
 

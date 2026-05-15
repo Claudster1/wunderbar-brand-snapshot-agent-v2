@@ -43,8 +43,10 @@ export async function POST(req: Request) {
       .single();
 
     if (error) {
-      logger.error("[Snapshot Draft API] Error", {
+      logger.error("[Snapshot Draft API] Supabase insert error", {
         error: error.message,
+        code: error.code,
+        details: error.details,
       });
       // Graceful fallback for local/offline environments:
       // keep the chat flow usable even if persistence is temporarily unavailable.
@@ -57,9 +59,17 @@ export async function POST(req: Request) {
 
     const row = data as { id?: string; report_id?: string } | null;
     return NextResponse.json({ reportId: row?.report_id ?? row?.id ?? reportId });
-  } catch (err: any) {
-    logger.error("[Snapshot Draft API] Error", {
-      error: err instanceof Error ? err.message : String(err),
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    const cause =
+      err instanceof Error && err.cause instanceof Error
+        ? err.cause.message
+        : err instanceof Error && err.cause && typeof err.cause === "object" && "code" in err.cause
+          ? String((err.cause as { code?: string }).code)
+          : undefined;
+    logger.error("[Snapshot Draft API] Uncaught (often Supabase network/TLS)", {
+      error: message,
+      ...(cause ? { cause } : {}),
     });
     // Graceful fallback for transient network/Supabase failures.
     return NextResponse.json({

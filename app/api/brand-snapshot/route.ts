@@ -304,8 +304,10 @@ type CaptureState = {
  * Cap how much chat history we send to the model each turn.
  * Routing guards, prior-answer primer, and detectors carry forward what matters; the model just needs
  * recent context to continue naturally. Keeps prompt size (and time-to-first-token) bounded as chats grow.
+ * 24 was too small for Snapshot — later turns dropped early website/social/customer answers and the model
+ * replayed playbook sections 9–13 from the main prompt. 44 keeps more context while staying bounded.
  */
-const MAX_TRANSCRIPT_MESSAGES = 24;
+const MAX_TRANSCRIPT_MESSAGES = 44;
 
 function buildModelTranscriptWindow(
   messages: Array<{ role: string; content: string }>,
@@ -953,6 +955,52 @@ function normalizeStoredAnswers(raw: unknown): Record<string, unknown> {
   return answers;
 }
 
+/**
+ * Full-user-thread signals (not windowed) so the model does not replay early playbook steps after
+ * the transcript tail no longer shows those answers.
+ */
+function buildIntakeTopicResumeLines(messages: Array<{ role: string; content: string }>): string[] {
+  const userCorpus = messages
+    .filter((m) => m.role === "user")
+    .map((m) => m.content || "")
+    .join("\n");
+  if (!userCorpus.trim()) return [];
+  const lines: string[] = [];
+  const urlLike =
+    /\b(https?:\/\/|www\.)\S+|[a-z0-9][-a-z0-9]{0,48}\.(com|io|ai|co|org|net|app|dev|us|uk|shop)(\b|[/.?#])/i;
+  if (urlLike.test(userCorpus) || /\b(no website|no site yet|not on the web|not on the web yet)\b/i.test(userCorpus)) {
+    lines.push(
+      "PRIMARY WEBSITE / ONLINE HOME: already answered somewhere in this thread — do **not** ask for the URL again (main prompt §9). Acknowledge only if the user brings it up.",
+    );
+  }
+  if (
+    /\b(instagram|ig|linked\s*in|linkedin|tiktok|facebook|fb|meta|youtube|yt|threads|twitter|\bx\b|pinterest|snapchat|reddit|bluesky)\b/i.test(
+      userCorpus,
+    ) ||
+    /@[a-z0-9_]{2,}/i.test(userCorpus) ||
+    /\b(no social|not really on social|not active on social|none on social)\b/i.test(userCorpus)
+  ) {
+    lines.push(
+      "SOCIAL PLATFORMS: already answered — do **not** re-run the social discovery pass (main prompt §10) unless the user asks to change their answer.",
+    );
+  }
+  if (/\b(competitor|competition|competing|versus|vs\.|who else|similar in your space|agencies targeting)\b/i.test(userCorpus)) {
+    lines.push(
+      "COMPETITORS / ALTERNATIVES: already discussed — do **not** ask the competitor discovery question again (main prompt §11) unless they request a revision.",
+    );
+  }
+  if (
+    /\b(current customers|customers today|who's actually buying|ideal customers?|perfect fit|client roster|no customers? yet|no clients? yet|just launching|don'?t have clients)\b/i.test(
+      userCorpus,
+    )
+  ) {
+    lines.push(
+      "CURRENT / IDEAL CUSTOMERS: already explored — do **not** repeat the full current-vs-ideal sequence (main prompt §12–13) unless the user asks to revisit.",
+    );
+  }
+  return lines;
+}
+
 function buildDeterministicRoutingGuard(
   messages: Array<{ role: string; content: string }>,
   options?: { includeBudgetCapture?: boolean; tier?: IntakeTier },
@@ -967,6 +1015,7 @@ function buildDeterministicRoutingGuard(
   const completionPercent = Math.round(
     (captureStates.filter((x) => x.completed).length / captureStates.length) * 100,
   );
+  const topicResume = buildIntakeTopicResumeLines(messages);
 
   return [
     "DETERMINISTIC ROUTING GUARD (SERVER ENFORCED):",
@@ -994,6 +1043,15 @@ function buildDeterministicRoutingGuard(
     ...(tier === "snapshot" || tier === "snapshot-plus"
       ? [
           "- Snapshot-tier depth: when website / social / broader marketing-surface captures are pending, complete them before wrap-up — they anchor the WunderBrand Score™ (especially Visibility). Hold revenue, conversion, list/lead-magnet detail, and full activation-style channel mix for Snapshot+™ / Blueprint™; mention upgrades only after pending captures are handled, never as a substitute.",
+        ]
+      : []),
+    ...(topicResume.length
+      ? [
+          "",
+          "INTAKE TOPIC RESUME (FULL THREAD — ANTI-REPEAT; MANDATORY):",
+          "The lines below are derived from **all** user messages so far, not only the transcript tail sent to you.",
+          ...topicResume.map((line) => `- ${line}`),
+          "If a line appears above, treat that playbook topic as **done** — continue at the next unanswered numbered step; never re-ask as if the user had not answered.",
         ]
       : []),
   ].join("\n");
@@ -1110,7 +1168,7 @@ export async function POST(req: Request) {
         );
       }
 
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3010";
       return NextResponse.json(
         {
           success: true,

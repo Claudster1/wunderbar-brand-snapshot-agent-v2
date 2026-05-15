@@ -18,7 +18,7 @@ export async function GET(req: Request) {
   }
 
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3010";
     const healthToken = process.env.HEALTH_CHECK_TOKEN;
 
     // Call the deep health check

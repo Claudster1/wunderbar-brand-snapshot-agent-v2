@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     const baseUrl =
       process.env.NEXT_PUBLIC_BASE_URL ||
       process.env.NEXT_PUBLIC_APP_URL ||
-      "http://localhost:3000";
+      "http://localhost:3010";
 
     // ─── Upgrade Credit: Check for prior purchases ───
     let discounts: Stripe.Checkout.SessionCreateParams.Discount[] = [];

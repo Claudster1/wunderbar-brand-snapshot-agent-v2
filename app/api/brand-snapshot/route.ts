@@ -28,6 +28,12 @@ import {
   buildIntakeTopicResumeLines,
   buildIntakeWrapUpGuardLines,
 } from "@/lib/intake/buildIntakeTopicResume";
+import { applyPriorAnswersToCaptureStates } from "@/lib/intake/priorAnswersCapture";
+import {
+  CONTINUATION_REPORT_UUID_RE,
+  loadPriorSnapshotAnswers,
+  serializePriorAnswersForPrompt,
+} from "@/lib/intake/loadPriorSnapshotAnswers";
 import type { ChatTier } from "@/lib/chatTierConfig";
 
 type BusinessType =
@@ -216,34 +222,6 @@ const ON_TOPIC_ASSISTANT_HINTS: Record<CaptureKey, RegExp> = {
 };
 
 type IntakeTier = "snapshot" | "snapshot-plus" | "blueprint" | "blueprint-plus";
-
-const CONTINUATION_REPORT_UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
-async function loadPriorSnapshotAnswersForContinuation(
-  reportId: string,
-): Promise<Record<string, unknown> | null> {
-  if (!CONTINUATION_REPORT_UUID_RE.test(reportId) || !supabaseAdmin) return null;
-  const { data, error } = await supabaseAdmin
-    .from("brand_snapshot_reports")
-    .select("full_report")
-    .or(`report_id.eq.${reportId},id.eq.${reportId}`)
-    .maybeSingle();
-  if (error || !data?.full_report || typeof data.full_report !== "object") return null;
-  const answers = (data.full_report as { answers?: unknown }).answers;
-  if (!answers || typeof answers !== "object" || Array.isArray(answers)) return null;
-  return answers as Record<string, unknown>;
-}
-
-function serializeAnswersForContinuationPrompt(answers: Record<string, unknown>): string {
-  const max = 14_000;
-  try {
-    const s = JSON.stringify(answers);
-    return s.length <= max ? s : `${s.slice(0, max)}…[truncated]`;
-  } catch {
-    return "{}";
-  }
-}
 
 function normalizeIntakeTier(raw: unknown): IntakeTier {
   if (typeof raw !== "string") return "snapshot";
@@ -664,20 +642,30 @@ function getCaptureStates(
   });
 }
 
+type CaptureEngineOptions = {
+  includeBudgetCapture?: boolean;
+  tier?: IntakeTier;
+  priorAnswers?: Record<string, unknown> | null;
+};
+
 /** Treat stuck keys as completed for one turn so routing advances (anti-loop). */
 function getEffectiveCaptureStates(
   messages: Array<{ role: string; content: string }>,
-  options?: { includeBudgetCapture?: boolean; tier?: IntakeTier },
+  options?: CaptureEngineOptions,
   softSkipKeys?: ReadonlySet<CaptureKey>,
 ): CaptureState[] {
-  return getCaptureStates(messages, options).map((c) =>
-    softSkipKeys?.has(c.key) ? { ...c, completed: true } : c,
+  const tier = options?.tier ?? "snapshot";
+  const withPrior = applyPriorAnswersToCaptureStates(
+    getCaptureStates(messages, options),
+    options?.priorAnswers,
+    tier,
   );
+  return withPrior.map((c) => (softSkipKeys?.has(c.key) ? { ...c, completed: true } : c));
 }
 
 function getNextPendingCapture(
   messages: Array<{ role: string; content: string }>,
-  options?: { includeBudgetCapture?: boolean; tier?: IntakeTier },
+  options?: CaptureEngineOptions,
   softSkipKeys?: ReadonlySet<CaptureKey>,
 ): CaptureState | null {
   return getEffectiveCaptureStates(messages, options, softSkipKeys).find((x) => !x.completed) ?? null;
@@ -963,21 +951,22 @@ function normalizeStoredAnswers(raw: unknown): Record<string, unknown> {
 
 function buildDeterministicRoutingGuard(
   messages: Array<{ role: string; content: string }>,
-  options?: { includeBudgetCapture?: boolean; tier?: IntakeTier },
+  options?: CaptureEngineOptions,
   softSkipKeys?: ReadonlySet<CaptureKey>,
 ): string {
   const tier = options?.tier ?? "snapshot";
   const includeBudgetCapture = options?.includeBudgetCapture === true;
+  const priorAnswers = options?.priorAnswers;
   const inferredType = inferBusinessTypeFromHistory(messages);
-  const captureStates = getEffectiveCaptureStates(messages, { includeBudgetCapture, tier }, softSkipKeys);
+  const captureStates = getEffectiveCaptureStates(messages, options, softSkipKeys);
   const pending = captureStates.filter((x) => !x.completed);
   const capturesComplete = pending.length === 0;
   const nextCapture = pending[0]?.label ?? "none";
   const completionPercent = Math.round(
     (captureStates.filter((x) => x.completed).length / captureStates.length) * 100,
   );
-  const narrativeLines = buildNarrativeRoutingLines(messages, tier, capturesComplete);
-  const topicResume = buildIntakeTopicResumeLines(messages);
+  const narrativeLines = buildNarrativeRoutingLines(messages, tier, capturesComplete, priorAnswers);
+  const topicResume = buildIntakeTopicResumeLines(messages, priorAnswers);
   const wrapUpOnly = buildIntakeWrapUpGuardLines(
     messages,
     completionPercent,
@@ -1010,6 +999,14 @@ function buildDeterministicRoutingGuard(
     ...(tier === "snapshot" || tier === "snapshot-plus"
       ? [
           "- Snapshot-tier depth: when website / social / broader marketing-surface captures are pending, complete them before wrap-up — they anchor the WunderBrand Score™ (especially Visibility). Hold revenue, conversion, list/lead-magnet detail, and full activation-style channel mix for Snapshot+™ / Blueprint™; mention upgrades only after pending captures are handled, never as a substitute.",
+        ]
+      : []),
+    ...(priorAnswers && Object.keys(priorAnswers).length > 0
+      ? [
+          "",
+          "PRIOR TIER DATA (STRUCTURED — SERVER ENFORCED):",
+          "Required captures and playbook topics already present in prior intake JSON are marked complete.",
+          "Ask only net-new fields for this product tier; merge all prior fields into final JSON.",
         ]
       : []),
     ...(topicResume.length
@@ -1167,23 +1164,28 @@ export async function POST(req: Request) {
     const intakeTier = normalizeIntakeTier(productTier);
     const includeBudgetCapture = isActivationPlanningTier(productTier);
     const inferredType = inferBusinessTypeFromHistory(messages);
-    const captureOpts = { includeBudgetCapture, tier: intakeTier };
-
     const useUpgradeContinuation =
       intakeTier !== "snapshot" &&
       continuationReportId.length > 0 &&
       CONTINUATION_REPORT_UUID_RE.test(continuationReportId);
 
+    let priorAnswers: Record<string, unknown> | null = null;
     let continuationAnswersPrimer: string | null = null;
     if (useUpgradeContinuation) {
-      const prior = await loadPriorSnapshotAnswersForContinuation(continuationReportId);
-      if (prior && Object.keys(prior).length > 0) {
+      priorAnswers = await loadPriorSnapshotAnswers(continuationReportId);
+      if (priorAnswers && Object.keys(priorAnswers).length > 0) {
         continuationAnswersPrimer = [
           "PRIOR WUNDERBRAND SNAPSHOT™ INTAKE (structured JSON — authoritative; merge into final output, do not re-ask unless missing/ambiguous):",
-          serializeAnswersForContinuationPrompt(prior),
+          serializePriorAnswersForPrompt(priorAnswers),
         ].join("\n\n");
       }
     }
+
+    const captureOpts: CaptureEngineOptions = {
+      includeBudgetCapture,
+      tier: intakeTier,
+      priorAnswers,
+    };
 
     const rawPending = getNextPendingCapture(messages, captureOpts);
     const rawForced = rawPending ? buildCaptureQuestion(rawPending.key, inferredType) : null;
@@ -1306,6 +1308,7 @@ export async function POST(req: Request) {
       tier: intakeTier as ChatTier,
       captureStates: postCaptureStates,
       nextPendingKey: nextPendingCapture?.key ?? null,
+      priorAnswers,
     });
 
     return NextResponse.json({

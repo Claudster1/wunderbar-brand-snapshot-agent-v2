@@ -3,6 +3,11 @@
  * Derived from all user messages (not the truncated model window) to prevent replay loops.
  */
 
+import {
+  buildPriorAnswerResumeLines,
+  mergeMessagesWithPriorSynthetic,
+} from "@/lib/intake/priorAnswersResume";
+
 export type IntakeMessage = { role: string; content?: string };
 
 function userCorpus(messages: IntakeMessage[]): string {
@@ -16,9 +21,13 @@ function fullCorpus(messages: IntakeMessage[]): string {
   return messages.map((m) => m.content || "").join("\n");
 }
 
-export function buildIntakeTopicResumeLines(messages: IntakeMessage[]): string[] {
-  const users = userCorpus(messages);
-  const all = fullCorpus(messages);
+export function buildIntakeTopicResumeLines(
+  messages: IntakeMessage[],
+  priorAnswers?: Record<string, unknown> | null,
+): string[] {
+  const mergedMessages = mergeMessagesWithPriorSynthetic(messages, priorAnswers ?? undefined);
+  const users = userCorpus(mergedMessages);
+  const all = fullCorpus(mergedMessages);
   if (!users.trim()) return [];
 
   const lines: string[] = [];
@@ -107,7 +116,13 @@ export function buildIntakeTopicResumeLines(messages: IntakeMessage[]): string[]
     lines.push("THOUGHT LEADERSHIP: already discussed — do **not** restart thought-leadership discovery (playbook §23).");
   }
 
-  return lines;
+  const priorLines = priorAnswers ? buildPriorAnswerResumeLines(priorAnswers) : [];
+  const seen = new Set<string>();
+  return [...priorLines, ...lines].filter((line) => {
+    if (seen.has(line)) return false;
+    seen.add(line);
+    return true;
+  });
 }
 
 /** When server-side captures are complete, steer the model to wrap-up only. */

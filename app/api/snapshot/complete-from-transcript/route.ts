@@ -8,6 +8,11 @@ import {
   buildFallbackAnswersFromMessages,
   mergeExtractedWithFallback,
 } from "@/lib/intake/transcriptAnswerFallback";
+import { mergePriorWithExtracted } from "@/lib/intake/mergePriorAnswers";
+import {
+  CONTINUATION_REPORT_UUID_RE,
+  loadPriorSnapshotAnswers,
+} from "@/lib/intake/loadPriorSnapshotAnswers";
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -87,11 +92,13 @@ async function extractWithModel(
 function resolveAnswers(
   messages: IncomingMsg[],
   extracted: Record<string, unknown> | null,
+  priorAnswers?: Record<string, unknown> | null,
 ): { answers: Record<string, unknown> | null; usedFallback: boolean } {
   const intakeMsgs = toIntakeMessages(messages);
 
   if (extracted && Object.keys(extracted).length > 0) {
-    const merged = mergeExtractedWithFallback(extracted, intakeMsgs);
+    let merged = mergeExtractedWithFallback(extracted, intakeMsgs);
+    if (priorAnswers) merged = mergePriorWithExtracted(priorAnswers, merged);
     const parsed = snapshotAnswersRecordSchema.safeParse(merged);
     if (parsed.success) {
       return { answers: parsed.data, usedFallback: false };
@@ -101,7 +108,8 @@ function resolveAnswers(
     });
   }
 
-  const fallbackOnly = buildFallbackAnswersFromMessages(intakeMsgs);
+  let fallbackOnly = buildFallbackAnswersFromMessages(intakeMsgs);
+  if (priorAnswers) fallbackOnly = mergePriorWithExtracted(priorAnswers, fallbackOnly);
   const fallbackParsed = snapshotAnswersRecordSchema.safeParse(fallbackOnly);
   if (fallbackParsed.success) {
     return { answers: fallbackParsed.data, usedFallback: true };
@@ -122,6 +130,7 @@ export async function POST(req: Request) {
     const body = (await req.json().catch(() => ({}))) as {
       messages?: IncomingMsg[];
       productTier?: string;
+      continuationReportId?: string;
     };
 
     const messages = Array.isArray(body.messages) ? body.messages : [];
@@ -139,6 +148,13 @@ export async function POST(req: Request) {
         ? `Product tier (for field depth): ${body.productTier.trim()}.`
         : "";
 
+    const continuationId =
+      typeof body.continuationReportId === "string" ? body.continuationReportId.trim() : "";
+    const priorAnswers =
+      continuationId && CONTINUATION_REPORT_UUID_RE.test(continuationId)
+        ? await loadPriorSnapshotAnswers(continuationId)
+        : null;
+
     let content = await extractWithModel(transcript, tierNote);
     let extracted = extractJsonObject(content);
 
@@ -154,7 +170,7 @@ export async function POST(req: Request) {
       extracted = extractJsonObject(content);
     }
 
-    let { answers, usedFallback } = resolveAnswers(messages, extracted);
+    let { answers, usedFallback } = resolveAnswers(messages, extracted, priorAnswers);
 
     if (!answers) {
       return NextResponse.json(

@@ -329,7 +329,11 @@ export function useBrandChat(options?: UseBrandChatOptions) {
             const alreadyHasSameResume =
               last?.role === 'assistant' && last.text.trim() === resumeGreeting.trim();
             setMessages(alreadyHasSameResume ? savedMessages : [...savedMessages, resumeMessage]);
-            continuationReportIdForApiRef.current = null;
+            if (paidTier) {
+              continuationReportIdForApiRef.current = data.reportId;
+            } else {
+              continuationReportIdForApiRef.current = null;
+            }
             return;
           }
 
@@ -486,6 +490,10 @@ export function useBrandChat(options?: UseBrandChatOptions) {
           body: JSON.stringify({
             messages: history.map((m) => ({ role: m.role, text: m.text })),
             productTier: options?.productTier,
+            continuationReportId:
+              options?.productTier && options.productTier !== 'snapshot'
+                ? continuationReportIdForApiRef.current ?? reportId
+                : undefined,
           }),
           signal: extController.signal,
         });
@@ -678,10 +686,10 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     }
 
     try {
-      const continuationReportId = continuationReportIdForApiRef.current;
-      if (continuationReportId) {
-        continuationReportIdForApiRef.current = null;
-      }
+      const paidTier = options?.productTier && options.productTier !== 'snapshot';
+      const continuationReportId = paidTier
+        ? continuationReportIdForApiRef.current ?? reportId
+        : null;
       const reply = await getBrandSnapshotReply(nextHistory, {
         productTier: options?.productTier,
         continuationReportId: continuationReportId ?? undefined,

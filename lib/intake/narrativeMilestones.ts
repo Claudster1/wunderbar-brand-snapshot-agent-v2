@@ -1,4 +1,5 @@
 import type { IntakeMessage } from "@/lib/intake/buildIntakeTopicResume";
+import { mergeMessagesWithPriorSynthetic } from "@/lib/intake/priorAnswersResume";
 
 /** Narrative playbook sections (post-capture) — depth preserved, order enforced server-side. */
 const SNAPSHOT_NARRATIVE_MILESTONES: { id: string; label: string; detect: RegExp }[] = [
@@ -38,14 +39,52 @@ export function getNarrativeMilestonesForTier(tier: string): { id: string; label
   return base;
 }
 
+const PRIOR_NARRATIVE_FIELD_HINTS: Record<string, RegExp> = {
+  goals: /\bprimaryGoals\b/i,
+  challenge: /\bbiggestChallenge\b/i,
+  differentiation: /\bwhatMakesYouDifferent\b/i,
+  purpose: /\bmissionStatement\b/i,
+  offer_clarity: /\bofferClarity\b/i,
+  messaging_clarity: /\bmessagingClarity\b/i,
+  voice: /\bbrandVoiceDescription\b/i,
+  topics: /\bkeyTopics|content pillars/i,
+  thought_leadership: /\bthoughtLeadershipActivity\b/i,
+  credibility: /\bhasTestimonials|hasCaseStudies|credibilityDetails\b/i,
+  visual: /\bvisualConfidence\b/i,
+  email_list: /\bhasEmailList\b/i,
+  lead_magnet: /\bhasLeadMagnet\b/i,
+  cta: /\bhasClearCTA\b/i,
+  channel_mix: /\bmarketingChannels\b/i,
+  revenue: /\bmonthlyRevenueRange|revenueRange\b/i,
+  conversion: /\bconversionRateEstimate\b/i,
+};
+
+function priorJsonSatisfiesMilestone(prior: Record<string, unknown>, id: string): boolean {
+  const raw = JSON.stringify(prior);
+  const hint = PRIOR_NARRATIVE_FIELD_HINTS[id];
+  if (!hint?.test(raw)) return false;
+  if (id === "goals") return Array.isArray(prior.primaryGoals) && prior.primaryGoals.length > 0;
+  if (id === "email_list") return typeof prior.hasEmailList === "boolean";
+  if (id === "lead_magnet") return typeof prior.hasLeadMagnet === "boolean";
+  if (id === "cta") return typeof prior.hasClearCTA === "boolean";
+  if (id === "channel_mix") return Array.isArray(prior.marketingChannels) && prior.marketingChannels.length > 0;
+  return true;
+}
+
 export function getNarrativeCompletionState(
   messages: IntakeMessage[],
   tier: string,
+  priorAnswers?: Record<string, unknown> | null,
 ): { percent: number; pendingLabels: string[]; nextMilestoneLabel: string | null } {
   const milestones = getNarrativeMilestonesForTier(tier);
-  const corpus = messages.map((m) => m.content || "").join("\n");
-  const completed = milestones.filter((m) => m.detect.test(corpus));
-  const pending = milestones.filter((m) => !m.detect.test(corpus));
+  const merged = mergeMessagesWithPriorSynthetic(messages, priorAnswers ?? undefined);
+  const corpus = merged.map((m) => m.content || "").join("\n");
+  const completed = milestones.filter(
+    (m) =>
+      m.detect.test(corpus) ||
+      (priorAnswers && priorJsonSatisfiesMilestone(priorAnswers, m.id)),
+  );
+  const pending = milestones.filter((m) => !completed.includes(m));
   const percent =
     milestones.length === 0 ? 100 : Math.round((completed.length / milestones.length) * 100);
   return {
@@ -59,9 +98,14 @@ export function buildNarrativeRoutingLines(
   messages: IntakeMessage[],
   tier: string,
   capturesComplete: boolean,
+  priorAnswers?: Record<string, unknown> | null,
 ): string[] {
   if (!capturesComplete) return [];
-  const { percent, pendingLabels, nextMilestoneLabel } = getNarrativeCompletionState(messages, tier);
+  const { percent, pendingLabels, nextMilestoneLabel } = getNarrativeCompletionState(
+    messages,
+    tier,
+    priorAnswers,
+  );
   if (percent >= 100) {
     return [
       "NARRATIVE CHECKLIST: All core narrative topics appear covered.",

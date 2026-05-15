@@ -17,14 +17,15 @@ export function buildIntakeResponseMeta(params: {
   tier: ChatTier;
   captureStates: CaptureStateSlice[];
   nextPendingKey: CaptureKey | null;
+  priorAnswers?: Record<string, unknown> | null;
 }): IntakeResponseMeta {
-  const { messages, tier, captureStates, nextPendingKey } = params;
+  const { messages, tier, captureStates, nextPendingKey, priorAnswers } = params;
   const totalCaptures = captureStates.length || 1;
   const completedCaptures = captureStates.filter((c) => c.completed).length;
   const captureCompletionPercent = Math.round((completedCaptures / totalCaptures) * 100);
   const pendingCaptureLabels = captureStates.filter((c) => !c.completed).map((c) => c.label);
 
-  const narrative = getNarrativeCompletionState(messages, tier);
+  const narrative = getNarrativeCompletionState(messages, tier, params.priorAnswers);
   const narrativeCompletionPercent = narrative.percent;
 
   const userTurns = messages.filter((m) => m.role === "user").length;
@@ -62,6 +63,6 @@ export function buildIntakeResponseMeta(params: {
     intakeReadyForFinalize,
     suggestedReplies: suggestedReplies?.length ? suggestedReplies : null,
     questionsRemainingEstimate,
-    capturedSummary: buildCapturedSummary(messages),
+    capturedSummary: buildCapturedSummary(messages, priorAnswers),
   };
 }

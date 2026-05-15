@@ -6,7 +6,7 @@
  *
  * Categories:
  * - "essential"    — always allowed (session, auth, CSRF)
- * - "analytics"    — site analytics (AC site tracking, GA, Vercel)
+ * - "analytics"    — site analytics (Plausible, AC site tracking, GA, Vercel)
  * - "marketing"    — ad pixels, retargeting (none currently, future-proof)
  */
 
@@ -79,6 +79,9 @@ export function setConsent(state: Omit<ConsentState, "timestamp">): ConsentState
   const full: ConsentState = { ...state, timestamp: Date.now() };
   writeToCookie(full);
   writeToLocalStorage(full);
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("wunderbar_consent_updated"));
+  }
   return full;
 }
 

@@ -114,11 +114,17 @@ Create these in **Settings → Fields**. After creating each field, note its **F
 
 Create these in **Settings → Tags**. Names must match **exactly** (including colons and lowercase).
 
-### WunderBrand Snapshot™ completion (applied by `/api/activecampaign`)
+### WunderBrand Snapshot™ completion (applied by `app/api/snapshot/route.ts`)
 
 | Tag name | When applied |
 |----------|--------------|
-| `brand_snapshot_completed` | When user completes WunderBrand Snapshot™ |
+| `purchased:snapshot` | **Always** when the user completes the free WunderBrand Snapshot™ (primary “completed snapshot” signal for automations). |
+| **Site event** `snapshot_completed` | Same completion moment, via Event Tracking (`trackcmp.net/event`), when `ACTIVE_CAMPAIGN_EVENT_TRACKING_KEY` and `ACTIVE_CAMPAIGN_EVENT_TRACKING_ACTID` are set in Vercel. Use in AC as “Event is recorded” if you prefer that trigger over tags. |
+
+Legacy / optional naming (only if you add matching logic or legacy webhooks): some older docs referred to `brand_snapshot_completed`; **the current app does not apply that tag** — use `purchased:snapshot` and/or `snapshot_completed` in automations.
+
+| Tag name | When applied (if you implement or restore these in AC/API) |
+|----------|--------------|
 | `brand_snapshot_high_score` | Score ≥ 80 |
 | `brand_snapshot_mid_score` | Score 60–79 |
 | `brand_snapshot_low_score` | Score &lt; 60 |
@@ -163,7 +169,6 @@ Applied when the user completes WunderBrand Snapshot™. Use these to segment an
 
 | Tag name | When applied | When removed |
 |----------|--------------|--------------|
-| `purchased:snapshot` | Free snapshot completed | — |
 | `purchased:snapshot-plus` | After Snapshot+™ purchase | — |
 | `purchased:blueprint` | After Blueprint™ purchase | — |
 | `purchased:blueprint-plus` | After Blueprint+™ purchase | — |
@@ -264,7 +269,7 @@ Scores and insights are stored as **custom fields** (merge tags below). The **ta
    - Use `%POSITIONING_INSIGHT%` and `%POSITIONING_SCORE%` in the body so the email reflects their exact situation.
 
 3. **Multi-pillar flows**  
-   - Use combinations: e.g. `brand_snapshot_completed` + `weakest_pillar:visibility` + `pillar:visibility_low` to send a “Visibility deep-dive” email only to people whose biggest gap is visibility and whose visibility score is low.  
+   - Use combinations: e.g. `purchased:snapshot` + `weakest_pillar:visibility` + `pillar:visibility_low` to send a “Visibility deep-dive” email only to people whose biggest gap is visibility and whose visibility score is low (create those pillar/weakest tags in AC; confirm the app applies them before relying on them — see `app/api/snapshot/route.ts` for tags actually sent today).  
    - In the email, use `%VISIBILITY_SCORE%`, `%VISIBILITY_INSIGHT%`, and `%TOP_OPPORTUNITIES%` so the email adds value and educates as they move through the funnel.
 
 4. **Report CTA in every email**  
@@ -362,7 +367,7 @@ Replace `...` and numbers with your actual Field IDs from ActiveCampaign.
 
 - [ ] All **custom fields** above created; Field IDs in `.env.local` (and Vercel).
 - [ ] All **tags** above created (exact spelling), including:
-  - `brand_snapshot_*`, `purchased:*`, `intent:*`, `nurture:other-services`
+  - `purchased:snapshot` (free Snapshot done), optional `brand_snapshot_*` / pillar tags if you align AC with future app tagging, `purchased:*`, `intent:*`, `nurture:other-services`
   - **Pillar tags:** `pillar:positioning_low/mid/high` (and same for messaging, visibility, credibility, conversion)
   - **Weakest pillar:** `weakest_pillar:positioning`, `weakest_pillar:messaging`, etc.
 - [ ] **Report link** field created and `AC_FIELD_REPORT_LINK` set (used for email CTAs).

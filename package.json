@@ -6,7 +6,7 @@
         "node": ">=20.0.0"
     },
     "scripts": {
-        "dev": "next dev",
+        "dev": "next dev -p 3010",
         "dev:preview": "next dev -p 3010",
         "dev:preview:restart": "bash scripts/dev-preview-restart.sh",
         "dev:preview:watch": "bash scripts/dev-preview-watch.sh",
@@ -40,7 +40,7 @@
         "typecheck": "tsc --noEmit --pretty",
         "audit": "npm audit --production",
         "audit:fix": "npm audit fix --production",
-        "health": "curl -s http://localhost:3000/api/health | node -e \"process.stdin.on('data',d=>{const h=JSON.parse(d);console.log(h.status==='healthy'?'✅ Healthy':'⚠️ '+h.status);Object.entries(h.checks).forEach(([k,v])=>console.log('  '+k+': '+(v.ok?'✅':'❌ '+v.error)))})\"",
+        "health": "curl -s http://localhost:3010/api/health | node -e \"process.stdin.on('data',d=>{const h=JSON.parse(d);console.log(h.status==='healthy'?'✅ Healthy':'⚠️ '+h.status);Object.entries(h.checks).forEach(([k,v])=>console.log('  '+k+': '+(v.ok?'✅':'❌ '+v.error)))})\"",
         "preflight": "bash scripts/preflight-prod.sh",
         "setup:ac": "npx tsx scripts/setup-activecampaign.ts"
     },

@@ -18,8 +18,7 @@ Use this doc as the source of truth for testing report UI and sample-data previe
 
 ## Where to Test
 
-- Local (`npm run dev`): `http://localhost:3000/preview`
-- Local (`npm run dev:preview`): `http://localhost:3010/preview`
+- Local (`npm run dev` or `npm run dev:preview`): `http://localhost:3010/preview` (port is pinned to avoid conflicts with other apps on 3000)
 - Vercel Preview (current known):
   - `https://wunderbar-brand-snapshot-agent-v2-c05lpna2r.vercel.app/preview`
 

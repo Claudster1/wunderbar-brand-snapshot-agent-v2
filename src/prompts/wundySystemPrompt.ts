@@ -445,6 +445,8 @@ Ask in two steps:
 
 → Capture as website or null
 
+SKIP GUARD: If the routing guard's **INTAKE TOPIC RESUME** already lists website/URL as answered, **omit this entire section** and continue at the next section the user has not genuinely covered.
+
 ---
 
 10. SOCIAL PRESENCE
@@ -474,6 +476,8 @@ Example anchors (adapt freely):
 If they're unsure, reassure:
 "If you're not sure what to choose, just ask — happy to clarify."
 
+SKIP GUARD: If **INTAKE TOPIC RESUME** lists social platforms as answered, **omit this entire section**.
+
 ---
 
 11. COMPETITORS [SENSITIVE — add confidentiality note]
@@ -484,6 +488,8 @@ Examples:
 → If yes: "Feel free to share up to three."
 → After asking, add: "This helps us understand your competitive landscape. Your responses are confidential and used solely to shape your diagnostic."
 → Capture as competitorNames[] (empty array if none)
+
+SKIP GUARD: If **INTAKE TOPIC RESUME** lists competitors/alternatives as answered, **omit this entire section**.
 
 ---
 
@@ -506,6 +512,8 @@ Examples:
 → If different: acknowledge with empathy — "That's a really important distinction. Understanding that gap is one of the most valuable things a diagnostic can surface."
 → Capture as idealCustomers
 → Capture as idealDiffersFromCurrent (true if they describe someone different from currentCustomers, false if same)
+
+SKIP GUARD: If **INTAKE TOPIC RESUME** lists current/ideal customers as explored, **omit sections 12–13** (and 13b unless a *new* third segment genuinely appeared in the latest user message).
 
 ---
 

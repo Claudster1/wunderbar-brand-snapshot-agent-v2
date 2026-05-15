@@ -12,7 +12,7 @@ export async function generateMetadata({
   // Use NEXT_PUBLIC_BASE_URL if set, otherwise try Vercel's automatic URL, then fallback to localhost
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL 
     || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
-    || "http://localhost:3000";
+    || "http://localhost:3010";
 
   return {
     title: "Your WunderBrand Snapshot™ Results",

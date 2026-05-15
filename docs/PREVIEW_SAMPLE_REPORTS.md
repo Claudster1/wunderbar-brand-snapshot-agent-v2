@@ -11,7 +11,7 @@ The mock routes are still the same paths as before, for example:
 - `/preview/results-tabs/activation/paid-ads` — sample full-page activation plan (change the last segment for other plans)  
 - `/preview/results`, `/preview/snapshot-plus`, `/preview/blueprint`, `/preview/blueprint-plus`, `/preview/report`
 
-Only the **origin** changes: `http://localhost:3000`, your **Vercel preview** URL for a branch, or `https://app.wunderbrand.ai` once **production** has shipped that commit on **`main`**.
+Only the **origin** changes: `http://localhost:3010` (default `npm run dev` port), your **Vercel preview** URL for a branch, or `https://app.wunderbrand.ai` once **production** has shipped that commit on **`main`**.
 
 If **`/preview/results-tabs` returns 404** on production, the live site is almost certainly still on an older **`main`** build. Production does not automatically use a feature branch unless you configure it. Open **`/preview`** on that host: it lists **copy-paste absolute links** for the deployment you are on.
 
@@ -21,11 +21,11 @@ If **`/preview/results-tabs` returns 404** on production, the live site is almos
    If you see "Unable to acquire lock" or pages don’t load, close the terminal where `npm run dev` is running, or run:  
    `kill $(lsof -t -i:3000 -i:3001 -i:3010)` (macOS/Linux) to free the port.
 
-2. **Start the preview dev server**
+2. **Start the dev server**
    ```bash
-   npm run dev:preview
+   npm run dev
    ```
-   This runs Next.js on **port 3010** so the URL is always the same.
+   (or `npm run dev:preview` — same port.) Next.js is pinned to **port 3010** so the local URL does not jump when something else is using port 3000.
 
 3. **Open the preview index**
    - In the browser go to: **http://localhost:3010/preview**
@@ -48,7 +48,7 @@ All of these use **inline mock/dummy data** only. No Supabase, OpenAI, or Stripe
 
 ## If a preview route spins forever or stays blank
 
-1. **Use the URL that matches your dev server port** — `npm run dev` is **http://localhost:3000/preview**; `npm run dev:preview` is **http://localhost:3010/preview**. Opening 3010 while only 3000 is running (or the reverse) will not load.
+1. **Use the URL that matches your dev server** — default local dev is **http://localhost:3010/preview** (`npm run dev` and `npm run dev:preview` both use port **3010**). Embedded previews must use that same origin or you will see connection errors.
 2. **Free the port** if the dev server failed to start (`EADDRINUSE`): stop other Next processes or run the `lsof`/`kill` step in the section above.
 3. **Hard refresh** after upgrading Next.js (Cmd+Shift+R / Ctrl+Shift+R). Heavy preview routes (`/preview/results-tabs`, `/preview/blueprint`) stream client UI; a stuck cache can look like a blank page.
 4. **Production / `next start` with `output: 'standalone'`** — the CLI may warn that `next start` is not the right entry; use `node .next/standalone/server.js` (or your host’s documented command). Vercel ignores `standalone` for serverless and serves the app normally.

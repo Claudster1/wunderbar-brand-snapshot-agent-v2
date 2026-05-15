@@ -117,7 +117,7 @@ export async function POST(req: Request) {
     // Return report ID and redirect URL
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL 
       || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
-      || "http://localhost:3000";
+      || "http://localhost:3010";
     const redirectUrl = `${baseUrl}/report/${reportId}`;
 
     // ─── Free tier completion: Tag contact + fire event for upgrade nurture ───

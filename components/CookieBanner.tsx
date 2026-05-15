@@ -698,10 +698,20 @@ function injectTracking() {
     gtag?: (...args: unknown[]) => void;
   };
 
-  // AC Site Tracking (diffuser.js) — only initialize when account id is configured.
-  const AC_SITE_TRACKING_ACCOUNT_ID = normalizeTrackingId(
-    process.env.NEXT_PUBLIC_ACTIVE_CAMPAIGN_ACCOUNT_ID
-  );
+  // Plausible (production only; cookie-free analytics)
+  if (process.env.NODE_ENV === "production") {
+    if (!document.querySelector('script[data-domain="app.wunderbrand.ai"][src*="plausible.io"]')) {
+      const plausible = document.createElement("script");
+      plausible.defer = true;
+      plausible.setAttribute("data-domain", "app.wunderbrand.ai");
+      plausible.src = "https://plausible.io/js/script.js";
+      document.head.appendChild(plausible);
+    }
+  }
+
+  // AC Site Tracking (diffuser.js)
+  const AC_SITE_TRACKING_ACCOUNT_ID =
+    normalizeTrackingId(process.env.NEXT_PUBLIC_ACTIVE_CAMPAIGN_ACCOUNT_ID) ?? "28930520";
   if (AC_SITE_TRACKING_ACCOUNT_ID && !w.vgo) {
     const script = document.createElement("script");
     script.src = "https://diffuser-cdn.app-us1.com/diffuser/diffuser.js";

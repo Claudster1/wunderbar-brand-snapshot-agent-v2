@@ -21,28 +21,32 @@ describe("splitTerseEnumeration", () => {
 /** Minimal assistant stubs that only need to satisfy the “asked about this topic” detector. */
 const LA = {
   business:
-    "Quick check: in one sentence, how do you primarily get paid and who are you mainly selling to?",
+    "**How do you primarily get paid today** — mostly services/consulting, a physical or digital product, SaaS/subscription, retail, or something else?",
   businessConfirm: "Does that feel accurate, or would you describe your revenue model differently?",
+  audience: "**Who do you mainly sell to** — mostly other businesses (B2B), mostly consumers (B2C), or a meaningful mix of both?",
   revenue: "Roughly what does the business generate month to month?",
   avgDeal: "About what is your average transaction value or deal size today?",
   conversion: "What is your approximate conversion or close rate today, if you track it?",
-  channel: "Where do most new customers find you right now?",
+  channel:
+    "**When a brand-new prospect first discovers you, where does that usually happen** — referral, organic search, social, paid ads, direct, events, or something else?",
   acquisitionForcedPrompt:
-    "**Where do most new customers find you right now** — referral, organic search, social, paid ads, direct, events, or something else? Whatever comes to mind first is fine.",
+    "**When a brand-new prospect first discovers you, where does that usually happen** — referral, organic search, social, paid ads, direct, events, or something else? *(This is about discovery, not every channel you maintain.)*",
   budget: "What is your approximate monthly marketing budget today?",
   content: "How much time can your team realistically invest in content creation each week?",
   competitive:
     "When prospects choose a competitor over you, what reason comes up most often (for example: price, trust, clarity, speed, proof, or fit)?",
   emailList: "Do you have an email list you're sending to today?",
   leadMagnet: "Do you have any free download or guide in exchange for their email?",
-  cta: "How clear does the next step feel on your site or main profile?",
-  channelMix: "Where are you showing up for people lately — email, social, paid, or something else?",
+  cta:
+    "**Pick one primary place** you're grading — your main website **or** the profile you most often send people to. **How clear is the next step there** — pretty obvious, or still a little mixed?",
+  channelMix:
+    "**Across the marketing channels you actively run** (not only where new leads first discover you), where are you showing up for people lately — email, social, paid, or something else?",
   website: "Do you have a website URL to share today — even a simple landing page?",
   socialPlatforms: "Where does your brand show up on social today?",
   socialParaphrasePlatformsMatter:
     "**Quick question — which platforms actually matter for the brand socially right now**, even if you are pretty quiet?",
   otherSurfaces:
-    "Outside your website and those socials, where else are you investing attention — email, SEO, paid, or mostly referrals?",
+    "Beyond your website and social profiles, where else are you putting real time or budget — email, SEO, paid, or mostly referrals?",
   leadMagnetForcedPrompt:
     "**Do you have any free download, template, guide, or similar** that people get in exchange for their email? Lots of brands also mention email + social campaigns here — ignoring that for now.",
 } as const;
@@ -55,7 +59,7 @@ describe("flexibleDirectCaptureComplete", () => {
       ).toBe(true);
     });
     it("accepts terse multi-label list when asked how you get paid", () => {
-      expect(flexibleDirectCaptureComplete("business_type_classifier", LA.business, "B2B and SaaS")).toBe(true);
+      expect(flexibleDirectCaptureComplete("business_type_classifier", LA.business, "SaaS and consulting")).toBe(true);
       expect(flexibleDirectCaptureComplete("business_type_classifier", LA.business, "ecommerce, retail")).toBe(true);
     });
     it("rejects affirmation without model signal", () => {
@@ -92,6 +96,17 @@ describe("flexibleDirectCaptureComplete", () => {
       expect(flexibleDirectCaptureComplete("business_type_classifier", LA.business, "yes")).toBe(false);
       expect(flexibleDirectCaptureComplete("business_type_classifier", LA.business, "thanks")).toBe(false);
       expect(flexibleDirectCaptureComplete("business_type_classifier", LA.business, "idk")).toBe(true); // refusal short-circuit
+    });
+  });
+
+  describe("audience_type_classifier", () => {
+    it("accepts B2B/B2C/mix shorthand", () => {
+      expect(flexibleDirectCaptureComplete("audience_type_classifier", LA.audience, "mostly B2B")).toBe(true);
+      expect(flexibleDirectCaptureComplete("audience_type_classifier", LA.audience, "B2C")).toBe(true);
+      expect(flexibleDirectCaptureComplete("audience_type_classifier", LA.audience, "hybrid / both")).toBe(true);
+    });
+    it("rejects bare ack without audience signal", () => {
+      expect(flexibleDirectCaptureComplete("audience_type_classifier", LA.audience, "sounds good")).toBe(false);
     });
   });
 
@@ -241,6 +256,7 @@ describe("flexibleDirectCaptureComplete", () => {
   it.each(smokeKeys)("smoke: %s still accepts a typical terse answer", (key) => {
     const table: Record<CaptureKey, { la: string; lu: string }> = {
       business_type_classifier: { la: LA.business, lu: "local service business" },
+      audience_type_classifier: { la: LA.audience, lu: "mostly B2B" },
       website_presence: { la: LA.website, lu: "https://example.com" },
       social_platform_presence: { la: LA.socialPlatforms, lu: "linkedin and instagram" },
       additional_marketing_surfaces: { la: LA.otherSurfaces, lu: "seo + events" },

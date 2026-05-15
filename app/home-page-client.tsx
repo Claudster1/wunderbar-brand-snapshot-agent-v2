@@ -1,6 +1,6 @@
 'use client'
 
-import { FormEvent, useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { FormEvent, useState, useEffect, useRef, useCallback, useMemo, type KeyboardEvent } from "react";
 import { useBrandChat } from "../src/hooks/useBrandChat";
 import { TurnstileWidget } from "@/components/security/TurnstileWidget";
 import { BehaviorTracker } from "@/lib/security/behavioralScoring";
@@ -13,7 +13,7 @@ import {
   type ChatTier,
 } from "@/lib/chatTierConfig";
 import { AssetUploadPanel } from "@/components/assets/AssetUploadPanel";
-import { ChatMarkdown, renderChatMarkdownInline } from "@/components/chat/ChatMarkdown";
+import { ChatMarkdown } from "@/components/chat/ChatMarkdown";
 import WundyLogo from "@/src/assets/wundy-logo.jpeg";
 import { staticImageUrl } from "@/lib/staticImageUrl";
 import { getPersistedEmail, persistEmail } from "@/lib/persistEmail";
@@ -154,8 +154,8 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     resumeHoldUntilValidated,
   });
   const [inputValue, setInputValue] = useState("");
+  const [selectedQuickReplyPills, setSelectedQuickReplyPills] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
-  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveEmail, setSaveEmail] = useState("");
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
@@ -166,7 +166,8 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
   const [capturedSummaryOpen, setCapturedSummaryOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatMessagesRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const messageFormRef = useRef<HTMLFormElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   // ─── Security: Turnstile token ───
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
@@ -321,9 +322,18 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
   const handleSkip = async () => {
     if (isLoading || isFinalizing) return;
     await sendMessage("Skip");
-    setSelectedOptions([]);
     setInputValue("");
+    setSelectedQuickReplyPills([]);
   };
+
+  /** Multi-select chips; combined with textarea on Send (see handleSubmit). */
+  const toggleQuickReplyPill = useCallback(
+    (opt: string) => {
+      if (isLoading || isFinalizing || isUploading) return;
+      setSelectedQuickReplyPills((prev) => (prev.includes(opt) ? prev.filter((o) => o !== opt) : [...prev, opt]));
+    },
+    [isFinalizing, isLoading, isUploading],
+  );
 
   // Save progress and email a resume link
   const handleSaveAndExit = async () => {
@@ -446,35 +456,6 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     }
   }, [isLoading, messages]);
 
-  // Also focus after form submission (when input is cleared)
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!inputValue.trim()) return;
-    if (isFinalizing || isLoading) return;
-
-    // ─── Security: Honeypot check (bots fill hidden fields) ───
-    if (honeypot) {
-      // Silently ignore — looks like a successful submission to the bot
-      setInputValue("");
-      return;
-    }
-
-    // Track behavioral signal for this message
-    behaviorTrackerRef.current?.recordMessage(inputValue);
-
-    // Expose behavioral signals to the save-report hook (read via window)
-    if (behaviorTrackerRef.current) {
-      (window as any).__behavioralSignals = behaviorTrackerRef.current.getSignals();
-    }
-
-    await sendMessage(inputValue);
-    setInputValue("");
-    // Focus input after message is sent and cleared
-    setTimeout(() => {
-      inputRef.current?.focus();
-    }, 100);
-  };
-
               // Report iframe height to parent window for auto-expanding
               useEffect(() => {
                 const reportHeight = () => {
@@ -520,48 +501,21 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
   const handleReset = () => {
     reset();
     setInputValue("");
-    setSelectedOptions([]);
+    setSelectedQuickReplyPills([]);
     setPostVerifyDestination(null);
     setPostVerifyResultsLinkCopied(false);
   };
 
-  // Parse select options from assistant message (multi-select or single-select)
-  const parseSelectOptions = (text: string): { options: string[], isMultiSelect: boolean } | null => {
-    // Check if message contains bullet points (indicating a list of options)
-    const lines = text.split('\n');
-    const options: string[] = [];
-    
-    for (const line of lines) {
-      const trimmed = line.trim();
-      // Match lines starting with - or • followed by text
-      const match = trimmed.match(/^[-•]\s*(.+)$/);
-      if (match) {
-        options.push(match[1].trim());
-      }
-    }
+  const lastAssistantMessageId = useMemo(
+    () => messages.filter((m) => m.role === "assistant").pop()?.id,
+    [messages],
+  );
 
-    // If we found options, determine if it's multi-select or single-select
-    if (options.length > 0) {
-      // Check for multi-select indicators
-      const hasMultiSelectIndicator = /select multiple|you can select|multiple options|select all that apply/i.test(text);
-      
-      // Determine selection type:
-      // - If explicit multi-select indicator, use checkboxes (multi-select)
-      // - Otherwise, use radio buttons (single-select) for any list of options
-      const isMultiSelect = hasMultiSelectIndicator;
-      
-      return { options, isMultiSelect };
-    }
+  useEffect(() => {
+    setSelectedQuickReplyPills([]);
+  }, [lastAssistantMessageId]);
 
-    return null;
-  };
-
-  // Get the last assistant message to check for select options
-  const lastAssistantMessage = messages.filter(m => m.role === 'assistant').pop();
-  const selectOptions = lastAssistantMessage 
-    ? parseSelectOptions(lastAssistantMessage.text)
-    : null;
-  /** Once the user sends a reply, the thread ends with a user bubble — don't keep showing stale radios (Continue would stay disabled). */
+  /** Last message is assistant and we're not mid-request — safe to show quick replies. */
   const lastThreadMessage = messages.length > 0 ? messages[messages.length - 1] : undefined;
   const chatAwaitingChoiceOnLatestAssistant =
     !!lastThreadMessage &&
@@ -572,33 +526,37 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
   const serverQuickReplies =
     suggestedReplies &&
     suggestedReplies.length > 0 &&
-    chatAwaitingChoiceOnLatestAssistant &&
-    !(selectOptions && selectOptions.options.length > 0)
-      ? { options: suggestedReplies, isMultiSelect: false as const }
+    chatAwaitingChoiceOnLatestAssistant
+      ? { options: suggestedReplies }
       : null;
-  const activeSelectOptions = selectOptions?.options.length ? selectOptions : serverQuickReplies;
 
-  // Handle checkbox toggle (multi-select)
-  const handleCheckboxToggle = (option: string) => {
-    setSelectedOptions(prev => 
-      prev.includes(option)
-        ? prev.filter(o => o !== option)
-        : [...prev, option]
-    );
-  };
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const trimmed = inputValue.trim();
+    const pillLine =
+      selectedQuickReplyPills.length > 0 ? selectedQuickReplyPills.join(", ") : "";
+    if (!trimmed && !pillLine) return;
+    if (isFinalizing || isLoading) return;
 
-  // Handle radio button selection (single-select)
-  const handleRadioSelect = (option: string) => {
-    setSelectedOptions([option]);
-  };
+    if (honeypot) {
+      setInputValue("");
+      setSelectedQuickReplyPills([]);
+      return;
+    }
 
-  // Handle submit with checkboxes/radio buttons
-  const handleSubmitWithOptions = async () => {
-    if (selectedOptions.length === 0 || isLoading || isFinalizing) return;
-    const response = selectedOptions.join(', ');
-    await sendMessage(response);
-    setSelectedOptions([]);
+    const outgoing =
+      trimmed && pillLine
+        ? `${pillLine}. ${trimmed}`
+        : pillLine || trimmed;
+
+    behaviorTrackerRef.current?.recordMessage(outgoing);
+    if (behaviorTrackerRef.current) {
+      (window as any).__behavioralSignals = behaviorTrackerRef.current.getSignals();
+    }
+
+    await sendMessage(outgoing);
     setInputValue("");
+    setSelectedQuickReplyPills([]);
     setTimeout(() => {
       inputRef.current?.focus();
     }, 100);
@@ -865,68 +823,11 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
 
             <div className="chat-panel">
               <div ref={chatMessagesRef} className="chat-messages" aria-live="polite">
-                {messages.map((message) => {
-                  const isLastAssistant =
-                    message.role === "assistant" &&
-                    message.id === lastAssistantMessage?.id &&
-                    chatAwaitingChoiceOnLatestAssistant;
-
-                  // Only the latest assistant turn (no user reply yet) gets interactive options
-                  const selectData = isLastAssistant
-                    ? parseSelectOptions(message.text)
-                    : null;
-                  
-                  if (selectData && selectData.options.length > 0) {
-                    // Extract ALL non-bullet text as the question context
-                    const contextLines = message.text.split('\n')
-                      .filter(line => !line.trim().match(/^[-•]\s/))
-                      .map(line => line.trim())
-                      .filter(Boolean);
-                    
-                    const isMultiSelect = selectData.isMultiSelect;
-                    
-                    return (
-                      <div
-                        key={message.id}
-                        className={`chat-bubble chat-bubble-${message.role}`}
-                      >
-                        {contextLines.map((line, idx) => (
-                          <p key={idx}>{renderChatMarkdownInline(line)}</p>
-                        ))}
-                        <div className={isMultiSelect ? "chat-checkboxes" : "chat-radio-buttons"}>
-                          {selectData.options.map((option, idx) => (
-                            <label key={idx} className={isMultiSelect ? "chat-checkbox-label" : "chat-radio-label"}>
-                              <input
-                                type={isMultiSelect ? "checkbox" : "radio"}
-                                name={isMultiSelect ? undefined : `radio-${message.id}`}
-                                checked={isMultiSelect 
-                                  ? selectedOptions.includes(option)
-                                  : selectedOptions[0] === option
-                                }
-                                onChange={() => isMultiSelect 
-                                  ? handleCheckboxToggle(option)
-                                  : handleRadioSelect(option)
-                                }
-                                disabled={isLoading || isFinalizing}
-                              />
-                              <span>{renderChatMarkdownInline(option)}</span>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  }
-                  
-                  // Regular message rendering
-                  return (
-                    <div
-                      key={message.id}
-                      className={`chat-bubble chat-bubble-${message.role}`}
-                    >
-                      <ChatMarkdown text={message.text} />
-                    </div>
-                  );
-                })}
+                {messages.map((message) => (
+                  <div key={message.id} className={`chat-bubble chat-bubble-${message.role}`}>
+                    <ChatMarkdown text={message.text} />
+                  </div>
+                ))}
                 {(isLoading || isFinalizing) && (
                   <div className="chat-bubble chat-bubble-assistant pending">
                     {isFinalizing
@@ -1111,32 +1012,61 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                 </div>
               )}
 
-              {intakeInputHidden ? null : activeSelectOptions && activeSelectOptions.options.length > 0 && chatAwaitingChoiceOnLatestAssistant ? (
-                // Show submit button for checkboxes / radio
-                <div className="chat-input-row">
-                  <button
-                    type="button"
-                    className="chat-send"
-                    onClick={handleSubmitWithOptions}
-                    disabled={isLoading || isFinalizing || selectedOptions.length === 0}
-                  >
-                    {isLoading || isFinalizing ? "Sending…" : "Continue"}
-                  </button>
-                  {conversationStarted && (
-                    <button
-                      type="button"
-                      className="chat-skip"
-                      onClick={handleSkip}
-                      disabled={isLoading || isFinalizing}
-                      title="Skip this question — you can come back to it"
+              {intakeInputHidden ? null : (
+                <>
+                  {serverQuickReplies && serverQuickReplies.options.length > 0 && chatAwaitingChoiceOnLatestAssistant && (
+                    <>
+                    <div
+                      role="group"
+                      aria-label="Quick reply suggestions — select one or more, then press Send"
+                      className="chat-input-row"
+                      style={{ marginBottom: 10 }}
                     >
-                      Skip
-                    </button>
+                      {serverQuickReplies.options.map((opt, pillIdx) => {
+                        const selected = selectedQuickReplyPills.includes(opt);
+                        return (
+                        <button
+                          key={`pill-${pillIdx}-${opt}`}
+                          type="button"
+                          disabled={isLoading || isFinalizing || isUploading}
+                          aria-pressed={selected}
+                          onClick={() => toggleQuickReplyPill(opt)}
+                          style={{
+                            padding: "8px 14px",
+                            borderRadius: 999,
+                            border: selected ? "2px solid #07B0F2" : "1px solid #CBD5E1",
+                            background: selected ? "#E0F7FE" : "#F8FAFC",
+                            color: "#021859",
+                            fontSize: 13,
+                            fontWeight: 600,
+                            cursor: isLoading || isFinalizing || isUploading ? "not-allowed" : "pointer",
+                          }}
+                        >
+                          {opt}
+                        </button>
+                        );
+                      })}
+                    </div>
+                      <p
+                        style={{
+                          margin: "0 0 10px",
+                          width: "100%",
+                          fontSize: 12,
+                          color: "#64748B",
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        Tap one or more options (e.g. several channels), then{" "}
+                        <strong>Send</strong> — or type your own answer in the box below.
+                      </p>
+                    </>
                   )}
-                </div>
-              ) : (
-                // Regular text input form
-                <form className="chat-input-row" onSubmit={handleSubmit}>
+                  {/* One composer: optional chips + textarea + Send — no alternate "Continue" mode */}
+                  <form
+                    ref={messageFormRef}
+                    className="chat-input-row chat-composer-form"
+                    onSubmit={handleSubmit}
+                  >
                   <label htmlFor="brand-message" className="sr-only">
                     Send a message to Wundy™
                   </label>
@@ -1178,23 +1108,33 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                       </button>
                     </>
                   )}
-                  <input
+                  <textarea
                     ref={inputRef}
                     id="brand-message"
                     name="brand-message"
+                    rows={3}
                     value={inputValue}
                     onChange={(event) => {
                       setInputValue(event.target.value);
                       behaviorTrackerRef.current?.recordKeystroke();
                     }}
-                    placeholder={isUploading ? "Uploading file…" : "Type your reply…"}
+                    onKeyDown={(event: KeyboardEvent<HTMLTextAreaElement>) => {
+                      if (event.key !== "Enter" || event.shiftKey) return;
+                      event.preventDefault();
+                      messageFormRef.current?.requestSubmit();
+                    }}
+                    placeholder={
+                      isUploading
+                        ? "Uploading file…"
+                        : "Type your reply… (Enter to send, Shift+Enter for a new line)"
+                    }
                     disabled={isLoading || isFinalizing || isUploading}
                     autoFocus
                   />
                   <button
                     type="submit"
                     className="chat-send"
-                    disabled={isLoading || isFinalizing || isUploading || !inputValue.trim()}
+                    disabled={isLoading || isFinalizing || isUploading || (!inputValue.trim() && selectedQuickReplyPills.length === 0)}
                   >
                     {isUploading ? "Uploading…" : isLoading || isFinalizing ? "Sending…" : "Send"}
                   </button>
@@ -1209,7 +1149,8 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                       Skip
                     </button>
                   )}
-                </form>
+                  </form>
+                </>
               )}
             </div>
             {isLoading && !isStreaming && (

@@ -7,6 +7,7 @@ import { CAPTURE_REFUSAL_PATTERN } from "@/lib/intake/captureRefusal";
 
 export type CaptureKey =
   | "business_type_classifier"
+  | "audience_type_classifier"
   | "website_presence"
   | "social_platform_presence"
   | "additional_marketing_surfaces"
@@ -157,12 +158,15 @@ function isBreadthChannelMixCarouselPrompt(la: string): boolean {
   );
 }
 
-/** "Where do customers find you?" style prompts — includes "…social, paid…" enumeration. */
+/** "Where do customers find you?" / net-new discovery prompts — may list "…social, paid…" without asking owned-platform surfaces. */
 function isAcquisitionCustomerDiscoveryPrompt(la: string): boolean {
   return (
     /\bwhere\b.{0,120}\b(customers|clients|buyers|prospects)\b.{0,60}\b(find you|finding you|discover|heard about|come from|learn about)\b/i.test(
       la,
-    ) || /\b(most\s+new\s+customers|new\s+customers)\b.{0,40}\bfind\b/i.test(la)
+    ) ||
+    /\b(most\s+new\s+customers|new\s+customers)\b.{0,40}\bfind\b/i.test(la) ||
+    (/\b(prospect|prospects)\b/i.test(la) && /\bdiscovers?\s+you\b/i.test(la) && /\bwhere\b/i.test(la)) ||
+    /\bwhen\b.{0,80}\b(prospect|prospects)\b.{0,80}\bdiscovers?\s+you\b/i.test(la)
   );
 }
 
@@ -177,9 +181,12 @@ function isLeadMagnetOrEmailGatePrompt(la: string): boolean {
   );
 }
 
-/** CTA clarity on site/profile — `\bprofiles?\b` overlaps dedicated-social heuristics. */
+/** CTA clarity on site/profile — `\bprofiles?\b` overlaps dedicated-social heuristics; "pick one primary place" likewise. */
 function isSiteOrMainProfileNextStepPrompt(la: string): boolean {
-  return /\bhow clear\b.{0,180}\b(your site|main profile|landing|next step|\bcta\b|call to action)\b/i.test(la);
+  return (
+    /\bhow clear\b.{0,180}\b(your site|main profile|landing|next step|\bcta\b|call to action)\b/i.test(la) ||
+    /\bpick one primary (place|destination)\b/i.test(la)
+  );
 }
 
 function dedicatedSocialPresenceAskSignals(la: string): boolean {
@@ -243,7 +250,7 @@ function socialPresenceUserReplyMatchesFlexibleCapture(lu: string): boolean {
 }
 
 const CHUNK_BUSINESS_MODEL = (chunk: string) =>
-  /\b(b2b|b2c|saas|e-?commerce|ecommerce|retail|consult|consulting|agency|freelanc|product|local|service|software|app|subscription|shopify|amazon|coaching|contractor|clinic|restaurant|consumer|businesses|founders|dtc|marketplace|nonprofit|wholesale|manufactur)\b/i.test(
+  /\b(saas|e-?commerce|ecommerce|retail|consult|consulting|agency|freelanc|product|local|service|software|app|subscription|shopify|amazon|coaching|contractor|clinic|restaurant|dtc|marketplace|nonprofit|wholesale|manufactur|subscription|membership)\b/i.test(
     chunk,
   );
 
@@ -269,7 +276,11 @@ export function isBareAffirmOrDeny(text: string): boolean {
 function assistantTurnAsksAboutCapture(key: CaptureKey, la: string): boolean {
   switch (key) {
     case "business_type_classifier":
-      return /\b(get paid|who (are you |do you )?(mainly )?selling|revenue model|business model|one sentence|describe your|gut check|feel accurate|primarily running|tailor this|how do you)\b/i.test(
+      return /\b(get paid|revenue model|business model|describe your|gut check|feel accurate|primarily running|tailor this|describe (your|the) (revenue|business)|how do you)\b/i.test(
+        la,
+      );
+    case "audience_type_classifier":
+      return /\b(who (are you |do you )?(mainly )?sell|selling (to|mostly)|mainly (b2b|b2c)|b2b or b2c|your customers|your buyers|ideal customer|target (customer|market|audience)|audience (type|segment))\b/i.test(
         la,
       );
     case "monthly_revenue_range":
@@ -292,11 +303,11 @@ function assistantTurnAsksAboutCapture(key: CaptureKey, la: string): boolean {
     case "social_platform_presence":
       return assistantAskedDedicatedSocialPlatformPresence(la);
     case "additional_marketing_surfaces":
-      return /\b(outside|beyond|other channels|marketing surfaces|investing attention|else are you|beyond your (website|site))\b/i.test(
+      return /\b(outside|beyond|other channels|marketing surfaces|investing attention|putting (real )?time|putting time|putting budget|time or budget|else are you|beyond your (website|site)|social profiles)\b/i.test(
         la,
       );
     case "primary_acquisition_channel":
-      return /\b(where|find you|finding you|channel|coming from|most new|customers|clients|discovery|acquisition)\b/i.test(
+      return /\b(where|find you|finding you|channel|coming from|most new|customers|clients|discovery|acquisition|prospect|discovers you|usually happen|brand-?new)\b/i.test(
         la,
       );
     case "monthly_marketing_budget":
@@ -314,9 +325,11 @@ function assistantTurnAsksAboutCapture(key: CaptureKey, la: string): boolean {
         la,
       );
     case "has_clear_cta":
-      return /\b(next step|how clear|cta|call to action|landing|site|main profile|button|action)\b/i.test(la);
+      return /\b(next step|how clear|cta|call to action|landing|site|main profile|button|action|pick one primary|primary (website|place)|send people)\b/i.test(
+        la,
+      );
     case "marketing_channel_mix":
-      return /\b(showing up|channels|where.*lately|marketing channel|actively using|putting your marketing)\b/i.test(
+      return /\b(showing up|channels|where.*lately|marketing channel|actively using|actively run|breadth of channels|putting your marketing|first discover you)\b/i.test(
         la,
       );
     default:
@@ -348,7 +361,7 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
   switch (key) {
     case "business_type_classifier": {
       const asked =
-        /\b(get paid|who (are you |do you )?(mainly )?selling|revenue model|business model|one sentence|describe your|gut check|feel accurate|primarily running|tailor this|how do you)\b/i.test(
+        /\b(get paid|revenue model|business model|describe your|gut check|feel accurate|primarily running|tailor this|describe (your|the) (revenue|business)|how do you)\b/i.test(
           la,
         );
       /**
@@ -360,27 +373,12 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
           la,
         );
       const confirmedShort = askedAsConfirmation && isBareAffirmOrDeny(t);
+      /** Revenue / offer model — not B2B/B2C (that's audience_type_classifier). */
       const answered =
-        /\b(b2b|b2c|saas|e-?commerce|ecommerce|retail|consult|consulting|agency|freelanc|product|local|service|software|app|subscription|shopify|amazon|coaching|contractor|clinic|restaurant|consumer|businesses|founders|dtc|dtc brand|marketplace|nonprofit|wholesale|manufactur)\b/i.test(
-          t,
-        );
-      /**
-       * Plain audience descriptors ("smbs and startups", "small businesses", "founders") answer the
-       * "who are you selling to" half of the prompt. Pair with business_type inference upstream so we
-       * don't re-ask just because they led with their customer, not their model.
-       */
-      const audienceDescriptor =
-        /\b(smbs?|smb|smbs|smb's|smbs'|startups?|scale[- ]?ups?|enterprises?|mid[- ]?market|small businesses?|mid[- ]?size(d)? businesses?|founders?|ceos?|owners?|operators?|marketers?|marketing (teams?|leads?)|teams?|brands?|agencies|individuals|professionals|consumers?|clients|customers)\b/i.test(
+        /\b(saas|e-?commerce|ecommerce|retail|consult|consulting|agency|freelanc|product|local|service|software|app|subscription|shopify|amazon|coaching|contractor|clinic|restaurant|dtc|marketplace|nonprofit|wholesale|manufactur|membership)\b/i.test(
           t,
         );
       const listAnswer = asked && terseMultiItemAllMatch(t, 2, CHUNK_BUSINESS_MODEL);
-      /**
-       * Open-question fallback: when the *open* prompt was asked (not the confirmation variant) and
-       * the user typed something substantive (≥ 2 words, not a bare ack), accept it. The downstream
-       * transcript extract pulls the actual business model from the wider conversation — looping the
-       * same question on natural answers like "i do everything right now" / "i help families with X"
-       * is the loop users report, not improved data quality.
-       */
       const openQuestionAsked = asked && !askedAsConfirmation;
       const wordCount = t.split(/\s+/).filter(Boolean).length;
       const substantiveOpenAnswer =
@@ -389,11 +387,26 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
         !isBareAffirmOrDeny(t) &&
         !/^(?:idk|dunno|huh|wat|hmm+|uh+|um+)\.?$/i.test(t);
       return (
-        (asked && (answered || audienceDescriptor)) ||
+        (asked && answered) ||
         listAnswer ||
         confirmedShort ||
         substantiveOpenAnswer
       );
+    }
+    case "audience_type_classifier": {
+      const asked =
+        /\b(who (are you |do you )?(mainly )?sell|selling (to|mostly)|mainly (b2b|b2c)|b2b or b2c|your customers|your buyers|ideal customer|target (customer|market|audience)|audience (type|segment))\b/i.test(
+          la,
+        );
+      const answered =
+        /\b(b2b|b2c|both|hybrid|consumers?|customers?|businesses|enterprises?|smbs?|startups?|founders?|individuals|households|patients|students|other businesses)\b/i.test(
+          t,
+        );
+      const audienceDescriptor =
+        /\b(smbs?|smb|startups?|scale[- ]?ups?|enterprises?|mid[- ]?market|small businesses?|mid[- ]?size(d)? businesses?|founders?|professionals|consumers?|clients|patients|families|shoppers)\b/i.test(
+          t,
+        );
+      return (asked && (answered || audienceDescriptor));
     }
     case "monthly_revenue_range": {
       const asked =
@@ -447,7 +460,7 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
     }
     case "additional_marketing_surfaces": {
       const asked =
-        /\b(outside|beyond|other channels|marketing surfaces|investing attention|else are you|beyond your (website|site))\b/i.test(
+        /\b(outside|beyond|other channels|marketing surfaces|investing attention|putting (real )?time or budget|time or budget|else are you|beyond your (website|site)|beyond your website)\b/i.test(
           la,
         );
       const answered =
@@ -459,7 +472,7 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
     }
     case "primary_acquisition_channel": {
       const asked =
-        /\b(where|find you|finding you|channel|coming from|most new|customers|clients|discovery|acquisition)\b/i.test(
+        /\b(where|find you|finding you|channel|coming from|most new|customers|clients|discovery|acquisition|prospect|discovers you|brand-?new|usually happen)\b/i.test(
           la,
         );
       const singleOrNarrative =
@@ -528,7 +541,7 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
     }
     case "has_clear_cta": {
       const asked =
-        /\b(next step|how clear|cta|call to action|landing|site|main profile|button|action)\b/i.test(la);
+        /\b(next step|how clear|cta|call to action|landing|site|main profile|button|action|pick one primary|primary (website|place)|send people)\b/i.test(la);
       const single =
         /\b(clear|obvious|confus|mixed|muddy|unclear|pretty|fairly|sort of|kind of|meh|one main|too many|obvious|straightforward|i think so|i guess so|yeah it'?s|yep it'?s|no it'?s not|not really clear)\b/i.test(
           t,
@@ -539,7 +552,7 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
     }
     case "marketing_channel_mix": {
       const asked =
-        /\b(showing up|channels|where.*lately|marketing channel|actively using|putting your marketing)\b/i.test(la);
+        /\b(showing up|channels|where.*lately|marketing channel|actively using|actively run|breadth of channels|putting your marketing|first discover you)\b/i.test(la);
       const single =
         /\b(email|social|seo|search|paid|referral|referrals|events|youtube|linkedin|instagram|tiktok|facebook|meta|google|newsletter|content|pr\b|podcast|tik tok|threads|pinterest|snapchat)\b/i.test(
           t,

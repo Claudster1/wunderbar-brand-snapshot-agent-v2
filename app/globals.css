@@ -875,6 +875,78 @@ a.sr-only:focus {
   transition: width 0.3s ease;
 }
 
+.chat-finalize-dock {
+  margin-top: 4px;
+  padding: 14px 12px 12px;
+  border-top: 1px solid #e2e8f0;
+  border-radius: 0 0 5px 5px;
+  background: linear-gradient(180deg, #f0f9ff 0%, #fff 100%);
+  text-align: center;
+}
+
+.chat-finalize-dock-title {
+  margin: 0 0 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #021859;
+}
+
+.chat-finalize-dock-sub {
+  margin: 0;
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.45;
+}
+
+.chat-finalize-dock-progress {
+  margin-top: 12px;
+  margin-bottom: 0;
+}
+
+.chat-finalize-dock-progress-fill {
+  width: 40%;
+  animation: chatFinalizeProgress 1.4s ease-in-out infinite;
+}
+
+@keyframes chatFinalizeProgress {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}
+
+.chat-finalize-error {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  margin-top: 8px;
+  background: #fef2f2;
+  border-radius: 6px;
+  border: 1px solid #fecaca;
+}
+
+.chat-finalize-error-row {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  border-radius: 5px;
+}
+
+.chat-finalize-retry {
+  padding: 6px 14px;
+  border-radius: 5px;
+  border: none;
+  background: #07b0f2;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
 .app-card-footer {
   font-size: 0.85rem;
   color: #6b7280;

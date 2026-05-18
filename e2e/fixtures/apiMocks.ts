@@ -28,6 +28,106 @@ async function fulfillBrandSnapshot(route: Route, payload: BrandSnapshotMockPayl
   });
 }
 
+const MOCK_FINAL_REPORT_ID = "e2e-seamless-report-001";
+
+export function setupSeamlessFinalizeMocks(page: Page) {
+  setupSnapshotChatMocks(page);
+
+  page.route("**/api/snapshot/complete-from-transcript", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        answers: {
+          userName: "Alex",
+          businessName: "Acme Agency",
+          brandAlignmentScore: 72,
+        },
+      }),
+    });
+  });
+
+  page.route("**/api/snapshot", async (route) => {
+    if (route.request().method() !== "POST") {
+      await route.continue();
+      return;
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ reportId: MOCK_FINAL_REPORT_ID }),
+    });
+  });
+
+  page.route("**/api/snapshot/get**", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        reportId: MOCK_FINAL_REPORT_ID,
+        id: MOCK_FINAL_REPORT_ID,
+        status: "complete",
+      }),
+    });
+  });
+
+  let turn = 0;
+  page.route("**/api/brand-snapshot", async (route) => {
+    if (route.request().method() !== "POST") {
+      await route.continue();
+      return;
+    }
+    turn += 1;
+    const body = route.request().postDataJSON() as { continuationReportId?: string } | null;
+    if (body?.continuationReportId) {
+      await route.continue();
+      return;
+    }
+
+    if (turn >= 2) {
+      await fulfillBrandSnapshot(route, {
+        content:
+          "Thanks, Alex — I have what I need. **Your Snapshot is being assembled now** and will open on your results page in a moment.",
+        meta: {
+          captureCompletionPercent: 100,
+          narrativeCompletionPercent: 100,
+          overallProgressPercent: 99,
+          pendingCaptureLabels: [],
+          nextCaptureKey: null,
+          intakeReadyForFinalize: true,
+          suggestedReplies: null,
+          questionsRemainingEstimate: 1,
+          capturedSummary: [
+            { label: "Name", value: "Alex" },
+            { label: "Business", value: "Acme Agency" },
+          ],
+        },
+      });
+      return;
+    }
+
+    const content =
+      turn === 1
+        ? "Great to meet you, Alex! What's the name of your business?"
+        : "Got it. **Do you have a website** we can look at, or are you not on the web yet?";
+
+    await fulfillBrandSnapshot(route, {
+      content,
+      meta: {
+        captureCompletionPercent: turn > 1 ? 25 : 5,
+        narrativeCompletionPercent: 0,
+        overallProgressPercent: turn > 1 ? 18 : 8,
+        pendingCaptureLabels: ["website presence"],
+        nextCaptureKey: "website_presence",
+        intakeReadyForFinalize: false,
+        suggestedReplies: ["Yes, here's the URL", "No website yet"],
+        questionsRemainingEstimate: 10,
+        capturedSummary: [{ label: "Name", value: "Alex" }],
+      },
+    });
+  });
+}
+
 export function setupSnapshotChatMocks(page: Page) {
   page.route("**/api/snapshot/draft", async (route) => {
     await route.fulfill({

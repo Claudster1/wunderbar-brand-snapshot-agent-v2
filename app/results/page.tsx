@@ -36,13 +36,12 @@ import { isWorkbookSectionId } from "@/lib/workbookTypes";
 import { wunderBrandScoreFromPillars } from "@/lib/wunderBrandScoreDisplay";
 import FoundationBlueprintContent from "@/components/tabs/FoundationBlueprintContent";
 import FoundationExtras from "@/components/FoundationExtras";
-import { safeFetchJson } from "@/lib/resilience/safeFetch";
 import { getArchetypeIcon, getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
 import { buildActivationDiagnostics } from "@/lib/results/buildActivationDiagnostics";
 import { buildResultsTabNavItems } from "@/lib/results/buildResultsTabNavItems";
 import { normalizeBrandImageryDirection } from "@/lib/brand/brandImageryNormalize";
 import { TAB_SECTION_NAV_HINT_CHIPS_ONLY } from "@/lib/copy/resultsSuiteGuidance";
-import { resolveRuntimeBaseUrlForServerFetch } from "@/lib/server/runtimeBaseUrl";
+import { loadSnapshotReportForResultsWithRetry } from "@/lib/loadSnapshotReportForResults";
 import { SUITE_CHIP_CARD_STYLE, SUITE_SECTION_KICKER_CLASS } from "@/components/results/suiteBrandTokens";
 import { SnapshotResultsLeadEmail } from "@/app/results/components/SnapshotResultsLeadEmail";
 import { getChatTierConfig, type ChatTier } from "@/lib/chatTierConfig";
@@ -224,25 +223,36 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
     );
   }
 
-  // Fetch report and render full results (server component)
-  const baseUrl = await resolveRuntimeBaseUrlForServerFetch();
-  const reportResponse = await safeFetchJson<any>(
-    `${baseUrl}/api/snapshot/get?id=${encodeURIComponent(reportId)}`,
-    { cache: "no-store", retries: 2, timeoutMs: 7000 },
-  );
-  if (!reportResponse.ok || !reportResponse.data) {
+  const reportRow = await loadSnapshotReportForResultsWithRetry(reportId);
+  if (!reportRow || typeof reportRow.brand_alignment_score !== "number") {
     return (
       <main className="min-h-screen bg-brand-bg font-brand flex flex-col items-center justify-center px-4 py-16">
         <div className="bs-container-narrow max-w-[700px] mx-auto text-center">
-          <h1 className="bs-h1 mb-3">Results not found</h1>
-          <p className="bs-body mb-6 text-brand-midnight">These results may have been removed or the link is incorrect.</p>
-          <Link href="/brand-snapshot" className="text-brand-blue font-bold hover:underline focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 rounded">Start a new WunderBrand Snapshot™</Link>
+          <h1 className="bs-h1 mb-3">Your diagnostic isn&apos;t ready yet</h1>
+          <p className="bs-body mb-6 text-brand-midnight">
+            We couldn&apos;t load this report. If you just finished the chat, wait a moment and refresh — or return to
+            the conversation and tap <strong>Generate my WunderBrand Snapshot™</strong> again once every question is
+            answered.
+          </p>
+          <Link
+            href="/"
+            className="text-brand-blue font-bold hover:underline focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 rounded"
+          >
+            Back to Wundy™ chat
+          </Link>
+          <span className="mx-2 text-brand-midnight">·</span>
+          <Link
+            href="/brand-snapshot"
+            className="text-brand-blue font-bold hover:underline focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 rounded"
+          >
+            Start a new Snapshot™
+          </Link>
         </div>
       </main>
     );
   }
 
-  const report = reportResponse.data as any;
+  const report = reportRow as any;
   const pillarScores = (report.pillar_scores || report.pillarScores || {}) as Record<PillarKey, number>;
   const pillarInsightsRaw = report.pillar_insights || report.insights || {};
   const rawRecommendations = report.recommendations;

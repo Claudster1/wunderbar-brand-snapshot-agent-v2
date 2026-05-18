@@ -21,6 +21,12 @@ import {
   assistantPromisedExternalResultsEntry,
   conversationSuggestsIntakeComplete,
 } from "@/lib/intake/assistantFinalHandoff";
+import {
+  computeComposerHidden,
+  computeIntakeReadyForSeamlessFinalize,
+  computeSeamlessWrapUpActive,
+  lastMessageAwaitingUserReply,
+} from "@/lib/intake/computeSeamlessFinalizeUiState";
 
 export type HomePageClientProps = {
   tierParam: string | null;
@@ -102,9 +108,17 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
   }, [activeTierConfig, customerName]);
 
   // Snapshot / Snapshot+: send people to the results page first; email capture happens there. Paid tiers still use the OTP gate when no email on file.
+  const snapshotish = activeTier === "snapshot" || activeTier === "snapshot-plus";
+
   const handleAssessmentComplete = useCallback((completedReportId: string, redirectUrl: string) => {
     pendingRedirectRef.current = redirectUrl;
-    const snapshotish = activeTier === "snapshot" || activeTier === "snapshot-plus";
+    if (snapshotish) {
+      setShowEmailVerification(false);
+      if (typeof window !== "undefined") {
+        window.location.assign(redirectUrl);
+      }
+      return;
+    }
     if (typeof window !== "undefined") {
       const existing = getPersistedEmail();
       if (existing && existing.includes("@")) {
@@ -118,12 +132,8 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
         return;
       }
     }
-    if (snapshotish) {
-      setShowEmailVerification(false);
-      return;
-    }
     setShowEmailVerification(true);
-  }, [activeTier]);
+  }, [snapshotish]);
 
   const {
     messages,
@@ -317,6 +327,16 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     clearFinalizeError();
     void finalizeFnRef.current();
   }, [clearFinalizeError]);
+
+  const seamlessFinalizeConsumedRef = useRef(false);
+
+  useEffect(() => {
+    if (!resultsEntryUrl || postVerifyDestination || !snapshotish) return;
+    const t = window.setTimeout(() => {
+      window.location.assign(resultsEntryUrl);
+    }, 700);
+    return () => window.clearTimeout(t);
+  }, [resultsEntryUrl, postVerifyDestination, snapshotish]);
 
   // Skip the current question
   const handleSkip = async () => {
@@ -529,6 +549,52 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     chatAwaitingChoiceOnLatestAssistant
       ? { options: suggestedReplies }
       : null;
+
+  /** Client guard: meta can lag one turn behind the latest assistant question. */
+  const awaitingUserReplyToQuestion = useMemo(() => lastMessageAwaitingUserReply(messages), [messages]);
+
+  /** Intake is complete — auto-run finalize (no manual CTA). */
+  const intakeReadyForSeamlessFinalize = computeIntakeReadyForSeamlessFinalize({
+    intakeReadyForFinalize,
+    resultsEntryUrl,
+    postVerifyDestination,
+    awaitingUserReplyToQuestion,
+    isLoading,
+    isFinalizing,
+    questionsRemainingEstimate,
+  });
+
+  const seamlessWrapUpActive = computeSeamlessWrapUpActive({
+    intakeReadyForSeamlessFinalize,
+    isFinalizing,
+    resultsEntryUrl,
+    postVerifyDestination,
+  });
+
+  const composerHidden = computeComposerHidden(intakeInputHidden, seamlessWrapUpActive);
+
+  useEffect(() => {
+    if (!intakeReadyForSeamlessFinalize) {
+      seamlessFinalizeConsumedRef.current = false;
+      return;
+    }
+    if (seamlessFinalizeConsumedRef.current) return;
+    seamlessFinalizeConsumedRef.current = true;
+    const t = window.setTimeout(() => {
+      void finalizeFnRef.current();
+    }, 450);
+    return () => window.clearTimeout(t);
+  }, [intakeReadyForSeamlessFinalize]);
+
+  useEffect(() => {
+    if (!seamlessWrapUpActive) return;
+    requestAnimationFrame(() => {
+      const container = chatMessagesRef.current;
+      if (container) {
+        container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+      }
+    });
+  }, [seamlessWrapUpActive]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -831,7 +897,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                 {(isLoading || isFinalizing) && (
                   <div className="chat-bubble chat-bubble-assistant pending">
                     {isFinalizing
-                      ? "Building your diagnostic from this conversation…"
+                      ? `Building your ${activeTierConfig.productName} from this conversation…`
                       : "Wundy™ is thinking…"}
                   </div>
                 )}
@@ -871,7 +937,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                 </div>
               )}
 
-              {resultsEntryUrl && !postVerifyDestination && (
+              {resultsEntryUrl && !postVerifyDestination && !snapshotish && (
                 <div
                   style={{
                     padding: "14px 12px",
@@ -916,103 +982,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                 </div>
               )}
 
-              {/*
-                Recovery for the case where the model wrapped up the chat but no results URL has
-                registered yet. Three states:
-                  1) Auto-finalize is still running → the "Building your diagnostic…" pending
-                     bubble in the chat thread above is the progress indicator. Render nothing
-                     here so we don't add a competing CTA panel.
-                  2) Auto-finalize failed but the user can still retry → compact inline error
-                     bar with a single Try again action (matches the existing API-failure
-                     retry bar style).
-                  3) Retries exhausted → escalate to a contact-support message; no more retry
-                     buttons that look broken.
-              */}
-              {needsResultsRecovery && finalizeError && !isFinalizing && (
-                finalizeRetryCount >= MAX_FINALIZE_RETRIES ? (
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 6,
-                      padding: "10px 12px",
-                      marginBottom: 10,
-                      background: "#FEF2F2",
-                      borderRadius: 6,
-                      border: "1px solid #FECACA",
-                    }}
-                  >
-                    <span style={{ fontSize: 13, color: "#991B1B", lineHeight: 1.45 }}>
-                      We&apos;re having trouble saving your snapshot right now. Your answers are safe — please email{" "}
-                      <a href="mailto:hello@wunderbrand.ai" style={{ color: "#991B1B", textDecoration: "underline" }}>
-                        hello@wunderbrand.ai
-                      </a>{" "}
-                      and we&apos;ll send your results manually. {finalizeError}
-                    </span>
-                  </div>
-                ) : (
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 10,
-                      padding: "8px 12px",
-                      marginBottom: 10,
-                      background: "#FEF2F2",
-                      borderRadius: 5,
-                      border: "1px solid #FECACA",
-                    }}
-                  >
-                    <span style={{ fontSize: 13, color: "#991B1B", flex: 1 }}>
-                      {finalizeError}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={retryFinalize}
-                      style={{
-                        padding: "6px 14px",
-                        borderRadius: 5,
-                        border: "none",
-                        background: "#07b0f2",
-                        color: "#fff",
-                        fontSize: 13,
-                        fontWeight: 700,
-                        cursor: "pointer",
-                      }}
-                    >
-                      Try again
-                    </button>
-                  </div>
-                )
-              )}
-
-              {intakeReadyForFinalize && !intakeInputHidden && !resultsEntryUrl && (
-                <div style={{ marginBottom: 10, textAlign: "center" }}>
-                  <button
-                    type="button"
-                    onClick={() => void finalizeFromTranscript()}
-                    disabled={isLoading || isFinalizing}
-                    style={{
-                      width: "100%",
-                      padding: "12px 16px",
-                      borderRadius: 8,
-                      border: "1px solid #07B0F2",
-                      background: "#fff",
-                      color: "#021859",
-                      fontWeight: 700,
-                      fontSize: 14,
-                      cursor: isLoading || isFinalizing ? "not-allowed" : "pointer",
-                    }}
-                  >
-                    {isFinalizing ? "Building your diagnostic…" : "Finish and generate diagnostic"}
-                  </button>
-                  <p style={{ margin: "6px 0 0", fontSize: 12, color: "#64748B" }}>
-                    Ready when you are — or keep chatting if you want to add more detail.
-                  </p>
-                </div>
-              )}
-
-              {intakeInputHidden ? null : (
+              {composerHidden ? null : (
                 <>
                   {serverQuickReplies && serverQuickReplies.options.length > 0 && chatAwaitingChoiceOnLatestAssistant && (
                     <>
@@ -1152,6 +1122,53 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                   </form>
                 </>
               )}
+
+              {seamlessWrapUpActive && (
+                <div
+                  className="chat-finalize-dock"
+                  role="status"
+                  aria-live="polite"
+                  aria-busy={isFinalizing}
+                >
+                  <p className="chat-finalize-dock-title">
+                    {isFinalizing
+                      ? `Building your ${activeTierConfig.productName}…`
+                      : `Preparing your ${activeTierConfig.productName}…`}
+                  </p>
+                  <p className="chat-finalize-dock-sub">
+                    {snapshotish
+                      ? "We'll open your results automatically — usually under a minute."
+                      : "Almost there — we're assembling your diagnostic from this conversation."}
+                  </p>
+                  <div className="app-progress-bar chat-finalize-dock-progress">
+                    <div className="app-progress-fill chat-finalize-dock-progress-fill" />
+                  </div>
+                </div>
+              )}
+
+              {(needsResultsRecovery || intakeReadyForSeamlessFinalize) &&
+                finalizeError &&
+                !isFinalizing && (
+                  finalizeRetryCount >= MAX_FINALIZE_RETRIES ? (
+                    <div className="chat-finalize-error">
+                      <span style={{ fontSize: 13, color: "#991B1B", lineHeight: 1.45 }}>
+                        We&apos;re having trouble saving your {activeTierConfig.productName.toLowerCase()} right now.
+                        Your answers are safe — please email{" "}
+                        <a href="mailto:hello@wunderbrand.ai" style={{ color: "#991B1B", textDecoration: "underline" }}>
+                          hello@wunderbrand.ai
+                        </a>{" "}
+                        and we&apos;ll send your results manually. {finalizeError}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="chat-finalize-error chat-finalize-error-row">
+                      <span style={{ fontSize: 13, color: "#991B1B", flex: 1 }}>{finalizeError}</span>
+                      <button type="button" onClick={retryFinalize} className="chat-finalize-retry">
+                        Try again
+                      </button>
+                    </div>
+                  )
+                )}
             </div>
             {isLoading && !isStreaming && (
               <div className="app-loading-status">
@@ -1168,7 +1185,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
             )}
 
             {/* Save & Continue Later link — only visible while there are still questions to answer */}
-            {conversationStarted && !isLoading && !intakeInputHidden && (
+            {conversationStarted && !isLoading && !composerHidden && (
               <div style={{
                 textAlign: "center",
                 padding: "8px 0 4px",

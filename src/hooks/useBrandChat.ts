@@ -27,6 +27,24 @@ function snapshotResultsEntryUrl(finalReportId: string): string {
   return `/results?reportId=${encodeURIComponent(finalReportId)}`;
 }
 
+/** Confirm the report row exists before sending the user to `/results`. */
+async function waitForReportReadable(reportId: string, maxAttempts = 5): Promise<boolean> {
+  for (let i = 0; i < maxAttempts; i++) {
+    try {
+      const res = await fetch(`/api/snapshot/get?id=${encodeURIComponent(reportId)}`, {
+        cache: "no-store",
+      });
+      if (res.ok) return true;
+    } catch {
+      /* retry */
+    }
+    if (i < maxAttempts - 1) {
+      await new Promise((r) => setTimeout(r, 400 * (i + 1)));
+    }
+  }
+  return false;
+}
+
 const createMessage = (
   role: BrandChatMessage['role'],
   text: string
@@ -604,6 +622,14 @@ export function useBrandChat(options?: UseBrandChatOptions) {
         return false;
       }
 
+      const readable = await waitForReportReadable(finalReportId);
+      if (!readable) {
+        setFinalizeError(
+          'Your diagnostic was saved but is still processing. Wait a few seconds, then tap Generate again.',
+        );
+        return false;
+      }
+
       setReportId(finalReportId);
       if (typeof window !== 'undefined') {
         sessionStorage.setItem('wundy_report_id', finalReportId);
@@ -859,6 +885,15 @@ export function useBrandChat(options?: UseBrandChatOptions) {
               const scoringResult = (await scoringRes.json()) as Record<string, unknown>;
               const finalReportId = scoringResult.reportId as string | undefined;
               if (!finalReportId) {
+                setIsLoading(false);
+                sendingRef.current = false;
+                return;
+              }
+              const readable = await waitForReportReadable(finalReportId);
+              if (!readable) {
+                setFinalizeError(
+                  'Your diagnostic was saved but is still processing. Wait a few seconds, then tap Generate again.',
+                );
                 setIsLoading(false);
                 sendingRef.current = false;
                 return;

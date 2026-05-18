@@ -28,11 +28,13 @@ describe("buildIntakeResponseMeta", () => {
       "goals for next year",
       "biggest challenge is trust",
       "different from others",
-      "why we exist",
+      "our mission and deeper why we exist",
+      "how clear our offer is on first encounter",
+      "messaging consistency across channels",
       "voice is approachable",
       "topics we cover",
       "thought leadership blog",
-      "case studies",
+      "we have case studies and client testimonials",
       "visual brand",
     ];
     const messages = corpus.map((content) => ({ role: "user" as const, content }));
@@ -48,5 +50,45 @@ describe("buildIntakeResponseMeta", () => {
     expect(meta.captureCompletionPercent).toBe(100);
     expect(meta.intakeReadyForFinalize).toBe(true);
     expect(meta.capturedSummary.length).toBeGreaterThan(0);
+  });
+
+  it("does not offer finalize while the latest assistant message is still a question", () => {
+    const corpus = [
+      "Acme",
+      "https://acme.com",
+      "LinkedIn",
+      "competitors are agencies",
+      "SMBs launching",
+      "goals for next year",
+      "biggest challenge is trust",
+      "different from others",
+      "our mission and deeper why we exist",
+      "how clear our offer is on first encounter",
+      "messaging consistency across channels",
+      "voice is approachable",
+      "topics we cover",
+      "thought leadership blog",
+      "we have case studies and client testimonials",
+      "visual brand",
+    ];
+    const messages = [
+      ...corpus.map((content) => ({ role: "user" as const, content })),
+      {
+        role: "assistant" as const,
+        content:
+          "Great context. **How clear and consistent does your messaging feel today** — still confident it lands the same everywhere?",
+      },
+    ];
+    const meta = buildIntakeResponseMeta({
+      messages,
+      tier: "snapshot",
+      captureStates: [
+        { key: "website_presence", label: "website", completed: true },
+        { key: "social_platform_presence", label: "social", completed: true },
+      ],
+      nextPendingKey: null,
+    });
+    expect(meta.captureCompletionPercent).toBe(100);
+    expect(meta.intakeReadyForFinalize).toBe(false);
   });
 });

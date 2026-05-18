@@ -28,6 +28,11 @@ export function buildIntakeResponseMeta(params: {
   const narrative = getNarrativeCompletionState(messages, tier, params.priorAnswers);
   const narrativeCompletionPercent = narrative.percent;
 
+  const lastMessage = messages.length > 0 ? messages[messages.length - 1] : undefined;
+  /** Do not offer finalize while the latest assistant turn is still an unanswered question. */
+  const awaitingAnswerToAssistantQuestion =
+    lastMessage?.role === "assistant" && /\?/.test(String(lastMessage.content || ""));
+
   const userTurns = messages.filter((m) => m.role === "user").length;
   const denom = intakeProgressDenominator(tier);
 
@@ -41,16 +46,18 @@ export function buildIntakeResponseMeta(params: {
 
   const pendingNarrativeCount = narrative.pendingLabels.length;
   const pendingCaptureCount = pendingCaptureLabels.length;
+  const narrativeComplete = pendingNarrativeCount === 0;
   const questionsRemainingEstimate = Math.max(
     1,
-    pendingCaptureCount + (captureCompletionPercent >= 100 ? pendingNarrativeCount : Math.ceil(pendingCaptureCount * 1.5)),
+    pendingCaptureCount + pendingNarrativeCount,
   );
 
   const intakeReadyForFinalize =
     captureCompletionPercent >= 100 &&
-    narrativeCompletionPercent >= 55 &&
-    userTurns >= 6 &&
-    (narrativeCompletionPercent >= 75 || userTurns >= Math.max(8, Math.floor(denom * 0.65)));
+    narrativeComplete &&
+    !nextPendingKey &&
+    !awaitingAnswerToAssistantQuestion &&
+    userTurns >= 6;
 
   const suggestedReplies = nextPendingKey ? getSuggestedRepliesForCapture(nextPendingKey) : null;
 

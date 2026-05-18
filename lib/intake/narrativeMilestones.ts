@@ -1,6 +1,19 @@
 import type { IntakeMessage } from "@/lib/intake/buildIntakeTopicResume";
 import { mergeMessagesWithPriorSynthetic } from "@/lib/intake/priorAnswersResume";
 
+/**
+ * Assistant bubbles the user has not answered yet can contain milestone keywords (e.g. "messaging",
+ * "how clear… offer") and falsely mark topics complete. Strip trailing assistant message(s) before
+ * regex-scoring narrative coverage.
+ */
+function stripTrailingAssistantMessages(messages: IntakeMessage[]): IntakeMessage[] {
+  let end = messages.length;
+  while (end > 0 && messages[end - 1]?.role === "assistant") {
+    end -= 1;
+  }
+  return end === messages.length ? messages : messages.slice(0, end);
+}
+
 /** Narrative playbook sections (post-capture) — depth preserved, order enforced server-side. */
 const SNAPSHOT_NARRATIVE_MILESTONES: { id: string; label: string; detect: RegExp }[] = [
   { id: "goals", label: "Goals", detect: /\b(6[–-]12 months|next year|hoping to achieve|primary goals?|priorities)\b/i },
@@ -12,7 +25,11 @@ const SNAPSHOT_NARRATIVE_MILESTONES: { id: string; label: string; detect: RegExp
   { id: "voice", label: "Brand voice", detect: /\b(voice|tone|approachable|how would you describe your brand)\b/i },
   { id: "topics", label: "Key topics", detect: /\b(topics?|themes?|talk about most|content pillars)\b/i },
   { id: "thought_leadership", label: "Thought leadership", detect: /\b(thought leadership|blog|speaking|publicly|known for)\b/i },
-  { id: "credibility", label: "Credibility assets", detect: /\b(testimonial|case stud|credentials|proof|reviews)\b/i },
+  {
+    id: "credibility",
+    label: "Credibility assets",
+    detect: /\b(testimonials?|case studies?|credentials|proof|reviews|social proof)\b/i,
+  },
   { id: "visual", label: "Visual confidence", detect: /\b(visual|design|brand guidelines|logo)\b/i },
 ];
 
@@ -78,7 +95,12 @@ export function getNarrativeCompletionState(
 ): { percent: number; pendingLabels: string[]; nextMilestoneLabel: string | null } {
   const milestones = getNarrativeMilestonesForTier(tier);
   const merged = mergeMessagesWithPriorSynthetic(messages, priorAnswers ?? undefined);
-  const corpus = merged.map((m) => m.content || "").join("\n");
+  const mergedForMilestones = stripTrailingAssistantMessages(merged);
+  /** Only user turns count — assistant questions must not mark milestones "done" before the user answers. */
+  const corpus = mergedForMilestones
+    .filter((m) => m.role === "user")
+    .map((m) => m.content || "")
+    .join("\n");
   const completed = milestones.filter(
     (m) =>
       m.detect.test(corpus) ||

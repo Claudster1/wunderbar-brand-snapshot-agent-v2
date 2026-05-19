@@ -42,6 +42,32 @@ export function SectionGlyph({
   return <svg {...common}>{map[t] || map.positioning}</svg>;
 }
 
+/** Icon tile for results insight / unlock lists (replaces round bullets). */
+export function ResultsListIcon({
+  token,
+  size = 20,
+  variant = "light",
+}: {
+  token: string;
+  size?: number;
+  variant?: "light" | "dark";
+}) {
+  const isDark = variant === "dark";
+  return (
+    <span
+      className={
+        "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border shadow-sm " +
+        (isDark
+          ? "border-white/20 bg-white/10"
+          : "border-brand-blue/20 bg-gradient-to-br from-[#f0f9ff] to-white")
+      }
+      aria-hidden
+    >
+      <SectionGlyph token={token} size={size} color={isDark ? "#7dd3fc" : "#021859"} />
+    </span>
+  );
+}
+
 export function BrandArchetypeIcon({
   archetype,
   size = 54,

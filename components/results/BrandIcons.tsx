@@ -42,6 +42,23 @@ export function SectionGlyph({
   return <svg {...common}>{map[t] || map.positioning}</svg>;
 }
 
+/** Solid cyan circle + check (wunderbardigital.com value-prop lists). */
+export function ResultsCheckIcon() {
+  return (
+    <span className="results-check-icon" aria-hidden>
+      <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+        <path
+          d="M1 4.2 3.6 6.8 9 1.2"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </span>
+  );
+}
+
 /** Icon tile for results insight / unlock lists (replaces round bullets). */
 export function ResultsListIcon({
   token,
@@ -56,7 +73,7 @@ export function ResultsListIcon({
   return (
     <span
       className={
-        "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border shadow-sm " +
+        "flex h-10 w-10 shrink-0 items-center justify-center rounded-[5px] border shadow-sm " +
         (isDark
           ? "border-white/20 bg-white/10"
           : "border-brand-blue/20 bg-gradient-to-br from-[#f0f9ff] to-white")

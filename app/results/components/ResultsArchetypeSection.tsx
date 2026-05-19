@@ -19,7 +19,7 @@ export function ResultsArchetypeSection({
   return (
     <section
       id="brand-archetype"
-      className="scroll-mt-28 rounded-2xl border border-brand-border/70 bg-gradient-to-br from-[#f4f9ff] via-white to-[#fafbff] p-6 sm:p-8 shadow-[0_8px_32px_rgba(2,24,89,0.06)]"
+      className="scroll-mt-28 rounded-[5px] border border-brand-border/70 bg-gradient-to-br from-[#f4f9ff] via-white to-[#fafbff] p-6 sm:p-8 shadow-[0_8px_32px_rgba(2,24,89,0.06)]"
       aria-labelledby="brand-archetype-heading"
     >
       <div className="mb-5 sm:mb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
@@ -37,7 +37,7 @@ export function ResultsArchetypeSection({
 
       <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 items-start">
         <div
-          className="flex h-[96px] w-[96px] shrink-0 items-center justify-center rounded-2xl border border-brand-blue/25 bg-white shadow-[0_6px_24px_rgba(7,176,242,0.14)]"
+          className="flex h-[96px] w-[96px] shrink-0 items-center justify-center rounded-[5px] border border-brand-blue/25 bg-white shadow-[0_6px_24px_rgba(7,176,242,0.14)]"
           aria-hidden
         >
           <BrandArchetypeIcon archetype={likelyArchetype} size={60} color="#021859" />
@@ -65,7 +65,7 @@ export function ResultsArchetypeSection({
               </p>
               <Link
                 href="/snapshot-plus?source=archetype_results_overview"
-                className="inline-flex mt-4 text-sm font-bold text-brand-blue hover:underline underline-offset-2"
+                className="wb-cta wb-cta--text mt-4"
               >
                 See archetype activation in {upgradeLabel} →
               </Link>

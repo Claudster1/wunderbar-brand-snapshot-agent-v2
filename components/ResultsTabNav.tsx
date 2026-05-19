@@ -1,24 +1,19 @@
 "use client";
 
-import type { CSSProperties } from "react";
 import {
   TAB_DEFINITIONS,
   TIER_RANK,
   isTabAvailable,
+  tierUpgradeLabelForTab,
   type ProductTier,
   type ResultsTab,
   type ResultsTabDefinition,
 } from "@/components/results/tabConfig";
 import {
-  SUITE_BG_CARD,
   SUITE_BACKDROP_BLUR,
   SUITE_BG_CHROME,
-  SUITE_CHROME_MUTED,
-  SUITE_FONT_UI,
-  SUITE_NAVY,
-  SUITE_SHADOW_TAB_PILL,
   SUITE_CONTENT_MAX_PX,
-  SUITE_RADIUS_BUTTON,
+  SUITE_FONT_UI,
 } from "@/components/results/suiteBrandTokens";
 
 const HEADER_CHROME_HEIGHT = 56;
@@ -30,41 +25,33 @@ interface ResultsTabNavProps {
   onLockedTabClick: (tab: ResultsTabDefinition) => void;
 }
 
+function TabLockIcon() {
+  return (
+    <svg
+      className="results-tab-nav__lock"
+      width="12"
+      height="12"
+      viewBox="0 0 12 12"
+      fill="none"
+      aria-hidden
+    >
+      <rect x="2.5" y="5" width="7" height="5.5" rx="1" stroke="currentColor" strokeWidth="1.2" />
+      <path
+        d="M4 5V3.8a2 2 0 0 1 4 0V5"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 export default function ResultsTabNav({
   activeTab,
   onTabChange,
   productTier,
   onLockedTabClick,
 }: ResultsTabNavProps) {
-  const trackStyle: CSSProperties = {
-    display: "inline-flex",
-    flexWrap: "wrap",
-    gap: 4,
-    padding: 4,
-    borderRadius: 12,
-    background: "rgba(0, 0, 0, 0.045)",
-    maxWidth: "100%",
-  };
-
-  function tabButtonStyle(isActive: boolean, locked: boolean): CSSProperties {
-    return {
-      padding: "9px 14px",
-      borderRadius: SUITE_RADIUS_BUTTON,
-      border: "none",
-      background: isActive ? SUITE_BG_CARD : "transparent",
-      color: locked ? "#C7C7CC" : isActive ? SUITE_NAVY : SUITE_CHROME_MUTED,
-      fontWeight: isActive ? 600 : 500,
-      fontSize: 13,
-      letterSpacing: "-0.015em",
-      cursor: locked ? "not-allowed" : "pointer",
-      fontFamily: SUITE_FONT_UI,
-      boxShadow: isActive ? SUITE_SHADOW_TAB_PILL : "none",
-      transition: "color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, opacity 0.2s ease",
-      opacity: locked ? 0.55 : 1,
-      whiteSpace: "nowrap",
-    };
-  }
-
   return (
     <nav
       className="results-tab-nav"
@@ -74,39 +61,57 @@ export default function ResultsTabNav({
         zIndex: 200,
         ...SUITE_BACKDROP_BLUR,
         backgroundColor: SUITE_BG_CHROME,
-        borderBottom: `1px solid rgba(0, 0, 0, 0.06)`,
+        borderBottom: "1px solid rgba(0, 0, 0, 0.06)",
         fontFamily: SUITE_FONT_UI,
       }}
     >
       <div
+        className="results-tab-nav-scroll"
         style={{
           maxWidth: SUITE_CONTENT_MAX_PX,
           margin: "0 auto",
           padding: "10px min(24px, 4vw) 12px",
           overflowX: "auto",
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
         }}
-        className="results-tab-nav-scroll"
       >
-        <div style={trackStyle}>
+        <div className="results-tab-nav__track" role="tablist" aria-label="Report sections">
           {TAB_DEFINITIONS.map((tab) => {
             const available = isTabAvailable(tab, productTier);
             const isActive = activeTab === tab.id;
+            const locked = !available;
+            const upgradeLabel = tierUpgradeLabelForTab(tab);
+
+            const stateClass = isActive
+              ? "results-tab-nav__tab--active"
+              : locked
+                ? "results-tab-nav__tab--locked"
+                : "results-tab-nav__tab--available";
 
             return (
               <button
                 key={tab.id}
                 type="button"
+                role="tab"
+                className={`results-tab-nav__tab ${stateClass}`}
                 onClick={() => {
                   if (available) onTabChange(tab.id);
                   else onLockedTabClick(tab);
                 }}
-                style={tabButtonStyle(isActive, !available)}
                 aria-selected={isActive}
-                aria-disabled={!available}
+                aria-disabled={false}
+                title={
+                  locked && upgradeLabel
+                    ? `${tab.label} — included in ${upgradeLabel}. Click to preview.`
+                    : undefined
+                }
               >
-                {tab.label}
+                <span className="results-tab-nav__tab-main">
+                  {locked ? <TabLockIcon /> : null}
+                  <span>{tab.label}</span>
+                </span>
+                {locked && upgradeLabel ? (
+                  <span className="results-tab-nav__tier">{upgradeLabel}</span>
+                ) : null}
               </button>
             );
           })}

@@ -738,7 +738,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 
       <section
         id="priority-actions"
-        className="scroll-mt-28 rounded-2xl border-2 border-brand-blue/20 bg-gradient-to-b from-white to-[#f4f9ff] p-6 sm:p-8 shadow-[0_6px_24px_rgba(2,24,89,0.06)]"
+        className="scroll-mt-28 rounded-[5px] border-2 border-brand-blue/20 bg-gradient-to-b from-white to-[#f4f9ff] p-6 sm:p-8 shadow-[0_6px_24px_rgba(2,24,89,0.06)]"
       >
         <div className="mb-7 pb-6 border-b border-brand-border/70 sm:mb-8">
           <p className={`${SUITE_SECTION_KICKER_CLASS} mb-4`}>Opportunities</p>
@@ -755,7 +755,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
             {recommendationsList.slice(0, 5).map((item, idx) => (
               <li
                 key={`${idx}-${item.slice(0, 30)}`}
-                className="flex gap-4 items-start rounded-xl border border-brand-border/60 bg-white/90 p-4 sm:p-5 shadow-sm"
+                className="flex gap-4 items-start rounded-[5px] border border-brand-border/60 bg-white/90 p-4 sm:p-5 shadow-sm"
               >
                 <span
                   className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[5px] bg-brand-blue text-white text-sm font-bold tabular-nums shadow-sm"

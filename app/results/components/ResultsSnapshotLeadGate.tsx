@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { SnapshotResultsLeadEmail } from "@/app/results/components/SnapshotResultsLeadEmail";
+import { ResultsListIcon } from "@/components/results/BrandIcons";
 import {
   readResultsEmailGateUnlocked,
   writeResultsEmailGateUnlocked,
@@ -22,10 +23,10 @@ type Props = {
 };
 
 const UNLOCK_PREVIEW_ITEMS = [
-  "Pillar-by-pillar scores and narrative",
-  "Ranked priority actions for your brand",
-  "Your archetype pattern and meaning",
-  "Context coverage and next-step guidance",
+  { label: "Pillar-by-pillar scores and narrative", icon: "positioning" },
+  { label: "Ranked priority actions for your brand", icon: "priorities" },
+  { label: "Your archetype pattern and meaning", icon: "archetype" },
+  { label: "Context coverage and next-step guidance", icon: "journey" },
 ] as const;
 
 export function ResultsSnapshotLeadGate({
@@ -88,8 +89,11 @@ export function ResultsSnapshotLeadGate({
                   What unlocks after your email
                 </h2>
                 <ul className="results-gate-included-band__list">
-                  {UNLOCK_PREVIEW_ITEMS.map((item) => (
-                    <li key={item}>{item}</li>
+                  {UNLOCK_PREVIEW_ITEMS.map(({ label, icon }) => (
+                    <li key={label}>
+                      <ResultsListIcon token={icon} variant="dark" />
+                      <span>{label}</span>
+                    </li>
                   ))}
                 </ul>
                 <button type="button" onClick={scrollToEmail} className="results-gate-included-band__cta">

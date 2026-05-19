@@ -1500,29 +1500,25 @@ a.sr-only:focus {
   margin: 0 auto 1.5rem;
   padding: 0;
   list-style: none;
-  max-width: 22rem;
-  text-align: left;
+  max-width: 26rem;
+  width: 100%;
 }
 
 .results-gate-included-band__list li {
-  position: relative;
-  padding-left: 1.35rem;
-  margin-bottom: 0.55rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+  padding: 0;
   font-size: 0.9375rem;
   line-height: 1.45;
   color: rgba(255, 255, 255, 0.88);
+  text-align: left;
 }
 
-.results-gate-included-band__list li::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0.5em;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #07b0f2;
-  box-shadow: 0 0 8px rgba(7, 176, 242, 0.6);
+.results-gate-included-band__list li span:last-child {
+  flex: 1;
+  padding-top: 0.55rem;
 }
 
 .results-gate-included-band__cta {

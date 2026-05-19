@@ -40,7 +40,7 @@ import { normalizeBrandImageryDirection } from "@/lib/brand/brandImageryNormaliz
 import { TAB_SECTION_NAV_HINT_CHIPS_ONLY } from "@/lib/copy/resultsSuiteGuidance";
 import { loadSnapshotReportForResultsWithRetry } from "@/lib/loadSnapshotReportForResults";
 import { SUITE_CHIP_CARD_STYLE, SUITE_SECTION_KICKER_CLASS } from "@/components/results/suiteBrandTokens";
-import { ArchetypeResultsTeaser } from "@/app/results/components/ArchetypeResultsTeaser";
+import { ResultsArchetypeSection } from "@/app/results/components/ResultsArchetypeSection";
 import { RecommendationCard } from "@/src/components/results/RecommendationCard";
 import { ResultsSnapshotLeadGate } from "@/app/results/components/ResultsSnapshotLeadGate";
 import { getChatTierConfig, type ChatTier } from "@/lib/chatTierConfig";
@@ -673,7 +673,6 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
           primaryPillar={primaryPillarStr}
           hasSnapshotPlus={hasSnapshotPlusAccess}
           userRoleContext={data.userRoleContext as UserRoleContext | undefined}
-          likelyArchetype={likelyArchetype}
           executiveContext={{
             businessName: data.businessName,
             stage: data.stage,
@@ -682,6 +681,13 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
             recommendationPreview: recommendationsList.slice(0, 3),
           }}
         />
+        {likelyArchetype ? (
+          <ResultsArchetypeSection
+            likelyArchetype={likelyArchetype}
+            archetypeMeaning={archetypeMeaning}
+            hasSnapshotPlus={hasSnapshotPlusAccess}
+          />
+        ) : null}
       </section>
 
       <ResultsSnapshotLeadGate
@@ -769,13 +775,6 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
           </p>
         )}
       </section>
-
-      {!hasSnapshotPlusAccess && likelyArchetype && (
-        <ArchetypeResultsTeaser
-          likelyArchetype={likelyArchetype}
-          archetypeMeaning={archetypeMeaning}
-        />
-      )}
 
       {!hasSnapshotPlusAccess && (
         <section id="upgrade-snapshot-plus" className="scroll-mt-28">

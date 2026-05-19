@@ -8,7 +8,7 @@ import { UserRoleContext } from "@/src/types/snapshot";
 import type { PillarKey } from "@/src/types/pillars";
 import { rolePhrase } from "@/src/lib/roleLanguage";
 import { SUITE_SECTION_KICKER_CLASS } from "@/components/results/suiteBrandTokens";
-import { BrandArchetypeIcon } from "@/components/results/BrandIcons";
+import { ResultsListIcon } from "@/components/results/BrandIcons";
 
 const PILLAR_LABELS: Record<PillarKey, string> = {
   positioning: "Positioning",
@@ -32,7 +32,6 @@ interface ResultsHeroSectionProps {
   hasSnapshotPlus: boolean;
   userRoleContext?: UserRoleContext;
   executiveContext?: ResultsHeroExecutiveContext;
-  likelyArchetype?: string | null;
 }
 
 /** Copy tiers use same breakpoints as `OVERALL_SCORE_GAUGE_RANGES` (80 / 60 / 40 / 20). */
@@ -81,7 +80,6 @@ export function ResultsHeroSection({
   hasSnapshotPlus,
   userRoleContext,
   executiveContext,
-  likelyArchetype,
 }: ResultsHeroSectionProps) {
   const rating = getOverallScoreRating(score);
   const interpretation = getScoreInterpretation(score);
@@ -106,12 +104,6 @@ export function ResultsHeroSection({
   return (
     <section className="space-y-8 lg:space-y-10">
       <div className="bs-card rounded-xl p-6 sm:p-8 flex flex-col items-center text-center overflow-visible">
-        {likelyArchetype ? (
-          <div className="flex items-center gap-3 mb-5 px-4 py-2 rounded-full bg-gradient-to-r from-[#f0f9ff] to-white border border-brand-blue/25 shadow-sm">
-            <BrandArchetypeIcon archetype={likelyArchetype} size={36} color="#021859" />
-            <span className="text-sm font-semibold tracking-tight text-brand-navy">{likelyArchetype}</span>
-          </div>
-        ) : null}
         <div className="flex items-center justify-center gap-2.5 mb-3">
           <h2 className="bs-h2 mb-0">WunderBrand Score™</h2>
           <TooltipIcon
@@ -189,10 +181,7 @@ export function ResultsHeroSection({
               <ul className="m-0 p-0 list-none flex flex-col gap-4 sm:gap-5">
                 {strongest && strongest.score > 0 && (
                   <li className="flex gap-4 sm:gap-5 items-start rounded-xl border border-brand-border/55 bg-[#f8fafc] px-4 py-4 sm:px-5 sm:py-5 shadow-sm">
-                    <span
-                      className="mt-2 h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 rounded-full border-[3px] border-white bg-brand-blue shadow-sm"
-                      aria-hidden
-                    />
+                    <ResultsListIcon token={strongest.key} />
                     <div className="min-w-0 pt-0.5 text-base text-brand-midnight leading-[1.65] sm:leading-[1.7]">
                       <span className="font-semibold text-brand-navy block mb-1.5 sm:mb-2">Relative strength</span>
                       <span className="block">
@@ -205,10 +194,7 @@ export function ResultsHeroSection({
                   </li>
                 )}
                 <li className="flex gap-4 sm:gap-5 items-start rounded-xl border border-brand-border/55 bg-[#f8fafc] px-4 py-4 sm:px-5 sm:py-5 shadow-sm">
-                  <span
-                    className="mt-2 h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 rounded-full border-[3px] border-white bg-brand-blue shadow-sm"
-                    aria-hidden
-                  />
+                  <ResultsListIcon token="priorities" />
                   <div className="min-w-0 pt-0.5 text-base text-brand-midnight leading-[1.65] sm:leading-[1.7]">
                     <span className="font-semibold text-brand-navy block mb-1.5 sm:mb-2">Strategic focus</span>
                     <span className="block">
@@ -223,10 +209,7 @@ export function ResultsHeroSection({
                 </li>
                 {recs[0] && (
                   <li className="flex gap-4 sm:gap-5 items-start rounded-xl border border-brand-border/55 bg-[#f8fafc] px-4 py-4 sm:px-5 sm:py-5 shadow-sm">
-                    <span
-                      className="mt-2 h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 rounded-full border-[3px] border-white bg-brand-blue shadow-sm"
-                      aria-hidden
-                    />
+                    <ResultsListIcon token="checklist" />
                     <div className="min-w-0 pt-0.5 text-base text-brand-midnight leading-[1.65] sm:leading-[1.7]">
                       <span className="font-semibold text-brand-navy block mb-1.5 sm:mb-2">Lead priority</span>
                       <span className="block">{recs[0]}</span>

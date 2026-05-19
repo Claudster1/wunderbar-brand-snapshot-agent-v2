@@ -3,7 +3,6 @@
 import { ScoreGauge } from "@/src/components/ScoreGauge";
 import { getOverallScoreRating } from "@/src/lib/results/scoreRating";
 import { getGaugeAccentForScore } from "@/src/lib/results/scoreBands";
-import { RecommendationCard } from "@/src/components/results/RecommendationCard";
 import { TooltipIcon } from "@/components/ui/Tooltip";
 import { UserRoleContext } from "@/src/types/snapshot";
 import type { PillarKey } from "@/src/types/pillars";
@@ -32,6 +31,8 @@ interface ResultsHeroSectionProps {
   hasSnapshotPlus: boolean;
   userRoleContext?: UserRoleContext;
   executiveContext?: ResultsHeroExecutiveContext;
+  likelyArchetype?: string | null;
+  archetypeIcon?: string;
 }
 
 /** Copy tiers use same breakpoints as `OVERALL_SCORE_GAUGE_RANGES` (80 / 60 / 40 / 20). */
@@ -80,6 +81,8 @@ export function ResultsHeroSection({
   hasSnapshotPlus,
   userRoleContext,
   executiveContext,
+  likelyArchetype,
+  archetypeIcon,
 }: ResultsHeroSectionProps) {
   const rating = getOverallScoreRating(score);
   const interpretation = getScoreInterpretation(score);
@@ -103,32 +106,32 @@ export function ResultsHeroSection({
 
   return (
     <section className="space-y-8 lg:space-y-10">
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr,minmax(280px,360px)] gap-8 lg:gap-10 items-start">
-        <div className="bs-card rounded-xl p-6 sm:p-7 flex flex-col items-center text-center lg:items-center lg:text-center">
-          <div className="flex items-center justify-center gap-2.5 mb-3">
-            <h2 className="bs-h2 mb-0">
-              WunderBrand Score™
-            </h2>
-            <TooltipIcon
-              content={
-                <>
-                  Weighted index across all five pillars (each scored 0–20). The 0–100 headline emphasizes positioning, messaging, and credibility more than visibility and conversion.
-                </>
-              }
-            />
-          </div>
-          <div className="flex justify-center my-2 min-h-0 w-full">
-            <ScoreGauge value={score} showLegend />
-          </div>
-        </div>
-
-        {!hasSnapshotPlus && (
-          <div className="lg:sticky lg:top-6">
-            <RecommendationCard primaryPillar={primaryPillar} />
+      <div className="bs-card rounded-xl p-6 sm:p-8 flex flex-col items-center text-center overflow-visible">
+        {likelyArchetype && (
+          <div className="flex items-center gap-2.5 mb-4 px-3 py-1.5 rounded-full bg-[#f0f9ff] border border-brand-blue/20">
+            {archetypeIcon ? (
+              <span className="text-2xl leading-none" aria-hidden>
+                {archetypeIcon}
+              </span>
+            ) : null}
+            <span className="text-sm font-semibold text-brand-navy">{likelyArchetype}</span>
           </div>
         )}
+        <div className="flex items-center justify-center gap-2.5 mb-3">
+          <h2 className="bs-h2 mb-0">WunderBrand Score™</h2>
+          <TooltipIcon
+            content={
+              <>
+                Weighted index across all five pillars (each scored 0–20). The 0–100 headline emphasizes
+                positioning, messaging, and credibility more than visibility and conversion.
+              </>
+            }
+          />
+        </div>
+        <div className="flex justify-center my-2 min-h-0 w-full overflow-visible py-2">
+          <ScoreGauge value={score} showLegend />
+        </div>
       </div>
-
       <div
         className="rounded-2xl border-2 border-brand-border/50 bg-white px-6 py-7 sm:px-8 sm:py-9 md:px-10 md:py-10 shadow-[0_8px_30px_rgba(2,24,89,0.06)]"
         aria-labelledby="wunderbrand-verdict-heading"

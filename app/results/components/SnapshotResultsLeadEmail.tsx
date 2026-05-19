@@ -13,6 +13,10 @@ type Props = {
   productTier: "snapshot" | "snapshot-plus";
   productName: string;
   firstNameHint?: string;
+  /** Fired after email is saved — unlocks gated results content immediately. */
+  onEmailCaptured?: () => void;
+  /** True once full results are visible (email saved). */
+  contentUnlocked?: boolean;
 };
 
 const INSIGHTS_CHOICES: Array<{ value: SnapshotContentOptIn; label: string }> = [
@@ -25,7 +29,14 @@ const INSIGHTS_CHOICES: Array<{ value: SnapshotContentOptIn; label: string }> = 
 /**
  * Snapshot / Snapshot+ only: collect email after the hero score, then content preferences (same order as chat Q41, post-email).
  */
-export function SnapshotResultsLeadEmail({ reportId, productTier, productName, firstNameHint }: Props) {
+export function SnapshotResultsLeadEmail({
+  reportId,
+  productTier,
+  productName,
+  firstNameHint,
+  onEmailCaptured,
+  contentUnlocked = false,
+}: Props) {
   const router = useRouter();
   const [step, setStep] = useState<"email" | "insights">("email");
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
@@ -88,6 +99,7 @@ export function SnapshotResultsLeadEmail({ reportId, productTier, productName, f
           return;
         }
         persistEmail(trimmed);
+        onEmailCaptured?.();
         setStep("insights");
         setContentOptIn(null);
         setError(null);
@@ -97,7 +109,7 @@ export function SnapshotResultsLeadEmail({ reportId, productTier, productName, f
         setSaving(false);
       }
     },
-    [email, firstNameHint, honeypot, reportId, productTier, turnstileToken],
+    [email, firstNameHint, honeypot, onEmailCaptured, reportId, productTier, turnstileToken],
   );
 
   const handleInsightsSubmit = useCallback(
@@ -153,16 +165,15 @@ export function SnapshotResultsLeadEmail({ reportId, productTier, productName, f
     >
       <TurnstileWidget onToken={handleTurnstileToken} />
       <p className="m-0 mb-2 text-xs font-extrabold uppercase tracking-[0.06em] text-sky-800">
-        Finish saving your diagnostic
+        {contentUnlocked ? "One quick preference" : "Unlock your full diagnostic"}
       </p>
 
       {step === "email" ? (
         <>
-          <h2 className="bs-h3 m-0 mb-2 text-brand-midnight">Get your complete {productName}</h2>
+          <h2 className="bs-h3 m-0 mb-2 text-brand-midnight">See your full {productName}</h2>
           <p className="bs-body-sm m-0 mb-5 max-w-2xl text-brand-muted leading-relaxed">
-            Your score summary is above. Add your email so we can link this report to you and send access links.
-            On the next step you can choose whether you want occasional brand and marketing tips — only after your
-            email is saved.
+            Your WunderBrand Score™ is above. Enter your email to unlock pillar scores, priority actions, your
+            archetype, and the rest of this report — then choose whether you want occasional brand tips (optional).
           </p>
           <form onSubmit={handleEmailSubmit} className="max-w-md">
             <label htmlFor="results-lead-email" className="sr-only">
@@ -204,7 +215,7 @@ export function SnapshotResultsLeadEmail({ reportId, productTier, productName, f
               disabled={saving || !email.trim()}
               className="w-full rounded-lg border-0 bg-[#07B0F2] px-4 py-[14px] text-base font-extrabold text-white hover:brightness-105 disabled:cursor-wait disabled:bg-slate-400"
             >
-              {saving ? "Saving…" : "Continue"}
+              {saving ? "Saving…" : "Unlock my results"}
             </button>
             <p className="mt-3 m-0 text-[11px] leading-snug text-slate-500">
               We use your email to deliver this diagnostic and save your links.{" "}

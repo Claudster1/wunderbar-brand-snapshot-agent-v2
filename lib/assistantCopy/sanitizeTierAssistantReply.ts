@@ -1,4 +1,5 @@
 import { getChatTierConfig, type ChatTier } from "@/lib/chatTierConfig";
+import { normalizeFinalizeHandoffPrefix } from "@/lib/intake/finalizeHandoffCopy";
 
 const UPLOAD_HINT_PATTERN =
   /\b(paperclip|paper\s*clip|paper-clip|attach(?:ed|ing|ments?)?|upload(?:ed|ing)?|file\s+upload|choose\s+a\s+file|drag[\s-]*and[\s-]*drop)\b/i;
@@ -24,6 +25,7 @@ export function sanitizeTierAssistantReply(
 
   if (intakeTier === "snapshot" || intakeTier === "snapshot-plus") {
     prefix = applySnapshotDiagnosticWording(prefix, intakeTier);
+    prefix = normalizeFinalizeHandoffPrefix(prefix, intakeTier);
   }
 
   const spacer = prefix.trim() && suffix ? "\n\n" : "";

@@ -7,7 +7,7 @@ import {
 describe("isAssistantFinalHandoffWithoutJsonBlock", () => {
   it("matches current system-prompt closing copy (no JSON)", () => {
     const text =
-      "Thank you for your insights, Claudine. Your diagnostic is being finalized now. You won't see your full pillar breakdown inside this chat — tap **See my results** below the chat when it appears to open your results page.";
+      "Thank you for your insights, Claudine. Your WunderBrand Snapshot™ is being finalized now. You'll be redirected to your results page automatically in a moment.";
     expect(isAssistantFinalHandoffWithoutJsonBlock(text)).toBe(true);
   });
 

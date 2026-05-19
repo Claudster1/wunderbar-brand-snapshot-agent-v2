@@ -6,6 +6,7 @@ import { trackEvent } from "@/lib/analytics";
 import { trackUpgradeNudgeClick } from "@/lib/trackUpgradeNudgeClick";
 import { getUpgradeNudgeCopy } from "@/lib/upgrade/ctaCopy";
 import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
+import { PRICING } from "@/lib/pricing";
 
 interface RecommendationCardProps {
   primaryPillar: string;
@@ -13,6 +14,7 @@ interface RecommendationCardProps {
 
 export function RecommendationCard({ primaryPillar }: RecommendationCardProps) {
   const copy = getUpgradeNudgeCopy({ primaryPillar });
+  const nextTier = PRICING.snapshot_plus.label;
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -22,18 +24,18 @@ export function RecommendationCard({ primaryPillar }: RecommendationCardProps) {
   }, []);
 
   return (
-    <div className="bs-card rounded-xl border-l-4 border-l-brand-blue p-6 sm:p-7 h-full flex flex-col shadow-md">
-      <div className="flex items-start justify-between gap-3 mb-3">
-        <span className="bs-badge bg-brand-blue/15 text-brand-blue shrink-0">
-          Recommended for you
-        </span>
-      </div>
-      <h3 className="bs-h3 text-brand-navy mb-2 leading-tight">
+    <aside
+      className="results-upgrade-card rounded-2xl border-2 border-brand-blue/30 bg-gradient-to-br from-[#e8f6fe] via-white to-white p-7 sm:p-8 shadow-[0_10px_40px_rgba(7,176,242,0.12)]"
+      aria-labelledby="results-upgrade-heading"
+    >
+      <p className="text-xs font-bold uppercase tracking-[0.1em] text-brand-blue m-0 mb-3">
+        Next step · {nextTier}
+      </p>
+      <h3 id="results-upgrade-heading" className="text-xl sm:text-2xl font-bold text-brand-navy mb-3 leading-snug">
         {copy.headline}
       </h3>
-      <p className="bs-body-sm text-brand-muted mb-4 flex-1">
-        {copy.detail}
-      </p>
+      <p className="text-sm sm:text-base text-brand-midnight leading-relaxed mb-2">{copy.body}</p>
+      <p className="text-sm text-brand-muted leading-relaxed mb-6">{copy.detail}</p>
       <Link
         href={getTrackedCheckoutUrl({
           product: "snapshot-plus",
@@ -44,10 +46,11 @@ export function RecommendationCard({ primaryPillar }: RecommendationCardProps) {
           trackEvent("UPGRADE_CLICKED", { target: "Snapshot+", primaryPillar });
           trackUpgradeNudgeClick(primaryPillar);
         }}
-        className="btn-secondary w-full sm:w-auto inline-flex items-center justify-center"
+        className="btn-primary w-full sm:w-auto inline-flex items-center justify-center text-base px-8 py-3.5 shadow-[0_4px_14px_rgba(7,176,242,0.35)]"
       >
         {copy.ctaLabel}
       </Link>
-    </div>
+      <p className="bs-small text-brand-muted mt-4 mb-0">{copy.note}</p>
+    </aside>
   );
 }

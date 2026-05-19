@@ -4,6 +4,11 @@ import { ensurePaidMediaChannelsMinimum } from "@/lib/activation/paidMediaPlanFi
 import { getArchetypeIcon, getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
 import { getPrimaryPillar } from "@/lib/upgrade/primaryPillar";
 import type { ProductTier } from "@/components/results/tabConfig";
+import {
+  resolveStoredProductTier,
+  storedTierToTabTier,
+  type StoredProductTier,
+} from "@/lib/results/resolveReportProductTier";
 import type { PillarKey } from "@/src/types/pillars";
 
 /** Matches ExecutionSchedule row shape without importing a client module. */
@@ -19,8 +24,6 @@ export type ActivationScheduleRow = {
   status: "Not Started" | "In Progress" | "Done" | "Skipped";
   dueDate?: string;
 };
-
-type StoredProductTier = "snapshot" | "snapshot_plus" | "blueprint" | "blueprint_plus";
 
 function extractStringArray(...candidates: unknown[]): string[] {
   for (const candidate of candidates) {
@@ -60,31 +63,6 @@ function extractLikelyArchetype(report: Record<string, unknown>, answers: Record
     if (typeof candidate === "string" && candidate.trim()) return candidate.trim();
   }
   return null;
-}
-
-function resolveStoredProductTier(report: Record<string, unknown>): StoredProductTier {
-  const metaTier = (report.full_report as { _meta?: { tier?: string } } | undefined)?._meta?.tier;
-  if (metaTier === "blueprint_plus" || metaTier === "blueprint-plus") return "blueprint_plus";
-  if (metaTier === "blueprint") return "blueprint";
-  if (metaTier === "snapshot_plus" || metaTier === "snapshot-plus") return "snapshot_plus";
-
-  const productTier = typeof report.product_tier === "string" ? report.product_tier : "";
-  if (productTier === "blueprint_plus" || productTier === "blueprint-plus") return "blueprint_plus";
-  if (productTier === "blueprint") return "blueprint";
-  if (productTier === "snapshot_plus" || productTier === "snapshot-plus") return "snapshot_plus";
-
-  const user = (report.user ?? {}) as Record<string, unknown>;
-  if (user.hasBlueprintPlus === true || user.has_blueprint_plus === true) return "blueprint_plus";
-  if (user.hasBlueprint === true || user.has_blueprint === true) return "blueprint";
-  if (user.hasSnapshotPlus === true || user.has_snapshot_plus === true) return "snapshot_plus";
-  return "snapshot";
-}
-
-export function storedTierToTabTier(t: StoredProductTier): ProductTier {
-  if (t === "snapshot_plus") return "snapshot-plus";
-  if (t === "blueprint_plus") return "blueprint-plus";
-  if (t === "blueprint") return "blueprint";
-  return "snapshot";
 }
 
 function getUpstreamPillar(pillarScores: Record<PillarKey, number>, primaryPillar: PillarKey): PillarKey {

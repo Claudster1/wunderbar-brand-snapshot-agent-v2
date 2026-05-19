@@ -1020,6 +1020,51 @@ a.sr-only:focus {
   min-width: 220px;
 }
 
+.results-gated-veil-list {
+  margin: 0 0 1.25rem;
+  padding: 0;
+  list-style: none;
+  max-width: 22rem;
+  text-align: left;
+}
+
+.results-gated-veil-list li {
+  position: relative;
+  padding-left: 1.35rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: #334155;
+}
+
+.results-gated-veil-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.45em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #07b0f2;
+}
+
+.results-gated-veil-scroll-hint {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0369a1;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.results-gated-veil-scroll-hint:hover {
+  color: #021859;
+}
+
 /* ─── Results bottom funnel (Snapshot CTAs) ─── */
 .results-bottom-funnel {
   margin-top: 2rem;

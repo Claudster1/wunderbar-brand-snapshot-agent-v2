@@ -16,6 +16,8 @@ type Props = {
   productName: string;
   firstNameHint?: string;
   children: ReactNode;
+  /** Rendered only after unlock (e.g. upgrade funnel) — never inside the blur veil. */
+  afterUnlock?: ReactNode;
 };
 
 export function ResultsSnapshotLeadGate({
@@ -26,6 +28,7 @@ export function ResultsSnapshotLeadGate({
   productName,
   firstNameHint,
   children,
+  afterUnlock,
 }: Props) {
   const [contentUnlocked, setContentUnlocked] = useState(
     !requiresEmailGate || initiallyUnlocked,
@@ -53,6 +56,13 @@ export function ResultsSnapshotLeadGate({
   /** Form stays through insights step until server refresh clears `requiresEmailGate`. */
   const showEmailBlock = requiresEmailGate;
 
+  const unlockPreviewItems = [
+    "Pillar-by-pillar scores and narrative",
+    "Ranked priority actions for your brand",
+    "Your archetype pattern and meaning",
+    "Context coverage and next-step guidance",
+  ];
+
   return (
     <>
       {showEmailBlock ? (
@@ -69,7 +79,10 @@ export function ResultsSnapshotLeadGate({
       ) : null}
 
       {contentUnlocked ? (
-        children
+        <>
+          {children}
+          {afterUnlock}
+        </>
       ) : (
         <section
           className="results-gated-veil scroll-mt-28"
@@ -79,16 +92,17 @@ export function ResultsSnapshotLeadGate({
             {children}
           </div>
           <div className="results-gated-veil-overlay">
-            <p className="results-gated-veil-kicker">Your score is ready</p>
+            <p className="results-gated-veil-kicker">Included in your full report</p>
             <h2 id="results-gated-veil-heading" className="results-gated-veil-title">
-              Enter your email to unlock your full {productName}
+              What unlocks after your email
             </h2>
-            <p className="results-gated-veil-body">
-              See pillar-by-pillar scores, priority actions, your archetype, and everything else from this
-              diagnostic — we&apos;ll save your link so you can return anytime.
-            </p>
-            <button type="button" onClick={scrollToEmail} className="btn-primary results-gated-veil-cta">
-              Unlock my results
+            <ul className="results-gated-veil-list">
+              {unlockPreviewItems.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+            <button type="button" onClick={scrollToEmail} className="results-gated-veil-scroll-hint">
+              ↑ Back to the form above
             </button>
           </div>
         </section>

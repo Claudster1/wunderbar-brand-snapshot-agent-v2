@@ -691,6 +691,19 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         productTier={snapshotLeadChatTier === "snapshot-plus" ? "snapshot-plus" : "snapshot"}
         productName={snapshotLeadProductName}
         {...(snapshotLeadFirstNameHint ? { firstNameHint: snapshotLeadFirstNameHint } : {})}
+        afterUnlock={
+          <ResultsBottomFunnel
+            tabTier={tabTier}
+            reportId={data.reportId}
+            hasSnapshotPlusAccess={hasSnapshotPlusAccess}
+            userEmail={data.userEmail}
+            businessName={data.businessName}
+            businessType={businessType}
+            primaryPillar={primaryPillarStr}
+            brandAlignmentScore={data.brandAlignmentScore}
+            stage={data.stage}
+          />
+        }
       >
         <div className="space-y-16 md:space-y-20">
           <div style={SUITE_CHIP_CARD_STYLE}>
@@ -805,17 +818,6 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 
       {!hasSnapshotPlusAccess && <SuiteCTA />}
 
-      <ResultsBottomFunnel
-        tabTier={tabTier}
-        reportId={data.reportId}
-        hasSnapshotPlusAccess={hasSnapshotPlusAccess}
-        userEmail={data.userEmail}
-        businessName={data.businessName}
-        businessType={businessType}
-        primaryPillar={primaryPillarStr}
-        brandAlignmentScore={data.brandAlignmentScore}
-        stage={data.stage}
-      />
         </div>
       </ResultsSnapshotLeadGate>
     </div>

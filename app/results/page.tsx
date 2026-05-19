@@ -13,8 +13,6 @@ export const metadata: Metadata = {
 };
 import nextDynamic from "next/dynamic";
 import { ResultsHeroSection } from "@/src/components/results/ResultsHeroSection";
-import { ResultsUpgradeCTA } from "@/components/results/ResultsUpgradeCTA";
-import { ReportTierUpgradeCTAs } from "@/components/results/ReportTierUpgradeCTAs";
 import { SuiteCTA } from "@/src/components/results/SuiteCTA";
 import { ResultsPageViewTracker } from "@/components/results/ResultsPageViewTracker";
 import { ImplementationIntro } from "@/components/SnapshotPlus/ImplementationIntro";
@@ -24,7 +22,6 @@ import { ContextCoveragePlaceholder } from "@/components/results/ContextCoverage
 import { getPrimaryPillar } from "@/lib/upgrade/primaryPillar";
 import { PillarKey } from "@/src/types/pillars";
 import type { UserRoleContext } from "@/src/types/snapshot";
-import { HumanAssistCTA } from "@/app/results/components/HumanAssistCTA";
 import { FoundationLockedPreview } from "@/app/results/components/FoundationLockedPreview";
 import ResultsTabsShell from "@/components/results/ResultsTabsShell";
 import {
@@ -52,6 +49,8 @@ import {
   resolveReportTabTier,
   resolveStoredProductTier,
 } from "@/lib/results/resolveReportProductTier";
+import { isResultsEmailUnlocked } from "@/lib/results/resultsEmailUnlock";
+import { ResultsBottomFunnel } from "@/app/results/components/ResultsBottomFunnel";
 
 const PillarBreakdown = nextDynamic(
   () => import("@/components/PillarBreakdown").then((m) => ({ default: m.PillarBreakdown })),
@@ -434,8 +433,8 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 
   const archetypeMeaning = getArchetypeMeaning(likelyArchetype);
   const archetypeIcon = getArchetypeIcon(likelyArchetype);
-  const showSnapshotLeadEmail =
-    storedProductTier === "snapshot" && !(typeof data.userEmail === "string" && data.userEmail.trim());
+  const resultsEmailUnlocked = isResultsEmailUnlocked(report as Record<string, unknown>);
+  const showSnapshotLeadEmail = storedProductTier === "snapshot" && !resultsEmailUnlocked;
   const snapshotLeadChatTier: ChatTier =
     storedProductTier === "snapshot_plus" ? "snapshot-plus" : "snapshot";
   const snapshotLeadProductName = getChatTierConfig(snapshotLeadChatTier).productName;
@@ -675,7 +674,6 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
           hasSnapshotPlus={hasSnapshotPlusAccess}
           userRoleContext={data.userRoleContext as UserRoleContext | undefined}
           likelyArchetype={likelyArchetype}
-          archetypeIcon={archetypeIcon}
           executiveContext={{
             businessName: data.businessName,
             stage: data.stage,
@@ -689,6 +687,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       <ResultsSnapshotLeadGate
         reportId={data.reportId}
         requiresEmailGate={showSnapshotLeadEmail}
+        initiallyUnlocked={resultsEmailUnlocked}
         productTier={snapshotLeadChatTier === "snapshot-plus" ? "snapshot-plus" : "snapshot"}
         productName={snapshotLeadProductName}
         {...(snapshotLeadFirstNameHint ? { firstNameHint: snapshotLeadFirstNameHint } : {})}
@@ -761,7 +760,6 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       {!hasSnapshotPlusAccess && likelyArchetype && (
         <ArchetypeResultsTeaser
           likelyArchetype={likelyArchetype}
-          archetypeIcon={archetypeIcon}
           archetypeMeaning={archetypeMeaning}
         />
       )}
@@ -807,33 +805,17 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 
       {!hasSnapshotPlusAccess && <SuiteCTA />}
 
-      <div id="next-steps" className="space-y-8 md:space-y-10 scroll-mt-28">
-        <div className="rounded-xl border border-brand-border bg-white p-6 sm:p-7">
-          <p className={`${SUITE_SECTION_KICKER_CLASS} m-0 mb-2`}>Upgrade paths</p>
-          <ReportTierUpgradeCTAs
-            tier={tabTier}
-            utmSource="results_page"
-            downloadsHref={`/results?reportId=${encodeURIComponent(data.reportId)}&tab=downloads`}
-            suppressSnapshotPlusPrimary={tabTier === "snapshot"}
-          />
-        </div>
-        <HumanAssistCTA
-          source="results_page"
-          reportId={data.reportId}
-          email={data.userEmail}
-          businessName={data.businessName}
-          businessType={businessType}
-          primaryPillar={primaryPillarStr}
-          brandAlignmentScore={data.brandAlignmentScore}
-        />
-        <ResultsUpgradeCTA
-          primaryPillar={primaryPillarStr}
-          stage={data.stage}
-          hasPurchasedPlus={hasSnapshotPlusAccess}
-          email={data.userEmail}
-          reportId={data.reportId}
-        />
-      </div>
+      <ResultsBottomFunnel
+        tabTier={tabTier}
+        reportId={data.reportId}
+        hasSnapshotPlusAccess={hasSnapshotPlusAccess}
+        userEmail={data.userEmail}
+        businessName={data.businessName}
+        businessType={businessType}
+        primaryPillar={primaryPillarStr}
+        brandAlignmentScore={data.brandAlignmentScore}
+        stage={data.stage}
+      />
         </div>
       </ResultsSnapshotLeadGate>
     </div>

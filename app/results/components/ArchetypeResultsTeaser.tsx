@@ -1,32 +1,32 @@
 import Link from "next/link";
+import { BrandArchetypeIcon } from "@/components/results/BrandIcons";
 import { PRICING } from "@/lib/pricing";
 
 type Props = {
   likelyArchetype: string;
-  archetypeIcon?: string;
   archetypeMeaning?: string | null;
 };
 
-export function ArchetypeResultsTeaser({ likelyArchetype, archetypeIcon, archetypeMeaning }: Props) {
+export function ArchetypeResultsTeaser({ likelyArchetype, archetypeMeaning }: Props) {
   const upgradeLabel = PRICING.snapshot_plus.label;
 
   return (
     <section
       id="archetype"
-      className="scroll-mt-28 rounded-2xl border border-brand-border bg-gradient-to-br from-[#f4f9ff] via-white to-white p-6 sm:p-8 shadow-[0_6px_24px_rgba(2,24,89,0.05)]"
+      className="scroll-mt-28 rounded-2xl border border-brand-border/80 bg-gradient-to-br from-[#f4f9ff] via-white to-[#fafbff] p-6 sm:p-8 shadow-[0_8px_32px_rgba(2,24,89,0.06)]"
     >
-      <p className="text-xs font-bold uppercase tracking-[0.08em] text-brand-muted m-0 mb-4">
+      <p className="text-xs font-bold uppercase tracking-[0.1em] text-brand-muted m-0 mb-5">
         Your brand archetype
       </p>
       <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 items-start">
         <div
-          className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border-2 border-brand-blue/25 bg-white text-4xl shadow-sm"
+          className="flex h-[88px] w-[88px] shrink-0 items-center justify-center rounded-2xl border border-brand-blue/20 bg-white shadow-[0_4px_20px_rgba(7,176,242,0.12)]"
           aria-hidden
         >
-          {archetypeIcon || "✦"}
+          <BrandArchetypeIcon archetype={likelyArchetype} size={56} color="#07B0F2" />
         </div>
         <div className="min-w-0 flex-1">
-          <h2 className="bs-h2 m-0 mb-2 text-brand-navy">{likelyArchetype}</h2>
+          <h2 className="bs-h2 m-0 mb-2 text-brand-navy tracking-tight">{likelyArchetype}</h2>
           {archetypeMeaning ? (
             <p className="bs-body-sm text-brand-midnight m-0 mb-4 leading-relaxed max-w-2xl">
               {archetypeMeaning}

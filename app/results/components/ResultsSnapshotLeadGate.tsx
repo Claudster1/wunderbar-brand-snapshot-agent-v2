@@ -2,14 +2,16 @@
 
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { SnapshotResultsLeadEmail } from "@/app/results/components/SnapshotResultsLeadEmail";
-import { ResultsListIcon } from "@/components/results/BrandIcons";
+import { ResultsCheckIcon } from "@/components/results/BrandIcons";
+import { ResultsEmailUnlockStickyCta } from "@/app/results/components/ResultsEmailUnlockStickyCta";
+import {
+  resultsCompleteSnapshotCtaLabel,
+  resultsCompleteSnapshotHeadline,
+} from "@/lib/copy/resultsEmailGateCopy";
 import {
   readResultsEmailGateUnlocked,
   writeResultsEmailGateUnlocked,
 } from "@/lib/results/resultsEmailGateStorage";
-
-const WUNDERBAR_HOME =
-  "https://www.wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=results_gate&utm_campaign=brand_continuity&utm_content=included_band";
 
 type Props = {
   reportId: string;
@@ -23,10 +25,10 @@ type Props = {
 };
 
 const UNLOCK_PREVIEW_ITEMS = [
-  { label: "Pillar-by-pillar scores and narrative", icon: "positioning" },
-  { label: "Ranked priority actions for your brand", icon: "priorities" },
-  { label: "Your archetype pattern and meaning", icon: "archetype" },
-  { label: "Context coverage and next-step guidance", icon: "journey" },
+  "Pillar-by-pillar scores and narrative",
+  "Ranked priority actions for your brand",
+  "Your archetype pattern and meaning",
+  "Context coverage and next-step guidance",
 ] as const;
 
 export function ResultsSnapshotLeadGate({
@@ -63,9 +65,13 @@ export function ResultsSnapshotLeadGate({
   }, []);
 
   const showEmailBlock = requiresEmailGate;
+  const gateActive = showEmailBlock && !contentUnlocked;
+  const completeLabel = resultsCompleteSnapshotCtaLabel(productName);
 
   return (
     <>
+      {gateActive ? <ResultsEmailUnlockStickyCta productName={productName} /> : null}
+
       {showEmailBlock ? (
         <div id="email-results" className="results-gate-stack scroll-mt-28">
           <SnapshotResultsLeadEmail
@@ -77,36 +83,38 @@ export function ResultsSnapshotLeadGate({
             contentUnlocked={contentUnlocked}
           />
 
-          {!contentUnlocked ? (
+          {gateActive ? (
             <section
               className="results-gate-included-band"
               aria-labelledby="results-gate-included-heading"
             >
-              <div className="results-gate-included-band__glow" aria-hidden />
               <div className="results-gate-included-band__inner">
                 <p className="results-gate-included-band__eyebrow">Included in your full report</p>
                 <h2 id="results-gate-included-heading" className="results-gate-included-band__title">
-                  What unlocks after your email
+                  {resultsCompleteSnapshotHeadline(productName)}
                 </h2>
                 <ul className="results-gate-included-band__list">
-                  {UNLOCK_PREVIEW_ITEMS.map(({ label, icon }) => (
+                  {UNLOCK_PREVIEW_ITEMS.map((label) => (
                     <li key={label}>
-                      <ResultsListIcon token={icon} variant="dark" />
+                      <ResultsCheckIcon />
                       <span>{label}</span>
                     </li>
                   ))}
                 </ul>
-                <button type="button" onClick={scrollToEmail} className="results-gate-included-band__cta">
-                  Unlock my results
-                </button>
-                <a
-                  href={WUNDERBAR_HOME}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="results-gate-included-band__brand"
+                <button
+                  type="button"
+                  onClick={scrollToEmail}
+                  className="wb-cta wb-cta--outline wb-cta--block results-gate-included-band__cta"
                 >
-                  wunderbardigital.com
-                </a>
+                  {completeLabel}
+                </button>
+                <button
+                  type="button"
+                  onClick={scrollToEmail}
+                  className="wb-cta wb-cta--text results-gate-included-band__scroll-hint"
+                >
+                  ↑ Back to the form above
+                </button>
               </div>
             </section>
           ) : null}
@@ -120,6 +128,19 @@ export function ResultsSnapshotLeadGate({
         </>
       ) : (
         <section className="results-gated-preview-only scroll-mt-4" aria-hidden>
+          <div className="results-gated-preview-banner">
+            <p className="results-gated-preview-banner__text m-0">
+              {resultsCompleteSnapshotHeadline(productName)} — enter your email above to open the rest of this
+              report.
+            </p>
+            <button
+              type="button"
+              onClick={scrollToEmail}
+              className="wb-cta wb-cta--outline results-gated-preview-banner__btn"
+            >
+              {completeLabel}
+            </button>
+          </div>
           <div className="results-gated-veil-preview">{children}</div>
         </section>
       )}

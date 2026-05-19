@@ -103,7 +103,7 @@ export function ResultsHeroSection({
 
   return (
     <section className="space-y-8 lg:space-y-10">
-      <div className="bs-card rounded-xl p-6 sm:p-8 flex flex-col items-center text-center overflow-visible">
+      <div className="bs-card rounded-[5px] p-6 sm:p-8 flex flex-col items-center text-center overflow-visible">
         <div className="flex items-center justify-center gap-2.5 mb-3">
           <h2 className="bs-h2 mb-0">WunderBrand Score™</h2>
           <TooltipIcon
@@ -120,7 +120,7 @@ export function ResultsHeroSection({
         </div>
       </div>
       <div
-        className="rounded-2xl border-2 border-brand-border/50 bg-white px-6 py-7 sm:px-8 sm:py-9 md:px-10 md:py-10 shadow-[0_8px_30px_rgba(2,24,89,0.06)]"
+        className="rounded-[5px] border-2 border-brand-border/50 bg-white px-6 py-7 sm:px-8 sm:py-9 md:px-10 md:py-10 shadow-[0_8px_30px_rgba(2,24,89,0.06)]"
         aria-labelledby="wunderbrand-verdict-heading"
       >
         <div className="mb-4 sm:mb-5">
@@ -129,7 +129,7 @@ export function ResultsHeroSection({
 
         {/* Score readout: compact band-colored rail; score + rating share one row from sm+ */}
         <div
-          className="relative mb-5 sm:mb-6 max-w-4xl overflow-hidden rounded-xl border border-brand-border/45 border-l-[5px] px-4 py-3.5 sm:px-5 sm:py-4 shadow-[0_4px_20px_rgba(2,24,89,0.06)] ring-1 ring-black/[0.04]"
+          className="relative mb-5 sm:mb-6 max-w-4xl overflow-hidden rounded-[5px] border border-brand-border/45 border-l-[5px] px-4 py-3.5 sm:px-5 sm:py-4 shadow-[0_4px_20px_rgba(2,24,89,0.06)] ring-1 ring-black/[0.04]"
           style={{
             borderLeftColor: accent.stroke,
             background: `linear-gradient(125deg, ${accent.softBg} 0%, #ffffff 48%, #fafbfd 100%)`,
@@ -180,7 +180,7 @@ export function ResultsHeroSection({
               </p>
               <ul className="m-0 p-0 list-none flex flex-col gap-4 sm:gap-5">
                 {strongest && strongest.score > 0 && (
-                  <li className="flex gap-4 sm:gap-5 items-start rounded-xl border border-brand-border/55 bg-[#f8fafc] px-4 py-4 sm:px-5 sm:py-5 shadow-sm">
+                  <li className="flex gap-4 sm:gap-5 items-start rounded-[5px] border border-brand-border/55 bg-[#f8fafc] px-4 py-4 sm:px-5 sm:py-5 shadow-sm">
                     <ResultsListIcon token={strongest.key} />
                     <div className="min-w-0 pt-0.5 text-base text-brand-midnight leading-[1.65] sm:leading-[1.7]">
                       <span className="font-semibold text-brand-navy block mb-1.5 sm:mb-2">Relative strength</span>
@@ -193,7 +193,7 @@ export function ResultsHeroSection({
                     </div>
                   </li>
                 )}
-                <li className="flex gap-4 sm:gap-5 items-start rounded-xl border border-brand-border/55 bg-[#f8fafc] px-4 py-4 sm:px-5 sm:py-5 shadow-sm">
+                <li className="flex gap-4 sm:gap-5 items-start rounded-[5px] border border-brand-border/55 bg-[#f8fafc] px-4 py-4 sm:px-5 sm:py-5 shadow-sm">
                   <ResultsListIcon token="priorities" />
                   <div className="min-w-0 pt-0.5 text-base text-brand-midnight leading-[1.65] sm:leading-[1.7]">
                     <span className="font-semibold text-brand-navy block mb-1.5 sm:mb-2">Strategic focus</span>
@@ -208,7 +208,7 @@ export function ResultsHeroSection({
                   </div>
                 </li>
                 {recs[0] && (
-                  <li className="flex gap-4 sm:gap-5 items-start rounded-xl border border-brand-border/55 bg-[#f8fafc] px-4 py-4 sm:px-5 sm:py-5 shadow-sm">
+                  <li className="flex gap-4 sm:gap-5 items-start rounded-[5px] border border-brand-border/55 bg-[#f8fafc] px-4 py-4 sm:px-5 sm:py-5 shadow-sm">
                     <ResultsListIcon token="checklist" />
                     <div className="min-w-0 pt-0.5 text-base text-brand-midnight leading-[1.65] sm:leading-[1.7]">
                       <span className="font-semibold text-brand-navy block mb-1.5 sm:mb-2">Lead priority</span>

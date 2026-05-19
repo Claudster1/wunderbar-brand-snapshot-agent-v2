@@ -86,7 +86,7 @@ export function ResultsBottomFunnel({
             href={WUNDERBAR_HOME}
             target="_blank"
             rel="noopener noreferrer"
-            className="results-bottom-funnel-brand-link"
+            className="wb-cta wb-cta--text results-bottom-funnel-brand-link"
           >
             wunderbardigital.com
             <span aria-hidden> →</span>
@@ -100,10 +100,14 @@ export function ResultsBottomFunnel({
               <h3 className="results-bottom-funnel-card-title">{PRICING.snapshot_plus.label}</h3>
               <p className="results-bottom-funnel-card-body">{copy.body}</p>
               <div className="results-bottom-funnel-actions">
-                <button type="button" onClick={onSnapshotPlusClick} className="results-bottom-funnel-btn-primary">
+                <button
+                  type="button"
+                  onClick={onSnapshotPlusClick}
+                  className="wb-cta wb-cta--solid wb-cta--block"
+                >
                   {copy.primaryCta}
                 </button>
-                <Link href="/brand-snapshot-suite" className="results-bottom-funnel-btn-ghost">
+                <Link href="/brand-snapshot-suite" className="wb-cta wb-cta--outline wb-cta--block">
                   {copy.secondaryCta}
                 </Link>
               </div>
@@ -127,7 +131,7 @@ export function ResultsBottomFunnel({
             </div>
             <Link
               href={WUNDERBAR_SUITE_COMPARE_URL}
-              className="results-bottom-funnel-text-cta"
+              className="wb-cta wb-cta--text results-bottom-funnel-text-cta"
               target="_blank"
               rel="noopener noreferrer"
             >

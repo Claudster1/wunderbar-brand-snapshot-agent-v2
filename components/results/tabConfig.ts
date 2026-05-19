@@ -40,6 +40,18 @@ export function getAvailableTabs(tier: ProductTier): ResultsTabDefinition[] {
   return TAB_DEFINITIONS.filter((tab) => isTabAvailable(tab, tier));
 }
 
+/** Short tier label for locked tab pills (upgrade preview in sub-nav). */
+export const TIER_UPGRADE_LABEL: Record<ProductTier, string> = {
+  snapshot: "",
+  "snapshot-plus": "Snapshot+",
+  blueprint: "Blueprint",
+  "blueprint-plus": "Blueprint+",
+};
+
+export function tierUpgradeLabelForTab(tab: ResultsTabDefinition): string {
+  return TIER_UPGRADE_LABEL[tab.availableFrom] ?? "";
+}
+
 // ─── Strategy / Activation: which subsections render per tier ───────────────
 
 export const STRATEGY_SECTION_IDS = [

@@ -13,12 +13,9 @@ function marketingUrl(path: string, utmSource: string, utmContent: string): stri
   return u.toString();
 }
 
-const primaryBtn =
-  "inline-flex items-center rounded-md bg-brand-blue px-4 py-2 text-sm font-semibold text-white no-underline hover:opacity-90";
-const secondaryBtn =
-  "inline-flex items-center rounded-md border border-brand-border bg-white px-4 py-2 text-sm font-semibold text-brand-navy no-underline hover:border-brand-blue/40";
-const ghostBtn =
-  "inline-flex items-center rounded-md border border-transparent bg-transparent px-3 py-2 text-sm font-semibold text-brand-blue no-underline hover:underline";
+const primaryBtn = "wb-cta wb-cta--solid";
+const secondaryBtn = "wb-cta wb-cta--outline";
+const ghostBtn = "wb-cta wb-cta--text";
 
 export type ReportTierUpgradeCTAsProps = {
   tier: ProductTier;

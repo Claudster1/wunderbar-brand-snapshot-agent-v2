@@ -160,7 +160,7 @@ export function SnapshotResultsLeadEmail({
 
   return (
     <section
-      className="scroll-mt-28 rounded-xl border-2 border-[#07B0F2]/40 bg-gradient-to-b from-[#f0f9ff] to-white px-5 py-5 shadow-[0_8px_28px_rgba(7,176,242,0.12)] sm:px-6 sm:py-6"
+      className="results-lead-email-panel scroll-mt-28"
       aria-label="Email for full diagnostic"
     >
       <TurnstileWidget onToken={handleTurnstileToken} />

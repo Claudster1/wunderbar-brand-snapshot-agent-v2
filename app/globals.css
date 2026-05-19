@@ -1020,6 +1020,204 @@ a.sr-only:focus {
   min-width: 220px;
 }
 
+/* ─── Results bottom funnel (Snapshot CTAs) ─── */
+.results-bottom-funnel {
+  margin-top: 2rem;
+  border-radius: 20px;
+  overflow: hidden;
+  background: linear-gradient(165deg, #021859 0%, #0a2d6e 42%, #0d4a8f 100%);
+  box-shadow:
+    0 24px 64px rgba(2, 24, 89, 0.22),
+    0 1px 0 rgba(255, 255, 255, 0.08) inset;
+}
+
+.results-bottom-funnel-inner {
+  padding: clamp(1.75rem, 4vw, 2.75rem) clamp(1.25rem, 4vw, 2rem) 2rem;
+}
+
+.results-bottom-funnel-intro {
+  max-width: 40rem;
+  margin-bottom: 2rem;
+}
+
+.results-bottom-funnel-eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(7, 176, 242, 0.95);
+}
+
+.results-bottom-funnel-title {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.5rem, 3.2vw, 2rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.results-bottom-funnel-lead {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.results-bottom-funnel-brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #7dd3fc;
+  text-decoration: none;
+}
+
+.results-bottom-funnel-brand-link:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.results-bottom-funnel-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 900px) {
+  .results-bottom-funnel-grid {
+    grid-template-columns: 1.15fr 1fr;
+    align-items: stretch;
+  }
+
+  .results-bottom-funnel-card--featured {
+    grid-row: span 2;
+  }
+}
+
+.results-bottom-funnel-card {
+  border-radius: 16px;
+  padding: 1.25rem 1.35rem 1.35rem;
+  background: rgba(255, 255, 255, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+}
+
+.results-bottom-funnel-card--featured {
+  background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 100%);
+  border-color: rgba(7, 176, 242, 0.35);
+}
+
+.results-bottom-funnel-card-kicker {
+  margin: 0 0 0.35rem;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #0369a1;
+}
+
+.results-bottom-funnel-card-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #021859;
+}
+
+.results-bottom-funnel-card-body {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #475569;
+}
+
+.results-bottom-funnel-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.results-bottom-funnel-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #07b0f2 0%, #0599d4 100%);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(7, 176, 242, 0.45);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.results-bottom-funnel-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(7, 176, 242, 0.5);
+}
+
+.results-bottom-funnel-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #021859;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  text-align: center;
+}
+
+.results-bottom-funnel-btn-ghost:hover {
+  border-color: #07b0f2;
+  color: #0369a1;
+}
+
+.results-bottom-funnel-text-cta {
+  display: inline-block;
+  margin-top: 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #0369a1;
+  text-decoration: none;
+}
+
+.results-bottom-funnel-text-cta:hover {
+  text-decoration: underline;
+}
+
+.results-bottom-funnel-embed .bs-card,
+.results-bottom-funnel-embed--expert .bs-card {
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  background: transparent;
+}
+
+.results-bottom-funnel-embed--expert .bs-h3 {
+  font-size: 1.125rem;
+  color: #021859;
+}
+
+.results-lead-email-panel {
+  border-radius: 20px;
+  border: 1px solid rgba(7, 176, 242, 0.35);
+  background: linear-gradient(165deg, #ffffff 0%, #f8fcff 55%, #f0f9ff 100%);
+  box-shadow:
+    0 20px 50px rgba(2, 24, 89, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.9) inset;
+  padding: clamp(1.25rem, 3vw, 1.75rem) clamp(1.25rem, 3vw, 2rem);
+}
+
 .app-card-footer {
   font-size: 0.85rem;
   color: #6b7280;

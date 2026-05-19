@@ -10,6 +10,8 @@ import {
 type Props = {
   reportId: string;
   requiresEmailGate: boolean;
+  /** Server-known unlock (full_report.results_email_unlocked) — avoids flash before sessionStorage. */
+  initiallyUnlocked?: boolean;
   productTier: "snapshot" | "snapshot-plus";
   productName: string;
   firstNameHint?: string;
@@ -19,22 +21,25 @@ type Props = {
 export function ResultsSnapshotLeadGate({
   reportId,
   requiresEmailGate,
+  initiallyUnlocked = false,
   productTier,
   productName,
   firstNameHint,
   children,
 }: Props) {
-  const [contentUnlocked, setContentUnlocked] = useState(!requiresEmailGate);
+  const [contentUnlocked, setContentUnlocked] = useState(
+    !requiresEmailGate || initiallyUnlocked,
+  );
 
   useEffect(() => {
-    if (!requiresEmailGate) {
+    if (!requiresEmailGate || initiallyUnlocked) {
       setContentUnlocked(true);
       return;
     }
     if (readResultsEmailGateUnlocked(reportId)) {
       setContentUnlocked(true);
     }
-  }, [requiresEmailGate, reportId]);
+  }, [requiresEmailGate, initiallyUnlocked, reportId]);
 
   const handleEmailCaptured = useCallback(() => {
     writeResultsEmailGateUnlocked(reportId);

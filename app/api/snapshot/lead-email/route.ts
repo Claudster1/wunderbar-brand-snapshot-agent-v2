@@ -82,8 +82,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Service unavailable." }, { status: 503 });
     }
 
+    const db = supabase;
     async function loadFullReport(idColumn: "id" | "report_id"): Promise<Record<string, unknown> | null> {
-      const { data } = await supabase
+      const { data } = await db
         .from("brand_snapshot_reports")
         .select("full_report")
         .eq(idColumn, reportId)
@@ -102,10 +103,10 @@ export async function POST(req: Request) {
       updated_at: new Date().toISOString(),
     };
 
-    const byId = await supabase.from("brand_snapshot_reports").update(rowPatch).eq("id", reportId);
+    const byId = await db.from("brand_snapshot_reports").update(rowPatch).eq("id", reportId);
 
     if (byId.error) {
-      const byReportId = await supabase.from("brand_snapshot_reports").update(rowPatch).eq("report_id", reportId);
+      const byReportId = await db.from("brand_snapshot_reports").update(rowPatch).eq("report_id", reportId);
       if (byReportId.error) {
         logger.warn("[Lead Email] Row update skipped", {
           reportId,

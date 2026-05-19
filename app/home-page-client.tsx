@@ -897,7 +897,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                 {(isLoading || isFinalizing) && (
                   <div className="chat-bubble chat-bubble-assistant pending">
                     {isFinalizing
-                      ? `Building your ${activeTierConfig.productName} from this conversation…`
+                      ? `Your ${activeTierConfig.productName} is being finalized now…`
                       : "Wundy™ is thinking…"}
                   </div>
                 )}
@@ -1132,7 +1132,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                 >
                   <p className="chat-finalize-dock-title">
                     {isFinalizing
-                      ? `Building your ${activeTierConfig.productName}…`
+                      ? `Your ${activeTierConfig.productName} is being finalized now…`
                       : `Preparing your ${activeTierConfig.productName}…`}
                   </p>
                   <p className="chat-finalize-dock-sub">

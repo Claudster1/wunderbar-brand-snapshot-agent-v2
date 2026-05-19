@@ -33,6 +33,10 @@ import { inferLikelyArchetype } from "@/lib/archetype/likelyArchetype";
 import { z } from "zod";
 import { createCrmSyncLog } from "@/lib/crm/inbound";
 import { snapshotAnswersRecordSchema } from "@/lib/snapshot/snapshotAnswersSchema";
+import {
+  normalizeIntakeTierForStorage,
+  storedTierToProductTierField,
+} from "@/lib/results/resolveReportProductTier";
 
 export const dynamic = "force-dynamic";
 
@@ -326,6 +330,7 @@ const snapshotBodySchema = z.object({
   brandName: z.string().max(200).optional().nullable(),
   answers: snapshotAnswersRecordSchema,
   pillar_insights: z.unknown().optional(),
+  productTier: z.string().max(40).optional().nullable(),
 });
 
 export async function POST(req: Request) {
@@ -496,6 +501,9 @@ export async function POST(req: Request) {
       requiredContextTokens,
     );
 
+    const reportTier = normalizeIntakeTierForStorage(body.productTier);
+    const reportTierField = storedTierToProductTierField(reportTier);
+
     // ─── Save Report ───
     // Schema notes:
     //   • Canonical brand column is `brand_name` (see migration_brand_snapshot_reports.sql +
@@ -528,6 +536,11 @@ export async function POST(req: Request) {
           summary,
           opportunities_summary,
           upgrade_cta,
+          product_tier: reportTierField,
+          _meta: {
+            tier: reportTier,
+            generatedAt: new Date().toISOString(),
+          },
         },
       } as any)
       .select("report_id")
@@ -578,7 +591,7 @@ export async function POST(req: Request) {
           website: asStringOrNull(snapshotInput.website),
           score: scores.brandAlignmentScore,
           reportId: report_id,
-          reportTier: "snapshot",
+          reportTier,
         })
       ).catch(() => {});
     }

@@ -30,6 +30,10 @@ function transformReportRow(data: Record<string, unknown>): SnapshotReportRow {
     if (out.upgrade_cta == null && typeof fullReport.upgrade_cta === "string") {
       out.upgrade_cta = fullReport.upgrade_cta;
     }
+    const metaTier = (fullReport._meta as { tier?: string } | undefined)?.tier;
+    if (out.product_tier == null && typeof metaTier === "string" && metaTier.trim()) {
+      out.product_tier = metaTier;
+    }
     if (out.product_tier == null && typeof fullReport.product_tier === "string") {
       out.product_tier = fullReport.product_tier;
     }

@@ -568,6 +568,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
             name: typeof answers.userName === 'string' ? answers.userName : undefined,
             companyName: typeof answers.businessName === 'string' ? answers.businessName : undefined,
             businessName: typeof answers.businessName === 'string' ? answers.businessName : undefined,
+            productTier: options?.productTier ?? 'snapshot',
             ...(persistedEmail ? { email: persistedEmail } : {}),
             turnstileToken,
           }),

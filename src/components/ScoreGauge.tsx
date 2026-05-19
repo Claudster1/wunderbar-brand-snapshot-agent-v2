@@ -83,17 +83,18 @@ export function ScoreGauge({ value, score, size, showLegend = false }: { value?:
   const fullArcD = `M ${p180.x} ${p180.y} A ${radius} ${radius} 0 0 0 ${p0.x} ${p0.y}`;
 
   const strokeWidth = 16;
-  // ViewBox: arc (y ~10–100), clear gap, then score text so needle never overlaps number
-  const viewBoxHeight = 175;
+  // ViewBox: extra top padding so round stroke caps on the arc are not clipped
+  const viewBoxTop = -16;
+  const viewBoxHeight = 192;
   const scoreY = 138;
   const labelY = 156;
 
   const gauge = (
     <svg
-      viewBox={`0 0 200 ${viewBoxHeight}`}
+      viewBox={`0 ${viewBoxTop} 200 ${viewBoxHeight}`}
       width="100%"
-      className="mx-auto block"
-      style={{ maxWidth: showLegend ? "220px" : "280px", aspectRatio: "200 / 175" }}
+      className="mx-auto block overflow-visible"
+      style={{ maxWidth: showLegend ? "220px" : "280px", aspectRatio: "200 / 192" }}
     >
       <defs>
         <linearGradient id={gradId} gradientUnits="userSpaceOnUse" x1={p180.x} y1={cy} x2={p0.x} y2={cy}>
@@ -132,8 +133,8 @@ export function ScoreGauge({ value, score, size, showLegend = false }: { value?:
   if (!showLegend) return gauge;
 
   return (
-    <div className="flex items-center justify-center gap-10 sm:gap-16 bg-[#F8FAFC] border-2 border-[#07B0F2] rounded-xl p-6 sm:p-8 max-w-[600px] mx-auto">
-      <div className="flex-shrink-0 w-[200px] sm:w-[220px]">
+    <div className="flex items-center justify-center gap-10 sm:gap-16 bg-[#F8FAFC] border-2 border-[#07B0F2] rounded-xl p-6 sm:p-8 max-w-[600px] mx-auto overflow-visible">
+      <div className="flex-shrink-0 w-[200px] sm:w-[220px] overflow-visible pt-2">
         {gauge}
       </div>
       <ScoreRangeLegend score={clamped} />

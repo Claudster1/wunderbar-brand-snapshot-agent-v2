@@ -7,6 +7,7 @@ import { trackEvent } from "@/lib/analytics";
 import { fireACEvent } from "@/lib/fireACEvent";
 import { trackUpgradeClick } from "@/lib/adTracking";
 import { SNAPSHOT_PLUS_LOCKED_PROMPT_TITLES } from "@/src/lib/prompts/promptLibrary";
+import { PRICING, formatPrice } from "@/lib/pricing";
 
 type Props = {
   primaryPillar: PillarKey;
@@ -167,12 +168,15 @@ export function LockedResultsPreview({
     trackUpgradeClick({ fromTier: "snapshot", toTier: "snapshot-plus", value: 497 });
   };
 
+  const nextTier = PRICING.snapshot_plus.label;
+  const nextTierPrice = formatPrice(PRICING.snapshot_plus.price);
+
   return (
     <section className="space-y-5 sm:space-y-6 border-t border-brand-border pt-8 sm:pt-9">
-      <h2 className="bs-h2 mb-0">Your full results are ready</h2>
+      <h2 className="bs-h2 mb-0">What unlocks in {nextTier}</h2>
       <p className="bs-body-sm text-brand-muted max-w-3xl">
-        Your diagnostic is complete. You are seeing your core score outputs now, and the deeper
-        layer is already compiled for your brand.
+        You&apos;ve seen your score, pillars, and priority actions above. These sections show what the
+        next tier adds — without repeating the upsell at the top of the page.
       </p>
 
       <div className="bs-card rounded-xl p-6 sm:p-7 border border-brand-blue/20 bg-brand-blue/5">
@@ -183,38 +187,35 @@ export function LockedResultsPreview({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <article className="bs-card rounded-xl p-6 sm:p-7 border border-brand-border">
+        <article className="bs-card rounded-xl p-6 sm:p-7 border border-brand-border bg-white">
           <p className="text-xs font-bold tracking-[0.04em] text-brand-muted mb-4">
             Your Brand Archetype
           </p>
           {likelyArchetype ? (
-            <>
-              <p className="bs-body-sm text-brand-midnight mb-2">
-                Your archetype:{" "}
-                <span className="font-bold text-brand-navy">
-                  {archetypeIcon ? `${archetypeIcon} ` : ""}
-                  {likelyArchetype}
+            <div className="flex gap-3 items-start mb-3">
+              {archetypeIcon ? (
+                <span className="text-3xl leading-none shrink-0" aria-hidden>
+                  {archetypeIcon}
                 </span>
-              </p>
-              {archetypeMeaning && (
-                <p className="bs-small text-brand-muted mb-2">{archetypeMeaning}</p>
-              )}
-            </>
+              ) : null}
+              <div>
+                <p className="bs-body-sm font-bold text-brand-navy m-0 mb-1">{likelyArchetype}</p>
+                {archetypeMeaning ? (
+                  <p className="bs-small text-brand-muted m-0">{archetypeMeaning}</p>
+                ) : null}
+              </div>
+            </div>
           ) : (
             <p className="bs-body-sm text-brand-midnight mb-2">
-              We detected a clear archetype pattern in your answers and mapped your results to your
-              strongest archetype fit.
+              Activation playbooks for your archetype are included in {nextTier}.
             </p>
           )}
-          <p className="bs-small text-brand-blue font-bold">
-            Full archetype activation guidance is available in Snapshot+
-          </p>
           <Link
             href="/snapshot-plus?source=archetype_activation"
             onClick={() => trackLockedClick("archetype_activation")}
-            className="inline-flex mt-3 text-sm font-bold text-brand-blue hover:underline"
+            className="text-sm font-semibold text-brand-blue hover:underline underline-offset-2"
           >
-            Get your full archetype activation plan
+            Archetype activation in {nextTier} →
           </Link>
         </article>
 
@@ -297,13 +298,13 @@ export function LockedResultsPreview({
         </article>
       </div>
 
-      <div className="pt-1">
+      <div className="pt-4 border-t border-brand-border">
         <Link
           href="/snapshot-plus?source=full_results_lock"
           onClick={() => trackLockedClick("full_results")}
-          className="btn-primary inline-flex"
+          className="btn-primary inline-flex w-full sm:w-auto justify-center text-base px-8 py-3.5 shadow-[0_4px_14px_rgba(7,176,242,0.35)]"
         >
-          See Your Full Results — $497
+          Upgrade to {nextTier} — {nextTierPrice}
         </Link>
       </div>
     </section>

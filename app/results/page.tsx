@@ -43,8 +43,15 @@ import { normalizeBrandImageryDirection } from "@/lib/brand/brandImageryNormaliz
 import { TAB_SECTION_NAV_HINT_CHIPS_ONLY } from "@/lib/copy/resultsSuiteGuidance";
 import { loadSnapshotReportForResultsWithRetry } from "@/lib/loadSnapshotReportForResults";
 import { SUITE_CHIP_CARD_STYLE, SUITE_SECTION_KICKER_CLASS } from "@/components/results/suiteBrandTokens";
-import { SnapshotResultsLeadEmail } from "@/app/results/components/SnapshotResultsLeadEmail";
+import { ArchetypeResultsTeaser } from "@/app/results/components/ArchetypeResultsTeaser";
+import { RecommendationCard } from "@/src/components/results/RecommendationCard";
+import { ResultsSnapshotLeadGate } from "@/app/results/components/ResultsSnapshotLeadGate";
 import { getChatTierConfig, type ChatTier } from "@/lib/chatTierConfig";
+import {
+  isPaidReportTier,
+  resolveReportTabTier,
+  resolveStoredProductTier,
+} from "@/lib/results/resolveReportProductTier";
 
 const PillarBreakdown = nextDynamic(
   () => import("@/components/PillarBreakdown").then((m) => ({ default: m.PillarBreakdown })),
@@ -96,7 +103,6 @@ interface ResultsPageProps {
 }
 
 type BudgetBand = "under_500" | "500_2000" | "2000_5000" | "5000_plus";
-type ProductTier = "snapshot" | "snapshot_plus" | "blueprint" | "blueprint_plus";
 type SignalSeverity = "low" | "medium" | "high";
 
 function asBudgetBand(value: unknown): BudgetBand | null {
@@ -148,24 +154,6 @@ function toTitleLabel(value: string): string {
     .replace(/[_-]+/g, " ")
     .replace(/\b\w/g, (char) => char.toUpperCase())
     .trim();
-}
-
-function resolveProductTier(report: Record<string, unknown>): ProductTier {
-  const metaTier = (report.full_report as { _meta?: { tier?: string } } | undefined)?._meta?.tier;
-  if (metaTier === "blueprint_plus" || metaTier === "blueprint-plus") return "blueprint_plus";
-  if (metaTier === "blueprint") return "blueprint";
-  if (metaTier === "snapshot_plus" || metaTier === "snapshot-plus") return "snapshot_plus";
-
-  const productTier = typeof report.product_tier === "string" ? report.product_tier : "";
-  if (productTier === "blueprint_plus" || productTier === "blueprint-plus") return "blueprint_plus";
-  if (productTier === "blueprint") return "blueprint";
-  if (productTier === "snapshot_plus" || productTier === "snapshot-plus") return "snapshot_plus";
-
-  const user = (report.user ?? {}) as Record<string, unknown>;
-  if (user.hasBlueprintPlus === true || user.has_blueprint_plus === true) return "blueprint_plus";
-  if (user.hasBlueprint === true || user.has_blueprint === true) return "blueprint";
-  if (user.hasSnapshotPlus === true || user.has_snapshot_plus === true) return "snapshot_plus";
-  return "snapshot";
 }
 
 function getUpstreamPillar(
@@ -319,8 +307,9 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       ? primaryResult.pillars?.[0] ?? primaryResult.pillar
       : primaryResult.pillar;
   const primaryPillarStr = (primaryPillar ?? "positioning") as PillarKey;
-  const productTier = resolveProductTier(report as Record<string, unknown>);
-  const hasSnapshotPlusAccess = productTier !== "snapshot";
+  const storedProductTier = resolveStoredProductTier(report as Record<string, unknown>);
+  const tabTier = resolveReportTabTier(report as Record<string, unknown>);
+  const hasSnapshotPlusAccess = isPaidReportTier(storedProductTier);
   const reportAnswers = (report.full_report?.answers ?? report.answers ?? {}) as Record<string, unknown>;
   const businessType =
     typeof reportAnswers.businessType === "string" ? reportAnswers.businessType : null;
@@ -445,16 +434,10 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 
   const archetypeMeaning = getArchetypeMeaning(likelyArchetype);
   const archetypeIcon = getArchetypeIcon(likelyArchetype);
-  const tabTier: ResultsTabTier =
-    productTier === "snapshot_plus"
-      ? "snapshot-plus"
-      : productTier === "blueprint_plus"
-        ? "blueprint-plus"
-        : productTier;
   const showSnapshotLeadEmail =
-    (productTier === "snapshot" || productTier === "snapshot_plus") &&
-    !(typeof data.userEmail === "string" && data.userEmail.trim());
-  const snapshotLeadChatTier: ChatTier = productTier === "snapshot_plus" ? "snapshot-plus" : "snapshot";
+    storedProductTier === "snapshot" && !(typeof data.userEmail === "string" && data.userEmail.trim());
+  const snapshotLeadChatTier: ChatTier =
+    storedProductTier === "snapshot_plus" ? "snapshot-plus" : "snapshot";
   const snapshotLeadProductName = getChatTierConfig(snapshotLeadChatTier).productName;
   const snapshotLeadFirstNameHint =
     typeof reportAnswers.userName === "string" && reportAnswers.userName.trim()
@@ -685,20 +668,14 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         contextCoverage={data.contextCoverage}
         email={data.userEmail}
       />
-      <div style={SUITE_CHIP_CARD_STYLE}>
-        <TabSectionMenu
-          title="On this page"
-          items={resultsNavItems}
-          description={TAB_SECTION_NAV_HINT_CHIPS_ONLY}
-          suiteChipCardEmbed
-        />
-      </div>
       <section id="results-overview" className="scroll-mt-28">
         <ResultsHeroSection
           score={data.brandAlignmentScore}
           primaryPillar={primaryPillarStr}
           hasSnapshotPlus={hasSnapshotPlusAccess}
           userRoleContext={data.userRoleContext as UserRoleContext | undefined}
+          likelyArchetype={likelyArchetype}
+          archetypeIcon={archetypeIcon}
           executiveContext={{
             businessName: data.businessName,
             stage: data.stage,
@@ -709,18 +686,23 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         />
       </section>
 
-      {showSnapshotLeadEmail ? (
-        <div id="email-results" className="scroll-mt-28 px-4 sm:px-0">
-          <SnapshotResultsLeadEmail
-            reportId={data.reportId}
-            productTier={snapshotLeadChatTier === "snapshot-plus" ? "snapshot-plus" : "snapshot"}
-            productName={snapshotLeadProductName}
-            {...(snapshotLeadFirstNameHint ? { firstNameHint: snapshotLeadFirstNameHint } : {})}
-          />
-        </div>
-      ) : null}
-
-      <ResultsSuiteVisualSummary pillars={data.pillarScores} />
+      <ResultsSnapshotLeadGate
+        reportId={data.reportId}
+        requiresEmailGate={showSnapshotLeadEmail}
+        productTier={snapshotLeadChatTier === "snapshot-plus" ? "snapshot-plus" : "snapshot"}
+        productName={snapshotLeadProductName}
+        {...(snapshotLeadFirstNameHint ? { firstNameHint: snapshotLeadFirstNameHint } : {})}
+      >
+        <div className="space-y-16 md:space-y-20">
+          <div style={SUITE_CHIP_CARD_STYLE}>
+            <TabSectionMenu
+              title="On this page"
+              items={resultsNavItems}
+              description={TAB_SECTION_NAV_HINT_CHIPS_ONLY}
+              suiteChipCardEmbed
+            />
+          </div>
+          <ResultsSuiteVisualSummary pillars={data.pillarScores} />
 
       {!hasSnapshotPlusAccess && (
         <div id="diagnostic-signals" className="scroll-mt-28">
@@ -776,9 +758,17 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         )}
       </section>
 
+      {!hasSnapshotPlusAccess && likelyArchetype && (
+        <ArchetypeResultsTeaser
+          likelyArchetype={likelyArchetype}
+          archetypeIcon={archetypeIcon}
+          archetypeMeaning={archetypeMeaning}
+        />
+      )}
+
       {!hasSnapshotPlusAccess && (
-        <section id="archetype" className="bs-card rounded-xl p-6 sm:p-7 border border-brand-border scroll-mt-28">
-          <FoundationExtras slot="archetypeLocked" data={diagnosticData} />
+        <section id="upgrade-snapshot-plus" className="scroll-mt-28">
+          <RecommendationCard primaryPillar={primaryPillarStr} />
         </section>
       )}
 
@@ -844,6 +834,8 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
           reportId={data.reportId}
         />
       </div>
+        </div>
+      </ResultsSnapshotLeadGate>
     </div>
   );
 

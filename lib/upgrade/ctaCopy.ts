@@ -1,5 +1,9 @@
 import { PillarKey } from "@/types/pillars";
 import { ResultsState } from "@/src/types/results";
+import { PRICING, formatPrice } from "@/lib/pricing";
+
+const SNAPSHOT_PLUS_LABEL = PRICING.snapshot_plus.label;
+const SNAPSHOT_PLUS_PRICE = formatPrice(PRICING.snapshot_plus.price);
 
 type CopyContext = {
   primaryPillar: string;
@@ -22,10 +26,10 @@ export function getUpgradeNudgeCopy({ primaryPillar, tiePillars }: CopyContext) 
         " and "
       )}. Snapshot+\u2122 analyzes the downstream impact of each to determine which move creates the most cascading improvement.`,
       detail:
-        "You\u2019ll receive a full strategic report with commercial impact analysis, before-and-after examples, a prioritized action plan, and 8 AI prompts calibrated to your brand.",
+        `${SNAPSHOT_PLUS_LABEL} adds commercial impact analysis, before-and-after examples, a prioritized 30/60/90-day plan, and 8 AI prompts calibrated to your brand.`,
       note:
         "Priority is determined by Wunderbar Digital's proprietary scoring methodology using system-wide impact, not surface-level signals.",
-      ctaLabel: "See Your Full Results — $497",
+      ctaLabel: `Upgrade to ${SNAPSHOT_PLUS_LABEL} — ${SNAPSHOT_PLUS_PRICE}`,
     };
   }
 
@@ -33,10 +37,10 @@ export function getUpgradeNudgeCopy({ primaryPillar, tiePillars }: CopyContext) 
     headline: `Your highest-leverage move: ${pillarNudgeMap[primaryPillar] || primaryPillar}`,
     body: `Your diagnostic identified ${primaryPillar} as the pillar where focused investment will create the most cascading impact across your entire brand system.`,
     detail:
-      "Snapshot+\u2122 transforms this score into a strategic roadmap \u2014 with commercial impact analysis, concrete before-and-after examples, a prioritized 30/60/90-day action plan, and 8 AI prompts calibrated to your brand.",
+      `${SNAPSHOT_PLUS_LABEL} transforms this score into a strategic roadmap — commercial impact analysis, concrete before-and-after examples, a prioritized action plan, and 8 AI prompts calibrated to your brand.`,
     note:
       "Priority is determined by Wunderbar Digital's proprietary scoring methodology using system-wide impact and downstream effects.",
-    ctaLabel: "See Your Full Results — $497",
+    ctaLabel: `Upgrade to ${SNAPSHOT_PLUS_LABEL} — ${SNAPSHOT_PLUS_PRICE}`,
   };
 }
 
@@ -76,6 +80,6 @@ export function getSnapshotPlusCTA(
       stage === "early"
         ? `Get a prioritized strategy with specific actions, before-and-after examples, and an action plan calibrated to ${brandName}\u2019s stage and industry.`
         : `Turn this diagnostic into an implementation-ready system \u2014 with concrete recommendations, competitive context, and a 30/60/90-day action plan.`,
-    button: "See Your Full Results — $497"
+    button: `Upgrade to ${SNAPSHOT_PLUS_LABEL} — ${SNAPSHOT_PLUS_PRICE}`
   };
 }

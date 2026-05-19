@@ -51,8 +51,6 @@ export function SnapshotResultsLeadEmail({
   const [contentOptIn, setContentOptIn] = useState<SnapshotContentOptIn | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // Honeypot — humans never touch it (hidden, tabIndex=-1, autoComplete=off, off-screen),
-  // bots that auto-fill all inputs will populate it. Server treats it as silent rejection.
   const [honeypot, setHoneypot] = useState("");
 
   const handleEmailSubmit = useCallback(
@@ -60,7 +58,6 @@ export function SnapshotResultsLeadEmail({
       e.preventDefault();
       setError(null);
       if (honeypot) {
-        // Pretend success — bot gets no useful signal back.
         return;
       }
       const trimmed = email.trim().toLowerCase();
@@ -88,7 +85,6 @@ export function SnapshotResultsLeadEmail({
             email: trimmed,
             turnstileToken,
             productTier,
-            // Echo honeypot so the server can catch bots that bypass the client check.
             honeypot,
             ...(firstName ? { firstName } : {}),
           }),
@@ -159,23 +155,35 @@ export function SnapshotResultsLeadEmail({
   );
 
   return (
-    <section
-      className="results-lead-email-panel scroll-mt-28"
-      aria-label="Email for full diagnostic"
-    >
+    <section className="results-gate-capture" aria-label="Email for full diagnostic">
       <TurnstileWidget onToken={handleTurnstileToken} />
-      <p className="m-0 mb-2 text-xs font-extrabold uppercase tracking-[0.06em] text-sky-800">
-        {contentUnlocked ? "One quick preference" : "Unlock your full diagnostic"}
-      </p>
 
-      {step === "email" ? (
-        <>
-          <h2 className="bs-h3 m-0 mb-2 text-brand-midnight">See your full {productName}</h2>
-          <p className="bs-body-sm m-0 mb-5 max-w-2xl text-brand-muted leading-relaxed">
-            Your WunderBrand Score™ is above. Enter your email to unlock pillar scores, priority actions, your
-            archetype, and the rest of this report — then choose whether you want occasional brand tips (optional).
-          </p>
-          <form onSubmit={handleEmailSubmit} className="max-w-md">
+      <div className="results-gate-capture__hero">
+        <div className="results-gate-capture__hero-glow" aria-hidden />
+        <p className="results-gate-capture__eyebrow">
+          {contentUnlocked ? "One quick preference" : "Unlock your full diagnostic"}
+        </p>
+        {step === "email" ? (
+          <>
+            <h2 className="results-gate-capture__title">See your full {productName}</h2>
+            <p className="results-gate-capture__lead">
+              Your WunderBrand Score™ is above. Enter your email to unlock pillar scores, priority actions,
+              your archetype, and the rest of this report.
+            </p>
+          </>
+        ) : (
+          <>
+            <h2 className="results-gate-capture__title">Almost done</h2>
+            <p className="results-gate-capture__lead">
+              Optional: choose whether you want occasional brand tips — then your full report opens instantly.
+            </p>
+          </>
+        )}
+      </div>
+
+      <div className="results-gate-capture__body">
+        {step === "email" ? (
+          <form onSubmit={handleEmailSubmit} className="results-gate-capture__form">
             <label htmlFor="results-lead-email" className="sr-only">
               Email for complete results
             </label>
@@ -192,9 +200,8 @@ export function SnapshotResultsLeadEmail({
               }}
               placeholder="you@company.com"
               disabled={saving}
-              className="mb-3 w-full box-border rounded-lg border border-slate-300 px-[14px] py-3 text-[15px]"
+              className="results-gate-capture__input"
             />
-            {/* Honeypot — invisible to humans, bots auto-fill it. Same pattern as the chat form. */}
             <input
               type="text"
               name="company_url"
@@ -206,48 +213,39 @@ export function SnapshotResultsLeadEmail({
               style={{ position: "absolute", left: "-9999px", width: 0, height: 0, opacity: 0 }}
             />
             {error ? (
-              <p className="m-0 mb-3 text-[13px] text-red-700" role="alert">
+              <p className="results-gate-capture__error" role="alert">
                 {error}
               </p>
             ) : null}
             <button
               type="submit"
               disabled={saving || !email.trim()}
-              className="w-full rounded-lg border-0 bg-[#07B0F2] px-4 py-[14px] text-base font-extrabold text-white hover:brightness-105 disabled:cursor-wait disabled:bg-slate-400"
+              className="results-gate-capture__submit"
             >
               {saving ? "Saving…" : "Unlock my results"}
             </button>
-            <p className="mt-3 m-0 text-[11px] leading-snug text-slate-500">
+            <p className="results-gate-capture__legal">
               We use your email to deliver this diagnostic and save your links.{" "}
               <a
                 href="https://wunderbardigital.com/privacy-policy?utm_source=results_page&utm_medium=lead_email&utm_campaign=privacy&utm_content=privacy_policy"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-semibold text-sky-600"
               >
                 Privacy Policy
               </a>
             </p>
           </form>
-        </>
-      ) : (
-        <>
-          <h2 className="bs-h3 m-0 mb-2 text-brand-midnight">Almost done</h2>
-          <p className="bs-body-sm m-0 mb-4 max-w-2xl text-brand-muted leading-relaxed">
-            We share occasional insights to help businesses like yours stay ahead. Anything here sound useful?
-          </p>
-          <form onSubmit={handleInsightsSubmit} className="max-w-md">
-            <fieldset className="m-0 mb-4 border-0 p-0">
+        ) : (
+          <form onSubmit={handleInsightsSubmit} className="results-gate-capture__form">
+            <fieldset className="results-gate-capture__fieldset">
               <legend className="sr-only">Email content preferences</legend>
-              <div className="flex flex-col gap-2.5">
+              <div className="results-gate-capture__choices">
                 {INSIGHTS_CHOICES.map(({ value, label }) => (
                   <label
                     key={value}
                     className={
-                      "flex cursor-pointer items-start gap-2.5 rounded-lg border px-3 py-2.5 text-[14px] leading-snug " +
-                      (contentOptIn === value
-                        ? "border-[#07B0F2] bg-sky-50/80 text-slate-800"
-                        : "border-slate-200 bg-white/80 text-slate-800")
+                      "results-gate-capture__choice" +
+                      (contentOptIn === value ? " results-gate-capture__choice--selected" : "")
                     }
                   >
                     <input
@@ -260,7 +258,6 @@ export function SnapshotResultsLeadEmail({
                         setError(null);
                       }}
                       disabled={saving}
-                      className="mt-1 size-[18px] shrink-0 accent-[#021859]"
                     />
                     <span>{label}</span>
                   </label>
@@ -268,20 +265,20 @@ export function SnapshotResultsLeadEmail({
               </div>
             </fieldset>
             {error ? (
-              <p className="m-0 mb-3 text-[13px] text-red-700" role="alert">
+              <p className="results-gate-capture__error" role="alert">
                 {error}
               </p>
             ) : null}
             <button
               type="submit"
               disabled={saving || !contentOptIn}
-              className="w-full rounded-lg border-0 bg-[#07B0F2] px-4 py-[14px] text-base font-extrabold text-white hover:brightness-105 disabled:cursor-not-allowed disabled:bg-slate-400"
+              className="results-gate-capture__submit"
             >
               {saving ? "Saving…" : `Save & open my full ${productName}`}
             </button>
             <button
               type="button"
-              className="mt-3 w-full border-0 bg-transparent text-[13px] font-semibold text-sky-700 underline"
+              className="results-gate-capture__back"
               disabled={saving}
               onClick={() => {
                 setStep("email");
@@ -292,8 +289,8 @@ export function SnapshotResultsLeadEmail({
               Back to email
             </button>
           </form>
-        </>
-      )}
+        )}
+      </div>
     </section>
   );
 }

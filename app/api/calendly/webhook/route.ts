@@ -5,7 +5,7 @@
 // Calendly webhook events:
 //   invitee.created    — someone booked
 //   invitee.canceled   — someone canceled
-//   invitee.no_show    — host marked invitee as a no-show
+//   invitee_no_show.created — host marked invitee as a no-show (v2 event name)
 //
 // Set CALENDLY_WEBHOOK_SECRET in env to validate the webhook signature.
 
@@ -141,10 +141,20 @@ function getCalendlyRefs(payload: Record<string, unknown>) {
   };
 }
 
+// Calendly v2 sends no-shows as "invitee_no_show.created" (webhook API), while some
+// legacy/other payloads use "invitee.no_show"/"invitee_no_show". Match all of them.
+function isNoShowEvent(event: string): boolean {
+  return (
+    event === "invitee_no_show.created" ||
+    event === "invitee.no_show" ||
+    event === "invitee_no_show"
+  );
+}
+
 function getLifecycleStatus(event: string): "scheduled" | "canceled" | "no_show" | "updated" {
   if (event === "invitee.created") return "scheduled";
   if (event === "invitee.canceled") return "canceled";
-  if (event === "invitee.no_show" || event === "invitee_no_show") return "no_show";
+  if (isNoShowEvent(event)) return "no_show";
   return "updated";
 }
 
@@ -248,7 +258,7 @@ function getCalendlyEventMapping(event: string): {
   if (event === "invitee.canceled") {
     return { eventType: "calendly_meeting_canceled", direction: "neutral" };
   }
-  if (event === "invitee.no_show" || event === "invitee_no_show") {
+  if (isNoShowEvent(event)) {
     return { eventType: "calendly_meeting_no_show", direction: "neutral" };
   }
   return { eventType: "calendly_event", direction: "neutral" };
@@ -257,7 +267,7 @@ function getCalendlyEventMapping(event: string): {
 function pickOccurredAt(payload: Record<string, unknown>, event: string): string {
   const candidate =
     (event === "invitee.canceled" ? (payload.cancelled_at as string | undefined) : undefined) ||
-    (event === "invitee.no_show" || event === "invitee_no_show"
+    (isNoShowEvent(event)
       ? ((payload.no_show_at as string | undefined) || (payload.updated_at as string | undefined))
       : undefined) ||
     (event === "invitee.created"
@@ -522,7 +532,7 @@ export async function POST(req: NextRequest) {
         await applyActiveCampaignTags({ email: normalizedEmail, tags: [cfg.canceledTag] });
       }
 
-      if (event === "invitee.no_show" || event === "invitee_no_show") {
+      if (isNoShowEvent(event)) {
         await applyActiveCampaignTags({
           email: normalizedEmail,
           tags: [cfg.noShowTag, "noshow:needs-followup"],

@@ -17,30 +17,101 @@ import { createHmac, timingSafeEqual } from "crypto";
 
 export const runtime = "nodejs";
 
-type SessionType = "talk_to_expert" | "activation_session" | "general_session";
+type SessionType =
+  | "talk_to_expert"
+  | "activation_session"
+  | "managed_services_consult"
+  | "ai_consulting_consult"
+  | "general_session";
 
-// Map Calendly event type names to our session types
+// Map Calendly event type names (display names + slugs, lowercased) to our session types.
 const EVENT_TYPE_MAP: Record<string, SessionType> = {
   "talk-to-an-expert": "talk_to_expert",
   "talk to an expert": "talk_to_expert",
   "strategy-activation-session": "activation_session",
   "strategy activation session": "activation_session",
   "blueprint-plus-activation": "activation_session",
+  "brand blueprint+ strategy activation session": "activation_session",
+  // Managed services SALES call (bottom-of-funnel MQL)
+  "talk to an expert - managed marketing consultation": "managed_services_consult",
+  "talk-to-an-expert-managed-marketing-consultation": "managed_services_consult",
+  "managed marketing consultation": "managed_services_consult",
+  // AI consulting SALES call
+  "free ai consultation": "ai_consulting_consult",
+  "free-ai-consultation": "ai_consulting_consult",
+  "ai consultation": "ai_consulting_consult",
 };
 
 function detectSessionType(eventTypeName: string): SessionType {
   const lower = eventTypeName.toLowerCase().trim();
   if (EVENT_TYPE_MAP[lower]) return EVENT_TYPE_MAP[lower];
-  if (lower.includes("expert") || lower.includes("consultation")) return "talk_to_expert";
+  // Most-specific first: the sales calls also contain the generic
+  // "expert"/"consultation" keywords, so they must be matched before them.
+  if (lower.includes("managed marketing") || lower.includes("managed-marketing"))
+    return "managed_services_consult";
+  if (lower.includes("ai consult") || lower.includes("ai-consult")) return "ai_consulting_consult";
   if (lower.includes("activation") || lower.includes("blueprint")) return "activation_session";
+  if (lower.includes("expert") || lower.includes("consultation")) return "talk_to_expert";
   return "general_session";
 }
 
 function getSessionLabel(sessionType: SessionType): string {
   if (sessionType === "talk_to_expert") return "Talk to an Expert";
   if (sessionType === "activation_session") return "Strategy Activation Session";
+  if (sessionType === "managed_services_consult") return "Managed Marketing Consultation";
+  if (sessionType === "ai_consulting_consult") return "Free AI Consultation";
   return "General Session";
 }
+
+// Per-session-type AC signals. Booked tags are the primary automation triggers
+// (applied via the Contacts API, which works without the legacy webhook). The
+// `mql:*` tags flag high-intent sales leads for CRM routing / suppression.
+const SESSION_AC_CONFIG: Record<
+  SessionType,
+  {
+    bookedTags: string[];
+    canceledTag: string;
+    noShowTag: string;
+    bookedEvent: string;
+    noShowEvent: string;
+  }
+> = {
+  talk_to_expert: {
+    bookedTags: ["call:expert-scheduled"],
+    canceledTag: "call:expert-canceled",
+    noShowTag: "call:expert-no-show",
+    bookedEvent: "expert_call_booked",
+    noShowEvent: "expert_call_no_show",
+  },
+  activation_session: {
+    bookedTags: ["session:activation-scheduled", "session:booked"],
+    canceledTag: "session:activation-canceled",
+    noShowTag: "session:activation-no-show",
+    bookedEvent: "activation_session_booked",
+    noShowEvent: "activation_session_no_show",
+  },
+  managed_services_consult: {
+    bookedTags: ["services:managed-marketing-scheduled", "mql:managed-marketing"],
+    canceledTag: "services:managed-marketing-canceled",
+    noShowTag: "services:managed-marketing-no-show",
+    bookedEvent: "managed_marketing_consult_booked",
+    noShowEvent: "managed_marketing_consult_no_show",
+  },
+  ai_consulting_consult: {
+    bookedTags: ["services:ai-consulting-scheduled", "mql:ai-consulting"],
+    canceledTag: "services:ai-consulting-canceled",
+    noShowTag: "services:ai-consulting-no-show",
+    bookedEvent: "ai_consulting_consult_booked",
+    noShowEvent: "ai_consulting_consult_no_show",
+  },
+  general_session: {
+    bookedTags: ["call:scheduled"],
+    canceledTag: "call:canceled",
+    noShowTag: "call:no-show",
+    bookedEvent: "meeting_booked",
+    noShowEvent: "meeting_no_show",
+  },
+};
 
 function getCalendlyRefs(payload: Record<string, unknown>) {
   const inviteeUri =
@@ -402,20 +473,17 @@ export async function POST(req: NextRequest) {
     try {
       const { applyActiveCampaignTags, setContactFields, getOrCreateContactId } =
         await import("@/lib/applyActiveCampaignTags");
-      const { fireACEvent } = await import("@/lib/fireACEvent");
+      const { fireACEvent, trackActiveCampaignSiteEvent } = await import("@/lib/fireACEvent");
 
       const firstName = name.split(" ")[0] || "";
+      const cfg = SESSION_AC_CONFIG[sessionType];
 
       if (firstName) {
         await getOrCreateContactId(normalizedEmail, { firstName });
       }
 
       if (event === "invitee.created") {
-        const tags = sessionType === "talk_to_expert"
-          ? ["call:expert-scheduled"]
-          : sessionType === "activation_session"
-            ? ["session:activation-scheduled", "session:booked"]
-            : ["call:scheduled"];
+        const tags = cfg.bookedTags;
 
         await applyActiveCampaignTags({ email: normalizedEmail, tags });
 
@@ -428,44 +496,36 @@ export async function POST(req: NextRequest) {
           },
         });
 
-        const eventName = sessionType === "talk_to_expert"
-          ? "expert_call_booked"
-          : sessionType === "activation_session"
-            ? "activation_session_booked"
-            : "meeting_booked";
-
-        await fireACEvent({
-          email: normalizedEmail,
-          eventName,
-          tags,
-          fields: {
-            first_name: firstName,
-            session_type: getSessionLabel(sessionType),
-            scheduled_date: scheduledStart || "",
-          },
-        });
+        // Record via Event Tracking (fires without the legacy webhook) and also
+        // fire the legacy JSON webhook as a no-op fallback if it is configured.
+        await Promise.all([
+          trackActiveCampaignSiteEvent({
+            email: normalizedEmail,
+            eventName: cfg.bookedEvent,
+            eventData: getSessionLabel(sessionType),
+          }),
+          fireACEvent({
+            email: normalizedEmail,
+            eventName: cfg.bookedEvent,
+            tags,
+            fields: {
+              first_name: firstName,
+              session_type: getSessionLabel(sessionType),
+              scheduled_date: scheduledStart || "",
+            },
+          }),
+        ]);
       }
 
       if (event === "invitee.canceled") {
         logger.info("[Calendly Webhook] Session canceled", { email: normalizedEmail, sessionType });
-        const cancelTag = sessionType === "talk_to_expert"
-          ? "call:expert-canceled"
-          : sessionType === "activation_session"
-            ? "session:activation-canceled"
-            : "call:canceled";
-        await applyActiveCampaignTags({ email: normalizedEmail, tags: [cancelTag] });
+        await applyActiveCampaignTags({ email: normalizedEmail, tags: [cfg.canceledTag] });
       }
 
       if (event === "invitee.no_show" || event === "invitee_no_show") {
-        const noShowTag = sessionType === "talk_to_expert"
-          ? "call:expert-no-show"
-          : sessionType === "activation_session"
-            ? "session:activation-no-show"
-            : "call:no-show";
-
         await applyActiveCampaignTags({
           email: normalizedEmail,
-          tags: [noShowTag, "noshow:needs-followup"],
+          tags: [cfg.noShowTag, "noshow:needs-followup"],
         });
 
         await setContactFields({
@@ -476,22 +536,23 @@ export async function POST(req: NextRequest) {
           },
         });
 
-        const eventName = sessionType === "talk_to_expert"
-          ? "expert_call_no_show"
-          : sessionType === "activation_session"
-            ? "activation_session_no_show"
-            : "meeting_no_show";
-
-        await fireACEvent({
-          email: normalizedEmail,
-          eventName,
-          tags: [noShowTag],
-          fields: {
-            first_name: firstName,
-            session_type: getSessionLabel(sessionType),
-            noshow_date: new Date().toISOString().split("T")[0],
-          },
-        });
+        await Promise.all([
+          trackActiveCampaignSiteEvent({
+            email: normalizedEmail,
+            eventName: cfg.noShowEvent,
+            eventData: getSessionLabel(sessionType),
+          }),
+          fireACEvent({
+            email: normalizedEmail,
+            eventName: cfg.noShowEvent,
+            tags: [cfg.noShowTag],
+            fields: {
+              first_name: firstName,
+              session_type: getSessionLabel(sessionType),
+              noshow_date: new Date().toISOString().split("T")[0],
+            },
+          }),
+        ]);
 
         logger.info("[Calendly Webhook] No-show processed", { email: normalizedEmail, sessionType });
       }

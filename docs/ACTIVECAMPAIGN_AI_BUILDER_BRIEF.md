@@ -78,6 +78,19 @@ no longer depend on `ACTIVE_CAMPAIGN_WEBHOOK`:
 | `snapshot_lead_capture` | event | recorded via Event Tracking (tag + list already applied via API) |
 | `assessment_paused` | event + tags | tags applied via API + recorded via Event Tracking |
 
+**📅 Calendly booking signals (as of 2026-07-28 — requires `CALENDLY_WEBHOOK_SECRET` + a registered subscription).** Each Calendly event type maps to its own session type with distinct tags/events, so sales calls can trigger sales workflows:
+
+| Calendly event type | Booked tags | Booked event | Cancel tag | No-show tag |
+|---|---|---|---|---|
+| Brand Blueprint+ Strategy Activation Session | `session:activation-scheduled`, `session:booked` | `activation_session_booked` | `session:activation-canceled` | `session:activation-no-show` |
+| **Talk to an Expert - Managed Marketing Consultation** | `services:managed-marketing-scheduled`, **`mql:managed-marketing`** | `managed_marketing_consult_booked` | `services:managed-marketing-canceled` | `services:managed-marketing-no-show` |
+| **Free AI Consultation** | `services:ai-consulting-scheduled`, **`mql:ai-consulting`** | `ai_consulting_consult_booked` | `services:ai-consulting-canceled` | `services:ai-consulting-no-show` |
+| Talk to an Expert (general) | `call:expert-scheduled` | `expert_call_booked` | `call:expert-canceled` | `call:expert-no-show` |
+
+> All no-shows also get `noshow:needs-followup`. Booked tags are applied via the Contacts API and
+> events recorded via Event Tracking — safe to trigger on. Fields `last_call_type` / `last_call_date`
+> (and `last_noshow_type` / `last_noshow_date`) are set on the contact.
+
 > The legacy JSON-webhook blocks were left in place (harmless no-ops unless
 > `ACTIVE_CAMPAIGN_WEBHOOK` is ever set), so there's no double-send risk today.
 
@@ -245,6 +258,58 @@ Trigger: when any tag matching "report:snapshot-plus-ready", "report:blueprint-r
 Steps: send Email 1 now (report link); wait 2 days; send Email 2 (key finding + %EXPERIENCE_SURVEY_LINK%);
 wait 5 days; send Email 3 (next tier via %UPGRADE_PRODUCT_URL%); end.
 Personalize with %REPORT_LINK%, %PRODUCT_NAME%, %EXPERIENCE_SURVEY_LINK%, %UPGRADE_PRODUCT_URL%.
+```
+
+### 4.9 — Blueprint+ Strategy Activation Session: booking + priming
+- **Goal:** get Blueprint+ buyers to **book and attend** their included 30-min session (this is where the strategist pitches managed services), and prime them so the call converts.
+- **Entry trigger:** tag `session:pending` (added on Blueprint+ purchase) OR `report:blueprint-plus-ready`.
+- **Booking exit signal:** tag `session:activation-scheduled` (Calendly `invitee.created`) → move to the priming branch; stop reminders.
+- **Flow (not-yet-booked branch):** Email 1 (immediate — "your complimentary strategy session is ready", scheduling link) → wait 3d if no `session:activation-scheduled` → Email 2 (value of the session) → wait 4d → Email 3 (last nudge).
+- **Flow (booked / priming branch, trigger `session:activation-scheduled`):** send a "make the most of your session" email that surfaces `%WEAKEST_PILLAR%` + `%TOP_OPPORTUNITIES%` and asks 1–2 qualifying questions (biggest goal this quarter, internal capacity to execute?). This raises show-rate and hands the strategist a warm lead.
+- **No-show branch:** trigger `session:activation-no-show` → 1 re-book email.
+- **Scheduling link:** `https://calendly.com/claudine-wunderbardigital/brand-blueprint-strategy-activation-session`
+
+**AI builder prompt:**
+```
+Create an automation named "Blueprint+ Activation Session — Book & Prime".
+Trigger: when the tag "session:pending" is added.
+Steps: send Email 1 now (scheduling link). Wait 3 days. If tag "session:activation-scheduled"
+is NOT present, send Email 2; wait 4 days; if still not scheduled, send Email 3; end.
+Create a second automation "Activation Session — Pre-call Priming":
+Trigger: when the tag "session:activation-scheduled" is added. Send a prep email personalized with
+%WEAKEST_PILLAR% and %TOP_OPPORTUNITIES%; end.
+```
+
+### 4.10 — Managed Marketing Consultation (hot MQL → sales)  💰
+- **Goal:** a booking here is a bottom-of-funnel managed-services lead — get sales to it fast and warm them for the call. The **sale stays human**; the automation only supports it.
+- **Entry trigger:** tag `mql:managed-marketing` (Calendly "Talk to an Expert - Managed Marketing Consultation" booked).
+- **Suppression:** on entry, **remove the contact from all product-nurture flows** (they're past that) via an "exit goal" / tag check.
+- **Flow:** Email 1 (immediate — confirmation + what to bring, personalized with `%TOP_OPPORTUNITIES%`) → internal: notify sales owner (Slack disposition prompt already fires via the webhook; also add the contact to a "Managed Marketing — Sales" list for the owner digest). Post-call follow-up handled by the strategist / a short proposal sequence.
+- **No-show branch:** trigger `services:managed-marketing-no-show` → sales-priority re-book email (not the generic drip).
+
+**AI builder prompt:**
+```
+Create an automation named "Managed Marketing Consult — Sales Assist".
+Trigger: when the tag "mql:managed-marketing" is added.
+Steps: remove from product-nurture automations; add to list "Managed Marketing — Sales";
+send Email 1 now (confirmation + prep, personalized with %TOP_OPPORTUNITIES%); end.
+Create "Managed Marketing — No-show Rebook": trigger tag "services:managed-marketing-no-show";
+send 1 re-book email; end.
+```
+
+### 4.11 — Free AI Consultation (hot MQL → AI consulting)  💰
+- **Goal:** same shape as 4.10 for the AI consulting line.
+- **Entry trigger:** tag `mql:ai-consulting` (Calendly "Free AI Consultation" booked).
+- **Flow:** suppress product nurture; add to list "AI Consulting — Sales"; Email 1 (confirmation + prep); human follow-up. No-show → `services:ai-consulting-no-show` re-book email.
+
+**AI builder prompt:**
+```
+Create an automation named "AI Consulting Consult — Sales Assist".
+Trigger: when the tag "mql:ai-consulting" is added.
+Steps: remove from product-nurture automations; add to list "AI Consulting — Sales";
+send Email 1 now (confirmation + prep); end.
+Create "AI Consulting — No-show Rebook": trigger tag "services:ai-consulting-no-show";
+send 1 re-book email; end.
 ```
 
 ---

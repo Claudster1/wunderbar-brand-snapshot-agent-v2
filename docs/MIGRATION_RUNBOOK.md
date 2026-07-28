@@ -14,6 +14,8 @@
 
 Migrations must be run **in order** because later migrations depend on tables/columns created by earlier ones. All migrations use `IF NOT EXISTS` / `IF EXISTS` guards and are safe to re-run.
 
+> **Backfilling a partially-migrated database?** If an existing environment is missing feature tables (e.g. `refresh_entitlements`, `brand_blueprint_plus_reports`, `voc_*`, `testimonials`, `experience_survey_responses`, `support_requests`, `security_events`, `session_attribution`, `blueprint_enrichment`, refinement tables), run `database/migration_backfill_missing_tables.sql` — a single idempotent, RLS-hardened script that creates all of them in one pass (HIGH-impact tables first). Safe to run on a live DB; existing tables are skipped.
+
 **Naming:** The survey responses table is created as `nps_responses` by `migration_nps_responses.sql` and then renamed to `experience_survey_responses` by `migration_rename_nps_to_experience.sql`. Customer-facing naming is "WunderBrand Experience Score™" (the metric) and "WunderBrand Experience Survey" (the survey); internal/technical naming uses `experience_survey_responses`, `experience_score`, `experience_category`, etc.
 
 ### Phase 1: Core Schema (Foundation)

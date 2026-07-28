@@ -312,6 +312,44 @@ Create "AI Consulting — No-show Rebook": trigger tag "services:ai-consulting-n
 send 1 re-book email; end.
 ```
 
+### 4.12 — Managed Marketing pre-booking interest nurture  💰
+- **Goal:** get interested-but-not-booked contacts to book the Managed Marketing consultation. Goals-first;
+  the snapshot is an optional aside only.
+- **Entry trigger:** tag `services:managed_marketing` (already applied to snapshot-completers who choose
+  managed marketing; for non-snapshot leads, apply the same tag on a tracked CTA — not yet wired).
+- **Exit goal:** tag `mql:managed-marketing` (they booked → Automation 4.10 takes over); also exit on any
+  `purchased:*` paid tag.
+- **Flow:** 3 emails (immediate / +3d / +6d), each a soft "book the call" focused on their business goals.
+  Copy: `docs/ACTIVECAMPAIGN_CALL_AUTOMATION_EMAILS.md` → **Automation E**.
+
+**AI builder prompt:**
+```
+Create an automation named "Managed Marketing — Pre-Booking Nurture".
+Trigger: when the tag "services:managed_marketing" is added.
+Exit goal: tag "mql:managed-marketing" is added (also exit if any tag starting "purchased:" is added).
+Steps: Email 1 now; wait 3 days; if goal not met, Email 2; wait 3 days; if goal not met, Email 3; end.
+```
+
+### 4.13 — Brand Education series ("The Brand Growth Series")  📚
+- **Goal:** trust + usefulness (NOT conversion). Teach why brand drives growth and retention; earn the
+  right to sell elsewhere in the funnel. Soft snapshot/reply CTAs only.
+- **Entry trigger:** tag `nurture:brand-education` (apply on snapshot lead capture for non-buyers, and on
+  newsletter/education opt-ins).
+- **Cadence:** 7 evergreen lessons, one every 5–7 days. E1 frames it; E2–E6 = one pillar each
+  (Positioning, Messaging, Visibility, Credibility, Conversion); E7 = retention/advocacy + softest ask.
+- **Suppression:** pause while a contact is in an active call/booking sequence (has `session:pending` /
+  `mql:*`); **exit** on any `purchased:*` tag (move to onboarding/retention).
+- **Copy:** `docs/ACTIVECAMPAIGN_BRAND_EDUCATION_NURTURE.md`.
+
+**AI builder prompt:**
+```
+Create an automation named "Brand Growth Series (Education)".
+Trigger: when the tag "nurture:brand-education" is added.
+Exit: if any tag starting with "purchased:" is added, remove from this automation.
+Steps: send Education Email 1 now; wait 7 days; send Email 2; ... repeat through Email 7 (7-day waits); end.
+Before each send, if the contact has tag "session:pending" or any "mql:" tag, wait 1 day, then continue.
+```
+
 ---
 
 ## 5. Segments worth creating (for broadcasts)

@@ -59,7 +59,7 @@ export function FoundationLockedPreview({ likelyArchetype }: Props) {
           See What's Included
         </Link>
         <Link
-          href="https://calendly.com"
+          href="https://calendly.com/claudine-wunderbardigital/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=foundation_locked_preview&utm_campaign=nav_cta_secondary&utm_content=talk_expert"
           target="_blank"
           rel="noopener noreferrer"
           className="btn-secondary"

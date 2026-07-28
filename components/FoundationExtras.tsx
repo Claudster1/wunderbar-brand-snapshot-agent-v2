@@ -32,7 +32,8 @@ interface DiagnosticData {
 }
 
 const UPGRADE_URL = WUNDERBAR_SUITE_FROM_DIAGNOSTIC_URL;
-const EXPERT_URL = "https://calendly.com/wunderbardigital/expert-call";
+const EXPERT_URL =
+  "https://calendly.com/claudine-wunderbardigital/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=foundation_extras&utm_campaign=nav_cta_secondary&utm_content=talk_expert";
 
 interface FoundationExtrasProps {
   slot: "signals" | "archetypeLocked" | "revenueImpact" | "synthesis";

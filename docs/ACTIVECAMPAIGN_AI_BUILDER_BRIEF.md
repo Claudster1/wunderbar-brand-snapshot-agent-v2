@@ -104,22 +104,40 @@ no longer depend on `ACTIVE_CAMPAIGN_WEBHOOK`:
 The app syncs these to the contact via the Contacts API (title-matched — the account already has
 all of them). Full reference: `docs/ACTIVECAMPAIGN_AUTOMATIONS.md` §"Custom Field Reference".
 
-Highlights you'll use most (merge tags are `%FIELD_TITLE_UPPERCASED%`):
-`company_name`, `report_link`, `report_id`, `dashboard_link`, `brand_alignment_score`,
-`positioning_score`, `messaging_score`, `visibility_score`, `credibility_score`,
-`conversion_score`, `primary_pillar`, **`weakest_pillar`**, **`top_opportunities`**,
-`experience_survey_link`, `business_type`,
-`product_name`, `product_key`, `purchase_date`, `amount_paid`, `upgrade_product_name`,
-`upgrade_product_url`, `upgrade_price`, `abandoned_product`, `abandoned_product_url`,
-`abandoned_product_price`, `refresh_price`, `refresh_type`.
+> ⚠️ **Merge-tag gotcha (verified against the live AC account on 2026-07-28):** AC derives a field's
+> personalization tag by uppercasing the title and **removing underscores** (spaces become underscores,
+> but existing underscores are stripped). So `weakest_pillar` → `%WEAKESTPILLAR%` (NOT `%WEAKEST_PILLAR%`).
+> Using the underscored form renders **blank**. Also beware: the account has **two** company fields —
+> `Company Name` (`%COMPANY_NAME%`, id 4, *not written by the app*) and `company_name`
+> (`%COMPANYNAME%`, id 117, *the one the app populates*). Always use `%COMPANYNAME%`.
+
+**Verified merge tags** (field title → exact tag; these are the ones the app populates):
+
+| Field (title) | Merge tag | Field (title) | Merge tag |
+|---|---|---|---|
+| `company_name` | `%COMPANYNAME%` | `report_link` | `%REPORTLINK%` |
+| `brand_alignment_score` | `%BRANDALIGNMENTSCORE%` | `dashboard_link` | `%DASHBOARDLINK%` |
+| `primary_pillar` | `%PRIMARYPILLAR%` | `resume_link` | `%RESUMELINK%` |
+| `weakest_pillar` | `%WEAKESTPILLAR%` | `experience_survey_link` | `%EXPERIENCESURVEYLINK%` |
+| `top_opportunities` | `%TOPOPPORTUNITIES%` | `product_purchased` | `%PRODUCTPURCHASED%` |
+| `positioning_score` | `%POSITIONINGSCORE%` | `amount_paid` | `%AMOUNTPAID%` |
+| `messaging_score` | `%MESSAGINGSCORE%` | `upgrade_product_name` | `%UPGRADEPRODUCTNAME%` |
+| `visibility_score` | `%VISIBILITYSCORE%` | `upgrade_product_url` | `%UPGRADEPRODUCTURL%` |
+| `credibility_score` | `%CREDIBILITYSCORE%` | `upgrade_price` | `%UPGRADEPRICE%` |
+| `conversion_score` | `%CONVERSIONSCORE%` | `abandoned_product` | `%ABANDONEDPRODUCT%` |
+| `business_type` | `%BUSINESSTYPE%` | `abandoned_product_url` | `%ABANDONEDPRODUCTURL%` |
+| `refresh_price` | `%REFRESHPRICE%` | `abandoned_product_price` | `%ABANDONEDPRODUCTPRICE%` |
+| `refresh_type` | `%REFRESHTYPE%` | first name (native) | `%FIRSTNAME%` |
+
+*(`setContactFields` auto-creates any missing field as of the 2026-07-28 hardening, so new titles no longer drop silently — but the merge tag still won't resolve until at least one contact has been written with that field, so prefer the verified tags above.)*
 
 > **Hyper-personalization (as of 2026-07-28):** `weakest_pillar` (the contact's top-opportunity
 > pillar) and `top_opportunities` (a prose summary of their biggest opportunities, generated from
-> their actual results) are now synced. Use `%TOP_OPPORTUNITIES%` in upsell emails to quote the
+> their actual results) are now synced. Use `%TOPOPPORTUNITIES%` in upsell emails to quote the
 > brand's real opportunities instead of generic per-pillar copy.
 >
 > Note: `report_link` / `report_id` / `dashboard_link` are populated on the free snapshot as of
-> the 2026-07-28 fix. Purchase flows also set `report_link`, `product_name`, `amount_paid`, etc.
+> the 2026-07-28 fix. Purchase flows also set `report_link`, `product_purchased`, `amount_paid`, etc.
 
 ---
 
@@ -131,10 +149,14 @@ Ordered by revenue impact. Each is designed to trigger on a **tag that fires tod
 - **Goal:** convert free snapshot leads to a paid tier ($497 Snapshot+ / $997 Blueprint).
 - **Entry trigger:** tag `purchased:snapshot` is added. *(live)*
 - **Exit goal:** any `purchased:snapshot-plus`/`blueprint`/`blueprint-plus` tag → remove from flow.
-- **Personalization:** lead with `%PRIMARY_PILLAR%` (their focus area) and `%BRAND_ALIGNMENT_SCORE%`; quote `%TOP_OPPORTUNITIES%`; CTA to `%UPGRADE_PRODUCT_URL%`.
-- **Copy source:** `docs/EMAIL_5_SNAPSHOT_PLUS_INVITATION.md`, `EMAIL_6_SNAPSHOT_PLUS_EDUCATION.md`, `EMAIL_SNAPSHOT_PLUS_VALUE.md`, `EMAIL_SNAPSHOT_PLUS_FOLLOWUP.md`, `EMAIL_7_FINAL_REMINDER.md`.
+- **Personalization:** lead with `%PRIMARYPILLAR%` (their focus area) and `%BRANDALIGNMENTSCORE%`; quote `%TOPOPPORTUNITIES%`; CTA to `%UPGRADEPRODUCTURL%`.
+- **Score segmentation (biggest conversion lever):** build three conditional-content variants keyed off
+  `%BRANDALIGNMENTSCORE%` — 🔴 <60 (urgency / "money leaking"), 🟡 60–79 (momentum / "you're close"),
+  🟢 ≥80 (ambition / "protect & scale"). Match the subject + opening line to the segment.
+- **Copy source (recommended):** `docs/ACTIVECAMPAIGN_REVENUE_AUTOMATION_EMAILS.md` → Automation 4.1
+  (personalized + score-segmented, verified merge tags). *(Legacy drafts: `EMAIL_5_SNAPSHOT_PLUS_INVITATION.md` et al. — note these use the old underscored merge tags and need the same fix before use.)*
 - **Hyper-personalized snippet (drop into Email 1):**
-  > Your WunderBrand Score™ is **%BRAND_ALIGNMENT_SCORE%/100**, and your biggest opportunity right now is **%WEAKEST_PILLAR%**. Based on your results: %TOP_OPPORTUNITIES% — Snapshot+™ turns these into a step-by-step roadmap. [See your full results →](%UPGRADE_PRODUCT_URL%)
+  > Your WunderBrand Score™ is **%BRANDALIGNMENTSCORE%/100**, and your biggest opportunity right now is **%WEAKESTPILLAR%**. Based on your results: %TOPOPPORTUNITIES% — Snapshot+™ turns these into a step-by-step roadmap. [See your full results →](%UPGRADEPRODUCTURL%)
 - **Flow:** Email 1 (immediate, results recap + what Snapshot+ adds) → wait 2d → Email 2 (education: what the weakest pillar is costing them) → wait 3d → Email 3 (value/proof) → wait 3d → Email 4 (soft CTA) → wait 4d → Email 5 (final reminder / scarcity).
 
 **AI builder prompt:**
@@ -145,16 +167,16 @@ Goal (exit): contact is added any tag matching "purchased:snapshot-plus", "purch
 or "purchased:blueprint-plus" → they exit immediately.
 Steps: send Email 1 now; wait 2 days; send Email 2; wait 3 days; send Email 3; wait 3 days;
 send Email 4; wait 4 days; send Email 5; then end.
-Personalize with %PRIMARY_PILLAR%, %BRAND_ALIGNMENT_SCORE%, %REPORT_LINK%, %UPGRADE_PRODUCT_URL%,
-%UPGRADE_PRICE%. I will paste the 5 email bodies for each Send step.
+Personalize with %PRIMARYPILLAR%, %BRANDALIGNMENTSCORE%, %REPORTLINK%, %UPGRADEPRODUCTURL%,
+%UPGRADEPRICE%. I will paste the 5 email bodies for each Send step.
 ```
 
 ### 4.2 — Abandoned checkout recovery  ⭐ high impact
 - **Goal:** recover started-but-unpaid checkouts.
 - **Entry trigger:** tag `checkout:abandoned` is added. *(live)*
 - **Exit goal:** any `purchased:*` tag added.
-- **Personalization:** `%ABANDONED_PRODUCT%`, `%ABANDONED_PRODUCT_PRICE%`, CTA `%ABANDONED_PRODUCT_URL%`.
-- **Copy source:** `docs/EMAIL_CHECKOUT_ABANDONMENT.md`.
+- **Personalization:** `%ABANDONEDPRODUCT%`, `%ABANDONEDPRODUCTPRICE%`, CTA `%ABANDONEDPRODUCTURL%`.
+- **Copy source (recommended):** `docs/ACTIVECAMPAIGN_REVENUE_AUTOMATION_EMAILS.md` → Automation 4.2. *(Legacy: `docs/EMAIL_CHECKOUT_ABANDONMENT.md`.)*
 - **Flow:** Email 1 (1 hour later, "still interested?") → wait 1d → Email 2 (handle objection / reassurance) → wait 2d → Email 3 (final nudge, optional urgency).
 
 **AI builder prompt:**
@@ -163,7 +185,7 @@ Create an automation named "Abandoned Checkout Recovery".
 Trigger: when the tag "checkout:abandoned" is added. Runs once per contact; re-entry allowed.
 Goal (exit): any tag starting with "purchased:" is added → exit.
 Steps: wait 1 hour; send Email 1; wait 1 day; send Email 2; wait 2 days; send Email 3; end.
-Personalize with %ABANDONED_PRODUCT%, %ABANDONED_PRODUCT_PRICE%, %ABANDONED_PRODUCT_URL%.
+Personalize with %ABANDONEDPRODUCT%, %ABANDONEDPRODUCTPRICE%, %ABANDONEDPRODUCTURL%.
 ```
 
 ### 4.3 — Post-purchase onboarding / welcome
@@ -171,7 +193,7 @@ Personalize with %ABANDONED_PRODUCT%, %ABANDONED_PRODUCT_PRICE%, %ABANDONED_PROD
 - **Entry trigger:** tag `onboarding:snapshot-plus` (build one per tier, or a single flow entered by
   any `onboarding:*` tag with tier branching). *(live)*
 - **Exit goal:** none (transactional); or refund tag `purchase:refunded`.
-- **Personalization:** `%PRODUCT_NAME%`, `%DASHBOARD_LINK%`, `%REPORT_LINK%`.
+- **Personalization:** `%PRODUCTPURCHASED%`, `%DASHBOARDLINK%`, `%REPORTLINK%`.
 - **Copy source:** `docs/EMAIL_BLUEPRINT_INVITATION.md` and product pages for tier specifics.
 - **Flow:** Email 1 (immediate welcome + how to start/access) → wait 2d → Email 2 (get-the-most-out-of-it tips) → wait 5d → Email 3 (check-in + surface next tier).
 
@@ -182,15 +204,15 @@ Trigger: when any tag matching "onboarding:snapshot-plus", "onboarding:blueprint
 "onboarding:blueprint-plus" is added. Runs once per contact.
 Branch on the tier tag to swap product-specific copy.
 Steps: send welcome Email 1 now; wait 2 days; send Email 2 (tips); wait 5 days; send Email 3
-(check-in + next-tier CTA using %UPGRADE_PRODUCT_NAME% / %UPGRADE_PRODUCT_URL%); end.
-Personalize with %PRODUCT_NAME%, %DASHBOARD_LINK%, %REPORT_LINK%.
+(check-in + next-tier CTA using %UPGRADEPRODUCTNAME% / %UPGRADEPRODUCTURL%); end.
+Personalize with %PRODUCTPURCHASED%, %DASHBOARDLINK%, %REPORTLINK%.
 ```
 
 ### 4.4 — Upgrade ladder (Snapshot+ → Blueprint → Blueprint+)
 - **Goal:** move customers up the $497 → $997 → $1,997 ladder (upgrade credits apply).
 - **Entry trigger:** tag `intent:upgrade-blueprint` or `intent:upgrade-blueprint-plus`. *(live — applied at purchase)*
 - **Exit goal:** the corresponding `purchased:*` tag for the target tier.
-- **Personalization:** `%UPGRADE_PRODUCT_NAME%`, `%UPGRADE_PRICE%`, `%UPGRADE_PRODUCT_URL%`.
+- **Personalization:** `%UPGRADEPRODUCTNAME%`, `%UPGRADEPRICE%`, `%UPGRADEPRODUCTURL%`.
 - **Flow:** wait 3d after purchase → Email 1 (what the next tier unlocks + credit) → wait 5d → Email 2 (proof/ROI) → wait 7d → Email 3 (offer/limited credit reminder).
 
 **AI builder prompt:**
@@ -199,7 +221,7 @@ Create an automation named "Upgrade Ladder".
 Trigger: when the tag "intent:upgrade-blueprint" OR "intent:upgrade-blueprint-plus" is added.
 Goal (exit): the matching "purchased:blueprint" / "purchased:blueprint-plus" tag is added.
 Steps: wait 3 days; send Email 1; wait 5 days; send Email 2; wait 7 days; send Email 3; end.
-Personalize with %UPGRADE_PRODUCT_NAME%, %UPGRADE_PRICE%, %UPGRADE_PRODUCT_URL%.
+Personalize with %UPGRADEPRODUCTNAME%, %UPGRADEPRICE%, %UPGRADEPRODUCTURL%.
 ```
 
 ### 4.5 — Refund / payment-failed recovery
@@ -219,7 +241,7 @@ days, send a feedback + re-engagement email).
 - **Goal:** drive $47/$97 quarterly refresh revenue.
 - **Entry trigger:** tag `refresh:eligible` (applied at purchase). *(live)* The app's refresh-reminder
   cron also manages `refresh:60-day-reminder` / `30-day` / `7-day` timing if you prefer time-based.
-- **Personalization:** `%REFRESH_PRICE%`, `%REFRESH_TYPE%`, `%REPORT_LINK%`.
+- **Personalization:** `%REFRESHPRICE%`, `%REFRESHTYPE%`, `%REPORTLINK%`.
 - **Flow:** wait ~75–90 days → Email 1 (your brand has moved — refresh) → wait 7d → Email 2 (reminder) → wait 7d → Email 3 (last call before window closes).
 
 **AI builder prompt:**
@@ -228,7 +250,7 @@ Create an automation named "Quarterly Refresh Reminder".
 Trigger: when the tag "refresh:eligible" is added.
 Steps: wait 75 days; send Email 1; wait 7 days; send Email 2; wait 7 days; send Email 3; end.
 Goal (exit): a refresh purchase tag ("purchased:snapshot-plus-refresh" / "purchased:blueprint-refresh").
-Personalize with %REFRESH_PRICE%, %REFRESH_TYPE%, %REPORT_LINK%.
+Personalize with %REFRESHPRICE%, %REFRESHTYPE%, %REPORTLINK%.
 ```
 
 ### 4.7 — Content opt-in welcome / newsletter
@@ -247,7 +269,8 @@ Steps: send welcome Email 1 now; wait 4 days; send Email 2; then add tag "nurtur
 ### 4.8 — Report Ready (paid report delivery)
 - **Goal:** deliver the finished report and drive the experience survey + next-tier CTA.
 - **Entry trigger:** tag `report:snapshot-plus-ready` / `report:blueprint-ready` / `report:blueprint-plus-ready`. *(live as of the 2026-07-28 fix — applied via API)* You can also trigger on the `report_ready` **event**.
-- **Personalization:** `%REPORT_LINK%`, `%PRODUCT_NAME%`, `%EXPERIENCE_SURVEY_LINK%`, `%UPGRADE_PRODUCT_URL%`.
+- **Personalization:** `%REPORTLINK%`, `%PRODUCTPURCHASED%`, `%EXPERIENCESURVEYLINK%`, `%UPGRADEPRODUCTURL%`.
+- **Copy source (recommended):** `docs/ACTIVECAMPAIGN_REVENUE_AUTOMATION_EMAILS.md` → Automation 4.8.
 - **Flow:** Email 1 (immediate — "your report is ready", link) → wait 2d → Email 2 (highlight a key finding + experience survey) → wait 5d → Email 3 (next-tier CTA).
 
 **AI builder prompt:**
@@ -255,9 +278,9 @@ Steps: send welcome Email 1 now; wait 4 days; send Email 2; then add tag "nurtur
 Create an automation named "Report Ready".
 Trigger: when any tag matching "report:snapshot-plus-ready", "report:blueprint-ready", or
 "report:blueprint-plus-ready" is added. Runs once per contact.
-Steps: send Email 1 now (report link); wait 2 days; send Email 2 (key finding + %EXPERIENCE_SURVEY_LINK%);
-wait 5 days; send Email 3 (next tier via %UPGRADE_PRODUCT_URL%); end.
-Personalize with %REPORT_LINK%, %PRODUCT_NAME%, %EXPERIENCE_SURVEY_LINK%, %UPGRADE_PRODUCT_URL%.
+Steps: send Email 1 now (report link); wait 2 days; send Email 2 (key finding + %EXPERIENCESURVEYLINK%);
+wait 5 days; send Email 3 (next tier via %UPGRADEPRODUCTURL%); end.
+Personalize with %REPORTLINK%, %PRODUCTPURCHASED%, %EXPERIENCESURVEYLINK%, %UPGRADEPRODUCTURL%.
 ```
 
 ### 4.9 — Blueprint+ Strategy Activation Session: booking + priming
@@ -265,7 +288,7 @@ Personalize with %REPORT_LINK%, %PRODUCT_NAME%, %EXPERIENCE_SURVEY_LINK%, %UPGRA
 - **Entry trigger:** tag `session:pending` (added on Blueprint+ purchase) OR `report:blueprint-plus-ready`.
 - **Booking exit signal:** tag `session:activation-scheduled` (Calendly `invitee.created`) → move to the priming branch; stop reminders.
 - **Flow (not-yet-booked branch):** Email 1 (immediate — "your complimentary strategy session is ready", scheduling link) → wait 3d if no `session:activation-scheduled` → Email 2 (value of the session) → wait 4d → Email 3 (last nudge).
-- **Flow (booked / priming branch, trigger `session:activation-scheduled`):** send a "make the most of your session" email that surfaces `%WEAKEST_PILLAR%` + `%TOP_OPPORTUNITIES%` and asks 1–2 qualifying questions (biggest goal this quarter, internal capacity to execute?). This raises show-rate and hands the strategist a warm lead.
+- **Flow (booked / priming branch, trigger `session:activation-scheduled`):** send a "make the most of your session" email that surfaces `%WEAKESTPILLAR%` + `%TOPOPPORTUNITIES%` and asks 1–2 qualifying questions (biggest goal this quarter, internal capacity to execute?). This raises show-rate and hands the strategist a warm lead.
 - **No-show branch:** trigger `session:activation-no-show` → 1 re-book email.
 - **Scheduling link:** `https://calendly.com/claudine-wunderbardigital/brand-blueprint-strategy-activation-session`
 
@@ -277,14 +300,14 @@ Steps: send Email 1 now (scheduling link). Wait 3 days. If tag "session:activati
 is NOT present, send Email 2; wait 4 days; if still not scheduled, send Email 3; end.
 Create a second automation "Activation Session — Pre-call Priming":
 Trigger: when the tag "session:activation-scheduled" is added. Send a prep email personalized with
-%WEAKEST_PILLAR% and %TOP_OPPORTUNITIES%; end.
+%WEAKESTPILLAR% and %TOPOPPORTUNITIES%; end.
 ```
 
 ### 4.10 — Managed Marketing Consultation (hot MQL → sales)  💰
 - **Goal:** a booking here is a bottom-of-funnel managed-services lead — get sales to it fast and warm them for the call. The **sale stays human**; the automation only supports it.
 - **Entry trigger:** tag `mql:managed-marketing` (Calendly "Talk to an Expert - Managed Marketing Consultation" booked).
 - **Suppression:** on entry, **remove the contact from all product-nurture flows** (they're past that) via an "exit goal" / tag check.
-- **Flow:** Email 1 (immediate — confirmation + what to bring, personalized with `%TOP_OPPORTUNITIES%`) → internal: notify sales owner (Slack disposition prompt already fires via the webhook; also add the contact to a "Managed Marketing — Sales" list for the owner digest). Post-call follow-up handled by the strategist / a short proposal sequence.
+- **Flow:** Email 1 (immediate — confirmation + what to bring, personalized with `%TOPOPPORTUNITIES%`) → internal: notify sales owner (Slack disposition prompt already fires via the webhook; also add the contact to a "Managed Marketing — Sales" list for the owner digest). Post-call follow-up handled by the strategist / a short proposal sequence.
 - **No-show branch:** trigger `services:managed-marketing-no-show` → sales-priority re-book email (not the generic drip).
 
 **AI builder prompt:**
@@ -292,7 +315,7 @@ Trigger: when the tag "session:activation-scheduled" is added. Send a prep email
 Create an automation named "Managed Marketing Consult — Sales Assist".
 Trigger: when the tag "mql:managed-marketing" is added.
 Steps: remove from product-nurture automations; add to list "Managed Marketing — Sales";
-send Email 1 now (confirmation + prep, personalized with %TOP_OPPORTUNITIES%); end.
+send Email 1 now (confirmation + prep, personalized with %TOPOPPORTUNITIES%); end.
 Create "Managed Marketing — No-show Rebook": trigger tag "services:managed-marketing-no-show";
 send 1 re-book email; end.
 ```

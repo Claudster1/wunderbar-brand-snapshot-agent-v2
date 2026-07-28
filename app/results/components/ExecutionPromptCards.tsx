@@ -175,7 +175,7 @@ export function ExecutionPromptCards({
                     <div className="flex gap-3">
                       <Link href={upgrade.href} className="btn-primary">{upgrade.label}</Link>
                       <Link
-                        href="https://calendly.com"
+                        href="https://calendly.com/claudine-wunderbardigital/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=execution_prompt_card&utm_campaign=nav_cta_secondary&utm_content=talk_expert"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="btn-secondary"

@@ -94,11 +94,17 @@ all of them). Full reference: `docs/ACTIVECAMPAIGN_AUTOMATIONS.md` §"Custom Fie
 Highlights you'll use most (merge tags are `%FIELD_TITLE_UPPERCASED%`):
 `company_name`, `report_link`, `report_id`, `dashboard_link`, `brand_alignment_score`,
 `positioning_score`, `messaging_score`, `visibility_score`, `credibility_score`,
-`conversion_score`, `primary_pillar`, `experience_survey_link`, `business_type`,
+`conversion_score`, `primary_pillar`, **`weakest_pillar`**, **`top_opportunities`**,
+`experience_survey_link`, `business_type`,
 `product_name`, `product_key`, `purchase_date`, `amount_paid`, `upgrade_product_name`,
 `upgrade_product_url`, `upgrade_price`, `abandoned_product`, `abandoned_product_url`,
 `abandoned_product_price`, `refresh_price`, `refresh_type`.
 
+> **Hyper-personalization (as of 2026-07-28):** `weakest_pillar` (the contact's top-opportunity
+> pillar) and `top_opportunities` (a prose summary of their biggest opportunities, generated from
+> their actual results) are now synced. Use `%TOP_OPPORTUNITIES%` in upsell emails to quote the
+> brand's real opportunities instead of generic per-pillar copy.
+>
 > Note: `report_link` / `report_id` / `dashboard_link` are populated on the free snapshot as of
 > the 2026-07-28 fix. Purchase flows also set `report_link`, `product_name`, `amount_paid`, etc.
 
@@ -112,8 +118,10 @@ Ordered by revenue impact. Each is designed to trigger on a **tag that fires tod
 - **Goal:** convert free snapshot leads to a paid tier ($497 Snapshot+ / $997 Blueprint).
 - **Entry trigger:** tag `purchased:snapshot` is added. *(live)*
 - **Exit goal:** any `purchased:snapshot-plus`/`blueprint`/`blueprint-plus` tag → remove from flow.
-- **Personalization:** lead with `%PRIMARY_PILLAR%` (their focus area) and `%BRAND_ALIGNMENT_SCORE%`; CTA to `%UPGRADE_PRODUCT_URL%`.
+- **Personalization:** lead with `%PRIMARY_PILLAR%` (their focus area) and `%BRAND_ALIGNMENT_SCORE%`; quote `%TOP_OPPORTUNITIES%`; CTA to `%UPGRADE_PRODUCT_URL%`.
 - **Copy source:** `docs/EMAIL_5_SNAPSHOT_PLUS_INVITATION.md`, `EMAIL_6_SNAPSHOT_PLUS_EDUCATION.md`, `EMAIL_SNAPSHOT_PLUS_VALUE.md`, `EMAIL_SNAPSHOT_PLUS_FOLLOWUP.md`, `EMAIL_7_FINAL_REMINDER.md`.
+- **Hyper-personalized snippet (drop into Email 1):**
+  > Your WunderBrand Score™ is **%BRAND_ALIGNMENT_SCORE%/100**, and your biggest opportunity right now is **%WEAKEST_PILLAR%**. Based on your results: %TOP_OPPORTUNITIES% — Snapshot+™ turns these into a step-by-step roadmap. [See your full results →](%UPGRADE_PRODUCT_URL%)
 - **Flow:** Email 1 (immediate, results recap + what Snapshot+ adds) → wait 2d → Email 2 (education: what the weakest pillar is costing them) → wait 3d → Email 3 (value/proof) → wait 3d → Email 4 (soft CTA) → wait 4d → Email 5 (final reminder / scarcity).
 
 **AI builder prompt:**

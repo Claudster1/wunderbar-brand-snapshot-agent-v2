@@ -34,6 +34,25 @@ For each automation in §4:
 4. Set the **exit goal** so contacts leave when they convert.
 5. Turn it **on** and run the §6 test.
 
+### Build packs (easiest path — prompt + copy co-located)
+
+For the automations we've written finished copy for, each automation section in the copy docs now has a
+**"🔧 Build in AC"** block (AI-builder prompt + exact Send-step order + on-entry actions) right above its
+email bodies — so you build each one from a single place, no flipping. Recommended build order:
+
+| # | Automation | Trigger | Build pack (copy doc) |
+|---|---|---|---|
+| 1 | Free Snapshot → Snapshot+ upgrade ⭐ | `purchased:snapshot` | `ACTIVECAMPAIGN_REVENUE_AUTOMATION_EMAILS.md` → 4.1 |
+| 2 | Abandoned checkout ⭐ | `checkout:abandoned` | `…REVENUE…` → 4.2 |
+| 3 | Report Ready | `report:*-ready` | `…REVENUE…` → 4.8 |
+| 4 | Brand Education series | `nurture:brand-education` | `ACTIVECAMPAIGN_BRAND_EDUCATION_NURTURE.md` |
+| 5 | Managed Marketing MQL 💰 | `mql:managed-marketing` | `ACTIVECAMPAIGN_CALL_AUTOMATION_EMAILS.md` → B |
+| 6 | Managed Marketing pre-booking 💰 | `services:managed_marketing` | `…CALL…` → E |
+| 7 | Free AI Consultation MQL 💰 | `mql:ai-consulting` | `…CALL…` → C |
+| 8 | Blueprint+ Strategy Activation | `session:pending` | `…CALL…` → A |
+| 9 | Talk to an Expert follow-up | `call:expert-scheduled` | `…CALL…` → D |
+| 10 | Cancellation recovery | any `*:canceled` | `…CALL…` → Shared |
+
 ---
 
 ## 2. ⚠️ Production signal reality check (READ FIRST)

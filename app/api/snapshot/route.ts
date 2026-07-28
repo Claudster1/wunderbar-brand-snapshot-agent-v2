@@ -626,6 +626,11 @@ export async function POST(req: Request) {
         credibility_score: scores.pillarScores.credibility ?? 0,
         conversion_score: scores.pillarScores.conversion ?? 0,
         primary_pillar: primaryPillar ?? "positioning",
+        // Hyper-personalization: the weakest pillar (top opportunity) and a prose
+        // summary of the brand's biggest opportunities, so nurture emails can quote
+        // the contact's actual results rather than generic per-pillar blocks.
+        weakest_pillar: primaryPillar ?? "positioning",
+        top_opportunities: opportunities_summary,
         experience_survey_link: `${BASE_URL}/experience-survey?tier=snapshot&reportId=${encodeURIComponent(report_id)}&email=${encodeURIComponent(userEmail)}`,
         experience_tier: "snapshot",
         business_type: asStringOrEmpty(businessTypeForAc),

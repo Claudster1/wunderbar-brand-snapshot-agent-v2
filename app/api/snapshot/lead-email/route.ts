@@ -122,12 +122,34 @@ export async function POST(req: Request) {
       process.env.NEXT_PUBLIC_BASE_URL ||
       "https://app.wunderbrand.ai";
     const resumeLink = `${BASE_URL}/?resume=${encodeURIComponent(reportId)}`;
+    const resultsUrl = `${BASE_URL}/results?reportId=${encodeURIComponent(reportId)}`;
 
     const { sanitizeString } = await import("@/lib/security/inputValidation");
     const firstName =
       typeof rawFirstName === "string" && rawFirstName.trim() ? sanitizeString(rawFirstName).slice(0, 80) : "";
     const productTier =
       typeof rawTier === "string" && rawTier.trim() ? sanitizeString(rawTier).slice(0, 40) : "snapshot";
+
+    // Deliver the results to the user's inbox (transactional). THIS is the actual
+    // "email me my results" delivery — previously the results page unlocked but no
+    // email was ever sent, despite the UI promising delivery. Fire-and-forget so a
+    // mail hiccup never blocks the capture/unlock.
+    try {
+      const { sendTransactionalEmail } = await import("@/lib/email/transactional");
+      const { buildSnapshotReportEmail } = await import("@/lib/email/reportDeliveryEmail");
+      const productName =
+        productTier === "snapshot-plus" ? "WunderBrand Snapshot+\u2122" : "WunderBrand Snapshot\u2122";
+      const { subject, html, text } = buildSnapshotReportEmail({ resultsUrl, productName, firstName });
+      const sendResult = await sendTransactionalEmail({ to: normalized, subject, html, text });
+      if (!sendResult.ok) {
+        logger.warn("[Lead Email] Results delivery email failed", {
+          error: sendResult.error,
+          provider: sendResult.provider,
+        });
+      }
+    } catch (mailErr) {
+      logger.warn("[Lead Email] Results delivery email threw", { error: describeError(mailErr) });
+    }
 
     const hasAcWebhook =
       Boolean(process.env.ACTIVE_CAMPAIGN_WEBHOOK) ||
@@ -167,6 +189,7 @@ export async function POST(req: Request) {
           email: normalized,
           fields: {
             resume_link: resumeLink,
+            report_link: resultsUrl,
             report_id: reportId,
             product_key: productTier,
             ...(firstName ? { first_name_custom: firstName } : {}),

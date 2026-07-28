@@ -383,6 +383,26 @@ The Wunderbar Digital team
 
 ---
 
+## Services interest endpoint (feeds Automations E & F)
+
+`POST /api/services/interest` applies the pre-booking nurture entry tags for leads who have **not** done a
+snapshot. It mirrors the tags the snapshot flow already applies, so both audiences land in the same
+sequences.
+
+**Request body:**
+```json
+{ "email": "person@company.com", "service": "managed_marketing", "source": "nav_cta", "turnstileToken": "…" }
+```
+- `service`: `"managed_marketing"` | `"consulting"` | `"both"` (defaults to `managed_marketing`).
+- **Tags applied:** `services:interested` + `services:managed_marketing` and/or `services:consulting`.
+- **Event recorded:** `services_interest` (eventdata `service:source`).
+- **Security:** Turnstile + honeypot + rate limit, same as the snapshot lead form.
+
+Wire any standalone "Talk to us about Managed Marketing / AI" lead form to this endpoint and the contact
+drops straight into Automation **E** (managed marketing) or **F** (AI consulting).
+
+---
+
 # Automation E — Managed Marketing: Pre-Booking Interest Nurture 💰
 
 Goals-first sequence for people who are **interested in managed marketing but haven't booked a call yet.**
@@ -393,10 +413,10 @@ aside only.
 - ✅ **Already fires today** for snapshot-completers who chose "managed marketing" as a services interest
   (`app/api/snapshot/route.ts`). These contacts *have* snapshot data → the conditional bonus block shows.
 - ➕ **For non-snapshot leads** (e.g. someone clicks a "Managed Marketing" CTA without doing a snapshot):
-  we need to apply this same tag on that action. Today the "Managed Marketing" links point to the external
-  marketing site (`wunderbardigital.com/managed-marketing`), so nothing tags them. Options: (a) an AC
-  **link-click** trigger on managed-marketing links in existing emails, or (b) a small tracked
-  CTA/endpoint in-app that applies `services:managed_marketing`. *(I can wire option (b) — say the word.)*
+  the tag is now applied by **`POST /api/services/interest`** (see the shared **Services interest endpoint**
+  note below). Point any in-app managed-marketing lead form at that endpoint with
+  `{ email, service: "managed_marketing", source }`. *(For clicks that go straight to the external site
+  `wunderbardigital.com/managed-marketing`, you can additionally add an AC **link-click** trigger.)*
 
 **Exit goal:** tag `mql:managed-marketing` (they booked) → remove from this flow; **Automation B** takes over.
 **Also exit on:** any `purchased:*` paid tag (don't sell services to someone mid-product-purchase — use judgment).
@@ -484,9 +504,89 @@ Claudine — Wunderbar Digital
 
 ---
 
-> **AI-consulting equivalent (optional):** the same structure works for AI consulting — trigger on
-> `services:consulting`, exit on `mql:ai-consulting`, swap the booking URL and the "run your marketing"
-> framing for AI use-cases. Say the word and I'll add it as Automation F.
+# Automation F — AI Consulting: Pre-Booking Interest Nurture 💰
+
+Goals-first mirror of Automation E for people interested in AI consulting who **haven't booked yet.**
+Every email's job: **get them on the call.** Their business/AI goals lead; the snapshot isn't mentioned
+(weak fit for AI consulting).
+
+**Trigger:** tag `services:consulting`.
+- ✅ **Already fires today** for snapshot-completers who chose "consulting" (or "both") as a services
+  interest (`app/api/snapshot/route.ts`).
+- ➕ **For non-snapshot leads:** apply the same tag on an AI-consulting CTA (same wiring options as
+  Automation E — see the "Services interest" endpoint note).
+
+**Exit goal:** tag `mql:ai-consulting` (they booked) → **Automation C** takes over.
+**Also exit on:** any `purchased:*` paid tag.
+
+**🔧 Build in AC**
+```
+Create an automation named "AI Consulting — Pre-Booking Nurture".
+Trigger: when the tag "services:consulting" is added.
+Exit goal: "mql:ai-consulting" added (also exit if any "purchased:" tag is added).
+Steps: send F1 now; wait 3 days; if goal not met, send F2; wait 3 days; if goal not met, send F3; end.
+```
+Send-step order: **F1** now · **F2** +3d (if not booked) · **F3** +6d from start (if still not booked).
+
+---
+
+### F1 — Immediate
+
+**Subject:** Curious where AI could help %COMPANYNAME%?
+**Preview:** Let's talk about the highest-leverage places to start.
+
+Hi %FIRSTNAME%,
+
+You mentioned you're interested in how AI could help %COMPANYNAME% — happy to dig in. The fastest way is a short, practical call (no pitch): we'll look at where AI can create real leverage for you versus where it's just hype.
+
+Come with a rough sense of:
+
+- **One or two workflows or decisions** that eat time or feel error-prone today,
+- **What you've already tried** (tools, experiments, dead ends), and
+- **Where the biggest payoff would be** — time saved, cost, quality, or scale.
+
+From there I'll give you an honest take on what's realistic and where to start.
+
+**→ Book your free AI consultation** (button → Free AI Consultation URL)
+
+Talk soon,
+Claudine — Wunderbar Digital
+
+---
+
+### F2 — +3 days, if `mql:ai-consulting` NOT present
+
+**Subject:** Where AI actually moves the needle
+**Preview:** A quick reframe — then let's talk specifics.
+
+Hi %FIRSTNAME%,
+
+Following up on exploring AI for %COMPANYNAME%. The teams that get real value from AI usually aren't chasing the flashiest tool — they're the ones who pick **one high-friction workflow** and make it dramatically faster or better.
+
+A quick call is the fastest way to spot which one that is for you — and what's genuinely worth doing versus skipping.
+
+**→ Grab a time that works** (button → Free AI Consultation URL)
+
+Best,
+Claudine — Wunderbar Digital
+
+---
+
+### F3 — +6 days, if still not booked (soft last nudge)
+
+**Subject:** Still happy to talk AI whenever you're ready, %FIRSTNAME%
+**Preview:** No pressure — just an open invitation.
+
+Hi %FIRSTNAME%,
+
+I'll leave this here: if you're weighing where AI could help %COMPANYNAME%, I'm glad to talk it through — even if you're just gathering perspective. No pitch, no obligation, just an honest read.
+
+**→ Book whenever it suits you** (button → Free AI Consultation URL)
+
+And if now's not the time, a quick reply telling me so is genuinely helpful.
+
+Best,
+Claudine — Wunderbar Digital
 
 ---
 

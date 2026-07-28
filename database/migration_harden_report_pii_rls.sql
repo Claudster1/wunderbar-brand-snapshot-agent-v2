@@ -20,6 +20,13 @@
 --   brand_blueprint_plus_reports (paid report content + emails)
 --
 -- Idempotent: safe to re-run. Run in Supabase SQL Editor.
+--
+-- Resilient: every table's statements are guarded with an IF EXISTS check, so
+-- this migration applies RLS wherever a table is present and silently skips any
+-- table that has not been created in this database (e.g. brand_snapshot_purchases
+-- on projects where migration_brand_snapshot_purchases.sql was never run). This
+-- prevents a single missing table from rolling back the whole transaction.
+--
 -- Verify afterwards:
 --   SELECT tablename, rowsecurity FROM pg_tables WHERE schemaname='public';
 --   SELECT grantee, privilege_type FROM information_schema.role_table_grants
@@ -28,33 +35,44 @@
 
 BEGIN;
 
--- ─── 1. brand_snapshot_reports: remove public/anon read access ───
+-- ─── 1. brand_snapshot_reports: remove public/anon read access (critical PII fix) ───
 
-DROP POLICY IF EXISTS "Allow read by report_id" ON public.brand_snapshot_reports;
-
-REVOKE SELECT ON public.brand_snapshot_reports FROM anon;
-REVOKE ALL   ON public.brand_snapshot_reports FROM anon;
-
-ALTER TABLE public.brand_snapshot_reports ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "Service role full access to brand_snapshot_reports" ON public.brand_snapshot_reports;
-CREATE POLICY "Service role full access to brand_snapshot_reports"
-  ON public.brand_snapshot_reports
-  FOR ALL
-  USING ((select auth.role()) = 'service_role')
-  WITH CHECK ((select auth.role()) = 'service_role');
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'brand_snapshot_reports'
+  ) THEN
+    EXECUTE 'DROP POLICY IF EXISTS "Allow read by report_id" ON public.brand_snapshot_reports';
+    EXECUTE 'REVOKE ALL ON public.brand_snapshot_reports FROM anon';
+    EXECUTE 'ALTER TABLE public.brand_snapshot_reports ENABLE ROW LEVEL SECURITY';
+    EXECUTE 'DROP POLICY IF EXISTS "Service role full access to brand_snapshot_reports" ON public.brand_snapshot_reports';
+    EXECUTE 'CREATE POLICY "Service role full access to brand_snapshot_reports"
+      ON public.brand_snapshot_reports
+      FOR ALL
+      USING ((select auth.role()) = ''service_role'')
+      WITH CHECK ((select auth.role()) = ''service_role'')';
+  END IF;
+END $$;
 
 -- ─── 2. brand_snapshot_purchases: enable RLS (service-role only) ───
 
-ALTER TABLE public.brand_snapshot_purchases ENABLE ROW LEVEL SECURITY;
-REVOKE ALL ON public.brand_snapshot_purchases FROM anon;
-
-DROP POLICY IF EXISTS "Service role full access to brand_snapshot_purchases" ON public.brand_snapshot_purchases;
-CREATE POLICY "Service role full access to brand_snapshot_purchases"
-  ON public.brand_snapshot_purchases
-  FOR ALL
-  USING ((select auth.role()) = 'service_role')
-  WITH CHECK ((select auth.role()) = 'service_role');
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'brand_snapshot_purchases'
+  ) THEN
+    EXECUTE 'ALTER TABLE public.brand_snapshot_purchases ENABLE ROW LEVEL SECURITY';
+    EXECUTE 'REVOKE ALL ON public.brand_snapshot_purchases FROM anon';
+    EXECUTE 'DROP POLICY IF EXISTS "Service role full access to brand_snapshot_purchases" ON public.brand_snapshot_purchases';
+    EXECUTE 'CREATE POLICY "Service role full access to brand_snapshot_purchases"
+      ON public.brand_snapshot_purchases
+      FOR ALL
+      USING ((select auth.role()) = ''service_role'')
+      WITH CHECK ((select auth.role()) = ''service_role'')';
+  END IF;
+END $$;
 
 -- ─── 3. brand_blueprint_plus_reports: enable RLS (service-role only) ───
 -- (RLS was left commented-out in migration_add_brand_blueprint_plus_reports.sql)

@@ -11,10 +11,11 @@ import {
 } from "@/lib/crm/inbound";
 import { applyActiveCampaignTags, removeActiveCampaignTags } from "@/lib/applyActiveCampaignTags";
 import { resolveAutoAssignedOwner } from "@/lib/crm/assignment";
+import { allowMissingSecret } from "@/lib/security/requireSecret";
 
 function isAuthorized(req: NextRequest): boolean {
   const secret = process.env.QUO_WEBHOOK_SECRET || process.env.INBOUND_WEBHOOK_SECRET;
-  if (!secret) return true;
+  if (!secret) return allowMissingSecret();
   const auth = req.headers.get("authorization")?.replace("Bearer ", "").trim();
   const headerSecret = req.headers.get("x-quo-secret")?.trim();
   return auth === secret || headerSecret === secret;

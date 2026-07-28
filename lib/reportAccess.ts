@@ -5,6 +5,8 @@
 // access control. When the client also provides an email (via X-User-Email header
 // or `email` query param), we verify it matches the report owner for defense-in-depth.
 
+import { readSessionEmailFromCookieHeader } from "@/lib/auth/session";
+
 export interface ReportAccessCheck {
   hasAccess: boolean;
   reason: "owner" | "uuid_only" | "denied";
@@ -43,15 +45,33 @@ export function checkReportAccess(
 }
 
 /**
- * Extract user email from request (header or query param).
- * Used by report access routes for authorization.
+ * Extract the VERIFIED user email from the request — i.e. only from the
+ * httpOnly session cookie issued after OTP confirmation. This is the trusted
+ * identity primitive; never spoofable by a client-supplied header/query param.
+ * Returns null if there is no valid session.
+ */
+export function getVerifiedEmailFromRequest(req: Request): string | null {
+  return readSessionEmailFromCookieHeader(req.headers.get("cookie"));
+}
+
+/**
+ * Extract user email from request. Prefers the trusted verified-session cookie;
+ * falls back to the (unverified, legacy) X-User-Email header or `email` query
+ * param for backward compatibility during the migration to sessions.
+ *
+ * For anything sensitive (enumeration, PII, paid content) use
+ * getVerifiedEmailFromRequest instead so unverified input is never trusted.
  */
 export function getUserEmailFromRequest(req: Request): string | null {
-  // Check X-User-Email header first
+  // Trusted: verified-email session cookie
+  const sessionEmail = getVerifiedEmailFromRequest(req);
+  if (sessionEmail) return sessionEmail;
+
+  // Legacy fallback (unverified) — X-User-Email header
   const headerEmail = req.headers.get("x-user-email");
   if (headerEmail) return headerEmail.trim().toLowerCase();
 
-  // Check query param
+  // Legacy fallback (unverified) — query param
   const url = new URL(req.url);
   const paramEmail = url.searchParams.get("email");
   if (paramEmail) return paramEmail.trim().toLowerCase();

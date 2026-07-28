@@ -12,6 +12,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { allowMissingSecret } from "@/lib/security/requireSecret";
 import { createHmac, timingSafeEqual } from "crypto";
 
 export const runtime = "nodejs";
@@ -326,6 +327,10 @@ export async function POST(req: NextRequest) {
       logger.warn("[Calendly Webhook] Signature verification failed");
       return new NextResponse("Invalid signature", { status: 401 });
     }
+  } else if (!allowMissingSecret()) {
+    // Fail closed in production if the signing secret is not configured.
+    logger.error("[Calendly Webhook] CALENDLY_WEBHOOK_SECRET not configured; rejecting");
+    return new NextResponse("Webhook secret not configured", { status: 401 });
   }
 
   try {

@@ -4,6 +4,25 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { logger } from "@/lib/logger";
+import {
+  createSessionToken,
+  sessionCookieOptions,
+  VERIFIED_SESSION_COOKIE,
+} from "@/lib/auth/session";
+
+/**
+ * Attach a verified-email session cookie to a success response so the user
+ * stays authenticated for the dashboard and gated (detailed / paid) views.
+ */
+function withVerifiedSession(response: NextResponse, email: string | null | undefined): NextResponse {
+  const normalized = (email || "").trim().toLowerCase();
+  if (!normalized) return response;
+  const token = createSessionToken(normalized);
+  if (token) {
+    response.cookies.set(VERIFIED_SESSION_COOKIE, token, sessionCookieOptions());
+  }
+  return response;
+}
 
 // ─── Per-reportId brute-force lockout ───
 // Max 5 failed attempts per report; resets on deploy or after TTL.
@@ -75,7 +94,7 @@ export async function POST(req: Request) {
     // Fetch stored code
     const { data: report, error } = await (supabaseAdmin as any)
       .from("brand_snapshot_reports")
-      .select("email_verification_code, email_verification_expires, email_verified")
+      .select("email_verification_code, email_verification_expires, email_verified, user_email")
       .eq("report_id", reportId)
       .single();
 
@@ -83,9 +102,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Report not found" }, { status: 404 });
     }
 
-    // Already verified
+    // Already verified — still (re)issue a session so returning users stay signed in.
     if (report.email_verified) {
-      return NextResponse.json({ success: true, verified: true });
+      return withVerifiedSession(
+        NextResponse.json({ success: true, verified: true }),
+        report.user_email
+      );
     }
 
     // Check expiry
@@ -131,7 +153,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Verification succeeded but failed to update record." }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, verified: true });
+    return withVerifiedSession(
+      NextResponse.json({ success: true, verified: true }),
+      report.user_email
+    );
   } catch (err) {
     logger.error("[Verify Email Confirm] Error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "Verification failed" }, { status: 500 });

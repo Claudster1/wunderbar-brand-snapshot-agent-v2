@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { validateEmail } from "@/lib/security/emailValidation";
-import { fireACEvent } from "@/lib/fireACEvent";
+import { sendTransactionalEmail } from "@/lib/email/transactional";
 import {
   addContactToList,
   applyActiveCampaignTags,
@@ -13,6 +13,28 @@ import {
   setContactFields,
 } from "@/lib/applyActiveCampaignTags";
 import { createCrmSyncLog } from "@/lib/crm/inbound";
+
+function buildVerificationEmail(code: string): { subject: string; text: string; html: string } {
+  const subject = "Your Wunderbar Digital verification code";
+  const text = [
+    `Your verification code is: ${code}`,
+    "",
+    "It expires in 15 minutes.",
+    "",
+    "If you didn't request this, you can safely ignore this email.",
+    "",
+    "— The Wunderbar Digital Team",
+  ].join("\n");
+  const html = `
+    <div style="font-family:Arial,Helvetica,sans-serif;max-width:480px;margin:0 auto;color:#021859">
+      <h2 style="color:#021859;margin:0 0 12px">Your verification code</h2>
+      <p style="color:#5A6B7E;line-height:1.6;margin:0 0 16px">Enter this code to verify your email. It expires in 15 minutes.</p>
+      <p style="font-size:32px;font-weight:800;letter-spacing:8px;color:#021859;margin:0 0 20px">${code}</p>
+      <p style="color:#8794A3;font-size:13px;margin:0">If you didn't request this, you can safely ignore this email.</p>
+      <p style="color:#8794A3;font-size:13px;margin:16px 0 0">— The Wunderbar Digital Team</p>
+    </div>`;
+  return { subject, text, html };
+}
 
 function generateCode(): string {
   // Cryptographically random 6-digit code
@@ -100,16 +122,26 @@ export async function POST(req: Request) {
           return NextResponse.json({ error: "Failed to save verification code." }, { status: 500 });
         }
       }
-      // Send verification email via ActiveCampaign
-      await fireACEvent({
+      // Send the verification code via the transactional sender (Resend) so it
+      // inboxes fast and comes from the company — not routed through the
+      // marketing platform. AC contact/list/marketing sync still runs below.
+      const { subject, text, html } = buildVerificationEmail(code);
+      const sendResult = await sendTransactionalEmail({ to: normalized, subject, text, html });
+      if (!sendResult.ok) {
+        logger.error("[Verify Email Send] Code email failed to send", {
+          provider: sendResult.provider,
+          error: sendResult.error,
+        });
+      }
+      // Tag the contact in AC for lifecycle tracking (delivery no longer depends on AC).
+      await applyActiveCampaignTags({
         email: normalized,
-        eventName: "email_verification",
         tags: ["snapshot:email-verification"],
-        fields: {
-          verification_code: code,
-          report_id: reportId,
-        },
-      });
+      }).catch((err) =>
+        logger.warn("[Verify Email Send] AC verification tag failed", {
+          error: err instanceof Error ? err.message : String(err),
+        })
+      );
     } else if (supabaseAdmin) {
       // No-OTP path still needs to associate the email with the report row so downstream tagging
       // and the marketing-insights step can resolve the same email back from `user_email`.

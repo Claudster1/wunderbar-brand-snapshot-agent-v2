@@ -14,6 +14,7 @@ import {
 } from "@/lib/refreshEntitlements";
 import { fireACEvent } from "@/lib/fireACEvent";
 import { logger } from "@/lib/logger";
+import { allowMissingSecret } from "@/lib/security/requireSecret";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
@@ -21,7 +22,7 @@ export const maxDuration = 30;
 // Verify cron secret to prevent unauthorized access
 function verifyCronAuth(req: NextRequest): boolean {
   const cronSecret = process.env.CRON_SECRET;
-  if (!cronSecret) return true; // allow if no secret configured (dev)
+  if (!cronSecret) return allowMissingSecret(); // fail closed in production
   const authHeader = req.headers.get("authorization");
   return authHeader === `Bearer ${cronSecret}`;
 }

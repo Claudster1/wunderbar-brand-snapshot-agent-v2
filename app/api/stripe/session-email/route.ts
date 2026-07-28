@@ -5,6 +5,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { logger } from "@/lib/logger";
+import {
+  createSessionToken,
+  sessionCookieOptions,
+  VERIFIED_SESSION_COOKIE,
+} from "@/lib/auth/session";
+
+// Only auto-establish a verified session from a checkout session that is both
+// fully paid and recent — bounds replay risk if a session_id leaks later.
+const CHECKOUT_SESSION_MAX_AGE_MS = 60 * 60 * 1000; // 1 hour
 
 export const runtime = "nodejs";
 
@@ -53,7 +62,28 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    return NextResponse.json({ email: email.toLowerCase(), name, tierToken, resumeReportId });
+    const response = NextResponse.json({
+      email: email.toLowerCase(),
+      name,
+      tierToken,
+      resumeReportId,
+    });
+
+    // Post-checkout auto-login: Stripe already verified this email during
+    // payment, so establish a verified-email session for the buyer — but only
+    // for a genuinely completed, recently-paid session (bounds replay risk).
+    const isPaid = session.payment_status === "paid" || session.status === "complete";
+    const createdMs = typeof session.created === "number" ? session.created * 1000 : 0;
+    const isRecent = createdMs > 0 && Date.now() - createdMs < CHECKOUT_SESSION_MAX_AGE_MS;
+    if (isPaid && isRecent) {
+      const token = createSessionToken(email.toLowerCase());
+      if (token) {
+        response.cookies.set(VERIFIED_SESSION_COOKIE, token, sessionCookieOptions());
+      }
+    }
+
+    response.headers.set("Cache-Control", "private, no-store");
+    return response;
   } catch (err) {
     logger.error("[Session Email] Stripe error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "Unable to retrieve session" }, { status: 500 });

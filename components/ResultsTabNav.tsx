@@ -4,7 +4,6 @@ import {
   TAB_DEFINITIONS,
   TIER_RANK,
   isTabAvailable,
-  tierUpgradeLabelForTab,
   type ProductTier,
   type ResultsTab,
   type ResultsTabDefinition,
@@ -79,7 +78,6 @@ export default function ResultsTabNav({
             const available = isTabAvailable(tab, productTier);
             const isActive = activeTab === tab.id;
             const locked = !available;
-            const upgradeLabel = tierUpgradeLabelForTab(tab);
 
             const stateClass = isActive
               ? "results-tab-nav__tab--active"
@@ -99,19 +97,12 @@ export default function ResultsTabNav({
                 }}
                 aria-selected={isActive}
                 aria-disabled={false}
-                title={
-                  locked && upgradeLabel
-                    ? `${tab.label} — included in ${upgradeLabel}. Click to preview.`
-                    : undefined
-                }
+                title={locked ? `${tab.label} — preview what's included when you upgrade` : undefined}
               >
                 <span className="results-tab-nav__tab-main">
                   {locked ? <TabLockIcon /> : null}
                   <span>{tab.label}</span>
                 </span>
-                {locked && upgradeLabel ? (
-                  <span className="results-tab-nav__tier">{upgradeLabel}</span>
-                ) : null}
               </button>
             );
           })}

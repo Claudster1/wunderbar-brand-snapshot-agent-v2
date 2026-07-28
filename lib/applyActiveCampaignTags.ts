@@ -170,12 +170,22 @@ export async function createCustomField(title: string, type: "text" | "textarea"
   return id ?? null;
 }
 
+// Titles that hold long / prose values and should be created as textareas rather than
+// single-line text fields when auto-created.
+const LONG_TEXT_FIELD_TITLES = new Set<string>(["top_opportunities"]);
+
 export async function setContactFields({
   email,
   fields,
+  createMissing = true,
 }: {
   email: string;
   fields: Record<string, string>;
+  // Auto-create a custom field when no field with the given title exists yet. Mirrors the
+  // create-then-apply behavior of applyActiveCampaignTags: without this, values for
+  // not-yet-created fields are silently dropped (the same class of bug that once left
+  // report_link / content_opt_in_choice empty), which quietly breaks email personalization.
+  createMissing?: boolean;
 }) {
   const contactId = await getOrCreateContactId(email);
   if (!contactId) return;
@@ -183,7 +193,13 @@ export async function setContactFields({
   const fieldMap = await getFieldMap();
 
   for (const [title, value] of Object.entries(fields)) {
-    const fieldId = fieldMap.get(title);
+    let fieldId = fieldMap.get(title);
+    if (!fieldId && createMissing) {
+      fieldId = (await createCustomField(
+        title,
+        LONG_TEXT_FIELD_TITLES.has(title) ? "textarea" : "text",
+      )) ?? undefined;
+    }
     if (!fieldId) continue;
 
     await fetch(`${AC_API_URL}/api/3/fieldValues`, {

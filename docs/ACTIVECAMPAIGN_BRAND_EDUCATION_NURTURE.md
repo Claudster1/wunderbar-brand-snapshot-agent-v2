@@ -38,9 +38,11 @@ the education track.
 ## Automation setup
 
 **Entry trigger:** tag `nurture:brand-education`.
-- Apply on **snapshot lead capture** for contacts who don't immediately purchase (great primary source —
-  they've raised their hand and have context).
-- Also apply to newsletter/list imports and any "learn about branding" content opt-in.
+- ✅ **Now applied automatically in code** at the moment of **confirmed marketing opt-in** — the
+  `/api/marketing/confirm` link click (double opt-in) and the legacy direct-opt-in path in
+  `/api/snapshot/lead-email` both add `nurture:brand-education` alongside `email:marketing-opted-in`.
+  This guarantees consent before any education email sends (education = marketing).
+- Can also be applied to newsletter/list imports and any "learn about branding" content opt-in.
 
 **Cadence:** one email every **5–7 days** (weekly-ish). Evergreen — new contacts start at E1.
 
@@ -51,9 +53,11 @@ the education track.
 - **Exit** on any paid purchase tag (`purchased:*`) → move them to onboarding/retention content instead.
 - Honor global unsubscribe/marketing-preference as usual.
 
-**Merge tags:** `%FIRSTNAME%` (fallback `there`), `%COMPANY_NAME%` (fallback `your brand`). Snapshot
-fields (`%WEAKEST_PILLAR%`, `%BRAND_ALIGNMENT_SCORE%`) are **optional bonus** — wrap in a conditional
+**Merge tags:** `%FIRSTNAME%` (fallback `there`), `%COMPANYNAME%` (fallback `your brand`). Snapshot
+fields (`%WEAKESTPILLAR%`, `%BRANDALIGNMENTSCORE%`) are **optional bonus** — wrap in a conditional
 block and always provide a non-personalized default, since not every reader has run a Snapshot.
+*(Tags are the verified, underscore-stripped perstags — see the reference table in
+`docs/ACTIVECAMPAIGN_AI_BUILDER_BRIEF.md`. `%COMPANY_NAME%` renders blank; use `%COMPANYNAME%`.)*
 
 **Soft CTA menu** (rotate; only one per email):
 - *Apply it:* the free 5-minute WunderBrand Snapshot → `https://app.wunderbrand.ai`
@@ -265,7 +269,7 @@ Put simply: **brand is what turns customers into fans, and fans into your cheape
 
 Thanks for reading this series, %FIRSTNAME%. I hope it was genuinely useful — that was the whole point.
 
-*Show if weakest_pillar is not blank →* If you ever want to go deeper on **%WEAKEST_PILLAR%** (your biggest opportunity from the Snapshot), I'm around.
+*Show if weakest_pillar is not blank →* If you ever want to go deeper on **%WEAKESTPILLAR%** (your biggest opportunity from the Snapshot), I'm around.
 
 *Default (show if weakest_pillar is blank) →* If you'd like an outside read on where your brand is strong and where it's leaking growth, the free 5-minute WunderBrand Snapshot is the easiest place to start. [Run your Snapshot →](https://app.wunderbrand.ai)
 
@@ -284,7 +288,7 @@ Education shouldn't live only in this series. Make the *whole* funnel feel usefu
   alternate: ask → *teach* → ask. A "here's a useful idea, no strings" email between two CTAs raises
   reply rates and lowers unsubscribes.
 - **Reuse these lessons as snippets.** Each pillar section above can be trimmed to a 3-sentence insight
-  inside a sales email ("quick thought on your weakest pillar…") — personalized with `%WEAKEST_PILLAR%`
+  inside a sales email ("quick thought on your weakest pillar…") — personalized with `%WEAKESTPILLAR%`
   when available.
 - **Lead with the reader's goal, not our product** — the same principle as the managed-services flows.
 - **One idea, one action, one soft ask.** If an email teaches nothing, cut it or merge it.

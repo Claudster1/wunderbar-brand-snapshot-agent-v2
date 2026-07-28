@@ -238,9 +238,10 @@ export async function POST(req: Request) {
           });
         } else {
           // Legacy direct-opt-in path (kept until MARKETING_CONFIRM_SECRET is configured).
+          // Direct opt-in == confirmed consent, so enroll into Brand Education here too.
           await applyActiveCampaignTags({
             email: normalized,
-            tags: ["email:marketing-opted-in"],
+            tags: ["email:marketing-opted-in", "nurture:brand-education"],
           });
           await removeActiveCampaignTags({
             email: normalized,

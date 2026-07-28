@@ -15,20 +15,22 @@ Ready-to-paste copy for the call/consultation automations wired to the Calendly 
 reminders. These emails do **not** repeat logistics — they add value, build the relationship, and
 (for sales calls) tee up the conversation. Don't duplicate "here's your meeting link."
 
-**Merge tags & fallbacks** (set a default so nothing renders blank):
+**Merge tags & fallbacks** (set a default so nothing renders blank). ⚠️ These are the **exact**
+personalization tags — AC strips underscores when generating them, and `%COMPANYNAME%` (not
+`%COMPANY_NAME%`) is the field the app populates. Verified against the live AC account 2026-07-28:
 
 | Tag | Meaning | Fallback default |
 |---|---|---|
-| `%FIRSTNAME%` | contact first name | `there` |
-| `%COMPANY_NAME%` | brand/company | `your brand` |
-| `%BRAND_ALIGNMENT_SCORE%` | WunderBrand Score (0–100) | *(omit if empty)* |
-| `%PRIMARY_PILLAR%` | focus pillar | *(omit if empty)* |
-| `%WEAKEST_PILLAR%` | top-opportunity pillar | *(omit if empty)* |
-| `%TOP_OPPORTUNITIES%` | prose summary of biggest opportunities | *(omit if empty)* |
+| `%FIRSTNAME%` | contact first name (native field) | `there` |
+| `%COMPANYNAME%` | brand/company | `your brand` |
+| `%BRANDALIGNMENTSCORE%` | WunderBrand Score (0–100) | *(omit if empty)* |
+| `%PRIMARYPILLAR%` | focus pillar | *(omit if empty)* |
+| `%WEAKESTPILLAR%` | top-opportunity pillar | *(omit if empty)* |
+| `%TOPOPPORTUNITIES%` | prose summary of biggest opportunities | *(omit if empty)* |
 
 > **Snapshot-data caveat:** Blueprint+ contacts (Automation A) always have snapshot fields.
 > Managed-Marketing / AI-Consultation bookers (Automations B/C) may **not** have run a snapshot,
-> so wrap any `%WEAKEST_PILLAR%` / `%TOP_OPPORTUNITIES%` usage in an AC **conditional content block**
+> so wrap any `%WEAKESTPILLAR%` / `%TOPOPPORTUNITIES%` usage in an AC **conditional content block**
 > (`Show if weakest_pillar is not blank`) and provide the non-personalized version as the default.
 >
 > **Messaging principle for managed-services leads (B & C):** for anyone who hasn't completed a
@@ -67,15 +69,15 @@ start URL you want to use)* — append `?utm_source=activecampaign&utm_medium=em
 
 Hi %FIRSTNAME%,
 
-Congratulations on your WunderBrand Blueprint+™ — you now have the full picture of where %COMPANY_NAME% stands and what to do next.
+Congratulations on your WunderBrand Blueprint+™ — you now have the full picture of where %COMPANYNAME% stands and what to do next.
 
 Your Blueprint+ includes something the report alone can't give you: **a complimentary 30-minute Strategy Activation Session** with a strategist from our team. It's not a sales call — it's a working session where we:
 
 - walk through your results together so nothing gets lost in translation,
-- prioritize the two or three highest-impact moves for %COMPANY_NAME%, and
+- prioritize the two or three highest-impact moves for %COMPANYNAME%, and
 - answer whatever's on your mind about executing.
 
-*Show if weakest_pillar is not blank →* Given your biggest opportunity is **%WEAKEST_PILLAR%**, this is exactly the kind of thing we'll map out together.
+*Show if weakest_pillar is not blank →* Given your biggest opportunity is **%WEAKESTPILLAR%**, this is exactly the kind of thing we'll map out together.
 
 Sessions fill up, and your diagnostic is freshest right now — I'd grab a time this week.
 
@@ -143,7 +145,7 @@ To make our 30 minutes as useful as possible, it helps to know where your head's
 1. **What would make this a win for you?** (a decision, a plan, clarity on one thing…)
 2. **Who's executing on your side** — you, a team, an agency, or still figuring that out?
 
-*Show if top_opportunities is not blank →* I've also got your results in front of me. Based on your diagnostic: %TOP_OPPORTUNITIES% — we'll dig into these live.
+*Show if top_opportunities is not blank →* I've also got your results in front of me. Based on your diagnostic: %TOPOPPORTUNITIES% — we'll dig into these live.
 
 Come as you are — no prep or homework required. See you soon.
 
@@ -194,13 +196,13 @@ Thanks for booking a Managed Marketing consultation — I'm genuinely looking fo
 
 This is a working conversation about **your business**, not a pitch. The more I understand about where you're headed, the more useful our time will be. Before we talk, it helps to have a rough sense of:
 
-- **Where you want %COMPANY_NAME% to be in 6–12 months** — revenue, growth, a launch, a new market…
+- **Where you want %COMPANYNAME% to be in 6–12 months** — revenue, growth, a launch, a new market…
 - **What's working in your marketing today, and where you feel stuck or stretched thin**
 - **Who's doing the work now** — and what you'd love to take off your plate
 
 Come with those in mind and we'll map out what a done-for-you approach could look like for you.
 
-*Show if weakest_pillar is not blank (bonus, only for contacts with a snapshot on file) →* I've also reviewed your WunderBrand results, so I've got a head start — your biggest opportunity looks like **%WEAKEST_PILLAR%**, and we'll fold that into the conversation.
+*Show if weakest_pillar is not blank (bonus, only for contacts with a snapshot on file) →* I've also reviewed your WunderBrand results, so I've got a head start — your biggest opportunity looks like **%WEAKESTPILLAR%**, and we'll fold that into the conversation.
 
 *Show if weakest_pillar IS blank (optional aside, non-snapshot contacts) →* Totally optional: if you'd like us both to have a quick data point going in, you can run our free 5-minute WunderBrand Snapshot beforehand. It's not required for our call — we'll focus on your goals either way. [Take the free snapshot →](https://app.wunderbrand.ai)
 
@@ -233,12 +235,12 @@ Claudine — Wunderbar Digital
 
 ### B3 — Post-call follow-up (optional; send manually or 1 day after call)
 
-**Subject:** Recap + next steps for %COMPANY_NAME%
+**Subject:** Recap + next steps for %COMPANYNAME%
 **Preview:** What we discussed, and how we'd approach it.
 
 Hi %FIRSTNAME%,
 
-Great talking with you about %COMPANY_NAME%. As promised, a quick recap of what we covered and where I think the biggest, fastest wins are:
+Great talking with you about %COMPANYNAME%. As promised, a quick recap of what we covered and where I think the biggest, fastest wins are:
 
 - **[Priority 1 — fill in from call]**
 - **[Priority 2 — fill in from call]**
@@ -278,7 +280,7 @@ To make our time count, it helps to come with:
 - **What you've already tried** (tools, experiments, dead ends), and
 - **Where you'd feel the biggest impact** if it worked — time saved, cost, quality, scale.
 
-This is a practical session: we'll look at what's realistic for %COMPANY_NAME% right now versus what's hype, and where to start.
+This is a practical session: we'll look at what's realistic for %COMPANYNAME% right now versus what's hype, and where to start.
 
 See you soon,
 Claudine & the Wunderbar Digital team
@@ -292,7 +294,7 @@ Claudine & the Wunderbar Digital team
 
 Hi %FIRSTNAME%,
 
-We had your Free AI Consultation booked but didn't connect — no worries at all. The offer stands whenever you'd like to explore where AI can create real leverage for %COMPANY_NAME%.
+We had your Free AI Consultation booked but didn't connect — no worries at all. The offer stands whenever you'd like to explore where AI can create real leverage for %COMPANYNAME%.
 
 **→ Grab a new time** (button → AI Consultation URL)
 
@@ -320,7 +322,7 @@ Hi %FIRSTNAME%,
 
 Thanks for booking time with us — looking forward to it. (Your link and reminders are in Calendly's confirmation.)
 
-Come with whatever's top of mind for %COMPANY_NAME% — a question, a challenge, or just "where should I focus first?" We'll keep it useful and jargon-free, and point you to the right next step whether or not that's ever working with us.
+Come with whatever's top of mind for %COMPANYNAME% — a question, a challenge, or just "where should I focus first?" We'll keep it useful and jargon-free, and point you to the right next step whether or not that's ever working with us.
 
 See you soon,
 The Wunderbar Digital team
@@ -367,11 +369,11 @@ aside only.
 ### E1 — Immediate
 
 **Subject:** Want a partner to run your marketing, %FIRSTNAME%?
-**Preview:** Let's talk about where you want %COMPANY_NAME% to go.
+**Preview:** Let's talk about where you want %COMPANYNAME% to go.
 
 Hi %FIRSTNAME%,
 
-You mentioned you're interested in help with your marketing — I'd love to learn more about %COMPANY_NAME% and where you want to take it.
+You mentioned you're interested in help with your marketing — I'd love to learn more about %COMPANYNAME% and where you want to take it.
 
 The best next step is a short, no-pressure call. It's a working conversation about **your goals**, not a pitch. Come with a rough sense of:
 
@@ -386,7 +388,7 @@ From there, I'll tell you honestly whether (and how) a done-for-you approach mak
 Talk soon,
 Claudine — Wunderbar Digital
 
-*Show if weakest_pillar is not blank (bonus, snapshot contacts) →* P.S. I've got your WunderBrand results on hand, so we can jump straight to the good stuff — your biggest opportunity looks like **%WEAKEST_PILLAR%**.
+*Show if weakest_pillar is not blank (bonus, snapshot contacts) →* P.S. I've got your WunderBrand results on hand, so we can jump straight to the good stuff — your biggest opportunity looks like **%WEAKESTPILLAR%**.
 
 *Show if weakest_pillar IS blank (optional aside, non-snapshot) →* P.S. Totally optional — if you'd like a quick data point before we talk, our free 5-minute WunderBrand Snapshot scores your brand across five pillars. Not required; the call is the important part. [Take the free snapshot →](https://app.wunderbrand.ai)
 
@@ -399,7 +401,7 @@ Claudine — Wunderbar Digital
 
 Hi %FIRSTNAME%,
 
-Wanted to follow up on exploring managed marketing for %COMPANY_NAME%.
+Wanted to follow up on exploring managed marketing for %COMPANYNAME%.
 
 When clients bring us in, it usually sounds like one of these:
 
@@ -423,7 +425,7 @@ Claudine — Wunderbar Digital
 
 Hi %FIRSTNAME%,
 
-I'll leave this here for now: if you're weighing whether a marketing partner could help %COMPANY_NAME% grow, I'm happy to talk it through — even if you're just gathering perspective.
+I'll leave this here for now: if you're weighing whether a marketing partner could help %COMPANYNAME% grow, I'm happy to talk it through — even if you're just gathering perspective.
 
 No pitch, no obligation. Just 20 minutes on your goals and an honest take.
 

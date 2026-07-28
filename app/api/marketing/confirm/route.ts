@@ -66,7 +66,9 @@ export async function GET(req: Request) {
     try {
       await applyActiveCampaignTags({
         email: payload.email,
-        tags: ["email:marketing-opted-in"],
+        // Enroll into the evergreen Brand Education nurture at the moment of *confirmed*
+        // marketing consent — education emails are marketing, so consent gates entry.
+        tags: ["email:marketing-opted-in", "nurture:brand-education"],
       });
       await removeActiveCampaignTags({
         email: payload.email,

@@ -27,42 +27,42 @@ These fields are set on contacts automatically by the app and available for emai
 | Field | Description | Example |
 |---|---|---|
 | `%FIRSTNAME%` | AC built-in first name | Sarah |
-| `%COMPANY_NAME%` | Company/brand name | Acme Consulting |
-| `%BRAND_ALIGNMENT_SCORE%` | Overall WunderBrand Score (0–100) | 72 |
-| `%POSITIONING_SCORE%` | Positioning pillar score (0–20) | 14 |
-| `%MESSAGING_SCORE%` | Messaging pillar score (0–20) | 12 |
-| `%VISIBILITY_SCORE%` | Visibility pillar score (0–20) | 15 |
-| `%CREDIBILITY_SCORE%` | Credibility pillar score (0–20) | 16 |
-| `%CONVERSION_SCORE%` | Conversion pillar score (0–20) | 15 |
-| `%PRIMARY_PILLAR%` | Weakest/primary pillar name | messaging |
+| `%COMPANYNAME%` | Company/brand name | Acme Consulting |
+| `%BRANDALIGNMENTSCORE%` | Overall WunderBrand Score (0–100) | 72 |
+| `%POSITIONINGSCORE%` | Positioning pillar score (0–20) | 14 |
+| `%MESSAGINGSCORE%` | Messaging pillar score (0–20) | 12 |
+| `%VISIBILITYSCORE%` | Visibility pillar score (0–20) | 15 |
+| `%CREDIBILITYSCORE%` | Credibility pillar score (0–20) | 16 |
+| `%CONVERSIONSCORE%` | Conversion pillar score (0–20) | 15 |
+| `%PRIMARYPILLAR%` | Weakest/primary pillar name | messaging |
 
 ### Product & Purchase Fields
 
 | Field | Description | Example |
 |---|---|---|
-| `%PRODUCT_NAME%` | Display name of purchased product | WunderBrand Snapshot+™ |
-| `%PRODUCT_KEY%` | Internal product key | snapshot_plus |
-| `%PURCHASE_DATE%` | Date of purchase | 2026-01-26 |
-| `%AMOUNT_PAID%` | Amount paid | $497 |
-| `%UPGRADE_PRODUCT_NAME%` | Next tier product name | WunderBrand Blueprint™ |
-| `%UPGRADE_PRODUCT_URL%` | URL to upgrade product page | https://wunderbardigital.com/wunderbrand-blueprint?utm_source=wunderbrand_app&utm_medium=automation&utm_campaign=upgrade_flow |
+| `%PRODUCTPURCHASED%` | Display name of purchased product | WunderBrand Snapshot+™ |
+| `%PRODUCTKEY%` | Internal product key | snapshot_plus |
+| `%PURCHASEDATE%` | Date of purchase | 2026-01-26 |
+| `%AMOUNTPAID%` | Amount paid | $497 |
+| `%UPGRADEPRODUCTNAME%` | Next tier product name | WunderBrand Blueprint™ |
+| `%UPGRADEPRODUCTURL%` | URL to upgrade product page | https://wunderbardigital.com/wunderbrand-blueprint?utm_source=wunderbrand_app&utm_medium=automation&utm_campaign=upgrade_flow |
 
 ### Link Fields
 
 | Field | Description | Used In |
 |---|---|---|
-| `%REPORT_LINK%` | Direct link to report/results | Seq 1, 3, 5, 12, 16, 17 |
-| `%DASHBOARD_LINK%` | Link to dashboard | Seq 4, 8, 16, 17, 18 |
+| `%REPORTLINK%` | Direct link to report/results | Seq 1, 3, 5, 12, 16, 17 |
+| `%DASHBOARDLINK%` | Link to dashboard | Seq 4, 8, 16, 17, 18 |
 | `%START_DIAGNOSTIC_LINK%` | Link to start/resume diagnostic | Seq 4 |
-| `%RESUME_LINK%` | Link to resume paused diagnostic | Seq 9 |
-| `%EXPERIENCE_SURVEY_LINK%` | WunderBrand Experience Survey link | Seq 5 |
-| `%UPGRADE_PRODUCT_URL%` | Link to purchase next tier | Seq 1, 3, 6, 7, 17 |
-| `%SERVICES_URL%` | Link to services page | Seq 17, 18, 19 |
+| `%RESUMELINK%` | Link to resume paused diagnostic | Seq 9 |
+| `%EXPERIENCESURVEYLINK%` | WunderBrand Experience Survey link | Seq 5 |
+| `%UPGRADEPRODUCTURL%` | Link to purchase next tier | Seq 1, 3, 6, 7, 17 |
+| `%SERVICESURL%` | Link to services page | Seq 17, 18, 19 |
 | `%REFRESH_ACTION_URL%` | Link to purchase quarterly refresh | Seq 17 |
-| `%ABANDONED_PRODUCT_URL%` | Link back to checkout | Seq 2 |
+| `%ABANDONEDPRODUCTURL%` | Link back to checkout | Seq 2 |
 | `%CONTENT_DOWNLOAD_LINK%` | Link to download lead magnet | Seq 14 |
-| `%TESTIMONIAL_LINK%` | Link to submit testimonial | — |
-| `%GOOGLE_REVIEW_URL%` | Google review URL | — |
+| `%TESTIMONIALLINK%` | Link to submit testimonial | — |
+| `%GOOGLEREVIEWURL%` | Google review URL | — |
 
 ### Experience Score Fields
 
@@ -75,8 +75,8 @@ These fields are set on contacts automatically by the app and available for emai
 
 | Field | Description |
 |---|---|
-| `%ABANDONED_PRODUCT%` | Name of the product they abandoned |
-| `%ABANDONED_PRODUCT_URL%` | Link back to checkout |
+| `%ABANDONEDPRODUCT%` | Name of the product they abandoned |
+| `%ABANDONEDPRODUCTURL%` | Link back to checkout |
 
 ### Session/Call Fields
 
@@ -159,7 +159,7 @@ All 19 nurture sequences are documented in [NURTURE_IMPLEMENTATION_GUIDE.md](./N
 
 | Step | Action |
 |------|--------|
-| 1 | **Send email**: uses `%FOLLOWUP_BODY%` and `%FOLLOWUP_SUBJECT%` |
+| 1 | **Send email**: uses `%FOLLOWUPBODY%` and `%FOLLOWUPSUBJECT%` |
 | 2 | **Wait** 3 days |
 | 3 | **If/Else**: Has tag `purchased:*`? |
 | 4a | **Yes** → End |
@@ -209,7 +209,7 @@ All 19 nurture sequences are documented in [NURTURE_IMPLEMENTATION_GUIDE.md](./N
 
 | Step | Action |
 |------|--------|
-| 1 | **Send email**: "Your Strategy Activation Recap" — `%FOLLOWUP_BODY%` / `%FOLLOWUP_SUBJECT%` |
+| 1 | **Send email**: "Your Strategy Activation Recap" — `%FOLLOWUPBODY%` / `%FOLLOWUPSUBJECT%` |
 | 2 | **Wait** 3 days |
 | 3 | **Send email**: "How's your action plan going?" — check-in, 30-day priorities |
 | 4 | **Wait** 14 days |

@@ -19,7 +19,7 @@ Your current results already show your strengths, and they also reveal where sma
 
 Snapshot+™ takes this further by giving you:
 
-A deeper analysis of each pillar, including the one where you scored the lowest (%WEAKEST_PILLAR%).
+A deeper analysis of each pillar, including the one where you scored the lowest (%WEAKESTPILLAR%).
 You'll see what's holding the pillar back, how to improve it, and what it unlocks for your brand once addressed.
 
 Your personalized opportunity map
@@ -49,7 +49,7 @@ Claudine
 ## Personalization Notes
 
 - Replace `%firstname%` with contact's first name
-- Replace `%WEAKEST_PILLAR%` with their lowest scoring pillar (e.g., "Positioning", "Messaging")
+- Replace `%WEAKESTPILLAR%` with their lowest scoring pillar (e.g., "Positioning", "Messaging")
 - Replace `%INDUSTRY%` with their industry
 - Replace `[Upgrade to Snapshot+™ →]` with your Snapshot+ checkout URL
 - Color palette merge tags (for Snapshot+ users only):
@@ -69,7 +69,7 @@ Claudine
 
 <p><strong>Snapshot+™</strong> takes this further by giving you:</p>
 
-<p><strong>A deeper analysis of each pillar, including the one where you scored the lowest (%WEAKEST_PILLAR%).</strong><br>
+<p><strong>A deeper analysis of each pillar, including the one where you scored the lowest (%WEAKESTPILLAR%).</strong><br>
 You'll see what's holding the pillar back, how to improve it, and what it unlocks for your brand once addressed.</p>
 
 <p><strong>Your personalized opportunity map</strong><br>

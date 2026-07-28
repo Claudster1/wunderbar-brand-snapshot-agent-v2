@@ -85,7 +85,7 @@ Connect Form Inquiry → Seq 22 → [team responded] confirmation branch OR [no 
 - **Backend event now fired:** `workbook_recomputed` (from `/api/workbook/recompute`)
 - **Tags applied with event:** `workbook:updated`, `workbook:updated:{tier}`
 - **Blueprint+ bonus tags:** `session:pending`, `nurture:other-services`
-- **Recommended automation:** send "Your updated version is ready" email with `%WORKBOOK_LINK%`, `%REPORT_LINK%`, and (for Blueprint+) Strategy Activation CTA
+- **Recommended automation:** send "Your updated version is ready" email with `%WORKBOOK_LINK%`, `%REPORTLINK%`, and (for Blueprint+) Strategy Activation CTA
 - **Recommended timing:** send immediately after recompute, then optional +3 day reminder if no `session:activation-scheduled` and no `services:call-booked`
 
 ---
@@ -97,8 +97,8 @@ Connect Form Inquiry → Seq 22 → [team responded] confirmation branch OR [no 
 - **Timing:** Email 1 at +1 hour, Email 2 at +2 days, Email 3 at +5 days, Email 4 at +9 days, Email 5 at +14 days
 - **Exit:** `purchased:snapshot-plus`
 - **Sender:** All emails: Claudine at Wunderbar Digital | claudine@wunderbardigital.com | Founder template
-- **Merge fields:** `%FIRSTNAME%`, `%COMPANY_NAME%`, `%BRAND_ALIGNMENT_SCORE%`, `%POSITIONING_SCORE%`, `%MESSAGING_SCORE%`, `%VISIBILITY_SCORE%`, `%CREDIBILITY_SCORE%`, `%CONVERSION_SCORE%`, `%PRIMARY_PILLAR%`, `%REPORT_LINK%`, `%UPGRADE_PRODUCT_URL%`
-- **Dynamic content:** Email 2 uses 5 conditional blocks keyed to `%PRIMARY_PILLAR%` value
+- **Merge fields:** `%FIRSTNAME%`, `%COMPANYNAME%`, `%BRANDALIGNMENTSCORE%`, `%POSITIONINGSCORE%`, `%MESSAGINGSCORE%`, `%VISIBILITYSCORE%`, `%CREDIBILITYSCORE%`, `%CONVERSIONSCORE%`, `%PRIMARYPILLAR%`, `%REPORTLINK%`, `%UPGRADEPRODUCTURL%`
+- **Dynamic content:** Email 2 uses 5 conditional blocks keyed to `%PRIMARYPILLAR%` value
 - **On exit without conversion:** Move to Sequence 15 (Evergreen Education)
 - **Salutation fallback:** Hi there,
 
@@ -107,7 +107,7 @@ Connect Form Inquiry → Seq 22 → [team responded] confirmation branch OR [no 
 - **Timing:** Email 1 at +30 min, Email 2 at +24 hours, Email 3 at +3 days
 - **Exit:** Any `purchased:*` tag for the abandoned product
 - **Sender:** Emails 1–2: Claudine | claudine@. Email 3: Wunderbar Digital | support@wunderbardigital.com
-- **Merge fields:** `%FIRSTNAME%`, `%ABANDONED_PRODUCT%`, `%ABANDONED_PRODUCT_URL%`
+- **Merge fields:** `%FIRSTNAME%`, `%ABANDONEDPRODUCT%`, `%ABANDONEDPRODUCTURL%`
 - **Dynamic content:** Email 2 uses conditional block keyed to `product_key` (snapshot_plus/blueprint/blueprint_plus)
 - **On exit without conversion:** Move to Sequence 15
 - **Salutation fallback:** Hi there,
@@ -117,7 +117,7 @@ Connect Form Inquiry → Seq 22 → [team responded] confirmation branch OR [no 
 - **Timing:** Email 1 at +4 hours, Email 2 at +3 days
 - **Exit:** `purchased:snapshot-plus`
 - **Sender:** All: Claudine | claudine@ | Founder template
-- **Merge fields:** `%FIRSTNAME%`, `%PRIMARY_PILLAR%`, `%REPORT_LINK%`, `%UPGRADE_PRODUCT_URL%`
+- **Merge fields:** `%FIRSTNAME%`, `%PRIMARYPILLAR%`, `%REPORTLINK%`, `%UPGRADEPRODUCTURL%`
 - **Note:** Runs alongside Sequence 1 — ensure no duplicate sends on same day
 - **On exit without conversion:** Contact continues in Seq 1 if active, else Seq 15
 - **Salutation fallback:** Hi there,
@@ -128,7 +128,7 @@ Connect Form Inquiry → Seq 22 → [team responded] confirmation branch OR [no 
 - **Exit:** Product-specific `report:*-ready` tag
 - **Variants:** 3 (Snapshot+, Blueprint, Blueprint+)
 - **Sender:** Emails 1–3: Wunderbar Digital | hello@ | Branded. Email 4: Claudine | claudine@ | Founder
-- **Merge fields:** `%FIRSTNAME%`, `%START_DIAGNOSTIC_LINK%`, `%DASHBOARD_LINK%`
+- **Merge fields:** `%FIRSTNAME%`, `%START_DIAGNOSTIC_LINK%`, `%DASHBOARDLINK%`
 - **Key differences by variant:**
   - Snapshot+: 15–20 min, no uploads, Foundational Prompt Pack
   - Blueprint: 20–25 min, up to 3 uploads, Interactive Brand Workbook, Brand Standards PDF
@@ -142,7 +142,7 @@ Connect Form Inquiry → Seq 22 → [team responded] confirmation branch OR [no 
 - **Exit:** Runs to completion
 - **Variants:** 3 (Snapshot+, Blueprint, Blueprint+)
 - **Sender:** Email 1: Wunderbar Digital | hello@ | Branded. Emails 2–3: Claudine | claudine@ | Founder
-- **Merge fields:** `%FIRSTNAME%`, `%BRAND_ALIGNMENT_SCORE%`, `%POSITIONING_SCORE%`, `%MESSAGING_SCORE%`, `%VISIBILITY_SCORE%`, `%CREDIBILITY_SCORE%`, `%CONVERSION_SCORE%`, `%PRIMARY_PILLAR%`, `%REPORT_LINK%`, `%EXPERIENCE_SURVEY_LINK%`
+- **Merge fields:** `%FIRSTNAME%`, `%BRANDALIGNMENTSCORE%`, `%POSITIONINGSCORE%`, `%MESSAGINGSCORE%`, `%VISIBILITYSCORE%`, `%CREDIBILITYSCORE%`, `%CONVERSIONSCORE%`, `%PRIMARYPILLAR%`, `%REPORTLINK%`, `%EXPERIENCESURVEYLINK%`
 - **Triggers downstream:** Seq 6/7 (upgrade), Seq 11 (experience survey follow-up)
 - **Salutation fallback:** Hi there,
 
@@ -151,8 +151,8 @@ Connect Form Inquiry → Seq 22 → [team responded] confirmation branch OR [no 
 - **Timing:** Email 1 at +7 days after report ready, Email 2 at +14d, Email 3 at +21d, Email 4 at +30d
 - **Exit:** `purchased:blueprint`
 - **Sender:** All: Claudine | claudine@ | Founder template
-- **Merge fields:** `%FIRSTNAME%`, `%COMPANY_NAME%`, `%PRIMARY_PILLAR%`, `%UPGRADE_PRODUCT_URL%`
-- **Dynamic content:** Email 2 uses 5 conditional blocks keyed to `%PRIMARY_PILLAR%`
+- **Merge fields:** `%FIRSTNAME%`, `%COMPANYNAME%`, `%PRIMARYPILLAR%`, `%UPGRADEPRODUCTURL%`
+- **Dynamic content:** Email 2 uses 5 conditional blocks keyed to `%PRIMARYPILLAR%`
 - **On exit without conversion:** Move to Sequence 15
 - **Salutation fallback:** Hi there,
 
@@ -161,7 +161,7 @@ Connect Form Inquiry → Seq 22 → [team responded] confirmation branch OR [no 
 - **Timing:** Email 1 at +7 days after report ready, Email 2 at +14d, Email 3 at +21d, Email 4 at +30d
 - **Exit:** `purchased:blueprint-plus`
 - **Sender:** All: Claudine | claudine@ | Founder template
-- **Merge fields:** `%FIRSTNAME%`, `%COMPANY_NAME%`, `%UPGRADE_PRODUCT_URL%`
+- **Merge fields:** `%FIRSTNAME%`, `%COMPANYNAME%`, `%UPGRADEPRODUCTURL%`
 - **On exit without conversion:** Move to Sequence 15
 - **Salutation fallback:** Hi there,
 
@@ -170,7 +170,7 @@ Connect Form Inquiry → Seq 22 → [team responded] confirmation branch OR [no 
 - **Timing:** Email 1 immediate, Email 2 at +7 days, Email 3 at +21 days
 - **Exit:** New `purchased:*` tag or new diagnostic started
 - **Sender:** All: Claudine | claudine@ | Founder template
-- **Merge fields:** `%FIRSTNAME%`, `%BRAND_ALIGNMENT_SCORE%`, `%PRIMARY_PILLAR%`, `%DASHBOARD_LINK%`
+- **Merge fields:** `%FIRSTNAME%`, `%BRANDALIGNMENTSCORE%`, `%PRIMARYPILLAR%`, `%DASHBOARDLINK%`
 - **Note:** Score/pillar merge fields pull from most recent diagnostic. Re-apply `refresh:eligible` 90 days later if no action.
 - **Salutation fallback:** Hi there,
 
@@ -179,7 +179,7 @@ Connect Form Inquiry → Seq 22 → [team responded] confirmation branch OR [no 
 - **Timing:** Email 1 at +24 hours, Email 2 at +4 days, Email 3 at +10 days
 - **Exit:** `completed:snapshot` or any `report:*-ready`
 - **Sender:** All: Claudine | claudine@ | Founder template
-- **Merge fields:** `%FIRSTNAME%`, `%RESUME_LINK%`, `%PRODUCT_KEY%`
+- **Merge fields:** `%FIRSTNAME%`, `%RESUMELINK%`, `%PRODUCTKEY%`
 - **Note:** Applies across all products — resume link should be product-aware
 - **Salutation fallback:** Hi there,
 
@@ -212,7 +212,7 @@ Connect Form Inquiry → Seq 22 → [team responded] confirmation branch OR [no 
 - **Timing:** Email 1 at +3 days, Email 2 at +10 days, Email 3 at +20 days
 - **Exit:** `session:activation-scheduled`
 - **Sender:** All: Claudine | claudine@ | Founder template
-- **Merge fields:** `%FIRSTNAME%`, `%REPORT_LINK%`
+- **Merge fields:** `%FIRSTNAME%`, `%REPORTLINK%`
 - **Closing:** "Looking forward to it," (special for this sequence)
 - **Note:** Replace CALENDLY_LINK with live Calendly URL. After no booking: archive `session:pending` — window expired.
 - **Salutation:** "Hi %FIRSTNAME% —" (Email 1) / fallback: "Hi there —"
@@ -261,7 +261,7 @@ Connect Form Inquiry → Seq 22 → [team responded] confirmation branch OR [no 
 - **Exit:** Unsubscribe only
 - **Sender:** All: Wunderbar Digital | hello@ | Branded template
 - **4 sections per issue:** Lead Story, Try This Now (AI prompt), One Thing Worth Reading, From the WunderBrand System (conditional)
-- **Merge fields:** `%FIRSTNAME%`, `%DASHBOARD_LINK%`, `%REPORT_LINK%`
+- **Merge fields:** `%FIRSTNAME%`, `%DASHBOARDLINK%`, `%REPORTLINK%`
 - **Dynamic content:** Section 4 uses 4 conditional blocks keyed to `product_key` (snapshot/snapshot_plus/blueprint/blueprint_plus)
 - **4 sample issues provided.** Continue on same cadence after.
 - **Editorial rules:** Verify all external sources before scheduling. No fabricated references. Skip Section 4 when connection to WunderBrand would feel forced.
@@ -273,14 +273,14 @@ Connect Form Inquiry → Seq 22 → [team responded] confirmation branch OR [no 
 - **Exit:** `purchased:*` | `services:expert_call_requested` | `call:expert-scheduled`
 - **Sender:** All: Claudine | claudine@ | Founder template
 - **8 emails:**
-  1. Implementation check-in (merge: `%FIRSTNAME%`, `%COMPANY_NAME%`, `%PRIMARY_PILLAR%`, `%REPORT_LINK%`)
-  2. Pillar-specific action (dynamic content by `%PRIMARY_PILLAR%`, merge: `%BRAND_ALIGNMENT_SCORE%`)
-  3. Prompt pack reminder (merge: `%DASHBOARD_LINK%`)
-  4. Refresh teaser (merge: `%COMPANY_NAME%`, `%PRIMARY_PILLAR%`, `%REFRESH_ACTION_URL%`)
-  5. Services intro (merge: `%COMPANY_NAME%`, `%SERVICES_URL%`) — CTA click applies `services:interested` → triggers Seq 19
+  1. Implementation check-in (merge: `%FIRSTNAME%`, `%COMPANYNAME%`, `%PRIMARYPILLAR%`, `%REPORTLINK%`)
+  2. Pillar-specific action (dynamic content by `%PRIMARYPILLAR%`, merge: `%BRANDALIGNMENTSCORE%`)
+  3. Prompt pack reminder (merge: `%DASHBOARDLINK%`)
+  4. Refresh teaser (merge: `%COMPANYNAME%`, `%PRIMARYPILLAR%`, `%REFRESH_ACTION_URL%`)
+  5. Services intro (merge: `%COMPANYNAME%`, `%SERVICESURL%`) — CTA click applies `services:interested` → triggers Seq 19
   6. Referral ask
-  7. Upgrade education (dynamic by tier, merge: `%PRODUCT_NAME%`, `%UPGRADE_PRODUCT_NAME%`, `%UPGRADE_PRODUCT_URL%`) — suppress for Blueprint+ contacts
-  8. AI + brand documentation (merge: `%COMPANY_NAME%`, `%SERVICES_URL%`)
+  7. Upgrade education (dynamic by tier, merge: `%PRODUCTPURCHASED%`, `%UPGRADEPRODUCTNAME%`, `%UPGRADEPRODUCTURL%`) — suppress for Blueprint+ contacts
+  8. AI + brand documentation (merge: `%COMPANYNAME%`, `%SERVICESURL%`)
 - **After Email 8 with no exit:** Tag `evergreen:complete`. Check if `refresh:eligible` → trigger Seq 8.
 - **Salutation fallback:** Hi there,
 
@@ -289,8 +289,8 @@ Connect Form Inquiry → Seq 22 → [team responded] confirmation branch OR [no 
 - **Timing:** Email 1 at day 90, Email 2 at +7 days, Email 3 at +14 days
 - **Exit:** `purchased:*` | `snapshot:viewed-results` | `call:expert-scheduled`
 - **Sender:** All: Claudine | claudine@ | Founder template
-- **Merge fields:** `%FIRSTNAME%`, `%COMPANY_NAME%`, `%PRIMARY_PILLAR%`, `%SERVICES_URL%`, `%DASHBOARD_LINK%`
-- **Dynamic content:** Email 2 uses 5 conditional blocks keyed to `%PRIMARY_PILLAR%`
+- **Merge fields:** `%FIRSTNAME%`, `%COMPANYNAME%`, `%PRIMARYPILLAR%`, `%SERVICESURL%`, `%DASHBOARDLINK%`
+- **Dynamic content:** Email 2 uses 5 conditional blocks keyed to `%PRIMARYPILLAR%`
 - **Salutation:** "Hi %FIRSTNAME% — it's been a while." (Emails 1–2) / Standard for Email 3
 - **On exit without conversion:** Move to Sequence 15
 - **Salutation fallback:** Hi there — it's been a while. (Emails 1–2)
@@ -300,7 +300,7 @@ Connect Form Inquiry → Seq 22 → [team responded] confirmation branch OR [no 
 - **Timing:** Email 1 at trigger, Email 2 at +10 days, Email 3 at +20 days, Email 4 at +30 days
 - **Exit:** `call:expert-scheduled` | manual removal
 - **Sender:** All: Claudine | claudine@ | Founder template
-- **Merge fields:** `%FIRSTNAME%`, `%COMPANY_NAME%`, `%PRIMARY_PILLAR%`, `%SERVICES_URL%`
+- **Merge fields:** `%FIRSTNAME%`, `%COMPANYNAME%`, `%PRIMARYPILLAR%`, `%SERVICESURL%`
 - **After Email 4 with no conversion:** No further automated follow-up. Remove from sequence.
 - **Salutation fallback:** Hi there,
 
@@ -312,7 +312,7 @@ Connect Form Inquiry → Seq 22 → [team responded] confirmation branch OR [no 
   - **B. Not yet converted** (no `services:client-active`): low-pressure follow-up with path to services page/call and optional handoff into Seq 15.
 - **Exit:** `services:client-active` OR branch completion
 - **Sender:** All: Claudine | claudine@ | Founder template
-- **Merge fields:** `%FIRSTNAME%`, `%COMPANY_NAME%`, `%SERVICES_URL%`
+- **Merge fields:** `%FIRSTNAME%`, `%COMPANYNAME%`, `%SERVICESURL%`
 - **Content intent:**
   1. Recap + thank you + next best step
   2. Clarify service fit and implementation pathways
@@ -326,7 +326,7 @@ Connect Form Inquiry → Seq 22 → [team responded] confirmation branch OR [no 
 - **Purpose:** Reinforce implementation momentum, request referral/testimonial if appropriate, and introduce services support when relevant.
 - **Exit:** `services:client-active` OR sequence completion (handoff to Seq 15 or Seq 17 based on lifecycle)
 - **Sender:** All: Claudine | claudine@ | Founder template
-- **Merge fields:** `%FIRSTNAME%`, `%COMPANY_NAME%`, `%REPORT_LINK%`, `%SERVICES_URL%`
+- **Merge fields:** `%FIRSTNAME%`, `%COMPANYNAME%`, `%REPORTLINK%`, `%SERVICESURL%`
 - **Branching logic (recommended):**
   - If engagement signals are strong (`experience:promoter` OR service intent tags): include services-intro CTA.
   - If low engagement: keep educational and route to Seq 15.
@@ -340,7 +340,7 @@ Connect Form Inquiry → Seq 22 → [team responded] confirmation branch OR [no 
   - **B. No response after X days** (`inquiry:responded` absent): gentle automated follow-up so no inquiry is lost.
 - **Exit:** `inquiry:responded` OR branch completion
 - **Sender:** Email 1 branded (Wunderbar Digital), Emails 2–3 founder voice (Claudine)
-- **Merge fields:** `%FIRSTNAME%`, `%COMPANY_NAME%`, `%SERVICES_URL%`
+- **Merge fields:** `%FIRSTNAME%`, `%COMPANYNAME%`, `%SERVICESURL%`
 - **Operational tags (recommended):**
   - Apply on form submit: `inquiry:connect-form`, `inquiry:pending-response`
   - Apply when team replies: `inquiry:responded` and remove `inquiry:pending-response`
@@ -354,41 +354,41 @@ Connect Form Inquiry → Seq 22 → [team responded] confirmation branch OR [no 
 | Merge Field | Description | Used In |
 |---|---|---|
 | `%FIRSTNAME%` | First name | All sequences |
-| `%COMPANY_NAME%` | Company/brand name | Seq 1, 3, 6, 7, 17, 18, 19 |
+| `%COMPANYNAME%` | Company/brand name | Seq 1, 3, 6, 7, 17, 18, 19 |
 | `%EMAIL%` | Email address | System use |
 
 ### Score & Pillar Fields
 | Merge Field | Description | Used In |
 |---|---|---|
-| `%BRAND_ALIGNMENT_SCORE%` | Overall WunderBrand Score (0–100) | Seq 1, 5, 8, 17 |
-| `%POSITIONING_SCORE%` | Positioning pillar score (0–20) | Seq 1, 5 |
-| `%MESSAGING_SCORE%` | Messaging pillar score (0–20) | Seq 1, 5 |
-| `%VISIBILITY_SCORE%` | Visibility pillar score (0–20) | Seq 1, 5 |
-| `%CREDIBILITY_SCORE%` | Credibility pillar score (0–20) | Seq 1, 5 |
-| `%CONVERSION_SCORE%` | Conversion pillar score (0–20) | Seq 1, 5 |
-| `%PRIMARY_PILLAR%` | Weakest/primary pillar name | Seq 1, 3, 5, 6, 8, 17, 18, 19 |
+| `%BRANDALIGNMENTSCORE%` | Overall WunderBrand Score (0–100) | Seq 1, 5, 8, 17 |
+| `%POSITIONINGSCORE%` | Positioning pillar score (0–20) | Seq 1, 5 |
+| `%MESSAGINGSCORE%` | Messaging pillar score (0–20) | Seq 1, 5 |
+| `%VISIBILITYSCORE%` | Visibility pillar score (0–20) | Seq 1, 5 |
+| `%CREDIBILITYSCORE%` | Credibility pillar score (0–20) | Seq 1, 5 |
+| `%CONVERSIONSCORE%` | Conversion pillar score (0–20) | Seq 1, 5 |
+| `%PRIMARYPILLAR%` | Weakest/primary pillar name | Seq 1, 3, 5, 6, 8, 17, 18, 19 |
 
 ### Link Fields
 | Merge Field | Description | Used In |
 |---|---|---|
-| `%REPORT_LINK%` | Direct link to report/results | Seq 1, 3, 5, 12, 16, 17 |
-| `%DASHBOARD_LINK%` | Link to dashboard | Seq 4, 8, 16, 17, 18 |
+| `%REPORTLINK%` | Direct link to report/results | Seq 1, 3, 5, 12, 16, 17 |
+| `%DASHBOARDLINK%` | Link to dashboard | Seq 4, 8, 16, 17, 18 |
 | `%START_DIAGNOSTIC_LINK%` | Link to start/resume diagnostic | Seq 4 |
-| `%RESUME_LINK%` | Link to resume paused diagnostic | Seq 9 |
-| `%EXPERIENCE_SURVEY_LINK%` | Link to WunderBrand Experience Survey | Seq 5 |
-| `%UPGRADE_PRODUCT_URL%` | Link to purchase next tier | Seq 1, 3, 6, 7, 17 |
-| `%SERVICES_URL%` | Link to services page | Seq 17, 18, 19 |
+| `%RESUMELINK%` | Link to resume paused diagnostic | Seq 9 |
+| `%EXPERIENCESURVEYLINK%` | Link to WunderBrand Experience Survey | Seq 5 |
+| `%UPGRADEPRODUCTURL%` | Link to purchase next tier | Seq 1, 3, 6, 7, 17 |
+| `%SERVICESURL%` | Link to services page | Seq 17, 18, 19 |
 | `%REFRESH_ACTION_URL%` | Link to purchase quarterly refresh | Seq 17 |
-| `%ABANDONED_PRODUCT_URL%` | Link back to checkout | Seq 2 |
+| `%ABANDONEDPRODUCTURL%` | Link back to checkout | Seq 2 |
 | `%CONTENT_DOWNLOAD_LINK%` | Link to download lead magnet | Seq 14 |
 
 ### Product Fields
 | Merge Field | Description | Used In |
 |---|---|---|
-| `%PRODUCT_NAME%` | Display name of current product | Seq 17 |
-| `%PRODUCT_KEY%` | Internal product key | Seq 9 |
-| `%UPGRADE_PRODUCT_NAME%` | Next tier product name | Seq 17 |
-| `%ABANDONED_PRODUCT%` | Abandoned product name | Seq 2 |
+| `%PRODUCTPURCHASED%` | Display name of current product | Seq 17 |
+| `%PRODUCTKEY%` | Internal product key | Seq 9 |
+| `%UPGRADEPRODUCTNAME%` | Next tier product name | Seq 17 |
+| `%ABANDONEDPRODUCT%` | Abandoned product name | Seq 2 |
 
 ---
 
@@ -500,13 +500,13 @@ These emails require conditional content blocks built in ActiveCampaign:
 
 | Sequence | Email | Keyed To | # Blocks |
 |---|---|---|---|
-| Seq 1 | Email 2 | `%PRIMARY_PILLAR%` | 5 (one per pillar) |
+| Seq 1 | Email 2 | `%PRIMARYPILLAR%` | 5 (one per pillar) |
 | Seq 2 | Email 2 | `product_key` | 3 (S+/B/B+) |
-| Seq 6 | Email 2 | `%PRIMARY_PILLAR%` | 5 |
+| Seq 6 | Email 2 | `%PRIMARYPILLAR%` | 5 |
 | Seq 16 | Issues 1, 3, 4 | `product_key` | 4 (snapshot/S+/B/B+) |
-| Seq 17 | Email 2 | `%PRIMARY_PILLAR%` | 5 |
+| Seq 17 | Email 2 | `%PRIMARYPILLAR%` | 5 |
 | Seq 17 | Email 7 | `product_key` | 2 (S+/B only, suppress B+) |
-| Seq 18 | Email 2 | `%PRIMARY_PILLAR%` | 5 |
+| Seq 18 | Email 2 | `%PRIMARYPILLAR%` | 5 |
 
 ---
 

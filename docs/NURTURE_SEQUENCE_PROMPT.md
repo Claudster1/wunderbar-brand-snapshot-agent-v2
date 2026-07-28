@@ -79,54 +79,54 @@ Use these exact merge field names in the copy. In ActiveCampaign, these will be 
 
 ### Contact Fields
 - `%FIRSTNAME%` — First name (may not always be available; write fallback copy)
-- `%COMPANY_NAME%` — Company/brand name
+- `%COMPANYNAME%` — Company/brand name
 - `%EMAIL%` — Email address
 
 ### Score & Pillar Fields
-- `%BRAND_ALIGNMENT_SCORE%` — Overall WunderBrand Score (0–100)
-- `%POSITIONING_SCORE%` — Positioning pillar score (0–20)
-- `%MESSAGING_SCORE%` — Messaging pillar score (0–20)
-- `%VISIBILITY_SCORE%` — Visibility pillar score (0–20)
-- `%CREDIBILITY_SCORE%` — Credibility pillar score (0–20)
-- `%CONVERSION_SCORE%` — Conversion pillar score (0–20)
-- `%PRIMARY_PILLAR%` — The weakest/primary pillar (e.g., "positioning", "messaging")
-- `%WEAKEST_PILLAR%` — Same as primary pillar (used in some contexts)
+- `%BRANDALIGNMENTSCORE%` — Overall WunderBrand Score (0–100)
+- `%POSITIONINGSCORE%` — Positioning pillar score (0–20)
+- `%MESSAGINGSCORE%` — Messaging pillar score (0–20)
+- `%VISIBILITYSCORE%` — Visibility pillar score (0–20)
+- `%CREDIBILITYSCORE%` — Credibility pillar score (0–20)
+- `%CONVERSIONSCORE%` — Conversion pillar score (0–20)
+- `%PRIMARYPILLAR%` — The weakest/primary pillar (e.g., "positioning", "messaging")
+- `%WEAKESTPILLAR%` — Same as primary pillar (used in some contexts)
 
 ### Product & Purchase Fields
-- `%PRODUCT_NAME%` — Display name of purchased product (e.g., "WunderBrand Snapshot+™")
-- `%PRODUCT_KEY%` — Internal key (e.g., "snapshot_plus", "blueprint")
-- `%PURCHASE_DATE%` — Date of purchase
-- `%AMOUNT_PAID%` — Amount paid
+- `%PRODUCTPURCHASED%` — Display name of purchased product (e.g., "WunderBrand Snapshot+™")
+- `%PRODUCTKEY%` — Internal key (e.g., "snapshot_plus", "blueprint")
+- `%PURCHASEDATE%` — Date of purchase
+- `%AMOUNTPAID%` — Amount paid
 
 ### Links
-- `%REPORT_LINK%` — Direct link to their report/results
-- `%REPORT_ID%` — Report identifier
-- `%DASHBOARD_LINK%` — Link to their dashboard
+- `%REPORTLINK%` — Direct link to their report/results
+- `%REPORTID%` — Report identifier
+- `%DASHBOARDLINK%` — Link to their dashboard
 - `%START_DIAGNOSTIC_LINK%` — Link to start/resume diagnostic
-- `%RESUME_LINK%` — Link to resume a paused diagnostic
-- `%EXPERIENCE_SURVEY_LINK%` — Link to WunderBrand Experience Survey
-- `%UPGRADE_PRODUCT_URL%` — Link to purchase the next tier
-- `%SERVICES_URL%` — Link to services page
+- `%RESUMELINK%` — Link to resume a paused diagnostic
+- `%EXPERIENCESURVEYLINK%` — Link to WunderBrand Experience Survey
+- `%UPGRADEPRODUCTURL%` — Link to purchase the next tier
+- `%SERVICESURL%` — Link to services page
 - `%REFRESH_ACTION_URL%` — Link to purchase a quarterly refresh
 - `%CONTENT_DOWNLOAD_LINK%` — Link to download lead magnet / content resource
-- `%TESTIMONIAL_LINK%` — Link to submit a testimonial
-- `%GOOGLE_REVIEW_URL%` — Link to leave a Google review
+- `%TESTIMONIALLINK%` — Link to submit a testimonial
+- `%GOOGLEREVIEWURL%` — Link to leave a Google review
 
 ### Upgrade Fields
-- `%UPGRADE_PRODUCT_NAME%` — Name of the next tier up
-- `%UPGRADE_PRICE%` — Price of the next tier
+- `%UPGRADEPRODUCTNAME%` — Name of the next tier up
+- `%UPGRADEPRICE%` — Price of the next tier
 
 ### Abandoned Cart Fields
-- `%ABANDONED_PRODUCT%` — Name of the product they abandoned
-- `%ABANDONED_PRODUCT_URL%` — Link back to checkout
-- `%ABANDONED_PRODUCT_PRICE%` — Price of the abandoned product
+- `%ABANDONEDPRODUCT%` — Name of the product they abandoned
+- `%ABANDONEDPRODUCTURL%` — Link back to checkout
+- `%ABANDONEDPRODUCTPRICE%` — Price of the abandoned product
 
 ### Refresh Fields
 - `%REFRESH_BRAND_NAME%` — Brand name for refresh context
 - `%REFRESH_TIER%` — Tier being refreshed
 - `%REFRESH_DAYS_REMAINING%` — Days left in refresh window
 - `%REFRESH_WINDOW_END%` — Date refresh window closes
-- `%REFRESH_PRICE%` — Price of the refresh
+- `%REFRESHPRICE%` — Price of the refresh
 
 ### Session Fields
 - `%SESSION_TYPE%` — Type of session (e.g., "talk_to_expert", "activation_session")
@@ -261,13 +261,13 @@ For each sequence, write:
 **Trigger:** Tag `purchased:snapshot` + `intent:upgrade-snapshot-plus`
 **Exit:** Tag `purchased:snapshot-plus`
 **All emails:** Claudine at Wunderbar Digital | claudine@wunderbardigital.com | Founder template
-**Available fields:** `%FIRSTNAME%`, `%COMPANY_NAME%`, `%BRAND_ALIGNMENT_SCORE%`, `%PRIMARY_PILLAR%`, `%POSITIONING_SCORE%`, `%MESSAGING_SCORE%`, `%VISIBILITY_SCORE%`, `%CREDIBILITY_SCORE%`, `%CONVERSION_SCORE%`, `%REPORT_LINK%`, `%UPGRADE_PRODUCT_URL%`
+**Available fields:** `%FIRSTNAME%`, `%COMPANYNAME%`, `%BRANDALIGNMENTSCORE%`, `%PRIMARYPILLAR%`, `%POSITIONINGSCORE%`, `%MESSAGINGSCORE%`, `%VISIBILITYSCORE%`, `%CREDIBILITYSCORE%`, `%CONVERSIONSCORE%`, `%REPORTLINK%`, `%UPGRADEPRODUCTURL%`
 
 **Email 1** — Send: +1 hour after trigger
-Theme: Your WunderBrand Score is %BRAND_ALIGNMENT_SCORE% — here's what it means. Recap their score, highlight weakest pillar, tease what Snapshot+ reveals.
+Theme: Your WunderBrand Score is %BRANDALIGNMENTSCORE% — here's what it means. Recap their score, highlight weakest pillar, tease what Snapshot+ reveals.
 
 **Email 2** — Send: +2 days
-Theme: What your %PRIMARY_PILLAR% score actually means. Dynamic content: 5 conditional blocks (one per pillar) explaining real business impact of a low score.
+Theme: What your %PRIMARYPILLAR% score actually means. Dynamic content: 5 conditional blocks (one per pillar) explaining real business impact of a low score.
 
 **Email 3** — Send: +5 days
 Theme: 3 things your free results can't tell you. Persona-aligned messaging, Foundational Prompt Pack, specific "why" behind each score.
@@ -286,7 +286,7 @@ Theme: Your results are there when you're ready. Soft close — no pressure. Men
 **Trigger:** Tag `checkout:abandoned` + product-specific tag
 **Exit:** Any `purchased:*` tag for that product
 **Sender:** Emails 1–2: Claudine | claudine@wunderbardigital.com | Founder. Email 3: Wunderbar Digital | support@wunderbardigital.com | Founder
-**Available fields:** `%FIRSTNAME%`, `%ABANDONED_PRODUCT%`, `%ABANDONED_PRODUCT_URL%`
+**Available fields:** `%FIRSTNAME%`, `%ABANDONEDPRODUCT%`, `%ABANDONEDPRODUCTURL%`
 
 **Email 1** — Send: +30 minutes
 Theme: Still thinking it over? No rush. Leave the checkout link.
@@ -305,7 +305,7 @@ Theme: Have questions? We're here. Last note — link to support and checkout.
 **Trigger:** Tag `snapshot:coverage-gap`
 **Exit:** Tag `purchased:snapshot-plus`
 **All emails:** Claudine at Wunderbar Digital | claudine@wunderbardigital.com | Founder template
-**Available fields:** `%FIRSTNAME%`, `%PRIMARY_PILLAR%`, `%REPORT_LINK%`, `%UPGRADE_PRODUCT_URL%`
+**Available fields:** `%FIRSTNAME%`, `%PRIMARYPILLAR%`, `%REPORTLINK%`, `%UPGRADEPRODUCTURL%`
 
 **Email 1** — Send: +4 hours
 Theme: Your results could be sharper. Doctor analogy — half the test results vs. full picture. Explain what diagnostic coverage means and how Snapshot+ sharpens results.
@@ -322,7 +322,7 @@ Theme: Specific beats directional — every time. What changes when coverage is 
 **Trigger:** Event `start_diagnostic` with `product_key` = snapshot_plus | blueprint | blueprint_plus
 **Exit:** Product-specific `report:*-ready` tag
 **Sender:** Emails 1–3: Wunderbar Digital | hello@wunderbardigital.com | Branded. Email 4: Claudine | claudine@wunderbardigital.com | Founder
-**Available fields:** `%FIRSTNAME%`, `%START_DIAGNOSTIC_LINK%`, `%DASHBOARD_LINK%`
+**Available fields:** `%FIRSTNAME%`, `%START_DIAGNOSTIC_LINK%`, `%DASHBOARDLINK%`
 
 Write 3 tier-specific variants (Snapshot+, Blueprint, Blueprint+). Key differences:
 - **Snapshot+**: 15–20 min, no uploads, Foundational Prompt Pack (8 AI prompts)
@@ -349,12 +349,12 @@ Theme: Checking in personally (from Claudine). No further automated follow-up af
 **Trigger:** Tag `report:snapshot-plus-ready` / `report:blueprint-ready` / `report:blueprint-plus-ready`
 **Exit:** Runs to completion
 **Sender:** Email 1: Wunderbar Digital | hello@ | Branded. Emails 2–3: Claudine | claudine@ | Founder
-**Available fields:** `%FIRSTNAME%`, `%BRAND_ALIGNMENT_SCORE%`, all pillar scores, `%PRIMARY_PILLAR%`, `%REPORT_LINK%`, `%EXPERIENCE_SURVEY_LINK%`
+**Available fields:** `%FIRSTNAME%`, `%BRANDALIGNMENTSCORE%`, all pillar scores, `%PRIMARYPILLAR%`, `%REPORTLINK%`, `%EXPERIENCESURVEYLINK%`
 
 Write 3 tier-specific variants. Key differences for "what to do first":
-- **Snapshot+**: Open Foundational Prompt Pack first, then %PRIMARY_PILLAR% section. Also triggers Seq 6 (upgrade) with 7-day wait.
-- **Blueprint**: Open Interactive Brand Workbook, start with %PRIMARY_PILLAR%. Also triggers Seq 7 (upgrade) with 7-day wait.
-- **Blueprint+**: Open %PRIMARY_PILLAR% breakdown and Messaging Matrix. Also triggers Seq 12 (session booking) — Claudine email goes 3 days later.
+- **Snapshot+**: Open Foundational Prompt Pack first, then %PRIMARYPILLAR% section. Also triggers Seq 6 (upgrade) with 7-day wait.
+- **Blueprint**: Open Interactive Brand Workbook, start with %PRIMARYPILLAR%. Also triggers Seq 7 (upgrade) with 7-day wait.
+- **Blueprint+**: Open %PRIMARYPILLAR% breakdown and Messaging Matrix. Also triggers Seq 12 (session booking) — Claudine email goes 3 days later.
 
 **Email 1** — Send: Immediate
 Theme: Results are ready. Full score breakdown (overall + 5 pillar scores). Primary area of opportunity. Link to full results. "Where to start" guidance by tier.
@@ -373,13 +373,13 @@ Theme: How are you using your results? Light check-in. Experience Survey link. S
 **Exit:** Tag `purchased:blueprint`
 **Timing:** Begins 7 days after `report:snapshot-plus-ready`
 **All emails:** Claudine at Wunderbar Digital | claudine@wunderbardigital.com | Founder template
-**Available fields:** `%FIRSTNAME%`, `%COMPANY_NAME%`, `%PRIMARY_PILLAR%`, `%UPGRADE_PRODUCT_URL%`
+**Available fields:** `%FIRSTNAME%`, `%COMPANYNAME%`, `%PRIMARYPILLAR%`, `%UPGRADEPRODUCTURL%`
 
 **Email 1** — Send: +7 days after report ready
 Theme: You've seen the score — now build the strategy. What Blueprint adds: brand archetype, messaging framework, workbook, Brand Standards PDF.
 
 **Email 2** — Send: +14 days
-Theme: What Blueprint does specifically for your %PRIMARY_PILLAR% score. Dynamic content: 5 conditional blocks, pillar-specific workbook sections.
+Theme: What Blueprint does specifically for your %PRIMARYPILLAR% score. Dynamic content: 5 conditional blocks, pillar-specific workbook sections.
 
 **Email 3** — Send: +21 days
 Theme: One document. Every collaborator on-brand from day one. Brand Standards PDF + messaging framework as collaboration tools.
@@ -396,7 +396,7 @@ Theme: Your brand is already evolving — is your strategy keeping up? Last note
 **Exit:** Tag `purchased:blueprint-plus`
 **Timing:** Begins 7 days after `report:blueprint-ready`
 **All emails:** Claudine at Wunderbar Digital | claudine@wunderbardigital.com | Founder template
-**Available fields:** `%FIRSTNAME%`, `%COMPANY_NAME%`, `%UPGRADE_PRODUCT_URL%`
+**Available fields:** `%FIRSTNAME%`, `%COMPANYNAME%`, `%UPGRADEPRODUCTURL%`
 
 **Email 1** — Send: +7 days after report ready
 Theme: Your Blueprint is a foundation — Blueprint+ makes it a growth engine. What Blueprint+ adds: audience segmentation, Messaging Matrix, Campaign Architecture, AEO, Advanced Prompt Library, Strategy Activation Session.
@@ -418,7 +418,7 @@ Theme: Last note on Blueprint+ — and a thought on timing. Brand consistency co
 **Trigger:** Tag `refresh:eligible` (applied automatically 90 days after `report:*-ready`)
 **Exit:** New `purchased:*` tag or new diagnostic started
 **All emails:** Claudine at Wunderbar Digital | claudine@wunderbardigital.com | Founder template
-**Available fields:** `%FIRSTNAME%`, `%BRAND_ALIGNMENT_SCORE%`, `%PRIMARY_PILLAR%`, `%DASHBOARD_LINK%`
+**Available fields:** `%FIRSTNAME%`, `%BRANDALIGNMENTSCORE%`, `%PRIMARYPILLAR%`, `%DASHBOARDLINK%`
 
 **Email 1** — Send: Immediate on `refresh:eligible`
 Theme: Your WunderBrand Score is 90 days old — has anything changed? Original score was X, primary opportunity was Y. What a refresh diagnostic gives you.
@@ -437,7 +437,7 @@ Theme: Last nudge on your quarterly refresh. Dashboard link. No further follow-u
 **Trigger:** Tags `snapshot:paused` + `snapshot:resume-link-sent`
 **Exit:** Tag `completed:snapshot` or any `report:*-ready`
 **All emails:** Claudine at Wunderbar Digital | claudine@wunderbardigital.com | Founder template
-**Available fields:** `%FIRSTNAME%`, `%RESUME_LINK%`, `%PRODUCT_KEY%`
+**Available fields:** `%FIRSTNAME%`, `%RESUMELINK%`, `%PRODUCTKEY%`
 
 **Email 1** — Send: +24 hours
 Theme: Pick up where you left off. Everything is where you left it. Resume link.
@@ -501,7 +501,7 @@ Theme: Your session is still available. No pressure. Reschedule link.
 **Exit:** Tag `session:activation-scheduled`
 **All emails:** Claudine at Wunderbar Digital | claudine@wunderbardigital.com | Founder template
 **Closing exception:** "Looking forward to it," / Claudine / Founder, Wunderbar Digital
-**Available fields:** `%FIRSTNAME%`, `%REPORT_LINK%`
+**Available fields:** `%FIRSTNAME%`, `%REPORTLINK%`
 
 **Email 1** — Send: +3 days after report ready
 Theme: Let's book your Strategy Activation Session. 30-minute working session: look at results together, identify 2–3 highest-leverage actions, map to business priorities. Not a sales call. Sessions must be booked within 30 days.
@@ -578,7 +578,7 @@ Theme: A bit about who we are. Claudine intro — 25 years, WunderBrand story. C
 **Cadence:** 2x/month — ongoing broadcast, no fixed exit
 **All issues:** Wunderbar Digital | hello@wunderbardigital.com | Branded template
 **Content pillars:** AI tools for brand building | Marketing strategy for SMBs | Brand pattern recognition | WunderBrand product updates
-**Available fields:** `%FIRSTNAME%`, `%DASHBOARD_LINK%`, `%REPORT_LINK%`
+**Available fields:** `%FIRSTNAME%`, `%DASHBOARDLINK%`, `%REPORTLINK%`
 
 **Template structure (locked):**
 - Section 1 — Lead Story [200–250 words]. One insight in Claudine's voice. Observation-based.
@@ -600,15 +600,15 @@ Theme: A bit about who we are. Claudine intro — 25 years, WunderBrand story. C
 **Exit:** `purchased:*` | `services:expert_call_requested` | `call:expert-scheduled`
 **Cadence:** Emails 1–6 every 14 days, Email 7 at +14d, Email 8 at +21d
 **All emails:** Claudine at Wunderbar Digital | claudine@wunderbardigital.com | Founder template
-**Available fields:** `%FIRSTNAME%`, `%COMPANY_NAME%`, `%PRODUCT_NAME%`, `%PRIMARY_PILLAR%`, `%BRAND_ALIGNMENT_SCORE%`, `%REPORT_LINK%`, `%DASHBOARD_LINK%`, `%UPGRADE_PRODUCT_NAME%`, `%UPGRADE_PRODUCT_URL%`, `%SERVICES_URL%`, `%REFRESH_ACTION_URL%`
+**Available fields:** `%FIRSTNAME%`, `%COMPANYNAME%`, `%PRODUCTPURCHASED%`, `%PRIMARYPILLAR%`, `%BRANDALIGNMENTSCORE%`, `%REPORTLINK%`, `%DASHBOARDLINK%`, `%UPGRADEPRODUCTNAME%`, `%UPGRADEPRODUCTURL%`, `%SERVICESURL%`, `%REFRESH_ACTION_URL%`
 
 **Email 1** — A month in — is your brand actually moving? Check-in on implementation by pillar focus area.
-**Email 2** — Your %PRIMARY_PILLAR% score was %BRAND_ALIGNMENT_SCORE% — one thing to do this week. Dynamic content: 5 conditional blocks with pillar-specific actions.
+**Email 2** — Your %PRIMARYPILLAR% score was %BRANDALIGNMENTSCORE% — one thing to do this week. Dynamic content: 5 conditional blocks with pillar-specific actions.
 **Email 3** — Your prompt pack isn't a one-time thing. Brand's AI brief. Share with team and collaborators.
 **Email 4** — Your brand has changed since your last diagnostic. Refresh teaser. Updated score, recommendations, prompt pack.
 **Email 5** — When brand strategy needs a human. Managed marketing services intro ($3,500/month). CTA click applies `services:interested` → triggers Seq 19.
 **Email 6** — Know anyone building a brand right now? Referral ask. wunderbrand.ai link.
-**Email 7** — What the next step unlocks for %COMPANY_NAME%. Dynamic content by current tier (S+→B or B→B+). Suppress for Blueprint+ contacts.
+**Email 7** — What the next step unlocks for %COMPANYNAME%. Dynamic content by current tier (S+→B or B→B+). Suppress for Blueprint+ contacts.
 **Email 8** — Why documented brands win in AI-powered search. AEO angle. Link to services.
 
 **After Email 8 with no exit:** Tag `evergreen:complete`. Check if `refresh:eligible` → trigger Seq 8.
@@ -619,11 +619,11 @@ Theme: A bit about who we are. Claudine intro — 25 years, WunderBrand story. C
 **Trigger:** 90+ days since last `report:*-ready` AND no refresh AND no email engagement in 60+ days
 **Exit:** `purchased:*` | `snapshot:viewed-results` | `call:expert-scheduled`
 **All emails:** Claudine at Wunderbar Digital | claudine@wunderbardigital.com | Founder template
-**Available fields:** `%FIRSTNAME%`, `%COMPANY_NAME%`, `%PRIMARY_PILLAR%`, `%SERVICES_URL%`, `%DASHBOARD_LINK%`
+**Available fields:** `%FIRSTNAME%`, `%COMPANYNAME%`, `%PRIMARYPILLAR%`, `%SERVICESURL%`, `%DASHBOARDLINK%`
 **Salutation exception:** "Hi %FIRSTNAME% — it's been a while." (Emails 1–2) / Standard for Email 3
 
 **Email 1** — Your brand has evolved since we last talked. Original score as baseline. Two options: refresh diagnostic or conversation with team.
-**Email 2** — +7 days: What's shifted in %PRIMARY_PILLAR% since your last diagnostic. Dynamic content: 5 conditional blocks with pillar-specific market observations.
+**Email 2** — +7 days: What's shifted in %PRIMARYPILLAR% since your last diagnostic. Dynamic content: 5 conditional blocks with pillar-specific market observations.
 **Email 3** — +14 days: Still here when you're ready. Dashboard link. Soft close.
 
 **On exit without conversion:** Move to Sequence 15 (Evergreen Education).
@@ -634,11 +634,11 @@ Theme: A bit about who we are. Claudine intro — 25 years, WunderBrand story. C
 **Trigger:** 45+ days as customer AND any of: `services:interested` | `nurture:other-services` | score < 50 | `experience:promoter`
 **Exit:** `call:expert-scheduled` | manual removal
 **All emails:** Claudine at Wunderbar Digital | claudine@wunderbardigital.com | Founder template
-**Available fields:** `%FIRSTNAME%`, `%COMPANY_NAME%`, `%PRIMARY_PILLAR%`, `%SERVICES_URL%`
+**Available fields:** `%FIRSTNAME%`, `%COMPANYNAME%`, `%PRIMARYPILLAR%`, `%SERVICESURL%`
 
 **Email 1** — Your diagnostic told you what to fix — we can help you fix it. Managed marketing intro. Not a vendor, a strategic partner. $3,500/month retainer.
 **Email 2** — +10 days: What a managed engagement actually looks like. Start with WunderBrand data, build demand generation plan, content/campaign activation, performance tracking. Not a content mill, not social management, not ads-only.
-**Email 3** — +20 days: Strategy doesn't have to be a solo project. Expert call as honest conversation about fit. Reference WunderBrand score and %PRIMARY_PILLAR%.
+**Email 3** — +20 days: Strategy doesn't have to be a solo project. Expert call as honest conversation about fit. Reference WunderBrand score and %PRIMARYPILLAR%.
 **Email 4** — +30 days: Your brand deserves more than a dashboard. Final soft close. No further automated follow-up.
 
 ---

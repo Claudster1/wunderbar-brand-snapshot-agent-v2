@@ -22,7 +22,7 @@ It's the most complete view of your brand's clarity, consistency, and strategic 
 Snapshot+™ includes:
 
 • A deeper five-pillar analysis
-• Expanded insights for your lowest-scoring pillar (%WEAKEST_PILLAR%)
+• Expanded insights for your lowest-scoring pillar (%WEAKESTPILLAR%)
 • Actionable recommendations tailored to your goals
 • A beautifully designed PDF you can use with stakeholders
 • A clear, prioritized roadmap to strengthen your brand
@@ -42,7 +42,7 @@ Wunderbar Digital
 ## Personalization Notes
 
 - Replace `%firstname%` with contact's first name
-- Replace `%WEAKEST_PILLAR%` with their lowest scoring pillar
+- Replace `%WEAKESTPILLAR%` with their lowest scoring pillar
 - Replace `[Upgrade to Snapshot+™ →]` with your Snapshot+ checkout URL
 
 ## HTML Version (for ActiveCampaign)
@@ -60,7 +60,7 @@ Wunderbar Digital
 
 <ul>
   <li>A deeper five-pillar analysis</li>
-  <li>Expanded insights for your lowest-scoring pillar (%WEAKEST_PILLAR%)</li>
+  <li>Expanded insights for your lowest-scoring pillar (%WEAKESTPILLAR%)</li>
   <li>Actionable recommendations tailored to your goals</li>
   <li>A beautifully designed PDF you can use with stakeholders</li>
   <li>A clear, prioritized roadmap to strengthen your brand</li>

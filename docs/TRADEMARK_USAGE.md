@@ -42,7 +42,7 @@ Always include ™ symbol for:
 
 When using in ActiveCampaign email templates, include ™ in merge tag names:
 
-- `%BRAND_ALIGNMENT_SCORE%` (field name: "WunderBrand Score™")
+- `%BRANDALIGNMENTSCORE%` (field name: "WunderBrand Score™")
 - `%SNAPSHOT_PLUS_PITCH%` (field name: "Snapshot+™ Upsell Block")
 
 ## HTML Entity

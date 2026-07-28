@@ -13,7 +13,7 @@
 ```
 Hi %firstname%,
 
-Now that you've had a little time to review your WunderBrand Snapshot™ results — including your WunderBrand Score™ of %BRAND_ALIGNMENT_SCORE% and how you performed across the five pillars — you're in a perfect position to take the next step.
+Now that you've had a little time to review your WunderBrand Snapshot™ results — including your WunderBrand Score™ of %BRANDALIGNMENTSCORE% and how you performed across the five pillars — you're in a perfect position to take the next step.
 
 What you received in the free Snapshot is the baseline.
 But there's far more depth available once we analyze your brand on a strategic level.
@@ -43,7 +43,7 @@ Founder, Wunderbar Digital
 ## Personalization Notes
 
 - Replace `%firstname%` with contact's first name
-- Replace `%BRAND_ALIGNMENT_SCORE%` with their actual score
+- Replace `%BRANDALIGNMENTSCORE%` with their actual score
 - Replace `[Upgrade to Snapshot+™ →]` with your Snapshot+ checkout URL
 
 ## HTML Version (for ActiveCampaign)
@@ -51,7 +51,7 @@ Founder, Wunderbar Digital
 ```html
 <p>Hi %firstname%,</p>
 
-<p>Now that you've had a little time to review your <strong>WunderBrand Snapshot™</strong> results — including your <strong>WunderBrand Score™</strong> of <strong>%BRAND_ALIGNMENT_SCORE%</strong> and how you performed across the five pillars — you're in a perfect position to take the next step.</p>
+<p>Now that you've had a little time to review your <strong>WunderBrand Snapshot™</strong> results — including your <strong>WunderBrand Score™</strong> of <strong>%BRANDALIGNMENTSCORE%</strong> and how you performed across the five pillars — you're in a perfect position to take the next step.</p>
 
 <p>What you received in the free Snapshot is the baseline.<br>
 But there's far more depth available once we analyze your brand on a strategic level.</p>

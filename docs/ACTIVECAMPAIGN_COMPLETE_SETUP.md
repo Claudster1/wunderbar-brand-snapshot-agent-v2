@@ -12,7 +12,7 @@ Create these in **Settings → Fields**. After creating each field, note its **F
 
 | Field name in AC | Type | Env variable | Merge tag (for emails) |
 |------------------|------|--------------|------------------------|
-| Company Name | Text | `AC_FIELD_COMPANY_NAME` | `%COMPANY_NAME%` |
+| Company Name | Text | `AC_FIELD_COMPANY_NAME` | `%COMPANYNAME%` |
 | Industry | Text | `AC_FIELD_INDUSTRY` | `%INDUSTRY%` |
 | Website | Text | `AC_FIELD_WEBSITE` | — |
 | Role Phrase | Text | `AC_FIELD_ROLE_PHRASE` | `%ROLE_PHRASE%` |
@@ -63,12 +63,12 @@ Create these in **Settings → Fields**. After creating each field, note its **F
 
 | Field name in AC | Type | Env variable | Merge tag |
 |------------------|------|--------------|-----------|
-| WunderBrand Score™ | Text | `AC_FIELD_BRAND_ALIGNMENT_SCORE` | `%BRAND_ALIGNMENT_SCORE%` |
-| Positioning Score | Text | `AC_FIELD_POSITIONING_SCORE` | `%POSITIONING_SCORE%` |
-| Messaging Score | Text | `AC_FIELD_MESSAGING_SCORE` | `%MESSAGING_SCORE%` |
-| Visibility Score | Text | `AC_FIELD_VISIBILITY_SCORE` | `%VISIBILITY_SCORE%` |
-| Credibility Score | Text | `AC_FIELD_CREDIBILITY_SCORE` | `%CREDIBILITY_SCORE%` |
-| Conversion Score | Text | `AC_FIELD_CONVERSION_SCORE` | `%CONVERSION_SCORE%` |
+| WunderBrand Score™ | Text | `AC_FIELD_BRAND_ALIGNMENT_SCORE` | `%BRANDALIGNMENTSCORE%` |
+| Positioning Score | Text | `AC_FIELD_POSITIONING_SCORE` | `%POSITIONINGSCORE%` |
+| Messaging Score | Text | `AC_FIELD_MESSAGING_SCORE` | `%MESSAGINGSCORE%` |
+| Visibility Score | Text | `AC_FIELD_VISIBILITY_SCORE` | `%VISIBILITYSCORE%` |
+| Credibility Score | Text | `AC_FIELD_CREDIBILITY_SCORE` | `%CREDIBILITYSCORE%` |
+| Conversion Score | Text | `AC_FIELD_CONVERSION_SCORE` | `%CONVERSIONSCORE%` |
 | Primary Pillar | Text | `AC_FIELD_PRIMARY_PILLAR` | — |
 
 ### Insights (Long text for longer content)
@@ -85,7 +85,7 @@ Create these in **Settings → Fields**. After creating each field, note its **F
 
 | Field name in AC | Type | Env variable | Merge tag |
 |------------------|------|--------------|-----------|
-| Top Opportunities | Long text | `AC_FIELD_TOP_OPPORTUNITIES` | `%TOP_OPPORTUNITIES%` |
+| Top Opportunities | Long text | `AC_FIELD_TOP_OPPORTUNITIES` | `%TOPOPPORTUNITIES%` |
 | Personalized Recommendations | Long text | `AC_FIELD_PERSONALIZED_RECOMMENDATIONS` | `%PERSONALIZED_RECOMMENDATIONS%` |
 | Website Notes | Long text | `AC_FIELD_WEBSITE_NOTES` | — |
 
@@ -216,16 +216,16 @@ Use these in **email content** (campaigns/automations). ActiveCampaign generates
 | Use in emails | Merge tag |
 |---------------|-----------|
 | Report link (CTA URL) | **`%BRANDSNAPSHOTREPORTLINK%`** |
-| Overall score | `%BRAND_ALIGNMENT_SCORE%` |
-| Pillar scores | `%POSITIONING_SCORE%`, `%MESSAGING_SCORE%`, `%VISIBILITY_SCORE%`, `%CREDIBILITY_SCORE%`, `%CONVERSION_SCORE%` |
+| Overall score | `%BRANDALIGNMENTSCORE%` |
+| Pillar scores | `%POSITIONINGSCORE%`, `%MESSAGINGSCORE%`, `%VISIBILITYSCORE%`, `%CREDIBILITYSCORE%`, `%CONVERSIONSCORE%` |
 | Pillar insights | `%POSITIONING_INSIGHT%`, `%MESSAGING_INSIGHT%`, etc. |
-| Top opportunities | `%TOP_OPPORTUNITIES%` |
+| Top opportunities | `%TOPOPPORTUNITIES%` |
 | Role phrase | `%ROLE_PHRASE%` |
 | Snapshot+ upsell copy | `%SNAPSHOT_PLUS_PITCH%` |
-| Company / brand | `%COMPANY_NAME%`, `%INDUSTRY%`, `%BRAND_URL%` |
+| Company / brand | `%COMPANYNAME%`, `%INDUSTRY%`, `%BRAND_URL%` |
 | Content download | `%CONTENT_DOWNLOAD_LINK%` |
-| Experience survey | `%EXPERIENCE_SURVEY_LINK%` |
-| Services page | `%SERVICES_URL%` |
+| Experience survey | `%EXPERIENCESURVEYLINK%` |
+| Services page | `%SERVICESURL%` |
 | Refresh action | `%REFRESH_ACTION_URL%` |
 
 **CTA link example:**  
@@ -241,36 +241,36 @@ Scores and insights are stored as **custom fields** (merge tags below). The **ta
 
 | What to show | Merge tag |
 |--------------|-----------|
-| Overall score | `%BRAND_ALIGNMENT_SCORE%` |
-| Positioning score (0–20) | `%POSITIONING_SCORE%` |
+| Overall score | `%BRANDALIGNMENTSCORE%` |
+| Positioning score (0–20) | `%POSITIONINGSCORE%` |
 | Positioning insight (personalized copy) | `%POSITIONING_INSIGHT%` |
-| Messaging score | `%MESSAGING_SCORE%` |
+| Messaging score | `%MESSAGINGSCORE%` |
 | Messaging insight | `%MESSAGING_INSIGHT%` |
-| Visibility score | `%VISIBILITY_SCORE%` |
+| Visibility score | `%VISIBILITYSCORE%` |
 | Visibility insight | `%VISIBILITY_INSIGHT%` |
-| Credibility score | `%CREDIBILITY_SCORE%` |
+| Credibility score | `%CREDIBILITYSCORE%` |
 | Credibility insight | `%CREDIBILITY_INSIGHT%` |
-| Conversion score | `%CONVERSION_SCORE%` |
+| Conversion score | `%CONVERSIONSCORE%` |
 | Conversion insight | `%CONVERSION_INSIGHT%` |
-| Primary/weakest pillar name | `%PRIMARY_PILLAR%` (if you create this field) |
-| Top opportunities (bulleted) | `%TOP_OPPORTUNITIES%` |
+| Primary/weakest pillar name | `%PRIMARYPILLAR%` (if you create this field) |
+| Top opportunities (bulleted) | `%TOPOPPORTUNITIES%` |
 | Role phrase | `%ROLE_PHRASE%` |
 
 ### How to use tags + merge tags in the funnel
 
 1. **Weakest-pillar focus**  
    - Trigger: Tag is added → `weakest_pillar:positioning` (repeat for messaging, visibility, credibility, conversion).  
-   - In the email: Use that pillar’s insight and score, e.g. “Your Positioning score is %POSITIONING_SCORE% / 20. Here’s what that means for you: %POSITIONING_INSIGHT%” and link to report.  
+   - In the email: Use that pillar’s insight and score, e.g. “Your Positioning score is %POSITIONINGSCORE% / 20. Here’s what that means for you: %POSITIONING_INSIGHT%” and link to report.  
    - Do the same for each pillar so everyone gets content tailored to their biggest opportunity.
 
 2. **Score-tier education**  
    - Trigger: e.g. Tag is added → `pillar:positioning_low`.  
    - Send education specific to “low positioning” (e.g. clarity on offer, audience, differentiation).  
-   - Use `%POSITIONING_INSIGHT%` and `%POSITIONING_SCORE%` in the body so the email reflects their exact situation.
+   - Use `%POSITIONING_INSIGHT%` and `%POSITIONINGSCORE%` in the body so the email reflects their exact situation.
 
 3. **Multi-pillar flows**  
    - Use combinations: e.g. `purchased:snapshot` + `weakest_pillar:visibility` + `pillar:visibility_low` to send a “Visibility deep-dive” email only to people whose biggest gap is visibility and whose visibility score is low (create those pillar/weakest tags in AC; confirm the app applies them before relying on them — see `app/api/snapshot/route.ts` for tags actually sent today).  
-   - In the email, use `%VISIBILITY_SCORE%`, `%VISIBILITY_INSIGHT%`, and `%TOP_OPPORTUNITIES%` so the email adds value and educates as they move through the funnel.
+   - In the email, use `%VISIBILITYSCORE%`, `%VISIBILITY_INSIGHT%`, and `%TOPOPPORTUNITIES%` so the email adds value and educates as they move through the funnel.
 
 4. **Report CTA in every email**  
    - Always include the report link: `%BRANDSNAPSHOTREPORTLINK%` so they can revisit their scores and insights.
@@ -372,7 +372,7 @@ Replace `...` and numbers with your actual Field IDs from ActiveCampaign.
   - **Weakest pillar:** `weakest_pillar:positioning`, `weakest_pillar:messaging`, etc.
 - [ ] **Report link** field created and `AC_FIELD_REPORT_LINK` set (used for email CTAs).
 - [ ] Email templates use **`%BRANDSNAPSHOTREPORTLINK%`** for the report CTA.
-- [ ] Pillar personalization: emails use **pillar merge tags** (`%POSITIONING_SCORE%`, `%POSITIONING_INSIGHT%`, etc.) and **pillar/weakest-pillar tags** to branch flows.
+- [ ] Pillar personalization: emails use **pillar merge tags** (`%POSITIONINGSCORE%`, `%POSITIONING_INSIGHT%`, etc.) and **pillar/weakest-pillar tags** to branch flows.
 - [ ] **Content/Services tags** created: `content:opt-in`, `content:opted_in`, `intent:services`, `services:call-booked`, `services:client-active`
 - [ ] **Lifecycle tag** created: `evergreen:complete`
 - [ ] Automations use the correct triggers — see [NURTURE_IMPLEMENTATION_GUIDE.md](./NURTURE_IMPLEMENTATION_GUIDE.md) for the complete reference for all 19 sequences.

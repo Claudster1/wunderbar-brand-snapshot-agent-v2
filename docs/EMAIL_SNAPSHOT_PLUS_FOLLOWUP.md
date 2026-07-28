@@ -39,7 +39,7 @@ Wunderbar Digital
 3. **Conditional**: Only send if user does NOT have tag: `snapshot_plus_purchased`
 4. **Personalization**: 
    - Use `%FIRST_NAME%` merge tag for first name
-   - Use custom field for `%PRIMARY_PILLAR%` (set during WunderBrand Snapshot™ completion)
+   - Use custom field for `%PRIMARYPILLAR%` (set during WunderBrand Snapshot™ completion)
 
 ## Custom Field Required
 

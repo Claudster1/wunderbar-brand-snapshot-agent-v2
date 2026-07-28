@@ -209,7 +209,7 @@ See [ACTIVECAMPAIGN_AUTOMATIONS.md](./ACTIVECAMPAIGN_AUTOMATIONS.md) for full sp
 - **#15 — Talk to Expert Post-Call Follow-up**: Triggered by `expert_call_followup_ready` event
 - **#16 — Strategy Activation Session Follow-up**: Triggered by `activation_session_followup_ready` event
 
-Key: The email body uses `%FOLLOWUP_BODY%` — this is the AI-generated (and admin-reviewed) HTML content stored as a custom field.
+Key: The email body uses `%FOLLOWUPBODY%` — this is the AI-generated (and admin-reviewed) HTML content stored as a custom field.
 
 ---
 

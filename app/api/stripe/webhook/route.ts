@@ -103,14 +103,33 @@ export async function POST(req: NextRequest) {
           break;
         }
 
-        await recordStripePurchase({
-          email: customerEmail,
-          sessionId: session.id,
-          productKey,
-          amountTotal: session.amount_total ?? undefined,
-          currency: session.currency ?? undefined,
-          reportId: snapshotId,
-        });
+        // The purchase-ledger write is the idempotency anchor for this webhook.
+        // If it fails (e.g. missing table or a transient DB error), a customer
+        // who has ALREADY paid must not be left without access. We log loudly for
+        // manual reconciliation and continue with fulfillment — but we must NOT
+        // rethrow: without a purchase row, isSessionProcessed() can't dedupe, so a
+        // 500 would make Stripe redeliver and double-fulfill (refresh-entitlement
+        // inserts are not idempotent). Returning 200 keeps fulfillment exactly-once.
+        try {
+          await recordStripePurchase({
+            email: customerEmail,
+            sessionId: session.id,
+            productKey,
+            amountTotal: session.amount_total ?? undefined,
+            currency: session.currency ?? undefined,
+            reportId: snapshotId,
+          });
+        } catch (recordErr) {
+          logger.error(
+            "[Stripe Webhook] CRITICAL: purchase record failed; fulfilling anyway — reconcile manually",
+            {
+              sessionId: session.id,
+              email: customerEmail,
+              productKey,
+              error: recordErr instanceof Error ? recordErr.message : String(recordErr),
+            }
+          );
+        }
 
         // For refresh products, grant access at the parent tier level
         const accessTier = getParentTier(productKey);

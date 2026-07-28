@@ -84,7 +84,17 @@ async function computeHealth(now: number): Promise<HealthCheck> {
       if (!hasTurnstile) checks.turnstile.error = "Secret key not configured";
     })(),
     (async () => {
-      const hasAC = !!process.env.ACTIVECAMPAIGN_API_KEY || !!process.env.ACTIVE_CAMPAIGN_WEBHOOK;
+      // Match the env vars the code actually uses: the API v3 client
+      // (ACTIVE_CAMPAIGN_API_KEY + _API_URL), the event-tracking API
+      // (ACTIVE_CAMPAIGN_EVENT_TRACKING_KEY + _ACTID), or a legacy inbound webhook.
+      const hasApiClient =
+        !!process.env.ACTIVE_CAMPAIGN_API_KEY && !!process.env.ACTIVE_CAMPAIGN_API_URL;
+      const hasEventTracking =
+        !!process.env.ACTIVE_CAMPAIGN_EVENT_TRACKING_KEY &&
+        !!process.env.ACTIVE_CAMPAIGN_EVENT_TRACKING_ACTID;
+      const hasWebhook =
+        !!process.env.ACTIVECAMPAIGN_WEBHOOK_URL || !!process.env.ACTIVE_CAMPAIGN_WEBHOOK;
+      const hasAC = hasApiClient || hasEventTracking || hasWebhook;
       checks.activeCampaign = { ok: hasAC };
       if (!hasAC) checks.activeCampaign.error = "Not configured";
     })(),

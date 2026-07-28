@@ -10,12 +10,12 @@ Create these fields in ActiveCampaign and note their Field IDs for environment v
 
 | AC Field Name | Field Type | Merge Tag | Description |
 |---------------|------------|-----------|-------------|
-| WunderBrand Score™ | Text | `%BRAND_ALIGNMENT_SCORE%` | User's overall score (0–100) |
-| Positioning Pillar Score | Text | `%POSITIONING_SCORE%` | 0–20 (weighted) |
-| Messaging Pillar Score | Text | `%MESSAGING_SCORE%` | 0–20 |
-| Visibility Pillar Score | Text | `%VISIBILITY_SCORE%` | 0–20 |
-| Credibility Pillar Score | Text | `%CREDIBILITY_SCORE%` | 0–20 |
-| Conversion Pillar Score | Text | `%CONVERSION_SCORE%` | 0–20 |
+| WunderBrand Score™ | Text | `%BRANDALIGNMENTSCORE%` | User's overall score (0–100) |
+| Positioning Pillar Score | Text | `%POSITIONINGSCORE%` | 0–20 (weighted) |
+| Messaging Pillar Score | Text | `%MESSAGINGSCORE%` | 0–20 |
+| Visibility Pillar Score | Text | `%VISIBILITYSCORE%` | 0–20 |
+| Credibility Pillar Score | Text | `%CREDIBILITYSCORE%` | 0–20 |
+| Conversion Pillar Score | Text | `%CONVERSIONSCORE%` | 0–20 |
 
 ### Insight Fields (Text Type)
 
@@ -31,7 +31,7 @@ Create these fields in ActiveCampaign and note their Field IDs for environment v
 
 | AC Field Name | Field Type | Merge Tag | Description |
 |---------------|------------|-----------|-------------|
-| Top Opportunities | Long text | `%TOP_OPPORTUNITIES%` | 3 opportunities (AI-generated) |
+| Top Opportunities | Long text | `%TOPOPPORTUNITIES%` | 3 opportunities (AI-generated) |
 | Personalized Recommendations | Long text | `%PERSONALIZED_RECOMMENDATIONS%` | Tailored list |
 
 ### Upsell & Brand Info (Text/Long Text)
@@ -41,7 +41,7 @@ Create these fields in ActiveCampaign and note their Field IDs for environment v
 | Snapshot+™ Upsell Block | Long text | `%SNAPSHOT_PLUS_PITCH%` | Dynamic pitch to upgrade |
 | Brand URL | Text | `%BRAND_URL%` | Provided by user |
 | Industry | Text | `%INDUSTRY%` | Provided |
-| Company Name | Text | `%COMPANY_NAME%` | Provided |
+| Company Name | Text | `%COMPANYNAME%` | Provided |
 | Role Phrase | Text | `%ROLE_PHRASE%` | Personalized role description (e.g., "running and growing the business day-to-day") |
 
 ## Environment Variables
@@ -81,13 +81,13 @@ AC_FIELD_ROLE_PHRASE=18
 Use these merge tags in ActiveCampaign email templates:
 
 ```
-Your WunderBrand Score™: %BRAND_ALIGNMENT_SCORE%
+Your WunderBrand Score™: %BRANDALIGNMENTSCORE%
 
-Positioning Score: %POSITIONING_SCORE% / 20
+Positioning Score: %POSITIONINGSCORE% / 20
 %POSITIONING_INSIGHT%
 
 Top Opportunities:
-%TOP_OPPORTUNITIES%
+%TOPOPPORTUNITIES%
 
 This report was designed to support you in %ROLE_PHRASE%.
 

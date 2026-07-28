@@ -70,15 +70,15 @@ Use these merge tags in emails:
 
 | Field | AC Merge Tag | Description |
 |-------|--------------|-------------|
-| WunderBrand Score™ | `%BRAND_ALIGNMENT_SCORE%` | Overall score (0-100) |
-| Positioning Score | `%POSITIONING_SCORE%` | 0-20 |
-| Messaging Score | `%MESSAGING_SCORE%` | 0-20 |
-| Visibility Score | `%VISIBILITY_SCORE%` | 0-20 |
-| Credibility Score | `%CREDIBILITY_SCORE%` | 0-20 |
-| Conversion Score | `%CONVERSION_SCORE%` | 0-20 |
-| Weakest Pillar | `%WEAKEST_PILLAR%` | Lowest scoring pillar |
+| WunderBrand Score™ | `%BRANDALIGNMENTSCORE%` | Overall score (0-100) |
+| Positioning Score | `%POSITIONINGSCORE%` | 0-20 |
+| Messaging Score | `%MESSAGINGSCORE%` | 0-20 |
+| Visibility Score | `%VISIBILITYSCORE%` | 0-20 |
+| Credibility Score | `%CREDIBILITYSCORE%` | 0-20 |
+| Conversion Score | `%CONVERSIONSCORE%` | 0-20 |
+| Weakest Pillar | `%WEAKESTPILLAR%` | Lowest scoring pillar |
 | Industry | `%INDUSTRY%` | User's industry |
-| Company Name | `%COMPANY_NAME%` | User's company |
+| Company Name | `%COMPANYNAME%` | User's company |
 
 ## Purchase Exit Logic
 

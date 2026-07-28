@@ -85,13 +85,13 @@ Add these steps in order:
 In each email template, use these merge tags:
 
 - `%firstname%` - Contact's first name
-- `%BRAND_ALIGNMENT_SCORE%` - Overall score
-- `%POSITIONING_SCORE%`, `%MESSAGING_SCORE%`, etc. - Pillar scores
+- `%BRANDALIGNMENTSCORE%` - Overall score
+- `%POSITIONINGSCORE%`, `%MESSAGINGSCORE%`, etc. - Pillar scores
 - `%POSITIONING_INSIGHT%`, `%MESSAGING_INSIGHT%`, etc. - Pillar insights
-- `%WEAKEST_PILLAR%` - Lowest scoring pillar
+- `%WEAKESTPILLAR%` - Lowest scoring pillar
 - `%INDUSTRY%` - User's industry
-- `%COMPANY_NAME%` - User's company
-- `%TOP_OPPORTUNITIES%` - Top 3 opportunities
+- `%COMPANYNAME%` - User's company
+- `%TOPOPPORTUNITIES%` - Top 3 opportunities
 - `%PERSONALIZED_RECOMMENDATIONS%` - Full recommendations list
 - `%SNAPSHOT_PLUS_PITCH%` - Dynamic upsell copy
 - `%SNAPSHOT_PLUS_CHECKOUT_URL%` - Your checkout link

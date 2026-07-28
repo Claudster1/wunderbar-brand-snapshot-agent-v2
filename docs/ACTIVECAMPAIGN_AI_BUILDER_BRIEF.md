@@ -49,9 +49,12 @@ email bodies — so you build each one from a single place, no flipping. Recomme
 | 5 | Managed Marketing MQL 💰 | `mql:managed-marketing` | `ACTIVECAMPAIGN_CALL_AUTOMATION_EMAILS.md` → B |
 | 6 | Managed Marketing pre-booking 💰 | `services:managed_marketing` | `…CALL…` → E |
 | 7 | Free AI Consultation MQL 💰 | `mql:ai-consulting` | `…CALL…` → C |
-| 8 | Blueprint+ Strategy Activation | `session:pending` | `…CALL…` → A |
-| 9 | Talk to an Expert follow-up | `call:expert-scheduled` | `…CALL…` → D |
-| 10 | Cancellation recovery | any `*:canceled` | `…CALL…` → Shared |
+| 8 | AI Consulting pre-booking 💰 | `services:consulting` | `…CALL…` → F |
+| 9 | Blueprint+ Strategy Activation | `session:pending` | `…CALL…` → A |
+| 10 | Talk to an Expert follow-up | `call:expert-scheduled` | `…CALL…` → D |
+| 11 | Cancellation recovery | any `*:canceled` | `…CALL…` → Shared |
+
+> Non-snapshot leads enter #6 / #8 via `POST /api/services/interest` (see `…CALL…` → "Services interest endpoint").
 
 ---
 

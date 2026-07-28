@@ -5,7 +5,7 @@
 import { NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-import { fireACEvent } from "@/lib/fireACEvent";
+import { fireACEvent, trackActiveCampaignSiteEvent } from "@/lib/fireACEvent";
 
 function getSupabase() {
   return supabaseAdmin;
@@ -131,7 +131,20 @@ export async function POST(req: Request) {
     // is missing or fails, we still return success and include resumeUrl for copy/paste.
     let resumeEventSent = false;
     try {
-      resumeEventSent = await fireACEvent({
+      // Apply the trigger tags via the Contacts API and record the event via Event
+      // Tracking so the resume automation fires without the legacy ACTIVE_CAMPAIGN_WEBHOOK.
+      const { applyActiveCampaignTags } = await import("@/lib/applyActiveCampaignTags");
+      await applyActiveCampaignTags({
+        email: normalized,
+        tags: ["snapshot:paused", "snapshot:resume-link-sent"],
+      });
+      const eventTracked = await trackActiveCampaignSiteEvent({
+        email: normalized,
+        eventName: "assessment_paused",
+        eventData: resumeLink,
+      });
+      // Legacy JSON webhook (no-op unless ACTIVE_CAMPAIGN_WEBHOOK is configured).
+      const webhookSent = await fireACEvent({
         email: normalized,
         eventName: "assessment_paused",
         tags: ["snapshot:paused", "snapshot:resume-link-sent"],
@@ -142,6 +155,7 @@ export async function POST(req: Request) {
           product_tier: tier,
         },
       });
+      resumeEventSent = eventTracked || webhookSent;
       if (!resumeEventSent) {
         logger.warn("[Save-Exit] ActiveCampaign webhook did not accept event (missing env, non-2xx, or network)", {
           event: "assessment_paused",

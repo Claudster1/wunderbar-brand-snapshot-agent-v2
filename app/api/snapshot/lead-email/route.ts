@@ -5,7 +5,7 @@
 import { NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-import { fireACEvent } from "@/lib/fireACEvent";
+import { fireACEvent, trackActiveCampaignSiteEvent } from "@/lib/fireACEvent";
 import { applyActiveCampaignTags, createTag, removeActiveCampaignTags, setContactFields } from "@/lib/applyActiveCampaignTags";
 import { createCrmSyncLog } from "@/lib/crm/inbound";
 import { mergeResultsEmailUnlock } from "@/lib/results/resultsEmailUnlock";
@@ -186,6 +186,14 @@ export async function POST(req: Request) {
             logger.warn("[Lead Email] AC list subscription failed", { error: describeError(err) })
           );
         }
+
+        // Record the event via Event Tracking so an automation can trigger on it
+        // without depending on the legacy ACTIVE_CAMPAIGN_WEBHOOK.
+        await trackActiveCampaignSiteEvent({
+          email: normalized,
+          eventName: "snapshot_lead_capture",
+          eventData: reportId,
+        });
       } catch (apiErr) {
         logger.warn("[Lead Email] ActiveCampaign API sync failed", { error: describeError(apiErr) });
       }

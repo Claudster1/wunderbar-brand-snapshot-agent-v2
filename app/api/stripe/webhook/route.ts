@@ -11,6 +11,7 @@ import { recordStripePurchase } from "@/lib/recordStripePurchase";
 import { createRefreshEntitlement } from "@/lib/refreshEntitlements";
 import { logger } from "@/lib/logger";
 import { POST_PURCHASE_EMAILS, type EmailTier } from "@/content/postPurchaseEmails";
+import { trackActiveCampaignSiteEvent } from "@/lib/fireACEvent";
 
 // ❗ Stripe requires raw body for signature verification
 export const runtime = "nodejs";
@@ -462,6 +463,11 @@ async function triggerActiveCampaign({
   // --- Onboarding tag (triggers welcome sequence in AC) ---
   applyTags.push(`onboarding:${productKey.replace("_", "-")}`);
 
+  // --- Report-ready tag (triggers the report-delivery automation in AC).
+  //     Applied via the Contacts API so it fires without the legacy
+  //     ACTIVE_CAMPAIGN_WEBHOOK (which is not configured in production). ---
+  applyTags.push(`report:${productKey.replace(/_/g, "-")}-ready`);
+
   // --- Blueprint+ Strategy Activation Session reminder ---
   if (productKey === "blueprint_plus") {
     applyTags.push("session:pending");
@@ -639,6 +645,13 @@ async function triggerActiveCampaign({
     }
   }
 
+  // --- Record site events via Event Tracking so automations can also trigger on
+  //     "event is recorded", independent of the legacy JSON webhook above. ---
+  await Promise.all([
+    trackActiveCampaignSiteEvent({ email, eventName: "purchase_complete", eventData: productKey }),
+    trackActiveCampaignSiteEvent({ email, eventName: "report_ready", eventData: reportLink }),
+  ]);
+
   // --- Slack notification for the team ---
   const slackWebhook = process.env.SLACK_SALES_WEBHOOK_URL;
   if (slackWebhook) {
@@ -781,4 +794,11 @@ async function triggerRefreshActiveCampaign({
       });
     }
   }
+
+  // Record via Event Tracking too (fires without the legacy webhook).
+  await trackActiveCampaignSiteEvent({
+    email,
+    eventName: "refresh_report_ready",
+    eventData: reportLink,
+  });
 }

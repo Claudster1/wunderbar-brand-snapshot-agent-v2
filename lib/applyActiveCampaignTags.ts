@@ -68,7 +68,11 @@ export async function applyActiveCampaignTags({
   if (!contactId) return;
 
   for (const tag of tags) {
-    const tagId = await getTagId(tag);
+    // Create-then-apply: getTagId only finds *existing* tags, so brand-new tag
+    // families (e.g. Calendly session/MQL tags) would otherwise be silently
+    // dropped the first time they're used. createTag is idempotent (it looks up
+    // the tag first and only creates it if missing).
+    const tagId = await createTag(tag);
     if (!tagId) continue;
 
     await fetch(`${AC_API_URL}/api/3/contactTags`, {

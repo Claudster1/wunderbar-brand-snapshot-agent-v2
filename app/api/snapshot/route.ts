@@ -616,6 +616,9 @@ export async function POST(req: Request) {
       const reportLink = `${BASE_URL}/brand-snapshot/results/${report_id}`;
       const acFields: Record<string, string | number> = {
         company_name: companyName ?? "",
+        report_link: reportLink,
+        report_id,
+        dashboard_link: `${BASE_URL}/dashboard`,
         brand_alignment_score: scores.brandAlignmentScore,
         positioning_score: scores.pillarScores.positioning ?? 0,
         messaging_score: scores.pillarScores.messaging ?? 0,
@@ -633,9 +636,6 @@ export async function POST(req: Request) {
         monthly_marketing_budget: asStringOrEmpty(monthlyMarketingBudgetForAc),
         content_creation_capacity: asStringOrEmpty(contentCreationCapacityForAc),
       };
-      if (process.env.AC_FIELD_REPORT_LINK) {
-        acFields[process.env.AC_FIELD_REPORT_LINK] = reportLink;
-      }
 
       // Build AC tags — include services interest signals from assessment
       const acTags: string[] = ["purchased:snapshot"];

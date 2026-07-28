@@ -9,6 +9,7 @@ import {
   type ChatMessage,
 } from "@/lib/ai";
 import { sanitizeString } from "@/lib/security/inputValidation";
+import { allowMissingSecret } from "@/lib/security/requireSecret";
 import { logger } from "@/lib/logger";
 
 const ALLOWED_ORIGINS = (process.env.MARKETING_WIDGET_ORIGINS || "https://wunderbardigital.com,https://www.wunderbardigital.com")
@@ -28,7 +29,7 @@ function corsHeaders(origin: string | null): Record<string, string> {
 }
 
 function isAuthorized(req: NextRequest): boolean {
-  if (!WIDGET_API_KEY) return true;
+  if (!WIDGET_API_KEY) return allowMissingSecret();
   const key = req.headers.get("x-widget-key") || "";
   return key === WIDGET_API_KEY;
 }

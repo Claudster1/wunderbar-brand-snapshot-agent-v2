@@ -40,6 +40,11 @@ const RULES: EnvRule[] = [
   { key: "ADMIN_API_KEY", required: false, label: "Admin API key" },
   { key: "CRON_SECRET", required: false, label: "Cron secret" },
   { key: "CALENDLY_WEBHOOK_SECRET", required: false, label: "Calendly webhook secret" },
+  { key: "SESSION_SECRET", required: false, label: "Verified-email session signing secret" },
+
+  // ─── Transactional email (auth codes / magic links — separate from marketing/AC) ───
+  { key: "RESEND_API_KEY", required: false, label: "Resend API key (transactional auth email)" },
+  { key: "TRANSACTIONAL_EMAIL_FROM", required: false, label: "Transactional 'from' address (e.g. Wunderbar Digital <auth@mail.wunderbardigital.com>)" },
 
   // ─── Monitoring ───
   { key: "NEXT_PUBLIC_SENTRY_DSN", required: false, label: "Sentry DSN" },
@@ -76,6 +81,18 @@ export function validateEnv(): EnvStatus {
     missing.push(
       "SUPABASE_SERVICE_ROLE_KEY or SUPABASE_SECRET_KEY (at least one required)"
     );
+  }
+
+  // Verified-email sessions need a signing secret in production, otherwise
+  // session issuance/verification fails closed (customers can't stay signed in).
+  if (process.env.NODE_ENV === "production") {
+    const hasSessionSecret =
+      process.env.SESSION_SECRET || process.env.NEXTAUTH_SECRET || process.env.TIER_TOKEN_SECRET;
+    if (!hasSessionSecret) {
+      missing.push(
+        "SESSION_SECRET (or NEXTAUTH_SECRET / TIER_TOKEN_SECRET) — required for verified-email sessions"
+      );
+    }
   }
 
   // Warn if Stripe keys look like test keys in production

@@ -123,12 +123,13 @@ CREATE INDEX IF NOT EXISTS idx_blueprint_user_email
   ON public.blueprint_reports (user_email);
 
 -- ===========================================
--- 6. Grant read access only where appropriate
---    WunderBrand Snapshot™ (free funnel) = public readable
---    Paid tiers remain restricted
+-- 6. Report access
+--    All report reads go through server-side API routes using the
+--    service_role key (which bypasses RLS). Do NOT grant the public anon
+--    role SELECT on report tables — combined with a permissive RLS policy
+--    it exposes every row (user_email, full_report). See
+--    migration_harden_report_pii_rls.sql.
 -- ===========================================
 
-GRANT SELECT ON public.brand_snapshot_reports TO anon;
-
--- Snapshot+ and Blueprint remain private (no GRANT)
+-- (Intentionally no GRANT SELECT ... TO anon on report tables.)
 

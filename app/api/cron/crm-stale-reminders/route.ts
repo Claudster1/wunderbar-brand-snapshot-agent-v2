@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { createCrmTask } from "@/lib/crm/inbound";
+import { allowMissingSecret } from "@/lib/security/requireSecret";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
 
 function verifyCronAuth(req: NextRequest): boolean {
   const cronSecret = process.env.CRON_SECRET;
-  if (!cronSecret) return true;
+  if (!cronSecret) return allowMissingSecret();
   const authHeader = req.headers.get("authorization");
   return authHeader === `Bearer ${cronSecret}`;
 }

@@ -18,15 +18,13 @@ DROP POLICY IF EXISTS "Allow read by report_id" ON brand_snapshot_reports;
 DROP POLICY IF EXISTS "Allow service_role full access" ON brand_snapshot_reports;
 DROP POLICY IF EXISTS "Deny anon write" ON brand_snapshot_reports;
 
--- Anon users can only SELECT a specific report by report_id (they must know the UUID)
--- This prevents enumeration of all reports
-CREATE POLICY "Allow read by report_id"
-  ON brand_snapshot_reports
-  FOR SELECT
-  USING (true);
-  -- Note: The anon key can read rows, but only if they know the report_id (UUID).
-  -- Since report_ids are random UUIDs, they are effectively unguessable.
-  -- For stricter control, add: USING (auth.role() = 'authenticated' OR auth.role() = 'service_role')
+-- NOTE: An earlier version of this migration created a SELECT policy with
+-- `USING (true)`, which does NOT scope reads to a report_id — it exposes every
+-- row to any role holding the anon SELECT grant. Reports are read exclusively
+-- through server-side routes using the service_role key, so no anon SELECT
+-- policy (or grant) is created here. See migration_harden_report_pii_rls.sql.
+DROP POLICY IF EXISTS "Allow read by report_id" ON brand_snapshot_reports;
+REVOKE SELECT ON brand_snapshot_reports FROM anon;
 
 -- Service role has full access (server-side operations)
 CREATE POLICY "Allow service_role full access"

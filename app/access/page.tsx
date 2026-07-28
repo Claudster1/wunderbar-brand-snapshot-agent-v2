@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { persistEmail } from "@/lib/persistEmail";
 import Link from "next/link";
 import Image from "next/image";
@@ -16,6 +16,20 @@ const GREEN = "#22C55E";
 export default function AccessPage() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  // Honeypot — bots fill hidden fields; humans never do.
+  const [honeypot, setHoneypot] = useState("");
+  const [linkError, setLinkError] = useState<string | null>(null);
+
+  // Surface errors from the magic-link verify redirect (?error=link_invalid|session_unavailable).
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const err = params.get("error");
+    if (err === "link_invalid") {
+      setLinkError("That sign-in link is invalid or has expired. Enter your email to get a fresh one.");
+    } else if (err === "session_unavailable") {
+      setLinkError("We couldn't sign you in right now. Please try again in a moment.");
+    }
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -23,10 +37,10 @@ export default function AccessPage() {
 
     setStatus("loading");
     try {
-      const res = await fetch("/api/access/send-links", {
+      const res = await fetch("/api/auth/magic-link/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim() }),
+        body: JSON.stringify({ email: email.trim(), redirect: "/dashboard", honeypot }),
       });
 
       if (res.ok) {
@@ -91,7 +105,7 @@ export default function AccessPage() {
             lineHeight: 1.3,
           }}
         >
-          Access Your Reports
+          Sign in
         </h1>
 
         <p
@@ -102,9 +116,9 @@ export default function AccessPage() {
             margin: "0 0 32px",
           }}
         >
-          Enter the email you used during your WunderBrand Suite™
-          diagnostic or purchase. We&rsquo;ll send a link to access all of your
-          reports.
+          Enter the email you used for your WunderBrand Suite™ diagnostic or
+          purchase. We&rsquo;ll email you a secure sign-in link — no password
+          needed — that opens your dashboard and all of your reports.
         </p>
 
         {status === "success" ? (
@@ -140,12 +154,38 @@ export default function AccessPage() {
               Check your inbox
             </p>
             <p style={{ color: SUB, fontSize: 14, margin: 0, lineHeight: 1.5 }}>
-              If we have reports associated with that email, you&rsquo;ll receive
-              a link shortly. Be sure to check your spam folder.
+              If that email has an account, you&rsquo;ll receive a secure sign-in
+              link shortly. It expires in 15 minutes. Be sure to check your spam
+              folder.
             </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
+            {/* Honeypot — visually hidden, off-screen; humans never fill it. */}
+            <input
+              type="text"
+              name="company_website"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              value={honeypot}
+              onChange={(e) => setHoneypot(e.target.value)}
+              style={{ position: "absolute", left: "-9999px", width: 1, height: 1, opacity: 0 }}
+            />
+
+            {linkError && (
+              <p
+                style={{
+                  color: "#DC2626",
+                  fontSize: 14,
+                  margin: "0 0 12px",
+                  textAlign: "left",
+                }}
+              >
+                {linkError}
+              </p>
+            )}
+
             <div style={{ marginBottom: 16, textAlign: "left" }}>
               <label
                 htmlFor="access-email"
@@ -215,7 +255,7 @@ export default function AccessPage() {
                 transition: "opacity 0.2s, transform 0.15s",
               }}
             >
-              {status === "loading" ? "Sending..." : "Send My Report Links"}
+              {status === "loading" ? "Sending..." : "Email me a sign-in link"}
             </button>
           </form>
         )}

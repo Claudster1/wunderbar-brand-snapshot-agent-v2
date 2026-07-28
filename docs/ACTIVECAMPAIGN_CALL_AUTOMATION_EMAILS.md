@@ -60,6 +60,16 @@ start URL you want to use)* — append `?utm_source=activecampaign&utm_medium=em
 **No-show branch:** tag `session:activation-no-show` → A5.
 **Goal:** get them to book + attend the included 30-min session (where the strategist can introduce managed services).
 
+**🔧 Build in AC** — branches are fiddly in one automation; simplest is **three small automations**:
+```
+1) "Blueprint+ Activation — Book" — trigger tag "session:pending".
+   Exit goal: "session:activation-scheduled" added → exit (stops the chase).
+   Steps: send A1 now; wait 3 days; if not scheduled, send A2; wait 4 days; if not scheduled, send A3; end.
+2) "Blueprint+ Activation — Priming" — trigger tag "session:activation-scheduled". Steps: send A4 now; end.
+3) "Blueprint+ Activation — No-show" — trigger tag "session:activation-no-show". Steps: send A5 now; end.
+```
+Send-step order: **A1** now · **A2** +3d (if not scheduled) · **A3** +4d (if not scheduled) · **A4** on `session:activation-scheduled` · **A5** on `session:activation-no-show`.
+
 ---
 
 ### A1 — Immediate (session ready to book)
@@ -183,6 +193,16 @@ snapshot is an *optional* aside for non-snapshot contacts only (see B1).
 > **Pre-booking interest:** these emails fire once someone *books*. To nurture people who are interested
 > but **haven't booked yet**, see **Automation E** below.
 
+**🔧 Build in AC** — two small automations:
+```
+1) "Managed Marketing Consult — Sales Assist" — trigger tag "mql:managed-marketing".
+   On entry: remove contact from product-nurture automations; add to list "Managed Marketing — Sales".
+   Steps: send B1 now; end.
+2) "Managed Marketing — No-show" — trigger tag "services:managed-marketing-no-show".
+   Steps: send B2 now; end.
+```
+Send-step order: **B1** now · **B2** on `services:managed-marketing-no-show` · **B3** optional/manual (~1 day after the call).
+
 ---
 
 ### B1 — Immediate (confirmation + prep)
@@ -263,6 +283,16 @@ Claudine — Wunderbar Digital
 **Focus:** the call and their business goals / AI use-cases — not the snapshot (the brand snapshot is a
 weak fit here anyway, so C1 doesn't mention it).
 
+**🔧 Build in AC** — two small automations:
+```
+1) "AI Consulting Consult — Sales Assist" — trigger tag "mql:ai-consulting".
+   On entry: remove contact from product-nurture automations; add to list "AI Consulting — Sales".
+   Steps: send C1 now; end.
+2) "AI Consulting — No-show" — trigger tag "services:ai-consulting-no-show".
+   Steps: send C2 now; end.
+```
+Send-step order: **C1** now · **C2** on `services:ai-consulting-no-show`.
+
 ---
 
 ### C1 — Immediate (confirmation + prep)
@@ -310,6 +340,13 @@ Claudine — Wunderbar Digital
 **Trigger:** tag `call:expert-scheduled`.
 **No-show branch:** tag `call:expert-no-show` → D2.
 **Note:** keep this light — general bookers may be pre-purchase or just exploring.
+
+**🔧 Build in AC** — two small automations:
+```
+1) "Talk to an Expert — Follow-up" — trigger tag "call:expert-scheduled". Steps: send D1 now; end.
+2) "Expert Call — No-show" — trigger tag "call:expert-no-show". Steps: send D2 now; end.
+```
+Send-step order: **D1** now · **D2** on `call:expert-no-show`.
 
 ---
 
@@ -363,6 +400,15 @@ aside only.
 
 **Exit goal:** tag `mql:managed-marketing` (they booked) → remove from this flow; **Automation B** takes over.
 **Also exit on:** any `purchased:*` paid tag (don't sell services to someone mid-product-purchase — use judgment).
+
+**🔧 Build in AC**
+```
+Create an automation named "Managed Marketing — Pre-Booking Nurture".
+Trigger: when the tag "services:managed_marketing" is added.
+Exit goal: "mql:managed-marketing" added (also exit if any "purchased:" tag is added).
+Steps: send E1 now; wait 3 days; if goal not met, send E2; wait 3 days; if goal not met, send E3; end.
+```
+Send-step order: **E1** now · **E2** +3d (if not booked) · **E3** +6d from start (if still not booked).
 
 ---
 
@@ -448,6 +494,15 @@ Claudine — Wunderbar Digital
 
 **Trigger:** any `*:canceled` tag (`session:activation-canceled`, `services:managed-marketing-canceled`, `services:ai-consulting-canceled`, `call:expert-canceled`).
 **Send:** once, ~1 hour after cancel. Keep it warm and low-pressure.
+
+**🔧 Build in AC**
+```
+Create an automation named "Cancellation Recovery".
+Trigger: when any tag matching a "*:canceled" pattern is added (session:activation-canceled,
+services:managed-marketing-canceled, services:ai-consulting-canceled, call:expert-canceled).
+Steps: wait 1 hour; send the recovery email; end.
+```
+Send-step order: **+1h** → recovery email (button → the matching event URL).
 
 **Subject:** No problem, %FIRSTNAME% — the door's open
 **Preview:** Rebook whenever the timing's better.

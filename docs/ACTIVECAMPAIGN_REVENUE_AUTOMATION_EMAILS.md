@@ -57,6 +57,19 @@ line** (subject + first sentence). The body can stay shared.
 `intent:upgrade-*` converting to a purchase.
 **Cadence:** 5 emails over ~10 days. Every send uses the score-segmented opener.
 
+**🔧 Build in AC** — paste into the AI automation builder, then drop each email below into its Send step:
+```
+Create an automation named "Free Snapshot → Snapshot+ Upgrade".
+Trigger: when the tag "purchased:snapshot" is added. Runs once per contact.
+Exit goal: contact is added any tag matching "purchased:snapshot-plus", "purchased:blueprint",
+or "purchased:blueprint-plus" → exit immediately.
+Steps: send Email 1 now; wait 2 days; send Email 2; wait 3 days; send Email 3; wait 3 days;
+send Email 4; wait 4 days; send Email 5; end.
+```
+Send-step order: **1)** now → E1 · **2)** +2d → E2 · **3)** +3d → E3 · **4)** +3d → E4 · **5)** +4d → E5.
+Score segmentation: build 3 conditional-content variants keyed on `%BRANDALIGNMENTSCORE%` (openers below).
+*(Fastest launch: use the 🟡 mid opener as the default and add the 🔴/🟢 conditionals later.)*
+
 ### Score-segmented openers (reuse across the sequence)
 
 **Subject options**
@@ -189,6 +202,15 @@ Claudine — Wunderbar Digital
 **Exit goal:** the matching `purchased:*` tag (they completed) → stop immediately.
 **Cadence:** 3 emails over ~3 days. Speed matters most here — send E1 fast.
 
+**🔧 Build in AC**
+```
+Create an automation named "Abandoned Checkout Recovery".
+Trigger: when the tag "checkout:abandoned" is added. Re-entry allowed.
+Exit goal: any tag starting with "purchased:" is added → exit immediately.
+Steps: wait 1 hour; send Email 1; wait 1 day; send Email 2; wait 2 days; send Email 3; end.
+```
+Send-step order: **1)** +1h → E1 · **2)** +1d → E2 · **3)** +2d → E3.
+
 ### E1 — +1 hour: you're one step away
 
 **Subject:** You're one step from your %ABANDONEDPRODUCT%, %FIRSTNAME%
@@ -254,6 +276,15 @@ Claudine — Wunderbar Digital
 **Trigger:** tag `report:{tier}-ready` / the `report_ready` event (fires on paid report generation).
 **Exit goal:** none needed (transactional-ish delivery + light follow-up); exits naturally at end.
 **Cadence:** 3 emails over ~1 week. E1 is the delivery; E2/E3 add value and tee up the next tier.
+
+**🔧 Build in AC**
+```
+Create an automation named "Report Ready".
+Trigger: when any tag matching "report:snapshot-plus-ready", "report:blueprint-ready", or
+"report:blueprint-plus-ready" is added. Runs once per contact.
+Steps: send Email 1 now; wait 2 days; send Email 2; wait 5 days; send Email 3; end.
+```
+Send-step order: **1)** now → E1 · **2)** +2d → E2 · **3)** +5d → E3.
 
 ### E1 — Immediate: your report is ready
 

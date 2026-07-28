@@ -66,6 +66,18 @@ block and always provide a non-personalized default, since not every reader has 
 
 All links append `?utm_source=activecampaign&utm_medium=email&utm_campaign=brand_education&utm_content=<email_id>`.
 
+**🔧 Build in AC**
+```
+Create an automation named "Brand Growth Series (Education)".
+Trigger: when the tag "nurture:brand-education" is added.
+Exit: if any tag starting with "purchased:" is added → remove from this automation.
+Steps: send E1 now; wait 7 days; send E2; wait 7 days; send E3; wait 7 days; send E4; wait 7 days;
+send E5; wait 7 days; send E6; wait 7 days; send E7; end.
+Optional courtesy hold: before each send, if the contact has "session:pending" or any "mql:" tag,
+wait 1 day, then continue.
+```
+Send-step order: **E1** now, then **E2–E7** every +7 days.
+
 ---
 
 # The Brand Growth Series

@@ -64,33 +64,25 @@ right now:
 | `email:marketing-opted-in` / `-opted-out` / `-pending`, `content:*` | tags | opt-in choices |
 | `checkout:abandoned` + `checkout:abandoned:{product_key}` | tags | checkout expired |
 
-**❌ Does NOT fire today (depends on the unset `ACTIVE_CAMPAIGN_WEBHOOK`):**
+**✅ Now also fires (as of the 2026-07-28 "Option A" fix):**
 
-| Signal | Type | Impact if you trigger on it |
+The remaining `fireACEvent()`-only signals were rewired to the API + Event-Tracking path, so they
+no longer depend on `ACTIVE_CAMPAIGN_WEBHOOK`:
+
+| Signal | Type | How it fires now |
 |---|---|---|
-| `purchase_complete` | event | onboarding automation won't start *from the event* (use the `onboarding:*` **tag** instead — it DOES fire) |
-| `report_ready` | event | report-delivery email won't start |
-| **`report:{tier}-ready`** | tag | ⚠️ this tag is **only** in the dead webhook payload — the "Report Ready" automation has **no live trigger** |
-| `refresh_report_ready` | event | refresh-delivery email won't start |
-| `checkout_abandoned` | event | use the `checkout:abandoned` **tag** instead (it DOES fire) |
-| `snapshot_lead_capture` | event | use the lead **tag**/list instead |
+| **`report:{tier}-ready`** | tag | applied via Contacts API on purchase — **safe to trigger on** |
+| `purchase_complete` | event | recorded via Event Tracking |
+| `report_ready` | event | recorded via Event Tracking (`eventdata` = report link) |
+| `refresh_report_ready` | event | recorded via Event Tracking |
+| `snapshot_lead_capture` | event | recorded via Event Tracking (tag + list already applied via API) |
+| `assessment_paused` | event + tags | tags applied via API + recorded via Event Tracking |
 
-### Remediation (recommended before relying on event triggers)
+> The legacy JSON-webhook blocks were left in place (harmless no-ops unless
+> `ACTIVE_CAMPAIGN_WEBHOOK` is ever set), so there's no double-send risk today.
 
-Two options — **Option A is recommended**:
-
-- **Option A (code fix, robust):** replace the remaining `fireACEvent()` calls with the API/Event-Tracking
-  path already used elsewhere — apply `report:{tier}-ready` (and `refresh:*-ready`) via
-  `applyActiveCampaignTags`, and record `report_ready` / `refresh_report_ready` via
-  `trackActiveCampaignSiteEvent`. No external dependency; everything then fires natively.
-  *(Ask the engineering owner — this touches `app/api/stripe/webhook/route.ts`,
-  `app/api/snapshot/lead-email/route.ts`, `app/api/snapshot/save-exit/route.ts`.)*
-- **Option B (config, fragile):** set `ACTIVE_CAMPAIGN_WEBHOOK` to a live consumer (e.g. a Zapier/Make
-  scenario that applies the tags/fields). Works, but adds an external hop and a failure point.
-
-**Until remediation ships, build every automation in §4 to trigger on a TAG that's in the
-"fires today" list** (the prompts below already do this). The one automation that has no live
-trigger — **Report Ready** — is marked accordingly.
+**Recommendation:** prefer **tag-based** triggers where a tag exists (most reliable); use
+"event is recorded" triggers for `snapshot_completed`, `report_ready`, etc. where you need the event.
 
 ---
 
@@ -231,11 +223,21 @@ Trigger: when the tag "content:opted_in" is added. Branch on "content:marketing_
 Steps: send welcome Email 1 now; wait 4 days; send Email 2; then add tag "nurture:newsletter" and end.
 ```
 
-### ⚠️ 4.8 — Report Ready (BLOCKED until remediation)
-- **Intended trigger:** tag `report:{tier}-ready` or event `report_ready`.
-- **Status:** **No live trigger** — both come only through the unset `ACTIVE_CAMPAIGN_WEBHOOK`.
-  Build the copy now, but **do not enable** until Option A/B in §2 ships. After remediation, trigger
-  on the `report:*-ready` tag.
+### 4.8 — Report Ready (paid report delivery)
+- **Goal:** deliver the finished report and drive the experience survey + next-tier CTA.
+- **Entry trigger:** tag `report:snapshot-plus-ready` / `report:blueprint-ready` / `report:blueprint-plus-ready`. *(live as of the 2026-07-28 fix — applied via API)* You can also trigger on the `report_ready` **event**.
+- **Personalization:** `%REPORT_LINK%`, `%PRODUCT_NAME%`, `%EXPERIENCE_SURVEY_LINK%`, `%UPGRADE_PRODUCT_URL%`.
+- **Flow:** Email 1 (immediate — "your report is ready", link) → wait 2d → Email 2 (highlight a key finding + experience survey) → wait 5d → Email 3 (next-tier CTA).
+
+**AI builder prompt:**
+```
+Create an automation named "Report Ready".
+Trigger: when any tag matching "report:snapshot-plus-ready", "report:blueprint-ready", or
+"report:blueprint-plus-ready" is added. Runs once per contact.
+Steps: send Email 1 now (report link); wait 2 days; send Email 2 (key finding + %EXPERIENCE_SURVEY_LINK%);
+wait 5 days; send Email 3 (next tier via %UPGRADE_PRODUCT_URL%); end.
+Personalize with %REPORT_LINK%, %PRODUCT_NAME%, %EXPERIENCE_SURVEY_LINK%, %UPGRADE_PRODUCT_URL%.
+```
 
 ---
 

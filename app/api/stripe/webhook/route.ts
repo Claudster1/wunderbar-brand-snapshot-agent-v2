@@ -361,7 +361,16 @@ export async function POST(req: NextRequest) {
               if (sms.optedIn && sms.phone) {
                 const { sendQuoSms, isE164 } = await import("@/lib/sms/quo");
                 if (isE164(sms.phone)) {
-                  const recoveryUrl = abandonedProductKey ? PRODUCT_URLS[abandonedProductKey] || "" : "";
+                  const { withUtm } = await import("@/lib/utm");
+                  const recoveryBase = abandonedProductKey ? PRODUCT_URLS[abandonedProductKey] || "" : "";
+                  const recoveryUrl = recoveryBase
+                    ? withUtm(recoveryBase, {
+                        source: "wunderbrand_app",
+                        medium: "sms",
+                        campaign: "abandoned_checkout",
+                        content: abandonedProductKey ?? "",
+                      })
+                    : "";
                   const hi = abandonedName ? `Hi ${abandonedName}, ` : "Hi, ";
                   const content =
                     `${hi}it's Claudine at Wunderbar Digital. You were one step from ${productName}` +

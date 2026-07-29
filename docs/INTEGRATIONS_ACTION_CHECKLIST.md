@@ -79,3 +79,21 @@ Confirm the Slack app's **Interactivity Request URL** points to `https://app.wun
 
 ### 7. ⚪ Prod parity spot-check
 Run `/api/admin/crm/smoke` to confirm AC contact/tag/field/event writes succeed end-to-end in prod.
+
+---
+
+## Quo (OpenPhone) SMS — opt-in outreach
+
+**Built in code (done):**
+- `lib/sms/quo.ts` — native Quo sender (`POST https://api.quo.com/v1/messages`), fail-safe when unconfigured.
+- Results-page **SMS opt-in beside the upgrade CTA** ("Want a 2-min text walkthrough of your #1 fix?") → `POST /api/sms/results-optin`, which records SMS consent in AC (`sms:opted-in`, `sms:results-optin`, `intent:sms-walkthrough`, `phone_mobile`) and **immediately texts the user their #1 growth lever** (weakest pillar, derived server-side) — the automated hot-lead first-touch; a human replies from the Quo shared inbox to close.
+
+**🟡 To go live (dashboard):**
+1. In Quo: create/confirm the sending number and complete **A2P 10DLC registration** (Quo manages it; sends fail with a 400 "A2P Registration Not Approved" until done).
+2. Get an **API key** (Quo → Settings → API) and note the sending number in E.164.
+3. Add to Vercel (all envs) + `.env.local`:
+   - `QUO_API_KEY=<key>`
+   - `QUO_FROM_NUMBER=<+1E164 or PN id>`
+4. Redeploy. Test: opt in on a results page → confirm the text arrives and the reply lands in the Quo inbox.
+
+**Next SMS use cases (same sender, new triggers):** abandoned-checkout nudge (`checkout:abandoned`) and Calendly no-show recovery — wire from the existing webhook/route trigger points once the number is live.

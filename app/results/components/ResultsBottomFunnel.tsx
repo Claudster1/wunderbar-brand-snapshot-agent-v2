@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ReportTierUpgradeCTAs } from "@/components/results/ReportTierUpgradeCTAs";
 import { HumanAssistCTA } from "@/app/results/components/HumanAssistCTA";
+import { ResultsSmsOptIn } from "@/app/results/components/ResultsSmsOptIn";
 import type { ProductTier } from "@/components/results/tabConfig";
 import { PRICING } from "@/lib/pricing";
 import { WUNDERBAR_SUITE_COMPARE_URL } from "@/lib/wunderbarExternalUrls";
@@ -111,6 +112,7 @@ export function ResultsBottomFunnel({
                   {copy.secondaryCta}
                 </Link>
               </div>
+              <ResultsSmsOptIn reportId={reportId} email={userEmail} />
             </article>
           ) : null}
 

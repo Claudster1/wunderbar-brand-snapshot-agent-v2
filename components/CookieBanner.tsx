@@ -735,9 +735,10 @@ function injectTracking() {
     };
   }
 
-  // Google Analytics 4 (GA4) + Google Ads conversion tracking
+  // Google Analytics 4 (GA4) — analytics category.
+  // NOTE: Google Ads conversion tracking is a MARKETING cookie and is configured
+  // in injectMarketingPixels() (gated behind marketing consent), not here.
   const GA_ID = "G-HFNS3KRBKH";
-  const GADS_ID = normalizeTrackingId(process.env.NEXT_PUBLIC_GOOGLE_ADS_ID);
   if (!w.gtag) {
     const gtagScript = document.createElement("script");
     gtagScript.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
@@ -750,7 +751,6 @@ function injectTracking() {
     };
     w.gtag("js", new Date());
     w.gtag("config", GA_ID);
-    if (GADS_ID) w.gtag("config", GADS_ID);
   }
 }
 
@@ -770,7 +770,33 @@ function injectMarketingPixels() {
     __metaPixelInitialized?: boolean;
     __metaPixelScriptInjected?: boolean;
     __linkedInInsightInjected?: boolean;
+    dataLayer?: unknown[][];
+    gtag?: (...args: unknown[]) => void;
+    __gadsConfigured?: boolean;
   };
+
+  // Google Ads conversion tracking (MARKETING category — separate from GA4).
+  // Shares gtag.js with GA4. If the visitor consented to marketing but NOT
+  // analytics, GA4's loader never ran, so we load gtag.js here too. Idempotent.
+  const GADS_ID = normalizeTrackingId(process.env.NEXT_PUBLIC_GOOGLE_ADS_ID);
+  if (GADS_ID) {
+    if (!w.gtag) {
+      const gtagScript = document.createElement("script");
+      gtagScript.src = `https://www.googletagmanager.com/gtag/js?id=${GADS_ID}`;
+      gtagScript.async = true;
+      document.head.appendChild(gtagScript);
+
+      w.dataLayer = w.dataLayer || [];
+      w.gtag = function (...args: unknown[]) {
+        (w.dataLayer ??= []).push(args);
+      };
+      w.gtag("js", new Date());
+    }
+    if (!w.__gadsConfigured) {
+      w.gtag("config", GADS_ID);
+      w.__gadsConfigured = true;
+    }
+  }
 
   // Meta Pixel (Facebook)
   const META_PIXEL_ID = normalizeMetaPixelId(process.env.NEXT_PUBLIC_META_PIXEL_ID);

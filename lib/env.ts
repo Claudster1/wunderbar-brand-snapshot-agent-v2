@@ -50,6 +50,21 @@ const RULES: EnvRule[] = [
   { key: "QUO_API_KEY", required: false, label: "Quo (OpenPhone) API key" },
   { key: "QUO_FROM_NUMBER", required: false, label: "Quo sending number (E.164 or PN id)" },
 
+  // ─── Marketing pixels (client-side; fire only after marketing consent) ───
+  { key: "NEXT_PUBLIC_META_PIXEL_ID", required: false, label: "Meta (Facebook) Pixel ID" },
+  { key: "NEXT_PUBLIC_GOOGLE_ADS_ID", required: false, label: "Google Ads ID (AW-XXXXXXXXX)" },
+  { key: "NEXT_PUBLIC_LINKEDIN_PARTNER_ID", required: false, label: "LinkedIn Insight partner ID" },
+  {
+    key: "NEXT_PUBLIC_LINKEDIN_LEAD_CONVERSION_ID",
+    required: false,
+    label: "LinkedIn lead conversion ID",
+  },
+  {
+    key: "NEXT_PUBLIC_LINKEDIN_PURCHASE_CONVERSION_ID",
+    required: false,
+    label: "LinkedIn purchase conversion ID",
+  },
+
   // ─── Monitoring ───
   { key: "NEXT_PUBLIC_SENTRY_DSN", required: false, label: "Sentry DSN" },
 

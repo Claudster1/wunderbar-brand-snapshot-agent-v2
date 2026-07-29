@@ -127,9 +127,9 @@ export function ResultsSmsOptIn({ reportId, email }: Props) {
           />
           {error ? <p className="results-sms-optin__error">{error}</p> : null}
           <p className="results-sms-optin__legal">
-            By entering your number you agree to receive texts from Wunderbar Digital; consent
-            isn&apos;t a condition of purchase. Message frequency varies. Msg &amp; data rates may
-            apply. Reply HELP for help, STOP to opt out. See our{" "}
+            By entering your number you agree to receive calls and texts from Wunderbar Digital;
+            consent isn&apos;t a condition of purchase. Msg frequency varies, msg &amp; data rates
+            may apply. Reply HELP for help, STOP to opt out. See our{" "}
             <a
               href="https://wunderbardigital.com/privacy-policy?utm_source=wunderbrand_app&utm_medium=sms_optin&utm_campaign=sms_consent&utm_content=privacy_policy"
               target="_blank"
@@ -139,11 +139,11 @@ export function ResultsSmsOptIn({ reportId, email }: Props) {
             </a>{" "}
             &amp;{" "}
             <a
-              href="https://wunderbardigital.com/terms-of-service?utm_source=wunderbrand_app&utm_medium=sms_optin&utm_campaign=sms_consent&utm_content=terms"
+              href="https://wunderbardigital.com/terms-of-service?utm_source=wunderbrand_app&utm_medium=sms_optin&utm_campaign=sms_consent&utm_content=messaging_terms"
               target="_blank"
               rel="noopener noreferrer"
             >
-              Terms
+              Messaging Terms
             </a>
             .
           </p>

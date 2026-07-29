@@ -46,6 +46,10 @@ const RULES: EnvRule[] = [
   { key: "RESEND_API_KEY", required: false, label: "Resend API key (transactional auth email)" },
   { key: "TRANSACTIONAL_EMAIL_FROM", required: false, label: "Transactional 'from' address (e.g. Wunderbar Digital <auth@mail.wunderbardigital.com>)" },
 
+  // ─── SMS (Quo / OpenPhone — opt-in marketing/outreach texts) ───
+  { key: "QUO_API_KEY", required: false, label: "Quo (OpenPhone) API key" },
+  { key: "QUO_FROM_NUMBER", required: false, label: "Quo sending number (E.164 or PN id)" },
+
   // ─── Monitoring ───
   { key: "NEXT_PUBLIC_SENTRY_DSN", required: false, label: "Sentry DSN" },
 

@@ -1344,6 +1344,112 @@ a.sr-only:focus {
   gap: 0.65rem;
 }
 
+/* ── Results SMS opt-in (beside the upgrade CTA) ── */
+.results-sms-optin {
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px dashed rgba(2, 24, 89, 0.18);
+}
+.results-sms-optin__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #021859;
+  text-align: left;
+  line-height: 1.4;
+}
+.results-sms-optin__toggle:hover {
+  color: #0a2fa0;
+  text-decoration: underline;
+}
+.results-sms-optin__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.results-sms-optin__label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #021859;
+  line-height: 1.4;
+}
+.results-sms-optin__row {
+  display: flex;
+  gap: 0.5rem;
+}
+.results-sms-optin__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid rgba(2, 24, 89, 0.22);
+  border-radius: 5px;
+  font-size: 0.9rem;
+  color: #021859;
+  background: #ffffff;
+}
+.results-sms-optin__input:focus {
+  outline: none;
+  border-color: #07b0f2;
+  box-shadow: 0 0 0 3px rgba(7, 176, 242, 0.18);
+}
+.results-sms-optin__submit {
+  flex: 0 0 auto;
+  padding: 0.6rem 1.1rem;
+  border: none;
+  border-radius: 5px;
+  background: #021859;
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.results-sms-optin__submit:hover:not(:disabled) {
+  background: #0a2fa0;
+}
+.results-sms-optin__submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.results-sms-optin__hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.results-sms-optin__error {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #b91c1c;
+}
+.results-sms-optin__legal {
+  margin: 0;
+  font-size: 0.7rem;
+  line-height: 1.4;
+  color: #64748b;
+}
+.results-sms-optin--done {
+  border-top-style: solid;
+}
+.results-sms-optin__done-title {
+  margin: 0 0 0.25rem;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #021859;
+}
+.results-sms-optin__done-body {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: #475569;
+}
+
 .results-bottom-funnel-text-cta {
   margin-top: 0.75rem;
 }

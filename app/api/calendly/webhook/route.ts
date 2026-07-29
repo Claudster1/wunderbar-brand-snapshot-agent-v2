@@ -151,6 +151,51 @@ function isNoShowEvent(event: string): boolean {
   );
 }
 
+// ── No-show recovery SMS helpers ──
+function normalizeToE164(input: unknown): string {
+  if (typeof input !== "string") return "";
+  const cleaned = input.trim().replace(/[^\d+]/g, "");
+  if (!cleaned) return "";
+  if (cleaned.startsWith("+")) return /^\+[1-9]\d{7,14}$/.test(cleaned) ? cleaned : "";
+  const digits = cleaned.replace(/\D/g, "");
+  if (digits.length === 10) return `+1${digits}`;
+  if (digits.length === 11 && digits.startsWith("1")) return `+${digits}`;
+  return "";
+}
+
+// The number an invitee gives for a booking (SMS reminders / booking questions) is
+// meeting-related consent — fine to use for a no-show follow-up about that meeting.
+function extractInviteePhone(payload: Record<string, unknown>): string {
+  const invitee = (payload.invitee as Record<string, unknown> | undefined) || undefined;
+  const direct =
+    (payload.text_reminder_number as string | undefined) ||
+    (invitee?.text_reminder_number as string | undefined) ||
+    "";
+  const fromDirect = normalizeToE164(direct);
+  if (fromDirect) return fromDirect;
+  for (const qa of [payload.questions_and_answers, invitee?.questions_and_answers]) {
+    if (Array.isArray(qa)) {
+      for (const item of qa as Array<{ answer?: string }>) {
+        const cand = normalizeToE164(item?.answer);
+        if (cand) return cand;
+      }
+    }
+  }
+  return "";
+}
+
+const CALENDLY_REBOOK_BASE = "https://calendly.com/claudine-wunderbardigital";
+function rebookUrlFor(sessionType: SessionType): string {
+  const utm = "utm_source=wunderbrand_app&utm_medium=sms&utm_campaign=no_show_recovery";
+  const slug =
+    sessionType === "activation_session"
+      ? "/brand-blueprint-strategy-activation-session"
+      : sessionType === "talk_to_expert" || sessionType === "general_session"
+        ? "/talk-to-an-expert"
+        : ""; // managed/ai consult slugs vary — send to the event-type list
+  return `${CALENDLY_REBOOK_BASE}${slug}?${utm}`;
+}
+
 function getLifecycleStatus(event: string): "scheduled" | "canceled" | "no_show" | "updated" {
   if (event === "invitee.created") return "scheduled";
   if (event === "invitee.canceled") return "canceled";
@@ -563,6 +608,32 @@ export async function POST(req: NextRequest) {
             },
           }),
         ]);
+
+        // No-show recovery SMS. Prefer the number the invitee gave for this booking
+        // (meeting-related consent); fall back to a stored SMS opt-in. Best-effort.
+        try {
+          let phone = extractInviteePhone(payload);
+          if (!phone) {
+            const { getContactSmsInfo } = await import("@/lib/applyActiveCampaignTags");
+            const info = await getContactSmsInfo(normalizedEmail);
+            if (info.optedIn && info.phone) phone = info.phone;
+          }
+          if (phone) {
+            const { sendQuoSms, isE164 } = await import("@/lib/sms/quo");
+            if (isE164(phone)) {
+              const hi = firstName ? `Hi ${firstName}, ` : "Hi, ";
+              const content =
+                `${hi}we missed you for your ${getSessionLabel(sessionType)} with Wunderbar Digital.` +
+                ` No worries — want to grab another time? ${rebookUrlFor(sessionType)}` +
+                ` Or just reply here and we'll sort it out. Txt STOP to opt out.`;
+              await sendQuoSms({ to: phone, content });
+            }
+          }
+        } catch (smsErr) {
+          logger.warn("[Calendly Webhook] No-show SMS failed", {
+            error: smsErr instanceof Error ? smsErr.message : String(smsErr),
+          });
+        }
 
         logger.info("[Calendly Webhook] No-show processed", { email: normalizedEmail, sessionType });
       }

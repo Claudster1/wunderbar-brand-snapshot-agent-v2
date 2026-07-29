@@ -351,6 +351,31 @@ export async function POST(req: NextRequest) {
                 abandoned_product_price: abandonedProductKey ? (PRODUCT_PRICES[abandonedProductKey] || "") : "",
               },
             });
+
+            // Abandoned-checkout SMS nudge (opt-in only). We only text contacts who
+            // previously opted into SMS (e.g. via the results-page opt-in) and have a
+            // stored mobile — never cold. Best-effort; never blocks the webhook.
+            try {
+              const { getContactSmsInfo } = await import("@/lib/applyActiveCampaignTags");
+              const sms = await getContactSmsInfo(abandonedEmail);
+              if (sms.optedIn && sms.phone) {
+                const { sendQuoSms, isE164 } = await import("@/lib/sms/quo");
+                if (isE164(sms.phone)) {
+                  const recoveryUrl = abandonedProductKey ? PRODUCT_URLS[abandonedProductKey] || "" : "";
+                  const hi = abandonedName ? `Hi ${abandonedName}, ` : "Hi, ";
+                  const content =
+                    `${hi}it's Claudine at Wunderbar Digital. You were one step from ${productName}` +
+                    ` and didn't finish — everything's still saved.` +
+                    (recoveryUrl ? ` Pick up where you left off: ${recoveryUrl}` : "") +
+                    ` Reply here with any questions. Txt STOP to opt out.`;
+                  await sendQuoSms({ to: sms.phone, content });
+                }
+              }
+            } catch (smsErr) {
+              logger.warn("[Stripe Webhook] Abandoned-checkout SMS failed", {
+                error: smsErr instanceof Error ? smsErr.message : String(smsErr),
+              });
+            }
           } catch (acErr) {
             logger.error("[Stripe Webhook] AC abandoned checkout tagging failed", { error: acErr instanceof Error ? acErr.message : String(acErr) });
           }

@@ -216,6 +216,42 @@ export async function setContactFields({
   }
 }
 
+// ─── SMS consent reader ───
+//
+// Returns the contact's stored mobile number + whether they've opted into SMS.
+// Used by outreach triggers (abandoned checkout, no-show) to send Quo texts ONLY
+// to people who consented. Reads the custom fields written by the results-page
+// SMS opt-in / /api/sms/consent (phone_mobile, sms_opted_in).
+export async function getContactSmsInfo(
+  email: string,
+): Promise<{ phone: string | null; optedIn: boolean }> {
+  const contactId = await getOrCreateContactId(email);
+  if (!contactId) return { phone: null, optedIn: false };
+
+  const fieldMap = await getFieldMap();
+  const phoneFieldId = fieldMap.get("phone_mobile");
+  const optInFieldId = fieldMap.get("sms_opted_in");
+
+  const { res, data } = await fetchJson(
+    `${AC_API_URL}/api/3/contacts/${contactId}/fieldValues`,
+    { method: "GET", headers: acHeaders() },
+  );
+
+  let phone: string | null = null;
+  let optedIn = false;
+  if (res.ok && Array.isArray(data.fieldValues)) {
+    for (const fv of data.fieldValues as Array<{ field?: string; value?: string }>) {
+      if (phoneFieldId && String(fv.field) === String(phoneFieldId) && fv.value) {
+        phone = String(fv.value).trim();
+      }
+      if (optInFieldId && String(fv.field) === String(optInFieldId)) {
+        optedIn = String(fv.value ?? "").toLowerCase() === "true";
+      }
+    }
+  }
+  return { phone, optedIn };
+}
+
 // ─── Lists ───
 //
 // AC contacts can exist without belonging to any list (the snapshot funnel ran in that mode

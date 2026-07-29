@@ -96,4 +96,8 @@ Run `/api/admin/crm/smoke` to confirm AC contact/tag/field/event writes succeed 
    - `QUO_FROM_NUMBER=<+1E164 or PN id>`
 4. Redeploy. Test: opt in on a results page → confirm the text arrives and the reply lands in the Quo inbox.
 
-**Next SMS use cases (same sender, new triggers):** abandoned-checkout nudge (`checkout:abandoned`) and Calendly no-show recovery — wire from the existing webhook/route trigger points once the number is live.
+**Also wired (same sender):**
+- **Abandoned-checkout SMS nudge** — Stripe `checkout.session.expired` → texts the recovery link, **opt-in only** (only contacts with `sms:opted-in` + stored `phone_mobile`; never cold).
+- **Calendly no-show recovery SMS** — `invitee_no_show.created` → texts a rebooking link. Uses the number the invitee gave for the booking (meeting-related consent), falling back to a stored SMS opt-in.
+
+All three SMS flows go live the moment `QUO_API_KEY` + `QUO_FROM_NUMBER` are set and A2P is approved; until then they're safe no-ops.

@@ -138,11 +138,16 @@ export function trackPurchase(params: {
   value: number;
   currency?: string;
   transactionId?: string;
+  /** Stable tier key (snapshot-plus | blueprint | blueprint-plus) for audience
+   *  building + upsell exclusions. Falls back to the display name. */
+  productKey?: string;
 }) {
   const currency = params.currency || "USD";
+  const productKey = params.productKey || params.product;
 
   fbq("track", "Purchase", {
     content_name: params.product,
+    content_ids: [productKey],
     content_type: "product",
     value: params.value,
     currency,
@@ -153,6 +158,7 @@ export function trackPurchase(params: {
     value: params.value,
     currency,
     items: [{
+      item_id: productKey,
       item_name: params.product,
       item_category: "wunderbrand_suite",
       price: params.value,

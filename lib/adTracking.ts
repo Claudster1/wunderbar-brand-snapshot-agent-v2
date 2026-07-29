@@ -180,12 +180,12 @@ export function trackSnapshotStart() {
     currency: "USD",
   });
 
-  gtagEvent("begin_checkout", {
-    currency: "USD",
-    value: 0,
-    items: [{
-      item_name: "WunderBrand Snapshot (Free)",
-      item_category: "brand_diagnostic",
-    }],
+  // Distinct GA4 event so "started the free diagnostic" isn't blended with the
+  // real begin_checkout (upgrade-CTA) metric. Keep it as its own micro-conversion.
+  gtagEvent("snapshot_start", {
+    event_category: "engagement",
+    event_label: "snapshot_start",
+    item_name: "WunderBrand Snapshot (Free)",
+    item_category: "brand_diagnostic",
   });
 }

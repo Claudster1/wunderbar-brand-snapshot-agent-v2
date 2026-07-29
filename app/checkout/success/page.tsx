@@ -77,6 +77,7 @@ function SuccessContent() {
     };
     trackPurchase({
       product: `WunderBrand ${copy.eyebrow || product}`,
+      productKey: product,
       value: priceMap[product] || 497,
       transactionId: sessionId || undefined,
     });

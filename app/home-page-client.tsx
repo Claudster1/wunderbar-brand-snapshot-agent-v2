@@ -1,6 +1,7 @@
 'use client'
 
 import { FormEvent, useState, useEffect, useRef, useCallback, useMemo, type KeyboardEvent } from "react";
+import { trackSnapshotStart } from "@/lib/adTracking";
 import { useBrandChat } from "../src/hooks/useBrandChat";
 import { TurnstileWidget } from "@/components/security/TurnstileWidget";
 import { BehaviorTracker } from "@/lib/security/behavioralScoring";
@@ -163,6 +164,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     productTier: activeTier,
     resumeHoldUntilValidated,
   });
+  const snapshotStartFiredRef = useRef(false);
   const [inputValue, setInputValue] = useState("");
   const [selectedQuickReplyPills, setSelectedQuickReplyPills] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
@@ -614,6 +616,19 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
       trimmed && pillLine
         ? `${pillLine}. ${trimmed}`
         : pillLine || trimmed;
+
+    // Fire the "diagnostic started" micro-conversion once per session, on the
+    // user's first real message (StartTrial / GA begin). Deduped via ref +
+    // sessionStorage so reloads mid-diagnostic don't re-count.
+    if (!snapshotStartFiredRef.current) {
+      snapshotStartFiredRef.current = true;
+      let alreadyStarted = false;
+      try {
+        alreadyStarted = sessionStorage.getItem("wb_snapshot_started") === "1";
+        sessionStorage.setItem("wb_snapshot_started", "1");
+      } catch {}
+      if (!alreadyStarted) trackSnapshotStart();
+    }
 
     behaviorTrackerRef.current?.recordMessage(outgoing);
     if (behaviorTrackerRef.current) {

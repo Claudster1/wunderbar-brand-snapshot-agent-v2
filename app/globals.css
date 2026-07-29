@@ -1434,6 +1434,10 @@ a.sr-only:focus {
   line-height: 1.4;
   color: #64748b;
 }
+.results-sms-optin__legal a {
+  color: #3b6cb7;
+  text-decoration: underline;
+}
 .results-sms-optin--done {
   border-top-style: solid;
 }

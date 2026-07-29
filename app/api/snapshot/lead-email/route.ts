@@ -137,9 +137,19 @@ export async function POST(req: Request) {
     try {
       const { sendTransactionalEmail } = await import("@/lib/email/transactional");
       const { buildSnapshotReportEmail } = await import("@/lib/email/reportDeliveryEmail");
+      const { withUtm } = await import("@/lib/utm");
       const productName =
         productTier === "snapshot-plus" ? "WunderBrand Snapshot+\u2122" : "WunderBrand Snapshot\u2122";
-      const { subject, html, text } = buildSnapshotReportEmail({ resultsUrl, productName, firstName });
+      const emailResultsUrl = withUtm(resultsUrl, {
+        source: "wunderbrand_app",
+        medium: "email",
+        campaign: "results_delivery",
+      });
+      const { subject, html, text } = buildSnapshotReportEmail({
+        resultsUrl: emailResultsUrl,
+        productName,
+        firstName,
+      });
       const sendResult = await sendTransactionalEmail({ to: normalized, subject, html, text });
       if (!sendResult.ok) {
         logger.warn("[Lead Email] Results delivery email failed", {

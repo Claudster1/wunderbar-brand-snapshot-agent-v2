@@ -21,19 +21,26 @@ function isMarketingConsented(): boolean {
   return hasConsent("marketing");
 }
 
+// Tags every event so app.wunderbrand.ai activity is filterable from the
+// marketing site (wunderbardigital.com) when both share the same Meta pixel /
+// GA / LinkedIn IDs. Segment/report by `wb_source` (in addition to hostname/URL).
+const WB_SOURCE = "app";
+
 // ─── Meta Pixel ──────────────────────────────────────────────
 
 function fbq(...args: unknown[]) {
-  if (isMarketingConsented() && typeof window !== "undefined" && window.fbq) {
-    window.fbq(...args);
+  if (!isMarketingConsented() || typeof window === "undefined" || !window.fbq) return;
+  if (args.length >= 3 && args[2] && typeof args[2] === "object") {
+    args[2] = { ...(args[2] as Record<string, unknown>), wb_source: WB_SOURCE };
   }
+  window.fbq(...args);
 }
 
 // ─── Google Ads ──────────────────────────────────────────────
 
 function gtagEvent(eventName: string, params: Record<string, unknown> = {}) {
   if (typeof window !== "undefined" && window.gtag) {
-    window.gtag("event", eventName, params);
+    window.gtag("event", eventName, { ...params, wb_source: WB_SOURCE });
   }
 }
 

@@ -12,6 +12,7 @@ import {
   readResultsEmailGateUnlocked,
   writeResultsEmailGateUnlocked,
 } from "@/lib/results/resultsEmailGateStorage";
+import { trackSnapshotComplete } from "@/lib/adTracking";
 
 type Props = {
   reportId: string;
@@ -56,8 +57,15 @@ export function ResultsSnapshotLeadGate({
   }, [requiresEmailGate, initiallyUnlocked, reportId]);
 
   const handleEmailCaptured = useCallback(() => {
+    // Fire the "Lead" conversion once per report (email capture = the lead moment).
+    // Guard on the persisted unlock flag so revisits / preference re-submits don't
+    // double-count.
+    const firstUnlock = !readResultsEmailGateUnlocked(reportId);
     writeResultsEmailGateUnlocked(reportId);
     setContentUnlocked(true);
+    if (firstUnlock) {
+      trackSnapshotComplete({});
+    }
   }, [reportId]);
 
   const scrollToEmail = useCallback(() => {

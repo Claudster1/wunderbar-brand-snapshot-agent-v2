@@ -40,12 +40,12 @@ const nextConfig = {
             value: [
               "default-src 'self'",
               // Scripts: self + Stripe + GTM + Cloudflare Turnstile + ActiveCampaign tracking
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://www.googletagmanager.com https://challenges.cloudflare.com https://diffuser-cdn.app-us1.com https://plausible.io https://connect.facebook.net https://snap.licdn.com",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://www.googletagmanager.com https://challenges.cloudflare.com https://*.app-us1.com https://plausible.io https://connect.facebook.net https://snap.licdn.com https://static.cloudflareinsights.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
               "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:",
               "img-src 'self' data: blob: https: http:",
               // Connect: self + Supabase + OpenAI + Stripe + ActiveCampaign + Cloudflare + Slack + Sentry
-              "connect-src 'self' https://*.supabase.co https://api.openai.com https://api.stripe.com https://*.api-us1.com https://hooks.slack.com https://*.wunderbardigital.com https://*.wunderbrand.ai https://challenges.cloudflare.com wss://*.supabase.co https://*.ingest.us.sentry.io https://plausible.io https://www.facebook.com https://px.ads.linkedin.com",
+              "connect-src 'self' https://*.supabase.co https://api.openai.com https://api.stripe.com https://*.api-us1.com https://*.app-us1.com https://hooks.slack.com https://*.wunderbardigital.com https://*.wunderbrand.ai https://challenges.cloudflare.com wss://*.supabase.co https://*.ingest.us.sentry.io https://plausible.io https://www.facebook.com https://px.ads.linkedin.com https://cloudflareinsights.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com",
               // Frames: Stripe + Calendly + Turnstile widget
               "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://calendly.com https://challenges.cloudflare.com",
               "frame-ancestors https://www.wunderbardigital.com https://wunderbardigital.com",

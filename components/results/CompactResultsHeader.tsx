@@ -202,7 +202,12 @@ export default function CompactResultsHeader({
           type="button"
           onClick={
             onHelpClick ??
-            (() => window.open("https://wunderbardigital.com/talk-to-an-expert", "_blank", "noopener,noreferrer"))
+            (() =>
+              window.open(
+                "https://wunderbardigital.com/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=results_header&utm_campaign=support_routing&utm_content=talk_expert",
+                "_blank",
+                "noopener,noreferrer",
+              ))
           }
           style={{
             width: 32,

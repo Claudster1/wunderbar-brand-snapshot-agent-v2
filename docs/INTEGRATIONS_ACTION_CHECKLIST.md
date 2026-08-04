@@ -98,6 +98,13 @@ Confirm the Slack app's **Interactivity Request URL** points to `https://app.wun
 ### 7. ⚪ Prod parity spot-check
 Run `/api/admin/crm/smoke` to confirm AC contact/tag/field/event writes succeed end-to-end in prod.
 
+### 8. 🟡 Stripe checkout smoke (test mode, then live)
+Prove the money path end-to-end:
+1. **Happy path:** Start Snapshot+ checkout in Stripe test mode → pay with `4242 4242 4242 4242` → success page loads, AC gets `purchased:snapshot-plus`, report unlocks.
+2. **Abandon:** Start checkout → let session expire → AC gets `checkout:abandoned` (+ product tag); SMS only if contact has `sms:opted-in`.
+3. Repeat a live $1 / real product smoke when ready for production traffic.
+Webhook endpoint: `https://app.wunderbrand.ai/api/stripe/webhook` (`STRIPE_WEBHOOK_SECRET` must match the endpoint signing secret).
+
 ---
 
 ## Quo (OpenPhone) SMS — opt-in outreach

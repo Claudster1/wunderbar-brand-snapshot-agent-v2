@@ -188,7 +188,7 @@ Events: `invitee.created`, `invitee.canceled`, `invitee_no_show.created` (no-sho
 | 2 | Quo A2P + env vars + results SMS smoke | Text in inbox |
 | 3 | Otter → Zapier → review queue smoke | Draft appears; approve sends |
 | 4 | Calendly webhook + book/cancel/no-show smoke | Tags + SMS as expected |
-| 5 | Stripe checkout smoke (test mode then live) | Money path proven |
+| 5 | **Stripe checkout smoke (test mode, then live)** | Paid + abandon paths proven (see §9) |
 | 6 | Sona after-hours + missed-call auto-reply | Inbound captured overnight |
 | 7 | Meta audiences from purchasers; exclude buyers | Ads not wasting spend |
 | 8+ | AC automations **#4–11** | Full ladder live |
@@ -203,7 +203,8 @@ Status of dashboard work: `INTEGRATIONS_ACTION_CHECKLIST.md`.
 |---|---|
 | Snapshot → email | Complete free Snapshot → Resend results link + AC `purchased:snapshot` |
 | SMS #1 fix | Opt in on results → Quo text with weakest pillar |
-| Abandon | Start checkout, let expire → AC tag + SMS only if opted in |
+| **Stripe pay (test)** | Snapshot+ checkout → `4242…` → success + AC `purchased:snapshot-plus` + report access |
+| **Stripe abandon (test)** | Start checkout → expire session → AC `checkout:abandoned` (+ SMS if opted in) |
 | Book / no-show | Book Calendly test → cancel or mark no-show → tag + rebook SMS |
 | Otter follow-up | Record short test call → Zap fires → approve via API → AC email |
 | CRM smoke | `GET /api/admin/crm/smoke` (admin auth) |

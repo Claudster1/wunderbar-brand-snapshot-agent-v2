@@ -4,12 +4,20 @@ import { supabaseServer } from "@/lib/supabase";
 type SnapshotRow = {
   id?: string;
   report_id?: string;
-  company_name?: string;
-  business_name?: string;
+  brand_name?: string;
   brand_alignment_score?: number;
   primary_pillar?: string;
   created_at?: string;
   user_email?: string;
+  status?: string | null;
+  snapshot_stage?: string | null;
+  email_verified?: boolean | null;
+  full_report?: {
+    email_verified?: boolean;
+    businessName?: string;
+    company_name?: string;
+    [key: string]: unknown;
+  } | null;
 };
 
 type PaidReportRow = {
@@ -64,6 +72,39 @@ function getPdfUrl(reportId: string, tier: HistoryItem["tier"]): string {
   }
 }
 
+function isCompletedSnapshot(r: SnapshotRow): boolean {
+  if (r.status === "draft" || r.snapshot_stage === "in_progress") return false;
+  if ((r.brand_alignment_score ?? 0) <= 0) return false;
+  if (r.brand_name === "Draft") return false;
+  // Prefer explicit verification when present; otherwise include completed scored reports.
+  const frVerified = r.full_report?.email_verified === true;
+  if (r.email_verified === false && !frVerified) return false;
+  return true;
+}
+
+function pushSnapshotHistoryItem(items: HistoryItem[], r: SnapshotRow) {
+  if (!isCompletedSnapshot(r)) return;
+  const reportId = r.report_id ?? r.id ?? "";
+  if (!reportId) return;
+  const businessName =
+    r.full_report?.businessName ||
+    r.full_report?.company_name ||
+    r.brand_name ||
+    "Your brand";
+
+  items.push({
+    id: reportId,
+    businessName: String(businessName),
+    brandAlignmentScore: r.brand_alignment_score ?? 0,
+    primaryPillar: r.primary_pillar ?? null,
+    createdAt: r.created_at ?? "",
+    tier: "snapshot",
+    completed: true,
+    pdfUrl: getPdfUrl(reportId, "snapshot"),
+    reportUrl: `/results?reportId=${encodeURIComponent(reportId)}`,
+  });
+}
+
 export async function GET(req: Request) {
   const { apiGuard } = await import("@/lib/security/apiGuard");
   const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
@@ -76,53 +117,51 @@ export async function GET(req: Request) {
   const search = searchParams.get("q")?.toLowerCase().trim();
   const brandFilter = searchParams.get("brand")?.trim();
 
-  if (!userId && !email) return NextResponse.json([]);
+  // Prod snapshot tables key history by email (no user_id column).
+  if (!email) return NextResponse.json([]);
 
+  const normalizedEmail = email.toLowerCase();
   const supabase = supabaseServer();
   const items: HistoryItem[] = [];
 
   // 1. Free Snapshot reports
+  // Prod schema uses `brand_name` (not company_name/business_name).
+  // email_verified may be a column (after migration) and/or nested in full_report.
   {
-    let query = supabase
+    const baseSelectWithoutEmailVerified =
+      "id,report_id,brand_name,brand_alignment_score,primary_pillar,created_at,user_email,status,snapshot_stage,full_report";
+    const baseSelect =
+      `${baseSelectWithoutEmailVerified},email_verified`;
+
+    let { data, error } = await supabase
       .from("brand_snapshot_reports")
-      .select("id,report_id,company_name,business_name,brand_alignment_score,primary_pillar,created_at,user_email,pillar_insights,recommendations")
-      .eq("email_verified", true)
+      .select(baseSelect)
+      .eq("user_email", normalizedEmail)
       .order("created_at", { ascending: false });
 
-    if (userId) query = query.eq("user_id", userId);
-    else if (email) query = query.eq("user_email", email);
+    if (error) {
+      // Column may be absent until migration_fix_missing_snapshot_columns.sql is re-run.
+      ({ data, error } = await supabase
+        .from("brand_snapshot_reports")
+        .select(baseSelectWithoutEmailVerified)
+        .eq("user_email", normalizedEmail)
+        .order("created_at", { ascending: false }));
+    }
 
-    const { data } = await query;
-
-    for (const r of (data ?? []) as (SnapshotRow & { pillar_insights?: unknown; recommendations?: unknown })[]) {
-      const reportId = r.report_id ?? r.id ?? "";
-      const businessName = r.business_name ?? r.company_name ?? "Your brand";
-
-      items.push({
-        id: reportId,
-        businessName,
-        brandAlignmentScore: r.brand_alignment_score ?? 0,
-        primaryPillar: r.primary_pillar ?? null,
-        createdAt: r.created_at ?? "",
-        tier: "snapshot",
-        completed: true,
-        pdfUrl: getPdfUrl(reportId, "snapshot"),
-        reportUrl: `/results?reportId=${encodeURIComponent(reportId)}`,
-      });
+    if (!error) {
+      for (const r of (data ?? []) as SnapshotRow[]) {
+        pushSnapshotHistoryItem(items, r);
+      }
     }
   }
 
   // 2. Paid reports (Snapshot+, Blueprint, Blueprint+) — all in brand_snapshot_plus_reports
   {
-    let query = supabase
+    const { data } = await supabase
       .from("brand_snapshot_plus_reports")
       .select("id,report_id,user_email,user_name,brand_alignment_score,pillar_scores,full_report,created_at,updated_at")
+      .eq("user_email", normalizedEmail)
       .order("created_at", { ascending: false });
-
-    if (userId) query = query.eq("user_id", userId);
-    else if (email) query = query.eq("user_email", email);
-
-    const { data } = await query;
 
     for (const r of (data ?? []) as PaidReportRow[]) {
       const reportId = r.report_id ?? r.id ?? "";

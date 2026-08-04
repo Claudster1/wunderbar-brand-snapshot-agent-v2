@@ -3,7 +3,25 @@
 Living status of every integration and the remaining manual (dashboard) actions.
 Last verified: **2026-07-28**.
 
+**Conversion operating system (daily checklist + AC/Quo/Otter settings):** [`CONVERSION_OS_RUNBOOK.md`](./CONVERSION_OS_RUNBOOK.md)
+
 Legend: ✅ done · 🟡 needs a dashboard action · ⚪ optional / nice-to-have
+
+---
+
+## Uptime & always-on health
+
+| Layer | Cadence | URL / job | Notes |
+|---|---|---|---|
+| **UptimeRobot** (external) | every 5 min | `https://app.wunderbrand.ai/api/health?scope=liveness` | Keyword/HTTP 200 monitor. Alert email/SMS in UptimeRobot. |
+| **Vercel cron** (in-app) | every 15 min | `/api/cron/health-check` | Dependencies + **draft persist smoke**; Slack via `SLACK_ALERT_WEBHOOK` on degraded/unhealthy. Requires **Vercel Pro** (Hobby only allows daily crons). |
+| Deep manual probe | on demand | `https://app.wunderbrand.ai/api/health?smoke=1` | Returns 503 if draft write/schema fails. |
+
+**UptimeRobot setup (if not already):**
+1. Add HTTP(s) monitor → liveness URL above  
+2. Interval: 5 minutes  
+3. Alert contacts: your email / Slack  
+4. Optional second monitor on `?smoke=1` every 15–30 min (slower; catches DB schema drift)
 
 ---
 

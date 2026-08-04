@@ -15,7 +15,7 @@
   "crons": [
     {
       "path": "/api/cron/health-check",
-      "schedule": "0 9 * * *"
+      "schedule": "*/15 * * * *"
     },
     {
       "path": "/api/cron/refresh-reminders",

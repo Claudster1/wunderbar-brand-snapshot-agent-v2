@@ -22,25 +22,58 @@ export async function POST(req: Request) {
     // Use server-side UUID generation
     const reportId = randomUUID();
     const supabase = supabaseServer();
-    
-    const { data, error } = await supabase
-      .from("brand_snapshot_reports")
-      .insert({
-        id: reportId,
-        report_id: reportId,
-        user_email: userEmail || null,
-        brand_name: "Draft",
-        brand_alignment_score: 0,
-        pillar_scores: {} as any,
-        primary_pillar: "positioning",
-        context_coverage: 0,
+
+    const fullRow = {
+      id: reportId,
+      report_id: reportId,
+      user_email: userEmail || null,
+      brand_name: "Draft",
+      brand_alignment_score: 0,
+      pillar_scores: {} as Record<string, unknown>,
+      primary_pillar: "positioning",
+      context_coverage: 0,
+      snapshot_stage: "in_progress",
+      status: "draft",
+      last_step: "start",
+      progress: {} as Record<string, unknown>,
+    };
+
+    // Columns known to exist even when progress migrations haven't been applied.
+    // Progress metadata is nested in full_report so draft create still persists.
+    const minimalRow = {
+      id: reportId,
+      report_id: reportId,
+      user_email: userEmail || null,
+      brand_name: "Draft",
+      brand_alignment_score: 0,
+      pillar_scores: {} as Record<string, unknown>,
+      full_report: {
         snapshot_stage: "in_progress",
         status: "draft",
         last_step: "start",
-        progress: {} as any,
-      } as any)
+        progress: {},
+        primary_pillar: "positioning",
+        context_coverage: 0,
+      },
+    };
+
+    let { data, error } = await supabase
+      .from("brand_snapshot_reports")
+      .insert(fullRow as any)
       .select("id")
       .single();
+
+    // Schema drift (missing progress columns) → retry with columns present in prod.
+    if (error?.code === "PGRST204") {
+      logger.warn("[Snapshot Draft API] Schema missing columns; retrying minimal insert", {
+        error: error.message,
+      });
+      ({ data, error } = await supabase
+        .from("brand_snapshot_reports")
+        .insert(minimalRow as any)
+        .select("id")
+        .single());
+    }
 
     if (error) {
       logger.error("[Snapshot Draft API] Supabase insert error", {

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { formatPnLSlackDigest, type PnLSummary } from "@/lib/admin/computePnL";
+import type { PnLSummary } from "@/lib/admin/computePnL";
+import { formatPnLSlackDigest } from "@/lib/admin/formatPnLSlackDigest";
 
 const sample: PnLSummary = {
   days: 7,

@@ -2,7 +2,8 @@
 // Schedule: Mondays 13:00 UTC (~6am PT) via vercel.json.
 
 import { NextRequest, NextResponse } from "next/server";
-import { computePnLSummary, formatPnLSlackDigest } from "@/lib/admin/computePnL";
+import { computePnLSummary } from "@/lib/admin/computePnL";
+import { formatPnLSlackDigest } from "@/lib/admin/formatPnLSlackDigest";
 import { logger } from "@/lib/logger";
 import { allowMissingSecret } from "@/lib/security/requireSecret";
 

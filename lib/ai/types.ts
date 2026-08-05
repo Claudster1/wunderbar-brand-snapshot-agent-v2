@@ -34,6 +34,14 @@ export interface ToolResult {
   content: string;
 }
 
+/** Optional linkage for AI cost / P&L logging */
+export type AiUsageTelemetry = {
+  reportId?: string | null;
+  userEmail?: string | null;
+  sessionId?: string | null;
+  productTier?: string | null;
+};
+
 /** Options for a chat completion request */
 export interface CompletionOptions {
   /** Messages (system + conversation history) */
@@ -46,6 +54,8 @@ export interface CompletionOptions {
   tools?: ToolDefinition[];
   /** Force JSON output format (default: false) */
   jsonMode?: boolean;
+  /** Report / user context for ai_usage_events (ignored by providers) */
+  telemetry?: AiUsageTelemetry;
 }
 
 /** Standardized completion response */

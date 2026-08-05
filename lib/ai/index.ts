@@ -134,12 +134,25 @@ export async function completeWithFallback(
 ): Promise<CompletionResponse> {
   const route = getModelRoute(useCase);
   const { withRetry } = await import("@/lib/openaiRetry");
+  const { logAiUsageEvent } = await import("@/lib/ai/logAiUsage");
+  const started = Date.now();
 
-  // Apply route defaults
+  // Apply route defaults (strip telemetry so providers never see it)
+  const { telemetry, ...providerOptions } = options;
   const opts: CompletionOptions = {
-    ...options,
+    ...providerOptions,
     temperature: options.temperature ?? route.temperature,
     maxTokens: options.maxTokens ?? route.maxTokens,
+  };
+
+  const record = (response: CompletionResponse, wasFallback: boolean) => {
+    logAiUsageEvent({
+      useCase,
+      response,
+      wasFallback,
+      latencyMs: Date.now() - started,
+      telemetry,
+    });
   };
 
   // ─── Try primary provider ──────────────────────────────────
@@ -147,10 +160,12 @@ export async function completeWithFallback(
 
   if (primary.isConfigured) {
     try {
-      return await withRetry(
+      const response = await withRetry(
         () => primary.complete(opts),
         { maxRetries: 2, timeoutMs: route.timeoutMs ?? 25_000 }
       );
+      record(response, false);
+      return response;
     } catch (err) {
       logger.warn("[AI] Primary provider failed", {
         provider: route.provider,
@@ -170,10 +185,12 @@ export async function completeWithFallback(
     if (fallback.isConfigured) {
       try {
         logger.info("[AI] Using fallback provider", { provider: route.fallbackProvider, model: route.fallbackModel });
-        return await withRetry(
+        const response = await withRetry(
           () => fallback.complete(opts),
           { maxRetries: 2, timeoutMs: route.timeoutMs ?? 25_000 }
         );
+        record(response, true);
+        return response;
       } catch (err) {
         logger.error("[AI] Fallback provider also failed", {
           provider: route.fallbackProvider,

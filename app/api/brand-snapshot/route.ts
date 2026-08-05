@@ -1336,7 +1336,13 @@ export async function POST(req: Request) {
         async start(controller) {
           try {
             let accumulated = "";
-            for await (const token of streamWithFallback("assessment_chat", { messages: aiMessages })) {
+            for await (const token of streamWithFallback("assessment_chat", {
+              messages: aiMessages,
+              telemetry: {
+                reportId: continuationReportId || null,
+                productTier: intakeTier,
+              },
+            })) {
               accumulated += token;
               controller.enqueue(encodeBrandSnapshotSse({ type: "token", text: token }));
             }
@@ -1375,6 +1381,10 @@ export async function POST(req: Request) {
 
     const completion = await completeWithFallback("assessment_chat", {
       messages: aiMessages,
+      telemetry: {
+        reportId: continuationReportId || null,
+        productTier: intakeTier,
+      },
     });
 
     const finalContent = applyPostProcess(completion.content || "");
@@ -1382,7 +1392,11 @@ export async function POST(req: Request) {
     return NextResponse.json({
       content: finalContent,
       meta: intakeMeta,
-      _ai: { provider: completion.provider, model: completion.model },
+      _ai: {
+        provider: completion.provider,
+        model: completion.model,
+        usage: completion.usage ?? null,
+      },
     });
   } catch (err: any) {
     logger.error("[WunderBrand Snapshot™ API] error", { error: err instanceof Error ? err.message : String(err) });

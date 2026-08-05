@@ -11,15 +11,18 @@ export async function* streamWithFallback(
   options: CompletionOptions,
 ): AsyncGenerator<string> {
   const route = getModelRoute(useCase);
+  const { telemetry, ...rest } = options;
   const opts: CompletionOptions = {
-    ...options,
+    ...rest,
     temperature: options.temperature ?? route.temperature,
     maxTokens: options.maxTokens ?? route.maxTokens,
+    ...(telemetry ? { telemetry } : {}),
   };
 
   if (route.provider === "openai" && process.env.OPENAI_API_KEY) {
     try {
       yield* streamOpenAIChat(route.model, opts);
+      // Streaming OpenAI path does not return usage — buffered fallback logs when used.
       return;
     } catch (err) {
       logger.warn("[AI] OpenAI stream failed, falling back to buffered completion", {

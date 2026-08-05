@@ -3,6 +3,7 @@
 
 import { randomUUID } from "crypto";
 import { getAllFeatureFlags } from "@/lib/featureFlags";
+import { stripeWebhookSecretsConfigured } from "@/lib/stripeWebhookSecrets";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export type HealthStatus = "healthy" | "degraded" | "unhealthy";
@@ -57,8 +58,10 @@ export async function computeDependencyHealth(startedAt: number): Promise<Health
     })(),
     (async () => {
       const hasKey = !!process.env.STRIPE_SECRET_KEY;
-      checks.stripe = { ok: hasKey };
+      const hasWebhookSecret = stripeWebhookSecretsConfigured();
+      checks.stripe = { ok: hasKey && hasWebhookSecret };
       if (!hasKey) checks.stripe.error = "Secret key not configured";
+      else if (!hasWebhookSecret) checks.stripe.error = "Webhook secret not configured";
     })(),
     (async () => {
       const hasTurnstile = !!process.env.TURNSTILE_SECRET_KEY;

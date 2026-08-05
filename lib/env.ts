@@ -21,6 +21,11 @@ const RULES: EnvRule[] = [
   // ─── Stripe ───
   { key: "STRIPE_SECRET_KEY", required: true, label: "Stripe secret key" },
   { key: "STRIPE_WEBHOOK_SECRET", required: true, label: "Stripe webhook secret" },
+  {
+    key: "STRIPE_WEBHOOK_SECRET_TEST",
+    required: false,
+    label: "Stripe webhook secret (optional Test/Preview endpoint)",
+  },
   { key: "STRIPE_PRICE_SNAPSHOT_PLUS", required: true, label: "Stripe price ID: Snapshot+" },
   { key: "STRIPE_PRICE_BLUEPRINT", required: true, label: "Stripe price ID: Blueprint" },
   { key: "STRIPE_PRICE_BLUEPRINT_PLUS", required: true, label: "Stripe price ID: Blueprint+" },

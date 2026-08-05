@@ -58,11 +58,7 @@ const createMessage = (
 // Must match the system prompt's first greeting exactly
 const INITIAL_ASSISTANT_MESSAGE = createMessage(
   'assistant',
-  `Hi, I'm Wundy™ — your brand guide. I'll walk you through a short conversation to build your WunderBrand Snapshot™.
-
-This takes about 15–20 minutes. There are no wrong answers, and you don't need anything prepared — but if you have your website, a sense of your competitors, and your target audience in mind, your results will be even sharper.
-
-Ready when you are — what's your name?`
+  `Hi, I'm Wundy™ — your brand guide at Wunderbar Digital. I'll ask a few questions so we can create your personalized WunderBrand Snapshot™ and you can see where your brand stands today. No wrong answers, nothing to prep. First things first — what's your name?`
 );
 
 // ─── Resume: Extract first name from saved conversation ───
@@ -244,6 +240,25 @@ export function useBrandChat(options?: UseBrandChatOptions) {
   const [messages, setMessages] = useState<BrandChatMessage[]>([
     initialMessage,
   ]);
+
+  // Keep the intro bubble in sync when the tier greeting resolves after mount
+  // (e.g. paid-tier validation) and the user hasn't replied yet.
+  useEffect(() => {
+    const nextGreeting = options?.customGreeting;
+    if (!nextGreeting) return;
+    setMessages((prev) => {
+      const hasUserReply = prev.some((m) => m.role === "user");
+      if (hasUserReply) return prev;
+      if (prev.length === 1 && prev[0]?.role === "assistant" && prev[0].text === nextGreeting) {
+        return prev;
+      }
+      if (prev.every((m) => m.role === "assistant")) {
+        return [createMessage("assistant", nextGreeting)];
+      }
+      return prev;
+    });
+  }, [options?.customGreeting]);
+
   const [isLoading, setIsLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [reportId, setReportId] = useState<string | null>(null);
@@ -1230,13 +1245,17 @@ export function useBrandChat(options?: UseBrandChatOptions) {
   };
 
   const reset = () => {
-    setMessages([INITIAL_ASSISTANT_MESSAGE]);
+    const greetingMessage = options?.customGreeting
+      ? createMessage('assistant', options.customGreeting)
+      : INITIAL_ASSISTANT_MESSAGE;
+    setMessages([greetingMessage]);
     setLastFailedInput(null);
     setResultsEntryUrl(null);
     setFinalizeError(null);
     setIntakeMeta(null);
     intakeMilestoneFiredRef.current = false;
     intakeReadyFiredRef.current = false;
+    hasReceivedName.current = false;
     resumeLoadedReportIdRef.current = null;
   };
 

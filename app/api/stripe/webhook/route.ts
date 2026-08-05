@@ -12,6 +12,10 @@ import { createRefreshEntitlement } from "@/lib/refreshEntitlements";
 import { logger } from "@/lib/logger";
 import { POST_PURCHASE_EMAILS, type EmailTier } from "@/content/postPurchaseEmails";
 import { trackActiveCampaignSiteEvent } from "@/lib/fireACEvent";
+import {
+  getStripeWebhookSecrets,
+  stripeWebhookSecretFingerprint,
+} from "@/lib/stripeWebhookSecrets";
 
 // ❗ Stripe requires raw body for signature verification
 export const runtime = "nodejs";
@@ -56,21 +60,45 @@ export async function POST(req: NextRequest) {
     return new NextResponse("Missing Stripe signature", { status: 400 });
   }
 
-  let event: Stripe.Event;
+  const secrets = getStripeWebhookSecrets();
+  if (secrets.length === 0) {
+    logger.error("[Stripe Webhook] No signing secret configured", {
+      vercelEnv: process.env.VERCEL_ENV ?? "unknown",
+    });
+    return new NextResponse("Webhook misconfigured", { status: 500 });
+  }
 
-  try {
-    const rawBody = await req.text();
+  const rawBody = await req.text();
+  let event: Stripe.Event | null = null;
+  let matchedSecret: string | null = null;
+  let lastVerifyError = "Unknown";
 
-    event = getStripe().webhooks.constructEvent(
-      rawBody,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET!
-    );
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "Unknown";
-    logger.error("[Stripe Webhook] Signature verification failed", { error: msg });
+  for (const { name, secret } of secrets) {
+    try {
+      event = getStripe().webhooks.constructEvent(rawBody, sig, secret);
+      matchedSecret = name;
+      break;
+    } catch (err: unknown) {
+      lastVerifyError = err instanceof Error ? err.message : "Unknown";
+    }
+  }
+
+  if (!event || !matchedSecret) {
+    logger.error("[Stripe Webhook] Signature verification failed", {
+      error: lastVerifyError,
+      vercelEnv: process.env.VERCEL_ENV ?? "unknown",
+      bodyBytes: rawBody.length,
+      secretsTried: secrets.map((s) => ({
+        name: s.name,
+        fingerprint: stripeWebhookSecretFingerprint(s.secret),
+      })),
+    });
     // SECURITY: Don't leak internal error details to the client
     return new NextResponse("Webhook signature verification failed", { status: 400 });
+  }
+
+  if (secrets.length > 1) {
+    logger.info("[Stripe Webhook] Signature verified", { secret: matchedSecret });
   }
 
   try {

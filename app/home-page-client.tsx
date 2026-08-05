@@ -103,9 +103,13 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     // No name available — modify greeting to ask for name
     return activeTierConfig.greeting
       .replace(/\{firstName\},?\s*/g, "")
+      .replace(
+        /\s*Ready when you are — let's get started\./i,
+        " First things first — what's your name?",
+      )
       .replace(/let's get into it\./i, "First things first — what's your name?")
-      .replace(/let's get started\./i, "But first — what's your name?")
-      .replace(/let's begin\./i, "But first — what's your name?");
+      .replace(/let's get started\./i, "First things first — what's your name?")
+      .replace(/let's begin\./i, "First things first — what's your name?");
   }, [activeTierConfig, customerName]);
 
   // Snapshot / Snapshot+: send people to the results page first; email capture happens there. Paid tiers still use the OTP gate when no email on file.

@@ -3,7 +3,31 @@
 Living status of every integration and the remaining manual (dashboard) actions.
 Last verified: **2026-07-28**.
 
+**Conversion operating system (daily checklist + AC/Quo/Otter settings):** [`CONVERSION_OS_RUNBOOK.md`](./CONVERSION_OS_RUNBOOK.md)
+
 Legend: ✅ done · 🟡 needs a dashboard action · ⚪ optional / nice-to-have
+
+---
+
+## Uptime & always-on health
+
+| Layer | Cadence | URL / job | Notes |
+|---|---|---|---|
+| **UptimeRobot** (external) | every 5 min | `https://app.wunderbrand.ai/api/health?scope=liveness` | Keyword/HTTP 200 monitor. Alert email/SMS in UptimeRobot. |
+| **Vercel cron** (in-app) | every 15 min | `/api/cron/health-check` | Dependencies + **draft persist** + **AI smokes** (`assessmentChat`, `reportFree`) + **per-provider probes** (OpenAI / Anthropic / Gemini) + **`aiBilling`** when quota/credit errors are detected. Slack via `SLACK_ALERT_WEBHOOK`. Requires **Vercel Pro**. |
+| **Weekly P&L digest** | Mondays 13:00 UTC | `/api/cron/pnl-digest` | Last 7 days revenue / AI est. / conversions / unit economics → `SLACK_ALERT_WEBHOOK`. Manual: `?days=7&dryRun=1` with `Authorization: Bearer $CRON_SECRET`. |
+| Deep manual probe | on demand | `https://app.wunderbrand.ai/api/health?smoke=1` | Returns 503 if draft write/schema **or AI smoke** fails hard. |
+
+**Dashboard billing alerts (recommended alongside cron):**
+1. **OpenAI** → [Billing](https://platform.openai.com/settings/organization/billing) → enable auto-recharge + email/spend notifications  
+2. **Anthropic** → [Console billing](https://console.anthropic.com/settings/billing) → auto-reload / low-balance alerts  
+3. **Gemini** → Google AI Studio / Cloud billing budgets for the project behind `GOOGLE_API_KEY` / `GEMINI_API_KEY`
+
+**UptimeRobot setup (if not already):**
+1. Add HTTP(s) monitor → liveness URL above  
+2. Interval: 5 minutes  
+3. Alert contacts: your email / Slack  
+4. Optional second monitor on `?smoke=1` every 15–30 min (slower; catches DB schema drift)
 
 ---
 
@@ -79,6 +103,13 @@ Confirm the Slack app's **Interactivity Request URL** points to `https://app.wun
 
 ### 7. ⚪ Prod parity spot-check
 Run `/api/admin/crm/smoke` to confirm AC contact/tag/field/event writes succeed end-to-end in prod.
+
+### 8. 🟡 Stripe checkout smoke (test mode, then live)
+Prove the money path end-to-end:
+1. **Happy path:** Start Snapshot+ checkout in Stripe test mode → pay with `4242 4242 4242 4242` → success page loads, AC gets `purchased:snapshot-plus`, report unlocks.
+2. **Abandon:** Start checkout → let session expire → AC gets `checkout:abandoned` (+ product tag); SMS only if contact has `sms:opted-in`.
+3. Repeat a live $1 / real product smoke when ready for production traffic.
+Webhook endpoint: `https://app.wunderbrand.ai/api/stripe/webhook` (`STRIPE_WEBHOOK_SECRET` must match the endpoint signing secret).
 
 ---
 

@@ -1,16 +1,22 @@
 // app/api/cron/health-check/route.ts
-// Daily automated health check — runs via Vercel Cron.
-// Checks all services and sends an alert if anything is degraded/down.
+// Always-on health probe via Vercel Cron (every 15 minutes).
+// Runs dependency checks + draft-persist smoke + AI smokes; Slack-alerts on degraded/unhealthy.
+//
+// Pair with UptimeRobot on /api/health?scope=liveness for external 5-minute uptime.
 
 import { NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { allowMissingSecret } from "@/lib/security/requireSecret";
+import { computeDeepHealth, type HealthCheckResult } from "@/lib/health/probe";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+/** AI smokes + per-provider probes can take a while when providers are slow/failing. */
+export const maxDuration = 120;
+
+const processStartedAt = Date.now();
 
 export async function GET(req: Request) {
-  // Verify this is called by Vercel Cron (not a random visitor)
   const authHeader = req.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
 
@@ -23,65 +29,90 @@ export async function GET(req: Request) {
   }
 
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3010";
-    const healthToken = process.env.HEALTH_CHECK_TOKEN;
+    // In-process probe (avoids NEXT_PUBLIC_BASE_URL / self-fetch flakiness).
+    const health = await computeDeepHealth(processStartedAt);
 
-    // Call the deep health check
-    const headers: Record<string, string> = {};
-    if (healthToken) headers["Authorization"] = `Bearer ${healthToken}`;
-
-    const res = await fetch(`${baseUrl}/api/health?deep=1`, { headers });
-    const health = await res.json();
-
-    // If unhealthy, fire an alert
-    if (health.status === "unhealthy" || health.status === "degraded") {
+    const alerted = health.status === "unhealthy" || health.status === "degraded";
+    if (alerted) {
       await sendAlert(health);
     }
 
-    // Log the check
-    const { logger } = await import("@/lib/logger");
     logger.info("[Cron Health Check]", {
       status: health.status,
       checks: Object.fromEntries(
-        Object.entries(health.checks || {}).map(([k, v]: [string, any]) => [k, v.ok ? "ok" : v.error || "failed"])
+        Object.entries(health.checks || {}).map(([k, v]) => [
+          k,
+          v.ok ? "ok" : v.error || "failed",
+        ]),
       ),
     });
 
     return NextResponse.json({
       checked: true,
       status: health.status,
-      alerted: health.status !== "healthy",
+      alerted,
+      checks: health.checks,
     });
   } catch (err) {
-    logger.error("[Cron Health Check] Error", { error: err instanceof Error ? err.message : String(err) });
+    logger.error("[Cron Health Check] Error", {
+      error: err instanceof Error ? err.message : String(err),
+    });
+    try {
+      await sendAlert({
+        status: "unhealthy",
+        checks: {
+          cron: {
+            ok: false,
+            error: err instanceof Error ? err.message : "Health check failed",
+          },
+        },
+      });
+    } catch {
+      /* best-effort */
+    }
     return NextResponse.json({ error: "Health check failed" }, { status: 500 });
   }
 }
 
-async function sendAlert(health: Record<string, unknown>) {
-  // Option 1: Slack webhook (if configured)
+async function sendAlert(
+  health: Pick<HealthCheckResult, "status" | "checks"> | Record<string, unknown>,
+) {
   const slackUrl = process.env.SLACK_ALERT_WEBHOOK;
   if (slackUrl) {
     try {
-      const checks = (health.checks || {}) as Record<string, { ok: boolean; error?: string }>;
+      const checks = (health.checks || {}) as Record<
+        string,
+        { ok: boolean; error?: string }
+      >;
       const problems = Object.entries(checks)
         .filter(([, v]) => !v.ok)
         .map(([k, v]) => `• *${k}*: failed${v.error ? ` — ${v.error}` : ""}`)
         .join("\n");
 
+      const aiBothDown =
+        checks.assessmentChat && !checks.assessmentChat.ok
+          ? "\n\n🚨 *Assessment chat primary + fallback both failed* — users will see connection errors."
+          : "";
+
+      const billing =
+        checks.aiBilling && !checks.aiBilling.ok
+          ? `\n\n💳 *AI billing / quota*\n${checks.aiBilling.error || "Provider reported insufficient credits."}\n→ OpenAI: https://platform.openai.com/settings/organization/billing\n→ Anthropic: https://console.anthropic.com/settings/billing\n→ Gemini: https://aistudio.google.com/`
+          : "";
+
       await fetch(slackUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          text: `⚠️ *WunderBrand Health Alert*\nStatus: ${health.status}\n\n${problems}`,
+          text: `⚠️ *WunderBrand Health Alert*\nStatus: ${String(health.status)}\n\n${problems || "• Unknown failure"}${aiBothDown}${billing}`,
         }),
       });
     } catch (err) {
-      logger.error("[Alert] Slack notification failed", { error: err instanceof Error ? err.message : String(err) });
+      logger.error("[Alert] Slack notification failed", {
+        error: err instanceof Error ? err.message : String(err),
+      });
     }
   }
 
-  // Option 2: ActiveCampaign event (always available)
   try {
     const { fireACEvent } = await import("@/lib/fireACEvent");
     await fireACEvent({

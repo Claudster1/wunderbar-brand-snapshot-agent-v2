@@ -501,7 +501,17 @@ async function generateSingleCall(
 
   const startTime = Date.now();
 
-  const response = await completeWithFallback(useCase, { messages });
+  const response = await completeWithFallback(useCase, {
+    messages,
+    telemetry: {
+      productTier: tier,
+      reportId: (input as { reportId?: string }).reportId ?? null,
+      userEmail:
+        ((input as Record<string, unknown>).userEmail as string | undefined) ||
+        ((input as Record<string, unknown>).email as string | undefined) ||
+        null,
+    },
+  });
 
   const elapsed = Date.now() - startTime;
   logger.info("[ReportGen] Generation complete", {
@@ -510,6 +520,7 @@ async function generateSingleCall(
     provider: response.provider,
     model: response.model,
     contentLength: response.content?.length ?? 0,
+    usage: response.usage,
   });
 
   if (!response.content) {
@@ -667,7 +678,17 @@ Do NOT include any other sections. Return ONLY valid JSON with the keys listed a
       expectedKeys: group.outputKeys.length,
     });
 
-    const response = await completeWithFallback(useCase, { messages });
+    const response = await completeWithFallback(useCase, {
+      messages,
+      telemetry: {
+        productTier: "blueprint_plus",
+        reportId: (input as { reportId?: string }).reportId ?? null,
+        userEmail:
+          ((input as Record<string, unknown>).userEmail as string | undefined) ||
+          ((input as Record<string, unknown>).email as string | undefined) ||
+          null,
+      },
+    });
 
     if (!response.content) {
       throw new Error(`AI returned empty content for Blueprint+ group: ${group.name}`);
@@ -782,7 +803,16 @@ export async function generateReportSections(
     { role: "user", content: userMessage },
   ];
 
-  const response = await completeWithFallback(useCase, { messages });
+  const response = await completeWithFallback(useCase, {
+    messages,
+    telemetry: {
+      productTier: useCase.replace(/^report_/, "") || null,
+      userEmail:
+        ((input as Record<string, unknown>).userEmail as string | undefined) ||
+        ((input as Record<string, unknown>).email as string | undefined) ||
+        null,
+    },
+  });
 
   if (!response.content) {
     throw new Error("AI returned empty content for section generation");

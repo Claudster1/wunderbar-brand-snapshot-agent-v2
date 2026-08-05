@@ -180,6 +180,17 @@ const DEFAULT_ROUTES: Record<UseCase, ModelRoute> = {
   },
 };
 
+/** Retired Anthropic IDs → current replacements (also remaps stale Vercel env overrides). */
+const RETIRED_MODEL_ALIASES: Record<string, string> = {
+  "claude-sonnet-4-20250514": "claude-sonnet-4-6",
+  "claude-opus-4-20250514": "claude-opus-4-7",
+};
+
+function resolveModelId(model: string | undefined): string | undefined {
+  if (!model) return model;
+  return RETIRED_MODEL_ALIASES[model] ?? model;
+}
+
 /**
  * Get the model route for a given use case.
  * Checks environment variable overrides first, then falls back to defaults.
@@ -196,10 +207,16 @@ export function getModelRoute(useCase: UseCase): ModelRoute {
   const providerOverride = process.env[`AI_PROVIDER_${envKey}`] as AIProvider | undefined;
   const modelOverride = process.env[`AI_MODEL_${envKey}`];
 
-  return {
+  const route: ModelRoute = {
     ...defaults,
     ...(providerOverride ? { provider: providerOverride } : {}),
     ...(modelOverride ? { model: modelOverride } : {}),
+  };
+
+  return {
+    ...route,
+    model: resolveModelId(route.model) ?? route.model,
+    fallbackModel: resolveModelId(route.fallbackModel),
   };
 }
 

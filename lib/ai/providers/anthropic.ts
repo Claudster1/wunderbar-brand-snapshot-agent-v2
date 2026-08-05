@@ -78,7 +78,20 @@ function extractContent(response: Anthropic.Message): string {
   return textBlocks.map((b) => (b as Anthropic.TextBlock).text).join("\n");
 }
 
+/** Retired snapshot IDs → current Anthropic API models. */
+const RETIRED_ANTHROPIC_MODELS: Record<string, string> = {
+  "claude-sonnet-4-20250514": "claude-sonnet-4-6",
+  "claude-opus-4-20250514": "claude-opus-4-7",
+};
+
+function resolveAnthropicModel(model: string): string {
+  const trimmed = model.trim();
+  return RETIRED_ANTHROPIC_MODELS[trimmed] ?? trimmed;
+}
+
 export function createAnthropicProvider(model: string): AIProviderClient {
+  const resolvedModel = resolveAnthropicModel(model);
+
   return {
     provider: "anthropic",
 
@@ -91,7 +104,7 @@ export function createAnthropicProvider(model: string): AIProviderClient {
       const { system, userMessages } = splitSystemMessage(options.messages);
 
       const params: Anthropic.MessageCreateParamsNonStreaming = {
-        model,
+        model: resolvedModel,
         max_tokens: options.maxTokens ?? 2000,
         messages: userMessages,
         ...(system ? { system } : {}),
@@ -117,7 +130,7 @@ export function createAnthropicProvider(model: string): AIProviderClient {
         toolCalls,
         raw: response,
         provider: "anthropic",
-        model,
+        model: resolvedModel,
         usage: {
           inputTokens: response.usage?.input_tokens,
           outputTokens: response.usage?.output_tokens,
@@ -156,7 +169,7 @@ export function createAnthropicProvider(model: string): AIProviderClient {
       ];
 
       const response = await client.messages.create({
-        model,
+        model: resolvedModel,
         max_tokens: options.maxTokens ?? 2000,
         messages,
         ...(system ? { system } : {}),
@@ -171,7 +184,7 @@ export function createAnthropicProvider(model: string): AIProviderClient {
         toolCalls: [],
         raw: response,
         provider: "anthropic",
-        model,
+        model: resolvedModel,
         usage: {
           inputTokens: response.usage?.input_tokens,
           outputTokens: response.usage?.output_tokens,

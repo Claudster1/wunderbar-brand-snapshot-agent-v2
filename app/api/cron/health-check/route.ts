@@ -1,6 +1,6 @@
 // app/api/cron/health-check/route.ts
 // Always-on health probe via Vercel Cron (every 15 minutes).
-// Runs dependency checks + draft-persist smoke; Slack-alerts on degraded/unhealthy.
+// Runs dependency checks + draft-persist smoke + AI smokes; Slack-alerts on degraded/unhealthy.
 //
 // Pair with UptimeRobot on /api/health?scope=liveness for external 5-minute uptime.
 
@@ -11,6 +11,8 @@ import { computeDeepHealth, type HealthCheckResult } from "@/lib/health/probe";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+/** AI smokes can take ~20s each when a provider is slow/failing. */
+export const maxDuration = 60;
 
 const processStartedAt = Date.now();
 
@@ -87,11 +89,16 @@ async function sendAlert(
         .map(([k, v]) => `• *${k}*: failed${v.error ? ` — ${v.error}` : ""}`)
         .join("\n");
 
+      const aiBothDown =
+        checks.assessmentChat && !checks.assessmentChat.ok
+          ? "\n\n🚨 *Assessment chat primary + fallback both failed* — users will see connection errors."
+          : "";
+
       await fetch(slackUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          text: `⚠️ *WunderBrand Health Alert*\nStatus: ${String(health.status)}\n\n${problems || "• Unknown failure"}`,
+          text: `⚠️ *WunderBrand Health Alert*\nStatus: ${String(health.status)}\n\n${problems || "• Unknown failure"}${aiBothDown}`,
         }),
       });
     } catch (err) {

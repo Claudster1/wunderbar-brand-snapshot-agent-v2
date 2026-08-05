@@ -3,6 +3,11 @@
 
 import { randomUUID } from "crypto";
 import { getAllFeatureFlags } from "@/lib/featureFlags";
+import {
+  runAssessmentChatSmoke,
+  runReportFreeSmoke,
+  type AiSmokeResult,
+} from "@/lib/health/aiSmoke";
 import { stripeWebhookSecretsConfigured } from "@/lib/stripeWebhookSecrets";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
@@ -165,7 +170,29 @@ export async function runDraftPersistSmoke(): Promise<{
   }
 }
 
-/** Full probe used by cron / deep health: dependencies + draft persist smoke. */
+function applyAiSmokeCheck(
+  checks: HealthCheckResult["checks"],
+  key: string,
+  result: AiSmokeResult,
+) {
+  const detailParts: string[] = [];
+  if (result.usedProvider && result.usedModel) {
+    detailParts.push(`${result.usedProvider}/${result.usedModel}`);
+  }
+  if (result.primaryFailed && result.error) {
+    detailParts.push(`via fallback — ${result.error}`);
+  } else if (result.error && !result.ok) {
+    detailParts.push(result.error);
+  }
+
+  checks[key] = {
+    ok: result.ok,
+    latencyMs: result.latencyMs,
+    ...(detailParts.length ? { error: detailParts.join(" · ") } : {}),
+  };
+}
+
+/** Full probe used by cron / deep health: dependencies + draft + AI smokes. */
 export async function computeDeepHealth(startedAt: number): Promise<HealthCheckResult> {
   const base = await computeDependencyHealth(startedAt);
   const smoke = await runDraftPersistSmoke();
@@ -175,9 +202,33 @@ export async function computeDeepHealth(startedAt: number): Promise<HealthCheckR
     ...(smoke.error ? { error: smoke.error } : {}),
   };
 
+  // Live AI completions (catches retired models / quota). Run after DB smoke.
+  const [assessmentSmoke, reportFreeSmoke] = await Promise.all([
+    runAssessmentChatSmoke(),
+    runReportFreeSmoke(),
+  ]);
+  applyAiSmokeCheck(base.checks, "assessmentChat", assessmentSmoke);
+  applyAiSmokeCheck(base.checks, "reportFree", reportFreeSmoke);
+
+  // Primary-down / fallback-up: still serving users, but surface as degraded (Slack).
+  if (assessmentSmoke.ok && assessmentSmoke.primaryFailed) {
+    base.checks.assessmentChatPrimary = {
+      ok: false,
+      error: assessmentSmoke.error || "Primary provider failed; serving via fallback",
+    };
+  }
+  if (reportFreeSmoke.ok && reportFreeSmoke.primaryFailed) {
+    base.checks.reportFreePrimary = {
+      ok: false,
+      error: reportFreeSmoke.error || "Primary provider failed; serving via fallback",
+    };
+  }
+
   const allOk = Object.values(base.checks).every((c) => c.ok);
   const criticalOk =
-    base.checks.supabase?.ok && base.checks.openai?.ok && base.checks.draftPersist?.ok;
+    base.checks.supabase?.ok &&
+    base.checks.draftPersist?.ok &&
+    base.checks.assessmentChat?.ok;
 
   base.status = allOk ? "healthy" : criticalOk ? "degraded" : "unhealthy";
   base.timestamp = new Date().toISOString();

@@ -14,8 +14,8 @@ Legend: ✅ done · 🟡 needs a dashboard action · ⚪ optional / nice-to-have
 | Layer | Cadence | URL / job | Notes |
 |---|---|---|---|
 | **UptimeRobot** (external) | every 5 min | `https://app.wunderbrand.ai/api/health?scope=liveness` | Keyword/HTTP 200 monitor. Alert email/SMS in UptimeRobot. |
-| **Vercel cron** (in-app) | every 15 min | `/api/cron/health-check` | Dependencies + **draft persist smoke**; Slack via `SLACK_ALERT_WEBHOOK` on degraded/unhealthy. Requires **Vercel Pro** (Hobby only allows daily crons). |
-| Deep manual probe | on demand | `https://app.wunderbrand.ai/api/health?smoke=1` | Returns 503 if draft write/schema fails. |
+| **Vercel cron** (in-app) | every 15 min | `/api/cron/health-check` | Dependencies + **draft persist smoke** + **AI smokes** (`assessmentChat`, `reportFree` primary→fallback). Slack via `SLACK_ALERT_WEBHOOK` on degraded/unhealthy (includes primary-down / fallback-up). Requires **Vercel Pro**. |
+| Deep manual probe | on demand | `https://app.wunderbrand.ai/api/health?smoke=1` | Returns 503 if draft write/schema **or AI smoke** fails hard. |
 
 **UptimeRobot setup (if not already):**
 1. Add HTTP(s) monitor → liveness URL above  

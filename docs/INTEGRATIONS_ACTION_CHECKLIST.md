@@ -15,6 +15,7 @@ Legend: ✅ done · 🟡 needs a dashboard action · ⚪ optional / nice-to-have
 |---|---|---|---|
 | **UptimeRobot** (external) | every 5 min | `https://app.wunderbrand.ai/api/health?scope=liveness` | Keyword/HTTP 200 monitor. Alert email/SMS in UptimeRobot. |
 | **Vercel cron** (in-app) | every 15 min | `/api/cron/health-check` | Dependencies + **draft persist** + **AI smokes** (`assessmentChat`, `reportFree`) + **per-provider probes** (OpenAI / Anthropic / Gemini) + **`aiBilling`** when quota/credit errors are detected. Slack via `SLACK_ALERT_WEBHOOK`. Requires **Vercel Pro**. |
+| **Weekly P&L digest** | Mondays 13:00 UTC | `/api/cron/pnl-digest` | Last 7 days revenue / AI est. / conversions / unit economics → `SLACK_ALERT_WEBHOOK`. Manual: `?days=7&dryRun=1` with `Authorization: Bearer $CRON_SECRET`. |
 | Deep manual probe | on demand | `https://app.wunderbrand.ai/api/health?smoke=1` | Returns 503 if draft write/schema **or AI smoke** fails hard. |
 
 **Dashboard billing alerts (recommended alongside cron):**

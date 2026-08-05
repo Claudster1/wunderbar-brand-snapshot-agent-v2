@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import type { AIProvider, AIProviderClient, CompletionResponse } from "@/lib/ai/types";
 
 vi.mock("@/lib/ai", () => ({
   getAIDirect: vi.fn(),
@@ -22,26 +23,43 @@ import { runAssessmentChatSmoke } from "@/lib/health/aiSmoke";
 
 const getAIDirectMock = vi.mocked(getAIDirect);
 
+function okResponse(
+  provider: AIProvider,
+  model: string,
+): CompletionResponse {
+  return {
+    content: "OK",
+    hasToolCalls: false,
+    toolCalls: [],
+    raw: {},
+    provider,
+    model,
+  };
+}
+
+function mockClient(
+  provider: AIProvider,
+  complete: AIProviderClient["complete"],
+): AIProviderClient {
+  return {
+    provider,
+    isConfigured: true,
+    complete,
+    completeWithToolResults: async () => {
+      throw new Error("unused");
+    },
+  };
+}
+
 afterEach(() => {
   vi.clearAllMocks();
 });
 
 describe("runAssessmentChatSmoke", () => {
   it("ok when primary succeeds", async () => {
-    getAIDirectMock.mockReturnValue({
-      provider: "openai",
-      isConfigured: true,
-      complete: async () => ({
-        content: "OK",
-        hasToolCalls: false,
-        toolCalls: [],
-        provider: "openai",
-        model: "gpt-4o-mini",
-      }),
-      completeWithToolResults: async () => {
-        throw new Error("unused");
-      },
-    });
+    getAIDirectMock.mockReturnValue(
+      mockClient("openai", async () => okResponse("openai", "gpt-4o-mini")),
+    );
 
     const result = await runAssessmentChatSmoke();
     expect(result.ok).toBe(true);
@@ -50,33 +68,15 @@ describe("runAssessmentChatSmoke", () => {
   });
 
   it("ok via fallback when primary fails", async () => {
-    getAIDirectMock.mockImplementation((provider: string) => {
+    getAIDirectMock.mockImplementation((provider: AIProvider) => {
       if (provider === "openai") {
-        return {
-          provider: "openai",
-          isConfigured: true,
-          complete: async () => {
-            throw new Error("429 no credits");
-          },
-          completeWithToolResults: async () => {
-            throw new Error("unused");
-          },
-        };
+        return mockClient("openai", async () => {
+          throw new Error("429 no credits");
+        });
       }
-      return {
-        provider: "anthropic",
-        isConfigured: true,
-        complete: async () => ({
-          content: "OK",
-          hasToolCalls: false,
-          toolCalls: [],
-          provider: "anthropic",
-          model: "claude-sonnet-4-6",
-        }),
-        completeWithToolResults: async () => {
-          throw new Error("unused");
-        },
-      };
+      return mockClient("anthropic", async () =>
+        okResponse("anthropic", "claude-sonnet-4-6"),
+      );
     });
 
     const result = await runAssessmentChatSmoke();
@@ -86,16 +86,11 @@ describe("runAssessmentChatSmoke", () => {
   });
 
   it("fails when primary and fallback both fail", async () => {
-    getAIDirectMock.mockReturnValue({
-      provider: "openai",
-      isConfigured: true,
-      complete: async () => {
+    getAIDirectMock.mockReturnValue(
+      mockClient("openai", async () => {
         throw new Error("boom");
-      },
-      completeWithToolResults: async () => {
-        throw new Error("unused");
-      },
-    });
+      }),
+    );
 
     const result = await runAssessmentChatSmoke();
     expect(result.ok).toBe(false);

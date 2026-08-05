@@ -5,6 +5,7 @@ import { randomUUID } from "crypto";
 import { getAllFeatureFlags } from "@/lib/featureFlags";
 import {
   runAssessmentChatSmoke,
+  runProviderAccountSmokes,
   runReportFreeSmoke,
   type AiSmokeResult,
 } from "@/lib/health/aiSmoke";
@@ -203,12 +204,43 @@ export async function computeDeepHealth(startedAt: number): Promise<HealthCheckR
   };
 
   // Live AI completions (catches retired models / quota). Run after DB smoke.
-  const [assessmentSmoke, reportFreeSmoke] = await Promise.all([
+  const [assessmentSmoke, reportFreeSmoke, providerSmokes] = await Promise.all([
     runAssessmentChatSmoke(),
     runReportFreeSmoke(),
+    runProviderAccountSmokes(),
   ]);
   applyAiSmokeCheck(base.checks, "assessmentChat", assessmentSmoke);
   applyAiSmokeCheck(base.checks, "reportFree", reportFreeSmoke);
+
+  // Per-provider account probes (OpenAI / Anthropic / Gemini).
+  for (const p of providerSmokes) {
+    const key = `provider_${p.provider}`;
+    if (!p.configured) {
+      base.checks[key] = { ok: true, error: "not configured (skipped)" };
+      continue;
+    }
+    base.checks[key] = {
+      ok: p.ok,
+      latencyMs: p.latencyMs,
+      ...(p.error
+        ? {
+            error: p.billingIssue
+              ? `billing/quota — ${p.error}`
+              : p.error,
+          }
+        : {}),
+    };
+  }
+
+  const billingHits = providerSmokes.filter((p) => p.configured && p.billingIssue);
+  if (billingHits.length > 0) {
+    base.checks.aiBilling = {
+      ok: false,
+      error: billingHits
+        .map((p) => `${p.provider}: ${p.error || "quota/billing error"}`)
+        .join("; "),
+    };
+  }
 
   // Primary-down / fallback-up: still serving users, but surface as degraded (Slack).
   if (assessmentSmoke.ok && assessmentSmoke.primaryFailed) {

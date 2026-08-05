@@ -11,8 +11,8 @@ import { computeDeepHealth, type HealthCheckResult } from "@/lib/health/probe";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-/** AI smokes can take ~20s each when a provider is slow/failing. */
-export const maxDuration = 60;
+/** AI smokes + per-provider probes can take a while when providers are slow/failing. */
+export const maxDuration = 120;
 
 const processStartedAt = Date.now();
 
@@ -94,11 +94,16 @@ async function sendAlert(
           ? "\n\n🚨 *Assessment chat primary + fallback both failed* — users will see connection errors."
           : "";
 
+      const billing =
+        checks.aiBilling && !checks.aiBilling.ok
+          ? `\n\n💳 *AI billing / quota*\n${checks.aiBilling.error || "Provider reported insufficient credits."}\n→ OpenAI: https://platform.openai.com/settings/organization/billing\n→ Anthropic: https://console.anthropic.com/settings/billing\n→ Gemini: https://aistudio.google.com/`
+          : "";
+
       await fetch(slackUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          text: `⚠️ *WunderBrand Health Alert*\nStatus: ${String(health.status)}\n\n${problems || "• Unknown failure"}${aiBothDown}`,
+          text: `⚠️ *WunderBrand Health Alert*\nStatus: ${String(health.status)}\n\n${problems || "• Unknown failure"}${aiBothDown}${billing}`,
         }),
       });
     } catch (err) {

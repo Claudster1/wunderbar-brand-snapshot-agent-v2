@@ -14,8 +14,13 @@ Legend: ✅ done · 🟡 needs a dashboard action · ⚪ optional / nice-to-have
 | Layer | Cadence | URL / job | Notes |
 |---|---|---|---|
 | **UptimeRobot** (external) | every 5 min | `https://app.wunderbrand.ai/api/health?scope=liveness` | Keyword/HTTP 200 monitor. Alert email/SMS in UptimeRobot. |
-| **Vercel cron** (in-app) | every 15 min | `/api/cron/health-check` | Dependencies + **draft persist smoke** + **AI smokes** (`assessmentChat`, `reportFree` primary→fallback). Slack via `SLACK_ALERT_WEBHOOK` on degraded/unhealthy (includes primary-down / fallback-up). Requires **Vercel Pro**. |
+| **Vercel cron** (in-app) | every 15 min | `/api/cron/health-check` | Dependencies + **draft persist** + **AI smokes** (`assessmentChat`, `reportFree`) + **per-provider probes** (OpenAI / Anthropic / Gemini) + **`aiBilling`** when quota/credit errors are detected. Slack via `SLACK_ALERT_WEBHOOK`. Requires **Vercel Pro**. |
 | Deep manual probe | on demand | `https://app.wunderbrand.ai/api/health?smoke=1` | Returns 503 if draft write/schema **or AI smoke** fails hard. |
+
+**Dashboard billing alerts (recommended alongside cron):**
+1. **OpenAI** → [Billing](https://platform.openai.com/settings/organization/billing) → enable auto-recharge + email/spend notifications  
+2. **Anthropic** → [Console billing](https://console.anthropic.com/settings/billing) → auto-reload / low-balance alerts  
+3. **Gemini** → Google AI Studio / Cloud billing budgets for the project behind `GOOGLE_API_KEY` / `GEMINI_API_KEY`
 
 **UptimeRobot setup (if not already):**
 1. Add HTTP(s) monitor → liveness URL above  

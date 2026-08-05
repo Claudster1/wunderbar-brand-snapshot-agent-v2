@@ -5,9 +5,17 @@
 import { getAIDirect } from "@/lib/ai";
 import { getModelRoute, type UseCase } from "@/lib/ai/config";
 import type { AIProvider } from "@/lib/ai/types";
+import { isBillingOrQuotaError } from "@/lib/health/billingDetect";
 import { logger } from "@/lib/logger";
 
 const AI_SMOKE_TIMEOUT_MS = 20_000;
+
+/** Cheap canary models per provider for account/billing probes. */
+const PROVIDER_CANARY: Record<AIProvider, string> = {
+  openai: "gpt-4o-mini",
+  anthropic: "claude-sonnet-4-6",
+  gemini: "gemini-2.0-flash",
+};
 
 export type AiSmokeResult = {
   ok: boolean;
@@ -17,6 +25,18 @@ export type AiSmokeResult = {
   primaryFailed?: boolean;
   usedProvider?: string;
   usedModel?: string;
+  /** True when failure text looks like billing/quota (not a model-id bug) */
+  billingIssue?: boolean;
+};
+
+export type ProviderSmokeResult = {
+  provider: AIProvider;
+  ok: boolean;
+  configured: boolean;
+  latencyMs: number;
+  error?: string;
+  billingIssue?: boolean;
+  model?: string;
 };
 
 function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number): Promise<T> {
@@ -36,7 +56,13 @@ function shortenError(err: unknown): string {
 async function tryProviderComplete(
   provider: AIProvider,
   model: string,
-): Promise<{ ok: boolean; latencyMs: number; error?: string; model?: string }> {
+): Promise<{
+  ok: boolean;
+  latencyMs: number;
+  error?: string;
+  model?: string;
+  billingIssue?: boolean;
+}> {
   const start = Date.now();
   const client = getAIDirect(provider, model);
   if (!client.isConfigured) {
@@ -62,10 +88,12 @@ async function tryProviderComplete(
       model: res.model || model,
     };
   } catch (err) {
+    const error = shortenError(err);
     return {
       ok: false,
       latencyMs: Date.now() - start,
-      error: shortenError(err),
+      error,
+      billingIssue: isBillingOrQuotaError(error),
     };
   }
 }
@@ -93,6 +121,7 @@ export async function runUseCaseAiSmoke(useCase: UseCase): Promise<AiSmokeResult
     provider: route.provider,
     model: route.model,
     error: primary.error,
+    billingIssue: primary.billingIssue,
   });
 
   if (route.fallbackProvider && route.fallbackModel) {
@@ -102,6 +131,7 @@ export async function runUseCaseAiSmoke(useCase: UseCase): Promise<AiSmokeResult
         ok: true,
         latencyMs: Date.now() - started,
         primaryFailed: true,
+        billingIssue: primary.billingIssue,
         usedProvider: route.fallbackProvider,
         usedModel: fallback.model || route.fallbackModel,
         error: `primary ${route.provider}/${route.model}: ${primary.error}`,
@@ -111,6 +141,7 @@ export async function runUseCaseAiSmoke(useCase: UseCase): Promise<AiSmokeResult
     return {
       ok: false,
       latencyMs: Date.now() - started,
+      billingIssue: Boolean(primary.billingIssue || fallback.billingIssue),
       error:
         `primary ${route.provider}/${route.model}: ${primary.error}; ` +
         `fallback ${route.fallbackProvider}/${route.fallbackModel}: ${fallback.error}`,
@@ -120,6 +151,7 @@ export async function runUseCaseAiSmoke(useCase: UseCase): Promise<AiSmokeResult
   return {
     ok: false,
     latencyMs: Date.now() - started,
+    billingIssue: primary.billingIssue,
     error: `primary ${route.provider}/${route.model}: ${primary.error}; no fallback configured`,
   };
 }
@@ -132,4 +164,41 @@ export async function runAssessmentChatSmoke(): Promise<AiSmokeResult> {
 /** Cheap report path: free Snapshot generation route. */
 export async function runReportFreeSmoke(): Promise<AiSmokeResult> {
   return runUseCaseAiSmoke("report_free");
+}
+
+/**
+ * Probe each configured AI provider account (OpenAI / Anthropic / Gemini).
+ * Used for billing Slack alerts independent of use-case routing.
+ */
+export async function runProviderAccountSmokes(): Promise<ProviderSmokeResult[]> {
+  const providers = Object.keys(PROVIDER_CANARY) as AIProvider[];
+  const results: ProviderSmokeResult[] = [];
+
+  for (const provider of providers) {
+    const model = PROVIDER_CANARY[provider];
+    const client = getAIDirect(provider, model);
+    if (!client.isConfigured) {
+      results.push({
+        provider,
+        ok: true,
+        configured: false,
+        latencyMs: 0,
+        error: "not configured (skipped)",
+      });
+      continue;
+    }
+
+    const attempt = await tryProviderComplete(provider, model);
+    results.push({
+      provider,
+      ok: attempt.ok,
+      configured: true,
+      latencyMs: attempt.latencyMs,
+      error: attempt.error,
+      billingIssue: attempt.billingIssue,
+      model: attempt.model || model,
+    });
+  }
+
+  return results;
 }

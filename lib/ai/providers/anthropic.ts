@@ -1,7 +1,7 @@
 // lib/ai/providers/anthropic.ts
 // ─────────────────────────────────────────────────────────────────
 // Anthropic (Claude) provider implementation.
-// Supports: claude-sonnet-4-20250514, claude-3-5-haiku-20241022, etc.
+// Supports: claude-sonnet-4-6, claude-haiku-4-5-20251001, etc.
 // Features: Tool use, 200K context, superior writing quality.
 //
 // ENV: ANTHROPIC_API_KEY

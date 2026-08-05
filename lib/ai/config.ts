@@ -8,7 +8,7 @@
 //   AI_PROVIDER_WUNDY_GENERAL=gemini
 //   AI_MODEL_WUNDY_GENERAL=gemini-2.0-flash
 //   AI_PROVIDER_REPORT_GENERATION=anthropic
-//   AI_MODEL_REPORT_GENERATION=claude-sonnet-4-20250514
+//   AI_MODEL_REPORT_GENERATION=claude-sonnet-4-6
 // ─────────────────────────────────────────────────────────────────
 
 import type { AIProvider } from "./types";
@@ -68,7 +68,7 @@ const DEFAULT_ROUTES: Record<UseCase, ModelRoute> = {
     provider: "openai",
     model: "gpt-4o-mini",
     fallbackProvider: "anthropic",
-    fallbackModel: "claude-sonnet-4-20250514",
+    fallbackModel: "claude-sonnet-4-6",
     temperature: 0.6,
     maxTokens: 2000,
     timeoutMs: 25_000,
@@ -79,7 +79,7 @@ const DEFAULT_ROUTES: Record<UseCase, ModelRoute> = {
     provider: "openai",
     model: "gpt-4o-mini",
     fallbackProvider: "anthropic",
-    fallbackModel: "claude-sonnet-4-20250514",
+    fallbackModel: "claude-sonnet-4-6",
     temperature: 0.6,
     /**
      * Chat turns typically use ~250 tokens; the cap matters for the final handoff JSON which can run long
@@ -101,7 +101,7 @@ const DEFAULT_ROUTES: Record<UseCase, ModelRoute> = {
     provider: "openai",
     model: "gpt-4o-mini",
     fallbackProvider: "anthropic",
-    fallbackModel: "claude-sonnet-4-20250514",
+    fallbackModel: "claude-sonnet-4-6",
     temperature: 0.6,
     maxTokens: 2000,
     timeoutMs: 25_000,
@@ -124,7 +124,7 @@ const DEFAULT_ROUTES: Record<UseCase, ModelRoute> = {
   },
   report_snapshot_plus: {
     provider: "anthropic",
-    model: "claude-sonnet-4-20250514",
+    model: "claude-sonnet-4-6",
     fallbackProvider: "openai",
     fallbackModel: "gpt-4o",
     temperature: 0.5,
@@ -133,7 +133,7 @@ const DEFAULT_ROUTES: Record<UseCase, ModelRoute> = {
   },
   report_blueprint: {
     provider: "anthropic",
-    model: "claude-sonnet-4-20250514",
+    model: "claude-sonnet-4-6",
     fallbackProvider: "openai",
     fallbackModel: "gpt-4o",
     temperature: 0.5,
@@ -142,7 +142,7 @@ const DEFAULT_ROUTES: Record<UseCase, ModelRoute> = {
   },
   report_blueprint_plus: {
     provider: "anthropic",
-    model: "claude-sonnet-4-20250514",
+    model: "claude-sonnet-4-6",
     fallbackProvider: "openai",
     fallbackModel: "gpt-4o",
     temperature: 0.5,
@@ -162,7 +162,7 @@ const DEFAULT_ROUTES: Record<UseCase, ModelRoute> = {
     provider: "openai",
     model: "gpt-4o-mini",
     fallbackProvider: "anthropic",
-    fallbackModel: "claude-sonnet-4-20250514",
+    fallbackModel: "claude-sonnet-4-6",
     temperature: 0.7,
     maxTokens: 2000,
     timeoutMs: 25_000,
@@ -186,7 +186,7 @@ const DEFAULT_ROUTES: Record<UseCase, ModelRoute> = {
  *
  * Override format:
  *   AI_PROVIDER_{USE_CASE}=anthropic
- *   AI_MODEL_{USE_CASE}=claude-sonnet-4-20250514
+ *   AI_MODEL_{USE_CASE}=claude-sonnet-4-6
  */
 export function getModelRoute(useCase: UseCase): ModelRoute {
   const defaults = DEFAULT_ROUTES[useCase];

@@ -42,6 +42,16 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       );
     }
 
+    const { authorizeReportRead } = await import("@/lib/reportAccess");
+    const access = await authorizeReportRead({
+      req,
+      reportId: id,
+      reportOwnerEmail: (report as { user_email?: string | null }).user_email,
+    });
+    if (!access.hasAccess) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    }
+
     return generatePdfResponseFromReport(
       report,
       plus ? "snapshot-plus" : "snapshot",

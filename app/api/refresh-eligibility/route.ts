@@ -14,14 +14,14 @@ export async function GET(req: NextRequest) {
   const guard = apiGuard(req, { routeId: "refresh-eligibility", rateLimit: GENERAL_RATE_LIMIT });
   if (!guard.passed) return guard.errorResponse;
 
-  const email = req.nextUrl.searchParams.get("email");
+  const claimedEmail = req.nextUrl.searchParams.get("email");
 
-  if (!email || typeof email !== "string") {
-    return NextResponse.json({ error: "Email is required." }, { status: 400 });
-  }
+  const { requireVerifiedEmail } = await import("@/lib/reportAccess");
+  const auth = requireVerifiedEmail(req, claimedEmail);
+  if ("error" in auth) return auth.error;
 
   try {
-    const eligibility = await checkRefreshEligibility(email.toLowerCase());
+    const eligibility = await checkRefreshEligibility(auth.email);
     return NextResponse.json(eligibility, {
       headers: { "Cache-Control": "private, max-age=60" },
     });

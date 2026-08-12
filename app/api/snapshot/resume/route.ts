@@ -41,6 +41,16 @@ export async function GET(req: Request) {
 
     const canonicalId = (typeof r.report_id === "string" && r.report_id.trim() ? r.report_id : null) || String(r.id ?? reportId);
 
+    const { authorizeReportRead } = await import("@/lib/reportAccess");
+    const access = await authorizeReportRead({
+      req,
+      reportId: canonicalId,
+      reportOwnerEmail: r.user_email,
+    });
+    if (!access.hasAccess) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    }
+
     const progress = r.progress;
     const messages = progress?.messages;
     const hasTranscript = Array.isArray(messages) && messages.length > 0;

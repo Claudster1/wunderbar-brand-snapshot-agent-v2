@@ -4,7 +4,6 @@
 import { NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { saveSnapshotProgress } from "@/lib/saveSnapshotProgress";
-import { loadSnapshotProgress } from "@/lib/loadSnapshotProgress";
 
 export async function POST(req: Request) {
   try {
@@ -53,7 +52,33 @@ export async function GET(req: Request) {
       );
     }
 
-    const data = await loadSnapshotProgress(reportId);
+    const { findBrandSnapshotReportByPublicId } = await import("@/lib/brandSnapshotReportLookup");
+    const row = await findBrandSnapshotReportByPublicId(reportId);
+    if (!row) {
+      return NextResponse.json({ error: "Report not found" }, { status: 404 });
+    }
+
+    const ownerEmail = (row as { user_email?: string | null }).user_email;
+    const canonicalId =
+      (typeof (row as { report_id?: string }).report_id === "string" &&
+      (row as { report_id: string }).report_id.trim()
+        ? (row as { report_id: string }).report_id
+        : null) || reportId;
+
+    const { authorizeReportRead } = await import("@/lib/reportAccess");
+    const access = await authorizeReportRead({
+      req,
+      reportId: canonicalId,
+      reportOwnerEmail: ownerEmail,
+    });
+    if (!access.hasAccess) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    }
+
+    const data = {
+      last_step: (row as { last_step?: string }).last_step,
+      progress: (row as { progress?: unknown }).progress,
+    };
 
     return NextResponse.json({ data });
   } catch (err: any) {

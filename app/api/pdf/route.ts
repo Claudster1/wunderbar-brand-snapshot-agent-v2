@@ -265,6 +265,16 @@ export async function GET(req: Request) {
       );
     }
 
+    const { authorizeReportRead } = await import("@/lib/reportAccess");
+    const access = await authorizeReportRead({
+      req,
+      reportId,
+      reportOwnerEmail: (report as { user_email?: string | null }).user_email,
+    });
+    if (!access.hasAccess) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    }
+
     // Generate filename
     const filename = getFilename(reportId, documentType);
 
@@ -300,25 +310,19 @@ export async function GET(req: Request) {
         );
       }
 
-      // Get public URL
-      const { data: publicUrlData } = supabase.storage
-        .from(bucket)
-        .getPublicUrl(fileName);
-      const publicUrl = publicUrlData?.publicUrl;
-
-      // Try to get signed URL as fallback
+      // Private buckets: return short-lived signed URLs only (never public URLs).
       let signedUrl: string | null = null;
       try {
         const { data: signed } = await supabase.storage
           .from(bucket)
-          .createSignedUrl(fileName, 60 * 60 * 24 * 7); // 7 days
+          .createSignedUrl(fileName, 60 * 60);
         signedUrl = signed?.signedUrl || null;
       } catch {
         // ignore
       }
 
       return NextResponse.json({
-        url: publicUrl,
+        url: signedUrl,
         signedUrl,
         filename: fileName,
       });

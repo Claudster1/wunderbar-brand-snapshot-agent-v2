@@ -15,18 +15,22 @@ export async function GET(req: NextRequest) {
   const guard = apiGuard(req, { routeId: "assets-list", rateLimit: GENERAL_RATE_LIMIT });
   if (!guard.passed) return guard.errorResponse;
 
-  const email = req.nextUrl.searchParams.get("email");
+  const claimedEmail = req.nextUrl.searchParams.get("email");
   const tier = req.nextUrl.searchParams.get("tier");
 
-  if (!email || !tier || !MAX_FILES[tier]) {
+  if (!tier || !MAX_FILES[tier]) {
     return NextResponse.json({ error: "Missing email or valid tier" }, { status: 400 });
   }
+
+  const { requireVerifiedEmail } = await import("@/lib/reportAccess");
+  const auth = requireVerifiedEmail(req, claimedEmail);
+  if ("error" in auth) return auth.error;
 
   const sb = supabaseServer();
   const { data, error } = await sb
     .from("brand_asset_uploads")
     .select("id, file_name, file_type, file_size, asset_category, analysis, created_at")
-    .eq("user_email", email.toLowerCase())
+    .eq("user_email", auth.email)
     .eq("tier", tier)
     .order("created_at", { ascending: true });
 

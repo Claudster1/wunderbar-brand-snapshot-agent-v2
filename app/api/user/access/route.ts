@@ -1,6 +1,6 @@
 // app/api/user/access/route.ts
 // API route to get user product access.
-// SECURITY: Rate-limited and email-validated to prevent enumeration.
+// SECURITY: Rate-limited and verified-session gated to prevent enumeration.
 
 import { NextResponse } from "next/server";
 import { getUserProductAccess } from "@/lib/getUserProductAccess";
@@ -15,18 +15,13 @@ export async function GET(req: Request) {
 
   try {
     const { searchParams } = new URL(req.url);
-    const email = searchParams.get("email");
+    const claimedEmail = searchParams.get("email");
 
-    if (!email || !email.includes("@")) {
-      return NextResponse.json(
-        { error: "Missing or invalid email parameter" },
-        { status: 400 }
-      );
-    }
+    const { requireVerifiedEmail } = await import("@/lib/reportAccess");
+    const auth = requireVerifiedEmail(req, claimedEmail);
+    if ("error" in auth) return auth.error;
 
-    // Normalize to prevent case-based enumeration
-    const normalized = email.trim().toLowerCase();
-    const access = await getUserProductAccess(normalized);
+    const access = await getUserProductAccess(auth.email);
 
     return NextResponse.json({ access });
   } catch (err: unknown) {

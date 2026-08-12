@@ -153,6 +153,16 @@ export async function GET(req: Request) {
       );
     }
 
+    const { authorizeReportRead } = await import("@/lib/reportAccess");
+    const access = await authorizeReportRead({
+      req,
+      reportId: (report as { report_id?: string }).report_id || id,
+      reportOwnerEmail: (report as { user_email?: string | null }).user_email,
+    });
+    if (!access.hasAccess) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    }
+
     return generatePdfResponseFromReport(report, "snapshot", `Brand-Snapshot-${id}.pdf`);
   } catch (err: any) {
     logger.error("[Snapshot PDF API] Unexpected error", {

@@ -17,11 +17,11 @@ export async function GET(req: Request) {
   if (!guard.passed) return guard.errorResponse;
 
   const { searchParams } = new URL(req.url);
-  const email = searchParams.get("email");
+  const claimedEmail = searchParams.get("email");
 
-  if (!email) {
-    return NextResponse.json({ tier: "free" });
-  }
+  const { requireVerifiedEmail } = await import("@/lib/reportAccess");
+  const auth = requireVerifiedEmail(req, claimedEmail);
+  if ("error" in auth) return auth.error;
 
   try {
     const supabase = supabaseServer();
@@ -29,7 +29,7 @@ export async function GET(req: Request) {
     const { data } = await (supabase
       .from("brand_snapshot_purchases" as any)
       .select("product_sku")
-      .eq("user_email", email.toLowerCase())
+      .eq("user_email", auth.email)
       .eq("status", "paid") as any);
 
     if (!data || data.length === 0) {

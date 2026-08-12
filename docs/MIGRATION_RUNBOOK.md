@@ -77,8 +77,14 @@ These add columns, constraints, or indexes to tables that must already exist.
 |---|------|---------|
 | 28 | `migration_enable_rls.sql` | Enables RLS on all public tables |
 | 28a | `migration_user_brands_enable_rls.sql` | Enables RLS on `user_brands` if that table predates or was skipped by migration 28 (Supabase Advisor); app uses service role only |
-| 29 | `migration_rls_policies.sql` | Creates initial RLS policies |
+| 29 | `migration_rls_policies.sql` | Service-role-only policies (no anon grants) |
 | 30 | `migration_add_missing_rls_policies.sql` | Fills in missing service-role policies |
+| 30a | `migration_harden_report_pii_rls.sql` | Closes PII hole on report/purchase tables |
+| 32–33 | `migration_fix_warnings.sql` / `migration_fix_linter_warnings_v2.sql` | Linter cleanup (may re-add authenticated own-row policies) |
+| **30b (run last)** | **`migration_harden_all_public_tables_rls.sql`** | **Final posture:** enables RLS, revokes anon/authenticated, drops open/`USING (true)` and leftover authenticated policies, service-role-only on all app tables |
+| **30c** | **`migration_harden_storage_and_views.sql`** | Privatize report/asset storage buckets; revoke anon/authenticated on `analytics_daily_summary` |
+
+> **Existing production / Advisor “publicly accessible” warnings?** Run `database/migration_harden_all_public_tables_rls.sql` then `database/migration_harden_storage_and_views.sql` once in the SQL Editor (after any older RLS migrations). Idempotent; safe while the app uses the service role key.
 
 ### Phase 5: Performance & Cleanup
 
@@ -146,11 +152,15 @@ for file in \
   database/migration_workbook_finalization.sql \
   database/migration_brand_asset_uploads.sql \
   database/migration_enable_rls.sql \
+  database/migration_user_brands_enable_rls.sql \
   database/migration_rls_policies.sql \
   database/migration_add_missing_rls_policies.sql \
+  database/migration_harden_report_pii_rls.sql \
   database/migration_performance_indexes.sql \
   database/migration_fix_warnings.sql \
   database/migration_fix_linter_warnings_v2.sql \
+  database/migration_harden_all_public_tables_rls.sql \
+  database/migration_harden_storage_and_views.sql \
   database/storage_reports_bucket.sql; do
   echo "Running $file..."
   psql "$DATABASE_URL" -f "$file"

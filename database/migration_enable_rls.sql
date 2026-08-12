@@ -15,40 +15,83 @@
 --
 -- SAFE TO RUN: This migration is idempotent. Running it multiple
 -- times has no effect on tables where RLS is already enabled.
+--
+-- For a full harden (revoke grants + service-role policies + drop open
+-- USING(true) policies), also run:
+--   migration_harden_all_public_tables_rls.sql
 -- ═══════════════════════════════════════════════════════════════
 
--- 1. users
-ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
-
--- 2. brand_snapshot_reports
-ALTER TABLE public.brand_snapshot_reports ENABLE ROW LEVEL SECURITY;
-
--- 3. snapshot_results
-ALTER TABLE public.snapshot_results ENABLE ROW LEVEL SECURITY;
-
--- 4. user_purchases
-ALTER TABLE public.user_purchases ENABLE ROW LEVEL SECURITY;
-
--- 5. analytics_events
-ALTER TABLE public.analytics_events ENABLE ROW LEVEL SECURITY;
-
--- 6. onboarding_status
-ALTER TABLE public.onboarding_status ENABLE ROW LEVEL SECURITY;
-
--- 7. audit_logs
-ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;
-
+DO $$
+DECLARE
+  t text;
+  tables text[] := ARRAY[
+    'users',
+    'brand_snapshot_sessions',
+    'brand_snapshot_results',
+    'brand_snapshot_reports',
+    'brand_snapshot_plus_reports',
+    'brand_blueprint_sessions',
+    'brand_blueprint_results',
+    'brand_blueprint_plus_reports',
+    'user_purchases',
+    'onboarding_status',
+    'brand_snapshots',
+    'brand_snapshot_purchases',
+    'blueprint_reports',
+    'analytics_events',
+    'audit_logs',
+    'brand_team_members',
+    'benchmark_data',
+    'support_requests',
+    'shared_links',
+    'user_brands',
+    'security_events',
+    'session_attribution',
+    'session_followups',
+    'refresh_entitlements',
+    'blueprint_enrichment',
+    'brand_snapshot_refinements',
+    'snapshot_refinement_requests',
+    'nps_responses',
+    'experience_survey_responses',
+    'testimonials',
+    'voc_surveys',
+    'voc_responses',
+    'voc_analysis',
+    'brand_workbook',
+    'brand_asset_uploads',
+    'ai_usage_events',
+    'admin_users',
+    'crm_contacts',
+    'crm_inquiries',
+    'crm_activities',
+    'crm_tasks',
+    'crm_sync_log',
+    'crm_events',
+    -- legacy misspelled name from older migrations (skip if absent)
+    'snapshot_results'
+  ];
+BEGIN
+  FOREACH t IN ARRAY tables LOOP
+    IF EXISTS (
+      SELECT 1 FROM information_schema.tables
+      WHERE table_schema = 'public' AND table_name = t
+    ) THEN
+      EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY', t);
+    END IF;
+  END LOOP;
+END $$;
 
 -- ═══════════════════════════════════════════════════════════════
 -- Fix: analytics_daily_summary view (SECURITY DEFINER → INVOKER)
 -- ═══════════════════════════════════════════════════════════════
---
--- The view is currently SECURITY DEFINER, meaning it runs with the
--- permissions of the view creator (typically a superuser) regardless
--- of who queries it. This bypasses RLS on the underlying tables.
---
--- Changing to SECURITY INVOKER ensures the view respects the
--- permissions and RLS policies of the querying user.
--- ═══════════════════════════════════════════════════════════════
 
-ALTER VIEW public.analytics_daily_summary SET (security_invoker = on);
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM pg_views
+    WHERE schemaname = 'public' AND viewname = 'analytics_daily_summary'
+  ) THEN
+    EXECUTE 'ALTER VIEW public.analytics_daily_summary SET (security_invoker = on)';
+  END IF;
+END $$;

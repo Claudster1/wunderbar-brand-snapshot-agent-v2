@@ -19,26 +19,29 @@ type SharedLink = {
   label: string | null;
 };
 
-function buildPdfUrl(link: SharedLink): string {
+function buildPdfUrl(link: SharedLink, token: string): string {
   const { report_id, document_type, tier } = link;
   const encodedId = encodeURIComponent(report_id);
 
+  let pdfUrl: string;
   if (document_type === "report") {
     const normalizedTier = tier.replace("_", "-");
     if (normalizedTier === "snapshot") {
-      return `/api/snapshot/pdf?id=${encodedId}`;
+      pdfUrl = `/api/snapshot/pdf?id=${encodedId}`;
+    } else if (normalizedTier === "snapshot-plus") {
+      pdfUrl = `/api/snapshot-plus/pdf?id=${encodedId}`;
+    } else if (normalizedTier === "blueprint") {
+      pdfUrl = `/api/blueprint/pdf?reportId=${encodedId}&type=complete&tier=blueprint`;
+    } else {
+      pdfUrl = `/api/blueprint/pdf?reportId=${encodedId}&type=complete&tier=blueprint-plus`;
     }
-    if (normalizedTier === "snapshot-plus") {
-      return `/api/snapshot-plus/pdf?id=${encodedId}`;
-    }
-    if (normalizedTier === "blueprint") {
-      return `/api/blueprint/pdf?reportId=${encodedId}&type=complete&tier=blueprint`;
-    }
-    return `/api/blueprint/pdf?reportId=${encodedId}&type=complete&tier=blueprint-plus`;
+  } else {
+    const apiTier = tier === "blueprint_plus" || tier === "blueprint-plus" ? "blueprint-plus" : "blueprint";
+    pdfUrl = `/api/blueprint/pdf?reportId=${encodedId}&type=${document_type}&tier=${apiTier}`;
   }
 
-  const apiTier = tier === "blueprint_plus" || tier === "blueprint-plus" ? "blueprint-plus" : "blueprint";
-  return `/api/blueprint/pdf?reportId=${encodedId}&type=${document_type}&tier=${apiTier}`;
+  const sep = pdfUrl.includes("?") ? "&" : "?";
+  return `${pdfUrl}${sep}shareToken=${encodeURIComponent(token)}`;
 }
 
 export default async function SharePage({
@@ -80,7 +83,7 @@ export default async function SharePage({
 
   await (supabase.from("shared_links" as any) as any).update({ access_count: link.access_count + 1 }).eq("id", link.id);
 
-  const pdfUrl = buildPdfUrl(link);
+  const pdfUrl = buildPdfUrl(link, token);
 
   redirect(pdfUrl);
 }

@@ -2,6 +2,8 @@
 -- Creates the blueprint_reports table referenced by API routes and alter migrations.
 -- This table stores generated Blueprint/Blueprint+ report data with structured fields.
 -- Run BEFORE migration_add_columns_and_constraints.sql and migration_fix_linter_warnings_v2.sql.
+--
+-- Security: service_role only. Do NOT use USING (true) — that opens the table to anon.
 
 CREATE TABLE IF NOT EXISTS blueprint_reports (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -24,8 +26,11 @@ CREATE INDEX IF NOT EXISTS idx_blueprint_reports_company ON blueprint_reports (c
 CREATE INDEX IF NOT EXISTS idx_blueprint_reports_created ON blueprint_reports (created_at DESC);
 
 ALTER TABLE blueprint_reports ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON TABLE blueprint_reports FROM anon;
+REVOKE ALL ON TABLE blueprint_reports FROM authenticated;
 
+DROP POLICY IF EXISTS "Service role full access to blueprint_reports" ON blueprint_reports;
 CREATE POLICY "Service role full access to blueprint_reports"
   ON blueprint_reports FOR ALL
-  USING (true)
-  WITH CHECK (true);
+  USING ((select auth.role()) = 'service_role')
+  WITH CHECK ((select auth.role()) = 'service_role');

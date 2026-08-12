@@ -232,6 +232,16 @@ export async function GET(req: Request) {
       );
     }
 
+    const { authorizeReportRead } = await import("@/lib/reportAccess");
+    const access = await authorizeReportRead({
+      req,
+      reportId: (report as { report_id?: string }).report_id || reportId,
+      reportOwnerEmail: (report as { user_email?: string | null }).user_email,
+    });
+    if (!access.hasAccess) {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+    }
+
     // ─── Security: block PDF access for unverified reports ───
     if (report.email_verified === false) {
       return NextResponse.json(

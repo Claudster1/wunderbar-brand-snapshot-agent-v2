@@ -8,11 +8,13 @@ export async function GET(req: Request) {
   if (!guard.passed) return guard.errorResponse;
 
   const { searchParams } = new URL(req.url);
-  const email = searchParams.get("email");
+  const claimedEmail = searchParams.get("email");
 
-  if (!email) return NextResponse.json([]);
+  const { requireVerifiedEmail } = await import("@/lib/reportAccess");
+  const auth = requireVerifiedEmail(req, claimedEmail);
+  if ("error" in auth) return auth.error;
 
-  const brands = await getUserBrands(email);
+  const brands = await getUserBrands(auth.email);
 
   return NextResponse.json(
     brands.map((b) => ({

@@ -55,14 +55,20 @@ CREATE TRIGGER trigger_support_requests_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION update_support_requests_updated_at();
 
--- Enable Row Level Security
+-- Enable Row Level Security (service_role only — support posts go through API routes)
 ALTER TABLE support_requests ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON TABLE support_requests FROM anon;
+REVOKE ALL ON TABLE support_requests FROM authenticated;
 
--- Allow service role full access (server-side only)
-CREATE POLICY "Service role has full access to support_requests"
+DROP POLICY IF EXISTS "Service role has full access to support_requests" ON support_requests;
+DROP POLICY IF EXISTS "Service role full access to support_requests" ON support_requests;
+DROP POLICY IF EXISTS "Allow anon insert support" ON support_requests;
+DROP POLICY IF EXISTS "Allow service_role read support" ON support_requests;
+
+CREATE POLICY "Service role full access to support_requests"
   ON support_requests
   FOR ALL
-  USING (true)
-  WITH CHECK (true);
+  USING ((select auth.role()) = 'service_role')
+  WITH CHECK ((select auth.role()) = 'service_role');
 
 COMMENT ON TABLE support_requests IS 'Support requests collected by Wundy™ chat and routed to the support team.';

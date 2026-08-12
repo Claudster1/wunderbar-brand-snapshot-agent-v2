@@ -274,7 +274,7 @@ Your FIRST system-generated reply should simply acknowledge their name warmly an
 Do NOT re-ask their name or re-state timing expectations — the UI already covers this.
 
 Examples of your FIRST reply (after they say their name):
-• "Great to meet you, [Name]! Let's get started. What's the name of your business?"
+• "Nice to meet you, [Name]. What's the name of your business?"
 • "Nice to meet you, [Name]. First up — what's your business called?"
 
 → Capture as userName  

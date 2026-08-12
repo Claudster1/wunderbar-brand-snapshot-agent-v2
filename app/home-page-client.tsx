@@ -28,6 +28,15 @@ import {
   computeSeamlessWrapUpActive,
   lastMessageAwaitingUserReply,
 } from "@/lib/intake/computeSeamlessFinalizeUiState";
+import { extractMultiSelectOptions } from "@/lib/intake/extractMultiSelectOptions";
+import {
+  BETWEEN_BANDS_CHIP,
+  OTHER_CHIP,
+  resolveSuggestedReplies,
+} from "@/lib/intake/multiSelectChipCatalog";
+
+/** Chip labels that mean “type your answer” — never send the label alone. */
+const AFFORDANCE_CHIPS = new Set([OTHER_CHIP, BETWEEN_BANDS_CHIP]);
 
 export type HomePageClientProps = {
   tierParam: string | null;
@@ -549,11 +558,33 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     !isLoading &&
     !isFinalizing;
 
+  /** Legacy fallback: parse bullets if an older turn still listed options in the message. */
+  const messageDerivedQuickReplies = useMemo(() => {
+    if (!chatAwaitingChoiceOnLatestAssistant || !lastThreadMessage) return null;
+    if (lastThreadMessage.role !== "assistant") return null;
+    const fromMessage = extractMultiSelectOptions(lastThreadMessage.text);
+    return fromMessage.length > 0 ? fromMessage : null;
+  }, [chatAwaitingChoiceOnLatestAssistant, lastThreadMessage]);
+
+  /** Client-side topic chips when meta lags (e.g. goals narrative). */
+  const contextualQuickReplies = useMemo(() => {
+    if (!chatAwaitingChoiceOnLatestAssistant || !lastThreadMessage) return null;
+    if (lastThreadMessage.role !== "assistant") return null;
+    return resolveSuggestedReplies({
+      nextPendingKey: null,
+      lastAssistantText: lastThreadMessage.text,
+    });
+  }, [chatAwaitingChoiceOnLatestAssistant, lastThreadMessage]);
+
+  /** Prefer server chips (short question + pills); then topic detect; then legacy bullets. */
+  const quickReplyOptions =
+    (suggestedReplies && suggestedReplies.length > 0 ? suggestedReplies : null) ||
+    contextualQuickReplies ||
+    messageDerivedQuickReplies;
+
   const serverQuickReplies =
-    suggestedReplies &&
-    suggestedReplies.length > 0 &&
-    chatAwaitingChoiceOnLatestAssistant
-      ? { options: suggestedReplies }
+    quickReplyOptions && chatAwaitingChoiceOnLatestAssistant
+      ? { options: quickReplyOptions }
       : null;
 
   /** Client guard: meta can lag one turn behind the latest assistant question. */
@@ -605,8 +636,10 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const trimmed = inputValue.trim();
-    const pillLine =
-      selectedQuickReplyPills.length > 0 ? selectedQuickReplyPills.join(", ") : "";
+    // Affordance chips mean “type below” — send typed text, not those labels.
+    const pillLine = selectedQuickReplyPills
+      .filter((p) => !AFFORDANCE_CHIPS.has(p))
+      .join(", ");
     if (!trimmed && !pillLine) return;
     if (isFinalizing || isLoading) return;
 
@@ -1123,7 +1156,13 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                   <button
                     type="submit"
                     className="chat-send"
-                    disabled={isLoading || isFinalizing || isUploading || (!inputValue.trim() && selectedQuickReplyPills.length === 0)}
+                    disabled={
+                      isLoading ||
+                      isFinalizing ||
+                      isUploading ||
+                      (!inputValue.trim() &&
+                        selectedQuickReplyPills.filter((p) => !AFFORDANCE_CHIPS.has(p)).length === 0)
+                    }
                   >
                     {isUploading ? "Uploading…" : isLoading || isFinalizing ? "Sending…" : "Send"}
                   </button>

@@ -1,7 +1,7 @@
 import type { CaptureKey } from "@/lib/intake/flexibleDirectCaptureComplete";
 import { buildCapturedSummary } from "@/lib/intake/buildCapturedSummary";
-import { getSuggestedRepliesForCapture } from "@/lib/intake/captureSuggestedReplies";
 import type { IntakeMessage } from "@/lib/intake/buildIntakeTopicResume";
+import { resolveSuggestedReplies } from "@/lib/intake/multiSelectChipCatalog";
 import { getNarrativeCompletionState } from "@/lib/intake/narrativeMilestones";
 import type { IntakeResponseMeta } from "@/lib/intake/intakeTypes";
 import { intakeProgressDenominator, type ChatTier } from "@/lib/chatTierConfig";
@@ -59,7 +59,12 @@ export function buildIntakeResponseMeta(params: {
     !awaitingAnswerToAssistantQuestion &&
     userTurns >= 6;
 
-  const suggestedReplies = nextPendingKey ? getSuggestedRepliesForCapture(nextPendingKey) : null;
+  const lastAssistantText =
+    [...messages].reverse().find((m) => m.role === "assistant")?.content ?? null;
+  const suggestedReplies = resolveSuggestedReplies({
+    nextPendingKey,
+    lastAssistantText,
+  });
 
   return {
     captureCompletionPercent,

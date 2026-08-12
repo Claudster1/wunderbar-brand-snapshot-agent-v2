@@ -1,5 +1,8 @@
 import type { CaptureKey } from "@/lib/intake/flexibleDirectCaptureComplete";
 
+const OTHER = "Something else (type below)";
+const BETWEEN = "Between bands / not sure — describe below";
+
 /** Chip options for forced server captures — keeps answers fast and parseable. */
 export function getSuggestedRepliesForCapture(key: CaptureKey): string[] {
   switch (key) {
@@ -11,10 +14,10 @@ export function getSuggestedRepliesForCapture(key: CaptureKey): string[] {
         "Retail or in-person",
         "Physical product / wholesale",
         "Marketplace or platform",
-        "Let me describe it differently",
+        OTHER,
       ];
     case "audience_type_classifier":
-      return ["Mostly B2B", "Mostly B2C", "Meaningful mix of both", "Nonprofit / community-focused", "I'll describe my customers"];
+      return ["Mostly B2B", "Mostly B2C", "Meaningful mix of both", "Nonprofit / community-focused", OTHER];
     case "website_presence":
       return ["Yes, here's the URL", "No website yet", "Social / marketplace only", "Coming soon"];
     case "social_platform_presence":
@@ -25,7 +28,7 @@ export function getSuggestedRepliesForCapture(key: CaptureKey): string[] {
         "TikTok",
         "YouTube",
         "Not really active yet",
-        "Other",
+        OTHER,
       ];
     case "additional_marketing_surfaces":
       return [
@@ -36,11 +39,21 @@ export function getSuggestedRepliesForCapture(key: CaptureKey): string[] {
         "Events",
         "Mostly referrals",
         "Nothing else yet",
+        OTHER,
       ];
     case "monthly_revenue_range":
-      return ["Under $5k/mo", "$5k–$20k", "$20k–$50k", "$50k+", "Pre-revenue / just launching", "Prefer not to say"];
+      return [
+        "Under $5k/mo",
+        "$5k–$20k",
+        "$20k–$50k",
+        "$50k–$150k",
+        "$150k+",
+        "Pre-revenue / just launching",
+        "Prefer not to say",
+        BETWEEN,
+      ];
     case "average_transaction_value":
-      return ["Under $500", "$500–$2k", "$2k–$10k", "$10k+", "Varies a lot", "Not sure"];
+      return ["Under $500", "$500–$2k", "$2k–$10k", "$10k+", "Varies a lot", "Not sure", BETWEEN];
     case "conversion_rate_estimate":
       return ["I track it (~X%)", "I don't track this yet", "Rough guess", "Not sure"];
     case "primary_acquisition_channel":
@@ -52,9 +65,10 @@ export function getSuggestedRepliesForCapture(key: CaptureKey): string[] {
         "Direct / repeat",
         "Events / partnerships",
         "Mix of channels",
+        OTHER,
       ];
     case "monthly_marketing_budget":
-      return ["Under $500", "$500–$2k", "$2k–$5k", "$5k+", "$0 / not spending yet"];
+      return ["Under $500", "$500–$2k", "$2k–$5k", "$5k+", "$0 / not spending yet", BETWEEN];
     case "content_creation_capacity":
       return ["Under 2 hrs/week", "2–5 hrs/week", "5–10 hrs/week", "10+ hrs/week", "Minimal right now"];
     case "competitive_pressure_point":
@@ -74,6 +88,7 @@ export function getSuggestedRepliesForCapture(key: CaptureKey): string[] {
         "Referrals",
         "Events",
         "Mostly one channel",
+        OTHER,
       ];
     default:
       return [];

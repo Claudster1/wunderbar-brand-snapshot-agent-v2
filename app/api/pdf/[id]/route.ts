@@ -43,6 +43,16 @@ export async function GET(
       return NextResponse.json({ error: "Report not found" }, { status: 404 });
     }
 
+    const { authorizeReportRead } = await import("@/lib/reportAccess");
+    const access = await authorizeReportRead({
+      req,
+      reportId: id,
+      reportOwnerEmail: (report as { user_email?: string | null }).user_email,
+    });
+    if (!access.hasAccess) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    }
+
     // Generate PDF buffer
     const pdfBuffer = await renderReportPDF(report, plus);
 
@@ -66,21 +76,18 @@ export async function GET(
         );
       }
 
-      // Prefer public URL if bucket is public; otherwise provide a signed URL.
-      const { data: publicUrlData } = supabase.storage.from(bucket).getPublicUrl(fileName);
-      const publicUrl = publicUrlData?.publicUrl;
-
+      // Private buckets: return short-lived signed URLs only (never public URLs).
       let signedUrl: string | null = null;
       try {
         const { data: signed } = await supabase.storage
           .from(bucket)
-          .createSignedUrl(fileName, 60 * 60 * 24 * 7);
+          .createSignedUrl(fileName, 60 * 60);
         signedUrl = signed?.signedUrl || null;
       } catch {
         // ignore
       }
 
-      return NextResponse.json({ url: publicUrl, signedUrl });
+      return NextResponse.json({ url: signedUrl, signedUrl });
     }
 
     const filename = plus

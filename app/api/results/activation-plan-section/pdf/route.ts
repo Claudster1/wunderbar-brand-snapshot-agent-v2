@@ -3,7 +3,7 @@ import React from "react";
 import { apiGuard } from "@/lib/security/apiGuard";
 import { GENERAL_RATE_LIMIT } from "@/lib/security/rateLimit";
 import { supabaseAdmin } from "@/lib/supabase-admin";
-import { checkReportAccess, getUserEmailFromRequest } from "@/lib/reportAccess";
+import { authorizeReportRead } from "@/lib/reportAccess";
 import { ActivationPlanSectionDocument } from "@/src/pdf/documents/ActivationPlanSectionDocument";
 import { buildActivationPlanSectionsList } from "@/lib/activation/activationPlanModel";
 import { extractActivationPlanBodyFromSectionText } from "@/lib/activation/extractActivationPlanFromWorkbook";
@@ -52,8 +52,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Report not found" }, { status: 404 });
   }
 
-  const userEmail = getUserEmailFromRequest(req);
-  const access = checkReportAccess(userEmail, (report as any).user_email);
+  const access = await authorizeReportRead({
+    req,
+    reportId,
+    reportOwnerEmail: (report as any).user_email,
+  });
   if (!access.hasAccess) return NextResponse.json({ error: "Access denied" }, { status: 403 });
 
   if ((report as any).email_verified === false) {

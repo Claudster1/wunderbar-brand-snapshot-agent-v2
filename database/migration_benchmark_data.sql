@@ -40,3 +40,12 @@ CREATE INDEX IF NOT EXISTS idx_benchmark_created ON benchmark_data(created_at DE
 -- "What's the average score for B2B companies in [industry] with [revenue_range]?"
 CREATE INDEX IF NOT EXISTS idx_benchmark_segment
   ON benchmark_data(industry, audience_type, revenue_range);
+
+ALTER TABLE benchmark_data ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON TABLE benchmark_data FROM anon;
+REVOKE ALL ON TABLE benchmark_data FROM authenticated;
+DROP POLICY IF EXISTS "Service role full access to benchmark_data" ON benchmark_data;
+CREATE POLICY "Service role full access to benchmark_data"
+  ON benchmark_data FOR ALL
+  USING ((select auth.role()) = 'service_role')
+  WITH CHECK ((select auth.role()) = 'service_role');

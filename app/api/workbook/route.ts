@@ -569,10 +569,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ workbook, editability, isSample: true });
   }
 
-  if (!email) {
-    return NextResponse.json({ error: "email is required." }, { status: 400 });
-  }
-
   if (!supabaseAdmin) {
     return NextResponse.json({ error: "Database not configured." }, { status: 500 });
   }
@@ -585,6 +581,11 @@ export async function GET(req: NextRequest) {
     .single();
 
   if (existing) {
+    const { requireVerifiedEmail } = await import("@/lib/reportAccess");
+    const auth = requireVerifiedEmail(req, (existing as { email?: string | null }).email);
+    if ("error" in auth) return auth.error;
+
+    const email = auth.email;
     let hydratedWorkbook = existing;
 
     // Backfill legacy/incomplete workbooks so all sections are populated from report data.
@@ -688,6 +689,10 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.json({ workbook: hydratedWorkbook, editability });
+  }
+
+  if (!email) {
+    return NextResponse.json({ error: "email is required." }, { status: 400 });
   }
 
   // Auto-create from the diagnostic report

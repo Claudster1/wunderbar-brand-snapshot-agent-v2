@@ -13,6 +13,8 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, '.'),
       '@/assets': path.resolve(__dirname, './src/assets'),
+      // Next's server-only guard is not installed as a standalone package in this repo.
+      'server-only': path.resolve(__dirname, './node_modules/next/dist/compiled/server-only/empty.js'),
     },
   },
 });

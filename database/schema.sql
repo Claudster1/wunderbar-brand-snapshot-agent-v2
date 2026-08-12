@@ -317,6 +317,44 @@ CREATE TRIGGER update_onboarding_status_updated_at
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================
+-- RLS (service_role only — API routes bypass via service key)
+-- Full harden also in migration_harden_all_public_tables_rls.sql
+-- ============================================
+DO $$
+DECLARE
+  t text;
+  tables text[] := ARRAY[
+    'users',
+    'brand_snapshot_sessions',
+    'brand_snapshot_results',
+    'brand_snapshot_reports',
+    'brand_snapshot_plus_reports',
+    'brand_blueprint_sessions',
+    'brand_blueprint_results',
+    'brand_blueprint_plus_reports',
+    'user_purchases',
+    'onboarding_status'
+  ];
+BEGIN
+  FOREACH t IN ARRAY tables LOOP
+    EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY', t);
+    BEGIN
+      EXECUTE format('REVOKE ALL ON TABLE public.%I FROM anon', t);
+      EXECUTE format('REVOKE ALL ON TABLE public.%I FROM authenticated', t);
+    EXCEPTION WHEN undefined_object THEN
+      NULL;
+    END;
+    EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', 'Service role full access to ' || t, t);
+    EXECUTE format(
+      'CREATE POLICY %I ON public.%I FOR ALL
+         USING ((select auth.role()) = %L)
+         WITH CHECK ((select auth.role()) = %L)',
+      'Service role full access to ' || t, t, 'service_role', 'service_role'
+    );
+  END LOOP;
+END $$;
+
+-- ============================================
 -- NOTES
 -- ============================================
 -- 
@@ -331,3 +369,5 @@ CREATE TRIGGER update_onboarding_status_updated_at
 -- Foreign keys use ON DELETE CASCADE/SET NULL appropriately
 -- Indexes created for common query patterns
 -- Updated_at triggers automatically maintain timestamps
+-- RLS: anon/authenticated have no table access; use service_role in API routes
+

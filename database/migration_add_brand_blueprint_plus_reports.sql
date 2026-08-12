@@ -53,17 +53,13 @@ BEGIN
   END IF;
 END $$;
 
--- RLS recommendation (optional but strongly recommended if you enable login):
--- ALTER TABLE brand_blueprint_plus_reports ENABLE ROW LEVEL SECURITY;
--- CREATE POLICY "blueprint_plus_owner_read"
---   ON brand_blueprint_plus_reports
---   FOR SELECT
---   USING (auth.uid() = user_id);
--- CREATE POLICY "blueprint_plus_owner_update"
---   ON brand_blueprint_plus_reports
---   FOR UPDATE
---   USING (auth.uid() = user_id)
---   WITH CHECK (auth.uid() = user_id);
-
-
+-- Service-role only (API routes). Do not grant anon access.
+ALTER TABLE brand_blueprint_plus_reports ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON TABLE brand_blueprint_plus_reports FROM anon;
+REVOKE ALL ON TABLE brand_blueprint_plus_reports FROM authenticated;
+DROP POLICY IF EXISTS "Service role full access to brand_blueprint_plus_reports" ON brand_blueprint_plus_reports;
+CREATE POLICY "Service role full access to brand_blueprint_plus_reports"
+  ON brand_blueprint_plus_reports FOR ALL
+  USING ((select auth.role()) = 'service_role')
+  WITH CHECK ((select auth.role()) = 'service_role');
 

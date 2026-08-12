@@ -1,43 +1,51 @@
 // lib/reportAccess.ts
 // Report access control utilities
 //
-// SECURITY: Reports use UUID-based access (unguessable tokens) as the primary
-// access control. When the client also provides an email (via X-User-Email header
-// or `email` query param), we verify it matches the report owner for defense-in-depth.
+// SECURITY: Reports with an owner email require a verified-email session cookie
+// (issued after OTP). UUID possession alone is NOT enough — UUIDs leak via email,
+// logs, and referrers. Sample report IDs remain public.
+//
+// Intentional public exceptions:
+//   • sample-* report IDs (fixtures)
+//   • Valid shared_links token (?shareToken=) resolved server-side
 
 import { readSessionEmailFromCookieHeader } from "@/lib/auth/session";
 
 export interface ReportAccessCheck {
   hasAccess: boolean;
-  reason: "owner" | "uuid_only" | "denied";
+  reason: "owner" | "sample" | "no_owner" | "share_token" | "denied";
+}
+
+export function isSampleReportId(reportId: string | null | undefined): boolean {
+  return typeof reportId === "string" && reportId.startsWith("sample-");
 }
 
 /**
  * Check if a user has access to a report.
  *
  * Access rules:
- * 1. If userEmail is provided AND matches reportOwnerEmail → "owner" (full access)
- * 2. If userEmail is provided but does NOT match → "denied"
- * 3. If userEmail is not provided → "uuid_only" (UUID grants access for backward compat)
- *
- * This means: if you send an email, it MUST match. If you don't send one, UUID alone works.
+ * 1. Sample fixtures → allow
+ * 2. Report has no owner email (legacy) → allow by UUID (no PII owner to protect)
+ * 3. Verified/session email matches owner → allow
+ * 4. Otherwise → deny (including bare UUID with no session)
  */
 export function checkReportAccess(
   userEmail: string | null | undefined,
-  reportOwnerEmail: string | null | undefined
+  reportOwnerEmail: string | null | undefined,
+  reportId?: string | null,
 ): ReportAccessCheck {
-  // No email provided — UUID-only access (backward compatible)
-  if (!userEmail) {
-    return { hasAccess: true, reason: "uuid_only" };
+  if (isSampleReportId(reportId)) {
+    return { hasAccess: true, reason: "sample" };
   }
 
-  // Email provided — must match report owner
-  if (!reportOwnerEmail) {
-    // Report has no owner email (e.g., old records) — allow access
-    return { hasAccess: true, reason: "uuid_only" };
+  const owner = reportOwnerEmail?.trim().toLowerCase() || null;
+  if (!owner) {
+    // Legacy / orphan rows with no owner — UUID is the only handle.
+    return { hasAccess: true, reason: "no_owner" };
   }
 
-  if (userEmail.toLowerCase() === reportOwnerEmail.toLowerCase()) {
+  const email = userEmail?.trim().toLowerCase() || null;
+  if (email && email === owner) {
     return { hasAccess: true, reason: "owner" };
   }
 
@@ -55,26 +63,108 @@ export function getVerifiedEmailFromRequest(req: Request): string | null {
 }
 
 /**
- * Extract user email from request. Prefers the trusted verified-session cookie;
- * falls back to the (unverified, legacy) X-User-Email header or `email` query
- * param for backward compatibility during the migration to sessions.
- *
- * For anything sensitive (enumeration, PII, paid content) use
- * getVerifiedEmailFromRequest instead so unverified input is never trusted.
+ * @deprecated Prefer getVerifiedEmailFromRequest for any sensitive read.
+ * Falls back to spoofable header/query — do not use for PII/enumeration.
  */
 export function getUserEmailFromRequest(req: Request): string | null {
-  // Trusted: verified-email session cookie
   const sessionEmail = getVerifiedEmailFromRequest(req);
   if (sessionEmail) return sessionEmail;
 
-  // Legacy fallback (unverified) — X-User-Email header
   const headerEmail = req.headers.get("x-user-email");
   if (headerEmail) return headerEmail.trim().toLowerCase();
 
-  // Legacy fallback (unverified) — query param
   const url = new URL(req.url);
   const paramEmail = url.searchParams.get("email");
   if (paramEmail) return paramEmail.trim().toLowerCase();
 
   return null;
+}
+
+/**
+ * For dashboard/enumeration APIs: require verified session.
+ * Optionally ensure query/body email (if provided) matches the session.
+ */
+export function requireVerifiedEmail(
+  req: Request,
+  claimedEmail?: string | null,
+): { email: string } | { error: Response } {
+  const email = getVerifiedEmailFromRequest(req);
+  if (!email) {
+    return {
+      error: new Response(JSON.stringify({ error: "Authentication required" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      }),
+    };
+  }
+  if (claimedEmail && claimedEmail.trim().toLowerCase() !== email) {
+    return {
+      error: new Response(JSON.stringify({ error: "Access denied" }), {
+        status: 403,
+        headers: { "Content-Type": "application/json" },
+      }),
+    };
+  }
+  return { email };
+}
+
+/**
+ * Validate a share token for a given report. Returns true if the token is
+ * active, non-expired, and bound to reportId.
+ */
+export async function isValidShareTokenForReport(
+  shareToken: string | null | undefined,
+  reportId: string,
+): Promise<boolean> {
+  const token = shareToken?.trim();
+  if (!token || token.length < 10) return false;
+
+  const { supabaseAdmin } = await import("@/lib/supabase-admin");
+  if (!supabaseAdmin) return false;
+
+  const { data, error } = await (supabaseAdmin.from("shared_links" as any) as any)
+    .select("report_id, is_revoked, expires_at, max_access_count, access_count")
+    .eq("token", token)
+    .maybeSingle();
+
+  if (error || !data) return false;
+  if (data.is_revoked) return false;
+  if (String(data.report_id) !== String(reportId)) return false;
+  if (data.expires_at && new Date(data.expires_at).getTime() < Date.now()) return false;
+  if (
+    data.max_access_count != null &&
+    typeof data.access_count === "number" &&
+    data.access_count >= data.max_access_count
+  ) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Authorize reading a report/PDF: verified owner, sample, no-owner legacy,
+ * or valid ?shareToken=.
+ */
+export async function authorizeReportRead(params: {
+  req: Request;
+  reportId: string;
+  reportOwnerEmail?: string | null;
+}): Promise<ReportAccessCheck> {
+  const { req, reportId, reportOwnerEmail } = params;
+
+  if (isSampleReportId(reportId)) {
+    return { hasAccess: true, reason: "sample" };
+  }
+
+  const verified = getVerifiedEmailFromRequest(req);
+  const access = checkReportAccess(verified, reportOwnerEmail, reportId);
+  if (access.hasAccess) return access;
+
+  const url = new URL(req.url);
+  const shareToken = url.searchParams.get("shareToken") || url.searchParams.get("token");
+  if (shareToken && (await isValidShareTokenForReport(shareToken, reportId))) {
+    return { hasAccess: true, reason: "share_token" };
+  }
+
+  return { hasAccess: false, reason: "denied" };
 }

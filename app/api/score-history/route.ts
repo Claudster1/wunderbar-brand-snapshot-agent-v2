@@ -12,11 +12,11 @@ export async function GET(req: Request) {
   if (!guard.passed) return guard.errorResponse;
 
   const { searchParams } = new URL(req.url);
-  const email = searchParams.get("email");
+  const claimedEmail = searchParams.get("email");
 
-  if (!email) {
-    return NextResponse.json({ history: [] });
-  }
+  const { requireVerifiedEmail } = await import("@/lib/reportAccess");
+  const auth = requireVerifiedEmail(req, claimedEmail);
+  if ("error" in auth) return auth.error;
 
   try {
     const supabase = supabaseServer();
@@ -24,7 +24,7 @@ export async function GET(req: Request) {
     const { data, error } = await supabase
       .from("brand_snapshot_reports")
       .select("report_id, brand_alignment_score, pillar_scores, company_name, brand_name, created_at")
-      .eq("user_email", email.toLowerCase())
+      .eq("user_email", auth.email)
       .order("created_at", { ascending: true });
 
     if (error) {

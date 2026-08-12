@@ -906,8 +906,14 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Report not found" }, { status: 404 });
     }
 
-    if (email && report.user_email?.toLowerCase() !== email.toLowerCase()) {
-      return NextResponse.json({ error: "Email mismatch" }, { status: 403 });
+    const { authorizeReportRead } = await import("@/lib/reportAccess");
+    const access = await authorizeReportRead({
+      req,
+      reportId,
+      reportOwnerEmail: report.user_email,
+    });
+    if (!access.hasAccess) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
     const reportTier = normalizeTier(report.tier || requestedTier);

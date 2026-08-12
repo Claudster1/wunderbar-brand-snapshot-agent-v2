@@ -6,7 +6,7 @@ import { logger } from "@/lib/logger";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { apiGuard } from "@/lib/security/apiGuard";
 import { GENERAL_RATE_LIMIT } from "@/lib/security/rateLimit";
-import { checkReportAccess, getUserEmailFromRequest } from "@/lib/reportAccess";
+import { authorizeReportRead } from "@/lib/reportAccess";
 
 type SampleReport = {
   report_id: string;
@@ -168,7 +168,7 @@ export async function GET(req: Request) {
     if (sampleReport) {
       return NextResponse.json(sampleReport, {
         headers: {
-          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+          "Cache-Control": "private, no-store",
         },
       });
     }
@@ -219,9 +219,12 @@ export async function GET(req: Request) {
       );
     }
 
-    // ─── Authorization: verify email matches report owner ───
-    const userEmail = getUserEmailFromRequest(req);
-    const access = checkReportAccess(userEmail, (data as any).user_email);
+    // ─── Authorization: verified owner session or valid share token ───
+    const access = await authorizeReportRead({
+      req,
+      reportId: id,
+      reportOwnerEmail: (data as any).user_email,
+    });
     if (!access.hasAccess) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
@@ -280,7 +283,7 @@ export async function GET(req: Request) {
     // Cache report data for 60 seconds (revalidate in background)
     return NextResponse.json(out, {
       headers: {
-        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        "Cache-Control": "private, no-store",
       },
     });
   } catch (err: unknown) {

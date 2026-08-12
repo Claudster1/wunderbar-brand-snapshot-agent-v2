@@ -3,7 +3,7 @@ import writeXlsxFile from "write-excel-file/node";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { apiGuard } from "@/lib/security/apiGuard";
 import { GENERAL_RATE_LIMIT } from "@/lib/security/rateLimit";
-import { checkReportAccess, getUserEmailFromRequest } from "@/lib/reportAccess";
+import { authorizeReportRead } from "@/lib/reportAccess";
 
 type Row = {
   Week: number;
@@ -123,8 +123,11 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Report not found" }, { status: 404 });
   }
 
-  const userEmail = getUserEmailFromRequest(req);
-  const access = checkReportAccess(userEmail, (data as { user_email?: string }).user_email);
+  const access = await authorizeReportRead({
+    req,
+    reportId,
+    reportOwnerEmail: (data as { user_email?: string }).user_email,
+  });
   if (!access.hasAccess) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }

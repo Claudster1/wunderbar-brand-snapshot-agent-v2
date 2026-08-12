@@ -113,14 +113,15 @@ export async function GET(req: Request) {
 
   const { searchParams } = new URL(req.url);
   const userId = searchParams.get("userId");
-  const email = searchParams.get("email");
+  const claimedEmail = searchParams.get("email");
   const search = searchParams.get("q")?.toLowerCase().trim();
   const brandFilter = searchParams.get("brand")?.trim();
 
-  // Prod snapshot tables key history by email (no user_id column).
-  if (!email) return NextResponse.json([]);
+  const { requireVerifiedEmail } = await import("@/lib/reportAccess");
+  const auth = requireVerifiedEmail(req, claimedEmail);
+  if ("error" in auth) return auth.error;
 
-  const normalizedEmail = email.toLowerCase();
+  const normalizedEmail = auth.email;
   const supabase = supabaseServer();
   const items: HistoryItem[] = [];
 

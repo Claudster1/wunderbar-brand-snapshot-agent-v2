@@ -50,6 +50,31 @@ function isDocTypeAllowedForTier(
   return false;
 }
 
+async function verifiedEmailOwnsReport(
+  supabase: ReturnType<typeof supabaseServer>,
+  reportId: string,
+  email: string,
+): Promise<boolean> {
+  const tables: Array<{ table: string; idCols: string[] }> = [
+    { table: "brand_snapshot_reports", idCols: ["report_id", "id"] },
+    { table: "blueprint_reports", idCols: ["report_id", "id"] },
+    { table: "brand_snapshot_plus_reports", idCols: ["report_id", "id"] },
+    { table: "brand_blueprint_plus_reports", idCols: ["report_id", "id"] },
+  ];
+
+  for (const { table, idCols } of tables) {
+    for (const idCol of idCols) {
+      const { data } = await (supabase.from(table as any) as any)
+        .select("user_email")
+        .eq(idCol, reportId)
+        .eq("user_email", email)
+        .maybeSingle();
+      if (data) return true;
+    }
+  }
+  return false;
+}
+
 export async function POST(req: Request) {
   const { apiGuard } = await import("@/lib/security/apiGuard");
   const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
@@ -58,11 +83,15 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { reportId, documentType, tier, email, expiryDays, label } = body;
+    const { reportId, documentType, tier, email: claimedEmail, expiryDays, label } = body;
 
-    if (!reportId || !email) {
+    if (!reportId) {
       return NextResponse.json({ error: "Missing reportId or email" }, { status: 400 });
     }
+
+    const { requireVerifiedEmail } = await import("@/lib/reportAccess");
+    const auth = requireVerifiedEmail(req, claimedEmail);
+    if ("error" in auth) return auth.error;
 
     const docType = documentType || "report";
     const reportTier =
@@ -80,11 +109,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Document type is not available for this tier" }, { status: 400 });
     }
 
+    const supabase = supabaseServer();
+    const ownsReport = await verifiedEmailOwnsReport(supabase, reportId, auth.email);
+    if (!ownsReport) {
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    }
+
     const days = Math.min(Math.max(expiryDays || DEFAULT_EXPIRY_DAYS, 1), MAX_EXPIRY_DAYS);
     const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
     const token = randomBytes(24).toString("base64url");
-
-    const supabase = supabaseServer();
 
     const { data, error } = await (supabase
       .from("shared_links" as any)
@@ -93,7 +126,7 @@ export async function POST(req: Request) {
         report_id: reportId,
         document_type: docType,
         tier: reportTier,
-        created_by: email.toLowerCase(),
+        created_by: auth.email,
         expires_at: expiresAt,
         label: label || null,
       } as any)

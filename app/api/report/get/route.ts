@@ -32,10 +32,12 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Report not found" }, { status: 404 });
     }
 
-    // ─── Authorization: verify email matches report owner ───
-    const { checkReportAccess, getUserEmailFromRequest } = await import("@/lib/reportAccess");
-    const userEmail = getUserEmailFromRequest(request);
-    const access = checkReportAccess(userEmail, (data as any).user_email);
+    const { authorizeReportRead } = await import("@/lib/reportAccess");
+    const access = await authorizeReportRead({
+      req: request,
+      reportId: id,
+      reportOwnerEmail: (data as any).user_email,
+    });
     if (!access.hasAccess) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }

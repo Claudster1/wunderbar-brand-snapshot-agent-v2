@@ -48,10 +48,12 @@ export async function GET(
       );
     }
 
-    // ─── Authorization: verify email matches report owner ───
-    const { checkReportAccess, getUserEmailFromRequest } = await import("@/lib/reportAccess");
-    const userEmail = getUserEmailFromRequest(request);
-    const access = checkReportAccess(userEmail, data.user_email);
+    const { authorizeReportRead } = await import("@/lib/reportAccess");
+    const access = await authorizeReportRead({
+      req: request,
+      reportId: id,
+      reportOwnerEmail: data.user_email,
+    });
     if (!access.hasAccess) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }

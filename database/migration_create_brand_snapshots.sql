@@ -9,3 +9,12 @@ create table if not exists brand_snapshots (
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
+
+ALTER TABLE brand_snapshots ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON TABLE brand_snapshots FROM anon;
+REVOKE ALL ON TABLE brand_snapshots FROM authenticated;
+DROP POLICY IF EXISTS "Service role full access to brand_snapshots" ON brand_snapshots;
+CREATE POLICY "Service role full access to brand_snapshots"
+  ON brand_snapshots FOR ALL
+  USING ((select auth.role()) = 'service_role')
+  WITH CHECK ((select auth.role()) = 'service_role');

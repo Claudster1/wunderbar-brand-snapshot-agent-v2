@@ -23,3 +23,12 @@ CREATE INDEX IF NOT EXISTS idx_brand_team_members_member_email
 -- Create unique constraint to prevent duplicate team member relationships
 CREATE UNIQUE INDEX IF NOT EXISTS idx_brand_team_members_unique 
   ON brand_team_members (owner_email, member_email);
+
+ALTER TABLE brand_team_members ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON TABLE brand_team_members FROM anon;
+REVOKE ALL ON TABLE brand_team_members FROM authenticated;
+DROP POLICY IF EXISTS "Service role full access to brand_team_members" ON brand_team_members;
+CREATE POLICY "Service role full access to brand_team_members"
+  ON brand_team_members FOR ALL
+  USING ((select auth.role()) = 'service_role')
+  WITH CHECK ((select auth.role()) = 'service_role');

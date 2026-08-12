@@ -23,14 +23,15 @@ export async function GET(req: NextRequest) {
       .from("brand_snapshot_reports")
       .select("user_email")
       .or(`report_id.eq.${reportId},id.eq.${reportId}`)
-      .maybeSingle();
+      .maybeSingle() as { data: { user_email: string | null } | null };
 
-    if (!report?.user_email) {
+    const ownerEmail = report?.user_email?.trim().toLowerCase() || null;
+    if (!ownerEmail) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
     const { requireVerifiedEmail } = await import("@/lib/reportAccess");
-    const auth = requireVerifiedEmail(req, report.user_email);
+    const auth = requireVerifiedEmail(req, ownerEmail);
     if ("error" in auth) return auth.error;
 
     // Get survey for this report

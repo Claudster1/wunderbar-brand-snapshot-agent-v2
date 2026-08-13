@@ -31,6 +31,22 @@ describe("buildIntakeTopicResumeLines", () => {
     expect(joined).toMatch(/CUSTOMERS/i);
   });
 
+  it("does not mark narrative topics done from assistant-only playbook phrasing", () => {
+    const lines = buildIntakeTopicResumeLines([
+      { role: "user", content: "Claudine" },
+      {
+        role: "assistant",
+        content:
+          "Who are your competitors or alternatives in your space? What makes you different? What's your biggest challenge with launching?",
+      },
+      { role: "user", content: "hi" },
+    ]);
+    const joined = lines.join(" ");
+    expect(joined).not.toMatch(/COMPETITOR/i);
+    expect(joined).not.toMatch(/DIFFERENTIATION/i);
+    expect(joined).not.toMatch(/BIGGEST CHALLENGE/i);
+  });
+
   it("emits wrap-up guard when captures are complete", () => {
     const wrap = buildIntakeWrapUpGuardLines(sampleThread, 100, []);
     expect(wrap.length).toBeGreaterThan(0);

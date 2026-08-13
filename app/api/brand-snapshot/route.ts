@@ -279,7 +279,14 @@ function shouldIncludeCaptureForTier(capture: CaptureKey, tier: IntakeTier): boo
     return core.includes(capture) || advanced.includes(capture) || SNAPSHOT_DIGITAL_BASELINE.includes(capture);
   }
   if (tier === "blueprint" || tier === "blueprint-plus") {
-    return core.includes(capture) || advanced.includes(capture) || blueprintConversion.includes(capture);
+    // Include Snapshot digital baseline so cold Blueprint starts still capture website/social
+    // (upgrade-with-prior already marks these complete via priorAnswersCapture).
+    return (
+      core.includes(capture) ||
+      advanced.includes(capture) ||
+      blueprintConversion.includes(capture) ||
+      SNAPSHOT_DIGITAL_BASELINE.includes(capture)
+    );
   }
   return false;
 }
@@ -423,7 +430,8 @@ function getCaptureStates(
           ),
         ) ||
         refused(/\bhow you (get paid|make money)|business model|primary revenue\b/i) ||
-        flexibleDirectCaptureComplete("business_type_classifier", la, lu),
+        flexibleDirectCaptureComplete("business_type_classifier", la, lu) ||
+        captureKeySatisfiedFromHistory("business_type_classifier", messages),
     },
     {
       key: "audience_type_classifier",
@@ -499,7 +507,8 @@ function getCaptureStates(
         ) ||
         revenueLooseOk ||
         refused(/\bmonthly revenue|month to month|transaction volume|how much you bring in\b/i) ||
-        flexibleDirectCaptureComplete("monthly_revenue_range", la, lu),
+        flexibleDirectCaptureComplete("monthly_revenue_range", la, lu) ||
+        captureKeySatisfiedFromHistory("monthly_revenue_range", messages),
     },
     {
       key: "average_transaction_value",
@@ -518,19 +527,23 @@ function getCaptureStates(
         hasSignal(messages, /\bconversion rate|close rate|i don't track this|do not track\b/i) ||
         hasRecentUserSignal(messages, CONVERSION_RATE_SIGNAL, 5) ||
         refused(/\bconversion rate|close rate|win rate\b/i) ||
-        flexibleDirectCaptureComplete("conversion_rate_estimate", la, lu),
+        flexibleDirectCaptureComplete("conversion_rate_estimate", la, lu) ||
+        captureKeySatisfiedFromHistory("conversion_rate_estimate", messages),
     },
     {
       key: "primary_acquisition_channel",
       label: "primary acquisition channel",
       completed:
-        hasSignal(
+        // Prefer recent/discovery-shaped signals — bare "events"/"direct" anywhere in the chat
+        // was marking this complete before the discovery question was asked.
+        hasRecentUserSignal(
           messages,
-          /\breferral|organic search|social media|paid advertising|\bdirect\b|\bevents?\b|mix of channels\b/i,
+          /\b(word of mouth|wom|mostly referrals|organic search|social media|paid advertising|mix of channels|referrals? \/ word of mouth|direct \/ repeat|events \/ partnerships)\b/i,
+          5,
         ) ||
         hasRecentUserSignal(
           messages,
-          /\b(word of mouth|wom|mostly referrals|google|organic|seo|sem|search ads?|linkedin|instagram|tiktok|facebook|meta|youtube|twitter|threads|\bx\b|cold (email|outreach|dm)|outbound|inbound|partnerships?|affiliates?|marketplaces?|pr\b|podcast|newsletter|community|webinars?|trade shows?|conferences?|content marketing|thought leadership|mix of channels|network(ing)?|recommend(ed|ations)?)\b/i,
+          /\b(mostly referrals|google|organic|seo|sem|search ads?|linkedin|instagram|tiktok|facebook|meta|youtube|twitter|threads|\bx\b|cold (email|outreach|dm)|outbound|inbound|partnerships?|affiliates?|marketplaces?|pr\b|podcast|newsletter|community|webinars?|trade shows?|conferences?|content marketing|thought leadership|network(ing)?|recommend(ed|ations)?)\b/i,
           5,
         ) ||
         refused(/\bacquisition channel|where (customers|clients) find you|lead source|discovers you|brand-?new prospect\b/i) ||
@@ -549,7 +562,8 @@ function getCaptureStates(
         ) ||
         marketingBudgetLooseOk ||
         refused(/\bmarketing budget|budget range|ad spend\b/i) ||
-        flexibleDirectCaptureComplete("monthly_marketing_budget", la, lu),
+        flexibleDirectCaptureComplete("monthly_marketing_budget", la, lu) ||
+        captureKeySatisfiedFromHistory("monthly_marketing_budget", messages),
     },
     {
       key: "content_creation_capacity",
@@ -562,7 +576,8 @@ function getCaptureStates(
           5,
         ) ||
         refused(/\bcontent creation|hours per week|time for content\b/i) ||
-        flexibleDirectCaptureComplete("content_creation_capacity", la, lu),
+        flexibleDirectCaptureComplete("content_creation_capacity", la, lu) ||
+        captureKeySatisfiedFromHistory("content_creation_capacity", messages),
     },
     {
       key: "competitive_pressure_point",
@@ -592,9 +607,11 @@ function getCaptureStates(
       label: "email list status",
       completed:
         bareEmailListAnswer ||
-        hasSignal(
+        // Avoid global "not yet" — that phrase appears for many other topics and skipped this capture.
+        hasRecentUserSignal(
           messages,
-          /\bemail list|newsletter list|mailing list|we (have|don't have|do not have) an email list|no email list|not yet|starting|building (a )?list|small list\b/i,
+          /\b(email list|newsletter list|mailing list|we (have|don't have|do not have) an email list|no email list|building (a )?list|small list|starting (a )?list)\b/i,
+          5,
         ) ||
         hasRecentUserSignal(
           messages,
@@ -602,16 +619,19 @@ function getCaptureStates(
           5,
         ) ||
         refused(/\bemail list|newsletter|mailing list\b/i) ||
-        flexibleDirectCaptureComplete("has_email_list", la, lu),
+        flexibleDirectCaptureComplete("has_email_list", la, lu) ||
+        captureKeySatisfiedFromHistory("has_email_list", messages),
     },
     {
       key: "has_lead_magnet",
       label: "free offer / lead capture status",
       completed:
         bareLeadMagnetAnswer ||
-        hasSignal(
+        // Avoid global "not yet" / "don't have" — too easy to match earlier narrative answers.
+        hasRecentUserSignal(
           messages,
-          /\blead magnet|lead capture|opt-?in|downloadable guide|free checklist|gated content|lead form|free resource|not yet|don't have|do not have|haven't|no we don't|nothing yet|we're not|we are not|skipped|no,? not really\b/i,
+          /\b(lead magnet|lead capture|opt-?in|downloadable guide|free checklist|gated content|lead form|free resource|no lead magnet|no free (download|offer|guide))\b/i,
+          5,
         ) ||
         hasRecentUserSignal(
           messages,
@@ -619,15 +639,17 @@ function getCaptureStates(
           5,
         ) ||
         refused(/\blead magnet|lead capture|opt-?in|free (download|resource|offer)\b/i) ||
-        flexibleDirectCaptureComplete("has_lead_magnet", la, lu),
+        flexibleDirectCaptureComplete("has_lead_magnet", la, lu) ||
+        captureKeySatisfiedFromHistory("has_lead_magnet", messages),
     },
     {
       key: "has_clear_cta",
       label: "primary CTA clarity",
       completed:
-        hasSignal(
+        hasRecentUserSignal(
           messages,
-          /\bclear cta|call to action|book a call|get started|schedule (a )?demo|request a quote|next step is clear|next step|a bit mixed|still figuring|not sure yet\b/i,
+          /\b(clear cta|call to action|book a call|get started|schedule (a )?demo|request a quote|next step is clear|a bit mixed|still figuring)\b/i,
+          5,
         ) ||
         hasRecentUserSignal(
           messages,
@@ -635,7 +657,8 @@ function getCaptureStates(
           5,
         ) ||
         refused(/\bcall to action|cta|next step|main action on (the )?site\b/i) ||
-        flexibleDirectCaptureComplete("has_clear_cta", la, lu),
+        flexibleDirectCaptureComplete("has_clear_cta", la, lu) ||
+        captureKeySatisfiedFromHistory("has_clear_cta", messages),
     },
     {
       key: "marketing_channel_mix",
@@ -730,11 +753,10 @@ function forcedPromptRepeatCount(
 }
 
 /**
- * Soft-skip when the same capture has already been asked once. Previously required `>= 2`, which
- * meant users had to see the question twice (and reply twice) before the system gave up. That was
- * the visible "repeating question" loop. Now: if the forced prompt has appeared *or* the model has
- * already paraphrased the same capture topic, we treat the next pending check as soft-skipped so
- * the conversation moves on. The downstream transcript extract still pulls whatever the user said.
+ * Soft-skip only after the same capture was asked twice without a parseable answer.
+ * Asking once is not enough — that permanently skipped thin answers and hurt scoring.
+ * History scans (`captureKeySatisfiedFromHistory`) prevent the "valid answer then re-ask" loop.
+ * After two asks, advance so users are never stuck; transcript extract can still recover signal.
  */
 function shouldSoftSkipDueToForcedPromptLoop(
   messages: Array<{ role: string; content: string }>,
@@ -742,7 +764,7 @@ function shouldSoftSkipDueToForcedPromptLoop(
   pendingKey?: CaptureKey,
 ): boolean {
   const verbatim = forcedPromptRepeatCount(messages, forcedPrompt);
-  if (verbatim >= 1) return true;
+  if (verbatim >= 2) return true;
   if (!pendingKey) return false;
   const paraphraseCount = messages
     .filter((m) => m.role === "assistant")
@@ -750,7 +772,7 @@ function shouldSoftSkipDueToForcedPromptLoop(
       (n, m) => (responseRequestsExpectedCapture(m.content || "", pendingKey) ? n + 1 : n),
       0,
     );
-  return paraphraseCount >= 1;
+  return paraphraseCount >= 2;
 }
 
 function buildCaptureQuestion(
@@ -1008,6 +1030,7 @@ function buildDeterministicRoutingGuard(
     "DETERMINISTIC ROUTING GUARD (SERVER ENFORCED):",
     `- ${getBusinessTypeRoutingNotes(inferredType)}`,
     "- Ask one question at a time, and prioritize missing required captures before wrap-up.",
+    "- If the latest user answer is too vague for a reliable score (e.g. 'stuff', 'not sure', 'a bit of everything' with no channel/amount/factor), ask **one** short clarifying follow-up on that same topic — then accept and move on. Do **not** re-ask a completed capture or a topic already listed under INTAKE TOPIC RESUME.",
     `- Step-state completion: ${completionPercent}%`,
     `- Next required capture (strict order): ${nextCapture}.`,
     `- Pending required captures right now: ${pending.length ? pending.map((x) => x.label).join(", ") : "none"}.`,

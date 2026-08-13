@@ -30,6 +30,23 @@ describe("priorAnswersCapture", () => {
     expect(keys.has("website_presence")).toBe(true);
     expect(keys.has("social_platform_presence")).toBe(true);
     expect(keys.has("business_type_classifier")).toBe(true);
+    // Challenge / differentiation / competitor names must not skip win-loss pressure.
+    expect(keys.has("competitive_pressure_point")).toBe(false);
+    // marketingChannels alone must not skip primary discovery channel.
+    expect(keys.has("primary_acquisition_channel")).toBe(false);
+    expect(keys.has("additional_marketing_surfaces")).toBe(true);
+  });
+
+  it("marks primary acquisition and competitive pressure only from explicit prior fields", () => {
+    const keys = getPriorSatisfiedCaptureKeys(
+      {
+        ...samplePrior,
+        topAcquisitionChannel: "referral",
+        competitivePressurePoint: "price",
+      },
+      "snapshot-plus",
+    );
+    expect(keys.has("primary_acquisition_channel")).toBe(true);
     expect(keys.has("competitive_pressure_point")).toBe(true);
   });
 

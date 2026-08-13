@@ -10,10 +10,6 @@ function bool(v: unknown): boolean | null {
   return typeof v === "boolean" ? v : null;
 }
 
-function arr(v: unknown): unknown[] {
-  return Array.isArray(v) ? v : [];
-}
-
 function hasTruthyString(v: unknown): boolean {
   return typeof v === "string" && v.trim().length > 0;
 }
@@ -51,10 +47,10 @@ export function getPriorSatisfiedCaptureKeys(
     done.add("social_platform_presence");
   }
 
+  // Broader channel lists answer "surfaces / mix" — not the primary discovery channel alone.
   const channels = prior.marketingChannels ?? prior.customerAcquisitionSource;
   if (hasNonEmptyArray(channels) || str(prior.customerAcquisitionSource)) {
     done.add("additional_marketing_surfaces");
-    done.add("primary_acquisition_channel");
     if (tier !== "snapshot") {
       done.add("marketing_channel_mix");
     }
@@ -72,7 +68,8 @@ export function getPriorSatisfiedCaptureKeys(
     done.add("conversion_rate_estimate");
   }
 
-  if (str(prior.topAcquisitionChannel) || hasNonEmptyArray(prior.customerAcquisitionSource)) {
+  // Primary acquisition needs an explicit top channel or acquisition-source field — not marketingChannels alone.
+  if (str(prior.topAcquisitionChannel) || hasNonEmptyArray(prior.customerAcquisitionSource) || str(prior.customerAcquisitionSource)) {
     done.add("primary_acquisition_channel");
   }
 
@@ -88,10 +85,12 @@ export function getPriorSatisfiedCaptureKeys(
     done.add("content_creation_capacity");
   }
 
+  // Competitive pressure = why buyers choose others. Competitor names / differentiation / challenge
+  // are related narrative topics but must not skip the win-loss pressure capture on upgrade.
   if (
-    hasNonEmptyArray(prior.competitorNames) ||
-    str(prior.whatMakesYouDifferent) ||
-    str(prior.biggestChallenge)
+    str(prior.competitivePressurePoint) ||
+    str(prior.competitivePressure) ||
+    str(prior.winLossReason)
   ) {
     done.add("competitive_pressure_point");
   }

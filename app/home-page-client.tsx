@@ -35,8 +35,14 @@ import {
   resolveSuggestedReplies,
 } from "@/lib/intake/multiSelectChipCatalog";
 
-/** Chip labels that mean “type your answer” — never send the label alone. */
-const AFFORDANCE_CHIPS = new Set([OTHER_CHIP, BETWEEN_BANDS_CHIP]);
+/** Chip labels that mean “type your answer” — never send the label alone (even in single-select). */
+const AFFORDANCE_CHIPS = new Set([
+  OTHER_CHIP,
+  BETWEEN_BANDS_CHIP,
+  "Yes, here's the URL",
+  "I track it (~X%)",
+  "Rough guess",
+]);
 
 export type HomePageClientProps = {
   tierParam: string | null;
@@ -168,6 +174,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     clearFinalizeError,
     intakeReadyForFinalize,
     suggestedReplies,
+    chipSelectionMode,
     capturedSummary,
     questionsRemainingEstimate,
   } = useBrandChat({
@@ -368,6 +375,58 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
       setSelectedQuickReplyPills((prev) => (prev.includes(opt) ? prev.filter((o) => o !== opt) : [...prev, opt]));
     },
     [isFinalizing, isLoading, isUploading],
+  );
+
+  const sendComposerOutgoing = useCallback(
+    async (outgoing: string) => {
+      if (!outgoing.trim() || isFinalizing || isLoading) return;
+      if (honeypot) {
+        setInputValue("");
+        setSelectedQuickReplyPills([]);
+        return;
+      }
+
+      if (!snapshotStartFiredRef.current) {
+        snapshotStartFiredRef.current = true;
+        let alreadyStarted = false;
+        try {
+          alreadyStarted = sessionStorage.getItem("wb_snapshot_started") === "1";
+          sessionStorage.setItem("wb_snapshot_started", "1");
+        } catch {}
+        if (!alreadyStarted) trackSnapshotStart();
+      }
+
+      behaviorTrackerRef.current?.recordMessage(outgoing);
+      if (behaviorTrackerRef.current) {
+        (window as any).__behavioralSignals = behaviorTrackerRef.current.getSignals();
+      }
+
+      await sendMessage(outgoing);
+      setInputValue("");
+      setSelectedQuickReplyPills([]);
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    },
+    [honeypot, isFinalizing, isLoading, sendMessage],
+  );
+
+  /** Single-select: one tap sends. Affordance chips ("type below") focus the textarea instead. */
+  const handleQuickReplyChip = useCallback(
+    (opt: string) => {
+      if (isLoading || isFinalizing || isUploading) return;
+      if (AFFORDANCE_CHIPS.has(opt)) {
+        setSelectedQuickReplyPills([opt]);
+        setTimeout(() => inputRef.current?.focus(), 0);
+        return;
+      }
+      if (chipSelectionMode === "single") {
+        void sendComposerOutgoing(opt);
+        return;
+      }
+      toggleQuickReplyPill(opt);
+    },
+    [chipSelectionMode, isFinalizing, isLoading, isUploading, sendComposerOutgoing, toggleQuickReplyPill],
   );
 
   // Save progress and email a resume link
@@ -641,43 +700,13 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
       .filter((p) => !AFFORDANCE_CHIPS.has(p))
       .join(", ");
     if (!trimmed && !pillLine) return;
-    if (isFinalizing || isLoading) return;
-
-    if (honeypot) {
-      setInputValue("");
-      setSelectedQuickReplyPills([]);
-      return;
-    }
 
     const outgoing =
       trimmed && pillLine
         ? `${pillLine}. ${trimmed}`
         : pillLine || trimmed;
 
-    // Fire the "diagnostic started" micro-conversion once per session, on the
-    // user's first real message (StartTrial / GA begin). Deduped via ref +
-    // sessionStorage so reloads mid-diagnostic don't re-count.
-    if (!snapshotStartFiredRef.current) {
-      snapshotStartFiredRef.current = true;
-      let alreadyStarted = false;
-      try {
-        alreadyStarted = sessionStorage.getItem("wb_snapshot_started") === "1";
-        sessionStorage.setItem("wb_snapshot_started", "1");
-      } catch {}
-      if (!alreadyStarted) trackSnapshotStart();
-    }
-
-    behaviorTrackerRef.current?.recordMessage(outgoing);
-    if (behaviorTrackerRef.current) {
-      (window as any).__behavioralSignals = behaviorTrackerRef.current.getSignals();
-    }
-
-    await sendMessage(outgoing);
-    setInputValue("");
-    setSelectedQuickReplyPills([]);
-    setTimeout(() => {
-      inputRef.current?.focus();
-    }, 100);
+    await sendComposerOutgoing(outgoing);
   };
 
   return (
@@ -874,8 +903,10 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                 </span>
                 <span>
                   {assessmentProgress}% complete
-                  {questionsRemainingEstimate != null && assessmentProgress < 100
-                    ? ` · ~${questionsRemainingEstimate} questions left`
+                  {questionsRemainingEstimate != null &&
+                  questionsRemainingEstimate > 0 &&
+                  assessmentProgress < 100
+                    ? ` · ~${questionsRemainingEstimate} left`
                     : ""}
                 </span>
               </div>
@@ -1040,7 +1071,11 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                     <>
                     <div
                       role="group"
-                      aria-label="Quick reply suggestions — select one or more, then press Send"
+                      aria-label={
+                        chipSelectionMode === "single"
+                          ? "Quick reply suggestions — tap one to send"
+                          : "Quick reply suggestions — select one or more, then press Send"
+                      }
                       className="chat-input-row"
                       style={{ marginBottom: 10 }}
                     >
@@ -1052,7 +1087,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                           type="button"
                           disabled={isLoading || isFinalizing || isUploading}
                           aria-pressed={selected}
-                          onClick={() => toggleQuickReplyPill(opt)}
+                          onClick={() => handleQuickReplyChip(opt)}
                           style={{
                             padding: "8px 14px",
                             borderRadius: 999,
@@ -1078,8 +1113,14 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                           lineHeight: 1.4,
                         }}
                       >
-                        Tap one or more options (e.g. several channels), then{" "}
-                        <strong>Send</strong> — or type your own answer in the box below.
+                        {chipSelectionMode === "single"
+                          ? "Tap an option to send — or type your own answer below."
+                          : (
+                            <>
+                              Tap one or more options (e.g. several channels), then{" "}
+                              <strong>Send</strong> — or type your own answer in the box below.
+                            </>
+                          )}
                       </p>
                     </>
                   )}

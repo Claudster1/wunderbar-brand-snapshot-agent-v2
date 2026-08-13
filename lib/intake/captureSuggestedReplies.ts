@@ -3,6 +3,20 @@ import type { CaptureKey } from "@/lib/intake/flexibleDirectCaptureComplete";
 const OTHER = "Something else (type below)";
 const BETWEEN = "Between bands / not sure — describe below";
 
+export type ChipSelectionMode = "single" | "multi";
+
+/** True for mutually exclusive / banded captures — UI should auto-send on one tap. */
+export function getChipSelectionModeForCapture(key: CaptureKey): ChipSelectionMode {
+  switch (key) {
+    case "social_platform_presence":
+    case "additional_marketing_surfaces":
+    case "marketing_channel_mix":
+      return "multi";
+    default:
+      return "single";
+  }
+}
+
 /** Chip options for forced server captures — keeps answers fast and parseable. */
 export function getSuggestedRepliesForCapture(key: CaptureKey): string[] {
   switch (key) {

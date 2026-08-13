@@ -1,4 +1,5 @@
 import type { CaptureKey } from "@/lib/intake/flexibleDirectCaptureComplete";
+import type { ChipSelectionMode } from "@/lib/intake/captureSuggestedReplies";
 
 /** Server → client metadata on each /api/brand-snapshot chat turn. */
 export type IntakeResponseMeta = {
@@ -9,6 +10,8 @@ export type IntakeResponseMeta = {
   nextCaptureKey: CaptureKey | null;
   intakeReadyForFinalize: boolean;
   suggestedReplies: string[] | null;
+  /** single = auto-send on chip tap; multi = select then Send. */
+  chipSelectionMode: ChipSelectionMode;
   questionsRemainingEstimate: number;
   capturedSummary: { label: string; value: string }[];
 };

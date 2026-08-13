@@ -242,11 +242,14 @@ function isActivationPlanningTier(raw: unknown): boolean {
   return tier === "blueprint" || tier === "blueprint-plus";
 }
 
-/** Snapshot / Snapshot+ — grounds Visibility + channel scoring without duplicating full Blueprint mix. */
+/**
+ * Snapshot / Snapshot+ digital baseline — website + social only.
+ * Channel discovery is covered by `primary_acquisition_channel` (and Blueprint
+ * `marketing_channel_mix`) so users are not asked overlapping “where do customers find you?” beats.
+ */
 const SNAPSHOT_DIGITAL_BASELINE: CaptureKey[] = [
   "website_presence",
   "social_platform_presence",
-  "additional_marketing_surfaces",
 ];
 
 function shouldIncludeCaptureForTier(capture: CaptureKey, tier: IntakeTier): boolean {
@@ -333,7 +336,7 @@ function modelFacingCaptureHint(key: CaptureKey): string {
     case "social_platform_presence":
       return "which social platforms you actively use (or that you are not really on social yet)";
     case "additional_marketing_surfaces":
-      return "time or budget beyond the website and socials (email, SEO, paid, events, referrals) — not the same as where new leads first discover you";
+      return "other marketing surfaces beyond website/social (only if still needed after primary discovery)";
     case "monthly_revenue_range":
       return "roughly what the business brings in month to month";
     case "average_transaction_value":
@@ -686,10 +689,28 @@ function getCaptureStates(
     },
   ];
 
-  return captures.filter((capture) => {
+  const filtered = captures.filter((capture) => {
     if (capture.key === "monthly_marketing_budget" && !includeBudgetCapture) return false;
+    // Surfaces capture is optional/legacy — only keep if already in-flight completion helps upgrades.
+    if (capture.key === "additional_marketing_surfaces") return false;
     return shouldIncludeCaptureForTier(capture.key, tier);
   });
+
+  // Collapse channel overlap: a solid primary discovery answer also covers mix breadth on Snapshot-like paths.
+  const primary = filtered.find((c) => c.key === "primary_acquisition_channel");
+  const mix = filtered.find((c) => c.key === "marketing_channel_mix");
+  if (primary?.completed && mix && !mix.completed) {
+    // Multi-channel / "mix" answers already satisfy active-channel breadth for Blueprint.
+    const mixSatisfied =
+      hasRecentUserSignal(
+        messages,
+        /\b(mix of channels|multi-?channel|email|seo|paid|referrals?|social|events?)\b/i,
+        6,
+      ) || captureKeySatisfiedFromHistory("marketing_channel_mix", messages);
+    if (mixSatisfied) mix.completed = true;
+  }
+
+  return filtered;
 }
 
 type CaptureEngineOptions = {
@@ -817,29 +838,29 @@ function buildCaptureQuestion(
     case "social_platform_presence":
       return "**Where does your brand show up on social today?** Name the platforms that matter (or say *none / not really active yet*).";
     case "additional_marketing_surfaces":
-      return "**Beyond your website and social profiles, where else are you putting real time or budget** — email to a list, SEO or content, paid ads, events, partnerships — or mostly referrals / word of mouth? *(Different from the next question about where new prospects first discover you.)*";
+      return "**Beyond your website and social, where else are you putting time or budget** — email, SEO, paid, events, or mostly referrals?";
     case "monthly_revenue_range":
-      return "**Roughly what does the business generate month to month?** A range is perfect — it keeps your impact framing grounded in real numbers.";
+      return "**Roughly what does the business generate month to month?** A range is perfect.";
     case "average_transaction_value":
-      return "**About what is your average transaction value or deal size today?** A rough estimate is absolutely fine.";
+      return "**About what is your average deal or order size today?** A rough estimate is fine.";
     case "conversion_rate_estimate":
-      return "**What is your approximate conversion or close rate today, if you track it?** If not, totally okay — just say you don't track it yet.";
+      return "**What's your approximate conversion or close rate — or do you not track that yet?**";
     case "primary_acquisition_channel":
-      return "**When a brand-new prospect first discovers you, where does that usually happen** — referral, organic search, social, paid ads, direct, events, or something else? *(This is about discovery, not every channel you maintain.)*";
+      return "**When a brand-new prospect first discovers you, where does that usually happen?**";
     case "monthly_marketing_budget":
-      return "**What is your approximate monthly marketing budget today?** Ballpark is perfect — this just helps prioritize what is realistic for you.";
+      return "**What's your approximate monthly marketing budget today?** Ballpark is perfect.";
     case "content_creation_capacity":
-      return "**How much time can your team realistically invest in content creation each week?** Even a rough range works — no need to overthink it.";
+      return "**How much time can your team put into content each week?** A rough range works.";
     case "competitive_pressure_point":
-      return "**When prospects choose a competitor over you, what reason comes up most often** — price, trust, clarity, speed, proof, or fit?";
+      return "**When prospects choose a competitor over you, what reason comes up most often?**";
     case "has_email_list":
-      return `One gentle logistics question — **do you have an email list you're sending to today** (even a small one is perfect)? A simple yes or no is totally enough. If you're just starting, that's okay too — your diagnostic can include a friendly path forward.`;
+      return "**Do you have an email list you're sending to today** — even a small one?";
     case "has_lead_magnet":
-      return `Lots of strong brands don't use a "lead magnet" yet — totally normal. **Do you have any free download, template, guide, or similar that people get in exchange for their email?** If the answer is no, that's useful too: say something like "not yet" or "we don't," and your plan can include a short list of ideas we'll weave into the email and social campaigns we draft for you.`;
+      return "**Do you offer a free download, guide, or template in exchange for email — or not yet?**";
     case "has_clear_cta":
-      return `**Pick one primary place** you're grading — your main website **or** the profile you most often send people to (not both at once). **How clear is the next step there** — pretty obvious (one main action), or still a little mixed? Whatever you share is the right answer.`;
+      return "**On your main website or primary profile, how clear is the next step** — pretty obvious, or still a bit mixed?";
     case "marketing_channel_mix":
-      return "**Across the marketing channels you actively run** (not only where new leads first discover you), where are you showing up for people lately — email, social, SEO or search, paid ads, referrals, events, YouTube, or something else? \"Mostly one channel\" is a great answer too.";
+      return "**Which marketing channels are you actively running right now?** Tap all that apply — or say mostly one channel.";
     default:
       return `Great context so far. **Let's grab one more input** so your recommendations stay precise.${typeHint}`;
   }

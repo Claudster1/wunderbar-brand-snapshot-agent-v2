@@ -14,7 +14,7 @@ describe("computeIntakeReadyForSeamlessFinalize", () => {
     awaitingUserReplyToQuestion: false,
     isLoading: false,
     isFinalizing: false,
-    questionsRemainingEstimate: 1,
+    questionsRemainingEstimate: 0,
   };
 
   it("is true when server meta says intake is complete and no open question", () => {

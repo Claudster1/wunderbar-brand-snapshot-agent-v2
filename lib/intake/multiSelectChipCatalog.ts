@@ -4,7 +4,13 @@
  */
 
 import type { CaptureKey } from "@/lib/intake/flexibleDirectCaptureComplete";
-import { getSuggestedRepliesForCapture } from "@/lib/intake/captureSuggestedReplies";
+import {
+  getChipSelectionModeForCapture,
+  getSuggestedRepliesForCapture,
+  type ChipSelectionMode,
+} from "@/lib/intake/captureSuggestedReplies";
+
+export type { ChipSelectionMode };
 
 export const OTHER_CHIP = "Something else (type below)";
 export const BETWEEN_BANDS_CHIP = "Between bands / not sure — describe below";
@@ -240,7 +246,7 @@ export const CUSTOMER_EXPECTATION_CHIPS: string[] = [
   OTHER_CHIP,
 ];
 
-type TopicRule = { test: RegExp; chips: string[] };
+type TopicRule = { test: RegExp; chips: string[]; mode: ChipSelectionMode };
 
 /**
  * Ordered topic detectors — first match wins.
@@ -250,114 +256,142 @@ const TOPIC_RULES: TopicRule[] = [
   {
     test: /\b(6\s*[–-]\s*12\s*months|next (6|12) months|primary goals?|outcomes that matter|hoping to achieve|priorities for .{0,40}(brand|business|company))\b/i,
     chips: PRIMARY_GOAL_CHIPS,
+    mode: "multi",
   },
   {
     test: /\b(brand personality|if .{0,40} were a person|how would you describe (them|the brand)|personality words)\b/i,
     chips: BRAND_PERSONALITY_CHIPS,
+    mode: "multi",
   },
   {
     test: /\b(content formats?|types? of content|what (do you|kind of content) (create|publish)|audience engage)\b/i,
     chips: CONTENT_FORMAT_CHIPS,
+    mode: "multi",
   },
   {
     test: /\b(brand-?new prospect|first discovers you|discovers you|usually happen|top acquisition|primary acquisition)\b/i,
     chips: TOP_ACQUISITION_CHIPS,
+    mode: "single",
   },
   {
     test: /\b(customers? come from|how (do|does) people (typically )?find|where do most of your customers|most new customers find)\b/i,
     chips: CUSTOMER_ACQUISITION_CHIPS,
+    mode: "multi",
   },
   {
     test: /\b(geographic (reach|scope)|serve customers locally|locally,? regionally|nationally,? or globally)\b/i,
     chips: GEOGRAPHIC_SCOPE_CHIPS,
+    mode: "single",
   },
   {
     test: /\b(sell to other businesses|primarily sell to|directly to consumers|audience type|customers mostly (other companies|individual)|B2B \/ B2C|B2B or B2C|businesses,? (directly )?to consumers,? or both)\b/i,
     chips: AUDIENCE_TYPE_CHIPS,
+    mode: "single",
   },
   {
     test: /\b(how long .{0,40}(operating|in business|been around)|years in business|roughly how long)\b/i,
     chips: YEARS_IN_BUSINESS_CHIPS,
+    mode: "single",
   },
   {
     test: /\b(how big is (your|the) team|team size|how many people (are )?involved)\b/i,
     chips: TEAM_SIZE_CHIPS,
+    mode: "single",
   },
   {
     test: /\b(show up on social|active on\??|platforms? (are you|you.?re) active|where does .{0,40} (show up|most visible)|social presence)\b/i,
     chips: SOCIAL_PLATFORM_CHIPS,
+    mode: "multi",
   },
   {
     test: /\b(marketing (channels?|levers?)|channels? (are you|you are) (actively )?using|pulling .{0,20}today)\b/i,
     chips: MARKETING_CHANNEL_CHIPS,
+    mode: "multi",
   },
   {
     test: /\b(visual (side|confidence)|how (confident|happy).{0,40}(look|logo|visual|brand looks))\b/i,
     chips: VISUAL_CONFIDENCE_CHIPS,
+    mode: "single",
   },
   {
     test: /\b(annual revenue|revenue .{0,20}(fall|range|band)|ballpark .{0,30}revenue)\b/i,
     chips: ANNUAL_REVENUE_CHIPS,
+    mode: "single",
   },
   {
     test: /\b(month to month|monthly (revenue|sales)|generate month)\b/i,
     chips: MONTHLY_REVENUE_CHIPS,
+    mode: "single",
   },
   {
     test: /\b(monthly marketing budget|marketing budget today)\b/i,
     chips: MONTHLY_MARKETING_BUDGET_CHIPS,
+    mode: "single",
   },
   {
     test: /\b(content creation|hours?.{0,20}(week|content)|dedicate .{0,20}content)\b/i,
     chips: CONTENT_CAPACITY_CHIPS,
+    mode: "single",
   },
   {
     test: /\b(investing in paid ads|paid ads each month|paid media|ad spend)\b/i,
     chips: PAID_ADS_BUDGET_CHIPS,
+    mode: "single",
   },
   {
     test: /\b(primary goal for paid|paid channels right now|goal for paid)\b/i,
     chips: PAID_ADS_OBJECTIVE_CHIPS,
+    mode: "single",
   },
   {
     test: /\b(previous brand|brand strategy work|formal brand|worked with .{0,20}(agency|freelancer|consultant))\b/i,
     chips: PREVIOUS_BRAND_WORK_CHIPS,
+    mode: "single",
   },
   {
     test: /\b(your role at|how do you think about your role|founder \/ co-founder|run the business day-to-day)\b/i,
     chips: USER_ROLE_CHIPS,
+    mode: "single",
   },
   {
     test: /\b(beyond your diagnostic|managed marketing|hands-on support|anything else on your radar)\b/i,
     chips: SERVICES_INTEREST_CHIPS,
+    mode: "single",
   },
   {
     test: /\b(schedule a (quick |free )?20-?minute|talk to someone|expert conversation|book your call)\b/i,
     chips: EXPERT_CONVERSATION_CHIPS,
+    mode: "single",
   },
   {
     test: /\b(making decisions|decision style|what pattern fits you|when you decide)\b/i,
     chips: DECISION_STYLE_CHIPS,
+    mode: "single",
   },
   {
     test: /\b(authority .{0,20}come from|where does .{0,40}authority|why do people trust)\b/i,
     chips: AUTHORITY_SOURCE_CHIPS,
+    mode: "single",
   },
   {
     test: /\b(approach risk|think about risk|default posture|risk orientation)\b/i,
     chips: RISK_ORIENTATION_CHIPS,
+    mode: "single",
   },
   {
     test: /\b(customers? most expect|hoping they.ll feel|what do .{0,30} expect when they (choose|say yes))\b/i,
     chips: CUSTOMER_EXPECTATION_CHIPS,
+    mode: "single",
   },
   {
     test: /\b(average (transaction|deal)|deal size)\b/i,
     chips: getSuggestedRepliesForCapture("average_transaction_value"),
+    mode: "single",
   },
   {
     test: /\b(conversion|close rate)\b/i,
     chips: getSuggestedRepliesForCapture("conversion_rate_estimate"),
+    mode: "single",
   },
 ];
 
@@ -384,4 +418,24 @@ export function resolveSuggestedReplies(params: {
   }
 
   return null;
+}
+
+/** single = one-tap send; multi = select several then Send. */
+export function resolveChipSelectionMode(params: {
+  nextPendingKey: CaptureKey | null;
+  lastAssistantText?: string | null;
+}): ChipSelectionMode {
+  const t = String(params.lastAssistantText || "");
+
+  if (t.trim()) {
+    for (const rule of TOPIC_RULES) {
+      if (rule.test.test(t)) return rule.mode;
+    }
+  }
+
+  if (params.nextPendingKey) {
+    return getChipSelectionModeForCapture(params.nextPendingKey);
+  }
+
+  return "multi";
 }

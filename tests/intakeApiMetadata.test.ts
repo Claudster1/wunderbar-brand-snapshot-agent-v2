@@ -16,6 +16,7 @@ describe("buildIntakeResponseMeta", () => {
     expect(meta.overallProgressPercent).toBeLessThan(30);
     expect(meta.intakeReadyForFinalize).toBe(false);
     expect(meta.suggestedReplies?.length).toBeGreaterThan(0);
+    expect(meta.chipSelectionMode).toBe("single");
   });
 
   it("marks ready when captures and narrative thresholds are met", () => {
@@ -49,6 +50,8 @@ describe("buildIntakeResponseMeta", () => {
     });
     expect(meta.captureCompletionPercent).toBe(100);
     expect(meta.intakeReadyForFinalize).toBe(true);
+    expect(meta.overallProgressPercent).toBe(100);
+    expect(meta.questionsRemainingEstimate).toBe(0);
     expect(meta.capturedSummary.length).toBeGreaterThan(0);
   });
 

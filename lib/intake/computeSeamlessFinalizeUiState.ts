@@ -21,7 +21,7 @@ export function computeIntakeReadyForSeamlessFinalize(input: SeamlessFinalizeUiI
     !input.awaitingUserReplyToQuestion &&
     !input.isLoading &&
     !input.isFinalizing &&
-    (input.questionsRemainingEstimate ?? 1) <= 1
+    (input.questionsRemainingEstimate ?? 0) <= 1
   );
 }
 

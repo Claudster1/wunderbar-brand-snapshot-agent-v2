@@ -34,11 +34,7 @@ const TIER_CONFIGS: Record<ChatTier, ChatTierConfig> = {
 
     greeting: `Hi {firstName}, I'm Wundy™ — your brand guide. A few quick questions and we'll build your personalized WunderBrand Snapshot™. No wrong answers. Ready when you are — let's get started.`,
 
-    welcomeBack: `Nice to meet you, {firstName}.
-
-I'll ask a few questions about your business and brand — no prep, and you can save anytime below if you need a break.
-
-What's the name of your business?`,
+    welcomeBack: `Nice to meet you, {firstName}. What's the name of your business?`,
   },
 
   // ─── WunderBrand Snapshot+™ ($497) ──────────────────────────────
@@ -50,11 +46,7 @@ What's the name of your business?`,
 
     greeting: `Hi {firstName}, I'm Wundy™ — your brand guide. A few questions and we'll build your personalized WunderBrand Snapshot+™: where you're strong, where there's opportunity, and what to focus on first. No wrong answers. Ready when you are — let's get started.`,
 
-    welcomeBack: `Nice to meet you, {firstName}.
-
-We'll go a bit deeper than a standard Snapshot so your recommendations are specific — still no wrong answers, and you can save anytime below.
-
-What's your business called?`,
+    welcomeBack: `Nice to meet you, {firstName}. What's your business called?`,
   },
 
   // ─── WunderBrand Blueprint™ ($997) ──────────────────────────────
@@ -66,11 +58,7 @@ What's your business called?`,
 
     greeting: `Hi {firstName}, I'm Wundy™ — your brand guide. A few questions and we'll build your personalized WunderBrand Blueprint™: strategy mapped, with an activation-ready plan. No wrong answers. Ready when you are — let's get started.`,
 
-    welcomeBack: `Welcome, {firstName}.
-
-We'll map your brand strategy one step at a time — I'll keep each question clear. You can save anytime below if you need a break.
-
-What's the name of the business we're mapping today?`,
+    welcomeBack: `Welcome, {firstName}. What's the name of the business we're mapping today?`,
   },
 
   // ─── WunderBrand Blueprint+™ ($1,997) ──────────────────────────
@@ -82,11 +70,7 @@ What's the name of the business we're mapping today?`,
 
     greeting: `Hi {firstName}, I'm Wundy™ — your brand guide. A few questions and we'll build your personalized WunderBrand Blueprint+™ for your Strategy Activation Session. No wrong answers. Ready when you are — let's get started.`,
 
-    welcomeBack: `Welcome, {firstName}.
-
-We'll go deep, one clear question at a time — take your time, and save below anytime if you need a break.
-
-What's the name of your business?`,
+    welcomeBack: `Welcome, {firstName}. What's the name of your business?`,
   },
 };
 
@@ -151,15 +135,15 @@ export function intakeProgressDenominator(tier: ChatTier): number {
   switch (tier) {
     /** Typical Snapshot thread is short vs Blueprint; denominator only affects the bar until wrap-up copy (then 100%). */
     case "snapshot":
-      return 14;
+      return 12;
     case "snapshot-plus":
-      return 32;
+      return 28;
     case "blueprint":
-      return 38;
+      return 34;
     case "blueprint-plus":
-      return 41;
+      return 38;
     default:
-      return 22;
+      return 20;
   }
 }
 

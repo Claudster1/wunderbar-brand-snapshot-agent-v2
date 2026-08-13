@@ -199,6 +199,26 @@ describe("flexibleDirectCaptureComplete", () => {
     it("accepts single channel token", () => {
       expect(flexibleDirectCaptureComplete("primary_acquisition_channel", LA.channel, "organic search")).toBe(true);
     });
+    it("accepts chip labels including mix / direct", () => {
+      expect(flexibleDirectCaptureComplete("primary_acquisition_channel", LA.acquisitionForcedPrompt, "Mix of channels")).toBe(
+        true,
+      );
+      expect(flexibleDirectCaptureComplete("primary_acquisition_channel", LA.acquisitionForcedPrompt, "Direct / repeat")).toBe(
+        true,
+      );
+      expect(
+        flexibleDirectCaptureComplete("primary_acquisition_channel", LA.acquisitionForcedPrompt, "Referrals / word of mouth"),
+      ).toBe(true);
+    });
+    it("accepts colloquial discovery answers", () => {
+      expect(
+        flexibleDirectCaptureComplete(
+          "primary_acquisition_channel",
+          LA.acquisitionForcedPrompt,
+          "mostly through our network and recommendations",
+        ),
+      ).toBe(true);
+    });
     it("accepts multi-item channel lists (general enumeration rule)", () => {
       expect(flexibleDirectCaptureComplete("primary_acquisition_channel", LA.channel, "referrals, LinkedIn, cold email")).toBe(
         true,
@@ -206,6 +226,17 @@ describe("flexibleDirectCaptureComplete", () => {
       expect(flexibleDirectCaptureComplete("marketing_channel_mix", LA.channelMix, "tiktok + newsletter + paid")).toBe(
         true,
       );
+    });
+    it("history scan survives a follow-up assistant turn (anti-repeat)", () => {
+      const messages = [
+        { role: "assistant", content: LA.acquisitionForcedPrompt },
+        { role: "user", content: "Referrals / word of mouth" },
+        {
+          role: "assistant",
+          content: "Thanks — that's helpful. Roughly what does the business generate month to month?",
+        },
+      ];
+      expect(captureKeySatisfiedFromHistory("primary_acquisition_channel", messages)).toBe(true);
     });
   });
 

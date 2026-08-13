@@ -134,12 +134,13 @@ export const MONTHLY_REVENUE_CHIPS: string[] = [
 ];
 
 export const TOP_ACQUISITION_CHIPS: string[] = [
-  "Referral",
+  "Referrals / word of mouth",
   "Organic search",
-  "Social media",
-  "Paid advertising",
-  "Direct",
-  "Events",
+  "Social",
+  "Paid ads",
+  "Direct / repeat",
+  "Events / partnerships",
+  "Mix of channels",
   OTHER_CHIP,
 ];
 
@@ -257,6 +258,10 @@ const TOPIC_RULES: TopicRule[] = [
   {
     test: /\b(content formats?|types? of content|what (do you|kind of content) (create|publish)|audience engage)\b/i,
     chips: CONTENT_FORMAT_CHIPS,
+  },
+  {
+    test: /\b(brand-?new prospect|first discovers you|discovers you|usually happen|top acquisition|primary acquisition)\b/i,
+    chips: TOP_ACQUISITION_CHIPS,
   },
   {
     test: /\b(customers? come from|how (do|does) people (typically )?find|where do most of your customers|most new customers find)\b/i,

@@ -475,12 +475,17 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
         /\b(where|find you|finding you|channel|coming from|most new|customers|clients|discovery|acquisition|prospect|discovers you|brand-?new|usually happen)\b/i.test(
           la,
         );
+      // Include chip labels ("Mix of channels", "Direct / repeat") and common colloquial answers.
       const singleOrNarrative =
-        /\b(organic|seo|search|google|referral|referrals|social|linkedin|instagram|tiktok|facebook|fb|meta|youtube|yt|paid|ppc|sem|ads?|direct|email|events|word of mouth|wom|content|pr\b|cold|outbound|inbound|partners|marketplace|community|podcast|newsletter|tik tok)\b/i.test(
+        /\b(organic|seo|search|google|referral|referrals|social|linkedin|instagram|tiktok|facebook|fb|meta|youtube|yt|paid|ppc|sem|ads?|direct|repeat|email|events?|word of mouth|wom|content|pr\b|cold|outbound|inbound|partners?(hips)?|marketplace|community|podcast|newsletter|tik tok|network|networking|recommend(ed|ations)?|mix(ed)?|combination|several channels|multiple channels|a bit of everything|all of the above|something else)\b/i.test(
           t,
         );
       const listAnswer = asked && terseMultiItemAllMatch(t, 2, CHUNK_CHANNEL);
-      return asked && (singleOrNarrative || listAnswer);
+      const substantiveDiscovery =
+        asked &&
+        t.split(/\s+/).filter(Boolean).length >= 3 &&
+        /\b(find|found|discover|come from|coming from|hear(d)? about|through|via|from)\b/i.test(t);
+      return asked && (singleOrNarrative || listAnswer || substantiveDiscovery);
     }
     case "monthly_marketing_budget": {
       const asked = /\b(marketing budget|spend on marketing|ad spend|monthly.*budget)\b/i.test(la);

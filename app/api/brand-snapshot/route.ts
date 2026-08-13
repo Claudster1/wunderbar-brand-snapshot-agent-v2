@@ -524,14 +524,20 @@ function getCaptureStates(
       key: "primary_acquisition_channel",
       label: "primary acquisition channel",
       completed:
-        hasSignal(messages, /\breferral|organic search|social media|paid advertising|direct|events\b/i) ||
+        hasSignal(
+          messages,
+          /\breferral|organic search|social media|paid advertising|\bdirect\b|\bevents?\b|mix of channels\b/i,
+        ) ||
         hasRecentUserSignal(
           messages,
-          /\b(word of mouth|wom|mostly referrals|google|organic|seo|sem|search ads?|linkedin|instagram|tiktok|facebook|meta|youtube|twitter|threads|\bx\b|cold (email|outreach|dm)|outbound|inbound|partnerships?|affiliates?|marketplaces?|pr\b|podcast|newsletter|community|webinars?|trade shows?|conferences?|content marketing|thought leadership)\b/i,
+          /\b(word of mouth|wom|mostly referrals|google|organic|seo|sem|search ads?|linkedin|instagram|tiktok|facebook|meta|youtube|twitter|threads|\bx\b|cold (email|outreach|dm)|outbound|inbound|partnerships?|affiliates?|marketplaces?|pr\b|podcast|newsletter|community|webinars?|trade shows?|conferences?|content marketing|thought leadership|mix of channels|network(ing)?|recommend(ed|ations)?)\b/i,
           5,
         ) ||
-        refused(/\bacquisition channel|where (customers|clients) find you|lead source\b/i) ||
-        flexibleDirectCaptureComplete("primary_acquisition_channel", la, lu),
+        refused(/\bacquisition channel|where (customers|clients) find you|lead source|discovers you|brand-?new prospect\b/i) ||
+        flexibleDirectCaptureComplete("primary_acquisition_channel", la, lu) ||
+        // History scan: a thank-you / next-question assistant turn after a valid reply
+        // otherwise breaks latest-la/lu pairing and re-forces this discovery question.
+        captureKeySatisfiedFromHistory("primary_acquisition_channel", messages),
     },
     {
       key: "monthly_marketing_budget",
@@ -652,7 +658,8 @@ function getCaptureStates(
           5,
         ) ||
         refused(/\bmarketing channels|active channels|which channels\b/i) ||
-        flexibleDirectCaptureComplete("marketing_channel_mix", la, lu),
+        flexibleDirectCaptureComplete("marketing_channel_mix", la, lu) ||
+        captureKeySatisfiedFromHistory("marketing_channel_mix", messages),
     },
   ];
 

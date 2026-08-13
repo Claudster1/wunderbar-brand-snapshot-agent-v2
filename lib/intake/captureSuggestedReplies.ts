@@ -58,7 +58,7 @@ export function getSuggestedRepliesForCapture(key: CaptureKey): string[] {
       return ["I track it (~X%)", "I don't track this yet", "Rough guess", "Not sure"];
     case "primary_acquisition_channel":
       return [
-        "Referrals",
+        "Referrals / word of mouth",
         "Organic search",
         "Social",
         "Paid ads",

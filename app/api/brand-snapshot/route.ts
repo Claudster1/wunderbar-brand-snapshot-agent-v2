@@ -696,15 +696,15 @@ function getCaptureStates(
     return shouldIncludeCaptureForTier(capture.key, tier);
   });
 
-  // Collapse channel overlap: a solid primary discovery answer also covers mix breadth on Snapshot-like paths.
+  // Collapse channel overlap only when the user already signaled breadth (mix / multi-channel),
+  // not when they named a single primary discovery channel (Blueprint still needs mix).
   const primary = filtered.find((c) => c.key === "primary_acquisition_channel");
   const mix = filtered.find((c) => c.key === "marketing_channel_mix");
   if (primary?.completed && mix && !mix.completed) {
-    // Multi-channel / "mix" answers already satisfy active-channel breadth for Blueprint.
     const mixSatisfied =
       hasRecentUserSignal(
         messages,
-        /\b(mix of channels|multi-?channel|email|seo|paid|referrals?|social|events?)\b/i,
+        /\b(mix of channels|multi-?channel|omnichannel|mostly one channel|channel mix)\b/i,
         6,
       ) || captureKeySatisfiedFromHistory("marketing_channel_mix", messages);
     if (mixSatisfied) mix.completed = true;

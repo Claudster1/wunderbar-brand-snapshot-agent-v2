@@ -283,8 +283,9 @@ export function isBareAffirmOrDeny(text: string): boolean {
 /**
  * Mirrors the `asked` regex inside each switch arm of `flexibleDirectCaptureComplete`.
  * Used so a refusal-style user reply to the same topic can satisfy the capture and stop the loop.
+ * Also used client-side so capture chips only appear when the on-screen question is about that key.
  */
-function assistantTurnAsksAboutCapture(key: CaptureKey, la: string): boolean {
+export function assistantTurnAsksAboutCapture(key: CaptureKey, la: string): boolean {
   switch (key) {
     case "business_type_classifier":
       return /\b(get paid|revenue model|business model|describe your|gut check|feel accurate|primarily running|tailor this|describe (your|the) (revenue|business)|how do you)\b/i.test(
@@ -305,7 +306,7 @@ function assistantTurnAsksAboutCapture(key: CaptureKey, la: string): boolean {
         la,
       );
     case "geographic_scope":
-      return /\b(geographic|locally|regionally|nationally|globally|serve customers|reach of (your|the) business|where .{0,40}serve)\b/i.test(
+      return /\b(geographic|locally|regionally|nationally|globally|serve customers|reach of (your|the) business|where .{0,40}(serve|do business|operate|based)|do business|where (are|is) (your|the) (customers|clients|market))\b/i.test(
         la,
       );
     case "years_in_business":
@@ -489,11 +490,11 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
     }
     case "geographic_scope": {
       const asked =
-        /\b(geographic|locally|regionally|nationally|globally|serve customers|reach of (your|the) business|where .{0,40}serve)\b/i.test(
+        /\b(geographic|locally|regionally|nationally|globally|serve customers|reach of (your|the) business|where .{0,40}(serve|do business|operate|based)|do business|where (are|is) (your|the) (customers|clients|market))\b/i.test(
           la,
         );
       const answered =
-        /\b(local|regional|national|global|city|metro|state|multi-?state|nationwide|worldwide|international)\b/i.test(
+        /\b(local(?:ly)?|regional(?:ly)?|national(?:ly)?|global(?:ly)?|city|metro|state|multi-?state|nationwide|worldwide|international|us-?based|u\.s\.|united states|across the (country|us))\b/i.test(
           t,
         );
       return asked && answered;

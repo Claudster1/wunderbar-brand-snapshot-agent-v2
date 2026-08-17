@@ -259,12 +259,17 @@ const TOPIC_RULES: TopicRule[] = [
     mode: "multi",
   },
   {
-    test: /\b(brand personality|if .{0,40} were a person|how would you describe (them|the brand)|personality words)\b/i,
+    test: /\b(brand personality|if .{0,60} were a person|how would you describe (them|the brand)|personality words|person in a room)\b/i,
     chips: BRAND_PERSONALITY_CHIPS,
     mode: "multi",
   },
   {
-    test: /\b(content formats?|types? of content|what (do you|kind of content) (create|publish)|audience engage)\b/i,
+    test: /\b(consistency of your brand|across (different )?touchpoints|cohesive wherever|somewhat consistent|bit scattered|feel cohesive)\b/i,
+    chips: ["Cohesive wherever it shows up", "Somewhat consistent", "Still a bit scattered", OTHER_CHIP],
+    mode: "single",
+  },
+  {
+    test: /\b(content formats?|types? of content|what (do you|kind of content) (create|publish)|what formats|formats?.{0,40}audience|audience engages?)\b/i,
     chips: CONTENT_FORMAT_CHIPS,
     mode: "multi",
   },
@@ -334,7 +339,7 @@ const TOPIC_RULES: TopicRule[] = [
     mode: "single",
   },
   {
-    test: /\b(geographic (reach|scope)|serve customers locally|locally,? regionally|nationally,? or globally|mainly serve customers)\b/i,
+    test: /\b(geographic (reach|scope)|serve customers locally|locally,? regionally|nationally,? or globally|mainly serve customers|where do you (mainly )?do business|where .{0,40}(do business|operate|based))\b/i,
     chips: getSuggestedRepliesForCapture("geographic_scope"),
     mode: "single",
   },
@@ -362,6 +367,19 @@ const TOPIC_RULES: TopicRule[] = [
     test: /\b(choose a competitor|competitive pressure|reason comes up most|price,? trust,? clarity|prospects choose a competitor)\b/i,
     chips: getSuggestedRepliesForCapture("competitive_pressure_point"),
     mode: "single",
+  },
+  {
+    test: /\b(makes you different|competitive advantage|what sets you apart|stand out from|look-?alike competitors|differentiation|unique (value|edge|positioning))\b/i,
+    chips: [
+      "Specialized expertise / niche focus",
+      "Service quality or experience",
+      "Unique process, IP, or methodology",
+      "Speed / responsiveness",
+      "Price or value packaging",
+      "Personal brand / relationships",
+      OTHER_CHIP,
+    ],
+    mode: "multi",
   },
   {
     test: /\b(marketing (channels?|levers?)|channels? (are you|you are) (actively )?(using|running)|pulling .{0,20}today)\b/i,
@@ -424,7 +442,7 @@ const TOPIC_RULES: TopicRule[] = [
     mode: "single",
   },
   {
-    test: /\b(making decisions|decision style|what pattern fits you|when you decide)\b/i,
+    test: /\b(make decisions|making decisions|decision style|which pattern fits|what pattern fits you|when you decide)\b/i,
     chips: DECISION_STYLE_CHIPS,
     mode: "single",
   },
@@ -449,7 +467,8 @@ const TOPIC_RULES: TopicRule[] = [
     mode: "single",
   },
   {
-    test: /\b(conversion|close rate)\b/i,
+    // Keep narrow — bare "conversion" matches goal chips / narrative and steals wrong pills.
+    test: /\b(conversion (or |\/ )?close rate|close rate|approximate conversion|win rate|don'?t track (that|this|conversion)|do you not track)\b/i,
     chips: getSuggestedRepliesForCapture("conversion_rate_estimate"),
     mode: "single",
   },

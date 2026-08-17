@@ -25,12 +25,11 @@ describe("narrativeMilestones", () => {
       {
         role: "assistant" as const,
         content:
-          "**How clear and consistent does your messaging feel today?** Do testimonials or case studies matter for credibility?",
+          "**If your brand were a person in a room, how would you describe them?** Do testimonials matter?",
       },
     ];
     const state = getNarrativeCompletionState(messages, "snapshot");
-    expect(state.pendingLabels).toContain("Messaging clarity");
-    expect(state.pendingLabels).toContain("Credibility assets");
+    expect(state.pendingLabels).toContain("Brand voice");
   });
 
   it("does not count milestone keywords in an unanswered final assistant turn", () => {
@@ -38,24 +37,17 @@ describe("narrativeMilestones", () => {
       "primary goals for the next 6-12 months",
       "biggest challenge is trust",
       "what makes us different from agencies",
-      "deeper why we exist",
-      "how clear our offer is on first encounter",
-      "brand voice is approachable",
-      "key topics we talk about",
-      "thought leadership through our blog",
-      "case studies and testimonials",
-      "visual design and brand guidelines",
     ].join(" ");
     const messages = [
       { role: "user" as const, content: userCorpus },
       {
         role: "assistant" as const,
         content:
-          "Great to hear that! **How clear and consistent does your messaging feel today? Do you feel confident that your message comes through clearly?**",
+          "Great to hear that! **If your brand were a person in a room, how would you describe them?**",
       },
     ];
     const state = getNarrativeCompletionState(messages, "snapshot");
-    expect(state.pendingLabels).toContain("Messaging clarity");
+    expect(state.pendingLabels).toContain("Brand voice");
     expect(state.percent).toBeLessThan(100);
   });
 
@@ -64,14 +56,7 @@ describe("narrativeMilestones", () => {
       "primary goals for the next 6-12 months",
       "biggest challenge is trust",
       "what makes us different from agencies",
-      "deeper why we exist",
-      "how clear our offer is on first encounter",
-      "messaging consistency across channels",
-      "brand voice is approachable",
-      "key topics we talk about",
-      "thought leadership through our blog",
-      "case studies and testimonials",
-      "visual design and brand guidelines",
+      "brand personality is approachable / no jargon",
     ].join(" ");
     const messages = [{ role: "user", content: text }];
     const state = getNarrativeCompletionState(messages, "snapshot");

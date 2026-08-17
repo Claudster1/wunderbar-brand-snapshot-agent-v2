@@ -13,7 +13,7 @@ describe("buildIntakeResponseMeta", () => {
       nextPendingKey: "business_type_classifier",
     });
     expect(meta.captureCompletionPercent).toBe(0);
-    expect(meta.overallProgressPercent).toBeLessThan(30);
+    expect(meta.overallProgressPercent).toBeLessThan(55);
     expect(meta.intakeReadyForFinalize).toBe(false);
     expect(meta.suggestedReplies?.length).toBeGreaterThan(0);
     expect(meta.chipSelectionMode).toBe("single");

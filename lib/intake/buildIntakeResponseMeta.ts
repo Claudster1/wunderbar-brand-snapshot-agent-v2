@@ -1,4 +1,5 @@
 import type { CaptureKey } from "@/lib/intake/flexibleDirectCaptureComplete";
+import { assistantTurnAsksAboutCapture } from "@/lib/intake/flexibleDirectCaptureComplete";
 import { buildCapturedSummary } from "@/lib/intake/buildCapturedSummary";
 import type { IntakeMessage } from "@/lib/intake/buildIntakeTopicResume";
 import {
@@ -47,6 +48,7 @@ export function buildIntakeResponseMeta(params: {
   const pendingNarrativeCount = narrative.pendingLabels.length;
   const pendingCaptureCount = pendingCaptureLabels.length;
   const narrativeComplete = pendingNarrativeCount === 0;
+  /** Remaining = unfinished captures + unfinished narrative topics (Q&A-paired). */
   const questionsRemainingEstimate = pendingCaptureCount + pendingNarrativeCount;
 
   const intakeReadyForFinalize =
@@ -61,7 +63,11 @@ export function buildIntakeResponseMeta(params: {
    * Never report 100 here — the client shows 100 only once a results URL exists.
    */
   const remaining = questionsRemainingEstimate;
-  const approxTotalQuestions = Math.max(remaining + completedCaptures + Math.round((narrativeCompletionPercent / 100) * 8), denom, 1);
+  const approxTotalQuestions = Math.max(
+    remaining + completedCaptures + Math.round((narrativeCompletionPercent / 100) * 8),
+    denom,
+    1,
+  );
   const answeredApprox = Math.max(0, approxTotalQuestions - remaining);
 
   let overallProgressPercent: number;
@@ -79,19 +85,26 @@ export function buildIntakeResponseMeta(params: {
               Math.min((userTurns / Math.max(denom, 1)) * 12, 12) +
               narrativeCompletionPercent * 0.08,
           );
+    // Prefer the higher of remaining-based vs capture-based so the bar moves as topics complete.
     overallProgressPercent = Math.min(94, Math.max(fromRemaining, fromCaptures));
   }
 
   const lastAssistantInHistory =
     [...messages].reverse().find((m) => m.role === "assistant")?.content ?? null;
   const outgoing = String(params.outgoingAssistantText ?? "").trim();
-  const chipSourceText = outgoing || lastAssistantInHistory;
+  const chipSourceText = outgoing || String(lastAssistantInHistory || "").trim();
+  /** Only attach pending-key chips when on-screen text is about that key (or no text yet). */
+  const chipKeyForFallback =
+    nextPendingKey &&
+    (!chipSourceText || assistantTurnAsksAboutCapture(nextPendingKey, chipSourceText))
+      ? nextPendingKey
+      : null;
   const suggestedReplies = resolveSuggestedReplies({
-    nextPendingKey,
+    nextPendingKey: chipKeyForFallback,
     lastAssistantText: chipSourceText,
   });
   const chipSelectionMode = resolveChipSelectionMode({
-    nextPendingKey,
+    nextPendingKey: chipKeyForFallback,
     lastAssistantText: chipSourceText,
   });
 

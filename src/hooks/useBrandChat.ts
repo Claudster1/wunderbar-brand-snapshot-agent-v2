@@ -36,6 +36,10 @@ import {
   isQaSeedAllowed,
   parseQaSeedParam,
 } from '@/lib/intake/qaSeedTranscripts';
+import {
+  ANSWER_UNDO_WINDOW_MS,
+  buildFieldCorrectionAssistantText,
+} from '@/lib/intake/answerCorrection';
 
 function snapshotResultsEntryUrl(finalReportId: string): string {
   return `/results?reportId=${encodeURIComponent(finalReportId)}`;
@@ -303,6 +307,24 @@ export function useBrandChat(options?: UseBrandChatOptions) {
   const hasReceivedName = useRef(false);
   const allowIncompleteSubmissionRef = useRef(false);
   const sendingRef = useRef(false); // Synchronous guard against double-sends
+  const sendAbortRef = useRef<AbortController | null>(null);
+  const undoAbortIntentRef = useRef(false);
+  const undoSnapshotRef = useRef<{
+    messages: BrandChatMessage[];
+    intakeMeta: IntakeResponseMeta | null;
+  } | null>(null);
+  const [undoAvailableUntil, setUndoAvailableUntil] = useState<number | null>(null);
+  const canUndoLastAnswer = undoAvailableUntil != null;
+
+  useEffect(() => {
+    if (undoAvailableUntil == null) return;
+    const ms = Math.max(0, undoAvailableUntil - Date.now());
+    const t = window.setTimeout(() => {
+      setUndoAvailableUntil(null);
+      undoSnapshotRef.current = null;
+    }, ms);
+    return () => window.clearTimeout(t);
+  }, [undoAvailableUntil]);
   /** First paid-tier API call after upgrade may attach prior Snapshot JSON from this report id. */
   const continuationReportIdForApiRef = useRef<string | null>(null);
   const resumeLoadedReportIdRef = useRef<string | null>(null);
@@ -763,6 +785,14 @@ export function useBrandChat(options?: UseBrandChatOptions) {
       allowIncompleteSubmissionRef.current = false;
     }
     sendingRef.current = true;
+    undoAbortIntentRef.current = false;
+
+    // Snapshot so Undo can restore the unanswered question for a few seconds.
+    undoSnapshotRef.current = {
+      messages: messages.map((m) => ({ ...m })),
+      intakeMeta: intakeMetaRef.current,
+    };
+    setUndoAvailableUntil(Date.now() + ANSWER_UNDO_WINDOW_MS);
 
     const userMessage = createMessage('user', trimmed);
 
@@ -795,6 +825,9 @@ export function useBrandChat(options?: UseBrandChatOptions) {
       if (hasReceivedName.current) return;
     }
 
+    const ac = new AbortController();
+    sendAbortRef.current = ac;
+
     try {
       const paidTier = options?.productTier && options.productTier !== 'snapshot';
       const continuationReportId = paidTier
@@ -809,6 +842,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
         productTier: options?.productTier,
         continuationReportId: continuationReportId ?? undefined,
         stream: true,
+        signal: ac.signal,
         onToken: (token) => {
           setMessages((prev) =>
             prev.map((m) =>
@@ -1329,6 +1363,10 @@ export function useBrandChat(options?: UseBrandChatOptions) {
         }
       }
     } catch (err: any) {
+      if (undoAbortIntentRef.current || ac.signal.aborted) {
+        undoAbortIntentRef.current = false;
+        return;
+      }
       console.error('[useBrandChat] Error:', err);
       const errMsg = err instanceof Error ? err.message : String(err);
       const timedOut = /timed out/i.test(errMsg);
@@ -1350,8 +1388,47 @@ export function useBrandChat(options?: UseBrandChatOptions) {
       setIsLoading(false);
       setIsStreaming(false);
       sendingRef.current = false;
+      if (sendAbortRef.current === ac) sendAbortRef.current = null;
     }
   };
+
+  const undoLastAnswer = useCallback(() => {
+    const snap = undoSnapshotRef.current;
+    if (!snap || undoAvailableUntil == null) return false;
+    undoAbortIntentRef.current = true;
+    try {
+      sendAbortRef.current?.abort();
+    } catch {
+      /* ignore */
+    }
+    setMessages(snap.messages);
+    messagesRef.current = snap.messages;
+    setIntakeMeta(snap.intakeMeta);
+    setIsLoading(false);
+    setIsStreaming(false);
+    sendingRef.current = false;
+    setLastFailedInput(null);
+    setUndoAvailableUntil(null);
+    undoSnapshotRef.current = null;
+    return true;
+  }, [undoAvailableUntil]);
+
+  /** Edit a noted field — inject a local correction question (no API until they answer). */
+  const requestFieldCorrection = useCallback(
+    (label: string, previousValue: string) => {
+      if (isLoading || sendingRef.current || finalizingRef.current) return;
+      setUndoAvailableUntil(null);
+      undoSnapshotRef.current = null;
+      const text = buildFieldCorrectionAssistantText(label, previousValue);
+      const assistantMessage = createMessage('assistant', text);
+      setMessages((prev) => {
+        const next = [...prev, assistantMessage];
+        messagesRef.current = next;
+        return next;
+      });
+    },
+    [isLoading],
+  );
 
   const retry = () => {
     if (lastFailedInput) {
@@ -1372,6 +1449,15 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     setResultsEntryUrl(null);
     setFinalizeError(null);
     setIntakeMeta(null);
+    setUndoAvailableUntil(null);
+    undoSnapshotRef.current = null;
+    undoAbortIntentRef.current = false;
+    try {
+      sendAbortRef.current?.abort();
+    } catch {
+      /* ignore */
+    }
+    sendAbortRef.current = null;
     intakeMilestoneFiredRef.current = false;
     intakeReadyFiredRef.current = false;
     hasReceivedName.current = false;
@@ -1400,6 +1486,9 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     isLoading,
     isStreaming,
     sendMessage,
+    undoLastAnswer,
+    canUndoLastAnswer,
+    requestFieldCorrection,
     retry,
     canRetry: !!lastFailedInput,
     reset,

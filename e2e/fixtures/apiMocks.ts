@@ -99,8 +99,8 @@ export function setupSeamlessFinalizeMocks(page: Page) {
           chipSelectionMode: "single",
           questionsRemainingEstimate: 0,
           capturedSummary: [
-            { label: "Name", value: "Alex" },
-            { label: "Business", value: "Acme Agency" },
+            { id: "name", label: "Name", value: "Alex" },
+            { id: "business", label: "Business", value: "Acme Agency" },
           ],
         },
       });
@@ -124,7 +124,7 @@ export function setupSeamlessFinalizeMocks(page: Page) {
         suggestedReplies: ["Yes, here's the URL", "No website yet"],
         chipSelectionMode: "single",
         questionsRemainingEstimate: 10,
-        capturedSummary: [{ label: "Name", value: "Alex" }],
+        capturedSummary: [{ id: "name", label: "Name", value: "Alex" }],
       },
     });
   });
@@ -167,8 +167,8 @@ export function setupSnapshotChatMocks(page: Page) {
           chipSelectionMode: "single",
           questionsRemainingEstimate: 6,
           capturedSummary: [
-            { label: "Business", value: "Acme Agency" },
-            { label: "Website", value: "https://acme.com" },
+            { id: "business", label: "Business", value: "Acme Agency" },
+            { id: "website", label: "Website", value: "https://acme.com" },
           ],
         },
       });
@@ -192,7 +192,7 @@ export function setupSnapshotChatMocks(page: Page) {
         suggestedReplies: ["Yes, here's the URL", "No website yet"],
         chipSelectionMode: "single",
         questionsRemainingEstimate: 10,
-        capturedSummary: [{ label: "Name", value: "Alex" }],
+        capturedSummary: [{ id: "name", label: "Name", value: "Alex" }],
       },
     });
   });

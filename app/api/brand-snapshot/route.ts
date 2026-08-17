@@ -714,11 +714,7 @@ function getCaptureStates(
       key: "offer_clarity",
       label: "offer clarity",
       completed:
-        hasRecentUserSignal(
-          messages,
-          /\b(very clear|somewhat clear|unclear|pretty clear|offer is clear|still figuring.{0,20}offer)\b/i,
-          6,
-        ) ||
+        // Do not match bare "somewhat clear" globally — that also answers messaging_clarity.
         refused(/\b(offer clarity|how clear.{0,30}offer|what you do)\b/i) ||
         flexibleDirectCaptureComplete("offer_clarity", la, lu) ||
         captureKeySatisfiedFromHistory("offer_clarity", messages),
@@ -727,11 +723,7 @@ function getCaptureStates(
       key: "messaging_clarity",
       label: "messaging clarity",
       completed:
-        hasRecentUserSignal(
-          messages,
-          /\b(very clear|somewhat clear|unclear|messaging is|consistent messaging|message lands)\b/i,
-          6,
-        ) ||
+        // Require ask-pairing (flexible/history) so an offer-clarity chip doesn't skip messaging.
         refused(/\b(messaging clarity|how clear.{0,30}messaging)\b/i) ||
         flexibleDirectCaptureComplete("messaging_clarity", la, lu) ||
         captureKeySatisfiedFromHistory("messaging_clarity", messages),
@@ -742,10 +734,10 @@ function getCaptureStates(
       completed:
         hasRecentUserSignal(
           messages,
-          /\b(testimonials?|case stud(?:y|ies)|reviews?|success stor|neither yet|no proof|we have proof)\b/i,
+          /\b(testimonials?|case stud(?:y|ies)|neither yet|no (testimonials?|case stud|proof)|success stor(?:y|ies))\b/i,
           6,
         ) ||
-        refused(/\b(testimonial|case stud|customer proof|reviews?)\b/i) ||
+        refused(/\b(testimonial|case stud|customer proof)\b/i) ||
         flexibleDirectCaptureComplete("credibility_proof", la, lu) ||
         captureKeySatisfiedFromHistory("credibility_proof", messages),
     },
@@ -753,11 +745,6 @@ function getCaptureStates(
       key: "visual_confidence",
       label: "visual confidence",
       completed:
-        hasRecentUserSignal(
-          messages,
-          /\b(very confident|somewhat confident|not confident)\b/i,
-          6,
-        ) ||
         refused(/\b(visual confidence|how (confident|happy).{0,20}(look|logo|visual))\b/i) ||
         flexibleDirectCaptureComplete("visual_confidence", la, lu) ||
         captureKeySatisfiedFromHistory("visual_confidence", messages),

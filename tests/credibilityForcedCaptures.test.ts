@@ -29,4 +29,21 @@ describe("credibility forced captures", () => {
       ),
     ).toBe(true);
   });
+
+  it("does not treat an offer-clarity answer as messaging clarity", () => {
+    expect(
+      flexibleDirectCaptureComplete(
+        "messaging_clarity",
+        "How clear is your offer to someone encountering you for the first time?",
+        "Somewhat clear",
+      ),
+    ).toBe(false);
+    expect(
+      flexibleDirectCaptureComplete(
+        "messaging_clarity",
+        "How clear and consistent does your messaging feel across channels today?",
+        "Somewhat clear",
+      ),
+    ).toBe(true);
+  });
 });

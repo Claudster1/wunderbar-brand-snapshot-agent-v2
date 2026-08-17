@@ -31,6 +31,11 @@ import {
   splitAssistantIntakePayload,
   stripIntakeJsonFromAssistantText,
 } from '@/lib/intake/stripAssistantJsonPayload';
+import {
+  getQaSeedTurns,
+  isQaSeedAllowed,
+  parseQaSeedParam,
+} from '@/lib/intake/qaSeedTranscripts';
 
 function snapshotResultsEntryUrl(finalReportId: string): string {
   return `/results?reportId=${encodeURIComponent(finalReportId)}`;
@@ -319,13 +324,48 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     sessionStorage.setItem('wundy_report_id', fallbackId);
   };
 
-  // Initialize: create draft report or load resume
-  // Also persist reportId in sessionStorage so a page refresh can recover.
+  // Initialize: QA seed (dev/preview), resume, or create draft
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     const urlParams = new URLSearchParams(window.location.search);
     const resumeId = urlParams.get('resume');
+    const qaSeed = parseQaSeedParam(urlParams.get('qaSeed'));
+
+    if (qaSeed && isQaSeedAllowed(window.location.hostname) && !resumeId) {
+      if (isInitialized.current) return;
+      isInitialized.current = true;
+      hasReceivedName.current = true;
+      const seeded = getQaSeedTurns(qaSeed).map((t) => createMessage(t.role, t.text));
+      setMessages(seeded);
+      const sessionReportId = sessionStorage.getItem('wundy_report_id');
+      if (sessionReportId) {
+        setReportId(sessionReportId);
+      } else {
+        const persistedEmail = getPersistedEmail();
+        fetch('/api/snapshot/draft', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(persistedEmail ? { userEmail: persistedEmail } : {}),
+        })
+          .then(async (res) => {
+            if (!res.ok) return null;
+            return res.json();
+          })
+          .then((data) => {
+            if (data?.reportId) {
+              setReportId(data.reportId);
+              sessionStorage.setItem('wundy_report_id', data.reportId);
+            } else {
+              assignLocalDraftId();
+            }
+          })
+          .catch(() => {
+            assignLocalDraftId();
+          });
+      }
+      return;
+    }
 
     if (resumeId) {
       if (options?.resumeHoldUntilValidated) return;

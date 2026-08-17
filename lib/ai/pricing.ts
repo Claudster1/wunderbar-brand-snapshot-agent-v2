@@ -16,9 +16,12 @@ const MODEL_RATES: Record<string, ModelTokenRates> = {
   // OpenAI
   "gpt-4o-mini": { inputPerMillionUsd: 0.15, outputPerMillionUsd: 0.6 },
   "gpt-4o": { inputPerMillionUsd: 2.5, outputPerMillionUsd: 10 },
-  // Anthropic
+  // Anthropic (2026 list rates — directional for P&L)
+  "claude-sonnet-5": { inputPerMillionUsd: 3, outputPerMillionUsd: 15 },
   "claude-sonnet-4-6": { inputPerMillionUsd: 3, outputPerMillionUsd: 15 },
   "claude-sonnet-4-5-20250929": { inputPerMillionUsd: 3, outputPerMillionUsd: 15 },
+  "claude-opus-5": { inputPerMillionUsd: 5, outputPerMillionUsd: 25 },
+  "claude-opus-4-7": { inputPerMillionUsd: 5, outputPerMillionUsd: 25 },
   "claude-haiku-4-5-20251001": { inputPerMillionUsd: 1, outputPerMillionUsd: 5 },
   // Gemini
   "gemini-2.0-flash": { inputPerMillionUsd: 0.1, outputPerMillionUsd: 0.4 },

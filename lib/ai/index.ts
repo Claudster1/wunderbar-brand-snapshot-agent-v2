@@ -108,7 +108,7 @@ export function getAI(useCase: UseCase): AIProviderClient {
  * Use this when you need a specific provider regardless of routing config.
  *
  * @example
- * const claude = getAIDirect("anthropic", "claude-sonnet-4-6");
+ * const claude = getAIDirect("anthropic", "claude-sonnet-5");
  */
 export function getAIDirect(provider: AIProvider, model: string): AIProviderClient {
   return getProviderClient(provider, model);

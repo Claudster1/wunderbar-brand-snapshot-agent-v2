@@ -16,7 +16,7 @@ import {
   type ToolDefinition,
 } from "@/lib/ai";
 import { apiGuard } from "@/lib/security/apiGuard";
-import { AI_RATE_LIMIT } from "@/lib/security/rateLimit";
+import { REFINE_AI_RATE_LIMIT } from "@/lib/security/rateLimit";
 import { sanitizeString } from "@/lib/security/inputValidation";
 import { logger } from "@/lib/logger";
 
@@ -220,7 +220,7 @@ function pruneCache() {
 
 export async function POST(req: Request) {
   // ─── Security: Rate limit + request size ───
-  const guard = apiGuard(req, { routeId: "wundy", rateLimit: AI_RATE_LIMIT, maxBodySize: 50_000 });
+  const guard = apiGuard(req, { routeId: "wundy", rateLimit: REFINE_AI_RATE_LIMIT, maxBodySize: 50_000 });
   if (!guard.passed) return guard.errorResponse;
 
   try {

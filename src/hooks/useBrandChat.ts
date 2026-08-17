@@ -611,10 +611,11 @@ export function useBrandChat(options?: UseBrandChatOptions) {
           body: JSON.stringify({
             messages: history.map((m) => ({ role: m.role, text: m.text })),
             productTier: options?.productTier,
+            reportId: reportId ?? undefined,
             continuationReportId:
               options?.productTier && options.productTier !== 'snapshot'
                 ? continuationReportIdForApiRef.current ?? reportId
-                : undefined,
+                : reportId ?? undefined,
           }),
           signal: extController.signal,
         });
@@ -636,9 +637,24 @@ export function useBrandChat(options?: UseBrandChatOptions) {
       }
       if (!ext.ok) {
         const rawErr = extJson.error || '';
-        const errMsg = /failed to complete from transcript/i.test(rawErr)
-          ? 'We could not finish building your diagnostic from this chat. Tap Try again in a moment.'
-          : rawErr || 'Could not read your answers from the chat. Please try again.';
+        const retryAfterHeader = ext.headers.get('Retry-After');
+        const retryAfterSec = Math.min(
+          90,
+          Math.max(2, Number.parseInt(retryAfterHeader || '3', 10) || 3),
+        );
+        // Up to 4 automatic waits — wrap-up must complete after a long paid intake.
+        if (ext.status === 429 && attempt < 4) {
+          await new Promise((r) => setTimeout(r, retryAfterSec * 1000));
+          finalizingRef.current = false;
+          setIsFinalizing(false);
+          return runTranscriptFinalizeCore(history, attempt + 1);
+        }
+        const errMsg =
+          ext.status === 429
+            ? 'We hit a temporary traffic limit finishing your diagnostic. Tap Try again in a few seconds.'
+            : /failed to complete from transcript/i.test(rawErr)
+              ? 'We could not finish building your diagnostic from this chat. Tap Try again in a moment.'
+              : rawErr || 'Could not read your answers from the chat. Please try again.';
         if (attempt < 1 && (ext.status === 422 || ext.status >= 500)) {
           finalizingRef.current = false;
           setIsFinalizing(false);
@@ -673,6 +689,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
             companyName: typeof answers.businessName === 'string' ? answers.businessName : undefined,
             businessName: typeof answers.businessName === 'string' ? answers.businessName : undefined,
             productTier: options?.productTier ?? 'snapshot',
+            reportId: reportId ?? undefined,
             ...(persistedEmail ? { email: persistedEmail } : {}),
             turnstileToken,
           }),
@@ -695,10 +712,23 @@ export function useBrandChat(options?: UseBrandChatOptions) {
         /* ignore */
       }
       if (!scoringRes.ok) {
+        if (scoringRes.status === 429 && attempt < 4) {
+          const retryAfterHeader = scoringRes.headers.get('Retry-After');
+          const retryAfterSec = Math.min(
+            90,
+            Math.max(2, Number.parseInt(retryAfterHeader || '3', 10) || 3),
+          );
+          await new Promise((r) => setTimeout(r, retryAfterSec * 1000));
+          finalizingRef.current = false;
+          setIsFinalizing(false);
+          return runTranscriptFinalizeCore(history, attempt + 1);
+        }
         const baseMsg =
           typeof scoreJson.error === 'string' && scoreJson.error.trim()
             ? scoreJson.error
-            : 'Scoring failed. Please try again in a moment.';
+            : scoringRes.status === 429
+              ? 'We hit a temporary traffic limit while scoring. Tap Try again in a few seconds.'
+              : 'Scoring failed. Please try again in a moment.';
         const code =
           typeof scoreJson.errorCode === 'string' && scoreJson.errorCode.trim()
             ? scoreJson.errorCode
@@ -841,6 +871,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
       const reply = await getBrandSnapshotReply(nextHistory, {
         productTier: options?.productTier,
         continuationReportId: continuationReportId ?? undefined,
+        reportId: reportId ?? continuationReportId ?? undefined,
         stream: true,
         signal: ac.signal,
         onToken: (token) => {

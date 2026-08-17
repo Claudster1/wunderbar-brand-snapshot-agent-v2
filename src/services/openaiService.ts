@@ -8,6 +8,9 @@ const API_URL = '/api/brand-snapshot';
 
 /** Browser fetch can hang on slow proxies — bail out so the UI can recover (transcript finalize, retry). */
 const BRAND_SNAPSHOT_CHAT_TIMEOUT_MS = 95_000;
+/** Auto-retry traffic limits so a paced Blueprint+ session can finish without a manual Retry. */
+const CHAT_RATE_LIMIT_RETRIES = 3;
+const CHAT_RATE_LIMIT_WAIT_CAP_SEC = 45;
 
 type ApiMessage = { role: 'user' | 'assistant'; content: string };
 type ProductTier = 'snapshot' | 'snapshot-plus' | 'blueprint' | 'blueprint-plus';
@@ -20,12 +23,18 @@ const buildApiMessages = (history: BrandChatMessage[]): ApiMessage[] =>
 
 function buildPayload(
   history: BrandChatMessage[],
-  options?: { productTier?: ProductTier; continuationReportId?: string | null; stream?: boolean },
+  options?: {
+    productTier?: ProductTier;
+    continuationReportId?: string | null;
+    reportId?: string | null;
+    stream?: boolean;
+  },
 ) {
   const payload: {
     messages: ReturnType<typeof buildApiMessages>;
     productTier?: ProductTier;
     continuationReportId?: string;
+    reportId?: string;
     stream?: boolean;
   } = {
     messages: buildApiMessages(history),
@@ -35,7 +44,48 @@ function buildPayload(
   if (options?.continuationReportId) {
     payload.continuationReportId = options.continuationReportId;
   }
+  const reportId = options?.reportId || options?.continuationReportId;
+  if (reportId) {
+    payload.reportId = reportId;
+  }
   return payload;
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function retryAfterSeconds(response: Response): number {
+  const raw = response.headers.get('Retry-After');
+  const parsed = Number.parseInt(raw || '', 10);
+  if (Number.isFinite(parsed) && parsed > 0) {
+    return Math.min(CHAT_RATE_LIMIT_WAIT_CAP_SEC, Math.max(2, parsed));
+  }
+  return 3;
+}
+
+/** Fetch chat; on 429 wait for Retry-After and retry (does not consume stream body). */
+async function fetchBrandSnapshot(
+  body: ReturnType<typeof buildPayload>,
+  signal: AbortSignal,
+): Promise<Response> {
+  let last: Response | null = null;
+  for (let attempt = 0; attempt <= CHAT_RATE_LIMIT_RETRIES; attempt++) {
+    if (signal.aborted) {
+      throw new DOMException('Aborted', 'AbortError');
+    }
+    last = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal,
+    });
+    if (last.status !== 429 || attempt === CHAT_RATE_LIMIT_RETRIES) {
+      return last;
+    }
+    await sleep(retryAfterSeconds(last) * 1000);
+  }
+  return last!;
 }
 
 function parseSseEvents(buffer: string): { events: BrandSnapshotSseEvent[]; rest: string } {
@@ -59,6 +109,7 @@ export async function streamBrandSnapshotReply(
   options: {
     productTier?: ProductTier;
     continuationReportId?: string | null;
+    reportId?: string | null;
     onToken: (text: string) => void;
     signal?: AbortSignal;
   },
@@ -71,19 +122,20 @@ export async function streamBrandSnapshotReply(
   }
 
   try {
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(buildPayload(history, { ...options, stream: true })),
-      signal: controller.signal,
-    });
+    const response = await fetchBrandSnapshot(
+      buildPayload(history, { ...options, stream: true }),
+      controller.signal,
+    );
 
     if (!response.ok) {
       const errorText = await response.text().catch(() => '');
-      let errorMessage = 'There was an issue reaching the WunderBrand Snapshot™ specialist. Please try again in a moment.';
+      let errorMessage =
+        response.status === 429
+          ? 'We hit a temporary traffic limit. Your progress is saved — tap Retry in a moment to continue.'
+          : 'There was an issue reaching the WunderBrand Snapshot™ specialist. Please try again in a moment.';
       try {
         const errorData = JSON.parse(errorText);
-        if (errorData.error) errorMessage = errorData.error;
+        if (errorData.error && response.status !== 429) errorMessage = errorData.error;
       } catch {
         /* default */
       }
@@ -134,6 +186,7 @@ export async function getBrandSnapshotReply(
   options?: {
     productTier?: ProductTier;
     continuationReportId?: string | null;
+    reportId?: string | null;
     stream?: boolean;
     onToken?: (text: string) => void;
     signal?: AbortSignal;
@@ -143,6 +196,7 @@ export async function getBrandSnapshotReply(
     return streamBrandSnapshotReply(history, {
       productTier: options.productTier,
       continuationReportId: options.continuationReportId,
+      reportId: options.reportId,
       onToken: options.onToken,
       signal: options.signal,
     });
@@ -159,20 +213,17 @@ export async function getBrandSnapshotReply(
   }
 
   try {
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(buildPayload(history, options)),
-      signal: controller.signal,
-    });
+    const response = await fetchBrandSnapshot(buildPayload(history, options), controller.signal);
 
     if (!response.ok) {
       const errorText = await response.text().catch(() => '');
       let errorMessage =
-        'There was an issue reaching the WunderBrand Snapshot™ specialist. Please try again in a moment.';
+        response.status === 429
+          ? 'We hit a temporary traffic limit. Your progress is saved — tap Retry in a moment to continue.'
+          : 'There was an issue reaching the WunderBrand Snapshot™ specialist. Please try again in a moment.';
       try {
         const errorData = JSON.parse(errorText);
-        if (errorData.error) errorMessage = errorData.error;
+        if (errorData.error && response.status !== 429) errorMessage = errorData.error;
       } catch {
         /* default */
       }

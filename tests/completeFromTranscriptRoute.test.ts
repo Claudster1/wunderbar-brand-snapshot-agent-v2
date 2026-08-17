@@ -216,11 +216,12 @@ describe("POST /api/snapshot/complete-from-transcript (mocked AI)", () => {
     expect(res.status).toBe(200);
   });
 
-  it("returns 500 when completeWithFallback throws", async () => {
+  it("falls back to heuristic answers when completeWithFallback throws", async () => {
     completeWithFallbackMock.mockRejectedValue(new Error("provider unavailable"));
     const res = await POST(postJson({ messages: longTurns() }));
-    expect(res.status).toBe(500);
-    const data = (await res.json()) as { error: string };
-    expect(data.error).toMatch(/Failed to complete from transcript/i);
+    expect(res.status).toBe(200);
+    const data = (await res.json()) as { answers: Record<string, unknown>; usedFallback: boolean };
+    expect(data.usedFallback).toBe(true);
+    expect(data.answers?.userName || data.answers?.businessName).toBeTruthy();
   });
 });

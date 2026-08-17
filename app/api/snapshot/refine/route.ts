@@ -11,8 +11,8 @@ export const dynamic = "force-dynamic";
 export async function POST(req: Request) {
   try {
     const { apiGuard } = await import("@/lib/security/apiGuard");
-    const { AI_RATE_LIMIT } = await import("@/lib/security/rateLimit");
-    const guard = apiGuard(req, { routeId: "snapshot-refine", rateLimit: AI_RATE_LIMIT });
+    const { REFINE_AI_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+    const guard = apiGuard(req, { routeId: "snapshot-refine", rateLimit: REFINE_AI_RATE_LIMIT });
     if (!guard.passed) return guard.errorResponse;
 
     const { isValidUUID } = await import("@/lib/security/inputValidation");

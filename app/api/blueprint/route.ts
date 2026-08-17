@@ -23,15 +23,28 @@ export const maxDuration = 180; // 3 minutes for Blueprint generation
 
 export async function POST(req: Request) {
   try {
-    // ─── Security ───
-    const { apiGuard } = await import("@/lib/security/apiGuard");
-    const { AI_RATE_LIMIT } = await import("@/lib/security/rateLimit");
-    const guard = apiGuard(req, { routeId: "blueprint-generate", rateLimit: AI_RATE_LIMIT, maxBodySize: 500_000 });
-    if (!guard.passed) return guard.errorResponse;
-
+    const contentLength = req.headers.get("content-length");
+    if (contentLength && parseInt(contentLength, 10) > 500_000) {
+      return NextResponse.json({ error: "Request body too large." }, { status: 413 });
+    }
     const body = await req.json();
     const url = new URL(req.url);
     const format = url.searchParams.get("format");
+
+    const { apiGuard } = await import("@/lib/security/apiGuard");
+    const {
+      REPORT_AI_RATE_LIMIT,
+      REPORT_IP_ABUSE_RATE_LIMIT,
+      pickSessionReportId,
+    } = await import("@/lib/security/rateLimit");
+    const guard = apiGuard(req, {
+      routeId: "blueprint-generate",
+      rateLimit: REPORT_AI_RATE_LIMIT,
+      abuseRateLimit: REPORT_IP_ABUSE_RATE_LIMIT,
+      sessionReportId: pickSessionReportId(body),
+      maxBodySize: 500_000,
+    });
+    if (!guard.passed) return guard.errorResponse;
 
     // ─── Input validation & sanitization ───
     const { sanitizeString, isValidEmail } = await import("@/lib/security/inputValidation");

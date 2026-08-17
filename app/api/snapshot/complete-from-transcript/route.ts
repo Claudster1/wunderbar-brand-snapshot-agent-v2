@@ -1,6 +1,4 @@
 import { NextResponse } from "next/server";
-import { apiGuard } from "@/lib/security/apiGuard";
-import { AI_RATE_LIMIT } from "@/lib/security/rateLimit";
 import { completeWithFallback, type ChatMessage } from "@/lib/ai";
 import { SNAPSHOT_TRANSCRIPT_EXTRACT_SYSTEM } from "@/src/prompts/snapshotTranscriptExtractPrompt";
 import { snapshotAnswersRecordSchema } from "@/lib/snapshot/snapshotAnswersSchema";
@@ -119,21 +117,45 @@ function resolveAnswers(
 }
 
 export async function POST(req: Request) {
-  const guard = apiGuard(req, {
-    routeId: "snapshot_transcript",
-    rateLimit: AI_RATE_LIMIT,
-    maxBodySize: 400_000,
-  });
-  if (!guard.passed) return guard.errorResponse;
+  const contentLength = req.headers.get("content-length");
+  if (contentLength && parseInt(contentLength, 10) > 400_000) {
+    return NextResponse.json({ error: "Request body too large." }, { status: 413 });
+  }
+
+  let messages: IncomingMsg[] = [];
+  let productTier = "";
+  let continuationReportId = "";
+  let reportId = "";
 
   try {
     const body = (await req.json().catch(() => ({}))) as {
       messages?: IncomingMsg[];
       productTier?: string;
       continuationReportId?: string;
+      reportId?: string;
     };
 
-    const messages = Array.isArray(body.messages) ? body.messages : [];
+    messages = Array.isArray(body.messages) ? body.messages : [];
+    productTier = typeof body.productTier === "string" ? body.productTier.trim() : "";
+    continuationReportId =
+      typeof body.continuationReportId === "string" ? body.continuationReportId.trim() : "";
+    reportId = typeof body.reportId === "string" ? body.reportId.trim() : "";
+
+    const { apiGuard } = await import("@/lib/security/apiGuard");
+    const {
+      COMPLETION_AI_RATE_LIMIT,
+      COMPLETION_IP_ABUSE_RATE_LIMIT,
+      pickSessionReportId,
+    } = await import("@/lib/security/rateLimit");
+    const guard = apiGuard(req, {
+      routeId: "snapshot_transcript",
+      rateLimit: COMPLETION_AI_RATE_LIMIT,
+      abuseRateLimit: COMPLETION_IP_ABUSE_RATE_LIMIT,
+      sessionReportId: pickSessionReportId(body) || continuationReportId || reportId,
+      maxBodySize: 400_000,
+    });
+    if (!guard.passed) return guard.errorResponse;
+
     if (messages.length < 4) {
       return NextResponse.json({ error: "Not enough conversation to extract answers." }, { status: 400 });
     }
@@ -143,34 +165,37 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Transcript too short." }, { status: 400 });
     }
 
-    const tierNote =
-      typeof body.productTier === "string" && body.productTier.trim()
-        ? `Product tier (for field depth): ${body.productTier.trim()}.`
-        : "";
+    const tierNote = productTier ? `Product tier (for field depth): ${productTier}.` : "";
 
-    const continuationId =
-      typeof body.continuationReportId === "string" ? body.continuationReportId.trim() : "";
     const priorAnswers =
-      continuationId && CONTINUATION_REPORT_UUID_RE.test(continuationId)
-        ? await loadPriorSnapshotAnswers(continuationId)
+      continuationReportId && CONTINUATION_REPORT_UUID_RE.test(continuationReportId)
+        ? await loadPriorSnapshotAnswers(continuationReportId)
         : null;
 
-    let content = await extractWithModel(transcript, tierNote);
-    let extracted = extractJsonObject(content);
-
-    if (!extracted) {
-      logger.warn("[complete-from-transcript] No JSON in first pass", {
-        preview: content.slice(0, 200),
-      });
-      content = await extractWithModel(
-        transcript,
-        tierNote,
-        "Your previous reply was not valid JSON. Reply with ONLY one JSON object matching the required shape.",
-      );
+    let extracted: Record<string, unknown> | null = null;
+    try {
+      let content = await extractWithModel(transcript, tierNote);
       extracted = extractJsonObject(content);
+
+      if (!extracted) {
+        logger.warn("[complete-from-transcript] No JSON in first pass", {
+          preview: content.slice(0, 200),
+        });
+        content = await extractWithModel(
+          transcript,
+          tierNote,
+          "Your previous reply was not valid JSON. Reply with ONLY one JSON object matching the required shape.",
+        );
+        extracted = extractJsonObject(content);
+      }
+    } catch (aiErr) {
+      logger.warn("[complete-from-transcript] Extract LLM failed; using transcript fallback", {
+        error: aiErr instanceof Error ? aiErr.message : String(aiErr),
+      });
+      extracted = null;
     }
 
-    let { answers, usedFallback } = resolveAnswers(messages, extracted, priorAnswers);
+    const { answers, usedFallback } = resolveAnswers(messages, extracted, priorAnswers);
 
     if (!answers) {
       return NextResponse.json(
@@ -182,6 +207,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ answers, usedFallback });
   } catch (err: unknown) {
     logger.error("[complete-from-transcript]", { error: err instanceof Error ? err.message : String(err) });
+    if (messages.length >= 4) {
+      const { answers, usedFallback } = resolveAnswers(messages, null, null);
+      if (answers) {
+        return NextResponse.json({ answers, usedFallback: true });
+      }
+    }
     return NextResponse.json({ error: "Failed to complete from transcript." }, { status: 500 });
   }
 }

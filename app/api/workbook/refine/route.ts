@@ -73,8 +73,8 @@ function fallbackRefine(content: string, businessName?: string): string {
 
 export async function POST(req: NextRequest) {
   const { apiGuard } = await import("@/lib/security/apiGuard");
-  const { AI_RATE_LIMIT } = await import("@/lib/security/rateLimit");
-  const guard = apiGuard(req, { routeId: "workbook-refine", rateLimit: AI_RATE_LIMIT });
+  const { REFINE_AI_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+  const guard = apiGuard(req, { routeId: "workbook-refine", rateLimit: REFINE_AI_RATE_LIMIT });
   if (!guard.passed) return guard.errorResponse;
 
   let requestBody: any = null;

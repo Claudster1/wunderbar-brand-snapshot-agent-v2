@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { buildCaptureQuestion } from "@/lib/intake/buildCaptureQuestion";
 import { getSuggestedRepliesForCapture } from "@/lib/intake/captureSuggestedReplies";
 import {
   ANNUAL_REVENUE_CHIPS,
@@ -15,12 +16,12 @@ describe("resolveSuggestedReplies", () => {
     expect(chips?.[0]).toMatch(/qualified leads|Attract/i);
   });
 
-  it("prefers pending capture chips over an unrelated topic in lastAssistantText", () => {
+  it("prefers goals chips over an unrelated pending capture key when the question on screen is goals", () => {
     const chips = resolveSuggestedReplies({
       nextPendingKey: "website_presence",
       lastAssistantText: "What are you hoping to achieve with your brand in the next 6–12 months?",
     });
-    expect(chips?.[0]).toMatch(/website|URL/i);
+    expect(chips?.[0]).toMatch(/qualified leads|Attract/i);
   });
 
   it("returns years-in-business chips for length questions", () => {
@@ -58,13 +59,13 @@ describe("resolveSuggestedReplies", () => {
     expect(chips).not.toContain("LinkedIn");
   });
 
-  it("does not keep social chips when the outgoing question is competitive pressure", () => {
+  it("on-screen competitive question wins over a stale social pending key", () => {
     const chips = resolveSuggestedReplies({
-      nextPendingKey: "competitive_pressure_point",
-      lastAssistantText:
-        "When prospects choose a competitor over you, what reason comes up most often — price, trust, clarity, speed, proof, or fit?",
+      nextPendingKey: "social_platform_presence",
+      lastAssistantText: buildCaptureQuestion("competitive_pressure_point", null),
     });
     expect(chips).toEqual(getSuggestedRepliesForCapture("competitive_pressure_point"));
+    expect(chips).not.toContain("LinkedIn");
   });
 
   it("falls back to capture chips when the question is not a narrative multi-select", () => {

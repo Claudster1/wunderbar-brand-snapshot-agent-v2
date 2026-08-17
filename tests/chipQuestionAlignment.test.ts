@@ -106,10 +106,10 @@ describe("chip ↔ question alignment QC", () => {
     expect(mismatches).toEqual([]);
   });
 
-  it("pending capture catalog wins over a stale previous-question topic match", () => {
+  it("on-screen question topic wins over a stale pending capture key", () => {
     const chips = resolveSuggestedReplies({
-      nextPendingKey: "competitive_pressure_point",
-      lastAssistantText: buildCaptureQuestion("social_platform_presence", null),
+      nextPendingKey: "social_platform_presence",
+      lastAssistantText: buildCaptureQuestion("competitive_pressure_point", null),
     });
     expect(chips).toEqual(getSuggestedRepliesForCapture("competitive_pressure_point"));
     expect(chips?.[0]).toBe("Price");

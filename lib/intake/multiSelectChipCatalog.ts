@@ -457,23 +457,25 @@ const TOPIC_RULES: TopicRule[] = [
 
 /**
  * Resolve chips for the current turn.
- * Prefer forced-capture catalog when a pending key is set (avoids stale previous-question
- * topic matches). Otherwise detect topic from the assistant question (narrative phase).
+ * Prefer topic detected from the assistant question on screen — that text is the
+ * source of truth. Fall back to the pending capture catalog when topic detect misses.
+ * Never let a stale nextPendingKey override a clear on-screen topic match.
  */
 export function resolveSuggestedReplies(params: {
   nextPendingKey: CaptureKey | null;
   lastAssistantText?: string | null;
 }): string[] | null {
-  if (params.nextPendingKey) {
-    const fromCapture = getSuggestedRepliesForCapture(params.nextPendingKey);
-    if (fromCapture.length > 0) return fromCapture;
-  }
-
   const t = String(params.lastAssistantText || "");
+
   if (t.trim()) {
     for (const rule of TOPIC_RULES) {
       if (rule.test.test(t)) return rule.chips;
     }
+  }
+
+  if (params.nextPendingKey) {
+    const fromCapture = getSuggestedRepliesForCapture(params.nextPendingKey);
+    if (fromCapture.length > 0) return fromCapture;
   }
 
   return null;
@@ -484,15 +486,16 @@ export function resolveChipSelectionMode(params: {
   nextPendingKey: CaptureKey | null;
   lastAssistantText?: string | null;
 }): ChipSelectionMode {
-  if (params.nextPendingKey) {
-    return getChipSelectionModeForCapture(params.nextPendingKey);
-  }
-
   const t = String(params.lastAssistantText || "");
+
   if (t.trim()) {
     for (const rule of TOPIC_RULES) {
       if (rule.test.test(t)) return rule.mode;
     }
+  }
+
+  if (params.nextPendingKey) {
+    return getChipSelectionModeForCapture(params.nextPendingKey);
   }
 
   return "multi";

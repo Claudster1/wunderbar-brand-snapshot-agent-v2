@@ -610,42 +610,53 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     return fromMessage.length > 0 ? fromMessage : null;
   }, [chatAwaitingChoiceOnLatestAssistant, lastThreadMessage]);
 
-  /** Prefer chips that match the on-screen question; server meta can lag one turn behind. */
+  /** Chips follow the visible question only — never a possibly-stale nextCaptureKey. */
   const contextualQuickReplies = useMemo(() => {
     if (!chatAwaitingChoiceOnLatestAssistant || !lastThreadMessage) return null;
     if (lastThreadMessage.role !== "assistant") return null;
     return resolveSuggestedReplies({
-      nextPendingKey: nextCaptureKey ?? null,
+      nextPendingKey: null,
       lastAssistantText: lastThreadMessage.text,
     });
-  }, [chatAwaitingChoiceOnLatestAssistant, lastThreadMessage, nextCaptureKey]);
+  }, [chatAwaitingChoiceOnLatestAssistant, lastThreadMessage]);
 
   const contextualChipSelectionMode = useMemo(() => {
     if (!chatAwaitingChoiceOnLatestAssistant || !lastThreadMessage) return null;
     if (lastThreadMessage.role !== "assistant") return null;
     if (!contextualQuickReplies?.length) return null;
     return resolveChipSelectionMode({
-      nextPendingKey: nextCaptureKey ?? null,
+      nextPendingKey: null,
       lastAssistantText: lastThreadMessage.text,
     });
-  }, [chatAwaitingChoiceOnLatestAssistant, lastThreadMessage, contextualQuickReplies, nextCaptureKey]);
+  }, [chatAwaitingChoiceOnLatestAssistant, lastThreadMessage, contextualQuickReplies]);
 
   /**
-   * Prefer on-screen topic chips so pills match the visible question (meta can lag).
-   * Keep server chips for completeness nudges (includes Continue anyway).
+   * Prefer on-screen topic chips so pills always match the visible question.
+   * Keep server chips for completeness nudges (includes Continue anyway) and when
+   * topic detect misses (forced capture with no topic rule).
    */
   const serverIsCompletenessNudge = Boolean(
     suggestedReplies?.includes(CONTINUE_ANYWAY_CHIP),
   );
+  const captureFallbackChips =
+    !contextualQuickReplies && nextCaptureKey
+      ? resolveSuggestedReplies({
+          nextPendingKey: nextCaptureKey,
+          lastAssistantText: null,
+        })
+      : null;
   const quickReplyOptions =
     (!serverIsCompletenessNudge ? contextualQuickReplies : null) ||
+    captureFallbackChips ||
     (suggestedReplies && suggestedReplies.length > 0 ? suggestedReplies : null) ||
-    contextualQuickReplies ||
     messageDerivedQuickReplies;
 
   const effectiveChipSelectionMode = serverIsCompletenessNudge
     ? chipSelectionMode
-    : contextualChipSelectionMode ?? chipSelectionMode;
+    : contextualChipSelectionMode ??
+      (nextCaptureKey
+        ? resolveChipSelectionMode({ nextPendingKey: nextCaptureKey, lastAssistantText: null })
+        : chipSelectionMode);
 
   /** Single-select: one tap sends. Affordance chips ("type below") focus the textarea instead. */
   const handleQuickReplyChip = useCallback(
@@ -1141,7 +1152,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                           ? "Tap an option to send — or type your own answer below."
                           : (
                             <>
-                              Tap one or more options (e.g. several channels), then{" "}
+                              Tap one or more options, then{" "}
                               <strong>Send</strong> — or type your own answer in the box below.
                             </>
                           )}

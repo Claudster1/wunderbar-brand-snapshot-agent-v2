@@ -1144,7 +1144,9 @@ export default function HomePageClient({
                 {(isLoading || isFinalizing) && (
                   <div className="chat-bubble chat-bubble-assistant pending">
                     {isFinalizing
-                      ? `Your ${activeTierConfig.productName} is being finalized now…`
+                      ? resultsEntryUrl
+                        ? "Opening your results…"
+                        : `Your ${activeTierConfig.productName} is being finalized now…`
                       : "Wundy™ is thinking…"}
                   </div>
                 )}

@@ -91,6 +91,29 @@ function resolveAnthropicModel(model: string): string {
   return RETIRED_ANTHROPIC_MODELS[trimmed] ?? trimmed;
 }
 
+/**
+ * Claude Sonnet 5 / Opus 5 / Fable 5 reject `temperature` (400 deprecated).
+ * Use effort via output_config instead when sampling control is needed.
+ */
+function supportsTemperature(model: string): boolean {
+  const m = model.toLowerCase();
+  if (m.includes("sonnet-5") || m.includes("opus-5") || m.includes("fable-5") || m.includes("mythos-5")) {
+    return false;
+  }
+  // Dateless Claude 5 aliases: claude-sonnet-5, claude-opus-5
+  if (/^claude-(sonnet|opus|fable|mythos)-5($|-)/.test(m)) return false;
+  return true;
+}
+
+function anthropicSamplingFields(
+  model: string,
+  temperature: number | undefined,
+): Pick<Anthropic.MessageCreateParamsNonStreaming, "temperature"> {
+  if (temperature === undefined) return {};
+  if (!supportsTemperature(model)) return {};
+  return { temperature };
+}
+
 export function createAnthropicProvider(model: string): AIProviderClient {
   const resolvedModel = resolveAnthropicModel(model);
 
@@ -110,9 +133,7 @@ export function createAnthropicProvider(model: string): AIProviderClient {
         max_tokens: options.maxTokens ?? 2000,
         messages: userMessages,
         ...(system ? { system } : {}),
-        ...(options.temperature !== undefined
-          ? { temperature: options.temperature }
-          : {}),
+        ...anthropicSamplingFields(resolvedModel, options.temperature),
       };
 
       // Add tools if provided
@@ -175,9 +196,7 @@ export function createAnthropicProvider(model: string): AIProviderClient {
         max_tokens: options.maxTokens ?? 2000,
         messages,
         ...(system ? { system } : {}),
-        ...(options.temperature !== undefined
-          ? { temperature: options.temperature }
-          : {}),
+        ...anthropicSamplingFields(resolvedModel, options.temperature),
       });
 
       return {

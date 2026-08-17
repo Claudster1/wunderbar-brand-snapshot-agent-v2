@@ -11,8 +11,8 @@ import { logger } from "@/lib/logger";
 export async function POST(req: Request) {
   // ─── Security: Rate limit + request size ───
   const { apiGuard } = await import("@/lib/security/apiGuard");
-  const { AI_RATE_LIMIT } = await import("@/lib/security/rateLimit");
-  const guard = apiGuard(req, { routeId: "refine-chat", rateLimit: AI_RATE_LIMIT, maxBodySize: 50_000 });
+  const { REFINE_AI_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+  const guard = apiGuard(req, { routeId: "refine-chat", rateLimit: REFINE_AI_RATE_LIMIT, maxBodySize: 50_000 });
   if (!guard.passed) return guard.errorResponse;
 
   try {

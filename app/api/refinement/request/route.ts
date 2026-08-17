@@ -9,8 +9,8 @@ export const runtime = "nodejs";
 export async function POST(req: Request) {
   // ─── Security: Rate limit + request size ───
   const { apiGuard } = await import("@/lib/security/apiGuard");
-  const { AI_RATE_LIMIT } = await import("@/lib/security/rateLimit");
-  const guard = apiGuard(req, { routeId: "refinement-request", rateLimit: AI_RATE_LIMIT, maxBodySize: 100_000 });
+  const { REFINE_AI_RATE_LIMIT } = await import("@/lib/security/rateLimit");
+  const guard = apiGuard(req, { routeId: "refinement-request", rateLimit: REFINE_AI_RATE_LIMIT, maxBodySize: 100_000 });
   if (!guard.passed) return guard.errorResponse;
 
   try {

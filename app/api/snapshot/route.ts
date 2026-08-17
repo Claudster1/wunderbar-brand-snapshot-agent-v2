@@ -20,7 +20,7 @@ import {
   setContactFields,
 } from "@/lib/applyActiveCampaignTags";
 import { apiGuard } from "@/lib/security/apiGuard";
-import { AI_RATE_LIMIT } from "@/lib/security/rateLimit";
+import { COMPLETION_AI_RATE_LIMIT } from "@/lib/security/rateLimit";
 import { sanitizeString, isValidEmail } from "@/lib/security/inputValidation";
 import {
   recordBenchmarkData,
@@ -331,15 +331,30 @@ const snapshotBodySchema = z.object({
   answers: snapshotAnswersRecordSchema,
   pillar_insights: z.unknown().optional(),
   productTier: z.string().max(40).optional().nullable(),
+  reportId: z.string().uuid().optional().nullable(),
+  continuationReportId: z.string().uuid().optional().nullable(),
 });
 
 export async function POST(req: Request) {
-  // ─── Security: Rate limit + request size ───
-  const guard = apiGuard(req, { routeId: "snapshot", rateLimit: AI_RATE_LIMIT, maxBodySize: 200_000 });
-  if (!guard.passed) return guard.errorResponse;
+  const contentLength = req.headers.get("content-length");
+  if (contentLength && parseInt(contentLength, 10) > 200_000) {
+    return NextResponse.json({ error: "Request body too large." }, { status: 413 });
+  }
 
   try {
     const body = await req.json();
+
+    const { COMPLETION_IP_ABUSE_RATE_LIMIT, pickSessionReportId } = await import(
+      "@/lib/security/rateLimit"
+    );
+    const guard = apiGuard(req, {
+      routeId: "snapshot",
+      rateLimit: COMPLETION_AI_RATE_LIMIT,
+      abuseRateLimit: COMPLETION_IP_ABUSE_RATE_LIMIT,
+      sessionReportId: pickSessionReportId(body),
+      maxBodySize: 200_000,
+    });
+    if (!guard.passed) return guard.errorResponse;
 
     // ─── Schema validation ───
     const parsed = snapshotBodySchema.safeParse(body);

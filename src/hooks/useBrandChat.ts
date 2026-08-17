@@ -40,27 +40,10 @@ import {
   ANSWER_UNDO_WINDOW_MS,
   buildFieldCorrectionAssistantText,
 } from '@/lib/intake/answerCorrection';
+import { waitForReportReadable } from '@/lib/intake/waitForReportReadable';
 
 function snapshotResultsEntryUrl(finalReportId: string): string {
   return `/results?reportId=${encodeURIComponent(finalReportId)}`;
-}
-
-/** Confirm the report row exists before sending the user to `/results`. */
-async function waitForReportReadable(reportId: string, maxAttempts = 10): Promise<boolean> {
-  for (let i = 0; i < maxAttempts; i++) {
-    try {
-      const res = await fetch(`/api/snapshot/get?id=${encodeURIComponent(reportId)}`, {
-        cache: "no-store",
-      });
-      if (res.ok) return true;
-    } catch {
-      /* retry */
-    }
-    if (i < maxAttempts - 1) {
-      await new Promise((r) => setTimeout(r, 500 * (i + 1)));
-    }
-  }
-  return false;
 }
 
 const createMessage = (
@@ -757,13 +740,9 @@ export function useBrandChat(options?: UseBrandChatOptions) {
         return false;
       }
 
-      const readable = await waitForReportReadable(finalReportId);
-      if (!readable) {
-        setFinalizeError(
-          'Your diagnostic was saved but is still processing. Wait a few seconds, then tap Generate again.',
-        );
-        return false;
-      }
+      // Soft wait — 403 from /get often means the row exists but session gating applies.
+      // Always proceed to /results once scoring returned an id; that page loads via Supabase.
+      await waitForReportReadable(finalReportId);
 
       setReportId(finalReportId);
       if (typeof window !== 'undefined') {
@@ -1048,19 +1027,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
                 sendingRef.current = false;
                 return;
               }
-              const readable = await waitForReportReadable(finalReportId);
-              if (!readable) {
-                setReportId(finalReportId);
-                if (typeof window !== 'undefined') {
-                  sessionStorage.setItem('wundy_report_id', finalReportId);
-                }
-                setFinalizeError(
-                  'Your diagnostic was saved but is still processing. Wait a few seconds, then tap Generate again.',
-                );
-                setIsLoading(false);
-                sendingRef.current = false;
-                return;
-              }
+              await waitForReportReadable(finalReportId);
               setReportId(finalReportId);
               if (typeof window !== 'undefined') {
                 sessionStorage.setItem('wundy_report_id', finalReportId);
@@ -1068,6 +1035,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
 
               const redirectUrl = snapshotResultsEntryUrl(finalReportId);
               setResultsEntryUrl(redirectUrl);
+              setFinalizeError(null);
 
               if (snapshotData.businessName && typeof window !== 'undefined') {
                 try {

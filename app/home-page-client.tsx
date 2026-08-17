@@ -1443,27 +1443,44 @@ export default function HomePageClient({
                   className="chat-finalize-dock"
                   role="status"
                   aria-live="polite"
-                  aria-busy={isFinalizing}
+                  aria-busy={isFinalizing || !resultsEntryUrl}
                 >
                   <p className="chat-finalize-dock-title">
-                    {isFinalizing
-                      ? `Your ${activeTierConfig.productName} is being finalized now…`
-                      : `Preparing your ${activeTierConfig.productName}…`}
+                    {resultsEntryUrl
+                      ? "Opening your results…"
+                      : isFinalizing
+                        ? `Your ${activeTierConfig.productName} is being finalized now…`
+                        : `Preparing your ${activeTierConfig.productName}…`}
                   </p>
                   <p className="chat-finalize-dock-sub">
-                    {snapshotish
-                      ? "We'll open your results automatically — usually under a minute."
-                      : "Almost there — we're assembling your diagnostic from this conversation."}
+                    {resultsEntryUrl
+                      ? "Hang tight — redirecting you to your diagnostic."
+                      : snapshotish
+                        ? "We'll open your results automatically — usually under a minute."
+                        : "Almost there — we're assembling your diagnostic from this conversation."}
                   </p>
                   <div className="app-progress-bar chat-finalize-dock-progress">
                     <div className="app-progress-fill chat-finalize-dock-progress-fill" />
                   </div>
+                  {resultsEntryUrl && (
+                    <button
+                      type="button"
+                      className="chat-finalize-retry"
+                      style={{ marginTop: 12 }}
+                      onClick={() => {
+                        window.location.assign(resultsEntryUrl);
+                      }}
+                    >
+                      Open results now
+                    </button>
+                  )}
                 </div>
               )}
 
               {(needsResultsRecovery || intakeReadyForSeamlessFinalize) &&
                 finalizeError &&
-                !isFinalizing && (
+                !isFinalizing &&
+                !resultsEntryUrl && (
                   finalizeRetryCount >= MAX_FINALIZE_RETRIES ? (
                     <div className="chat-finalize-error">
                       <span style={{ fontSize: 13, color: "#991B1B", lineHeight: 1.45 }}>

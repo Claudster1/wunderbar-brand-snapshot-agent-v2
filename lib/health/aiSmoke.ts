@@ -13,7 +13,7 @@ const AI_SMOKE_TIMEOUT_MS = 20_000;
 /** Cheap canary models per provider for account/billing probes. */
 const PROVIDER_CANARY: Record<AIProvider, string> = {
   openai: "gpt-4o-mini",
-  anthropic: "claude-sonnet-4-6",
+  anthropic: "claude-sonnet-5",
   gemini: "gemini-2.0-flash",
 };
 

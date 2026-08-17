@@ -10,7 +10,7 @@ vi.mock("@/lib/ai/config", () => ({
     provider: "openai",
     model: "gpt-4o-mini",
     fallbackProvider: "anthropic",
-    fallbackModel: "claude-sonnet-4-6",
+    fallbackModel: "claude-sonnet-5",
   })),
 }));
 
@@ -75,7 +75,7 @@ describe("runAssessmentChatSmoke", () => {
         });
       }
       return mockClient("anthropic", async () =>
-        okResponse("anthropic", "claude-sonnet-4-6"),
+        okResponse("anthropic", "claude-sonnet-5"),
       );
     });
 

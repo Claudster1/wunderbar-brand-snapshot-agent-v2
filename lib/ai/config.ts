@@ -8,7 +8,7 @@
 //   AI_PROVIDER_WUNDY_GENERAL=gemini
 //   AI_MODEL_WUNDY_GENERAL=gemini-2.0-flash
 //   AI_PROVIDER_REPORT_GENERATION=anthropic
-//   AI_MODEL_REPORT_GENERATION=claude-sonnet-4-6
+//   AI_MODEL_REPORT_GENERATION=claude-sonnet-5
 // ─────────────────────────────────────────────────────────────────
 
 import type { AIProvider } from "./types";
@@ -68,7 +68,7 @@ const DEFAULT_ROUTES: Record<UseCase, ModelRoute> = {
     provider: "openai",
     model: "gpt-4o-mini",
     fallbackProvider: "anthropic",
-    fallbackModel: "claude-sonnet-4-6",
+    fallbackModel: "claude-sonnet-5",
     temperature: 0.6,
     maxTokens: 2000,
     timeoutMs: 25_000,
@@ -79,7 +79,7 @@ const DEFAULT_ROUTES: Record<UseCase, ModelRoute> = {
     provider: "openai",
     model: "gpt-4o-mini",
     fallbackProvider: "anthropic",
-    fallbackModel: "claude-sonnet-4-6",
+    fallbackModel: "claude-sonnet-5",
     temperature: 0.6,
     /**
      * Chat turns typically use ~250 tokens; the cap matters for the final handoff JSON which can run long
@@ -101,18 +101,18 @@ const DEFAULT_ROUTES: Record<UseCase, ModelRoute> = {
     provider: "openai",
     model: "gpt-4o-mini",
     fallbackProvider: "anthropic",
-    fallbackModel: "claude-sonnet-4-6",
+    fallbackModel: "claude-sonnet-5",
     temperature: 0.6,
     maxTokens: 2000,
     timeoutMs: 25_000,
   },
 
   // ─── Report Generation ─────────────────────────────────────
-  // Model selection calibrated to tier pricing and content complexity:
+  // Model ladder (Claude for paid strategy):
   // - Free: cost-efficient model for basic diagnostics
-  // - Snapshot+ ($497): high-quality model for strategic depth
-  // - Blueprint ($997): premium model for operating-system-level output
-  // - Blueprint+ ($1,997): best available model for enterprise-grade strategy
+  // - Snapshot+ ($497): Claude Sonnet 5 — strong strategy, clear step-up from free
+  // - Blueprint ($997) + Blueprint+ ($1,997): Claude Opus 5 — premium strategy writing
+  //   (Blueprint+ differentiates via depth / multi-call surface, not a different model)
   report_free: {
     provider: "openai",
     model: "gpt-4o-mini",
@@ -124,7 +124,7 @@ const DEFAULT_ROUTES: Record<UseCase, ModelRoute> = {
   },
   report_snapshot_plus: {
     provider: "anthropic",
-    model: "claude-sonnet-4-6",
+    model: "claude-sonnet-5",
     fallbackProvider: "openai",
     fallbackModel: "gpt-4o",
     temperature: 0.5,
@@ -133,7 +133,7 @@ const DEFAULT_ROUTES: Record<UseCase, ModelRoute> = {
   },
   report_blueprint: {
     provider: "anthropic",
-    model: "claude-sonnet-4-6",
+    model: "claude-opus-5",
     fallbackProvider: "openai",
     fallbackModel: "gpt-4o",
     temperature: 0.5,
@@ -142,7 +142,7 @@ const DEFAULT_ROUTES: Record<UseCase, ModelRoute> = {
   },
   report_blueprint_plus: {
     provider: "anthropic",
-    model: "claude-sonnet-4-6",
+    model: "claude-opus-5",
     fallbackProvider: "openai",
     fallbackModel: "gpt-4o",
     temperature: 0.5,
@@ -162,7 +162,7 @@ const DEFAULT_ROUTES: Record<UseCase, ModelRoute> = {
     provider: "openai",
     model: "gpt-4o-mini",
     fallbackProvider: "anthropic",
-    fallbackModel: "claude-sonnet-4-6",
+    fallbackModel: "claude-sonnet-5",
     temperature: 0.7,
     maxTokens: 2000,
     timeoutMs: 25_000,
@@ -182,8 +182,10 @@ const DEFAULT_ROUTES: Record<UseCase, ModelRoute> = {
 
 /** Retired Anthropic IDs → current replacements (also remaps stale Vercel env overrides). */
 const RETIRED_MODEL_ALIASES: Record<string, string> = {
-  "claude-sonnet-4-20250514": "claude-sonnet-4-6",
-  "claude-opus-4-20250514": "claude-opus-4-7",
+  "claude-sonnet-4-20250514": "claude-sonnet-5",
+  "claude-sonnet-4-6": "claude-sonnet-5",
+  "claude-opus-4-20250514": "claude-opus-5",
+  "claude-opus-4-7": "claude-opus-5",
 };
 
 function resolveModelId(model: string | undefined): string | undefined {
@@ -197,7 +199,7 @@ function resolveModelId(model: string | undefined): string | undefined {
  *
  * Override format:
  *   AI_PROVIDER_{USE_CASE}=anthropic
- *   AI_MODEL_{USE_CASE}=claude-sonnet-4-6
+ *   AI_MODEL_{USE_CASE}=claude-sonnet-5
  */
 export function getModelRoute(useCase: UseCase): ModelRoute {
   const defaults = DEFAULT_ROUTES[useCase];

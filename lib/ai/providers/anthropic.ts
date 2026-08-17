@@ -1,8 +1,8 @@
 // lib/ai/providers/anthropic.ts
 // ─────────────────────────────────────────────────────────────────
 // Anthropic (Claude) provider implementation.
-// Supports: claude-sonnet-4-6, claude-haiku-4-5-20251001, etc.
-// Features: Tool use, 200K context, superior writing quality.
+// Supports: claude-sonnet-5, claude-opus-5, claude-haiku-4-5-20251001, etc.
+// Features: Tool use, long context, superior writing quality.
 //
 // ENV: ANTHROPIC_API_KEY
 // ─────────────────────────────────────────────────────────────────
@@ -80,8 +80,10 @@ function extractContent(response: Anthropic.Message): string {
 
 /** Retired snapshot IDs → current Anthropic API models. */
 const RETIRED_ANTHROPIC_MODELS: Record<string, string> = {
-  "claude-sonnet-4-20250514": "claude-sonnet-4-6",
-  "claude-opus-4-20250514": "claude-opus-4-7",
+  "claude-sonnet-4-20250514": "claude-sonnet-5",
+  "claude-sonnet-4-6": "claude-sonnet-5",
+  "claude-opus-4-20250514": "claude-opus-5",
+  "claude-opus-4-7": "claude-opus-5",
 };
 
 function resolveAnthropicModel(model: string): string {

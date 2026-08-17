@@ -17,17 +17,12 @@ function userCorpus(messages: IntakeMessage[]): string {
     .join("\n");
 }
 
-function fullCorpus(messages: IntakeMessage[]): string {
-  return messages.map((m) => m.content || "").join("\n");
-}
-
 export function buildIntakeTopicResumeLines(
   messages: IntakeMessage[],
   priorAnswers?: Record<string, unknown> | null,
 ): string[] {
   const mergedMessages = mergeMessagesWithPriorSynthetic(messages, priorAnswers ?? undefined);
   const users = userCorpus(mergedMessages);
-  const all = fullCorpus(mergedMessages);
   if (!users.trim()) return [];
 
   const lines: string[] = [];
@@ -50,9 +45,10 @@ export function buildIntakeTopicResumeLines(
     lines.push("SOCIAL PLATFORMS: already answered — do **not** re-run social discovery (playbook §10).");
   }
 
+  // Narrative topics key off **user** text only — assistant playbook phrasing must not mark topics done.
   if (
     /\b(competitor|competition|competing|versus|vs\.|who else|similar in your space|agencies targeting|marketing agencies|other (marketing )?agencies|look-alike)\b/i.test(
-      all,
+      users,
     )
   ) {
     lines.push("COMPETITORS / ALTERNATIVES: already discussed — do **not** re-ask competitor discovery (playbook §11).");
@@ -60,7 +56,7 @@ export function buildIntakeTopicResumeLines(
 
   if (
     /\b(current customers?|customers today|who'?s actually buying|ideal customers?|perfect fit|client roster|no customers? yet|no clients? yet|just launching|don'?t have clients|targeting smbs?|smbs? and startups?|small,? medium|startups? who)\b/i.test(
-      all,
+      users,
     )
   ) {
     lines.push(
@@ -70,7 +66,7 @@ export function buildIntakeTopicResumeLines(
 
   if (
     /\b(service[- ]?based|b2b|b2c|saas|e-?commerce|how you (get paid|make money)|primarily (running|selling)|revenue model|marketing agency|consulting)\b/i.test(
-      all,
+      users,
     )
   ) {
     lines.push(
@@ -84,35 +80,67 @@ export function buildIntakeTopicResumeLines(
     );
   }
 
-  if (/\b(trust|proof|price|clarity|speed|fit)\b/i.test(users) && /\b(competitor|choose|instead|over you|prospects?)\b/i.test(all)) {
+  if (/\b(trust|proof|price|clarity|speed|fit)\b/i.test(users) && /\b(competitor|choose|instead|over you|prospects?)\b/i.test(users)) {
     lines.push("COMPETITIVE PRESSURE: already answered — do **not** re-ask why prospects choose competitors.");
   }
 
-  if (/\b(proprietary|different|unique|ai[- ]?driven|platform|what makes you|level the playing)\b/i.test(all)) {
+  if (/\b(proprietary|different|unique|ai[- ]?driven|platform|what makes you|level the playing)\b/i.test(users)) {
     lines.push("DIFFERENTIATION: already covered — do **not** re-ask what makes them different (playbook §17).");
   }
 
-  if (/\b(launching|scaling|biggest challenge|challenge with)\b/i.test(all)) {
+  if (/\b(launching|scaling|biggest challenge|challenge with)\b/i.test(users)) {
     lines.push("BIGGEST CHALLENGE: already discussed — do **not** re-ask the magic-wand challenge question (playbook §16).");
   }
 
-  if (/\b(mission|why behind|passionate about|fortune 500|deeper why|purpose)\b/i.test(all)) {
+  if (/\b(mission|why behind|passionate about|fortune 500|deeper why|purpose)\b/i.test(users)) {
     lines.push("PURPOSE / WHY: already explored — do **not** restart purpose/direction discovery (playbook §18).");
   }
 
-  if (/\b(very clear|somewhat clear|messaging|offer clarity|consistent)\b/i.test(all) && /\b(clear|messaging|offer)\b/i.test(all)) {
+  if (/\b(very clear|somewhat clear|messaging|offer clarity|consistent)\b/i.test(users) && /\b(clear|messaging|offer)\b/i.test(users)) {
     lines.push("OFFER / MESSAGING CLARITY: already answered — do **not** re-ask clarity questions (playbook §19–20).");
   }
 
-  if (/\b(voice|tone|approachable experts|brand speaks)\b/i.test(all)) {
+  if (/\b(i'?m (a )?founder|co-?founder|i (run|own) (the|this) business|day[- ]?to[- ]?day|i lead strategy|i oversee marketing|my role)\b/i.test(users)) {
+    lines.push("USER ROLE: already answered — do **not** re-ask role (playbook §2B / §38).");
+  }
+
+  if (/\b(just me|solo|2[–-]5 people|6[–-]15|16[–-]50|50\+|team of \d+|how big is (our|the|my) team)\b/i.test(users)) {
+    lines.push("TEAM SIZE: already answered — do **not** re-ask team size (playbook §8).");
+  }
+
+  if (/\b(industry|professional services|saas|e-?commerce|health|wellness|coaching)\b/i.test(users) && /\b(in|space|category|we'?re in|operate)\b/i.test(users)) {
+    lines.push("INDUSTRY: already answered — do **not** re-ask industry/category.");
+  }
+
+  if (/\b(locally|regionally|nationally|globally)\b/i.test(users)) {
+    lines.push("GEOGRAPHIC SCOPE: already answered — do **not** re-ask reach.");
+  }
+
+  if (/\b(less than 1 year|1[–-]3 years|3[–-]5 years|5[–-]10 years|10\+ years|not launched yet)\b/i.test(users)) {
+    lines.push("YEARS IN BUSINESS: already answered — do **not** re-ask tenure.");
+  }
+
+  if (/\b(very clear|somewhat clear|unclear)\b/i.test(users) && /\b(offer|what you do)\b/i.test(users)) {
+    lines.push("OFFER CLARITY: already answered — do **not** re-ask offer clarity.");
+  }
+
+  if (/\b(testimonials?|case stud|neither yet)\b/i.test(users) && /\b(proof|review|testimonial|case)\b/i.test(users)) {
+    lines.push("CREDIBILITY PROOF: already answered — do **not** re-ask testimonials/case studies.");
+  }
+
+  if (/\b(very confident|somewhat confident|not confident)\b/i.test(users)) {
+    lines.push("VISUAL CONFIDENCE: already answered — do **not** re-ask visual confidence.");
+  }
+
+  if (/\b(voice|tone|approachable experts|brand speaks)\b/i.test(users)) {
     lines.push("BRAND VOICE: already answered — do **not** re-ask voice/tone (playbook §21).");
   }
 
-  if (/\b(topics?|themes?|content pillars|brand foundation|consistency in messaging)\b/i.test(all)) {
+  if (/\b(topics?|themes?|content pillars|brand foundation|consistency in messaging)\b/i.test(users)) {
     lines.push("KEY TOPICS: already answered — do **not** re-ask key themes (playbook §22).");
   }
 
-  if (/\b(thought leadership|blog posts?|speaking|publicly|not yet|first ai)\b/i.test(all)) {
+  if (/\b(thought leadership|blog posts?|speaking|publicly|not yet|first ai)\b/i.test(users)) {
     lines.push("THOUGHT LEADERSHIP: already discussed — do **not** restart thought-leadership discovery (playbook §23).");
   }
 

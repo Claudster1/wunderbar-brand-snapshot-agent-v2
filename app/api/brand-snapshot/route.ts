@@ -6,7 +6,10 @@ import { NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { wundySystemPrompt } from "@/src/prompts/wundySystemPrompt";
 import { wundySnapshotIntakePrompt } from "@/src/prompts/wundySnapshotIntakePrompt";
+import { wundyPaidTierFragment } from "@/src/prompts/wundyPaidTierFragment";
 import { buildIntakeResponseMeta } from "@/lib/intake/buildIntakeResponseMeta";
+import { buildCaptureQuestion } from "@/lib/intake/buildCaptureQuestion";
+import type { CaptureBusinessType } from "@/lib/intake/buildCaptureQuestion";
 import { buildNarrativeRoutingLines } from "@/lib/intake/narrativeMilestones";
 import { wundyUpgradeContinuationFragment } from "@/src/prompts/wundyUpgradeContinuationFragment";
 import { wundyEarlyStageBuildModeFragment } from "@/src/prompts/wundyEarlyStageBuildModeFragment";
@@ -38,13 +41,7 @@ import {
 } from "@/lib/intake/loadPriorSnapshotAnswers";
 import type { ChatTier } from "@/lib/chatTierConfig";
 
-type BusinessType =
-  | "service_b2b"
-  | "service_b2c"
-  | "retail"
-  | "ecommerce"
-  | "saas"
-  | "local_service";
+type BusinessType = CaptureBusinessType;
 
 function computeBrandAlignmentFromPillars(
   pillarScores: Record<string, unknown> | null | undefined,
@@ -201,6 +198,17 @@ const ON_TOPIC_ASSISTANT_HINTS: Record<CaptureKey, RegExp> = {
     /\b(revenue|paid|model|launch|accurate|describe|get paid|primarily|service|product|saas|e-?commerce|tailor)\b/i,
   audience_type_classifier:
     /\b(who|sell|selling|b2b|b2c|customers|clients|buyers|audience|businesses|consumers)\b/i,
+  user_role_context:
+    /\b(role|founder|co-?founder|operator|strategy|marketing|day-to-day|run the business|lead)\b/i,
+  team_size: /\b(team|people|headcount|solo|just me|how many|size)\b/i,
+  industry: /\b(industry|space|category|sector|field|vertical|operates)\b/i,
+  geographic_scope: /\b(local|regional|national|global|geographic|serve|reach|where)\b/i,
+  years_in_business: /\b(years?|long|operating|launched|started|stage|new)\b/i,
+  offer_clarity: /\b(offer|clear|clarity|what you do|understand|first encounter)\b/i,
+  messaging_clarity: /\b(messaging|message|clear|consistent|clarity)\b/i,
+  credibility_proof: /\b(testimonial|case stud|review|proof|success|credibility)\b/i,
+  visual_confidence: /\b(visual|logo|look|design|confident|brand looks)\b/i,
+  thought_leadership: /\b(thought leadership|known for|blog|speak|publish|authority)\b/i,
   website_presence: /\b(website|url|domain|site|landing|\.com|web address|online)\b/i,
   social_platform_presence:
     /\b(social|instagram|linkedin|tiktok|platform|handle|@|youtube|facebook|threads|not active|none)\b/i,
@@ -242,22 +250,39 @@ function isActivationPlanningTier(raw: unknown): boolean {
   return tier === "blueprint" || tier === "blueprint-plus";
 }
 
-/** Snapshot / Snapshot+ — grounds Visibility + channel scoring without duplicating full Blueprint mix. */
+/**
+ * Snapshot / Snapshot+ digital baseline — website + social only.
+ * Channel discovery is covered by `primary_acquisition_channel` (and Blueprint
+ * `marketing_channel_mix`) so users are not asked overlapping “where do customers find you?” beats.
+ */
 const SNAPSHOT_DIGITAL_BASELINE: CaptureKey[] = [
   "website_presence",
   "social_platform_presence",
-  "additional_marketing_surfaces",
 ];
 
 function shouldIncludeCaptureForTier(capture: CaptureKey, tier: IntakeTier): boolean {
+  /** Stage + category + clarity + proof — required for credible scores on every tier. */
+  const credibilityCore: CaptureKey[] = [
+    "industry",
+    "geographic_scope",
+    "years_in_business",
+    "offer_clarity",
+    "credibility_proof",
+    "visual_confidence",
+  ];
+
   const core: CaptureKey[] = [
     "business_type_classifier",
+    "user_role_context",
     "audience_type_classifier",
+    ...credibilityCore,
     "primary_acquisition_channel",
     "competitive_pressure_point",
   ];
 
   const advanced: CaptureKey[] = [
+    "team_size",
+    "messaging_clarity",
     "monthly_revenue_range",
     "average_transaction_value",
     "conversion_rate_estimate",
@@ -265,6 +290,7 @@ function shouldIncludeCaptureForTier(capture: CaptureKey, tier: IntakeTier): boo
   ];
 
   const blueprintConversion: CaptureKey[] = [
+    "thought_leadership",
     "monthly_marketing_budget",
     "has_email_list",
     "has_lead_magnet",
@@ -279,7 +305,12 @@ function shouldIncludeCaptureForTier(capture: CaptureKey, tier: IntakeTier): boo
     return core.includes(capture) || advanced.includes(capture) || SNAPSHOT_DIGITAL_BASELINE.includes(capture);
   }
   if (tier === "blueprint" || tier === "blueprint-plus") {
-    return core.includes(capture) || advanced.includes(capture) || blueprintConversion.includes(capture);
+    return (
+      core.includes(capture) ||
+      advanced.includes(capture) ||
+      blueprintConversion.includes(capture) ||
+      SNAPSHOT_DIGITAL_BASELINE.includes(capture)
+    );
   }
   return false;
 }
@@ -321,12 +352,32 @@ function modelFacingCaptureHint(key: CaptureKey): string {
       return "how you earn revenue (services, product, SaaS, retail, etc.) — not yet who the customer is";
     case "audience_type_classifier":
       return "who you mainly sell to — other businesses (B2B), consumers (B2C), or a real mix";
+    case "user_role_context":
+      return "how you think about your role here — founder, day-to-day operator, strategy, or marketing/brand";
+    case "team_size":
+      return "roughly how big the team is today (including you)";
+    case "industry":
+      return "what industry or space you're in (a plain category is enough)";
+    case "geographic_scope":
+      return "whether you mainly serve locally, regionally, nationally, or globally";
+    case "years_in_business":
+      return "roughly how long you've been operating";
+    case "offer_clarity":
+      return "how clear your offer is to someone encountering you for the first time";
+    case "messaging_clarity":
+      return "how clear and consistent your messaging feels across channels";
+    case "credibility_proof":
+      return "what customer proof you have today — testimonials/reviews and/or case studies (or neither yet)";
+    case "visual_confidence":
+      return "how confident you feel about how the brand looks visually";
+    case "thought_leadership":
+      return "whether you're doing any thought leadership publicly yet (blog, speaking, LinkedIn POV, etc.)";
     case "website_presence":
       return "whether you have a live website URL (or are not on the web yet)";
     case "social_platform_presence":
       return "which social platforms you actively use (or that you are not really on social yet)";
     case "additional_marketing_surfaces":
-      return "time or budget beyond the website and socials (email, SEO, paid, events, referrals) — not the same as where new leads first discover you";
+      return "other marketing surfaces beyond website/social (only if still needed after primary discovery)";
     case "monthly_revenue_range":
       return "roughly what the business brings in month to month";
     case "average_transaction_value":
@@ -423,7 +474,21 @@ function getCaptureStates(
           ),
         ) ||
         refused(/\bhow you (get paid|make money)|business model|primary revenue\b/i) ||
-        flexibleDirectCaptureComplete("business_type_classifier", la, lu),
+        flexibleDirectCaptureComplete("business_type_classifier", la, lu) ||
+        captureKeySatisfiedFromHistory("business_type_classifier", messages),
+    },
+    {
+      key: "user_role_context",
+      label: "your role in the business",
+      completed:
+        hasRecentUserSignal(
+          messages,
+          /\b(i'?m (a )?founder|co-?founder|i (run|own) (the|this) business|day[- ]?to[- ]?day|i lead strategy|i oversee marketing|marketing lead|strategic lead|i'?m the (owner|ceo|operator)|my role is)\b/i,
+          6,
+        ) ||
+        refused(/\b(your role|role at|how do you think about your role)\b/i) ||
+        flexibleDirectCaptureComplete("user_role_context", la, lu) ||
+        captureKeySatisfiedFromHistory("user_role_context", messages),
     },
     {
       key: "audience_type_classifier",
@@ -436,6 +501,53 @@ function getCaptureStates(
         refused(/\bwho (do )?you (mainly )?sell|b2b or b2c|target (customer|audience)|ideal customer\b/i) ||
         flexibleDirectCaptureComplete("audience_type_classifier", la, lu) ||
         captureKeySatisfiedFromHistory("audience_type_classifier", messages),
+    },
+    {
+      key: "industry",
+      label: "industry / category",
+      completed:
+        refused(/\b(industry|what space|category|operates in)\b/i) ||
+        flexibleDirectCaptureComplete("industry", la, lu) ||
+        captureKeySatisfiedFromHistory("industry", messages),
+    },
+    {
+      key: "geographic_scope",
+      label: "geographic scope",
+      completed:
+        hasRecentUserSignal(
+          messages,
+          /\b(locally|regionally|nationally|globally|local \(city|regional \(state|nationwide|worldwide|multi-?state)\b/i,
+          8,
+        ) ||
+        refused(/\b(geographic|locally|regionally|nationally|globally|where .{0,20}serve)\b/i) ||
+        flexibleDirectCaptureComplete("geographic_scope", la, lu) ||
+        captureKeySatisfiedFromHistory("geographic_scope", messages),
+    },
+    {
+      key: "years_in_business",
+      label: "years in business",
+      completed:
+        hasRecentUserSignal(
+          messages,
+          /\b(less than 1 year|under a year|1[–-]3 years|3[–-]5 years|5[–-]10 years|10\+ years|not launched yet|just (started|launching))\b/i,
+          8,
+        ) ||
+        refused(/\b(how long|years in business|been operating)\b/i) ||
+        flexibleDirectCaptureComplete("years_in_business", la, lu) ||
+        captureKeySatisfiedFromHistory("years_in_business", messages),
+    },
+    {
+      key: "team_size",
+      label: "team size",
+      completed:
+        hasRecentUserSignal(
+          messages,
+          /\b(just me|solo|only me|2[–-]5|6[–-]15|16[–-]50|50\+|team of \d+|\d+\s*(people|person|employees?|ftes?))\b/i,
+          6,
+        ) ||
+        refused(/\b(how big|team size|how many people|people involved)\b/i) ||
+        flexibleDirectCaptureComplete("team_size", la, lu) ||
+        captureKeySatisfiedFromHistory("team_size", messages),
     },
     {
       key: "website_presence",
@@ -499,7 +611,8 @@ function getCaptureStates(
         ) ||
         revenueLooseOk ||
         refused(/\bmonthly revenue|month to month|transaction volume|how much you bring in\b/i) ||
-        flexibleDirectCaptureComplete("monthly_revenue_range", la, lu),
+        flexibleDirectCaptureComplete("monthly_revenue_range", la, lu) ||
+        captureKeySatisfiedFromHistory("monthly_revenue_range", messages),
     },
     {
       key: "average_transaction_value",
@@ -518,20 +631,30 @@ function getCaptureStates(
         hasSignal(messages, /\bconversion rate|close rate|i don't track this|do not track\b/i) ||
         hasRecentUserSignal(messages, CONVERSION_RATE_SIGNAL, 5) ||
         refused(/\bconversion rate|close rate|win rate\b/i) ||
-        flexibleDirectCaptureComplete("conversion_rate_estimate", la, lu),
+        flexibleDirectCaptureComplete("conversion_rate_estimate", la, lu) ||
+        captureKeySatisfiedFromHistory("conversion_rate_estimate", messages),
     },
     {
       key: "primary_acquisition_channel",
       label: "primary acquisition channel",
       completed:
-        hasSignal(messages, /\breferral|organic search|social media|paid advertising|direct|events\b/i) ||
+        // Prefer recent/discovery-shaped signals — bare "events"/"direct" anywhere in the chat
+        // was marking this complete before the discovery question was asked.
         hasRecentUserSignal(
           messages,
-          /\b(word of mouth|wom|mostly referrals|google|organic|seo|sem|search ads?|linkedin|instagram|tiktok|facebook|meta|youtube|twitter|threads|\bx\b|cold (email|outreach|dm)|outbound|inbound|partnerships?|affiliates?|marketplaces?|pr\b|podcast|newsletter|community|webinars?|trade shows?|conferences?|content marketing|thought leadership)\b/i,
+          /\b(word of mouth|wom|mostly referrals|organic search|social media|paid advertising|mix of channels|referrals? \/ word of mouth|direct \/ repeat|events \/ partnerships)\b/i,
           5,
         ) ||
-        refused(/\bacquisition channel|where (customers|clients) find you|lead source\b/i) ||
-        flexibleDirectCaptureComplete("primary_acquisition_channel", la, lu),
+        hasRecentUserSignal(
+          messages,
+          /\b(mostly referrals|google|organic|seo|sem|search ads?|linkedin|instagram|tiktok|facebook|meta|youtube|twitter|threads|\bx\b|cold (email|outreach|dm)|outbound|inbound|partnerships?|affiliates?|marketplaces?|pr\b|podcast|newsletter|community|webinars?|trade shows?|conferences?|content marketing|thought leadership|network(ing)?|recommend(ed|ations)?)\b/i,
+          5,
+        ) ||
+        refused(/\bacquisition channel|where (customers|clients) find you|lead source|discovers you|brand-?new prospect\b/i) ||
+        flexibleDirectCaptureComplete("primary_acquisition_channel", la, lu) ||
+        // History scan: a thank-you / next-question assistant turn after a valid reply
+        // otherwise breaks latest-la/lu pairing and re-forces this discovery question.
+        captureKeySatisfiedFromHistory("primary_acquisition_channel", messages),
     },
     {
       key: "monthly_marketing_budget",
@@ -543,7 +666,8 @@ function getCaptureStates(
         ) ||
         marketingBudgetLooseOk ||
         refused(/\bmarketing budget|budget range|ad spend\b/i) ||
-        flexibleDirectCaptureComplete("monthly_marketing_budget", la, lu),
+        flexibleDirectCaptureComplete("monthly_marketing_budget", la, lu) ||
+        captureKeySatisfiedFromHistory("monthly_marketing_budget", messages),
     },
     {
       key: "content_creation_capacity",
@@ -556,7 +680,8 @@ function getCaptureStates(
           5,
         ) ||
         refused(/\bcontent creation|hours per week|time for content\b/i) ||
-        flexibleDirectCaptureComplete("content_creation_capacity", la, lu),
+        flexibleDirectCaptureComplete("content_creation_capacity", la, lu) ||
+        captureKeySatisfiedFromHistory("content_creation_capacity", messages),
     },
     {
       key: "competitive_pressure_point",
@@ -582,13 +707,62 @@ function getCaptureStates(
         captureKeySatisfiedFromHistory("competitive_pressure_point", messages),
     },
     {
+      key: "offer_clarity",
+      label: "offer clarity",
+      completed:
+        // Do not match bare "somewhat clear" globally — that also answers messaging_clarity.
+        refused(/\b(offer clarity|how clear.{0,30}offer|what you do)\b/i) ||
+        flexibleDirectCaptureComplete("offer_clarity", la, lu) ||
+        captureKeySatisfiedFromHistory("offer_clarity", messages),
+    },
+    {
+      key: "messaging_clarity",
+      label: "messaging clarity",
+      completed:
+        // Require ask-pairing (flexible/history) so an offer-clarity chip doesn't skip messaging.
+        refused(/\b(messaging clarity|how clear.{0,30}messaging)\b/i) ||
+        flexibleDirectCaptureComplete("messaging_clarity", la, lu) ||
+        captureKeySatisfiedFromHistory("messaging_clarity", messages),
+    },
+    {
+      key: "credibility_proof",
+      label: "customer proof (testimonials / case studies)",
+      completed:
+        hasRecentUserSignal(
+          messages,
+          /\b(testimonials?|case stud(?:y|ies)|neither yet|no (testimonials?|case stud|proof)|success stor(?:y|ies))\b/i,
+          6,
+        ) ||
+        refused(/\b(testimonial|case stud|customer proof)\b/i) ||
+        flexibleDirectCaptureComplete("credibility_proof", la, lu) ||
+        captureKeySatisfiedFromHistory("credibility_proof", messages),
+    },
+    {
+      key: "visual_confidence",
+      label: "visual confidence",
+      completed:
+        refused(/\b(visual confidence|how (confident|happy).{0,20}(look|logo|visual))\b/i) ||
+        flexibleDirectCaptureComplete("visual_confidence", la, lu) ||
+        captureKeySatisfiedFromHistory("visual_confidence", messages),
+    },
+    {
+      key: "thought_leadership",
+      label: "thought leadership activity",
+      completed:
+        refused(/\b(thought leadership|known for|publish|speaking)\b/i) ||
+        flexibleDirectCaptureComplete("thought_leadership", la, lu) ||
+        captureKeySatisfiedFromHistory("thought_leadership", messages),
+    },
+    {
       key: "has_email_list",
       label: "email list status",
       completed:
         bareEmailListAnswer ||
-        hasSignal(
+        // Avoid global "not yet" — that phrase appears for many other topics and skipped this capture.
+        hasRecentUserSignal(
           messages,
-          /\bemail list|newsletter list|mailing list|we (have|don't have|do not have) an email list|no email list|not yet|starting|building (a )?list|small list\b/i,
+          /\b(email list|newsletter list|mailing list|we (have|don't have|do not have) an email list|no email list|building (a )?list|small list|starting (a )?list)\b/i,
+          5,
         ) ||
         hasRecentUserSignal(
           messages,
@@ -596,16 +770,19 @@ function getCaptureStates(
           5,
         ) ||
         refused(/\bemail list|newsletter|mailing list\b/i) ||
-        flexibleDirectCaptureComplete("has_email_list", la, lu),
+        flexibleDirectCaptureComplete("has_email_list", la, lu) ||
+        captureKeySatisfiedFromHistory("has_email_list", messages),
     },
     {
       key: "has_lead_magnet",
       label: "free offer / lead capture status",
       completed:
         bareLeadMagnetAnswer ||
-        hasSignal(
+        // Avoid global "not yet" / "don't have" — too easy to match earlier narrative answers.
+        hasRecentUserSignal(
           messages,
-          /\blead magnet|lead capture|opt-?in|downloadable guide|free checklist|gated content|lead form|free resource|not yet|don't have|do not have|haven't|no we don't|nothing yet|we're not|we are not|skipped|no,? not really\b/i,
+          /\b(lead magnet|lead capture|opt-?in|downloadable guide|free checklist|gated content|lead form|free resource|no lead magnet|no free (download|offer|guide))\b/i,
+          5,
         ) ||
         hasRecentUserSignal(
           messages,
@@ -613,15 +790,17 @@ function getCaptureStates(
           5,
         ) ||
         refused(/\blead magnet|lead capture|opt-?in|free (download|resource|offer)\b/i) ||
-        flexibleDirectCaptureComplete("has_lead_magnet", la, lu),
+        flexibleDirectCaptureComplete("has_lead_magnet", la, lu) ||
+        captureKeySatisfiedFromHistory("has_lead_magnet", messages),
     },
     {
       key: "has_clear_cta",
       label: "primary CTA clarity",
       completed:
-        hasSignal(
+        hasRecentUserSignal(
           messages,
-          /\bclear cta|call to action|book a call|get started|schedule (a )?demo|request a quote|next step is clear|next step|a bit mixed|still figuring|not sure yet\b/i,
+          /\b(clear cta|call to action|book a call|get started|schedule (a )?demo|request a quote|next step is clear|a bit mixed|still figuring)\b/i,
+          5,
         ) ||
         hasRecentUserSignal(
           messages,
@@ -629,7 +808,8 @@ function getCaptureStates(
           5,
         ) ||
         refused(/\bcall to action|cta|next step|main action on (the )?site\b/i) ||
-        flexibleDirectCaptureComplete("has_clear_cta", la, lu),
+        flexibleDirectCaptureComplete("has_clear_cta", la, lu) ||
+        captureKeySatisfiedFromHistory("has_clear_cta", messages),
     },
     {
       key: "marketing_channel_mix",
@@ -652,14 +832,33 @@ function getCaptureStates(
           5,
         ) ||
         refused(/\bmarketing channels|active channels|which channels\b/i) ||
-        flexibleDirectCaptureComplete("marketing_channel_mix", la, lu),
+        flexibleDirectCaptureComplete("marketing_channel_mix", la, lu) ||
+        captureKeySatisfiedFromHistory("marketing_channel_mix", messages),
     },
   ];
 
-  return captures.filter((capture) => {
+  const filtered = captures.filter((capture) => {
     if (capture.key === "monthly_marketing_budget" && !includeBudgetCapture) return false;
+    // Surfaces capture is optional/legacy — only keep if already in-flight completion helps upgrades.
+    if (capture.key === "additional_marketing_surfaces") return false;
     return shouldIncludeCaptureForTier(capture.key, tier);
   });
+
+  // Collapse channel overlap only when the user already signaled breadth (mix / multi-channel),
+  // not when they named a single primary discovery channel (Blueprint still needs mix).
+  const primary = filtered.find((c) => c.key === "primary_acquisition_channel");
+  const mix = filtered.find((c) => c.key === "marketing_channel_mix");
+  if (primary?.completed && mix && !mix.completed) {
+    const mixSatisfied =
+      hasRecentUserSignal(
+        messages,
+        /\b(mix of channels|multi-?channel|omnichannel|mostly one channel|channel mix)\b/i,
+        6,
+      ) || captureKeySatisfiedFromHistory("marketing_channel_mix", messages);
+    if (mixSatisfied) mix.completed = true;
+  }
+
+  return filtered;
 }
 
 type CaptureEngineOptions = {
@@ -723,11 +922,10 @@ function forcedPromptRepeatCount(
 }
 
 /**
- * Soft-skip when the same capture has already been asked once. Previously required `>= 2`, which
- * meant users had to see the question twice (and reply twice) before the system gave up. That was
- * the visible "repeating question" loop. Now: if the forced prompt has appeared *or* the model has
- * already paraphrased the same capture topic, we treat the next pending check as soft-skipped so
- * the conversation moves on. The downstream transcript extract still pulls whatever the user said.
+ * Soft-skip only after the same capture was asked twice without a parseable answer.
+ * Asking once is not enough — that permanently skipped thin answers and hurt scoring.
+ * History scans (`captureKeySatisfiedFromHistory`) prevent the "valid answer then re-ask" loop.
+ * After two asks, advance so users are never stuck; transcript extract can still recover signal.
  */
 function shouldSoftSkipDueToForcedPromptLoop(
   messages: Array<{ role: string; content: string }>,
@@ -735,7 +933,7 @@ function shouldSoftSkipDueToForcedPromptLoop(
   pendingKey?: CaptureKey,
 ): boolean {
   const verbatim = forcedPromptRepeatCount(messages, forcedPrompt);
-  if (verbatim >= 1) return true;
+  if (verbatim >= 2) return true;
   if (!pendingKey) return false;
   const paraphraseCount = messages
     .filter((m) => m.role === "assistant")
@@ -743,77 +941,7 @@ function shouldSoftSkipDueToForcedPromptLoop(
       (n, m) => (responseRequestsExpectedCapture(m.content || "", pendingKey) ? n + 1 : n),
       0,
     );
-  return paraphraseCount >= 1;
-}
-
-function buildCaptureQuestion(
-  key: CaptureKey,
-  inferredType: BusinessType | null
-): string {
-  /** Revenue / offer shape only — avoids baking B2B/B2C into the business-type step. */
-  const revenueOnlyLabel = (type: BusinessType) => {
-    switch (type) {
-      case "service_b2b":
-      case "service_b2c":
-        return "services / consulting";
-      case "retail":
-        return "retail";
-      case "ecommerce":
-        return "e-commerce or product-led";
-      case "saas":
-        return "SaaS / software";
-      case "local_service":
-        return "local service";
-      default:
-        return "business";
-    }
-  };
-
-  const typeHint =
-    inferredType === null
-      ? ""
-      : `\nBusiness model context locked: ${inferredType.replace(/_/g, " ")}.`;
-
-  switch (key) {
-    case "business_type_classifier":
-      return inferredType
-        ? `Quick gut check on **how you earn revenue**: it sounds like you're primarily in a **${revenueOnlyLabel(
-            inferredType,
-          )}** business. **Does that match how you'd describe your offer, or would you describe it differently?**`
-        : "**How do you primarily get paid today** — mostly services/consulting, a physical or digital product, SaaS/subscription, retail, or something else? A short phrase is enough **(we'll ask who you sell to next).**";
-    case "audience_type_classifier":
-      return "**Who do you mainly sell to** — mostly other businesses (B2B), mostly consumers (B2C), or a meaningful mix of both?";
-    case "website_presence":
-      return "**Do you have a website URL to share today** — even a simple landing page or store link? If you are not on the web yet, just say so; that is useful too.";
-    case "social_platform_presence":
-      return "**Where does your brand show up on social today?** Name the platforms that matter (or say *none / not really active yet*).";
-    case "additional_marketing_surfaces":
-      return "**Beyond your website and social profiles, where else are you putting real time or budget** — email to a list, SEO or content, paid ads, events, partnerships — or mostly referrals / word of mouth? *(Different from the next question about where new prospects first discover you.)*";
-    case "monthly_revenue_range":
-      return "**Roughly what does the business generate month to month?** A range is perfect — it keeps your impact framing grounded in real numbers.";
-    case "average_transaction_value":
-      return "**About what is your average transaction value or deal size today?** A rough estimate is absolutely fine.";
-    case "conversion_rate_estimate":
-      return "**What is your approximate conversion or close rate today, if you track it?** If not, totally okay — just say you don't track it yet.";
-    case "primary_acquisition_channel":
-      return "**When a brand-new prospect first discovers you, where does that usually happen** — referral, organic search, social, paid ads, direct, events, or something else? *(This is about discovery, not every channel you maintain.)*";
-    case "monthly_marketing_budget":
-      return "**What is your approximate monthly marketing budget today?** Ballpark is perfect — this just helps prioritize what is realistic for you.";
-    case "content_creation_capacity":
-      return "**How much time can your team realistically invest in content creation each week?** Even a rough range works — no need to overthink it.";
-    case "competitive_pressure_point":
-      return "**When prospects choose a competitor over you, what reason comes up most often** — price, trust, clarity, speed, proof, or fit?";
-    case "has_email_list":
-      return `One gentle logistics question — **do you have an email list you're sending to today** (even a small one is perfect)? A simple yes or no is totally enough. If you're just starting, that's okay too — your diagnostic can include a friendly path forward.`;
-    case "has_lead_magnet":
-      return `Lots of strong brands don't use a "lead magnet" yet — totally normal. **Do you have any free download, template, guide, or similar that people get in exchange for their email?** If the answer is no, that's useful too: say something like "not yet" or "we don't," and your plan can include a short list of ideas we'll weave into the email and social campaigns we draft for you.`;
-    case "has_clear_cta":
-      return `**Pick one primary place** you're grading — your main website **or** the profile you most often send people to (not both at once). **How clear is the next step there** — pretty obvious (one main action), or still a little mixed? Whatever you share is the right answer.`;
-    case "marketing_channel_mix":
-      return "**Across the marketing channels you actively run** (not only where new leads first discover you), where are you showing up for people lately — email, social, SEO or search, paid ads, referrals, events, YouTube, or something else? \"Mostly one channel\" is a great answer too.";
-    default:
-      return `Great context so far. **Let's grab one more input** so your recommendations stay precise.${typeHint}`;
-  }
+  return paraphraseCount >= 2;
 }
 
 function capturePromptPatternForKey(key: CaptureKey): RegExp {
@@ -828,6 +956,26 @@ function capturePromptPatternForKey(key: CaptureKey): RegExp {
       return /\b(primary revenue|how you generate revenue|how do you get paid|primarily get paid|earn revenue|it sounds like you'?re primarily|business model|revenue model|describe (?:your|the) revenue|services vs product|offer \(services|does that match|how do you primarily get paid)\b/i;
     case "audience_type_classifier":
       return /\b(who do you (mainly )?sell|selling to|mainly (b2b|b2c)|b2b or b2c|mix of both|meaningful mix|consumers \(b2c\)|businesses \(b2b\)|target customer|ideal customer)\b/i;
+    case "user_role_context":
+      return /\b(your role|role at|how do you think about your role|founder \/ co-founder|day-to-day|lead strategy|oversee marketing)\b/i;
+    case "team_size":
+      return /\b(how big is (your|the) team|team size|how many people|people (are )?involved|team today)\b/i;
+    case "industry":
+      return /\b(industry|what space|operates in|category|line of business)\b/i;
+    case "geographic_scope":
+      return /\b(locally|regionally|nationally|globally|geographic|serve customers|reach of)\b/i;
+    case "years_in_business":
+      return /\b(how long|years in business|been operating|been in business)\b/i;
+    case "offer_clarity":
+      return /\b(offer clarity|how clear.{0,40}offer|first encounter|what you do)\b/i;
+    case "messaging_clarity":
+      return /\b(messaging clarity|how clear.{0,40}messaging|consistent.{0,20}messaging)\b/i;
+    case "credibility_proof":
+      return /\b(customer proof|testimonial|case stud|reviews?|neither yet|proof do you have)\b/i;
+    case "visual_confidence":
+      return /\b(visual confidence|how (confident|happy).{0,40}(look|logo|visual)|brand looks)\b/i;
+    case "thought_leadership":
+      return /\b(thought leadership|known for|publicly|blog|speaking|linkedin pov)\b/i;
     case "website_presence":
       return /\b(website|url|domain|landing|site to share|web address|\.com|not on the web)\b/i;
     case "social_platform_presence":
@@ -1001,6 +1149,7 @@ function buildDeterministicRoutingGuard(
     "DETERMINISTIC ROUTING GUARD (SERVER ENFORCED):",
     `- ${getBusinessTypeRoutingNotes(inferredType)}`,
     "- Ask one question at a time, and prioritize missing required captures before wrap-up.",
+    "- If the latest user answer is too vague for a reliable score (e.g. 'stuff', 'not sure', 'a bit of everything' with no channel/amount/factor), ask **one** short clarifying follow-up on that same topic — then accept and move on. Do **not** re-ask a completed capture or a topic already listed under INTAKE TOPIC RESUME.",
     `- Step-state completion: ${completionPercent}%`,
     `- Next required capture (strict order): ${nextCapture}.`,
     `- Pending required captures right now: ${pending.length ? pending.map((x) => x.label).join(", ") : "none"}.`,
@@ -1253,7 +1402,7 @@ export async function POST(req: Request) {
       },
       ...(intakeTier === "snapshot"
         ? [{ role: "system" as const, content: wundySnapshotIntakePrompt }]
-        : []),
+        : [{ role: "system" as const, content: wundyPaidTierFragment }]),
       { role: "system" as const, content: wundyEarlyStageBuildModeFragment },
       ...(useUpgradeContinuation
         ? [{ role: "system" as const, content: wundyUpgradeContinuationFragment }]
@@ -1323,13 +1472,16 @@ export async function POST(req: Request) {
     };
 
     const postCaptureStates = getEffectiveCaptureStates(messages, captureOpts, softSkipKeys);
-    const intakeMeta = buildIntakeResponseMeta({
-      messages,
-      tier: intakeTier as ChatTier,
-      captureStates: postCaptureStates,
-      nextPendingKey: nextPendingCapture?.key ?? null,
-      priorAnswers,
-    });
+    const buildMetaForOutgoing = (outgoingAssistantText: string) =>
+      buildIntakeResponseMeta({
+        messages,
+        tier: intakeTier as ChatTier,
+        captureStates: postCaptureStates,
+        nextPendingKey: nextPendingCapture?.key ?? null,
+        priorAnswers,
+        // Chips must match this turn's question — history still ends on the previous ask.
+        outgoingAssistantText,
+      });
 
     if (streamRequested === true) {
       const stream = new ReadableStream({
@@ -1351,7 +1503,7 @@ export async function POST(req: Request) {
               encodeBrandSnapshotSse({
                 type: "done",
                 content: finalContent,
-                meta: intakeMeta,
+                meta: buildMetaForOutgoing(finalContent),
                 _ai: { provider: "openai", model: "stream" },
               }),
             );
@@ -1391,7 +1543,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       content: finalContent,
-      meta: intakeMeta,
+      meta: buildMetaForOutgoing(finalContent),
       _ai: {
         provider: completion.provider,
         model: completion.model,

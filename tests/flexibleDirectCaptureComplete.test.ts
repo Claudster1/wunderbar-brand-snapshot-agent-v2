@@ -24,6 +24,8 @@ const LA = {
     "**How do you primarily get paid today** — mostly services/consulting, a physical or digital product, SaaS/subscription, retail, or something else?",
   businessConfirm: "Does that feel accurate, or would you describe your revenue model differently?",
   audience: "**Who do you mainly sell to** — mostly other businesses (B2B), mostly consumers (B2C), or a meaningful mix of both?",
+  role: "**How do you think about your role here?** Tap below — or type your own.",
+  teamSize: "**How big is your team today** — including you?",
   revenue: "Roughly what does the business generate month to month?",
   avgDeal: "About what is your average transaction value or deal size today?",
   conversion: "What is your approximate conversion or close rate today, if you track it?",
@@ -199,6 +201,26 @@ describe("flexibleDirectCaptureComplete", () => {
     it("accepts single channel token", () => {
       expect(flexibleDirectCaptureComplete("primary_acquisition_channel", LA.channel, "organic search")).toBe(true);
     });
+    it("accepts chip labels including mix / direct", () => {
+      expect(flexibleDirectCaptureComplete("primary_acquisition_channel", LA.acquisitionForcedPrompt, "Mix of channels")).toBe(
+        true,
+      );
+      expect(flexibleDirectCaptureComplete("primary_acquisition_channel", LA.acquisitionForcedPrompt, "Direct / repeat")).toBe(
+        true,
+      );
+      expect(
+        flexibleDirectCaptureComplete("primary_acquisition_channel", LA.acquisitionForcedPrompt, "Referrals / word of mouth"),
+      ).toBe(true);
+    });
+    it("accepts colloquial discovery answers", () => {
+      expect(
+        flexibleDirectCaptureComplete(
+          "primary_acquisition_channel",
+          LA.acquisitionForcedPrompt,
+          "mostly through our network and recommendations",
+        ),
+      ).toBe(true);
+    });
     it("accepts multi-item channel lists (general enumeration rule)", () => {
       expect(flexibleDirectCaptureComplete("primary_acquisition_channel", LA.channel, "referrals, LinkedIn, cold email")).toBe(
         true,
@@ -206,6 +228,17 @@ describe("flexibleDirectCaptureComplete", () => {
       expect(flexibleDirectCaptureComplete("marketing_channel_mix", LA.channelMix, "tiktok + newsletter + paid")).toBe(
         true,
       );
+    });
+    it("history scan survives a follow-up assistant turn (anti-repeat)", () => {
+      const messages = [
+        { role: "assistant", content: LA.acquisitionForcedPrompt },
+        { role: "user", content: "Referrals / word of mouth" },
+        {
+          role: "assistant",
+          content: "Thanks — that's helpful. Roughly what does the business generate month to month?",
+        },
+      ];
+      expect(captureKeySatisfiedFromHistory("primary_acquisition_channel", messages)).toBe(true);
     });
   });
 
@@ -245,6 +278,8 @@ describe("flexibleDirectCaptureComplete", () => {
   });
 
   const smokeKeys: CaptureKey[] = [
+    "user_role_context",
+    "team_size",
     "average_transaction_value",
     "conversion_rate_estimate",
     "monthly_marketing_budget",
@@ -257,6 +292,25 @@ describe("flexibleDirectCaptureComplete", () => {
     const table: Record<CaptureKey, { la: string; lu: string }> = {
       business_type_classifier: { la: LA.business, lu: "local service business" },
       audience_type_classifier: { la: LA.audience, lu: "mostly B2B" },
+      user_role_context: { la: LA.role, lu: "I'm a founder / co-founder" },
+      team_size: { la: LA.teamSize, lu: "2–5 people" },
+      industry: { la: "**What industry or space is the business in?**", lu: "B2B professional services" },
+      geographic_scope: { la: "**Where do you mainly serve customers** — locally, regionally, nationally, or globally?", lu: "Nationally" },
+      years_in_business: { la: "**Roughly how long have you been operating?**", lu: "1–3 years" },
+      offer_clarity: { la: "**How clear is your offer to someone encountering you for the first time?**", lu: "Somewhat clear" },
+      messaging_clarity: {
+        la: "**How clear and consistent does your messaging feel across channels today?**",
+        lu: "Somewhat clear",
+      },
+      credibility_proof: {
+        la: "**What customer proof do you have today?** Tap all that apply — testimonials/reviews, case studies, or neither yet.",
+        lu: "Testimonials / reviews",
+      },
+      visual_confidence: { la: "**How confident do you feel about how the brand looks visually?**", lu: "Somewhat confident" },
+      thought_leadership: {
+        la: "**Are you doing any thought leadership publicly yet** — blog, speaking, LinkedIn POV, or similar?",
+        lu: "Not yet",
+      },
       website_presence: { la: LA.website, lu: "https://example.com" },
       social_platform_presence: { la: LA.socialPlatforms, lu: "linkedin and instagram" },
       additional_marketing_surfaces: { la: LA.otherSurfaces, lu: "seo + events" },

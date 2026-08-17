@@ -29,14 +29,22 @@ import {
   lastMessageAwaitingUserReply,
 } from "@/lib/intake/computeSeamlessFinalizeUiState";
 import { extractMultiSelectOptions } from "@/lib/intake/extractMultiSelectOptions";
+import { CONTINUE_ANYWAY_CHIP } from "@/lib/intake/completenessNudgeChips";
 import {
   BETWEEN_BANDS_CHIP,
   OTHER_CHIP,
+  resolveChipSelectionMode,
   resolveSuggestedReplies,
 } from "@/lib/intake/multiSelectChipCatalog";
 
-/** Chip labels that mean “type your answer” — never send the label alone. */
-const AFFORDANCE_CHIPS = new Set([OTHER_CHIP, BETWEEN_BANDS_CHIP]);
+/** Chip labels that mean “type your answer” — never send the label alone (even in single-select). */
+const AFFORDANCE_CHIPS = new Set([
+  OTHER_CHIP,
+  BETWEEN_BANDS_CHIP,
+  "Yes, here's the URL",
+  "I track it (~X%)",
+  "Rough guess",
+]);
 
 export type HomePageClientProps = {
   tierParam: string | null;
@@ -168,6 +176,8 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     clearFinalizeError,
     intakeReadyForFinalize,
     suggestedReplies,
+    chipSelectionMode,
+    nextCaptureKey,
     capturedSummary,
     questionsRemainingEstimate,
   } = useBrandChat({
@@ -370,6 +380,40 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     [isFinalizing, isLoading, isUploading],
   );
 
+  const sendComposerOutgoing = useCallback(
+    async (outgoing: string) => {
+      if (!outgoing.trim() || isFinalizing || isLoading) return;
+      if (honeypot) {
+        setInputValue("");
+        setSelectedQuickReplyPills([]);
+        return;
+      }
+
+      if (!snapshotStartFiredRef.current) {
+        snapshotStartFiredRef.current = true;
+        let alreadyStarted = false;
+        try {
+          alreadyStarted = sessionStorage.getItem("wb_snapshot_started") === "1";
+          sessionStorage.setItem("wb_snapshot_started", "1");
+        } catch {}
+        if (!alreadyStarted) trackSnapshotStart();
+      }
+
+      behaviorTrackerRef.current?.recordMessage(outgoing);
+      if (behaviorTrackerRef.current) {
+        (window as any).__behavioralSignals = behaviorTrackerRef.current.getSignals();
+      }
+
+      await sendMessage(outgoing);
+      setInputValue("");
+      setSelectedQuickReplyPills([]);
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    },
+    [honeypot, isFinalizing, isLoading, sendMessage],
+  );
+
   // Save progress and email a resume link
   const handleSaveAndExit = async () => {
     if (!saveEmail.trim() || !saveEmail.includes("@")) return;
@@ -566,7 +610,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     return fromMessage.length > 0 ? fromMessage : null;
   }, [chatAwaitingChoiceOnLatestAssistant, lastThreadMessage]);
 
-  /** Client-side topic chips when meta lags (e.g. goals narrative). */
+  /** Chips follow the visible question only — never a possibly-stale nextCaptureKey. */
   const contextualQuickReplies = useMemo(() => {
     if (!chatAwaitingChoiceOnLatestAssistant || !lastThreadMessage) return null;
     if (lastThreadMessage.role !== "assistant") return null;
@@ -576,11 +620,61 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     });
   }, [chatAwaitingChoiceOnLatestAssistant, lastThreadMessage]);
 
-  /** Prefer server chips (short question + pills); then topic detect; then legacy bullets. */
+  const contextualChipSelectionMode = useMemo(() => {
+    if (!chatAwaitingChoiceOnLatestAssistant || !lastThreadMessage) return null;
+    if (lastThreadMessage.role !== "assistant") return null;
+    if (!contextualQuickReplies?.length) return null;
+    return resolveChipSelectionMode({
+      nextPendingKey: null,
+      lastAssistantText: lastThreadMessage.text,
+    });
+  }, [chatAwaitingChoiceOnLatestAssistant, lastThreadMessage, contextualQuickReplies]);
+
+  /**
+   * Prefer on-screen topic chips so pills always match the visible question.
+   * Keep server chips for completeness nudges (includes Continue anyway) and when
+   * topic detect misses (forced capture with no topic rule).
+   */
+  const serverIsCompletenessNudge = Boolean(
+    suggestedReplies?.includes(CONTINUE_ANYWAY_CHIP),
+  );
+  const captureFallbackChips =
+    !contextualQuickReplies && nextCaptureKey
+      ? resolveSuggestedReplies({
+          nextPendingKey: nextCaptureKey,
+          lastAssistantText: null,
+        })
+      : null;
   const quickReplyOptions =
+    (!serverIsCompletenessNudge ? contextualQuickReplies : null) ||
+    captureFallbackChips ||
     (suggestedReplies && suggestedReplies.length > 0 ? suggestedReplies : null) ||
-    contextualQuickReplies ||
     messageDerivedQuickReplies;
+
+  const effectiveChipSelectionMode = serverIsCompletenessNudge
+    ? chipSelectionMode
+    : contextualChipSelectionMode ??
+      (nextCaptureKey
+        ? resolveChipSelectionMode({ nextPendingKey: nextCaptureKey, lastAssistantText: null })
+        : chipSelectionMode);
+
+  /** Single-select: one tap sends. Affordance chips ("type below") focus the textarea instead. */
+  const handleQuickReplyChip = useCallback(
+    (opt: string) => {
+      if (isLoading || isFinalizing || isUploading) return;
+      if (AFFORDANCE_CHIPS.has(opt)) {
+        setSelectedQuickReplyPills([opt]);
+        setTimeout(() => inputRef.current?.focus(), 0);
+        return;
+      }
+      if (effectiveChipSelectionMode === "single") {
+        void sendComposerOutgoing(opt);
+        return;
+      }
+      toggleQuickReplyPill(opt);
+    },
+    [effectiveChipSelectionMode, isFinalizing, isLoading, isUploading, sendComposerOutgoing, toggleQuickReplyPill],
+  );
 
   const serverQuickReplies =
     quickReplyOptions && chatAwaitingChoiceOnLatestAssistant
@@ -641,43 +735,13 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
       .filter((p) => !AFFORDANCE_CHIPS.has(p))
       .join(", ");
     if (!trimmed && !pillLine) return;
-    if (isFinalizing || isLoading) return;
-
-    if (honeypot) {
-      setInputValue("");
-      setSelectedQuickReplyPills([]);
-      return;
-    }
 
     const outgoing =
       trimmed && pillLine
         ? `${pillLine}. ${trimmed}`
         : pillLine || trimmed;
 
-    // Fire the "diagnostic started" micro-conversion once per session, on the
-    // user's first real message (StartTrial / GA begin). Deduped via ref +
-    // sessionStorage so reloads mid-diagnostic don't re-count.
-    if (!snapshotStartFiredRef.current) {
-      snapshotStartFiredRef.current = true;
-      let alreadyStarted = false;
-      try {
-        alreadyStarted = sessionStorage.getItem("wb_snapshot_started") === "1";
-        sessionStorage.setItem("wb_snapshot_started", "1");
-      } catch {}
-      if (!alreadyStarted) trackSnapshotStart();
-    }
-
-    behaviorTrackerRef.current?.recordMessage(outgoing);
-    if (behaviorTrackerRef.current) {
-      (window as any).__behavioralSignals = behaviorTrackerRef.current.getSignals();
-    }
-
-    await sendMessage(outgoing);
-    setInputValue("");
-    setSelectedQuickReplyPills([]);
-    setTimeout(() => {
-      inputRef.current?.focus();
-    }, 100);
+    await sendComposerOutgoing(outgoing);
   };
 
   return (
@@ -874,8 +938,10 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                 </span>
                 <span>
                   {assessmentProgress}% complete
-                  {questionsRemainingEstimate != null && assessmentProgress < 100
-                    ? ` · ~${questionsRemainingEstimate} questions left`
+                  {questionsRemainingEstimate != null &&
+                  questionsRemainingEstimate > 0 &&
+                  assessmentProgress < 100
+                    ? ` · ~${questionsRemainingEstimate} left`
                     : ""}
                 </span>
               </div>
@@ -1040,7 +1106,11 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                     <>
                     <div
                       role="group"
-                      aria-label="Quick reply suggestions — select one or more, then press Send"
+                      aria-label={
+                        effectiveChipSelectionMode === "single"
+                          ? "Quick reply suggestions — tap one to send"
+                          : "Quick reply suggestions — select one or more, then press Send"
+                      }
                       className="chat-input-row"
                       style={{ marginBottom: 10 }}
                     >
@@ -1052,7 +1122,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                           type="button"
                           disabled={isLoading || isFinalizing || isUploading}
                           aria-pressed={selected}
-                          onClick={() => toggleQuickReplyPill(opt)}
+                          onClick={() => handleQuickReplyChip(opt)}
                           style={{
                             padding: "8px 14px",
                             borderRadius: 999,
@@ -1078,8 +1148,14 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                           lineHeight: 1.4,
                         }}
                       >
-                        Tap one or more options (e.g. several channels), then{" "}
-                        <strong>Send</strong> — or type your own answer in the box below.
+                        {effectiveChipSelectionMode === "single"
+                          ? "Tap an option to send — or type your own answer below."
+                          : (
+                            <>
+                              Tap one or more options, then{" "}
+                              <strong>Send</strong> — or type your own answer in the box below.
+                            </>
+                          )}
                       </p>
                     </>
                   )}

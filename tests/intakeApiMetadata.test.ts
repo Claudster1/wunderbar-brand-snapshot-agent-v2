@@ -16,6 +16,7 @@ describe("buildIntakeResponseMeta", () => {
     expect(meta.overallProgressPercent).toBeLessThan(30);
     expect(meta.intakeReadyForFinalize).toBe(false);
     expect(meta.suggestedReplies?.length).toBeGreaterThan(0);
+    expect(meta.chipSelectionMode).toBe("single");
   });
 
   it("marks ready when captures and narrative thresholds are met", () => {
@@ -49,6 +50,8 @@ describe("buildIntakeResponseMeta", () => {
     });
     expect(meta.captureCompletionPercent).toBe(100);
     expect(meta.intakeReadyForFinalize).toBe(true);
+    expect(meta.overallProgressPercent).toBe(100);
+    expect(meta.questionsRemainingEstimate).toBe(0);
     expect(meta.capturedSummary.length).toBeGreaterThan(0);
   });
 
@@ -90,5 +93,33 @@ describe("buildIntakeResponseMeta", () => {
     });
     expect(meta.captureCompletionPercent).toBe(100);
     expect(meta.intakeReadyForFinalize).toBe(false);
+  });
+
+  it("resolves chips from outgoing text, not the previous assistant question in history", () => {
+    const meta = buildIntakeResponseMeta({
+      messages: [
+        {
+          role: "assistant",
+          content:
+            "Where does your brand show up on social today? Name the platforms that matter (or say none / not really active yet).",
+        },
+        {
+          role: "user",
+          content: "LinkedIn, Instagram, Facebook. but not active yet...just launching.",
+        },
+      ],
+      tier: "snapshot",
+      captureStates: [
+        { key: "social_platform_presence", label: "social", completed: true },
+        { key: "competitive_pressure_point", label: "competitive pressure", completed: false },
+      ],
+      nextPendingKey: "competitive_pressure_point",
+      outgoingAssistantText:
+        "When prospects choose a competitor over you, what reason comes up most often — price, trust, clarity, speed, proof, or fit?",
+    });
+    expect(meta.suggestedReplies).toContain("Price");
+    expect(meta.suggestedReplies).toContain("Trust");
+    expect(meta.suggestedReplies).not.toContain("LinkedIn");
+    expect(meta.chipSelectionMode).toBe("single");
   });
 });

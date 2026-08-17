@@ -8,6 +8,16 @@ import { CAPTURE_REFUSAL_PATTERN } from "@/lib/intake/captureRefusal";
 export type CaptureKey =
   | "business_type_classifier"
   | "audience_type_classifier"
+  | "user_role_context"
+  | "team_size"
+  | "industry"
+  | "geographic_scope"
+  | "years_in_business"
+  | "offer_clarity"
+  | "messaging_clarity"
+  | "credibility_proof"
+  | "visual_confidence"
+  | "thought_leadership"
   | "website_presence"
   | "social_platform_presence"
   | "additional_marketing_surfaces"
@@ -59,6 +69,7 @@ const FLEXIBLE_CAPTURE_ALLOWS_LONG_REPLY: CaptureKey[] = [
   "social_platform_presence",
   "website_presence",
   "additional_marketing_surfaces",
+  "industry",
 ];
 
 /**
@@ -283,6 +294,42 @@ function assistantTurnAsksAboutCapture(key: CaptureKey, la: string): boolean {
       return /\b(who (are you |do you )?(mainly )?sell|selling (to|mostly)|mainly (b2b|b2c)|b2b or b2c|your customers|your buyers|ideal customer|target (customer|market|audience)|audience (type|segment))\b/i.test(
         la,
       );
+    case "user_role_context":
+      return /\b(your role|role at|how do you think about your role|founder|co-?founder|day-to-day|lead strategy|oversee marketing|run the business)\b/i.test(
+        la,
+      );
+    case "team_size":
+      return /\b(how big|team size|how many people|people (are )?involved|team today|headcount)\b/i.test(la);
+    case "industry":
+      return /\b(industry|what space|operates in|category|line of business|what (kind|type) of (business|work))\b/i.test(
+        la,
+      );
+    case "geographic_scope":
+      return /\b(geographic|locally|regionally|nationally|globally|serve customers|reach of (your|the) business|where .{0,40}serve)\b/i.test(
+        la,
+      );
+    case "years_in_business":
+      return /\b(how long|years in business|been operating|been in business|when did .{0,20}(start|launch))\b/i.test(
+        la,
+      );
+    case "offer_clarity":
+      return /\b(offer clarity|how clear.{0,40}(offer|what you do)|first encounter|someone new.{0,30}understand)\b/i.test(
+        la,
+      );
+    case "messaging_clarity":
+      return /\b(messaging clarity|how clear.{0,40}messaging|consistent.{0,20}(message|messaging)|message land)\b/i.test(
+        la,
+      );
+    case "credibility_proof":
+      return /\b(testimonial|case stud|customer proof|reviews?|success stor|social proof|proof (you|points|assets))\b/i.test(
+        la,
+      );
+    case "visual_confidence":
+      return /\b(visual confidence|how (confident|happy).{0,40}(look|logo|visual|brand looks)|visual side)\b/i.test(
+        la,
+      );
+    case "thought_leadership":
+      return /\b(thought leadership|known for|publish|speak(ing)?|blog|publicly|authority content)\b/i.test(la);
     case "monthly_revenue_range":
       return /\b(month to month|monthly|bring in|generate|revenue|figures|mrr|arr|ballpark|how much.*business)\b/i.test(
         la,
@@ -408,6 +455,105 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
         );
       return (asked && (answered || audienceDescriptor));
     }
+    case "user_role_context": {
+      const asked =
+        /\b(your role|role at|how do you think about your role|founder|co-?founder|day-to-day|lead strategy|oversee marketing|run the business)\b/i.test(
+          la,
+        );
+      const answered =
+        /\b(founder|co-?founder|owner|ceo|operator|day[- ]?to[- ]?day|strateg(y|ic)|growth|marketing|brand|cmo|director|manager|i run|i lead|i oversee)\b/i.test(
+          t,
+        );
+      return asked && answered;
+    }
+    case "team_size": {
+      const asked =
+        /\b(how big|team size|how many people|people (are )?involved|team today|headcount)\b/i.test(la);
+      const answered =
+        /\b(just me|solo|only me|1|one|myself|2[–-]5|6[–-]15|16[–-]50|50\+|two to five|small team|\d+\s*(people|person|employees?|ftes?))\b/i.test(
+          t,
+        );
+      return asked && answered;
+    }
+    case "industry": {
+      const asked =
+        /\b(industry|what space|operates in|category|line of business|what (kind|type) of (business|work))\b/i.test(
+          la,
+        );
+      const wordCount = t.split(/\s+/).filter(Boolean).length;
+      const answered =
+        wordCount >= 1 &&
+        !isBareAffirmOrDeny(t) &&
+        !/^(?:idk|dunno|huh|wat|hmm+|uh+|um+)\.?$/i.test(t);
+      return asked && answered;
+    }
+    case "geographic_scope": {
+      const asked =
+        /\b(geographic|locally|regionally|nationally|globally|serve customers|reach of (your|the) business|where .{0,40}serve)\b/i.test(
+          la,
+        );
+      const answered =
+        /\b(local|regional|national|global|city|metro|state|multi-?state|nationwide|worldwide|international)\b/i.test(
+          t,
+        );
+      return asked && answered;
+    }
+    case "years_in_business": {
+      const asked =
+        /\b(how long|years in business|been operating|been in business|when did .{0,20}(start|launch))\b/i.test(
+          la,
+        );
+      const answered =
+        /\b(\d+\s*[-–]?\s*\d*\s*years?|less than 1|under a year|1[–-]3|3[–-]5|5[–-]10|10\+|not launched|just (started|launching)|brand new|pre-?launch)\b/i.test(
+          t,
+        );
+      return asked && answered;
+    }
+    case "offer_clarity":
+    case "messaging_clarity": {
+      const asked =
+        key === "offer_clarity"
+          ? /\b(offer clarity|how clear.{0,40}(offer|what you do)|first encounter|someone new.{0,30}understand)\b/i.test(
+              la,
+            )
+          : /\b(messaging clarity|how clear.{0,40}messaging|consistent.{0,20}(message|messaging)|message land)\b/i.test(
+              la,
+            );
+      const answered =
+        /\b(very clear|somewhat clear|unclear|pretty clear|not clear|mixed|confus|crystal clear|still figuring)\b/i.test(
+          t,
+        );
+      return asked && answered;
+    }
+    case "credibility_proof": {
+      const asked =
+        /\b(testimonial|case stud|customer proof|reviews?|success stor|social proof|proof (you|points|assets))\b/i.test(
+          la,
+        );
+      const answered =
+        /\b(testimonial|reviews?|case stud|success stor|neither|not yet|none|no proof|yes|we have|don'?t have)\b/i.test(
+          t,
+        );
+      return asked && answered;
+    }
+    case "visual_confidence": {
+      const asked =
+        /\b(visual confidence|how (confident|happy).{0,40}(look|logo|visual|brand looks)|visual side)\b/i.test(
+          la,
+        );
+      const answered =
+        /\b(very confident|somewhat confident|not confident|pretty confident|not happy|love (the|our) look|needs work)\b/i.test(
+          t,
+        );
+      return asked && answered;
+    }
+    case "thought_leadership": {
+      const asked =
+        /\b(thought leadership|known for|publish|speak(ing)?|blog|publicly|authority content)\b/i.test(la);
+      const answered =
+        /\b(yes|yeah|yep|no|not yet|planning|blog|speak|podcast|linkedin|publish|none|don'?t)\b/i.test(t);
+      return asked && answered;
+    }
     case "monthly_revenue_range": {
       const asked =
         /\b(month to month|monthly|bring in|generate|revenue|figures|mrr|arr|ballpark|how much.*business)\b/i.test(la);
@@ -475,12 +621,17 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
         /\b(where|find you|finding you|channel|coming from|most new|customers|clients|discovery|acquisition|prospect|discovers you|brand-?new|usually happen)\b/i.test(
           la,
         );
+      // Include chip labels ("Mix of channels", "Direct / repeat") and common colloquial answers.
       const singleOrNarrative =
-        /\b(organic|seo|search|google|referral|referrals|social|linkedin|instagram|tiktok|facebook|fb|meta|youtube|yt|paid|ppc|sem|ads?|direct|email|events|word of mouth|wom|content|pr\b|cold|outbound|inbound|partners|marketplace|community|podcast|newsletter|tik tok)\b/i.test(
+        /\b(organic|seo|search|google|referral|referrals|social|linkedin|instagram|tiktok|facebook|fb|meta|youtube|yt|paid|ppc|sem|ads?|direct|repeat|email|events?|word of mouth|wom|content|pr\b|cold|outbound|inbound|partners?(hips)?|marketplace|community|podcast|newsletter|tik tok|network|networking|recommend(ed|ations)?|mix(ed)?|combination|several channels|multiple channels|a bit of everything|all of the above|something else)\b/i.test(
           t,
         );
       const listAnswer = asked && terseMultiItemAllMatch(t, 2, CHUNK_CHANNEL);
-      return asked && (singleOrNarrative || listAnswer);
+      const substantiveDiscovery =
+        asked &&
+        t.split(/\s+/).filter(Boolean).length >= 3 &&
+        /\b(find|found|discover|come from|coming from|hear(d)? about|through|via|from)\b/i.test(t);
+      return asked && (singleOrNarrative || listAnswer || substantiveDiscovery);
     }
     case "monthly_marketing_budget": {
       const asked = /\b(marketing budget|spend on marketing|ad spend|monthly.*budget)\b/i.test(la);

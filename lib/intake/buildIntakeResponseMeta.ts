@@ -1,7 +1,10 @@
 import type { CaptureKey } from "@/lib/intake/flexibleDirectCaptureComplete";
 import { buildCapturedSummary } from "@/lib/intake/buildCapturedSummary";
 import type { IntakeMessage } from "@/lib/intake/buildIntakeTopicResume";
-import { resolveSuggestedReplies } from "@/lib/intake/multiSelectChipCatalog";
+import {
+  resolveChipSelectionMode,
+  resolveSuggestedReplies,
+} from "@/lib/intake/multiSelectChipCatalog";
 import { getNarrativeCompletionState } from "@/lib/intake/narrativeMilestones";
 import type { IntakeResponseMeta } from "@/lib/intake/intakeTypes";
 import { intakeProgressDenominator, type ChatTier } from "@/lib/chatTierConfig";
@@ -18,6 +21,11 @@ export function buildIntakeResponseMeta(params: {
   captureStates: CaptureStateSlice[];
   nextPendingKey: CaptureKey | null;
   priorAnswers?: Record<string, unknown> | null;
+  /**
+   * Outgoing assistant reply for this turn. When set, chips resolve from the question
+   * on screen — not the previous assistant message still at the end of `messages`.
+   */
+  outgoingAssistantText?: string | null;
 }): IntakeResponseMeta {
   const { messages, tier, captureStates, nextPendingKey, priorAnswers } = params;
   const totalCaptures = captureStates.length || 1;
@@ -36,21 +44,10 @@ export function buildIntakeResponseMeta(params: {
   const userTurns = messages.filter((m) => m.role === "user").length;
   const denom = intakeProgressDenominator(tier);
 
-  const overallProgressPercent =
-    captureCompletionPercent >= 100
-      ? Math.min(99, Math.round(68 + narrativeCompletionPercent * 0.31))
-      : Math.min(
-          88,
-          Math.round(captureCompletionPercent * 0.82 + Math.min((userTurns / denom) * 18, 18)),
-        );
-
   const pendingNarrativeCount = narrative.pendingLabels.length;
   const pendingCaptureCount = pendingCaptureLabels.length;
   const narrativeComplete = pendingNarrativeCount === 0;
-  const questionsRemainingEstimate = Math.max(
-    1,
-    pendingCaptureCount + pendingNarrativeCount,
-  );
+  const questionsRemainingEstimate = pendingCaptureCount + pendingNarrativeCount;
 
   const intakeReadyForFinalize =
     captureCompletionPercent >= 100 &&
@@ -59,11 +56,29 @@ export function buildIntakeResponseMeta(params: {
     !awaitingAnswerToAssistantQuestion &&
     userTurns >= 6;
 
-  const lastAssistantText =
+  // Honest progress: track pending work, not a soft mid-intake ceiling that feels "stuck".
+  const overallProgressPercent = intakeReadyForFinalize
+    ? 100
+    : captureCompletionPercent >= 100
+      ? Math.min(98, Math.round(72 + narrativeCompletionPercent * 0.26))
+      : Math.min(
+          90,
+          Math.round(
+            captureCompletionPercent * 0.88 + Math.min((userTurns / Math.max(denom, 1)) * 14, 14),
+          ),
+        );
+
+  const lastAssistantInHistory =
     [...messages].reverse().find((m) => m.role === "assistant")?.content ?? null;
+  const outgoing = String(params.outgoingAssistantText ?? "").trim();
+  const chipSourceText = outgoing || lastAssistantInHistory;
   const suggestedReplies = resolveSuggestedReplies({
     nextPendingKey,
-    lastAssistantText,
+    lastAssistantText: chipSourceText,
+  });
+  const chipSelectionMode = resolveChipSelectionMode({
+    nextPendingKey,
+    lastAssistantText: chipSourceText,
   });
 
   return {
@@ -74,6 +89,7 @@ export function buildIntakeResponseMeta(params: {
     nextCaptureKey: nextPendingKey,
     intakeReadyForFinalize,
     suggestedReplies: suggestedReplies?.length ? suggestedReplies : null,
+    chipSelectionMode,
     questionsRemainingEstimate,
     capturedSummary: buildCapturedSummary(messages, priorAnswers),
   };

@@ -22,6 +22,11 @@ import {
   isAssistantFinalHandoffWithoutJsonBlock,
   textContainsScoringJsonPayload,
 } from '@/lib/intake/assistantFinalHandoff';
+import {
+  buildCompletenessNudgeChips,
+  completenessNudgePrompt,
+} from '@/lib/intake/completenessNudgeChips';
+import { mergeExtractedWithFallback } from '@/lib/intake/transcriptAnswerFallback';
 
 function snapshotResultsEntryUrl(finalReportId: string): string {
   return `/results?reportId=${encodeURIComponent(finalReportId)}`;
@@ -154,9 +159,20 @@ function hasLeadMagnetDetailSignal(snapshotData: Record<string, unknown>): boole
   return false;
 }
 
+function userCorpusHasAcquisitionSignal(messages: Array<{ role: string; text?: string; content?: string }>): boolean {
+  const users = messages
+    .filter((m) => m.role === 'user')
+    .map((m) => String(m.text ?? m.content ?? ''))
+    .join('\n');
+  return /\b(referral|word of mouth|organic|seo|social|paid ads?|direct|events?|mix of channels|linkedin|instagram|tiktok|newsletter|partnership)\b/i.test(
+    users,
+  );
+}
+
 function getMissingHighImpactSignals(
   snapshotData: Record<string, unknown>,
   productTier?: 'snapshot' | 'snapshot-plus' | 'blueprint' | 'blueprint-plus',
+  messages?: Array<{ role: string; text?: string; content?: string }>,
 ): string[] {
   const tier = productTier ?? 'snapshot';
   const hasBusinessType = isNonEmptyString(snapshotData.businessType);
@@ -164,7 +180,8 @@ function getMissingHighImpactSignals(
     isNonEmptyString(snapshotData.primaryAcquisitionChannel) ||
     isNonEmptyString(snapshotData.topAcquisitionChannel) ||
     (Array.isArray(snapshotData.customerAcquisitionSource) &&
-      (snapshotData.customerAcquisitionSource as unknown[]).length > 0);
+      (snapshotData.customerAcquisitionSource as unknown[]).length > 0) ||
+    (!!messages && userCorpusHasAcquisitionSignal(messages));
 
   const hasRevenueRange =
     isNonEmptyString(snapshotData.monthlyRevenueRange) ||
@@ -268,6 +285,10 @@ export function useBrandChat(options?: UseBrandChatOptions) {
   const [isFinalizing, setIsFinalizing] = useState(false);
   const [lastFailedInput, setLastFailedInput] = useState<string | null>(null);
   const [intakeMeta, setIntakeMeta] = useState<IntakeResponseMeta | null>(null);
+  const intakeMetaRef = useRef<IntakeResponseMeta | null>(null);
+  useEffect(() => {
+    intakeMetaRef.current = intakeMeta;
+  }, [intakeMeta]);
   const intakeMilestoneFiredRef = useRef(false);
   const intakeReadyFiredRef = useRef(false);
   const hasReceivedName = useRef(false);
@@ -850,34 +871,53 @@ export function useBrandChat(options?: UseBrandChatOptions) {
           let recommendations: any = {};
 
           if (isCollectedInputs) {
-            const missingSignals = getMissingHighImpactSignals(
+            // Soft-skipped / thin JSON fields: recover from transcript so finalize isn't blocked.
+            const mergedForGate = mergeExtractedWithFallback(
               snapshotData as Record<string, unknown>,
+              nextHistory.map((m) => ({ role: m.role, content: m.text })),
+            );
+            const missingSignals = getMissingHighImpactSignals(
+              mergedForGate,
               options?.productTier,
+              nextHistory,
             );
             const userTurnCount = nextHistory.filter((m) => m.role === 'user').length;
             const skipCompletenessNudge =
               allowIncompleteSubmissionRef.current ||
               (options?.productTier === 'snapshot' && userTurnCount >= 10) ||
-              userTurnCount >= 14;
+              userTurnCount >= 12 ||
+              // Server already marked captures complete — don't re-gate on extract gaps.
+              (intakeMetaRef.current?.captureCompletionPercent ?? 0) >= 100;
 
             if (missingSignals.length > 0 && !skipCompletenessNudge) {
-              const missingList = missingSignals.map((item) => `- ${item}`).join('\n');
-              const activationWarmth =
-                options?.productTier === 'blueprint' || options?.productTier === 'blueprint-plus'
-                  ? `A few quick signals help us write campaigns that match your real world — not a fantasy marketing stack. If something is "not yet" or "we don't," say so; your plan can still include supportive ideas and plug them into the email and social drafts we build for you.\n\n`
-                  : '';
+              const isActivationTier =
+                options?.productTier === 'blueprint' || options?.productTier === 'blueprint-plus';
               const nudge = createMessage(
                 'assistant',
-                `${activationWarmth}Before we finalize your diagnostic, here's what would still sharpen things:\n\n${missingList}\n\nShare what feels easy — short answers are perfect. You can also say "continue anyway" whenever you're ready.`,
+                completenessNudgePrompt(missingSignals, isActivationTier),
               );
               const updatedHistory = [...nextHistory, nudge];
               setMessages(updatedHistory);
+              setIntakeMeta((prev) => ({
+                captureCompletionPercent: prev?.captureCompletionPercent ?? 100,
+                narrativeCompletionPercent: prev?.narrativeCompletionPercent ?? 100,
+                overallProgressPercent: Math.min(prev?.overallProgressPercent ?? 95, 98),
+                pendingCaptureLabels: prev?.pendingCaptureLabels ?? [],
+                nextCaptureKey: prev?.nextCaptureKey ?? null,
+                intakeReadyForFinalize: false,
+                suggestedReplies: buildCompletenessNudgeChips(missingSignals),
+                chipSelectionMode: 'single',
+                questionsRemainingEstimate: Math.max(1, missingSignals.length),
+                capturedSummary: prev?.capturedSummary ?? [],
+              }));
               await saveProgress('completeness_nudge', updatedHistory);
               setIsLoading(false);
               sendingRef.current = false;
               return;
             }
             allowIncompleteSubmissionRef.current = false;
+            // Prefer transcript-filled gaps for scoring.
+            Object.assign(snapshotData, mergedForGate);
             // Collected inputs format — send to /api/snapshot for server-side scoring
             // Collected inputs — route through server-side scoring
 
@@ -1289,6 +1329,8 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     intakeMeta,
     intakeReadyForFinalize: intakeMeta?.intakeReadyForFinalize ?? false,
     suggestedReplies: intakeMeta?.suggestedReplies ?? null,
+    chipSelectionMode: intakeMeta?.chipSelectionMode ?? 'multi',
+    nextCaptureKey: intakeMeta?.nextCaptureKey ?? null,
     capturedSummary: intakeMeta?.capturedSummary ?? [],
     questionsRemainingEstimate: intakeMeta?.questionsRemainingEstimate ?? null,
     finalizeFromTranscript,

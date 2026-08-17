@@ -10,10 +10,6 @@ function bool(v: unknown): boolean | null {
   return typeof v === "boolean" ? v : null;
 }
 
-function arr(v: unknown): unknown[] {
-  return Array.isArray(v) ? v : [];
-}
-
 function hasTruthyString(v: unknown): boolean {
   return typeof v === "string" && v.trim().length > 0;
 }
@@ -37,6 +33,47 @@ export function getPriorSatisfiedCaptureKeys(
     done.add("audience_type_classifier");
   }
 
+  if (str(prior.userRoleContext)) {
+    done.add("user_role_context");
+  }
+
+  if (str(prior.teamSize) || typeof prior.teamSize === "number") {
+    done.add("team_size");
+  }
+
+  if (str(prior.industry)) {
+    done.add("industry");
+  }
+
+  if (str(prior.geographicScope)) {
+    done.add("geographic_scope");
+  }
+
+  if (str(prior.yearsInBusiness) || typeof prior.yearsInBusiness === "number") {
+    done.add("years_in_business");
+  }
+
+  if (str(prior.offerClarity)) {
+    done.add("offer_clarity");
+  }
+
+  if (str(prior.messagingClarity)) {
+    done.add("messaging_clarity");
+  }
+
+  if (typeof prior.hasTestimonials === "boolean" || typeof prior.hasCaseStudies === "boolean") {
+    done.add("credibility_proof");
+  }
+
+  if (str(prior.visualConfidence)) {
+    done.add("visual_confidence");
+  }
+
+  const tl = prior.thoughtLeadershipActivity;
+  if (tl && typeof tl === "object" && !Array.isArray(tl) && typeof (tl as { hasActivity?: unknown }).hasActivity === "boolean") {
+    done.add("thought_leadership");
+  }
+
   const website = prior.website;
   if (website === null || website === false) {
     done.add("website_presence");
@@ -51,10 +88,10 @@ export function getPriorSatisfiedCaptureKeys(
     done.add("social_platform_presence");
   }
 
+  // Broader channel lists answer "surfaces / mix" — not the primary discovery channel alone.
   const channels = prior.marketingChannels ?? prior.customerAcquisitionSource;
   if (hasNonEmptyArray(channels) || str(prior.customerAcquisitionSource)) {
     done.add("additional_marketing_surfaces");
-    done.add("primary_acquisition_channel");
     if (tier !== "snapshot") {
       done.add("marketing_channel_mix");
     }
@@ -72,7 +109,8 @@ export function getPriorSatisfiedCaptureKeys(
     done.add("conversion_rate_estimate");
   }
 
-  if (str(prior.topAcquisitionChannel) || hasNonEmptyArray(prior.customerAcquisitionSource)) {
+  // Primary acquisition needs an explicit top channel or acquisition-source field — not marketingChannels alone.
+  if (str(prior.topAcquisitionChannel) || hasNonEmptyArray(prior.customerAcquisitionSource) || str(prior.customerAcquisitionSource)) {
     done.add("primary_acquisition_channel");
   }
 
@@ -88,10 +126,12 @@ export function getPriorSatisfiedCaptureKeys(
     done.add("content_creation_capacity");
   }
 
+  // Competitive pressure = why buyers choose others. Competitor names / differentiation / challenge
+  // are related narrative topics but must not skip the win-loss pressure capture on upgrade.
   if (
-    hasNonEmptyArray(prior.competitorNames) ||
-    str(prior.whatMakesYouDifferent) ||
-    str(prior.biggestChallenge)
+    str(prior.competitivePressurePoint) ||
+    str(prior.competitivePressure) ||
+    str(prior.winLossReason)
   ) {
     done.add("competitive_pressure_point");
   }

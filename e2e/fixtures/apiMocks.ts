@@ -96,7 +96,8 @@ export function setupSeamlessFinalizeMocks(page: Page) {
           nextCaptureKey: null,
           intakeReadyForFinalize: true,
           suggestedReplies: null,
-          questionsRemainingEstimate: 1,
+          chipSelectionMode: "single",
+          questionsRemainingEstimate: 0,
           capturedSummary: [
             { label: "Name", value: "Alex" },
             { label: "Business", value: "Acme Agency" },
@@ -121,6 +122,7 @@ export function setupSeamlessFinalizeMocks(page: Page) {
         nextCaptureKey: "website_presence",
         intakeReadyForFinalize: false,
         suggestedReplies: ["Yes, here's the URL", "No website yet"],
+        chipSelectionMode: "single",
         questionsRemainingEstimate: 10,
         capturedSummary: [{ label: "Name", value: "Alex" }],
       },
@@ -162,6 +164,7 @@ export function setupSnapshotChatMocks(page: Page) {
           nextCaptureKey: "monthly_revenue_range",
           intakeReadyForFinalize: false,
           suggestedReplies: ["Under $5k/mo", "$5k–$20k", "Pre-revenue"],
+          chipSelectionMode: "single",
           questionsRemainingEstimate: 6,
           capturedSummary: [
             { label: "Business", value: "Acme Agency" },
@@ -187,6 +190,7 @@ export function setupSnapshotChatMocks(page: Page) {
         nextCaptureKey: "website_presence",
         intakeReadyForFinalize: false,
         suggestedReplies: ["Yes, here's the URL", "No website yet"],
+        chipSelectionMode: "single",
         questionsRemainingEstimate: 10,
         capturedSummary: [{ label: "Name", value: "Alex" }],
       },

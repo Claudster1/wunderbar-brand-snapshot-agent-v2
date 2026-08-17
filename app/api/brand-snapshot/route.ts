@@ -262,20 +262,23 @@ const SNAPSHOT_DIGITAL_BASELINE: CaptureKey[] = [
 
 function shouldIncludeCaptureForTier(capture: CaptureKey, tier: IntakeTier): boolean {
   /**
-   * Free Snapshot — critical-only for a usable report without dropoff.
-   * Drop role / years / visual as *forced* asks (model may still note them if volunteered).
+   * Free Snapshot — critical captures for a usable, valuable free report.
+   * Includes two high-signal one-tap asks (years + visual) for stage/credibility nuance
+   * without reopening the long playbook.
    */
   const snapshotCritical: CaptureKey[] = [
     "business_type_classifier",
     "audience_type_classifier",
     "industry",
     "geographic_scope",
+    "years_in_business",
     "website_presence",
     "social_platform_presence",
     "primary_acquisition_channel",
     "competitive_pressure_point",
     "offer_clarity",
     "credibility_proof",
+    "visual_confidence",
   ];
 
   /** Stage + category + clarity + proof — required on paid tiers. */

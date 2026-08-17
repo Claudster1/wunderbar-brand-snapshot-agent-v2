@@ -36,6 +36,7 @@ import {
   resolveChipSelectionMode,
   resolveSuggestedReplies,
 } from "@/lib/intake/multiSelectChipCatalog";
+import { isQaSeedAllowed, parseQaSeedParam } from "@/lib/intake/qaSeedTranscripts";
 
 /** Chip labels that mean “type your answer” — never send the label alone (even in single-select). */
 const AFFORDANCE_CHIPS = new Set([
@@ -50,13 +51,28 @@ export type HomePageClientProps = {
   tierParam: string | null;
   nameParam: string | null;
   tokenParam: string | null;
+  qaSeedParam?: string | null;
 };
 
-export default function HomePageClient({ tierParam, nameParam, tokenParam }: HomePageClientProps) {
+export default function HomePageClient({
+  tierParam,
+  nameParam,
+  tokenParam,
+  qaSeedParam = null,
+}: HomePageClientProps) {
   const WUNDY_AVATAR_SRC = staticImageUrl(WundyLogo);
   const WUNDY_AVATAR_FALLBACK = "/assets/og/wundy-outline.svg";
   const WUNDY_AVATAR_FINAL_FALLBACK = "/assets/og/wundy-outline.svg";
   const [wundyAvatarSrc, setWundyAvatarSrc] = useState<string>(WUNDY_AVATAR_SRC);
+  const activeQaSeed = useMemo(() => parseQaSeedParam(qaSeedParam), [qaSeedParam]);
+  const [qaSeedBannerVisible, setQaSeedBannerVisible] = useState(false);
+  useEffect(() => {
+    if (!activeQaSeed) {
+      setQaSeedBannerVisible(false);
+      return;
+    }
+    setQaSeedBannerVisible(isQaSeedAllowed(window.location.hostname));
+  }, [activeQaSeed]);
   // ─── Product tier + customer name detection (from server-passed URL params) ───
   const tier = useMemo(() => parseTierFromParam(tierParam), [tierParam]);
   const tierConfig = useMemo(() => getChatTierConfig(tier), [tier]);
@@ -916,6 +932,32 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
               </p>
             </div>
           </header>
+
+          {qaSeedBannerVisible && activeQaSeed ? (
+              <div
+                role="status"
+                style={{
+                  margin: "0 0 12px",
+                  padding: "10px 12px",
+                  borderRadius: 8,
+                  background: "#EEF6FF",
+                  border: "1px solid #BFDBFE",
+                  fontSize: 13,
+                  color: "#1E3A5F",
+                  lineHeight: 1.45,
+                }}
+              >
+                QA seed active: <strong>{activeQaSeed}</strong>
+                {" — "}
+                {activeQaSeed === "near-end"
+                  ? "answer the last question to exercise wrap-up."
+                  : "send any short reply to exercise finalize."}
+                {" "}
+                <a href="/" style={{ color: "#1D4ED8", fontWeight: 600 }}>
+                  Clear seed
+                </a>
+              </div>
+            ) : null}
 
           {/* Progress during the conversation */}
           {conversationStarted && (

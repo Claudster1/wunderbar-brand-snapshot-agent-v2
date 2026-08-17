@@ -25,6 +25,7 @@ export default async function Page({ searchParams }: PageProps) {
       tierParam={firstString(sp, "tier")}
       nameParam={firstString(sp, "name")}
       tokenParam={firstString(sp, "token")}
+      qaSeedParam={firstString(sp, "qaSeed")}
     />
   );
 }

@@ -27,13 +27,17 @@ import {
   completenessNudgePrompt,
 } from '@/lib/intake/completenessNudgeChips';
 import { mergeExtractedWithFallback } from '@/lib/intake/transcriptAnswerFallback';
+import {
+  splitAssistantIntakePayload,
+  stripIntakeJsonFromAssistantText,
+} from '@/lib/intake/stripAssistantJsonPayload';
 
 function snapshotResultsEntryUrl(finalReportId: string): string {
   return `/results?reportId=${encodeURIComponent(finalReportId)}`;
 }
 
 /** Confirm the report row exists before sending the user to `/results`. */
-async function waitForReportReadable(reportId: string, maxAttempts = 5): Promise<boolean> {
+async function waitForReportReadable(reportId: string, maxAttempts = 10): Promise<boolean> {
   for (let i = 0; i < maxAttempts; i++) {
     try {
       const res = await fetch(`/api/snapshot/get?id=${encodeURIComponent(reportId)}`, {
@@ -44,7 +48,7 @@ async function waitForReportReadable(reportId: string, maxAttempts = 5): Promise
       /* retry */
     }
     if (i < maxAttempts - 1) {
-      await new Promise((r) => setTimeout(r, 400 * (i + 1)));
+      await new Promise((r) => setTimeout(r, 500 * (i + 1)));
     }
   }
   return false;
@@ -569,8 +573,10 @@ export function useBrandChat(options?: UseBrandChatOptions) {
         /* ignore */
       }
       if (!ext.ok) {
-        const errMsg =
-          extJson.error || 'Could not read your answers from the chat. Please try again.';
+        const rawErr = extJson.error || '';
+        const errMsg = /failed to complete from transcript/i.test(rawErr)
+          ? 'We could not finish building your diagnostic from this chat. Tap Try again in a moment.'
+          : rawErr || 'Could not read your answers from the chat. Please try again.';
         if (attempt < 1 && (ext.status === 422 || ext.status >= 500)) {
           finalizingRef.current = false;
           setIsFinalizing(false);
@@ -772,9 +778,11 @@ export function useBrandChat(options?: UseBrandChatOptions) {
         },
       });
       const replyText = reply.content;
+      const { displayText: cleanReplyText, payload: intakePayload } = splitAssistantIntakePayload(replyText);
 
+      // Never leave raw JSON / fences in the streaming bubble.
       setMessages((prev) =>
-        prev.map((m) => (m.id === streamingMessageId ? { ...m, text: replyText } : m)),
+        prev.map((m) => (m.id === streamingMessageId ? { ...m, text: cleanReplyText } : m)),
       );
       if (reply.meta) {
         setIntakeMeta(reply.meta);
@@ -807,7 +815,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
         const userTurns = nextHistory.filter((m) => m.role === 'user').length;
         if (userTurns < 3) return false;
 
-        const handoffMessage = createMessage('assistant', assistantText);
+        const handoffMessage = createMessage('assistant', stripIntakeJsonFromAssistantText(assistantText));
         const completedHistory = [...nextHistory, handoffMessage];
         messagesRef.current = completedHistory;
         setMessages(completedHistory);
@@ -818,50 +826,45 @@ export function useBrandChat(options?: UseBrandChatOptions) {
       };
 
       // Check if the response contains JSON (should NOT be displayed in chat).
-      // Wundy outputs either:
-      //   A) Collected inputs: { userName, businessName, industry, ... }
-      //   B) Legacy scores format: { brandAlignmentScore, pillarScores, ... }
+      // Prefer structured extract from fences / lenient parse over brittle regex.
       const trimmedReply = replyText.trim();
-      
-      // Try to find a JSON object in the response
-      let jsonMatch: RegExpMatchArray | string[] | null = null;
+      let snapshotData: Record<string, unknown> | null = intakePayload;
+      let jsonMatchIndex = 0;
 
-      // Pattern 1: Score-based JSON (legacy)
-      jsonMatch = trimmedReply.match(/\{[\s\S]*"brandAlignmentScore"[\s\S]*\}/);
-      
-      // Pattern 2: Collected-inputs JSON (current system prompt format)
-      if (!jsonMatch) {
-        jsonMatch = trimmedReply.match(/\{[\s\S]*"userName"[\s\S]*"businessName"[\s\S]*\}/);
-      }
-      
-      // Pattern 3: Any large JSON object at the end of the response (catch-all)
-      if (!jsonMatch) {
-        const jsonBlockMatch = trimmedReply.match(/\{[^{}]{200,}\}$/);
-        if (jsonBlockMatch) {
+      if (!snapshotData) {
+        let jsonMatch: RegExpMatchArray | string[] | null = null;
+        jsonMatch = trimmedReply.match(/\{[\s\S]*"brandAlignmentScore"[\s\S]*\}/);
+        if (!jsonMatch) {
+          jsonMatch = trimmedReply.match(/\{[\s\S]*"userName"[\s\S]*"businessName"[\s\S]*\}/);
+        }
+        if (!jsonMatch) {
+          const jsonBlockMatch = trimmedReply.match(/\{[^{}]{200,}\}$/);
+          if (jsonBlockMatch) {
+            try {
+              JSON.parse(jsonBlockMatch[0]);
+              jsonMatch = jsonBlockMatch;
+            } catch {
+              /* Not valid JSON, ignore */
+            }
+          }
+        }
+        if (!jsonMatch && trimmedReply.startsWith('{') && trimmedReply.endsWith('}')) {
+          jsonMatch = [trimmedReply];
+        }
+        if (jsonMatch?.[0]) {
           try {
-            JSON.parse(jsonBlockMatch[0]);
-            jsonMatch = jsonBlockMatch;
+            snapshotData = JSON.parse(jsonMatch[0]) as Record<string, unknown>;
+            jsonMatchIndex = (jsonMatch as RegExpMatchArray).index || 0;
           } catch {
-            // Not valid JSON, ignore
+            snapshotData = null;
           }
         }
       }
 
-      // Pattern 4: Whole response is JSON
-      if (!jsonMatch && trimmedReply.startsWith('{') && trimmedReply.endsWith('}')) {
-        jsonMatch = [trimmedReply];
-      }
-
-      if (jsonMatch && jsonMatch[0]) {
-        // JSON detected — extract it and send for scoring. NEVER display JSON in chat.
+      if (snapshotData) {
+        // JSON detected — score it. Display already stripped above.
         try {
-          const jsonString = jsonMatch[0];
-          const snapshotData = JSON.parse(jsonString);
-          
-          // JSON response detected — process for scoring
-          
-          // Determine format: scores-based vs collected-inputs
-          const hasScores = (snapshotData.scores && typeof snapshotData.scores.brandAlignmentScore === 'number')
+          const hasScores = (snapshotData.scores && typeof (snapshotData.scores as { brandAlignmentScore?: unknown }).brandAlignmentScore === 'number')
             || (typeof snapshotData.brandAlignmentScore === 'number' && snapshotData.pillarScores);
           const isCollectedInputs = !hasScores && (snapshotData.userName || snapshotData.businessName || snapshotData.industry);
 
@@ -871,7 +874,6 @@ export function useBrandChat(options?: UseBrandChatOptions) {
           let recommendations: any = {};
 
           if (isCollectedInputs) {
-            // Soft-skipped / thin JSON fields: recover from transcript so finalize isn't blocked.
             const mergedForGate = mergeExtractedWithFallback(
               snapshotData as Record<string, unknown>,
               nextHistory.map((m) => ({ role: m.role, content: m.text })),
@@ -886,7 +888,6 @@ export function useBrandChat(options?: UseBrandChatOptions) {
               allowIncompleteSubmissionRef.current ||
               (options?.productTier === 'snapshot' && userTurnCount >= 10) ||
               userTurnCount >= 12 ||
-              // Server already marked captures complete — don't re-gate on extract gaps.
               (intakeMetaRef.current?.captureCompletionPercent ?? 0) >= 100;
 
             if (missingSignals.length > 0 && !skipCompletenessNudge) {
@@ -901,7 +902,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
               setIntakeMeta((prev) => ({
                 captureCompletionPercent: prev?.captureCompletionPercent ?? 100,
                 narrativeCompletionPercent: prev?.narrativeCompletionPercent ?? 100,
-                overallProgressPercent: Math.min(prev?.overallProgressPercent ?? 95, 98),
+                overallProgressPercent: Math.min(prev?.overallProgressPercent ?? 95, 97),
                 pendingCaptureLabels: prev?.pendingCaptureLabels ?? [],
                 nextCaptureKey: prev?.nextCaptureKey ?? null,
                 intakeReadyForFinalize: false,
@@ -916,10 +917,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
               return;
             }
             allowIncompleteSubmissionRef.current = false;
-            // Prefer transcript-filled gaps for scoring.
             Object.assign(snapshotData, mergedForGate);
-            // Collected inputs format — send to /api/snapshot for server-side scoring
-            // Collected inputs — route through server-side scoring
 
             const turnstileToken = typeof window !== 'undefined' ? (window as any).__turnstileToken : undefined;
             const persistedEmail = typeof window !== 'undefined' ? getPersistedEmail() : null;
@@ -947,6 +945,10 @@ export function useBrandChat(options?: UseBrandChatOptions) {
               }
               const readable = await waitForReportReadable(finalReportId);
               if (!readable) {
+                setReportId(finalReportId);
+                if (typeof window !== 'undefined') {
+                  sessionStorage.setItem('wundy_report_id', finalReportId);
+                }
                 setFinalizeError(
                   'Your diagnostic was saved but is still processing. Wait a few seconds, then tap Generate again.',
                 );
@@ -962,20 +964,25 @@ export function useBrandChat(options?: UseBrandChatOptions) {
               const redirectUrl = snapshotResultsEntryUrl(finalReportId);
               setResultsEntryUrl(redirectUrl);
 
-              // Persist brand name for cross-page use (checkout, dashboard, etc.)
               if (snapshotData.businessName && typeof window !== 'undefined') {
                 try {
                   const { persistBrandName } = await import('@/lib/persistBrand');
-                  persistBrandName(snapshotData.businessName);
-                  localStorage.setItem('brand_snapshot_company', snapshotData.businessName);
+                  persistBrandName(String(snapshotData.businessName));
+                  localStorage.setItem('brand_snapshot_company', String(snapshotData.businessName));
                 } catch { /* non-critical */ }
               }
 
-              // Extract handoff message (text before the JSON)
-              const textBeforeJson = trimmedReply.substring(0, (jsonMatch as RegExpMatchArray).index || 0).trim();
+              // Keep only clean handoff prose in the thread (streaming bubble already cleaned).
+              const textBeforeJson = cleanReplyText ||
+                trimmedReply.substring(0, jsonMatchIndex).trim();
               if (textBeforeJson) {
-                const handoffMessage = createMessage('assistant', textBeforeJson);
-                setMessages((prev) => [...prev, handoffMessage]);
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === streamingMessageId ? { ...m, text: textBeforeJson } : m,
+                  ),
+                );
+              } else {
+                setMessages((prev) => prev.filter((m) => m.id !== streamingMessageId || m.text.trim()));
               }
 
               saveProgress('completed', nextHistory);
@@ -998,8 +1005,13 @@ export function useBrandChat(options?: UseBrandChatOptions) {
               setFinalizeError(
                 'We could not score your answers from that message. Tap See my results to build your diagnostic from the full conversation.',
               );
-              messagesRef.current = nextHistory;
-              await runTranscriptFinalizeCore(nextHistory);
+              const historyWithClean = [
+                ...nextHistory,
+                createMessage('assistant', cleanReplyText || 'Thanks — wrapping up your diagnostic now.'),
+              ];
+              messagesRef.current = historyWithClean;
+              setMessages(historyWithClean);
+              await runTranscriptFinalizeCore(historyWithClean);
             }
 
             setIsLoading(false);
@@ -1007,23 +1019,24 @@ export function useBrandChat(options?: UseBrandChatOptions) {
             return;
           }
           
-          if (snapshotData.scores && typeof snapshotData.scores.brandAlignmentScore === 'number') {
-            brandAlignmentScore = snapshotData.scores.brandAlignmentScore;
+          if (snapshotData.scores && typeof (snapshotData.scores as { brandAlignmentScore?: number }).brandAlignmentScore === 'number') {
+            brandAlignmentScore = (snapshotData.scores as { brandAlignmentScore: number }).brandAlignmentScore;
+            const scores = snapshotData.scores as Record<string, number>;
             pillarScores = {
-              positioning: snapshotData.scores.positioning || 0,
-              messaging: snapshotData.scores.messaging || 0,
-              visibility: snapshotData.scores.visibility || 0,
-              credibility: snapshotData.scores.credibility || 0,
-              conversion: snapshotData.scores.conversion || 0,
+              positioning: scores.positioning || 0,
+              messaging: scores.messaging || 0,
+              visibility: scores.visibility || 0,
+              credibility: scores.credibility || 0,
+              conversion: scores.conversion || 0,
             };
           } else if (typeof snapshotData.brandAlignmentScore === 'number' && snapshotData.pillarScores) {
             brandAlignmentScore = snapshotData.brandAlignmentScore;
             pillarScores = {
-              positioning: snapshotData.pillarScores.positioning || 0,
-              messaging: snapshotData.pillarScores.messaging || 0,
-              visibility: snapshotData.pillarScores.visibility || 0,
-              credibility: snapshotData.pillarScores.credibility || 0,
-              conversion: snapshotData.pillarScores.conversion || 0,
+              positioning: (snapshotData.pillarScores as any).positioning || 0,
+              messaging: (snapshotData.pillarScores as any).messaging || 0,
+              visibility: (snapshotData.pillarScores as any).visibility || 0,
+              credibility: (snapshotData.pillarScores as any).credibility || 0,
+              conversion: (snapshotData.pillarScores as any).conversion || 0,
             };
             pillarInsights = snapshotData.pillarInsights || {};
             recommendations = snapshotData.recommendations || {};
@@ -1172,7 +1185,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
             }
 
             // Extract any text before the JSON (handoff message)
-            const textBeforeJson = trimmedReply.substring(0, (jsonMatch as RegExpMatchArray).index || 0).trim();
+            const textBeforeJson = cleanReplyText;
             
             // Strip score-related text but keep the conversational handoff
             const scorePatterns = [
@@ -1190,9 +1203,15 @@ export function useBrandChat(options?: UseBrandChatOptions) {
             cleanText = cleanText.replace(/\n{3,}/g, '\n\n').trim();
             
             if (cleanText && cleanText.length > 10) {
-              const handoffMessage = createMessage('assistant', cleanText);
-              const finalHistory = [...nextHistory, handoffMessage];
-              setMessages(finalHistory);
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === streamingMessageId ? { ...m, text: cleanText } : m,
+                ),
+              );
+              const finalHistory = [
+                ...nextHistory,
+                { ...createMessage('assistant', cleanText), id: streamingMessageId },
+              ];
               saveProgress('handoff', finalHistory);
             } else {
               saveProgress('completed', nextHistory);
@@ -1202,8 +1221,12 @@ export function useBrandChat(options?: UseBrandChatOptions) {
             // The scores will appear below the chatbox via postMessage
           }
         } catch (parseError) {
-          // Model pasted invalid / partial JSON — treat as plain assistant text; if it reads like handoff, finalize from transcript.
-          const assistantMessage = createMessage('assistant', replyText);
+          // Model pasted invalid / partial JSON — show prose only; finalize from transcript when it reads like wrap-up.
+          const displayOnly = cleanReplyText || stripIntakeJsonFromAssistantText(replyText);
+          const handoffFallback =
+            displayOnly ||
+            "Thanks — I'm wrapping up your diagnostic now. Hang tight while we build your results.";
+          const assistantMessage = createMessage('assistant', handoffFallback);
           const badJsonHistory = [...nextHistory, assistantMessage];
           messagesRef.current = badJsonHistory;
           setMessages(badJsonHistory);
@@ -1211,8 +1234,10 @@ export function useBrandChat(options?: UseBrandChatOptions) {
           const userTurns = badJsonHistory.filter((m) => m.role === 'user').length;
           const handoffLikely =
             userTurns >= 3 &&
-            !textContainsScoringJsonPayload(t) &&
-            (isAssistantFinalHandoffWithoutJsonBlock(t) || assistantPromisedExternalResultsEntry(t));
+            (isAssistantFinalHandoffWithoutJsonBlock(displayOnly) ||
+              assistantPromisedExternalResultsEntry(displayOnly) ||
+              assistantPromisedExternalResultsEntry(t) ||
+              textContainsScoringJsonPayload(t));
           if (handoffLikely) {
             await saveProgress('handoff_attempt_invalid_json', badJsonHistory);
             await runTranscriptFinalizeCore(badJsonHistory);
@@ -1226,27 +1251,41 @@ export function useBrandChat(options?: UseBrandChatOptions) {
         const hasScoreNumbers = /\b\d+\/100\b|\b\d+\/20\b|WunderBrand Score™[™]?:?\s*\d+/i.test(replyText);
         
         if (hasScoreNumbers) {
-          // This looks like scores displayed as text - don't add to chat
-          // Score text detected — filter from chat display
-          // Try to extract just a handoff message if present
-          const handoffMatch = replyText.match(/(?:Perfect!|Great!|Here's|Your).*?(?:form|below|details|enter)/i);
+          const handoffMatch = cleanReplyText.match(/(?:Perfect!|Great!|Here's|Your).*?(?:form|below|details|enter)/i);
           if (handoffMatch) {
-            const handoffMessage = createMessage('assistant', handoffMatch[0]);
-            setMessages((prev) => [...prev, handoffMessage]);
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === streamingMessageId ? { ...m, text: handoffMatch[0] } : m,
+              ),
+            );
           }
         } else {
-          if (await maybeCompleteWithoutJson(replyText)) {
+          if (await maybeCompleteWithoutJson(cleanReplyText || replyText)) {
             return;
           }
-          // Normal text response - add to chat as usual
-          const assistantMessage = createMessage('assistant', replyText);
-          const updatedHistory = [...nextHistory, assistantMessage];
-          setMessages(updatedHistory);
+          // Normal text — streaming bubble already holds cleanReplyText
+          const updatedHistory = [
+            ...nextHistory,
+            createMessage('assistant', cleanReplyText || replyText),
+          ];
+          // Prefer updating the streaming message rather than duplicating.
+          setMessages((prev) => {
+            const hasStreaming = prev.some((m) => m.id === streamingMessageId);
+            if (hasStreaming) {
+              return prev.map((m) =>
+                m.id === streamingMessageId
+                  ? { ...m, text: cleanReplyText || replyText }
+                  : m,
+              );
+            }
+            return updatedHistory;
+          });
           
-          // Save progress after assistant responds
-          // Use message count as step identifier
           const step = `step_${updatedHistory.filter(m => m.role === 'assistant').length}`;
-          saveProgress(step, updatedHistory);
+          saveProgress(step, [
+            ...nextHistory,
+            createMessage('assistant', cleanReplyText || replyText),
+          ]);
         }
       }
     } catch (err: any) {
@@ -1299,19 +1338,22 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     resumeLoadedReportIdRef.current = null;
   };
 
-  // Progress: prefer server capture + narrative blend; fall back to turn count
+  // Progress: prefer server capture + narrative blend; 100% only with a live results URL.
   const assistantTurns = messages.filter((m) => m.role === 'assistant').length;
   const questionsAnswered = Math.max(0, assistantTurns - 1);
-  const turnBasedProgressPct = Math.min(Math.round((questionsAnswered / progressTotal) * 100), 99);
-  const intakeLooksComplete =
-    !!resultsEntryUrl ||
-    conversationSuggestsIntakeComplete(messages as BrandChatMessage[]);
+  const turnBasedProgressPct = Math.min(Math.round((questionsAnswered / progressTotal) * 100), 94);
   const serverProgress = intakeMeta?.overallProgressPercent;
-  const assessmentProgress = intakeLooksComplete
+  const wrappingUp =
+    isFinalizing ||
+    (!!intakeMeta?.intakeReadyForFinalize && !resultsEntryUrl) ||
+    (conversationSuggestsIntakeComplete(messages as BrandChatMessage[]) && !resultsEntryUrl);
+  const assessmentProgress = resultsEntryUrl
     ? 100
-    : typeof serverProgress === 'number'
-      ? Math.min(serverProgress, 99)
-      : turnBasedProgressPct;
+    : wrappingUp
+      ? Math.min(typeof serverProgress === 'number' ? Math.max(serverProgress, 96) : 97, 98)
+      : typeof serverProgress === 'number'
+        ? Math.min(serverProgress, 94)
+        : turnBasedProgressPct;
 
   return {
     messages,

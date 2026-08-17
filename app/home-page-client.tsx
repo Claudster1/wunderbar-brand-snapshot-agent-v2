@@ -1030,7 +1030,8 @@ export default function HomePageClient({
                   {assessmentProgress}% complete
                   {questionsRemainingEstimate != null &&
                   questionsRemainingEstimate > 0 &&
-                  assessmentProgress < 100
+                  assessmentProgress < 96 &&
+                  !isFinalizing
                     ? ` · ~${questionsRemainingEstimate} left`
                     : ""}
                 </span>

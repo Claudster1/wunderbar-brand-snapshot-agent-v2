@@ -869,7 +869,20 @@ export function useBrandChat(options?: UseBrandChatOptions) {
         prev.map((m) => (m.id === streamingMessageId ? { ...m, text: cleanReplyText } : m)),
       );
       if (reply.meta) {
-        setIntakeMeta(reply.meta);
+        const handoffCue =
+          reply.meta.intakeReadyForFinalize ||
+          isAssistantFinalHandoffWithoutJsonBlock(cleanReplyText) ||
+          assistantPromisedExternalResultsEntry(cleanReplyText);
+        setIntakeMeta(
+          handoffCue
+            ? {
+                ...reply.meta,
+                questionsRemainingEstimate: 0,
+                overallProgressPercent: Math.max(reply.meta.overallProgressPercent, 96),
+                pendingCaptureLabels: [],
+              }
+            : reply.meta,
+        );
         if (reply.meta.overallProgressPercent >= 50 && !intakeMilestoneFiredRef.current) {
           intakeMilestoneFiredRef.current = true;
           trackIntakeEvent('INTAKE_PROGRESS_MILESTONE', {
@@ -882,7 +895,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
           intakeReadyFiredRef.current = true;
           trackIntakeEvent('INTAKE_READY_FINALIZE', {
             productTier: options?.productTier,
-            questionsRemaining: reply.meta.questionsRemainingEstimate,
+            questionsRemaining: 0,
           });
         }
       }
@@ -1480,6 +1493,11 @@ export function useBrandChat(options?: UseBrandChatOptions) {
         ? Math.min(serverProgress, 94)
         : turnBasedProgressPct;
 
+  /** Once wrap-up / handoff starts, remaining must not stay at stale capture/narrative counts. */
+  const questionsRemainingEstimate = wrappingUp || resultsEntryUrl
+    ? 0
+    : Math.max(0, intakeMeta?.questionsRemainingEstimate ?? 0);
+
   return {
     messages,
     isLoading,
@@ -1502,7 +1520,12 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     chipSelectionMode: intakeMeta?.chipSelectionMode ?? 'multi',
     nextCaptureKey: intakeMeta?.nextCaptureKey ?? null,
     capturedSummary: intakeMeta?.capturedSummary ?? [],
-    questionsRemainingEstimate: intakeMeta?.questionsRemainingEstimate ?? null,
+    questionsRemainingEstimate:
+      wrappingUp || resultsEntryUrl
+        ? 0
+        : intakeMeta?.questionsRemainingEstimate == null
+          ? null
+          : questionsRemainingEstimate,
     finalizeFromTranscript,
     isFinalizing,
     finalizeError,

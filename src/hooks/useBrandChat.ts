@@ -611,10 +611,11 @@ export function useBrandChat(options?: UseBrandChatOptions) {
           body: JSON.stringify({
             messages: history.map((m) => ({ role: m.role, text: m.text })),
             productTier: options?.productTier,
+            reportId: reportId ?? undefined,
             continuationReportId:
               options?.productTier && options.productTier !== 'snapshot'
                 ? continuationReportIdForApiRef.current ?? reportId
-                : undefined,
+                : reportId ?? undefined,
           }),
           signal: extController.signal,
         });
@@ -638,10 +639,11 @@ export function useBrandChat(options?: UseBrandChatOptions) {
         const rawErr = extJson.error || '';
         const retryAfterHeader = ext.headers.get('Retry-After');
         const retryAfterSec = Math.min(
-          20,
+          90,
           Math.max(2, Number.parseInt(retryAfterHeader || '3', 10) || 3),
         );
-        if (ext.status === 429 && attempt < 2) {
+        // Up to 4 automatic waits — wrap-up must complete after a long paid intake.
+        if (ext.status === 429 && attempt < 4) {
           await new Promise((r) => setTimeout(r, retryAfterSec * 1000));
           finalizingRef.current = false;
           setIsFinalizing(false);
@@ -687,6 +689,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
             companyName: typeof answers.businessName === 'string' ? answers.businessName : undefined,
             businessName: typeof answers.businessName === 'string' ? answers.businessName : undefined,
             productTier: options?.productTier ?? 'snapshot',
+            reportId: reportId ?? undefined,
             ...(persistedEmail ? { email: persistedEmail } : {}),
             turnstileToken,
           }),
@@ -709,10 +712,10 @@ export function useBrandChat(options?: UseBrandChatOptions) {
         /* ignore */
       }
       if (!scoringRes.ok) {
-        if (scoringRes.status === 429 && attempt < 2) {
+        if (scoringRes.status === 429 && attempt < 4) {
           const retryAfterHeader = scoringRes.headers.get('Retry-After');
           const retryAfterSec = Math.min(
-            20,
+            90,
             Math.max(2, Number.parseInt(retryAfterHeader || '3', 10) || 3),
           );
           await new Promise((r) => setTimeout(r, retryAfterSec * 1000));
@@ -868,6 +871,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
       const reply = await getBrandSnapshotReply(nextHistory, {
         productTier: options?.productTier,
         continuationReportId: continuationReportId ?? undefined,
+        reportId: reportId ?? continuationReportId ?? undefined,
         stream: true,
         signal: ac.signal,
         onToken: (token) => {

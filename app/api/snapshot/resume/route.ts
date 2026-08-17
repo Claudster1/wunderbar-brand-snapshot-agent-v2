@@ -51,6 +51,10 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
+    // Fresh chat + wrap-up budget for this draft so returning users can finish.
+    const { refreshReportSessionBudgets } = await import("@/lib/security/rateLimit");
+    refreshReportSessionBudgets(canonicalId);
+
     const progress = r.progress;
     const messages = progress?.messages;
     const hasTranscript = Array.isArray(messages) && messages.length > 0;

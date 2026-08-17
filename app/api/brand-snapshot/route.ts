@@ -1224,15 +1224,29 @@ function buildDeterministicRoutingGuard(
 }
 
 export async function POST(req: Request) {
-  // ─── Security: Rate limit + request size ───
+  // Parse first so we can budget by draft/report id (save-and-return fail-safe).
+  const contentLength = req.headers.get("content-length");
+  if (contentLength && parseInt(contentLength, 10) > 200_000) {
+    return NextResponse.json({ error: "Request body too large." }, { status: 413 });
+  }
+
+  const body = await req.json().catch(() => ({}));
   const { apiGuard } = await import("@/lib/security/apiGuard");
-  const { CHAT_AI_RATE_LIMIT } = await import("@/lib/security/rateLimit");
-  const guard = apiGuard(req, { routeId: "brand-snapshot", rateLimit: CHAT_AI_RATE_LIMIT, maxBodySize: 200_000 });
+  const {
+    CHAT_AI_RATE_LIMIT,
+    CHAT_IP_ABUSE_RATE_LIMIT,
+    pickSessionReportId,
+  } = await import("@/lib/security/rateLimit");
+  const guard = apiGuard(req, {
+    routeId: "brand-snapshot",
+    rateLimit: CHAT_AI_RATE_LIMIT,
+    abuseRateLimit: CHAT_IP_ABUSE_RATE_LIMIT,
+    sessionReportId: pickSessionReportId(body),
+    maxBodySize: 200_000,
+  });
   if (!guard.passed) return guard.errorResponse;
 
   try {
-    const body = await req.json().catch(() => ({}));
-    
     // Check if this is a report save request (has brand_alignment_score)
     if (body.brand_alignment_score !== undefined || body.brandAlignmentScore !== undefined) {
       // This is a report save request

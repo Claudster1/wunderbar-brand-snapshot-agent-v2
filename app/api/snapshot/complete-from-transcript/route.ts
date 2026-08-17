@@ -1,6 +1,4 @@
 import { NextResponse } from "next/server";
-import { apiGuard } from "@/lib/security/apiGuard";
-import { FINALIZE_AI_RATE_LIMIT } from "@/lib/security/rateLimit";
 import { completeWithFallback, type ChatMessage } from "@/lib/ai";
 import { SNAPSHOT_TRANSCRIPT_EXTRACT_SYSTEM } from "@/src/prompts/snapshotTranscriptExtractPrompt";
 import { snapshotAnswersRecordSchema } from "@/lib/snapshot/snapshotAnswersSchema";
@@ -119,28 +117,44 @@ function resolveAnswers(
 }
 
 export async function POST(req: Request) {
-  const guard = apiGuard(req, {
-    routeId: "snapshot_transcript",
-    rateLimit: FINALIZE_AI_RATE_LIMIT,
-    maxBodySize: 400_000,
-  });
-  if (!guard.passed) return guard.errorResponse;
+  const contentLength = req.headers.get("content-length");
+  if (contentLength && parseInt(contentLength, 10) > 400_000) {
+    return NextResponse.json({ error: "Request body too large." }, { status: 413 });
+  }
 
   let messages: IncomingMsg[] = [];
   let productTier = "";
   let continuationReportId = "";
+  let reportId = "";
 
   try {
     const body = (await req.json().catch(() => ({}))) as {
       messages?: IncomingMsg[];
       productTier?: string;
       continuationReportId?: string;
+      reportId?: string;
     };
 
     messages = Array.isArray(body.messages) ? body.messages : [];
     productTier = typeof body.productTier === "string" ? body.productTier.trim() : "";
     continuationReportId =
       typeof body.continuationReportId === "string" ? body.continuationReportId.trim() : "";
+    reportId = typeof body.reportId === "string" ? body.reportId.trim() : "";
+
+    const { apiGuard } = await import("@/lib/security/apiGuard");
+    const {
+      COMPLETION_AI_RATE_LIMIT,
+      COMPLETION_IP_ABUSE_RATE_LIMIT,
+      pickSessionReportId,
+    } = await import("@/lib/security/rateLimit");
+    const guard = apiGuard(req, {
+      routeId: "snapshot_transcript",
+      rateLimit: COMPLETION_AI_RATE_LIMIT,
+      abuseRateLimit: COMPLETION_IP_ABUSE_RATE_LIMIT,
+      sessionReportId: pickSessionReportId(body) || continuationReportId || reportId,
+      maxBodySize: 400_000,
+    });
+    if (!guard.passed) return guard.errorResponse;
 
     if (messages.length < 4) {
       return NextResponse.json({ error: "Not enough conversation to extract answers." }, { status: 400 });

@@ -20,13 +20,26 @@ export const maxDuration = 120; // 2 minutes for Snapshot+ generation
 
 export async function POST(req: Request) {
   try {
-    // ─── Security ───
-    const { apiGuard } = await import("@/lib/security/apiGuard");
-    const { AI_RATE_LIMIT } = await import("@/lib/security/rateLimit");
-    const guard = apiGuard(req, { routeId: "snapshot-plus-generate", rateLimit: AI_RATE_LIMIT, maxBodySize: 300_000 });
-    if (!guard.passed) return guard.errorResponse;
-
+    const contentLength = req.headers.get("content-length");
+    if (contentLength && parseInt(contentLength, 10) > 300_000) {
+      return NextResponse.json({ error: "Request body too large." }, { status: 413 });
+    }
     const body = await req.json();
+
+    const { apiGuard } = await import("@/lib/security/apiGuard");
+    const {
+      REPORT_AI_RATE_LIMIT,
+      REPORT_IP_ABUSE_RATE_LIMIT,
+      pickSessionReportId,
+    } = await import("@/lib/security/rateLimit");
+    const guard = apiGuard(req, {
+      routeId: "snapshot-plus-generate",
+      rateLimit: REPORT_AI_RATE_LIMIT,
+      abuseRateLimit: REPORT_IP_ABUSE_RATE_LIMIT,
+      sessionReportId: pickSessionReportId(body),
+      maxBodySize: 300_000,
+    });
+    if (!guard.passed) return guard.errorResponse;
 
     // ─── Input validation & sanitization ───
     const { sanitizeString, isValidEmail } = await import("@/lib/security/inputValidation");

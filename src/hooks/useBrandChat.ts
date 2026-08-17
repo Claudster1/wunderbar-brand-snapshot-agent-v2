@@ -636,9 +636,23 @@ export function useBrandChat(options?: UseBrandChatOptions) {
       }
       if (!ext.ok) {
         const rawErr = extJson.error || '';
-        const errMsg = /failed to complete from transcript/i.test(rawErr)
-          ? 'We could not finish building your diagnostic from this chat. Tap Try again in a moment.'
-          : rawErr || 'Could not read your answers from the chat. Please try again.';
+        const retryAfterHeader = ext.headers.get('Retry-After');
+        const retryAfterSec = Math.min(
+          20,
+          Math.max(2, Number.parseInt(retryAfterHeader || '3', 10) || 3),
+        );
+        if (ext.status === 429 && attempt < 2) {
+          await new Promise((r) => setTimeout(r, retryAfterSec * 1000));
+          finalizingRef.current = false;
+          setIsFinalizing(false);
+          return runTranscriptFinalizeCore(history, attempt + 1);
+        }
+        const errMsg =
+          ext.status === 429
+            ? 'We hit a temporary traffic limit finishing your diagnostic. Tap Try again in a few seconds.'
+            : /failed to complete from transcript/i.test(rawErr)
+              ? 'We could not finish building your diagnostic from this chat. Tap Try again in a moment.'
+              : rawErr || 'Could not read your answers from the chat. Please try again.';
         if (attempt < 1 && (ext.status === 422 || ext.status >= 500)) {
           finalizingRef.current = false;
           setIsFinalizing(false);
@@ -695,10 +709,23 @@ export function useBrandChat(options?: UseBrandChatOptions) {
         /* ignore */
       }
       if (!scoringRes.ok) {
+        if (scoringRes.status === 429 && attempt < 2) {
+          const retryAfterHeader = scoringRes.headers.get('Retry-After');
+          const retryAfterSec = Math.min(
+            20,
+            Math.max(2, Number.parseInt(retryAfterHeader || '3', 10) || 3),
+          );
+          await new Promise((r) => setTimeout(r, retryAfterSec * 1000));
+          finalizingRef.current = false;
+          setIsFinalizing(false);
+          return runTranscriptFinalizeCore(history, attempt + 1);
+        }
         const baseMsg =
           typeof scoreJson.error === 'string' && scoreJson.error.trim()
             ? scoreJson.error
-            : 'Scoring failed. Please try again in a moment.';
+            : scoringRes.status === 429
+              ? 'We hit a temporary traffic limit while scoring. Tap Try again in a few seconds.'
+              : 'Scoring failed. Please try again in a moment.';
         const code =
           typeof scoreJson.errorCode === 'string' && scoreJson.errorCode.trim()
             ? scoreJson.errorCode

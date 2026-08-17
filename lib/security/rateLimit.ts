@@ -116,15 +116,30 @@ export function getClientIp(req: Request): string {
 
 // ─── Pre-configured rate limit profiles ───
 
-/** For expensive AI operations (OpenAI calls): 10 requests per minute */
-export const AI_RATE_LIMIT: RateLimitConfig = {
-  maxRequests: 10,
+/**
+ * Chat turns (brand-snapshot): a full free Snapshot is often 12–20 model turns.
+ * 10/min was cutting users off before wrap-up / finalize.
+ */
+export const CHAT_AI_RATE_LIMIT: RateLimitConfig = {
+  maxRequests: 40,
+  windowSeconds: 180,
+};
+
+/** Finalize + scoring: few calls, but must succeed after a long chat. */
+export const FINALIZE_AI_RATE_LIMIT: RateLimitConfig = {
+  maxRequests: 15,
   windowSeconds: 60,
 };
 
-/** For general API endpoints: 30 requests per minute */
+/** For expensive AI operations (OpenAI calls): default profile */
+export const AI_RATE_LIMIT: RateLimitConfig = {
+  maxRequests: 20,
+  windowSeconds: 60,
+};
+
+/** For general API endpoints: 60 requests per minute */
 export const GENERAL_RATE_LIMIT: RateLimitConfig = {
-  maxRequests: 30,
+  maxRequests: 60,
   windowSeconds: 60,
 };
 

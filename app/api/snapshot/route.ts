@@ -20,7 +20,7 @@ import {
   setContactFields,
 } from "@/lib/applyActiveCampaignTags";
 import { apiGuard } from "@/lib/security/apiGuard";
-import { AI_RATE_LIMIT } from "@/lib/security/rateLimit";
+import { FINALIZE_AI_RATE_LIMIT } from "@/lib/security/rateLimit";
 import { sanitizeString, isValidEmail } from "@/lib/security/inputValidation";
 import {
   recordBenchmarkData,
@@ -335,7 +335,7 @@ const snapshotBodySchema = z.object({
 
 export async function POST(req: Request) {
   // ─── Security: Rate limit + request size ───
-  const guard = apiGuard(req, { routeId: "snapshot", rateLimit: AI_RATE_LIMIT, maxBodySize: 200_000 });
+  const guard = apiGuard(req, { routeId: "snapshot", rateLimit: FINALIZE_AI_RATE_LIMIT, maxBodySize: 200_000 });
   if (!guard.passed) return guard.errorResponse;
 
   try {

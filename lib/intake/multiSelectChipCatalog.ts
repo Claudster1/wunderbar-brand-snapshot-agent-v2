@@ -270,7 +270,7 @@ const TOPIC_RULES: TopicRule[] = [
   },
   {
     test: /\b(brand-?new prospect|first discovers you|discovers you|usually happen|top acquisition|primary acquisition)\b/i,
-    chips: TOP_ACQUISITION_CHIPS,
+    chips: getSuggestedRepliesForCapture("primary_acquisition_channel"),
     mode: "single",
   },
   {
@@ -279,38 +279,98 @@ const TOPIC_RULES: TopicRule[] = [
     mode: "multi",
   },
   {
-    test: /\b(geographic (reach|scope)|serve customers locally|locally,? regionally|nationally,? or globally)\b/i,
-    chips: GEOGRAPHIC_SCOPE_CHIPS,
+    test: /\b(industry or space|what industry|line of business|what space is the business)\b/i,
+    chips: getSuggestedRepliesForCapture("industry"),
     mode: "single",
   },
   {
-    test: /\b(sell to other businesses|primarily sell to|directly to consumers|audience type|customers mostly (other companies|individual)|B2B \/ B2C|B2B or B2C|businesses,? (directly )?to consumers,? or both)\b/i,
-    chips: AUDIENCE_TYPE_CHIPS,
+    test: /\b(how clear is your offer|offer to someone encountering|encountering you for the first time)\b/i,
+    chips: getSuggestedRepliesForCapture("offer_clarity"),
+    mode: "single",
+  },
+  {
+    test: /\b(messaging feel across|how clear and consistent does your messaging)\b/i,
+    chips: getSuggestedRepliesForCapture("messaging_clarity"),
+    mode: "single",
+  },
+  {
+    test: /\b(customer proof|testimonials?\/reviews|case studies,? or neither)\b/i,
+    chips: getSuggestedRepliesForCapture("credibility_proof"),
+    mode: "multi",
+  },
+  {
+    test: /\b(thought leadership|linkedin pov|blog, speaking)\b/i,
+    chips: getSuggestedRepliesForCapture("thought_leadership"),
+    mode: "single",
+  },
+  {
+    test: /\b(website url to share|landing page or store|not on the web yet)\b/i,
+    chips: getSuggestedRepliesForCapture("website_presence"),
+    mode: "single",
+  },
+  {
+    test: /\b(beyond your website and social|where else are you putting time or budget)\b/i,
+    chips: getSuggestedRepliesForCapture("additional_marketing_surfaces"),
+    mode: "multi",
+  },
+  {
+    test: /\b(email list you.re sending|mailing list|list you.re sending to today)\b/i,
+    chips: getSuggestedRepliesForCapture("has_email_list"),
+    mode: "single",
+  },
+  {
+    test: /\b(free download, guide, or template|lead magnet|in exchange for email)\b/i,
+    chips: getSuggestedRepliesForCapture("has_lead_magnet"),
+    mode: "single",
+  },
+  {
+    test: /\b(how clear is the next step|pretty obvious, or still a bit mixed)\b/i,
+    chips: getSuggestedRepliesForCapture("has_clear_cta"),
+    mode: "single",
+  },
+  {
+    test: /\b(primarily get paid|how you earn revenue|services\/consulting, a physical)\b/i,
+    chips: getSuggestedRepliesForCapture("business_type_classifier"),
+    mode: "single",
+  },
+  {
+    test: /\b(geographic (reach|scope)|serve customers locally|locally,? regionally|nationally,? or globally|mainly serve customers)\b/i,
+    chips: getSuggestedRepliesForCapture("geographic_scope"),
+    mode: "single",
+  },
+  {
+    test: /\b(sell to other businesses|primarily sell to|mainly sell to|directly to consumers|audience type|customers mostly (other companies|individual)|B2B \/ B2C|B2B or B2C|businesses,? (directly )?to consumers,? or both)\b/i,
+    chips: getSuggestedRepliesForCapture("audience_type_classifier"),
     mode: "single",
   },
   {
     test: /\b(how long .{0,40}(operating|in business|been around)|years in business|roughly how long)\b/i,
-    chips: YEARS_IN_BUSINESS_CHIPS,
+    chips: getSuggestedRepliesForCapture("years_in_business"),
     mode: "single",
   },
   {
     test: /\b(how big is (your|the) team|team size|how many people (are )?involved)\b/i,
-    chips: TEAM_SIZE_CHIPS,
+    chips: getSuggestedRepliesForCapture("team_size"),
     mode: "single",
   },
   {
     test: /\b(show up on social|active on\??|platforms? (are you|you.?re) active|where does .{0,40} (show up|most visible)|social presence)\b/i,
-    chips: SOCIAL_PLATFORM_CHIPS,
+    chips: getSuggestedRepliesForCapture("social_platform_presence"),
     mode: "multi",
   },
   {
-    test: /\b(marketing (channels?|levers?)|channels? (are you|you are) (actively )?using|pulling .{0,20}today)\b/i,
-    chips: MARKETING_CHANNEL_CHIPS,
+    test: /\b(choose a competitor|competitive pressure|reason comes up most|price,? trust,? clarity|prospects choose a competitor)\b/i,
+    chips: getSuggestedRepliesForCapture("competitive_pressure_point"),
+    mode: "single",
+  },
+  {
+    test: /\b(marketing (channels?|levers?)|channels? (are you|you are) (actively )?(using|running)|pulling .{0,20}today)\b/i,
+    chips: getSuggestedRepliesForCapture("marketing_channel_mix"),
     mode: "multi",
   },
   {
     test: /\b(visual (side|confidence)|how (confident|happy).{0,40}(look|logo|visual|brand looks))\b/i,
-    chips: VISUAL_CONFIDENCE_CHIPS,
+    chips: getSuggestedRepliesForCapture("visual_confidence"),
     mode: "single",
   },
   {
@@ -320,17 +380,17 @@ const TOPIC_RULES: TopicRule[] = [
   },
   {
     test: /\b(month to month|monthly (revenue|sales)|generate month)\b/i,
-    chips: MONTHLY_REVENUE_CHIPS,
+    chips: getSuggestedRepliesForCapture("monthly_revenue_range"),
     mode: "single",
   },
   {
     test: /\b(monthly marketing budget|marketing budget today)\b/i,
-    chips: MONTHLY_MARKETING_BUDGET_CHIPS,
+    chips: getSuggestedRepliesForCapture("monthly_marketing_budget"),
     mode: "single",
   },
   {
-    test: /\b(content creation|hours?.{0,20}(week|content)|dedicate .{0,20}content)\b/i,
-    chips: CONTENT_CAPACITY_CHIPS,
+    test: /\b(content creation|hours?.{0,20}(week|content)|dedicate .{0,20}content|time .{0,40}content each week)\b/i,
+    chips: getSuggestedRepliesForCapture("content_creation_capacity"),
     mode: "single",
   },
   {
@@ -350,7 +410,7 @@ const TOPIC_RULES: TopicRule[] = [
   },
   {
     test: /\b(your role at|how do you think about your role|founder \/ co-founder|run the business day-to-day)\b/i,
-    chips: USER_ROLE_CHIPS,
+    chips: getSuggestedRepliesForCapture("user_role_context"),
     mode: "single",
   },
   {
@@ -397,24 +457,23 @@ const TOPIC_RULES: TopicRule[] = [
 
 /**
  * Resolve chips for the current turn.
- * Prefer topic detected from the last assistant question (so narrative goals
- * aren't overridden by an unrelated pending capture key), then forced-capture catalog.
+ * Prefer forced-capture catalog when a pending key is set (avoids stale previous-question
+ * topic matches). Otherwise detect topic from the assistant question (narrative phase).
  */
 export function resolveSuggestedReplies(params: {
   nextPendingKey: CaptureKey | null;
   lastAssistantText?: string | null;
 }): string[] | null {
-  const t = String(params.lastAssistantText || "");
+  if (params.nextPendingKey) {
+    const fromCapture = getSuggestedRepliesForCapture(params.nextPendingKey);
+    if (fromCapture.length > 0) return fromCapture;
+  }
 
+  const t = String(params.lastAssistantText || "");
   if (t.trim()) {
     for (const rule of TOPIC_RULES) {
       if (rule.test.test(t)) return rule.chips;
     }
-  }
-
-  if (params.nextPendingKey) {
-    const fromCapture = getSuggestedRepliesForCapture(params.nextPendingKey);
-    if (fromCapture.length > 0) return fromCapture;
   }
 
   return null;
@@ -425,16 +484,15 @@ export function resolveChipSelectionMode(params: {
   nextPendingKey: CaptureKey | null;
   lastAssistantText?: string | null;
 }): ChipSelectionMode {
-  const t = String(params.lastAssistantText || "");
+  if (params.nextPendingKey) {
+    return getChipSelectionModeForCapture(params.nextPendingKey);
+  }
 
+  const t = String(params.lastAssistantText || "");
   if (t.trim()) {
     for (const rule of TOPIC_RULES) {
       if (rule.test.test(t)) return rule.mode;
     }
-  }
-
-  if (params.nextPendingKey) {
-    return getChipSelectionModeForCapture(params.nextPendingKey);
   }
 
   return "multi";

@@ -29,9 +29,11 @@ import {
   lastMessageAwaitingUserReply,
 } from "@/lib/intake/computeSeamlessFinalizeUiState";
 import { extractMultiSelectOptions } from "@/lib/intake/extractMultiSelectOptions";
+import { CONTINUE_ANYWAY_CHIP } from "@/lib/intake/completenessNudgeChips";
 import {
   BETWEEN_BANDS_CHIP,
   OTHER_CHIP,
+  resolveChipSelectionMode,
   resolveSuggestedReplies,
 } from "@/lib/intake/multiSelectChipCatalog";
 
@@ -175,6 +177,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     intakeReadyForFinalize,
     suggestedReplies,
     chipSelectionMode,
+    nextCaptureKey,
     capturedSummary,
     questionsRemainingEstimate,
   } = useBrandChat({
@@ -411,24 +414,6 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     [honeypot, isFinalizing, isLoading, sendMessage],
   );
 
-  /** Single-select: one tap sends. Affordance chips ("type below") focus the textarea instead. */
-  const handleQuickReplyChip = useCallback(
-    (opt: string) => {
-      if (isLoading || isFinalizing || isUploading) return;
-      if (AFFORDANCE_CHIPS.has(opt)) {
-        setSelectedQuickReplyPills([opt]);
-        setTimeout(() => inputRef.current?.focus(), 0);
-        return;
-      }
-      if (chipSelectionMode === "single") {
-        void sendComposerOutgoing(opt);
-        return;
-      }
-      toggleQuickReplyPill(opt);
-    },
-    [chipSelectionMode, isFinalizing, isLoading, isUploading, sendComposerOutgoing, toggleQuickReplyPill],
-  );
-
   // Save progress and email a resume link
   const handleSaveAndExit = async () => {
     if (!saveEmail.trim() || !saveEmail.includes("@")) return;
@@ -625,21 +610,60 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
     return fromMessage.length > 0 ? fromMessage : null;
   }, [chatAwaitingChoiceOnLatestAssistant, lastThreadMessage]);
 
-  /** Client-side topic chips when meta lags (e.g. goals narrative). */
+  /** Prefer chips that match the on-screen question; server meta can lag one turn behind. */
   const contextualQuickReplies = useMemo(() => {
     if (!chatAwaitingChoiceOnLatestAssistant || !lastThreadMessage) return null;
     if (lastThreadMessage.role !== "assistant") return null;
     return resolveSuggestedReplies({
-      nextPendingKey: null,
+      nextPendingKey: nextCaptureKey ?? null,
       lastAssistantText: lastThreadMessage.text,
     });
-  }, [chatAwaitingChoiceOnLatestAssistant, lastThreadMessage]);
+  }, [chatAwaitingChoiceOnLatestAssistant, lastThreadMessage, nextCaptureKey]);
 
-  /** Prefer server chips (short question + pills); then topic detect; then legacy bullets. */
+  const contextualChipSelectionMode = useMemo(() => {
+    if (!chatAwaitingChoiceOnLatestAssistant || !lastThreadMessage) return null;
+    if (lastThreadMessage.role !== "assistant") return null;
+    if (!contextualQuickReplies?.length) return null;
+    return resolveChipSelectionMode({
+      nextPendingKey: nextCaptureKey ?? null,
+      lastAssistantText: lastThreadMessage.text,
+    });
+  }, [chatAwaitingChoiceOnLatestAssistant, lastThreadMessage, contextualQuickReplies, nextCaptureKey]);
+
+  /**
+   * Prefer on-screen topic chips so pills match the visible question (meta can lag).
+   * Keep server chips for completeness nudges (includes Continue anyway).
+   */
+  const serverIsCompletenessNudge = Boolean(
+    suggestedReplies?.includes(CONTINUE_ANYWAY_CHIP),
+  );
   const quickReplyOptions =
+    (!serverIsCompletenessNudge ? contextualQuickReplies : null) ||
     (suggestedReplies && suggestedReplies.length > 0 ? suggestedReplies : null) ||
     contextualQuickReplies ||
     messageDerivedQuickReplies;
+
+  const effectiveChipSelectionMode = serverIsCompletenessNudge
+    ? chipSelectionMode
+    : contextualChipSelectionMode ?? chipSelectionMode;
+
+  /** Single-select: one tap sends. Affordance chips ("type below") focus the textarea instead. */
+  const handleQuickReplyChip = useCallback(
+    (opt: string) => {
+      if (isLoading || isFinalizing || isUploading) return;
+      if (AFFORDANCE_CHIPS.has(opt)) {
+        setSelectedQuickReplyPills([opt]);
+        setTimeout(() => inputRef.current?.focus(), 0);
+        return;
+      }
+      if (effectiveChipSelectionMode === "single") {
+        void sendComposerOutgoing(opt);
+        return;
+      }
+      toggleQuickReplyPill(opt);
+    },
+    [effectiveChipSelectionMode, isFinalizing, isLoading, isUploading, sendComposerOutgoing, toggleQuickReplyPill],
+  );
 
   const serverQuickReplies =
     quickReplyOptions && chatAwaitingChoiceOnLatestAssistant
@@ -1072,7 +1096,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                     <div
                       role="group"
                       aria-label={
-                        chipSelectionMode === "single"
+                        effectiveChipSelectionMode === "single"
                           ? "Quick reply suggestions — tap one to send"
                           : "Quick reply suggestions — select one or more, then press Send"
                       }
@@ -1113,7 +1137,7 @@ export default function HomePageClient({ tierParam, nameParam, tokenParam }: Hom
                           lineHeight: 1.4,
                         }}
                       >
-                        {chipSelectionMode === "single"
+                        {effectiveChipSelectionMode === "single"
                           ? "Tap an option to send — or type your own answer below."
                           : (
                             <>

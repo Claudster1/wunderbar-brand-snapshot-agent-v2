@@ -1330,6 +1330,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     intakeReadyForFinalize: intakeMeta?.intakeReadyForFinalize ?? false,
     suggestedReplies: intakeMeta?.suggestedReplies ?? null,
     chipSelectionMode: intakeMeta?.chipSelectionMode ?? 'multi',
+    nextCaptureKey: intakeMeta?.nextCaptureKey ?? null,
     capturedSummary: intakeMeta?.capturedSummary ?? [],
     questionsRemainingEstimate: intakeMeta?.questionsRemainingEstimate ?? null,
     finalizeFromTranscript,

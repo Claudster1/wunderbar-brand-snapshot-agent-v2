@@ -21,6 +21,11 @@ export function buildIntakeResponseMeta(params: {
   captureStates: CaptureStateSlice[];
   nextPendingKey: CaptureKey | null;
   priorAnswers?: Record<string, unknown> | null;
+  /**
+   * Outgoing assistant reply for this turn. When set, chips resolve from the question
+   * on screen — not the previous assistant message still at the end of `messages`.
+   */
+  outgoingAssistantText?: string | null;
 }): IntakeResponseMeta {
   const { messages, tier, captureStates, nextPendingKey, priorAnswers } = params;
   const totalCaptures = captureStates.length || 1;
@@ -63,15 +68,17 @@ export function buildIntakeResponseMeta(params: {
           ),
         );
 
-  const lastAssistantText =
+  const lastAssistantInHistory =
     [...messages].reverse().find((m) => m.role === "assistant")?.content ?? null;
+  const outgoing = String(params.outgoingAssistantText ?? "").trim();
+  const chipSourceText = outgoing || lastAssistantInHistory;
   const suggestedReplies = resolveSuggestedReplies({
     nextPendingKey,
-    lastAssistantText,
+    lastAssistantText: chipSourceText,
   });
   const chipSelectionMode = resolveChipSelectionMode({
     nextPendingKey,
-    lastAssistantText,
+    lastAssistantText: chipSourceText,
   });
 
   return {

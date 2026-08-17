@@ -734,6 +734,17 @@ body:has(.app-root) {
   flex: 1 1 auto;
 }
 
+.chat-send:hover:not(:disabled) {
+  background: #0590c7;
+}
+
+.chat-send:disabled {
+  background: #cbd5e1;
+  color: #64748b;
+  opacity: 1;
+  cursor: not-allowed;
+}
+
 .chat-reset {
   background: #07b0f2;
   color: #ffffff;
@@ -794,6 +805,11 @@ body:has(.app-root) {
 .chat-skip:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* Send uses its own disabled colors (gray vs blue) — don't wash it out with opacity. */
+.chat-send:disabled {
+  opacity: 1;
 }
 
 /* ═══ GLOBAL FOCUS VISIBLE STYLES ═══ */

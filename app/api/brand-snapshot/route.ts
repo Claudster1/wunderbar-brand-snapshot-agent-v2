@@ -261,7 +261,24 @@ const SNAPSHOT_DIGITAL_BASELINE: CaptureKey[] = [
 ];
 
 function shouldIncludeCaptureForTier(capture: CaptureKey, tier: IntakeTier): boolean {
-  /** Stage + category + clarity + proof — required for credible scores on every tier. */
+  /**
+   * Free Snapshot — critical-only for a usable report without dropoff.
+   * Drop role / years / visual as *forced* asks (model may still note them if volunteered).
+   */
+  const snapshotCritical: CaptureKey[] = [
+    "business_type_classifier",
+    "audience_type_classifier",
+    "industry",
+    "geographic_scope",
+    "website_presence",
+    "social_platform_presence",
+    "primary_acquisition_channel",
+    "competitive_pressure_point",
+    "offer_clarity",
+    "credibility_proof",
+  ];
+
+  /** Stage + category + clarity + proof — required on paid tiers. */
   const credibilityCore: CaptureKey[] = [
     "industry",
     "geographic_scope",
@@ -299,7 +316,7 @@ function shouldIncludeCaptureForTier(capture: CaptureKey, tier: IntakeTier): boo
   ];
 
   if (tier === "snapshot") {
-    return core.includes(capture) || SNAPSHOT_DIGITAL_BASELINE.includes(capture);
+    return snapshotCritical.includes(capture);
   }
   if (tier === "snapshot-plus") {
     return core.includes(capture) || advanced.includes(capture) || SNAPSHOT_DIGITAL_BASELINE.includes(capture);
@@ -514,12 +531,15 @@ function getCaptureStates(
       key: "geographic_scope",
       label: "geographic scope",
       completed:
-        hasRecentUserSignal(
-          messages,
-          /\b(locally|regionally|nationally|globally|local \(city|regional \(state|nationwide|worldwide|multi-?state)\b/i,
-          8,
+        // Any clear geo answer in the whole thread counts — don't re-ask after a long chat.
+        messages.some(
+          (m) =>
+            m.role === "user" &&
+            /\b(locally|regionally|nationally|national|globally|global|local \(city|regional \(state|nationwide|worldwide|multi-?state|us-?based|u\.s\.|united states|across the (country|us|u\.s\.))\b/i.test(
+              String(m.content || ""),
+            ),
         ) ||
-        refused(/\b(geographic|locally|regionally|nationally|globally|where .{0,20}serve)\b/i) ||
+        refused(/\b(geographic|locally|regionally|nationally|globally|where .{0,20}serve|where do you (mainly )?do business)\b/i) ||
         flexibleDirectCaptureComplete("geographic_scope", la, lu) ||
         captureKeySatisfiedFromHistory("geographic_scope", messages),
     },
@@ -963,7 +983,7 @@ function capturePromptPatternForKey(key: CaptureKey): RegExp {
     case "industry":
       return /\b(industry|what space|operates in|category|line of business)\b/i;
     case "geographic_scope":
-      return /\b(locally|regionally|nationally|globally|geographic|serve customers|reach of)\b/i;
+      return /\b(locally|regionally|nationally|globally|geographic|serve customers|reach of|do business|where .{0,40}(serve|operate|based))\b/i;
     case "years_in_business":
       return /\b(how long|years in business|been operating|been in business)\b/i;
     case "offer_clarity":

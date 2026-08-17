@@ -30,6 +30,8 @@ import {
 } from "@/lib/intake/computeSeamlessFinalizeUiState";
 import { extractMultiSelectOptions } from "@/lib/intake/extractMultiSelectOptions";
 import { CONTINUE_ANYWAY_CHIP } from "@/lib/intake/completenessNudgeChips";
+import { assistantMessageInvitesChoice } from "@/lib/intake/assistantMessageInvitesChoice";
+import { assistantTurnAsksAboutCapture } from "@/lib/intake/flexibleDirectCaptureComplete";
 import {
   BETWEEN_BANDS_CHIP,
   OTHER_CHIP,
@@ -178,6 +180,9 @@ export default function HomePageClient({
     isLoading,
     isStreaming,
     sendMessage,
+    undoLastAnswer,
+    canUndoLastAnswer,
+    requestFieldCorrection,
     retry,
     canRetry,
     reset,
@@ -232,6 +237,7 @@ export default function HomePageClient({
 
   // ─── Security: Honeypot field ───
   const [honeypot, setHoneypot] = useState("");
+  const honeypotTouchedRef = useRef(false);
 
   // ─── Asset upload (Blueprint/Blueprint+ only) ───
   const [chatEmail, setChatEmail] = useState<string | null>(null);
@@ -399,10 +405,20 @@ export default function HomePageClient({
   const sendComposerOutgoing = useCallback(
     async (outgoing: string) => {
       if (!outgoing.trim() || isFinalizing || isLoading) return;
-      if (honeypot) {
-        setInputValue("");
-        setSelectedQuickReplyPills([]);
-        return;
+      // Honeypot: only treat as bot if the field was actually interacted with.
+      // Browsers/password managers often autofill hidden "url/company" fields — that
+      // used to silently no-op Send and look like a broken button.
+      if (honeypot.trim()) {
+        const looksLikeAutofill =
+          honeypot.trim().length > 0 &&
+          !honeypotTouchedRef.current;
+        if (!looksLikeAutofill && honeypotTouchedRef.current) {
+          setInputValue("");
+          setSelectedQuickReplyPills([]);
+          return;
+        }
+        // Ignore autofill noise
+        setHoneypot("");
       }
 
       if (!snapshotStartFiredRef.current) {
@@ -610,13 +626,14 @@ export default function HomePageClient({
     setSelectedQuickReplyPills([]);
   }, [lastAssistantMessageId]);
 
-  /** Last message is assistant and we're not mid-request — safe to show quick replies. */
+  /** Last message is an assistant question (not a thank-you / handoff) and we're idle. */
   const lastThreadMessage = messages.length > 0 ? messages[messages.length - 1] : undefined;
   const chatAwaitingChoiceOnLatestAssistant =
     !!lastThreadMessage &&
     lastThreadMessage.role === "assistant" &&
     !isLoading &&
-    !isFinalizing;
+    !isFinalizing &&
+    assistantMessageInvitesChoice(lastThreadMessage.text);
 
   /** Legacy fallback: parse bullets if an older turn still listed options in the message. */
   const messageDerivedQuickReplies = useMemo(() => {
@@ -626,53 +643,74 @@ export default function HomePageClient({
     return fromMessage.length > 0 ? fromMessage : null;
   }, [chatAwaitingChoiceOnLatestAssistant, lastThreadMessage]);
 
-  /** Chips follow the visible question only — never a possibly-stale nextCaptureKey. */
+  /**
+   * Chips must match the visible question.
+   * Prefer topic detect from on-screen text. Only use nextCaptureKey when that key's
+   * ask-pattern matches the same on-screen text (never a stale conversion key under
+   * an unrelated question).
+   */
   const contextualQuickReplies = useMemo(() => {
     if (!chatAwaitingChoiceOnLatestAssistant || !lastThreadMessage) return null;
     if (lastThreadMessage.role !== "assistant") return null;
-    return resolveSuggestedReplies({
+    const fromTopic = resolveSuggestedReplies({
       nextPendingKey: null,
       lastAssistantText: lastThreadMessage.text,
     });
-  }, [chatAwaitingChoiceOnLatestAssistant, lastThreadMessage]);
+    if (fromTopic?.length) return fromTopic;
+    if (
+      nextCaptureKey &&
+      assistantTurnAsksAboutCapture(nextCaptureKey, lastThreadMessage.text)
+    ) {
+      return resolveSuggestedReplies({
+        nextPendingKey: nextCaptureKey,
+        lastAssistantText: lastThreadMessage.text,
+      });
+    }
+    return null;
+  }, [chatAwaitingChoiceOnLatestAssistant, lastThreadMessage, nextCaptureKey]);
 
   const contextualChipSelectionMode = useMemo(() => {
     if (!chatAwaitingChoiceOnLatestAssistant || !lastThreadMessage) return null;
     if (lastThreadMessage.role !== "assistant") return null;
     if (!contextualQuickReplies?.length) return null;
-    return resolveChipSelectionMode({
+    const fromTopic = resolveChipSelectionMode({
       nextPendingKey: null,
       lastAssistantText: lastThreadMessage.text,
     });
-  }, [chatAwaitingChoiceOnLatestAssistant, lastThreadMessage, contextualQuickReplies]);
+    if (
+      resolveSuggestedReplies({
+        nextPendingKey: null,
+        lastAssistantText: lastThreadMessage.text,
+      })?.length
+    ) {
+      return fromTopic;
+    }
+    if (
+      nextCaptureKey &&
+      assistantTurnAsksAboutCapture(nextCaptureKey, lastThreadMessage.text)
+    ) {
+      return resolveChipSelectionMode({
+        nextPendingKey: nextCaptureKey,
+        lastAssistantText: lastThreadMessage.text,
+      });
+    }
+    return fromTopic;
+  }, [chatAwaitingChoiceOnLatestAssistant, lastThreadMessage, contextualQuickReplies, nextCaptureKey]);
 
-  /**
-   * Prefer on-screen topic chips so pills always match the visible question.
-   * Keep server chips for completeness nudges (includes Continue anyway) and when
-   * topic detect misses (forced capture with no topic rule).
-   */
   const serverIsCompletenessNudge = Boolean(
-    suggestedReplies?.includes(CONTINUE_ANYWAY_CHIP),
+    suggestedReplies?.includes(CONTINUE_ANYWAY_CHIP) &&
+      lastThreadMessage?.role === "assistant" &&
+      assistantMessageInvitesChoice(lastThreadMessage.text),
   );
-  const captureFallbackChips =
-    !contextualQuickReplies && nextCaptureKey
-      ? resolveSuggestedReplies({
-          nextPendingKey: nextCaptureKey,
-          lastAssistantText: null,
-        })
-      : null;
+
   const quickReplyOptions =
-    (!serverIsCompletenessNudge ? contextualQuickReplies : null) ||
-    captureFallbackChips ||
-    (suggestedReplies && suggestedReplies.length > 0 ? suggestedReplies : null) ||
+    (serverIsCompletenessNudge && suggestedReplies?.length ? suggestedReplies : null) ||
+    contextualQuickReplies ||
     messageDerivedQuickReplies;
 
   const effectiveChipSelectionMode = serverIsCompletenessNudge
     ? chipSelectionMode
-    : contextualChipSelectionMode ??
-      (nextCaptureKey
-        ? resolveChipSelectionMode({ nextPendingKey: nextCaptureKey, lastAssistantText: null })
-        : chipSelectionMode);
+    : contextualChipSelectionMode ?? "multi";
 
   /** Single-select: one tap sends. Affordance chips ("type below") focus the textarea instead. */
   const handleQuickReplyChip = useCallback(
@@ -747,11 +785,15 @@ export default function HomePageClient({
     event.preventDefault();
     const trimmed = inputValue.trim();
     // Affordance chips mean “type below” — send typed text, not those labels.
-    const pillLine = selectedQuickReplyPills
-      .filter((p) => !AFFORDANCE_CHIPS.has(p))
-      .join(", ");
-    if (!trimmed && !pillLine) return;
+    const actionablePills = selectedQuickReplyPills.filter((p) => !AFFORDANCE_CHIPS.has(p));
+    const pillLine = actionablePills.join(", ");
+    if (!trimmed && !pillLine) {
+      inputRef.current?.focus();
+      return;
+    }
 
+    // Single-answer questions: one selected chip (or typed text) submits on Send.
+    // Multi: combine selected chips + optional typed note.
     const outgoing =
       trimmed && pillLine
         ? `${pillLine}. ${trimmed}`
@@ -759,6 +801,12 @@ export default function HomePageClient({
 
     await sendComposerOutgoing(outgoing);
   };
+
+  const composerBusy = isLoading || isFinalizing || isUploading;
+  const canSubmitComposer =
+    !composerBusy &&
+    (inputValue.trim().length > 0 ||
+      selectedQuickReplyPills.some((p) => !AFFORDANCE_CHIPS.has(p)));
 
   return (
     <div className="app-root">
@@ -1015,8 +1063,47 @@ export default function HomePageClient({
               {capturedSummaryOpen && (
                 <ul style={{ margin: 0, padding: "0 14px 12px 28px", fontSize: 13, color: "#334155", lineHeight: 1.5 }}>
                   {capturedSummary.map((item) => (
-                    <li key={item.label}>
-                      <strong>{item.label}:</strong> {item.value}
+                    <li
+                      key={item.id || item.label}
+                      style={{
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: 8,
+                        marginBottom: 6,
+                      }}
+                    >
+                      <span style={{ flex: 1 }}>
+                        <strong>{item.label}:</strong> {item.value}
+                      </span>
+                      {!isLoading && !isFinalizing && !intakeInputHidden ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCapturedSummaryOpen(true);
+                            requestFieldCorrection(item.label, item.value);
+                            requestAnimationFrame(() => {
+                              chatMessagesRef.current?.scrollTo({
+                                top: chatMessagesRef.current.scrollHeight,
+                                behavior: "smooth",
+                              });
+                              inputRef.current?.focus();
+                            });
+                          }}
+                          style={{
+                            flexShrink: 0,
+                            padding: "2px 8px",
+                            borderRadius: 6,
+                            border: "1px solid #BFDBFE",
+                            background: "#EFF6FF",
+                            color: "#1D4ED8",
+                            fontSize: 12,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                          }}
+                        >
+                          Edit
+                        </button>
+                      ) : null}
                     </li>
                   ))}
                 </ul>
@@ -1063,6 +1150,47 @@ export default function HomePageClient({
                 )}
                 <div ref={messagesEndRef} />
               </div>
+
+              {canUndoLastAnswer && !isFinalizing && (
+                <div
+                  role="status"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    padding: "8px 12px",
+                    marginBottom: 8,
+                    background: "#F8FAFC",
+                    borderRadius: 8,
+                    border: "1px solid #E2E8F0",
+                  }}
+                >
+                  <span style={{ fontSize: 13, color: "#475569", flex: 1 }}>
+                    Sent by mistake?
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      undoLastAnswer();
+                      setSelectedQuickReplyPills([]);
+                      setInputValue("");
+                      setTimeout(() => inputRef.current?.focus(), 50);
+                    }}
+                    style={{
+                      padding: "6px 12px",
+                      borderRadius: 6,
+                      border: "1px solid #CBD5E1",
+                      background: "#FFFFFF",
+                      color: "#021859",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Undo last answer
+                  </button>
+                </div>
+              )}
 
               {/* Retry bar — shown when the last API call failed */}
               {canRetry && !isLoading && (
@@ -1210,16 +1338,25 @@ export default function HomePageClient({
                   <label htmlFor="brand-message" className="sr-only">
                     Send a message to Wundy™
                   </label>
-                  {/* Honeypot: invisible to humans, bots auto-fill it */}
+                  {/* Honeypot: invisible to humans. Obscure name + readonly-until-focus
+                      so password managers don't autofill and silently block Send. */}
                   <input
                     type="text"
-                    name="company_url"
+                    name="wb_hp_website_check"
                     value={honeypot}
-                    onChange={(e) => setHoneypot(e.target.value)}
+                    readOnly
+                    onFocus={(e) => {
+                      honeypotTouchedRef.current = true;
+                      e.currentTarget.readOnly = false;
+                    }}
+                    onChange={(e) => {
+                      honeypotTouchedRef.current = true;
+                      setHoneypot(e.target.value);
+                    }}
                     tabIndex={-1}
                     autoComplete="off"
                     aria-hidden="true"
-                    style={{ position: "absolute", left: "-9999px", width: 0, height: 0, opacity: 0 }}
+                    style={{ position: "absolute", left: "-9999px", width: 1, height: 1, opacity: 0 }}
                   />
                   {/* File upload for Blueprint-level tiers */}
                   {isUploadTier && chatEmail && (
@@ -1274,12 +1411,14 @@ export default function HomePageClient({
                   <button
                     type="submit"
                     className="chat-send"
-                    disabled={
-                      isLoading ||
-                      isFinalizing ||
-                      isUploading ||
-                      (!inputValue.trim() &&
-                        selectedQuickReplyPills.filter((p) => !AFFORDANCE_CHIPS.has(p)).length === 0)
+                    disabled={!canSubmitComposer}
+                    aria-disabled={!canSubmitComposer}
+                    title={
+                      composerBusy
+                        ? "Please wait…"
+                        : canSubmitComposer
+                          ? "Send your reply"
+                          : "Type a reply or select an option first"
                     }
                   >
                     {isUploading ? "Uploading…" : isLoading || isFinalizing ? "Sending…" : "Send"}

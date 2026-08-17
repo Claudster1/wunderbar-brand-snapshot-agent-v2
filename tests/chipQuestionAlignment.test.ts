@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { assistantMessageInvitesChoice } from "@/lib/intake/assistantMessageInvitesChoice";
 import { buildCaptureQuestion } from "@/lib/intake/buildCaptureQuestion";
 import { buildIntakeResponseMeta } from "@/lib/intake/buildIntakeResponseMeta";
 import { getSuggestedRepliesForCapture } from "@/lib/intake/captureSuggestedReplies";
@@ -121,5 +122,51 @@ describe("chip ↔ question alignment QC", () => {
       lastAssistantText: "What are you hoping to achieve with your brand in the next 6–12 months?",
     });
     expect(chips?.[0]).toMatch(/qualified leads|Attract/i);
+  });
+
+  it("brand consistency question never gets conversion-rate chips", () => {
+    const text =
+      "How do you feel about the consistency of your brand across different touchpoints — does it feel cohesive wherever it shows up, somewhat consistent, or still a bit scattered?";
+    const chips = resolveSuggestedReplies({
+      nextPendingKey: "conversion_rate_estimate",
+      lastAssistantText: text,
+    });
+    expect(chips?.[0]).toMatch(/Cohesive|Somewhat consistent|scattered/i);
+    expect(chips?.join(" ")).not.toMatch(/I track it/i);
+  });
+
+  it("decision-style wording resolves decision chips", () => {
+    const chips = resolveSuggestedReplies({
+      nextPendingKey: null,
+      lastAssistantText:
+        "When you make decisions for the business, which pattern fits you best? Tap below — or type your own.",
+    });
+    expect(chips?.[0]).toMatch(/instincts|research|collaborate|systems/i);
+  });
+
+  it("personality person-in-a-room wording resolves personality chips", () => {
+    const chips = resolveSuggestedReplies({
+      nextPendingKey: null,
+      lastAssistantText:
+        "If Wunderbar Digital were a person in a room, how would you describe them? Tap a few below — or type your own words.",
+    });
+    expect(chips?.[0]).toMatch(/Sharp|Approachable|Challenger/i);
+  });
+
+  it("content formats wording with 'engages' resolves chips", () => {
+    const chips = resolveSuggestedReplies({
+      nextPendingKey: null,
+      lastAssistantText:
+        "What formats do you think your audience engages with most? Tap all that apply below — or type your own.",
+    });
+    expect(chips?.[0]).toMatch(/social|Long-form|Video|Email/i);
+  });
+
+  it("confidentiality ack never invites leftover conversion chips", () => {
+    expect(
+      assistantMessageInvitesChoice(
+        "Totally fair — your diagnostic will have plenty to work with. Everything you've shared is confidential — your brand insights stay yours.",
+      ),
+    ).toBe(false);
   });
 });

@@ -37,6 +37,19 @@ describe("priorAnswersCapture", () => {
     expect(keys.has("additional_marketing_surfaces")).toBe(true);
   });
 
+  it("marks role and team size from prior when present", () => {
+    const keys = getPriorSatisfiedCaptureKeys(
+      {
+        ...samplePrior,
+        userRoleContext: "founder",
+        teamSize: "2-5",
+      },
+      "snapshot-plus",
+    );
+    expect(keys.has("user_role_context")).toBe(true);
+    expect(keys.has("team_size")).toBe(true);
+  });
+
   it("marks primary acquisition and competitive pressure only from explicit prior fields", () => {
     const keys = getPriorSatisfiedCaptureKeys(
       {

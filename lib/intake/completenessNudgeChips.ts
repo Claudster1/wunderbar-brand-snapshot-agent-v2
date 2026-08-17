@@ -5,6 +5,16 @@ export const CONTINUE_ANYWAY_CHIP = "Continue anyway";
 
 const LABEL_TO_CAPTURE: Array<{ match: RegExp; key: CaptureKey }> = [
   { match: /business type/i, key: "business_type_classifier" },
+  { match: /your role|role in the business/i, key: "user_role_context" },
+  { match: /team size/i, key: "team_size" },
+  { match: /industry/i, key: "industry" },
+  { match: /geographic/i, key: "geographic_scope" },
+  { match: /years in business/i, key: "years_in_business" },
+  { match: /offer clarity/i, key: "offer_clarity" },
+  { match: /messaging clarity/i, key: "messaging_clarity" },
+  { match: /customer proof|testimonial|case stud/i, key: "credibility_proof" },
+  { match: /visual confidence/i, key: "visual_confidence" },
+  { match: /thought leadership/i, key: "thought_leadership" },
   { match: /acquisition channel/i, key: "primary_acquisition_channel" },
   { match: /revenue range/i, key: "monthly_revenue_range" },
   { match: /transaction value|deal size/i, key: "average_transaction_value" },

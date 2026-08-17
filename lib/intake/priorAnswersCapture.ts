@@ -33,6 +33,47 @@ export function getPriorSatisfiedCaptureKeys(
     done.add("audience_type_classifier");
   }
 
+  if (str(prior.userRoleContext)) {
+    done.add("user_role_context");
+  }
+
+  if (str(prior.teamSize) || typeof prior.teamSize === "number") {
+    done.add("team_size");
+  }
+
+  if (str(prior.industry)) {
+    done.add("industry");
+  }
+
+  if (str(prior.geographicScope)) {
+    done.add("geographic_scope");
+  }
+
+  if (str(prior.yearsInBusiness) || typeof prior.yearsInBusiness === "number") {
+    done.add("years_in_business");
+  }
+
+  if (str(prior.offerClarity)) {
+    done.add("offer_clarity");
+  }
+
+  if (str(prior.messagingClarity)) {
+    done.add("messaging_clarity");
+  }
+
+  if (typeof prior.hasTestimonials === "boolean" || typeof prior.hasCaseStudies === "boolean") {
+    done.add("credibility_proof");
+  }
+
+  if (str(prior.visualConfidence)) {
+    done.add("visual_confidence");
+  }
+
+  const tl = prior.thoughtLeadershipActivity;
+  if (tl && typeof tl === "object" && !Array.isArray(tl) && typeof (tl as { hasActivity?: unknown }).hasActivity === "boolean") {
+    done.add("thought_leadership");
+  }
+
   const website = prior.website;
   if (website === null || website === false) {
     done.add("website_presence");

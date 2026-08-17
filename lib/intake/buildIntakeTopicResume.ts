@@ -100,6 +100,38 @@ export function buildIntakeTopicResumeLines(
     lines.push("OFFER / MESSAGING CLARITY: already answered — do **not** re-ask clarity questions (playbook §19–20).");
   }
 
+  if (/\b(i'?m (a )?founder|co-?founder|i (run|own) (the|this) business|day[- ]?to[- ]?day|i lead strategy|i oversee marketing|my role)\b/i.test(users)) {
+    lines.push("USER ROLE: already answered — do **not** re-ask role (playbook §2B / §38).");
+  }
+
+  if (/\b(just me|solo|2[–-]5 people|6[–-]15|16[–-]50|50\+|team of \d+|how big is (our|the|my) team)\b/i.test(users)) {
+    lines.push("TEAM SIZE: already answered — do **not** re-ask team size (playbook §8).");
+  }
+
+  if (/\b(industry|professional services|saas|e-?commerce|health|wellness|coaching)\b/i.test(users) && /\b(in|space|category|we'?re in|operate)\b/i.test(users)) {
+    lines.push("INDUSTRY: already answered — do **not** re-ask industry/category.");
+  }
+
+  if (/\b(locally|regionally|nationally|globally)\b/i.test(users)) {
+    lines.push("GEOGRAPHIC SCOPE: already answered — do **not** re-ask reach.");
+  }
+
+  if (/\b(less than 1 year|1[–-]3 years|3[–-]5 years|5[–-]10 years|10\+ years|not launched yet)\b/i.test(users)) {
+    lines.push("YEARS IN BUSINESS: already answered — do **not** re-ask tenure.");
+  }
+
+  if (/\b(very clear|somewhat clear|unclear)\b/i.test(users) && /\b(offer|what you do)\b/i.test(users)) {
+    lines.push("OFFER CLARITY: already answered — do **not** re-ask offer clarity.");
+  }
+
+  if (/\b(testimonials?|case stud|neither yet)\b/i.test(users) && /\b(proof|review|testimonial|case)\b/i.test(users)) {
+    lines.push("CREDIBILITY PROOF: already answered — do **not** re-ask testimonials/case studies.");
+  }
+
+  if (/\b(very confident|somewhat confident|not confident)\b/i.test(users)) {
+    lines.push("VISUAL CONFIDENCE: already answered — do **not** re-ask visual confidence.");
+  }
+
   if (/\b(voice|tone|approachable experts|brand speaks)\b/i.test(users)) {
     lines.push("BRAND VOICE: already answered — do **not** re-ask voice/tone (playbook §21).");
   }

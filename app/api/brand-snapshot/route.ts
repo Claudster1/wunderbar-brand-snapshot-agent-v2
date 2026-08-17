@@ -6,6 +6,7 @@ import { NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { wundySystemPrompt } from "@/src/prompts/wundySystemPrompt";
 import { wundySnapshotIntakePrompt } from "@/src/prompts/wundySnapshotIntakePrompt";
+import { wundyPaidTierFragment } from "@/src/prompts/wundyPaidTierFragment";
 import { buildIntakeResponseMeta } from "@/lib/intake/buildIntakeResponseMeta";
 import { buildNarrativeRoutingLines } from "@/lib/intake/narrativeMilestones";
 import { wundyUpgradeContinuationFragment } from "@/src/prompts/wundyUpgradeContinuationFragment";
@@ -201,6 +202,17 @@ const ON_TOPIC_ASSISTANT_HINTS: Record<CaptureKey, RegExp> = {
     /\b(revenue|paid|model|launch|accurate|describe|get paid|primarily|service|product|saas|e-?commerce|tailor)\b/i,
   audience_type_classifier:
     /\b(who|sell|selling|b2b|b2c|customers|clients|buyers|audience|businesses|consumers)\b/i,
+  user_role_context:
+    /\b(role|founder|co-?founder|operator|strategy|marketing|day-to-day|run the business|lead)\b/i,
+  team_size: /\b(team|people|headcount|solo|just me|how many|size)\b/i,
+  industry: /\b(industry|space|category|sector|field|vertical|operates)\b/i,
+  geographic_scope: /\b(local|regional|national|global|geographic|serve|reach|where)\b/i,
+  years_in_business: /\b(years?|long|operating|launched|started|stage|new)\b/i,
+  offer_clarity: /\b(offer|clear|clarity|what you do|understand|first encounter)\b/i,
+  messaging_clarity: /\b(messaging|message|clear|consistent|clarity)\b/i,
+  credibility_proof: /\b(testimonial|case stud|review|proof|success|credibility)\b/i,
+  visual_confidence: /\b(visual|logo|look|design|confident|brand looks)\b/i,
+  thought_leadership: /\b(thought leadership|known for|blog|speak|publish|authority)\b/i,
   website_presence: /\b(website|url|domain|site|landing|\.com|web address|online)\b/i,
   social_platform_presence:
     /\b(social|instagram|linkedin|tiktok|platform|handle|@|youtube|facebook|threads|not active|none)\b/i,
@@ -253,14 +265,28 @@ const SNAPSHOT_DIGITAL_BASELINE: CaptureKey[] = [
 ];
 
 function shouldIncludeCaptureForTier(capture: CaptureKey, tier: IntakeTier): boolean {
+  /** Stage + category + clarity + proof — required for credible scores on every tier. */
+  const credibilityCore: CaptureKey[] = [
+    "industry",
+    "geographic_scope",
+    "years_in_business",
+    "offer_clarity",
+    "credibility_proof",
+    "visual_confidence",
+  ];
+
   const core: CaptureKey[] = [
     "business_type_classifier",
+    "user_role_context",
     "audience_type_classifier",
+    ...credibilityCore,
     "primary_acquisition_channel",
     "competitive_pressure_point",
   ];
 
   const advanced: CaptureKey[] = [
+    "team_size",
+    "messaging_clarity",
     "monthly_revenue_range",
     "average_transaction_value",
     "conversion_rate_estimate",
@@ -268,6 +294,7 @@ function shouldIncludeCaptureForTier(capture: CaptureKey, tier: IntakeTier): boo
   ];
 
   const blueprintConversion: CaptureKey[] = [
+    "thought_leadership",
     "monthly_marketing_budget",
     "has_email_list",
     "has_lead_magnet",
@@ -282,8 +309,6 @@ function shouldIncludeCaptureForTier(capture: CaptureKey, tier: IntakeTier): boo
     return core.includes(capture) || advanced.includes(capture) || SNAPSHOT_DIGITAL_BASELINE.includes(capture);
   }
   if (tier === "blueprint" || tier === "blueprint-plus") {
-    // Include Snapshot digital baseline so cold Blueprint starts still capture website/social
-    // (upgrade-with-prior already marks these complete via priorAnswersCapture).
     return (
       core.includes(capture) ||
       advanced.includes(capture) ||
@@ -331,6 +356,26 @@ function modelFacingCaptureHint(key: CaptureKey): string {
       return "how you earn revenue (services, product, SaaS, retail, etc.) — not yet who the customer is";
     case "audience_type_classifier":
       return "who you mainly sell to — other businesses (B2B), consumers (B2C), or a real mix";
+    case "user_role_context":
+      return "how you think about your role here — founder, day-to-day operator, strategy, or marketing/brand";
+    case "team_size":
+      return "roughly how big the team is today (including you)";
+    case "industry":
+      return "what industry or space you're in (a plain category is enough)";
+    case "geographic_scope":
+      return "whether you mainly serve locally, regionally, nationally, or globally";
+    case "years_in_business":
+      return "roughly how long you've been operating";
+    case "offer_clarity":
+      return "how clear your offer is to someone encountering you for the first time";
+    case "messaging_clarity":
+      return "how clear and consistent your messaging feels across channels";
+    case "credibility_proof":
+      return "what customer proof you have today — testimonials/reviews and/or case studies (or neither yet)";
+    case "visual_confidence":
+      return "how confident you feel about how the brand looks visually";
+    case "thought_leadership":
+      return "whether you're doing any thought leadership publicly yet (blog, speaking, LinkedIn POV, etc.)";
     case "website_presence":
       return "whether you have a live website URL (or are not on the web yet)";
     case "social_platform_presence":
@@ -437,6 +482,19 @@ function getCaptureStates(
         captureKeySatisfiedFromHistory("business_type_classifier", messages),
     },
     {
+      key: "user_role_context",
+      label: "your role in the business",
+      completed:
+        hasRecentUserSignal(
+          messages,
+          /\b(i'?m (a )?founder|co-?founder|i (run|own) (the|this) business|day[- ]?to[- ]?day|i lead strategy|i oversee marketing|marketing lead|strategic lead|i'?m the (owner|ceo|operator)|my role is)\b/i,
+          6,
+        ) ||
+        refused(/\b(your role|role at|how do you think about your role)\b/i) ||
+        flexibleDirectCaptureComplete("user_role_context", la, lu) ||
+        captureKeySatisfiedFromHistory("user_role_context", messages),
+    },
+    {
       key: "audience_type_classifier",
       label: "primary customer type (B2B vs B2C)",
       completed:
@@ -447,6 +505,53 @@ function getCaptureStates(
         refused(/\bwho (do )?you (mainly )?sell|b2b or b2c|target (customer|audience)|ideal customer\b/i) ||
         flexibleDirectCaptureComplete("audience_type_classifier", la, lu) ||
         captureKeySatisfiedFromHistory("audience_type_classifier", messages),
+    },
+    {
+      key: "industry",
+      label: "industry / category",
+      completed:
+        refused(/\b(industry|what space|category|operates in)\b/i) ||
+        flexibleDirectCaptureComplete("industry", la, lu) ||
+        captureKeySatisfiedFromHistory("industry", messages),
+    },
+    {
+      key: "geographic_scope",
+      label: "geographic scope",
+      completed:
+        hasRecentUserSignal(
+          messages,
+          /\b(locally|regionally|nationally|globally|local \(city|regional \(state|nationwide|worldwide|multi-?state)\b/i,
+          8,
+        ) ||
+        refused(/\b(geographic|locally|regionally|nationally|globally|where .{0,20}serve)\b/i) ||
+        flexibleDirectCaptureComplete("geographic_scope", la, lu) ||
+        captureKeySatisfiedFromHistory("geographic_scope", messages),
+    },
+    {
+      key: "years_in_business",
+      label: "years in business",
+      completed:
+        hasRecentUserSignal(
+          messages,
+          /\b(less than 1 year|under a year|1[–-]3 years|3[–-]5 years|5[–-]10 years|10\+ years|not launched yet|just (started|launching))\b/i,
+          8,
+        ) ||
+        refused(/\b(how long|years in business|been operating)\b/i) ||
+        flexibleDirectCaptureComplete("years_in_business", la, lu) ||
+        captureKeySatisfiedFromHistory("years_in_business", messages),
+    },
+    {
+      key: "team_size",
+      label: "team size",
+      completed:
+        hasRecentUserSignal(
+          messages,
+          /\b(just me|solo|only me|2[–-]5|6[–-]15|16[–-]50|50\+|team of \d+|\d+\s*(people|person|employees?|ftes?))\b/i,
+          6,
+        ) ||
+        refused(/\b(how big|team size|how many people|people involved)\b/i) ||
+        flexibleDirectCaptureComplete("team_size", la, lu) ||
+        captureKeySatisfiedFromHistory("team_size", messages),
     },
     {
       key: "website_presence",
@@ -604,6 +709,66 @@ function getCaptureStates(
         refused(/\bcompetitor|competitive pressure|lose deals|win[- ]?loss|why (they|customers) pick\b/i) ||
         flexibleDirectCaptureComplete("competitive_pressure_point", la, lu) ||
         captureKeySatisfiedFromHistory("competitive_pressure_point", messages),
+    },
+    {
+      key: "offer_clarity",
+      label: "offer clarity",
+      completed:
+        hasRecentUserSignal(
+          messages,
+          /\b(very clear|somewhat clear|unclear|pretty clear|offer is clear|still figuring.{0,20}offer)\b/i,
+          6,
+        ) ||
+        refused(/\b(offer clarity|how clear.{0,30}offer|what you do)\b/i) ||
+        flexibleDirectCaptureComplete("offer_clarity", la, lu) ||
+        captureKeySatisfiedFromHistory("offer_clarity", messages),
+    },
+    {
+      key: "messaging_clarity",
+      label: "messaging clarity",
+      completed:
+        hasRecentUserSignal(
+          messages,
+          /\b(very clear|somewhat clear|unclear|messaging is|consistent messaging|message lands)\b/i,
+          6,
+        ) ||
+        refused(/\b(messaging clarity|how clear.{0,30}messaging)\b/i) ||
+        flexibleDirectCaptureComplete("messaging_clarity", la, lu) ||
+        captureKeySatisfiedFromHistory("messaging_clarity", messages),
+    },
+    {
+      key: "credibility_proof",
+      label: "customer proof (testimonials / case studies)",
+      completed:
+        hasRecentUserSignal(
+          messages,
+          /\b(testimonials?|case stud(?:y|ies)|reviews?|success stor|neither yet|no proof|we have proof)\b/i,
+          6,
+        ) ||
+        refused(/\b(testimonial|case stud|customer proof|reviews?)\b/i) ||
+        flexibleDirectCaptureComplete("credibility_proof", la, lu) ||
+        captureKeySatisfiedFromHistory("credibility_proof", messages),
+    },
+    {
+      key: "visual_confidence",
+      label: "visual confidence",
+      completed:
+        hasRecentUserSignal(
+          messages,
+          /\b(very confident|somewhat confident|not confident)\b/i,
+          6,
+        ) ||
+        refused(/\b(visual confidence|how (confident|happy).{0,20}(look|logo|visual))\b/i) ||
+        flexibleDirectCaptureComplete("visual_confidence", la, lu) ||
+        captureKeySatisfiedFromHistory("visual_confidence", messages),
+    },
+    {
+      key: "thought_leadership",
+      label: "thought leadership activity",
+      completed:
+        refused(/\b(thought leadership|known for|publish|speaking)\b/i) ||
+        flexibleDirectCaptureComplete("thought_leadership", la, lu) ||
+        captureKeySatisfiedFromHistory("thought_leadership", messages),
     },
     {
       key: "has_email_list",
@@ -833,6 +998,26 @@ function buildCaptureQuestion(
         : "**How do you primarily get paid today** — mostly services/consulting, a physical or digital product, SaaS/subscription, retail, or something else? A short phrase is enough **(we'll ask who you sell to next).**";
     case "audience_type_classifier":
       return "**Who do you mainly sell to** — mostly other businesses (B2B), mostly consumers (B2C), or a meaningful mix of both?";
+    case "user_role_context":
+      return "**How do you think about your role here?** Tap below — or type your own.";
+    case "team_size":
+      return "**How big is your team today** — including you?";
+    case "industry":
+      return "**What industry or space is the business in?** A plain category is perfect.";
+    case "geographic_scope":
+      return "**Where do you mainly serve customers** — locally, regionally, nationally, or globally?";
+    case "years_in_business":
+      return "**Roughly how long have you been operating?**";
+    case "offer_clarity":
+      return "**How clear is your offer to someone encountering you for the first time?**";
+    case "messaging_clarity":
+      return "**How clear and consistent does your messaging feel across channels today?**";
+    case "credibility_proof":
+      return "**What customer proof do you have today?** Tap all that apply — testimonials/reviews, case studies, or neither yet.";
+    case "visual_confidence":
+      return "**How confident do you feel about how the brand looks visually?**";
+    case "thought_leadership":
+      return "**Are you doing any thought leadership publicly yet** — blog, speaking, LinkedIn POV, or similar?";
     case "website_presence":
       return "**Do you have a website URL to share today** — even a simple landing page or store link? If you are not on the web yet, just say so; that is useful too.";
     case "social_platform_presence":
@@ -878,6 +1063,26 @@ function capturePromptPatternForKey(key: CaptureKey): RegExp {
       return /\b(primary revenue|how you generate revenue|how do you get paid|primarily get paid|earn revenue|it sounds like you'?re primarily|business model|revenue model|describe (?:your|the) revenue|services vs product|offer \(services|does that match|how do you primarily get paid)\b/i;
     case "audience_type_classifier":
       return /\b(who do you (mainly )?sell|selling to|mainly (b2b|b2c)|b2b or b2c|mix of both|meaningful mix|consumers \(b2c\)|businesses \(b2b\)|target customer|ideal customer)\b/i;
+    case "user_role_context":
+      return /\b(your role|role at|how do you think about your role|founder \/ co-founder|day-to-day|lead strategy|oversee marketing)\b/i;
+    case "team_size":
+      return /\b(how big is (your|the) team|team size|how many people|people (are )?involved|team today)\b/i;
+    case "industry":
+      return /\b(industry|what space|operates in|category|line of business)\b/i;
+    case "geographic_scope":
+      return /\b(locally|regionally|nationally|globally|geographic|serve customers|reach of)\b/i;
+    case "years_in_business":
+      return /\b(how long|years in business|been operating|been in business)\b/i;
+    case "offer_clarity":
+      return /\b(offer clarity|how clear.{0,40}offer|first encounter|what you do)\b/i;
+    case "messaging_clarity":
+      return /\b(messaging clarity|how clear.{0,40}messaging|consistent.{0,20}messaging)\b/i;
+    case "credibility_proof":
+      return /\b(customer proof|testimonial|case stud|reviews?|neither yet|proof do you have)\b/i;
+    case "visual_confidence":
+      return /\b(visual confidence|how (confident|happy).{0,40}(look|logo|visual)|brand looks)\b/i;
+    case "thought_leadership":
+      return /\b(thought leadership|known for|publicly|blog|speaking|linkedin pov)\b/i;
     case "website_presence":
       return /\b(website|url|domain|landing|site to share|web address|\.com|not on the web)\b/i;
     case "social_platform_presence":
@@ -1304,7 +1509,7 @@ export async function POST(req: Request) {
       },
       ...(intakeTier === "snapshot"
         ? [{ role: "system" as const, content: wundySnapshotIntakePrompt }]
-        : []),
+        : [{ role: "system" as const, content: wundyPaidTierFragment }]),
       { role: "system" as const, content: wundyEarlyStageBuildModeFragment },
       ...(useUpgradeContinuation
         ? [{ role: "system" as const, content: wundyUpgradeContinuationFragment }]

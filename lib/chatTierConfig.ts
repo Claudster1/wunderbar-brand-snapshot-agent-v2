@@ -135,15 +135,15 @@ export function intakeProgressDenominator(tier: ChatTier): number {
   switch (tier) {
     /** Typical Snapshot thread is short vs Blueprint; denominator only affects the bar until wrap-up copy (then 100%). */
     case "snapshot":
-      return 12;
+      return 18;
     case "snapshot-plus":
-      return 28;
-    case "blueprint":
       return 34;
+    case "blueprint":
+      return 40;
     case "blueprint-plus":
-      return 38;
+      return 44;
     default:
-      return 20;
+      return 24;
   }
 }
 

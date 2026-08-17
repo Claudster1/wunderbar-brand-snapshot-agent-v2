@@ -48,8 +48,8 @@ export function buildIntakeResponseMeta(params: {
   const pendingNarrativeCount = narrative.pendingLabels.length;
   const pendingCaptureCount = pendingCaptureLabels.length;
   const narrativeComplete = pendingNarrativeCount === 0;
-  /** Remaining = unfinished captures + unfinished narrative topics (Q&A-paired). */
-  const questionsRemainingEstimate = pendingCaptureCount + pendingNarrativeCount;
+  /** Remaining unfinished topics — never negative (UI shows "~N left"). */
+  const questionsRemainingEstimate = Math.max(0, pendingCaptureCount + pendingNarrativeCount);
 
   const intakeReadyForFinalize =
     captureCompletionPercent >= 100 &&

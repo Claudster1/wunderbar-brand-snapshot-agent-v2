@@ -56,17 +56,31 @@ export function buildIntakeResponseMeta(params: {
     !awaitingAnswerToAssistantQuestion &&
     userTurns >= 6;
 
-  // Honest progress: track pending work, not a soft mid-intake ceiling that feels "stuck".
-  const overallProgressPercent = intakeReadyForFinalize
-    ? 100
-    : captureCompletionPercent >= 100
-      ? Math.min(98, Math.round(72 + narrativeCompletionPercent * 0.26))
-      : Math.min(
-          90,
-          Math.round(
-            captureCompletionPercent * 0.88 + Math.min((userTurns / Math.max(denom, 1)) * 14, 14),
-          ),
-        );
+  /**
+   * Progress tracks remaining captures + narrative topics.
+   * Never report 100 here — the client shows 100 only once a results URL exists.
+   */
+  const remaining = questionsRemainingEstimate;
+  const approxTotalQuestions = Math.max(remaining + completedCaptures + Math.round((narrativeCompletionPercent / 100) * 8), denom, 1);
+  const answeredApprox = Math.max(0, approxTotalQuestions - remaining);
+
+  let overallProgressPercent: number;
+  if (intakeReadyForFinalize) {
+    overallProgressPercent = 97;
+  } else if (remaining <= 0 && captureCompletionPercent >= 100) {
+    overallProgressPercent = 96;
+  } else {
+    const fromRemaining = Math.round((answeredApprox / approxTotalQuestions) * 94);
+    const fromCaptures =
+      captureCompletionPercent >= 100
+        ? Math.round(70 + narrativeCompletionPercent * 0.26)
+        : Math.round(
+            captureCompletionPercent * 0.75 +
+              Math.min((userTurns / Math.max(denom, 1)) * 12, 12) +
+              narrativeCompletionPercent * 0.08,
+          );
+    overallProgressPercent = Math.min(94, Math.max(fromRemaining, fromCaptures));
+  }
 
   const lastAssistantInHistory =
     [...messages].reverse().find((m) => m.role === "assistant")?.content ?? null;

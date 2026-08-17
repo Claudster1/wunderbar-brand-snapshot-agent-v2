@@ -50,7 +50,7 @@ describe("buildIntakeResponseMeta", () => {
     });
     expect(meta.captureCompletionPercent).toBe(100);
     expect(meta.intakeReadyForFinalize).toBe(true);
-    expect(meta.overallProgressPercent).toBe(100);
+    expect(meta.overallProgressPercent).toBe(97);
     expect(meta.questionsRemainingEstimate).toBe(0);
     expect(meta.capturedSummary.length).toBeGreaterThan(0);
   });

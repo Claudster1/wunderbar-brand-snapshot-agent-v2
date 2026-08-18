@@ -51,6 +51,7 @@ import {
 } from "@/lib/results/resolveReportProductTier";
 import { isResultsEmailUnlocked } from "@/lib/results/resultsEmailUnlock";
 import { ResultsBottomFunnel } from "@/app/results/components/ResultsBottomFunnel";
+import { SnapshotDocumentResults } from "@/components/results/snapshotDocument/SnapshotDocumentResults";
 
 const PillarBreakdown = nextDynamic(
   () => import("@/components/PillarBreakdown").then((m) => ({ default: m.PillarBreakdown })),
@@ -153,6 +154,13 @@ function toTitleLabel(value: string): string {
     .replace(/[_-]+/g, " ")
     .replace(/\b\w/g, (char) => char.toUpperCase())
     .trim();
+}
+
+function firstNonEmptyString(...values: unknown[]): string | undefined {
+  for (const value of values) {
+    if (typeof value === "string" && value.trim()) return value.trim();
+  }
+  return undefined;
 }
 
 function getUpstreamPillar(
@@ -457,6 +465,44 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         ? "medium"
         : "high";
   const fullReport = report.full_report as Record<string, unknown> | undefined;
+  const snapshotExecutiveSummary = (() => {
+    const candidates = [
+      fullReport?.executiveSummary,
+      fullReport?.executive_summary,
+      report.executiveSummary,
+      report.executive_summary,
+    ];
+    return candidates.find(
+      (candidate): candidate is Record<string, unknown> =>
+        Boolean(candidate) && typeof candidate === "object" && !Array.isArray(candidate),
+    );
+  })();
+  const snapshotBrandAlignmentOverview = (() => {
+    const candidates = [
+      fullReport?.brandAlignmentOverview,
+      fullReport?.brand_alignment_overview,
+      report.brandAlignmentOverview,
+      report.brand_alignment_overview,
+    ];
+    return candidates.find(
+      (candidate): candidate is Record<string, unknown> =>
+        Boolean(candidate) && typeof candidate === "object" && !Array.isArray(candidate),
+    );
+  })();
+  const snapshotPillarOverviews = Object.fromEntries(
+    (["positioning", "messaging", "visibility", "credibility", "conversion"] as PillarKey[])
+      .map((pillar) => [pillar, firstNonEmptyString(snapshotBrandAlignmentOverview?.[pillar])])
+      .filter((entry): entry is [PillarKey, string] => typeof entry[1] === "string"),
+  ) as Partial<Record<PillarKey, string>>;
+  const snapshotReportDate =
+    typeof report.created_at === "string" && !Number.isNaN(Date.parse(report.created_at))
+      ? new Intl.DateTimeFormat("en-US", {
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+          timeZone: "UTC",
+        }).format(new Date(report.created_at))
+      : undefined;
   const brandFoundation =
     (report.brandFoundation as Record<string, unknown> | undefined) ??
     (fullReport?.brandFoundation as Record<string, unknown> | undefined);
@@ -656,7 +702,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 
   const resultsNavItems = buildResultsTabNavItems({ hasSnapshotPlusAccess });
 
-  const resultsContent = (
+  const paidResultsContent = (
     <div className="space-y-16 md:space-y-20">
       <ResultsPageViewTracker
         brandAlignmentScore={data.brandAlignmentScore}
@@ -824,6 +870,89 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       </ResultsSnapshotLeadGate>
     </div>
   );
+
+  const snapshotBottomFunnel = (
+    <ResultsBottomFunnel
+      tabTier={tabTier}
+      reportId={data.reportId}
+      hasSnapshotPlusAccess={false}
+      userEmail={data.userEmail}
+      businessName={data.businessName}
+      businessType={businessType}
+      primaryPillar={primaryPillarStr}
+      brandAlignmentScore={data.brandAlignmentScore}
+      stage={data.stage}
+    />
+  );
+
+  const freeSnapshotResultsContent = (
+    <div className="space-y-8">
+      <ResultsPageViewTracker
+        brandAlignmentScore={data.brandAlignmentScore}
+        primaryPillar={primaryPillarStr}
+        reportId={data.reportId}
+        brandName={data.businessName}
+        stage={data.stage}
+        contextCoverage={data.contextCoverage}
+        email={data.userEmail}
+      />
+      <SnapshotDocumentResults
+        businessName={data.businessName}
+        {...(snapshotReportDate ? { reportDate: snapshotReportDate } : {})}
+        brandAlignmentScore={data.brandAlignmentScore}
+        pillarScores={data.pillarScores}
+        pillarInsights={pillarInsightsRaw}
+        pillarOverviews={snapshotPillarOverviews}
+        recommendations={recommendationsList}
+        likelyArchetype={likelyArchetype}
+        archetypeMeaning={archetypeMeaning}
+        diagnosis={firstNonEmptyString(
+          snapshotExecutiveSummary?.diagnosis,
+          report.diagnosis,
+        )}
+        primaryOpportunity={firstNonEmptyString(
+          snapshotExecutiveSummary?.primaryOpportunity,
+          snapshotExecutiveSummary?.primary_opportunity,
+          report.primaryOpportunity,
+          report.primary_opportunity,
+        )}
+        primaryRisk={firstNonEmptyString(
+          snapshotExecutiveSummary?.primaryRisk,
+          snapshotExecutiveSummary?.primary_risk,
+          report.primaryRisk,
+          report.primary_risk,
+        )}
+        overview={firstNonEmptyString(
+          snapshotExecutiveSummary?.overview,
+          report.summary,
+          report.overview,
+        )}
+        emailGate={
+          showSnapshotLeadEmail
+            ? {
+                reportId: data.reportId,
+                requiresEmailGate: true,
+                initiallyUnlocked: resultsEmailUnlocked,
+                productTier: "snapshot",
+                productName: snapshotLeadProductName,
+                ...(snapshotLeadFirstNameHint ? { firstNameHint: snapshotLeadFirstNameHint } : {}),
+                afterUnlock: snapshotBottomFunnel,
+              }
+            : null
+        }
+        suiteCta={
+          <>
+            <SuiteCTA />
+            {!showSnapshotLeadEmail ? snapshotBottomFunnel : null}
+          </>
+        }
+      />
+    </div>
+  );
+
+  const resultsContent = hasSnapshotPlusAccess
+    ? paidResultsContent
+    : freeSnapshotResultsContent;
 
   const foundationContent = (
     <FoundationBlueprintContent

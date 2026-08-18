@@ -710,14 +710,6 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
             stage={data.stage}
           />
         </div>
-
-        {likelyArchetype ? (
-          <ResultsArchetypeSection
-            likelyArchetype={likelyArchetype}
-            archetypeMeaning={archetypeMeaning}
-            hasSnapshotPlus={hasSnapshotPlusAccess}
-          />
-        ) : null}
       </div>
 
       <ResultsSnapshotLeadGate
@@ -742,6 +734,14 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         }
       >
         <div className="space-y-16 md:space-y-20">
+      {likelyArchetype ? (
+        <ResultsArchetypeSection
+          likelyArchetype={likelyArchetype}
+          archetypeMeaning={archetypeMeaning}
+          hasSnapshotPlus={hasSnapshotPlusAccess}
+        />
+      ) : null}
+
       <section
         id="priority-actions"
         className="scroll-mt-28 rounded-[5px] border-2 border-brand-blue/20 bg-gradient-to-b from-white to-[#f4f9ff] p-6 sm:p-8 shadow-[0_6px_24px_rgba(2,24,89,0.06)]"

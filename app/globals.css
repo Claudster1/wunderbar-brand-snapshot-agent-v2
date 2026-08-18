@@ -1502,10 +1502,10 @@ a.sr-only:focus {
 /* Email unlock — light card aligned with results overview (not navy marketing band) */
 .results-gate-capture {
   border-radius: 5px;
-  border: 2px solid rgba(210, 210, 215, 0.65);
-  border-left: 4px solid rgba(7, 176, 242, 0.55);
-  background: linear-gradient(125deg, #f8fbff 0%, #ffffff 52%, #fafbfd 100%);
-  box-shadow: 0 8px 30px rgba(2, 24, 89, 0.06);
+  border: 2px solid rgba(2, 24, 89, 0.22);
+  border-left: 5px solid #021859;
+  background: linear-gradient(125deg, #eef6fc 0%, #ffffff 48%, #f4f8fc 100%);
+  box-shadow: 0 10px 36px rgba(2, 24, 89, 0.1);
 }
 
 .results-gate-capture__inner {
@@ -1668,6 +1668,16 @@ a.sr-only:focus {
   line-height: 1.3;
   letter-spacing: -0.02em;
   color: #021859;
+}
+
+.results-gate-included-band__lead {
+  margin: -0.35rem 0 1rem;
+  max-width: 36rem;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: #475569;
 }
 
 .results-gate-included-band__list {

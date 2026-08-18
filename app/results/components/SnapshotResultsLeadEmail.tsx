@@ -157,14 +157,16 @@ export function SnapshotResultsLeadEmail({
       <div className="results-gate-capture__inner">
         <header className="results-gate-capture__header">
           <p className={`${SUITE_SECTION_KICKER_CLASS} m-0 mb-2`}>
-            {contentUnlocked ? "One quick preference" : "Continue your diagnostic"}
+            {contentUnlocked ? "One quick preference" : "Email required"}
           </p>
           {step === "email" ? (
             <>
               <h2 className="bs-h3 m-0 mb-2 text-brand-navy">{resultsCompleteSnapshotHeadline(productName)}</h2>
               <p className="results-gate-capture__lead m-0">
-                Your score and Brand Pillar Analysis are above. Enter your email to unlock Priority actions and the
-                rest of this report on this page.
+                Your score and Brand Pillar Analysis are free above. Enter your email to unlock your{" "}
+                <strong className="font-semibold text-brand-navy">brand archetype</strong>,{" "}
+                <strong className="font-semibold text-brand-navy">Priority actions</strong>, and the rest of this
+                report — free, on this page.
               </p>
             </>
           ) : (

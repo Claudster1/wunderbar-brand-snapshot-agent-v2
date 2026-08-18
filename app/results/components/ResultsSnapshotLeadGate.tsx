@@ -26,6 +26,7 @@ type Props = {
 };
 
 const UNLOCK_PREVIEW_ITEMS = [
+  "Your brand archetype and what it means",
   "Ranked priority actions for your brand",
   "Context coverage and next-step guidance",
   "Upgrade path into Snapshot+ / Blueprint when you're ready",
@@ -96,10 +97,13 @@ export function ResultsSnapshotLeadGate({
               aria-labelledby="results-gate-included-heading"
             >
               <div className="results-gate-included-band__inner">
-                <p className="results-gate-included-band__eyebrow">Included in your full report</p>
+                <p className="results-gate-included-band__eyebrow">Email required · full report</p>
                 <h2 id="results-gate-included-heading" className="results-gate-included-band__title">
                   {resultsCompleteSnapshotHeadline(productName)}
                 </h2>
+                <p className="results-gate-included-band__lead">
+                  Enter your email above to unlock everything below — free, on this page.
+                </p>
                 <ul className="results-gate-included-band__list">
                   {UNLOCK_PREVIEW_ITEMS.map((label) => (
                     <li key={label}>
@@ -137,8 +141,8 @@ export function ResultsSnapshotLeadGate({
         <section className="results-gated-preview-only scroll-mt-4" aria-hidden>
           <div className="results-gated-preview-banner">
             <p className="results-gated-preview-banner__text m-0">
-              {resultsCompleteSnapshotHeadline(productName)} — enter your email above to open the rest of this
-              report.
+              Locked — enter your email above to unlock your brand archetype, Priority actions, and the rest of
+              this report.
             </p>
             <button
               type="button"

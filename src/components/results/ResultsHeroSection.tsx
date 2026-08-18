@@ -258,16 +258,17 @@ export function ResultsHeroSection({
             <p className="text-sm sm:text-[0.9375rem] text-brand-muted leading-[1.65] m-0">
               {gateLocked ? (
                 <>
-                  Scroll for your <span className="font-semibold text-brand-navy">Brand Pillar Analysis</span>, then
-                  enter your email to unlock{" "}
-                  <span className="font-semibold text-brand-navy">Priority actions</span> and the rest of this report.
+                  Scroll for your free <span className="font-semibold text-brand-navy">Brand Pillar Analysis</span>.
+                  Then enter your email to unlock your{" "}
+                  <span className="font-semibold text-brand-navy">brand archetype</span>,{" "}
+                  <span className="font-semibold text-brand-navy">Priority actions</span>, and the full report.
                 </>
               ) : (
                 <>
                   Next, the <span className="font-semibold text-brand-navy">Brand Pillar Analysis</span> breaks down
-                  each dimension with strengths, gaps, and concrete next steps — then{" "}
-                  <span className="font-semibold text-brand-navy">Priority actions</span> translates the signal into
-                  a short list you can execute.
+                  each dimension with strengths, gaps, and concrete next steps — then your{" "}
+                  <span className="font-semibold text-brand-navy">brand archetype</span> and{" "}
+                  <span className="font-semibold text-brand-navy">Priority actions</span> turn the signal into a plan.
                 </>
               )}
             </p>

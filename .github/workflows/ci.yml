@@ -27,6 +27,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Production dependency audit (high+)
+        run: npm run audit
+
       - name: Guard public webhook env usage
         run: npm run guard:webhook-public-env
 

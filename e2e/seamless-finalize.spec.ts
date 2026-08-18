@@ -25,7 +25,8 @@ test.describe("Seamless intake wrap-up", () => {
     await expect(page.locator("#brand-message")).toBeHidden({ timeout: 5_000 });
     await expect(page.getByRole("button", { name: /Generate my/i })).toHaveCount(0);
 
-    await page.waitForURL(/\/results\?reportId=/, { timeout: 25_000 });
+    // commit: results page can hang "load" on placeholder Supabase fetches in CI
+    await page.waitForURL(/\/results\?reportId=/, { timeout: 25_000, waitUntil: "commit" });
     await expect(page).toHaveURL(/reportId=e2e-seamless-report-001/);
   });
 });

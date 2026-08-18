@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { ScoreGauge } from "@/src/components/ScoreGauge";
 import { getOverallScoreRating } from "@/src/lib/results/scoreRating";
 import { getGaugeAccentForScore } from "@/src/lib/results/scoreBands";
@@ -9,6 +10,7 @@ import type { PillarKey } from "@/src/types/pillars";
 import { rolePhrase } from "@/src/lib/roleLanguage";
 import { SUITE_SECTION_KICKER_CLASS } from "@/components/results/suiteBrandTokens";
 import { ResultsListIcon } from "@/components/results/BrandIcons";
+import { readResultsEmailGateUnlocked } from "@/lib/results/resultsEmailGateStorage";
 
 const PILLAR_LABELS: Record<PillarKey, string> = {
   positioning: "Positioning",
@@ -30,6 +32,9 @@ interface ResultsHeroSectionProps {
   score: number;
   primaryPillar: string;
   hasSnapshotPlus: boolean;
+  /** Free Snapshot still needs email unlock for pillars (server may be stale after client unlock). */
+  emailGateActive?: boolean;
+  reportId?: string;
   userRoleContext?: UserRoleContext;
   executiveContext?: ResultsHeroExecutiveContext;
 }
@@ -78,9 +83,24 @@ export function ResultsHeroSection({
   score,
   primaryPillar,
   hasSnapshotPlus,
+  emailGateActive = false,
+  reportId,
   userRoleContext,
   executiveContext,
 }: ResultsHeroSectionProps) {
+  const [gateLocked, setGateLocked] = useState(emailGateActive);
+  useEffect(() => {
+    if (!emailGateActive) {
+      setGateLocked(false);
+      return;
+    }
+    if (reportId && readResultsEmailGateUnlocked(reportId)) {
+      setGateLocked(false);
+      return;
+    }
+    setGateLocked(true);
+  }, [emailGateActive, reportId]);
+
   const rating = getOverallScoreRating(score);
   const interpretation = getScoreInterpretation(score);
   const accent = getGaugeAccentForScore(score);
@@ -236,10 +256,21 @@ export function ResultsHeroSection({
 
           {executiveContext ? (
             <p className="text-sm sm:text-[0.9375rem] text-brand-muted leading-[1.65] m-0">
-              Next, the <span className="font-semibold text-brand-navy">Brand Pillar Analysis</span> breaks down
-              each dimension with strengths, gaps, and concrete next steps — then{" "}
-              <span className="font-semibold text-brand-navy">Priority actions</span> translates the signal into
-              a short list you can execute.
+              {gateLocked ? (
+                <>
+                  Enter your email below to unlock{" "}
+                  <span className="font-semibold text-brand-navy">Brand Pillar Analysis</span> and{" "}
+                  <span className="font-semibold text-brand-navy">Priority actions</span> — strengths, gaps, and a
+                  short list you can execute.
+                </>
+              ) : (
+                <>
+                  Next, the <span className="font-semibold text-brand-navy">Brand Pillar Analysis</span> breaks down
+                  each dimension with strengths, gaps, and concrete next steps — then{" "}
+                  <span className="font-semibold text-brand-navy">Priority actions</span> translates the signal into
+                  a short list you can execute.
+                </>
+              )}
             </p>
           ) : null}
         </div>

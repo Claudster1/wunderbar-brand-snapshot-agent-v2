@@ -29,7 +29,7 @@ export const TAB_DEFINITIONS: ResultsTabDefinition[] = [
   { id: "standards", label: "Brand Standards", availableFrom: "blueprint", accentColor: "#0F766E" },
   { id: "activation", label: "Activation", availableFrom: "snapshot-plus", accentColor: "#07B0F2" },
   { id: "workbook", label: "Workbook", availableFrom: "snapshot-plus", accentColor: "#0EA472" },
-  { id: "downloads", label: "Downloads", availableFrom: "snapshot", accentColor: "#6B5BCE" },
+  { id: "downloads", label: "Downloads", availableFrom: "snapshot-plus", accentColor: "#6B5BCE" },
 ];
 
 export function isTabAvailable(tab: ResultsTabDefinition, tier: ProductTier): boolean {

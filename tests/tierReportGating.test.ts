@@ -19,7 +19,7 @@ const TIERS: ProductTier[] = ["snapshot", "snapshot-plus", "blueprint", "bluepri
 
 describe("tier report gating", () => {
   it("exposes only tabs allowed for each tier", () => {
-    expect(getAvailableTabs("snapshot").map((t) => t.id)).toEqual(["results", "downloads"]);
+    expect(getAvailableTabs("snapshot").map((t) => t.id)).toEqual(["results"]);
     expect(getAvailableTabs("snapshot-plus").map((t) => t.id)).toEqual([
       "results",
       "foundation",

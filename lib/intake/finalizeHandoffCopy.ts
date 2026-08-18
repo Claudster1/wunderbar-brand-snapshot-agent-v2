@@ -3,11 +3,11 @@ import { getChatTierConfig, type ChatTier } from "@/lib/chatTierConfig";
 /** Closing copy when intake is complete — used in system prompt, sanitizer, and tests. */
 export function getIntakeFinalizeHandoffMessage(tier: ChatTier): string {
   const { productName } = getChatTierConfig(tier);
-  return `Excellent — everything you've shared is confidential and your brand insights stay yours. Your ${productName} is being finalized now. You'll be redirected to your results page automatically in a moment.`;
+  return `Excellent — everything you've shared is confidential and your brand insights stay yours. We're generating your ${productName} now. You'll be taken to your results automatically in a moment.`;
 }
 
 const FINALIZE_HANDOFF_MARKERS =
-  /\b(being finalized|see my results|pillar breakdown|results will appear below|open your results page|won't see your full)\b/i;
+  /\b(being finalized|generating your|see my results|pillar breakdown|results will appear below|open your results page|won't see your full)\b/i;
 
 /** Replace legacy handoff lines (pillars / See my results) with tier-aware seamless copy. */
 export function normalizeFinalizeHandoffPrefix(prefix: string, tier: ChatTier): string {

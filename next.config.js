@@ -6,9 +6,9 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Enable standalone output for Docker builds
-  // Note: Vercel will ignore this and use its own optimized build system, so this works for both!
-  output: 'standalone',
+  // Standalone for CI/Docker stress runners. On Vercel (Next 16.3+), keep default
+  // output — adapter + standalone together fail looking for next-server.js.nft.json.
+  output: process.env.VERCEL ? undefined : 'standalone',
 
   // ─── Performance Optimizations ───
   // Enable gzip/brotli compression for responses

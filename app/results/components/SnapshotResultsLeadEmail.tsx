@@ -163,8 +163,8 @@ export function SnapshotResultsLeadEmail({
             <>
               <h2 className="bs-h3 m-0 mb-2 text-brand-navy">{resultsCompleteSnapshotHeadline(productName)}</h2>
               <p className="results-gate-capture__lead m-0">
-                Your score and archetype are above. Enter your email to open pillar breakdowns, priority
-                actions, and the rest of this report on this page.
+                Your score and Brand Pillar Analysis are above. Enter your email to unlock Priority actions and the
+                rest of this report on this page.
               </p>
             </>
           ) : (

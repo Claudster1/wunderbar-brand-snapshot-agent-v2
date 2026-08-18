@@ -26,10 +26,9 @@ type Props = {
 };
 
 const UNLOCK_PREVIEW_ITEMS = [
-  "Pillar-by-pillar scores and narrative",
   "Ranked priority actions for your brand",
-  "Your archetype pattern and meaning",
   "Context coverage and next-step guidance",
+  "Upgrade path into Snapshot+ / Blueprint when you're ready",
 ] as const;
 
 export function ResultsSnapshotLeadGate({

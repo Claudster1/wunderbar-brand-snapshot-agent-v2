@@ -32,7 +32,7 @@ interface ResultsHeroSectionProps {
   score: number;
   primaryPillar: string;
   hasSnapshotPlus: boolean;
-  /** Free Snapshot still needs email unlock for pillars (server may be stale after client unlock). */
+  /** Free Snapshot still needs email unlock for priority actions (server may be stale after client unlock). */
   emailGateActive?: boolean;
   reportId?: string;
   userRoleContext?: UserRoleContext;
@@ -258,10 +258,9 @@ export function ResultsHeroSection({
             <p className="text-sm sm:text-[0.9375rem] text-brand-muted leading-[1.65] m-0">
               {gateLocked ? (
                 <>
-                  Enter your email below to unlock{" "}
-                  <span className="font-semibold text-brand-navy">Brand Pillar Analysis</span> and{" "}
-                  <span className="font-semibold text-brand-navy">Priority actions</span> — strengths, gaps, and a
-                  short list you can execute.
+                  Scroll for your <span className="font-semibold text-brand-navy">Brand Pillar Analysis</span>, then
+                  enter your email to unlock{" "}
+                  <span className="font-semibold text-brand-navy">Priority actions</span> and the rest of this report.
                 </>
               ) : (
                 <>

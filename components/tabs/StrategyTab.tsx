@@ -37,6 +37,8 @@ import StrategyPathwayVisual from "@/components/strategy/StrategyPathwayVisual";
 import StrategyPlanNarrativePanels from "@/components/strategy/StrategyPlanNarrativePanels";
 import { StrategyDomainSection, strategyDomainGradient } from "@/components/strategy/StrategyDomainSection";
 import StrategyProseBody from "@/components/strategy/StrategyProseBody";
+import ArchetypeToggleCard from "@/components/results/ArchetypeToggleCard";
+import { getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
 import { StrategicPrioritiesBarChart } from "@/components/results/charts/StrategicPrioritiesBarChart";
 import {
   filterStrategySections,
@@ -1364,7 +1366,18 @@ export default function StrategyTab({
               />
             ) : null}
             {section.id === "archetype-voice" ? (
-              <div>
+              <div className="flex flex-col gap-4">
+                {archetype ? (
+                  <ArchetypeToggleCard
+                    brandName={companyName}
+                    primaryName={archetype}
+                    secondaryName={secondaryArchetype || undefined}
+                    primaryMeaning={getArchetypeMeaning(archetype) ?? undefined}
+                    secondaryMeaning={
+                      secondaryArchetype ? getArchetypeMeaning(secondaryArchetype) ?? undefined : undefined
+                    }
+                  />
+                ) : null}
                 <StrategyProseBody
                   text={section.body}
                   paragraphStyle={{
@@ -1377,7 +1390,7 @@ export default function StrategyTab({
                   }}
                 />
                 {openFoundationSection ? (
-                  <div style={{ marginTop: 16 }}>
+                  <div style={{ marginTop: 4 }}>
                     <button
                       type="button"
                       className="strategy-workbook-btn"

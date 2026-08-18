@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import ArchetypeToggleCard from "@/components/results/ArchetypeToggleCard";
-import { BrandArchetypeIcon } from "@/components/results/BrandIcons";
 import { ReportPanel } from "@/components/results/ReportDesignPrimitives";
 import {
   filterFoundationAudienceSubsections,

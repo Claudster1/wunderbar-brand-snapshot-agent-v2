@@ -3361,6 +3361,17 @@ ul.strategy-suite-ul > li::marker {
   color: var(--wb-bullet-accent);
 }
 
+/* Labeled field cards inside strategy lists — never show disc + pill together */
+ul.strategy-suite-ul > li.list-none {
+  list-style: none;
+  margin-inline-start: -1.5rem;
+  padding-inline-start: 0;
+}
+
+ul.strategy-suite-ul > li.list-none::marker {
+  content: "";
+}
+
 ul.strategy-suite-ul.strategy-suite-ul--muted > li::marker {
   color: rgba(7, 176, 242, 0.45);
 }

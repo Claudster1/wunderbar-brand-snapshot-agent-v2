@@ -665,40 +665,49 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
     }
 
 40. Sales Conversation Guide
-    **BLUEPRINT EXCLUSIVE** — How to use this brand strategy in actual sales conversations.
+    **BLUEPRINT EXCLUSIVE** — Ready-to-use language for [businessName] sales conversations (not a generic how-to guide).
     
-    Every element connects back to the messaging system, proof points, and buyer personas defined earlier in this report. This is NOT generic sales advice — it's a playbook built from [businessName]'s specific brand strategy.
+    Write in [businessName]'s brand voice / archetype. Name the company. Scripts must be paste-ready: what to **say**, what to **show**, what to do with the answer. Ban meta coaching like "Separates messaging drift…" as the main content.
     
     salesConversationGuide: {
-      openingFramework: "How to lead a sales conversation with positioning, not product features. The first 60 seconds — what to say, how to frame it, and how to establish authority using [businessName]'s brand voice. Include specific opening language."
+      openingFramework: "Exact opening script for [businessName] (first ~60 seconds) in brand voice — quote what the rep says. Reference [businessName] by name."
+      
+      talkTrackFramework: [
+        {
+          stage: "First 10 minutes | Middle — discovery | Close (use these stage labels)"
+          objective: "What this stage must achieve for [businessName] in one sentence"
+          keyMessage: "Exact words to say (prefix with Say: …). Company-specific, archetype-aligned."
+          proofToUse: "Exact proof to show (prefix with Show: …). Name the artifact."
+        }
+      ] (3 stages)
       
       discoveryQuestions: [
         {
-          question: "A strategic discovery question mapped to buyer personas' decision triggers and pain points (e.g., 'What's the cost to your business when a lead goes cold because your brand didn't land?')"
-          whyThisQuestion: "Which buyer persona this targets and what pain point or decision trigger it uncovers"
-          listenFor: "What the answer reveals about whether this prospect is a fit"
+          question: "Exact question the rep asks — name [businessName] or their funnel language where natural"
+          whyThisQuestion: "When to use this question in the call (not abstract theory) — 1 sentence"
+          listenFor: "What to listen for AND the next line to say based on common answers (ready reply, not coaching)"
         }
       ] (5–7 questions)
       
       proofPointDeployment: [
         {
-          persona: "The buyer persona this guidance applies to (from Section 18)"
-          stage: "Where in the conversation to deploy this proof point (e.g., 'During discovery,' 'When presenting the solution,' 'When handling objections')"
-          proofPoint: "The specific proof point from the Messaging System (Section 20) to use"
-          howToDeliver: "How to introduce this proof point naturally in conversation — not as a bullet point, but as a story or reference"
+          persona: "Buyer persona name from this report"
+          stage: "Conversation stage"
+          proofPoint: "The specific leave-behind / proof for [businessName]"
+          howToDeliver: "Exact handoff language or action (what you say or send)"
         }
       ] (one per buyer persona, covering different conversation stages)
       
       objectionHandlingPlaybook: [
         {
-          objection: "A common sales objection for [businessName]'s industry (e.g., 'We already have someone for this,' 'Can you just send a proposal?,' 'What makes you different?,' 'We're not ready yet,' 'We need to talk to our team')"
-          response: "How to respond — connected to [businessName]'s actual messaging pillars and proof points, not generic sales techniques"
+          objection: "A common sales objection for [businessName]'s industry"
+          response: "Exact reply in [businessName]'s voice — quote the line"
           pillarConnection: "Which brand pillar or messaging pillar this response draws from"
           proofPoint: "Which specific proof point to reference"
         }
       ] (5–6 objections)
       
-      closingLanguage: "CTAs and next-step framing that match [businessName]'s brand voice and conversion strategy. Include 3–4 closing phrases calibrated to the brand archetype — a Sage closes differently than a Hero. Also include how to frame next steps when the prospect isn't ready to commit."
+      closingLanguage: "Exact closing phrases for [businessName] calibrated to the brand archetype (quote 3–4 closers). Include next-step framing when they are not ready."
       
       conversion_intelligence_reference: { type: "ref", framework: "icp_conversion_intelligence_framework", icpTier: "", funnelStage: "", matrixCell: "", note: "" } — **REQUIRED.** Set this to the **same object** as the **primary ICP** (or revenue-critical ICP) entry in the root-level **icpGoToMarketPlans** array below so legacy surfaces stay aligned.
     }

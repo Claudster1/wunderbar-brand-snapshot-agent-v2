@@ -24,15 +24,41 @@ export type IcpPlaybookStructuredBody = {
   competitiveCues?: string;
 };
 
+/** Stage talk track — rendered as stage cards (not bullet + pill). */
+export type TalkTrackStageItem = {
+  stage: string;
+  objective: string;
+  keyMessage: string;
+  proof: string;
+};
+
+/** Discovery prompt — ready-to-ask script, not meta “why ask” coaching. */
+export type DiscoveryScriptItem = {
+  question: string;
+  useWhen: string;
+  listenFor: string;
+};
+
+/** Proof placement for a persona × stage. */
+export type ProofPlacementItem = {
+  persona: string;
+  stage: string;
+  proof: string;
+  delivery: string;
+};
+
 export type StrategyNarrativeBlock = {
   title: string;
   body: string;
   /** Distinct chrome in Strategy tab (e.g. per-ICP playbooks in Sales & Marketing Alignment). */
-  visualVariant?: "icp-playbook";
+  visualVariant?: "icp-playbook" | "talk-tracks" | "discovery-scripts" | "proof-placements";
   /** 1-based index among ICP playbook blocks in the section (accent rotation). */
   icpPlaybookIndex?: number;
   /** When set, Strategy tab renders scannable sub-blocks; `body` stays a plain-text fallback. */
   icpPlaybookBody?: IcpPlaybookStructuredBody;
+  talkTrackItems?: TalkTrackStageItem[];
+  discoveryItems?: DiscoveryScriptItem[];
+  proofItems?: ProofPlacementItem[];
 };
 
 export type StrategyPlanTableRow = {
@@ -556,18 +582,33 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
       ? sg.talk_track_framework
       : [];
   if (talk.length > 0) {
-    const body = joinAsStrategyBullets(
-      ...talk.slice(0, 10).map((raw) => {
+    const talkTrackItems: TalkTrackStageItem[] = talk
+      .slice(0, 10)
+      .map((raw) => {
         const r = asRecord(raw) ?? {};
-        return joinParagraphs(
-          asString(r.stage) && `Stage: ${asString(r.stage)}`,
-          asString(r.objective) && `Objective: ${asString(r.objective)}`,
-          asString(r.keyMessage) && `Key message: ${asString(r.keyMessage)}`,
-          asString(r.proofToUse) && `Proof: ${asString(r.proofToUse)}`,
-        );
-      }),
-    );
-    if (body) blocks.push({ title: "Talk track by stage", body });
+        return {
+          stage: asString(r.stage) || "Stage",
+          objective: asString(r.objective),
+          keyMessage: asString(r.keyMessage) || asString(r.sayThis),
+          proof: asString(r.proofToUse) || asString(r.proof),
+        };
+      })
+      .filter((row) => row.stage || row.keyMessage || row.objective);
+    const body = talkTrackItems
+      .map(
+        (row) =>
+          `${row.stage}\n${row.objective}\n${row.keyMessage}\n${row.proof}`.trim(),
+      )
+      .filter(Boolean)
+      .join("\n\n");
+    if (talkTrackItems.length > 0) {
+      blocks.push({
+        title: "Talk track by stage — say this",
+        body,
+        visualVariant: "talk-tracks",
+        talkTrackItems,
+      });
+    }
   }
 
   const discRaw = Array.isArray(sg.discoveryQuestions)
@@ -576,34 +617,55 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
       ? sg.discoveryQuestionMap
       : [];
   if (discRaw.length > 0) {
-    const rows = discRaw.slice(0, 14).map((raw) => {
-      const r = asRecord(raw) ?? {};
-      const q = asString(r.question) || "Question";
-      return {
-        label: q.length > 72 ? `${q.slice(0, 69)}…` : q,
-        value: joinAsStrategyBullets(
-          asString(r.whyThisQuestion) && `Why ask: ${asString(r.whyThisQuestion)}`,
-          asString(r.listenFor) && `Listen for: ${asString(r.listenFor)}`,
-        ),
-      };
-    });
-    tables.push({ caption: "Discovery questions — why to ask & what to listen for", rows });
+    const discoveryItems: DiscoveryScriptItem[] = discRaw
+      .slice(0, 14)
+      .map((raw) => {
+        const r = asRecord(raw) ?? {};
+        return {
+          question: asString(r.question) || "Question",
+          useWhen: asString(r.whyThisQuestion) || asString(r.useWhen),
+          listenFor: asString(r.listenFor),
+        };
+      })
+      .filter((row) => row.question.trim().length > 0);
+    const body = discoveryItems
+      .map((row) => `${row.question}\n${row.useWhen}\n${row.listenFor}`.trim())
+      .join("\n\n");
+    if (discoveryItems.length > 0) {
+      blocks.push({
+        title: "Discovery scripts — ask, then use what you hear",
+        body,
+        visualVariant: "discovery-scripts",
+        discoveryItems,
+      });
+    }
   }
 
   const pp = Array.isArray(sg.proofPointDeployment) ? sg.proofPointDeployment : [];
   if (pp.length > 0) {
-    const rows = pp.slice(0, 14).map((raw) => {
-      const r = asRecord(raw) ?? {};
-      const persona = asString(r.persona) || "Persona";
-      return {
-        label: `${persona} · ${asString(r.stage) || "Stage"}`,
-        value: joinAsStrategyBullets(
-          asString(r.proofPoint) && `Proof: ${asString(r.proofPoint)}`,
-          asString(r.howToDeliver) && `Delivery: ${asString(r.howToDeliver)}`,
-        ),
-      };
-    });
-    tables.push({ caption: "Proof by persona & stage", rows });
+    const proofItems: ProofPlacementItem[] = pp
+      .slice(0, 14)
+      .map((raw) => {
+        const r = asRecord(raw) ?? {};
+        return {
+          persona: asString(r.persona) || "Persona",
+          stage: asString(r.stage) || "Stage",
+          proof: asString(r.proofPoint) || asString(r.proof),
+          delivery: asString(r.howToDeliver) || asString(r.delivery),
+        };
+      })
+      .filter((row) => row.proof || row.delivery);
+    const body = proofItems
+      .map((row) => `${row.persona} · ${row.stage}\n${row.proof}\n${row.delivery}`.trim())
+      .join("\n\n");
+    if (proofItems.length > 0) {
+      blocks.push({
+        title: "Proof to deploy — ready leave-behinds",
+        body,
+        visualVariant: "proof-placements",
+        proofItems,
+      });
+    }
   }
 
   const obj = Array.isArray(sg.objectionHandlingPlaybook) ? sg.objectionHandlingPlaybook : [];
@@ -643,7 +705,7 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
     id: "strategy-sales-alignment",
     label: "Sales & Marketing Alignment",
     intro:
-      "One shared playbook for marketing and sales: per-ICP playbooks (when present) tie company goals to campaign needs and 90-day tactics; then how you open a conversation, what you learn before you pitch, which proof fits which buyer and stage, how you handle pushback, and how you close—so ads and content match what reps actually say.",
+      "Ready-to-use sales and marketing language for this brand: per-ICP playbooks (when present), opening lines, discovery scripts, proof leave-behinds, objection responses, and close language—so ads, content, and conversations use the same words.",
     blocks,
     tables: tables.length ? tables : undefined,
   };

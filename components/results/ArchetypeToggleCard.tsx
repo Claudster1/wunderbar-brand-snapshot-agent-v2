@@ -99,21 +99,14 @@ export default function ArchetypeToggleCard({
         padding: "18px 18px 20px",
       }}
     >
-      <p
-        style={{
-          margin: "0 0 14px",
-          fontSize: 12,
-          fontWeight: 800,
-          color: NAVY,
-          letterSpacing: "0.02em",
-        }}
-      >
-        {brandName.trim() || "Your brand"} Archetypes
-      </p>
+        <p style={{ margin: "0 0 14px", fontSize: 12, fontWeight: 800, color: NAVY, letterSpacing: "0.02em" }}>
+          {brandName.trim() || "Your brand"} Archetypes
+        </p>
       <div style={{ display: "grid", gridTemplateColumns: hasSecondary ? "1fr 1fr" : "1fr", gap: 12 }}>
         <button
           type="button"
           onClick={() => setSelected("primary")}
+          aria-pressed={selected === "primary"}
           style={{
             border: `1px solid ${selected === "primary" ? BLUE : BORDER}`,
             borderRadius: 5,
@@ -127,7 +120,21 @@ export default function ArchetypeToggleCard({
             minHeight: 72,
           }}
         >
-          <BrandArchetypeIcon archetype={primaryName} size={42} color={selected === "primary" ? "#FFFFFF" : BLUE} />
+          <span
+            aria-hidden
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 48,
+              height: 48,
+              borderRadius: 8,
+              background: selected === "primary" ? "rgba(255,255,255,0.18)" : "rgba(7,176,242,0.1)",
+              flexShrink: 0,
+            }}
+          >
+            <BrandArchetypeIcon archetype={primaryName} size={36} color={selected === "primary" ? "#FFFFFF" : BLUE} />
+          </span>
           <div style={{ textAlign: "left" }}>
             <p
               style={{
@@ -149,6 +156,7 @@ export default function ArchetypeToggleCard({
           <button
             type="button"
             onClick={() => setSelected("secondary")}
+            aria-pressed={selected === "secondary"}
             style={{
               border: `1px solid ${selected === "secondary" ? BLUE : BORDER}`,
               borderRadius: 5,
@@ -162,7 +170,25 @@ export default function ArchetypeToggleCard({
               minHeight: 72,
             }}
           >
-            <BrandArchetypeIcon archetype={secondaryName || undefined} size={42} color={selected === "secondary" ? "#FFFFFF" : BLUE} />
+            <span
+              aria-hidden
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 48,
+                height: 48,
+                borderRadius: 8,
+                background: selected === "secondary" ? "rgba(255,255,255,0.18)" : "rgba(7,176,242,0.1)",
+                flexShrink: 0,
+              }}
+            >
+              <BrandArchetypeIcon
+                archetype={secondaryName || undefined}
+                size={36}
+                color={selected === "secondary" ? "#FFFFFF" : BLUE}
+              />
+            </span>
             <div style={{ textAlign: "left" }}>
               <p
                 style={{
@@ -193,8 +219,26 @@ export default function ArchetypeToggleCard({
           boxShadow: "0 2px 8px rgba(2, 24, 89, 0.04)",
         }}
       >
-        <p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: NAVY }}>{active.name}</p>
-        <p style={{ margin: "10px 0 0", fontSize: 14, color: "#334155", lineHeight: 1.65 }}>{active.meaning}</p>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 10 }}>
+          <span
+            aria-hidden
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 56,
+              height: 56,
+              borderRadius: 10,
+              background: "linear-gradient(135deg, #E8F7FD 0%, #F0F4FA 100%)",
+              border: `1px solid ${BORDER}`,
+              flexShrink: 0,
+            }}
+          >
+            <BrandArchetypeIcon archetype={active.name} size={44} color={BLUE} />
+          </span>
+          <p style={{ margin: 0, fontSize: 16, fontWeight: 800, color: NAVY }}>{active.name}</p>
+        </div>
+        <p style={{ margin: "0", fontSize: 14, color: "#334155", lineHeight: 1.65 }}>{active.meaning}</p>
         {detailRows.length > 0 ? (
           <div
             role="list"

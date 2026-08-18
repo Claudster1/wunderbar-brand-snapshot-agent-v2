@@ -24,7 +24,7 @@ function isAuthorized(req: NextRequest): boolean {
 export async function POST(req: NextRequest) {
   const { apiGuard } = await import("@/lib/security/apiGuard");
   const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
-  const guard = apiGuard(req, { routeId: "inbound-connect", rateLimit: GENERAL_RATE_LIMIT });
+  const guard = await apiGuard(req, { routeId: "inbound-connect", rateLimit: GENERAL_RATE_LIMIT });
   if (!guard.passed) return guard.errorResponse;
 
   if (!isAuthorized(req)) {

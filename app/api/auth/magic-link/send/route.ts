@@ -12,7 +12,7 @@ import { publicSnapshotAppUrl } from "@/lib/publicSnapshotAppUrl";
 export async function POST(req: Request) {
   const { apiGuard } = await import("@/lib/security/apiGuard");
   const { EMAIL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
-  const guard = apiGuard(req, { routeId: "auth-magic-link-send", rateLimit: EMAIL_RATE_LIMIT });
+  const guard = await apiGuard(req, { routeId: "auth-magic-link-send", rateLimit: EMAIL_RATE_LIMIT });
   if (!guard.passed) return guard.errorResponse;
 
   // Uniform success response — never reveal whether an email exists / was sent.

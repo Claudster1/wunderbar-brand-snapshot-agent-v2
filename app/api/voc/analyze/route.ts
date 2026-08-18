@@ -39,7 +39,7 @@ RULES:
 - Return ONLY valid JSON, no commentary`;
 
 export async function POST(req: NextRequest) {
-  const guard = apiGuard(req, { routeId: "voc-analyze", rateLimit: AUTH_RATE_LIMIT });
+  const guard = await apiGuard(req, { routeId: "voc-analyze", rateLimit: AUTH_RATE_LIMIT });
   if (!guard.passed) return guard.errorResponse;
 
   try {

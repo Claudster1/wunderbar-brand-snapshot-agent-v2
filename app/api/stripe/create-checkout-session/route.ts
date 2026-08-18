@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
   // ─── Security: Rate limit checkout creation ───
   const { apiGuard } = await import("@/lib/security/apiGuard");
   const { AUTH_RATE_LIMIT } = await import("@/lib/security/rateLimit");
-  const guard = apiGuard(req, { routeId: "stripe-session", rateLimit: AUTH_RATE_LIMIT });
+  const guard = await apiGuard(req, { routeId: "stripe-session", rateLimit: AUTH_RATE_LIMIT });
   if (!guard.passed) return guard.errorResponse;
 
   try {

@@ -3,6 +3,10 @@
 // Uses multi-provider AI abstraction with automatic fallback.
 
 import { NextResponse } from "next/server";
+
+export const runtime = "nodejs";
+/** Primary + fallback assessment turns (25s route timeout each) need headroom past Vercel default. */
+export const maxDuration = 90;
 import { logger } from "@/lib/logger";
 import { wundySystemPrompt } from "@/src/prompts/wundySystemPrompt";
 import { wundySnapshotIntakePrompt } from "@/src/prompts/wundySnapshotIntakePrompt";
@@ -1224,6 +1228,11 @@ function buildDeterministicRoutingGuard(
 }
 
 export async function POST(req: Request) {
+  const { FEATURES, featureGuard, AI_INTAKE_UNAVAILABLE } = await import("@/lib/featureFlags");
+  if (!featureGuard(FEATURES.AI_INTAKE, "brand-snapshot")) {
+    return NextResponse.json(AI_INTAKE_UNAVAILABLE, { status: 503 });
+  }
+
   // Parse first so we can budget by draft/report id (save-and-return fail-safe).
   const contentLength = req.headers.get("content-length");
   if (contentLength && parseInt(contentLength, 10) > 200_000) {
@@ -1237,7 +1246,7 @@ export async function POST(req: Request) {
     CHAT_IP_ABUSE_RATE_LIMIT,
     pickSessionReportId,
   } = await import("@/lib/security/rateLimit");
-  const guard = apiGuard(req, {
+  const guard = await apiGuard(req, {
     routeId: "brand-snapshot",
     rateLimit: CHAT_AI_RATE_LIMIT,
     abuseRateLimit: CHAT_IP_ABUSE_RATE_LIMIT,
@@ -1322,23 +1331,28 @@ export async function POST(req: Request) {
 
       const reportId = randomUUID();
 
-      const { data, error } = await supabase
-        .from("brand_snapshot_reports")
-        .insert([
-          {
-            report_id: reportId,
-            user_name: finalUserName ?? null,
-            email: finalEmail,
-            brand_alignment_score: finalBrandAlignmentScore,
-            pillar_scores: finalPillarScores,
-            pillar_insights: finalPillarInsights || {},
-            recommendations: finalRecommendations,
-            website_notes: finalWebsiteNotes ?? null,
-            full_report: finalFullReport,
-          }
-        ])
-        .select()
-        .single();
+      const { withRetry } = await import("@/lib/supabase/withRetry");
+      const { data, error } = await withRetry(
+        async () =>
+          await supabase
+            .from("brand_snapshot_reports")
+            .insert([
+              {
+                report_id: reportId,
+                user_name: finalUserName ?? null,
+                email: finalEmail,
+                brand_alignment_score: finalBrandAlignmentScore,
+                pillar_scores: finalPillarScores,
+                pillar_insights: finalPillarInsights || {},
+                recommendations: finalRecommendations,
+                website_notes: finalWebsiteNotes ?? null,
+                full_report: finalFullReport,
+              },
+            ])
+            .select()
+            .single(),
+        "brand-snapshot-insert",
+      );
 
       if (error) {
         logger.error("Insert error", { error: error.message });

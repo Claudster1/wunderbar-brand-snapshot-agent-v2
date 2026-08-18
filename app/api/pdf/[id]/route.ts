@@ -17,7 +17,7 @@ export async function GET(
   try {
     const { apiGuard } = await import("@/lib/security/apiGuard");
     const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
-    const guard = apiGuard(req as any, { routeId: "pdf-download", rateLimit: GENERAL_RATE_LIMIT });
+    const guard = await apiGuard(req as any, { routeId: "pdf-download", rateLimit: GENERAL_RATE_LIMIT });
     if (!guard.passed) return guard.errorResponse;
 
     const { id } = await params;

@@ -37,7 +37,7 @@ export async function POST(req: Request) {
       REPORT_IP_ABUSE_RATE_LIMIT,
       pickSessionReportId,
     } = await import("@/lib/security/rateLimit");
-    const guard = apiGuard(req, {
+    const guard = await apiGuard(req, {
       routeId: "blueprint-generate",
       rateLimit: REPORT_AI_RATE_LIMIT,
       abuseRateLimit: REPORT_IP_ABUSE_RATE_LIMIT,

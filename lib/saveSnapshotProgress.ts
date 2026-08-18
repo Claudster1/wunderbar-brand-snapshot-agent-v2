@@ -2,6 +2,7 @@
 // Function to save snapshot progress to database
 
 import { supabaseServer } from "@/lib/supabase";
+import { withRetry } from "@/lib/supabase/withRetry";
 
 export async function saveSnapshotProgress({
   reportId,
@@ -14,11 +15,15 @@ export async function saveSnapshotProgress({
 }) {
   const supabase = supabaseServer();
 
-  await (supabase.from("brand_snapshot_reports") as any)
-    .update({
-      last_step: lastStep,
-      progress,
-      updated_at: new Date().toISOString(),
-    })
-    .or(`report_id.eq.${reportId},id.eq.${reportId}`);
+  await withRetry(
+    async () =>
+      await (supabase.from("brand_snapshot_reports") as any)
+        .update({
+          last_step: lastStep,
+          progress,
+          updated_at: new Date().toISOString(),
+        })
+        .or(`report_id.eq.${reportId},id.eq.${reportId}`),
+    "saveSnapshotProgress",
+  );
 }

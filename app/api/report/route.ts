@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   const { apiGuard } = await import("@/lib/security/apiGuard");
-  const guard = apiGuard(req, { routeId: "report-pdf", maxBodySize: 500_000 });
+  const guard = await apiGuard(req, { routeId: "report-pdf", maxBodySize: 500_000 });
   if (!guard.passed) return guard.errorResponse;
 
   try {

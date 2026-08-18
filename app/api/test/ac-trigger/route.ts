@@ -7,7 +7,7 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   const { apiGuard } = await import("@/lib/security/apiGuard");
   const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
-  const guard = apiGuard(req, { routeId: "test-ac-trigger", rateLimit: GENERAL_RATE_LIMIT });
+  const guard = await apiGuard(req, { routeId: "test-ac-trigger", rateLimit: GENERAL_RATE_LIMIT });
   if (!guard.passed) return guard.errorResponse;
 
   return NextResponse.json(

@@ -8,7 +8,7 @@ import { logger } from "@/lib/logger";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  const guard = apiGuard(req, { routeId: "voc-status", rateLimit: GENERAL_RATE_LIMIT });
+  const guard = await apiGuard(req, { routeId: "voc-status", rateLimit: GENERAL_RATE_LIMIT });
   if (!guard.passed) return guard.errorResponse;
 
   const reportId = req.nextUrl.searchParams.get("reportId");

@@ -4,7 +4,7 @@ import { getUserBrands } from "@/lib/userBrands";
 export async function GET(req: Request) {
   const { apiGuard } = await import("@/lib/security/apiGuard");
   const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
-  const guard = apiGuard(req, { routeId: "brands", rateLimit: GENERAL_RATE_LIMIT });
+  const guard = await apiGuard(req, { routeId: "brands", rateLimit: GENERAL_RATE_LIMIT });
   if (!guard.passed) return guard.errorResponse;
 
   const { searchParams } = new URL(req.url);

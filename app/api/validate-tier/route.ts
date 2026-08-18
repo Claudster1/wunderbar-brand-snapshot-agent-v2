@@ -7,7 +7,7 @@ import { apiGuard } from "@/lib/security/apiGuard";
 import { GENERAL_RATE_LIMIT } from "@/lib/security/rateLimit";
 
 export async function GET(req: Request) {
-  const guard = apiGuard(req, { routeId: "validate-tier", rateLimit: GENERAL_RATE_LIMIT });
+  const guard = await apiGuard(req, { routeId: "validate-tier", rateLimit: GENERAL_RATE_LIMIT });
   if (!guard.passed) return guard.errorResponse;
   const { searchParams } = new URL(req.url);
   const token = searchParams.get("token");

@@ -19,7 +19,7 @@ function isActivationPlanSectionId(id: string): id is ActivationPlanSectionId {
 }
 
 export async function GET(req: NextRequest) {
-  const guard = apiGuard(req, {
+  const guard = await apiGuard(req, {
     routeId: "activation-plan-section-pdf",
     rateLimit: GENERAL_RATE_LIMIT,
   });

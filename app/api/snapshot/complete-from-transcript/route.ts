@@ -14,6 +14,9 @@ import {
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+/** Extract can run primary + retry (45s route timeout) before fallback. */
+export const maxDuration = 90;
 
 type IncomingMsg = { role?: string; text?: string; content?: string };
 
@@ -141,13 +144,18 @@ export async function POST(req: Request) {
       typeof body.continuationReportId === "string" ? body.continuationReportId.trim() : "";
     reportId = typeof body.reportId === "string" ? body.reportId.trim() : "";
 
+    const { FEATURES, featureGuard, AI_INTAKE_UNAVAILABLE } = await import("@/lib/featureFlags");
+    if (!featureGuard(FEATURES.AI_INTAKE, "complete-from-transcript")) {
+      return NextResponse.json(AI_INTAKE_UNAVAILABLE, { status: 503 });
+    }
+
     const { apiGuard } = await import("@/lib/security/apiGuard");
     const {
       COMPLETION_AI_RATE_LIMIT,
       COMPLETION_IP_ABUSE_RATE_LIMIT,
       pickSessionReportId,
     } = await import("@/lib/security/rateLimit");
-    const guard = apiGuard(req, {
+    const guard = await apiGuard(req, {
       routeId: "snapshot_transcript",
       rateLimit: COMPLETION_AI_RATE_LIMIT,
       abuseRateLimit: COMPLETION_IP_ABUSE_RATE_LIMIT,

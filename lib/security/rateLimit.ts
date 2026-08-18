@@ -1,7 +1,7 @@
 // lib/security/rateLimit.ts
-// In-memory rate limiter for API routes.
-// Uses a sliding window approach. Suitable for single-instance deployments (Vercel serverless).
-// For multi-instance/distributed deployments, upgrade to Upstash Redis rate limiting.
+// Rate limiter for API routes.
+// Default: in-memory fixed window (per Vercel isolate).
+// Optional: Upstash Redis when UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN are set.
 //
 // SECURITY: Prevents abuse of expensive operations (OpenAI calls, email sends, etc.)
 // PRODUCT: Intake + finalize use per-report session keys so save-and-return gets a full
@@ -48,7 +48,8 @@ export interface RateLimitResult {
 }
 
 /**
- * Check rate limit for a given identifier (IP, report session, etc.)
+ * Check rate limit for a given identifier (IP, report session, etc.).
+ * Sync in-memory path — prefer checkRateLimitAsync in API routes.
  */
 export function checkRateLimit(
   identifier: string,
@@ -95,10 +96,33 @@ export function checkRateLimit(
   };
 }
 
+/**
+ * Prefer Upstash when configured; otherwise in-memory (per isolate).
+ */
+export async function checkRateLimitAsync(
+  identifier: string,
+  prefix: string,
+  config: RateLimitConfig,
+): Promise<RateLimitResult> {
+  const { checkUpstashRateLimit } = await import("./upstashRateLimit");
+  const distributed = await checkUpstashRateLimit(identifier, prefix, config);
+  if (distributed) return distributed;
+  return checkRateLimit(identifier, prefix, config);
+}
+
 /** Clear a bucket so save-and-return / resume starts with a fresh session budget. */
 export function resetRateLimit(identifier: string, prefix: string): void {
   ensureCleanup();
   store.delete(`${prefix}:${identifier}`);
+}
+
+export async function resetRateLimitAsync(
+  identifier: string,
+  prefix: string,
+): Promise<void> {
+  resetRateLimit(identifier, prefix);
+  const { resetUpstashRateLimit } = await import("./upstashRateLimit");
+  await resetUpstashRateLimit(identifier, prefix);
 }
 
 const REPORT_SESSION_UUID_RE =
@@ -139,17 +163,28 @@ export function refreshReportSessionBudgets(reportId: string): void {
   const id = typeof reportId === "string" ? reportId.trim() : "";
   if (!isSessionReportId(id)) return;
   const sessionId = `report:${id}`;
-  for (const prefix of [
-    "brand-snapshot",
-    "snapshot_transcript",
-    "snapshot",
-    "snapshot-plus-generate",
-    "blueprint-generate",
-    "blueprint-plus-generate",
-    "report-generate-ai",
-  ]) {
+  for (const prefix of REPORT_SESSION_RATE_PREFIXES) {
     resetRateLimit(sessionId, prefix);
   }
+}
+
+const REPORT_SESSION_RATE_PREFIXES = [
+  "brand-snapshot",
+  "snapshot_transcript",
+  "snapshot",
+  "snapshot-plus-generate",
+  "blueprint-generate",
+  "blueprint-plus-generate",
+  "report-generate-ai",
+] as const;
+
+export async function refreshReportSessionBudgetsAsync(reportId: string): Promise<void> {
+  const id = typeof reportId === "string" ? reportId.trim() : "";
+  if (!isSessionReportId(id)) return;
+  const sessionId = `report:${id}`;
+  await Promise.all(
+    REPORT_SESSION_RATE_PREFIXES.map((prefix) => resetRateLimitAsync(sessionId, prefix)),
+  );
 }
 
 /**

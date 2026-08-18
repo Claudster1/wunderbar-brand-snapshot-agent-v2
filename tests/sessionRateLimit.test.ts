@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   checkRateLimit,
+  checkRateLimitAsync,
   pickSessionReportId,
   refreshReportSessionBudgets,
+  refreshReportSessionBudgetsAsync,
   sessionRateLimitId,
 } from "@/lib/security/rateLimit";
 
@@ -32,5 +34,19 @@ describe("session rate limits (save-and-return)", () => {
     refreshReportSessionBudgets(id);
 
     expect(checkRateLimit(sessionId, "brand-snapshot", tight).allowed).toBe(true);
+  });
+
+  it("async memory path matches sync when Upstash is unset", async () => {
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    const id = "44444444-4444-4444-8444-444444444444";
+    const sessionId = `report:${id}`;
+    const tight = { maxRequests: 1, windowSeconds: 3600 };
+
+    expect((await checkRateLimitAsync(sessionId, "brand-snapshot", tight)).allowed).toBe(true);
+    expect((await checkRateLimitAsync(sessionId, "brand-snapshot", tight)).allowed).toBe(false);
+
+    await refreshReportSessionBudgetsAsync(id);
+    expect((await checkRateLimitAsync(sessionId, "brand-snapshot", tight)).allowed).toBe(true);
   });
 });

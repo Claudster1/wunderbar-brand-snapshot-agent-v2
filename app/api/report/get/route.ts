@@ -6,7 +6,7 @@ export async function GET(request: Request) {
   try {
     const { apiGuard } = await import("@/lib/security/apiGuard");
     const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
-    const guard = apiGuard(request, { routeId: "report-get", rateLimit: GENERAL_RATE_LIMIT });
+    const guard = await apiGuard(request, { routeId: "report-get", rateLimit: GENERAL_RATE_LIMIT });
     if (!guard.passed) return guard.errorResponse;
 
     const { isValidUUID } = await import("@/lib/security/inputValidation");

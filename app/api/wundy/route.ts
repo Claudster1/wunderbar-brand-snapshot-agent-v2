@@ -220,7 +220,7 @@ function pruneCache() {
 
 export async function POST(req: Request) {
   // ─── Security: Rate limit + request size ───
-  const guard = apiGuard(req, { routeId: "wundy", rateLimit: REFINE_AI_RATE_LIMIT, maxBodySize: 50_000 });
+  const guard = await apiGuard(req, { routeId: "wundy", rateLimit: REFINE_AI_RATE_LIMIT, maxBodySize: 50_000 });
   if (!guard.passed) return guard.errorResponse;
 
   try {

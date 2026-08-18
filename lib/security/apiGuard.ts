@@ -4,7 +4,6 @@
 
 import { NextResponse } from "next/server";
 import {
-  checkRateLimit,
   getClientIp,
   RateLimitConfig,
   RateLimitResult,
@@ -64,22 +63,26 @@ function deniedResponse(
  * Run security checks on an incoming API request.
  * Returns { passed: true } if ok, or { passed: false, errorResponse } to return immediately.
  *
+ * Uses Upstash when `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` are set;
+ * otherwise in-memory (per serverless isolate).
+ *
  * Usage:
  * ```ts
- * const guard = apiGuard(req, { routeId: "wundy", rateLimit: AI_RATE_LIMIT });
+ * const guard = await apiGuard(req, { routeId: "wundy", rateLimit: AI_RATE_LIMIT });
  * if (!guard.passed) return guard.errorResponse;
  * ```
  */
-export function apiGuard(
+export async function apiGuard(
   req: Request,
   config: ApiGuardConfig
-): ApiGuardResult {
+): Promise<ApiGuardResult> {
   const clientIp = getClientIp(req);
   const rateConfig = config.rateLimit ?? GENERAL_RATE_LIMIT;
   const sessionId = sessionRateLimitId(config.sessionReportId, clientIp);
 
   // ─── Primary budget (per-report when available, else IP) ───
-  const rl = checkRateLimit(sessionId, config.routeId, rateConfig);
+  const { checkRateLimitAsync } = await import("./rateLimit");
+  const rl = await checkRateLimitAsync(sessionId, config.routeId, rateConfig);
   if (!rl.allowed) {
     return {
       passed: false as const,
@@ -91,7 +94,7 @@ export function apiGuard(
   // ─── Soft IP abuse ceiling (always by raw IP) ───
   if (config.abuseRateLimit) {
     const abuseRoute = config.abuseRouteId ?? `${config.routeId}-ip`;
-    const abuseRl = checkRateLimit(clientIp, abuseRoute, config.abuseRateLimit);
+    const abuseRl = await checkRateLimitAsync(clientIp, abuseRoute, config.abuseRateLimit);
     if (!abuseRl.allowed) {
       return {
         passed: false as const,

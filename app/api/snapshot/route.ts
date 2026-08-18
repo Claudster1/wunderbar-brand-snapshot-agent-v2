@@ -39,6 +39,9 @@ import {
 } from "@/lib/results/resolveReportProductTier";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+/** Scoring + optional free-report AI enhancement. */
+export const maxDuration = 60;
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://app.wunderbrand.ai";
 
@@ -344,10 +347,15 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
+    const { FEATURES, featureGuard, AI_INTAKE_UNAVAILABLE } = await import("@/lib/featureFlags");
+    if (!featureGuard(FEATURES.AI_INTAKE, "snapshot-score")) {
+      return NextResponse.json(AI_INTAKE_UNAVAILABLE, { status: 503 });
+    }
+
     const { COMPLETION_IP_ABUSE_RATE_LIMIT, pickSessionReportId } = await import(
       "@/lib/security/rateLimit"
     );
-    const guard = apiGuard(req, {
+    const guard = await apiGuard(req, {
       routeId: "snapshot",
       rateLimit: COMPLETION_AI_RATE_LIMIT,
       abuseRateLimit: COMPLETION_IP_ABUSE_RATE_LIMIT,

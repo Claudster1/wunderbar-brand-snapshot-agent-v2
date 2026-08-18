@@ -5,7 +5,7 @@ import { randomUUID } from "crypto";
 
 export async function POST(req: Request) {
   const { apiGuard } = await import("@/lib/security/apiGuard");
-  const guard = apiGuard(req, { routeId: "snapshot-plus-save" });
+  const guard = await apiGuard(req, { routeId: "snapshot-plus-save" });
   if (!guard.passed) return guard.errorResponse;
 
   try {

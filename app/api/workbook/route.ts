@@ -822,7 +822,7 @@ function mergeWorkbookCustomSections(
 // ─── PATCH: Save edits ───
 export async function PATCH(req: NextRequest) {
   const { apiGuard } = await import("@/lib/security/apiGuard");
-  const guard = apiGuard(req, { routeId: "workbook-save" });
+  const guard = await apiGuard(req, { routeId: "workbook-save" });
   if (!guard.passed) return guard.errorResponse;
 
   if (!supabaseAdmin) {

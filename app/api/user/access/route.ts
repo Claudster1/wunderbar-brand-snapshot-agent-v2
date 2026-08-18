@@ -10,7 +10,7 @@ import { logger } from "@/lib/logger";
 
 export async function GET(req: Request) {
   // ─── Security: Rate limit ───
-  const guard = apiGuard(req, { routeId: "user-access", rateLimit: AUTH_RATE_LIMIT });
+  const guard = await apiGuard(req, { routeId: "user-access", rateLimit: AUTH_RATE_LIMIT });
   if (!guard.passed) return guard.errorResponse;
 
   try {

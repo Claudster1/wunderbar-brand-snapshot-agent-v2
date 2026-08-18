@@ -26,9 +26,9 @@ type Props = {
 };
 
 const UNLOCK_PREVIEW_ITEMS = [
-  "Pillar-by-pillar scores and narrative",
+  "Brand Pillar Analysis — scores, strengths, and gaps",
+  "Your brand archetype and what it means",
   "Ranked priority actions for your brand",
-  "Your archetype pattern and meaning",
   "Context coverage and next-step guidance",
 ] as const;
 
@@ -138,8 +138,8 @@ export function ResultsSnapshotLeadGate({
         <section className="results-gated-preview-only scroll-mt-4" aria-hidden>
           <div className="results-gated-preview-banner">
             <p className="results-gated-preview-banner__text m-0">
-              {resultsCompleteSnapshotHeadline(productName)} — enter your email above to open the rest of this
-              report.
+              Locked — enter your email above to unlock Brand Pillar Analysis, your archetype, Priority actions, and
+              the rest of this report.
             </p>
             <button
               type="button"
@@ -149,7 +149,17 @@ export function ResultsSnapshotLeadGate({
               {completeLabel}
             </button>
           </div>
-          <div className="results-gated-veil-preview">{children}</div>
+          {/* Do not render real report children (pillars, etc.) while gated — even blurred. */}
+          <div className="results-gated-locked-placeholder" aria-hidden>
+            <ul className="results-gated-locked-placeholder__list">
+              {UNLOCK_PREVIEW_ITEMS.map((label) => (
+                <li key={label}>
+                  <ResultsCheckIcon />
+                  <span>{label}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </section>
       )}
     </>

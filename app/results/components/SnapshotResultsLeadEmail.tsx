@@ -157,14 +157,14 @@ export function SnapshotResultsLeadEmail({
       <div className="results-gate-capture__inner">
         <header className="results-gate-capture__header">
           <p className={`${SUITE_SECTION_KICKER_CLASS} m-0 mb-2`}>
-            {contentUnlocked ? "One quick preference" : "Continue your diagnostic"}
+            {contentUnlocked ? "One quick preference" : "Email required"}
           </p>
           {step === "email" ? (
             <>
               <h2 className="bs-h3 m-0 mb-2 text-brand-navy">{resultsCompleteSnapshotHeadline(productName)}</h2>
               <p className="results-gate-capture__lead m-0">
-                Your score and archetype are above. Enter your email to open pillar breakdowns, priority
-                actions, and the rest of this report on this page.
+                Your WunderBrand Score™ is above. Enter your email to unlock Brand Pillar Analysis, your archetype,
+                Priority actions, and the rest of this report — free, on this page.
               </p>
             </>
           ) : (

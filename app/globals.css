@@ -1802,6 +1802,36 @@ a.sr-only:focus {
   overflow: hidden;
 }
 
+.results-gated-locked-placeholder {
+  margin-top: 0.25rem;
+  padding: 1.25rem 1.35rem;
+  border-radius: 5px;
+  border: 1px dashed rgba(2, 24, 89, 0.22);
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+}
+
+.results-gated-locked-placeholder__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.results-gated-locked-placeholder__list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: #475569;
+}
+
+.results-gated-locked-placeholder__list li span:last-child {
+  min-width: 0;
+}
+
 .results-gated-preview-only::before {
   content: "";
   position: absolute;

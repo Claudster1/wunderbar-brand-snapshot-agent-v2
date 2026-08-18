@@ -1738,10 +1738,9 @@ a.sr-only:focus {
   /* Reserve right gutter so content never slides under the fixed Wundy chat
      launcher (bottom-right, ~60px + 24px inset). */
   padding-right: max(1rem, calc(env(safe-area-inset-right, 0px) + 96px));
-  background: rgba(255, 255, 255, 0.94);
-  border-top: 1px solid rgba(210, 210, 215, 0.9);
-  box-shadow: 0 -6px 28px rgba(2, 24, 89, 0.1);
-  backdrop-filter: blur(14px);
+  background: #021859;
+  border-top: 1px solid rgba(7, 176, 242, 0.35);
+  box-shadow: 0 -8px 32px rgba(2, 24, 89, 0.28);
 }
 
 .results-email-sticky-cta__inner {
@@ -1761,12 +1760,24 @@ a.sr-only:focus {
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #021859;
+  color: #ffffff;
 }
 
 .results-email-sticky-cta__btn {
   flex-shrink: 0;
   white-space: nowrap;
+}
+
+.results-email-sticky-cta .wb-cta--outline {
+  background: #ffffff;
+  border-color: #ffffff;
+  color: #021859;
+}
+
+.results-email-sticky-cta .wb-cta--outline:hover {
+  background: #e8f7fd;
+  border-color: #07b0f2;
+  color: #021859;
 }
 
 @media (max-width: 520px) {

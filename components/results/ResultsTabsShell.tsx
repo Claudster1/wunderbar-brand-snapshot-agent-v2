@@ -111,10 +111,9 @@ const LOCKED_TAB_FEATURES: Record<
     ],
   },
   downloads: {
-    availableFrom: "snapshot",
+    availableFrom: "snapshot-plus",
     features: [
-      "Snapshot report export at every tier",
-      "Snapshot+ adds Executive Summary and Prompt Guide",
+      "Snapshot+ Report PDF, Executive Summary, and Prompt Guide",
       "Blueprint adds strategy PDFs and activation schedule (.xlsx)",
       "Blueprint+ adds full packs, role packs, and Download all (.zip)",
     ],

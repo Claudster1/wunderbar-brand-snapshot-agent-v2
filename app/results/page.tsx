@@ -672,6 +672,8 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
           score={data.brandAlignmentScore}
           primaryPillar={primaryPillarStr}
           hasSnapshotPlus={hasSnapshotPlusAccess}
+          emailGateActive={showSnapshotLeadEmail && !resultsEmailUnlocked}
+          reportId={data.reportId}
           userRoleContext={data.userRoleContext as UserRoleContext | undefined}
           executiveContext={{
             businessName: data.businessName,
@@ -681,13 +683,6 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
             recommendationPreview: recommendationsList.slice(0, 3),
           }}
         />
-        {likelyArchetype ? (
-          <ResultsArchetypeSection
-            likelyArchetype={likelyArchetype}
-            archetypeMeaning={archetypeMeaning}
-            hasSnapshotPlus={hasSnapshotPlusAccess}
-          />
-        ) : null}
       </section>
 
       <ResultsSnapshotLeadGate
@@ -735,6 +730,14 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
           stage={data.stage}
         />
       </div>
+
+          {likelyArchetype ? (
+            <ResultsArchetypeSection
+              likelyArchetype={likelyArchetype}
+              archetypeMeaning={archetypeMeaning}
+              hasSnapshotPlus={hasSnapshotPlusAccess}
+            />
+          ) : null}
 
       <section
         id="priority-actions"

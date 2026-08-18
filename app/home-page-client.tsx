@@ -1147,7 +1147,7 @@ export default function HomePageClient({
                     {isFinalizing
                       ? resultsEntryUrl
                         ? "Opening your results…"
-                        : `Your ${activeTierConfig.productName} is being finalized now…`
+                        : `Generating your ${activeTierConfig.productName}…`
                       : "Wundy™ is thinking…"}
                   </div>
                 )}
@@ -1452,15 +1452,13 @@ export default function HomePageClient({
                     {resultsEntryUrl
                       ? "Opening your results…"
                       : isFinalizing
-                        ? `Your ${activeTierConfig.productName} is being finalized now…`
+                        ? `Generating your ${activeTierConfig.productName}…`
                         : `Preparing your ${activeTierConfig.productName}…`}
                   </p>
                   <p className="chat-finalize-dock-sub">
                     {resultsEntryUrl
                       ? "Hang tight — redirecting you to your diagnostic."
-                      : snapshotish
-                        ? "We'll open your results automatically — usually under a minute."
-                        : "Almost there — we're assembling your diagnostic from this conversation."}
+                      : "This usually takes under a minute. We'll open your results automatically when they're ready."}
                   </p>
                   <div className="app-progress-bar chat-finalize-dock-progress">
                     <div className="app-progress-fill chat-finalize-dock-progress-fill" />

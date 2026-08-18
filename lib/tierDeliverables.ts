@@ -33,7 +33,7 @@ type TierDeliverables = {
 
 export const TIER_DELIVERABLES: Record<ProductTier, TierDeliverables> = {
   snapshot: {
-    downloadsTabEnabled: true,
+    downloadsTabEnabled: false,
     activationSections: [],
     downloadDeliverables: ["snapshot-report"],
   },

@@ -8,7 +8,7 @@ describe("finalizeHandoffCopy", () => {
   it("uses tier product name in seamless finalize message", () => {
     const msg = getIntakeFinalizeHandoffMessage("snapshot");
     expect(msg).toContain("WunderBrand Snapshot™");
-    expect(msg).toContain("being finalized now");
+    expect(msg).toContain("generating your");
     expect(msg).not.toContain("pillar breakdown");
     expect(msg).not.toContain("See my results");
   });

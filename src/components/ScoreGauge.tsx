@@ -78,9 +78,9 @@ export function ScoreGauge({ value, score, size, showLegend = false }: { value?:
   const tipX = cx + tipR * Math.cos(angleRad);
   const tipY = cy - tipR * Math.sin(angleRad);
 
-  // Sweep 0 = upper semicircle (y ≤ cy); sweep 1 = lower. Needle uses angles along the upper arc
-  // (same convention as `app/preview/results/page.tsx` MainGauge). Mismatch was red arc + needle in green zone.
-  const fullArcD = `M ${p180.x} ${p180.y} A ${radius} ${radius} 0 0 0 ${p0.x} ${p0.y}`;
+  // Sweep 1 = clockwise in SVG → upper semicircle (y ≤ cy) from left (0%) to right (100%).
+  // Sweep 0 drew the lower arc, so the gradient sat at the bottom under the needle.
+  const fullArcD = `M ${p180.x} ${p180.y} A ${radius} ${radius} 0 0 1 ${p0.x} ${p0.y}`;
 
   const strokeWidth = 16;
   // ViewBox: extra top padding so round stroke caps on the arc are not clipped

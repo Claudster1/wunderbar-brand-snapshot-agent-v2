@@ -1,10 +1,10 @@
 # .github/dependabot.yml
-# Automated dependency update checks.
-# Dependabot will open PRs when new versions are available.
+# Version updates (weekly) + GitHub Dependabot security updates (repo setting).
+# Security PRs are separate from the minor/patch group below.
+# CI fails on production high/critical via `npm run audit`.
 
 version: 2
 updates:
-  # npm dependencies
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -12,13 +12,11 @@ updates:
       day: "sunday"
       time: "04:00"
       timezone: "America/New_York"
-    # Group minor/patch updates into a single PR to reduce noise
     groups:
       minor-and-patch:
         update-types:
           - "minor"
           - "patch"
-    # Ignore major version bumps for packages that need manual migration
     ignore:
       - dependency-name: "tailwindcss"
         update-types: ["version-update:semver-major"]
@@ -28,13 +26,19 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "react-dom"
         update-types: ["version-update:semver-major"]
-    # Limit open PRs to avoid overwhelming
-    open-pull-requests-limit: 5
-    # Auto-assign for review
+    open-pull-requests-limit: 10
     reviewers:
       - "Claudster1"
     labels:
       - "dependencies"
       - "automated"
-    # Security updates always get their own PR
-    # (handled automatically by GitHub Security Advisories)
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "dependencies"
+      - "automated"
+    reviewers:
+      - "Claudster1"

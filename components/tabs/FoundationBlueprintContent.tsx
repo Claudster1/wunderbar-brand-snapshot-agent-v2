@@ -4360,60 +4360,117 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
             const salesExample = `"Your top risk right now is ${topGap}. If we fix that first, ${primaryPillar.toLowerCase()} improves without adding more random activity—want to walk through the 90-day sequence?"`;
             const eduExample = `"First, tighten the hero to one promise for ${audience.toLowerCase()}. Second, add one proof block with a metric or mechanism. Third, one CTA that matches where they are in the journey."`;
             const tiles: Array<{
+              id: string;
               title: string;
-              span?: "wide";
               traits?: string;
               when: string;
               sample: string;
+              accent: string;
             }> = [
               {
-                title: "Core Voice (Constant)",
-                span: "wide",
+                id: "core",
+                title: "Core Voice",
                 traits: voiceTraitSummary,
                 when: "The through-line in every channel—who you sound like when the brand shows up.",
                 sample: coreVoiceExample,
+                accent: "#021859",
               },
               {
+                id: "thought",
                 title: "Thought Leadership",
                 when: `Insight-led and perspective-forward—while ${audience.toLowerCase()} are still naming the problem.`,
                 sample: tlExample,
+                accent: "#07B0F2",
               },
               {
+                id: "sales",
                 title: "Sales",
                 when: "Concise and commercially sharp—when budget, timing, and objections are live.",
                 sample: salesExample,
+                accent: "#0D9488",
               },
               {
+                id: "education",
                 title: "Education",
                 when: "Plain-language and stepwise—for onboarding, nurture, and how-to moments.",
                 sample: eduExample,
+                accent: "#6366F1",
               },
             ];
+            const [coreTile, ...contextTiles] = tiles;
             return (
-              <div className="rounded-lg border border-brand-border bg-white p-4">
-                <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-1">Voice Architecture</p>
-                <p className="text-sm sm:text-base leading-relaxed text-brand-muted mb-3">
-                  How tone shifts by context—each tile includes a sample line you can adapt, not a checklist to complete later.
-                </p>
-                <div className="grid gap-2 md:grid-cols-5">
-                  {tiles.map((tile) => (
-                    <div
-                      key={tile.title}
-                      className={`flex min-h-0 flex-col rounded-md border border-brand-border bg-[#F7FBFF] px-3 py-2.5 ${
-                        tile.span === "wide" ? "md:col-span-2" : ""
-                      }`}
-                    >
-                      <p className="text-sm sm:text-base font-medium text-brand-blue">{tile.title}</p>
-                      {tile.traits ? (
-                        <p className="text-sm sm:text-base font-medium text-brand-midnight mt-1 leading-snug">{tile.traits}</p>
-                      ) : null}
-                      <p className="text-sm sm:text-base text-brand-muted mt-1.5 leading-snug">{tile.when}</p>
-                      <div className="mt-2 rounded-md border border-slate-200/90 bg-white/90 px-2.5 py-2">
-                        <p className="text-xs sm:text-sm font-medium tracking-[0.08em] text-slate-500 mb-1">Sample Line</p>
-                        <p className="text-sm sm:text-base leading-snug text-brand-midnight">{tile.sample}</p>
-                      </div>
+              <div className="overflow-hidden rounded-[5px] border border-brand-border bg-white">
+                <div className="border-b border-brand-border/80 bg-gradient-to-br from-[#F7FBFF] to-white px-4 py-4 sm:px-5 sm:py-5">
+                  <p className="m-0 text-xs font-semibold tracking-[0.08em] text-brand-blue sm:text-sm">
+                    Voice Architecture
+                  </p>
+                  <p className="m-0 mt-1.5 max-w-3xl text-sm leading-relaxed text-brand-muted sm:text-base">
+                    One constant core voice. Three context registers with sample lines you can paste and adapt.
+                  </p>
+                </div>
+
+                {coreTile ? (
+                  <div
+                    className="border-b border-brand-border/80 px-4 py-5 sm:px-5 sm:py-6"
+                    style={{ borderLeft: `4px solid ${coreTile.accent}` }}
+                  >
+                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                      <p className="m-0 text-[10px] font-extrabold uppercase tracking-[0.12em] text-brand-navy/55">
+                        Constant
+                      </p>
+                      <p className="m-0 text-base font-bold text-brand-navy sm:text-lg">{coreTile.title}</p>
                     </div>
-                  ))}
+                    {coreTile.traits ? (
+                      <p className="m-0 mt-2 text-sm font-semibold leading-snug text-brand-blue sm:text-[15px]">
+                        {coreTile.traits}
+                      </p>
+                    ) : null}
+                    <p className="m-0 mt-2 max-w-3xl text-sm leading-relaxed text-brand-muted sm:text-[15px]">
+                      {coreTile.when}
+                    </p>
+                    <blockquote className="m-0 mt-4 rounded-[5px] border border-slate-200/90 bg-[#F8FBFF] px-4 py-3.5 sm:px-5">
+                      <p className="m-0 text-[11px] font-bold tracking-[0.06em] text-slate-500">Sample line</p>
+                      <p className="m-0 mt-2 text-[15px] leading-relaxed text-brand-midnight sm:text-base">
+                        {coreTile.sample}
+                      </p>
+                    </blockquote>
+                  </div>
+                ) : null}
+
+                <div className="px-4 py-4 sm:px-5 sm:py-5">
+                  <p className="m-0 mb-3 text-[10px] font-extrabold uppercase tracking-[0.1em] text-brand-navy/50">
+                    Tone by context
+                  </p>
+                  <div className="grid gap-3 sm:gap-4 lg:grid-cols-3">
+                    {contextTiles.map((tile, index) => (
+                      <div
+                        key={tile.id}
+                        className="flex h-full flex-col rounded-[5px] border border-brand-border/80 bg-gradient-to-b from-white to-[#F8FBFF] p-4 shadow-[0_1px_0_rgba(2,24,89,0.04)]"
+                        style={{ borderTop: `3px solid ${tile.accent}` }}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span
+                            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-[5px] text-xs font-bold text-white"
+                            style={{ background: tile.accent }}
+                            aria-hidden
+                          >
+                            {index + 1}
+                          </span>
+                          <p className="m-0 text-[15px] font-bold leading-snug text-brand-navy">{tile.title}</p>
+                        </div>
+                        <p className="m-0 mt-3 text-sm leading-relaxed text-brand-muted">{tile.when}</p>
+                        <div className="mt-auto pt-4">
+                          <p className="m-0 text-[11px] font-bold tracking-[0.06em] text-slate-500">Sample line</p>
+                          <p
+                            className="m-0 mt-2 border-l-[3px] pl-3 text-sm leading-relaxed text-brand-midnight sm:text-[15px]"
+                            style={{ borderColor: tile.accent }}
+                          >
+                            {tile.sample}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             );

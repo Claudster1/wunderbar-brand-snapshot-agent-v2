@@ -5,12 +5,13 @@ import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
 import { randomUUID } from "crypto";
+import { withRetry } from "@/lib/supabase/withRetry";
 
 export async function POST(req: Request) {
   try {
     const { apiGuard } = await import("@/lib/security/apiGuard");
     const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
-    const guard = apiGuard(req, { routeId: "snapshot-draft", rateLimit: GENERAL_RATE_LIMIT });
+    const guard = await apiGuard(req, { routeId: "snapshot-draft", rateLimit: GENERAL_RATE_LIMIT });
     if (!guard.passed) return guard.errorResponse;
 
     const { sanitizeString, isValidEmail } = await import("@/lib/security/inputValidation");
@@ -57,22 +58,30 @@ export async function POST(req: Request) {
       },
     };
 
-    let { data, error } = await supabase
-      .from("brand_snapshot_reports")
-      .insert(fullRow as any)
-      .select("id")
-      .single();
+    let { data, error } = await withRetry(
+      async () =>
+        await supabase
+          .from("brand_snapshot_reports")
+          .insert(fullRow as any)
+          .select("id")
+          .single(),
+      "snapshot-draft-insert",
+    );
 
     // Schema drift (missing progress columns) → retry with columns present in prod.
     if (error?.code === "PGRST204") {
       logger.warn("[Snapshot Draft API] Schema missing columns; retrying minimal insert", {
         error: error.message,
       });
-      ({ data, error } = await supabase
-        .from("brand_snapshot_reports")
-        .insert(minimalRow as any)
-        .select("id")
-        .single());
+      ({ data, error } = await withRetry(
+        async () =>
+          await supabase
+            .from("brand_snapshot_reports")
+            .insert(minimalRow as any)
+            .select("id")
+            .single(),
+        "snapshot-draft-insert-minimal",
+      ));
     }
 
     if (error) {

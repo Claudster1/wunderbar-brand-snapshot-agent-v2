@@ -9,7 +9,7 @@ export async function GET(req: Request) {
   try {
     const { apiGuard } = await import("@/lib/security/apiGuard");
     const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
-    const guard = apiGuard(req, { routeId: "snapshot-resume", rateLimit: GENERAL_RATE_LIMIT });
+    const guard = await apiGuard(req, { routeId: "snapshot-resume", rateLimit: GENERAL_RATE_LIMIT });
     if (!guard.passed) return guard.errorResponse;
 
     const { isValidUUID } = await import("@/lib/security/inputValidation");
@@ -52,8 +52,8 @@ export async function GET(req: Request) {
     }
 
     // Fresh chat + wrap-up budget for this draft so returning users can finish.
-    const { refreshReportSessionBudgets } = await import("@/lib/security/rateLimit");
-    refreshReportSessionBudgets(canonicalId);
+    const { refreshReportSessionBudgetsAsync } = await import("@/lib/security/rateLimit");
+    await refreshReportSessionBudgetsAsync(canonicalId);
 
     const progress = r.progress;
     const messages = progress?.messages;

@@ -38,7 +38,7 @@ export async function POST(req: Request) {
   // ─── Security: Rate limit ───
   const { apiGuard } = await import("@/lib/security/apiGuard");
   const { EMAIL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
-  const guard = apiGuard(req, { routeId: "save-exit", rateLimit: EMAIL_RATE_LIMIT });
+  const guard = await apiGuard(req, { routeId: "save-exit", rateLimit: EMAIL_RATE_LIMIT });
   if (!guard.passed) return guard.errorResponse;
 
   try {
@@ -85,15 +85,24 @@ export async function POST(req: Request) {
     // Draft flow persists UUID in `id`; legacy/report flows may use `report_id`.
     const supabase = getSupabase();
     if (supabase && reportId) {
-      const { error: idError } = await supabase
-        .from("brand_snapshot_reports")
-        .update({ user_email: normalized })
-        .eq("id", reportId);
+      const { withRetry } = await import("@/lib/supabase/withRetry");
+      const { error: idError } = await withRetry<{ error: SupabaseLikeError | null }>(
+        async () =>
+          await supabase
+            .from("brand_snapshot_reports")
+            .update({ user_email: normalized })
+            .eq("id", reportId),
+        "save-exit-email-by-id",
+      );
       if (idError) {
-        const { error: legacyError } = await supabase
-          .from("brand_snapshot_reports")
-          .update({ user_email: normalized })
-          .eq("report_id", reportId);
+        const { error: legacyError } = await withRetry<{ error: SupabaseLikeError | null }>(
+          async () =>
+            await supabase
+              .from("brand_snapshot_reports")
+              .update({ user_email: normalized })
+              .eq("report_id", reportId),
+          "save-exit-email-by-report-id",
+        );
         if (legacyError) {
           logger.warn("[Save-Exit] Draft email association skipped", {
             reportId,

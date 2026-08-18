@@ -150,7 +150,7 @@ const SAMPLE_REPORTS: Record<string, SampleReport> = {
 
 export async function GET(req: Request) {
   // ─── Security: Rate limit ───
-  const guard = apiGuard(req, { routeId: "snapshot-get", rateLimit: GENERAL_RATE_LIMIT });
+  const guard = await apiGuard(req, { routeId: "snapshot-get", rateLimit: GENERAL_RATE_LIMIT });
   if (!guard.passed) return guard.errorResponse;
 
   try {
@@ -179,6 +179,7 @@ export async function GET(req: Request) {
         { status: 500 }
       );
     }
+    const db = supabaseAdmin;
 
     // Fetch only the columns the results page needs (avoid SELECT *).
     // Schema notes (production schema, not the local schema.sql seed):
@@ -190,11 +191,16 @@ export async function GET(req: Request) {
     //     the results page expects is preserved. Selecting non-existent columns produces
     //     PostgREST 42703 ("column does not exist") which the catch-all wraps into a 404 —
     //     i.e. successfully-saved reports become unreadable. That was the prior bug.
-    const { data, error } = await supabaseAdmin
-      .from("brand_snapshot_reports")
-      .select("report_id, company_name:brand_name, brand_alignment_score, pillar_scores, pillar_insights, recommendations, full_report, user_name, user_email, created_at")
-      .eq("report_id", id)
-      .single();
+    const { withRetry } = await import("@/lib/supabase/withRetry");
+    const { data, error } = await withRetry(
+      async () =>
+        await db
+          .from("brand_snapshot_reports")
+          .select("report_id, company_name:brand_name, brand_alignment_score, pillar_scores, pillar_insights, recommendations, full_report, user_name, user_email, created_at")
+          .eq("report_id", id)
+          .single(),
+      "snapshot-get",
+    );
     
     if (error || !data) {
       const debugRequested = req.headers.get("x-snapshot-debug") === "1";

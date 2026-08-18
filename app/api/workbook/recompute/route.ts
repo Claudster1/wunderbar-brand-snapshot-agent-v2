@@ -206,7 +206,7 @@ function recomputeReportSections(workbook: Record<string, any>) {
 
 export async function POST(req: NextRequest) {
   const { apiGuard } = await import("@/lib/security/apiGuard");
-  const guard = apiGuard(req, { routeId: "workbook-recompute" });
+  const guard = await apiGuard(req, { routeId: "workbook-recompute" });
   if (!guard.passed) return guard.errorResponse;
 
   if (!supabaseAdmin) {

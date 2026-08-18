@@ -10,6 +10,8 @@ import { logger } from "@/lib/logger";
 
 export const FEATURES = {
   AI_INSIGHTS: "ai_insights",
+  /** Assessment chat + transcript finalize. Kill when both LLM providers are down. */
+  AI_INTAKE: "ai_intake",
   STRIPE_CHECKOUT: "stripe_checkout",
   ACTIVE_CAMPAIGN: "active_campaign",
   CALENDLY_WEBHOOK: "calendly_webhook",
@@ -23,6 +25,7 @@ export type FeatureName = (typeof FEATURES)[keyof typeof FEATURES];
 
 const DEFAULTS: Record<FeatureName, boolean> = {
   [FEATURES.AI_INSIGHTS]: true,
+  [FEATURES.AI_INTAKE]: true,
   [FEATURES.STRIPE_CHECKOUT]: true,
   [FEATURES.ACTIVE_CAMPAIGN]: true,
   [FEATURES.CALENDLY_WEBHOOK]: true,
@@ -70,6 +73,13 @@ export function featureGuard(feature: FeatureName, context?: string): boolean {
   }
   return enabled;
 }
+
+/** Shared 503 body when AI intake is paused (billing outage / maintenance). */
+export const AI_INTAKE_UNAVAILABLE = {
+  error:
+    "Brand intake is temporarily unavailable while we restore AI capacity. Please try again in a few minutes.",
+  code: "ai_intake_disabled",
+} as const;
 
 /**
  * Get a snapshot of all feature flag states (useful for health/status endpoints).

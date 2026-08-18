@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 const VALID_TIERS = ["snapshot", "snapshot_plus", "blueprint", "blueprint_plus"];
 
 export async function POST(req: NextRequest) {
-  const guard = apiGuard(req, { routeId: "testimonial", rateLimit: GENERAL_RATE_LIMIT });
+  const guard = await apiGuard(req, { routeId: "testimonial", rateLimit: GENERAL_RATE_LIMIT });
   if (!guard.passed) return guard.errorResponse;
 
   try {

@@ -65,6 +65,7 @@
         "@supabase/supabase-js": "^2.112.3",
         "@tailwindcss/postcss": "^4.2.0",
         "@types/uuid": "^10.0.0",
+        "@upstash/redis": "^1.38.2",
         "@vercel/og": "^0.8.5",
         "disposable-email-domains": "^1.0.62",
         "jszip": "^3.10.1",

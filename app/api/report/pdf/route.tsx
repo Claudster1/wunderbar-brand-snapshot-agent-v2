@@ -13,7 +13,7 @@ import { generatePdfResponseFromReport } from "@/src/pdf/generatePdf";
 export async function GET(request: Request) {
   const { apiGuard } = await import("@/lib/security/apiGuard");
   const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
-  const guard = apiGuard(request, { routeId: "report-pdf", rateLimit: GENERAL_RATE_LIMIT });
+  const guard = await apiGuard(request, { routeId: "report-pdf", rateLimit: GENERAL_RATE_LIMIT });
   if (!guard.passed) return guard.errorResponse;
 
   const { searchParams } = new URL(request.url);
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
   try {
     const { apiGuard } = await import("@/lib/security/apiGuard");
     const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
-    const guard = apiGuard(request, { routeId: "report-pdf", rateLimit: GENERAL_RATE_LIMIT });
+    const guard = await apiGuard(request, { routeId: "report-pdf", rateLimit: GENERAL_RATE_LIMIT });
     if (!guard.passed) return guard.errorResponse;
 
     const body = await request.json();

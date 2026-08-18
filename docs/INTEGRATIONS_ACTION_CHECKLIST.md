@@ -1,7 +1,7 @@
 # Integrations — Action Checklist
 
 Living status of every integration and the remaining manual (dashboard) actions.
-Last verified: **2026-07-28**.
+Last verified: **2026-08-18**. See also [`RELIABILITY_OPS.md`](./RELIABILITY_OPS.md) for uptime / billing / Sentry QC.
 
 **Conversion operating system (daily checklist + AC/Quo/Otter settings):** [`CONVERSION_OS_RUNBOOK.md`](./CONVERSION_OS_RUNBOOK.md)
 
@@ -28,6 +28,10 @@ Legend: ✅ done · 🟡 needs a dashboard action · ⚪ optional / nice-to-have
 2. Interval: 5 minutes  
 3. Alert contacts: your email / Slack  
 4. Optional second monitor on `?smoke=1` every 15–30 min (slower; catches DB schema drift)
+
+**Sentry (dashboard):** issue spike + first-seen alerts for `production` → same Slack/email as `SLACK_ALERT_WEBHOOK`. Details in `RELIABILITY_OPS.md`.
+
+**AI intake kill switch:** `FEATURE_FLAG_AI_INTAKE=false` on Vercel pauses chat + transcript finalize with HTTP 503 (use when both LLM providers are out of credits).
 
 ---
 

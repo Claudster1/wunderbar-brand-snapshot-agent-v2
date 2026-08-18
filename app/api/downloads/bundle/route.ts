@@ -51,7 +51,7 @@ function rolePackZip(
 }
 
 export async function GET(req: NextRequest) {
-  const guard = apiGuard(req, {
+  const guard = await apiGuard(req, {
     routeId: "downloads-bundle",
     rateLimit: GENERAL_RATE_LIMIT,
   });

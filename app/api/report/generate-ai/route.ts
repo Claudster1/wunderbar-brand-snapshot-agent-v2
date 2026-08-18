@@ -45,7 +45,7 @@ export async function POST(req: Request) {
   // ─── Security ─────────────────────────────────────────────
   const { apiGuard } = await import("@/lib/security/apiGuard");
   const { REPORT_AI_RATE_LIMIT } = await import("@/lib/security/rateLimit");
-  const guard = apiGuard(req, {
+  const guard = await apiGuard(req, {
     routeId: "report-generate-ai",
     rateLimit: REPORT_AI_RATE_LIMIT,
     maxBodySize: 500_000, // Allow larger bodies for assessment data

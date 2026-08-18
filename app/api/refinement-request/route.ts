@@ -7,7 +7,7 @@ import { apiGuard } from "@/lib/security/apiGuard";
 import { GENERAL_RATE_LIMIT } from "@/lib/security/rateLimit";
 
 export async function POST(req: Request) {
-  const guard = apiGuard(req, { routeId: "refinement-request", rateLimit: GENERAL_RATE_LIMIT });
+  const guard = await apiGuard(req, { routeId: "refinement-request", rateLimit: GENERAL_RATE_LIMIT });
   if (!guard.passed) return guard.errorResponse;
 
   try {

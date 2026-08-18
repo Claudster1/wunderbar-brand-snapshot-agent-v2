@@ -42,7 +42,7 @@ function categorizeAsset(fileName: string, mimeType: string): string {
 }
 
 export async function POST(req: NextRequest) {
-  const guard = apiGuard(req, { routeId: "assets-upload", rateLimit: GENERAL_RATE_LIMIT, maxBodySize: 25_000_000 });
+  const guard = await apiGuard(req, { routeId: "assets-upload", rateLimit: GENERAL_RATE_LIMIT, maxBodySize: 25_000_000 });
   if (!guard.passed) return guard.errorResponse;
 
   try {

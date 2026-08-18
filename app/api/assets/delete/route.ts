@@ -10,7 +10,7 @@ import { GENERAL_RATE_LIMIT } from "@/lib/security/rateLimit";
 export const dynamic = "force-dynamic";
 
 export async function DELETE(req: NextRequest) {
-  const guard = apiGuard(req, { routeId: "assets-delete", rateLimit: GENERAL_RATE_LIMIT });
+  const guard = await apiGuard(req, { routeId: "assets-delete", rateLimit: GENERAL_RATE_LIMIT });
   if (!guard.passed) return guard.errorResponse;
 
   try {

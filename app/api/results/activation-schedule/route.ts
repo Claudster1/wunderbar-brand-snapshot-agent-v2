@@ -97,7 +97,7 @@ const ROW_KEYS: (keyof Row)[] = [
 const COLUMN_WIDTHS = [8, 12, 14, 18, 16, 18, 42, 18, 14, 12, 12, 14, 12];
 
 export async function GET(req: Request) {
-  const guard = apiGuard(req, {
+  const guard = await apiGuard(req, {
     routeId: "results-activation-schedule",
     rateLimit: GENERAL_RATE_LIMIT,
   });

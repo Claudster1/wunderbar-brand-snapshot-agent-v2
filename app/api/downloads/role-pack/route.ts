@@ -74,7 +74,7 @@ async function fetchBinary(url: string): Promise<ArrayBuffer> {
 }
 
 export async function GET(req: NextRequest) {
-  const guard = apiGuard(req, {
+  const guard = await apiGuard(req, {
     routeId: "downloads-role-pack",
     rateLimit: GENERAL_RATE_LIMIT,
   });

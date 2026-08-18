@@ -81,7 +81,7 @@ export async function POST(req: Request) {
   try {
     const { apiGuard } = await import("@/lib/security/apiGuard");
     const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
-    const guard = apiGuard(req, { routeId: "analytics", rateLimit: GENERAL_RATE_LIMIT });
+    const guard = await apiGuard(req, { routeId: "analytics", rateLimit: GENERAL_RATE_LIMIT });
     if (!guard.passed) {
       return withCors(
         guard.errorResponse || NextResponse.json({ error: "Analytics request blocked." }, { status: 429 }),

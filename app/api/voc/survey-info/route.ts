@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
   try {
     const { apiGuard } = await import("@/lib/security/apiGuard");
     const { GENERAL_RATE_LIMIT } = await import("@/lib/security/rateLimit");
-    const guard = apiGuard(req, { routeId: "voc-survey-info", rateLimit: GENERAL_RATE_LIMIT });
+    const guard = await apiGuard(req, { routeId: "voc-survey-info", rateLimit: GENERAL_RATE_LIMIT });
     if (!guard.passed) return guard.errorResponse;
 
     const token = req.nextUrl.searchParams.get("token");

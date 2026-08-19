@@ -5,9 +5,6 @@ import { SnapshotResultsLeadEmail } from "@/app/results/components/SnapshotResul
 import { ResultsCheckIcon } from "@/components/results/BrandIcons";
 import { ResultsEmailUnlockStickyCta } from "@/app/results/components/ResultsEmailUnlockStickyCta";
 import {
-  resultsCompleteSnapshotCtaLabel,
-} from "@/lib/copy/resultsEmailGateCopy";
-import {
   readResultsEmailGateUnlocked,
   writeResultsEmailGateUnlocked,
 } from "@/lib/results/resultsEmailGateStorage";
@@ -73,7 +70,6 @@ export function ResultsSnapshotLeadGate({
 
   const showEmailBlock = requiresEmailGate;
   const gateActive = showEmailBlock && !contentUnlocked;
-  const completeLabel = resultsCompleteSnapshotCtaLabel(productName);
 
   return (
     <>
@@ -111,13 +107,6 @@ export function ResultsSnapshotLeadGate({
                 <button
                   type="button"
                   onClick={scrollToEmail}
-                  className="wb-cta wb-cta--outline wb-cta--block results-gate-included-band__cta"
-                >
-                  Enter your email above
-                </button>
-                <button
-                  type="button"
-                  onClick={scrollToEmail}
                   className="wb-cta wb-cta--text results-gate-included-band__scroll-hint"
                 >
                   ↑ Back to the form
@@ -134,7 +123,7 @@ export function ResultsSnapshotLeadGate({
           {afterUnlock}
         </>
       ) : (
-        <section className="results-gated-preview-only scroll-mt-4" aria-hidden>
+        <section className="results-gated-preview-only scroll-mt-4">
           <div className="results-gated-preview-banner">
             <p className="results-gated-preview-banner__text m-0">
               Locked — enter your email above to unlock Brand Pillar Analysis, your archetype, Priority actions, and
@@ -143,21 +132,10 @@ export function ResultsSnapshotLeadGate({
             <button
               type="button"
               onClick={scrollToEmail}
-              className="wb-cta wb-cta--outline results-gated-preview-banner__btn"
+              className="wb-cta wb-cta--solid results-gated-preview-banner__btn"
             >
-              {completeLabel}
+              Enter your email
             </button>
-          </div>
-          {/* Do not render real report children (pillars, etc.) while gated — even blurred. */}
-          <div className="results-gated-locked-placeholder" aria-hidden>
-            <ul className="results-gated-locked-placeholder__list">
-              {UNLOCK_PREVIEW_ITEMS.map((label) => (
-                <li key={label}>
-                  <ResultsCheckIcon />
-                  <span>{label}</span>
-                </li>
-              ))}
-            </ul>
           </div>
         </section>
       )}

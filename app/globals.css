@@ -1768,13 +1768,13 @@ a.sr-only:focus {
   white-space: nowrap;
 }
 
-.results-email-sticky-cta .wb-cta--outline {
+.results-email-sticky-cta .wb-cta--solid {
   background: #ffffff;
   border-color: #ffffff;
   color: #021859;
 }
 
-.results-email-sticky-cta .wb-cta--outline:hover {
+.results-email-sticky-cta .wb-cta--solid:hover:not(:disabled) {
   background: #e8f7fd;
   border-color: #07b0f2;
   color: #021859;

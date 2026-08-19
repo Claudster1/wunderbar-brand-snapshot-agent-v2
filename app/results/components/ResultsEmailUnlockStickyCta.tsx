@@ -38,8 +38,8 @@ export function ResultsEmailUnlockStickyCta({ productName }: Props) {
     <div className="results-email-sticky-cta" role="region" aria-label="Get your complete snapshot">
       <div className="results-email-sticky-cta__inner">
         <p className="results-email-sticky-cta__label">{resultsCompleteSnapshotCtaLabel(productName)}</p>
-        <button type="button" onClick={scrollToEmail} className="wb-cta wb-cta--outline results-email-sticky-cta__btn">
-          {resultsCompleteSnapshotCtaLabel(productName)}
+        <button type="button" onClick={scrollToEmail} className="wb-cta wb-cta--solid results-email-sticky-cta__btn">
+          Enter your email
         </button>
       </div>
     </div>

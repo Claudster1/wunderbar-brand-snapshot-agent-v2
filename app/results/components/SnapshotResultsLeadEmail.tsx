@@ -218,7 +218,7 @@ export function SnapshotResultsLeadEmail({
             <button
               type="submit"
               disabled={saving || !email.trim()}
-              className="wb-cta wb-cta--outline wb-cta--block results-gate-capture__submit"
+              className="wb-cta wb-cta--solid wb-cta--block results-gate-capture__submit"
             >
               {saving ? "Saving…" : resultsCompleteSnapshotCtaLabel(productName)}
             </button>

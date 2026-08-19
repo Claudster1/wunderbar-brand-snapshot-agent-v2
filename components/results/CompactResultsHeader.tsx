@@ -20,7 +20,8 @@ interface CompactResultsHeaderProps {
   productName: string;
   companyName: string;
   reportDateIso?: string;
-  onGoToDownloads: () => void;
+  /** Omit on free Snapshot — Downloads is a Suite tab, not part of this report. */
+  onGoToDownloads?: () => void;
   onHelpClick?: () => void;
 }
 
@@ -229,52 +230,51 @@ export default function CompactResultsHeader({
         >
           ?
         </button>
-        <div style={{ position: "relative" }} ref={menuRef}>
-          <button
-            type="button"
-            onClick={() => setMenuOpen((value) => !value)}
-            style={{
-              width: 32,
-              height: 32,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: menuOpen ? SUITE_ACCENT_BRIGHT : "rgba(0, 0, 0, 0.04)",
-              border: "none",
-              borderRadius: "50%",
-              color: menuOpen ? "#FFFFFF" : SUITE_NAVY,
-              fontSize: 16,
-              fontWeight: 700,
-              cursor: "pointer",
-              letterSpacing: "0.12em",
-              transition: "background 0.2s ease, color 0.2s ease",
-            }}
-            aria-label="More options"
-            aria-expanded={menuOpen}
-          >
-            ···
-          </button>
-          {menuOpen && (
-            <div
+        {onGoToDownloads ? (
+          <div style={{ position: "relative" }} ref={menuRef}>
+            <button
+              type="button"
+              onClick={() => setMenuOpen((value) => !value)}
               style={{
-                position: "absolute",
-                top: "calc(100% + 8px)",
-                right: 0,
-                width: 220,
-                backgroundColor: "#FFFFFF",
-                border: `1px solid ${SUITE_BORDER}`,
-                borderRadius: 12,
-                boxShadow: SUITE_SHADOW_FLOAT,
-                zIndex: 400,
-                overflow: "hidden",
+                width: 32,
+                height: 32,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: menuOpen ? SUITE_ACCENT_BRIGHT : "rgba(0, 0, 0, 0.04)",
+                border: "none",
+                borderRadius: "50%",
+                color: menuOpen ? "#FFFFFF" : SUITE_NAVY,
+                fontSize: 16,
+                fontWeight: 700,
+                cursor: "pointer",
+                letterSpacing: "0.12em",
+                transition: "background 0.2s ease, color 0.2s ease",
               }}
+              aria-label="More options"
+              aria-expanded={menuOpen}
             >
-              {[{ label: "Go to Downloads", icon: "↓", action: onGoToDownloads }].map((item) => (
+              ···
+            </button>
+            {menuOpen ? (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "calc(100% + 8px)",
+                  right: 0,
+                  width: 220,
+                  backgroundColor: "#FFFFFF",
+                  border: `1px solid ${SUITE_BORDER}`,
+                  borderRadius: 12,
+                  boxShadow: SUITE_SHADOW_FLOAT,
+                  zIndex: 400,
+                  overflow: "hidden",
+                }}
+              >
                 <button
-                  key={item.label}
                   type="button"
                   onClick={() => {
-                    item.action();
+                    onGoToDownloads();
                     setMenuOpen(false);
                   }}
                   style={{
@@ -299,13 +299,15 @@ export default function CompactResultsHeader({
                     event.currentTarget.style.backgroundColor = "transparent";
                   }}
                 >
-                  <span style={{ width: 16, color: SUITE_CHROME_MUTED, fontSize: 14 }}>{item.icon}</span>
-                  {item.label}
+                  <span style={{ width: 16, color: SUITE_CHROME_MUTED, fontSize: 14 }} aria-hidden>
+                    ↓
+                  </span>
+                  Go to Downloads
                 </button>
-              ))}
-            </div>
-          )}
-        </div>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
       </div>
     </header>
   );

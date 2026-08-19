@@ -1307,24 +1307,28 @@ export default function ResultsTabsShell({
             ? diagnosticData.resultsDeliveredAt
             : undefined
         }
-        onGoToDownloads={() => openOrLockTab("downloads")}
+        {...(productTier === "snapshot"
+          ? {}
+          : { onGoToDownloads: () => openOrLockTab("downloads") })}
       />
-      <ResultsTabNav
-        activeTab={activeTab}
-        onTabChange={(tab) => {
-          setLockedTabContext(null);
-          setActiveTab(tab);
-        }}
-        productTier={productTier}
-        onLockedTabClick={(tab) => {
-          if (tab.id === "results") return;
-          setLockedTabContext({
-            tabId: tab.id,
-            tabLabel: tab.label,
-            availableFrom: tab.availableFrom,
-          });
-        }}
-      />
+      {productTier !== "snapshot" ? (
+        <ResultsTabNav
+          activeTab={activeTab}
+          onTabChange={(tab) => {
+            setLockedTabContext(null);
+            setActiveTab(tab);
+          }}
+          productTier={productTier}
+          onLockedTabClick={(tab) => {
+            if (tab.id === "results") return;
+            setLockedTabContext({
+              tabId: tab.id,
+              tabLabel: tab.label,
+              availableFrom: tab.availableFrom,
+            });
+          }}
+        />
+      ) : null}
       {!lockedTabContext && (
         <HowToUseBanner productName={productDisplayName} productTier={productTier} />
       )}

@@ -1656,16 +1656,6 @@ a.sr-only:focus {
   width: 100%;
 }
 
-.results-gate-capture--unlock .results-gate-capture__submit.wb-cta--solid {
-  border-color: #021859;
-  background: #021859;
-}
-
-.results-gate-capture--unlock .results-gate-capture__submit.wb-cta--solid:hover:not(:disabled) {
-  border-color: #0a2d6e;
-  background: #0a2d6e;
-}
-
 .results-gate-capture__error {
   margin: 0 0 0.75rem;
   font-size: 0.8125rem;

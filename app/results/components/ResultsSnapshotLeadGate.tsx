@@ -5,6 +5,11 @@ import { SnapshotResultsLeadEmail } from "@/app/results/components/SnapshotResul
 import { ResultsCheckIcon } from "@/components/results/BrandIcons";
 import { ResultsEmailUnlockStickyCta } from "@/app/results/components/ResultsEmailUnlockStickyCta";
 import {
+  resultsEmailGateIncludedEyebrow,
+  resultsEmailGateLockedBannerBody,
+  resultsEmailGateLockedBannerCta,
+} from "@/lib/copy/resultsEmailGateCopy";
+import {
   readResultsEmailGateUnlocked,
   writeResultsEmailGateUnlocked,
 } from "@/lib/results/resultsEmailGateStorage";
@@ -92,7 +97,9 @@ export function ResultsSnapshotLeadGate({
               aria-labelledby="results-gate-included-heading"
             >
               <div className="results-gate-included-band__inner">
-                <p className="results-gate-included-band__eyebrow">Included with your email</p>
+                <p className="results-gate-included-band__eyebrow">
+                  {resultsEmailGateIncludedEyebrow(productName)}
+                </p>
                 <h2 id="results-gate-included-heading" className="results-gate-included-band__title">
                   What you’ll unlock
                 </h2>
@@ -125,16 +132,13 @@ export function ResultsSnapshotLeadGate({
       ) : (
         <section className="results-gated-preview-only scroll-mt-4">
           <div className="results-gated-preview-banner">
-            <p className="results-gated-preview-banner__text m-0">
-              Locked — enter your email above to unlock Brand Pillar Analysis, your archetype, Priority actions, and
-              the rest of this report.
-            </p>
+            <p className="results-gated-preview-banner__text m-0">{resultsEmailGateLockedBannerBody()}</p>
             <button
               type="button"
               onClick={scrollToEmail}
               className="wb-cta wb-cta--solid results-gated-preview-banner__btn"
             >
-              Enter your email
+              {resultsEmailGateLockedBannerCta()}
             </button>
           </div>
         </section>

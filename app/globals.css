@@ -1499,7 +1499,7 @@ a.sr-only:focus {
   margin-bottom: 1.25rem;
 }
 
-/* Email unlock — light card aligned with results overview (not navy marketing band) */
+/* Single unlock CTA — value checklist + email form in one card */
 .results-gate-capture {
   border-radius: 5px;
   border: 2px solid rgba(210, 210, 215, 0.65);
@@ -1510,16 +1510,40 @@ a.sr-only:focus {
 
 .results-gate-capture__inner {
   display: grid;
-  gap: 1.25rem;
+  gap: 1.35rem;
   padding: clamp(1.25rem, 3vw, 1.75rem) clamp(1.25rem, 3vw, 2rem);
 }
 
 @media (min-width: 768px) {
+  .results-gate-capture--unlock .results-gate-capture__inner {
+    grid-template-columns: 1fr min(20rem, 40%);
+    align-items: start;
+    gap: 1.75rem 2rem;
+  }
+
   .results-gate-capture__inner {
     grid-template-columns: 1fr min(22rem, 42%);
     align-items: start;
     gap: 1.75rem 2rem;
   }
+}
+
+.results-gate-capture__offer {
+  min-width: 0;
+}
+
+.results-gate-capture__eyebrow {
+  margin: 0 0 0.4rem;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #0369a1;
+}
+
+.results-gate-capture__title {
+  margin: 0 0 1rem;
+  color: #021859;
 }
 
 .results-gate-capture__header {
@@ -1533,8 +1557,44 @@ a.sr-only:focus {
   color: #475569;
 }
 
+.results-gate-capture__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.results-gate-capture__list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+  padding: 0;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: #334155;
+}
+
+.results-gate-capture__list li:last-child {
+  margin-bottom: 0;
+}
+
+.results-gate-capture__list li span:last-child {
+  flex: 1;
+  padding-top: 0.1rem;
+}
+
 .results-gate-capture__form {
   min-width: 0;
+}
+
+.results-gate-capture__field-label {
+  display: block;
+  margin: 0 0 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #475569;
 }
 
 .results-gate-capture__input {
@@ -1638,69 +1698,6 @@ a.sr-only:focus {
   color: #0369a1;
   text-decoration: underline;
   cursor: pointer;
-}
-
-/* Pre-unlock checklist — light sidebar card (site “Why Wunderbar” pattern) */
-.results-gate-included-band {
-  border-radius: 5px;
-  border: 1px solid rgba(210, 210, 215, 0.85);
-  background: #f5f5f7;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-}
-
-.results-gate-included-band__inner {
-  padding: clamp(1.15rem, 3vw, 1.5rem) clamp(1.25rem, 3vw, 1.75rem);
-}
-
-.results-gate-included-band__eyebrow {
-  margin: 0 0 0.35rem;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #0369a1;
-}
-
-.results-gate-included-band__title {
-  margin: 0 0 1rem;
-  font-size: 1.125rem;
-  font-weight: 700;
-  line-height: 1.3;
-  letter-spacing: -0.02em;
-  color: #021859;
-}
-
-.results-gate-included-band__list {
-  margin: 0 auto 0.85rem;
-  padding: 0;
-  list-style: none;
-  max-width: 26rem;
-  width: 100%;
-}
-
-.results-gate-included-band__list li {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  margin-bottom: 0.65rem;
-  padding: 0;
-  font-size: 0.9375rem;
-  line-height: 1.45;
-  color: #334155;
-  text-align: left;
-}
-
-.results-gate-included-band__list li span:last-child {
-  flex: 1;
-  padding-top: 0.1rem;
-}
-
-.results-gate-included-band__hint {
-  margin: 0;
-  max-width: 26rem;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  color: #64748b;
 }
 
 .results-email-sticky-cta {

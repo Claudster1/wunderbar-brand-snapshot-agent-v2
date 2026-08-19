@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { resultsCompleteSnapshotCtaLabel } from "@/lib/copy/resultsEmailGateCopy";
+import { resultsCompleteSnapshotHeadline } from "@/lib/copy/resultsEmailGateCopy";
 
 type Props = {
   productName: string;
@@ -37,7 +37,7 @@ export function ResultsEmailUnlockStickyCta({ productName }: Props) {
   return (
     <div className="results-email-sticky-cta" role="region" aria-label="Get your complete snapshot">
       <div className="results-email-sticky-cta__inner">
-        <p className="results-email-sticky-cta__label">{resultsCompleteSnapshotCtaLabel(productName)}</p>
+        <p className="results-email-sticky-cta__label">{resultsCompleteSnapshotHeadline(productName)}</p>
         <button type="button" onClick={scrollToEmail} className="wb-cta wb-cta--solid results-email-sticky-cta__btn">
           Enter your email
         </button>

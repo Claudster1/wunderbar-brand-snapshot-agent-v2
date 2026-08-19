@@ -2,12 +2,7 @@
 
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { SnapshotResultsLeadEmail } from "@/app/results/components/SnapshotResultsLeadEmail";
-import { ResultsCheckIcon } from "@/components/results/BrandIcons";
 import { ResultsEmailUnlockStickyCta } from "@/app/results/components/ResultsEmailUnlockStickyCta";
-import {
-  resultsEmailGateIncludedEyebrow,
-  resultsEmailGateUnlockHint,
-} from "@/lib/copy/resultsEmailGateCopy";
 import {
   readResultsEmailGateUnlocked,
   writeResultsEmailGateUnlocked,
@@ -24,13 +19,6 @@ type Props = {
   children: ReactNode;
   afterUnlock?: ReactNode;
 };
-
-const UNLOCK_PREVIEW_ITEMS = [
-  "Brand Pillar Analysis — scores, strengths, and gaps",
-  "Your brand archetype and what it means",
-  "Ranked priority actions for your brand",
-  "Context coverage and next-step guidance",
-] as const;
 
 export function ResultsSnapshotLeadGate({
   reportId,
@@ -85,31 +73,6 @@ export function ResultsSnapshotLeadGate({
             onEmailCaptured={handleEmailCaptured}
             contentUnlocked={contentUnlocked}
           />
-
-          {gateActive ? (
-            <section
-              className="results-gate-included-band"
-              aria-labelledby="results-gate-included-heading"
-            >
-              <div className="results-gate-included-band__inner">
-                <p className="results-gate-included-band__eyebrow">
-                  {resultsEmailGateIncludedEyebrow(productName)}
-                </p>
-                <h2 id="results-gate-included-heading" className="results-gate-included-band__title">
-                  What you’ll unlock
-                </h2>
-                <ul className="results-gate-included-band__list">
-                  {UNLOCK_PREVIEW_ITEMS.map((label) => (
-                    <li key={label}>
-                      <ResultsCheckIcon />
-                      <span>{label}</span>
-                    </li>
-                  ))}
-                </ul>
-                <p className="results-gate-included-band__hint">{resultsEmailGateUnlockHint()}</p>
-              </div>
-            </section>
-          ) : null}
         </div>
       ) : null}
 

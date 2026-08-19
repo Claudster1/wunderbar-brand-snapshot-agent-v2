@@ -2,13 +2,15 @@
 
 import { FormEvent, useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ResultsCheckIcon } from "@/components/results/BrandIcons";
 import { persistEmail } from "@/lib/persistEmail";
 import { setEmailMarketingOptInPreference } from "@/lib/smsConsent";
 import { TurnstileWidget } from "@/components/security/TurnstileWidget";
-import { SUITE_SECTION_KICKER_CLASS } from "@/components/results/suiteBrandTokens";
 import {
+  RESULTS_EMAIL_GATE_UNLOCK_ITEMS,
   resultsCompleteSnapshotCtaLabel,
   resultsCompleteSnapshotHeadline,
+  resultsEmailGateIncludedEyebrow,
 } from "@/lib/copy/resultsEmailGateCopy";
 import type { SnapshotContentOptIn } from "@/lib/snapshot/snapshotContentOptIn";
 import { isTurnstileEnforced } from "@/lib/security/turnstilePolicy";
@@ -154,36 +156,51 @@ export function SnapshotResultsLeadEmail({
     [contentOptIn, email, reportId, router, turnstileToken],
   );
 
+  const showUnlockOffer = step === "email" && !contentUnlocked;
+
   return (
-    <section className="results-gate-capture" aria-label="Email for full diagnostic">
+    <section
+      className={
+        "results-gate-capture" + (showUnlockOffer ? " results-gate-capture--unlock" : "")
+      }
+      aria-label="Email for full diagnostic"
+    >
       <TurnstileWidget onToken={handleTurnstileToken} />
       <div className="results-gate-capture__inner">
-        <header className="results-gate-capture__header">
-          <p className={`${SUITE_SECTION_KICKER_CLASS} m-0 mb-2`}>
-            {contentUnlocked ? "One quick preference" : "Email required"}
-          </p>
-          {step === "email" ? (
+        <div className="results-gate-capture__offer">
+          {showUnlockOffer ? (
             <>
-              <h2 className="bs-h3 m-0 mb-2 text-brand-navy">{resultsCompleteSnapshotHeadline(productName)}</h2>
-              <p className="results-gate-capture__lead m-0">
-                Your WunderBrand Score™ is above. Enter your email to unlock Brand Pillar Analysis, your archetype,
-                Priority actions, and the rest of this report — free, on this page.
+              <p className="results-gate-capture__eyebrow m-0">
+                {resultsEmailGateIncludedEyebrow(productName)}
               </p>
+              <h2 className="bs-h3 m-0 results-gate-capture__title">
+                {resultsCompleteSnapshotHeadline(productName)}
+              </h2>
+              <ul className="results-gate-capture__list">
+                {RESULTS_EMAIL_GATE_UNLOCK_ITEMS.map((label) => (
+                  <li key={label}>
+                    <ResultsCheckIcon />
+                    <span>{label}</span>
+                  </li>
+                ))}
+              </ul>
             </>
           ) : (
-            <>
+            <header className="results-gate-capture__header">
+              <p className="results-gate-capture__eyebrow m-0 mb-2">One quick preference</p>
               <h2 className="bs-h3 m-0 mb-2 text-brand-navy">Almost done</h2>
               <p className="results-gate-capture__lead m-0">
-                Optional: choose whether you want occasional brand tips — then your full report opens below.
+                Optional: choose whether you want occasional brand tips — then your full report opens
+                below.
               </p>
-            </>
+            </header>
           )}
-        </header>
+        </div>
 
         {step === "email" ? (
           <form onSubmit={handleEmailSubmit} className="results-gate-capture__form">
-            <label htmlFor="results-lead-email" className="sr-only">
-              Email for complete results
+            <label htmlFor="results-lead-email" className="results-gate-capture__field-label">
+              Work email
             </label>
             <input
               id="results-lead-email"
@@ -220,7 +237,7 @@ export function SnapshotResultsLeadEmail({
               disabled={saving || !email.trim()}
               className="wb-cta wb-cta--solid wb-cta--block results-gate-capture__submit"
             >
-              {saving ? "Saving…" : resultsCompleteSnapshotCtaLabel(productName)}
+              {saving ? "Saving…" : resultsCompleteSnapshotCtaLabel()}
             </button>
             <p className="results-gate-capture__legal">
               We use your email to deliver this diagnostic and save your links.{" "}

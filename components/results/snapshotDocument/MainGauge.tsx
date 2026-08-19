@@ -100,9 +100,9 @@ export function MainGauge({ score }: { score: number }) {
       style={{
         display: "flex",
         alignItems: "center",
-        gap: 32,
+        gap: 28,
         flexWrap: "wrap",
-        justifyContent: "center",
+        justifyContent: "flex-start",
         width: "100%",
       }}
     >

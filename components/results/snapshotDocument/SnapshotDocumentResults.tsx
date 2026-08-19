@@ -312,6 +312,7 @@ export function SnapshotDocumentResults({
           [data-snapshot-document-section] { padding: 20px 16px !important; }
           [data-snapshot-key-cards], [data-snapshot-pillar-meters], [data-snapshot-pillar-detail] { grid-template-columns: 1fr !important; }
           [data-snapshot-gauge-row], [data-snapshot-archetype-layout], [data-snapshot-action-item] { flex-direction: column !important; }
+          [data-snapshot-score-stack] { grid-template-columns: 1fr !important; }
           [data-snapshot-pillar-header] { align-items: flex-start !important; flex-direction: column !important; }
         }
       ` }} />
@@ -347,19 +348,18 @@ export function SnapshotDocumentResults({
           <SectionTitle hero description="A composite measure of how clearly and consistently your brand communicates across all five pillars.">
             WunderBrand Score™
           </SectionTitle>
-          {/* Shared column so the gauge centers over the diagnosis copy, not the full card. */}
           <div
             data-snapshot-score-stack
             style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 28,
-              maxWidth: "36rem",
+              display: "grid",
+              gridTemplateColumns: "minmax(0, auto) minmax(0, 1fr)",
+              gap: "28px 40px",
+              alignItems: "center",
               width: "100%",
             }}
           >
             <MainGauge score={score} />
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
               <SignalRail label="Diagnosis" color={NAVY}>{resolvedDiagnosis}</SignalRail>
               <SignalRail label="Primary Opportunity" color={GREEN}>{resolvedOpportunity}</SignalRail>
               <SignalRail label="Risk if Unchanged" color={ORANGE}>{resolvedRisk}</SignalRail>

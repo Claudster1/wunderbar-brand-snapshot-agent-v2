@@ -171,7 +171,7 @@ export function SnapshotResultsLeadEmail({
           {showUnlockOffer ? (
             <>
               <p className="results-gate-capture__eyebrow m-0">
-                {resultsEmailGateIncludedEyebrow(productName)}
+                {resultsEmailGateIncludedEyebrow()}
               </p>
               <h2 className="bs-h3 m-0 results-gate-capture__title">
                 {resultsCompleteSnapshotHeadline(productName)}

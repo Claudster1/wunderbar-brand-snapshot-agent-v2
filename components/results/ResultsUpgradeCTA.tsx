@@ -6,6 +6,7 @@ import { getOrAssignVariant } from "@/lib/abTesting";
 import { RESULTS_CTA_COPY } from "@/content/resultsCtaCopy";
 import { fireACEvent } from "@/lib/activeCampaign";
 import { trackUpgradeClick } from "@/lib/adTracking";
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
 
 export function ResultsUpgradeCTA({
   primaryPillar,
@@ -66,11 +67,16 @@ export function ResultsUpgradeCTA({
     });
     trackUpgradeClick({ fromTier: "snapshot", toTier: "snapshot-plus", value: 497 });
 
-    const q =
-      reportId && /^[0-9a-f-]{36}$/i.test(reportId.trim())
-        ? `?baseReportId=${encodeURIComponent(reportId.trim())}`
-        : "";
-    window.location.href = `/snapshot-plus${q}`;
+    const url = getTrackedCheckoutUrl({
+      product: "snapshot-plus",
+      medium: "results_cta",
+      content: "results_upgrade_cta",
+    });
+    const dest = new URL(url, window.location.origin);
+    if (reportId && /^[0-9a-f-]{36}$/i.test(reportId.trim())) {
+      dest.searchParams.set("baseReportId", reportId.trim());
+    }
+    window.location.href = dest.pathname + dest.search;
   };
 
   const onSecondaryClick = () => {

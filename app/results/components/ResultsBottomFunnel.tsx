@@ -11,6 +11,12 @@ import { RESULTS_CTA_COPY } from "@/content/resultsCtaCopy";
 import { getOrAssignVariant } from "@/lib/abTesting";
 import { fireACEvent } from "@/lib/activeCampaign";
 import { trackUpgradeClick } from "@/lib/adTracking";
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
+import { getPersistedEmail } from "@/lib/persistEmail";
+import {
+  getEmailMarketingOptInPreference,
+  getSmsOptInPreference,
+} from "@/lib/smsConsent";
 
 type Props = {
   tabTier: ProductTier;
@@ -37,6 +43,7 @@ export function ResultsBottomFunnel({
 }: Props) {
   const snapshotPlusPrice = PRICING.snapshot_plus.price;
   const [variant, setVariant] = useState<"A" | "B">("A");
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   useEffect(() => {
     setVariant(getOrAssignVariant<"A" | "B">("results_cta_variant", ["A", "B"]));
@@ -44,7 +51,7 @@ export function ResultsBottomFunnel({
 
   const copy = RESULTS_CTA_COPY[variant];
 
-  const onSnapshotPlusClick = () => {
+  const onSnapshotPlusClick = async () => {
     fireACEvent({
       email: userEmail,
       eventName: "snapshot_upgrade_cta_clicked",
@@ -52,11 +59,45 @@ export function ResultsBottomFunnel({
       fields: { primary_pillar: primaryPillar, brand_stage: stage, cta_variant: variant },
     });
     trackUpgradeClick({ fromTier: "snapshot", toTier: "snapshot-plus", value: 497 });
-    const q =
-      reportId && /^[0-9a-f-]{36}$/i.test(reportId.trim())
-        ? `?baseReportId=${encodeURIComponent(reportId.trim())}`
-        : "";
-    window.location.href = `/snapshot-plus${q}`;
+
+    setCheckoutLoading(true);
+    try {
+      const email = userEmail || getPersistedEmail() || undefined;
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productKey: "snapshot_plus",
+          email,
+          smsOptedIn: getSmsOptInPreference(),
+          emailMarketingOptedIn: getEmailMarketingOptInPreference(),
+          metadata: {
+            ...(reportId && /^[0-9a-f-]{36}$/i.test(reportId.trim())
+              ? { base_report_id: reportId.trim() }
+              : {}),
+            utm_source: "wunderbar_app",
+            utm_medium: "results_funnel",
+            utm_campaign: "snapshot_plus_upgrade",
+            utm_content: "results_bottom_funnel",
+          },
+        }),
+      });
+      if (!res.ok) throw new Error("Checkout failed");
+      const data = (await res.json()) as { url?: string };
+      if (!data.url) throw new Error("No checkout URL");
+      window.location.href = data.url;
+    } catch {
+      const url = getTrackedCheckoutUrl({
+        product: "snapshot-plus",
+        medium: "results_cta",
+        content: "results_bottom_funnel_fallback",
+      });
+      const dest = new URL(url, window.location.origin);
+      if (reportId && /^[0-9a-f-]{36}$/i.test(reportId.trim())) {
+        dest.searchParams.set("baseReportId", reportId.trim());
+      }
+      window.location.href = dest.pathname + dest.search;
+    }
   };
 
   const expertProps = {
@@ -84,7 +125,7 @@ export function ResultsBottomFunnel({
                 {PRICING.snapshot_plus.label}
               </h2>
               <p className="results-bottom-funnel-lead">
-                Your score shows where leverage lives. Snapshot+ adds strategic depth, messaging
+                Your score shows where to focus first. Snapshot+ adds strategic depth, messaging
                 frameworks, and an AI prompt pack — from ${snapshotPlusPrice.toLocaleString()}.
               </p>
             </header>
@@ -95,10 +136,11 @@ export function ResultsBottomFunnel({
                 <div className="results-bottom-funnel-actions">
                   <button
                     type="button"
-                    onClick={onSnapshotPlusClick}
+                    onClick={() => void onSnapshotPlusClick()}
+                    disabled={checkoutLoading}
                     className="wb-cta wb-cta--solid wb-cta--block"
                   >
-                    {copy.primaryCta}
+                    {checkoutLoading ? "Starting checkout…" : copy.primaryCta}
                   </button>
                   <Link href="/brand-snapshot-suite" className="wb-cta wb-cta--text results-bottom-funnel-text-cta">
                     {copy.secondaryCta}

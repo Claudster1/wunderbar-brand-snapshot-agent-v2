@@ -11,6 +11,9 @@ import {
   resultsCompleteSnapshotCtaLabel,
   resultsCompleteSnapshotHeadline,
   resultsEmailGateIncludedEyebrow,
+  resultsEmailGatePreferenceEyebrow,
+  resultsEmailGatePreferenceHeadline,
+  resultsEmailGatePreferenceLead,
 } from "@/lib/copy/resultsEmailGateCopy";
 import type { SnapshotContentOptIn } from "@/lib/snapshot/snapshotContentOptIn";
 import { isTurnstileEnforced } from "@/lib/security/turnstilePolicy";
@@ -187,12 +190,13 @@ export function SnapshotResultsLeadEmail({
             </>
           ) : (
             <header className="results-gate-capture__header">
-              <p className="results-gate-capture__eyebrow m-0 mb-2">Optional</p>
-              <h2 className="bs-h3 m-0 mb-2 text-brand-navy">Want occasional brand tips?</h2>
-              <p className="results-gate-capture__lead m-0">
-                Your full Snapshot is unlocked below — and a copy is on its way to your inbox. This step
-                only sets whether you’d like tip emails later.
+              <p className="results-gate-capture__eyebrow m-0 mb-2">
+                {resultsEmailGatePreferenceEyebrow()}
               </p>
+              <h2 className="bs-h3 m-0 mb-2 text-brand-navy">
+                {resultsEmailGatePreferenceHeadline()}
+              </h2>
+              <p className="results-gate-capture__lead m-0">{resultsEmailGatePreferenceLead()}</p>
             </header>
           )}
         </div>

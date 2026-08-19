@@ -19,3 +19,16 @@ export const RESULTS_EMAIL_GATE_UNLOCK_ITEMS = [
   "Your brand archetype and what it means",
   "Ranked priority actions for your brand",
 ] as const;
+
+/** Marketing preference step — after email unlock (report already open on-page). */
+export function resultsEmailGatePreferenceEyebrow(): string {
+  return "Stay in the loop";
+}
+
+export function resultsEmailGatePreferenceHeadline(): string {
+  return "Stay current on the latest brand strategy & AI";
+}
+
+export function resultsEmailGatePreferenceLead(): string {
+  return "Your full Snapshot is unlocked below — and a copy is on its way to your inbox. Opt in for practical tips so you keep pace with what’s working in branding, marketing, and AI for business.";
+}

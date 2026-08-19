@@ -1656,22 +1656,21 @@ a.sr-only:focus {
   width: 100%;
 }
 
-/* On the blue unlock band, use navy fill so the CTA isn’t the same cyan as the panel */
+/*
+ * White form sits on brand-blue panel. Solid brand-blue button would match the
+ * panel and look washed. Use brand navy for the action on the white form.
+ */
 .results-gate-capture--unlock .results-gate-capture__submit.wb-cta--solid {
   background: #021859;
   border-color: #021859;
   color: #ffffff;
-  box-shadow: 0 4px 14px rgba(2, 24, 89, 0.22);
+  box-shadow: 0 6px 18px rgba(2, 24, 89, 0.22);
 }
 
 .results-gate-capture--unlock .results-gate-capture__submit.wb-cta--solid:hover:not(:disabled) {
   background: #0a2d6e;
   border-color: #0a2d6e;
   color: #ffffff;
-}
-
-.results-gate-capture--unlock .results-gate-capture__submit.wb-cta--solid:disabled {
-  opacity: 0.55;
 }
 
 .results-gate-capture__error {

@@ -334,9 +334,9 @@ export function SnapshotDocumentResults({
         <Section id="executive-summary">
           <SectionTitle hero description="A high-level view of your brand's alignment across five key pillars.">Executive Summary</SectionTitle>
           <div data-snapshot-key-cards style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginBottom: 24 }}>
-            <SummaryCard label="Overall Score" score={score} max={100} />
-            <SummaryCard label="Strongest Pillar" score={strongest.score} max={20} pillar={strongest.label} />
-            <SummaryCard label={weakestPillarCallout((weakest.score / 20) * 100)} score={weakest.score} max={20} pillar={weakest.label} />
+            <SummaryCard label="Overall Score" score={score} max={100} icon="overall" />
+            <SummaryCard label="Strongest Pillar" score={strongest.score} max={20} pillar={strongest.label} icon="strongest" />
+            <SummaryCard label={weakestPillarCallout((weakest.score / 20) * 100)} score={weakest.score} max={20} pillar={weakest.label} icon="opportunity" />
           </div>
           <div style={{ padding: "16px 20px", borderRadius: 5, marginBottom: 16, background: `${BLUE}08`, borderLeft: `3px solid ${BLUE}`, fontSize: 18, fontWeight: 700, color: NAVY, lineHeight: 1.6, fontStyle: "italic" }}>
             {resolvedDiagnosis}
@@ -377,22 +377,58 @@ export function SnapshotDocumentResults({
   );
 }
 
+function SummaryCardIcon({ kind }: { kind: "overall" | "strongest" | "opportunity" }) {
+  if (kind === "overall") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" width={22} height={22} aria-hidden>
+        <circle cx="12" cy="12" r="10" stroke={BLUE} strokeWidth="2" />
+        <path d="M12 6v6l4 2" stroke={BLUE} strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    );
+  }
+  if (kind === "strongest") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" width={22} height={22} aria-hidden>
+        <path
+          d="M12 2l3 7h7l-5.5 4.5 2 7L12 16l-6.5 4.5 2-7L2 9h7z"
+          stroke={BLUE}
+          strokeWidth="2"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 24 24" fill="none" width={22} height={22} aria-hidden>
+      <path d="M12 9v4M12 17h.01" stroke={BLUE} strokeWidth="2" strokeLinecap="round" />
+      <path
+        d="M10.3 3.2L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.2a2 2 0 00-3.4 0z"
+        stroke={BLUE}
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 function SummaryCard({
   label,
   score,
   max,
   pillar,
+  icon,
 }: {
   label: string;
   score: number;
   max: number;
   pillar?: string;
+  icon: "overall" | "strongest" | "opportunity";
 }) {
   const percent = (score / max) * 100;
   const color = scoreColor(percent);
   return (
     <div style={{ padding: 20, borderRadius: 5, border: `1px solid ${BORDER}`, background: LIGHT_BG, display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-      <div style={{ width: 22, height: 22, borderRadius: "50%", border: `2px solid ${BLUE}`, position: "relative" }} />
+      <SummaryCardIcon kind={icon} />
       <div style={{ fontSize: 14, fontWeight: 700, color: NAVY, marginTop: 8 }}>{label}</div>
       <div style={{ display: "flex", alignItems: "baseline", gap: 5, marginTop: 10 }}>
         <span style={{ fontSize: 34, fontWeight: 800, color, lineHeight: 1 }}>{score}</span>

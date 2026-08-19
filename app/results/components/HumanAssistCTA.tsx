@@ -11,6 +11,8 @@ type Props = {
   primaryPillar?: string | null;
   brandAlignmentScore?: number | null;
   source: "results_page" | "legacy_results_page";
+  /** Slim layout for the simplified results bottom funnel */
+  compact?: boolean;
 };
 
 const TALK_TO_EXPERT_BASE_URL = "https://wunderbardigital.com/talk-to-an-expert";
@@ -45,6 +47,7 @@ function buildTalkToExpertUrl({
 
 export function HumanAssistCTA(props: Props) {
   const href = buildTalkToExpertUrl(props);
+  const compact = props.compact === true;
 
   const onClick = () => {
     trackEvent("HUMAN_ASSIST_CLICKED", {
@@ -70,6 +73,20 @@ export function HumanAssistCTA(props: Props) {
       },
     });
   };
+
+  if (compact) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={onClick}
+        className="wb-cta wb-cta--outline wb-cta--block"
+      >
+        Talk to an expert
+      </a>
+    );
+  }
 
   return (
     <section className="bs-card rounded-xl p-6 sm:p-7 border border-brand-border">

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ReportTierUpgradeCTAs } from "@/components/results/ReportTierUpgradeCTAs";
 import { HumanAssistCTA } from "@/app/results/components/HumanAssistCTA";
 import { ResultsSmsOptIn } from "@/app/results/components/ResultsSmsOptIn";
 import type { ProductTier } from "@/components/results/tabConfig";
@@ -12,9 +11,6 @@ import { RESULTS_CTA_COPY } from "@/content/resultsCtaCopy";
 import { getOrAssignVariant } from "@/lib/abTesting";
 import { fireACEvent } from "@/lib/activeCampaign";
 import { trackUpgradeClick } from "@/lib/adTracking";
-
-const WUNDERBAR_HOME =
-  "https://www.wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=results_funnel&utm_campaign=brand_continuity&utm_content=home";
 
 type Props = {
   tabTier: ProductTier;
@@ -29,7 +25,7 @@ type Props = {
 };
 
 export function ResultsBottomFunnel({
-  tabTier,
+  tabTier: _tabTier,
   reportId,
   hasSnapshotPlusAccess,
   userEmail,
@@ -39,7 +35,6 @@ export function ResultsBottomFunnel({
   brandAlignmentScore,
   stage,
 }: Props) {
-  const downloadsHref = `/results?reportId=${encodeURIComponent(reportId)}&tab=downloads`;
   const snapshotPlusPrice = PRICING.snapshot_plus.price;
   const [variant, setVariant] = useState<"A" | "B">("A");
 
@@ -64,6 +59,16 @@ export function ResultsBottomFunnel({
     window.location.href = `/snapshot-plus${q}`;
   };
 
+  const expertProps = {
+    source: "results_page" as const,
+    reportId,
+    email: userEmail,
+    businessName,
+    businessType,
+    primaryPillar,
+    brandAlignmentScore,
+  };
+
   return (
     <section
       id="next-steps"
@@ -71,90 +76,81 @@ export function ResultsBottomFunnel({
       aria-labelledby="results-bottom-funnel-heading"
     >
       <div className="results-bottom-funnel-inner">
-        <header className="results-bottom-funnel-intro">
-          <p className="results-bottom-funnel-eyebrow">Wunderbar Digital</p>
-          <h2 id="results-bottom-funnel-heading" className="results-bottom-funnel-title">
-            {hasSnapshotPlusAccess
-              ? "Activate what you’ve built"
-              : "Turn this diagnostic into a system your brand can run"}
-          </h2>
-          <p className="results-bottom-funnel-lead">
-            {hasSnapshotPlusAccess
-              ? "Your suite is live in this workspace — download deliverables, refine in the workbook, or talk with our team when you want hands-on support."
-              : `Your score shows where leverage lives. Snapshot+ adds strategic depth, messaging frameworks, and an AI prompt pack — from $${snapshotPlusPrice.toLocaleString()}.`}
-          </p>
-          <a
-            href={WUNDERBAR_HOME}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="wb-cta wb-cta--text results-bottom-funnel-brand-link"
-          >
-            wunderbardigital.com
-            <span aria-hidden> →</span>
-          </a>
-        </header>
+        {!hasSnapshotPlusAccess ? (
+          <>
+            <header className="results-bottom-funnel-intro">
+              <p className="results-bottom-funnel-eyebrow">Recommended next step</p>
+              <h2 id="results-bottom-funnel-heading" className="results-bottom-funnel-title">
+                {PRICING.snapshot_plus.label}
+              </h2>
+              <p className="results-bottom-funnel-lead">
+                Your score shows where leverage lives. Snapshot+ adds strategic depth, messaging
+                frameworks, and an AI prompt pack — from ${snapshotPlusPrice.toLocaleString()}.
+              </p>
+            </header>
 
-        <div className="results-bottom-funnel-grid">
-          {!hasSnapshotPlusAccess ? (
-            <article className="results-bottom-funnel-card results-bottom-funnel-card--featured">
-              <p className="results-bottom-funnel-card-kicker">Recommended next step</p>
-              <h3 className="results-bottom-funnel-card-title">{PRICING.snapshot_plus.label}</h3>
-              <p className="results-bottom-funnel-card-body">{copy.body}</p>
-              <div className="results-bottom-funnel-actions">
-                <button
-                  type="button"
-                  onClick={onSnapshotPlusClick}
+            <div className="results-bottom-funnel-layout">
+              <article className="results-bottom-funnel-card results-bottom-funnel-card--featured">
+                <p className="results-bottom-funnel-card-body">{copy.body}</p>
+                <div className="results-bottom-funnel-actions">
+                  <button
+                    type="button"
+                    onClick={onSnapshotPlusClick}
+                    className="wb-cta wb-cta--solid wb-cta--block"
+                  >
+                    {copy.primaryCta}
+                  </button>
+                  <Link href="/brand-snapshot-suite" className="wb-cta wb-cta--text results-bottom-funnel-text-cta">
+                    {copy.secondaryCta}
+                  </Link>
+                </div>
+                <ResultsSmsOptIn reportId={reportId} email={userEmail} />
+              </article>
+
+              <aside className="results-bottom-funnel-aside">
+                <h3 className="results-bottom-funnel-aside-title">Prefer a guided walkthrough?</h3>
+                <p className="results-bottom-funnel-aside-body">
+                  Talk through your score and priority actions with our team.
+                </p>
+                <HumanAssistCTA {...expertProps} compact />
+                <a
+                  href={WUNDERBAR_SUITE_COMPARE_URL}
+                  className="wb-cta wb-cta--text results-bottom-funnel-aside-link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Compare the full Suite™
+                </a>
+              </aside>
+            </div>
+          </>
+        ) : (
+          <>
+            <header className="results-bottom-funnel-intro">
+              <p className="results-bottom-funnel-eyebrow">Your suite</p>
+              <h2 id="results-bottom-funnel-heading" className="results-bottom-funnel-title">
+                Activate what you’ve built
+              </h2>
+              <p className="results-bottom-funnel-lead">
+                Download deliverables, refine in the workbook, or talk with our team when you want
+                hands-on support.
+              </p>
+            </header>
+            <div className="results-bottom-funnel-layout">
+              <article className="results-bottom-funnel-card">
+                <Link
+                  href={`/results?reportId=${encodeURIComponent(reportId)}&tab=downloads`}
                   className="wb-cta wb-cta--solid wb-cta--block"
                 >
-                  {copy.primaryCta}
-                </button>
-                <Link href="/brand-snapshot-suite" className="wb-cta wb-cta--outline wb-cta--block">
-                  {copy.secondaryCta}
+                  Go to Downloads
                 </Link>
-              </div>
-              <ResultsSmsOptIn reportId={reportId} email={userEmail} />
-            </article>
-          ) : null}
-
-          <article className="results-bottom-funnel-card">
-            <p className="results-bottom-funnel-card-kicker">Upgrade paths</p>
-            <h3 className="results-bottom-funnel-card-title">Go deeper in the suite</h3>
-            <p className="results-bottom-funnel-card-body">
-              Compare tiers, download assets, or move into Blueprint when you want standards, activation, and
-              execution deliverables.
-            </p>
-            <div className="results-bottom-funnel-embed">
-              <ReportTierUpgradeCTAs
-                tier={tabTier}
-                utmSource="results_page"
-                downloadsHref={downloadsHref}
-                suppressSnapshotPlusPrimary={tabTier === "snapshot" || !hasSnapshotPlusAccess}
-              />
+              </article>
+              <aside className="results-bottom-funnel-aside">
+                <HumanAssistCTA {...expertProps} compact />
+              </aside>
             </div>
-            <Link
-              href={WUNDERBAR_SUITE_COMPARE_URL}
-              className="wb-cta wb-cta--text results-bottom-funnel-text-cta"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Compare the full WunderBrand Suite™ on wunderbardigital.com
-            </Link>
-          </article>
-
-          <article className="results-bottom-funnel-card results-bottom-funnel-card--expert">
-            <div className="results-bottom-funnel-embed results-bottom-funnel-embed--expert">
-              <HumanAssistCTA
-                source="results_page"
-                reportId={reportId}
-                email={userEmail}
-                businessName={businessName}
-                businessType={businessType}
-                primaryPillar={primaryPillar}
-                brandAlignmentScore={brandAlignmentScore}
-              />
-            </div>
-          </article>
-        </div>
+          </>
+        )}
       </div>
     </section>
   );

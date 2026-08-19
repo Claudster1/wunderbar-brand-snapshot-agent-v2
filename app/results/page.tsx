@@ -941,10 +941,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
             : null
         }
         suiteCta={
-          <>
-            <SuiteCTA />
-            {!showSnapshotLeadEmail ? snapshotBottomFunnel : null}
-          </>
+          !showSnapshotLeadEmail ? snapshotBottomFunnel : null
         }
       />
     </div>

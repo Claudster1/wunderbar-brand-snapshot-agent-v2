@@ -1249,115 +1249,123 @@ a.sr-only:focus {
 }
 
 /* ─── Results bottom funnel (Snapshot CTAs) ─── */
+/* Light surface so it contrasts with the navy site footer */
 .results-bottom-funnel {
   margin-top: 2rem;
+  margin-bottom: 0.5rem;
   border-radius: 5px;
   overflow: hidden;
-  background: linear-gradient(165deg, #021859 0%, #0a2d6e 42%, #0d4a8f 100%);
-  box-shadow:
-    0 24px 64px rgba(2, 24, 89, 0.22),
-    0 1px 0 rgba(255, 255, 255, 0.08) inset;
+  background: #ffffff;
+  border: 1px solid rgba(2, 24, 89, 0.1);
+  box-shadow: 0 8px 28px rgba(2, 24, 89, 0.06);
 }
 
 .results-bottom-funnel-inner {
-  padding: clamp(1.75rem, 4vw, 2.75rem) clamp(1.25rem, 4vw, 2rem) 2rem;
+  padding: clamp(1.5rem, 3.5vw, 2.25rem) clamp(1.25rem, 4vw, 2rem);
 }
 
 .results-bottom-funnel-intro {
-  max-width: 40rem;
-  margin-bottom: 2rem;
+  max-width: 38rem;
+  margin-bottom: 1.35rem;
 }
 
 .results-bottom-funnel-eyebrow {
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.4rem;
   font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(7, 176, 242, 0.95);
-}
-
-.results-bottom-funnel-title {
-  margin: 0 0 0.75rem;
-  font-size: clamp(1.5rem, 3.2vw, 2rem);
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-  color: #fff;
-}
-
-.results-bottom-funnel-lead {
-  margin: 0 0 1rem;
-  font-size: 1rem;
-  line-height: 1.55;
-  color: rgba(255, 255, 255, 0.82);
-}
-
-.results-bottom-funnel-intro .wb-cta--text {
-  color: #7dd3fc;
-}
-
-.results-bottom-funnel-intro .wb-cta--text:hover {
-  color: #fff;
-}
-
-.results-bottom-funnel-grid {
-  display: grid;
-  gap: 1rem;
-}
-
-@media (min-width: 900px) {
-  .results-bottom-funnel-grid {
-    grid-template-columns: 1.15fr 1fr;
-    align-items: stretch;
-  }
-
-  .results-bottom-funnel-card--featured {
-    grid-row: span 2;
-  }
-}
-
-.results-bottom-funnel-card {
-  border-radius: 5px;
-  padding: 1.25rem 1.35rem 1.35rem;
-  background: rgba(255, 255, 255, 0.97);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
-}
-
-.results-bottom-funnel-card--featured {
-  background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 100%);
-  border-color: rgba(7, 176, 242, 0.35);
-}
-
-.results-bottom-funnel-card-kicker {
-  margin: 0 0 0.35rem;
-  font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #0369a1;
 }
 
-.results-bottom-funnel-card-title {
-  margin: 0 0 0.5rem;
-  font-size: 1.125rem;
+.results-bottom-funnel-title {
+  margin: 0 0 0.55rem;
+  font-size: clamp(1.35rem, 2.8vw, 1.75rem);
   font-weight: 700;
+  line-height: 1.25;
   letter-spacing: -0.02em;
   color: #021859;
 }
 
+.results-bottom-funnel-lead {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: #475569;
+}
+
+.results-bottom-funnel-layout {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 800px) {
+  .results-bottom-funnel-layout {
+    grid-template-columns: minmax(0, 1.4fr) minmax(14rem, 0.85fr);
+    align-items: start;
+    gap: 1.25rem 1.5rem;
+  }
+}
+
+.results-bottom-funnel-card {
+  border-radius: 5px;
+  padding: 1.25rem 1.35rem 1.35rem;
+  background: #f8fafc;
+  border: 1px solid rgba(2, 24, 89, 0.08);
+}
+
+.results-bottom-funnel-card--featured {
+  background: linear-gradient(180deg, #f0f9ff 0%, #ffffff 55%);
+  border-color: rgba(7, 176, 242, 0.28);
+}
+
 .results-bottom-funnel-card-body {
   margin: 0 0 1rem;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  color: #475569;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: #334155;
 }
 
 .results-bottom-funnel-actions {
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
+  align-items: stretch;
+}
+
+.results-bottom-funnel-text-cta {
+  margin: 0;
+  text-align: center;
+}
+
+.results-bottom-funnel-aside {
+  border-radius: 5px;
+  padding: 1.15rem 1.25rem;
+  background: #ffffff;
+  border: 1px solid rgba(2, 24, 89, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.results-bottom-funnel-aside-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #021859;
+}
+
+.results-bottom-funnel-aside-body {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #64748b;
+}
+
+.results-bottom-funnel-aside-link {
+  margin-top: 0.15rem;
+  align-self: flex-start;
 }
 
 /* ── Results SMS opt-in (beside the upgrade CTA) ── */
@@ -1468,27 +1476,6 @@ a.sr-only:focus {
   font-size: 0.82rem;
   line-height: 1.45;
   color: #475569;
-}
-
-.results-bottom-funnel-text-cta {
-  margin-top: 0.75rem;
-}
-
-.results-bottom-funnel-card .wb-cta--outline {
-  background: #fff;
-}
-
-.results-bottom-funnel-embed .bs-card,
-.results-bottom-funnel-embed--expert .bs-card {
-  border: none;
-  box-shadow: none;
-  padding: 0;
-  background: transparent;
-}
-
-.results-bottom-funnel-embed--expert .bs-h3 {
-  font-size: 1.125rem;
-  color: #021859;
 }
 
 /* ─── Snapshot email gate (pre-unlock) ─── */

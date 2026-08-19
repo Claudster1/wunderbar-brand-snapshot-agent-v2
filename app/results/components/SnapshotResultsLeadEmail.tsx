@@ -234,7 +234,7 @@ export function SnapshotResultsLeadEmail({
             ) : null}
             <button
               type="submit"
-              disabled={saving || !email.trim()}
+              disabled={saving}
               className="wb-cta wb-cta--solid wb-cta--block results-gate-capture__submit"
             >
               {saving ? "Saving…" : resultsCompleteSnapshotCtaLabel()}

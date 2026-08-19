@@ -1656,8 +1656,9 @@ a.sr-only:focus {
   width: 100%;
 }
 
-/* Same fill as `.results-gate-capture--unlock` — white text */
-.results-gate-capture--unlock .results-gate-capture__submit.wb-cta--solid {
+/* Same fill as `.results-gate-capture--unlock` — white text; never fade the brand blue */
+.results-gate-capture--unlock .results-gate-capture__submit.wb-cta--solid,
+.results-gate-capture--unlock .results-gate-capture__submit.wb-cta--solid:disabled {
   background: #07b0f2;
   border-color: #07b0f2;
   color: #ffffff;
@@ -1670,13 +1671,6 @@ a.sr-only:focus {
   border-color: #059bd8;
   color: #ffffff;
   opacity: 1;
-}
-
-.results-gate-capture--unlock .results-gate-capture__submit.wb-cta--solid:disabled {
-  background: #07b0f2;
-  border-color: #07b0f2;
-  color: #ffffff;
-  opacity: 0.55;
 }
 
 .results-gate-capture__error {

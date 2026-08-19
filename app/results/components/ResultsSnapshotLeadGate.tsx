@@ -6,8 +6,7 @@ import { ResultsCheckIcon } from "@/components/results/BrandIcons";
 import { ResultsEmailUnlockStickyCta } from "@/app/results/components/ResultsEmailUnlockStickyCta";
 import {
   resultsEmailGateIncludedEyebrow,
-  resultsEmailGateLockedBannerBody,
-  resultsEmailGateLockedBannerCta,
+  resultsEmailGateUnlockHint,
 } from "@/lib/copy/resultsEmailGateCopy";
 import {
   readResultsEmailGateUnlocked,
@@ -69,10 +68,6 @@ export function ResultsSnapshotLeadGate({
     }
   }, [reportId]);
 
-  const scrollToEmail = useCallback(() => {
-    document.getElementById("email-results")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, []);
-
   const showEmailBlock = requiresEmailGate;
   const gateActive = showEmailBlock && !contentUnlocked;
 
@@ -111,13 +106,7 @@ export function ResultsSnapshotLeadGate({
                     </li>
                   ))}
                 </ul>
-                <button
-                  type="button"
-                  onClick={scrollToEmail}
-                  className="wb-cta wb-cta--text results-gate-included-band__scroll-hint"
-                >
-                  ↑ Back to the form
-                </button>
+                <p className="results-gate-included-band__hint">{resultsEmailGateUnlockHint()}</p>
               </div>
             </section>
           ) : null}
@@ -129,20 +118,7 @@ export function ResultsSnapshotLeadGate({
           {children}
           {afterUnlock}
         </>
-      ) : (
-        <section className="results-gated-preview-only scroll-mt-4">
-          <div className="results-gated-preview-banner">
-            <p className="results-gated-preview-banner__text m-0">{resultsEmailGateLockedBannerBody()}</p>
-            <button
-              type="button"
-              onClick={scrollToEmail}
-              className="wb-cta wb-cta--solid results-gated-preview-banner__btn"
-            >
-              {resultsEmailGateLockedBannerCta()}
-            </button>
-          </div>
-        </section>
-      )}
+      ) : null}
     </>
   );
 }

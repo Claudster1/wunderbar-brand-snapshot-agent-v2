@@ -95,7 +95,17 @@ export function MainGauge({ score }: { score: number }) {
   ];
 
   return (
-    <div data-snapshot-gauge-row style={{ display: "flex", alignItems: "center", gap: 32, flexWrap: "wrap", justifyContent: "center" }}>
+    <div
+      data-snapshot-gauge-row
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 32,
+        flexWrap: "wrap",
+        justifyContent: "center",
+        width: "100%",
+      }}
+    >
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
         <svg width={width} height={svgHeight} viewBox={`0 0 ${width} ${svgHeight}`} aria-label={`WunderBrand Score ${safeScore} out of 100`}>
           {segments.map((segment, index) => (

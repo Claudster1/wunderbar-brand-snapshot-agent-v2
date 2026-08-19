@@ -347,11 +347,23 @@ export function SnapshotDocumentResults({
           <SectionTitle hero description="A composite measure of how clearly and consistently your brand communicates across all five pillars.">
             WunderBrand Score™
           </SectionTitle>
-          <MainGauge score={score} />
-          <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 28 }}>
-            <SignalRail label="Diagnosis" color={NAVY}>{resolvedDiagnosis}</SignalRail>
-            <SignalRail label="Primary Opportunity" color={GREEN}>{resolvedOpportunity}</SignalRail>
-            <SignalRail label="Risk if Unchanged" color={ORANGE}>{resolvedRisk}</SignalRail>
+          {/* Shared column so the gauge centers over the diagnosis copy, not the full card. */}
+          <div
+            data-snapshot-score-stack
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 28,
+              maxWidth: "36rem",
+              width: "100%",
+            }}
+          >
+            <MainGauge score={score} />
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <SignalRail label="Diagnosis" color={NAVY}>{resolvedDiagnosis}</SignalRail>
+              <SignalRail label="Primary Opportunity" color={GREEN}>{resolvedOpportunity}</SignalRail>
+              <SignalRail label="Risk if Unchanged" color={ORANGE}>{resolvedRisk}</SignalRail>
+            </div>
           </div>
         </Section>
 
@@ -394,9 +406,9 @@ function SummaryCard({
 
 function SignalRail({ label, color, children }: { label: string; color: string; children: ReactNode }) {
   return (
-    <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+    <div style={{ display: "flex", gap: 12, alignItems: "flex-start", width: "100%" }}>
       <div style={{ width: 4, minHeight: 40, borderRadius: 2, background: color, flexShrink: 0, marginTop: 2 }} />
-      <div>
+      <div style={{ minWidth: 0, flex: 1 }}>
         <div style={{ fontSize: 12, fontWeight: 900, color: SUB, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3 }}>{label}</div>
         <div style={{ fontSize: 16, color: "#1A1A2E", lineHeight: 1.6 }}>{children}</div>
       </div>

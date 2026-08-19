@@ -187,11 +187,11 @@ export function SnapshotResultsLeadEmail({
             </>
           ) : (
             <header className="results-gate-capture__header">
-              <p className="results-gate-capture__eyebrow m-0 mb-2">One quick preference</p>
-              <h2 className="bs-h3 m-0 mb-2 text-brand-navy">Almost done</h2>
+              <p className="results-gate-capture__eyebrow m-0 mb-2">Optional</p>
+              <h2 className="bs-h3 m-0 mb-2 text-brand-navy">Want occasional brand tips?</h2>
               <p className="results-gate-capture__lead m-0">
-                Optional: choose whether you want occasional brand tips — then your full report opens
-                below.
+                Your full Snapshot is unlocked below — and a copy is on its way to your inbox. This step
+                only sets whether you’d like tip emails later.
               </p>
             </header>
           )}
@@ -240,7 +240,7 @@ export function SnapshotResultsLeadEmail({
               {saving ? "Saving…" : resultsCompleteSnapshotCtaLabel()}
             </button>
             <p className="results-gate-capture__legal">
-              We use your email to deliver this diagnostic and save your links.{" "}
+              We’ll unlock your report on this page and email you a copy with your saved links.{" "}
               <a
                 href="https://wunderbardigital.com/privacy-policy?utm_source=results_page&utm_medium=lead_email&utm_campaign=privacy&utm_content=privacy_policy"
                 target="_blank"
@@ -289,7 +289,7 @@ export function SnapshotResultsLeadEmail({
               disabled={saving || !contentOptIn}
               className="wb-cta wb-cta--solid wb-cta--block results-gate-capture__submit"
             >
-              {saving ? "Saving…" : `Save & open my full ${productName}`}
+              {saving ? "Saving…" : "Save preference"}
             </button>
             <button
               type="button"
@@ -301,7 +301,7 @@ export function SnapshotResultsLeadEmail({
                 setContentOptIn(null);
               }}
             >
-              Back to email
+              Change email
             </button>
           </form>
         )}

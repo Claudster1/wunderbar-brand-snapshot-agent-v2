@@ -6,7 +6,7 @@ export function resultsCompleteSnapshotHeadline(productName: string): string {
 }
 
 export function resultsCompleteSnapshotCtaLabel(): string {
-  return "Unlock free on this page";
+  return "Unlock my results";
 }
 
 /** Short status above the headline — no product-name repeat. */

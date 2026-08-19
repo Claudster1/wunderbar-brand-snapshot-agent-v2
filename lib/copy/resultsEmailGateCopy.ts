@@ -20,7 +20,7 @@ export const RESULTS_EMAIL_GATE_UNLOCK_ITEMS = [
   "Ranked priority actions for your brand",
 ] as const;
 
-/** Marketing preference step — after email unlock (report already open on-page). */
+/** Soft tips ask — only right after unlock; email already captured. */
 export function resultsEmailGatePreferenceEyebrow(): string {
   return "Stay in the loop";
 }
@@ -30,5 +30,13 @@ export function resultsEmailGatePreferenceHeadline(): string {
 }
 
 export function resultsEmailGatePreferenceLead(): string {
-  return "Your full Snapshot is unlocked below — and a copy is on its way to your inbox. Choose what you’d like to stay current on so you keep pace with what’s working in branding, marketing, and AI for business.";
+  return "Your Snapshot is unlocked on this page, and a copy is headed to your inbox. Choose what you’d like to stay current on — branding, marketing, and AI for business.";
+}
+
+export function resultsEmailGatePreferenceSaveLabel(): string {
+  return "Save my choice";
+}
+
+export function resultsEmailGatePreferenceSkipLabel(): string {
+  return "Not now";
 }

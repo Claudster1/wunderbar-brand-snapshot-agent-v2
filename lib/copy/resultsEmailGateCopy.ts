@@ -30,5 +30,5 @@ export function resultsEmailGatePreferenceHeadline(): string {
 }
 
 export function resultsEmailGatePreferenceLead(): string {
-  return "Your full Snapshot is unlocked below — and a copy is on its way to your inbox. Opt in for practical tips so you keep pace with what’s working in branding, marketing, and AI for business.";
+  return "Your full Snapshot is unlocked below — and a copy is on its way to your inbox. Choose what you’d like to stay current on so you keep pace with what’s working in branding, marketing, and AI for business.";
 }

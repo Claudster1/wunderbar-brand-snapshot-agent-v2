@@ -1250,10 +1250,13 @@ export default function ResultsTabsShell({
     const foundationTab = TAB_DEFINITIONS.find((t) => t.id === "foundation");
     const standardsTab = TAB_DEFINITIONS.find((t) => t.id === "standards");
     if (activeTab === "results") {
+      // Paid suite: hand off into Foundation. Free Snapshot has no unlocked suite tabs —
+      // "Download Your Report" used to open a locked Downloads tab and competed with the
+      // email unlock + SuiteCTA / ResultsBottomFunnel upgrade path.
       if (foundationTab && isTabAvailable(foundationTab, productTier)) {
         return [{ id: "foundation" as ResultsTab, label: "Open Foundation Platform" }];
       }
-      return [{ id: "downloads" as ResultsTab, label: "Download Your Report" }];
+      return [];
     }
     if (activeTab === "foundation") {
       return [{ id: "strategy" as ResultsTab, label: "Review Strategic Plan" }];

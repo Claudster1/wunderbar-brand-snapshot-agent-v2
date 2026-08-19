@@ -6,7 +6,6 @@ import { ResultsCheckIcon } from "@/components/results/BrandIcons";
 import { ResultsEmailUnlockStickyCta } from "@/app/results/components/ResultsEmailUnlockStickyCta";
 import {
   resultsCompleteSnapshotCtaLabel,
-  resultsCompleteSnapshotHeadline,
 } from "@/lib/copy/resultsEmailGateCopy";
 import {
   readResultsEmailGateUnlocked,
@@ -97,9 +96,9 @@ export function ResultsSnapshotLeadGate({
               aria-labelledby="results-gate-included-heading"
             >
               <div className="results-gate-included-band__inner">
-                <p className="results-gate-included-band__eyebrow">Included in your full report</p>
+                <p className="results-gate-included-band__eyebrow">Included with your email</p>
                 <h2 id="results-gate-included-heading" className="results-gate-included-band__title">
-                  {resultsCompleteSnapshotHeadline(productName)}
+                  What you’ll unlock
                 </h2>
                 <ul className="results-gate-included-band__list">
                   {UNLOCK_PREVIEW_ITEMS.map((label) => (
@@ -114,14 +113,14 @@ export function ResultsSnapshotLeadGate({
                   onClick={scrollToEmail}
                   className="wb-cta wb-cta--outline wb-cta--block results-gate-included-band__cta"
                 >
-                  {completeLabel}
+                  Enter your email above
                 </button>
                 <button
                   type="button"
                   onClick={scrollToEmail}
                   className="wb-cta wb-cta--text results-gate-included-band__scroll-hint"
                 >
-                  ↑ Back to the form above
+                  ↑ Back to the form
                 </button>
               </div>
             </section>

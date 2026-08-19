@@ -112,6 +112,30 @@ export function stripIntakeJsonFromAssistantText(text: string): string {
   return out.replace(/\n{3,}/g, "\n\n").trim();
 }
 
+/**
+ * Aggressive strip for live streaming — hide JSON as soon as a fence or object starts,
+ * so users never see scoring payloads flash before the stream finishes.
+ */
+export function stripStreamingAssistantDisplay(text: string): string {
+  const raw = String(text || "");
+  // Cut at opening JSON fence immediately (even before keys arrive).
+  const fenceIdx = raw.search(/```(?:json)?\s*[\r\n]*\s*\{/);
+  if (fenceIdx >= 0) {
+    return raw.slice(0, fenceIdx).replace(/\n{3,}/g, "\n\n").trim();
+  }
+  // Cut at a bare `{` that already looks like intake / scoring JSON.
+  const objIdx = raw.search(/\{[\s\S]*"(?:userName|businessName|brandAlignmentScore|industry)"/);
+  if (objIdx >= 0) {
+    return raw.slice(0, objIdx).replace(/\n{3,}/g, "\n\n").trim();
+  }
+  // Late stream: model opens `{` right after handoff with no keys yet — hide from last line-start `{`.
+  const lateOpen = raw.search(/\n\{[\s\S]*$/);
+  if (lateOpen >= 0 && /(?:finaliz|redirect|results page|WunderBrand Snapshot™)/i.test(raw.slice(0, lateOpen))) {
+    return raw.slice(0, lateOpen).replace(/\n{3,}/g, "\n\n").trim();
+  }
+  return stripIntakeJsonFromAssistantText(raw);
+}
+
 /** Display prose + optional parsed payload for scoring. */
 export function splitAssistantIntakePayload(text: string): {
   displayText: string;

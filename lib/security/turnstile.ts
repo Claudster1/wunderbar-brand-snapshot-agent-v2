@@ -2,13 +2,9 @@
 // Server-side Cloudflare Turnstile token verification.
 // Docs: https://developers.cloudflare.com/turnstile/get-started/server-side-validation/
 
+import { isTurnstileEnforced } from "@/lib/security/turnstilePolicy";
+
 const TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
-const ENABLE_IN_DEV =
-  process.env.ENABLE_TURNSTILE_DEV === "true" ||
-  process.env.NEXT_PUBLIC_ENABLE_TURNSTILE_DEV === "true";
-const HAS_SITE_KEY = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
-const SHOULD_ENFORCE_TURNSTILE =
-  process.env.NODE_ENV === "production" || (ENABLE_IN_DEV && HAS_SITE_KEY);
 
 export interface TurnstileResult {
   success: boolean;
@@ -23,16 +19,13 @@ export interface TurnstileResult {
  * Verify a Turnstile token server-side.
  * Returns { success: true } if valid, { success: false } otherwise.
  *
- * In development (NODE_ENV !== 'production') with no TURNSTILE_SECRET_KEY,
- * verification is skipped. In production, missing key = fail.
+ * Skipped when Turnstile is not enforced (local/dev default, Vercel Preview).
  */
 export async function verifyTurnstileToken(
   token: string | null | undefined,
   remoteIp?: string
 ): Promise<TurnstileResult> {
-  // Keep Turnstile optional in local/dev by default.
-  // This matches the client widget behavior and avoids false negatives in local QA.
-  if (!SHOULD_ENFORCE_TURNSTILE) {
+  if (!isTurnstileEnforced()) {
     return { success: true };
   }
 

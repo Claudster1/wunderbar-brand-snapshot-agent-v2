@@ -21,7 +21,10 @@ import {
   setEmailMarketingOptInPreference,
 } from "@/lib/smsConsent";
 import { TurnstileWidget } from "@/components/security/TurnstileWidget";
+import { isTurnstileEnforced } from "@/lib/security/turnstilePolicy";
 import type { SnapshotContentOptIn } from "@/lib/snapshot/snapshotContentOptIn";
+
+const TURNSTILE_REQUIRED = isTurnstileEnforced();
 
 interface EmailVerificationGateProps {
   reportId: string;
@@ -163,7 +166,7 @@ export function EmailVerificationGate({
         setError("Choose one option to continue.");
         return;
       }
-      if (!turnstileToken) {
+      if (TURNSTILE_REQUIRED && !turnstileToken) {
         setError("Security check is still loading — wait a second and try again.");
         return;
       }

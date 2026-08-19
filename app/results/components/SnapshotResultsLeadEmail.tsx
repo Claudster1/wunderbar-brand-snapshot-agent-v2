@@ -11,6 +11,7 @@ import {
   resultsCompleteSnapshotHeadline,
 } from "@/lib/copy/resultsEmailGateCopy";
 import type { SnapshotContentOptIn } from "@/lib/snapshot/snapshotContentOptIn";
+import { isTurnstileEnforced } from "@/lib/security/turnstilePolicy";
 
 type Props = {
   reportId: string;
@@ -27,6 +28,8 @@ const INSIGHTS_CHOICES: Array<{ value: SnapshotContentOptIn; label: string }> = 
   { value: "both", label: "Both — send me everything useful" },
   { value: "no_thanks", label: "No thanks — just the diagnostic" },
 ];
+
+const TURNSTILE_REQUIRED = isTurnstileEnforced();
 
 export function SnapshotResultsLeadEmail({
   reportId,
@@ -62,7 +65,7 @@ export function SnapshotResultsLeadEmail({
         setError("Enter a valid email address.");
         return;
       }
-      if (!turnstileToken) {
+      if (TURNSTILE_REQUIRED && !turnstileToken) {
         setError("Security check is still loading — wait a second and try again.");
         return;
       }
@@ -113,7 +116,7 @@ export function SnapshotResultsLeadEmail({
         setError("Choose one option above.");
         return;
       }
-      if (!turnstileToken) {
+      if (TURNSTILE_REQUIRED && !turnstileToken) {
         setError("Security check is still loading — wait a second and try again.");
         return;
       }

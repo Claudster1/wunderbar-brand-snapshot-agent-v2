@@ -30,6 +30,7 @@ import { mergeExtractedWithFallback } from '@/lib/intake/transcriptAnswerFallbac
 import {
   splitAssistantIntakePayload,
   stripIntakeJsonFromAssistantText,
+  stripStreamingAssistantDisplay,
 } from '@/lib/intake/stripAssistantJsonPayload';
 import {
   getQaSeedTurns,
@@ -855,9 +856,11 @@ export function useBrandChat(options?: UseBrandChatOptions) {
         signal: ac.signal,
         onToken: (token) => {
           setMessages((prev) =>
-            prev.map((m) =>
-              m.id === streamingMessageId ? { ...m, text: m.text + token } : m,
-            ),
+            prev.map((m) => {
+              if (m.id !== streamingMessageId) return m;
+              const next = m.text + token;
+              return { ...m, text: stripStreamingAssistantDisplay(next) };
+            }),
           );
         },
       });

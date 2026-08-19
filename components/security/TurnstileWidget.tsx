@@ -6,6 +6,7 @@
 // Parent reads the token via the callback or the ref.
 
 import { useEffect, useRef, useCallback } from "react";
+import { isTurnstileEnforced } from "@/lib/security/turnstilePolicy";
 
 declare global {
   interface Window {
@@ -28,9 +29,7 @@ interface TurnstileWidgetProps {
 }
 
 const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "";
-const ENABLE_IN_DEV = process.env.NEXT_PUBLIC_ENABLE_TURNSTILE_DEV === "true";
-const SHOULD_ENABLE_TURNSTILE =
-  Boolean(SITE_KEY) && (process.env.NODE_ENV === "production" || ENABLE_IN_DEV);
+const SHOULD_ENABLE_TURNSTILE = isTurnstileEnforced() && Boolean(SITE_KEY);
 
 export function TurnstileWidget({ onToken, onError }: TurnstileWidgetProps) {
   const containerRef = useRef<HTMLDivElement>(null);

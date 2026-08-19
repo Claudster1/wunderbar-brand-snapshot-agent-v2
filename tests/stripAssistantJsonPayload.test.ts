@@ -3,6 +3,7 @@ import {
   extractIntakeJsonPayload,
   splitAssistantIntakePayload,
   stripIntakeJsonFromAssistantText,
+  stripStreamingAssistantDisplay,
 } from "@/lib/intake/stripAssistantJsonPayload";
 
 describe("stripAssistantJsonPayload", () => {
@@ -50,5 +51,12 @@ describe("stripAssistantJsonPayload", () => {
     const q = "Where do you mainly serve customers — locally, regionally, nationally, or globally?";
     expect(stripIntakeJsonFromAssistantText(q)).toBe(q);
     expect(extractIntakeJsonPayload(q).payload).toBeNull();
+  });
+
+  it("hides JSON mid-stream as soon as a fence opens", () => {
+    const partial = `Your WunderBrand Snapshot™ is being finalized now.\n\n\`\`\`json\n{\n  "userName":`;
+    expect(stripStreamingAssistantDisplay(partial)).toMatch(/finalized now/i);
+    expect(stripStreamingAssistantDisplay(partial)).not.toContain("```");
+    expect(stripStreamingAssistantDisplay(partial)).not.toContain("userName");
   });
 });

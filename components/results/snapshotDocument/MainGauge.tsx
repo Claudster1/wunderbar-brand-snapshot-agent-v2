@@ -87,11 +87,11 @@ export function MainGauge({ score }: { score: number }) {
   const needleBaseTwo = point(needleAngle - 90, 2.5);
   const needleTail = point(needleAngle + 180, 14);
   const ranges = [
-    { label: "Critical", min: 0, max: 19, color: RED_S },
-    { label: "Weak", min: 20, max: 39, color: ORANGE },
-    { label: "Fair", min: 40, max: 59, color: YELLOW },
-    { label: "Good", min: 60, max: 79, color: GOOD_GREEN },
     { label: "Strong", min: 80, max: 100, color: GREEN },
+    { label: "Good", min: 60, max: 79, color: GOOD_GREEN },
+    { label: "Fair", min: 40, max: 59, color: YELLOW },
+    { label: "Weak", min: 20, max: 39, color: ORANGE },
+    { label: "Critical", min: 0, max: 19, color: RED_S },
   ];
 
   return (

@@ -147,11 +147,11 @@ function MainGauge({ score }: { score: number }) {
   const nTail = pol(nAngle + 180, 14);
 
   const scoreRanges = [
-    { label: "Critical", min: 0, max: 19, color: RED_S },
-    { label: "Weak", min: 20, max: 39, color: ORANGE },
-    { label: "Fair", min: 40, max: 59, color: YELLOW },
-    { label: "Good", min: 60, max: 79, color: GOOD_GREEN },
     { label: "Strong", min: 80, max: 100, color: GREEN },
+    { label: "Good", min: 60, max: 79, color: GOOD_GREEN },
+    { label: "Fair", min: 40, max: 59, color: YELLOW },
+    { label: "Weak", min: 20, max: 39, color: ORANGE },
+    { label: "Critical", min: 0, max: 19, color: RED_S },
   ];
 
   const tickNums = [0, 20, 40, 60, 80, 100];

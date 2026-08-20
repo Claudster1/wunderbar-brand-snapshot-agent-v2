@@ -1,5 +1,5 @@
 // src/pdf/components/ExpectationBlock.tsx
-// PDF component explaining how the Snapshot+ report was generated
+// PDF component explaining how the Snapshot+ was generated
 
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
 import { pdfTheme } from "../theme";
@@ -27,11 +27,11 @@ export function ExpectationBlock() {
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>
-        About this report
+        About this diagnostic
       </Text>
 
       <Text style={styles.body}>
-        This Snapshot+™ report is based on the information you provided during
+        This Snapshot+™ is based on the information you provided during
         the WunderBrand Snapshot™. Insights reflect current brand signals and patterns.
         Additional context can be added over time to deepen recommendations.
       </Text>

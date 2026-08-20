@@ -1,43 +1,66 @@
 // src/pdf/components/PageTitle.tsx
-// Reusable page title component for PDF documents
+// Suite intro-band title (eyebrow + title + guidance)
 
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
-import { pdfTheme } from "../theme";
+import {
+  SUITE_ACCENT_BRIGHT,
+  SUITE_MUTED,
+  SUITE_NAVY,
+  SUITE_RADIUS_LG,
+} from "@/components/results/suiteBrandTokens";
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: pdfTheme.spacing.md,
-    marginHorizontal: 22,
-    paddingHorizontal: 14,
-    paddingVertical: pdfTheme.spacing.md,
-    backgroundColor: "#F3F8FF",
-    borderBottom: "1px solid #DDE6F2",
-    borderRadius: 6,
+    marginBottom: 14,
+    marginHorizontal: 28,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderWidth: 1,
+    borderColor: "rgba(7, 176, 242, 0.22)",
+    borderRadius: SUITE_RADIUS_LG,
+    borderLeftWidth: 3,
+    borderLeftColor: "rgba(7, 176, 242, 0.55)",
+    backgroundColor: "#FFFFFF",
+  },
+  eyebrow: {
+    fontFamily: "Lato",
+    fontSize: 9,
+    fontWeight: 700,
+    letterSpacing: 1.1,
+    color: SUITE_ACCENT_BRIGHT,
+    textTransform: "uppercase",
+    marginBottom: 5,
   },
   title: {
-    fontFamily: "Helvetica",
-    fontSize: 18,
+    fontFamily: "Lato",
+    fontSize: 16,
     fontWeight: 700,
-    color: pdfTheme.colors.navy,
-    marginBottom: 6,
+    color: SUITE_NAVY,
+    letterSpacing: -0.3,
+    lineHeight: 1.25,
+    marginBottom: 4,
   },
   subtitle: {
-    fontFamily: "Helvetica",
-    fontSize: pdfTheme.fontSizes.sm,
-    color: "#34445E",
-    lineHeight: 1.45,
+    fontFamily: "Lato",
+    fontSize: 10,
+    fontWeight: 400,
+    color: SUITE_MUTED,
+    lineHeight: 1.5,
   },
 });
 
 export const PageTitle = ({
   title,
   subtitle,
+  eyebrow = "WunderBrand",
 }: {
   title: string;
   subtitle?: string;
+  eyebrow?: string;
 }) => (
   <View style={styles.container}>
+    {eyebrow ? <Text style={styles.eyebrow}>{eyebrow}</Text> : null}
     <Text style={styles.title}>{title}</Text>
-    {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+    {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
   </View>
 );

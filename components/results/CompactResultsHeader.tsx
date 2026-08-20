@@ -49,7 +49,6 @@ export default function CompactResultsHeader({
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const resultsDate = useMemo(() => formatDate(reportDateIso), [reportDateIso]);
-  const showOverflowMenu = Boolean(exportPdfHref || onGoToDownloads);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -234,7 +233,34 @@ export default function CompactResultsHeader({
         >
           ?
         </button>
-        {showOverflowMenu ? (
+        {exportPdfHref ? (
+          <a
+            href={exportPdfHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              minHeight: 32,
+              padding: "0 12px",
+              borderRadius: 5,
+              border: `1.5px solid ${SUITE_ACCENT_BRIGHT}`,
+              backgroundColor: SUITE_ACCENT_BRIGHT,
+              color: "#FFFFFF",
+              fontSize: 11,
+              fontWeight: 800,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              textDecoration: "none",
+              fontFamily: SUITE_FONT_UI,
+              whiteSpace: "nowrap",
+            }}
+          >
+            Export PDF
+          </a>
+        ) : null}
+        {onGoToDownloads ? (
           <div style={{ position: "relative" }} ref={menuRef}>
             <button
               type="button"
@@ -275,77 +301,39 @@ export default function CompactResultsHeader({
                   overflow: "hidden",
                 }}
               >
-                {exportPdfHref ? (
-                  <a
-                    href={exportPdfHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => setMenuOpen(false)}
-                    style={{
-                      width: "100%",
-                      padding: "12px 16px",
-                      background: "none",
-                      border: "none",
-                      textAlign: "left",
-                      fontSize: 14,
-                      fontWeight: 500,
-                      color: SUITE_TEXT_PRIMARY,
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 10,
-                      fontFamily: SUITE_FONT_UI,
-                      textDecoration: "none",
-                      boxSizing: "border-box",
-                    }}
-                    onMouseEnter={(event) => {
-                      event.currentTarget.style.backgroundColor = "rgba(0, 0, 0, 0.04)";
-                    }}
-                    onMouseLeave={(event) => {
-                      event.currentTarget.style.backgroundColor = "transparent";
-                    }}
-                  >
-                    <span style={{ width: 16, color: SUITE_CHROME_MUTED, fontSize: 14 }} aria-hidden>
-                      ↓
-                    </span>
-                    Export PDF
-                  </a>
-                ) : null}
-                {onGoToDownloads ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onGoToDownloads();
-                      setMenuOpen(false);
-                    }}
-                    style={{
-                      width: "100%",
-                      padding: "12px 16px",
-                      background: "none",
-                      border: "none",
-                      textAlign: "left",
-                      fontSize: 14,
-                      fontWeight: 500,
-                      color: SUITE_TEXT_PRIMARY,
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 10,
-                      fontFamily: SUITE_FONT_UI,
-                    }}
-                    onMouseEnter={(event) => {
-                      event.currentTarget.style.backgroundColor = "rgba(0, 0, 0, 0.04)";
-                    }}
-                    onMouseLeave={(event) => {
-                      event.currentTarget.style.backgroundColor = "transparent";
-                    }}
-                  >
-                    <span style={{ width: 16, color: SUITE_CHROME_MUTED, fontSize: 14 }} aria-hidden>
-                      ↓
-                    </span>
-                    Go to Downloads
-                  </button>
-                ) : null}
+                <button
+                  type="button"
+                  onClick={() => {
+                    onGoToDownloads();
+                    setMenuOpen(false);
+                  }}
+                  style={{
+                    width: "100%",
+                    padding: "12px 16px",
+                    background: "none",
+                    border: "none",
+                    textAlign: "left",
+                    fontSize: 14,
+                    fontWeight: 500,
+                    color: SUITE_TEXT_PRIMARY,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    fontFamily: SUITE_FONT_UI,
+                  }}
+                  onMouseEnter={(event) => {
+                    event.currentTarget.style.backgroundColor = "rgba(0, 0, 0, 0.04)";
+                  }}
+                  onMouseLeave={(event) => {
+                    event.currentTarget.style.backgroundColor = "transparent";
+                  }}
+                >
+                  <span style={{ width: 16, color: SUITE_CHROME_MUTED, fontSize: 14 }} aria-hidden>
+                    ↓
+                  </span>
+                  Go to Downloads
+                </button>
               </div>
             ) : null}
           </div>

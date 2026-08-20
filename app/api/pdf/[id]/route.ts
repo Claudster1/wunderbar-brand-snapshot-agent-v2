@@ -91,8 +91,8 @@ export async function GET(
     }
 
     const filename = plus
-      ? `SnapshotPlus_Report_${id}.pdf`
-      : `BrandSnapshot_Report_${id}.pdf`;
+      ? `SnapshotPlus_${id}.pdf`
+      : `BrandSnapshot_${id}.pdf`;
 
     // Default: return PDF download
     return new NextResponse(pdfBuffer as any, {

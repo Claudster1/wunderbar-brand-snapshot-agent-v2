@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
   page: {
     padding: 42,
     fontSize: 10.5,
-    fontFamily: "Helvetica",
+    fontFamily: "Lato",
     color: pdfTheme.colors.text,
     lineHeight: 1.6,
   },
@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   card: {
-    backgroundColor: "#F8FBFF",
+    backgroundColor: "#FFFFFF",
     borderRadius: 8,
     padding: 12,
     marginBottom: 10,

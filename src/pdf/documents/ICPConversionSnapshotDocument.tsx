@@ -5,12 +5,16 @@ import { pdfTheme } from "../theme";
 import type { BlueprintEngineOutput } from "../types/blueprintReport";
 import { DisclaimerPage } from "../components/DisclaimerPage";
 import { PdfHeader } from "../components/PdfHeader";
+import { PdfFooter } from "../components/PdfFooter";
+import { registerPdfFonts } from "../registerFonts";
 import { parseHexAccent } from "@/src/pdf/lib/promptPackDisplay";
 import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
 
+registerPdfFonts();
+
 const s = StyleSheet.create({
-  page: { padding: 48, paddingBottom: 92, fontFamily: "Helvetica", fontSize: 10, color: pdfTheme.colors.text, lineHeight: 1.6 },
-  cover: { padding: 42, fontFamily: "Helvetica", justifyContent: "center", alignItems: "center", backgroundColor: pdfTheme.colors.navy },
+  page: { paddingTop: 72, paddingHorizontal: 36, paddingBottom: 72, fontFamily: "Lato", backgroundColor: "#F5F5F7", fontSize: 10, color: pdfTheme.colors.text, lineHeight: 1.6 },
+  cover: { padding: 42, fontFamily: "Lato", justifyContent: "center", alignItems: "center", backgroundColor: pdfTheme.colors.navy },
   logo: { width: 100, marginBottom: 30, opacity: 0.9 },
   coverTitle: { fontSize: 24, fontWeight: "bold", color: "#FFFFFF", textAlign: "center", marginBottom: 6 },
   coverSub: { fontSize: 12, color: pdfTheme.colors.aqua, textAlign: "center", marginBottom: 24 },
@@ -19,8 +23,8 @@ const s = StyleSheet.create({
   h2: { fontSize: 12, fontWeight: "bold", color: pdfTheme.colors.navy, marginBottom: 5, marginTop: 10 },
   body: { fontSize: 10, lineHeight: 1.6, marginBottom: 6, color: pdfTheme.colors.text },
   small: { fontSize: 9, color: pdfTheme.colors.muted, lineHeight: 1.45 },
-  card: { backgroundColor: "#F8FBFF", borderRadius: 8, padding: 12, marginBottom: 10, border: `1 solid ${pdfTheme.colors.border}` },
-  accentCard: { backgroundColor: "#EFF6FF", borderRadius: 8, padding: 12, marginBottom: 10, borderLeft: `3 solid ${pdfTheme.colors.blue}`, border: "1 solid #D9E8FF" },
+  card: { backgroundColor: "#FFFFFF", borderRadius: 8, padding: 12, marginBottom: 10, border: `1 solid ${pdfTheme.colors.border}` },
+  accentCard: { backgroundColor: "#FFFFFF", borderRadius: 8, padding: 12, marginBottom: 10, borderLeft: `3 solid ${pdfTheme.colors.blue}`, border: "1 solid #D2D2D7" },
   bullet: { fontSize: 10, lineHeight: 1.55, marginBottom: 3, paddingLeft: 10 },
   footer: { position: "absolute", bottom: 22, left: 48, right: 48, flexDirection: "row", justifyContent: "space-between" },
   footerText: { fontSize: 7, color: "#9CA3AF" },
@@ -68,10 +72,7 @@ export function ICPConversionSnapshotDocument({ data, brandName }: Props) {
       </Page>
 
       <Page size="A4" style={s.page} wrap>
-        <View style={s.footer} fixed>
-          <Text style={s.footerText}>ICP Conversion Snapshot — {brandName}</Text>
-          <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
-        </View>
+        <PdfFooter businessName={brandName} productName="ICP Conversion Snapshot" showPageNumbers />
         <PdfHeader title="ICP Conversion Snapshot" businessName={brandName} date={printedDate} accentHex={brandAccent} />
 
         <Text style={s.h1}>Conversion Profile (Lite)</Text>

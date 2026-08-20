@@ -63,44 +63,54 @@ function getBlueprintRoadmap(campaignArchitectureStarter?: string) {
 // Styles
 const styles = StyleSheet.create({
   page: {
-    fontFamily: "Helvetica",
+    fontFamily: "Lato",
     fontSize: 11,
-    paddingTop: PDF_HEADER_RESERVED,
-    paddingBottom: PDF_FOOTER_RESERVED,
+    paddingTop: PDF_HEADER_RESERVED + 8,
+    paddingBottom: PDF_FOOTER_RESERVED + 4,
     paddingHorizontal: 0,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F5F5F7",
   },
   heading: {
-    fontSize: 15,
-    fontWeight: 600,
-    color: "#0F2A57",
+    fontFamily: "Lato",
+    fontSize: 9,
+    fontWeight: 700,
+    color: pdfTheme.colors.blue,
     marginBottom: 6,
     textTransform: "uppercase",
-    letterSpacing: 0.8,
+    letterSpacing: 1,
   },
   subheading: {
+    fontFamily: "Lato",
     fontSize: 12,
-    fontWeight: 600,
-    color: pdfTheme.colors.midnight,
+    fontWeight: 700,
+    color: pdfTheme.colors.navy,
     marginTop: 8,
     marginBottom: 6,
+    letterSpacing: -0.2,
   },
   para: {
-    fontSize: 11,
-    color: pdfTheme.colors.midnight,
+    fontFamily: "Lato",
+    fontSize: 10,
+    color: pdfTheme.colors.text,
     lineHeight: 1.55,
     marginBottom: 10,
   },
   heroCard: {
-    backgroundColor: "#F3F8FF",
-    border: "1px solid #DCE7F5",
-    borderRadius: 10,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: pdfTheme.colors.border,
+    borderLeftWidth: 3,
+    borderLeftColor: "rgba(7, 176, 242, 0.55)",
+    borderRadius: 12,
     padding: 14,
   },
   signalCard: {
-    backgroundColor: "#F7FAFF",
-    border: "1px solid #DCE7F5",
-    borderRadius: 10,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: pdfTheme.colors.border,
+    borderLeftWidth: 3,
+    borderLeftColor: "rgba(7, 176, 242, 0.55)",
+    borderRadius: 12,
     padding: 14,
     marginBottom: 8,
   },
@@ -223,13 +233,18 @@ export const BrandBlueprintPDF = ({
   const archetypeMeaning = getArchetypeMeaning(brandArchetype);
   const archetypeIcon = getArchetypeIcon(brandArchetype);
   const roadmap = getBlueprintRoadmap(campaignArchitectureStarter);
+  const headerChrome = {
+    businessName,
+    date: reportDate,
+    productName: "WunderBrand Blueprint™" as const,
+  };
 
   return (
     <Document>
       {/* ------------ FOUNDATION CONTEXT (IF AVAILABLE) ------------ */}
       {(typeof brandAlignmentScore === "number" || pillarScores) && (
         <Page size="A4" style={styles.page}>
-          <PdfHeader title="Foundation Context" />
+          <PdfHeader title="Foundation Context" {...headerChrome} />
           <PageTitle
             title="Snapshot Foundation Carryover"
             subtitle="Baseline diagnostics carried into your Blueprint strategy"
@@ -318,7 +333,7 @@ export const BrandBlueprintPDF = ({
 
       {/* ------------ PAGE 1 — EXECUTIVE SUMMARY ------------ */}
       <Page size="A4" style={styles.page}>
-        <PdfHeader title="WunderBrand Blueprint™" businessName={businessName} date={reportDate} />
+        <PdfHeader title="Executive Summary" {...headerChrome} />
 
         <PageTitle
           title="Your WunderBrand Blueprint™"
@@ -346,7 +361,7 @@ export const BrandBlueprintPDF = ({
 
       {/* ------------ PAGE 2 — POSITIONING SYSTEM ------------ */}
       <Page size="A4" style={styles.page}>
-        <PdfHeader title="Positioning System" />
+        <PdfHeader title="Positioning System" {...headerChrome} />
 
         <PageTitle
           title="Brand Positioning"
@@ -386,7 +401,7 @@ export const BrandBlueprintPDF = ({
 
       {/* ------------ PAGE 3 — BRAND PROMISE & PROOF ------------ */}
       <Page size="A4" style={styles.page}>
-        <PdfHeader title="Brand Commitment" />
+        <PdfHeader title="Brand Commitment" {...headerChrome} />
 
         <PageTitle
           title="Brand Promise"
@@ -415,7 +430,7 @@ export const BrandBlueprintPDF = ({
       {/* ------------ PAGE 4 — BRAND NARRATIVE ------------ */}
       {narrative && (
         <Page size="A4" style={styles.page}>
-          <PdfHeader title="Brand Narrative" />
+          <PdfHeader title="Brand Narrative" {...headerChrome} />
 
           <PageTitle
             title="Brand Narrative"
@@ -432,7 +447,7 @@ export const BrandBlueprintPDF = ({
 
       {/* ------------ PAGE 5 — VOICE & TONE ------------ */}
       <Page size="A4" style={styles.page}>
-        <PdfHeader title="Voice & Tone" />
+        <PdfHeader title="Voice & Tone" {...headerChrome} />
 
         <PageTitle
           title="Voice & Tone"
@@ -468,7 +483,7 @@ export const BrandBlueprintPDF = ({
       {/* ------------ PAGE 6 — AUDIENCE SEGMENTS ------------ */}
       {audienceSegments && audienceSegments.length > 0 && (
         <Page size="A4" style={styles.page}>
-          <PdfHeader title="Audience Blueprint" />
+          <PdfHeader title="Audience Blueprint" {...headerChrome} />
 
           <PageTitle
             title="Audience Segmentation"
@@ -488,7 +503,7 @@ export const BrandBlueprintPDF = ({
 
       {/* ------------ PAGE 7 — BRAND PERSONALITY ------------ */}
       <Page size="A4" style={styles.page}>
-        <PdfHeader title="Brand Personality" />
+        <PdfHeader title="Brand Personality" {...headerChrome} />
 
         <PageTitle
           title="Brand Personality & Archetype"
@@ -522,7 +537,7 @@ export const BrandBlueprintPDF = ({
 
       {/* ------------ PAGE 8 — COMPETITIVE LANDSCAPE & AEO ------------ */}
       <Page size="A4" style={styles.page}>
-        <PdfHeader title="Competitive Landscape" />
+        <PdfHeader title="Competitive Landscape" {...headerChrome} />
 
         <PageTitle
           title="Competitive Context & AI-Powered Analysis"
@@ -557,7 +572,7 @@ export const BrandBlueprintPDF = ({
 
       {/* ------------ PAGE 9 — VISUAL DIRECTION ------------ */}
       <Page size="A4" style={styles.page}>
-        <PdfHeader title="Visual Identity" />
+        <PdfHeader title="Visual Identity" {...headerChrome} />
 
         <PageTitle
           title="Visual Direction"
@@ -597,7 +612,7 @@ export const BrandBlueprintPDF = ({
       {/* ------------ STRATEGIC SIGNALS ------------ */}
       {(competitiveVulnerabilitySignal || marketingSpendEfficiencySignal || revenueImpactStatement) && (
         <Page size="A4" style={styles.page}>
-          <PdfHeader title="Strategic Signals" />
+          <PdfHeader title="Strategic Signals" {...headerChrome} />
 
           <PageTitle
             title="Strategic Signals"
@@ -637,7 +652,7 @@ export const BrandBlueprintPDF = ({
 
       {/* ------------ PAGE 10 — CONTENT STRATEGY & AEO ------------ */}
       <Page size="A4" style={styles.page}>
-        <PdfHeader title="Content Strategy" />
+        <PdfHeader title="Content Strategy" {...headerChrome} />
 
         <PageTitle
           title="Content Strategy & AEO Integration"
@@ -675,7 +690,7 @@ export const BrandBlueprintPDF = ({
       {/* ------------ PAGE 11 — AI PROMPT PACK ------------ */}
       {aiPrompts && aiPrompts.length > 0 && (
         <Page size="A4" style={styles.page}>
-          <PdfHeader title="AI Prompt Pack" />
+          <PdfHeader title="AI Prompt Pack" {...headerChrome} />
 
           <PageTitle
             title="AI Prompt Pack"
@@ -703,7 +718,7 @@ export const BrandBlueprintPDF = ({
 
       {/* ------------ PAGE 12 — NEXT STEPS ------------ */}
       <Page size="A4" style={styles.page}>
-        <PdfHeader title="Next Steps" />
+        <PdfHeader title="Next Steps" {...headerChrome} />
 
         <PageTitle
           title="Your Strategic Next Steps"

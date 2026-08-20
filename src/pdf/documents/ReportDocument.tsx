@@ -1,6 +1,6 @@
 // src/pdf/documents/ReportDocument.tsx
 // WunderBrand Snapshot+™ Report Document
-// Focused, strategic PDF for Snapshot+ reports
+// Focused, strategic PDF for Snapshot+s
 
 import {
   Document,
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     paddingBottom: 60,
     fontSize: 10.5,
-    fontFamily: 'Helvetica',
+    fontFamily: 'Lato',
     color: '#0C1526',
     lineHeight: 1.65,
     backgroundColor: "#FFFFFF",
@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 16,
     padding: 14,
-    backgroundColor: "#F8FCFF",
+    backgroundColor: "#FFFFFF",
     border: `1 solid ${pdfTheme.colors.border}`,
     borderRadius: 10,
   },
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     marginBottom: 12,
     padding: 12,
-    backgroundColor: "#EFF6FF",
+    backgroundColor: "#FFFFFF",
     borderLeftWidth: 3,
     borderLeftColor: pdfTheme.colors.blue,
     borderRadius: 10,

@@ -7,6 +7,8 @@ import { Document, Page, Text, View, Image } from "@react-pdf/renderer";
 import { stylePresets, colors, fonts, spacing } from "../theme";
 import { registerPdfFonts } from "../registerFonts";
 import { DisclaimerPage } from "../components/DisclaimerPage";
+import { PdfHeader } from "../components/PdfHeader";
+import { PdfFooter } from "../components/PdfFooter";
 import { ColorSwatch } from "../components/ColorSwatch";
 import { getArchetypeIcon, getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
 import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
@@ -194,10 +196,19 @@ export const BrandBlueprintPlusPDF = ({
   const carryoverArchetypeMeaning = getArchetypeMeaning(carryoverArchetypeName);
   const carryoverArchetypeIcon = getArchetypeIcon(carryoverArchetypeName);
 
+  const reportDate = new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+  const headerChrome = {
+    businessName: businessName || "Your Brand",
+    date: reportDate,
+    productName: "WunderBrand Blueprint+™" as const,
+  };
+
   return (
     <Document>
       {(typeof brandAlignmentScore === "number" || pillarScores) && (
         <Page style={stylePresets.page}>
+
+        <PdfHeader title="WunderBrand Blueprint+™" {...headerChrome} />
           <Text style={stylePresets.h1}>Foundation Baseline</Text>
           {typeof brandAlignmentScore === "number" && (
             <View style={stylePresets.card}>
@@ -233,14 +244,14 @@ export const BrandBlueprintPlusPDF = ({
                 ))}
             </View>
           )}
-          <Text style={stylePresets.footer}>
-            Foundation diagnostics carried forward into Blueprint+™.
-          </Text>
+        <PdfFooter businessName={businessName || "Your Brand"} productName="WunderBrand Blueprint+™" showPageNumbers />
         </Page>
       )}
 
       {/* PAGE 1 — COVER */}
       <Page style={stylePresets.page}>
+
+        <PdfHeader title="WunderBrand Blueprint+™" {...headerChrome} />
         {/* eslint-disable-next-line jsx-a11y/alt-text */}
         <Image src={PDF_WUNDERBAR_LOGO_SRC} style={{ width: 132, marginBottom: spacing.md }} />
         <View style={{ borderBottom: `3px solid ${colors.navy}`, paddingBottom: spacing.lg, marginBottom: spacing["2xl"] }}>
@@ -265,14 +276,13 @@ export const BrandBlueprintPlusPDF = ({
             {"\u2022"} Visual and verbal direction with decision filters
           </Text>
         </View>
-
-        <Text style={stylePresets.footer}>
-          © {new Date().getFullYear()} Wunderbar Digital. WunderBrand Blueprint+™ is a trademark of Wunderbar Digital.
-        </Text>
+        <PdfFooter businessName={businessName || "Your Brand"} productName="WunderBrand Blueprint+™" showPageNumbers />
       </Page>
 
       {(persona || archetype || voice || (colorPalette && colorPalette.length > 0)) && (
         <Page style={stylePresets.page}>
+
+        <PdfHeader title="WunderBrand Blueprint+™" {...headerChrome} />
           <Text style={stylePresets.h1}>Brand Foundation Carryover</Text>
           <Text style={stylePresets.body}>
             Snapshot+ foundation context is included below so this Blueprint+ plan remains continuous from diagnostic to execution.
@@ -375,14 +385,17 @@ export const BrandBlueprintPlusPDF = ({
               ))}
             </View>
           )}
-          <Text style={stylePresets.footer}>
+          <Text style={stylePresets.small}>
             Foundation continuity from Snapshot+™ into Blueprint+™.
           </Text>
-        </Page>
+        
+        <PdfFooter businessName={businessName || "Your Brand"} productName="WunderBrand Blueprint+™" showPageNumbers /></Page>
       )}
 
       {(typeof contextCoverage === "number" || opportunitiesMap || roadmap30 || roadmap60 || roadmap90) && (
         <Page style={stylePresets.page}>
+
+        <PdfHeader title="WunderBrand Blueprint+™" {...headerChrome} />
           <Text style={stylePresets.h1}>Snapshot+ Strategic Continuity</Text>
           <Text style={stylePresets.body}>
             The following Snapshot+ strategic signals are preserved here to keep your Blueprint+ execution path connected to original diagnostics.
@@ -422,15 +435,18 @@ export const BrandBlueprintPlusPDF = ({
             </>
           )}
 
-          <Text style={stylePresets.footer}>
+          <Text style={stylePresets.small}>
             Snapshot+ strategy retained for continuity into Blueprint+ activation.
           </Text>
-        </Page>
+        
+        <PdfFooter businessName={businessName || "Your Brand"} productName="WunderBrand Blueprint+™" showPageNumbers /></Page>
       )}
 
       {/* PAGE 2 — BRAND STORY FRAMEWORK */}
       {brandStory && (
         <Page style={stylePresets.page}>
+
+        <PdfHeader title="WunderBrand Blueprint+™" {...headerChrome} />
           <Text style={stylePresets.h1}>Brand Story Framework</Text>
           
           {brandStory.long && (
@@ -451,15 +467,18 @@ export const BrandBlueprintPlusPDF = ({
             </>
           )}
 
-          <Text style={stylePresets.footer}>
+          <Text style={stylePresets.small}>
             Story structured for both human connection and AI discoverability.
           </Text>
-        </Page>
+        
+        <PdfFooter businessName={businessName || "Your Brand"} productName="WunderBrand Blueprint+™" showPageNumbers /></Page>
       )}
 
       {/* PAGE 3 — POSITIONING PLATFORM */}
       {positioning && (
         <Page style={stylePresets.page}>
+
+        <PdfHeader title="WunderBrand Blueprint+™" {...headerChrome} />
           <Text style={stylePresets.h1}>Positioning Platform</Text>
 
           {positioning.statement && (
@@ -485,15 +504,18 @@ export const BrandBlueprintPlusPDF = ({
             </>
           )}
 
-          <Text style={stylePresets.footer}>
+          <Text style={stylePresets.small}>
             Positioning optimized for competitive advantage in AI search results.
           </Text>
-        </Page>
+        
+        <PdfFooter businessName={businessName || "Your Brand"} productName="WunderBrand Blueprint+™" showPageNumbers /></Page>
       )}
 
       {/* PAGE 4 — CUSTOMER JOURNEY */}
       {journey.length > 0 && (
         <Page style={stylePresets.page}>
+
+        <PdfHeader title="WunderBrand Blueprint+™" {...headerChrome} />
           <Text style={stylePresets.h1}>Customer Journey Map</Text>
           {journey.map((stage, idx) => (
             <View key={idx} style={{ ...stylePresets.card, marginBottom: spacing.md }}>
@@ -514,15 +536,18 @@ export const BrandBlueprintPlusPDF = ({
               </Text>
             </View>
           ))}
-          <Text style={stylePresets.footer}>
+          <Text style={stylePresets.small}>
             Journey mapped with AEO touchpoints for AI discoverability.
           </Text>
-        </Page>
+        
+        <PdfFooter businessName={businessName || "Your Brand"} productName="WunderBrand Blueprint+™" showPageNumbers /></Page>
       )}
 
       {/* PAGE 5 — 12-MONTH CONTENT ROADMAP (with AEO strategies) */}
       {contentRoadmap.length > 0 && (
         <Page style={stylePresets.page}>
+
+        <PdfHeader title="WunderBrand Blueprint+™" {...headerChrome} />
           <Text style={stylePresets.h1}>12-Month Content Roadmap</Text>
           <Text style={{ marginBottom: spacing.md, ...stylePresets.body }}>
             Monthly themes, messaging angles, growth priorities, and AEO optimization strategies.
@@ -579,15 +604,18 @@ export const BrandBlueprintPlusPDF = ({
             </View>
           ))}
 
-          <Text style={stylePresets.footer}>
+          <Text style={stylePresets.small}>
             Content roadmap includes AEO optimization strategies for each month.
           </Text>
-        </Page>
+        
+        <PdfFooter businessName={businessName || "Your Brand"} productName="WunderBrand Blueprint+™" showPageNumbers /></Page>
       )}
 
       {/* PAGE 6 — COMPLETE AEO SYSTEM */}
       {completeAEOSystem && (
         <Page style={stylePresets.page}>
+
+        <PdfHeader title="WunderBrand Blueprint+™" {...headerChrome} />
           <Text style={stylePresets.h1}>Complete AEO System</Text>
 
           {completeAEOSystem.platformOptimizations && (
@@ -677,15 +705,18 @@ export const BrandBlueprintPlusPDF = ({
             </>
           )}
 
-          <Text style={stylePresets.footer}>
+          <Text style={stylePresets.small}>
             Complete AEO system with full implementation guidance.
           </Text>
-        </Page>
+        
+        <PdfFooter businessName={businessName || "Your Brand"} productName="WunderBrand Blueprint+™" showPageNumbers /></Page>
       )}
 
       {/* PAGE 7 — AI PROMPTS FOR CONTENT IMPROVEMENT */}
       {completeAEOSystem?.aiPrompts && completeAEOSystem.aiPrompts.length > 0 && (
         <Page style={stylePresets.page}>
+
+        <PdfHeader title="WunderBrand Blueprint+™" {...headerChrome} />
           <Text style={stylePresets.h1}>AI Prompts for Content Improvement</Text>
           <Text style={{ marginBottom: spacing.md, ...stylePresets.body }}>
             Use these prompts to generate AEO-optimized versions of your content.
@@ -717,15 +748,18 @@ export const BrandBlueprintPlusPDF = ({
             </>
           )}
 
-          <Text style={stylePresets.footer}>
+          <Text style={stylePresets.small}>
             AI prompts help you create AEO-optimized content consistently.
           </Text>
-        </Page>
+        
+        <PdfFooter businessName={businessName || "Your Brand"} productName="WunderBrand Blueprint+™" showPageNumbers /></Page>
       )}
 
       {/* PAGE 8 — VISUAL DIRECTION */}
       {visualDirection.length > 0 && (
         <Page style={stylePresets.page}>
+
+        <PdfHeader title="WunderBrand Blueprint+™" {...headerChrome} />
           <Text style={stylePresets.h1}>Visual Direction</Text>
           {visualDirection.map((v, idx) => (
             <View key={idx} style={{ ...stylePresets.card, marginBottom: spacing.md }}>
@@ -735,15 +769,18 @@ export const BrandBlueprintPlusPDF = ({
               <Text style={stylePresets.body}>{v.description}</Text>
             </View>
           ))}
-          <Text style={stylePresets.footer}>
+          <Text style={stylePresets.small}>
             Visual elements optimized for brand recognition and AI image understanding.
           </Text>
-        </Page>
+        
+        <PdfFooter businessName={businessName || "Your Brand"} productName="WunderBrand Blueprint+™" showPageNumbers /></Page>
       )}
 
       {/* PAGE 9 — PERSONALITY & DECISION FILTERS */}
       {(personality || decisionFilters.length > 0) && (
         <Page style={stylePresets.page}>
+
+        <PdfHeader title="WunderBrand Blueprint+™" {...headerChrome} />
           {personality && (
             <>
               <Text style={stylePresets.h1}>Brand Personality</Text>
@@ -764,15 +801,18 @@ export const BrandBlueprintPlusPDF = ({
             </>
           )}
 
-          <Text style={stylePresets.footer}>
+          <Text style={stylePresets.small}>
             Personality and filters guide all brand decisions.
           </Text>
-        </Page>
+        
+        <PdfFooter businessName={businessName || "Your Brand"} productName="WunderBrand Blueprint+™" showPageNumbers /></Page>
       )}
 
       {/* PAGE 10 — AI PROMPT LIBRARY */}
       {aiPrompts.length > 0 && (
         <Page style={stylePresets.page}>
+
+        <PdfHeader title="WunderBrand Blueprint+™" {...headerChrome} />
           <Text style={stylePresets.h1}>AI Prompt Library — Extended</Text>
           {aiPrompts.map((p, idx) => (
             <View key={idx} style={{ ...stylePresets.card, marginBottom: spacing.md }}>
@@ -782,15 +822,18 @@ export const BrandBlueprintPlusPDF = ({
               <Text style={stylePresets.body}>{p.prompt}</Text>
             </View>
           ))}
-          <Text style={stylePresets.footer}>
+          <Text style={stylePresets.small}>
             Use these prompts to generate on-brand content across all platforms.
           </Text>
-        </Page>
+        
+        <PdfFooter businessName={businessName || "Your Brand"} productName="WunderBrand Blueprint+™" showPageNumbers /></Page>
       )}
 
       {/* PAGE 11 — STRATEGIC SIGNALS */}
       {(competitiveVulnerabilitySignal || marketingSpendEfficiencySignal || revenueImpactStatement) && (
         <Page style={stylePresets.page}>
+
+        <PdfHeader title="WunderBrand Blueprint+™" {...headerChrome} />
           <Text style={stylePresets.h1}>Strategic Signals</Text>
 
           {competitiveVulnerabilitySignal && (
@@ -814,14 +857,17 @@ export const BrandBlueprintPlusPDF = ({
             </View>
           )}
 
-          <Text style={stylePresets.footer}>
+          <Text style={stylePresets.small}>
             Strategic signals link market exposure, spend discipline, and revenue outcomes.
           </Text>
-        </Page>
+        
+        <PdfFooter businessName={businessName || "Your Brand"} productName="WunderBrand Blueprint+™" showPageNumbers /></Page>
       )}
 
       {/* PAGE 12 — NEXT STEPS */}
       <Page style={stylePresets.page}>
+
+        <PdfHeader title="WunderBrand Blueprint+™" {...headerChrome} />
         <Text style={stylePresets.h1}>Next Steps</Text>
 
         <View style={stylePresets.card}>
@@ -863,10 +909,7 @@ export const BrandBlueprintPlusPDF = ({
             <Text key={`bpplus-90-${idx}`} style={stylePresets.body}>• {item}</Text>
           ))}
         </View>
-
-        <Text style={stylePresets.footer}>
-          © 2025 Wunderbar Digital. WunderBrand Blueprint+™ is a trademark of Wunderbar Digital.
-        </Text>
+        <PdfFooter businessName={businessName || "Your Brand"} productName="WunderBrand Blueprint+™" showPageNumbers />
       </Page>
 
       <DisclaimerPage tier="blueprint_plus" />

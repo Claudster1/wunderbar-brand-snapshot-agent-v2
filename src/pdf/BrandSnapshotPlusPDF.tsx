@@ -37,35 +37,42 @@ registerPdfFonts();
 
 const styles = StyleSheet.create({
   page: {
-    fontFamily: "Helvetica",
+    fontFamily: "Lato",
     fontSize: pdfTheme.fontSizes.base,
-    paddingTop: PDF_HEADER_RESERVED,
-    paddingBottom: PDF_FOOTER_RESERVED,
+    paddingTop: PDF_HEADER_RESERVED + 8,
+    paddingBottom: PDF_FOOTER_RESERVED + 4,
     paddingHorizontal: 0,
+    backgroundColor: "#F5F5F7",
   },
   heading: {
+    fontFamily: "Lato",
     fontSize: pdfTheme.fontSizes.xl,
-    fontWeight: 600,
+    fontWeight: 700,
     color: pdfTheme.colors.navy,
     marginBottom: pdfTheme.spacing.sm,
+    letterSpacing: -0.3,
   },
   subheading: {
+    fontFamily: "Lato",
     fontSize: pdfTheme.fontSizes.md,
-    fontWeight: 500,
+    fontWeight: 600,
     color: pdfTheme.colors.midnight,
     marginTop: pdfTheme.spacing.sm,
     marginBottom: pdfTheme.spacing.sm,
   },
   para: {
-    fontSize: pdfTheme.fontSizes.base,
-    color: pdfTheme.colors.midnight,
-    lineHeight: 1.5,
+    fontFamily: "Lato",
+    fontSize: 10,
+    color: pdfTheme.colors.text,
+    lineHeight: 1.55,
     marginBottom: pdfTheme.spacing.md,
   },
   scoreNumber: {
+    fontFamily: "Lato",
     fontSize: 42,
-    fontWeight: 700,
+    fontWeight: 900,
     color: pdfTheme.colors.blue,
+    letterSpacing: -1,
   },
 });
 
@@ -186,7 +193,7 @@ export const BrandSnapshotPlusPDF = ({
 
   const reportDate = new Date().toLocaleDateString("en-US", {
     year: "numeric",
-    month: "long",
+    month: "short",
     day: "numeric",
   });
 
@@ -256,19 +263,26 @@ export const BrandSnapshotPlusPDF = ({
       ? Object.entries(archetypeObj.activation as Record<string, unknown>).slice(0, 4)
       : [];
 
+  const headerChrome = {
+    businessName,
+    date: reportDate,
+    productName: "WunderBrand Snapshot+™" as const,
+  };
+
   return (
     <Document>
       {/* ---------------- PAGE 1 — EXEC SUMMARY ---------------- */}
       <Page size="A4" style={styles.page}>
-        <PdfHeader title={`WunderBrand Snapshot+\u2122 \u2014 ${businessName}`} businessName={businessName} date={reportDate} />
+        <PdfHeader title="Executive Summary" {...headerChrome} />
 
         <PageTitle
-          title="Snapshot+™ Brand Intelligence Report"
+          eyebrow="WunderBrand Snapshot+™"
+          title={`${businessName}`}
           subtitle="Expanded strategic analysis across brand clarity, voice, visuals, audience, archetype, and next-step priorities."
         />
 
         <Section>
-          <Text style={styles.heading}>Report Overview</Text>
+          <Text style={styles.heading}>Overview</Text>
           <Text style={styles.para}>
             This expanded analysis builds on your WunderBrand Snapshot™ results and adds deeper strategic insight across brand clarity, voice, visuals, audience, archetype, and next-step priorities.
           </Text>
@@ -366,7 +380,7 @@ export const BrandSnapshotPlusPDF = ({
       {/* ---------------- PAGE 2 — BRAND PERSONA, ARCHETYPE & VOICE ---------------- */}
       {(persona || archetype || voice) && (
         <Page size="A4" style={styles.page}>
-          <PdfHeader title="Brand Persona & Voice" />
+          <PdfHeader title="Brand Persona & Voice" {...headerChrome} />
 
           <PageTitle
             title="Brand Persona, Archetype & Voice"
@@ -542,7 +556,7 @@ export const BrandSnapshotPlusPDF = ({
       {/* ---------------- PAGE 3 — RECOMMENDED COLOR PALETTE ---------------- */}
       {colorPalette.length > 0 && (
         <Page size="A4" style={styles.page}>
-          <PdfHeader title="Recommended Color Palette" />
+          <PdfHeader title="Recommended Color Palette" {...headerChrome} />
 
           <PageTitle
             title="Recommended Color Palette"
@@ -586,7 +600,7 @@ export const BrandSnapshotPlusPDF = ({
       {/* ---------------- PAGE 4 — STRATEGIC ROADMAP (30/60/90) ---------------- */}
       {(roadmap_30 || roadmap_60 || roadmap_90 || opportunities_map) && (
         <Page size="A4" style={styles.page}>
-          <PdfHeader title="Strategic Roadmap" />
+          <PdfHeader title="Strategic Roadmap" {...headerChrome} />
 
           <PageTitle
             title="Recommended 30/60/90-Day Roadmap"
@@ -642,7 +656,7 @@ export const BrandSnapshotPlusPDF = ({
 
       {/* ---------------- PILLAR DEEP DIVES ---------------- */}
       <Page size="A4" style={styles.page}>
-        <PdfHeader title="Pillar Deep-Dive" />
+        <PdfHeader title="Pillar Deep-Dive" {...headerChrome} />
 
         <PageTitle
           title="Brand Pillar Analysis"
@@ -690,7 +704,7 @@ export const BrandSnapshotPlusPDF = ({
 
       {/* ---------------- PAGE 3 — PILLAR CONTINUED ---------------- */}
       <Page size="A4" style={styles.page}>
-        <PdfHeader title="Pillar Deep-Dive (Cont.)" />
+        <PdfHeader title="Pillar Deep-Dive (Cont.)" {...headerChrome} />
 
         <Section>
           <PillarScoreRow
@@ -718,7 +732,7 @@ export const BrandSnapshotPlusPDF = ({
       {/* ---------------- PAGE 4 — AEO SECTION (REQUIRED for Visibility) ---------------- */}
       {aeoRecommendations && (
         <Page size="A4" style={styles.page}>
-          <PdfHeader title="AEO Strategy" />
+          <PdfHeader title="AEO Strategy" {...headerChrome} />
 
           <PageTitle
             title="Answer Engine Optimization (AEO)"
@@ -784,7 +798,7 @@ export const BrandSnapshotPlusPDF = ({
 
       {/* ---------------- PAGE 5 — AUDIENCE, COMPETITORS, PERSONALITY ---------------- */}
       <Page size="A4" style={styles.page}>
-        <PdfHeader title="Brand Foundations" />
+        <PdfHeader title="Brand Foundations" {...headerChrome} />
 
         <PageTitle
           title="Brand Foundations & Landscape"
@@ -820,7 +834,7 @@ export const BrandSnapshotPlusPDF = ({
       {/* ---------------- PAGE 6 — VISUAL IDENTITY ---------------- */}
       {visualIdentityNotes && (
         <Page size="A4" style={styles.page}>
-          <PdfHeader title="Visual Identity" />
+          <PdfHeader title="Visual Identity" {...headerChrome} />
 
           <PageTitle
             title="Visual Identity Overview"
@@ -839,7 +853,7 @@ export const BrandSnapshotPlusPDF = ({
       {/* ---------------- PAGE 7 — AI PROMPTS ---------------- */}
       {aiPrompts && aiPrompts.length > 0 && (
         <Page size="A4" style={styles.page}>
-          <PdfHeader title="AI Prompt Pack" />
+          <PdfHeader title="AI Prompt Pack" {...headerChrome} />
 
           <PageTitle
             title="AI-Ready Prompt Starter Pack"
@@ -870,7 +884,7 @@ export const BrandSnapshotPlusPDF = ({
 
       {/* ---------------- NEXT STEP — BLUEPRINT CTA ---------------- */}
       <Page size="A4" style={styles.page}>
-        <PdfHeader title="Next Step: Blueprint™" />
+        <PdfHeader title="Next Step: Blueprint™" {...headerChrome} />
 
         <PageTitle
           title="Ready for Blueprint™?"

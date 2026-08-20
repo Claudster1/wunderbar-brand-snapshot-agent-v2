@@ -7,19 +7,23 @@ import { pdfTheme } from "../theme";
 const styles = StyleSheet.create({
   container: {
     padding: pdfTheme.spacing.lg,
-    border: `1px solid ${pdfTheme.colors.border}`,
-    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: pdfTheme.colors.border,
+    borderLeftWidth: 3,
+    borderLeftColor: "rgba(7, 176, 242, 0.55)",
+    borderRadius: 12,
     marginBottom: pdfTheme.spacing.md,
+    backgroundColor: "#FFFFFF",
   },
   title: {
-    fontFamily: "Helvetica",
+    fontFamily: "Lato",
     fontSize: pdfTheme.fontSizes.lg,
-    fontWeight: 600,
+    fontWeight: 700,
     color: pdfTheme.colors.navy,
     marginBottom: pdfTheme.spacing.sm,
   },
   body: {
-    fontFamily: "Helvetica",
+    fontFamily: "Lato",
     fontSize: pdfTheme.fontSizes.base,
     color: pdfTheme.colors.midnight,
     lineHeight: 1.5,

@@ -1,88 +1,319 @@
 // src/pdf/BrandSnapshotPDF.tsx
-// WunderBrand Snapshot™ PDF Document (Free tier)
-// Uses reusable components for consistent styling
+// WunderBrand Snapshot™ PDF — mirrors SnapshotDocumentResults UI
 
-import {
-  Document,
-  Page,
-  Text,
-  View,
-  StyleSheet,
-} from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 
 import { PdfHeader, PDF_HEADER_RESERVED } from "./components/PdfHeader";
 import { PdfFooter, PDF_FOOTER_RESERVED } from "./components/PdfFooter";
-import { PageTitle } from "./components/PageTitle";
-import { Section } from "./components/Section";
 import { PillarScoreBar } from "./components/PillarScoreBar";
-import { InsightBlock } from "./components/InsightBlock";
-import { RecommendationBlock } from "./components/RecommendationBlock";
-import { pdfTheme } from "./theme";
+import { MainGaugePDF } from "./components/MainGaugePDF";
 import { registerPdfFonts } from "./registerFonts";
 import { DisclaimerPage } from "./components/DisclaimerPage";
 import { getPrimaryPillar } from "@/src/lib/pillars/getPrimaryPillar";
-import { getArchetypeIcon, getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
+import { getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
+import {
+  SUITE_ACCENT_BRIGHT,
+  SUITE_BG_PAGE,
+  SUITE_BORDER,
+  SUITE_MUTED,
+  SUITE_NAVY,
+  SUITE_RADIUS_MD,
+  SUITE_SECTION_ACTIVE_BG,
+  SUITE_TEXT_PRIMARY,
+} from "@/components/results/suiteBrandTokens";
 
-// Register fonts
 registerPdfFonts();
+
+const PRODUCT = "WunderBrand Snapshot™";
+const GREEN = "#22C55E";
+const GOOD_GREEN = "#4ADE80";
+const YELLOW = "#EAB308";
+const ORANGE = "#F97316";
+const RED_S = "#EF4444";
+const WHITE = "#FFFFFF";
+const INTRO_BORDER = "#B8E6F8";
+const QUOTE_BG = "#E8F6FE";
+
+const PILLAR_KEYS = ["positioning", "messaging", "visibility", "credibility", "conversion"] as const;
+type PillarKey = (typeof PILLAR_KEYS)[number];
+const PILLAR_LABELS: Record<PillarKey, string> = {
+  positioning: "Positioning",
+  messaging: "Messaging",
+  visibility: "Visibility",
+  credibility: "Credibility",
+  conversion: "Conversion",
+};
+
+function scoreColor(percent: number) {
+  if (percent >= 80) return GREEN;
+  if (percent >= 60) return GOOD_GREEN;
+  if (percent >= 40) return YELLOW;
+  if (percent >= 20) return ORANGE;
+  return RED_S;
+}
+
+function scoreLabel(percent: number) {
+  if (percent >= 80) return "Strong";
+  if (percent >= 60) return "Good";
+  if (percent >= 40) return "Fair";
+  if (percent >= 20) return "Weak";
+  return "Critical";
+}
+
+function normalizePillarScore(raw: number): number {
+  if (!Number.isFinite(raw)) return 0;
+  // Heuristic: values above 20 are on a 0–100 scale → map to /20
+  if (raw > 20) return Math.max(0, Math.min(20, Math.round(raw / 5)));
+  return Math.max(0, Math.min(20, Math.round(raw)));
+}
 
 const styles = StyleSheet.create({
   page: {
-    fontFamily: "Helvetica",
-    fontSize: pdfTheme.fontSizes.base,
-    paddingTop: PDF_HEADER_RESERVED,
-    paddingBottom: PDF_FOOTER_RESERVED,
-    paddingHorizontal: 0,
-    backgroundColor: "#FFFFFF",
+    fontFamily: "Lato",
+    fontSize: 10,
+    paddingTop: PDF_HEADER_RESERVED + 10,
+    paddingBottom: PDF_FOOTER_RESERVED + 6,
+    paddingHorizontal: 28,
+    backgroundColor: SUITE_BG_PAGE,
   },
-  divider: {
-    height: 1,
-    backgroundColor: pdfTheme.colors.border,
-    marginVertical: pdfTheme.spacing.lg,
+  introBanner: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: SUITE_RADIUS_MD,
+    backgroundColor: SUITE_SECTION_ACTIVE_BG,
+    borderWidth: 1,
+    borderColor: INTRO_BORDER,
+    marginBottom: 14,
   },
-  smallHeading: {
-    fontSize: 13,
-    fontWeight: 600,
-    color: "#0F2A57",
-    marginBottom: 6,
-    textTransform: "uppercase",
-    letterSpacing: 0.7,
-  },
-  body: {
-    fontFamily: "Helvetica",
-    fontSize: 11,
-    color: pdfTheme.colors.midnight,
-    lineHeight: 1.55,
-  },
-  scoreDisplay: {
-    marginTop: pdfTheme.spacing.md,
-    backgroundColor: "#F3F8FF",
-    border: "1px solid #DCE7F5",
-    borderRadius: 10,
-    padding: 12,
-  },
-  scoreNumber: {
-    fontSize: 38,
+  introIcon: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 1.5,
+    borderColor: SUITE_ACCENT_BRIGHT,
+    color: SUITE_ACCENT_BRIGHT,
+    fontSize: 10,
     fontWeight: 700,
-    color: pdfTheme.colors.blue,
+    textAlign: "center",
+    paddingTop: 1,
+    marginRight: 10,
   },
-  infoCard: {
-    backgroundColor: "#F7FAFF",
-    border: "1px solid #DCE7F5",
-    borderRadius: 10,
-    padding: 12,
+  introText: {
+    flex: 1,
+    fontFamily: "Lato",
+    fontSize: 9,
+    color: SUITE_MUTED,
+    lineHeight: 1.45,
+  },
+  card: {
+    backgroundColor: WHITE,
+    borderRadius: SUITE_RADIUS_MD,
+    borderWidth: 1,
+    borderColor: SUITE_BORDER,
+    padding: 16,
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    fontFamily: "Lato",
+    fontSize: 16,
+    fontWeight: 700,
+    color: SUITE_NAVY,
+    marginBottom: 4,
+    letterSpacing: -0.3,
+  },
+  sectionDesc: {
+    fontFamily: "Lato",
+    fontSize: 9.5,
+    color: SUITE_MUTED,
+    marginBottom: 12,
+    lineHeight: 1.45,
+  },
+  summaryRow: {
+    flexDirection: "row",
+    marginBottom: 12,
+  },
+  summaryCard: {
+    flex: 1,
+    backgroundColor: WHITE,
+    borderRadius: SUITE_RADIUS_MD,
+    borderWidth: 1,
+    borderColor: SUITE_BORDER,
+    padding: 10,
+    marginRight: 8,
+  },
+  summaryCardLast: {
+    flex: 1,
+    backgroundColor: WHITE,
+    borderRadius: SUITE_RADIUS_MD,
+    borderWidth: 1,
+    borderColor: SUITE_BORDER,
+    padding: 10,
+    marginRight: 0,
+  },
+  summaryLabel: {
+    fontFamily: "Lato",
+    fontSize: 8,
+    fontWeight: 700,
+    color: SUITE_MUTED,
+    textTransform: "uppercase",
+    letterSpacing: 0.6,
+    marginBottom: 4,
+  },
+  summaryValue: {
+    fontFamily: "Lato",
+    fontSize: 18,
+    fontWeight: 900,
+    color: SUITE_NAVY,
+  },
+  summaryMeta: {
+    fontFamily: "Lato",
+    fontSize: 8.5,
+    color: SUITE_MUTED,
+    marginTop: 2,
+  },
+  diagnosisQuote: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: SUITE_RADIUS_MD,
+    backgroundColor: QUOTE_BG,
+    borderLeftWidth: 3,
+    borderLeftColor: SUITE_ACCENT_BRIGHT,
+    fontFamily: "Lato",
+    fontSize: 11,
+    fontWeight: 700,
+    color: SUITE_NAVY,
+    lineHeight: 1.5,
+    fontStyle: "italic",
     marginBottom: 10,
   },
-  signalCard: {
-    backgroundColor: "#F7FAFF",
-    border: "1px solid #DCE7F5",
-    borderLeft: `4px solid ${pdfTheme.colors.blue}`,
-    borderRadius: 10,
+  body: {
+    fontFamily: "Lato",
+    fontSize: 10,
+    color: SUITE_TEXT_PRIMARY,
+    lineHeight: 1.55,
+  },
+  signalRail: {
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: SUITE_RADIUS_MD,
+    borderLeftWidth: 3,
+    backgroundColor: WHITE,
+    borderWidth: 1,
+    borderColor: SUITE_BORDER,
+    marginBottom: 6,
+  },
+  signalLabel: {
+    fontFamily: "Lato",
+    fontSize: 8,
+    fontWeight: 700,
+    textTransform: "uppercase",
+    letterSpacing: 0.7,
+    marginBottom: 3,
+  },
+  signalBody: {
+    fontFamily: "Lato",
+    fontSize: 9.5,
+    color: SUITE_TEXT_PRIMARY,
+    lineHeight: 1.45,
+  },
+  metersWrap: {
+    backgroundColor: SUITE_BG_PAGE,
+    borderRadius: SUITE_RADIUS_MD,
     padding: 14,
+    marginBottom: 10,
+  },
+  meterRow: {
+    flexDirection: "row",
+    marginBottom: 4,
+  },
+  meterCol: { flex: 1, marginRight: 14 },
+  meterColLast: { flex: 1, marginRight: 0 },
+  insightCard: {
+    backgroundColor: WHITE,
+    borderRadius: SUITE_RADIUS_MD,
+    borderWidth: 1,
+    borderColor: SUITE_BORDER,
+    padding: 12,
+    marginBottom: 8,
+  },
+  insightHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  insightTitle: {
+    fontFamily: "Lato",
+    fontSize: 12,
+    fontWeight: 900,
+    color: SUITE_NAVY,
+  },
+  badge: {
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    borderRadius: 5,
+  },
+  badgeText: {
+    fontFamily: "Lato",
+    fontSize: 10,
+    fontWeight: 900,
+    color: WHITE,
+  },
+  insightBody: {
+    fontFamily: "Lato",
+    fontSize: 9.5,
+    color: SUITE_TEXT_PRIMARY,
+    lineHeight: 1.5,
+  },
+  kicker: {
+    fontFamily: "Lato",
+    fontSize: 9,
+    fontWeight: 700,
+    letterSpacing: 0.8,
+    color: SUITE_ACCENT_BRIGHT,
+    textTransform: "uppercase",
+    marginBottom: 6,
+  },
+  listItem: {
+    fontFamily: "Lato",
+    fontSize: 10,
+    color: SUITE_TEXT_PRIMARY,
+    lineHeight: 1.5,
+    marginBottom: 5,
+  },
+  ctaLabel: {
+    fontFamily: "Lato",
+    fontSize: 10,
+    fontWeight: 700,
+    letterSpacing: 0.6,
+    textTransform: "uppercase",
+    color: SUITE_ACCENT_BRIGHT,
+    marginTop: 8,
+  },
+  muted: {
+    fontFamily: "Lato",
+    fontSize: 9.5,
+    color: SUITE_MUTED,
+    lineHeight: 1.45,
+  },
+  fieldLabel: {
+    fontFamily: "Lato",
+    fontSize: 8,
+    fontWeight: 700,
+    letterSpacing: 0.6,
+    textTransform: "uppercase",
+    color: SUITE_ACCENT_BRIGHT,
+    marginBottom: 2,
+  },
+  fieldValue: {
+    fontFamily: "Lato",
+    fontSize: 10,
+    color: SUITE_TEXT_PRIMARY,
+    marginBottom: 8,
   },
 });
-
-type PillarKey = "positioning" | "messaging" | "visibility" | "credibility" | "conversion";
 
 function getAudienceAlignmentTeaser(primaryPillar: PillarKey): string {
   const teasers: Record<PillarKey, string> = {
@@ -160,7 +391,6 @@ function monthlyRevenueFromRanges(monthlyRange?: string | null, annualRange?: st
     "150k_plus": 175000,
   };
   if (monthlyRange && monthlyMap[monthlyRange]) return monthlyMap[monthlyRange];
-
   const annualMap: Record<string, number> = {
     "under 100k": 50000,
     "100k-500k": 300000,
@@ -196,12 +426,11 @@ export const BrandSnapshotPDF = ({
 }) => {
   const reportDate = new Date().toLocaleDateString("en-US", {
     year: "numeric",
-    month: "long",
+    month: "short",
     day: "numeric",
   });
 
   const {
-    userName,
     businessName,
     industry,
     website,
@@ -209,64 +438,78 @@ export const BrandSnapshotPDF = ({
     brandAlignmentScore,
     pillarScores,
     pillarInsights,
-    recommendations,
     fullReportAnswers,
   } = report;
+
+  const entries = PILLAR_KEYS.map((key) => ({
+    key,
+    label: PILLAR_LABELS[key],
+    score: normalizePillarScore(Number(pillarScores[key]) || 0),
+  }));
+  const strongest = [...entries].sort((a, b) => b.score - a.score)[0];
+  const weakest = [...entries].sort((a, b) => a.score - b.score)[0];
+  const score = Math.max(0, Math.min(100, Math.round(brandAlignmentScore)));
+  const scoreBand = scoreLabel(score).toLowerCase();
+
   const primaryResult = getPrimaryPillar(pillarScores as any);
   const primaryPillar =
     (primaryResult.type === "tie" ? primaryResult.pillars?.[0] : primaryResult.pillar) ||
-    "positioning";
+    weakest.key;
   const primaryLabel = primaryPillar.charAt(0).toUpperCase() + primaryPillar.slice(1);
+
+  const diagnosis = `${businessName} has a ${scoreBand} brand foundation, with the clearest opportunity concentrated in ${weakest.label.toLowerCase()}.`;
+  const overview = `${businessName}'s strongest signal is ${strongest.label.toLowerCase()} at ${strongest.score}/20. ${weakest.label} is the highest-leverage area to improve next at ${weakest.score}/20.`;
+  const opportunity = `Strengthen ${weakest.label.toLowerCase()} first so improvements carry through the rest of the customer journey.`;
+  const risk = `If ${weakest.label.toLowerCase()} remains unresolved, stronger pillars may not translate into consistent trust or action.`;
 
   const answers = (fullReportAnswers || {}) as Record<string, unknown>;
   const monthlyRevenueRange =
-    (typeof report.monthlyRevenueRange === "string"
+    typeof report.monthlyRevenueRange === "string"
       ? report.monthlyRevenueRange
       : typeof answers.monthlyRevenueRange === "string"
         ? answers.monthlyRevenueRange
-        : null);
+        : null;
   const annualRevenueRange =
-    (typeof report.annualRevenueRange === "string"
+    typeof report.annualRevenueRange === "string"
       ? report.annualRevenueRange
       : typeof answers.revenueRange === "string"
         ? answers.revenueRange
-        : null);
+        : null;
   const averageTransactionValue =
-    (typeof report.averageTransactionValue === "string"
+    typeof report.averageTransactionValue === "string"
       ? report.averageTransactionValue
       : typeof answers.averageTransactionValue === "string"
         ? answers.averageTransactionValue
-        : null);
+        : null;
   const conversionRateEstimate =
-    (typeof report.conversionRateEstimate === "string"
+    typeof report.conversionRateEstimate === "string"
       ? report.conversionRateEstimate
       : typeof answers.conversionRateEstimate === "string"
         ? answers.conversionRateEstimate
-        : null);
+        : null;
   const monthlyMarketingBudget =
-    (typeof report.monthlyMarketingBudget === "string"
+    typeof report.monthlyMarketingBudget === "string"
       ? report.monthlyMarketingBudget
       : typeof answers.monthlyMarketingBudget === "string"
         ? answers.monthlyMarketingBudget
-        : null);
+        : null;
   const businessType =
-    (typeof report.businessType === "string"
+    typeof report.businessType === "string"
       ? report.businessType
       : typeof answers.businessType === "string"
         ? answers.businessType
-        : null);
+        : null;
   const normalizedBusinessType = normalizeBusinessType(businessType);
   const promptPackLabel = `8 prompts built for ${businessName?.trim() || "your brand"}`;
   const likelyArchetype =
-    (typeof report.likelyArchetype === "string"
+    typeof report.likelyArchetype === "string"
       ? report.likelyArchetype
       : typeof answers.likelyArchetype === "string"
         ? answers.likelyArchetype
         : typeof answers.archetype === "string"
           ? answers.archetype
-          : null);
+          : null;
   const archetypeMeaning = getArchetypeMeaning(likelyArchetype);
-  const archetypeIcon = getArchetypeIcon(likelyArchetype);
 
   const monthlyRevenue = monthlyRevenueFromRanges(monthlyRevenueRange, annualRevenueRange);
   const avgValue = parseMoney(averageTransactionValue);
@@ -276,210 +519,255 @@ export const BrandSnapshotPDF = ({
     ? Math.round((monthlyRevenue as number) * 0.1)
     : null;
 
+  const headerProps = {
+    businessName,
+    date: reportDate,
+    productName: PRODUCT,
+  };
+
   return (
     <Document>
-      {/* ---------------- PAGE 1 ---------------- */}
       <Page size="A4" style={styles.page}>
-        <PdfHeader title="WunderBrand Snapshot™ Report" businessName={businessName} date={reportDate} />
+        <PdfHeader title="Executive Summary" {...headerProps} />
 
-        <PageTitle
-          title={`${businessName} — WunderBrand Snapshot™`}
-          subtitle="Strategic brand diagnostic across five core performance pillars"
-        />
+        <View style={styles.introBanner}>
+          <Text style={styles.introIcon}>i</Text>
+          <Text style={styles.introText}>
+            How to read this: Each pillar is rated out of 20. Scores are Critical (0–19%), Weak
+            (20–39%), Fair (40–59%), Good (60–79%), or Strong (80–100%). The WunderBrand Score™ is
+            the composite total out of 100.
+          </Text>
+        </View>
 
-        <Section>
-          <Text style={styles.smallHeading}>Executive Summary</Text>
-          <Text style={styles.smallHeading}>WunderBrand Score™</Text>
-
-          <Text style={styles.body}>
-            {businessName}’s WunderBrand Score™ evaluates how clearly and consistently the brand performs across positioning, messaging, visibility, credibility, and conversion — the five pillars that drive growth, trust, and competitive advantage.
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Executive Summary</Text>
+          <Text style={styles.sectionDesc}>
+            A high-level view of your brand’s alignment across five key pillars.
           </Text>
 
-          <View style={styles.scoreDisplay}>
-            <Text style={styles.scoreNumber}>
-              {brandAlignmentScore}/100
+          <View style={styles.summaryRow}>
+            <View style={styles.summaryCard}>
+              <Text style={styles.summaryLabel}>Overall Score</Text>
+              <Text style={[styles.summaryValue, { color: scoreColor(score) }]}>{score}/100</Text>
+              <Text style={styles.summaryMeta}>{scoreLabel(score)}</Text>
+            </View>
+            <View style={styles.summaryCard}>
+              <Text style={styles.summaryLabel}>Strongest Pillar</Text>
+              <Text style={styles.summaryValue}>{strongest.score}/20</Text>
+              <Text style={styles.summaryMeta}>{strongest.label}</Text>
+            </View>
+            <View style={styles.summaryCardLast}>
+              <Text style={styles.summaryLabel}>Opportunity</Text>
+              <Text style={styles.summaryValue}>{weakest.score}/20</Text>
+              <Text style={styles.summaryMeta}>{weakest.label}</Text>
+            </View>
+          </View>
+
+          <Text style={styles.diagnosisQuote}>{diagnosis}</Text>
+          <Text style={styles.body}>{overview}</Text>
+        </View>
+
+        <PdfFooter businessName={businessName} productName={PRODUCT} />
+      </Page>
+
+      <Page size="A4" style={styles.page} wrap={false}>
+        <PdfHeader title="WunderBrand Score™" {...headerProps} />
+
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>WunderBrand Score™</Text>
+          <Text style={styles.sectionDesc}>
+            A composite measure of how clearly and consistently your brand communicates across all
+            five pillars.
+          </Text>
+          <MainGaugePDF score={score} showLegend width={220} />
+          <View style={{ marginTop: 14 }}>
+            <View style={[styles.signalRail, { borderLeftColor: SUITE_NAVY }]}>
+              <Text style={[styles.signalLabel, { color: SUITE_NAVY }]}>Diagnosis</Text>
+              <Text style={styles.signalBody}>{diagnosis}</Text>
+            </View>
+            <View style={[styles.signalRail, { borderLeftColor: GREEN }]}>
+              <Text style={[styles.signalLabel, { color: GREEN }]}>Primary Opportunity</Text>
+              <Text style={styles.signalBody}>{opportunity}</Text>
+            </View>
+            <View style={[styles.signalRail, { borderLeftColor: ORANGE }]}>
+              <Text style={[styles.signalLabel, { color: ORANGE }]}>Risk if Unchanged</Text>
+              <Text style={styles.signalBody}>{risk}</Text>
+            </View>
+          </View>
+        </View>
+
+        <PdfFooter businessName={businessName} productName={PRODUCT} />
+      </Page>
+
+      <Page size="A4" style={styles.page}>
+        <PdfHeader title="Pillar Scores" {...headerProps} />
+
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Brand Pillar Scores</Text>
+          <Text style={styles.sectionDesc}>
+            Each pillar is scored out of 20, reflecting the strength and clarity of that dimension of
+            your brand.
+          </Text>
+          <View style={styles.metersWrap}>
+            <View style={styles.meterRow}>
+              <View style={styles.meterCol}>
+                <PillarScoreBar label="Positioning" score={entries[0].score} maxScore={20} />
+              </View>
+              <View style={styles.meterColLast}>
+                <PillarScoreBar label="Messaging" score={entries[1].score} maxScore={20} />
+              </View>
+            </View>
+            <View style={styles.meterRow}>
+              <View style={styles.meterCol}>
+                <PillarScoreBar label="Visibility" score={entries[2].score} maxScore={20} />
+              </View>
+              <View style={styles.meterColLast}>
+                <PillarScoreBar label="Credibility" score={entries[3].score} maxScore={20} />
+              </View>
+            </View>
+            <View style={styles.meterRow}>
+              <View style={styles.meterCol}>
+                <PillarScoreBar label="Conversion" score={entries[4].score} maxScore={20} />
+              </View>
+              <View style={styles.meterColLast} />
+            </View>
+          </View>
+        </View>
+
+        <Text style={[styles.kicker, { marginBottom: 8 }]}>Detailed Breakdown</Text>
+        {entries.map((pillar) => {
+          const percent = (pillar.score / 20) * 100;
+          const insight =
+            typeof pillarInsights[pillar.key] === "string" ? pillarInsights[pillar.key] : "";
+          return (
+            <View key={pillar.key} style={styles.insightCard} wrap={false}>
+              <View style={styles.insightHeader}>
+                <Text style={styles.insightTitle}>{pillar.label}</Text>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                  <Text
+                    style={{
+                      fontSize: 9,
+                      fontWeight: 700,
+                      color: scoreColor(percent),
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {scoreLabel(percent)}
+                  </Text>
+                  <View style={[styles.badge, { backgroundColor: scoreColor(percent) }]}>
+                    <Text style={styles.badgeText}>
+                      {pillar.score}/20
+                    </Text>
+                  </View>
+                </View>
+              </View>
+              <Text style={styles.insightBody}>{insight || "Insight pending for this pillar."}</Text>
+            </View>
+          );
+        })}
+
+        <PdfFooter businessName={businessName} productName={PRODUCT} />
+      </Page>
+
+      <Page size="A4" style={styles.page}>
+        <PdfHeader title="What’s Next" {...headerProps} />
+
+        <View style={styles.card}>
+          <Text style={styles.kicker}>Go Deeper</Text>
+          <Text style={styles.sectionTitle}>Your Full Strategy Layer Is Ready</Text>
+          <Text style={styles.sectionDesc}>
+            Core scores are unlocked. Snapshot+ expands the diagnosis into actionable strategy.
+          </Text>
+
+          <View style={[styles.signalRail, { borderLeftColor: SUITE_ACCENT_BRIGHT, marginBottom: 10 }]}>
+            <Text style={[styles.signalLabel, { color: SUITE_ACCENT_BRIGHT }]}>
+              Competitive Vulnerability
             </Text>
-            <Text style={{ fontSize: pdfTheme.fontSizes.sm, color: "#5a6c8a", marginTop: 4 }}>
-              {brandAlignmentScore >= 80 ? "Strong alignment — focus on refinement and consistency at scale" :
-               brandAlignmentScore >= 60 ? "Solid foundation — targeted pillar investment will compound" :
-               brandAlignmentScore >= 40 ? "Clear strengths with material improvement opportunities" :
-               "Foundational work ahead — clarity now creates disproportionate returns"}
+            <Text style={styles.signalBody}>
+              Your score pattern indicates an exposure around {primaryLabel}. Snapshot+ prioritizes
+              which gap to address first for the fastest commercial impact.
             </Text>
           </View>
-        </Section>
 
-        <Section>
-          <Text style={styles.smallHeading}>Pillar-by-Pillar Performance</Text>
-
-          <PillarScoreBar label="Positioning" score={pillarScores.positioning} />
-          <PillarScoreBar label="Messaging" score={pillarScores.messaging} />
-          <PillarScoreBar label="Visibility" score={pillarScores.visibility} />
-          <PillarScoreBar label="Credibility" score={pillarScores.credibility} />
-          <PillarScoreBar label="Conversion" score={pillarScores.conversion} />
-        </Section>
-
-        <PdfFooter businessName={businessName} productName="WunderBrand Snapshot™" />
-      </Page>
-
-      {/* ---------------- PAGE 2 ---------------- */}
-      <Page size="A4" style={styles.page}>
-        <PdfHeader title="Pillar Insights" />
-
-        <PageTitle title="Diagnostic Insights" subtitle={`What the data reveals about ${businessName}\u2019s brand performance`} />
-
-        <Section>
-          <InsightBlock
-            title="Positioning"
-            text={pillarInsights.positioning}
-          />
-        </Section>
-
-        <Section>
-          <InsightBlock
-            title="Messaging"
-            text={pillarInsights.messaging}
-          />
-        </Section>
-
-        <Section>
-          <InsightBlock
-            title="Visibility"
-            text={pillarInsights.visibility}
-          />
-        </Section>
-
-        <Section>
-          <InsightBlock
-            title="Credibility"
-            text={pillarInsights.credibility}
-          />
-        </Section>
-
-        <Section>
-          <InsightBlock
-            title="Conversion"
-            text={pillarInsights.conversion}
-          />
-        </Section>
-
-        <PdfFooter businessName={businessName} productName="WunderBrand Snapshot™" />
-      </Page>
-
-      {/* ---------------- PAGE 3 ---------------- */}
-      <Page size="A4" style={styles.page}>
-        <PdfHeader title="Free Snapshot Unlock Preview" />
-        
-        <PageTitle
-          title="Your Full Results Are Ready"
-          subtitle="You are seeing your core score outputs; the deeper strategy layer is identified and waiting."
-        />
-
-        <Section>
-          <Text style={styles.smallHeading}>Competitive Vulnerability Signal</Text>
-          <Text style={styles.body}>
-            Your score pattern indicates an exposure around {primaryLabel}. Snapshot+ prioritizes
-            which gap to address first for the fastest commercial impact.
-          </Text>
-        </Section>
-
-        <Section>
-          <Text style={styles.smallHeading}>Locked Sections Identified</Text>
+          <Text style={styles.kicker}>Identified in Your Results</Text>
           {likelyArchetype ? (
-            <Text style={styles.body}>
-              - Your Brand Archetype: {archetypeIcon} {likelyArchetype}
+            <Text style={styles.listItem}>
+              • Brand Archetype: {likelyArchetype}
               {archetypeMeaning ? ` — ${archetypeMeaning}` : ""}
             </Text>
           ) : (
-            <Text style={styles.body}>- Your Brand Archetype: included in your results</Text>
+            <Text style={styles.listItem}>• Brand Archetype: included in your results</Text>
           )}
-          <Text style={styles.body}>
-            - {primaryLabel} Deep Dive: dominant contributing factor identified, available in Snapshot+
+          <Text style={styles.listItem}>
+            • {primaryLabel} Deep Dive: dominant contributing factor identified
           </Text>
-          <Text style={styles.body}>- Audience Alignment Gap: identified, available in Snapshot+</Text>
-          <Text style={styles.body}>- Foundational Prompt Pack: {promptPackLabel}, available in Snapshot+</Text>
-          <Text style={styles.body}>
-            - Content Format & Channel Recommendations: {contentFormatChannelTeaser(
-              normalizedBusinessType,
-            )}
+          <Text style={styles.listItem}>• Audience Alignment Gap: identified</Text>
+          <Text style={styles.listItem}>• Foundational Prompt Pack: {promptPackLabel}</Text>
+          <Text style={styles.listItem}>
+            • Content Format & Channel Plan: {contentFormatChannelTeaser(normalizedBusinessType)}
           </Text>
-        </Section>
 
-        <Section>
-          <Text style={styles.smallHeading}>Audience Alignment Gap (Preview)</Text>
-          <Text style={styles.body}>{getAudienceAlignmentTeaser(primaryPillar as PillarKey)}</Text>
-        </Section>
+          <View style={[styles.signalRail, { borderLeftColor: SUITE_ACCENT_BRIGHT, marginTop: 8 }]}>
+            <Text style={[styles.signalLabel, { color: SUITE_ACCENT_BRIGHT }]}>
+              Audience Alignment Gap
+            </Text>
+            <Text style={styles.signalBody}>
+              {getAudienceAlignmentTeaser(primaryPillar as PillarKey)}
+            </Text>
+            <Text style={styles.ctaLabel}>Explore Snapshot+™</Text>
+            <Text style={[styles.muted, { marginTop: 4 }]}>
+              Unlock archetype activation, messaging frameworks, and implementation steps.
+            </Text>
+          </View>
+        </View>
 
-        <Section>
-          <Text style={styles.smallHeading}>Call to Action</Text>
-          <Text style={styles.body}>Upgrade to Snapshot+™ — $497</Text>
-          <Text style={styles.body}>
-            Get full archetype activation guidance and implementation steps in Snapshot+.
-          </Text>
-        </Section>
-
-        <PdfFooter businessName={businessName} productName="WunderBrand Snapshot™" />
+        <PdfFooter businessName={businessName} productName={PRODUCT} />
       </Page>
 
-      {/* ---------------- PAGE 4 ---------------- */}
       <Page size="A4" style={styles.page}>
-        <PdfHeader title="Brand Foundations Summary" />
+        <PdfHeader title="Brand Footprint" {...headerProps} />
 
-        <PageTitle
-          title="Brand Footprint"
-          subtitle={`${businessName}\u2019s current brand infrastructure`}
-        />
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Current Brand Infrastructure</Text>
+          <Text style={styles.sectionDesc}>{businessName}’s footprint and commercial signals</Text>
 
-        <Section>
-          <View style={styles.infoCard}>
-            <Text style={styles.body}>
-              <Text style={{ fontWeight: 700 }}>Business:</Text> {businessName}
-              {"\n"}
-              <Text style={{ fontWeight: 700 }}>Industry:</Text> {industry}
-              {"\n"}
-              <Text style={{ fontWeight: 700 }}>Website:</Text> {website || "Not provided"}
-              {"\n"}
-              <Text style={{ fontWeight: 700 }}>Active platforms:</Text>{" "}
-              {socials?.length ? socials.join(", ") : "None identified"}
-            </Text>
-          </View>
-        </Section>
+          <Text style={styles.fieldLabel}>Business</Text>
+          <Text style={styles.fieldValue}>{businessName}</Text>
+          <Text style={styles.fieldLabel}>Industry</Text>
+          <Text style={styles.fieldValue}>{industry || "Not provided"}</Text>
+          <Text style={styles.fieldLabel}>Website</Text>
+          <Text style={styles.fieldValue}>{website || "Not provided"}</Text>
+          <Text style={styles.fieldLabel}>Active Platforms</Text>
+          <Text style={[styles.fieldValue, { marginBottom: 0 }]}>
+            {socials?.length ? socials.join(", ") : "None identified"}
+          </Text>
+        </View>
 
-        <Section>
-          <View style={styles.signalCard}>
-            <Text style={{ ...styles.smallHeading, marginBottom: 8 }}>Marketing Spend Efficiency Signal</Text>
-            <Text style={styles.body}>
-              {monthlyMarketingBudget
-                ? `Based on your declared budget (${monthlyMarketingBudget}), your current highest-risk inefficiency is ${pillarRisk(
-                    primaryPillar as PillarKey,
-                  )}.`
-                : `Your score pattern suggests potential spend inefficiency through ${pillarRisk(
-                    primaryPillar as PillarKey,
-                  )}.`}{" "}
-              Snapshot+ maps exactly where to focus first so spend works harder before scaling.
-            </Text>
-          </View>
-        </Section>
+        <View style={styles.card}>
+          <Text style={styles.kicker}>Marketing Spend Efficiency</Text>
+          <Text style={styles.body}>
+            {monthlyMarketingBudget
+              ? `Based on your declared budget (${monthlyMarketingBudget}), your current highest-risk inefficiency is ${pillarRisk(
+                  primaryPillar as PillarKey,
+                )}.`
+              : `Your score pattern suggests potential spend inefficiency through ${pillarRisk(
+                  primaryPillar as PillarKey,
+                )}.`}{" "}
+            Snapshot+ maps where to focus first so spend works harder before scaling.
+          </Text>
+        </View>
 
-        <Section>
-          <View
-            style={{
-              ...styles.signalCard,
-              borderLeft: `4px solid ${pdfTheme.colors.navy}`,
-            }}
-          >
-            <Text style={{ ...styles.smallHeading, marginBottom: 8 }}>Revenue Impact Statement</Text>
-            <Text style={styles.body}>
-              {canEstimateRevenueImpact && estimatedLift
-                ? `Based on your inputs, addressing ${primaryLabel} could represent approximately $${estimatedLift.toLocaleString()}/month in additional revenue at conservative estimates (assuming a 10% improvement).`
-                : `Your ${primaryLabel} score suggests measurable revenue drag. The likely cost appears in conversion efficiency and sales-cycle friction. Snapshot+ shows where the gap lives and what to fix first.`}
-            </Text>
-            <Text style={{ ...styles.body, marginTop: 12, fontWeight: 600, color: pdfTheme.colors.blue }}>
-              Upgrade to Snapshot+™ — $497
-            </Text>
-          </View>
-        </Section>
+        <View style={styles.card}>
+          <Text style={styles.kicker}>Revenue Impact</Text>
+          <Text style={styles.body}>
+            {canEstimateRevenueImpact && estimatedLift
+              ? `Based on your inputs, addressing ${primaryLabel} could represent approximately $${estimatedLift.toLocaleString()}/month in additional revenue at conservative estimates (assuming a 10% improvement).`
+              : `Your ${primaryLabel} score suggests measurable revenue drag. The likely cost appears in conversion efficiency and sales-cycle friction. Snapshot+ shows where the gap lives and what to fix first.`}
+          </Text>
+          <Text style={styles.ctaLabel}>Explore Snapshot+™</Text>
+        </View>
 
-        <PdfFooter businessName={businessName} productName="WunderBrand Snapshot™" />
+        <PdfFooter businessName={businessName} productName={PRODUCT} />
       </Page>
 
       <DisclaimerPage tier="snapshot" />
@@ -487,9 +775,6 @@ export const BrandSnapshotPDF = ({
   );
 };
 
-// ------------------------
-// TYPES
-// ------------------------
 export interface BrandSnapshotReport {
   userName: string;
   businessName: string;

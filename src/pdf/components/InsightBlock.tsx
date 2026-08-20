@@ -1,28 +1,48 @@
 // src/pdf/components/InsightBlock.tsx
-// Reusable insight block component for PDF documents
+// Suite insight card with brand rail
 
+import type { ReactNode } from "react";
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
-import { pdfTheme } from "../theme";
+import {
+  SUITE_BORDER,
+  SUITE_MUTED,
+  SUITE_NAVY,
+  SUITE_RADIUS_MD,
+  SUITE_TEXT_PRIMARY,
+} from "@/components/results/suiteBrandTokens";
 
 const styles = StyleSheet.create({
   container: {
     padding: 12,
-    backgroundColor: "#F8FBFF",
-    borderRadius: 8,
-    border: `1px solid #E2EAF5`,
+    paddingLeft: 14,
+    backgroundColor: "#FFFFFF",
+    borderRadius: SUITE_RADIUS_MD,
+    borderWidth: 1,
+    borderColor: SUITE_BORDER,
+    borderLeftWidth: 3,
+    borderLeftColor: "rgba(7, 176, 242, 0.55)",
+    marginBottom: 8,
   },
   title: {
-    fontFamily: "Helvetica",
-    fontSize: 11.5,
-    fontWeight: 600,
-    color: pdfTheme.colors.navy,
-    marginBottom: 6,
+    fontFamily: "Lato",
+    fontSize: 11,
+    fontWeight: 700,
+    color: SUITE_NAVY,
+    marginBottom: 5,
+    letterSpacing: -0.15,
   },
   text: {
-    fontFamily: "Helvetica",
-    fontSize: 10,
-    color: pdfTheme.colors.text,
-    lineHeight: 1.62,
+    fontFamily: "Lato",
+    fontSize: 9.5,
+    fontWeight: 400,
+    color: SUITE_TEXT_PRIMARY,
+    lineHeight: 1.55,
+  },
+  muted: {
+    fontFamily: "Lato",
+    fontSize: 8.5,
+    color: SUITE_MUTED,
+    marginTop: 4,
   },
 });
 
@@ -33,7 +53,7 @@ export const InsightBlock = ({
 }: {
   title: string;
   text?: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }) => (
   <View style={styles.container}>
     <Text style={styles.title}>{title}</Text>

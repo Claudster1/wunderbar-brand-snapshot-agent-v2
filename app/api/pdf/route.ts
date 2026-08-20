@@ -416,5 +416,5 @@ function getFilename(reportId: string, documentType: PDFDocumentType): string {
     "blueprint-plus": "BrandBlueprintPlus",
   };
 
-  return `${typeNames[documentType]}_Report_${reportId}.pdf`;
+  return `${typeNames[documentType]}_${reportId}.pdf`;
 }

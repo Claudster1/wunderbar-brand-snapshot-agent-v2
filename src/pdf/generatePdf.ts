@@ -104,7 +104,7 @@ export async function generatePdf(
  * const response = await generatePdfResponse({
  *   documentType: "snapshot-plus",
  *   data: { ... },
- *   filename: "my-report.pdf"
+ *   filename: "my.pdf"
  * });
  * return response;
  * ```
@@ -114,7 +114,7 @@ export async function generatePdfResponse(
 ): Promise<Response> {
   try {
     const pdfBuffer = await generatePdf(options);
-    const filename = options.filename || `${options.documentType}-report.pdf`;
+    const filename = options.filename || `${options.documentType}.pdf`;
 
     return new Response(new Uint8Array(pdfBuffer), {
       headers: {

@@ -13,26 +13,31 @@ import {
   EXAMPLE_CALLOUT,
 } from "../reportVisualTokens";
 import { DisclaimerPage } from "../components/DisclaimerPage";
+import { PdfHeader } from "../components/PdfHeader";
+import { PdfFooter } from "../components/PdfFooter";
+import { registerPdfFonts } from "../registerFonts";
 import { SectionDividerPage } from "../components/SectionDividerPage";
 import type { BlueprintEngineOutput } from "../types/blueprintReport";
 import { normalizePromptItemForPdf } from "@/src/pdf/lib/promptPackDisplay";
 import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
 
+registerPdfFonts();
+
 
 const s = StyleSheet.create({
-  page: { padding: 42, paddingBottom: 92, fontFamily: "Helvetica", fontSize: 10, color: pdfTheme.colors.text, lineHeight: 1.6 },
-  coverPage: { padding: 42, fontFamily: "Helvetica", justifyContent: "center", alignItems: "center", backgroundColor: pdfTheme.colors.navy },
+  page: { padding: 42, paddingBottom: 72, fontFamily: "Lato", backgroundColor: "#F5F5F7", fontSize: 10, color: pdfTheme.colors.text, lineHeight: 1.6 },
+  coverPage: { padding: 42, fontFamily: "Lato", justifyContent: "center", alignItems: "center", backgroundColor: pdfTheme.colors.navy },
   coverLogo: { width: 120, marginBottom: 40, opacity: 0.9 },
   coverTitle: { fontSize: 32, fontWeight: "bold", color: "#FFFFFF", textAlign: "center", marginBottom: 8 },
   coverSubtitle: { fontSize: 14, color: pdfTheme.colors.aqua, textAlign: "center", marginBottom: 32 },
   coverMeta: { fontSize: 10, color: "#FFFFFF", textAlign: "center", opacity: 0.7, marginTop: 4 },
 
-  tocPage: { padding: 42, paddingBottom: 92, fontFamily: "Helvetica", fontSize: 10, color: pdfTheme.colors.text },
+  tocPage: { padding: 42, paddingBottom: 72, fontFamily: "Lato", backgroundColor: "#F5F5F7", fontSize: 10, color: pdfTheme.colors.text },
   tocTitle: { fontSize: 24, fontWeight: "bold", color: pdfTheme.colors.navy, marginBottom: 24 },
   tocPart: { fontSize: 13, fontWeight: "bold", color: pdfTheme.colors.navy, marginTop: 16, marginBottom: 6 },
   tocItem: { fontSize: 10, color: "#4B5563", paddingLeft: 12, marginBottom: 3, lineHeight: 1.6 },
 
-  partDivider: { padding: 42, fontFamily: "Helvetica", justifyContent: "center", alignItems: "center", backgroundColor: pdfTheme.colors.navy },
+  partDivider: { padding: 42, fontFamily: "Lato", justifyContent: "center", alignItems: "center", backgroundColor: pdfTheme.colors.navy },
   partNumber: { fontSize: 14, color: pdfTheme.colors.aqua, letterSpacing: 3, textTransform: "uppercase", marginBottom: 8 },
   partTitle: { fontSize: 28, fontWeight: "bold", color: "#FFFFFF", textAlign: "center", marginBottom: 8 },
   partDesc: { fontSize: 11, color: "#FFFFFF", textAlign: "center", opacity: 0.7, maxWidth: 400 },
@@ -43,11 +48,11 @@ const s = StyleSheet.create({
   h4: { fontSize: 10, fontWeight: "bold", color: pdfTheme.colors.navy, marginBottom: 3, marginTop: 10 },
   body: { fontSize: 10, lineHeight: 1.6, marginBottom: 6, color: pdfTheme.colors.text },
   small: { fontSize: 9, color: pdfTheme.colors.muted, lineHeight: 1.5 },
-  label: { fontSize: 8, fontWeight: "bold", color: "#0D5BD7", textTransform: "uppercase", letterSpacing: 1.1, marginBottom: 3, marginTop: 10 },
+  label: { fontSize: 8, fontWeight: "bold", color: "#07B0F2", textTransform: "uppercase", letterSpacing: 1.1, marginBottom: 3, marginTop: 10 },
 
-  card: { backgroundColor: "#F8FBFF", borderRadius: 8, padding: 12, marginBottom: 10, border: `1 solid ${pdfTheme.colors.border}` },
+  card: { backgroundColor: "#FFFFFF", borderRadius: 12, padding: 12, paddingLeft: 14, marginBottom: 10, borderWidth: 1, borderColor: pdfTheme.colors.border, borderLeftWidth: 3, borderLeftColor: "rgba(7, 176, 242, 0.55)" },
   cardTitle: { fontSize: 11, fontWeight: "bold", color: pdfTheme.colors.navy, marginBottom: 4 },
-  accentCard: { backgroundColor: "#EFF6FF", borderRadius: 8, padding: 12, marginBottom: 10, borderLeft: `3 solid ${pdfTheme.colors.blue}`, border: "1 solid #D9E8FF" },
+  accentCard: { backgroundColor: "#FFFFFF", borderRadius: 12, padding: 12, paddingLeft: 14, marginBottom: 10, borderWidth: 1, borderColor: pdfTheme.colors.border, borderLeftWidth: 3, borderLeftColor: pdfTheme.colors.blue },
   warnCard: { backgroundColor: "#FFFBEB", borderRadius: 8, padding: 12, marginBottom: 10, borderLeft: "3 solid #F59E0B", border: "1 solid #FDE68A" },
 
   scoreRow: { flexDirection: "row", alignItems: "center", marginBottom: 8 },
@@ -76,15 +81,6 @@ const s = StyleSheet.create({
   tableCell: { fontSize: 9, lineHeight: 1.4 },
   tableCellBold: { fontSize: 9, fontWeight: "bold", lineHeight: 1.4 },
 });
-
-function Footer({ brandName }: { brandName: string }) {
-  return (
-    <View style={s.footer} fixed>
-      <Text style={s.footerText}>WunderBrand Blueprint™ — {brandName}</Text>
-      <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
-    </View>
-  );
-}
 
 function Bullets({ items }: { items: string[] }) {
   return <>{items?.map((item, i) => <Text key={i} style={s.bullet}>• {item}</Text>)}</>;
@@ -175,6 +171,12 @@ interface Props {
 }
 
 export function CompleteBlueprintDocument({ data, brandName, userName }: Props) {
+  const reportDate = new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+  const headerChrome = {
+    businessName: brandName,
+    date: reportDate,
+    productName: "WunderBrand Blueprint™" as const,
+  };
   const d = data;
   const pillars = ["positioning", "messaging", "visibility", "credibility", "conversion"] as const;
   const pillarLabels: Record<string, string> = { positioning: "Positioning", messaging: "Messaging", visibility: "Visibility", credibility: "Credibility", conversion: "Conversion" };
@@ -197,6 +199,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
 
       {/* ═══ TABLE OF CONTENTS ═══ */}
       <Page size="A4" style={s.tocPage}>
+        <PdfHeader title="Table of Contents" {...headerChrome} />
         <Text style={s.tocTitle}>What's Inside</Text>
 
         <Text style={s.tocPart}>Part I — Diagnostic & Insights</Text>
@@ -248,6 +251,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         <Text style={s.tocPart}>Part VI — AI Prompt Library</Text>
         <Text style={s.tocItem}>Foundational Prompt Pack (8 prompts)</Text>
         <Text style={s.tocItem}>Execution Prompt Pack (8 prompts)</Text>
+        <PdfFooter businessName={brandName} productName="WunderBrand Blueprint™" showPageNumbers />
       </Page>
 
       {/* ═══════════════════════════════════════════════════════════
@@ -267,7 +271,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
 
       {/* Executive Summary */}
       <Page size="A4" style={s.page} wrap>
-        <Footer brandName={brandName} />
+        <PdfHeader title="WunderBrand Blueprint™" {...headerChrome} />
         <Text style={s.h1}>Executive Summary</Text>
 
         <View style={s.scoreRow}>
@@ -314,6 +318,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
           <Text style={s.label}>What Improves</Text>
           <Text style={s.body}>{d.priorityDiagnosis?.secondary?.whatImproves}</Text>
         </View>
+        <PdfFooter businessName={brandName} productName="WunderBrand Blueprint™" showPageNumbers />
       </Page>
 
       <SectionDividerPage
@@ -328,7 +333,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         if (!p) return null;
         return (
           <Page key={key} size="A4" style={s.page} wrap>
-            <Footer brandName={brandName} />
+            <PdfFooter businessName={brandName} productName="WunderBrand Blueprint™" showPageNumbers />
             <View style={s.scoreRow}>
               <View style={s.scoreBadge}><Text style={s.scoreNum}>{p.score}</Text></View>
               <Text style={s.h1}>{pillarLabels[key]}</Text>
@@ -396,7 +401,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
 
       {/* Strategic Alignment + Archetype + Action Plan */}
       <Page size="A4" style={s.page} wrap>
-        <Footer brandName={brandName} />
+        <PdfHeader title="WunderBrand Blueprint™" {...headerChrome} />
         <Text style={s.h1}>Strategic Alignment</Text>
         <Text style={s.body}>{d.strategicAlignment?.summary}</Text>
         {d.strategicAlignment?.reinforcements?.length > 0 && (
@@ -458,6 +463,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
             </View>
           </View>
         ))}
+        <PdfFooter businessName={brandName} productName="WunderBrand Blueprint™" showPageNumbers />
       </Page>
 
       {/* ═══════════════════════════════════════════════════════════
@@ -478,7 +484,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
       {/* Value Proposition Statement */}
       {d.valuePropositionStatement?.statement && (
         <Page size="A4" style={s.page} wrap>
-          <Footer brandName={brandName} />
+        <PdfHeader title="WunderBrand Blueprint™" {...headerChrome} />
           <Text style={s.h1}>Value Proposition Statement</Text>
           <View style={s.accentCard}>
             <Text style={{ ...s.body, fontSize: 14, fontWeight: "bold", color: pdfTheme.colors.navy }}>
@@ -489,11 +495,12 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
           <Text style={s.body}>{d.valuePropositionStatement.whereToUseIt}</Text>
           <Text style={s.label}>Why This Works</Text>
           <Text style={s.body}>{d.valuePropositionStatement.whyThisWorks}</Text>
-        </Page>
+        
+        <PdfFooter businessName={brandName} productName="WunderBrand Blueprint™" showPageNumbers /></Page>
       )}
 
       <Page size="A4" style={s.page} wrap>
-        <Footer brandName={brandName} />
+        <PdfHeader title="WunderBrand Blueprint™" {...headerChrome} />
         <Text style={s.h1}>Brand Foundation</Text>
 
         <Text style={s.label}>Mission</Text>
@@ -540,6 +547,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
 
         <Text style={s.label}>Founder Story</Text>
         <Text style={s.body}>{d.brandStory?.founderStory}</Text>
+        <PdfFooter businessName={brandName} productName="WunderBrand Blueprint™" showPageNumbers />
       </Page>
 
       {/* Voice & Tone Guide */}
@@ -551,7 +559,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
           subtitle="Language standards to keep brand expression consistent across channels."
         />
         <Page size="A4" style={s.page} wrap>
-          <Footer brandName={brandName} />
+        <PdfHeader title="WunderBrand Blueprint™" {...headerChrome} />
           <Text style={s.h1}>Voice & Tone Guide</Text>
           <Text style={s.body}>{d.voiceToneGuide.voiceSummary}</Text>
 
@@ -600,7 +608,8 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
               </View>
             </View>
           )}
-        </Page>
+        <PdfFooter businessName={brandName} productName="WunderBrand Blueprint™" showPageNumbers />
+      </Page>
         </>
       )}
 
@@ -611,7 +620,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         subtitle="Identity, behavior, and channel-ready communication examples."
       />
       <Page size="A4" style={s.page} wrap>
-        <Footer brandName={brandName} />
+        <PdfHeader title="WunderBrand Blueprint™" {...headerChrome} />
         <Text style={s.h1}>Brand Persona</Text>
         <Text style={s.body}>{d.brandPersona?.personaSummary}</Text>
 
@@ -665,6 +674,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
             </View>
           </View>
         ))}
+        <PdfFooter businessName={brandName} productName="WunderBrand Blueprint™" showPageNumbers />
       </Page>
 
       {/* Audience & ICPs */}
@@ -674,7 +684,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         subtitle="Labeled ICPs (segments) and buyer personas (people inside each segment)."
       />
       <Page size="A4" style={s.page} wrap>
-        <Footer brandName={brandName} />
+        <PdfHeader title="WunderBrand Blueprint™" {...headerChrome} />
         <Text style={s.h1}>Ideal Customer Profiles</Text>
         <View style={{ ...s.warnCard, marginBottom: 12 }}>
           <Text style={s.body}>
@@ -774,6 +784,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
             </View>
           </View>
         ))}
+        <PdfFooter businessName={brandName} productName="WunderBrand Blueprint™" showPageNumbers />
       </Page>
 
       {/* ═══════════════════════════════════════════════════════════
@@ -792,7 +803,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
       />
 
       <Page size="A4" style={s.page} wrap>
-        <Footer brandName={brandName} />
+        <PdfHeader title="WunderBrand Blueprint™" {...headerChrome} />
         <Text style={s.h1}>Messaging System</Text>
         <Text style={s.label}>Core Message</Text>
         <View style={s.accentCard}><Text style={s.body}>{d.messagingSystem?.coreMessage}</Text></View>
@@ -832,6 +843,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
             </View>
           </View>
         ))}
+        <PdfFooter businessName={brandName} productName="WunderBrand Blueprint™" showPageNumbers />
       </Page>
 
       <SectionDividerPage
@@ -841,7 +853,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
       />
 
       <Page size="A4" style={s.page} wrap>
-        <Footer brandName={brandName} />
+        <PdfHeader title="WunderBrand Blueprint™" {...headerChrome} />
         <Text style={s.h1}>Messaging Pillars</Text>
         <Text style={s.body}>Use this section for content planning and campaign briefing.</Text>
         <Text style={s.h1}>Content Pillars</Text>
@@ -875,6 +887,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         <Text style={s.body}>{d.companyDescription?.fullBoilerplate}</Text>
         <Text style={s.label}>Proposal Intro</Text>
         <Text style={s.body}>{d.companyDescription?.proposalIntro}</Text>
+        <PdfFooter businessName={brandName} productName="WunderBrand Blueprint™" showPageNumbers />
       </Page>
 
       {/* ═══════════════════════════════════════════════════════════
@@ -893,7 +906,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
       />
 
       <Page size="A4" style={s.page} wrap>
-        <Footer brandName={brandName} />
+        <PdfHeader title="WunderBrand Blueprint™" {...headerChrome} />
         <Text style={s.h1}>Competitive Positioning</Text>
         <View style={s.card}>
           <Text style={s.h4}>Axis 1: {d.competitivePositioning?.positioningAxis1?.label}</Text>
@@ -953,6 +966,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
             <Text style={s.small}>Conversion Trigger: {stage.conversionTrigger} | KPI: {stage.kpiToTrack}</Text>
           </View>
         ))}
+        <PdfFooter businessName={brandName} productName="WunderBrand Blueprint™" showPageNumbers />
       </Page>
 
       {/* SEO, AEO, Email, Social, Conversion, Pricing, Sales */}
@@ -962,7 +976,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         subtitle="Search, email, social, conversion, pricing, and sales execution guidance."
       />
       <Page size="A4" style={s.page} wrap>
-        <Footer brandName={brandName} />
+        <PdfHeader title="WunderBrand Blueprint™" {...headerChrome} />
         <Text style={s.h1}>SEO & Keyword Strategy</Text>
         <BodyRichText text={d.seoStrategy?.overview} />
         <Text style={s.h3}>Primary Keywords</Text>
@@ -1195,6 +1209,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         ))}
         <Text style={s.label}>Closing Language</Text>
         <BodyRichText text={d.salesConversationGuide?.closingLanguage} />
+        <PdfFooter businessName={brandName} productName="WunderBrand Blueprint™" showPageNumbers />
       </Page>
 
       {/* ═══════════════════════════════════════════════════════════
@@ -1213,7 +1228,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
       />
 
       <Page size="A4" style={s.page} wrap>
-        <Footer brandName={brandName} />
+        <PdfHeader title="WunderBrand Blueprint™" {...headerChrome} />
         <Text style={s.h1}>90-Day Brand Strategy Rollout</Text>
         <View style={s.accentCard}><Text style={s.body}>{d.brandStrategyRollout?.brandStrategyOnePager}</Text></View>
 
@@ -1389,6 +1404,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         <Bullets items={d.brandImageryDirection?.subjectMatterGuidance?.show || []} />
         <Text style={s.h4}>Not this</Text>
         <Bullets items={d.brandImageryDirection?.subjectMatterGuidance?.avoid || []} />
+        <PdfFooter businessName={brandName} productName="WunderBrand Blueprint™" showPageNumbers />
       </Page>
 
       <SectionDividerPage
@@ -1413,7 +1429,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
       />
 
       <Page size="A4" style={s.page} wrap>
-        <Footer brandName={brandName} />
+        <PdfHeader title="WunderBrand Blueprint™" {...headerChrome} />
         <Text style={s.h1}>{d.foundationalPromptPack?.packName || "Foundational Prompt Pack"}</Text>
         <Text style={s.body}>{d.foundationalPromptPack?.description}</Text>
         {d.foundationalPromptPack?.prompts?.map((p, i) => (
@@ -1448,6 +1464,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
             </View>
           );
         })}
+        <PdfFooter businessName={brandName} productName="WunderBrand Blueprint™" showPageNumbers />
       </Page>
 
       {/* ═══ DISCLAIMER ═══ */}

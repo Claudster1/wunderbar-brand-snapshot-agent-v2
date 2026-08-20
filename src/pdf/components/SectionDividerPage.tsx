@@ -1,30 +1,31 @@
 import React from "react";
 import { Page, Text, View, StyleSheet } from "@react-pdf/renderer";
-import { pdfTheme } from "../theme";
+import { SUITE_ACCENT_BRIGHT, SUITE_NAVY } from "@/components/results/suiteBrandTokens";
 
 const s = StyleSheet.create({
   page: {
     padding: 44,
-    fontFamily: "Helvetica",
+    fontFamily: "Lato",
     justifyContent: "center",
-    backgroundColor: "#061E63",
+    backgroundColor: SUITE_NAVY,
   },
   panel: {
     borderRadius: 14,
-    border: "1 solid rgba(255,255,255,0.16)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.16)",
     backgroundColor: "rgba(255,255,255,0.06)",
     paddingVertical: 28,
     paddingHorizontal: 30,
   },
   eyebrow: {
+    fontFamily: "Lato",
     fontSize: 9,
-    color: "#8CD7FF",
+    fontWeight: 700,
+    color: SUITE_ACCENT_BRIGHT,
     letterSpacing: 1.4,
     textTransform: "uppercase",
     marginBottom: 10,
-    fontWeight: 600,
     textAlign: "center",
-    opacity: 0.95,
   },
   ruleWrap: {
     flexDirection: "row",
@@ -34,19 +35,21 @@ const s = StyleSheet.create({
   rule: {
     width: 74,
     height: 3,
-    backgroundColor: pdfTheme.colors.blue,
+    backgroundColor: SUITE_ACCENT_BRIGHT,
     borderRadius: 999,
-    opacity: 0.95,
   },
   title: {
-    fontSize: 27,
-    fontWeight: 700,
+    fontFamily: "Lato",
+    fontSize: 26,
+    fontWeight: 900,
     color: "#FFFFFF",
     textAlign: "center",
     marginBottom: 10,
     lineHeight: 1.2,
+    letterSpacing: -0.4,
   },
   subtitle: {
+    fontFamily: "Lato",
     fontSize: 11,
     color: "#FFFFFF",
     textAlign: "center",
@@ -56,8 +59,10 @@ const s = StyleSheet.create({
   watermark: {
     marginTop: 24,
     textAlign: "center",
+    fontFamily: "Lato",
     fontSize: 8,
-    color: "#95A4CC",
+    fontWeight: 600,
+    color: "rgba(255,255,255,0.45)",
     letterSpacing: 0.7,
     textTransform: "uppercase",
   },

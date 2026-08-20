@@ -1,35 +1,48 @@
 // src/pdf/components/Section.tsx
-// Reusable section container component for PDF documents
+// Suite section shell for PDF documents
 
+import type { ReactNode } from "react";
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
-import { pdfTheme } from "../theme";
+import { SUITE_ACCENT_BRIGHT, SUITE_NAVY } from "@/components/results/suiteBrandTokens";
 
 const styles = StyleSheet.create({
   section: {
-    paddingHorizontal: 22,
-    paddingVertical: 12,
-    marginBottom: 8,
-    borderBottom: "1px solid #EAF1FB",
+    paddingHorizontal: 28,
+    paddingVertical: 8,
+    marginBottom: 4,
   },
   title: {
-    fontSize: 11,
-    fontWeight: 600,
-    color: "#0B5FCC",
-    marginBottom: 6,
+    fontFamily: "Lato",
+    fontSize: 9,
+    fontWeight: 700,
+    color: SUITE_ACCENT_BRIGHT,
+    marginBottom: 8,
     textTransform: "uppercase",
-    letterSpacing: 1.1,
+    letterSpacing: 1,
+  },
+  navyTitle: {
+    fontFamily: "Lato",
+    fontSize: 12,
+    fontWeight: 700,
+    color: SUITE_NAVY,
+    marginBottom: 8,
+    letterSpacing: -0.2,
   },
 });
 
-export const Section = ({ 
-  title, 
-  children 
-}: { 
-  title?: string; 
-  children: any 
+export const Section = ({
+  title,
+  children,
+  titleTone = "accent",
+}: {
+  title?: string;
+  children: ReactNode;
+  titleTone?: "accent" | "navy";
 }) => (
   <View style={styles.section}>
-    {title && <Text style={styles.title}>{title}</Text>}
+    {title ? (
+      <Text style={titleTone === "navy" ? styles.navyTitle : styles.title}>{title}</Text>
+    ) : null}
     {children}
   </View>
 );

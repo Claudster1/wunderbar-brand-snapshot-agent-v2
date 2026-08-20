@@ -22,6 +22,8 @@ import {
 import { pdfTheme, colors } from "../theme";
 import { ILLUSTRATION_AFTER, ILLUSTRATION_BEFORE, SEMANTIC_DONT, SEMANTIC_DO } from "../reportVisualTokens";
 import { DisclaimerPage } from "../components/DisclaimerPage";
+import { PdfHeader } from "../components/PdfHeader";
+import { PdfFooter } from "../components/PdfFooter";
 import { registerPdfFonts } from "../registerFonts";
 import { sampleStyleForRole } from "../typography/brandStandardsTypeSamples";
 import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
@@ -184,7 +186,7 @@ interface WorkbookData {
     mood_board_image_samples?: ImagerySample[];
   };
 
-  // Rich brand standards data (from Blueprint+ report via JSONB column)
+  // Rich brand standards data (from Blueprint+ via JSONB column)
   brand_standards_data?: {
     visual_system_mode?: "existing" | "optimize" | "refresh" | string;
     // Brand Foundations
@@ -267,19 +269,21 @@ interface WorkbookData {
 
 const s = StyleSheet.create({
   page: {
-    padding: 48,
+    paddingTop: 72,
+    paddingHorizontal: 36,
     paddingBottom: 72,
-    fontFamily: "Helvetica",
+    fontFamily: "Lato",
     fontSize: 11,
     lineHeight: 1.6,
     color: pdfTheme.colors.text,
+    backgroundColor: "#F5F5F7",
   },
   coverPage: {
     padding: 0,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: pdfTheme.colors.navy,
-    fontFamily: "Helvetica",
+    fontFamily: "Lato",
   },
   coverInner: {
     padding: 64,
@@ -323,7 +327,7 @@ const s = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: pdfTheme.colors.navy,
-    fontFamily: "Helvetica",
+    fontFamily: "Lato",
   },
   dividerNumber: {
     fontSize: 64, fontWeight: 700, color: pdfTheme.colors.blue,
@@ -365,7 +369,7 @@ const s = StyleSheet.create({
     marginBottom: 4,
   },
   tag: {
-    backgroundColor: "#EBF8FF", color: pdfTheme.colors.blue,
+    backgroundColor: "#FFFFFF", color: pdfTheme.colors.blue,
     borderRadius: 12, padding: "4px 10px", fontSize: 10,
     fontWeight: 600, marginRight: 6, marginBottom: 4,
   },
@@ -449,7 +453,7 @@ const s = StyleSheet.create({
   channelName: { fontSize: 12, fontWeight: 700, color: pdfTheme.colors.navy, marginBottom: 4 },
   channelDimensions: { fontSize: 9, color: pdfTheme.colors.blue, fontWeight: 600, marginBottom: 4 },
   moodTag: {
-    backgroundColor: "#EBF8FF", color: pdfTheme.colors.navy,
+    backgroundColor: "#FFFFFF", color: pdfTheme.colors.navy,
     borderRadius: 10, padding: "3px 8px", fontSize: 9,
     fontWeight: 600, marginRight: 4, marginBottom: 4,
   },
@@ -508,19 +512,6 @@ const s = StyleSheet.create({
 
 // ─── Helpers ───
 
-function PageFooter({ businessName }: { businessName: string }) {
-  return (
-    <View style={s.footer} fixed>
-      <View style={s.footerRow}>
-        <Text>{businessName} {"\u2014"} Brand Standards & Guidelines</Text>
-        <Text>WunderBrand Blueprint+{"\u2122"} | wunderbardigital.com</Text>
-      </View>
-      <Text style={s.footerConfidential}>
-        Confidential {"\u2014"} Prepared exclusively for {businessName}. Unauthorized distribution is prohibited.
-      </Text>
-    </View>
-  );
-}
 
 function SectionDivider({ number, title, subtitle }: { number: string; title: string; subtitle: string }) {
   return (
@@ -553,6 +544,8 @@ function ColorSwatchBlock({ swatch }: { swatch: ColorSwatch }) {
 
 export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
   const biz = data.business_name || "Your Brand";
+  const reportDate = new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+  const headerChrome = { businessName: biz, date: reportDate, productName: "Brand Standards" as const };
   const bsd = data.brand_standards_data || {};
   const visualSystemMode =
     bsd.visual_system_mode === "existing" || bsd.visual_system_mode === "optimize" || bsd.visual_system_mode === "refresh"
@@ -609,6 +602,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
 
       {/* ═══════ Table of Contents ═══════ */}
       <Page size="A4" style={s.page}>
+        <PdfHeader title="Brand Standards" {...headerChrome} />
         <Text style={s.sectionTitle}>What{"\u2019"}s Inside</Text>
         <Text style={s.body}>
           This guide is the single source of truth for how {biz} presents itself to the world. Whether you{"\u2019"}re writing a social post, briefing an agency, designing a pitch deck, or onboarding a new team member {"\u2014"} start here.
@@ -632,7 +626,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
             </View>
           ))}
         </View>
-        <PageFooter businessName={biz} />
+        <PdfFooter businessName={biz} productName="Brand Standards" showPageNumbers />
       </Page>
 
       {/* ═══════════════════════════════════════════════════════════════
@@ -643,6 +637,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
 
       {/* Brand Story & Purpose */}
       <Page size="A4" style={s.page}>
+        <PdfHeader title="Brand Standards" {...headerChrome} />
         <Text style={s.sectionTitle}>Brand Story & Purpose</Text>
 
         {bsd.brand_story?.narrative && (
@@ -677,12 +672,13 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
           </>
         )}
 
-        <PageFooter businessName={biz} />
+        <PdfFooter businessName={biz} productName="Brand Standards" showPageNumbers />
       </Page>
 
       {/* Mission, Vision & Values */}
       {(bsd.mission || bsd.vision || bsd.values) && (
         <Page size="A4" style={s.page}>
+        <PdfHeader title="Brand Standards" {...headerChrome} />
           <Text style={s.sectionTitle}>Mission, Vision & Values</Text>
 
           {bsd.mission && (
@@ -715,12 +711,13 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
             </>
           )}
 
-          <PageFooter businessName={biz} />
+          <PdfFooter businessName={biz} productName="Brand Standards" showPageNumbers />
         </Page>
       )}
 
       {/* Brand Positioning */}
       <Page size="A4" style={s.page}>
+        <PdfHeader title="Brand Standards" {...headerChrome} />
         <Text style={s.sectionTitle}>Brand Positioning</Text>
 
         {data.positioning_statement && (
@@ -764,12 +761,13 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
           </>
         )}
 
-        <PageFooter businessName={biz} />
+        <PdfFooter businessName={biz} productName="Brand Standards" showPageNumbers />
       </Page>
 
       {/* Brand Personality & Archetype */}
       {(data.brand_archetype || bsd.persona_summary) && (
         <Page size="A4" style={s.page}>
+        <PdfHeader title="Brand Standards" {...headerChrome} />
           <Text style={s.sectionTitle}>Brand Personality & Archetype</Text>
 
           {data.brand_archetype && (
@@ -832,13 +830,14 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
             </>
           )}
 
-          <PageFooter businessName={biz} />
+          <PdfFooter businessName={biz} productName="Brand Standards" showPageNumbers />
         </Page>
       )}
 
       {/* Target Audiences */}
       {(data.primary_audience || data.secondary_audience) && (
         <Page size="A4" style={s.page}>
+        <PdfHeader title="Brand Standards" {...headerChrome} />
           <Text style={s.sectionTitle}>Target Audiences</Text>
           <Text style={s.body}>
             Understanding who we{"\u2019"}re talking to is essential for creating relevant, on-brand content. Here are the audience profiles every team member and partner should reference.
@@ -878,7 +877,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
             </View>
           )}
 
-          <PageFooter businessName={biz} />
+          <PdfFooter businessName={biz} productName="Brand Standards" showPageNumbers />
         </Page>
       )}
 
@@ -891,6 +890,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
       {/* Logo System */}
       {bsd.logo_guidelines && (
         <Page size="A4" style={s.page}>
+        <PdfHeader title="Brand Standards" {...headerChrome} />
           <Text style={s.sectionTitle}>Logo System</Text>
 
           {bsd.logo_guidelines.overview && (
@@ -930,13 +930,14 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
             </>
           )}
 
-          <PageFooter businessName={biz} />
+          <PdfFooter businessName={biz} productName="Brand Standards" showPageNumbers />
         </Page>
       )}
 
       {/* Color Palette */}
       {(bsd.color_palette && bsd.color_palette.length > 0) && (
         <Page size="A4" style={s.page}>
+        <PdfHeader title="Brand Standards" {...headerChrome} />
           <Text style={s.sectionTitle}>Color Palette</Text>
           {visualSystemModeLabel && visualSystemModeSummary && (
             <View style={s.card}>
@@ -985,13 +986,14 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
             </>
           )}
 
-          <PageFooter businessName={biz} />
+          <PdfFooter businessName={biz} productName="Brand Standards" showPageNumbers />
         </Page>
       )}
 
       {/* Typography System */}
       {(data.typography_tone || data.typography_recommendations) && (
         <Page size="A4" style={s.page}>
+        <PdfHeader title="Brand Standards" {...headerChrome} />
           <Text style={s.sectionTitle}>Typography System</Text>
 
           {data.typography_tone && (
@@ -1124,13 +1126,14 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
             </Text>
           </View>
 
-          <PageFooter businessName={biz} />
+          <PdfFooter businessName={biz} productName="Brand Standards" showPageNumbers />
         </Page>
       )}
 
       {/* Layout Guidelines */}
       {bsd.layout_guidelines && (
         <Page size="A4" style={s.page}>
+        <PdfHeader title="Brand Standards" {...headerChrome} />
           <Text style={s.sectionTitle}>Layout & Grid Guidelines</Text>
 
           {bsd.layout_guidelines.overview && (
@@ -1177,7 +1180,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
             </>
           )}
 
-          <PageFooter businessName={biz} />
+          <PdfFooter businessName={biz} productName="Brand Standards" showPageNumbers />
         </Page>
       )}
 
@@ -1185,6 +1188,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
       {imageryDirection && (
         <>
           <Page size="A4" style={s.page}>
+        <PdfHeader title="Brand Standards" {...headerChrome} />
             <Text style={s.sectionTitle}>Imagery & Photography</Text>
 
             {imageryDirection.photography_style_direction && (
@@ -1272,13 +1276,14 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
               </>
             )}
 
-            <PageFooter businessName={biz} />
+            <PdfFooter businessName={biz} productName="Brand Standards" showPageNumbers />
           </Page>
 
           {/* Imagery by Channel */}
           {imageryDirection.platform_specific_imagery_guidance &&
             imageryDirection.platform_specific_imagery_guidance.length > 0 && (
             <Page size="A4" style={s.page}>
+        <PdfHeader title="Brand Standards" {...headerChrome} />
               <Text style={s.sectionTitle}>Imagery by Channel</Text>
               <Text style={s.body}>
                 Platform-specific guidance to maintain visual consistency across every touchpoint.
@@ -1301,7 +1306,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
                   )}
                 </View>
               ))}
-              <PageFooter businessName={biz} />
+              <PdfFooter businessName={biz} productName="Brand Standards" showPageNumbers />
             </Page>
           )}
 
@@ -1309,6 +1314,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
           {(imageryDirection.mood_board_descriptors ||
             imageryDirection.image_donts) && (
             <Page size="A4" style={s.page}>
+        <PdfHeader title="Brand Standards" {...headerChrome} />
               {imageryDirection.mood_board_descriptors && (() => {
                 const mood = imageryDirection.mood_board_descriptors!;
                 return (
@@ -1380,7 +1386,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
                 </>
               )}
 
-              <PageFooter businessName={biz} />
+              <PdfFooter businessName={biz} productName="Brand Standards" showPageNumbers />
             </Page>
           )}
         </>
@@ -1388,9 +1394,10 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
 
       {bsd.visual_consistency_principles && (
         <Page size="A4" style={s.page}>
+        <PdfHeader title="Brand Standards" {...headerChrome} />
           <Text style={s.sectionTitle}>Visual Consistency Principles</Text>
           <Text style={s.body}>{bsd.visual_consistency_principles}</Text>
-          <PageFooter businessName={biz} />
+          <PdfFooter businessName={biz} productName="Brand Standards" showPageNumbers />
         </Page>
       )}
 
@@ -1402,6 +1409,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
 
       {/* Brand Voice & Tone */}
       <Page size="A4" style={s.page}>
+        <PdfHeader title="Brand Standards" {...headerChrome} />
         <Text style={s.sectionTitle}>Brand Voice & Tone</Text>
 
         {bsd.communication_style && (
@@ -1483,12 +1491,13 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
           </>
         )}
 
-        <PageFooter businessName={biz} />
+        <PdfFooter businessName={biz} productName="Brand Standards" showPageNumbers />
       </Page>
 
       {/* Writing Guidelines */}
       {bsd.writing_guidelines && (
         <Page size="A4" style={s.page}>
+        <PdfHeader title="Brand Standards" {...headerChrome} />
           <Text style={s.sectionTitle}>Writing Guidelines</Text>
 
           {bsd.writing_guidelines.overview && (
@@ -1534,13 +1543,14 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
             </View>
           )}
 
-          <PageFooter businessName={biz} />
+          <PdfFooter businessName={biz} productName="Brand Standards" showPageNumbers />
         </Page>
       )}
 
       {/* Messaging Pillars */}
       {data.messaging_pillars && data.messaging_pillars.length > 0 && (
         <Page size="A4" style={s.page}>
+        <PdfHeader title="Brand Standards" {...headerChrome} />
           <Text style={s.sectionTitle}>Messaging Pillars</Text>
 
           {data.messaging_pillars.map((pillar, idx) => (
@@ -1558,13 +1568,14 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
             </View>
           ))}
 
-          <PageFooter businessName={biz} />
+          <PdfFooter businessName={biz} productName="Brand Standards" showPageNumbers />
         </Page>
       )}
 
       {/* Reusable Messaging */}
       {(data.elevator_pitch_30s || data.elevator_pitch_60s || data.elevator_pitch_email || bsd.taglines || bsd.boilerplate) && (
         <Page size="A4" style={s.page}>
+        <PdfHeader title="Brand Standards" {...headerChrome} />
           <Text style={s.sectionTitle}>Reusable Messaging</Text>
           <Text style={s.body}>
             Pre-approved messaging that anyone on the team can use as-is or adapt for context.
@@ -1605,13 +1616,14 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
             </>
           )}
 
-          <PageFooter businessName={biz} />
+          <PdfFooter businessName={biz} productName="Brand Standards" showPageNumbers />
         </Page>
       )}
 
       {/* Boilerplate Descriptions */}
       {bsd.boilerplate && (
         <Page size="A4" style={s.page}>
+        <PdfHeader title="Brand Standards" {...headerChrome} />
           <Text style={s.sectionTitle}>Company Descriptions</Text>
           <Text style={s.body}>
             Pre-approved descriptions for use across bios, press releases, proposals, and directories.
@@ -1652,7 +1664,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
             </View>
           )}
 
-          <PageFooter businessName={biz} />
+          <PdfFooter businessName={biz} productName="Brand Standards" showPageNumbers />
         </Page>
       )}
 
@@ -1665,6 +1677,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
       {/* Content Pillars */}
       {bsd.content_pillars && bsd.content_pillars.length > 0 && (
         <Page size="A4" style={s.page}>
+        <PdfHeader title="Brand Standards" {...headerChrome} />
           <Text style={s.sectionTitle}>Content Pillars</Text>
           <Text style={s.body}>
             These are the core themes {biz} should consistently create content around. Use them to plan content calendars, brief writers, and evaluate whether content is on-brand.
@@ -1695,13 +1708,14 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
             </View>
           ))}
 
-          <PageFooter businessName={biz} />
+          <PdfFooter businessName={biz} productName="Brand Standards" showPageNumbers />
         </Page>
       )}
 
       {/* Sample Executions */}
       {bsd.sample_executions && bsd.sample_executions.length > 0 && (
         <Page size="A4" style={s.page}>
+        <PdfHeader title="Brand Standards" {...headerChrome} />
           <Text style={s.sectionTitle}>Sample Executions</Text>
           <Text style={s.body}>
             Here{"\u2019"}s how {biz}{"\u2019"}s brand should show up across different channels and formats. Use these as templates when creating new content.
@@ -1724,13 +1738,14 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
             </View>
           ))}
 
-          <PageFooter businessName={biz} />
+          <PdfFooter businessName={biz} productName="Brand Standards" showPageNumbers />
         </Page>
       )}
 
       {/* Do / Don't Reference */}
       {bsd.do_and_dont_pages && bsd.do_and_dont_pages.length > 0 && (
         <Page size="A4" style={s.page}>
+        <PdfHeader title="Brand Standards" {...headerChrome} />
           <Text style={s.sectionTitle}>Do / Don{"\u2019"}t Reference</Text>
           <Text style={s.body}>
             Common scenarios where the brand can drift. Keep this page handy as a quick-check before publishing.
@@ -1759,7 +1774,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
             </View>
           ))}
 
-          <PageFooter businessName={biz} />
+          <PdfFooter businessName={biz} productName="Brand Standards" showPageNumbers />
         </Page>
       )}
 
@@ -1767,6 +1782,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
       {imageryDirection?.imagery_by_audience &&
         imageryDirection.imagery_by_audience.length > 0 && (
         <Page size="A4" style={s.page}>
+        <PdfHeader title="Brand Standards" {...headerChrome} />
           <Text style={s.sectionTitle}>Imagery by Audience</Text>
           <Text style={s.body}>
             How visual tone shifts when speaking to different audience segments.
@@ -1789,7 +1805,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
             </View>
           ))}
 
-          <PageFooter businessName={biz} />
+          <PdfFooter businessName={biz} productName="Brand Standards" showPageNumbers />
         </Page>
       )}
 
@@ -1800,6 +1816,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
       <SectionDivider number="05" title="Governance & Access" subtitle="Who owns the brand, how to get assets, and how to stay aligned" />
 
       <Page size="A4" style={s.page}>
+        <PdfHeader title="Brand Standards" {...headerChrome} />
         <Text style={s.sectionTitle}>Brand Governance</Text>
         <Text style={s.body}>
           Complete this section to formalize who owns brand decisions, how to request assets, and where to find official resources. This ensures the guidelines are actually used and maintained.
@@ -1859,7 +1876,7 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
           </View>
         </View>
 
-        <PageFooter businessName={biz} />
+        <PdfFooter businessName={biz} productName="Brand Standards" showPageNumbers />
       </Page>
 
       <DisclaimerPage tier="blueprint_plus" />

@@ -1,80 +1,60 @@
 // src/pdf/components/ScoreRangeLegend.tsx
-// Score range legend for PDF reports — color swatches, ranges, labels, active band highlight
+// Score range legend — matches results MainGauge labels
 
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
-import { pdfTheme } from "../theme";
+import { SUITE_MUTED, SUITE_NAVY } from "@/components/results/suiteBrandTokens";
 
 const SCORE_RANGES = [
-  { min: 80, max: 100, color: "#34c759", label: "Strong alignment" },
-  { min: 60, max: 79, color: "#8bc34a", label: "Moderate alignment" },
-  { min: 40, max: 59, color: "#ffcc00", label: "Partial alignment" },
-  { min: 20, max: 39, color: "#ff9500", label: "Weak alignment" },
-  { min: 0, max: 19, color: "#ff3b30", label: "Low alignment" },
+  { min: 80, max: 100, color: "#22C55E", label: "Strong" },
+  { min: 60, max: 79, color: "#4ADE80", label: "Good" },
+  { min: 40, max: 59, color: "#EAB308", label: "Fair" },
+  { min: 20, max: 39, color: "#F97316", label: "Weak" },
+  { min: 0, max: 19, color: "#EF4444", label: "Critical" },
 ] as const;
+
+function withAlpha(hex: string, alpha: number): string {
+  const clean = hex.replace("#", "");
+  const r = parseInt(clean.slice(0, 2), 16);
+  const g = parseInt(clean.slice(2, 4), 16);
+  const b = parseInt(clean.slice(4, 6), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
 
 function getActiveRange(score: number) {
   return SCORE_RANGES.find((r) => score >= r.min && score <= r.max) ?? SCORE_RANGES[4];
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  title: {
-    fontSize: 8,
-    fontWeight: 700,
-    color: pdfTheme.colors.blue,
-    textTransform: "uppercase",
-    letterSpacing: 1.2,
-    marginBottom: 8,
-  },
+  container: { flex: 1 },
   row: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 4,
-    borderBottomWidth: 0.5,
-    borderBottomColor: "#E6EAF2",
-  },
-  rowLast: {
-    borderBottomWidth: 0,
-  },
-  rowActive: {
-    backgroundColor: "rgba(139, 195, 74, 0.1)",
-    borderRadius: 3,
-    marginHorizontal: -4,
-    paddingHorizontal: 4,
+    paddingVertical: 5,
+    paddingHorizontal: 8,
+    borderRadius: 5,
+    marginBottom: 3,
   },
   swatch: {
     width: 10,
     height: 10,
-    borderRadius: 2,
-    marginRight: 6,
-  },
-  range: {
-    fontSize: 9,
-    fontWeight: 700,
-    color: pdfTheme.colors.navy,
-    width: 36,
+    borderRadius: 5,
+    marginRight: 8,
   },
   label: {
-    fontSize: 9,
-    color: "#404040",
-    flex: 1,
-  },
-  labelActive: {
+    fontFamily: "Lato",
+    fontSize: 10,
     fontWeight: 700,
-    color: pdfTheme.colors.navy,
+    width: 52,
   },
-  indicator: {
-    fontSize: 8,
-    fontWeight: 700,
-    color: "#8bc34a",
-    marginLeft: 4,
+  range: {
+    fontFamily: "Lato",
+    fontSize: 10,
+    color: SUITE_MUTED,
   },
 });
 
 interface ScoreRangeLegendProps {
-  score: number; // 0-100
+  score: number;
 }
 
 export function ScoreRangeLegend({ score }: ScoreRangeLegendProps) {
@@ -82,30 +62,29 @@ export function ScoreRangeLegend({ score }: ScoreRangeLegendProps) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Score Ranges</Text>
-      {SCORE_RANGES.map((range, i) => {
+      {SCORE_RANGES.map((range) => {
         const isActive = range === activeRange;
-        const isLast = i === SCORE_RANGES.length - 1;
-
         return (
           <View
             key={range.min}
             style={[
               styles.row,
-              ...(isLast ? [styles.rowLast] : []),
-              ...(isActive ? [styles.rowActive] : []),
+              isActive
+                ? {
+                    backgroundColor: withAlpha(range.color, 0.1),
+                    borderWidth: 1.5,
+                    borderColor: withAlpha(range.color, 0.35),
+                  }
+                : {},
             ]}
           >
             <View style={[styles.swatch, { backgroundColor: range.color }]} />
-            <Text style={[styles.range, ...(isActive ? [styles.labelActive] : [])]}>
-              {range.min}–{range.max}
-            </Text>
-            <Text style={[styles.label, ...(isActive ? [styles.labelActive] : [])]}>
+            <Text style={[styles.label, { color: isActive ? range.color : SUITE_MUTED }]}>
               {range.label}
             </Text>
-            {isActive && (
-              <Text style={styles.indicator}>← {Math.round(score)}</Text>
-            )}
+            <Text style={[styles.range, isActive ? { color: SUITE_NAVY, fontWeight: 700 } : {}]}>
+              {range.min}–{range.max}
+            </Text>
           </View>
         );
       })}

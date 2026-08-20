@@ -256,8 +256,9 @@ export default function CompactResultsHeader({
               fontFamily: SUITE_FONT_UI,
               whiteSpace: "nowrap",
             }}
+            aria-label="Export PDF"
           >
-            Export PDF
+            Export
           </a>
         ) : null}
         {onGoToDownloads ? (

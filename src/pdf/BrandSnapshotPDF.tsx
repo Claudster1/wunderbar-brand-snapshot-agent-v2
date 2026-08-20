@@ -18,8 +18,10 @@ import { registerPdfFonts } from "./registerFonts";
 import { DisclaimerPage } from "./components/DisclaimerPage";
 import { getPrimaryPillar } from "@/src/lib/pillars/getPrimaryPillar";
 import { getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
-import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
-import { publicSnapshotAppUrl } from "@/lib/publicSnapshotAppUrl";
+import {
+  WUNDERBAR_SNAPSHOT_PLUS_PDF_DISPLAY,
+  WUNDERBAR_SNAPSHOT_PLUS_PDF_URL,
+} from "@/lib/wunderbarExternalUrls";
 import {
   SUITE_ACCENT_BRIGHT,
   SUITE_BG_PAGE,
@@ -43,15 +45,9 @@ const WHITE = "#FFFFFF";
 const INTRO_BORDER = "#B8E6F8";
 const QUOTE_BG = "#E8F6FE";
 
-const SNAPSHOT_PLUS_CHECKOUT_URL = publicSnapshotAppUrl(
-  getTrackedCheckoutUrl({
-    product: "snapshot-plus",
-    medium: "report_cta",
-    content: "snapshot_pdf_cta",
-    source: "wunderbrand_pdf",
-    campaign: "snapshot_plus_upgrade",
-  }),
-);
+/** Durable marketing purchase URL — app /checkout is not always live on prod. */
+const SNAPSHOT_PLUS_CTA_URL = WUNDERBAR_SNAPSHOT_PLUS_PDF_URL;
+const SNAPSHOT_PLUS_CTA_DISPLAY = WUNDERBAR_SNAPSHOT_PLUS_PDF_DISPLAY;
 
 const PILLAR_KEYS = ["positioning", "messaging", "visibility", "credibility", "conversion"] as const;
 type PillarKey = (typeof PILLAR_KEYS)[number];
@@ -1177,11 +1173,11 @@ export const BrandSnapshotPDF = ({
               Snapshot+™ unlocks archetype activation, messaging frameworks, and implementation
               steps built from these results.
             </Text>
-            <Link src={SNAPSHOT_PLUS_CHECKOUT_URL} style={styles.ctaButton}>
+            <Link src={SNAPSHOT_PLUS_CTA_URL} style={styles.ctaButton}>
               <Text style={styles.ctaButtonText}>Explore Snapshot+™</Text>
             </Link>
-            <Link src={SNAPSHOT_PLUS_CHECKOUT_URL} style={styles.ctaUrl}>
-              app.wunderbrand.ai/checkout/snapshot-plus
+            <Link src={SNAPSHOT_PLUS_CTA_URL} style={styles.ctaUrl}>
+              https://{SNAPSHOT_PLUS_CTA_DISPLAY}
             </Link>
           </View>
         </View>
@@ -1234,11 +1230,11 @@ export const BrandSnapshotPDF = ({
             <Text style={styles.ctaBody}>
               Open the strategy layer to turn this revenue signal into a prioritized action plan.
             </Text>
-            <Link src={SNAPSHOT_PLUS_CHECKOUT_URL} style={styles.ctaButton}>
+            <Link src={SNAPSHOT_PLUS_CTA_URL} style={styles.ctaButton}>
               <Text style={styles.ctaButtonText}>Explore Snapshot+™</Text>
             </Link>
-            <Link src={SNAPSHOT_PLUS_CHECKOUT_URL} style={styles.ctaUrl}>
-              app.wunderbrand.ai/checkout/snapshot-plus
+            <Link src={SNAPSHOT_PLUS_CTA_URL} style={styles.ctaUrl}>
+              https://{SNAPSHOT_PLUS_CTA_DISPLAY}
             </Link>
           </View>
         </View>

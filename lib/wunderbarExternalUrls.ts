@@ -15,6 +15,9 @@
  * | `WUNDERBAR_IMPLEMENTATION_PATHS_PDF_URL` | Snapshot+ PDF — “View implementation paths” | `/services` |
  * | `WUNDERBAR_SUITE_FROM_DIAGNOSTIC_URL` | Locked signal cards — “See what’s included” | `/wunderbrand-suite` |
  * | `WUNDERBAR_SUITE_LOCKED_TAB_URL` | Locked tab modal — suite comparison | `/wunderbrand-suite` |
+ * | `WUNDERBAR_SNAPSHOT_PLUS_PDF_URL` | Snapshot PDF — Explore Snapshot+™ | `/wunderbrand-snapshot-plus` |
+ * | `WUNDERBAR_BLUEPRINT_PDF_URL` | Blueprint PDF upgrade CTA | `/wunderbrand-blueprint` |
+ * | `WUNDERBAR_BLUEPRINT_PLUS_PDF_URL` | Blueprint+ PDF upgrade CTA | `/wunderbrand-blueprint-plus` |
  *
  * Other outbound URLs (header/footer, Wundy prompts, Calendly, etc.) live outside this module.
  */
@@ -94,3 +97,29 @@ export const WUNDERBAR_SUITE_LOCKED_TAB_URL = `${ORIGIN}/wunderbrand-suite?${utm
   "product_comparison",
   "see_whats_included",
 )}`;
+
+/** Snapshot PDF — Explore Snapshot+™ (durable marketing purchase page). */
+export const WUNDERBAR_SNAPSHOT_PLUS_PDF_URL = `${ORIGIN}/wunderbrand-snapshot-plus?${utm(
+  "pdf_cta",
+  "snapshot_plus_upgrade",
+  "snapshot_pdf_explore",
+)}`;
+
+/** Blueprint PDF — upgrade to Blueprint. */
+export const WUNDERBAR_BLUEPRINT_PDF_URL = `${ORIGIN}/wunderbrand-blueprint?${utm(
+  "pdf_cta",
+  "blueprint_upgrade",
+  "blueprint_pdf_explore",
+)}`;
+
+/** Blueprint / Snapshot+ PDF — upgrade to Blueprint+. */
+export const WUNDERBAR_BLUEPRINT_PLUS_PDF_URL = `${ORIGIN}/wunderbrand-blueprint-plus?${utm(
+  "pdf_cta",
+  "blueprint_plus_upgrade",
+  "blueprint_plus_pdf_explore",
+)}`;
+
+/** Human-readable display host+path for PDF (always include https in Link src). */
+export const WUNDERBAR_SNAPSHOT_PLUS_PDF_DISPLAY = "wunderbardigital.com/wunderbrand-snapshot-plus";
+export const WUNDERBAR_BLUEPRINT_PDF_DISPLAY = "wunderbardigital.com/wunderbrand-blueprint";
+export const WUNDERBAR_BLUEPRINT_PLUS_PDF_DISPLAY = "wunderbardigital.com/wunderbrand-blueprint-plus";

@@ -76,7 +76,7 @@ function CheckoutProductInner() {
           <>
             <h1 className="bs-h3 text-brand-navy mb-3">Checkout unavailable</h1>
             <p className="bs-body-sm text-brand-muted mb-6">{error}</p>
-            <a href="/brand-snapshot-suite" className="wb-cta wb-cta--solid">
+            <a href="/brand-suite" className="wb-cta wb-cta--solid">
               Compare the Suite™
             </a>
           </>

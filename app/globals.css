@@ -93,7 +93,7 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--brand-muted);
+  color: #07b0f2;
 }
 
 /* Brand layout & spacing (mobile-first) */
@@ -451,7 +451,7 @@ body:has(.app-root) {
   font-size: 0.78rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #7c8ca5;
+  color: #07b0f2;
   margin: 0 0 4px;
 }
 
@@ -1087,7 +1087,7 @@ a.sr-only:focus {
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #0369a1;
+  color: #07b0f2;
 }
 
 .results-gated-veil-title {
@@ -1275,7 +1275,7 @@ a.sr-only:focus {
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #0369a1;
+  color: #07b0f2;
 }
 
 .results-bottom-funnel-title {
@@ -1560,7 +1560,7 @@ a.sr-only:focus {
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #0369a1;
+  color: #07b0f2;
 }
 
 .results-gate-capture--unlock .results-gate-capture__eyebrow {

@@ -1,6 +1,7 @@
 // app/blueprint/ActivationPanel.tsx
 // Blueprint activation panel component
 import Link from "next/link";
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
 
 export function BlueprintActivation({
   primaryPillar,
@@ -27,7 +28,14 @@ export function BlueprintActivation({
         prioritized action plan?
       </p>
 
-      <Link href="/snapshot-plus" className="btn-primary mt-3">
+      <Link
+        href={getTrackedCheckoutUrl({
+          product: "snapshot-plus",
+          medium: "results_cta",
+          content: "blueprint_activation_snapshot_plus",
+        })}
+        className="btn-primary mt-3"
+      >
         Take it further with Snapshot+™
       </Link>
 
@@ -35,7 +43,14 @@ export function BlueprintActivation({
         Ready to turn this insight into a complete brand system?
       </p>
 
-      <Link href="/blueprint" className="btn-primary mt-3">
+      <Link
+        href={getTrackedCheckoutUrl({
+          product: "blueprint",
+          medium: "results_cta",
+          content: "blueprint_activation_blueprint",
+        })}
+        className="btn-primary mt-3"
+      >
         Build My WunderBrand Blueprint™
       </Link>
 
@@ -43,7 +58,14 @@ export function BlueprintActivation({
         Need deeper activation across campaigns, channels, and growth stages?
       </p>
 
-      <Link href="/blueprint-plus" className="btn-primary mt-3">
+      <Link
+        href={getTrackedCheckoutUrl({
+          product: "blueprint-plus",
+          medium: "results_cta",
+          content: "blueprint_activation_blueprint_plus",
+        })}
+        className="btn-primary mt-3"
+      >
         Upgrade to Blueprint+™
       </Link>
     </section>

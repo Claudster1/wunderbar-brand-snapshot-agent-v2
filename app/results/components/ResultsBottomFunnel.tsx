@@ -125,8 +125,7 @@ export function ResultsBottomFunnel({
                 {PRICING.snapshot_plus.label}
               </h2>
               <p className="results-bottom-funnel-lead">
-                Your score shows where to focus first. Snapshot+ adds strategic depth, messaging
-                frameworks, and an AI prompt pack — from ${snapshotPlusPrice.toLocaleString()}.
+                {`You’ve got your diagnostic. Snapshot+ expands on it with strategic depth, messaging frameworks, and an AI prompt pack — so you can grow and scale with clarity, from $${snapshotPlusPrice.toLocaleString()}.`}
               </p>
             </header>
 

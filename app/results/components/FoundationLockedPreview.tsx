@@ -55,7 +55,7 @@ export function FoundationLockedPreview({ likelyArchetype }: Props) {
         />
       </div>
       <div className="flex flex-wrap gap-3">
-        <Link href="/snapshot-plus" className="btn-primary">
+        <Link href="/checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=foundation_locked_preview" className="btn-primary">
           See What's Included
         </Link>
         <Link

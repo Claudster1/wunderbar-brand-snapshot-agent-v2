@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ProductTier } from "@/components/results/tabConfig";
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
 
 const SUITE_COMPARE = "https://wunderbardigital.com/wunderbrand-suite";
 
@@ -11,6 +12,20 @@ function marketingUrl(path: string, utmSource: string, utmContent: string): stri
   u.searchParams.set("utm_campaign", "tier_upgrade");
   u.searchParams.set("utm_content", utmContent);
   return u.toString();
+}
+
+function checkoutHref(
+  product: "snapshot-plus" | "blueprint" | "blueprint-plus",
+  utmSource: string,
+  content: string,
+): string {
+  return getTrackedCheckoutUrl({
+    product,
+    medium: "report_cta",
+    content,
+    source: utmSource,
+    campaign: "tier_upgrade",
+  });
 }
 
 const primaryBtn = "wb-cta wb-cta--solid";
@@ -29,6 +44,7 @@ export type ReportTierUpgradeCTAsProps = {
 
 /**
  * Tier-appropriate upgrade CTAs: next product level(s), suite compare, and services at Blueprint+.
+ * Product upgrades go through in-app Stripe checkout → success → tier chat.
  */
 export function ReportTierUpgradeCTAs({
   tier,
@@ -103,66 +119,52 @@ export function ReportTierUpgradeCTAs({
           </p>
           <div className="flex flex-wrap gap-3">
             {tier === "snapshot" && !suppressSnapshotPlusPrimary ? (
-              <a
-                href={marketingUrl("/wunderbrand-snapshot-plus", utmSource, "next_snapshot_plus")}
+              <Link
+                href={checkoutHref("snapshot-plus", utmSource, "next_snapshot_plus")}
                 className={primaryBtn}
-                target="_blank"
-                rel="noopener noreferrer"
               >
                 Upgrade to Snapshot+™
-              </a>
+              </Link>
             ) : null}
             {tier === "snapshot" ? (
               <>
-                <a
-                  href={marketingUrl("/wunderbrand-blueprint", utmSource, "next_blueprint")}
+                <Link
+                  href={checkoutHref("blueprint", utmSource, "next_blueprint")}
                   className={suppressSnapshotPlusPrimary ? primaryBtn : secondaryBtn}
-                  target="_blank"
-                  rel="noopener noreferrer"
                 >
                   Explore Blueprint™
-                </a>
-                <a
-                  href={marketingUrl("/wunderbrand-blueprint-plus", utmSource, "next_blueprint_plus")}
+                </Link>
+                <Link
+                  href={checkoutHref("blueprint-plus", utmSource, "next_blueprint_plus")}
                   className={secondaryBtn}
-                  target="_blank"
-                  rel="noopener noreferrer"
                 >
                   Explore Blueprint+™
-                </a>
+                </Link>
               </>
             ) : null}
             {tier === "snapshot-plus" ? (
               <>
-                <a
-                  href={marketingUrl("/wunderbrand-blueprint", utmSource, "next_blueprint")}
+                <Link
+                  href={checkoutHref("blueprint", utmSource, "next_blueprint")}
                   className={primaryBtn}
-                  target="_blank"
-                  rel="noopener noreferrer"
                 >
                   Upgrade to Blueprint™
-                </a>
-                <a
-                  href={marketingUrl("/wunderbrand-blueprint-plus", utmSource, "next_blueprint_plus")}
+                </Link>
+                <Link
+                  href={checkoutHref("blueprint-plus", utmSource, "next_blueprint_plus")}
                   className={secondaryBtn}
-                  target="_blank"
-                  rel="noopener noreferrer"
                 >
                   Explore Blueprint+™
-                </a>
+                </Link>
               </>
             ) : null}
             {tier === "blueprint" ? (
-              <>
-                <a
-                  href={marketingUrl("/wunderbrand-blueprint-plus", utmSource, "next_blueprint_plus")}
-                  className={primaryBtn}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Upgrade to Blueprint+™
-                </a>
-              </>
+              <Link
+                href={checkoutHref("blueprint-plus", utmSource, "next_blueprint_plus")}
+                className={primaryBtn}
+              >
+                Upgrade to Blueprint+™
+              </Link>
             ) : null}
             <a
               href={marketingUrl(SUITE_COMPARE, utmSource, "compare_suite")}

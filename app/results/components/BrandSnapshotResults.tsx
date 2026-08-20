@@ -89,7 +89,7 @@ export function BrandSnapshotResults({
             examples, and prioritized actions tailored to {brandName}.
           </p>
           <Link
-            href="/snapshot-plus"
+            href="/checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=brand_snapshot_results"
             className="inline-block px-6 py-3 bg-brand-blue text-white rounded-[5px] font-semibold hover:bg-brand-blueHover transition"
           >
             See how to strengthen what matters most right now →

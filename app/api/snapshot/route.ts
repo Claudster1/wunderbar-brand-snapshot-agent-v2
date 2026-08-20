@@ -161,7 +161,7 @@ function buildUpgradeCta(
 ): string {
   const pillarLabel = primaryPillar.charAt(0).toUpperCase() + primaryPillar.slice(1);
   const name = companyName ? ` For ${companyName}, ` : " ";
-  return `Your top opportunity is ${pillarLabel}.${name}Your full results are ready to unlock in Snapshot+™. See Your Full Results — $497 to get a detailed roadmap, persona-aligned messaging, and actionable next steps.`;
+  return `Your top opportunity is ${pillarLabel}.${name}Upgrade to Snapshot+™ — $497 to expand on these results with a detailed roadmap, persona-aligned messaging, and actionable next steps for growth.`;
 }
 
 function humanizeBusinessType(value: string | null | undefined): string | null {

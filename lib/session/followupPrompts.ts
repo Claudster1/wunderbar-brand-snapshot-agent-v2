@@ -103,9 +103,9 @@ PRODUCT SUITE (for recommendations — use exact names and pricing):
 
 PRODUCT URLS:
 • Snapshot: https://wunderbardigital.com/wunderbrand-snapshot?utm_source=wunderbrand_app&utm_medium=session_followup&utm_campaign=product_purchase&utm_content=buy_snapshot
-• Snapshot+: https://wunderbardigital.com/wunderbrand-snapshot-plus?utm_source=wunderbrand_app&utm_medium=session_followup&utm_campaign=product_purchase&utm_content=buy_snapshot_plus
-• Blueprint: https://wunderbardigital.com/wunderbrand-blueprint?utm_source=wunderbrand_app&utm_medium=session_followup&utm_campaign=product_purchase&utm_content=buy_blueprint
-• Blueprint+: https://wunderbardigital.com/wunderbrand-blueprint-plus?utm_source=wunderbrand_app&utm_medium=session_followup&utm_campaign=product_purchase&utm_content=buy_blueprint_plus
+• Snapshot+: /checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=session_followup&utm_campaign=product_purchase&utm_content=buy_snapshot_plus
+• Blueprint: /checkout/blueprint?utm_source=wunderbar_app&utm_medium=session_followup&utm_campaign=product_purchase&utm_content=buy_blueprint
+• Blueprint+: /checkout/blueprint-plus?utm_source=wunderbar_app&utm_medium=session_followup&utm_campaign=product_purchase&utm_content=buy_blueprint_plus
 • Talk to Expert: https://wunderbardigital.com/talk-to-an-expert
 
 ${aiAbbreviationFirstReferenceRule}

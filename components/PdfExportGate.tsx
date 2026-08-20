@@ -3,6 +3,7 @@
 
 import { trackEvent } from "@/lib/activeCampaignTracking";
 import Link from "next/link";
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
 
 export function PdfExportGate({
   hasAccess
@@ -27,7 +28,11 @@ export function PdfExportGate({
         Want a downloadable version of this report?
       </p>
       <Link
-        href="/snapshot-plus"
+        href={getTrackedCheckoutUrl({
+          product: "snapshot-plus",
+          medium: "results_cta",
+          content: "pdf_export_gate",
+        })}
         onClick={() =>
           trackEvent("pdf_export_upsell_clicked", {})
         }

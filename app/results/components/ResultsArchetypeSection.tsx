@@ -64,7 +64,7 @@ export function ResultsArchetypeSection({
                 <span className="font-semibold text-brand-navy">{upgradeLabel}</span>.
               </p>
               <Link
-                href="/snapshot-plus?source=archetype_results_overview"
+                href="/checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=archetype_results_overview"
                 className="wb-cta wb-cta--text mt-4"
               >
                 See archetype activation in {upgradeLabel} →

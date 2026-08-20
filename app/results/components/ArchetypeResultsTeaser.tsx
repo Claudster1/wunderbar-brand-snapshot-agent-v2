@@ -42,7 +42,7 @@ export function ArchetypeResultsTeaser({ likelyArchetype, archetypeMeaning }: Pr
             <span className="font-semibold text-brand-navy">{upgradeLabel}</span>.
           </p>
           <Link
-            href="/snapshot-plus?source=archetype_results_teaser"
+            href="/checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=archetype_results_teaser"
             className="inline-flex mt-4 text-sm font-bold text-brand-blue hover:underline underline-offset-2"
           >
             See archetype activation in {upgradeLabel} →

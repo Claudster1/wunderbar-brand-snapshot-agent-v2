@@ -1,4 +1,5 @@
 import { SnapshotHistoryItem } from "@/lib/dashboard/historyTypes";
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
 
 export function HistoryView({
   items,
@@ -27,7 +28,15 @@ export function HistoryView({
             </a>
 
             {!item.hasSnapshotPlus && (
-              <a href={`/snapshot-plus?from=${item.id}`} className="btn-primary">
+              <a
+                href={getTrackedCheckoutUrl({
+                  product: "snapshot-plus",
+                  medium: "results_cta",
+                  content: "history_deepen_insights",
+                  baseReportId: item.id,
+                })}
+                className="btn-primary"
+              >
                 Deepen Insights →
               </a>
             )}

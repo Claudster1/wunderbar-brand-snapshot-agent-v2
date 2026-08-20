@@ -5,6 +5,7 @@ import { PillarKey } from "@/src/lib/pillars/pillarCopy";
 import { rolePhrase } from "@/src/lib/roleLanguage";
 import type { UserRoleContext } from "@/src/types/snapshot";
 import Link from "next/link";
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
 
 interface PrimaryCTAProps {
   pillar: PillarKey;
@@ -28,10 +29,14 @@ function PrimaryCTA({ pillar, userRoleContext }: PrimaryCTAProps) {
       </p>
 
       <Link
-        href="/snapshot-plus"
+        href={getTrackedCheckoutUrl({
+          product: "snapshot-plus",
+          medium: "results_cta",
+          content: `primary_cta_${pillar}`,
+        })}
         className="inline-flex items-center px-5 py-2.5 rounded-[5px] bg-brand-blue text-white font-medium hover:bg-brand-blueHover transition"
       >
-        See Your Full Results — $497 →
+        Upgrade to Snapshot+™ — $497 →
       </Link>
     </div>
   );

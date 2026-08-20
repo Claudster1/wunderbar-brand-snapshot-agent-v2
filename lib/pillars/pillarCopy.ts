@@ -1,6 +1,14 @@
 // lib/pillars/pillarCopy.ts
 // Pillar-specific copy for CTAs, headlines, and messaging
 
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
+
+const SNAPSHOT_PLUS_CHECKOUT = getTrackedCheckoutUrl({
+  product: "snapshot-plus",
+  medium: "results_cta",
+  content: "pillar_copy_cta",
+});
+
 export type PillarKey =
   | "positioning"
   | "messaging"
@@ -31,7 +39,7 @@ WunderBrand Snapshot+™ defines your positioning precisely so customers underst
       `Clear positioning reduces confusion, shortens decision time, and helps ${businessName} stand out in a crowded market.`,
     cta: {
       label: "Clarify my Positioning →",
-      href: "/snapshot-plus",
+      href: SNAPSHOT_PLUS_CHECKOUT,
     },
   },
 
@@ -46,7 +54,7 @@ WunderBrand Snapshot+™ maps your core message once — then shows how to expre
       "Consistent messaging builds trust and ensures your brand sounds intentional, not improvised.",
     cta: {
       label: "Refine my messaging →",
-      href: "/snapshot-plus",
+      href: SNAPSHOT_PLUS_CHECKOUT,
     },
   },
 
@@ -61,7 +69,7 @@ WunderBrand Snapshot+™ shows where to strengthen SEO and AEO so your brand is 
       "If your brand isn't discoverable, even strong positioning and messaging go unseen.",
     cta: {
       label: "Increase my Visibility →",
-      href: "/snapshot-plus",
+      href: SNAPSHOT_PLUS_CHECKOUT,
     },
   },
 
@@ -76,7 +84,7 @@ WunderBrand Snapshot+™ identifies what to standardize so ${businessName} feels
       "Credibility reduces friction and reassures people they're making the right choice.",
     cta: {
       label: "Build stronger brand trust →",
-      href: "/snapshot-plus",
+      href: SNAPSHOT_PLUS_CHECKOUT,
     },
   },
 
@@ -91,7 +99,7 @@ WunderBrand Snapshot+™ reveals what's missing between interest and conversion.
       "Conversion issues often stem from small gaps that compound across the experience.",
     cta: {
       label: "Improve my Conversion →",
-      href: "/snapshot-plus",
+      href: SNAPSHOT_PLUS_CHECKOUT,
     },
   },
 };

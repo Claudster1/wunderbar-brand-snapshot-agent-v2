@@ -298,9 +298,9 @@ WHAT YOU CAN DO
    If they're READY TO BUY a specific product:
    → Link to the specific product page (which has the purchase button):
      - WunderBrand Snapshot™ (Free): https://wunderbardigital.com/wunderbrand-snapshot?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_snapshot
-     - WunderBrand Snapshot+™: https://wunderbardigital.com/wunderbrand-snapshot-plus?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_snapshot_plus
-     - WunderBrand Blueprint™: https://wunderbardigital.com/wunderbrand-blueprint?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_blueprint
-     - WunderBrand Blueprint+™: https://wunderbardigital.com/wunderbrand-blueprint-plus?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_blueprint_plus
+     - WunderBrand Snapshot+™: /checkout/snapshot-plus?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_snapshot_plus
+     - WunderBrand Blueprint™: /checkout/blueprint?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_blueprint
+     - WunderBrand Blueprint+™: /checkout/blueprint-plus?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_blueprint_plus
 
    Signals someone is EXPLORING: "What's the difference between...", "Tell me about...", "Which one should I...", "Compare...", "What do I get with..."
    Signals someone is READY TO BUY: "I want to buy...", "How do I purchase...", "I'm ready for...", "Sign me up for...", "Where do I pay..."

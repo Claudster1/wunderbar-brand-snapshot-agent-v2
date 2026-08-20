@@ -1,5 +1,7 @@
 // components/blueprint/BlueprintActivationPanel.tsx
 
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
+
 type BlueprintActivationProps = {
   brandName: string;
   resolvedPillars: string[];
@@ -31,7 +33,14 @@ export function BlueprintActivationPanel({
         ))}
       </ul>
 
-      <a href="/blueprint" className="btn-primary">
+      <a
+        href={getTrackedCheckoutUrl({
+          product: "blueprint",
+          medium: "results_cta",
+          content: "blueprint_activation_panel",
+        })}
+        className="btn-primary"
+      >
         Activate Blueprint™ →
       </a>
     </section>

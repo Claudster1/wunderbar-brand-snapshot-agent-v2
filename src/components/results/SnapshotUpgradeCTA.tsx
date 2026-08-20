@@ -3,6 +3,7 @@
 import { getUpgradeCopy } from "@/src/lib/upgrade/ctaCopy";
 import { PillarKey } from "@/types/pillars";
 import Link from "next/link";
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
 
 interface Props {
   primaryPillar: PillarKey;
@@ -27,7 +28,11 @@ export function SnapshotUpgradeCTA({
       <p className="max-w-xl mx-auto">{copy.body}</p>
 
       <Link
-        href="/snapshot-plus"
+        href={getTrackedCheckoutUrl({
+          product: "snapshot-plus",
+          medium: "results_cta",
+          content: `src_snapshot_upgrade_${primaryPillar}`,
+        })}
         className="inline-block mt-4 px-8 py-4 bg-brand-blue text-white rounded-[5px] font-semibold hover:bg-brand-blueHover transition"
       >
         Take it further with Snapshot+™ →

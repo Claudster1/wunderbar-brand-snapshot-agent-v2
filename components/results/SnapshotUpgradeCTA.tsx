@@ -1,6 +1,7 @@
 // components/results/SnapshotUpgradeCTA.tsx
 // Upgrade CTA for Snapshot+ based on primary pillar
 import Link from "next/link";
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
 
 type Props = {
   primaryPillar: string;
@@ -20,7 +21,11 @@ export function SnapshotUpgradeCTA({ primaryPillar, stage }: Props) {
       </p>
 
       <Link
-        href="/snapshot-plus"
+        href={getTrackedCheckoutUrl({
+          product: "snapshot-plus",
+          medium: "results_cta",
+          content: `snapshot_upgrade_${stage}_${primaryPillar.replace(/[^a-z0-9_-]/gi, "_")}`,
+        })}
         className="inline-block rounded-[5px] bg-brand-blue px-5 py-3 text-sm font-medium text-white hover:bg-brand-blueHover transition"
       >
         Take it further with Snapshot+™

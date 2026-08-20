@@ -409,7 +409,7 @@ export const BrandSnapshotPDF = ({
 
         <Section>
           <Text style={styles.smallHeading}>Call to Action</Text>
-          <Text style={styles.body}>See Your Full Results — $497</Text>
+          <Text style={styles.body}>Upgrade to Snapshot+™ — $497</Text>
           <Text style={styles.body}>
             Get full archetype activation guidance and implementation steps in Snapshot+.
           </Text>
@@ -472,7 +472,7 @@ export const BrandSnapshotPDF = ({
                 : `Your ${primaryLabel} score suggests measurable revenue drag. The likely cost appears in conversion efficiency and sales-cycle friction. Snapshot+ shows where the gap lives and what to fix first.`}
             </Text>
             <Text style={{ ...styles.body, marginTop: 12, fontWeight: 600, color: pdfTheme.colors.blue }}>
-              See Your Full Results — $497
+              Upgrade to Snapshot+™ — $497
             </Text>
           </View>
         </Section>

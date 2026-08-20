@@ -7,6 +7,8 @@ type CheckoutTrackingInput = {
   content: string;
   source?: string;
   campaign?: string;
+  /** Carry forward so Stripe metadata can unlock from an existing report */
+  baseReportId?: string;
 };
 
 const DEFAULT_CAMPAIGN_BY_PRODUCT: Record<CheckoutProduct, string> = {
@@ -15,12 +17,17 @@ const DEFAULT_CAMPAIGN_BY_PRODUCT: Record<CheckoutProduct, string> = {
   "blueprint-plus": "blueprint_plus_upgrade",
 };
 
+/**
+ * In-app Stripe checkout entry for paid tiers.
+ * Flow: `/checkout/[product]` → Stripe → `/checkout/success` → `/?tier=…` chat.
+ */
 export function getTrackedCheckoutUrl({
   product,
   medium,
   content,
   source = "wunderbar_app",
   campaign,
+  baseReportId,
 }: CheckoutTrackingInput): string {
   const params = new URLSearchParams({
     utm_source: source,
@@ -28,6 +35,10 @@ export function getTrackedCheckoutUrl({
     utm_campaign: campaign ?? DEFAULT_CAMPAIGN_BY_PRODUCT[product],
     utm_content: content,
   });
+
+  if (baseReportId) {
+    params.set("baseReportId", baseReportId);
+  }
 
   return `/checkout/${product}?${params.toString()}`;
 }

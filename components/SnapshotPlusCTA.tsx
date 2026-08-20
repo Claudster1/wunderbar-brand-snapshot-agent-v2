@@ -10,7 +10,7 @@ export function SnapshotPlusCTA({ pillar }: { pillar: string }) {
         Snapshot+™ expands this insight into a prioritized, actionable brand plan.
       </p>
 
-      <Link href="/snapshot-plus" className="btn-primary mt-4">
+      <Link href="/checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=snapshot_plus_cta" className="btn-primary mt-4">
         Take it further with Snapshot+™
       </Link>
     </section>

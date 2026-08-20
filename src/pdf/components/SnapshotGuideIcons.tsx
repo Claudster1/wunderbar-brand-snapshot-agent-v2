@@ -287,8 +287,8 @@ export function StatusMark({ kind }: { kind: "working" | "unclear" }) {
 
 export function SummaryIconTile({ kind }: { kind: "overall" | "strongest" | "opportunity" }) {
   return (
-    <View style={[styles.iconTile, { marginRight: 0, marginBottom: 6, alignSelf: "center" }]}>
-      <SummaryGuideIcon kind={kind} size={14} />
+    <View style={styles.summaryIconWrap}>
+      <SummaryGuideIcon kind={kind} size={18} />
     </View>
   );
 }

@@ -8,27 +8,17 @@ const BLUE = SUITE_ACCENT_BRIGHT;
 const WHITE = "#FFFFFF";
 
 const styles = StyleSheet.create({
-  iconTile: {
-    width: 28,
-    height: 28,
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: "#D2D2D7",
-    backgroundColor: "#FFFFFF",
-    alignItems: "center",
-    justifyContent: "center",
+  iconWrap: {
     marginRight: 8,
+    marginTop: 1,
   },
-  archetypeTile: {
-    width: 88,
-    height: 88,
-    borderRadius: 5,
-    borderWidth: 2,
-    borderColor: "#D2D2D7",
-    backgroundColor: "#FFFFFF",
-    alignItems: "center",
-    justifyContent: "center",
+  summaryIconWrap: {
+    marginBottom: 6,
+    alignSelf: "center",
+  },
+  archetypeWrap: {
     marginBottom: 8,
+    alignItems: "center",
   },
   numberBadge: {
     width: 22,
@@ -160,8 +150,8 @@ export function PillarGuideIcon({
 
 export function PillarIconTile({ pillar }: { pillar: string }) {
   return (
-    <View style={styles.iconTile}>
-      <PillarGuideIcon pillar={pillar} size={14} />
+    <View style={styles.iconWrap}>
+      <PillarGuideIcon pillar={pillar} size={16} />
     </View>
   );
 }
@@ -263,8 +253,8 @@ export function ArchetypeGuideIcon({
 
 export function ArchetypeIconTile({ archetype }: { archetype?: string | null }) {
   return (
-    <View style={styles.archetypeTile}>
-      <ArchetypeGuideIcon archetype={archetype} size={56} />
+    <View style={styles.archetypeWrap}>
+      <ArchetypeGuideIcon archetype={archetype} size={64} />
     </View>
   );
 }

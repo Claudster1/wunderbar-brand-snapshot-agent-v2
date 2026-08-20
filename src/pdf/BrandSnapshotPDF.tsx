@@ -741,7 +741,7 @@ export const BrandSnapshotPDF = ({
   });
 
   const {
-    businessName,
+    businessName: businessNameRaw,
     industry,
     website,
     socials,
@@ -751,6 +751,7 @@ export const BrandSnapshotPDF = ({
     recommendations,
     fullReportAnswers,
   } = report;
+  const businessName = (businessNameRaw || "").trim() || "Your brand";
 
   const entries = PILLAR_KEYS.map((key) => ({
     key,

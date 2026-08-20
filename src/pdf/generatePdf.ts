@@ -147,21 +147,70 @@ export function transformReportDataForPdf(
   documentType: PDFDocumentType
 ): BrandSnapshotReport | BrandSnapshotPlusReport | BrandBlueprintReport | BrandBlueprintPlusPDFProps {
   const r = report?.full_report || report || {};
+  const answersFromFullReport =
+    report?.full_report?.answers && typeof report.full_report.answers === "object"
+      ? (report.full_report.answers as Record<string, unknown>)
+      : r?.answers && typeof r.answers === "object"
+        ? (r.answers as Record<string, unknown>)
+        : {};
+
+  const pickName = (...values: unknown[]) => {
+    for (const value of values) {
+      if (typeof value === "string" && value.trim()) return value.trim();
+    }
+    return "";
+  };
+
+  // Prod rows use `brand_name`; many APIs/UI paths use `company_name` / `business_name` / `company`.
+  const businessName = pickName(
+    r.company_name,
+    r.brand_name,
+    r.business_name,
+    r.company,
+    r.businessName,
+    r.brandName,
+    report?.company_name,
+    report?.brand_name,
+    report?.business_name,
+    report?.company,
+    report?.businessName,
+    report?.brandName,
+    answersFromFullReport.businessName,
+    answersFromFullReport.companyName,
+    answersFromFullReport.brandName,
+    answersFromFullReport.company,
+    answersFromFullReport.business_name,
+    report?.full_report?.company_name,
+    report?.full_report?.brand_name,
+    report?.full_report?.business_name,
+    report?.full_report?.company,
+  );
 
   // Common fields
   const baseProps = {
-    userName: r.user_name || report?.user_name || report?.userName || "User",
-    businessName: r.company || r.business_name || report?.company || report?.business_name || "",
+    userName: pickName(r.user_name, report?.user_name, report?.userName, "User") || "User",
+    businessName,
   };
 
   switch (documentType) {
     case "snapshot":
-      const answers =
-        report?.full_report?.answers && typeof report.full_report.answers === "object"
-          ? (report.full_report.answers as Record<string, unknown>)
-          : {};
+      const answers = answersFromFullReport;
       return {
         ...baseProps,
+        industry: pickName(
+          r.industry,
+          report?.industry,
+          answers.industry,
+          answers.businessIndustry,
+        ),
+        website: pickName(r.website, report?.website, answers.website, answers.websiteUrl) || null,
+        socials: Array.isArray(r.socials)
+          ? r.socials
+          : Array.isArray(report?.socials)
+            ? report.socials
+            : Array.isArray(answers.socials)
+              ? answers.socials
+              : [],
         brandAlignmentScore:
           r.brand_alignment_score ||
           r.brandAlignmentScore ||

@@ -7,6 +7,13 @@ import { PdfHeader, PDF_HEADER_RESERVED } from "./components/PdfHeader";
 import { PdfFooter, PDF_FOOTER_RESERVED } from "./components/PdfFooter";
 import { PillarScoreBar } from "./components/PillarScoreBar";
 import { MainGaugePDF } from "./components/MainGaugePDF";
+import {
+  ArchetypeIconTile,
+  PillarIconTile,
+  StatusMark,
+  StepNumberBadge,
+  SummaryIconTile,
+} from "./components/SnapshotGuideIcons";
 import { registerPdfFonts } from "./registerFonts";
 import { DisclaimerPage } from "./components/DisclaimerPage";
 import { getPrimaryPillar } from "@/src/lib/pillars/getPrimaryPillar";
@@ -77,6 +84,94 @@ function normalizePillarScore(raw: number): number {
   // Heuristic: values above 20 are on a 0–100 scale → map to /20
   if (raw > 20) return Math.max(0, Math.min(20, Math.round(raw / 5)));
   return Math.max(0, Math.min(20, Math.round(raw)));
+}
+
+function weakestPillarCallout(percent: number): string {
+  if (percent >= 60) return "Opportunity";
+  if (percent >= 40) return "Improvement Opportunity";
+  return "Needs Attention";
+}
+
+type PillarInsightInput =
+  | string
+  | {
+      strength?: string;
+      opportunity?: string;
+      action?: string;
+      whatsWorking?: string;
+      whatsUnclear?: string;
+      whyItMatters?: string;
+    }
+  | undefined;
+
+const FALLBACKS: Record<
+  PillarKey,
+  { working: string; unclear: string; matters: string; action: string }
+> = {
+  positioning: {
+    working: "Your offer has the beginnings of a distinct place in the market.",
+    unclear: "The clearest point of difference is not yet expressed consistently.",
+    matters: "Clear positioning helps ideal customers understand why your brand is the right choice.",
+    action: "Rewrite your core positioning promise in one audience-focused sentence.",
+  },
+  messaging: {
+    working: "Your brand has useful ideas and benefits to communicate.",
+    unclear: "The supporting message and proof are not yet consistent across touchpoints.",
+    matters: "Consistent messaging turns your positioning into language customers can remember and trust.",
+    action: "Choose three message pillars and align your homepage copy to them.",
+  },
+  visibility: {
+    working: "Your brand has channels it can use to build awareness.",
+    unclear: "Visibility efforts may not yet follow one focused, repeatable strategy.",
+    matters: "Focused visibility compounds attention instead of spreading effort across disconnected activity.",
+    action: "Select one priority channel and one message theme for the next 30 days.",
+  },
+  credibility: {
+    working: "Your experience and customer outcomes provide a foundation for trust.",
+    unclear: "Proof points may be missing or hard to find at key decision moments.",
+    matters: "Visible proof reduces perceived risk and helps prospects act with confidence.",
+    action: "Add a specific testimonial, result, or trust signal near your primary call to action.",
+  },
+  conversion: {
+    working: "Your brand gives prospective customers a path toward taking action.",
+    unclear: "The next step or follow-up journey may not be clear enough.",
+    matters: "A focused conversion path turns brand attention into qualified demand.",
+    action: "Audit your primary call to action and remove competing next steps.",
+  },
+};
+
+function cleanText(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
+function normalizeInsight(pillar: PillarKey, insight: PillarInsightInput, score: number) {
+  const fallback = FALLBACKS[pillar];
+  if (typeof insight === "string") {
+    return {
+      whatsWorking:
+        score >= 14 ? fallback.working : `There is a usable foundation in your ${PILLAR_LABELS[pillar].toLowerCase()} work.`,
+      whatsUnclear: cleanText(insight) ?? fallback.unclear,
+      whyItMatters: fallback.matters,
+    };
+  }
+  return {
+    whatsWorking:
+      cleanText(insight?.strength) ??
+      cleanText(insight?.whatsWorking) ??
+      (score >= 14
+        ? fallback.working
+        : "A foundation exists, but this pillar still needs deliberate strengthening."),
+    whatsUnclear:
+      cleanText(insight?.opportunity) ??
+      cleanText(insight?.whatsUnclear) ??
+      fallback.unclear,
+    whyItMatters: cleanText(insight?.action) ?? cleanText(insight?.whyItMatters) ?? fallback.matters,
+  };
+}
+
+function actionPillar(action: string, fallback: PillarKey): PillarKey {
+  const lower = action.toLowerCase();
+  return PILLAR_KEYS.find((pillar) => lower.includes(pillar)) ?? fallback;
 }
 
 const styles = StyleSheet.create({
@@ -154,6 +249,7 @@ const styles = StyleSheet.create({
     borderColor: SUITE_BORDER,
     padding: 10,
     marginRight: 8,
+    alignItems: "center",
   },
   summaryCardLast: {
     flex: 1,
@@ -163,6 +259,7 @@ const styles = StyleSheet.create({
     borderColor: SUITE_BORDER,
     padding: 10,
     marginRight: 0,
+    alignItems: "center",
   },
   summaryLabel: {
     fontFamily: "Lato",
@@ -172,18 +269,174 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 0.6,
     marginBottom: 4,
+    textAlign: "center",
   },
   summaryValue: {
     fontFamily: "Lato",
     fontSize: 18,
     fontWeight: 900,
     color: SUITE_NAVY,
+    textAlign: "center",
   },
   summaryMeta: {
     fontFamily: "Lato",
     fontSize: 8.5,
     color: SUITE_MUTED,
     marginTop: 2,
+    textAlign: "center",
+  },
+  summaryPill: {
+    marginTop: 6,
+    paddingVertical: 3,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+    backgroundColor: SUITE_SECTION_ACTIVE_BG,
+    borderWidth: 1,
+    borderColor: INTRO_BORDER,
+  },
+  summaryPillText: {
+    fontFamily: "Lato",
+    fontSize: 9,
+    fontWeight: 700,
+    color: SUITE_NAVY,
+  },
+  bandCritical: { color: RED_S, fontWeight: 700 },
+  bandWeak: { color: ORANGE, fontWeight: 700 },
+  bandFair: { color: YELLOW, fontWeight: 700 },
+  bandGood: { color: GOOD_GREEN, fontWeight: 700 },
+  bandStrong: { color: GREEN, fontWeight: 700 },
+  meterWithIcon: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+  meterBody: { flex: 1 },
+  insightTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    flexShrink: 1,
+    paddingRight: 8,
+  },
+  splitRow: {
+    flexDirection: "row",
+    marginBottom: 8,
+  },
+  splitCard: {
+    flex: 1,
+    borderRadius: SUITE_RADIUS_MD,
+    paddingVertical: 8,
+    paddingHorizontal: 9,
+    marginRight: 8,
+  },
+  splitCardLast: {
+    flex: 1,
+    borderRadius: SUITE_RADIUS_MD,
+    paddingVertical: 8,
+    paddingHorizontal: 9,
+    marginRight: 0,
+  },
+  splitLabelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  splitLabel: {
+    fontFamily: "Lato",
+    fontSize: 8,
+    fontWeight: 700,
+    textTransform: "uppercase",
+    letterSpacing: 0.6,
+    marginLeft: 5,
+  },
+  splitBody: {
+    fontFamily: "Lato",
+    fontSize: 9,
+    color: SUITE_TEXT_PRIMARY,
+    lineHeight: 1.45,
+  },
+  whyBlock: {
+    marginTop: 4,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: SUITE_BORDER,
+  },
+  whyLabel: {
+    fontFamily: "Lato",
+    fontSize: 8,
+    fontWeight: 700,
+    color: SUITE_MUTED,
+    textTransform: "uppercase",
+    letterSpacing: 0.6,
+    marginBottom: 3,
+  },
+  archetypeRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+  archetypeLeft: {
+    width: 100,
+    alignItems: "center",
+    marginRight: 14,
+  },
+  archetypeName: {
+    fontFamily: "Lato",
+    fontSize: 12,
+    fontWeight: 900,
+    color: SUITE_ACCENT_BRIGHT,
+    textAlign: "center",
+  },
+  archetypeRight: {
+    flex: 1,
+  },
+  archetypeMeaning: {
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: SUITE_RADIUS_MD,
+    backgroundColor: SUITE_SECTION_ACTIVE_BG,
+    borderWidth: 1,
+    borderColor: INTRO_BORDER,
+    fontFamily: "Lato",
+    fontSize: 9.5,
+    color: SUITE_TEXT_PRIMARY,
+    lineHeight: 1.5,
+    marginBottom: 8,
+  },
+  stepRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: SUITE_RADIUS_MD,
+    borderWidth: 1,
+    borderColor: SUITE_BORDER,
+    backgroundColor: WHITE,
+    marginBottom: 8,
+  },
+  stepRowPrimary: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: SUITE_RADIUS_MD,
+    borderWidth: 1,
+    borderColor: INTRO_BORDER,
+    backgroundColor: SUITE_SECTION_ACTIVE_BG,
+    marginBottom: 8,
+  },
+  stepBody: { flex: 1 },
+  stepPillar: {
+    fontFamily: "Lato",
+    fontSize: 8,
+    fontWeight: 700,
+    color: SUITE_ACCENT_BRIGHT,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    marginBottom: 3,
+  },
+  stepText: {
+    fontFamily: "Lato",
+    fontSize: 10,
+    color: SUITE_TEXT_PRIMARY,
+    lineHeight: 1.5,
   },
   diagnosisQuote: {
     paddingVertical: 10,
@@ -495,6 +748,7 @@ export const BrandSnapshotPDF = ({
     brandAlignmentScore,
     pillarScores,
     pillarInsights,
+    recommendations,
     fullReportAnswers,
   } = report;
 
@@ -576,6 +830,15 @@ export const BrandSnapshotPDF = ({
     ? Math.round((monthlyRevenue as number) * 0.1)
     : null;
 
+  const recommendationPool = [
+    cleanText(recommendations?.[weakest.key]),
+    ...entries.map((entry) => cleanText(recommendations?.[entry.key])),
+    FALLBACKS[weakest.key].action,
+    FALLBACKS[entries[1]?.key ?? "messaging"].action,
+    "Review these changes after 30 days and track which message creates the clearest response.",
+  ].filter((value): value is string => Boolean(value));
+  const nextActions = Array.from(new Set(recommendationPool)).slice(0, 5);
+
   const headerProps = {
     businessName,
     date: reportDate,
@@ -590,9 +853,13 @@ export const BrandSnapshotPDF = ({
         <View style={styles.introBanner}>
           <Text style={styles.introIcon}>i</Text>
           <Text style={styles.introText}>
-            How to read this: Each pillar is rated out of 20. Scores are Critical (0–19%), Weak
-            (20–39%), Fair (40–59%), Good (60–79%), or Strong (80–100%). The WunderBrand Score™ is
-            the composite total out of 100.
+            How to read this: Each pillar is rated out of 20. Scores are{" "}
+            <Text style={styles.bandCritical}>Critical (0–19%)</Text>,{" "}
+            <Text style={styles.bandWeak}>Weak (20–39%)</Text>,{" "}
+            <Text style={styles.bandFair}>Fair (40–59%)</Text>,{" "}
+            <Text style={styles.bandGood}>Good (60–79%)</Text>, or{" "}
+            <Text style={styles.bandStrong}>Strong (80–100%)</Text>. The WunderBrand Score™ is the
+            composite total out of 100.
           </Text>
         </View>
 
@@ -604,19 +871,30 @@ export const BrandSnapshotPDF = ({
 
           <View style={styles.summaryRow}>
             <View style={styles.summaryCard}>
+              <SummaryIconTile kind="overall" />
               <Text style={styles.summaryLabel}>Overall Score</Text>
               <Text style={[styles.summaryValue, { color: scoreColor(score) }]}>{score}/100</Text>
               <Text style={styles.summaryMeta}>{scoreLabel(score)}</Text>
             </View>
             <View style={styles.summaryCard}>
+              <SummaryIconTile kind="strongest" />
               <Text style={styles.summaryLabel}>Strongest Pillar</Text>
               <Text style={styles.summaryValue}>{strongest.score}/20</Text>
-              <Text style={styles.summaryMeta}>{strongest.label}</Text>
+              <View style={styles.summaryPill}>
+                <Text style={styles.summaryPillText}>{strongest.label}</Text>
+              </View>
             </View>
             <View style={styles.summaryCardLast}>
-              <Text style={styles.summaryLabel}>Opportunity</Text>
-              <Text style={styles.summaryValue}>{weakest.score}/20</Text>
-              <Text style={styles.summaryMeta}>{weakest.label}</Text>
+              <SummaryIconTile kind="opportunity" />
+              <Text style={styles.summaryLabel}>
+                {weakestPillarCallout((weakest.score / 20) * 100)}
+              </Text>
+              <Text style={[styles.summaryValue, { color: scoreColor((weakest.score / 20) * 100) }]}>
+                {weakest.score}/20
+              </Text>
+              <View style={styles.summaryPill}>
+                <Text style={styles.summaryPillText}>{weakest.label}</Text>
+              </View>
             </View>
           </View>
 
@@ -668,23 +946,48 @@ export const BrandSnapshotPDF = ({
           <View style={styles.metersWrap}>
             <View style={styles.meterRow}>
               <View style={styles.meterCol}>
-                <PillarScoreBar label="Positioning" score={entries[0].score} maxScore={20} />
+                <View style={styles.meterWithIcon}>
+                  <PillarIconTile pillar="positioning" />
+                  <View style={styles.meterBody}>
+                    <PillarScoreBar label="Positioning" score={entries[0].score} maxScore={20} />
+                  </View>
+                </View>
               </View>
               <View style={styles.meterColLast}>
-                <PillarScoreBar label="Messaging" score={entries[1].score} maxScore={20} />
+                <View style={styles.meterWithIcon}>
+                  <PillarIconTile pillar="messaging" />
+                  <View style={styles.meterBody}>
+                    <PillarScoreBar label="Messaging" score={entries[1].score} maxScore={20} />
+                  </View>
+                </View>
               </View>
             </View>
             <View style={styles.meterRow}>
               <View style={styles.meterCol}>
-                <PillarScoreBar label="Visibility" score={entries[2].score} maxScore={20} />
+                <View style={styles.meterWithIcon}>
+                  <PillarIconTile pillar="visibility" />
+                  <View style={styles.meterBody}>
+                    <PillarScoreBar label="Visibility" score={entries[2].score} maxScore={20} />
+                  </View>
+                </View>
               </View>
               <View style={styles.meterColLast}>
-                <PillarScoreBar label="Credibility" score={entries[3].score} maxScore={20} />
+                <View style={styles.meterWithIcon}>
+                  <PillarIconTile pillar="credibility" />
+                  <View style={styles.meterBody}>
+                    <PillarScoreBar label="Credibility" score={entries[3].score} maxScore={20} />
+                  </View>
+                </View>
               </View>
             </View>
             <View style={styles.meterRow}>
               <View style={styles.meterCol}>
-                <PillarScoreBar label="Conversion" score={entries[4].score} maxScore={20} />
+                <View style={styles.meterWithIcon}>
+                  <PillarIconTile pillar="conversion" />
+                  <View style={styles.meterBody}>
+                    <PillarScoreBar label="Conversion" score={entries[4].score} maxScore={20} />
+                  </View>
+                </View>
               </View>
               <View style={styles.meterColLast} />
             </View>
@@ -694,34 +997,128 @@ export const BrandSnapshotPDF = ({
         <Text style={[styles.kicker, { marginBottom: 8 }]}>Detailed Breakdown</Text>
         {entries.map((pillar) => {
           const percent = (pillar.score / 20) * 100;
-          const insight =
-            typeof pillarInsights[pillar.key] === "string" ? pillarInsights[pillar.key] : "";
+          const detail = normalizeInsight(
+            pillar.key,
+            pillarInsights[pillar.key] as unknown as PillarInsightInput,
+            pillar.score,
+          );
           return (
             <View key={pillar.key} style={styles.insightCard} wrap={false}>
               <View style={styles.insightHeader}>
-                <Text style={styles.insightTitle}>{pillar.label}</Text>
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                <View style={styles.insightTitleRow}>
+                  <PillarIconTile pillar={pillar.key} />
+                  <Text style={styles.insightTitle}>{pillar.label}</Text>
+                </View>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <Text
                     style={{
                       fontSize: 9,
                       fontWeight: 700,
                       color: scoreColor(percent),
                       textTransform: "uppercase",
+                      marginRight: 6,
                     }}
                   >
                     {scoreLabel(percent)}
                   </Text>
                   <View style={[styles.badge, { backgroundColor: scoreColor(percent) }]}>
-                    <Text style={styles.badgeText}>
-                      {pillar.score}/20
-                    </Text>
+                    <Text style={styles.badgeText}>{pillar.score}/20</Text>
                   </View>
                 </View>
               </View>
-              <Text style={styles.insightBody}>{insight || "Insight pending for this pillar."}</Text>
+              <View style={styles.splitRow}>
+                <View style={[styles.splitCard, { backgroundColor: "rgba(34, 197, 94, 0.08)" }]}>
+                  <View style={styles.splitLabelRow}>
+                    <StatusMark kind="working" />
+                    <Text style={[styles.splitLabel, { color: GREEN }]}>What's Working</Text>
+                  </View>
+                  <Text style={styles.splitBody}>{detail.whatsWorking}</Text>
+                </View>
+                <View style={[styles.splitCardLast, { backgroundColor: "rgba(249, 115, 22, 0.08)" }]}>
+                  <View style={styles.splitLabelRow}>
+                    <StatusMark kind="unclear" />
+                    <Text style={[styles.splitLabel, { color: ORANGE }]}>What's Unclear</Text>
+                  </View>
+                  <Text style={styles.splitBody}>{detail.whatsUnclear}</Text>
+                </View>
+              </View>
+              <View style={styles.whyBlock}>
+                <Text style={styles.whyLabel}>Why This Matters</Text>
+                <Text style={styles.splitBody}>{detail.whyItMatters}</Text>
+              </View>
             </View>
           );
         })}
+
+        <PdfFooter businessName={businessName} productName={PRODUCT} />
+      </Page>
+
+      <Page size="A4" style={styles.page}>
+        <PdfHeader title="Brand Archetype" {...headerProps} />
+
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Brand Archetype</Text>
+          <Text style={styles.sectionDesc}>
+            Your archetype is the personality pattern your brand can use to build recognition and
+            emotional consistency.
+          </Text>
+          <View style={styles.archetypeRow}>
+            <View style={styles.archetypeLeft}>
+              <ArchetypeIconTile archetype={likelyArchetype} />
+              <Text style={styles.archetypeName}>{likelyArchetype || "Archetype in progress"}</Text>
+            </View>
+            <View style={styles.archetypeRight}>
+              <Text style={styles.archetypeMeaning}>
+                {archetypeMeaning ||
+                  "Your archetype describes the personality pattern your brand can use to communicate more consistently."}
+              </Text>
+              <View style={[styles.signalRail, { borderLeftColor: GREEN }]}>
+                <Text style={[styles.signalLabel, { color: GREEN }]}>When Aligned</Text>
+                <Text style={styles.signalBody}>
+                  This archetype gives your brand a recognizable point of view and helps every
+                  touchpoint feel connected.
+                </Text>
+              </View>
+              <View style={[styles.signalRail, { borderLeftColor: ORANGE }]}>
+                <Text style={[styles.signalLabel, { color: ORANGE }]}>If Misused</Text>
+                <Text style={styles.signalBody}>
+                  Overusing one personality trait can make the brand feel one-dimensional; balance it
+                  with clarity and audience relevance.
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        <PdfFooter businessName={businessName} productName={PRODUCT} />
+      </Page>
+
+      <Page size="A4" style={styles.page}>
+        <PdfHeader title="Your Next Steps" {...headerProps} />
+
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Your Next Steps</Text>
+          <Text style={styles.sectionDesc}>
+            Focus on these practical actions over the next 7–14 days, starting with the
+            highest-leverage gap.
+          </Text>
+          {nextActions.map((action, index) => {
+            const pillar = actionPillar(action, index === 0 ? weakest.key : entries[index % entries.length].key);
+            return (
+              <View
+                key={`${index}-${action.slice(0, 24)}`}
+                style={index === 0 ? styles.stepRowPrimary : styles.stepRow}
+                wrap={false}
+              >
+                <StepNumberBadge n={index + 1} />
+                <View style={styles.stepBody}>
+                  <Text style={styles.stepPillar}>{PILLAR_LABELS[pillar]}</Text>
+                  <Text style={styles.stepText}>{action}</Text>
+                </View>
+              </View>
+            );
+          })}
+        </View>
 
         <PdfFooter businessName={businessName} productName={PRODUCT} />
       </Page>

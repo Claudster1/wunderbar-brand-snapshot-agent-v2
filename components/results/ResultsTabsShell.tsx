@@ -590,6 +590,23 @@ export default function ResultsTabsShell({
           ? "WunderBrand Blueprint"
           : "WunderBrand Blueprint+";
 
+  /** One-click primary PDF for the header Export control (Downloads stays the full pack). */
+  const primaryExportPdfHref = useMemo(() => {
+    if (!reportId) return null;
+    const encodedReportId = encodeURIComponent(reportId);
+    const encodedEmail = userEmail ? encodeURIComponent(userEmail) : "";
+    const emailParam = encodedEmail ? `&email=${encodedEmail}` : "";
+    if (isPreviewMode) {
+      if (productTier === "snapshot") return `/api/preview/pdf?type=snapshot&download=1`;
+      if (productTier === "snapshot-plus") return `/api/preview/pdf?type=snapshot-plus&download=1`;
+      return `/api/preview/pdf?type=${productTier === "blueprint-plus" ? "blueprint-plus" : "blueprint"}&download=1`;
+    }
+    if (productTier === "snapshot") return `/api/snapshot/pdf?id=${encodedReportId}`;
+    if (productTier === "snapshot-plus") return `/api/snapshot-plus/pdf?id=${encodedReportId}`;
+    const tier = productTier === "blueprint-plus" ? "blueprint-plus" : "blueprint";
+    return `/api/blueprint/pdf?reportId=${encodedReportId}&type=complete&tier=${tier}${emailParam}`;
+  }, [isPreviewMode, productTier, reportId, userEmail]);
+
   const suiteCompanyName = useMemo(() => {
     if (typeof diagnosticData.businessName === "string" && diagnosticData.businessName.trim())
       return diagnosticData.businessName.trim();
@@ -1307,6 +1324,7 @@ export default function ResultsTabsShell({
             ? diagnosticData.resultsDeliveredAt
             : undefined
         }
+        {...(primaryExportPdfHref ? { exportPdfHref: primaryExportPdfHref } : {})}
         {...(productTier === "snapshot"
           ? {}
           : { onGoToDownloads: () => openOrLockTab("downloads") })}

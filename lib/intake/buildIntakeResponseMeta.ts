@@ -77,9 +77,14 @@ export function buildIntakeResponseMeta(params: {
     overallProgressPercent = 96;
   } else {
     const fromRemaining = Math.round((answeredApprox / approxTotalQuestions) * 94);
+    /**
+     * Once captures are done, keep the bar in the high 80s–mid 90s even if narrative
+     * milestones lag — users experience “all questions answered” and a ~74% bar feels broken
+     * (old formula: 70 + narrative*0.26 → ~74 with light narrative progress).
+     */
     const fromCaptures =
       captureCompletionPercent >= 100
-        ? Math.round(70 + narrativeCompletionPercent * 0.26)
+        ? Math.round(88 + narrativeCompletionPercent * 0.08)
         : Math.round(
             captureCompletionPercent * 0.75 +
               Math.min((userTurns / Math.max(denom, 1)) * 12, 12) +

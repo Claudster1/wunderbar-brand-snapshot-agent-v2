@@ -117,10 +117,8 @@ export async function POST(req: Request) {
       }
     }
 
-    const BASE_URL =
-      process.env.NEXT_PUBLIC_APP_URL ||
-      process.env.NEXT_PUBLIC_BASE_URL ||
-      "https://app.wunderbrand.ai";
+    const { resolveOutboundAppBaseUrl } = await import("@/lib/server/runtimeBaseUrl");
+    const BASE_URL = resolveOutboundAppBaseUrl(req);
     const resumeLink = `${BASE_URL}/?resume=${encodeURIComponent(reportId)}`;
     const resultsUrl = `${BASE_URL}/results?reportId=${encodeURIComponent(reportId)}`;
 
@@ -313,7 +311,25 @@ export async function POST(req: Request) {
       }
     }
 
-    return NextResponse.json({ success: true, email: normalized });
+    // Results unlock proves inbox intent via Turnstile + email capture (and we email
+    // the results link). Issue a verified session so Export / PDF works immediately —
+    // otherwise setting user_email locks the PDF behind OTP the free Snapshot flow never runs.
+    const response = NextResponse.json({ success: true, email: normalized });
+    try {
+      const {
+        createSessionToken,
+        sessionCookieOptions,
+        VERIFIED_SESSION_COOKIE,
+      } = await import("@/lib/auth/session");
+      const sessionToken = createSessionToken(normalized);
+      if (sessionToken) {
+        response.cookies.set(VERIFIED_SESSION_COOKIE, sessionToken, sessionCookieOptions());
+      }
+    } catch (sessionErr) {
+      logger.warn("[Lead Email] Session cookie not set", { error: describeError(sessionErr) });
+    }
+    response.headers.set("Cache-Control", "private, no-store");
+    return response;
   } catch (err) {
     logger.error("[Lead Email API]", { error: describeError(err) });
     return NextResponse.json({ error: "Something went wrong." }, { status: 500 });

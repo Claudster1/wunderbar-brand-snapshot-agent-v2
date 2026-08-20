@@ -31,6 +31,7 @@ import {
   splitAssistantIntakePayload,
   stripIntakeJsonFromAssistantText,
   stripStreamingAssistantDisplay,
+  textLooksLikeIntakeJsonDump,
 } from '@/lib/intake/stripAssistantJsonPayload';
 import {
   getQaSeedTurns,
@@ -848,6 +849,10 @@ export function useBrandChat(options?: UseBrandChatOptions) {
       setMessages([...nextHistory, streamingMessage]);
       setIsStreaming(true);
 
+      // Accumulate raw tokens separately — never append onto already-stripped display text
+      // (that drops the opening `{` and lets `"businessName": ...` leak into the bubble).
+      let streamingRaw = '';
+
       const reply = await getBrandSnapshotReply(nextHistory, {
         productTier: options?.productTier,
         continuationReportId: continuationReportId ?? undefined,
@@ -855,27 +860,33 @@ export function useBrandChat(options?: UseBrandChatOptions) {
         stream: true,
         signal: ac.signal,
         onToken: (token) => {
+          streamingRaw += token;
+          const display = stripStreamingAssistantDisplay(streamingRaw);
           setMessages((prev) =>
-            prev.map((m) => {
-              if (m.id !== streamingMessageId) return m;
-              const next = m.text + token;
-              return { ...m, text: stripStreamingAssistantDisplay(next) };
-            }),
+            prev.map((m) => (m.id === streamingMessageId ? { ...m, text: display } : m)),
           );
         },
       });
       const replyText = reply.content;
       const { displayText: cleanReplyText, payload: intakePayload } = splitAssistantIntakePayload(replyText);
+      const HANDOFF_FALLBACK =
+        "Thanks — I'm wrapping up your diagnostic now. Hang tight while we build your results.";
+      const bubbleText =
+        cleanReplyText.trim() ||
+        (intakePayload || textLooksLikeIntakeJsonDump(replyText) ? HANDOFF_FALLBACK : "");
 
       // Never leave raw JSON / fences in the streaming bubble.
       setMessages((prev) =>
-        prev.map((m) => (m.id === streamingMessageId ? { ...m, text: cleanReplyText } : m)),
+        prev.map((m) => (m.id === streamingMessageId ? { ...m, text: bubbleText } : m)),
       );
       if (reply.meta) {
         const handoffCue =
           reply.meta.intakeReadyForFinalize ||
           isAssistantFinalHandoffWithoutJsonBlock(cleanReplyText) ||
-          assistantPromisedExternalResultsEntry(cleanReplyText);
+          assistantPromisedExternalResultsEntry(cleanReplyText) ||
+          assistantPromisedExternalResultsEntry(bubbleText) ||
+          !!intakePayload ||
+          textLooksLikeIntakeJsonDump(replyText);
         setIntakeMeta(
           handoffCue
             ? {
@@ -904,10 +915,14 @@ export function useBrandChat(options?: UseBrandChatOptions) {
       }
 
       const maybeCompleteWithoutJson = async (assistantText: string): Promise<boolean> => {
-        if (textContainsScoringJsonPayload(assistantText)) return false;
+        const dumpOnly = textLooksLikeIntakeJsonDump(assistantText);
+        /* Structured scoring JSON should go through the snapshotData path — but orphan dumps
+           (no wrapping `{`) never parse, so treat them as wrap-up and finalize from transcript. */
+        if (textContainsScoringJsonPayload(assistantText) && !dumpOnly) return false;
 
-        /* Any “results live outside chat” / wrap-up cue → server transcript extract (replacing weak client extractAnswers). */
+        /* Any “results live outside chat” / wrap-up cue → server transcript extract. */
         const finalizeCue =
+          dumpOnly ||
           isAssistantFinalHandoffWithoutJsonBlock(assistantText) ||
           assistantPromisedExternalResultsEntry(assistantText);
         if (!finalizeCue) return false;
@@ -915,7 +930,9 @@ export function useBrandChat(options?: UseBrandChatOptions) {
         const userTurns = nextHistory.filter((m) => m.role === 'user').length;
         if (userTurns < 3) return false;
 
-        const handoffMessage = createMessage('assistant', stripIntakeJsonFromAssistantText(assistantText));
+        const prose =
+          stripIntakeJsonFromAssistantText(assistantText).trim() || HANDOFF_FALLBACK;
+        const handoffMessage = createMessage('assistant', prose);
         const completedHistory = [...nextHistory, handoffMessage];
         messagesRef.current = completedHistory;
         setMessages(completedHistory);
@@ -1062,17 +1079,16 @@ export function useBrandChat(options?: UseBrandChatOptions) {
               }
 
               // Keep only clean handoff prose in the thread (streaming bubble already cleaned).
-              const textBeforeJson = cleanReplyText ||
-                trimmedReply.substring(0, jsonMatchIndex).trim();
-              if (textBeforeJson) {
-                setMessages((prev) =>
-                  prev.map((m) =>
-                    m.id === streamingMessageId ? { ...m, text: textBeforeJson } : m,
-                  ),
-                );
-              } else {
-                setMessages((prev) => prev.filter((m) => m.id !== streamingMessageId || m.text.trim()));
-              }
+              const textBeforeJson =
+                bubbleText ||
+                cleanReplyText ||
+                trimmedReply.substring(0, jsonMatchIndex).trim() ||
+                HANDOFF_FALLBACK;
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === streamingMessageId ? { ...m, text: textBeforeJson } : m,
+                ),
+              );
 
               saveProgress('completed', nextHistory);
 
@@ -1096,7 +1112,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
               );
               const historyWithClean = [
                 ...nextHistory,
-                createMessage('assistant', cleanReplyText || 'Thanks — wrapping up your diagnostic now.'),
+                createMessage('assistant', bubbleText || HANDOFF_FALLBACK),
               ];
               messagesRef.current = historyWithClean;
               setMessages(historyWithClean);
@@ -1274,7 +1290,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
             }
 
             // Extract any text before the JSON (handoff message)
-            const textBeforeJson = cleanReplyText;
+            const textBeforeJson = bubbleText || cleanReplyText || HANDOFF_FALLBACK;
             
             // Strip score-related text but keep the conversational handoff
             const scorePatterns = [
@@ -1289,32 +1305,27 @@ export function useBrandChat(options?: UseBrandChatOptions) {
             scorePatterns.forEach(pattern => {
               cleanText = cleanText.replace(pattern, '');
             });
-            cleanText = cleanText.replace(/\n{3,}/g, '\n\n').trim();
+            cleanText = cleanText.replace(/\n{3,}/g, '\n\n').trim() || HANDOFF_FALLBACK;
             
-            if (cleanText && cleanText.length > 10) {
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === streamingMessageId ? { ...m, text: cleanText } : m,
-                ),
-              );
-              const finalHistory = [
-                ...nextHistory,
-                { ...createMessage('assistant', cleanText), id: streamingMessageId },
-              ];
-              saveProgress('handoff', finalHistory);
-            } else {
-              saveProgress('completed', nextHistory);
-            }
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === streamingMessageId ? { ...m, text: cleanText } : m,
+              ),
+            );
+            const finalHistory = [
+              ...nextHistory,
+              { ...createMessage('assistant', cleanText), id: streamingMessageId },
+            ];
+            saveProgress('handoff', finalHistory);
             
             // Don't add JSON to chat - it's only for the parent page
             // The scores will appear below the chatbox via postMessage
           }
         } catch (parseError) {
           // Model pasted invalid / partial JSON — show prose only; finalize from transcript when it reads like wrap-up.
-          const displayOnly = cleanReplyText || stripIntakeJsonFromAssistantText(replyText);
-          const handoffFallback =
-            displayOnly ||
-            "Thanks — I'm wrapping up your diagnostic now. Hang tight while we build your results.";
+          const displayOnly =
+            bubbleText || cleanReplyText || stripIntakeJsonFromAssistantText(replyText);
+          const handoffFallback = displayOnly || HANDOFF_FALLBACK;
           const assistantMessage = createMessage('assistant', handoffFallback);
           const badJsonHistory = [...nextHistory, assistantMessage];
           messagesRef.current = badJsonHistory;
@@ -1340,22 +1351,31 @@ export function useBrandChat(options?: UseBrandChatOptions) {
         const hasScoreNumbers = /\b\d+\/100\b|\b\d+\/20\b|WunderBrand Score™[™]?:?\s*\d+/i.test(replyText);
         
         if (hasScoreNumbers) {
-          const handoffMatch = cleanReplyText.match(/(?:Perfect!|Great!|Here's|Your).*?(?:form|below|details|enter)/i);
+          const handoffMatch = (bubbleText || cleanReplyText).match(
+            /(?:Perfect!|Great!|Here's|Your).*?(?:form|below|details|enter)/i,
+          );
           if (handoffMatch) {
             setMessages((prev) =>
               prev.map((m) =>
                 m.id === streamingMessageId ? { ...m, text: handoffMatch[0] } : m,
               ),
             );
+          } else if (bubbleText) {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === streamingMessageId ? { ...m, text: bubbleText } : m,
+              ),
+            );
           }
         } else {
-          if (await maybeCompleteWithoutJson(cleanReplyText || replyText)) {
+          if (await maybeCompleteWithoutJson(replyText)) {
             return;
           }
-          // Normal text — streaming bubble already holds cleanReplyText
+          // Never fall back to raw replyText — it may be a JSON leak.
+          const safeText = bubbleText || cleanReplyText || HANDOFF_FALLBACK;
           const updatedHistory = [
             ...nextHistory,
-            createMessage('assistant', cleanReplyText || replyText),
+            createMessage('assistant', safeText),
           ];
           // Prefer updating the streaming message rather than duplicating.
           setMessages((prev) => {
@@ -1363,7 +1383,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
             if (hasStreaming) {
               return prev.map((m) =>
                 m.id === streamingMessageId
-                  ? { ...m, text: cleanReplyText || replyText }
+                  ? { ...m, text: safeText }
                   : m,
               );
             }
@@ -1373,7 +1393,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
           const step = `step_${updatedHistory.filter(m => m.role === 'assistant').length}`;
           saveProgress(step, [
             ...nextHistory,
-            createMessage('assistant', cleanReplyText || replyText),
+            createMessage('assistant', safeText),
           ]);
         }
       }

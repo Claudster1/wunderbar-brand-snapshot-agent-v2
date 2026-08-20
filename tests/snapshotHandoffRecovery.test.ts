@@ -93,6 +93,22 @@ describe("conversationSuggestsIntakeComplete", () => {
     expect(conversationSuggestsIntakeComplete(messages)).toBe(true);
   });
 
+  it("is true when the last assistant bubble is a leaked answers JSON dump", () => {
+    const messages = [
+      { role: "user", text: "Alex" },
+      { role: "user", text: "Acme" },
+      { role: "user", text: "consulting" },
+      {
+        role: "assistant",
+        text: `"offerClarity": "very clear",
+"messagingClarity": null,
+"missionStatement": null,
+"hasBrandGuidelines": false`,
+      },
+    ];
+    expect(conversationSuggestsIntakeComplete(messages)).toBe(true);
+  });
+
   it("is false with too few user messages", () => {
     const messages = [
       { role: "assistant", text: "Hi" },

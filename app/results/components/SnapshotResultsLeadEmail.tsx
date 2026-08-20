@@ -16,6 +16,7 @@ import {
   resultsEmailGatePreferenceLead,
   resultsEmailGatePreferenceSaveLabel,
   resultsEmailGatePreferenceSkipLabel,
+  resultsEmailGateUnlockLegal,
 } from "@/lib/copy/resultsEmailGateCopy";
 import type { SnapshotContentOptIn } from "@/lib/snapshot/snapshotContentOptIn";
 import { isTurnstileEnforced } from "@/lib/security/turnstilePolicy";
@@ -307,7 +308,7 @@ export function SnapshotResultsLeadEmail({
             {saving ? "Saving…" : resultsCompleteSnapshotCtaLabel()}
           </button>
           <p className="results-gate-capture__legal">
-            We’ll unlock your report on this page and email you a copy with your saved links.{" "}
+            {resultsEmailGateUnlockLegal()}{" "}
             <a
               href="https://wunderbardigital.com/privacy-policy?utm_source=results_page&utm_medium=lead_email&utm_campaign=privacy&utm_content=privacy_policy"
               target="_blank"

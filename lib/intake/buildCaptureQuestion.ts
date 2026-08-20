@@ -51,7 +51,7 @@ export function buildCaptureQuestion(
     case "team_size":
       return "**How big is your team today** — including you?";
     case "industry":
-      return "**What industry or space is the business in?** A plain category is perfect.";
+      return "**What industry or space is the business in?** A simple category is perfect.";
     case "geographic_scope":
       return "**Where do you mainly serve customers** — locally, regionally, nationally, or globally?";
     case "years_in_business":

@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { SnapshotResultsLeadEmail } from "@/app/results/components/SnapshotResultsLeadEmail";
-import { ResultsEmailUnlockStickyCta } from "@/app/results/components/ResultsEmailUnlockStickyCta";
 import {
   readResultsEmailGateUnlocked,
   writeResultsEmailGateUnlocked,
@@ -57,12 +56,9 @@ export function ResultsSnapshotLeadGate({
   }, [reportId]);
 
   const showEmailBlock = requiresEmailGate;
-  const gateActive = showEmailBlock && !contentUnlocked;
 
   return (
     <>
-      {gateActive ? <ResultsEmailUnlockStickyCta productName={productName} /> : null}
-
       {showEmailBlock ? (
         <div id="email-results" className="results-gate-stack scroll-mt-28">
           <SnapshotResultsLeadEmail

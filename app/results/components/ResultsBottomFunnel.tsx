@@ -115,7 +115,7 @@ export function ResultsBottomFunnel({
         {tabTier === "snapshot" || !upsell ? (
           <>
             <header className="results-bottom-funnel-intro">
-              <p className="results-bottom-funnel-eyebrow">Recommended Next Step</p>
+              <p className="results-bottom-funnel-eyebrow">WunderBrand Suite™</p>
               <h2 id="results-bottom-funnel-heading" className="results-bottom-funnel-title">
                 See How to Build on Your Snapshot™
               </h2>

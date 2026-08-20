@@ -59,4 +59,55 @@ describe("stripAssistantJsonPayload", () => {
     expect(stripStreamingAssistantDisplay(partial)).not.toContain("```");
     expect(stripStreamingAssistantDisplay(partial)).not.toContain("userName");
   });
+
+  it("hides orphan key dumps after opening brace was already stripped", () => {
+    const leaked = `That's a great description of your brand voice! Your WunderBrand Snapshot™ is being finalized now. You'll be redirected to your diagnostic results page automatically in a moment. Here's the information you've provided:
+
+"businessName": "Wunderbar Digital",
+"businessType": "saas",
+"industry": "Professional services / consulting"
+`;
+    const cleaned = stripStreamingAssistantDisplay(leaked);
+    expect(cleaned).toMatch(/finalized now/i);
+    expect(cleaned).not.toContain("businessName");
+    expect(cleaned).not.toContain("Wunderbar Digital");
+    expect(cleaned).not.toMatch(/information you've provided/i);
+  });
+
+  it("hides mid-payload orphan keys like offerClarity (opening brace already stripped)", () => {
+    const leaked = `Your WunderBrand Snapshot™ is being finalized now.
+
+"offerClarity": "very clear",
+"messagingClarity": null,
+"missionStatement": null,
+"hasBrandGuidelines": false,
+"credibilityDetails": { "testimonialContext": null },
+"thoughtLeadershipActivity": [ { "hasActivity": false, "activities": [] } ]
+`;
+    const cleaned = stripStreamingAssistantDisplay(leaked);
+    expect(cleaned).toMatch(/finalized now/i);
+    expect(cleaned).not.toContain("offerClarity");
+    expect(cleaned).not.toContain("missionStatement");
+    expect(cleaned).not.toContain("hasBrandGuidelines");
+  });
+
+  it("keeps stripping when raw stream is accumulated then display-stripped", () => {
+    const chunks = [
+      "Excellent — everything you've shared is confidential.\n\n",
+      "Your WunderBrand Snapshot™ is being finalized now.\n\n",
+      "{\n",
+      '  "businessName": "Wunderbar Digital",\n',
+      '  "industry": "Consulting"\n',
+      "}",
+    ];
+    let raw = "";
+    let display = "";
+    for (const chunk of chunks) {
+      raw += chunk;
+      display = stripStreamingAssistantDisplay(raw);
+    }
+    expect(display).toMatch(/finalized now/i);
+    expect(display).not.toContain("businessName");
+    expect(display).not.toContain("{");
+  });
 });

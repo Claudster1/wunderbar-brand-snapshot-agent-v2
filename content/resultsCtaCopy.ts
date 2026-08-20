@@ -10,7 +10,7 @@ export const RESULTS_CTA_COPY = {
     headline: "Turn This Diagnostic into a System Your Brand Can Activate",
     body:
       "Your results show where to focus first. Explore the suite to see how Snapshot+™ and beyond expand that into strategy, messaging frameworks, and activation.",
-    primaryCta: "See What’s Included in the Suite™",
+    primaryCta: "Explore the WunderBrand Suite™",
   },
 };
 

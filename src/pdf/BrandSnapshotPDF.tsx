@@ -1,7 +1,7 @@
 // src/pdf/BrandSnapshotPDF.tsx
 // WunderBrand Snapshot™ PDF — mirrors SnapshotDocumentResults UI
 
-import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet, Link } from "@react-pdf/renderer";
 
 import { PdfHeader, PDF_HEADER_RESERVED } from "./components/PdfHeader";
 import { PdfFooter, PDF_FOOTER_RESERVED } from "./components/PdfFooter";
@@ -11,6 +11,8 @@ import { registerPdfFonts } from "./registerFonts";
 import { DisclaimerPage } from "./components/DisclaimerPage";
 import { getPrimaryPillar } from "@/src/lib/pillars/getPrimaryPillar";
 import { getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
+import { publicSnapshotAppUrl } from "@/lib/publicSnapshotAppUrl";
 import {
   SUITE_ACCENT_BRIGHT,
   SUITE_BG_PAGE,
@@ -33,6 +35,16 @@ const RED_S = "#EF4444";
 const WHITE = "#FFFFFF";
 const INTRO_BORDER = "#B8E6F8";
 const QUOTE_BG = "#E8F6FE";
+
+const SNAPSHOT_PLUS_CHECKOUT_URL = publicSnapshotAppUrl(
+  getTrackedCheckoutUrl({
+    product: "snapshot-plus",
+    medium: "report_cta",
+    content: "snapshot_pdf_cta",
+    source: "wunderbrand_pdf",
+    campaign: "snapshot_plus_upgrade",
+  }),
+);
 
 const PILLAR_KEYS = ["positioning", "messaging", "visibility", "credibility", "conversion"] as const;
 type PillarKey = (typeof PILLAR_KEYS)[number];
@@ -291,6 +303,51 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     color: SUITE_ACCENT_BRIGHT,
     marginTop: 8,
+  },
+  ctaCard: {
+    marginTop: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    borderRadius: SUITE_RADIUS_MD,
+    backgroundColor: SUITE_SECTION_ACTIVE_BG,
+    borderWidth: 1,
+    borderColor: INTRO_BORDER,
+  },
+  ctaTitle: {
+    fontFamily: "Lato",
+    fontSize: 13,
+    fontWeight: 900,
+    color: SUITE_NAVY,
+    marginBottom: 4,
+  },
+  ctaBody: {
+    fontFamily: "Lato",
+    fontSize: 9.5,
+    color: SUITE_MUTED,
+    lineHeight: 1.45,
+    marginBottom: 10,
+  },
+  ctaButton: {
+    alignSelf: "flex-start",
+    backgroundColor: SUITE_ACCENT_BRIGHT,
+    borderRadius: 5,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+  },
+  ctaButtonText: {
+    fontFamily: "Lato",
+    fontSize: 11,
+    fontWeight: 700,
+    color: WHITE,
+    letterSpacing: 0.2,
+  },
+  ctaUrl: {
+    fontFamily: "Lato",
+    fontSize: 8.5,
+    fontWeight: 700,
+    color: SUITE_ACCENT_BRIGHT,
+    marginTop: 8,
+    textDecoration: "underline",
   },
   muted: {
     fontFamily: "Lato",
@@ -714,10 +771,20 @@ export const BrandSnapshotPDF = ({
             <Text style={styles.signalBody}>
               {getAudienceAlignmentTeaser(primaryPillar as PillarKey)}
             </Text>
-            <Text style={styles.ctaLabel}>Explore Snapshot+™</Text>
-            <Text style={[styles.muted, { marginTop: 4 }]}>
-              Unlock archetype activation, messaging frameworks, and implementation steps.
+          </View>
+
+          <View style={styles.ctaCard}>
+            <Text style={styles.ctaTitle}>Ready for the strategy layer?</Text>
+            <Text style={styles.ctaBody}>
+              Snapshot+™ unlocks archetype activation, messaging frameworks, and implementation
+              steps built from these results.
             </Text>
+            <Link src={SNAPSHOT_PLUS_CHECKOUT_URL} style={styles.ctaButton}>
+              <Text style={styles.ctaButtonText}>Explore Snapshot+™</Text>
+            </Link>
+            <Link src={SNAPSHOT_PLUS_CHECKOUT_URL} style={styles.ctaUrl}>
+              app.wunderbrand.ai/checkout/snapshot-plus
+            </Link>
           </View>
         </View>
 
@@ -764,7 +831,18 @@ export const BrandSnapshotPDF = ({
               ? `Based on your inputs, addressing ${primaryLabel} could represent approximately $${estimatedLift.toLocaleString()}/month in additional revenue at conservative estimates (assuming a 10% improvement).`
               : `Your ${primaryLabel} score suggests measurable revenue drag. The likely cost appears in conversion efficiency and sales-cycle friction. Snapshot+ shows where the gap lives and what to fix first.`}
           </Text>
-          <Text style={styles.ctaLabel}>Explore Snapshot+™</Text>
+          <View style={[styles.ctaCard, { marginTop: 10 }]}>
+            <Text style={styles.ctaTitle}>Continue in Snapshot+™</Text>
+            <Text style={styles.ctaBody}>
+              Open the strategy layer to turn this revenue signal into a prioritized action plan.
+            </Text>
+            <Link src={SNAPSHOT_PLUS_CHECKOUT_URL} style={styles.ctaButton}>
+              <Text style={styles.ctaButtonText}>Explore Snapshot+™</Text>
+            </Link>
+            <Link src={SNAPSHOT_PLUS_CHECKOUT_URL} style={styles.ctaUrl}>
+              app.wunderbrand.ai/checkout/snapshot-plus
+            </Link>
+          </View>
         </View>
 
         <PdfFooter businessName={businessName} productName={PRODUCT} />

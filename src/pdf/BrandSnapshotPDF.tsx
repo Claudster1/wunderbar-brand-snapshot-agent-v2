@@ -582,6 +582,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingVertical: 8,
     paddingHorizontal: 14,
+    textDecoration: "none",
   },
   ctaButtonText: {
     fontFamily: "Lato",
@@ -589,6 +590,7 @@ const styles = StyleSheet.create({
     fontWeight: 700,
     color: WHITE,
     letterSpacing: 0.2,
+    textDecoration: "none",
   },
   ctaUrl: {
     fontFamily: "Lato",
@@ -596,7 +598,7 @@ const styles = StyleSheet.create({
     fontWeight: 700,
     color: SUITE_ACCENT_BRIGHT,
     marginTop: 8,
-    textDecoration: "underline",
+    textDecoration: "none",
   },
   muted: {
     fontFamily: "Lato",

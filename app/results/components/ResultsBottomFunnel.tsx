@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { HumanAssistCTA } from "@/app/results/components/HumanAssistCTA";
 import type { ProductTier } from "@/components/results/tabConfig";
 import { PRICING } from "@/lib/pricing";
-import { WUNDERBAR_SUITE_COMPARE_URL } from "@/lib/wunderbarExternalUrls";
+import { WUNDERBAR_SUITE_RESULTS_FUNNEL_URL } from "@/lib/wunderbarExternalUrls";
 import { RESULTS_CTA_COPY } from "@/content/resultsCtaCopy";
 import { getOrAssignVariant } from "@/lib/abTesting";
 import { fireACEvent } from "@/lib/activeCampaign";
@@ -50,6 +50,15 @@ export function ResultsBottomFunnel({
 
   const copy = RESULTS_CTA_COPY[variant];
 
+  const onSuiteExploreClick = () => {
+    fireACEvent({
+      email: userEmail,
+      eventName: "suite_explore_cta_clicked",
+      tags: ["snapshot:explore-suite"],
+      fields: { primary_pillar: primaryPillar, brand_stage: stage, cta_variant: variant },
+    });
+  };
+
   const onSnapshotPlusClick = async () => {
     fireACEvent({
       email: userEmail,
@@ -77,7 +86,7 @@ export function ResultsBottomFunnel({
             utm_source: "wunderbar_app",
             utm_medium: "results_funnel",
             utm_campaign: "snapshot_plus_upgrade",
-            utm_content: "results_bottom_funnel",
+            utm_content: "results_bottom_funnel_ready",
           },
         }),
       });
@@ -89,7 +98,7 @@ export function ResultsBottomFunnel({
       const url = getTrackedCheckoutUrl({
         product: "snapshot-plus",
         medium: "results_cta",
-        content: "results_bottom_funnel_fallback",
+        content: "results_bottom_funnel_ready_fallback",
       });
       const dest = new URL(url, window.location.origin);
       if (reportId && /^[0-9a-f-]{36}$/i.test(reportId.trim())) {
@@ -121,39 +130,37 @@ export function ResultsBottomFunnel({
             <header className="results-bottom-funnel-intro">
               <p className="results-bottom-funnel-eyebrow">Recommended next step</p>
               <h2 id="results-bottom-funnel-heading" className="results-bottom-funnel-title">
-                {PRICING.snapshot_plus.label}
+                See how to build on your Snapshot™
               </h2>
               <p className="results-bottom-funnel-lead">
-                {`You’ve got your diagnostic. Upgrade to Snapshot+ for a prioritized roadmap, messaging frameworks, and an AI prompt pack — so you can grow and scale with clarity, from $${snapshotPlusPrice.toLocaleString()}.`}
+                {copy.body} Snapshot+™ starts at ${snapshotPlusPrice.toLocaleString()}.
               </p>
             </header>
 
             <article className="results-bottom-funnel-card results-bottom-funnel-card--featured">
               <div className="results-bottom-funnel-actions">
+                <a
+                  href={WUNDERBAR_SUITE_RESULTS_FUNNEL_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={onSuiteExploreClick}
+                  className="wb-cta wb-cta--solid wb-cta--block"
+                >
+                  {copy.primaryCta}
+                </a>
                 <button
                   type="button"
                   onClick={() => void onSnapshotPlusClick()}
                   disabled={checkoutLoading}
-                  className="wb-cta wb-cta--solid wb-cta--block"
+                  className="wb-cta wb-cta--text results-bottom-funnel-text-cta"
                 >
-                  {checkoutLoading ? "Starting checkout…" : copy.primaryCta}
+                  {checkoutLoading ? "Starting checkout…" : copy.secondaryCta}
                 </button>
-                <Link href="/brand-snapshot-suite" className="wb-cta wb-cta--text results-bottom-funnel-text-cta">
-                  {copy.secondaryCta}
-                </Link>
               </div>
               <p className="results-bottom-funnel-quiet">
-                Need hands-on help implementing this?{" "}
+                Prefer to talk it through?{" "}
                 <a
-                  href={WUNDERBAR_SUITE_COMPARE_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Compare the Suite™
-                </a>
-                {" · "}
-                <a
-                  href={`https://wunderbardigital.com/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=results_funnel&utm_campaign=snapshot_plus_upgrade&utm_content=talk_expert${reportId ? `&wb_report_id=${encodeURIComponent(reportId)}` : ""}`}
+                  href={`https://wunderbardigital.com/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=results_funnel&utm_campaign=product_comparison&utm_content=talk_expert${reportId ? `&wb_report_id=${encodeURIComponent(reportId)}` : ""}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => {

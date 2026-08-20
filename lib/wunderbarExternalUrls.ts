@@ -9,6 +9,7 @@
  * | `WUNDERBAR_IMPLEMENTATION_OPTIONS_URL` | Results tab — compact “Implementation options →” | `/services` |
  * | `WUNDERBAR_IMPLEMENTATION_PATHS_URL` | Results tab — “Explore implementation paths” | `/services` |
  * | `WUNDERBAR_SUITE_COMPARE_URL` | SuiteCTA, BrandSnapshotResults — “Explore … Suite™” | `/wunderbrand-suite` |
+ * | `WUNDERBAR_SUITE_RESULTS_FUNNEL_URL` | Results bottom funnel — primary suite education | `/wunderbrand-suite` |
  * | `WUNDERBAR_BLUEPRINT_GUIDED_IMPLEMENTATION_URL` | Blueprint — Guided implementation card | `/services` |
  * | `WUNDERBAR_BLUEPRINT_DFY_IMPLEMENTATION_URL` | Blueprint — Done-for-you card | `/services` |
  * | `WUNDERBAR_IMPLEMENTATION_PATHS_PDF_URL` | Snapshot+ PDF — “View implementation paths” | `/services` |
@@ -50,6 +51,13 @@ export const WUNDERBAR_SUITE_COMPARE_URL = `${ORIGIN}/wunderbrand-suite?${utm(
   "app_cta",
   "product_comparison",
   "suite_explore",
+)}`;
+
+/** Free Snapshot results bottom funnel — primary education CTA. */
+export const WUNDERBAR_SUITE_RESULTS_FUNNEL_URL = `${ORIGIN}/wunderbrand-suite?${utm(
+  "results_funnel",
+  "product_comparison",
+  "explore_suite_primary",
 )}`;
 
 /** Blueprint activation — guided implementation interest. */

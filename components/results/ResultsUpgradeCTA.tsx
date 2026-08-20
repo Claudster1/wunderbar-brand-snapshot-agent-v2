@@ -7,6 +7,7 @@ import { RESULTS_CTA_COPY } from "@/content/resultsCtaCopy";
 import { fireACEvent } from "@/lib/activeCampaign";
 import { trackUpgradeClick } from "@/lib/adTracking";
 import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
+import { WUNDERBAR_SUITE_RESULTS_FUNNEL_URL } from "@/lib/wunderbarExternalUrls";
 
 export function ResultsUpgradeCTA({
   primaryPillar,
@@ -56,6 +57,21 @@ export function ResultsUpgradeCTA({
   const onPrimaryClick = () => {
     fireACEvent({
       email,
+      eventName: "suite_explore_cta_clicked",
+      tags: ["snapshot:explore-suite"],
+      fields: {
+        primary_pillar: primaryPillar,
+        brand_stage: stage,
+        cta_variant: variant,
+        cta_presence: presence,
+      },
+    });
+    window.open(WUNDERBAR_SUITE_RESULTS_FUNNEL_URL, "_blank", "noopener,noreferrer");
+  };
+
+  const onSecondaryClick = () => {
+    fireACEvent({
+      email,
       eventName: "snapshot_upgrade_cta_clicked",
       tags: ["snapshot:clicked-upgrade"],
       fields: {
@@ -70,28 +86,13 @@ export function ResultsUpgradeCTA({
     const url = getTrackedCheckoutUrl({
       product: "snapshot-plus",
       medium: "results_cta",
-      content: "results_upgrade_cta",
+      content: "results_upgrade_cta_ready",
     });
     const dest = new URL(url, window.location.origin);
     if (reportId && /^[0-9a-f-]{36}$/i.test(reportId.trim())) {
       dest.searchParams.set("baseReportId", reportId.trim());
     }
     window.location.href = dest.pathname + dest.search;
-  };
-
-  const onSecondaryClick = () => {
-    fireACEvent({
-      email,
-      eventName: "snapshot_upgrade_cta_clicked",
-      fields: {
-        primary_pillar: primaryPillar,
-        brand_stage: stage,
-        cta_variant: variant,
-        cta_presence: presence,
-      },
-    });
-
-    window.location.href = "/brand-snapshot-suite";
   };
 
   return (

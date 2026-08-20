@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { ProductTier } from "@/components/results/tabConfig";
-import { PRICING } from "@/lib/pricing";
 import { WUNDERBAR_SUITE_RESULTS_FUNNEL_URL } from "@/lib/wunderbarExternalUrls";
 import {
   RESULTS_CTA_COPY,
@@ -14,6 +13,7 @@ import { getOrAssignVariant } from "@/lib/abTesting";
 import { fireACEvent } from "@/lib/activeCampaign";
 import { trackUpgradeClick } from "@/lib/adTracking";
 import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
+import { PRICING } from "@/lib/pricing";
 
 type Props = {
   tabTier: ProductTier;
@@ -41,7 +41,6 @@ export function ResultsBottomFunnel({
   primaryPillar,
   stage,
 }: Props) {
-  const snapshotPlusPrice = PRICING.snapshot_plus.price;
   const [variant, setVariant] = useState<"A" | "B">("A");
 
   useEffect(() => {
@@ -120,9 +119,7 @@ export function ResultsBottomFunnel({
               <h2 id="results-bottom-funnel-heading" className="results-bottom-funnel-title">
                 See How to Build on Your Snapshot™
               </h2>
-              <p className="results-bottom-funnel-lead">
-                {copy.body} Snapshot+™ starts at ${snapshotPlusPrice.toLocaleString()}.
-              </p>
+              <p className="results-bottom-funnel-lead">{copy.body}</p>
             </header>
 
             <article className="results-bottom-funnel-card results-bottom-funnel-card--featured">

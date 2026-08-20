@@ -83,14 +83,14 @@ export function HumanAssistCTA(props: Props) {
         onClick={onClick}
         className="wb-cta wb-cta--outline wb-cta--block"
       >
-        Talk to an expert
+        Talk To An Expert
       </a>
     );
   }
 
   return (
     <section className="bs-card rounded-xl p-6 sm:p-7 border border-brand-border">
-      <h3 className="bs-h3 mb-2">Need a fast path with an expert?</h3>
+      <h3 className="bs-h3 mb-2">Need A Fast Path With An Expert?</h3>
       <p className="bs-body-sm text-brand-muted">
         Get a guided walkthrough of your score, priority actions, and the highest-leverage next step for your brand.
       </p>
@@ -101,7 +101,7 @@ export function HumanAssistCTA(props: Props) {
         onClick={onClick}
         className="btn-secondary inline-flex mt-4"
       >
-        Talk to an Expert
+        Talk To An Expert
       </a>
     </section>
   );

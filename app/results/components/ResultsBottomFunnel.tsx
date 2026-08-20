@@ -9,13 +9,6 @@ import { WUNDERBAR_SUITE_RESULTS_FUNNEL_URL } from "@/lib/wunderbarExternalUrls"
 import { RESULTS_CTA_COPY } from "@/content/resultsCtaCopy";
 import { getOrAssignVariant } from "@/lib/abTesting";
 import { fireACEvent } from "@/lib/activeCampaign";
-import { trackUpgradeClick } from "@/lib/adTracking";
-import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
-import { getPersistedEmail } from "@/lib/persistEmail";
-import {
-  getEmailMarketingOptInPreference,
-  getSmsOptInPreference,
-} from "@/lib/smsConsent";
 
 type Props = {
   tabTier: ProductTier;
@@ -42,7 +35,6 @@ export function ResultsBottomFunnel({
 }: Props) {
   const snapshotPlusPrice = PRICING.snapshot_plus.price;
   const [variant, setVariant] = useState<"A" | "B">("A");
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   useEffect(() => {
     setVariant(getOrAssignVariant<"A" | "B">("results_cta_variant", ["A", "B"]));
@@ -57,55 +49,6 @@ export function ResultsBottomFunnel({
       tags: ["snapshot:explore-suite"],
       fields: { primary_pillar: primaryPillar, brand_stage: stage, cta_variant: variant },
     });
-  };
-
-  const onSnapshotPlusClick = async () => {
-    fireACEvent({
-      email: userEmail,
-      eventName: "snapshot_upgrade_cta_clicked",
-      tags: ["snapshot:clicked-upgrade"],
-      fields: { primary_pillar: primaryPillar, brand_stage: stage, cta_variant: variant },
-    });
-    trackUpgradeClick({ fromTier: "snapshot", toTier: "snapshot-plus", value: 497 });
-
-    setCheckoutLoading(true);
-    try {
-      const email = userEmail || getPersistedEmail() || undefined;
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          productKey: "snapshot_plus",
-          email,
-          smsOptedIn: getSmsOptInPreference(),
-          emailMarketingOptedIn: getEmailMarketingOptInPreference(),
-          metadata: {
-            ...(reportId && /^[0-9a-f-]{36}$/i.test(reportId.trim())
-              ? { base_report_id: reportId.trim() }
-              : {}),
-            utm_source: "wunderbar_app",
-            utm_medium: "results_funnel",
-            utm_campaign: "snapshot_plus_upgrade",
-            utm_content: "results_bottom_funnel_ready",
-          },
-        }),
-      });
-      if (!res.ok) throw new Error("Checkout failed");
-      const data = (await res.json()) as { url?: string };
-      if (!data.url) throw new Error("No checkout URL");
-      window.location.href = data.url;
-    } catch {
-      const url = getTrackedCheckoutUrl({
-        product: "snapshot-plus",
-        medium: "results_cta",
-        content: "results_bottom_funnel_ready_fallback",
-      });
-      const dest = new URL(url, window.location.origin);
-      if (reportId && /^[0-9a-f-]{36}$/i.test(reportId.trim())) {
-        dest.searchParams.set("baseReportId", reportId.trim());
-      }
-      window.location.href = dest.pathname + dest.search;
-    }
   };
 
   const expertProps = {
@@ -128,9 +71,9 @@ export function ResultsBottomFunnel({
         {!hasSnapshotPlusAccess ? (
           <>
             <header className="results-bottom-funnel-intro">
-              <p className="results-bottom-funnel-eyebrow">Recommended next step</p>
+              <p className="results-bottom-funnel-eyebrow">Recommended Next Step</p>
               <h2 id="results-bottom-funnel-heading" className="results-bottom-funnel-title">
-                See how to build on your Snapshot™
+                See How To Build On Your Snapshot™
               </h2>
               <p className="results-bottom-funnel-lead">
                 {copy.body} Snapshot+™ starts at ${snapshotPlusPrice.toLocaleString()}.
@@ -148,14 +91,6 @@ export function ResultsBottomFunnel({
                 >
                   {copy.primaryCta}
                 </a>
-                <button
-                  type="button"
-                  onClick={() => void onSnapshotPlusClick()}
-                  disabled={checkoutLoading}
-                  className="wb-cta wb-cta--text results-bottom-funnel-text-cta"
-                >
-                  {checkoutLoading ? "Starting checkout…" : copy.secondaryCta}
-                </button>
               </div>
               <p className="results-bottom-funnel-quiet">
                 Prefer to talk it through?{" "}
@@ -176,7 +111,7 @@ export function ResultsBottomFunnel({
                     });
                   }}
                 >
-                  Talk to an expert
+                  Talk To An Expert
                 </a>
               </p>
             </article>
@@ -184,9 +119,9 @@ export function ResultsBottomFunnel({
         ) : (
           <>
             <header className="results-bottom-funnel-intro">
-              <p className="results-bottom-funnel-eyebrow">Your suite</p>
+              <p className="results-bottom-funnel-eyebrow">Your Suite</p>
               <h2 id="results-bottom-funnel-heading" className="results-bottom-funnel-title">
-                Activate what you’ve built
+                Activate What You’ve Built
               </h2>
               <p className="results-bottom-funnel-lead">
                 Download deliverables, refine in the workbook, or talk with our team when you want
@@ -199,7 +134,7 @@ export function ResultsBottomFunnel({
                   href={`/results?reportId=${encodeURIComponent(reportId)}&tab=downloads`}
                   className="wb-cta wb-cta--solid wb-cta--block"
                 >
-                  Go to Downloads
+                  Go To Downloads
                 </Link>
               </article>
               <aside className="results-bottom-funnel-aside">

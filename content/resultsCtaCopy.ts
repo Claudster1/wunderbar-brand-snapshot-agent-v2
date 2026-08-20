@@ -1,16 +1,14 @@
 export const RESULTS_CTA_COPY = {
   A: {
-    headline: "Your diagnostic identified a clear path to stronger brand performance",
+    headline: "Your Diagnostic Identified a Clear Path to Stronger Brand Performance",
     body:
       "See how Snapshot+™, Blueprint™, and Blueprint+™ build on these results — compare what’s included, then choose the path that fits how you want to grow.",
-    primaryCta: "Explore the WunderBrand Suite™",
-    secondaryCta: "Ready? Upgrade to Snapshot+™ — $497",
+    primaryCta: "Explore The WunderBrand Suite™",
   },
   B: {
-    headline: "Turn this diagnostic into a system your brand can activate",
+    headline: "Turn This Diagnostic Into a System Your Brand Can Activate",
     body:
       "Your results show where to focus first. Explore the suite to see how Snapshot+™ and beyond expand that into strategy, messaging frameworks, and activation.",
-    primaryCta: "See what’s included in the Suite™",
-    secondaryCta: "Ready? Upgrade to Snapshot+™ — $497",
+    primaryCta: "See What’s Included In The Suite™",
   },
 };

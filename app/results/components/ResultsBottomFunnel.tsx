@@ -73,7 +73,7 @@ export function ResultsBottomFunnel({
             <header className="results-bottom-funnel-intro">
               <p className="results-bottom-funnel-eyebrow">Recommended Next Step</p>
               <h2 id="results-bottom-funnel-heading" className="results-bottom-funnel-title">
-                See How To Build On Your Snapshot™
+                See How to Build on Your Snapshot™
               </h2>
               <p className="results-bottom-funnel-lead">
                 {copy.body} Snapshot+™ starts at ${snapshotPlusPrice.toLocaleString()}.
@@ -111,7 +111,7 @@ export function ResultsBottomFunnel({
                     });
                   }}
                 >
-                  Talk To An Expert
+                  Talk to an Expert
                 </a>
               </p>
             </article>
@@ -134,7 +134,7 @@ export function ResultsBottomFunnel({
                   href={`/results?reportId=${encodeURIComponent(reportId)}&tab=downloads`}
                   className="wb-cta wb-cta--solid wb-cta--block"
                 >
-                  Go To Downloads
+                  Go to Downloads
                 </Link>
               </article>
               <aside className="results-bottom-funnel-aside">

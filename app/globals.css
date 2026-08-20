@@ -1338,6 +1338,26 @@ a.sr-only:focus {
   text-align: center;
 }
 
+.results-bottom-funnel-quiet {
+  margin: 1rem 0 0;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(2, 24, 89, 0.08);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: #64748b;
+  text-align: center;
+}
+
+.results-bottom-funnel-quiet a {
+  color: #0369a1;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.results-bottom-funnel-quiet a:hover {
+  text-decoration: underline;
+}
+
 .results-bottom-funnel-aside {
   border-radius: 5px;
   padding: 1.15rem 1.25rem;

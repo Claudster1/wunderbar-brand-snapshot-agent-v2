@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { HumanAssistCTA } from "@/app/results/components/HumanAssistCTA";
-import { ResultsSmsOptIn } from "@/app/results/components/ResultsSmsOptIn";
 import type { ProductTier } from "@/components/results/tabConfig";
 import { PRICING } from "@/lib/pricing";
 import { WUNDERBAR_SUITE_COMPARE_URL } from "@/lib/wunderbarExternalUrls";
@@ -125,45 +124,55 @@ export function ResultsBottomFunnel({
                 {PRICING.snapshot_plus.label}
               </h2>
               <p className="results-bottom-funnel-lead">
-                {`You’ve got your diagnostic. Snapshot+ expands on it with strategic depth, messaging frameworks, and an AI prompt pack — so you can grow and scale with clarity, from $${snapshotPlusPrice.toLocaleString()}.`}
+                {`You’ve got your diagnostic. Upgrade to Snapshot+ for a prioritized roadmap, messaging frameworks, and an AI prompt pack — so you can grow and scale with clarity, from $${snapshotPlusPrice.toLocaleString()}.`}
               </p>
             </header>
 
-            <div className="results-bottom-funnel-layout">
-              <article className="results-bottom-funnel-card results-bottom-funnel-card--featured">
-                <p className="results-bottom-funnel-card-body">{copy.body}</p>
-                <div className="results-bottom-funnel-actions">
-                  <button
-                    type="button"
-                    onClick={() => void onSnapshotPlusClick()}
-                    disabled={checkoutLoading}
-                    className="wb-cta wb-cta--solid wb-cta--block"
-                  >
-                    {checkoutLoading ? "Starting checkout…" : copy.primaryCta}
-                  </button>
-                  <Link href="/brand-snapshot-suite" className="wb-cta wb-cta--text results-bottom-funnel-text-cta">
-                    {copy.secondaryCta}
-                  </Link>
-                </div>
-                <ResultsSmsOptIn reportId={reportId} email={userEmail} />
-              </article>
-
-              <aside className="results-bottom-funnel-aside">
-                <h3 className="results-bottom-funnel-aside-title">Prefer a guided walkthrough?</h3>
-                <p className="results-bottom-funnel-aside-body">
-                  Talk through your score and priority actions with our team.
-                </p>
-                <HumanAssistCTA {...expertProps} compact />
+            <article className="results-bottom-funnel-card results-bottom-funnel-card--featured">
+              <div className="results-bottom-funnel-actions">
+                <button
+                  type="button"
+                  onClick={() => void onSnapshotPlusClick()}
+                  disabled={checkoutLoading}
+                  className="wb-cta wb-cta--solid wb-cta--block"
+                >
+                  {checkoutLoading ? "Starting checkout…" : copy.primaryCta}
+                </button>
+                <Link href="/brand-snapshot-suite" className="wb-cta wb-cta--text results-bottom-funnel-text-cta">
+                  {copy.secondaryCta}
+                </Link>
+              </div>
+              <p className="results-bottom-funnel-quiet">
+                Need hands-on help implementing this?{" "}
                 <a
                   href={WUNDERBAR_SUITE_COMPARE_URL}
-                  className="wb-cta wb-cta--text results-bottom-funnel-aside-link"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Compare the full Suite™
+                  Compare the Suite™
                 </a>
-              </aside>
-            </div>
+                {" · "}
+                <a
+                  href={`https://wunderbardigital.com/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=results_funnel&utm_campaign=snapshot_plus_upgrade&utm_content=talk_expert${reportId ? `&wb_report_id=${encodeURIComponent(reportId)}` : ""}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => {
+                    fireACEvent({
+                      email: userEmail,
+                      eventName: "snapshot_human_assist_clicked",
+                      tags: ["snapshot:human-assist-clicked"],
+                      fields: {
+                        report_id: reportId,
+                        source: "results_bottom_funnel_quiet",
+                        primary_pillar: primaryPillar,
+                      },
+                    });
+                  }}
+                >
+                  Talk to an expert
+                </a>
+              </p>
+            </article>
           </>
         ) : (
           <>

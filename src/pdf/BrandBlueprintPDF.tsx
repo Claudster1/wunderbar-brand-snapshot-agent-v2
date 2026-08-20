@@ -11,8 +11,8 @@ import {
   StyleSheet,
 } from "@react-pdf/renderer";
 
-import { PdfHeader } from "./components/PdfHeader";
-import { PdfFooter } from "./components/PdfFooter";
+import { PdfHeader, PDF_HEADER_RESERVED } from "./components/PdfHeader";
+import { PdfFooter, PDF_FOOTER_RESERVED } from "./components/PdfFooter";
 import { PageTitle } from "./components/PageTitle";
 import { Section } from "./components/Section";
 import { InsightBlock } from "./components/InsightBlock";
@@ -65,8 +65,9 @@ const styles = StyleSheet.create({
   page: {
     fontFamily: "Helvetica",
     fontSize: 11,
-    paddingBottom: pdfTheme.spacing.xl,
-    paddingTop: pdfTheme.spacing.md,
+    paddingTop: PDF_HEADER_RESERVED,
+    paddingBottom: PDF_FOOTER_RESERVED,
+    paddingHorizontal: 0,
     backgroundColor: "#FFFFFF",
   },
   heading: {

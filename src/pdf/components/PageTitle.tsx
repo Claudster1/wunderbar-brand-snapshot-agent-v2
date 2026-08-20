@@ -7,14 +7,16 @@ import { pdfTheme } from "../theme";
 const styles = StyleSheet.create({
   container: {
     marginBottom: pdfTheme.spacing.md,
-    paddingHorizontal: pdfTheme.spacing.xl,
+    marginHorizontal: 22,
+    paddingHorizontal: 14,
     paddingVertical: pdfTheme.spacing.md,
     backgroundColor: "#F3F8FF",
     borderBottom: "1px solid #DDE6F2",
+    borderRadius: 6,
   },
   title: {
     fontFamily: "Helvetica",
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: 700,
     color: pdfTheme.colors.navy,
     marginBottom: 6,

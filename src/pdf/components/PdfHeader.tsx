@@ -1,16 +1,22 @@
 // src/pdf/components/PdfHeader.tsx
-// Reusable header component for PDF documents
+// Reusable header — absolute + fixed so it anchors on every printed page
 
 import { View, Text, Image, StyleSheet } from "@react-pdf/renderer";
 import { pdfTheme } from "../theme";
 import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
 
+/** Reserve this much top padding on Page styles so body clears the fixed header. */
+export const PDF_HEADER_RESERVED = 68;
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 14,
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    paddingTop: 12,
     paddingBottom: 10,
-    paddingHorizontal: 22,
+    paddingHorizontal: 36,
     borderBottomWidth: 1,
     borderBottomColor: "#E4EBF7",
     flexDirection: "row",
@@ -20,6 +26,7 @@ const styles = StyleSheet.create({
   },
   leftCol: {
     flex: 1,
+    paddingRight: 12,
   },
   kicker: {
     fontSize: 7.8,
@@ -31,7 +38,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: "Helvetica",
-    fontSize: 12.6,
+    fontSize: 11.5,
     color: pdfTheme.colors.navy,
     fontWeight: 600,
     lineHeight: 1.3,
@@ -67,14 +74,15 @@ export const PdfHeader = ({ title, businessName, date, accentHex }: PdfHeaderPro
       styles.container,
       accentHex ? { borderBottomWidth: 2, borderBottomColor: accentHex } : {},
     ]}
+    fixed
   >
     <View style={styles.leftCol}>
       <Text style={styles.kicker}>WunderBrand Report</Text>
       <Text style={styles.title}>{title}</Text>
-      {businessName && (
+      {businessName ? (
         <Text style={styles.preparedFor}>Prepared for {businessName}</Text>
-      )}
-      {date && <Text style={styles.date}>{date}</Text>}
+      ) : null}
+      {date ? <Text style={styles.date}>{date}</Text> : null}
     </View>
     {/* eslint-disable-next-line jsx-a11y/alt-text */}
     <Image style={styles.logo} src={PDF_WUNDERBAR_LOGO_SRC} />

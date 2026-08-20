@@ -1,14 +1,21 @@
 // src/pdf/components/PdfFooter.tsx
-// Reusable footer component for PDF documents
+// Reusable footer — absolute + fixed so it stays at the bottom of every page
 
 import { View, Text, StyleSheet, Link } from "@react-pdf/renderer";
 import { pdfTheme } from "../theme";
 
+/** Reserve this much bottom padding on Page styles so body clears the fixed footer. */
+export const PDF_FOOTER_RESERVED = 72;
+
 const styles = StyleSheet.create({
   container: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
     paddingTop: 8,
-    paddingBottom: 9,
-    paddingHorizontal: 22,
+    paddingBottom: 10,
+    paddingHorizontal: 36,
     borderTop: `1px solid #E4EBF7`,
     fontFamily: "Helvetica",
     backgroundColor: "#FBFDFF",
@@ -54,15 +61,18 @@ export const PdfFooter = ({ businessName, productName }: PdfFooterProps = {}) =>
       <Text style={styles.text}>
         © {new Date().getFullYear()} Wunderbar Digital · {productName || "WunderBrand Suite™"}
       </Text>
-      <Link src="https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=pdf_footer&utm_campaign=report_delivery&utm_content=pdf_footer_component" style={styles.url}>
+      <Link
+        src="https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=pdf_footer&utm_campaign=report_delivery&utm_content=pdf_footer_component"
+        style={styles.url}
+      >
         wunderbardigital.com
       </Link>
     </View>
-    {businessName && (
+    {businessName ? (
       <Text style={styles.confidential}>
         Confidential — Prepared exclusively for {businessName}. Unauthorized distribution is prohibited.
       </Text>
-    )}
+    ) : null}
     <Text style={styles.terms}>
       Licensed for internal use. Redistribution prohibited. © {new Date().getFullYear()} Wunderbar Digital
     </Text>

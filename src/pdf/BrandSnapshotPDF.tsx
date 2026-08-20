@@ -10,8 +10,8 @@ import {
   StyleSheet,
 } from "@react-pdf/renderer";
 
-import { PdfHeader } from "./components/PdfHeader";
-import { PdfFooter } from "./components/PdfFooter";
+import { PdfHeader, PDF_HEADER_RESERVED } from "./components/PdfHeader";
+import { PdfFooter, PDF_FOOTER_RESERVED } from "./components/PdfFooter";
 import { PageTitle } from "./components/PageTitle";
 import { Section } from "./components/Section";
 import { PillarScoreBar } from "./components/PillarScoreBar";
@@ -30,7 +30,9 @@ const styles = StyleSheet.create({
   page: {
     fontFamily: "Helvetica",
     fontSize: pdfTheme.fontSizes.base,
-    paddingBottom: pdfTheme.spacing.xl,
+    paddingTop: PDF_HEADER_RESERVED,
+    paddingBottom: PDF_FOOTER_RESERVED,
+    paddingHorizontal: 0,
     backgroundColor: "#FFFFFF",
   },
   divider: {
@@ -290,7 +292,7 @@ export const BrandSnapshotPDF = ({
           <Text style={styles.smallHeading}>WunderBrand Score™</Text>
 
           <Text style={styles.body}>
-            {businessName}&rsquo;s WunderBrand Score™ evaluates how clearly and consistently the brand performs across positioning, messaging, visibility, credibility, and conversion — the five pillars that drive growth, trust, and competitive advantage.
+            {businessName}’s WunderBrand Score™ evaluates how clearly and consistently the brand performs across positioning, messaging, visibility, credibility, and conversion — the five pillars that drive growth, trust, and competitive advantage.
           </Text>
 
           <View style={styles.scoreDisplay}>

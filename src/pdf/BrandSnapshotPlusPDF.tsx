@@ -10,8 +10,8 @@ import {
   StyleSheet,
 } from "@react-pdf/renderer";
 
-import { PdfHeader } from "./components/PdfHeader";
-import { PdfFooter } from "./components/PdfFooter";
+import { PdfHeader, PDF_HEADER_RESERVED } from "./components/PdfHeader";
+import { PdfFooter, PDF_FOOTER_RESERVED } from "./components/PdfFooter";
 import { PageTitle } from "./components/PageTitle";
 import { DisclaimerPage } from "./components/DisclaimerPage";
 import { Section } from "./components/Section";
@@ -39,7 +39,9 @@ const styles = StyleSheet.create({
   page: {
     fontFamily: "Helvetica",
     fontSize: pdfTheme.fontSizes.base,
-    paddingBottom: pdfTheme.spacing.xl,
+    paddingTop: PDF_HEADER_RESERVED,
+    paddingBottom: PDF_FOOTER_RESERVED,
+    paddingHorizontal: 0,
   },
   heading: {
     fontSize: pdfTheme.fontSizes.xl,

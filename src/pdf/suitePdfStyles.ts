@@ -201,8 +201,8 @@ export const suiteDocStyles = StyleSheet.create({
  * Prefer spreading suite keys rather than redefining Helvetica / ice-blue cards.
  */
 export function extendSuiteDocStyles<T extends Record<string, object>>(extra: T) {
-  return StyleSheet.create({
+  return {
     ...suiteDocStyles,
-    ...extra,
-  } as typeof suiteDocStyles & T);
+    ...StyleSheet.create(extra as any),
+  } as typeof suiteDocStyles & T;
 }

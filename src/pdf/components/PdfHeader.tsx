@@ -43,8 +43,9 @@ const styles = StyleSheet.create({
     borderRightColor: SUITE_BORDER,
   },
   logo: {
-    width: 88,
-    height: 20,
+    // Source PNG is 240×32 (7.5:1) — keep aspect ratio to avoid squash.
+    width: 96,
+    height: 13,
   },
   meta: {
     flexDirection: "row",

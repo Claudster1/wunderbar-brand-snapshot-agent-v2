@@ -8,6 +8,12 @@ import { Font } from "@react-pdf/renderer";
 
 let fontsRegistered = false;
 
+type FontFace = {
+  src: string;
+  fontWeight: number;
+  fontStyle: "normal" | "italic";
+};
+
 function resolvePublicFont(filename: string): string | null {
   const abs = path.join(process.cwd(), "public", "fonts", filename);
   return fs.existsSync(abs) ? abs : null;
@@ -49,23 +55,24 @@ function registerInter(): void {
 }
 
 function registerLato(): void {
-  const ttf = [
-    { file: "Lato-Regular.ttf", fontWeight: 400, fontStyle: "normal" as const },
-    { file: "Lato-Bold.ttf", fontWeight: 700, fontStyle: "normal" as const },
-    { file: "Lato-Black.ttf", fontWeight: 900, fontStyle: "normal" as const },
+  const ttfCandidates: Array<{ file: string; fontWeight: number; fontStyle: "normal" | "italic" }> = [
+    { file: "Lato-Regular.ttf", fontWeight: 400, fontStyle: "normal" },
+    { file: "Lato-Bold.ttf", fontWeight: 700, fontStyle: "normal" },
+    { file: "Lato-Black.ttf", fontWeight: 900, fontStyle: "normal" },
     // Map UI semibold (600) → Bold so weight requests never miss
-    { file: "Lato-Bold.ttf", fontWeight: 600, fontStyle: "normal" as const },
-    { file: "Lato-Bold.ttf", fontWeight: 500, fontStyle: "normal" as const },
-    { file: "Lato-Italic.ttf", fontWeight: 400, fontStyle: "italic" as const },
-    { file: "Lato-BoldItalic.ttf", fontWeight: 700, fontStyle: "italic" as const },
-    { file: "Lato-BoldItalic.ttf", fontWeight: 600, fontStyle: "italic" as const },
-    { file: "Lato-BoldItalic.ttf", fontWeight: 900, fontStyle: "italic" as const },
-  ]
-    .map(({ file, fontWeight, fontStyle }) => {
-      const src = resolvePublicFont(file);
-      return src ? { src, fontWeight, fontStyle } : null;
-    })
-    .filter((x): x is { src: string; fontWeight: number; fontStyle: "normal" | "italic" } => Boolean(x));
+    { file: "Lato-Bold.ttf", fontWeight: 600, fontStyle: "normal" },
+    { file: "Lato-Bold.ttf", fontWeight: 500, fontStyle: "normal" },
+    { file: "Lato-Italic.ttf", fontWeight: 400, fontStyle: "italic" },
+    { file: "Lato-BoldItalic.ttf", fontWeight: 700, fontStyle: "italic" },
+    { file: "Lato-BoldItalic.ttf", fontWeight: 600, fontStyle: "italic" },
+    { file: "Lato-BoldItalic.ttf", fontWeight: 900, fontStyle: "italic" },
+  ];
+
+  const ttf: FontFace[] = [];
+  for (const { file, fontWeight, fontStyle } of ttfCandidates) {
+    const src = resolvePublicFont(file);
+    if (src) ttf.push({ src, fontWeight, fontStyle });
+  }
 
   if (ttf.length >= 2) {
     Font.register({ family: "Lato", fonts: ttf });
@@ -73,20 +80,21 @@ function registerLato(): void {
   }
 
   // Fallback: fontsource woff2 (less reliable in react-pdf)
-  const weightFiles: Array<{ weight: number; style?: "normal" | "italic"; file: string }> = [
-    { weight: 400, file: "lato-latin-400-normal.woff2" },
-    { weight: 600, file: "lato-latin-700-normal.woff2" },
-    { weight: 700, file: "lato-latin-700-normal.woff2" },
-    { weight: 900, file: "lato-latin-900-normal.woff2" },
+  const weightFiles: Array<{ weight: number; style: "normal" | "italic"; file: string }> = [
+    { weight: 400, style: "normal", file: "lato-latin-400-normal.woff2" },
+    { weight: 600, style: "normal", file: "lato-latin-700-normal.woff2" },
+    { weight: 700, style: "normal", file: "lato-latin-700-normal.woff2" },
+    { weight: 900, style: "normal", file: "lato-latin-900-normal.woff2" },
     { weight: 400, style: "italic", file: "lato-latin-400-italic.woff2" },
     { weight: 700, style: "italic", file: "lato-latin-700-italic.woff2" },
   ];
-  const fonts = weightFiles
-    .map(({ weight, style, file }) => {
-      const src = fontsourceWoff2("lato", file);
-      return src ? { src, fontWeight: weight, fontStyle: style ?? "normal" } : null;
-    })
-    .filter((x): x is { src: string; fontWeight: number; fontStyle: string } => Boolean(x));
+
+  const fonts: FontFace[] = [];
+  for (const { weight, style, file } of weightFiles) {
+    const src = fontsourceWoff2("lato", file);
+    if (src) fonts.push({ src, fontWeight: weight, fontStyle: style });
+  }
+
   if (fonts.length > 0) {
     Font.register({ family: "Lato", fonts });
   }

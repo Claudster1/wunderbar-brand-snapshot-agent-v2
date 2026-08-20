@@ -1338,6 +1338,11 @@ a.sr-only:focus {
   text-align: center;
 }
 
+.results-bottom-funnel .wb-cta {
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
 .results-bottom-funnel-quiet {
   margin: 1rem 0 0;
   padding-top: 0.85rem;

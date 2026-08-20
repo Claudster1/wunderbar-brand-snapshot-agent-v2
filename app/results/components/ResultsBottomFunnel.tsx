@@ -2,13 +2,18 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { HumanAssistCTA } from "@/app/results/components/HumanAssistCTA";
 import type { ProductTier } from "@/components/results/tabConfig";
 import { PRICING } from "@/lib/pricing";
 import { WUNDERBAR_SUITE_RESULTS_FUNNEL_URL } from "@/lib/wunderbarExternalUrls";
-import { RESULTS_CTA_COPY } from "@/content/resultsCtaCopy";
+import {
+  RESULTS_CTA_COPY,
+  RESULTS_TIER_UPSELL,
+  type PaidUpsellTier,
+} from "@/content/resultsCtaCopy";
 import { getOrAssignVariant } from "@/lib/abTesting";
 import { fireACEvent } from "@/lib/activeCampaign";
+import { trackUpgradeClick } from "@/lib/adTracking";
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
 
 type Props = {
   tabTier: ProductTier;
@@ -22,15 +27,18 @@ type Props = {
   stage: string;
 };
 
+function talkExpertHref(reportId: string): string {
+  return `https://wunderbardigital.com/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=results_funnel&utm_campaign=tier_upsell&utm_content=talk_expert${
+    reportId ? `&wb_report_id=${encodeURIComponent(reportId)}` : ""
+  }`;
+}
+
 export function ResultsBottomFunnel({
-  tabTier: _tabTier,
+  tabTier,
   reportId,
-  hasSnapshotPlusAccess,
+  hasSnapshotPlusAccess: _hasSnapshotPlusAccess,
   userEmail,
-  businessName,
-  businessType,
   primaryPillar,
-  brandAlignmentScore,
   stage,
 }: Props) {
   const snapshotPlusPrice = PRICING.snapshot_plus.price;
@@ -41,6 +49,11 @@ export function ResultsBottomFunnel({
   }, []);
 
   const copy = RESULTS_CTA_COPY[variant];
+  const paidUpsellKey: PaidUpsellTier | null =
+    tabTier === "snapshot-plus" || tabTier === "blueprint" || tabTier === "blueprint-plus"
+      ? tabTier
+      : null;
+  const upsell = paidUpsellKey ? RESULTS_TIER_UPSELL[paidUpsellKey] : null;
 
   const onSuiteExploreClick = () => {
     fireACEvent({
@@ -51,15 +64,47 @@ export function ResultsBottomFunnel({
     });
   };
 
-  const expertProps = {
-    source: "results_page" as const,
-    reportId,
-    email: userEmail,
-    businessName,
-    businessType,
-    primaryPillar,
-    brandAlignmentScore,
+  const onTierUpsellClick = () => {
+    if (!upsell?.checkoutProduct) return;
+    fireACEvent({
+      email: userEmail,
+      eventName: "tier_upsell_cta_clicked",
+      tags: [`upgrade:${upsell.checkoutProduct}`],
+      fields: {
+        primary_pillar: primaryPillar,
+        brand_stage: stage,
+        from_tier: tabTier,
+        to_product: upsell.checkoutProduct,
+      },
+    });
+    trackUpgradeClick({
+      fromTier: tabTier,
+      toTier: upsell.checkoutProduct,
+      value:
+        upsell.checkoutProduct === "blueprint"
+          ? PRICING.blueprint.price
+          : PRICING.blueprint_plus.price,
+    });
   };
+
+  const primaryCheckoutHref =
+    upsell?.checkoutProduct != null
+      ? (() => {
+          const url = getTrackedCheckoutUrl({
+            product: upsell.checkoutProduct,
+            medium: "results_cta",
+            content: `results_bottom_funnel_${upsell.checkoutProduct}`,
+            campaign: "tier_upsell",
+          });
+          const dest = new URL(url, "https://local.invalid");
+          if (reportId && /^[0-9a-f-]{36}$/i.test(reportId.trim())) {
+            dest.searchParams.set("baseReportId", reportId.trim());
+          }
+          return dest.pathname + dest.search;
+        })()
+      : null;
+
+  const downloadsHref = `/results?reportId=${encodeURIComponent(reportId)}&tab=downloads`;
 
   return (
     <section
@@ -68,7 +113,7 @@ export function ResultsBottomFunnel({
       aria-labelledby="results-bottom-funnel-heading"
     >
       <div className="results-bottom-funnel-inner">
-        {!hasSnapshotPlusAccess ? (
+        {tabTier === "snapshot" || !upsell ? (
           <>
             <header className="results-bottom-funnel-intro">
               <p className="results-bottom-funnel-eyebrow">Recommended Next Step</p>
@@ -95,7 +140,7 @@ export function ResultsBottomFunnel({
               <p className="results-bottom-funnel-quiet">
                 Prefer to talk it through?{" "}
                 <a
-                  href={`https://wunderbardigital.com/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=results_funnel&utm_campaign=product_comparison&utm_content=talk_expert${reportId ? `&wb_report_id=${encodeURIComponent(reportId)}` : ""}`}
+                  href={talkExpertHref(reportId)}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => {
@@ -119,28 +164,63 @@ export function ResultsBottomFunnel({
         ) : (
           <>
             <header className="results-bottom-funnel-intro">
-              <p className="results-bottom-funnel-eyebrow">Your Suite</p>
+              <p className="results-bottom-funnel-eyebrow">{upsell.eyebrow}</p>
               <h2 id="results-bottom-funnel-heading" className="results-bottom-funnel-title">
-                Activate What You’ve Built
+                {upsell.headline}
               </h2>
-              <p className="results-bottom-funnel-lead">
-                Download deliverables, refine in the workbook, or talk with our team when you want
-                hands-on support.
-              </p>
+              <p className="results-bottom-funnel-lead">{upsell.lead}</p>
             </header>
-            <div className="results-bottom-funnel-layout">
-              <article className="results-bottom-funnel-card">
-                <Link
-                  href={`/results?reportId=${encodeURIComponent(reportId)}&tab=downloads`}
-                  className="wb-cta wb-cta--solid wb-cta--block"
-                >
+
+            <article className="results-bottom-funnel-card results-bottom-funnel-card--featured">
+              <ul className="results-bottom-funnel-benefits">
+                {upsell.benefits.map((benefit) => (
+                  <li key={benefit}>{benefit}</li>
+                ))}
+              </ul>
+              <div className="results-bottom-funnel-actions">
+                {primaryCheckoutHref ? (
+                  <a
+                    href={primaryCheckoutHref}
+                    onClick={onTierUpsellClick}
+                    className="wb-cta wb-cta--solid wb-cta--block"
+                  >
+                    {upsell.primaryCta}
+                  </a>
+                ) : (
+                  <a
+                    href={talkExpertHref(reportId)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="wb-cta wb-cta--solid wb-cta--block"
+                    onClick={() => {
+                      fireACEvent({
+                        email: userEmail,
+                        eventName: "snapshot_human_assist_clicked",
+                        tags: ["snapshot:human-assist-clicked"],
+                        fields: {
+                          report_id: reportId,
+                          source: "results_bottom_funnel_blueprint_plus",
+                          primary_pillar: primaryPillar,
+                        },
+                      });
+                    }}
+                  >
+                    {upsell.primaryCta}
+                  </a>
+                )}
+                <Link href={downloadsHref} className="wb-cta wb-cta--text results-bottom-funnel-text-cta">
                   Go to Downloads
                 </Link>
-              </article>
-              <aside className="results-bottom-funnel-aside">
-                <HumanAssistCTA {...expertProps} compact />
-              </aside>
-            </div>
+              </div>
+              {tabTier !== "blueprint-plus" ? (
+                <p className="results-bottom-funnel-quiet">
+                  Prefer to talk it through?{" "}
+                  <a href={talkExpertHref(reportId)} target="_blank" rel="noopener noreferrer">
+                    Talk to an Expert
+                  </a>
+                </p>
+              ) : null}
+            </article>
           </>
         )}
       </div>

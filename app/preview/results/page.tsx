@@ -957,12 +957,12 @@ export default function BrandSnapshotReport() {
                   display: "flex", alignItems: "center", justifyContent: "center",
                   color: WHITE, fontWeight: 900, fontSize: 14, flexShrink: 0,
                 }}>{idx + 1}</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 16, color: "#1a1a2e", lineHeight: 1.6 }}>{item.action}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{
-                    display: "inline-block", marginTop: 6, padding: "2px 10px", borderRadius: 5,
-                    background: ACCENT_BG, fontSize: 14, fontWeight: 700, color: BLUE,
+                    fontSize: 13, fontWeight: 800, color: BLUE, letterSpacing: "0.04em",
+                    textTransform: "uppercase", marginBottom: 6,
                   }}>{item.pillar}</div>
+                  <div style={{ fontSize: 16, color: "#1a1a2e", lineHeight: 1.6 }}>{item.action}</div>
                 </div>
               </div>
             ))}

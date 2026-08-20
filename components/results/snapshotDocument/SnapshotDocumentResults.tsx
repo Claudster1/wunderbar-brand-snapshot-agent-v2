@@ -289,11 +289,11 @@ export function SnapshotDocumentResults({
             return (
               <div key={`${index}-${action}`} data-snapshot-action-item style={{ display: "flex", gap: 14, alignItems: "flex-start", padding: "18px 22px", borderRadius: 5, border: `1px solid ${BORDER}`, background: index === 0 ? `${BLUE}06` : WHITE }}>
                 <span style={{ width: 32, height: 32, borderRadius: "50%", background: BLUE, display: "flex", alignItems: "center", justifyContent: "center", color: WHITE, fontWeight: 900, fontSize: 14, flexShrink: 0 }}>{index + 1}</span>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 16, color: "#1A1A2E", lineHeight: 1.6 }}>{action}</div>
-                  <span style={{ display: "inline-block", marginTop: 6, padding: "2px 10px", borderRadius: 5, background: ACCENT_BG, fontSize: 13, fontWeight: 700, color: BLUE }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: BLUE, letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 6 }}>
                     {PILLAR_LABELS[pillar]}
-                  </span>
+                  </div>
+                  <div style={{ fontSize: 16, color: "#1A1A2E", lineHeight: 1.6 }}>{action}</div>
                 </div>
               </div>
             );

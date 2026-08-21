@@ -23,13 +23,13 @@ export function ResultsPostUnlockUpsell({ productName }: Props) {
           </h2>
           <p className="results-gate-capture__lead m-0" style={{ marginTop: "0.75rem" }}>
             When ads, your website, sales, and content each tell a slightly different story, buyers
-            get confused, trust drops, and you pay twice—once for the campaign, again to fix the
-            mixed signals.
+            get confused and trust drops.
           </p>
           <p className="results-gate-capture__lead m-0" style={{ marginTop: "0.65rem" }}>
             A strong brand fixes that: <strong>one positioning, one message, one plan</strong>.
-            Marketing spend compounds. Your team stops reinventing the pitch. Prospects recognize
-            you faster—and decide with less friction.
+            Consistent brand presentation has been linked to revenue lifts of up to 33% (Lucidpress,{" "}
+            <em>State of Brand Consistency</em>, 2019). Marketing spend compounds. Your team stops
+            reinventing the pitch. Prospects recognize you faster—and decide with less friction.
           </p>
           <p className="results-gate-capture__lead m-0" style={{ marginTop: "0.65rem" }}>
             Snapshot+™, Blueprint™, and Blueprint+™ turn your {productName} diagnosis into that

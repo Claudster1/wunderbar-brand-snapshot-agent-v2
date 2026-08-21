@@ -987,6 +987,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
           initialWorkbookSectionId={initialWorkbookSectionId}
           initialActivationPlanId={initialActivationPlanId}
           activationFocus={activationFocusFromUrl}
+          pdfExportRequiresEmail={showSnapshotLeadEmail}
         />
       </Suspense>
     </main>

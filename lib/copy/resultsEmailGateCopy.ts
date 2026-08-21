@@ -22,7 +22,7 @@ export const RESULTS_EMAIL_GATE_UNLOCK_ITEMS = [
 
 /** Footer under the unlock form — what happens after they enter email. */
 export function resultsEmailGateUnlockLegal(): string {
-  return "We’ll unlock your full report on this page and email you a unique link to reopen it anytime. Use Export on the page to download a PDF.";
+  return "Enter your email to unlock your full report on this page and enable Export. We’ll also email you a unique link to reopen it anytime.";
 }
 
 /** Soft tips ask — only right after unlock; email already captured. */

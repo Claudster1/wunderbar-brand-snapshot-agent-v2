@@ -5,9 +5,13 @@
 // results (transactional), NOT marketing — it always sends, independent of any
 // ActiveCampaign marketing automation.
 //
-// Copy: unique report link → view on page → Export → soft suite education CTA.
+// Copy: logo → unique report link → view on page → Export → soft suite education CTA.
 
 import { WUNDERBAR_SUITE_RESULTS_FUNNEL_URL } from "@/lib/wunderbarExternalUrls";
+
+/** Absolute PNG for HTML email clients (avoid SVG/WebP — Outlook etc.). */
+export const DEFAULT_TRANSACTIONAL_EMAIL_LOGO_URL =
+  "https://app.wunderbrand.ai/assets/pdf/wunderbar-logo.png";
 
 export function buildSnapshotReportEmail(opts: {
   resultsUrl: string;
@@ -15,10 +19,13 @@ export function buildSnapshotReportEmail(opts: {
   firstName?: string;
   /** Optional override; defaults to the results-funnel suite URL. */
   suiteUrl?: string;
+  /** Absolute HTTPS URL to a PNG logo. */
+  logoUrl?: string;
 }): { subject: string; text: string; html: string } {
   const productName = opts.productName?.trim() || "WunderBrand Snapshot\u2122";
   const greetingName = opts.firstName?.trim() ? ` ${opts.firstName.trim()}` : "";
   const suiteUrl = opts.suiteUrl?.trim() || WUNDERBAR_SUITE_RESULTS_FUNNEL_URL;
+  const logoUrl = opts.logoUrl?.trim() || DEFAULT_TRANSACTIONAL_EMAIL_LOGO_URL;
   const subject = `Your ${productName} results are ready`;
 
   const text = [
@@ -27,9 +34,14 @@ export function buildSnapshotReportEmail(opts: {
     `Your ${productName} is unlocked. This is your unique link to your report — open it anytime:`,
     opts.resultsUrl,
     "",
-    "On that page you'll find pillar scores, your archetype, priority actions, and Export for a PDF.",
+    "On that page you'll find pillar scores, your archetype, priority actions, and a PDF you can share with your team.",
     "",
-    "Ready to go further? See how Snapshot+™, Blueprint™, and Blueprint+™ build on these results:",
+    "Why a strong brand matters:",
+    "When ads, your website, sales, and content each tell a slightly different story, buyers get confused, trust drops, and you pay twice—once for the campaign, again to fix the mixed signals.",
+    "",
+    "A shared brand system gives you one positioning, one message, and one plan so marketing spend compounds, your team stops reinventing the pitch every week, and prospects recognize you faster—and decide with less friction.",
+    "",
+    "Snapshot+™, Blueprint™, and Blueprint+™ turn this diagnosis into that clarity:",
     suiteUrl,
     "",
     "— The Wunderbar Digital Team",
@@ -37,6 +49,15 @@ export function buildSnapshotReportEmail(opts: {
 
   const html = `
     <div style="font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:0 auto;color:#021859">
+      <p style="margin:0 0 20px">
+        <a href="${opts.resultsUrl}" style="text-decoration:none">
+          <img src="${logoUrl}"
+               alt="Wunderbar Digital"
+               width="160"
+               height="21"
+               style="display:block;width:160px;height:auto;border:0;outline:none;text-decoration:none" />
+        </a>
+      </p>
       <p style="color:#07B0F2;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin:0 0 8px">
         Your results are ready
       </p>
@@ -45,7 +66,7 @@ export function buildSnapshotReportEmail(opts: {
       </h2>
       <p style="color:#5A6B7E;line-height:1.6;margin:0 0 16px">
         This is your <strong>unique link</strong> to your report. Open it anytime to view your full results —
-        then use <strong>Export</strong> on the page to download a PDF.
+        then use <strong>Export</strong> to save a PDF you can share with your team.
       </p>
       <p style="margin:0 0 24px">
         <a href="${opts.resultsUrl}"
@@ -58,18 +79,28 @@ export function buildSnapshotReportEmail(opts: {
         <li>Pillar-by-pillar scores and insights</li>
         <li>Your brand archetype and what it means</li>
         <li>Ranked priority actions for your brand</li>
-        <li>Export on the page — download your PDF anytime</li>
+        <li>A PDF you can share with partners, investors, or your team</li>
       </ul>
       <div style="margin:0 0 24px;padding:18px 20px;border-radius:5px;border:1px solid rgba(7,176,242,0.35);background:#f8fcff">
         <p style="color:#07B0F2;font-size:11px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;margin:0 0 8px">
-          Go further
+          Why brand matters
         </p>
-        <p style="color:#021859;font-size:16px;font-weight:700;line-height:1.35;margin:0 0 8px">
-          Turn these results into a brand system
+        <p style="color:#021859;font-size:16px;font-weight:700;line-height:1.35;margin:0 0 10px">
+          Build one clear brand story your whole team can run with
+        </p>
+        <p style="color:#5A6B7E;line-height:1.55;margin:0 0 12px;font-size:14px">
+          When ads, your website, sales, and content each tell a slightly different story,
+          buyers get confused, trust drops, and you pay twice—once for the campaign, again
+          to fix the mixed signals.
+        </p>
+        <p style="color:#5A6B7E;line-height:1.55;margin:0 0 12px;font-size:14px">
+          A strong brand fixes that: <strong>one positioning, one message, one plan</strong>.
+          Marketing spend compounds instead of canceling itself out. Your team stops reinventing
+          the pitch every week. Prospects recognize you faster—and decide with less friction.
         </p>
         <p style="color:#5A6B7E;line-height:1.55;margin:0 0 14px;font-size:14px">
-          Snapshot+™, Blueprint™, and Blueprint+™ build on your diagnostic with deeper strategy,
-          messaging frameworks, and activation your team can run.
+          Snapshot+™, Blueprint™, and Blueprint+™ turn this diagnosis into that clarity—
+          so growth gets cheaper and more repeatable.
         </p>
         <a href="${suiteUrl}"
            style="display:inline-block;background:#ffffff;color:#07B0F2;text-decoration:none;

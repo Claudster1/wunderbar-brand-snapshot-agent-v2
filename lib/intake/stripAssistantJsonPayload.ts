@@ -76,8 +76,15 @@ export function findOrphanJsonDumpStart(text: string): number {
   const t = String(text || "");
   if (!t) return -1;
 
+  // Mirror intro + JSON keys → cut from the intro. Mirror alone is stripped via replace below
+  // so we don't delete legitimate handoff prose that follows the header.
   const mirror = t.search(MIRROR_INTRO_RE);
-  if (mirror >= 0) return mirror;
+  if (mirror >= 0) {
+    const afterMirror = t.slice(mirror);
+    if (ORPHAN_INTAKE_DUMP_RE.test(afterMirror) || /\{[\s\S]{0,80}"[A-Za-z_]/.test(afterMirror)) {
+      return mirror;
+    }
+  }
 
   const known = t.search(ORPHAN_INTAKE_DUMP_RE);
   if (known >= 0) return known;
@@ -197,9 +204,10 @@ export function stripIntakeJsonFromAssistantText(text: string): string {
   }
 
   // Drop mirror intros even if JSON was already removed / never arrived.
-  out = out
-    .replace(/\n*Here(?:'s| is) the information (?:you've provided|I gathered|we gathered|gathered):?\s*$/i, "")
-    .replace(/\n*Here(?:'s| is) the information (?:you've provided|I gathered|we gathered|gathered):?\s*\n+/gi, "\n\n");
+  out = out.replace(
+    /\n*Here(?:'s| is) the information (?:you've provided|I gathered|we gathered|gathered):?\s*/gi,
+    "\n\n",
+  );
 
   return out.replace(/\n{3,}/g, "\n\n").trim();
 }

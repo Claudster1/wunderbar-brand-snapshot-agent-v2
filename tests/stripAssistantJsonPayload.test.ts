@@ -33,6 +33,7 @@ Here's the information I gathered:
 Excellent — everything you've shared is confidential and your brand insights stay yours. Your WunderBrand Snapshot™ is being finalized now.`;
     const cleaned = stripIntakeJsonFromAssistantText(leaked);
     expect(cleaned).not.toMatch(/information I gathered/i);
+    expect(cleaned).toMatch(/wonderful to hear/i);
     expect(cleaned).toMatch(/being finalized now/i);
   });
 

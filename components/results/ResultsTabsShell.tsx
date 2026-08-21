@@ -15,10 +15,6 @@ import {
 import CompactResultsHeader from "@/components/results/CompactResultsHeader";
 import HowToUseBanner from "@/components/results/HowToUseBanner";
 import { getSuiteTabIntro, TAB_SECTION_NAV_HINT_CHIPS_ONLY } from "@/lib/copy/resultsSuiteGuidance";
-import {
-  readResultsEmailGateUnlocked,
-  RESULTS_EMAIL_UNLOCKED_EVENT,
-} from "@/lib/results/resultsEmailGateStorage";
 import { getPersistedEmail } from "@/lib/persistEmail";
 import { TabIntroGuidanceBlock } from "@/components/results/TabIntroGuidanceBlock";
 import TabSectionMenu from "@/components/results/TabSectionMenu";
@@ -138,11 +134,6 @@ interface ResultsTabsShellProps {
   initialActivationPlanId?: ActivationPlanSectionId;
   /** From `?activationFocus=` — read on the server (or preview client) so this shell does not call `useSearchParams`. */
   activationFocus?: string | null;
-  /**
-   * When false, header Export is hidden until the Snapshot email gate unlocks
-   * (avoids Access denied before unlock). Paid / already-unlocked = true.
-   */
-  pdfExportEnabled?: boolean;
 }
 
 function resolveInitialActiveTab(tier: ProductTier, requested: ResultsTab | undefined): ResultsTab {
@@ -558,7 +549,6 @@ export default function ResultsTabsShell({
   initialWorkbookSectionId,
   initialActivationPlanId,
   activationFocus: activationFocusProp,
-  pdfExportEnabled: pdfExportEnabledProp = true,
 }: ResultsTabsShellProps) {
   const productTier = normalizeProductTierString(String(productTierProp ?? "snapshot"));
   const [activeTab, setActiveTab] = useState<ResultsTab>(() =>
@@ -576,28 +566,9 @@ export default function ResultsTabsShell({
     reportId.startsWith("preview-") ||
     (reportId.includes("preview") && userEmail.toLowerCase().includes("preview"));
 
-  const [pdfExportEnabled, setPdfExportEnabled] = useState(pdfExportEnabledProp);
+  // Mint/remint verified session when email is known so Export PDF authorizes.
   useEffect(() => {
-    setPdfExportEnabled(pdfExportEnabledProp);
-  }, [pdfExportEnabledProp]);
-  useEffect(() => {
-    if (pdfExportEnabledProp || !reportId) return;
-    if (readResultsEmailGateUnlocked(reportId)) {
-      setPdfExportEnabled(true);
-      return;
-    }
-    const onUnlock = (event: Event) => {
-      const detail = (event as CustomEvent<{ reportId?: string }>).detail;
-      if (detail?.reportId && detail.reportId !== reportId) return;
-      if (readResultsEmailGateUnlocked(reportId)) setPdfExportEnabled(true);
-    };
-    window.addEventListener(RESULTS_EMAIL_UNLOCKED_EVENT, onUnlock);
-    return () => window.removeEventListener(RESULTS_EMAIL_UNLOCKED_EVENT, onUnlock);
-  }, [pdfExportEnabledProp, reportId]);
-
-  // Returning unlocked visitors: remint session cookie so Export PDF authorizes.
-  useEffect(() => {
-    if (!pdfExportEnabled || !reportId) return;
+    if (!reportId) return;
     const email = (userEmail || getPersistedEmail() || "").trim().toLowerCase();
     if (!email.includes("@")) return;
     let cancelled = false;
@@ -617,7 +588,7 @@ export default function ResultsTabsShell({
     return () => {
       cancelled = true;
     };
-  }, [pdfExportEnabled, reportId, userEmail]);
+  }, [reportId, userEmail]);
   const [workbookCustomSections, setWorkbookCustomSections] = useState<Record<string, unknown>>({});
   const diagnosticDataForStandards = useMemo(
     () => mergeWorkbookMoodIntoDiagnostic(diagnosticData, workbookCustomSections),
@@ -646,7 +617,7 @@ export default function ResultsTabsShell({
 
   /** One-click primary PDF for the header Export control (Downloads stays the full pack). */
   const primaryExportPdfHref = useMemo(() => {
-    if (!pdfExportEnabled || !reportId) return null;
+    if (!reportId) return null;
     const encodedReportId = encodeURIComponent(reportId);
     const encodedEmail = userEmail ? encodeURIComponent(userEmail) : "";
     const emailParam = encodedEmail ? `&email=${encodedEmail}` : "";
@@ -659,7 +630,7 @@ export default function ResultsTabsShell({
     if (productTier === "snapshot-plus") return `/api/snapshot-plus/pdf?id=${encodedReportId}`;
     const tier = productTier === "blueprint-plus" ? "blueprint-plus" : "blueprint";
     return `/api/blueprint/pdf?reportId=${encodedReportId}&type=complete&tier=${tier}${emailParam}`;
-  }, [isPreviewMode, pdfExportEnabled, productTier, reportId, userEmail]);
+  }, [isPreviewMode, productTier, reportId, userEmail]);
 
   const suiteCompanyName = useMemo(() => {
     if (typeof diagnosticData.businessName === "string" && diagnosticData.businessName.trim())

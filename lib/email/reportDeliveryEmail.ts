@@ -36,7 +36,12 @@ export function buildSnapshotReportEmail(opts: {
     "",
     "On that page you'll find pillar scores, your archetype, priority actions, and a PDF you can share with your team.",
     "",
-    "Ready to go further? Snapshot+™, Blueprint™, and Blueprint+™ turn this diagnosis into clearer positioning, sharper messaging, and a plan your team can run—so every channel pulls in the same direction and marketing spend works harder:",
+    "Why a strong brand matters:",
+    "When ads, your website, sales, and content each tell a slightly different story, buyers get confused, trust drops, and you pay twice—once for the campaign, again to fix the mixed signals.",
+    "",
+    "A shared brand system gives you one positioning, one message, and one plan so marketing spend compounds, your team stops reinventing the pitch every week, and prospects recognize you faster—and decide with less friction.",
+    "",
+    "Snapshot+™, Blueprint™, and Blueprint+™ turn this diagnosis into that clarity:",
     suiteUrl,
     "",
     "— The Wunderbar Digital Team",
@@ -78,15 +83,24 @@ export function buildSnapshotReportEmail(opts: {
       </ul>
       <div style="margin:0 0 24px;padding:18px 20px;border-radius:5px;border:1px solid rgba(7,176,242,0.35);background:#f8fcff">
         <p style="color:#07B0F2;font-size:11px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;margin:0 0 8px">
-          Go further
+          Why brand matters
         </p>
-        <p style="color:#021859;font-size:16px;font-weight:700;line-height:1.35;margin:0 0 8px">
-          Get every channel pulling in the same direction
+        <p style="color:#021859;font-size:16px;font-weight:700;line-height:1.35;margin:0 0 10px">
+          Build one clear brand story your whole team can run with
+        </p>
+        <p style="color:#5A6B7E;line-height:1.55;margin:0 0 12px;font-size:14px">
+          When ads, your website, sales, and content each tell a slightly different story,
+          buyers get confused, trust drops, and you pay twice—once for the campaign, again
+          to fix the mixed signals.
+        </p>
+        <p style="color:#5A6B7E;line-height:1.55;margin:0 0 12px;font-size:14px">
+          A strong brand fixes that: <strong>one positioning, one message, one plan</strong>.
+          Marketing spend compounds instead of canceling itself out. Your team stops reinventing
+          the pitch every week. Prospects recognize you faster—and decide with less friction.
         </p>
         <p style="color:#5A6B7E;line-height:1.55;margin:0 0 14px;font-size:14px">
-          Snapshot+™, Blueprint™, and Blueprint+™ turn this diagnosis into clearer positioning,
-          sharper messaging, and a plan your team can run—so you waste less on tactics that
-          don’t fit and put more behind what grows the business.
+          Snapshot+™, Blueprint™, and Blueprint+™ turn this diagnosis into that clarity—
+          so growth gets cheaper and more repeatable.
         </p>
         <a href="${suiteUrl}"
            style="display:inline-block;background:#ffffff;color:#07B0F2;text-decoration:none;

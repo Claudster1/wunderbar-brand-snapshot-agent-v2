@@ -25,6 +25,17 @@ describe("stripAssistantJsonPayload", () => {
     expect(payload?.businessName).toBe("Wunderbar Digital");
   });
 
+  it("strips Here's the information I gathered mirror intros", () => {
+    const leaked = `That's wonderful to hear! Everything you've shared is confidential.
+
+Here's the information I gathered:
+
+Excellent — everything you've shared is confidential and your brand insights stay yours. Your WunderBrand Snapshot™ is being finalized now.`;
+    const cleaned = stripIntakeJsonFromAssistantText(leaked);
+    expect(cleaned).not.toMatch(/information I gathered/i);
+    expect(cleaned).toMatch(/being finalized now/i);
+  });
+
   it("strips incomplete / trailing-comma JSON leaks", () => {
     const raw = `Your WunderBrand Snapshot™ is being finalized now.
 

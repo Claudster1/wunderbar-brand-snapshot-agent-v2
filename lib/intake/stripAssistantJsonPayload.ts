@@ -17,9 +17,13 @@ const ANY_JSON_KEY_RE = /"([A-Za-z_][A-Za-z0-9_]*)"\s*:/g;
  * Orphan dump: model (or a mid-stream strip) left `"businessName": ...` without a wrapping `{`.
  */
 const ORPHAN_INTAKE_DUMP_RE = new RegExp(
-  `(?:Here's the information you've provided:?\\s*)?"${INTAKE_KEY}"\\s*:`,
+  `(?:Here(?:'s| is) the information (?:you've provided|I gathered|we gathered|gathered):?\\s*)?"${INTAKE_KEY}"\\s*:`,
   "i",
 );
+
+/** Model mirror intros that must never appear in the chat bubble. */
+const MIRROR_INTRO_RE =
+  /Here(?:'s| is) the information (?:you've provided|I gathered|we gathered|gathered):?/i;
 
 function tryParseObject(raw: string): Record<string, unknown> | null {
   try {
@@ -72,7 +76,7 @@ export function findOrphanJsonDumpStart(text: string): number {
   const t = String(text || "");
   if (!t) return -1;
 
-  const mirror = t.search(/Here's the information you've provided:?/i);
+  const mirror = t.search(MIRROR_INTRO_RE);
   if (mirror >= 0) return mirror;
 
   const known = t.search(ORPHAN_INTAKE_DUMP_RE);
@@ -192,10 +196,10 @@ export function stripIntakeJsonFromAssistantText(text: string): string {
     out = out.slice(0, orphanIdx);
   }
 
-  // Drop mirror intros even if JSON was already removed.
+  // Drop mirror intros even if JSON was already removed / never arrived.
   out = out
-    .replace(/\n*Here's the information you've provided:?\s*$/i, "")
-    .replace(/\n*Here is the information you've provided:?\s*$/i, "");
+    .replace(/\n*Here(?:'s| is) the information (?:you've provided|I gathered|we gathered|gathered):?\s*$/i, "")
+    .replace(/\n*Here(?:'s| is) the information (?:you've provided|I gathered|we gathered|gathered):?\s*\n+/gi, "\n\n");
 
   return out.replace(/\n{3,}/g, "\n\n").trim();
 }

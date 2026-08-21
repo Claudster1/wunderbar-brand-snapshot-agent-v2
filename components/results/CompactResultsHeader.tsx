@@ -22,6 +22,12 @@ interface CompactResultsHeaderProps {
   reportDateIso?: string;
   /** Quick one-click PDF of the primary report for this tier. */
   exportPdfHref?: string;
+  /**
+   * Free Snapshot before email unlock: keep Export visible, but send the user
+   * to the email gate instead of starting a download.
+   */
+  exportRequiresEmail?: boolean;
+  onRequestEmailForExport?: () => void;
   /** Paid suite — open the Downloads tab for the full deliverable pack. */
   onGoToDownloads?: () => void;
   onHelpClick?: () => void;
@@ -43,6 +49,8 @@ export default function CompactResultsHeader({
   companyName,
   reportDateIso,
   exportPdfHref,
+  exportRequiresEmail = false,
+  onRequestEmailForExport,
   onGoToDownloads,
   onHelpClick,
 }: CompactResultsHeaderProps) {
@@ -234,32 +242,61 @@ export default function CompactResultsHeader({
           ?
         </button>
         {exportPdfHref ? (
-          <a
-            href={exportPdfHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              minHeight: 32,
-              padding: "0 12px",
-              borderRadius: 5,
-              border: `1.5px solid ${SUITE_ACCENT_BRIGHT}`,
-              backgroundColor: SUITE_ACCENT_BRIGHT,
-              color: "#FFFFFF",
-              fontSize: 11,
-              fontWeight: 800,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              textDecoration: "none",
-              fontFamily: SUITE_FONT_UI,
-              whiteSpace: "nowrap",
-            }}
-            aria-label="Export PDF"
-          >
-            Export
-          </a>
+          exportRequiresEmail ? (
+            <button
+              type="button"
+              onClick={() => onRequestEmailForExport?.()}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                minHeight: 32,
+                padding: "0 12px",
+                borderRadius: 5,
+                border: `1.5px solid ${SUITE_ACCENT_BRIGHT}`,
+                backgroundColor: SUITE_ACCENT_BRIGHT,
+                color: "#FFFFFF",
+                fontSize: 11,
+                fontWeight: 800,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                fontFamily: SUITE_FONT_UI,
+                whiteSpace: "nowrap",
+                cursor: "pointer",
+              }}
+              aria-label="Export PDF — enter your email to download"
+              title="Enter your email to download your report"
+            >
+              Export
+            </button>
+          ) : (
+            <a
+              href={exportPdfHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                minHeight: 32,
+                padding: "0 12px",
+                borderRadius: 5,
+                border: `1.5px solid ${SUITE_ACCENT_BRIGHT}`,
+                backgroundColor: SUITE_ACCENT_BRIGHT,
+                color: "#FFFFFF",
+                fontSize: 11,
+                fontWeight: 800,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                textDecoration: "none",
+                fontFamily: SUITE_FONT_UI,
+                whiteSpace: "nowrap",
+              }}
+              aria-label="Export PDF"
+            >
+              Export
+            </a>
+          )
         ) : null}
         {onGoToDownloads ? (
           <div style={{ position: "relative" }} ref={menuRef}>

@@ -164,6 +164,7 @@ export async function POST(req: Request) {
         resultsUrl: emailResultsUrl,
         productName,
         firstName,
+        logoUrl: `${BASE_URL}/assets/pdf/wunderbar-logo.png`,
       });
       const sendResult = await sendTransactionalEmail({ to: normalized, subject, html, text });
       if (!sendResult.ok) {

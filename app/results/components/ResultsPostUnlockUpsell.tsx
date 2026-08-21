@@ -19,11 +19,12 @@ export function ResultsPostUnlockUpsell({ productName }: Props) {
         <div className="results-gate-capture__offer">
           <p className="results-gate-capture__eyebrow m-0">Go further</p>
           <h2 className="bs-h3 m-0 results-gate-capture__title">
-            Turn your {productName} into a brand system
+            Get every channel pulling in the same direction
           </h2>
           <p className="results-gate-capture__lead m-0" style={{ marginTop: "0.75rem" }}>
-            Snapshot+™, Blueprint™, and Blueprint+™ build on these results with deeper strategy,
-            messaging frameworks, and activation you can run with your team.
+            Snapshot+™, Blueprint™, and Blueprint+™ turn your {productName} diagnosis into clearer
+            positioning, sharper messaging, and a plan your team can run—so you waste less on
+            tactics that don’t fit and put more behind what grows the business.
           </p>
         </div>
         <div className="results-gate-capture__form">

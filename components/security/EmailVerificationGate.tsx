@@ -48,6 +48,7 @@ export function EmailVerificationGate({
   const [smsOptedIn, setSmsOptedIn] = useState<boolean>(() => getSmsOptInPreference());
   const [phoneMobile, setPhoneMobile] = useState("");
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileEpoch, setTurnstileEpoch] = useState(0);
   const [contentOptIn, setContentOptIn] = useState<SnapshotContentOptIn | null>(null);
   // Honeypot: invisible to humans, bots auto-fill. Same pattern as the chat home + lead-email form.
   const [honeypot, setHoneypot] = useState("");
@@ -153,6 +154,11 @@ export function EmailVerificationGate({
     const success = await captureEmail(trimmed, smsOptedIn, normalizedPhone);
     if (success) {
       setContentOptIn(null);
+      setTurnstileToken(null);
+      if (typeof window !== "undefined") {
+        delete (window as unknown as { __turnstileToken?: string }).__turnstileToken;
+      }
+      setTurnstileEpoch((n) => n + 1);
       setStep("insights");
     }
   };
@@ -186,6 +192,11 @@ export function EmailVerificationGate({
         const data = (await res.json().catch(() => ({}))) as { error?: string };
         if (!res.ok) {
           setError(typeof data.error === "string" ? data.error : "Could not save your preference. Try again.");
+          setTurnstileToken(null);
+          if (typeof window !== "undefined") {
+            delete (window as unknown as { __turnstileToken?: string }).__turnstileToken;
+          }
+          setTurnstileEpoch((n) => n + 1);
           setLoading(false);
           return;
         }
@@ -202,7 +213,7 @@ export function EmailVerificationGate({
 
   return (
     <div className="email-verification-gate">
-      <TurnstileWidget onToken={handleTurnstile} />
+      <TurnstileWidget key={`${step}-${turnstileEpoch}`} onToken={handleTurnstile} />
       <div className="email-verification-card">
         {/* Header */}
         <div className="email-verification-header">

@@ -54,6 +54,8 @@ export function SnapshotResultsLeadEmail({
   // immediately after a fresh email unlock in this session.
   const [phase, setPhase] = useState<Phase>(contentUnlocked ? "hidden" : "unlock");
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  /** Bumps Turnstile remount after a consumed/failed token so the next submit gets a fresh challenge. */
+  const [turnstileEpoch, setTurnstileEpoch] = useState(0);
   const handleTurnstileToken = useCallback((token: string) => {
     setTurnstileToken(token);
     if (typeof window !== "undefined") {
@@ -114,6 +116,12 @@ export function SnapshotResultsLeadEmail({
         }
         persistEmail(trimmed);
         onEmailCaptured?.();
+        // Lead-email consumed this Turnstile token — tips needs a fresh one.
+        setTurnstileToken(null);
+        if (typeof window !== "undefined") {
+          delete (window as unknown as { __turnstileToken?: string }).__turnstileToken;
+        }
+        setTurnstileEpoch((n) => n + 1);
         setPhase("tips");
         setContentOptIn(null);
         setError(null);
@@ -159,6 +167,12 @@ export function SnapshotResultsLeadEmail({
         const data = (await res.json().catch(() => ({}))) as { error?: string };
         if (!res.ok) {
           setError(typeof data.error === "string" ? data.error : "Could not save preference. Try again.");
+          // Consumed/invalid token — remount widget via phase key bounce if still on tips.
+          setTurnstileToken(null);
+          if (typeof window !== "undefined") {
+            delete (window as unknown as { __turnstileToken?: string }).__turnstileToken;
+          }
+          setTurnstileEpoch((n) => n + 1);
           return;
         }
         setEmailMarketingOptInPreference(contentOptIn !== "no_thanks");
@@ -178,7 +192,7 @@ export function SnapshotResultsLeadEmail({
   if (phase === "tips") {
     return (
       <section className="results-gate-capture" aria-label="Stay current with brand tips">
-        <TurnstileWidget onToken={handleTurnstileToken} />
+        <TurnstileWidget key={`tips-${turnstileEpoch}`} onToken={handleTurnstileToken} />
         <div className="results-gate-capture__inner">
           <header className="results-gate-capture__header results-gate-capture__offer">
             <p className="results-gate-capture__eyebrow m-0 mb-2">
@@ -249,7 +263,7 @@ export function SnapshotResultsLeadEmail({
       className="results-gate-capture results-gate-capture--unlock"
       aria-label="Email for full diagnostic"
     >
-      <TurnstileWidget onToken={handleTurnstileToken} />
+      <TurnstileWidget key={`unlock-${turnstileEpoch}`} onToken={handleTurnstileToken} />
       <div className="results-gate-capture__inner">
         <div className="results-gate-capture__offer">
           <p className="results-gate-capture__eyebrow m-0">{resultsEmailGateIncludedEyebrow()}</p>

@@ -103,18 +103,35 @@ export async function POST(req: Request) {
       updated_at: new Date().toISOString(),
     };
 
-    const byId = await db.from("brand_snapshot_reports").update(rowPatch).eq("id", reportId);
+    // Public URLs use report_id. Supabase update with 0 matching rows returns error: null —
+    // so we must `.select()` and confirm a row came back before treating the write as success.
+    async function updateReportRow(): Promise<boolean> {
+      const byReportId = await db
+        .from("brand_snapshot_reports")
+        .update(rowPatch)
+        .eq("report_id", reportId)
+        .select("report_id")
+        .maybeSingle();
+      if (!byReportId.error && byReportId.data) return true;
 
-    if (byId.error) {
-      const byReportId = await db.from("brand_snapshot_reports").update(rowPatch).eq("report_id", reportId);
-      if (byReportId.error) {
-        logger.warn("[Lead Email] Row update skipped", {
-          reportId,
-          idError: describeError(byId.error),
-          reportIdError: describeError(byReportId.error),
-        });
-        return NextResponse.json({ error: "Could not link email to this session." }, { status: 404 });
-      }
+      const byId = await db
+        .from("brand_snapshot_reports")
+        .update(rowPatch)
+        .eq("id", reportId)
+        .select("id")
+        .maybeSingle();
+      if (!byId.error && byId.data) return true;
+
+      logger.warn("[Lead Email] Row update matched zero rows", {
+        reportId,
+        reportIdError: describeError(byReportId.error),
+        idError: describeError(byId.error),
+      });
+      return false;
+    }
+
+    if (!(await updateReportRow())) {
+      return NextResponse.json({ error: "Could not link email to this session." }, { status: 404 });
     }
 
     const { resolveOutboundAppBaseUrl } = await import("@/lib/server/runtimeBaseUrl");

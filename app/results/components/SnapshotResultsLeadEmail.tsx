@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ResultsCheckIcon } from "@/components/results/BrandIcons";
 import { persistEmail } from "@/lib/persistEmail";
@@ -28,6 +28,8 @@ type Props = {
   firstNameHint?: string;
   onEmailCaptured?: () => void;
   contentUnlocked?: boolean;
+  /** Fired when tips is saved or skipped — parent can show suite upsell + refresh. */
+  onCaptureFlowComplete?: () => void;
 };
 
 const INSIGHTS_CHOICES: Array<{ value: SnapshotContentOptIn; label: string }> = [
@@ -48,11 +50,13 @@ export function SnapshotResultsLeadEmail({
   firstNameHint,
   onEmailCaptured,
   contentUnlocked = false,
+  onCaptureFlowComplete,
 }: Props) {
   const router = useRouter();
   // Returning visitors who already unlocked: no second form. Tips only appear
   // immediately after a fresh email unlock in this session.
   const [phase, setPhase] = useState<Phase>(contentUnlocked ? "hidden" : "unlock");
+  const unlockedViaEmailSubmitRef = useRef(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   /** Bumps Turnstile remount after a consumed/failed token so the next submit gets a fresh challenge. */
   const [turnstileEpoch, setTurnstileEpoch] = useState(0);
@@ -70,10 +74,17 @@ export function SnapshotResultsLeadEmail({
   const [honeypot, setHoneypot] = useState("");
 
   useEffect(() => {
-    if (contentUnlocked && phase === "unlock") {
+    // Session restore / returning visitor — hide Access without skipping a fresh unlock→tips flow.
+    if (contentUnlocked && phase === "unlock" && !unlockedViaEmailSubmitRef.current) {
       setPhase("hidden");
     }
   }, [contentUnlocked, phase]);
+
+  const finishCaptureFlow = useCallback(() => {
+    setPhase("hidden");
+    onCaptureFlowComplete?.();
+    router.refresh();
+  }, [onCaptureFlowComplete, router]);
 
   const handleEmailSubmit = useCallback(
     async (e: FormEvent) => {
@@ -115,6 +126,7 @@ export function SnapshotResultsLeadEmail({
           return;
         }
         persistEmail(trimmed);
+        unlockedViaEmailSubmitRef.current = true;
         onEmailCaptured?.();
         // Lead-email consumed this Turnstile token — tips needs a fresh one.
         setTurnstileToken(null);
@@ -176,15 +188,14 @@ export function SnapshotResultsLeadEmail({
           return;
         }
         setEmailMarketingOptInPreference(contentOptIn !== "no_thanks");
-        setPhase("hidden");
-        router.refresh();
+        finishCaptureFlow();
       } catch {
         setError("Network error. Please try again.");
       } finally {
         setSaving(false);
       }
     },
-    [contentOptIn, email, reportId, router, turnstileToken],
+    [contentOptIn, email, finishCaptureFlow, reportId, turnstileToken],
   );
 
   if (phase === "hidden") return null;
@@ -248,7 +259,7 @@ export function SnapshotResultsLeadEmail({
               type="button"
               className="results-gate-capture__back"
               disabled={saving}
-              onClick={() => setPhase("hidden")}
+              onClick={() => finishCaptureFlow()}
             >
               {resultsEmailGatePreferenceSkipLabel()}
             </button>

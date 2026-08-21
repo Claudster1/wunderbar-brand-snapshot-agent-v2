@@ -11,7 +11,7 @@ export function buildContextConfidenceSection(
 
   if (context.confidenceLevel === "high") {
     confidenceCopy =
-      "This Snapshot+™ is built on strong, well-confirmed context. The insights and recommendations in this report are highly specific and actionable.";
+      "This Snapshot+™ is built on strong, well-confirmed context. The insights and recommendations in this document are highly specific and actionable.";
   } else if (context.confidenceLevel === "medium") {
     confidenceCopy =
       "This Snapshot+™ reflects solid context with a few areas where additional input could sharpen clarity and prioritization.";

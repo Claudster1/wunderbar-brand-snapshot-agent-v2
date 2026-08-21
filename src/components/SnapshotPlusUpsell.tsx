@@ -32,7 +32,7 @@ export function SnapshotPlusUpsell({ userRoleContext }: SnapshotPlusUpsellProps 
           <li>• A clearer path forward — without guesswork</li>
         </ul>
 
-        <Link href="/snapshot-plus" className="btn-primary">
+        <Link href="/checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=src_snapshot_plus_upsell" className="btn-primary">
           See how to strengthen what matters most right now →
         </Link>
       </div>

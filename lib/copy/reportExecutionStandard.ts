@@ -8,8 +8,13 @@ EXECUTION-READY CONTENT (ALL WUNDERBRAND SUITE™ REPORTS — MANDATORY):
 Products are judged on **usable output**: language teams can **paste, brief, or verify** — not a pile of reminders to "work on brand."
 
 **Artifact-first (default)**
-• Lead with **finished material** where the schema allows: exact headlines, CTAs, one-liners, email subject lines, positioning lines, proof bullets, channel lines, comparison tables, AI prompt bodies, and review lines written **for [businessName]**.
-• **"Actionable"** means **the deliverable exists in the text** — not only "you should improve X." If you name a gap (visibility, messaging, proof), include **concrete replacement copy or a binary check** (e.g. "Hero matches this line: \"…\"") not empty homework.
+• Lead with **finished material** where the schema allows: exact headlines, CTAs, one-liners, email subject lines, positioning lines, proof bullets, channel lines, comparison tables, AI prompt bodies, talk tracks, discovery questions, and leave-behind lines written **for [businessName]** in **their brand voice / tone / archetype**.
+• **"Actionable"** means **the deliverable exists in the text** — not only "you should improve X." If you name a gap (visibility, messaging, proof), include **concrete replacement copy or a binary check** (e.g. "Hero matches this line: \\"…\\"") not empty homework.
+
+**Not a how-to guide**
+• Do **not** write meta coaching ("Why ask this," "How to approach," "Separates messaging drift from ops…") as the main content.
+• Write **ready-to-use scripts and assets**: what to **say**, what to **show**, what to **publish**, and what the buyer should hear next — using [businessName]'s vocabulary from intake and earlier report sections.
+• Every example must be **specific to this company** (name, offer, ICP, proof, stage). Ban interchangeable B2B filler that could apply to any firm.
 
 **Avoid vague task-speak**
 • Ban bulk imperatives without artifacts: "improve messaging," "increase visibility," "align positioning," "build credibility," "audit the website," "optimize the funnel," "invest in content" **as the whole answer**. Pair every lever with **specific words, structures, or criteria** this business can use this week.

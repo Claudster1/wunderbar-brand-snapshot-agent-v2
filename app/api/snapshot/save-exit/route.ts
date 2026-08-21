@@ -6,15 +6,11 @@ import { NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { fireACEvent, trackActiveCampaignSiteEvent } from "@/lib/fireACEvent";
+import { resolveOutboundAppBaseUrl } from "@/lib/server/runtimeBaseUrl";
 
 function getSupabase() {
   return supabaseAdmin;
 }
-
-const BASE_URL =
-  process.env.NEXT_PUBLIC_APP_URL ||
-  process.env.NEXT_PUBLIC_BASE_URL ||
-  "https://app.wunderbrand.ai";
 
 type SupabaseLikeError = {
   message?: string;
@@ -79,6 +75,7 @@ export async function POST(req: Request) {
     }
 
     const normalized = email.trim().toLowerCase();
+    const BASE_URL = resolveOutboundAppBaseUrl(req);
     const resumeLink = `${BASE_URL}/?resume=${reportId}`;
 
     // Update the draft report with the user's email.

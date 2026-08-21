@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
   page: {
     padding: 42,
     paddingBottom: 66,
-    fontFamily: "Helvetica",
+    fontFamily: "Lato",
     color: pdfTheme.colors.navy,
     fontSize: 10.5,
     lineHeight: 1.6,

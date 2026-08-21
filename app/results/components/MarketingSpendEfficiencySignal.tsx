@@ -149,11 +149,11 @@ export function MarketingSpendEfficiencySignal({
           </p>
         )}
         <Link
-          href="/snapshot-plus?source=spend_efficiency_signal"
+          href="/checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=spend_efficiency_signal"
           onClick={onCtaClick}
           className="inline-flex mt-4 text-sm font-bold text-brand-blue hover:underline"
         >
-          See Your Full Results — $497
+          Upgrade to Snapshot+™ — $497
         </Link>
       </div>
     </section>

@@ -28,7 +28,7 @@ export function UpgradeCTA({ primaryPillar, coverageGap }: Props) {
         })}
         className="inline-block mt-3 px-4 py-2 bg-blue-600 text-white rounded"
       >
-        See Your Full Results — $497
+        Upgrade to Snapshot+™ — $497
       </Link>
     </div>
   );

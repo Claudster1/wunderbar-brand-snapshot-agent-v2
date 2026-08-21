@@ -670,125 +670,152 @@ const diagnosticData = {
   },
   salesConversationGuide: {
     openingFramework:
-      "Open with their revenue rhythm and where evaluation breaks—not your credentials. Mirror their language (pipeline quality, payback, narrative drift), then offer a concrete diagnostic frame: one leak, one storyline, one 90-day checkpoint path.",
+      "Acme Co opener (Sage voice — calm, precise): “Before we talk channels, I want ten minutes on where Acme’s story and Acme’s funnel disagree. Most founder-led B2B services teams we work with leak deals between homepage promise and late-funnel proof—not from lack of spend. If that matches what you’re seeing, I’ll map one leak, one storyline, and a 14-day artifact you can show the buying group.”",
     talkTrackFramework: [
       {
         stage: "First 10 minutes",
-        objective: "Earn permission to go deep on where the story and the funnel disagree.",
-        keyMessage: "We care more about the leak taxonomy than the channel mix.",
-        proofToUse: "One anonymized before/after from a similar services motion.",
+        objective: "Get permission to diagnose Acme’s story-vs-funnel gap—not pitch services.",
+        keyMessage:
+          "Say: “We care more about Acme’s leak taxonomy than your channel mix. If the homepage, outbound hook, and deck slide 1 promise different jobs, no media plan will fix conversion quality.”",
+        proofToUse:
+          "Show: one anonymized before/after pipeline snapshot from a similar ARR services motion (leave-behind PDF titled ‘Acme-style journey leak — 90-day delta’).",
       },
       {
         stage: "Middle — discovery",
-        objective: "Separate positioning clarity from proof placement and handoff mechanics.",
-        keyMessage: "Marketing air cover only works if sales uses the same proof at the same stage.",
-        proofToUse: "Sample hero vs. deck vs. outbound line audit (3 bullets).",
+        objective: "Separate Acme’s positioning clarity from proof placement and sales handoff.",
+        keyMessage:
+          "Say: “Marketing air cover only works if Acme’s reps use the same proof at the same stage. Let’s name the proof that sits beside the ask today—and who owns narrative consistency on Mondays.”",
+        proofToUse:
+          "Show: three-bullet audit of Acme hero vs. deck vs. outbound line (print or Loom) with the broken promise highlighted.",
       },
       {
         stage: "Close",
-        objective: "Land a bounded pilot with owners and a customer-visible artifact due in 14 days.",
-        keyMessage: "You should see movement on one journey before we expand scope.",
-        proofToUse: "Pilot RACI + milestone template from similar engagement.",
+        objective: "Land a bounded Acme pilot with named owners and a customer-visible artifact in 14 days.",
+        keyMessage:
+          "Say: “You should see movement on one Acme journey before we expand scope. The pilot is two weeks, one owner on marketing, one on sales, and one artifact the buyer can open.”",
+        proofToUse:
+          "Show: Acme pilot RACI + milestone template with the first customer-visible deliverable dated.",
       },
     ],
     discoveryQuestions: [
       {
-        question: "Where does pipeline typically stall today?",
-        whyThisQuestion: "Separates messaging drift from ops or offer issues.",
-        listenFor: "Blame on lead volume vs. close mechanics; vague vs. specific stage names.",
+        question: "Where does Acme’s pipeline typically stall today—by stage name, not by feeling?",
+        whyThisQuestion:
+          "Use when the room blames ‘lead quality’ without naming stages. Surfaces whether Acme’s issue is messaging drift, ops, or offer fit.",
+        listenFor:
+          "If they say ‘top of funnel,’ reply: “Then Acme’s next proof belongs on the first sales touch, not another awareness campaign.” If they name a mid-stage, reply: “Then we place Acme’s leave-behind at that exact handoff.”",
       },
       {
-        question: "If I read your homepage hero, your top outbound hook, and slide 1 of your deck, would they promise the same job-to-be-done?",
-        whyThisQuestion: "Surfaces narrative inconsistency without sounding accusatory.",
-        listenFor: "Hesitation, laughter, or instant yes—each tells you how broken alignment is.",
+        question:
+          "If I read Acme’s homepage hero, your top outbound hook, and slide 1 of the deck—do they promise the same job-to-be-done?",
+        whyThisQuestion:
+          "Use when leadership claims ‘we’re aligned.’ Forces a concrete Acme narrative check without sounding accusatory.",
+        listenFor:
+          "Hesitation or laughter → say: “That’s the leak. Acme’s paid spend is amplifying three different promises.” Instant yes → say: “Good—then we pressure-test proof placement next.”",
       },
       {
-        question: "What proof does a rep actually show beside the ask in late funnel today?",
-        whyThisQuestion: "Reveals whether credibility is deployed at decision moments or buried.",
-        listenFor: "PDFs nobody opens vs. tight one-pagers tied to stage.",
+        question: "What proof does an Acme rep actually show beside the ask in late funnel today?",
+        whyThisQuestion:
+          "Use when credibility scores look fine but close rates lag. Reveals whether Acme’s proof is deployed at decision moments.",
+        listenFor:
+          "‘We send a PDF’ → say: “Let’s turn that into a one-pager tied to Acme’s evaluation stage with owners and dates.” ‘Nothing consistent’ → say: “That’s the first pilot artifact.”",
       },
       {
-        question: "How do marketing and sales currently define a qualified opportunity?",
-        whyThisQuestion: "Handoff quality is often the hidden tax on demand spend.",
-        listenFor: "Different verbs, different thresholds, or we are still aligning.",
+        question: "How do Acme marketing and sales currently define a qualified opportunity—same verbs, same threshold?",
+        whyThisQuestion:
+          "Use when demand spend is up but pipeline quality is disputed. Handoff tax often hides inside Acme’s definitions.",
+        listenFor:
+          "Different verbs → say: “We will publish one Acme SQL definition on a shared one-pager before we touch creative.”",
       },
       {
-        question: "What did the last growth or brand initiative change in the CRM within 30 days?",
-        whyThisQuestion: "Tests whether prior work produced observable operating change.",
-        listenFor: "Activity metrics only vs. stage movement or cycle time.",
+        question: "What did Acme’s last growth or brand initiative change in the CRM within 30 days?",
+        whyThisQuestion:
+          "Use when they cite prior agency work. Tests whether past spend produced operating change Acme can see.",
+        listenFor:
+          "Activity-only metrics → say: “This pilot’s success metric is stage movement or cycle time—not impressions.”",
       },
       {
-        question: "Who owns narrative consistency week to week—not the workshop, the habit?",
-        whyThisQuestion: "If nobody owns it, messaging will drift again after any project.",
-        listenFor: "Named owner vs. committee vs. outsourced only to agency.",
+        question: "Who owns Acme’s narrative consistency week to week—not the workshop, the habit?",
+        whyThisQuestion:
+          "Use before scoping a larger engagement. Without an owner, Acme’s messaging will drift after any project.",
+        listenFor:
+          "Committee / agency-only → say: “Name one Acme owner for Mondays; the pilot fails without that.”",
       },
     ],
     proofPointDeployment: [
       {
         persona: "VP Marketing",
         stage: "Evaluation",
-        proofPoint: "Named rollout milestones with owners and dates",
-        howToDeliver: "Leave-behind one-pager tied to their stack and current funnel stages",
+        proofPoint:
+          "Acme rollout one-pager: named milestones, owners, and dates for the journey fix (not a generic strategy deck).",
+        howToDeliver:
+          "Hand it in the room: “This is Acme’s 14-day path—your name is on marketing QA for the customer-visible artifact.”",
       },
       {
         persona: "CFO",
         stage: "Evaluation",
-        proofPoint: "Cost-of-delay framing + payback scenario tied to their funnel math",
-        howToDeliver: "Appendix slide with assumptions they can edit in the room",
+        proofPoint:
+          "Acme payback scenario: cost-of-delay framing tied to their funnel math (editable assumptions on one appendix slide).",
+        howToDeliver:
+          "Say: “Edit the yellow cells—Acme’s payback story should use your numbers, not ours.”",
       },
       {
         persona: "Head of RevOps",
         stage: "Technical validation",
-        proofPoint: "RACI + routing diagram for how messaging updates propagate to CRM and campaigns",
-        howToDeliver: "Short Loom plus checklist for UTM and stage hygiene",
+        proofPoint:
+          "Acme RACI + routing diagram: how messaging updates propagate to CRM stages, UTMs, and campaigns.",
+        howToDeliver:
+          "Send a 4-minute Loom plus checklist: “Here’s how Acme keeps stage hygiene when copy changes.”",
       },
       {
         persona: "Founder",
         stage: "Late stage",
-        proofPoint: "Reference call + anonymized pipeline snapshot from similar ARR band",
-        howToDeliver: "Offer intro within 48 hours; keep proof specific to their motion",
+        proofPoint:
+          "Reference call + anonymized pipeline snapshot from a similar ARR band to Acme’s motion.",
+        howToDeliver:
+          "Offer: “I’ll intro a peer within 48 hours—same services motion, same founder-led buying group.”",
       },
     ],
     objectionHandlingPlaybook: [
       {
         objection: "We have tried strategy firms before",
         response:
-          "Anchor every recommendation on an owner, a date, and one customer-visible artifact—then expand. The pilot is the product, not the deck.",
+          "Acme reply: “We don’t sell another workshop. The product is a 14-day pilot: one owner, one date, one customer-visible Acme artifact—then we expand only if stage movement shows up.”",
         pillarConnection: "Execution",
-        proofPoint: "Sample 14-day deliverable cadence from a comparable client",
+        proofPoint: "Sample Acme-style 14-day deliverable cadence from a comparable client",
       },
       {
         objection: "Sales will not adopt another messaging framework",
         response:
-          "We do not ship a framework first; we ship one talk track and three proof modules for the journey they already run on Mondays.",
+          "Acme reply: “We won’t ship a framework first. We ship one Acme talk track and three proof modules for the journey your team already runs on Mondays.”",
         pillarConnection: "Messaging",
-        proofPoint: "Talk track one-pager + objection/response pairs used in last quarter",
+        proofPoint: "Acme talk-track one-pager + objection/response pairs from last quarter",
       },
       {
         objection: "We cannot pause demand gen to fix narrative",
         response:
-          "We narrow spend on one ICP and one journey so quality rises without a full pause—then scale what wins.",
+          "Acme reply: “We don’t pause. We narrow Acme spend to one ICP and one journey so quality rises—then scale the line that wins.”",
         pillarConnection: "Conversion",
-        proofPoint: "ICP-weighted efficiency snapshot template",
+        proofPoint: "Acme ICP-weighted efficiency snapshot template",
       },
       {
         objection: "Brand work feels subjective next to performance channels",
         response:
-          "Tie the work to conversion-quality, cycle time, and stage-exit rates with the same definitions finance already uses.",
+          "Acme reply: “We tie the work to conversion quality, cycle time, and stage-exit rates—using the same definitions Acme finance already trusts.”",
         pillarConnection: "Credibility",
-        proofPoint: "Board-ready KPI tree: leading vs. lagging, weekly vs. monthly",
+        proofPoint: "Board-ready Acme KPI tree: leading vs. lagging, weekly vs. monthly",
       },
     ],
     conversion_intelligence_reference: {
       type: "ref",
       framework: "icp_conversion_intelligence_framework",
-      icpTier: "Primary — founder-led B2B services",
+      icpTier: "Primary — founder-led B2B services (Acme)",
       funnelStage: "Evaluation (technical + economic buyer in same room)",
       matrixCell: "Proof placement × late-funnel CTA",
-      note: "Lead with diagnostic clarity and owner-backed milestones; CFO cares about payback framing, RevOps cares about routing and definitions.",
+      note: "Lead with Acme diagnostic clarity and owner-backed milestones; CFO gets payback framing, RevOps gets routing definitions—same vocabulary in ads and sales.",
     },
     closingLanguage:
-      "Close on a time-bound pilot checkpoint with named owners—e.g. two-week journey fix plus one customer-visible artifact—not an open-ended follow-up or another scoping call.",
+      "Acme close (Sage): “Let’s lock a two-week journey fix with named owners and one customer-visible artifact—not another scoping call. If Acme sees stage movement, we expand. If not, we stop. Who owns marketing QA and who owns the sales handoff?”",
   },
   channelPlans: {
     ...previewActivationContent.channelPlans,

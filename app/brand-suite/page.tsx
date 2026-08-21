@@ -1,3 +1,5 @@
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
+
 export default function BrandSuitePage() {
   return (
     <div className="w-full bg-white text-brand-midnight">
@@ -42,7 +44,11 @@ export default function BrandSuitePage() {
           title="WunderBrand Snapshot+™"
           price="$497"
           description="A personalized deep-dive report with strategic insights, clarity opportunities, and a prioritized plan."
-          href="/snapshot-plus"
+          href={getTrackedCheckoutUrl({
+            product: "snapshot-plus",
+            medium: "landing_cta",
+            content: "brand_suite_snapshot_plus",
+          })}
           features={[
             "Full strategic analysis",
             "Pillar deep dives",
@@ -56,7 +62,11 @@ export default function BrandSuitePage() {
           title="WunderBrand Blueprint™"
           price="$997"
           description="Your complete AI-powered brand foundation — messaging, narrative, voice, and visual direction."
-          href="/blueprint"
+          href={getTrackedCheckoutUrl({
+            product: "blueprint",
+            medium: "landing_cta",
+            content: "brand_suite_blueprint",
+          })}
           features={[
             "Positioning system",
             "Messaging framework",
@@ -71,7 +81,11 @@ export default function BrandSuitePage() {
           title="WunderBrand Blueprint+™"
           price="$1,997"
           description="Our most comprehensive system for growing businesses — advanced strategy, segmentation, and brand assets."
-          href="/blueprint-plus"
+          href={getTrackedCheckoutUrl({
+            product: "blueprint-plus",
+            medium: "landing_cta",
+            content: "brand_suite_blueprint_plus",
+          })}
           features={[
             "Everything in Blueprint™",
             "Audience segmentation",

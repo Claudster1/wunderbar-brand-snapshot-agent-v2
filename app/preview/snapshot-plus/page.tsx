@@ -3090,7 +3090,7 @@ export default function BrandSnapshotPlusReport() {
                 ))}
               </div>
               <a
-                href="https://wunderbardigital.com/wunderbrand-blueprint?utm_source=brand_snapshot_plus_report&utm_medium=report_cta&utm_campaign=explore_upgrade&utm_content=snap_plus_explore_blueprint"
+                href="/checkout/blueprint?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=blueprint_upgrade&utm_content=snap_plus_explore_blueprint"
                 target="_blank" rel="noopener noreferrer"
                 style={{
                   display: "block", width: "100%", padding: "12px 24px", borderRadius: 5, border: "none",
@@ -3128,7 +3128,7 @@ export default function BrandSnapshotPlusReport() {
                 ))}
               </div>
               <a
-                href="https://wunderbardigital.com/wunderbrand-blueprint-plus?utm_source=brand_snapshot_plus_report&utm_medium=report_cta&utm_campaign=explore_upgrade&utm_content=snap_plus_explore_blueprint_plus"
+                href="/checkout/blueprint-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=blueprint_plus_upgrade&utm_content=snap_plus_explore_blueprint_plus"
                 target="_blank" rel="noopener noreferrer"
                 style={{
                   display: "block", width: "100%", padding: "12px 24px", borderRadius: 5,

@@ -3,11 +3,14 @@
  * Must stay aligned with `wundySystemPrompt` closing lines and `sanitizeTierAssistantReply`.
  */
 
+import { textLooksLikeIntakeJsonDump } from "@/lib/intake/stripAssistantJsonPayload";
+
 /** True when the reply embeds a scored answers payload (not a stray `{` in prose). */
 export function textContainsScoringJsonPayload(text: string): boolean {
   return (
     /\{[\s\S]*"userName"[\s\S]*"businessName"[\s\S]*\}/.test(text) ||
-    /\{[\s\S]*"brandAlignmentScore"[\s\S]*\}/.test(text)
+    /\{[\s\S]*"brandAlignmentScore"[\s\S]*\}/.test(text) ||
+    textLooksLikeIntakeJsonDump(text)
   );
 }
 
@@ -59,5 +62,7 @@ export function conversationSuggestsIntakeComplete(
     ? String(lastAssistant.text ?? (lastAssistant as { content?: string }).content ?? "").trim()
     : "";
   const userCount = messages.filter((m) => m.role === "user").length;
-  return userCount >= 3 && assistantPromisedExternalResultsEntry(t);
+  if (userCount < 3) return false;
+  // Handoff prose OR a leaked / embedded answers JSON dump (common wrap-up failure mode).
+  return assistantPromisedExternalResultsEntry(t) || textLooksLikeIntakeJsonDump(t);
 }

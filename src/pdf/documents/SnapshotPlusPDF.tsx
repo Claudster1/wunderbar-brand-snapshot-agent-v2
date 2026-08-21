@@ -87,7 +87,7 @@ export const SnapshotPlusPDF = ({
         )}
         {reportDate && (
           <Text style={{ ...stylePresets.small, marginTop: spacing.xs }}>
-            Report Date: {reportDate}
+            Date: {reportDate}
           </Text>
         )}
 
@@ -120,13 +120,13 @@ export const SnapshotPlusPDF = ({
         ) : (
           <>
             <Text style={stylePresets.body}>
-              This WunderBrand Snapshot+™ report provides a comprehensive analysis of your brand's
+              This WunderBrand Snapshot+™ provides a comprehensive analysis of your brand's
               alignment across five foundational pillars: Positioning, Messaging, Visibility,
               Credibility, and Conversion.
             </Text>
             <Text style={{ marginTop: spacing.md, ...stylePresets.body }}>
               Your WunderBrand Score™ of {brandAlignmentScore}/100 indicates{" "}
-              {scoreLabel.toLowerCase()}. This report identifies specific opportunities to
+              {scoreLabel.toLowerCase()}. This document identifies specific opportunities to
               strengthen your brand's clarity, consistency, and market presence.
             </Text>
           </>
@@ -400,7 +400,7 @@ export const SnapshotPlusPDF = ({
 
         <Text style={stylePresets.h3}>Do-It-Yourself Action Path</Text>
         <Text style={stylePresets.body}>
-          Use the recommendations and opportunity map in this report to guide your brand improvements.
+          Use the recommendations and opportunity map in this document to guide your brand improvements.
           Focus on quick wins first, then tackle medium-term opportunities.
         </Text>
 

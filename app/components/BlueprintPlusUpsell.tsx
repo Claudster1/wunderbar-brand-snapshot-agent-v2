@@ -1,3 +1,5 @@
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
+
 export default function BlueprintPlusUpsell() {
   return (
     <div className="mt-10 p-8 border rounded-lg bg-white shadow-md">
@@ -12,7 +14,11 @@ export default function BlueprintPlusUpsell() {
       </p>
 
       <a
-        href="/blueprint-plus"
+        href={getTrackedCheckoutUrl({
+          product: "blueprint-plus",
+          medium: "results_cta",
+          content: "blueprint_plus_upsell",
+        })}
         className="inline-block mt-6 px-6 py-3 bg-brand-blue text-white rounded-[5px] shadow hover:bg-brand-blueHover transition"
       >
         Explore WunderBrand Blueprint+™ →
@@ -20,5 +26,3 @@ export default function BlueprintPlusUpsell() {
     </div>
   );
 }
-
-

@@ -1,6 +1,8 @@
 // components/blueprint/BlueprintPlusNudge.tsx
 // Nudge component encouraging upgrade to Blueprint+™
 
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
+
 export function BlueprintPlusNudge({ primaryPillar }: { primaryPillar: string }) {
   return (
     <div className="mt-16 border-t pt-8 max-w-3xl">
@@ -14,7 +16,11 @@ export function BlueprintPlusNudge({ primaryPillar }: { primaryPillar: string })
       </p>
 
       <a
-        href="/blueprint-plus"
+        href={getTrackedCheckoutUrl({
+          product: "blueprint-plus",
+          medium: "results_cta",
+          content: "blueprint_plus_nudge",
+        })}
         className="inline-block text-sm text-brand-blue font-semibold"
       >
         Explore Blueprint+™ →

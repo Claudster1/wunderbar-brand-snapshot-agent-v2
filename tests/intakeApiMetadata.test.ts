@@ -19,6 +19,24 @@ describe("buildIntakeResponseMeta", () => {
     expect(meta.chipSelectionMode).toBe("single");
   });
 
+  it("stays in the high 80s+ when captures are done even if narrative lags", () => {
+    const meta = buildIntakeResponseMeta({
+      messages: [
+        { role: "user", content: "Acme" },
+        { role: "user", content: "https://acme.com" },
+      ],
+      tier: "snapshot",
+      captureStates: [
+        { key: "website_presence", label: "website", completed: true },
+        { key: "social_platform_presence", label: "social", completed: true },
+      ],
+      nextPendingKey: "competitive_pressure_point",
+    });
+    expect(meta.captureCompletionPercent).toBe(100);
+    expect(meta.overallProgressPercent).toBeGreaterThanOrEqual(88);
+    expect(meta.overallProgressPercent).toBeLessThan(95);
+  });
+
   it("marks ready when captures and narrative thresholds are met", () => {
     const corpus = [
       "Acme",

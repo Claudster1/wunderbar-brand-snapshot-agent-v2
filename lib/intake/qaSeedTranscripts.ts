@@ -61,7 +61,7 @@ const NEAR_END_TURNS: SeedTurn[] = [
   { role: "user", text: "Mostly B2B" },
   {
     role: "assistant",
-    text: "**What industry or space is the business in?** A plain category is perfect.",
+    text: "**What industry or space is the business in?** A simple category is perfect.",
   },
   { role: "user", text: "Professional services / consulting — brand and marketing for SMBs" },
   {

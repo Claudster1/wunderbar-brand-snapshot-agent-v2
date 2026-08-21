@@ -392,7 +392,7 @@ export default function SnapshotPdfTemplate({
             format/channel recommendations.
           </Text>
           <Text style={[styles.pillarInsight, { marginTop: 8, fontWeight: 700, color: "#07b0f2" }]}>
-            See Your Full Results — $497
+            Upgrade to Snapshot+™ — $497
           </Text>
         </View>
 

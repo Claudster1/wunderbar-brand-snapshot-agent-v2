@@ -4,14 +4,18 @@ import { pdfTheme } from "../theme";
 import { DisclaimerPage } from "../components/DisclaimerPage";
 import { SectionDividerPage } from "../components/SectionDividerPage";
 import { PdfHeader } from "../components/PdfHeader";
+import { PdfFooter } from "../components/PdfFooter";
+import { registerPdfFonts } from "../registerFonts";
 import type { BlueprintEngineOutput } from "../types/blueprintReport";
 import { parseHexAccent } from "@/src/pdf/lib/promptPackDisplay";
 import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
 
+registerPdfFonts();
+
 const s = StyleSheet.create({
   cover: {
     padding: 48,
-    fontFamily: "Helvetica",
+    fontFamily: "Lato",
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: pdfTheme.colors.navy,
@@ -19,10 +23,7 @@ const s = StyleSheet.create({
   logo: { width: 104, marginBottom: 28, opacity: 0.92 },
   coverTitle: { fontSize: 24, fontWeight: "bold", color: "#FFFFFF", textAlign: "center", marginBottom: 8 },
   coverSub: { fontSize: 12, color: pdfTheme.colors.aqua, textAlign: "center" },
-  page: {
-    padding: 48,
-    paddingBottom: 92,
-    fontFamily: "Helvetica",
+  page: { paddingTop: 72, paddingHorizontal: 36, paddingBottom: 72, fontFamily: "Lato", backgroundColor: "#F5F5F7",
     fontSize: 10,
     color: pdfTheme.colors.text,
     lineHeight: 1.6,
@@ -32,7 +33,7 @@ const s = StyleSheet.create({
   body: { fontSize: 10, lineHeight: 1.6, marginBottom: 6, color: pdfTheme.colors.text },
   small: { fontSize: 9, color: pdfTheme.colors.muted, lineHeight: 1.5 },
   card: {
-    backgroundColor: "#F8FBFF",
+    backgroundColor: "#FFFFFF",
     borderRadius: 8,
     border: `1 solid ${pdfTheme.colors.border}`,
     padding: 12,
@@ -128,10 +129,7 @@ export function VoiceChecklistDocument({ data, brandName }: Props) {
       />
 
       <Page size="A4" style={s.page} wrap>
-        <View style={s.footer} fixed>
-          <Text style={s.footerText}>Voice Checklist - {brandName}</Text>
-          <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
-        </View>
+        <PdfFooter businessName={brandName} productName="Voice Checklist" showPageNumbers />
         <PdfHeader title="Voice Checklist" businessName={brandName} date={printedDate} accentHex={brandAccent} />
 
         <Text style={s.h1}>Core Voice Profile</Text>

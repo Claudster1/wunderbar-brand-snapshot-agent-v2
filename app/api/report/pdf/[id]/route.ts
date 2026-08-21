@@ -55,7 +55,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     return generatePdfResponseFromReport(
       report,
       plus ? "snapshot-plus" : "snapshot",
-      plus ? `SnapshotPlus_Report_${id}.pdf` : `BrandSnapshot_Report_${id}.pdf`
+      plus ? `SnapshotPlus_${id}.pdf` : `BrandSnapshot_${id}.pdf`
     );
   } catch (err: any) {
     logger.error("PDF generation error", { error: err instanceof Error ? err.message : String(err) });

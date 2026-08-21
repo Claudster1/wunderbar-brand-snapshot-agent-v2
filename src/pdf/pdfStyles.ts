@@ -3,7 +3,7 @@ export const pdfStyles = {
     padding: 48,
     fontSize: 11,
     lineHeight: 1.6,
-    fontFamily: "Helvetica",
+    fontFamily: "Lato",
   },
   section: {
     marginBottom: 28,

@@ -25,7 +25,7 @@ export function correctionChipHintForLabel(label: string): string | null {
     return "Who do you mainly sell to — mostly other businesses (B2B), mostly consumers (B2C), or a meaningful mix of both?";
   }
   if (l.includes("industry") || l.includes("space")) {
-    return "What industry or space is the business in? A plain category is perfect.";
+    return "What industry or space is the business in? A simple category is perfect.";
   }
   if (l.includes("role")) {
     return "How do you think about your role here? Tap below — or type your own.";

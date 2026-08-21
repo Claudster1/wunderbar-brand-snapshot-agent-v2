@@ -26,7 +26,7 @@ export function HistoryReminder() {
         Want a clearer plan based on these results?
       </p>
       <Link
-        href="/snapshot-plus"
+        href="/checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=history_reminder"
         onClick={() => trackEvent("history_soft_reminder_clicked", {})}
         className="text-sm font-medium text-brand-blue hover:underline"
       >

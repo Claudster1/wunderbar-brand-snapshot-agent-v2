@@ -4,21 +4,23 @@ import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/render
 import { pdfTheme } from "../theme";
 import type { BlueprintEngineOutput, IcpGoToMarketPlan } from "../types/blueprintReport";
 import { DisclaimerPage } from "../components/DisclaimerPage";
+import { PdfHeader } from "../components/PdfHeader";
+import { PdfFooter } from "../components/PdfFooter";
+import { registerPdfFonts } from "../registerFonts";
 import { SectionDividerPage } from "../components/SectionDividerPage";
 import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
 
+registerPdfFonts();
+
 const s = StyleSheet.create({
-  page: {
-    padding: 42,
-    paddingBottom: 92,
-    fontFamily: "Helvetica",
+  page: { paddingTop: 72, paddingHorizontal: 36, paddingBottom: 72, fontFamily: "Lato", backgroundColor: "#F5F5F7",
     fontSize: 10,
     color: pdfTheme.colors.text,
     lineHeight: 1.6,
   },
   cover: {
     padding: 42,
-    fontFamily: "Helvetica",
+    fontFamily: "Lato",
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: pdfTheme.colors.navy,
@@ -35,11 +37,11 @@ const s = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     marginBottom: 10,
-    backgroundColor: "#F8FBFF",
+    backgroundColor: "#FFFFFF",
   },
   label: {
     fontSize: 8,
-    color: "#0D5BD7",
+    color: "#07B0F2",
     textTransform: "uppercase",
     letterSpacing: 0.8,
     marginBottom: 2,
@@ -141,6 +143,9 @@ function IcpPlanCard({ plan, index }: { plan: IcpGoToMarketPlan; index: number }
 }
 
 export function BattleCardsDocument({ data, brandName }: Props) {
+  const reportDate = new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+  const headerChrome = { businessName: brandName, date: reportDate, productName: "Battle Cards" as const };
+
   const players = data.competitivePositioning?.players ?? [];
   const fallbackDifferentiation =
     data.competitivePositioning?.differentiationSummary || data.brandFoundation?.differentiationNarrative || "";
@@ -170,10 +175,8 @@ export function BattleCardsDocument({ data, brandName }: Props) {
             subtitle="Per-segment strategy, campaign support, 90-day tactics, and conversion-intelligence anchors for sales and marketing."
           />
           <Page size="A4" style={s.page} wrap>
-            <View style={s.footer} fixed>
-              <Text style={s.footerText}>Battle Cards — {brandName}</Text>
-              <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
-            </View>
+        <PdfHeader title="Battle Cards" {...headerChrome} />
+        <PdfFooter businessName={brandName} productName="Battle Cards" showPageNumbers />
             <Text style={s.h1}>ICP playbooks</Text>
             <Text style={s.body}>
               Use one playbook per prioritized segment so field conversations, nurture, and creative all reinforce the same
@@ -193,10 +196,8 @@ export function BattleCardsDocument({ data, brandName }: Props) {
       />
 
       <Page size="A4" style={s.page} wrap>
-        <View style={s.footer} fixed>
-          <Text style={s.footerText}>Battle Cards — {brandName}</Text>
-          <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
-        </View>
+        <PdfHeader title="Battle Cards" {...headerChrome} />
+        <PdfFooter businessName={brandName} productName="Battle Cards" showPageNumbers />
 
         <Text style={s.h1}>{hasIcpPlans ? "Competitive battle cards" : "Battle Cards"}</Text>
         {!hasIcpPlans && salesRef ? (
@@ -249,7 +250,7 @@ export function BattleCardsDocument({ data, brandName }: Props) {
           <View style={s.card}>
             <Text style={s.h2}>Competitive Context</Text>
             <Text style={s.body}>
-              {fallbackDifferentiation || "Competitive differentiation details are limited in this report."}
+              {fallbackDifferentiation || "Competitive differentiation details are limited in this document."}
             </Text>
           </View>
         )}

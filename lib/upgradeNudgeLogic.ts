@@ -1,6 +1,7 @@
 // lib/upgradeNudgeLogic.ts
 // Logic for determining upgrade nudges based on snapshot data
 
+import { getTrackedCheckoutUrl } from "./checkoutUrls";
 import { ProductAccess } from "./productAccess";
 
 export type UpgradeNudge = {
@@ -24,12 +25,16 @@ export function getUpgradeNudge(
     if (access?.hasSnapshotPlus) {
       return null;
     }
-    
+
     return {
       title: "Go deeper with WunderBrand Snapshot+™",
       body: `Your results point to meaningful opportunity in ${snapshot.primary_pillar}. Snapshot+™ expands on this with deeper analysis, examples, and next-step clarity — powered by Wunderbar Digital's proprietary scoring methodology.`,
       ctaLabel: "See how to strengthen what matters most right now",
-      href: "/snapshot-plus",
+      href: getTrackedCheckoutUrl({
+        product: "snapshot-plus",
+        medium: "results_cta",
+        content: "upgrade_nudge_snapshot_plus",
+      }),
     };
   }
 
@@ -39,12 +44,16 @@ export function getUpgradeNudge(
     if (access?.hasBlueprint) {
       return null;
     }
-    
+
     return {
       title: "Turn insight into activation",
       body: `You've identified where your brand needs clarity. WunderBrand Blueprint™ translates these insights into a complete, usable system across Strategy, Brand Standards, Activation, Workbook, and Downloads.`,
       ctaLabel: "Explore WunderBrand Blueprint™ →",
-      href: "/blueprint",
+      href: getTrackedCheckoutUrl({
+        product: "blueprint",
+        medium: "results_cta",
+        content: "upgrade_nudge_blueprint",
+      }),
     };
   }
 

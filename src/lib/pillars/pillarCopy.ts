@@ -27,7 +27,7 @@ export const PILLAR_COPY: Record<PillarKey, PillarCopy> = {
       `Clear positioning is the single highest-leverage investment ${businessName} can make \u2014 it reduces customer acquisition cost, shortens sales cycles, and makes every downstream marketing dollar more effective.`,
     cta: {
       label: "Get your positioning strategy \u2192",
-      href: "/snapshot-plus",
+      href: "/checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=src_pillar_copy",
     },
   },
 
@@ -41,7 +41,7 @@ export const PILLAR_COPY: Record<PillarKey, PillarCopy> = {
       "Inconsistent messaging forces every new interaction to start from zero. A codified system means each touchpoint builds on the last \u2014 compounding recognition and trust over time.",
     cta: {
       label: "Get your messaging framework \u2192",
-      href: "/snapshot-plus",
+      href: "/checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=src_pillar_copy",
     },
   },
 
@@ -55,7 +55,7 @@ export const PILLAR_COPY: Record<PillarKey, PillarCopy> = {
       "Visibility is distribution for your brand. Without it, your positioning, messaging, and credibility never reach the people who would value them most \u2014 and growth stays dependent on outbound effort.",
     cta: {
       label: "Get your visibility strategy \u2192",
-      href: "/snapshot-plus",
+      href: "/checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=src_pillar_copy",
     },
   },
 
@@ -69,7 +69,7 @@ export const PILLAR_COPY: Record<PillarKey, PillarCopy> = {
       "Credibility is the currency of conversion \u2014 it determines whether a prospect trusts you enough to take the next step, and how much price sensitivity enters the conversation.",
     cta: {
       label: "Get your credibility roadmap \u2192",
-      href: "/snapshot-plus",
+      href: "/checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=src_pillar_copy",
     },
   },
 
@@ -83,7 +83,7 @@ export const PILLAR_COPY: Record<PillarKey, PillarCopy> = {
       "Conversion is where every upstream investment \u2014 in positioning, messaging, visibility, and credibility \u2014 either compounds into growth or leaks out through unclear next steps.",
     cta: {
       label: "Get your conversion strategy \u2192",
-      href: "/snapshot-plus",
+      href: "/checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=src_pillar_copy",
     },
   },
 };

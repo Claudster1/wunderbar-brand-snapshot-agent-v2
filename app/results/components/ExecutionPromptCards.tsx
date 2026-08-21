@@ -8,6 +8,7 @@ import {
   PROMPT_LIBRARY,
   type BrandPromptContext,
 } from "@/src/lib/prompts/promptLibrary";
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
 
 type Props = {
   brandContext: BrandPromptContext;
@@ -59,12 +60,33 @@ export function ExecutionPromptCards({
 
   const getUpgradeTarget = (tier: (typeof PROMPT_LIBRARY)[number]["tier"]) => {
     if (tier === "snapshot_plus") {
-      return { href: "/snapshot-plus", label: "See What's Included" };
+      return {
+        href: getTrackedCheckoutUrl({
+          product: "snapshot-plus",
+          medium: "results_cta",
+          content: "execution_prompts_snapshot_plus",
+        }),
+        label: "Unlock Snapshot+™",
+      };
     }
     if (tier === "blueprint") {
-      return { href: "/brand-blueprint", label: "See What's Included" };
+      return {
+        href: getTrackedCheckoutUrl({
+          product: "blueprint",
+          medium: "results_cta",
+          content: "execution_prompts_blueprint",
+        }),
+        label: "Unlock Blueprint™",
+      };
     }
-    return { href: "/brand-blueprint-plus", label: "See What's Included" };
+    return {
+      href: getTrackedCheckoutUrl({
+        product: "blueprint-plus",
+        medium: "results_cta",
+        content: "execution_prompts_blueprint_plus",
+      }),
+      label: "Unlock Blueprint+™",
+    };
   };
 
   return (

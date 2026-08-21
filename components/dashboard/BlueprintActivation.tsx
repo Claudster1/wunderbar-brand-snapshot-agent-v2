@@ -34,7 +34,7 @@ export function BlueprintActivation({ report }: BlueprintActivationProps) {
       </ul>
 
       <Link
-        href="/blueprint"
+        href="/checkout/blueprint?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=blueprint_upgrade&utm_content=dashboard_blueprint_activation"
         className="inline-flex rounded-[5px] bg-[#07B0F2] px-5 py-3 text-sm font-semibold text-white hover:bg-[#059BD8] no-underline"
       >
         Activate your Snapshot+™ priorities →

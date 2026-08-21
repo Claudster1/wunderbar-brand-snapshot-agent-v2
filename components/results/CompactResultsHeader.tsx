@@ -20,7 +20,10 @@ interface CompactResultsHeaderProps {
   productName: string;
   companyName: string;
   reportDateIso?: string;
-  onGoToDownloads: () => void;
+  /** Quick one-click PDF of the primary report for this tier. */
+  exportPdfHref?: string;
+  /** Paid suite — open the Downloads tab for the full deliverable pack. */
+  onGoToDownloads?: () => void;
   onHelpClick?: () => void;
 }
 
@@ -39,6 +42,7 @@ export default function CompactResultsHeader({
   productName,
   companyName,
   reportDateIso,
+  exportPdfHref,
   onGoToDownloads,
   onHelpClick,
 }: CompactResultsHeaderProps) {
@@ -229,52 +233,79 @@ export default function CompactResultsHeader({
         >
           ?
         </button>
-        <div style={{ position: "relative" }} ref={menuRef}>
-          <button
-            type="button"
-            onClick={() => setMenuOpen((value) => !value)}
+        {exportPdfHref ? (
+          <a
+            href={exportPdfHref}
+            target="_blank"
+            rel="noopener noreferrer"
             style={{
-              width: 32,
-              height: 32,
-              display: "flex",
+              display: "inline-flex",
               alignItems: "center",
               justifyContent: "center",
-              backgroundColor: menuOpen ? SUITE_ACCENT_BRIGHT : "rgba(0, 0, 0, 0.04)",
-              border: "none",
-              borderRadius: "50%",
-              color: menuOpen ? "#FFFFFF" : SUITE_NAVY,
-              fontSize: 16,
-              fontWeight: 700,
-              cursor: "pointer",
-              letterSpacing: "0.12em",
-              transition: "background 0.2s ease, color 0.2s ease",
+              minHeight: 32,
+              padding: "0 12px",
+              borderRadius: 5,
+              border: `1.5px solid ${SUITE_ACCENT_BRIGHT}`,
+              backgroundColor: SUITE_ACCENT_BRIGHT,
+              color: "#FFFFFF",
+              fontSize: 11,
+              fontWeight: 800,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              textDecoration: "none",
+              fontFamily: SUITE_FONT_UI,
+              whiteSpace: "nowrap",
             }}
-            aria-label="More options"
-            aria-expanded={menuOpen}
+            aria-label="Export PDF"
           >
-            ···
-          </button>
-          {menuOpen && (
-            <div
+            Export
+          </a>
+        ) : null}
+        {onGoToDownloads ? (
+          <div style={{ position: "relative" }} ref={menuRef}>
+            <button
+              type="button"
+              onClick={() => setMenuOpen((value) => !value)}
               style={{
-                position: "absolute",
-                top: "calc(100% + 8px)",
-                right: 0,
-                width: 220,
-                backgroundColor: "#FFFFFF",
-                border: `1px solid ${SUITE_BORDER}`,
-                borderRadius: 12,
-                boxShadow: SUITE_SHADOW_FLOAT,
-                zIndex: 400,
-                overflow: "hidden",
+                width: 32,
+                height: 32,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: menuOpen ? SUITE_ACCENT_BRIGHT : "rgba(0, 0, 0, 0.04)",
+                border: "none",
+                borderRadius: "50%",
+                color: menuOpen ? "#FFFFFF" : SUITE_NAVY,
+                fontSize: 16,
+                fontWeight: 700,
+                cursor: "pointer",
+                letterSpacing: "0.12em",
+                transition: "background 0.2s ease, color 0.2s ease",
               }}
+              aria-label="More options"
+              aria-expanded={menuOpen}
             >
-              {[{ label: "Go to Downloads", icon: "↓", action: onGoToDownloads }].map((item) => (
+              ···
+            </button>
+            {menuOpen ? (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "calc(100% + 8px)",
+                  right: 0,
+                  width: 220,
+                  backgroundColor: "#FFFFFF",
+                  border: `1px solid ${SUITE_BORDER}`,
+                  borderRadius: 12,
+                  boxShadow: SUITE_SHADOW_FLOAT,
+                  zIndex: 400,
+                  overflow: "hidden",
+                }}
+              >
                 <button
-                  key={item.label}
                   type="button"
                   onClick={() => {
-                    item.action();
+                    onGoToDownloads();
                     setMenuOpen(false);
                   }}
                   style={{
@@ -299,13 +330,15 @@ export default function CompactResultsHeader({
                     event.currentTarget.style.backgroundColor = "transparent";
                   }}
                 >
-                  <span style={{ width: 16, color: SUITE_CHROME_MUTED, fontSize: 14 }}>{item.icon}</span>
-                  {item.label}
+                  <span style={{ width: 16, color: SUITE_CHROME_MUTED, fontSize: 14 }} aria-hidden>
+                    ↓
+                  </span>
+                  Go to Downloads
                 </button>
-              ))}
-            </div>
-          )}
-        </div>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
       </div>
     </header>
   );

@@ -63,7 +63,7 @@ export function BlueprintPlusActivation({
           <p className="mt-2">{upgradeCopy.body}</p>
 
           <Link
-            href="/snapshot-plus"
+            href="/checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=blueprint_plus_activation"
             className="inline-block mt-4 btn-primary"
           >
             {upgradeCopy.cta}

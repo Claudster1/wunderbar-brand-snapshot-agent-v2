@@ -1,28 +1,39 @@
 // src/pdf/components/RecommendationBlock.tsx
-// Reusable recommendation block component for PDF documents
+// Suite recommendation card
 
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
-import { pdfTheme } from "../theme";
+import {
+  SUITE_BORDER,
+  SUITE_NAVY,
+  SUITE_RADIUS_MD,
+  SUITE_TEXT_PRIMARY,
+} from "@/components/results/suiteBrandTokens";
 
 const styles = StyleSheet.create({
   container: {
-    padding: pdfTheme.spacing.lg,
+    padding: 12,
+    paddingLeft: 14,
     backgroundColor: "#FFFFFF",
-    borderRadius: 6,
-    border: `1px solid ${pdfTheme.colors.border}`,
+    borderRadius: SUITE_RADIUS_MD,
+    borderWidth: 1,
+    borderColor: SUITE_BORDER,
+    borderLeftWidth: 3,
+    borderLeftColor: "rgba(7, 176, 242, 0.55)",
+    marginBottom: 8,
   },
   title: {
-    fontFamily: "Helvetica",
-    fontSize: pdfTheme.fontSizes.md,
-    fontWeight: 600,
-    color: pdfTheme.colors.navy,
-    marginBottom: pdfTheme.spacing.sm,
+    fontFamily: "Lato",
+    fontSize: 11,
+    fontWeight: 700,
+    color: SUITE_NAVY,
+    marginBottom: 5,
+    letterSpacing: -0.15,
   },
   text: {
-    fontFamily: "Helvetica",
-    fontSize: pdfTheme.fontSizes.base,
-    color: pdfTheme.colors.midnight,
-    lineHeight: 1.5,
+    fontFamily: "Lato",
+    fontSize: 9.5,
+    color: SUITE_TEXT_PRIMARY,
+    lineHeight: 1.55,
   },
 });
 

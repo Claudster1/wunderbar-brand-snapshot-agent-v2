@@ -44,7 +44,7 @@ export function getHowToUseBannerSegments(
       return {
         lead: `How to use your ${productName}:`,
         path:
-          "Read Results top to bottom (or use the section chips). Each block explains what the score means in everyday language. When you move to Snapshot+, you get the same story expanded into Foundation (who you are), Strategy (who to reach and how), Activation (how to run it), and Workbook so edits stay in one place.",
+          "Read this diagnostic top to bottom. Each block explains what your score means in everyday language — what’s working, where friction shows up, and what to prioritize next. Snapshot+ expands the same story into Foundation, Strategy, Activation, and Workbook when you’re ready for the full Suite.",
         habits,
       };
     case "snapshot-plus":
@@ -87,7 +87,7 @@ export function getSuiteTabIntro(
           tier === "snapshot"
             ? forCompany(
                 co,
-                "Your WunderBrand Score™ and pillar scores show where the brand is strong today and where friction shows up first. Use the chips to jump, or scroll in order. Upgrade when you want the full Suite path (Foundation → Strategy → Activation → Workbook).",
+                "Your WunderBrand Score™ and pillar scores show where the brand is strong today and where friction shows up first. Scroll the report in order — email unlocks the full diagnostic on this page. Upgrade when you want the Suite path (Foundation → Strategy → Activation → Workbook).",
               )
             : tier === "snapshot-plus"
               ? forCompany(

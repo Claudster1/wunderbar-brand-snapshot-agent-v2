@@ -68,7 +68,7 @@ export function RecommendationsBlock({
           {hasMore && (
             <p className="bs-small text-brand-muted mt-4">
               You have {all.length - MAX_RECOMMENDATIONS_FREE_TIER} more recommendation{all.length - MAX_RECOMMENDATIONS_FREE_TIER === 1 ? "" : "s"} in your snapshot.{" "}
-              <Link href="/snapshot-plus" className="text-brand-blue font-bold hover:underline focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 rounded">
+              <Link href="/checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=recommendations_block" className="text-brand-blue font-bold hover:underline focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 rounded">
                 Snapshot+™
               </Link>
               {" "}unlocks the full list plus prioritized next steps.

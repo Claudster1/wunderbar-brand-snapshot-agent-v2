@@ -29,12 +29,18 @@ export function normalizeProductKey(productId: string): ProductKey | null {
     return null; // Free product, no checkout
   }
 
-  if (productId in PRODUCT_ID_TO_KEY) {
-    return PRODUCT_ID_TO_KEY[productId];
+  const normalized = productId.trim().toLowerCase().replace(/-/g, "_");
+
+  if (normalized === "brand_snapshot" || normalized === "snapshot") {
+    return null;
   }
 
-  if (VALID_KEYS.has(productId)) {
-    return productId as ProductKey;
+  if (normalized in PRODUCT_ID_TO_KEY) {
+    return PRODUCT_ID_TO_KEY[normalized];
+  }
+
+  if (VALID_KEYS.has(normalized)) {
+    return normalized as ProductKey;
   }
 
   return null;

@@ -1093,17 +1093,28 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
     }
 
 54. Sales Conversation Guide
-    **BLUEPRINT+ ENHANCED** — Everything in Blueprint's sales guide, plus persona-specific conversation tracks and scenario scripts.
+    **BLUEPRINT+ ENHANCED** — Ready-to-use [businessName] sales language (not a how-to guide), plus persona tracks.
+    
+    Write in brand voice / archetype. Name [businessName]. Prefer quoted scripts (Say: / Show:) over meta coaching.
     
     salesConversationGuide: {
       conversion_intelligence_reference: { type: "ref", framework: "icp_conversion_intelligence_framework", icpTier: "", funnelStage: "", matrixCell: "" }
-      openingFramework: "How to lead with positioning, not product features. The first 60 seconds. Include specific language."
+      openingFramework: "Exact opening script for [businessName] (first ~60 seconds) in brand voice."
+      
+      talkTrackFramework: [
+        {
+          stage: "First 10 minutes | Middle — discovery | Close"
+          objective: "Stage goal for [businessName]"
+          keyMessage: "Exact words to say (Say: …)"
+          proofToUse: "Exact proof to show (Show: …)"
+        }
+      ] (3 stages)
       
       discoveryQuestions: [
         {
-          question: "A strategic discovery question mapped to buyer personas' decision triggers and pain points"
-          whyThisQuestion: "Which buyer persona this targets and what pain point or decision trigger it uncovers"
-          listenFor: "What the answer reveals about fit"
+          question: "Exact question naming [businessName] / their funnel language"
+          whyThisQuestion: "When to use it on the call (1 sentence)"
+          listenFor: "What to hear AND the next line to say"
         }
       ] (7–8 questions — more than Blueprint's 5–7)
       
@@ -1111,31 +1122,31 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
         {
           persona: "The buyer persona this guidance applies to"
           stage: "Where in the conversation to deploy this proof point"
-          proofPoint: "The specific proof point from the Messaging System to use"
-          howToDeliver: "How to introduce this proof point naturally in conversation"
+          proofPoint: "The specific proof / leave-behind for [businessName]"
+          howToDeliver: "Exact handoff language or action"
         }
       ] (one per buyer persona, covering different conversation stages)
       
       objectionHandlingPlaybook: [
         {
           objection: "A common sales objection for [businessName]'s industry"
-          response: "How to respond — connected to actual messaging pillars and proof points"
+          response: "Exact reply in [businessName]'s voice"
           pillarConnection: "Which brand pillar or messaging pillar this response draws from"
           proofPoint: "Which specific proof point to reference"
           personaVariation: "How this response should shift depending on which buyer persona raised it (Blueprint+ exclusive)"
         }
       ] (6–8 objections — more than Blueprint's 5–6)
       
-      closingLanguage: "CTAs and next-step framing matching the brand voice and conversion strategy. Include 4–5 closing phrases calibrated to the brand archetype."
+      closingLanguage: "Exact closing phrases for [businessName] calibrated to the brand archetype (quote 4–5)."
       
       personaConversationTracks: [
         {
           persona: "Buyer persona name (from Section 18)"
-          openingVariation: "How the opening changes for this persona"
+          openingVariation: "Exact opening variation for this persona"
           keyDiscoveryQuestions: ["2–3 persona-specific discovery questions"]
           presentationEmphasis: "What to emphasize (e.g., 'Lead with data and ROI' vs. 'Lead with the vision')"
           likelyObjections: ["The 1–2 objections this persona most commonly raises"]
-          closingApproach: "How to close with this persona — their decision style and what tips them over"
+          closingApproach: "Exact close lines for this persona"
           samplePitch: "A 3–4 sentence pitch written specifically for this persona"
         }
       ] (one per buyer persona — 4–6 entries, Blueprint+ exclusive)
@@ -1143,15 +1154,15 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       scenarioScripts: [
         {
           scenario: "A specific sales situation (e.g., 'Cold outreach on LinkedIn,' 'Inbound discovery call,' 'Pricing follow-up after proposal,' 'Referral introduction call')"
-          script: "A ready-to-adapt conversation script for this scenario — opening, key questions, transition to pitch, close"
+          script: "A ready-to-adapt conversation script for this scenario — opening, key questions, transition to pitch, close — written for [businessName]"
           personaNotes: "Which persona(s) this scenario is most common with"
         }
       ] (3–4 scenarios, Blueprint+ exclusive)
       
       salesEnablementTools: {
         onePageSellSheet: "An outline for a one-page sell sheet — what goes on it, in what order, using which messaging from this report"
-        competitiveHandlingGuide: "How to handle 'why you vs. [competitor]' — connected to the Competitive Positioning section"
-        referralRequestScript: "How to ask satisfied clients for referrals in an on-brand way — include specific language"
+        competitiveHandlingGuide: "Exact language for 'why you vs. [competitor]' — connected to Competitive Positioning"
+        referralRequestScript: "Exact on-brand referral ask for satisfied [businessName] clients"
       }
     }
 

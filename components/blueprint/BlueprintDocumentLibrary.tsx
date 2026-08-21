@@ -301,9 +301,7 @@ export function BlueprintDocumentLibrary({ reportId, email, tier = "blueprint" }
                 Blueprint+™ includes week-by-week roadmaps, persona-driven channel strategies, sales playbooks with conversation scripts, and a complete Brand Standards Guide.
               </p>
               <a
-                href="https://wunderbardigital.com/wunderbrand-blueprint-plus?utm_source=document_library&utm_medium=upgrade_nudge&utm_campaign=blueprint_to_plus"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/checkout/blueprint-plus?utm_source=document_library&utm_medium=upgrade_nudge&utm_campaign=blueprint_to_plus&utm_content=document_library_upgrade"
                 className="inline-flex items-center gap-2 bg-[#07B0F2] text-white text-xs font-bold px-5 py-2.5 rounded-[5px] hover:bg-[#0599d5] transition-colors"
               >
                 Upgrade to Blueprint+™

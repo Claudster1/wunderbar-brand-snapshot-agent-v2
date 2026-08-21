@@ -80,9 +80,9 @@ export function WunderbarHeader() {
             </a>
             <div className="wunder-dropdown">
               <a href="https://wunderbardigital.com/wunderbrand-snapshot?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=nav_dropdown_item&utm_content=app_snapshot_free" target="_blank" rel="noopener noreferrer">WunderBrand Snapshot™ (Free)</a>
-              <a href="https://wunderbardigital.com/wunderbrand-snapshot-plus?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=nav_dropdown_item&utm_content=app_snapshot_plus" target="_blank" rel="noopener noreferrer">WunderBrand Snapshot+™</a>
-              <a href="https://wunderbardigital.com/wunderbrand-blueprint?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=nav_dropdown_item&utm_content=app_blueprint" target="_blank" rel="noopener noreferrer">WunderBrand Blueprint™</a>
-              <a href="https://wunderbardigital.com/wunderbrand-blueprint-plus?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=nav_dropdown_item&utm_content=app_blueprint_plus" target="_blank" rel="noopener noreferrer">WunderBrand Blueprint+™</a>
+              <a href="/checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=header_nav&utm_campaign=nav_dropdown_item&utm_content=app_snapshot_plus">WunderBrand Snapshot+™</a>
+              <a href="/checkout/blueprint?utm_source=wunderbar_app&utm_medium=header_nav&utm_campaign=nav_dropdown_item&utm_content=app_blueprint">WunderBrand Blueprint™</a>
+              <a href="/checkout/blueprint-plus?utm_source=wunderbar_app&utm_medium=header_nav&utm_campaign=nav_dropdown_item&utm_content=app_blueprint_plus">WunderBrand Blueprint+™</a>
               <a href="https://wunderbardigital.com/wunderbrand-suite?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=nav_dropdown_item&utm_content=app_compare_products" className="wunder-dropdown-divider" target="_blank" rel="noopener noreferrer">
                 Compare All Products
               </a>
@@ -166,9 +166,9 @@ export function WunderbarHeader() {
             </button>
             <div className={`wunder-mobile-dropdown-content ${activeDropdown === "suite" ? "active" : ""}`}>
               <a href="https://wunderbardigital.com/wunderbrand-snapshot?utm_source=wunderbrand_app&utm_medium=header_nav_mobile&utm_campaign=nav_dropdown_item&utm_content=app_snapshot_free" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>WunderBrand Snapshot™ (Free)</a>
-              <a href="https://wunderbardigital.com/wunderbrand-snapshot-plus?utm_source=wunderbrand_app&utm_medium=header_nav_mobile&utm_campaign=nav_dropdown_item&utm_content=app_snapshot_plus" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>WunderBrand Snapshot+™</a>
-              <a href="https://wunderbardigital.com/wunderbrand-blueprint?utm_source=wunderbrand_app&utm_medium=header_nav_mobile&utm_campaign=nav_dropdown_item&utm_content=app_blueprint" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>WunderBrand Blueprint™</a>
-              <a href="https://wunderbardigital.com/wunderbrand-blueprint-plus?utm_source=wunderbrand_app&utm_medium=header_nav_mobile&utm_campaign=nav_dropdown_item&utm_content=app_blueprint_plus" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>WunderBrand Blueprint+™</a>
+              <a href="/checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=header_nav_mobile&utm_campaign=nav_dropdown_item&utm_content=app_snapshot_plus" onClick={closeMenu}>WunderBrand Snapshot+™</a>
+              <a href="/checkout/blueprint?utm_source=wunderbar_app&utm_medium=header_nav_mobile&utm_campaign=nav_dropdown_item&utm_content=app_blueprint" onClick={closeMenu}>WunderBrand Blueprint™</a>
+              <a href="/checkout/blueprint-plus?utm_source=wunderbar_app&utm_medium=header_nav_mobile&utm_campaign=nav_dropdown_item&utm_content=app_blueprint_plus" onClick={closeMenu}>WunderBrand Blueprint+™</a>
               <a href="https://wunderbardigital.com/wunderbrand-suite?utm_source=wunderbrand_app&utm_medium=header_nav_mobile&utm_campaign=nav_dropdown_item&utm_content=app_compare_products" className="wunder-mobile-divider" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
                 Compare All Products
               </a>

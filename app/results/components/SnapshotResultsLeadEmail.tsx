@@ -1,16 +1,25 @@
 "use client";
 
-import { FormEvent, useCallback, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ResultsCheckIcon } from "@/components/results/BrandIcons";
 import { persistEmail } from "@/lib/persistEmail";
 import { setEmailMarketingOptInPreference } from "@/lib/smsConsent";
 import { TurnstileWidget } from "@/components/security/TurnstileWidget";
-import { SUITE_SECTION_KICKER_CLASS } from "@/components/results/suiteBrandTokens";
 import {
+  RESULTS_EMAIL_GATE_UNLOCK_ITEMS,
   resultsCompleteSnapshotCtaLabel,
   resultsCompleteSnapshotHeadline,
+  resultsEmailGateIncludedEyebrow,
+  resultsEmailGatePreferenceEyebrow,
+  resultsEmailGatePreferenceHeadline,
+  resultsEmailGatePreferenceLead,
+  resultsEmailGatePreferenceSaveLabel,
+  resultsEmailGatePreferenceSkipLabel,
+  resultsEmailGateUnlockLegal,
 } from "@/lib/copy/resultsEmailGateCopy";
 import type { SnapshotContentOptIn } from "@/lib/snapshot/snapshotContentOptIn";
+import { isTurnstileEnforced } from "@/lib/security/turnstilePolicy";
 
 type Props = {
   reportId: string;
@@ -28,6 +37,10 @@ const INSIGHTS_CHOICES: Array<{ value: SnapshotContentOptIn; label: string }> = 
   { value: "no_thanks", label: "No thanks — just the diagnostic" },
 ];
 
+const TURNSTILE_REQUIRED = isTurnstileEnforced();
+
+type Phase = "unlock" | "tips" | "hidden";
+
 export function SnapshotResultsLeadEmail({
   reportId,
   productTier,
@@ -37,7 +50,9 @@ export function SnapshotResultsLeadEmail({
   contentUnlocked = false,
 }: Props) {
   const router = useRouter();
-  const [step, setStep] = useState<"email" | "insights">("email");
+  // Returning visitors who already unlocked: no second form. Tips only appear
+  // immediately after a fresh email unlock in this session.
+  const [phase, setPhase] = useState<Phase>(contentUnlocked ? "hidden" : "unlock");
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const handleTurnstileToken = useCallback((token: string) => {
     setTurnstileToken(token);
@@ -52,6 +67,12 @@ export function SnapshotResultsLeadEmail({
   const [error, setError] = useState<string | null>(null);
   const [honeypot, setHoneypot] = useState("");
 
+  useEffect(() => {
+    if (contentUnlocked && phase === "unlock") {
+      setPhase("hidden");
+    }
+  }, [contentUnlocked, phase]);
+
   const handleEmailSubmit = useCallback(
     async (e: FormEvent) => {
       e.preventDefault();
@@ -62,7 +83,7 @@ export function SnapshotResultsLeadEmail({
         setError("Enter a valid email address.");
         return;
       }
-      if (!turnstileToken) {
+      if (TURNSTILE_REQUIRED && !turnstileToken) {
         setError("Security check is still loading — wait a second and try again.");
         return;
       }
@@ -93,7 +114,7 @@ export function SnapshotResultsLeadEmail({
         }
         persistEmail(trimmed);
         onEmailCaptured?.();
-        setStep("insights");
+        setPhase("tips");
         setContentOptIn(null);
         setError(null);
       } catch {
@@ -113,13 +134,13 @@ export function SnapshotResultsLeadEmail({
         setError("Choose one option above.");
         return;
       }
-      if (!turnstileToken) {
+      if (TURNSTILE_REQUIRED && !turnstileToken) {
         setError("Security check is still loading — wait a second and try again.");
         return;
       }
       const trimmed = email.trim().toLowerCase();
       if (!trimmed.includes("@")) {
-        setError("Something went wrong — go back and re-enter your email.");
+        setError("Something went wrong — refresh and unlock again.");
         return;
       }
 
@@ -141,6 +162,7 @@ export function SnapshotResultsLeadEmail({
           return;
         }
         setEmailMarketingOptInPreference(contentOptIn !== "no_thanks");
+        setPhase("hidden");
         router.refresh();
       } catch {
         setError("Network error. Please try again.");
@@ -151,89 +173,26 @@ export function SnapshotResultsLeadEmail({
     [contentOptIn, email, reportId, router, turnstileToken],
   );
 
-  return (
-    <section className="results-gate-capture" aria-label="Email for full diagnostic">
-      <TurnstileWidget onToken={handleTurnstileToken} />
-      <div className="results-gate-capture__inner">
-        <header className="results-gate-capture__header">
-          <p className={`${SUITE_SECTION_KICKER_CLASS} m-0 mb-2`}>
-            {contentUnlocked ? "One quick preference" : "Continue your diagnostic"}
-          </p>
-          {step === "email" ? (
-            <>
-              <h2 className="bs-h3 m-0 mb-2 text-brand-navy">{resultsCompleteSnapshotHeadline(productName)}</h2>
-              <p className="results-gate-capture__lead m-0">
-                Your score and archetype are above. Enter your email to open pillar breakdowns, priority
-                actions, and the rest of this report on this page.
-              </p>
-            </>
-          ) : (
-            <>
-              <h2 className="bs-h3 m-0 mb-2 text-brand-navy">Almost done</h2>
-              <p className="results-gate-capture__lead m-0">
-                Optional: choose whether you want occasional brand tips — then your full report opens below.
-              </p>
-            </>
-          )}
-        </header>
+  if (phase === "hidden") return null;
 
-        {step === "email" ? (
-          <form onSubmit={handleEmailSubmit} className="results-gate-capture__form">
-            <label htmlFor="results-lead-email" className="sr-only">
-              Email for complete results
-            </label>
-            <input
-              id="results-lead-email"
-              type="email"
-              inputMode="email"
-              autoComplete="email"
-              enterKeyHint="done"
-              value={email}
-              onChange={(ev) => {
-                setEmail(ev.target.value);
-                setError(null);
-              }}
-              placeholder="you@company.com"
-              disabled={saving}
-              className="results-gate-capture__input"
-            />
-            <input
-              type="text"
-              name="company_url"
-              value={honeypot}
-              onChange={(ev) => setHoneypot(ev.target.value)}
-              tabIndex={-1}
-              autoComplete="off"
-              aria-hidden="true"
-              style={{ position: "absolute", left: "-9999px", width: 0, height: 0, opacity: 0 }}
-            />
-            {error ? (
-              <p className="results-gate-capture__error" role="alert">
-                {error}
-              </p>
-            ) : null}
-            <button
-              type="submit"
-              disabled={saving || !email.trim()}
-              className="wb-cta wb-cta--outline wb-cta--block results-gate-capture__submit"
-            >
-              {saving ? "Saving…" : resultsCompleteSnapshotCtaLabel(productName)}
-            </button>
-            <p className="results-gate-capture__legal">
-              We use your email to deliver this diagnostic and save your links.{" "}
-              <a
-                href="https://wunderbardigital.com/privacy-policy?utm_source=results_page&utm_medium=lead_email&utm_campaign=privacy&utm_content=privacy_policy"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Privacy Policy
-              </a>
+  if (phase === "tips") {
+    return (
+      <section className="results-gate-capture" aria-label="Stay current with brand tips">
+        <TurnstileWidget onToken={handleTurnstileToken} />
+        <div className="results-gate-capture__inner">
+          <header className="results-gate-capture__header results-gate-capture__offer">
+            <p className="results-gate-capture__eyebrow m-0 mb-2">
+              {resultsEmailGatePreferenceEyebrow()}
             </p>
-          </form>
-        ) : (
+            <h2 className="bs-h3 m-0 mb-2 text-brand-navy">
+              {resultsEmailGatePreferenceHeadline()}
+            </h2>
+            <p className="results-gate-capture__lead m-0">{resultsEmailGatePreferenceLead()}</p>
+          </header>
+
           <form onSubmit={handleInsightsSubmit} className="results-gate-capture__form">
             <fieldset className="results-gate-capture__fieldset">
-              <legend className="sr-only">Email content preferences</legend>
+              <legend className="sr-only">What to stay current on</legend>
               <div className="results-gate-capture__choices">
                 {INSIGHTS_CHOICES.map(({ value, label }) => (
                   <label
@@ -269,22 +228,96 @@ export function SnapshotResultsLeadEmail({
               disabled={saving || !contentOptIn}
               className="wb-cta wb-cta--solid wb-cta--block results-gate-capture__submit"
             >
-              {saving ? "Saving…" : `Save & open my full ${productName}`}
+              {saving ? "Saving…" : resultsEmailGatePreferenceSaveLabel()}
             </button>
             <button
               type="button"
               className="results-gate-capture__back"
               disabled={saving}
-              onClick={() => {
-                setStep("email");
-                setError(null);
-                setContentOptIn(null);
-              }}
+              onClick={() => setPhase("hidden")}
             >
-              Back to email
+              {resultsEmailGatePreferenceSkipLabel()}
             </button>
           </form>
-        )}
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section
+      className="results-gate-capture results-gate-capture--unlock"
+      aria-label="Email for full diagnostic"
+    >
+      <TurnstileWidget onToken={handleTurnstileToken} />
+      <div className="results-gate-capture__inner">
+        <div className="results-gate-capture__offer">
+          <p className="results-gate-capture__eyebrow m-0">{resultsEmailGateIncludedEyebrow()}</p>
+          <h2 className="bs-h3 m-0 results-gate-capture__title">
+            {resultsCompleteSnapshotHeadline(productName)}
+          </h2>
+          <ul className="results-gate-capture__list">
+            {RESULTS_EMAIL_GATE_UNLOCK_ITEMS.map((label) => (
+              <li key={label}>
+                <ResultsCheckIcon />
+                <span>{label}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <form onSubmit={handleEmailSubmit} className="results-gate-capture__form">
+          <label htmlFor="results-lead-email" className="results-gate-capture__field-label">
+            Work email
+          </label>
+          <input
+            id="results-lead-email"
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            enterKeyHint="done"
+            value={email}
+            onChange={(ev) => {
+              setEmail(ev.target.value);
+              setError(null);
+            }}
+            placeholder="you@company.com"
+            disabled={saving}
+            className="results-gate-capture__input"
+          />
+          <input
+            type="text"
+            name="company_url"
+            value={honeypot}
+            onChange={(ev) => setHoneypot(ev.target.value)}
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            style={{ position: "absolute", left: "-9999px", width: 0, height: 0, opacity: 0 }}
+          />
+          {error ? (
+            <p className="results-gate-capture__error" role="alert">
+              {error}
+            </p>
+          ) : null}
+          <button
+            type="submit"
+            disabled={saving}
+            className="wb-cta wb-cta--solid wb-cta--block results-gate-capture__submit"
+          >
+            {saving ? "Saving…" : resultsCompleteSnapshotCtaLabel()}
+          </button>
+          <p className="results-gate-capture__legal">
+            {resultsEmailGateUnlockLegal()}{" "}
+            <a
+              href="https://wunderbardigital.com/privacy-policy?utm_source=results_page&utm_medium=lead_email&utm_campaign=privacy&utm_content=privacy_policy"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Privacy Policy
+            </a>
+          </p>
+        </form>
       </div>
     </section>
   );

@@ -59,7 +59,7 @@ export function ReportTemplate({ data }: { data: any }) {
           </a>
 
           <Link
-            href="/blueprint"
+            href="/checkout/blueprint?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=blueprint_upgrade&utm_content=report_template"
             className="px-5 py-3 bg-brand-navy text-white rounded-md"
           >
             Start Your Blueprint™ →

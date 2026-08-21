@@ -6,6 +6,11 @@ import {
 } from "@/components/strategy/StrategyDomainSection";
 import IcpPlaybookStructuredLayout from "@/components/strategy/IcpPlaybookStructuredLayout";
 import SalesMarketingFlowVisual from "@/components/strategy/SalesMarketingFlowVisual";
+import {
+  DiscoveryScriptCards,
+  ProofPlacementCards,
+  TalkTrackStageCards,
+} from "@/components/strategy/SalesAlignmentStructuredLayouts";
 import StrategyProseBody from "@/components/strategy/StrategyProseBody";
 import {
   SUITE_BORDER,
@@ -122,6 +127,27 @@ export default function StrategyPlanNarrativePanels({
               }
             >
               {(section.blocks ?? []).map((b, bi) => {
+                if (b.visualVariant === "talk-tracks" && b.talkTrackItems?.length) {
+                  return (
+                    <div key={`${section.id}-block-${bi}`}>
+                      <TalkTrackStageCards items={b.talkTrackItems} />
+                    </div>
+                  );
+                }
+                if (b.visualVariant === "discovery-scripts" && b.discoveryItems?.length) {
+                  return (
+                    <div key={`${section.id}-block-${bi}`}>
+                      <DiscoveryScriptCards items={b.discoveryItems} />
+                    </div>
+                  );
+                }
+                if (b.visualVariant === "proof-placements" && b.proofItems?.length) {
+                  return (
+                    <div key={`${section.id}-block-${bi}`}>
+                      <ProofPlacementCards items={b.proofItems} />
+                    </div>
+                  );
+                }
                 const icpMeta = inferIcpPlaybookMeta(section, b, bi);
                 if (icpMeta) {
                   const accent = icpPlaybookAccent(icpMeta.index);

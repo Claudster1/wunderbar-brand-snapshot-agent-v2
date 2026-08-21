@@ -54,7 +54,7 @@ export const BrandSnapshotPDF = ({
     <Document>
       {/* PAGE 1 — COVER PAGE */}
       <Page style={stylePresets.page}>
-        <Text style={stylePresets.h1}>Your WunderBrand Snapshot™ Report</Text>
+        <Text style={stylePresets.h1}>Your WunderBrand Snapshot™</Text>
         <Text style={stylePresets.body}>
           Prepared for {userName || "you"}
         </Text>

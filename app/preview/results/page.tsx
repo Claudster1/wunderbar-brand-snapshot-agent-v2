@@ -147,11 +147,11 @@ function MainGauge({ score }: { score: number }) {
   const nTail = pol(nAngle + 180, 14);
 
   const scoreRanges = [
-    { label: "Critical", min: 0, max: 19, color: RED_S },
-    { label: "Weak", min: 20, max: 39, color: ORANGE },
-    { label: "Fair", min: 40, max: 59, color: YELLOW },
-    { label: "Good", min: 60, max: 79, color: GOOD_GREEN },
     { label: "Strong", min: 80, max: 100, color: GREEN },
+    { label: "Good", min: 60, max: 79, color: GOOD_GREEN },
+    { label: "Fair", min: 40, max: 59, color: YELLOW },
+    { label: "Weak", min: 20, max: 39, color: ORANGE },
+    { label: "Critical", min: 0, max: 19, color: RED_S },
   ];
 
   const tickNums = [0, 20, 40, 60, 80, 100];
@@ -957,12 +957,12 @@ export default function BrandSnapshotReport() {
                   display: "flex", alignItems: "center", justifyContent: "center",
                   color: WHITE, fontWeight: 900, fontSize: 14, flexShrink: 0,
                 }}>{idx + 1}</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 16, color: "#1a1a2e", lineHeight: 1.6 }}>{item.action}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{
-                    display: "inline-block", marginTop: 6, padding: "2px 10px", borderRadius: 5,
-                    background: ACCENT_BG, fontSize: 14, fontWeight: 700, color: BLUE,
+                    fontSize: 13, fontWeight: 800, color: BLUE, letterSpacing: "0.04em",
+                    textTransform: "uppercase", marginBottom: 6,
                   }}>{item.pillar}</div>
+                  <div style={{ fontSize: 16, color: "#1a1a2e", lineHeight: 1.6 }}>{item.action}</div>
                 </div>
               </div>
             ))}
@@ -1033,21 +1033,21 @@ export default function BrandSnapshotReport() {
                 description: "Deeper diagnostic with priority focus, audience insight, tagline options, and AI-ready brand assets.",
                 features: ["Pillar deep dives & focus area diagnosis", "Tagline & slogan recommendations", "Messaging pillars & brand persona", "AEO readiness & 8 AI prompts"],
                 highlight: true,
-                url: "https://wunderbardigital.com/wunderbrand-snapshot-plus?utm_source=brand_snapshot_report&utm_medium=report_cta&utm_campaign=explore_upgrade&utm_content=snap_explore_snapshot_plus",
+                url: "/checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=report_cta&utm_campaign=snapshot_plus_upgrade&utm_content=snap_explore_snapshot_plus",
               },
               {
                 name: "WunderBrand Blueprint™",
                 description: "Complete brand operating system with SEO, AEO, email strategy, and 16 AI prompts.",
                 features: ["Brand story & customer journey map", "SEO & AEO strategy", "Email & social media frameworks", "Content pillars & 16 AI prompts"],
                 highlight: false,
-                url: "https://wunderbardigital.com/wunderbrand-blueprint?utm_source=brand_snapshot_report&utm_medium=report_cta&utm_campaign=explore_upgrade&utm_content=snap_explore_blueprint",
+                url: "/checkout/blueprint?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=blueprint_upgrade&utm_content=snap_explore_blueprint",
               },
               {
                 name: "WunderBrand Blueprint+™",
                 description: "Everything in Blueprint™ plus SWOT, content calendar, brand glossary, and a strategy session.",
                 features: ["SWOT analysis & competitive positioning", "Content calendar & brand glossary", "90-day roadmap & 28 AI prompts", "30-min Strategy Activation Session"],
                 highlight: false,
-                url: "https://wunderbardigital.com/wunderbrand-blueprint-plus?utm_source=brand_snapshot_report&utm_medium=report_cta&utm_campaign=explore_upgrade&utm_content=snap_explore_blueprint_plus",
+                url: "/checkout/blueprint-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=blueprint_plus_upgrade&utm_content=snap_explore_blueprint_plus",
               },
             ].map((product, i) => (
               <div key={i} style={{

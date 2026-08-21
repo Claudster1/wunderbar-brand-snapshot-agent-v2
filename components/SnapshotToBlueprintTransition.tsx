@@ -1,6 +1,8 @@
 // components/SnapshotToBlueprintTransition.tsx
 // Transition component from Snapshot+™ to Blueprint+™
 
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
+
 export function SnapshotToBlueprintTransition({
   brandName,
   primaryPillar,
@@ -16,7 +18,14 @@ export function SnapshotToBlueprintTransition({
         important area to address right now. WunderBrand Blueprint+™ turns this
         insight into a fully activated system your brand can actually use.
       </p>
-      <a href="/blueprint-plus" className="btn-primary">
+      <a
+        href={getTrackedCheckoutUrl({
+          product: "blueprint-plus",
+          medium: "results_cta",
+          content: "snapshot_to_blueprint_plus",
+        })}
+        className="btn-primary"
+      >
         Activate WunderBrand Blueprint+™
       </a>
     </section>

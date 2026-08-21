@@ -73,7 +73,7 @@ const SAMPLE_REPORTS: Record<string, SampleReport> = {
       "Your brand foundation is strong, but visibility and top-of-funnel positioning are constraining growth.",
     opportunities_summary:
       "Highest leverage: improve discovery and sharpen first-contact narrative to increase qualified pipeline.",
-    upgrade_cta: "See Your Full Results — $497",
+    upgrade_cta: "Upgrade to Snapshot+™ — $497",
     full_report: {
       answers: {
         businessType: "service_b2b",
@@ -132,7 +132,7 @@ const SAMPLE_REPORTS: Record<string, SampleReport> = {
       "You have demand, but conversion friction is suppressing revenue efficiency.",
     opportunities_summary:
       "Highest leverage: reduce checkout drop-off and improve trust/clarity on decision pages.",
-    upgrade_cta: "See Your Full Results — $497",
+    upgrade_cta: "Upgrade to Snapshot+™ — $497",
     full_report: {
       answers: {
         businessType: "ecommerce",

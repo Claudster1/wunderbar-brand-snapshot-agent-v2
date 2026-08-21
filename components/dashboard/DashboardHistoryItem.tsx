@@ -34,7 +34,7 @@ export function DashboardHistoryItem({
       {/* Secondary CTA */}
       <div className="mt-3">
         <a
-          href="/brand-snapshot-suite"
+          href="/brand-suite"
           onClick={() =>
             trackEvent("suite_explore_clicked", {
               source: "dashboard_history",

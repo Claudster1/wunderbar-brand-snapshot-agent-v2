@@ -83,10 +83,10 @@ export const colors = {
 // TYPOGRAPHY / FONTS
 // ============================================================
 export const fonts = {
-  // Font families
-  primary: "Inter",           // Primary font (Inter)
-  fallback: "Helvetica Neue", // Fallback if Inter not available
-  system: "System Sans",      // System fallback
+  // Font families — Lato matches the in-app results suite (SUITE_FONT_UI)
+  primary: "Lato",
+  fallback: "Helvetica",
+  system: "Helvetica",
   
   // Font weights
   regular: 400,
@@ -176,16 +176,16 @@ export const layout = {
 // STYLE PRESETS (React-PDF StyleSheet)
 // ============================================================
 export const stylePresets = StyleSheet.create({
-  // Page base
+  // Page base — suite canvas + reserved chrome clearance
   page: {
-    paddingTop: 36,
+    paddingTop: 72,
     paddingHorizontal: layout.page.padding,
-    paddingBottom: 32,
+    paddingBottom: 64,
     fontFamily: fonts.primary,
     fontSize: pdfTheme.fontSizes.base,
     lineHeight: fonts.normal,
     color: pdfTheme.colors.text,
-    backgroundColor: pdfTheme.colors.canvas,
+    backgroundColor: SUITE_BG_PAGE,
   },
   
   // Typography
@@ -274,12 +274,14 @@ export const stylePresets = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   
-  // Card/block styles
+  // Card/block styles — suite insight card language
   card: {
     padding: 12,
+    paddingLeft: 14,
     borderRadius: layout.radius.lg,
-    backgroundColor: "#F8FCFF",
+    backgroundColor: "#FFFFFF",
     border: `1px solid ${pdfTheme.colors.border}`,
+    borderLeft: `3px solid rgba(7, 176, 242, 0.55)`,
     marginBottom: 10,
   },
   

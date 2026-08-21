@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
   page: {
     padding: 48,
     fontSize: 11,
-    fontFamily: "Helvetica",
+    fontFamily: "Lato",
     color: "#0C1526",
   },
   h1: {
@@ -154,7 +154,7 @@ export function SnapshotPlusReport({
         <View style={styles.divider} />
 
         {/* Context */}
-        <Text style={styles.h2}>How to Read This Report</Text>
+        <Text style={styles.h2}>How to Read This Document</Text>
         <Text style={styles.body}>
           This Snapshot+™ reflects your current brand foundation based on the
           inputs provided and contextual signals available today. The strongest

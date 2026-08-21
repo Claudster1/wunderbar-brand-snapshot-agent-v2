@@ -1,6 +1,7 @@
 // components/blueprint/BlueprintCTA.tsx
 // Blueprint CTA component for primary pillar
 
+import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
 import { PillarKey } from "@/types/pillars";
 
 export function BlueprintCTA({
@@ -23,7 +24,11 @@ export function BlueprintCTA({
       </p>
 
       <a
-        href="/blueprint"
+        href={getTrackedCheckoutUrl({
+          product: "blueprint",
+          medium: "results_cta",
+          content: "blueprint_cta_primary",
+        })}
         className="inline-block px-6 py-3 bg-brand-blue text-white rounded-[5px] font-semibold hover:bg-brand-blueHover transition"
       >
         Explore WunderBrand Blueprint™ →

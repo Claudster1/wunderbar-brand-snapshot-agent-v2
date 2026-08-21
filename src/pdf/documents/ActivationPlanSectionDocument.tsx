@@ -1,62 +1,75 @@
 import React from "react";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import { DisclaimerPage } from "../components/DisclaimerPage";
+import { PdfHeader, PDF_HEADER_RESERVED } from "../components/PdfHeader";
+import { PdfFooter, PDF_FOOTER_RESERVED } from "../components/PdfFooter";
+import { registerPdfFonts } from "../registerFonts";
 import type { ProductTier } from "@/components/results/tabConfig";
 import { pdfTheme } from "../theme";
 
+registerPdfFonts();
+
 const s = StyleSheet.create({
   page: {
-    padding: 42,
-    fontFamily: "Helvetica",
+    paddingTop: PDF_HEADER_RESERVED + 8,
+    paddingBottom: PDF_FOOTER_RESERVED + 8,
+    paddingHorizontal: 36,
+    fontFamily: "Lato",
     fontSize: 10,
     color: pdfTheme.colors.text,
-    lineHeight: 1.6,
+    lineHeight: 1.55,
+    backgroundColor: "#F5F5F7",
   },
   kicker: {
-    fontSize: 11,
-    fontWeight: 800,
-    color: pdfTheme.colors.navy,
+    fontFamily: "Lato",
+    fontSize: 9,
+    fontWeight: 700,
+    color: pdfTheme.colors.blue,
     marginBottom: 6,
     textTransform: "uppercase",
-    letterSpacing: 0.45,
+    letterSpacing: 1,
   },
   title: {
-    fontSize: 22,
+    fontFamily: "Lato",
+    fontSize: 18,
     fontWeight: 700,
     color: pdfTheme.colors.navy,
     marginBottom: 10,
+    letterSpacing: -0.3,
   },
   meta: {
+    fontFamily: "Lato",
     fontSize: 9,
     color: pdfTheme.colors.muted,
     marginBottom: 12,
   },
   label: {
+    fontFamily: "Lato",
     fontSize: 8,
     fontWeight: 700,
-    color: "#0D5BD7",
-    marginTop: 10,
-    marginBottom: 6,
+    color: pdfTheme.colors.blue,
+    marginTop: 4,
+    marginBottom: 8,
     textTransform: "uppercase",
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
   },
   card: {
-    backgroundColor: "#F8FCFF",
-    borderRadius: 10,
-    padding: 12,
-    border: `1 solid ${pdfTheme.colors.border}`,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    padding: 14,
+    paddingLeft: 14,
+    borderWidth: 1,
+    borderColor: pdfTheme.colors.border,
+    borderLeftWidth: 3,
+    borderLeftColor: "rgba(7, 176, 242, 0.55)",
     marginBottom: 10,
   },
   paragraph: {
+    fontFamily: "Lato",
     fontSize: 10,
-    lineHeight: 1.6,
+    lineHeight: 1.55,
     marginBottom: 8,
-  },
-  bullet: {
-    fontSize: 10,
-    lineHeight: 1.6,
-    marginBottom: 4,
-    paddingLeft: 10,
+    color: pdfTheme.colors.text,
   },
 });
 
@@ -65,9 +78,7 @@ type Props = {
   brandName: string;
   sectionLabel: string;
   sectionBody: string;
-  /** Whether PDF reflects saved Workbook text or default report plan text. */
   bodySource?: "workbook" | "report";
-  /** Optional note when exporting a named saved version. */
   versionNote?: string;
 };
 
@@ -94,26 +105,32 @@ export function ActivationPlanSectionDocument({
   versionNote,
 }: Props) {
   const disclaimerTier = mapToDisclaimerTier(productTier);
-  const reportDate = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+  const reportDate = new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
   const paragraphs = splitParagraphs(sectionBody);
   const sourceLine =
     bodySource === "workbook"
       ? "Content source: saved Workbook text (matches your latest edits where the plan block is present)."
-      : "Content source: default plan from your report (open Workbook and save edits to export your refined version).";
+      : "Content source: default plan from your results (open Workbook and save edits to export your refined version).";
 
   return (
     <Document>
       <Page size="A4" style={s.page}>
+        <PdfHeader
+          title="Activation Plan"
+          businessName={brandName}
+          date={reportDate}
+          productName="WunderBrand Suite™"
+        />
         <Text style={s.kicker}>Activation Plan</Text>
         <Text style={s.title}>{sectionLabel}</Text>
         <Text style={s.meta}>
-          {brandName} • Generated {reportDate}
-          {versionNote ? ` • ${versionNote}` : ""}
+          {brandName} · Generated {reportDate}
+          {versionNote ? ` · ${versionNote}` : ""}
         </Text>
         <Text style={{ ...s.meta, marginBottom: 10 }}>{sourceLine}</Text>
 
         <View style={s.card}>
-          <Text style={s.label}>Plan content (editable in your Workbook)</Text>
+          <Text style={s.label}>Plan Content (Editable in Your Workbook)</Text>
           {paragraphs.length > 0 ? (
             paragraphs.map((p, idx) => (
               <Text key={idx} style={s.paragraph}>
@@ -126,10 +143,10 @@ export function ActivationPlanSectionDocument({
         </View>
 
         <Text style={s.meta}>Tip: use “Edit in Workbook” to update this plan, then download again.</Text>
+        <PdfFooter businessName={brandName} productName="Activation Plan" showPageNumbers />
       </Page>
 
       <DisclaimerPage tier={disclaimerTier} />
     </Document>
   );
 }
-

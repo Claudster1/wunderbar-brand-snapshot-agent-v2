@@ -9,14 +9,18 @@ import { EXAMPLE_CALLOUT, SEMANTIC_DO, SEMANTIC_DONT } from "../reportVisualToke
 import { DisclaimerPage } from "../components/DisclaimerPage";
 import { SectionDividerPage } from "../components/SectionDividerPage";
 import { PdfHeader } from "../components/PdfHeader";
+import { PdfFooter } from "../components/PdfFooter";
+import { registerPdfFonts } from "../registerFonts";
 import type { BlueprintEngineOutput } from "../types/blueprintReport";
 import { parseHexAccent } from "@/src/pdf/lib/promptPackDisplay";
 import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
 
+registerPdfFonts();
+
 
 const s = StyleSheet.create({
-  page: { padding: 48, paddingBottom: 92, fontFamily: "Helvetica", fontSize: 10, color: pdfTheme.colors.text, lineHeight: 1.6 },
-  cover: { padding: 42, fontFamily: "Helvetica", justifyContent: "center", alignItems: "center", backgroundColor: pdfTheme.colors.navy },
+  page: { paddingTop: 72, paddingHorizontal: 36, paddingBottom: 72, fontFamily: "Lato", backgroundColor: "#F5F5F7", fontSize: 10, color: pdfTheme.colors.text, lineHeight: 1.6 },
+  cover: { padding: 42, fontFamily: "Lato", justifyContent: "center", alignItems: "center", backgroundColor: pdfTheme.colors.navy },
   logo: { width: 100, marginBottom: 30, opacity: 0.9 },
   coverTitle: { fontSize: 26, fontWeight: "bold", color: "#FFFFFF", textAlign: "center", marginBottom: 6 },
   coverSub: { fontSize: 12, color: pdfTheme.colors.aqua, textAlign: "center", marginBottom: 24 },
@@ -26,10 +30,10 @@ const s = StyleSheet.create({
   h3: { fontSize: 11, fontWeight: "bold", color: pdfTheme.colors.navy, marginBottom: 3, marginTop: 8 },
   body: { fontSize: 10, lineHeight: 1.6, marginBottom: 6, color: pdfTheme.colors.text },
   small: { fontSize: 9, color: pdfTheme.colors.muted, lineHeight: 1.5 },
-  label: { fontSize: 8, fontWeight: "bold", color: "#0D5BD7", textTransform: "uppercase", letterSpacing: 1.1, marginBottom: 3, marginTop: 9 },
-  card: { backgroundColor: "#F8FBFF", borderRadius: 8, padding: 12, marginBottom: 10, border: `1 solid ${pdfTheme.colors.border}` },
+  label: { fontSize: 8, fontWeight: "bold", color: "#07B0F2", textTransform: "uppercase", letterSpacing: 1.1, marginBottom: 3, marginTop: 9 },
+  card: { backgroundColor: "#FFFFFF", borderRadius: 8, padding: 12, marginBottom: 10, border: `1 solid ${pdfTheme.colors.border}` },
   cardTitle: { fontSize: 11, fontWeight: "bold", color: pdfTheme.colors.navy, marginBottom: 4 },
-  accentCard: { backgroundColor: "#EFF6FF", borderRadius: 8, padding: 12, marginBottom: 10, borderLeft: `3 solid ${pdfTheme.colors.blue}`, border: "1 solid #D9E8FF" },
+  accentCard: { backgroundColor: "#FFFFFF", borderRadius: 8, padding: 12, marginBottom: 10, borderLeft: `3 solid ${pdfTheme.colors.blue}`, border: "1 solid #D2D2D7" },
   avoidCard: {
     backgroundColor: SEMANTIC_DONT.bg,
     borderRadius: 8,
@@ -81,10 +85,7 @@ export function MessagingPlaybookDocument({ data, brandName }: Props) {
       />
 
       <Page size="A4" style={s.page} wrap>
-        <View style={s.footer} fixed>
-          <Text style={s.footerText}>Messaging Playbook — {brandName}</Text>
-          <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
-        </View>
+        <PdfFooter businessName={brandName} productName="Messaging Playbook" showPageNumbers />
 
         <PdfHeader title="Messaging Playbook" businessName={brandName} date={printedDate} accentHex={brandAccent} />
 
@@ -147,10 +148,7 @@ export function MessagingPlaybookDocument({ data, brandName }: Props) {
       />
 
       <Page size="A4" style={s.page} wrap>
-        <View style={s.footer} fixed>
-          <Text style={s.footerText}>Messaging Playbook — {brandName}</Text>
-          <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
-        </View>
+        <PdfFooter businessName={brandName} productName="Messaging Playbook" showPageNumbers />
 
         <PdfHeader title="Messaging Playbook" businessName={brandName} date={printedDate} accentHex={brandAccent} />
 
@@ -209,10 +207,7 @@ export function MessagingPlaybookDocument({ data, brandName }: Props) {
       />
 
       <Page size="A4" style={s.page} wrap>
-        <View style={s.footer} fixed>
-          <Text style={s.footerText}>Messaging Playbook — {brandName}</Text>
-          <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
-        </View>
+        <PdfFooter businessName={brandName} productName="Messaging Playbook" showPageNumbers />
 
         <PdfHeader title="Messaging Playbook" businessName={brandName} date={printedDate} accentHex={brandAccent} />
 

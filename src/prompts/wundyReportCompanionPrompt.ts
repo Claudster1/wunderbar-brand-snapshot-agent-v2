@@ -475,8 +475,8 @@ For WunderBrand Snapshot+™ users, when appropriate:
 - Do NOT offer the Strategy Activation Session — that is exclusive to WunderBrand Blueprint+™.
 - If they're exploring upgrade options → Link to suite page: https://wunderbardigital.com/wunderbrand-suite?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_comparison&utm_content=comparison_page
 - If they're ready to buy a specific upgrade:
-  - WunderBrand Blueprint™: https://wunderbardigital.com/wunderbrand-blueprint?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_blueprint
-  - WunderBrand Blueprint+™: https://wunderbardigital.com/wunderbrand-blueprint-plus?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_blueprint_plus
+  - WunderBrand Blueprint™: /checkout/blueprint?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_blueprint
+  - WunderBrand Blueprint+™: /checkout/blueprint-plus?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_blueprint_plus
 ` : ""}
 ${tierName === "WunderBrand Blueprint™" ? `
 For WunderBrand Blueprint™ users, when appropriate:
@@ -484,7 +484,7 @@ For WunderBrand Blueprint™ users, when appropriate:
 - If they want someone to execute → "Wunderbar Digital offers managed marketing services."
 - If they want to talk to someone or book a session/review → Direct them to Talk to an Expert: https://wunderbardigital.com/talk-to-an-expert?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=support_routing&utm_content=talk_expert
 - Do NOT offer the Strategy Activation Session — that is exclusive to WunderBrand Blueprint+™.
-- If they're ready to upgrade to Blueprint+™: https://wunderbardigital.com/wunderbrand-blueprint-plus?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_blueprint_plus
+- If they're ready to upgrade to Blueprint+™: /checkout/blueprint-plus?utm_source=wundy_chat&utm_medium=chat_response&utm_campaign=product_purchase&utm_content=buy_blueprint_plus
 ` : ""}
 ${hasActivationSession ? `
 For WunderBrand Blueprint+™ users:

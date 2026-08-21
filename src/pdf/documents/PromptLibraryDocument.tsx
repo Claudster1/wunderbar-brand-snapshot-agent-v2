@@ -8,6 +8,8 @@ import { pdfTheme } from "../theme";
 import { DisclaimerPage } from "../components/DisclaimerPage";
 import { SectionDividerPage } from "../components/SectionDividerPage";
 import { PdfHeader } from "../components/PdfHeader";
+import { PdfFooter } from "../components/PdfFooter";
+import { registerPdfFonts } from "../registerFonts";
 import type { BlueprintEngineOutput } from "../types/blueprintReport";
 import type { PromptItem } from "../types/blueprintReport";
 import {
@@ -17,6 +19,8 @@ import {
 } from "@/src/pdf/lib/promptPackDisplay";
 import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
 
+registerPdfFonts();
+
 
 const PAGE_PAD = 48;
 const FOOTER_BOTTOM = 20;
@@ -25,15 +29,15 @@ const s = StyleSheet.create({
   page: {
     padding: PAGE_PAD,
     paddingBottom: 72,
-    fontFamily: "Helvetica",
+    fontFamily: "Lato",
     fontSize: 10,
     color: "#1D1D1F",
     lineHeight: 1.55,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F5F5F7",
   },
   cover: {
     padding: PAGE_PAD,
-    fontFamily: "Helvetica",
+    fontFamily: "Lato",
     justifyContent: "flex-start",
     backgroundColor: "#F5F5F7",
   },
@@ -202,8 +206,8 @@ function renderPromptCards(
             Identical prompt text detected for every item
           </Text>
           <Text style={s.small}>
-            Your report data repeated the same body in each slot — often a generation or parsing issue. Titles below
-            still reflect the intended prompt topics; regenerate the Blueprint+ report to receive distinct copy per
+            Your results data repeated the same body in each slot — often a generation or parsing issue. Titles below
+            still reflect the intended prompt topics; regenerate the Blueprint+ to receive distinct copy per
             prompt. The shared block is shown once so this PDF stays usable.
           </Text>
         </View>
@@ -431,10 +435,7 @@ export function PromptLibraryDocument({ data, brandName }: Props) {
 
       <Page size="A4" style={s.page} wrap>
         <PdfHeader title="AI Prompt Library" businessName={brandName} date={printedDate} accentHex={brandAccent} />
-        <View style={s.footer} fixed>
-          <Text style={s.footerText}>AI Prompt Library — {brandName}</Text>
-          <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
-        </View>
+        <PdfFooter businessName={brandName} productName="AI Prompt Library" showPageNumbers />
 
         <Text style={s.h1}>How to use these prompts</Text>
         <View style={s.intro}>
@@ -468,7 +469,7 @@ export function PromptLibraryDocument({ data, brandName }: Props) {
         </View>
 
         <Text style={s.h1}>Section-to-prompt quick map</Text>
-        <Text style={s.body}>Use when you want one report section at a time. Each card is a distinct task.</Text>
+        <Text style={s.body}>Use when you want one section at a time. Each card is a distinct task.</Text>
         {sectionPromptMap.map((item, i) => (
           <View key={i} style={s.promptCard} wrap={false}>
             <Text style={s.cardTitle}>{item.section}</Text>
@@ -501,10 +502,7 @@ export function PromptLibraryDocument({ data, brandName }: Props) {
 
       <Page size="A4" style={s.page} wrap>
         <PdfHeader title="Foundational prompts" businessName={brandName} date={printedDate} accentHex={brandAccent} />
-        <View style={s.footer} fixed>
-          <Text style={s.footerText}>AI Prompt Library — {brandName}</Text>
-          <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
-        </View>
+        <PdfFooter businessName={brandName} productName="AI Prompt Library" showPageNumbers />
 
         <Text style={s.h1}>{d.foundationalPromptPack?.packName || "Foundational Prompts"}</Text>
         <Text style={s.body}>{d.foundationalPromptPack?.description}</Text>
@@ -527,10 +525,7 @@ export function PromptLibraryDocument({ data, brandName }: Props) {
 
       <Page size="A4" style={s.page} wrap>
         <PdfHeader title="Execution prompts" businessName={brandName} date={printedDate} accentHex={brandAccent} />
-        <View style={s.footer} fixed>
-          <Text style={s.footerText}>AI Prompt Library — {brandName}</Text>
-          <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`} />
-        </View>
+        <PdfFooter businessName={brandName} productName="AI Prompt Library" showPageNumbers />
 
         <Text style={s.h1}>{d.executionPromptPack?.packName || "Execution Prompts"}</Text>
         <Text style={s.body}>{d.executionPromptPack?.description}</Text>

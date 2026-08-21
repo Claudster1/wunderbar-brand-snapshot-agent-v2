@@ -6,6 +6,11 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Expose Vercel environment to the client so Turnstile can stay off on Preview
+  // (preview hostnames are often not in the Cloudflare allowlist).
+  env: {
+    NEXT_PUBLIC_VERCEL_ENV: process.env.VERCEL_ENV || process.env.NEXT_PUBLIC_VERCEL_ENV || "",
+  },
   // Standalone for CI/Docker stress runners. On Vercel (Next 16.3+), keep default
   // output — adapter + standalone together fail looking for next-server.js.nft.json.
   output: process.env.VERCEL ? undefined : 'standalone',

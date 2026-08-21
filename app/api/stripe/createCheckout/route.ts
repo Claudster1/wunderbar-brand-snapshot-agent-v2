@@ -8,6 +8,10 @@ import { PRICING } from "@/lib/pricing";
 import { normalizeProductKey } from "@/lib/productIds";
 import { getUpgradeCoupon } from "@/lib/upgradeCoupons";
 import { logger } from "@/lib/logger";
+import {
+  checkoutBrandCustomFields,
+  checkoutBrandPolicyCustomText,
+} from "@/lib/stripe/checkoutBrandField";
 
 let _stripe: Stripe | null = null;
 function getStripe() {
@@ -70,6 +74,8 @@ export async function POST(req: Request) {
           quantity: 1,
         },
       ],
+      custom_fields: checkoutBrandCustomFields(),
+      custom_text: checkoutBrandPolicyCustomText(),
       metadata: {
         product_key: normalizedKey,
         user_id: userId ?? "",

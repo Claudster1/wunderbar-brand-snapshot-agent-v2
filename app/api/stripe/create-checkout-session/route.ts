@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { logger } from "@/lib/logger";
 import { getUpgradeCoupon } from "@/lib/upgradeCoupons";
+import {
+  checkoutBrandCustomFields,
+  checkoutBrandPolicyCustomText,
+} from "@/lib/stripe/checkoutBrandField";
 
 export const runtime = "nodejs";
 
@@ -89,6 +93,8 @@ export async function POST(req: NextRequest) {
         },
       ],
       customer_email: email,
+      custom_fields: checkoutBrandCustomFields(),
+      custom_text: checkoutBrandPolicyCustomText(),
       success_url: `${baseUrl}/checkout/success?product=snapshot-plus&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/checkout/cancel?product=snapshot-plus`,
       metadata: {

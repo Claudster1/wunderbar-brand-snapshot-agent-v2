@@ -6,6 +6,10 @@ import { normalizeProductKey } from "@/lib/productIds";
 import { getUpgradeCoupon } from "@/lib/upgradeCoupons";
 import { featureGuard, FEATURES } from "@/lib/featureFlags";
 import { logger } from "@/lib/logger";
+import {
+  checkoutBrandCustomFields,
+  checkoutBrandPolicyCustomText,
+} from "@/lib/stripe/checkoutBrandField";
 
 function getStripe() {
   return new Stripe(process.env.STRIPE_SECRET_KEY!);
@@ -61,6 +65,8 @@ export async function POST(req: Request) {
           quantity: 1,
         },
       ],
+      custom_fields: checkoutBrandCustomFields(),
+      custom_text: checkoutBrandPolicyCustomText(),
       metadata: {
         product_key: normalizedKey,
         user_id: userId ?? "",

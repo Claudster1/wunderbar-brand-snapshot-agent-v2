@@ -4,11 +4,20 @@
 import { supabaseServer } from "./supabase";
 import { ProductAccess } from "./productAccess";
 
+const NO_ACCESS: ProductAccess = {
+  hasSnapshotPlus: false,
+  hasBlueprint: false,
+  hasBlueprintPlus: false,
+};
+
 /**
  * Get product access for a user.
- * When brandName is provided, checks brand-scoped access first and falls
- * back to global user_purchases access. This allows existing purchases
- * to keep working while new per-brand purchases are properly scoped.
+ *
+ * When `brandName` is provided, returns **only** brand-scoped access from
+ * `user_brands` — no global fallback. That keeps one purchase locked to one brand.
+ *
+ * When `brandName` is omitted, falls back to legacy account-wide `user_purchases`
+ * (dashboard / admin callers that are not brand-specific).
  */
 export async function getUserProductAccess(
   userEmail: string,
@@ -17,8 +26,8 @@ export async function getUserProductAccess(
   const supabase = supabaseServer();
   const normalizedEmail = userEmail.toLowerCase();
 
-  // 1. Try brand-scoped access first (from user_brands table)
-  if (brandName) {
+  // Brand-scoped: never fall back to global purchases for a different brand.
+  if (brandName?.trim()) {
     const { data: brandAccess } = await (supabase
       .from("user_brands" as any)
       .select("has_snapshot_plus, has_blueprint, has_blueprint_plus")
@@ -26,19 +35,16 @@ export async function getUserProductAccess(
       .ilike("brand_name", brandName.trim())
       .maybeSingle() as any);
 
-    if (brandAccess) {
-      const hasAny = brandAccess.has_snapshot_plus || brandAccess.has_blueprint || brandAccess.has_blueprint_plus;
-      if (hasAny) {
-        return {
-          hasSnapshotPlus: brandAccess.has_snapshot_plus === true,
-          hasBlueprint: brandAccess.has_blueprint === true,
-          hasBlueprintPlus: brandAccess.has_blueprint_plus === true,
-        };
-      }
-    }
+    if (!brandAccess) return NO_ACCESS;
+
+    return {
+      hasSnapshotPlus: brandAccess.has_snapshot_plus === true,
+      hasBlueprint: brandAccess.has_blueprint === true,
+      hasBlueprintPlus: brandAccess.has_blueprint_plus === true,
+    };
   }
 
-  // 2. Fall back to global user_purchases (legacy)
+  // Legacy global lookup (no brand context)
   const { data: user, error: userError } = await supabase
     .from("users")
     .select("id")
@@ -46,11 +52,7 @@ export async function getUserProductAccess(
     .single();
 
   if (userError || !user) {
-    return {
-      hasSnapshotPlus: false,
-      hasBlueprint: false,
-      hasBlueprintPlus: false,
-    };
+    return NO_ACCESS;
   }
 
   const userId = (user as { id: string }).id;
@@ -62,11 +64,7 @@ export async function getUserProductAccess(
     .single();
 
   if (error || !data) {
-    return {
-      hasSnapshotPlus: false,
-      hasBlueprint: false,
-      hasBlueprintPlus: false,
-    };
+    return NO_ACCESS;
   }
 
   const row = data as {

@@ -9,6 +9,7 @@ import {
 import { grantAccess } from "@/lib/grantAccess";
 import { recordStripePurchase } from "@/lib/recordStripePurchase";
 import { createRefreshEntitlement } from "@/lib/refreshEntitlements";
+import { brandNameFromCheckoutSession } from "@/lib/stripe/checkoutBrandField";
 import { logger } from "@/lib/logger";
 import { POST_PURCHASE_EMAILS, type EmailTier } from "@/content/postPurchaseEmails";
 import { trackActiveCampaignSiteEvent } from "@/lib/fireACEvent";
@@ -177,39 +178,47 @@ export async function POST(req: NextRequest) {
           try {
             const { supabaseServer: supabaseSrv } = await import("@/lib/supabase");
             const sb = supabaseSrv();
-            // Look up the brand name from the most recent report or metadata
-            const { data: reportRow } = await (sb
-              .from("brand_snapshot_reports" as any)
-              .select("brand_name, company_name")
-              .eq("user_email", customerEmail.toLowerCase())
-              .order("created_at", { ascending: false })
-              .limit(1) as any);
-            const brandName =
-              metadata.brand_name ||
-              reportRow?.[0]?.brand_name ||
-              reportRow?.[0]?.company_name ||
-              "Unknown";
+            // Prefer brand captured on Checkout (custom field / metadata). Fall back to
+            // latest report only when the field is missing (legacy Payment Links).
+            let brandName = brandNameFromCheckoutSession(session);
+            if (!brandName) {
+              const { data: reportRow } = await (sb
+                .from("brand_snapshot_reports" as any)
+                .select("brand_name, company_name")
+                .eq("user_email", customerEmail.toLowerCase())
+                .order("created_at", { ascending: false })
+                .limit(1) as any);
+              brandName =
+                reportRow?.[0]?.brand_name ||
+                reportRow?.[0]?.company_name ||
+                null;
+            }
+            if (!brandName || brandName === "Unknown") {
+              logger.error(
+                "[Stripe Webhook] Paid session missing brand name — brand-scoped access not granted",
+                { sessionId: session.id, email: customerEmail, productKey },
+              );
+            } else {
+              await createRefreshEntitlement({
+                email: customerEmail,
+                productTier: productKey as "snapshot_plus" | "blueprint" | "blueprint_plus",
+                brandName,
+                purchaseId: undefined,
+              });
 
-            await createRefreshEntitlement({
-              email: customerEmail,
-              productTier: productKey as "snapshot_plus" | "blueprint" | "blueprint_plus",
-              brandName,
-              purchaseId: undefined,
-            });
+              const { grantBrandAccess } = await import("@/lib/userBrands");
+              await grantBrandAccess({
+                email: customerEmail,
+                brandName,
+                productTier: productKey as "snapshot_plus" | "blueprint" | "blueprint_plus",
+              });
 
-            // Grant brand-scoped access in user_brands
-            const { grantBrandAccess } = await import("@/lib/userBrands");
-            await grantBrandAccess({
-              email: customerEmail,
-              brandName,
-              productTier: productKey as "snapshot_plus" | "blueprint" | "blueprint_plus",
-            });
-
-            logger.info("[Stripe Webhook] Refresh entitlement + brand access created", {
-              email: customerEmail,
-              tier: productKey,
-              brandName,
-            });
+              logger.info("[Stripe Webhook] Refresh entitlement + brand access created", {
+                email: customerEmail,
+                tier: productKey,
+                brandName,
+              });
+            }
           } catch (entErr) {
             logger.error("[Stripe Webhook] Failed to create refresh entitlement", {
               error: entErr instanceof Error ? entErr.message : String(entErr),

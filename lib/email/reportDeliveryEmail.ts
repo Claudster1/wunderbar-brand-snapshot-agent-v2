@@ -39,9 +39,10 @@ export function buildSnapshotReportEmail(opts: {
     "Why a strong brand matters:",
     "When ads, your website, sales, and content each tell a slightly different story, buyers get confused and trust drops.",
     "",
-    "A shared brand system gives you one positioning, one message, and one plan. Consistent brand presentation has been linked to revenue lifts of up to 33% (Lucidpress, State of Brand Consistency, 2019). Marketing spend compounds, your team stops reinventing the pitch every week, and prospects recognize you faster—and decide with less friction.",
+    "Clarity first. Growth that compounds.",
+    "A strong brand locks that in—one message, one plan. Spend compounds. Buyers decide faster. Effort goes straight to growth.",
     "",
-    "Snapshot+™, Blueprint™, and Blueprint+™ turn this diagnosis into that clarity:",
+    "Snapshot+™, Blueprint™, and Blueprint+™ turn this diagnosis into that clarity—so growth becomes more efficient and more repeatable:",
     suiteUrl,
     "",
     "— The Wunderbar Digital Team",
@@ -86,22 +87,19 @@ export function buildSnapshotReportEmail(opts: {
           Why brand matters
         </p>
         <p style="color:#021859;font-size:16px;font-weight:700;line-height:1.35;margin:0 0 10px">
-          Build one clear brand story your whole team can run with
+          Clarity first. Growth that compounds.
         </p>
         <p style="color:#5A6B7E;line-height:1.55;margin:0 0 12px;font-size:14px">
           When ads, your website, sales, and content each tell a slightly different story,
           buyers get confused and trust drops.
         </p>
         <p style="color:#5A6B7E;line-height:1.55;margin:0 0 12px;font-size:14px">
-          A strong brand fixes that: <strong>one positioning, one message, one plan</strong>.
-          Consistent brand presentation has been linked to revenue lifts of up to 33%
-          (Lucidpress, <em>State of Brand Consistency</em>, 2019). Marketing spend compounds
-          instead of canceling itself out. Your team stops reinventing the pitch every week.
-          Prospects recognize you faster—and decide with less friction.
+          A strong brand locks that in—<strong>one message, one plan</strong>. Spend compounds.
+          Buyers decide faster. Effort goes straight to growth.
         </p>
         <p style="color:#5A6B7E;line-height:1.55;margin:0 0 14px;font-size:14px">
           Snapshot+™, Blueprint™, and Blueprint+™ turn this diagnosis into that clarity—
-          so growth gets cheaper and more repeatable.
+          so growth becomes more efficient and more repeatable.
         </p>
         <a href="${suiteUrl}"
            style="display:inline-block;background:#ffffff;color:#07B0F2;text-decoration:none;

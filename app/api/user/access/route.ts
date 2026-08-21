@@ -16,12 +16,13 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const claimedEmail = searchParams.get("email");
+    const brandName = searchParams.get("brandName") || searchParams.get("brand") || undefined;
 
     const { requireVerifiedEmail } = await import("@/lib/reportAccess");
     const auth = requireVerifiedEmail(req, claimedEmail);
     if ("error" in auth) return auth.error;
 
-    const access = await getUserProductAccess(auth.email);
+    const access = await getUserProductAccess(auth.email, brandName || undefined);
 
     return NextResponse.json({ access });
   } catch (err: unknown) {

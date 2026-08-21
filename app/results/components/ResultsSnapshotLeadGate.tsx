@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { SnapshotResultsLeadEmail } from "@/app/results/components/SnapshotResultsLeadEmail";
+import { ResultsPostUnlockUpsell } from "@/app/results/components/ResultsPostUnlockUpsell";
 import {
   readResultsEmailGateUnlocked,
   writeResultsEmailGateUnlocked,
@@ -32,6 +33,8 @@ export function ResultsSnapshotLeadGate({
   const [contentUnlocked, setContentUnlocked] = useState(
     !requiresEmailGate || initiallyUnlocked,
   );
+  /** Fresh unlock in this visit — after tips dismiss, show suite upsell where Access was. */
+  const [showPostUnlockUpsell, setShowPostUnlockUpsell] = useState(false);
 
   useEffect(() => {
     if (!requiresEmailGate || initiallyUnlocked) {
@@ -44,9 +47,6 @@ export function ResultsSnapshotLeadGate({
   }, [requiresEmailGate, initiallyUnlocked, reportId]);
 
   const handleEmailCaptured = useCallback(() => {
-    // Fire the "Lead" conversion once per report (email capture = the lead moment).
-    // Guard on the persisted unlock flag so revisits / preference re-submits don't
-    // double-count.
     const firstUnlock = !readResultsEmailGateUnlocked(reportId);
     writeResultsEmailGateUnlocked(reportId);
     setContentUnlocked(true);
@@ -55,11 +55,17 @@ export function ResultsSnapshotLeadGate({
     }
   }, [reportId]);
 
-  const showEmailBlock = requiresEmailGate;
+  const handleCaptureFlowComplete = useCallback(() => {
+    // Tips saved or skipped — replace Access/tips with suite education, then refresh flags.
+    setShowPostUnlockUpsell(true);
+  }, []);
+
+  // Returning unlocked visitors (email link / server flag): never show Access form.
+  const showCaptureUi = requiresEmailGate && !initiallyUnlocked;
 
   return (
     <>
-      {showEmailBlock ? (
+      {showCaptureUi ? (
         <div id="email-results" className="results-gate-stack scroll-mt-28">
           <SnapshotResultsLeadEmail
             reportId={reportId}
@@ -68,7 +74,9 @@ export function ResultsSnapshotLeadGate({
             {...(firstNameHint ? { firstNameHint } : {})}
             onEmailCaptured={handleEmailCaptured}
             contentUnlocked={contentUnlocked}
+            onCaptureFlowComplete={handleCaptureFlowComplete}
           />
+          {showPostUnlockUpsell ? <ResultsPostUnlockUpsell productName={productName} /> : null}
         </div>
       ) : null}
 

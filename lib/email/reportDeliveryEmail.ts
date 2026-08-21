@@ -37,9 +37,9 @@ export function buildSnapshotReportEmail(opts: {
     "On that page you'll find pillar scores, your archetype, priority actions, and a PDF you can share with your team.",
     "",
     "Why a strong brand matters:",
-    "When ads, your website, sales, and content each tell a slightly different story, buyers get confused, trust drops, and you pay twice—once for the campaign, again to fix the mixed signals.",
+    "When ads, your website, sales, and content each tell a slightly different story, buyers get confused and trust drops.",
     "",
-    "A shared brand system gives you one positioning, one message, and one plan so marketing spend compounds, your team stops reinventing the pitch every week, and prospects recognize you faster—and decide with less friction.",
+    "A shared brand system gives you one positioning, one message, and one plan. Consistent brand presentation has been linked to revenue lifts of up to 33% (Lucidpress, State of Brand Consistency, 2019). Marketing spend compounds, your team stops reinventing the pitch every week, and prospects recognize you faster—and decide with less friction.",
     "",
     "Snapshot+™, Blueprint™, and Blueprint+™ turn this diagnosis into that clarity:",
     suiteUrl,
@@ -90,13 +90,14 @@ export function buildSnapshotReportEmail(opts: {
         </p>
         <p style="color:#5A6B7E;line-height:1.55;margin:0 0 12px;font-size:14px">
           When ads, your website, sales, and content each tell a slightly different story,
-          buyers get confused, trust drops, and you pay twice—once for the campaign, again
-          to fix the mixed signals.
+          buyers get confused and trust drops.
         </p>
         <p style="color:#5A6B7E;line-height:1.55;margin:0 0 12px;font-size:14px">
           A strong brand fixes that: <strong>one positioning, one message, one plan</strong>.
-          Marketing spend compounds instead of canceling itself out. Your team stops reinventing
-          the pitch every week. Prospects recognize you faster—and decide with less friction.
+          Consistent brand presentation has been linked to revenue lifts of up to 33%
+          (Lucidpress, <em>State of Brand Consistency</em>, 2019). Marketing spend compounds
+          instead of canceling itself out. Your team stops reinventing the pitch every week.
+          Prospects recognize you faster—and decide with less friction.
         </p>
         <p style="color:#5A6B7E;line-height:1.55;margin:0 0 14px;font-size:14px">
           Snapshot+™, Blueprint™, and Blueprint+™ turn this diagnosis into that clarity—

@@ -16,6 +16,10 @@ import CompactResultsHeader from "@/components/results/CompactResultsHeader";
 import HowToUseBanner from "@/components/results/HowToUseBanner";
 import { getSuiteTabIntro, TAB_SECTION_NAV_HINT_CHIPS_ONLY } from "@/lib/copy/resultsSuiteGuidance";
 import { getPersistedEmail } from "@/lib/persistEmail";
+import {
+  readResultsEmailGateUnlocked,
+  RESULTS_EMAIL_UNLOCKED_EVENT,
+} from "@/lib/results/resultsEmailGateStorage";
 import { TabIntroGuidanceBlock } from "@/components/results/TabIntroGuidanceBlock";
 import TabSectionMenu from "@/components/results/TabSectionMenu";
 import { useActiveSectionInView } from "@/components/results/useActiveSectionInView";
@@ -134,6 +138,10 @@ interface ResultsTabsShellProps {
   initialActivationPlanId?: ActivationPlanSectionId;
   /** From `?activationFocus=` — read on the server (or preview client) so this shell does not call `useSearchParams`. */
   activationFocus?: string | null;
+  /**
+   * Free Snapshot email gate is active — Export stays visible but downloads only after unlock.
+   */
+  pdfExportRequiresEmail?: boolean;
 }
 
 function resolveInitialActiveTab(tier: ProductTier, requested: ResultsTab | undefined): ResultsTab {
@@ -549,6 +557,7 @@ export default function ResultsTabsShell({
   initialWorkbookSectionId,
   initialActivationPlanId,
   activationFocus: activationFocusProp,
+  pdfExportRequiresEmail = false,
 }: ResultsTabsShellProps) {
   const productTier = normalizeProductTierString(String(productTierProp ?? "snapshot"));
   const [activeTab, setActiveTab] = useState<ResultsTab>(() =>
@@ -566,29 +575,56 @@ export default function ResultsTabsShell({
     reportId.startsWith("preview-") ||
     (reportId.includes("preview") && userEmail.toLowerCase().includes("preview"));
 
-  // Mint/remint verified session when email is known so Export PDF authorizes.
+  const [exportUnlocked, setExportUnlocked] = useState(!pdfExportRequiresEmail);
   useEffect(() => {
+    if (!pdfExportRequiresEmail) {
+      setExportUnlocked(true);
+      return;
+    }
+    if (!reportId) return;
+    if (readResultsEmailGateUnlocked(reportId)) {
+      setExportUnlocked(true);
+      return;
+    }
+    const onUnlock = (event: Event) => {
+      const detail = (event as CustomEvent<{ reportId?: string }>).detail;
+      if (detail?.reportId && detail.reportId !== reportId) return;
+      if (readResultsEmailGateUnlocked(reportId)) setExportUnlocked(true);
+    };
+    window.addEventListener(RESULTS_EMAIL_UNLOCKED_EVENT, onUnlock);
+    return () => window.removeEventListener(RESULTS_EMAIL_UNLOCKED_EVENT, onUnlock);
+  }, [pdfExportRequiresEmail, reportId]);
+
+  const mintAccessSession = useCallback(async () => {
     if (!reportId) return;
     const email = (userEmail || getPersistedEmail() || "").trim().toLowerCase();
     if (!email.includes("@")) return;
-    let cancelled = false;
-    void (async () => {
-      try {
-        await fetch("/api/snapshot/ensure-access-session", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ reportId, email }),
-          credentials: "same-origin",
-        });
-      } catch {
-        /* non-blocking — Export may still work if cookie already present */
-      }
-      if (cancelled) return;
-    })();
-    return () => {
-      cancelled = true;
-    };
+    try {
+      await fetch("/api/snapshot/ensure-access-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reportId, email }),
+        credentials: "same-origin",
+      });
+    } catch {
+      /* non-blocking */
+    }
   }, [reportId, userEmail]);
+
+  // Mint/remint verified session when email is known so Export PDF authorizes.
+  useEffect(() => {
+    if (pdfExportRequiresEmail && !exportUnlocked) return;
+    void mintAccessSession();
+  }, [exportUnlocked, mintAccessSession, pdfExportRequiresEmail]);
+
+  const requestEmailForExport = useCallback(() => {
+    const gate = document.getElementById("email-results");
+    gate?.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.setTimeout(() => {
+      document.getElementById("results-lead-email")?.focus();
+    }, 350);
+  }, []);
+
   const [workbookCustomSections, setWorkbookCustomSections] = useState<Record<string, unknown>>({});
   const diagnosticDataForStandards = useMemo(
     () => mergeWorkbookMoodIntoDiagnostic(diagnosticData, workbookCustomSections),
@@ -631,6 +667,8 @@ export default function ResultsTabsShell({
     const tier = productTier === "blueprint-plus" ? "blueprint-plus" : "blueprint";
     return `/api/blueprint/pdf?reportId=${encodedReportId}&type=complete&tier=${tier}${emailParam}`;
   }, [isPreviewMode, productTier, reportId, userEmail]);
+
+  const exportRequiresEmail = pdfExportRequiresEmail && !exportUnlocked;
 
   const suiteCompanyName = useMemo(() => {
     if (typeof diagnosticData.businessName === "string" && diagnosticData.businessName.trim())
@@ -1350,6 +1388,9 @@ export default function ResultsTabsShell({
             : undefined
         }
         {...(primaryExportPdfHref ? { exportPdfHref: primaryExportPdfHref } : {})}
+        {...(exportRequiresEmail
+          ? { exportRequiresEmail: true, onRequestEmailForExport: requestEmailForExport }
+          : {})}
         {...(productTier === "snapshot"
           ? {}
           : { onGoToDownloads: () => openOrLockTab("downloads") })}

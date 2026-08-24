@@ -68,6 +68,17 @@ describe("resolveSuggestedReplies", () => {
     expect(chips).not.toContain("LinkedIn");
   });
 
+  it("ignores bridge copy that mentions social presence before a competitor ask", () => {
+    const chips = resolveSuggestedReplies({
+      nextPendingKey: "social_platform_presence",
+      lastAssistantText:
+        "That makes sense — it's common to build social presence alongside a launch. **When prospects choose a competitor over you, what reason comes up most often?**",
+    });
+    expect(chips).toEqual(getSuggestedRepliesForCapture("competitive_pressure_point"));
+    expect(chips).toContain("Price");
+    expect(chips).not.toContain("LinkedIn");
+  });
+
   it("falls back to capture chips when the question is not a narrative multi-select", () => {
     const chips = resolveSuggestedReplies({
       nextPendingKey: "website_presence",

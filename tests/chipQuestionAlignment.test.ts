@@ -116,6 +116,37 @@ describe("chip ↔ question alignment QC", () => {
     expect(chips?.[0]).toBe("Price");
   });
 
+  it("bridge sentences that echo a prior topic still resolve to the new ask", () => {
+    const bridged: Array<{
+      text: string;
+      expectKey: CaptureKey;
+      staleKey: CaptureKey;
+    }> = [
+      {
+        text: "That makes sense — it's common to build social presence alongside a launch. **When prospects choose a competitor over you, what reason comes up most often?**",
+        expectKey: "competitive_pressure_point",
+        staleKey: "social_platform_presence",
+      },
+      {
+        text: "Got it on the website. **Where does your brand show up on social today?** Name the platforms that matter (or say *none / not really active yet*).",
+        expectKey: "social_platform_presence",
+        staleKey: "website_presence",
+      },
+      {
+        text: "Thanks — social is noted. **Beyond your website and social, where else are you putting time or budget** — email, SEO, paid, events, or mostly referrals?",
+        expectKey: "additional_marketing_surfaces",
+        staleKey: "social_platform_presence",
+      },
+    ];
+    for (const row of bridged) {
+      const chips = resolveSuggestedReplies({
+        nextPendingKey: row.staleKey,
+        lastAssistantText: row.text,
+      });
+      expect(chips).toEqual(getSuggestedRepliesForCapture(row.expectKey));
+    }
+  });
+
   it("narrative goals still resolve when no capture is pending", () => {
     const chips = resolveSuggestedReplies({
       nextPendingKey: null,

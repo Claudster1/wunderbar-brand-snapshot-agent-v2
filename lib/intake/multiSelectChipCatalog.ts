@@ -359,7 +359,8 @@ const TOPIC_RULES: TopicRule[] = [
     mode: "single",
   },
   {
-    test: /\b(show up on social|active on\??|platforms? (are you|you.?re) active|where does .{0,40} (show up|most visible)|social presence)\b/i,
+    // Require an ask about platforms — bare "social presence" in bridge copy must not steal chips.
+    test: /\b(where does .{0,60} show up on social|show up on social today|name the platforms that matter|platforms that matter|which (social )?platforms?|social (media )?platforms?\b.{0,50}(active|matter|today|using))\b/i,
     chips: getSuggestedRepliesForCapture("social_platform_presence"),
     mode: "multi",
   },
@@ -475,6 +476,30 @@ const TOPIC_RULES: TopicRule[] = [
 ];
 
 /**
+ * When bridge copy mentions a prior topic and the real ask comes later, prefer the
+ * match that appears latest in the assistant message (last-match wins).
+ */
+function lastMatchingTopicRule(
+  text: string,
+): TopicRule | null {
+  let best: { rule: TopicRule; index: number } | null = null;
+  for (const rule of TOPIC_RULES) {
+    const flags = rule.test.flags.includes("g") ? rule.test.flags : `${rule.test.flags}g`;
+    const re = new RegExp(rule.test.source, flags);
+    let m: RegExpExecArray | null;
+    let lastIdx = -1;
+    while ((m = re.exec(text)) !== null) {
+      lastIdx = m.index;
+      if (!re.global) break;
+    }
+    if (lastIdx >= 0 && (!best || lastIdx >= best.index)) {
+      best = { rule, index: lastIdx };
+    }
+  }
+  return best?.rule ?? null;
+}
+
+/**
  * Resolve chips for the current turn.
  * Prefer topic detected from the assistant question on screen — that text is the
  * source of truth. Fall back to the pending capture catalog when topic detect misses.
@@ -487,9 +512,8 @@ export function resolveSuggestedReplies(params: {
   const t = String(params.lastAssistantText || "");
 
   if (t.trim()) {
-    for (const rule of TOPIC_RULES) {
-      if (rule.test.test(t)) return rule.chips;
-    }
+    const matched = lastMatchingTopicRule(t);
+    if (matched) return matched.chips;
   }
 
   if (params.nextPendingKey) {
@@ -508,9 +532,8 @@ export function resolveChipSelectionMode(params: {
   const t = String(params.lastAssistantText || "");
 
   if (t.trim()) {
-    for (const rule of TOPIC_RULES) {
-      if (rule.test.test(t)) return rule.mode;
-    }
+    const matched = lastMatchingTopicRule(t);
+    if (matched) return matched.mode;
   }
 
   if (params.nextPendingKey) {

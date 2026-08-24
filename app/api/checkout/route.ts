@@ -66,7 +66,7 @@ export async function POST(req: Request) {
         },
       ],
       custom_fields: checkoutBrandCustomFields(),
-      custom_text: checkoutBrandPolicyCustomText(),
+      custom_text: checkoutBrandPolicyCustomText(normalizedKey),
       metadata: {
         product_key: normalizedKey,
         user_id: userId ?? "",

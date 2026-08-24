@@ -4,8 +4,12 @@
  */
 
 import type Stripe from "stripe";
+import type { ProductKey } from "@/lib/pricing";
 
 export const CHECKOUT_BRAND_FIELD_KEY = "brand_name";
+
+/** Stripe `custom_text.submit.message` max length. */
+export const STRIPE_SUBMIT_CUSTOM_TEXT_MAX = 50;
 
 /** Required text field on Checkout Session / Payment Link–compatible key. */
 export function checkoutBrandCustomFields(): Stripe.Checkout.SessionCreateParams.CustomField[] {
@@ -22,11 +26,37 @@ export function checkoutBrandCustomFields(): Stripe.Checkout.SessionCreateParams
   ];
 }
 
+/**
+ * Product-specific submit policy (≤50 chars). Use the same strings on Payment Links.
+ */
+export function checkoutBrandPolicyMessage(productKey?: ProductKey | string | null): string {
+  const key = String(productKey || "")
+    .trim()
+    .toLowerCase()
+    .replace(/-/g, "_");
+
+  const byProduct: Record<string, string> = {
+    snapshot_plus: "One brand per Snapshot+™. Sales final.",
+    blueprint: "One brand per Blueprint™. Sales final.",
+    blueprint_plus: "One brand per Blueprint+™. Sales final.",
+    snapshot_plus_refresh: "Snapshot+ refresh: 1 brand. Sales final.",
+    blueprint_refresh: "Blueprint refresh: 1 brand. Sales final.",
+  };
+
+  const message = byProduct[key] || "One brand per purchase. Sales final.";
+  if (message.length > STRIPE_SUBMIT_CUSTOM_TEXT_MAX) {
+    return message.slice(0, STRIPE_SUBMIT_CUSTOM_TEXT_MAX);
+  }
+  return message;
+}
+
 /** Static policy copy (not an input). */
-export function checkoutBrandPolicyCustomText(): Stripe.Checkout.SessionCreateParams.CustomText {
+export function checkoutBrandPolicyCustomText(
+  productKey?: ProductKey | string | null,
+): Stripe.Checkout.SessionCreateParams.CustomText {
   return {
     submit: {
-      message: "One brand per purchase. All sales are final.",
+      message: checkoutBrandPolicyMessage(productKey),
     },
   };
 }

@@ -94,7 +94,9 @@ export async function POST(req: NextRequest) {
       ],
       customer_email: email,
       custom_fields: checkoutBrandCustomFields(),
-      custom_text: checkoutBrandPolicyCustomText(),
+      custom_text: checkoutBrandPolicyCustomText(
+        rawProductKey || priceIdToProductKey(priceId),
+      ),
       success_url: `${baseUrl}/checkout/success?product=snapshot-plus&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/checkout/cancel?product=snapshot-plus`,
       metadata: {

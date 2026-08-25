@@ -309,8 +309,13 @@ const TOPIC_RULES: TopicRule[] = [
     mode: "single",
   },
   {
-    test: /\b(website url to share|landing page or store|not on the web yet)\b/i,
+    test: /\b(do you have a website\?|website url to share|landing page or store|not on the web yet|great — what'?s the url|what'?s the url\?|paste the link)\b/i,
     chips: getSuggestedRepliesForCapture("website_presence"),
+    mode: "single",
+  },
+  {
+    test: /\b(great — what'?s the url|what'?s the url\?|paste the link|skip for now)\b/i,
+    chips: ["I'll paste the URL", "Skip for now", "Actually — no website yet"],
     mode: "single",
   },
   {

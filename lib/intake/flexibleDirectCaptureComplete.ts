@@ -4,6 +4,7 @@
  */
 
 import { CAPTURE_REFUSAL_PATTERN } from "@/lib/intake/captureRefusal";
+import { websitePresenceUserSatisfiesCapture } from "@/lib/intake/websitePresenceCapture";
 
 export type CaptureKey =
   | "business_type_classifier"
@@ -345,8 +346,9 @@ export function assistantTurnAsksAboutCapture(key: CaptureKey, la: string): bool
       return /\b(conversion|close rate|win rate|track it|do you track)\b/i.test(la);
     case "website_presence":
       return (
-        /\b(website|url|web address|domain|site to share|online home|\.com)\b/i.test(la) ||
-        /\b(have (a )?website|do you have.*site)\b/i.test(la)
+        /\b(do you have (a )?website|website url|what'?s (the )?url|web address|domain|site to share|online home|landing page|not on the web|paste the link)\b/i.test(
+          la,
+        ) || /\b(have (a )?website|do you have.*site)\b/i.test(la)
       );
     case "social_platform_presence":
       return assistantAskedDedicatedSocialPlatformPresence(la);
@@ -590,15 +592,11 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
     }
     case "website_presence": {
       const asked =
-        /\b(website|url|web address|domain|site to share|online home|\.com)\b/i.test(la) ||
-        /\b(have (a )?website|do you have.*site)\b/i.test(la);
-      const urlAnswer =
-        /\b(https?:\/\/|www\.)\S+|[a-z0-9][-a-z0-9]{0,48}\.(com|io|ai|co|org|net|app|dev|us|uk|shop)\b/i.test(t);
-      const noSite =
-        /\b(no|nope|don'?t|do not) (have|got)|not yet|no website|no site|instagram only|facebook only|linkedin only|linktr|linktree|etsy only|marketplace only|coming soon|building (the )?site|not live\b/i.test(
-          t,
-        );
-      return asked && (urlAnswer || noSite);
+        /\b(website|url|web address|domain|site to share|online home|\.com|landing page|not on the web)\b/i.test(
+          la,
+        ) || /\b(have (a )?website|do you have.*site)\b/i.test(la);
+      // Affirm-without-URL must NOT complete — follow-up asks for the link.
+      return asked && websitePresenceUserSatisfiesCapture(lu);
     }
     case "social_platform_presence": {
       const asked = assistantAskedDedicatedSocialPlatformPresence(la);

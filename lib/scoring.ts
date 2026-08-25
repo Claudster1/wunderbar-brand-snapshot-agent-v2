@@ -13,6 +13,8 @@ interface PillarScoringInput {
   messagingClarity?: "very clear" | "somewhat clear" | "unclear";
   brandVoiceDescription?: string;
   website?: string | null;
+  /** True when they affirmed a site even if URL was never captured. */
+  hasWebsite?: boolean | null;
   socials?: string[];
   marketingChannels?: string[];
   hasBrandGuidelines?: boolean;
@@ -57,7 +59,7 @@ export function scorePillars(input: PillarScoringInput): Record<PillarKey, numbe
   if (input.brandVoiceDescription) scores.messaging += 6;
 
   // Visibility (SEO + AEO)
-  if (input.website) scores.visibility += 5;
+  if (input.website || input.hasWebsite) scores.visibility += 5;
   if ((input.socials?.length ?? 0) > 0) scores.visibility += 5;
   if (input.marketingChannels?.includes("AEO")) scores.visibility += 6;
 

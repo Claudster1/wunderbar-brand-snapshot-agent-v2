@@ -4,6 +4,10 @@
  */
 
 import type { IntakeMessage } from "@/lib/intake/buildIntakeTopicResume";
+import {
+  extractWebsiteUrlFromText,
+  transcriptImpliesHasWebsite,
+} from "@/lib/intake/websitePresenceCapture";
 
 type BusinessType =
   | "service_b2b"
@@ -58,11 +62,7 @@ function extractBusinessName(messages: IntakeMessage[]): string {
 }
 
 function extractWebsite(users: string): string | null {
-  const m = users.match(/\b(https?:\/\/[^\s]+|www\.[a-z0-9][-a-z0-9.]+(?:\/[^\s]*)?)/i);
-  if (m?.[1]) return m[1].replace(/[.,;]+$/, "");
-  const domain = users.match(/\b([a-z0-9][-a-z0-9]{0,48}\.(com|io|ai|co|org|net|app))\b/i);
-  if (domain?.[1]) return `https://${domain[1]}`;
-  return null;
+  return extractWebsiteUrlFromText(users);
 }
 
 function extractSocials(users: string): string[] {
@@ -101,6 +101,7 @@ export function buildFallbackAnswersFromMessages(
   const all = messages.map((m) => m.content || "").join("\n");
   const businessType = inferBusinessType(users);
   const website = extractWebsite(users);
+  const hasWebsite = Boolean(website) || transcriptImpliesHasWebsite(messages);
   const socials = extractSocials(users);
   const preRevenue = /\b(just launch|no clients? yet|no customers? yet|pre-?revenue|not selling yet)\b/i.test(
     users,
@@ -127,6 +128,7 @@ export function buildFallbackAnswersFromMessages(
     geographicScope: "national",
     audienceType: "B2B",
     website,
+    hasWebsite,
     socials,
     competitorNames: /\bagenc/i.test(all) ? ["Other marketing agencies"] : [],
     currentCustomers,
@@ -214,6 +216,12 @@ export function mergeExtractedWithFallback(
   for (const key of Object.keys(fallback)) {
     fillIfEmpty(key);
   }
+
+  // Affirm-without-URL still means they have a site — don't let a null URL wipe that.
+  out.hasWebsite =
+    Boolean(out.website) ||
+    out.hasWebsite === true ||
+    transcriptImpliesHasWebsite(messages);
 
   return out;
 }

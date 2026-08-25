@@ -135,6 +135,7 @@ EXPECTED DISTRIBUTION (across a typical population of businesses):
 CALIBRATION RULES:
 - A business with "somewhat clear" messaging should NOT score above 12 on Messaging.
 - A business with no website should NOT score above 8 on Visibility.
+- If the user said they HAVE a website but did not share a URL, treat them as having a website (do not apply the "no website" ceiling). Only apply the no-website ceiling when they explicitly said they have no site / are not on the web yet.
 - A business with no testimonials AND no case studies should NOT score above 9 on Credibility.
 - A business with no email list, no lead magnet, AND no clear CTA should NOT score above 7 on Conversion.
 - A business with "unclear" offer clarity should NOT score above 8 on Positioning.

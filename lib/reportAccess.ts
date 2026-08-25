@@ -142,6 +142,33 @@ export async function isValidShareTokenForReport(
 }
 
 /**
+ * Authorize a report read from page-level inputs (cookie header + optional share token).
+ * Prefer this from Server Components where you have `headers()` / searchParams.
+ */
+export async function authorizeReportPageRead(params: {
+  reportId: string;
+  reportOwnerEmail?: string | null;
+  cookieHeader?: string | null;
+  shareToken?: string | null;
+}): Promise<ReportAccessCheck> {
+  const { reportId, reportOwnerEmail, cookieHeader, shareToken } = params;
+
+  if (isSampleReportId(reportId)) {
+    return { hasAccess: true, reason: "sample" };
+  }
+
+  const verified = readSessionEmailFromCookieHeader(cookieHeader ?? null);
+  const access = checkReportAccess(verified, reportOwnerEmail, reportId);
+  if (access.hasAccess) return access;
+
+  if (shareToken && (await isValidShareTokenForReport(shareToken, reportId))) {
+    return { hasAccess: true, reason: "share_token" };
+  }
+
+  return { hasAccess: false, reason: "denied" };
+}
+
+/**
  * Authorize reading a report/PDF: verified owner, sample, no-owner legacy,
  * or valid ?shareToken=.
  */
@@ -151,20 +178,12 @@ export async function authorizeReportRead(params: {
   reportOwnerEmail?: string | null;
 }): Promise<ReportAccessCheck> {
   const { req, reportId, reportOwnerEmail } = params;
-
-  if (isSampleReportId(reportId)) {
-    return { hasAccess: true, reason: "sample" };
-  }
-
-  const verified = getVerifiedEmailFromRequest(req);
-  const access = checkReportAccess(verified, reportOwnerEmail, reportId);
-  if (access.hasAccess) return access;
-
   const url = new URL(req.url);
   const shareToken = url.searchParams.get("shareToken") || url.searchParams.get("token");
-  if (shareToken && (await isValidShareTokenForReport(shareToken, reportId))) {
-    return { hasAccess: true, reason: "share_token" };
-  }
-
-  return { hasAccess: false, reason: "denied" };
+  return authorizeReportPageRead({
+    reportId,
+    reportOwnerEmail,
+    cookieHeader: req.headers.get("cookie"),
+    shareToken,
+  });
 }

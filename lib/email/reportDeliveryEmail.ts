@@ -84,7 +84,7 @@ export function buildSnapshotReportEmail(opts: {
       </ul>
       <div style="margin:0 0 24px;padding:18px 20px;border-radius:5px;border:1px solid rgba(7,176,242,0.35);background:#f8fcff">
         <p style="color:#07B0F2;font-size:11px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;margin:0 0 8px">
-          Why brand matters
+          WHY BRAND MATTERS
         </p>
         <p style="color:#021859;font-size:16px;font-weight:700;line-height:1.35;margin:0 0 10px">
           Clarity first. Growth that compounds.

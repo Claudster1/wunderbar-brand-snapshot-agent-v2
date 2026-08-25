@@ -17,7 +17,7 @@ export function ResultsPostUnlockUpsell({ productName }: Props) {
     >
       <div className="results-gate-capture__inner">
         <div className="results-gate-capture__offer">
-          <p className="results-gate-capture__eyebrow m-0">Why brand matters</p>
+          <p className="results-gate-capture__eyebrow m-0">WHY BRAND MATTERS</p>
           <h2 className="bs-h3 m-0 results-gate-capture__title">
             Clarity first. Growth that compounds.
           </h2>

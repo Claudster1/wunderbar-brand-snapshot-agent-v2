@@ -94,7 +94,11 @@ export function SnapshotResultsLeadEmail({
       return;
     }
     setPhase("hidden");
-    router.refresh();
+    // Defer soft refresh until after the tips → upsell paint so RSC streaming
+    // doesn't flash payload/“code” UI over the preference form.
+    window.setTimeout(() => {
+      router.refresh();
+    }, 150);
   }, [onCaptureFlowComplete, parentHandlesNavigation, router]);
 
   const handleEmailSubmit = useCallback(

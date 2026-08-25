@@ -75,7 +75,6 @@ export function ResultsSnapshotLeadGate({
             onEmailCaptured={handleEmailCaptured}
             contentUnlocked={contentUnlocked}
             onCaptureFlowComplete={handleCaptureFlowComplete}
-            parentHandlesNavigation={reloadOnUnlock}
           />
           {showPostUnlockUpsell ? <ResultsPostUnlockUpsell productName={productName} /> : null}
         </div>

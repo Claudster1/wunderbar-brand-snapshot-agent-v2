@@ -1,7 +1,7 @@
 // src/pdf/components/PdfHeader.tsx
 // Suite-aligned sticky chrome — mirrors CompactResultsHeader
 
-import { View, Text, Image, StyleSheet } from "@react-pdf/renderer";
+import { View, Text, Image, StyleSheet, Link } from "@react-pdf/renderer";
 import {
   SUITE_ACCENT_BRIGHT,
   SUITE_BORDER,
@@ -9,7 +9,15 @@ import {
   SUITE_NAVY,
   SUITE_TEXT_PRIMARY,
 } from "@/components/results/suiteBrandTokens";
+import { withUtm } from "@/lib/utm";
 import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
+
+const PDF_BRAND_HOME_HREF = withUtm("https://wunderbardigital.com/", {
+  source: "wunderbrand_app",
+  medium: "pdf_header",
+  campaign: "brand_navigation",
+  content: "report_header_logo",
+});
 
 /** Reserve this much top padding on Page styles so body clears the fixed header. */
 export const PDF_HEADER_RESERVED = 64;
@@ -127,10 +135,10 @@ export const PdfHeader = ({
     fixed
   >
     <View style={styles.left}>
-      <View style={styles.logoWrap}>
+      <Link src={PDF_BRAND_HOME_HREF} style={styles.logoWrap}>
         {/* eslint-disable-next-line jsx-a11y/alt-text */}
         <Image style={styles.logo} src={PDF_WUNDERBAR_LOGO_SRC} />
-      </View>
+      </Link>
       <View style={styles.meta}>
         {businessName ? (
           <>

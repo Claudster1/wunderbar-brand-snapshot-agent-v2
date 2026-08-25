@@ -9,6 +9,7 @@ describe("finalizeHandoffCopy", () => {
     const msg = getIntakeFinalizeHandoffMessage("snapshot");
     expect(msg).toContain("WunderBrand Snapshot™");
     expect(msg).toContain("generating your");
+    expect(msg).toMatch(/\*\*We're generating your/);
     expect(msg).not.toContain("pillar breakdown");
     expect(msg).not.toContain("See my results");
   });
@@ -20,5 +21,22 @@ describe("finalizeHandoffCopy", () => {
     expect(normalized).toContain("WunderBrand Snapshot™");
     expect(normalized).not.toContain("pillar breakdown");
     expect(normalized).not.toContain("See my results");
+  });
+
+  it("does not duplicate the confidentiality opener", () => {
+    const leaked =
+      "Excellent — everything you've shared is confidential and your brand insights stay yours.\n\nExcellent — everything you've shared is confidential and your brand insights stay yours. We're generating your WunderBrand Snapshot™ now.";
+    const normalized = normalizeFinalizeHandoffPrefix(leaked, "snapshot");
+    const matches = normalized.match(/everything you've shared is confidential/gi) ?? [];
+    expect(matches).toHaveLength(1);
+    expect(normalized).toMatch(/\*\*We're generating your WunderBrand Snapshot™ now\.\*\*/);
+  });
+
+  it("keeps bold generating line when normalizing model handoff prose", () => {
+    const streamed =
+      "That's a compelling voice!\n\nExcellent — everything you've shared is confidential and your brand insights stay yours. We're generating your WunderBrand Snapshot™ now.";
+    const normalized = normalizeFinalizeHandoffPrefix(streamed, "snapshot");
+    expect(normalized).toContain("That's a compelling voice!");
+    expect(normalized).toMatch(/\*\*We're generating your WunderBrand Snapshot™ now\.\*\*/);
   });
 });

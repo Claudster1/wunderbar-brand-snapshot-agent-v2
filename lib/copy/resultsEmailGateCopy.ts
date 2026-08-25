@@ -1,17 +1,20 @@
 /** Shared copy for Snapshot email-gate CTAs on the results page. */
 
-/** Sticky bar + section title — one clear ask, product named once. */
+/**
+ * Sticky bar + section title — users already see score/overview above the gate;
+ * this unlocks the remaining breakdown (pillars, archetype, actions).
+ */
 export function resultsCompleteSnapshotHeadline(productName: string): string {
-  return `Unlock your ${productName}`;
+  return `Unlock the rest of your ${productName}`;
 }
 
 export function resultsCompleteSnapshotCtaLabel(): string {
   return "Unlock";
 }
 
-/** Short status above the headline — access, not “continue.” */
+/** Short status above the headline — unlock remaining breakdown, not a cold start. */
 export function resultsEmailGateIncludedEyebrow(): string {
-  return "Access your diagnostic";
+  return "SEE YOUR COMPLETE DIAGNOSTIC";
 }
 
 export const RESULTS_EMAIL_GATE_UNLOCK_ITEMS = [
@@ -22,12 +25,12 @@ export const RESULTS_EMAIL_GATE_UNLOCK_ITEMS = [
 
 /** Footer under the unlock form — what happens after they enter email. */
 export function resultsEmailGateUnlockLegal(): string {
-  return "Enter your email to unlock your full report on this page and enable Export. We’ll also email you a unique link to reopen it anytime.";
+  return "You've seen your score overview. Enter your email to unlock the full breakdown on this page and enable Export. We'll also email you a unique link to reopen it anytime.";
 }
 
 /** Soft tips ask — only right after unlock; email already captured. */
 export function resultsEmailGatePreferenceEyebrow(): string {
-  return "Stay in the loop";
+  return "STAY IN THE LOOP";
 }
 
 export function resultsEmailGatePreferenceHeadline(): string {

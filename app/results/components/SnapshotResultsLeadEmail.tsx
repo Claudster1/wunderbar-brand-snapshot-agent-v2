@@ -30,6 +30,11 @@ type Props = {
   contentUnlocked?: boolean;
   /** Fired when tips is saved or skipped — parent can show suite upsell + refresh. */
   onCaptureFlowComplete?: () => void;
+  /**
+   * Parent will hard-navigate (e.g. reload) after tips — skip router.refresh()
+   * and show a calm “opening results” state instead of flashing RSC/payload UI.
+   */
+  parentHandlesNavigation?: boolean;
 };
 
 const INSIGHTS_CHOICES: Array<{ value: SnapshotContentOptIn; label: string }> = [
@@ -41,7 +46,7 @@ const INSIGHTS_CHOICES: Array<{ value: SnapshotContentOptIn; label: string }> = 
 
 const TURNSTILE_REQUIRED = isTurnstileEnforced();
 
-type Phase = "unlock" | "tips" | "hidden";
+type Phase = "unlock" | "tips" | "hidden" | "opening";
 
 export function SnapshotResultsLeadEmail({
   reportId,
@@ -51,6 +56,7 @@ export function SnapshotResultsLeadEmail({
   onEmailCaptured,
   contentUnlocked = false,
   onCaptureFlowComplete,
+  parentHandlesNavigation = false,
 }: Props) {
   const router = useRouter();
   // Returning visitors who already unlocked: no second form. Tips only appear
@@ -81,10 +87,19 @@ export function SnapshotResultsLeadEmail({
   }, [contentUnlocked, phase]);
 
   const finishCaptureFlow = useCallback(() => {
-    setPhase("hidden");
     onCaptureFlowComplete?.();
-    router.refresh();
-  }, [onCaptureFlowComplete, router]);
+    if (parentHandlesNavigation) {
+      // Hard reload is coming — keep a calm status card; do not soft-refresh (RSC flash).
+      setPhase("opening");
+      return;
+    }
+    setPhase("hidden");
+    // Defer soft refresh until after the tips → upsell paint so RSC streaming
+    // doesn't flash payload/“code” UI over the preference form.
+    window.setTimeout(() => {
+      router.refresh();
+    }, 150);
+  }, [onCaptureFlowComplete, parentHandlesNavigation, router]);
 
   const handleEmailSubmit = useCallback(
     async (e: FormEvent) => {
@@ -199,6 +214,18 @@ export function SnapshotResultsLeadEmail({
   );
 
   if (phase === "hidden") return null;
+
+  if (phase === "opening") {
+    return (
+      <section className="results-gate-capture" aria-live="polite" aria-busy="true">
+        <div className="results-gate-capture__inner" style={{ textAlign: "center", padding: "28px 20px" }}>
+          <p className="results-gate-capture__eyebrow m-0 mb-2">ALMOST THERE</p>
+          <h2 className="bs-h3 m-0 mb-2 text-brand-navy">Opening your full diagnostic…</h2>
+          <p className="results-gate-capture__lead m-0">Hang tight — this only takes a moment.</p>
+        </div>
+      </section>
+    );
+  }
 
   if (phase === "tips") {
     return (

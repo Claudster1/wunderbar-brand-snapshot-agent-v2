@@ -33,6 +33,7 @@ import {
   stripStreamingAssistantDisplay,
   textLooksLikeIntakeJsonDump,
 } from '@/lib/intake/stripAssistantJsonPayload';
+import { normalizeFinalizeHandoffPrefix } from '@/lib/intake/finalizeHandoffCopy';
 import {
   getQaSeedTurns,
   isQaSeedAllowed,
@@ -812,6 +813,16 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     setMessages(nextHistory);
     setIsLoading(true);
 
+    /** Keep finalize handoff markdown (bold generating line) stable across stream → done. */
+    const intakeTierForCopy = (options?.productTier ?? 'snapshot') as ChatTier;
+    const toBubbleText = (text: string) => {
+      if (!text.trim()) return text;
+      if (intakeTierForCopy === 'snapshot' || intakeTierForCopy === 'snapshot-plus') {
+        return normalizeFinalizeHandoffPrefix(text, intakeTierForCopy);
+      }
+      return text;
+    };
+
     // ─── Two-message intro flow: intercept first message as name ───
     // If a welcomeBackTemplate is provided and we haven't received the name yet,
     // treat this message as the user's name and inject the welcome-back directly.
@@ -861,7 +872,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
         signal: ac.signal,
         onToken: (token) => {
           streamingRaw += token;
-          const display = stripStreamingAssistantDisplay(streamingRaw);
+          const display = toBubbleText(stripStreamingAssistantDisplay(streamingRaw));
           setMessages((prev) =>
             prev.map((m) => (m.id === streamingMessageId ? { ...m, text: display } : m)),
           );
@@ -871,9 +882,10 @@ export function useBrandChat(options?: UseBrandChatOptions) {
       const { displayText: cleanReplyText, payload: intakePayload } = splitAssistantIntakePayload(replyText);
       const HANDOFF_FALLBACK =
         "Thanks — I'm wrapping up your diagnostic now. Hang tight while we build your results.";
-      const bubbleText =
+      const bubbleText = toBubbleText(
         cleanReplyText.trim() ||
-        (intakePayload || textLooksLikeIntakeJsonDump(replyText) ? HANDOFF_FALLBACK : "");
+          (intakePayload || textLooksLikeIntakeJsonDump(replyText) ? HANDOFF_FALLBACK : ""),
+      );
 
       // Never leave raw JSON / fences in the streaming bubble.
       setMessages((prev) =>
@@ -931,7 +943,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
         if (userTurns < 3) return false;
 
         const prose =
-          stripIntakeJsonFromAssistantText(assistantText).trim() || HANDOFF_FALLBACK;
+          toBubbleText(stripIntakeJsonFromAssistantText(assistantText).trim()) || HANDOFF_FALLBACK;
         const handoffMessage = createMessage('assistant', prose);
         const completedHistory = [...nextHistory, handoffMessage];
         messagesRef.current = completedHistory;
@@ -1079,11 +1091,12 @@ export function useBrandChat(options?: UseBrandChatOptions) {
               }
 
               // Keep only clean handoff prose in the thread (streaming bubble already cleaned).
-              const textBeforeJson =
+              const textBeforeJson = toBubbleText(
                 bubbleText ||
-                cleanReplyText ||
-                trimmedReply.substring(0, jsonMatchIndex).trim() ||
-                HANDOFF_FALLBACK;
+                  cleanReplyText ||
+                  trimmedReply.substring(0, jsonMatchIndex).trim() ||
+                  HANDOFF_FALLBACK,
+              );
               setMessages((prev) =>
                 prev.map((m) =>
                   m.id === streamingMessageId ? { ...m, text: textBeforeJson } : m,
@@ -1290,7 +1303,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
             }
 
             // Extract any text before the JSON (handoff message)
-            const textBeforeJson = bubbleText || cleanReplyText || HANDOFF_FALLBACK;
+            const textBeforeJson = toBubbleText(bubbleText || cleanReplyText || HANDOFF_FALLBACK);
             
             // Strip score-related text but keep the conversational handoff
             const scorePatterns = [
@@ -1323,8 +1336,9 @@ export function useBrandChat(options?: UseBrandChatOptions) {
           }
         } catch (parseError) {
           // Model pasted invalid / partial JSON — show prose only; finalize from transcript when it reads like wrap-up.
-          const displayOnly =
-            bubbleText || cleanReplyText || stripIntakeJsonFromAssistantText(replyText);
+          const displayOnly = toBubbleText(
+            bubbleText || cleanReplyText || stripIntakeJsonFromAssistantText(replyText),
+          );
           const handoffFallback = displayOnly || HANDOFF_FALLBACK;
           const assistantMessage = createMessage('assistant', handoffFallback);
           const badJsonHistory = [...nextHistory, assistantMessage];
@@ -1372,7 +1386,7 @@ export function useBrandChat(options?: UseBrandChatOptions) {
             return;
           }
           // Never fall back to raw replyText — it may be a JSON leak.
-          const safeText = bubbleText || cleanReplyText || HANDOFF_FALLBACK;
+          const safeText = toBubbleText(bubbleText || cleanReplyText || HANDOFF_FALLBACK);
           const updatedHistory = [
             ...nextHistory,
             createMessage('assistant', safeText),

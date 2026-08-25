@@ -12,9 +12,9 @@ export function resultsCompleteSnapshotCtaLabel(): string {
   return "Unlock";
 }
 
-/** Short status above the headline — more content, not a cold start. */
+/** Short status above the headline — unlock remaining breakdown, not a cold start. */
 export function resultsEmailGateIncludedEyebrow(): string {
-  return "MORE IN YOUR RESULTS";
+  return "SEE THE FULL DIAGNOSTIC";
 }
 
 export const RESULTS_EMAIL_GATE_UNLOCK_ITEMS = [

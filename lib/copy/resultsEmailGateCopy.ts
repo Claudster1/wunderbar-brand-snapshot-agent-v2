@@ -28,6 +28,11 @@ export function resultsEmailGateUnlockLegal(): string {
   return "You've seen your score overview. Enter your email to unlock the full breakdown on this page and enable Export. We'll also email you a unique link to reopen it anytime.";
 }
 
+/** Toast when header Export is clicked before email unlock. */
+export function resultsEmailGateExportToast(): string {
+  return "Enter your email below to download";
+}
+
 /** Soft tips ask — only right after unlock; email already captured. */
 export function resultsEmailGatePreferenceEyebrow(): string {
   return "STAY IN THE LOOP";

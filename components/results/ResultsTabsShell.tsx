@@ -20,6 +20,7 @@ import {
   readResultsEmailGateUnlocked,
   RESULTS_EMAIL_UNLOCKED_EVENT,
 } from "@/lib/results/resultsEmailGateStorage";
+import { resultsEmailGateExportToast } from "@/lib/copy/resultsEmailGateCopy";
 import { TabIntroGuidanceBlock } from "@/components/results/TabIntroGuidanceBlock";
 import TabSectionMenu from "@/components/results/TabSectionMenu";
 import { useActiveSectionInView } from "@/components/results/useActiveSectionInView";
@@ -46,7 +47,9 @@ import {
   SUITE_INTRO_EYEBROW_TEXT_STYLE,
   SUITE_INTRO_GUIDANCE_TEXT_STYLE,
   SUITE_INTRO_TITLE_TEXT_STYLE,
+  SUITE_NAVY,
   SUITE_SHADOW_CARD,
+  SUITE_SHADOW_FLOAT,
   SUITE_TAB_BODY_SHELL,
   SUITE_TEXT_PRIMARY,
 } from "@/components/results/suiteBrandTokens";
@@ -576,6 +579,7 @@ export default function ResultsTabsShell({
     (reportId.includes("preview") && userEmail.toLowerCase().includes("preview"));
 
   const [exportUnlocked, setExportUnlocked] = useState(!pdfExportRequiresEmail);
+  const [exportEmailToast, setExportEmailToast] = useState<string | null>(null);
   useEffect(() => {
     if (!pdfExportRequiresEmail) {
       setExportUnlocked(true);
@@ -594,6 +598,12 @@ export default function ResultsTabsShell({
     window.addEventListener(RESULTS_EMAIL_UNLOCKED_EVENT, onUnlock);
     return () => window.removeEventListener(RESULTS_EMAIL_UNLOCKED_EVENT, onUnlock);
   }, [pdfExportRequiresEmail, reportId]);
+
+  useEffect(() => {
+    if (!exportEmailToast) return;
+    const t = window.setTimeout(() => setExportEmailToast(null), 3200);
+    return () => window.clearTimeout(t);
+  }, [exportEmailToast]);
 
   const mintAccessSession = useCallback(async () => {
     if (!reportId) return;
@@ -618,6 +628,7 @@ export default function ResultsTabsShell({
   }, [exportUnlocked, mintAccessSession, pdfExportRequiresEmail]);
 
   const requestEmailForExport = useCallback(() => {
+    setExportEmailToast(resultsEmailGateExportToast());
     const gate = document.getElementById("email-results");
     gate?.scrollIntoView({ behavior: "smooth", block: "start" });
     window.setTimeout(() => {
@@ -1375,6 +1386,33 @@ export default function ResultsTabsShell({
       className="results-suite-root"
       style={{ backgroundColor: SUITE_BG_PAGE, minHeight: "100vh", fontFamily: SUITE_FONT_UI }}
     >
+      {exportEmailToast ? (
+        <div
+          role="status"
+          aria-live="polite"
+          style={{
+            position: "fixed",
+            top: 68,
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 400,
+            maxWidth: "min(92vw, 360px)",
+            padding: "12px 18px",
+            borderRadius: 8,
+            backgroundColor: SUITE_NAVY,
+            color: "#FFFFFF",
+            fontSize: 13,
+            fontWeight: 600,
+            lineHeight: 1.4,
+            textAlign: "center",
+            boxShadow: SUITE_SHADOW_FLOAT,
+            fontFamily: SUITE_FONT_UI,
+            pointerEvents: "none",
+          }}
+        >
+          {exportEmailToast}
+        </div>
+      ) : null}
       <CompactResultsHeader
         productName={productDisplayName}
         companyName={

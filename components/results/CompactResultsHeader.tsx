@@ -13,8 +13,17 @@ import {
   SUITE_SHADOW_FLOAT,
   SUITE_TEXT_PRIMARY,
 } from "@/components/results/suiteBrandTokens";
+import { withUtm } from "@/lib/utm";
 
 const HEADER_HEIGHT = 56;
+const BRAND_LOGO_SRC =
+  "https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp";
+const BRAND_HOME_HREF = withUtm("https://wunderbardigital.com/", {
+  source: "wunderbrand_app",
+  medium: "results_header",
+  campaign: "brand_navigation",
+  content: "report_header_logo",
+});
 
 interface CompactResultsHeaderProps {
   productName: string;
@@ -105,22 +114,31 @@ export default function CompactResultsHeader({
         fontFamily: SUITE_FONT_UI,
       }}
     >
-      <div
+      <a
+        href={BRAND_HOME_HREF}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Wunderbar Digital home"
         style={{
           display: "flex",
           alignItems: "center",
+          alignSelf: "stretch",
           paddingRight: 16,
           borderRight: `1px solid ${hairline}`,
           marginRight: 4,
           flexShrink: 0,
+          textDecoration: "none",
+          cursor: "pointer",
+          position: "relative",
+          zIndex: 1,
         }}
       >
         <img
-          src="https://d268zs2sdbzvo0.cloudfront.net/66e09bd196e8d5672b143fb8_528e12f9-22c9-4c46-8d90-59238d4c8141_logo.webp"
+          src={BRAND_LOGO_SRC}
           alt="Wunderbar Digital"
-          style={{ height: 26, width: "auto", display: "block" }}
+          style={{ height: 26, width: "auto", display: "block", pointerEvents: "none" }}
         />
-      </div>
+      </a>
       <div
         style={{ flex: 1, display: "flex", alignItems: "center", overflow: "hidden", minWidth: 0 }}
         title={`${companyName} · ${resultsDate} · Confidential`}
@@ -196,7 +214,10 @@ export default function CompactResultsHeader({
           >
             {productName}
           </span>
-          <span
+          <a
+            href={BRAND_HOME_HREF}
+            target="_blank"
+            rel="noopener noreferrer"
             style={{
               display: "block",
               fontSize: 13,
@@ -205,10 +226,12 @@ export default function CompactResultsHeader({
               lineHeight: 1.2,
               fontWeight: 600,
               textAlign: "right",
+              textDecoration: "none",
+              cursor: "pointer",
             }}
           >
             Powered by Wunderbar Digital
-          </span>
+          </a>
         </div>
         <button
           type="button"

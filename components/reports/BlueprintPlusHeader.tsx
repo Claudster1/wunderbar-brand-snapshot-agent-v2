@@ -112,14 +112,15 @@ export function BlueprintPlusHeader({
           href={`https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=${utmMedium}&utm_campaign=brand_navigation&utm_content=report_header_logo`}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center no-underline"
+          className="inline-flex items-center no-underline cursor-pointer relative z-10"
+          aria-label="Wunderbar Digital home"
         >
           <img
             src={logoSrc}
             alt="Wunderbar Digital"
             width={160}
             height={26}
-            style={{ width: 160, height: "auto", display: "block" }}
+            style={{ width: 160, height: "auto", display: "block", pointerEvents: "none" }}
             onError={() => {
               if (logoSrc !== BRAND_LOGO_FALLBACK) setLogoSrc(BRAND_LOGO_FALLBACK);
             }}
@@ -131,7 +132,15 @@ export function BlueprintPlusHeader({
               {productName}
             </span>
             <span className="text-[11px] sm:text-xs text-brand-muted">
-              Powered by <strong className="text-brand-blue">Wunderbar Digital</strong>
+              Powered by{" "}
+              <a
+                href={`https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=${utmMedium}&utm_campaign=brand_navigation&utm_content=report_header_powered_by`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-brand-blue font-bold no-underline hover:underline"
+              >
+                Wunderbar Digital
+              </a>
             </span>
           </div>
         )}
@@ -207,7 +216,15 @@ export function BlueprintPlusHeader({
                 {productName}
               </span>
               <span className="text-[11px] sm:text-xs text-brand-muted">
-                Powered by <strong className="text-brand-blue">Wunderbar Digital</strong>
+                Powered by{" "}
+                <a
+                  href={`https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=${utmMedium}&utm_campaign=brand_navigation&utm_content=report_header_powered_by`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-brand-blue font-bold no-underline hover:underline"
+                >
+                  Wunderbar Digital
+                </a>
               </span>
             </div>
           </div>

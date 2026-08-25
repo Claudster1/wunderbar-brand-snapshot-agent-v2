@@ -5,7 +5,7 @@
 // Renders nothing visible — silently obtains a token in the background.
 // Parent reads the token via the callback or the ref.
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, type CSSProperties } from "react";
 import { isTurnstileEnforced } from "@/lib/security/turnstilePolicy";
 
 declare global {
@@ -30,6 +30,23 @@ interface TurnstileWidgetProps {
 
 const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "";
 const SHOULD_ENABLE_TURNSTILE = isTurnstileEnforced() && Boolean(SITE_KEY);
+
+/** Keep Cloudflare’s iframe completely off-screen — avoids a brief “code/widget” flash. */
+const HIDDEN_HOST_STYLE: CSSProperties = {
+  position: "fixed",
+  top: 0,
+  left: 0,
+  width: 1,
+  height: 1,
+  margin: 0,
+  padding: 0,
+  overflow: "hidden",
+  clipPath: "inset(50%)",
+  border: 0,
+  opacity: 0,
+  pointerEvents: "none",
+  zIndex: -1,
+};
 
 export function TurnstileWidget({ onToken, onError }: TurnstileWidgetProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -93,10 +110,6 @@ export function TurnstileWidget({ onToken, onError }: TurnstileWidgetProps) {
   if (!SHOULD_ENABLE_TURNSTILE) return null;
 
   return (
-    <div
-      ref={containerRef}
-      style={{ position: "absolute", left: "-9999px", width: 0, height: 0 }}
-      aria-hidden="true"
-    />
+    <div ref={containerRef} style={HIDDEN_HOST_STYLE} aria-hidden="true" />
   );
 }

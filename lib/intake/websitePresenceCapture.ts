@@ -48,7 +48,7 @@ export function websitePresenceUserSatisfiesCapture(userText: string): boolean {
 }
 
 export function lastUserAndAssistant(
-  messages: Array<{ role: string; content: string }>,
+  messages: Array<{ role: string; content?: string }>,
 ): { lastAssistant: string; lastUser: string } {
   let lastAssistant = "";
   let lastUser = "";
@@ -63,7 +63,7 @@ export function lastUserAndAssistant(
 
 /** True when we already got a yes (no URL) and must ask for the link next. */
 export function shouldAskWebsiteUrlFollowUp(
-  messages: Array<{ role: string; content: string }>,
+  messages: Array<{ role: string; content?: string }>,
 ): boolean {
   const { lastAssistant, lastUser } = lastUserAndAssistant(messages);
   if (!textAffirmsWebsiteWithoutUrl(lastUser)) return false;
@@ -74,7 +74,7 @@ export function shouldAskWebsiteUrlFollowUp(
 }
 
 export function buildWebsitePresenceCaptureQuestion(
-  messages?: Array<{ role: string; content: string }>,
+  messages?: Array<{ role: string; content?: string }>,
 ): string {
   if (messages && shouldAskWebsiteUrlFollowUp(messages)) {
     return WEBSITE_PRESENCE_URL_FOLLOWUP_PROMPT;
@@ -84,7 +84,7 @@ export function buildWebsitePresenceCaptureQuestion(
 
 /** Initial yes/no chips vs URL follow-up chips. */
 export function getWebsitePresenceSuggestedReplies(
-  messages?: Array<{ role: string; content: string }>,
+  messages?: Array<{ role: string; content?: string }>,
 ): string[] {
   if (messages && shouldAskWebsiteUrlFollowUp(messages)) {
     return ["I'll paste the URL", "Skip for now", "Actually — no website yet"];
@@ -115,7 +115,7 @@ export function assistantWebsiteReplyLooksOnTopic(content: string): boolean {
  * (bare yes / “I’ll paste” then skip / soft-skip after affirm).
  */
 export function transcriptImpliesHasWebsite(
-  messages: Array<{ role: string; content: string }>,
+  messages: Array<{ role: string; content?: string }>,
 ): boolean {
   const users = messages.filter((m) => m.role === "user").map((m) => m.content || "");
   if (users.some((u) => textHasWebsiteUrl(u))) return true;

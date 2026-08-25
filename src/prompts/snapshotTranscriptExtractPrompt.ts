@@ -21,6 +21,7 @@ Required shape (fill every key; use null only where the type allows null):
   "geographicScope": "local" | "regional" | "national" | "global",
   "audienceType": "B2B" | "B2C" | "both",
   "website": string | null,
+  "hasWebsite": boolean,
   "socials": string[],
   "competitorNames": string[],
   "currentCustomers": string,
@@ -75,4 +76,10 @@ Required shape (fill every key; use null only where the type allows null):
   "mentionedAssets": string[]
 }
 
-For Snapshot free tier, many advanced fields may be unknown — infer reasonable defaults (e.g. servicesInterest "not_now", expertConversation false). Set **contentOptIn** to **null** — that preference is collected only after email on the results / verification flow, not from chat.`;
+For Snapshot free tier, many advanced fields may be unknown — infer reasonable defaults (e.g. servicesInterest "not_now", expertConversation false). Set **contentOptIn** to **null** — that preference is collected only after email on the results / verification flow, not from chat.
+
+Website rules:
+- If they shared a URL, set **website** to that URL and **hasWebsite** true.
+- If they said yes / they have a site but never shared a URL, set **website** null and **hasWebsite** true.
+- If they said no website / not on the web / social-only / coming soon, set **website** null and **hasWebsite** false.
+`;

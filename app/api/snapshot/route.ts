@@ -429,7 +429,9 @@ export async function POST(req: Request) {
           teamSize: asStringOrNull(snapshotInput.teamSize),
           yearsInBusiness: asStringOrNull(snapshotInput.yearsInBusiness),
           hasBrandGuidelines: asBooleanOrNull(snapshotInput.hasBrandGuidelines),
-          hasWebsite: Boolean(asStringOrNull(snapshotInput.website)),
+          hasWebsite:
+            Boolean(asStringOrNull(snapshotInput.website)) ||
+            snapshotInput.hasWebsite === true,
           previousBrandWork: asStringOrNull(snapshotInput.previousBrandWork),
         }).catch(() => {}),
         // Query peer benchmarks for the report

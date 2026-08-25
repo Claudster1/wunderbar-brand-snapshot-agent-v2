@@ -84,6 +84,7 @@ describe("resolveSuggestedReplies", () => {
       nextPendingKey: "website_presence",
       lastAssistantText: "Do you have a website I can look at?",
     });
-    expect(chips?.[0]).toMatch(/website|URL/i);
+    expect(chips?.[0]).toMatch(/^Yes$/i);
+    expect(chips).toContain("No website yet");
   });
 });

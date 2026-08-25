@@ -1,4 +1,5 @@
 import type { CaptureKey } from "@/lib/intake/flexibleDirectCaptureComplete";
+import { buildWebsitePresenceCaptureQuestion } from "@/lib/intake/websitePresenceCapture";
 
 export type CaptureBusinessType =
   | "service_b2b"
@@ -8,10 +9,15 @@ export type CaptureBusinessType =
   | "saas"
   | "local_service";
 
+type CaptureQuestionOptions = {
+  messages?: Array<{ role: string; content: string }>;
+};
+
 /** Canonical forced-capture prompts — chips must resolve from this wording + capture key. */
 export function buildCaptureQuestion(
   key: CaptureKey,
   inferredType: CaptureBusinessType | null,
+  options?: CaptureQuestionOptions,
 ): string {
   /** Revenue / offer shape only — avoids baking B2B/B2C into the business-type step. */
   const revenueOnlyLabel = (type: CaptureBusinessType) => {
@@ -67,7 +73,7 @@ export function buildCaptureQuestion(
     case "thought_leadership":
       return "**Are you doing any thought leadership publicly yet** — blog, speaking, LinkedIn POV, or similar?";
     case "website_presence":
-      return "**Do you have a website URL to share today** — even a simple landing page or store link? If you are not on the web yet, just say so; that is useful too.";
+      return buildWebsitePresenceCaptureQuestion(options?.messages);
     case "social_platform_presence":
       return "**Where does your brand show up on social today?** Name the platforms that matter (or say *none / not really active yet*).";
     case "additional_marketing_surfaces":

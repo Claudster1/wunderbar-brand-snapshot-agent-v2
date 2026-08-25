@@ -14,6 +14,13 @@ import { wundyPaidTierFragment } from "@/src/prompts/wundyPaidTierFragment";
 import { buildIntakeResponseMeta } from "@/lib/intake/buildIntakeResponseMeta";
 import { buildCaptureQuestion } from "@/lib/intake/buildCaptureQuestion";
 import type { CaptureBusinessType } from "@/lib/intake/buildCaptureQuestion";
+import {
+  assistantSuggestsCreatingWebsite,
+  assistantWebsiteReplyLooksOnTopic,
+  shouldAskWebsiteUrlFollowUp,
+  textAffirmsWebsiteWithoutUrl,
+  transcriptImpliesHasWebsite,
+} from "@/lib/intake/websitePresenceCapture";
 import { buildNarrativeRoutingLines } from "@/lib/intake/narrativeMilestones";
 import { wundyUpgradeContinuationFragment } from "@/src/prompts/wundyUpgradeContinuationFragment";
 import { wundyEarlyStageBuildModeFragment } from "@/src/prompts/wundyEarlyStageBuildModeFragment";
@@ -213,7 +220,7 @@ const ON_TOPIC_ASSISTANT_HINTS: Record<CaptureKey, RegExp> = {
   credibility_proof: /\b(testimonial|case stud|review|proof|success|credibility)\b/i,
   visual_confidence: /\b(visual|logo|look|design|confident|brand looks)\b/i,
   thought_leadership: /\b(thought leadership|known for|blog|speak|publish|authority)\b/i,
-  website_presence: /\b(website|url|domain|site|landing|\.com|web address|online)\b/i,
+  website_presence: /\b(do you have (a )?website|website url|what'?s (the )?url|share .{0,20}(url|link)|paste .{0,16}(url|link)|landing page|not on the web|online home|web address)\b/i,
   social_platform_presence:
     /\b(social|instagram|linkedin|tiktok|platform|handle|@|youtube|facebook|threads|not active|none)\b/i,
   additional_marketing_surfaces:
@@ -1047,10 +1054,28 @@ function responseRequestsExpectedCapture(content: string, key: CaptureKey): bool
 function assistantReplyLooksOnTopicForCapture(content: string, key: CaptureKey): boolean {
   const t = content.trim();
   if (t.length < 55 || !/\?/.test(t)) return false;
+  if (key === "website_presence") {
+    return assistantWebsiteReplyLooksOnTopic(t);
+  }
   return ON_TOPIC_ASSISTANT_HINTS[key].test(t);
 }
 
-function shouldForceCapturePrompt(finalContent: string, forcedPrompt: string, pendingKey: CaptureKey): boolean {
+function shouldForceCapturePrompt(
+  finalContent: string,
+  forcedPrompt: string,
+  pendingKey: CaptureKey,
+  messages?: Array<{ role: string; content: string }>,
+): boolean {
+  // Never allow create-a-site coaching after the user said they have a website.
+  if (
+    pendingKey === "website_presence" &&
+    messages &&
+    assistantSuggestsCreatingWebsite(finalContent) &&
+    (shouldAskWebsiteUrlFollowUp(messages) ||
+      textAffirmsWebsiteWithoutUrl(messages.filter((m) => m.role === "user").slice(-1)[0]?.content || ""))
+  ) {
+    return true;
+  }
   if (responseRequestsExpectedCapture(finalContent, pendingKey)) return false;
   if (assistantReplyLooksOnTopicForCapture(finalContent, pendingKey)) return false;
   if (finalContent.trim() === forcedPrompt.trim()) return false;
@@ -1413,7 +1438,9 @@ export async function POST(req: Request) {
     };
 
     const rawPending = getNextPendingCapture(messages, captureOpts);
-    const rawForced = rawPending ? buildCaptureQuestion(rawPending.key, inferredType) : null;
+    const rawForced = rawPending
+      ? buildCaptureQuestion(rawPending.key, inferredType, { messages })
+      : null;
     const softSkipKeys = new Set<CaptureKey>();
     if (
       rawPending &&
@@ -1425,7 +1452,7 @@ export async function POST(req: Request) {
 
     const nextPendingCapture = getNextPendingCapture(messages, captureOpts, softSkipKeys);
     const forcedCapturePrompt = nextPendingCapture
-      ? buildCaptureQuestion(nextPendingCapture.key, inferredType)
+      ? buildCaptureQuestion(nextPendingCapture.key, inferredType, { messages })
       : null;
 
     const routingGuard = buildDeterministicRoutingGuard(messages, captureOpts, softSkipKeys);
@@ -1433,7 +1460,9 @@ export async function POST(req: Request) {
       softSkipKeys.size > 0
         ? [
             "ANTI-LOOP CONTROL (mandatory): The same required intake question was already asked twice. The user's reply may not have registered in automation.",
-            "Do not repeat that question. Optionally acknowledge in one short sentence, then ask ONLY the next single topic from the routing guard — or continue normally if no captures remain.",
+            softSkipKeys.has("website_presence") && transcriptImpliesHasWebsite(messages)
+              ? "They indicated they HAVE a website (URL may be pending). Do NOT advise creating a website. Optionally ask once for the URL, otherwise continue — never imply they lack a site."
+              : "Do not repeat that question. Optionally acknowledge in one short sentence, then ask ONLY the next single topic from the routing guard — or continue normally if no captures remain.",
           ].join(" ")
         : null;
 
@@ -1504,7 +1533,12 @@ export async function POST(req: Request) {
       if (
         nextPendingCapture &&
         forcedCapturePrompt &&
-        shouldForceCapturePrompt(finalContent, forcedCapturePrompt, nextPendingCapture.key)
+        shouldForceCapturePrompt(
+          finalContent,
+          forcedCapturePrompt,
+          nextPendingCapture.key,
+          messages,
+        )
       ) {
         finalContent = forcedCapturePrompt;
         replacedSocialCaptureWithApprovedWording = nextPendingCapture.key === "social_platform_presence";

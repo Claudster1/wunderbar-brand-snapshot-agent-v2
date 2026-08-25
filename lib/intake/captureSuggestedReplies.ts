@@ -1,4 +1,5 @@
 import type { CaptureKey } from "@/lib/intake/flexibleDirectCaptureComplete";
+import { getWebsitePresenceSuggestedReplies } from "@/lib/intake/websitePresenceCapture";
 
 const OTHER = "Something else (type below)";
 const BETWEEN = "Between bands / not sure — describe below";
@@ -19,7 +20,10 @@ export function getChipSelectionModeForCapture(key: CaptureKey): ChipSelectionMo
 }
 
 /** Chip options for forced server captures — keeps answers fast and parseable. */
-export function getSuggestedRepliesForCapture(key: CaptureKey): string[] {
+export function getSuggestedRepliesForCapture(
+  key: CaptureKey,
+  options?: { messages?: Array<{ role: string; content: string }> },
+): string[] {
   switch (key) {
     case "business_type_classifier":
       return [
@@ -87,7 +91,7 @@ export function getSuggestedRepliesForCapture(key: CaptureKey): string[] {
     case "thought_leadership":
       return ["Yes — actively", "A little / informal", "Not yet", "Planning to start"];
     case "website_presence":
-      return ["Yes, here's the URL", "No website yet", "Social / marketplace only", "Coming soon"];
+      return getWebsitePresenceSuggestedReplies(options?.messages);
     case "social_platform_presence":
       return [
         "LinkedIn",

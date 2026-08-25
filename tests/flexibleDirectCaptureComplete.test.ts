@@ -43,7 +43,7 @@ const LA = {
     "**Pick one primary place** you're grading — your main website **or** the profile you most often send people to. **How clear is the next step there** — pretty obvious, or still a little mixed?",
   channelMix:
     "**Across the marketing channels you actively run** (not only where new leads first discover you), where are you showing up for people lately — email, social, paid, or something else?",
-  website: "Do you have a website URL to share today — even a simple landing page?",
+  website: "Do you have a website?",
   socialPlatforms: "Where does your brand show up on social today?",
   socialParaphrasePlatformsMatter:
     "**Quick question — which platforms actually matter for the brand socially right now**, even if you are pretty quiet?",
@@ -130,6 +130,12 @@ describe("flexibleDirectCaptureComplete", () => {
     it("accepts explicit no-site answers", () => {
       expect(flexibleDirectCaptureComplete("website_presence", LA.website, "no website yet")).toBe(true);
       expect(flexibleDirectCaptureComplete("website_presence", LA.website, "instagram only")).toBe(true);
+    });
+    it("does not complete on bare yes — URL follow-up required", () => {
+      expect(flexibleDirectCaptureComplete("website_presence", LA.website, "yes")).toBe(false);
+      expect(flexibleDirectCaptureComplete("website_presence", LA.website, "Yes — I'll paste the URL")).toBe(
+        false,
+      );
     });
   });
 

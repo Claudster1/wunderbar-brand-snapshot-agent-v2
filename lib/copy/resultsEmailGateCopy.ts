@@ -14,7 +14,7 @@ export function resultsCompleteSnapshotCtaLabel(): string {
 
 /** Short status above the headline — unlock remaining breakdown, not a cold start. */
 export function resultsEmailGateIncludedEyebrow(): string {
-  return "SEE YOUR FULL DIAGNOSTIC";
+  return "SEE YOUR COMPLETE DIAGNOSTIC";
 }
 
 export const RESULTS_EMAIL_GATE_UNLOCK_ITEMS = [

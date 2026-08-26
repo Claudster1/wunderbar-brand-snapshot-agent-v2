@@ -11,43 +11,27 @@ import {
   SUITE_RADIUS_SM,
   SUITE_TEXT_PRIMARY,
 } from "@/components/results/suiteBrandTokens";
-import { parseStrategyProseToBlocks } from "@/lib/strategy/strategyProseBlocks";
+import StrategyProseBody from "@/components/strategy/StrategyProseBody";
 
 const NAVY = SUITE_NAVY;
 const MID = SUITE_MUTED;
 const BORDER = SUITE_BORDER;
 
 function RichTextCell({ text }: { text: string }) {
-  const blocks = parseStrategyProseToBlocks(text);
-  if (blocks.length === 0) return null;
+  const trimmed = text.trim();
+  if (!trimmed) return null;
   return (
-    <div style={{ display: "grid", gap: 8 }}>
-      {blocks.map((block, idx) => {
-        if (block.type === "paragraph") {
-          return (
-            <p key={`p-${idx}`} style={{ margin: 0, whiteSpace: "pre-line" }}>
-              {block.text}
-            </p>
-          );
-        }
-        if (block.type === "ul") {
-          return (
-            <ul key={`ul-${idx}`} className="strategy-suite-ul" style={{ margin: 0, paddingLeft: 18 }}>
-              {block.items.map((item, i) => (
-                <li key={`${idx}-${i}`}>{item}</li>
-              ))}
-            </ul>
-          );
-        }
-        return (
-          <ol key={`ol-${idx}`} style={{ margin: 0, paddingLeft: 18 }}>
-            {block.items.map((item, i) => (
-              <li key={`${idx}-${i}`}>{item}</li>
-            ))}
-          </ol>
-        );
-      })}
-    </div>
+    <StrategyProseBody
+      text={trimmed}
+      paragraphStyle={{
+        margin: 0,
+        fontSize: 14,
+        color: SUITE_TEXT_PRIMARY,
+        lineHeight: 1.55,
+        fontFamily: SUITE_FONT_UI,
+        whiteSpace: "pre-line",
+      }}
+    />
   );
 }
 

@@ -1810,7 +1810,7 @@ export default function FoundationBlueprintContent({
           </div>
 
           <div className="rounded-md border border-brand-border bg-white p-3 mb-3">
-            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">In Use on Key Surfaces</p>
+            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">Example</p>
             <div className="grid gap-2 md:grid-cols-3">
               <div className="rounded-md border border-brand-border bg-[#EFF6FF] p-2">
                 <p className="text-sm sm:text-base font-medium text-brand-blue">Organic Social</p>
@@ -2264,7 +2264,7 @@ export default function FoundationBlueprintContent({
             </div>
           </div>
           <div className="rounded-md border border-brand-border bg-white p-3 mb-3">
-            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">Copy Upgrade Example</p>
+            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">Example</p>
             <div className="grid gap-2 md:grid-cols-2">
               <div className="rounded-md border border-[#FCA5A5] bg-[#FEF2F2] p-2">
                 <p className="text-xs sm:text-sm font-semibold text-[#B91C1C]">Before</p>
@@ -2321,7 +2321,7 @@ export default function FoundationBlueprintContent({
             ))}
           </div>
           <div className="mt-3 rounded-md border border-brand-border bg-white p-3">
-            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">Applied Example</p>
+            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">Example</p>
             <p className="text-sm sm:text-base text-brand-midnight mt-1">
               Claim: “We improve {primaryPillar.toLowerCase()} performance.” Proof package: baseline metric, identified leakage point,
               first 30-day action owner, and expected movement range.
@@ -2398,7 +2398,7 @@ export default function FoundationBlueprintContent({
             ))}
           </div>
           <div className="mt-3 rounded-md border border-brand-border bg-white p-3">
-            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">Applied Example</p>
+            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">Example</p>
             <p className="text-sm sm:text-base text-brand-midnight mt-1">
               {visualSystemMode === "existing"
                 ? "Keep current primary and secondary colors unchanged, but standardize when each appears so visual hierarchy stays consistent."
@@ -2522,13 +2522,13 @@ export default function FoundationBlueprintContent({
           <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-4">Photography Direction Examples</p>
           <div className="grid gap-2 md:grid-cols-2">
             <div className="rounded-md border border-brand-border bg-white p-3">
-              <p className="text-sm sm:text-base font-medium text-brand-blue">Use Example: Strategy in Action</p>
+              <p className="text-sm sm:text-base font-medium text-brand-blue">Example</p>
               <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Real team workshop scene with framework artifacts visible, neutral grading, and clear subject focus.
               </p>
             </div>
             <div className="rounded-md border border-brand-border bg-white p-3">
-              <p className="text-sm sm:text-base font-medium text-brand-blue">Use Example: Decision Moment</p>
+              <p className="text-sm sm:text-base font-medium text-brand-blue">Example</p>
               <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Buyer/operator context with practical environment cues and visible implementation signals.
               </p>
@@ -4429,7 +4429,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
                       {coreTile.when}
                     </p>
                     <blockquote className="m-0 mt-4 rounded-[5px] border border-slate-200/90 bg-[#F8FBFF] px-4 py-3.5 sm:px-5">
-                      <p className="m-0 text-[11px] font-bold tracking-[0.06em] text-slate-500">Sample line</p>
+                      <p className="m-0 text-[11px] font-bold tracking-[0.06em] text-slate-500">Example</p>
                       <p className="m-0 mt-2 text-[15px] leading-relaxed text-brand-midnight sm:text-base">
                         {coreTile.sample}
                       </p>
@@ -4460,7 +4460,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
                         </div>
                         <p className="m-0 mt-3 text-sm leading-relaxed text-brand-muted">{tile.when}</p>
                         <div className="mt-auto pt-4">
-                          <p className="m-0 text-[11px] font-bold tracking-[0.06em] text-slate-500">Sample line</p>
+                          <p className="m-0 text-[11px] font-bold tracking-[0.06em] text-slate-500">Example</p>
                           <p
                             className="m-0 mt-2 border-l-[3px] pl-3 text-sm leading-relaxed text-brand-midnight sm:text-[15px]"
                             style={{ borderColor: tile.accent }}
@@ -4550,7 +4550,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
               </div>
               <div className="flex h-full flex-col rounded-md border border-brand-border bg-[#F7FBFF] p-3">
                 <p className="text-sm sm:text-base font-medium text-brand-blue">Typography</p>
-                <p className="text-[16px] font-semibold text-brand-midnight mt-2">Headline Example</p>
+                <p className="text-[16px] font-semibold text-brand-midnight mt-2">Example</p>
                 <p className="text-sm sm:text-base text-brand-muted mt-1 leading-relaxed">Subhead + body hierarchy in Lato</p>
               </div>
               <div className="flex h-full flex-col rounded-md border border-brand-border bg-[#F7FBFF] p-3">
@@ -4559,10 +4559,10 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
               </div>
             </div>
             <div className="mt-3 rounded-md border border-brand-border bg-white p-3">
-              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-2">Brand Application Mock</p>
+              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-2">Example</p>
               <div className="rounded-lg border border-[#021859] overflow-hidden">
                 <div className="bg-[#021859] px-4 py-4">
-                  <p className="text-xs sm:text-sm tracking-[0.12em] text-[#7DD3FC]">Paid Social / Ad Creative Example</p>
+                  <p className="text-xs sm:text-sm tracking-[0.12em] text-[#7DD3FC]">Example</p>
                   <p className="text-[24px] leading-tight font-semibold text-white mt-1">
                     {brandName} Turns Strategic Clarity Into Conversion Quality
                   </p>

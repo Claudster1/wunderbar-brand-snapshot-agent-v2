@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { WorkbookSection as WorkbookSectionType } from "@/lib/workbookTypes";
+import StrategyProseBody from "@/components/strategy/StrategyProseBody";
 import {
   SUITE_ACCENT_BRIGHT,
   SUITE_BORDER,
@@ -45,11 +46,24 @@ export default function WorkbookSectionComponent({
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [formatGuideOpen, setFormatGuideOpen] = useState(false);
   const [areaFocused, setAreaFocused] = useState(false);
+  /** Prefer structured read view when content exists; empty sections start in edit. */
+  const [isEditing, setIsEditing] = useState(() => isEditable && !content.trim());
   const isDirty = localContent !== content;
 
   useEffect(() => {
     setLocalContent(content);
   }, [content]);
+
+  function startEditing() {
+    setLocalContent(content);
+    setIsEditing(true);
+  }
+
+  function cancelEditing() {
+    setLocalContent(content);
+    setIsEditing(false);
+    setSaveStatus("idle");
+  }
 
   async function handleSave() {
     if (!isDirty || saveStatus === "saving") return;
@@ -58,6 +72,7 @@ export default function WorkbookSectionComponent({
       await onSave(section.id, localContent);
       setSaveStatus("saved");
       setLastSaved(new Date());
+      setIsEditing(false);
       setTimeout(() => setSaveStatus("idle"), 3000);
     } catch {
       setSaveStatus("error");
@@ -142,7 +157,7 @@ export default function WorkbookSectionComponent({
                 Save failed — try again
               </span>
             )}
-            {isDirty && saveStatus === "idle" && (
+            {isEditing && isDirty && saveStatus === "idle" && (
               <span style={{ fontSize: 11, color: MID_GRAY, fontWeight: 600 }}>Unsaved changes</span>
             )}
             {lastSaved && saveStatus === "idle" && !isDirty && (
@@ -150,24 +165,66 @@ export default function WorkbookSectionComponent({
                 Last saved {lastSaved.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
               </span>
             )}
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={!isDirty || saveStatus === "saving"}
-              style={{
-                padding: "9px 18px",
-                backgroundColor: isDirty ? BLUE : "#E8ECF0",
-                color: isDirty ? "#ffffff" : "#94A3B8",
-                border: "none",
-                borderRadius: SUITE_RADIUS_MD,
-                fontWeight: 700,
-                fontSize: 13,
-                cursor: isDirty ? "pointer" : "not-allowed",
-                fontFamily: SUITE_FONT_UI,
-              }}
-            >
-              {saveStatus === "saving" ? "Saving..." : "Save"}
-            </button>
+            {isEditing ? (
+              <>
+                {content.trim() ? (
+                  <button
+                    type="button"
+                    onClick={cancelEditing}
+                    disabled={saveStatus === "saving"}
+                    style={{
+                      padding: "9px 14px",
+                      backgroundColor: "transparent",
+                      color: MID_GRAY,
+                      border: `1px solid ${BORDER}`,
+                      borderRadius: SUITE_RADIUS_MD,
+                      fontWeight: 600,
+                      fontSize: 13,
+                      cursor: saveStatus === "saving" ? "not-allowed" : "pointer",
+                      fontFamily: SUITE_FONT_UI,
+                    }}
+                  >
+                    Cancel
+                  </button>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={!isDirty || saveStatus === "saving"}
+                  style={{
+                    padding: "9px 18px",
+                    backgroundColor: isDirty ? BLUE : "#E8ECF0",
+                    color: isDirty ? "#ffffff" : "#94A3B8",
+                    border: "none",
+                    borderRadius: SUITE_RADIUS_MD,
+                    fontWeight: 700,
+                    fontSize: 13,
+                    cursor: isDirty ? "pointer" : "not-allowed",
+                    fontFamily: SUITE_FONT_UI,
+                  }}
+                >
+                  {saveStatus === "saving" ? "Saving..." : "Save"}
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={startEditing}
+                style={{
+                  padding: "9px 18px",
+                  backgroundColor: BLUE,
+                  color: "#ffffff",
+                  border: "none",
+                  borderRadius: SUITE_RADIUS_MD,
+                  fontWeight: 700,
+                  fontSize: 13,
+                  cursor: "pointer",
+                  fontFamily: SUITE_FONT_UI,
+                }}
+              >
+                Edit
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -233,23 +290,22 @@ export default function WorkbookSectionComponent({
               >
                 Suggested structure
               </p>
-              <p
-                style={{
+              <StrategyProseBody
+                text={section.inputTemplate}
+                paragraphStyle={{
                   margin: 0,
                   fontSize: 13,
                   color: BODY,
                   lineHeight: 1.55,
-                  whiteSpace: "pre-wrap",
+                  fontFamily: SUITE_FONT_UI,
                 }}
-              >
-                {section.inputTemplate}
-              </p>
+              />
             </div>
           ) : null}
         </div>
       ) : null}
 
-      {isEditable ? (
+      {isEditable && isEditing ? (
         <div>
           <textarea
             value={localContent}
@@ -282,15 +338,23 @@ export default function WorkbookSectionComponent({
           <div
             style={{
               display: "flex",
-              justifyContent: "flex-end",
+              justifyContent: "space-between",
+              alignItems: "center",
               fontSize: 11,
               color: "#94A3B8",
               marginTop: 6,
               gap: 14,
+              flexWrap: "wrap",
             }}
           >
-            <span>{wordCount} words</span>
-            <span>{charCount} characters</span>
+            <span style={{ lineHeight: 1.4 }}>
+              Tip: Use one <span style={{ fontWeight: 600 }}>Label: value</span> per line for a clearer reading view after
+              save.
+            </span>
+            <span style={{ display: "flex", gap: 14, flexShrink: 0 }}>
+              <span>{wordCount} words</span>
+              <span>{charCount} characters</span>
+            </span>
           </div>
         </div>
       ) : (
@@ -304,8 +368,8 @@ export default function WorkbookSectionComponent({
             boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
           }}
         >
-          {localContent ? (
-            <p style={{ fontSize: 15, lineHeight: 1.65, color: NAVY, margin: 0, whiteSpace: "pre-wrap" }}>{localContent}</p>
+          {content.trim() ? (
+            <StrategyProseBody text={content} />
           ) : (
             <p style={{ fontSize: 15, color: "#94A3B8", margin: 0, fontStyle: "italic" }}>{section.placeholder}</p>
           )}

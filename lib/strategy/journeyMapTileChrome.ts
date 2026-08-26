@@ -97,15 +97,18 @@ function normalizeStageLabel(label: string): string {
 }
 
 /**
- * Resolve chrome from stage label (Aware, Consider, Decide, Commit, Closed / won, …) with index fallback.
+ * Resolve chrome from stage label (Aware, Consider, Decide, Commit, Closed / won, Advocacy/Grow, …)
+ * with index fallback.
  */
 export function getJourneyMapTileChrome(label: string, index: number): JourneyMapTileChrome {
   const key = normalizeStageLabel(label);
 
-  if (/\bgrow\b/.test(key)) return GROW;
-  if (key.includes("closed") || key.includes("won")) return CLOSED;
-  if (key.includes("commit")) return COMMIT;
-  if (key.includes("decide")) return DECIDE;
+  if (/\bgrow\b/.test(key) || key.includes("advoca")) return GROW;
+  if (key.includes("closed") || key.includes("won") || key.includes("retention") || key.includes("retain")) {
+    return CLOSED;
+  }
+  if (key.includes("commit") || key.includes("onboard")) return COMMIT;
+  if (key.includes("decide") || key.includes("decision")) return DECIDE;
   if (key.includes("consider")) return CONSIDER;
   if (/\baware\b/.test(key) && !key.includes("unaware")) return AWARE;
 

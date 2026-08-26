@@ -316,6 +316,19 @@ function formatJourney(map: Record<string, unknown> | null): string {
     const mindset = asString(s.customerMindset);
     const focus = asString(s.messagingFocus);
     const trigger = asString(s.conversionTrigger);
+    const kpi = asString(s.kpiToTrack);
+    const questions = Array.isArray(s.keyQuestions)
+      ? (s.keyQuestions as unknown[])
+          .map((q) => asString(q))
+          .filter(Boolean)
+          .slice(0, 3)
+      : [];
+    const touchpoints = Array.isArray(s.touchpoints)
+      ? (s.touchpoints as unknown[])
+          .map((t) => asString(t))
+          .filter(Boolean)
+          .slice(0, 4)
+      : [];
     const pv = Array.isArray(s.personaVariations) ? s.personaVariations : [];
     const pvl = pv
       .slice(0, 3)
@@ -328,8 +341,11 @@ function formatJourney(map: Record<string, unknown> | null): string {
       .filter(Boolean);
     const parts = [
       mindset,
+      questions.length ? `Key questions: ${questions.join("; ")}` : "",
+      touchpoints.length ? `Touchpoints: ${touchpoints.join("; ")}` : "",
       focus && `Messaging focus: ${focus}`,
       trigger && `Conversion trigger: ${trigger}`,
+      kpi && `KPI: ${kpi}`,
       pvl.length ? `Persona tuning: ${pvl.join("; ")}` : "",
     ].filter(Boolean);
     const narrative = parts.join(" ").replace(/\s+/g, " ").trim();

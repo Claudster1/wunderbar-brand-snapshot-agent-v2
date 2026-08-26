@@ -6,6 +6,7 @@ import type { ProductTier } from "@/components/ResultsTabNav";
 import { SectionGlyph } from "@/components/results/BrandIcons";
 import { MoodOutputsGraphic } from "@/components/results/MoodOutputsGraphic";
 import PersonalizedGuidanceCard from "@/components/results/PersonalizedGuidanceCard";
+import { BrandExampleCallout } from "@/components/results/BrandExampleCallout";
 import { ReportCallout } from "@/components/results/ReportDesignPrimitives";
 import TabPageWithSidebar from "@/components/results/TabPageWithSidebar";
 import {
@@ -27,6 +28,7 @@ import {
 import { STANDARDS_SUITE_NAV_ITEMS } from "@/lib/results/standardsSuiteNav";
 import type { WorkbookSectionId } from "@/lib/workbookTypes";
 import { EXAMPLE_CALLOUT, SEMANTIC_DO, SEMANTIC_DONT } from "@/src/pdf/reportVisualTokens";
+import { firstReferenceForm } from "@/lib/copy/abbreviationPolicy";
 
 const NAVY = SUITE_NAVY;
 const BLUE = SUITE_ACCENT_BRIGHT;
@@ -186,12 +188,14 @@ function visualCuesForArchetype(archetype: string): { imagery: string; compositi
 
 function ExampleCard({
   title,
-  good,
-  bad,
+  doText,
+  dontText,
+  example,
 }: {
   title: string;
-  good: string;
-  bad: string;
+  doText: string;
+  dontText: string;
+  example: string;
 }) {
   return (
     <div style={{ ...INNER_CARD, padding: "14px 16px" }}>
@@ -208,7 +212,7 @@ function ExampleCard({
           }}
         >
           <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: SEMANTIC_DO.label }}>Do this</p>
-          <p style={{ margin: "4px 0 0", fontSize: 13, color: SEMANTIC_DO.text, lineHeight: 1.55 }}>{good}</p>
+          <p style={{ margin: "4px 0 0", fontSize: 13, color: SEMANTIC_DO.text, lineHeight: 1.55 }}>{doText}</p>
         </div>
         <div
           style={{
@@ -219,8 +223,9 @@ function ExampleCard({
           }}
         >
           <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: SEMANTIC_DONT.label }}>Not this</p>
-          <p style={{ margin: "4px 0 0", fontSize: 13, color: SEMANTIC_DONT.text, lineHeight: 1.55 }}>{bad}</p>
+          <p style={{ margin: "4px 0 0", fontSize: 13, color: SEMANTIC_DONT.text, lineHeight: 1.55 }}>{dontText}</p>
         </div>
+        <BrandExampleCallout>{example}</BrandExampleCallout>
       </div>
     </div>
   );
@@ -313,6 +318,7 @@ function ImplementationExampleCard({
   eyebrow,
   title,
   blocks,
+  example,
 }: {
   index: number;
   glyphToken: "paid" | "thought" | "email";
@@ -323,6 +329,8 @@ function ImplementationExampleCard({
     role: "headline" | "subhead" | "body" | "metaCaption" | "channelLabel" | "cta";
     content: ReactNode;
   }>;
+  /** Brand-specific worked sample — always labeled “Example”. */
+  example: string;
 }) {
   const accent = IMPLEMENTATION_CARD_ACCENTS[(index - 1) % IMPLEMENTATION_CARD_ACCENTS.length]!;
   const roleStyle: Record<(typeof blocks)[number]["role"], CSSProperties> = {
@@ -374,12 +382,22 @@ function ImplementationExampleCard({
         </div>
       </div>
 
-      <div className="border-t border-black/[0.06] bg-white/85 px-4 py-4 sm:px-5">
+      <div className="flex flex-1 flex-col border-t border-black/[0.06] bg-white/85 px-4 py-4 sm:px-5">
         {blocks.map((b, i) => (
           <ImplementationTypoBlock key={i} specTitle={b.specTitle} style={{ ...roleStyle[b.role], margin: 0 }}>
             {typeof b.content === "string" ? <p style={{ margin: 0 }}>{b.content}</p> : b.content}
           </ImplementationTypoBlock>
         ))}
+        <div
+          style={{
+            marginTop: 4,
+            padding: 0,
+            border: "none",
+            background: "transparent",
+          }}
+        >
+          <BrandExampleCallout>{example}</BrandExampleCallout>
+        </div>
       </div>
     </div>
   );
@@ -688,7 +706,7 @@ export default function BrandStandardsTab({
         <p className="bs-body-sm text-brand-muted max-w-[780px] m-0 leading-relaxed">
           These standards keep {businessName} consistent across teams, channels, and campaign types—grounded in your diagnostic,
           not generic marketing rules. Start with the <strong className="text-brand-navy">Brand snapshot</strong>, then use
-          each section as a QA checkpoint before anything goes live.
+          each section as a {firstReferenceForm("QA")} checkpoint before anything goes live.
         </p>
         <p className="bs-small text-brand-muted max-w-[780px] mt-2 mb-0">
           Included in your downloads for this tier are shown below.
@@ -873,13 +891,15 @@ export default function BrandStandardsTab({
         <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 10 }}>
           <ExampleCard
             title="Organic social / paid headline"
-            good={`${businessName} helps ${audienceShort} solve ${topGap.toLowerCase()} with ${primaryPillar.toLowerCase()}-led strategy that turns ${topStrength.toLowerCase()} into measurable action.`}
-            bad={`${businessName} is a full-service company for ${industry}. We do a bit of everything for everyone.`}
+            doText={`Lead with the buyer problem (${topGap.toLowerCase()}), your method, and one proof point—not a service list.`}
+            dontText={`Use vague “full-service for everyone” lines that never name ${audienceShort} or ${primaryPillar.toLowerCase()}.`}
+            example={`${businessName} helps ${audienceShort} solve ${topGap.toLowerCase()} with ${primaryPillar.toLowerCase()}-led strategy that turns ${topStrength.toLowerCase()} into measurable action.`}
           />
           <ExampleCard
             title="Retargeting / nurture email"
-            good={`Based on your diagnostic, we recommend a 90-day rollout anchored on ${primaryPillar.toLowerCase()}. First priorities for ${businessName}: ${prioritySnippet}`}
-            bad={`Checking in again. Let us know if you are still interested and we can share more details when available.`}
+            doText={`Recap one diagnostic insight, add one proof reference, and recommend a single next move tied to ${firstPriority.toLowerCase()}.`}
+            dontText="Send vague check-ins with no recommended next step or proof."
+            example={`Based on your diagnostic, we recommend a 90-day rollout anchored on ${primaryPillar.toLowerCase()}. First priorities for ${businessName}: ${prioritySnippet}`}
           />
         </div>
         <PersonalizedGuidanceCard
@@ -890,7 +910,7 @@ export default function BrandStandardsTab({
         />
         <div style={{ marginTop: 10 }}>
           <ReportCallout label="Advanced Voice Controls" accentColor={BLUE}>
-            Require a voice QA pass on {businessName} organic posts, paid ads, and nurture emails. Any line that cannot be tied
+            Require a voice {firstReferenceForm("QA")} pass on {businessName} organic posts, paid ads, and nurture emails. Any line that cannot be tied
             to proof, {primaryPillar.toLowerCase()} strategy, or a concrete buyer insight from {audienceShort} should be
             rewritten before publish.
           </ReportCallout>
@@ -907,7 +927,7 @@ export default function BrandStandardsTab({
               </p>
             </div>
             <p style={{ margin: "2px 0 0", fontSize: 13, color: MID_GRAY }}>
-              Claim ladder and CTAs tailored to {businessName}—plus a worked example using your pillar and proof.
+              Claim ladder and {firstReferenceForm("CTA")}s tailored to {businessName}—plus a worked example using your pillar and proof.
             </p>
           </div>
           <button type="button" onClick={() => onEditInWorkbook("messaging-framework")} style={EDIT_IN_WORKBOOK_BTN}>
@@ -920,19 +940,25 @@ export default function BrandStandardsTab({
             <p style={{ margin: "6px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.6 }}>
               Problem → Method → Outcome → Proof
             </p>
-            <p style={{ margin: "6px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.6 }}>
-              Example: &quot;{businessName} helps {audienceShort} reduce {topGap.toLowerCase()} through {primaryPillar.toLowerCase()}-first execution, producing progress on {firstPriority.toLowerCase()} within 90 days.&quot;
-            </p>
+            <div style={{ marginTop: 8 }}>
+              <BrandExampleCallout>
+                &quot;{businessName} helps {audienceShort} reduce {topGap.toLowerCase()} through{" "}
+                {primaryPillar.toLowerCase()}-first execution, producing progress on {firstPriority.toLowerCase()} within 90
+                days.&quot;
+              </BrandExampleCallout>
+            </div>
           </div>
           <div style={{ ...INNER_CARD, padding: "10px 12px", background: "#FCFDFF" }}>
             <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Next step wording</p>
             <p style={{ margin: "6px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.6 }}>
-              Use action + outcome language.
+              Use action + outcome language. Avoid generic defaults like &quot;Submit&quot; and &quot;Click Here&quot;.
             </p>
-            <p style={{ margin: "6px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.6 }}>
-              Preferred for {businessName}: &quot;Review My {primaryPillar} Plan&quot;, &quot;Prioritize {firstPriority}&quot;, &quot;Launch {secondPriority}&quot;.
-              Avoid generic defaults like &quot;Submit&quot; and &quot;Click Here&quot;.
-            </p>
+            <div style={{ marginTop: 8 }}>
+              <BrandExampleCallout>
+                Preferred for {businessName}: &quot;Review My {primaryPillar} Plan&quot;, &quot;Prioritize {firstPriority}&quot;,
+                &quot;Launch {secondPriority}&quot;.
+              </BrandExampleCallout>
+            </div>
           </div>
         </div>
         <div
@@ -945,17 +971,15 @@ export default function BrandStandardsTab({
             borderLeft: `3px solid ${BLUE}`,
           }}
         >
-          <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>In practice for {businessName}</p>
-          <p style={{ margin: "8px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.6 }}>
+          <BrandExampleCallout style={{ marginTop: 0, border: "none", background: "transparent", padding: 0 }}>
             A prospect in {industry.toLowerCase()} compares you on {topGap.toLowerCase()}. Your page or deck should open with the
             claim formula, show one proof point tied to {topStrength.toLowerCase()}, then invite{" "}
             <strong style={{ color: NAVY }}>{audienceShort}</strong> to take a single step aligned with{" "}
-            {firstPriority.toLowerCase()}—for example the CTAs on the left, not a generic &quot;Learn more&quot; with no proof
-            path.
-          </p>
+            {firstPriority.toLowerCase()}—not a generic &quot;Learn more&quot; with no proof path.
+          </BrandExampleCallout>
         </div>
         <PersonalizedGuidanceCard
-          title="Messaging QA"
+          title="Messaging quality assurance (QA)"
           doText="Before you publish, check: claim, proof, outcome, then one clear next step."
           dontText="Publish big claims with thin proof, or ask for action before you have given context."
           example={`For ${businessName}, every ${primaryPillar.toLowerCase()} claim should point to diagnostic detail, how you deliver, or a real outcome.`}
@@ -985,7 +1009,7 @@ export default function BrandStandardsTab({
             <SectionGlyph token="checklist" size={22} color={BLUE} />
             <div style={{ flex: "1 1 200px", minWidth: 0 }}>
               <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY, letterSpacing: "0.03em" }}>
-                Publishing QA checklist
+                Publishing quality assurance (QA) checklist
               </p>
               <p style={{ margin: "4px 0 0", fontSize: 12, color: MID_GRAY, lineHeight: 1.5, maxWidth: 520 }}>
                 {standardsDepth.publishingChecklist.length} pass/fail checks before anything goes live—covering claim, proof,
@@ -1097,26 +1121,36 @@ export default function BrandStandardsTab({
         </div>
         <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 10 }}>
           <div style={{ ...INNER_CARD, padding: "10px 12px" }}>
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Typography example</p>
-            <p style={{ margin: "6px 0 0", fontSize: 20, fontWeight: 800, color: NAVY }}>
-              {businessName}: {primaryPillar} that converts {audienceShort}
-            </p>
+            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Typography</p>
             <p style={{ margin: "4px 0 0", fontSize: 14, color: MID_GRAY, lineHeight: 1.55 }}>
               Body style for this account: {voiceAttributes.join(", ")}. Keep subcopy tied to concrete proof and next action.
             </p>
+            <div style={{ marginTop: 8 }}>
+              <BrandExampleCallout>
+                {businessName}: {primaryPillar} that converts {audienceShort}
+              </BrandExampleCallout>
+            </div>
           </div>
           <div style={{ ...INNER_CARD, padding: "10px 12px" }}>
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Visual composition example</p>
+            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Visual composition</p>
             <p style={{ margin: "6px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.6 }}>
-              Imagery direction: {visualCues.imagery}<br />
+              Imagery direction: {visualCues.imagery}
+              <br />
               Composition direction: {visualCues.composition}
             </p>
-            <p style={{ margin: "8px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.6 }}>
-              Channel application examples:
-              <br />Email: {emailPlan || `Lead with ${primaryPillar.toLowerCase()} context and one concrete next step.`}
-              <br />SEO/AEO: {seoAeoPlan || `Answer ${industry.toLowerCase()} buying questions with proof-first structure tied to ${firstPriority.toLowerCase()}.`}
-              <br />Thought leadership: {socialPlan || `Publish recurring POV themes mapped to ${firstPriority.toLowerCase()} and ${secondPriority.toLowerCase()}.`}
-            </p>
+            <div style={{ marginTop: 8 }}>
+              <BrandExampleCallout>
+                Email: {emailPlan || `Lead with ${primaryPillar.toLowerCase()} context and one concrete next step.`}
+                <br />
+                {firstReferenceForm("SEO")} / {firstReferenceForm("AEO")}:{" "}
+                {seoAeoPlan ||
+                  `Answer ${industry.toLowerCase()} buying questions with proof-first structure tied to ${firstPriority.toLowerCase()}.`}
+                <br />
+                Thought leadership:{" "}
+                {socialPlan ||
+                  `Publish recurring ${firstReferenceForm("POV")} themes mapped to ${firstPriority.toLowerCase()} and ${secondPriority.toLowerCase()}.`}
+              </BrandExampleCallout>
+            </div>
           </div>
         </div>
         <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 10 }}>
@@ -1158,6 +1192,13 @@ export default function BrandStandardsTab({
               ))}
             </div>
           </div>
+        </div>
+        <div style={{ marginTop: 10 }}>
+          <BrandExampleCallout>
+            For {businessName}, a homepage hero should pair one documentary-style image of real {industry.toLowerCase()} work with
+            the headline “{primaryPillar} that converts {audienceShort}” and a single {firstReferenceForm("CTA")} to review the {firstPriority.toLowerCase()}{" "}
+            plan—not a stock collage with three competing offers.
+          </BrandExampleCallout>
         </div>
       </section>
 
@@ -1431,7 +1472,7 @@ export default function BrandStandardsTab({
             </p>
             <p style={{ margin: "6px 0 0", fontSize: 13, color: MID_GRAY, lineHeight: 1.55 }}>
               Specific ways to apply voice, messaging, and visual standards in daily execution. Sample lines use the Lato roles
-              in <strong style={{ color: NAVY }}>Typography standards</strong> (headline, subhead, body, meta, CTA)—scaled to fit
+              in <strong style={{ color: NAVY }}>Typography standards</strong> (headline, subhead, body, meta, {firstReferenceForm("CTA")})—scaled to fit
               these cards.
             </p>
           </div>
@@ -1457,17 +1498,8 @@ export default function BrandStandardsTab({
               {
                 specTitle: "Body copy",
                 role: "body",
-                content: (
-                  <>
-                    <p style={{ margin: "0 0 10px" }}>
-                      Voice: confident and practical, with no vague claims. Messaging: one pillar-led promise, one proof point,
-                      one CTA. Structure: hook line, one-sentence value statement, one proof strip (client outcome), one CTA.
-                    </p>
-                    <p style={{ margin: 0 }}>
-                      {`${businessName} helps ${audienceShort} fix ${topGap.toLowerCase()} and scale ${topStrength.toLowerCase()} with a clear 90-day activation system.`}
-                    </p>
-                  </>
-                ),
+                content:
+                  "Voice: confident and practical, with no vague claims. Structure: hook line, one-sentence value statement, one proof strip, one call to action (CTA).",
               },
               {
                 specTitle: "CTA buttons",
@@ -1475,6 +1507,7 @@ export default function BrandStandardsTab({
                 content: "See your 90-day activation plan",
               },
             ]}
+            example={`${businessName} helps ${audienceShort} fix ${topGap.toLowerCase()} and scale ${topStrength.toLowerCase()} with a clear 90-day activation system.`}
           />
           <ImplementationExampleCard
             index={2}
@@ -1504,6 +1537,7 @@ export default function BrandStandardsTab({
                 content: `Execution cadence: 1 post/week tied to ${firstPriority.toLowerCase()} and 1 post/week tied to ${secondPriority.toLowerCase()}.`,
               },
             ]}
+            example={`Most ${audienceShort} teams treat ${topGap.toLowerCase()} as a spend problem. ${businessName} reframes it as a ${primaryPillar.toLowerCase()} clarity problem—then shows one proof point and one practical next step on ${firstPriority.toLowerCase()}. CTA: “What would you fix first?”`}
           />
           <ImplementationExampleCard
             index={3}
@@ -1528,6 +1562,7 @@ export default function BrandStandardsTab({
                 content: `Review your ${primaryPillar} rollout plan`,
               },
             ]}
+            example={`Hi [Name] — after reviewing ${businessName}’s diagnostic, the highest-leverage move is ${firstPriority.toLowerCase()} (your ${primaryPillar.toLowerCase()} gap). One proof: teams that fix this before scaling spend see clearer pipeline quality. Recommended next step: review your ${primaryPillar} rollout plan this week.`}
           />
         </div>
       </section>
@@ -1567,7 +1602,7 @@ export default function BrandStandardsTab({
             </p>
           </div>
           <div style={{ ...INNER_CARD, padding: "10px 12px" }}>
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>CTA Buttons</p>
+            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>CTA buttons</p>
             <p style={{ margin: "4px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.5 }}>
               Font: <strong>Lato</strong> | Weight: 700 | Size: 13–15px | Fill or outline using {BLUE}; keep CTAs to 3–6 words with outcome language
             </p>
@@ -1606,10 +1641,10 @@ export default function BrandStandardsTab({
             accentColor={BLUE}
           >
             {visualSystemMode === "existing"
-              ? "Foundation is set to preserve your current logo, palette, and typography. Use this mood board for consistency, vendor briefs, and QA—not as a signal to replace working assets. For “optimization” in the go-to-market sense, lean on ICP and persona guidance in Strategy and Foundation so creative and proof stay aligned with how priority buyers decide."
+              ? "Foundation is set to preserve your current logo, palette, and typography. Use this mood board for consistency, vendor briefs, and quality assurance (QA)—not as a signal to replace working assets. For “optimization” in the go-to-market (GTM) sense, lean on ideal customer profile (ICP) and persona guidance in Strategy and Foundation so creative and proof stay aligned with how priority buyers decide."
               : visualSystemMode === "optimize"
-                ? "Foundation keeps your core identity while tightening execution. Pair these mood cues and channel standards with Blueprint ICP and persona outputs: optimize imagery and layout for clarity, proof, and the conversion paths each segment needs—not a wholesale rebrand."
-                : "Foundation allows evolving selected visual elements. Treat prompts and samples as exploration inputs; reconcile any refresh with positioning and ICP messaging so new visuals still support priority segments. Strategy and Activation link execution to those buyer realities."}
+                ? "Foundation keeps your core identity while tightening execution. Pair these mood cues and channel standards with Blueprint ideal customer profile (ICP) and persona outputs: optimize imagery and layout for clarity, proof, and the conversion paths each segment needs—not a wholesale rebrand."
+                : "Foundation allows evolving selected visual elements. Treat prompts and samples as exploration inputs; reconcile any refresh with positioning and ideal customer profile (ICP) messaging so new visuals still support priority segments. Strategy and Activation link execution to those buyer realities."}
           </ReportCallout>
         ) : (
           <p style={{ margin: "0 0 14px", fontSize: 13, color: MID_GRAY, lineHeight: 1.55, maxWidth: 720 }}>

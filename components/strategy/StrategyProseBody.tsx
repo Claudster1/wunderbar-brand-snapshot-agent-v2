@@ -2,8 +2,13 @@
 
 import type { CSSProperties, ReactNode } from "react";
 
-import { SUITE_FONT_UI, SUITE_NAVY, SUITE_TEXT_PRIMARY } from "@/components/results/suiteBrandTokens";
+import { SUITE_FONT_UI, SUITE_TEXT_PRIMARY } from "@/components/results/suiteBrandTokens";
 import { parseStrategyProseToBlocks } from "@/lib/strategy/strategyProseBlocks";
+import { splitLabeledParts, type LabeledPart } from "@/lib/strategy/labeledProse";
+import { chromeForLabeledField, stripBrandReplyPrefix } from "@/lib/strategy/labeledFieldChrome";
+
+export { splitLabeledParts } from "@/lib/strategy/labeledProse";
+export type { LabeledPart } from "@/lib/strategy/labeledProse";
 
 const DEFAULT_PARA: CSSProperties = {
   margin: 0,
@@ -21,60 +26,40 @@ type Props = {
   blockGapClassName?: string;
 };
 
-type LabeledPart = { label: string; value: string };
-
-/**
- * Title-case field labels only (e.g. "Stage:", "Key message:", "Why ask:") —
- * avoids treating mid-sentence words like "minutes Objective" as labels.
- */
-const LABEL_SPLIT =
-  /(?:^|\s)([A-Z][A-Za-z0-9/&+\-]*(?:\s+[a-z][A-Za-z0-9/&+\-]*){0,3}):\s+/g;
-
-/** Split one line into one or more Label → value fields (supports smashed multi-label lines). */
-export function splitLabeledParts(line: string): LabeledPart[] | null {
-  const trimmed = line.trim();
-  if (!trimmed.includes(":")) return null;
-
-  const matches = [...trimmed.matchAll(LABEL_SPLIT)];
-  if (matches.length === 0) return null;
-
-  const parts: LabeledPart[] = [];
-  for (let i = 0; i < matches.length; i++) {
-    const m = matches[i]!;
-    const label = (m[1] || "").trim();
-    if (!label || label.length > 32) continue;
-    const valueStart = (m.index ?? 0) + m[0].length;
-    const valueEnd = i + 1 < matches.length ? (matches[i + 1]!.index ?? trimmed.length) : trimmed.length;
-    const value = trimmed.slice(valueStart, valueEnd).trim();
-    if (!value) continue;
-    parts.push({ label, value });
-  }
-  return parts.length > 0 ? parts : null;
-}
-
 function FieldStack({ parts }: { parts: LabeledPart[] }) {
   return (
     <div className="flex flex-col gap-3">
-      {parts.map((p, i) => (
-        <div
-          key={`${p.label}-${i}`}
-          className="rounded-[5px] border border-slate-200/90 bg-[#F8FBFF] px-3.5 py-3"
-          style={{ borderLeft: "3px solid #07B0F2" }}
-        >
-          <p
-            className="m-0 text-[11px] font-bold tracking-[0.04em] text-brand-navy"
-            style={{ fontFamily: SUITE_FONT_UI, color: SUITE_NAVY }}
+      {parts.map((p, i) => {
+        const chrome = chromeForLabeledField(p.label);
+        const value =
+          /^response$/i.test(p.label.trim()) || /^reply$/i.test(p.label.trim())
+            ? stripBrandReplyPrefix(p.value)
+            : p.value;
+        return (
+          <div
+            key={`${p.label}-${i}`}
+            className="rounded-[5px] px-3.5 py-3"
+            style={{
+              border: `1px solid ${chrome.border}`,
+              background: chrome.bg,
+              borderLeft: `3px solid ${chrome.rail}`,
+            }}
           >
-            {p.label}
-          </p>
-          <p
-            className="m-0 mt-1.5 text-sm leading-relaxed sm:text-[15px]"
-            style={{ fontFamily: SUITE_FONT_UI, color: SUITE_TEXT_PRIMARY }}
-          >
-            {p.value}
-          </p>
-        </div>
-      ))}
+            <p
+              className="m-0 text-[11px] font-bold tracking-[0.04em]"
+              style={{ fontFamily: SUITE_FONT_UI, color: chrome.label }}
+            >
+              {p.label}
+            </p>
+            <p
+              className="m-0 mt-1.5 text-sm leading-relaxed sm:text-[15px]"
+              style={{ fontFamily: SUITE_FONT_UI, color: SUITE_TEXT_PRIMARY }}
+            >
+              {value}
+            </p>
+          </div>
+        );
+      })}
     </div>
   );
 }

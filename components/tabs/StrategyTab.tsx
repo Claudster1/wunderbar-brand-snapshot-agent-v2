@@ -5,6 +5,7 @@ import type { CSSProperties } from "react";
 import type { ProductTier } from "@/components/ResultsTabNav";
 import FoundationExtras from "@/components/FoundationExtras";
 import PersonalizedGuidanceCard from "@/components/results/PersonalizedGuidanceCard";
+import { BrandExampleCallout } from "@/components/results/BrandExampleCallout";
 import { ReportCallout } from "@/components/results/ReportDesignPrimitives";
 import {
   ChannelMixHubVisual,
@@ -1658,6 +1659,11 @@ export default function StrategyTab({
                         </ul>
                       </div>
                     </div>
+                  ) : null}
+                  {doDontGuidance[section.id] && !sectionGuidance[section.id] ? (
+                    <BrandExampleCallout>
+                      {`${companyName} applies this topic by making one clear promise to ${audienceShort}, backing it with proof tied to ${primaryPillar.toLowerCase()}, and ending with a single next step on ${firstPriority.toLowerCase()}.`}
+                    </BrandExampleCallout>
                   ) : null}
                 </div>
               </details>

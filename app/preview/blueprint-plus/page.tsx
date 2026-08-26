@@ -2300,7 +2300,7 @@ export default function BrandBlueprintPlusReport() {
                   </div>
                   {item.exampleCopy && (
                     <div style={{ padding: "10px 20px 14px", borderTop: `1px dashed ${BORDER}`, background: `${BLUE}03` }}>
-                      <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 4 }}><svg viewBox="0 0 14 14" fill="none" style={{ width: 12, height: 12 }}><path d="M4 2v3l3 2-3 2v3l7-5-7-5z" fill={BLUE}/></svg><span style={{ fontSize: 11, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em" }}>Example Copy</span></div>
+                      <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 4 }}><svg viewBox="0 0 14 14" fill="none" style={{ width: 12, height: 12 }}><path d="M4 2v3l3 2-3 2v3l7-5-7-5z" fill={BLUE}/></svg><span style={{ fontSize: 11, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em" }}>Example</span></div>
                       <div style={{ fontSize: 13, color: "#1a1a2e", lineHeight: 1.55, fontStyle: "italic" }}>{item.exampleCopy}</div>
                     </div>
                   )}
@@ -2327,7 +2327,7 @@ export default function BrandBlueprintPlusReport() {
                     </div>
                     {(r.advancedMessagingMatrix.byFunnelStage[stage] as any).exampleCopy && (
                       <div style={{ padding: "10px 20px 14px", borderTop: `1px dashed ${stageColors[stage]}20`, marginLeft: 30 }}>
-                        <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 4 }}><svg viewBox="0 0 14 14" fill="none" style={{ width: 12, height: 12 }}><path d="M4 2v3l3 2-3 2v3l7-5-7-5z" fill={stageColors[stage]}/></svg><span style={{ fontSize: 11, fontWeight: 700, color: stageColors[stage], textTransform: "uppercase", letterSpacing: "0.06em" }}>Example Copy</span></div>
+                        <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 4 }}><svg viewBox="0 0 14 14" fill="none" style={{ width: 12, height: 12 }}><path d="M4 2v3l3 2-3 2v3l7-5-7-5z" fill={stageColors[stage]}/></svg><span style={{ fontSize: 11, fontWeight: 700, color: stageColors[stage], textTransform: "uppercase", letterSpacing: "0.06em" }}>Example</span></div>
                         <div style={{ fontSize: 13, color: "#1a1a2e", lineHeight: 1.55, fontStyle: "italic" }}>{(r.advancedMessagingMatrix.byFunnelStage[stage] as any).exampleCopy}</div>
                       </div>
                     )}
@@ -2459,7 +2459,12 @@ export default function BrandBlueprintPlusReport() {
                     {(r.brandPersona as any).communicationGuidelines.dos.map((item: any, i: number) => (
                       <div key={i} style={{ padding: "12px 14px", borderRadius: 5, background: `${GREEN}04`, borderLeft: `3px solid ${GREEN}` }}>
                         <div style={{ fontSize: 14, fontWeight: 700, color: "#1a1a2e", marginBottom: 4 }}>{item.do || item}</div>
-                        {item.example && <div style={{ fontSize: 12.5, color: SUB, lineHeight: 1.5, fontStyle: "italic" }}>{item.example}</div>}
+                        {item.example && (
+                          <div style={{ marginTop: 6 }}>
+                            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#6B7280" }}>Example</div>
+                            <div style={{ fontSize: 12.5, color: SUB, lineHeight: 1.5, fontStyle: "italic", marginTop: 4 }}>{item.example}</div>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -2473,7 +2478,12 @@ export default function BrandBlueprintPlusReport() {
                     {(r.brandPersona as any).communicationGuidelines.donts.map((item: any, i: number) => (
                       <div key={i} style={{ padding: "12px 14px", borderRadius: 5, background: `${RED_S}03`, borderLeft: `3px solid ${RED_S}` }}>
                         <div style={{ fontSize: 14, fontWeight: 700, color: "#1a1a2e", marginBottom: 4 }}>{item.dont || item}</div>
-                        {item.example && <div style={{ fontSize: 12.5, color: SUB, lineHeight: 1.5, fontStyle: "italic" }}>{item.example}</div>}
+                        {item.example && (
+                          <div style={{ marginTop: 6 }}>
+                            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#6B7280" }}>Example</div>
+                            <div style={{ fontSize: 12.5, color: SUB, lineHeight: 1.5, fontStyle: "italic", marginTop: 4 }}>{item.example}</div>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -2893,10 +2903,12 @@ export default function BrandBlueprintPlusReport() {
                     </div>
                   </div>
                   {cta.template && (
-                    <div style={{ padding: "14px 18px", fontSize: 13.5, color: "#1a1a2e", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
-                      {(cta.template as string).split("\\n").map((line: string, li: number) => (
-                        <span key={li}>{li > 0 && <br />}{line}</span>
-                      ))}
+                    <div style={{ padding: "14px 18px" }}>
+                      <StrategyProseBody
+                        text={String(cta.template).replace(/\\n/g, "\n")}
+                        paragraphStyle={{ margin: 0, fontSize: 13.5, color: "#1a1a2e", lineHeight: 1.7, whiteSpace: "pre-line" }}
+                        blockGapClassName="gap-2.5"
+                      />
                     </div>
                   )}
                 </div>
@@ -2930,10 +2942,12 @@ export default function BrandBlueprintPlusReport() {
                       <div style={{ fontSize: 12, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>Subject Line</div>
                       <div style={{ fontSize: 14, fontWeight: 600, color: NAVY, marginBottom: 12 }}>{email.subject}</div>
                       <div style={{ fontSize: 12, fontWeight: 700, color: SUB, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>Email Body</div>
-                      <div style={{ padding: "14px 16px", borderRadius: 5, background: `${NAVY}03`, border: `1px dashed ${NAVY}15`, fontSize: 13.5, color: "#1a1a2e", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
-                        {email.body.split("\\n").map((line: string, li: number) => (
-                          <span key={li}>{li > 0 && <br />}{line}</span>
-                        ))}
+                      <div style={{ padding: "14px 16px", borderRadius: 5, background: `${NAVY}03`, border: `1px dashed ${NAVY}15` }}>
+                        <StrategyProseBody
+                          text={String(email.body).replace(/\\n/g, "\n")}
+                          paragraphStyle={{ margin: 0, fontSize: 13.5, color: "#1a1a2e", lineHeight: 1.7, whiteSpace: "pre-line" }}
+                          blockGapClassName="gap-2.5"
+                        />
                       </div>
                     </div>
                   </div>
@@ -3078,10 +3092,12 @@ export default function BrandBlueprintPlusReport() {
                         <svg viewBox="0 0 16 16" fill="none" style={{ width: 16, height: 16 }}><rect x="2" y="1" width="9" height="11" rx="1.5" stroke={NAVY} strokeWidth="1.2"/><path d="M5 4h6v11H3V4" stroke={NAVY} strokeWidth="1.2" fill="none"/></svg>
                         <span style={{ fontSize: 13, fontWeight: 700, color: NAVY, textTransform: "uppercase", letterSpacing: "0.05em" }}>Ready-to-Use Template</span>
                       </div>
-                      <div style={{ padding: "18px 20px", borderRadius: 6, background: `${NAVY}04`, border: `1px dashed ${NAVY}20`, fontFamily: "'Lato', sans-serif", fontSize: 13.5, color: "#1a1a2e", lineHeight: 1.75, whiteSpace: "pre-wrap", maxHeight: 360, overflowY: "auto" }}>
-                        {(item.template as string).split("\\n").map((line, i) => (
-                          <span key={i}>{i > 0 && <br />}{line}</span>
-                        ))}
+                      <div style={{ padding: "18px 20px", borderRadius: 6, background: `${NAVY}04`, border: `1px dashed ${NAVY}20`, maxHeight: 360, overflowY: "auto" }}>
+                        <StrategyProseBody
+                          text={String(item.template).replace(/\\n/g, "\n")}
+                          paragraphStyle={{ margin: 0, fontSize: 13.5, color: "#1a1a2e", lineHeight: 1.75, whiteSpace: "pre-line", fontFamily: "'Lato', sans-serif" }}
+                          blockGapClassName="gap-2.5"
+                        />
                       </div>
                     </div>
                   )}

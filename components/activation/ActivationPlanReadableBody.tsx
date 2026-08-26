@@ -8,6 +8,7 @@ import {
   type ActivationBodySubsection,
 } from "@/lib/activation/parseActivationPlanBody";
 import { getPlaybookSubsectionChrome } from "@/lib/strategy/journeyMapTileChrome";
+import StrategyProseBody from "@/components/strategy/StrategyProseBody";
 import {
   SUITE_ACCENT_BRIGHT,
   SUITE_BG_CARD,
@@ -108,7 +109,21 @@ function FieldStack({ fields, baseKey }: { fields: LabeledField[]; baseKey: stri
               wordBreak: "break-word",
             }}
           >
-            {f.value || "—"}
+            {f.value ? (
+              <StrategyProseBody
+                text={f.value}
+                paragraphStyle={{
+                  margin: 0,
+                  fontSize: 14,
+                  color: SUITE_TEXT_PRIMARY,
+                  lineHeight: 1.65,
+                  fontFamily: SUITE_FONT_UI,
+                  whiteSpace: "pre-line",
+                }}
+              />
+            ) : (
+              "—"
+            )}
           </div>
         </div>
       ))}
@@ -116,93 +131,28 @@ function FieldStack({ fields, baseKey }: { fields: LabeledField[]; baseKey: stri
   );
 }
 
-function renderContentBlocks(text: string, baseKey: string): ReactNode {
-  const lines = text.split("\n");
-  const elements: React.ReactNode[] = [];
-  let bulletAcc: string[] = [];
-  let paraAcc: string[] = [];
-  let elKey = 0;
-
-  const flushPara = () => {
-    if (paraAcc.length) {
-      const p = paraAcc.join(" ").trim();
-      if (p) {
-        elements.push(
-          <p
-            key={`${baseKey}-p-${elKey++}`}
-            style={{
-              margin: "0 0 12px",
-              fontSize: 14,
-              color: SUITE_TEXT_PRIMARY,
-              lineHeight: 1.65,
-              fontFamily: SUITE_FONT_UI,
-            }}
-          >
-            {p}
-          </p>,
-        );
-      }
-      paraAcc = [];
-    }
-  };
-
-  const flushBullets = () => {
-    if (bulletAcc.length) {
-      elements.push(
-        <ul
-          key={`${baseKey}-ul-${elKey++}`}
-          style={{
-            margin: "0 0 16px",
-            paddingLeft: 22,
-            fontSize: 14,
-            color: SUITE_TEXT_PRIMARY,
-            lineHeight: 1.55,
-            fontFamily: SUITE_FONT_UI,
-          }}
-        >
-          {bulletAcc.map((item, i) => (
-            <li key={i} style={{ marginBottom: 8 }}>
-              {item}
-            </li>
-          ))}
-        </ul>,
-      );
-      bulletAcc = [];
-    }
-  };
-
-  for (const line of lines) {
-    const t = line.trim();
-    if (!t) {
-      flushBullets();
-      flushPara();
-      continue;
-    }
-    if (/^[-•*]\s/.test(t)) {
-      flushPara();
-      bulletAcc.push(t.replace(/^[-•*]\s+/, ""));
-    } else {
-      flushBullets();
-      paraAcc.push(t);
-    }
-  }
-  flushBullets();
-  flushPara();
-
-  return <>{elements}</>;
-}
+const PROSE_PARA = {
+  margin: "0 0 12px" as const,
+  fontSize: 14,
+  color: SUITE_TEXT_PRIMARY,
+  lineHeight: 1.65,
+  fontFamily: SUITE_FONT_UI,
+  whiteSpace: "pre-line" as const,
+};
 
 /** Prefer labeled-field layout when the section is mostly `- **Key:**` rows (email playbooks). */
 function renderSectionContent(content: string, baseKey: string): ReactNode {
   const parsed = extractLabeledFields(content);
   if (!parsed) {
-    return renderContentBlocks(content, baseKey);
+    return <StrategyProseBody text={content} paragraphStyle={PROSE_PARA} />;
   }
   const { intro, fields } = parsed;
   return (
     <>
       {intro ? (
-        <div style={{ marginBottom: fields.length ? 16 : 0 }}>{renderContentBlocks(intro, `${baseKey}-intro`)}</div>
+        <div style={{ marginBottom: fields.length ? 16 : 0 }}>
+          <StrategyProseBody text={intro} paragraphStyle={PROSE_PARA} />
+        </div>
       ) : null}
       <FieldStack fields={fields} baseKey={baseKey} />
     </>

@@ -1182,12 +1182,14 @@ export default function BrandSnapshotPlusReport() {
           [data-section] { page-break-inside: avoid; break-inside: avoid; }
           [data-page-break] { page-break-before: always; break-before: page; }
           button { display: none !important; }
+          [data-document-nav] { display: none !important; }
         }
         @media (max-width: 640px) {
           [data-report] { font-size: 15px; }
           [data-header-top] { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
           [data-header-info] { flex-direction: column !important; align-items: flex-start !important; gap: 16px !important; }
-          [data-header-actions] { align-items: flex-start !important; }
+          [data-header-actions] { width: 100% !important; flex-wrap: wrap !important; }
+          [data-document-nav] { position: static !important; }
           [data-key-cards] { grid-template-columns: 1fr !important; }
           [data-gauge-row] { flex-direction: column !important; align-items: center !important; gap: 20px !important; }
           [data-pillar-meters] { grid-template-columns: 1fr !important; }
@@ -1228,7 +1230,7 @@ export default function BrandSnapshotPlusReport() {
             </div>
           </div>
 
-          <div data-header-info style={{ padding: "22px 0 22px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+          <div data-header-info style={{ padding: "22px 0 22px", display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 16 }}>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 3, marginBottom: 1 }}>
                 <span style={{ fontSize: 12, fontWeight: 700, color: SUB, textTransform: "uppercase", letterSpacing: "0.08em" }}>Strategic Brand Alignment Diagnostic</span>
@@ -1238,81 +1240,112 @@ export default function BrandSnapshotPlusReport() {
               <p style={{ fontSize: 13, color: SUB, margin: "6px 0 0" }}>{r.date}</p>
               <p style={{ fontSize: 11, fontWeight: 600, color: "#8A97A8", margin: "8px 0 0", letterSpacing: "0.04em" }}>Confidential — Prepared exclusively for {r.businessName}</p>
             </div>
-            <div data-header-actions style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
-              <div style={{ display: "flex", gap: 8 }}>
-                <button onClick={() => window.print()} style={{
-                  display: "inline-flex", alignItems: "center", gap: 5,
-                  padding: "6px 12px", borderRadius: 5,
-                  border: `1.5px solid ${BORDER}`, background: WHITE,
-                  color: SUB, fontSize: 12, fontWeight: 700, cursor: "pointer",
-                  fontFamily: "Lato, sans-serif",
-                  transition: "border-color 0.2s ease, color 0.2s ease",
-                }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = BLUE; e.currentTarget.style.color = BLUE; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.color = SUB; }}
-                >
-                  <svg viewBox="0 0 20 20" fill="none" style={{ width: 14, height: 14 }}>
-                    <path d="M5 8V3h10v5M5 14h10v3H5v-3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-                    <path d="M3 8h14v6H3V8z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-                    <circle cx="13" cy="11" r="0.8" fill="currentColor"/>
-                  </svg>
-                  Print
-                </button>
-                <a href={buildDocUrl("complete")} target="_blank" rel="noopener noreferrer" style={{
-                  display: "inline-flex", alignItems: "center", gap: 5,
-                  padding: "6px 12px", borderRadius: 5,
-                  border: `1.5px solid ${BLUE}`, background: `${BLUE}08`,
-                  color: BLUE, fontSize: 12, fontWeight: 700, cursor: "pointer",
-                  fontFamily: "Lato, sans-serif",
-                  transition: "background 0.2s ease", textDecoration: "none",
-                }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = `${BLUE}15`; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = `${BLUE}08`; }}
-                >
-                  <svg viewBox="0 0 20 20" fill="none" style={{ width: 14, height: 14 }}>
-                    <path d="M10 3v10M10 13l-3.5-3.5M10 13l3.5-3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M3 14v2a1 1 0 001 1h12a1 1 0 001-1v-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                  </svg>
-                  Download Full PDF
-                </a>
-              </div>
-              <div data-download-secondary style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "flex-end" }}>
-                {[
-                  { key: "standards", label: "Brand Standards" },
-                  { key: "executive", label: "Executive Summary" },
-                  { key: "messaging", label: "One-Page Messaging" },
-                  { key: "prompts", label: "Prompt Guide" },
-                  { key: "voice-checklist", label: "Voice Checklist" },
-                  { key: "complete", label: "Full Report PDF" },
-                ].map((doc) => (
-                  <a
-                    key={doc.key}
-                    href={buildDocUrl(doc.key)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      padding: "5px 10px",
-                      borderRadius: 999,
-                      fontSize: 11,
-                      fontWeight: 700,
-                      color: BLUE,
-                      border: `1px solid ${BLUE}33`,
-                      background: `${BLUE}0D`,
-                      textDecoration: "none",
-                      lineHeight: 1.2,
-                    }}
-                  >
-                    {doc.label}
-                  </a>
-                ))}
-              </div>
+            <div data-header-actions style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+              <button onClick={() => window.print()} style={{
+                display: "inline-flex", alignItems: "center", gap: 5,
+                padding: "6px 12px", borderRadius: 5,
+                border: `1.5px solid ${BORDER}`, background: WHITE,
+                color: SUB, fontSize: 12, fontWeight: 700, cursor: "pointer",
+                fontFamily: "Lato, sans-serif",
+                transition: "border-color 0.2s ease, color 0.2s ease",
+              }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = BLUE; e.currentTarget.style.color = BLUE; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.color = SUB; }}
+              >
+                <svg viewBox="0 0 20 20" fill="none" style={{ width: 14, height: 14 }}>
+                  <path d="M5 8V3h10v5M5 14h10v3H5v-3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+                  <path d="M3 8h14v6H3V8z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+                  <circle cx="13" cy="11" r="0.8" fill="currentColor"/>
+                </svg>
+                Print
+              </button>
+              <a href={buildDocUrl("complete")} target="_blank" rel="noopener noreferrer" style={{
+                display: "inline-flex", alignItems: "center", gap: 5,
+                padding: "6px 12px", borderRadius: 5,
+                border: `1.5px solid ${BLUE}`, background: `${BLUE}08`,
+                color: BLUE, fontSize: 12, fontWeight: 700, cursor: "pointer",
+                fontFamily: "Lato, sans-serif",
+                transition: "background 0.2s ease", textDecoration: "none",
+              }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = `${BLUE}15`; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = `${BLUE}08`; }}
+              >
+                <svg viewBox="0 0 20 20" fill="none" style={{ width: 14, height: 14 }}>
+                  <path d="M10 3v10M10 13l-3.5-3.5M10 13l3.5-3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M3 14v2a1 1 0 001 1h12a1 1 0 001-1v-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+                Download Full PDF
+              </a>
             </div>
           </div>
         </div>
 
         <div style={{ height: 3, background: BLUE }} />
+      </div>
+
+      {/* Document nav — below header so Snapshot+ (and higher) deliverables stay visible */}
+      <div
+        data-document-nav
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 25,
+          background: "rgba(247, 250, 255, 0.97)",
+          backdropFilter: "blur(8px)",
+          borderBottom: `1px solid ${BLUE}25`,
+          boxShadow: "0 6px 18px rgba(2, 24, 89, 0.08)",
+        }}
+      >
+        <div style={{ maxWidth: 900, margin: "0 auto", padding: "10px 24px 12px" }}>
+          <div style={{ fontSize: 10, fontWeight: 800, color: BLUE, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
+            Report documents
+          </div>
+          <div
+            data-download-secondary
+            style={{
+              display: "flex",
+              gap: 8,
+              flexWrap: "wrap",
+              justifyContent: "flex-start",
+              padding: 6,
+              background: WHITE,
+              border: `1px solid ${BLUE}20`,
+              borderRadius: 12,
+            }}
+          >
+            {[
+              { key: "standards", label: "Brand Standards" },
+              { key: "executive", label: "Executive Summary" },
+              { key: "messaging", label: "One-Page Messaging" },
+              { key: "prompts", label: "Prompt Guide" },
+              { key: "voice-checklist", label: "Voice Checklist" },
+              { key: "complete", label: "Full Report PDF" },
+            ].map((doc) => (
+              <a
+                key={doc.key}
+                href={buildDocUrl(doc.key)}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  padding: "8px 14px",
+                  borderRadius: 999,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: NAVY,
+                  border: `1px solid ${BLUE}33`,
+                  background: WHITE,
+                  textDecoration: "none",
+                  lineHeight: 1.2,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {doc.label}
+              </a>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div style={{ maxWidth: 900, margin: "0 auto", padding: "28px 24px 48px", display: "flex", flexDirection: "column", gap: 24 }}>
@@ -2486,7 +2519,8 @@ export default function BrandSnapshotPlusReport() {
                       <span style={{ fontSize: 15, fontWeight: 600, color: "#1a1a2e", lineHeight: 1.4 }}>{item.guideline}</span>
                     </div>
                     <div style={{ marginLeft: 22, padding: "8px 12px", background: `${GREEN}08`, borderRadius: 4, borderLeft: `2px solid ${GREEN}40` }}>
-                      <div style={{ fontSize: 13, color: "#1a1a2e", lineHeight: 1.5, fontStyle: "italic" }}>{item.example}</div>
+                      <div style={{ marginTop: 6, fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#6B7280" }}>Example</div>
+                      <div style={{ fontSize: 13, color: "#1a1a2e", lineHeight: 1.5, fontStyle: "italic", marginTop: 4 }}>{item.example}</div>
                     </div>
                   </div>
                 ))}
@@ -2506,7 +2540,8 @@ export default function BrandSnapshotPlusReport() {
                       <span style={{ fontSize: 15, fontWeight: 600, color: "#1a1a2e", lineHeight: 1.4 }}>{item.guideline}</span>
                     </div>
                     <div style={{ marginLeft: 22, padding: "8px 12px", background: `${RED_S}06`, borderRadius: 4, borderLeft: `2px solid ${RED_S}40` }}>
-                      <div style={{ fontSize: 13, color: "#1a1a2e", lineHeight: 1.5, fontStyle: "italic" }}>{item.example}</div>
+                      <div style={{ marginTop: 6, fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#6B7280" }}>Example</div>
+                      <div style={{ fontSize: 13, color: "#1a1a2e", lineHeight: 1.5, fontStyle: "italic", marginTop: 4 }}>{item.example}</div>
                     </div>
                   </div>
                 ))}

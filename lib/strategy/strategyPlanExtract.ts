@@ -4,6 +4,7 @@
  */
 
 import { readerFriendlyTrackingRow } from "@/lib/strategy/strategyReaderFriendly";
+import { stripBrandReplyPrefix } from "@/lib/strategy/labeledFieldChrome";
 
 function asRecord(v: unknown): Record<string, unknown> | null {
   if (!v || typeof v !== "object" || Array.isArray(v)) return null;
@@ -676,7 +677,7 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
       return {
         label: o.length > 64 ? `${o.slice(0, 61)}…` : o,
         value: joinAsStrategyBullets(
-          asString(r.response) && `Response: ${asString(r.response)}`,
+          asString(r.response) && `Response: ${stripBrandReplyPrefix(asString(r.response))}`,
           asString(r.pillarConnection) && `Pillar: ${asString(r.pillarConnection)}`,
           asString(r.proofPoint) && `Proof: ${asString(r.proofPoint)}`,
         ),

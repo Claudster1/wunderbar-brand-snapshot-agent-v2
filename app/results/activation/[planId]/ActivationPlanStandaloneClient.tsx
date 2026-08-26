@@ -226,6 +226,7 @@ export default function ActivationPlanStandaloneClient({
         scheduleRows={scheduleRows}
         audienceJourneyPlanLinks={audienceJourneyPlanLinks}
         editAction={{ mode: "link", href: editWorkbookHref }}
+        showGuidance
         onExportSchedule={
           section.id === "execution-roadmap" && scheduleExportHref
             ? () => {

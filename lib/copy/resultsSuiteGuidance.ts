@@ -1,4 +1,5 @@
 import type { ProductTier, ResultsTab } from "@/components/results/tabConfig";
+import { glossaryTerm } from "@/lib/copy/abbreviationPolicy";
 
 /**
  * Tier-aware “how to use” and tab intros so the Suite reads as a linear path:
@@ -109,6 +110,7 @@ export function getSuiteTabIntro(
             definition:
               "A 0–100 headline score from our proprietary model. It blends the five pillar scores with weights—it is not a simple average of the 0–20 pillar numbers.",
           },
+          glossaryTerm("KPI"),
           ...(tier === "snapshot-plus" || tier === "blueprint" || tier === "blueprint-plus"
             ? ([
                 {
@@ -150,6 +152,9 @@ export function getSuiteTabIntro(
             term: "Messaging pillars",
             definition: "A small set of themes your brand should repeat so every channel reinforces the same story.",
           },
+          glossaryTerm("ICP"),
+          glossaryTerm("JTBD"),
+          glossaryTerm("POV"),
         ],
       };
     case "strategy":
@@ -174,14 +179,16 @@ export function getSuiteTabIntro(
                     "Same strategic coverage as Blueprint: audiences, journey, competitive context, channels, spend, priorities, and how offers connect to the story. Blueprint+ invests more in Activation (paste-ready assets) and Downloads—not in rewriting Strategy.",
                   ),
         glossary: [
-          {
-            term: "Go-to-market (GTM)",
-            definition: "The practical plan for reaching and winning buyers—who first, which channels, what message, and how resources move—not generic “marketing advice.”",
-          },
-          {
-            term: "ICP",
-            definition: "Ideal customer profile—the best-fit buyers you intentionally design messaging and campaigns for first.",
-          },
+          glossaryTerm(
+            "GTM",
+            "The practical plan for reaching and winning buyers—who first, which channels, what message, and how resources move—not generic “marketing advice.”",
+          ),
+          glossaryTerm("ICP"),
+          glossaryTerm("SEO"),
+          glossaryTerm("AEO"),
+          glossaryTerm("ROI"),
+          glossaryTerm("CRM"),
+          glossaryTerm("UTM"),
         ],
       };
     case "standards":
@@ -212,6 +219,12 @@ export function getSuiteTabIntro(
             definition:
               "A concise rule set—voice, messaging, and visual cues—so anyone creating content can match your brand without re-reading the whole strategy.",
           },
+          glossaryTerm("CTA"),
+          glossaryTerm("QA"),
+          glossaryTerm("SEO"),
+          glossaryTerm("AEO"),
+          glossaryTerm("POV"),
+          glossaryTerm("ICP"),
         ],
       };
     case "activation":
@@ -241,6 +254,10 @@ export function getSuiteTabIntro(
             definition:
               "The execution layer of the Suite—how the strategy shows up in channels, campaigns, and timelines for your company—not a separate strategy product.",
           },
+          glossaryTerm("CTA"),
+          glossaryTerm("KPI"),
+          glossaryTerm("CRM"),
+          glossaryTerm("UTM"),
           ...(tier === "blueprint-plus"
             ? ([
                 {
@@ -272,6 +289,8 @@ export function getSuiteTabIntro(
             definition:
               "Your editable layer inside the Suite—use it to tighten language, add proof, or align teams before you export final PDFs or bundles.",
           },
+          glossaryTerm("CMS"),
+          glossaryTerm("QA"),
         ],
       };
     case "downloads":

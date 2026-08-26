@@ -24,7 +24,7 @@ const BRAND_LOGO_FALLBACK = "/assets/og/logo-wunderbar.svg";
 
 export function BlueprintPlusHeader({
   productName,
-  reportId,
+  reportId: _reportId,
   utmMedium,
   navItems = [],
   activeSectionId: activeSectionIdProp,
@@ -105,28 +105,35 @@ export function BlueprintPlusHeader({
   const nextItem =
     activeIndex >= 0 && activeIndex < navItems.length - 1 ? navItems[activeIndex + 1] : null;
 
+  const navLinkClass = (item: HeaderNavItem, index: number) =>
+    `inline-flex shrink-0 items-center whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-bold no-underline transition-colors ${
+      item.id === activeSectionId || (!activeSectionId && index === 0)
+        ? "bg-[#07B0F2] text-white"
+        : "bg-white text-[#021859] border border-[#07B0F2]/30 hover:border-[#07B0F2]/60 hover:text-[#07B0F2]"
+    }`;
+
   return (
-    <section className="bg-white border border-brand-border rounded-xl shadow-sm overflow-hidden">
-      <div className="flex items-center justify-between gap-3 px-4 sm:px-5 py-3 border-b border-brand-border">
-        <a
-          href={`https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=${utmMedium}&utm_campaign=brand_navigation&utm_content=report_header_logo`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center no-underline cursor-pointer relative z-10"
-          aria-label="Wunderbar Digital home"
-        >
-          <img
-            src={logoSrc}
-            alt="Wunderbar Digital"
-            width={160}
-            height={26}
-            style={{ width: 160, height: "auto", display: "block", pointerEvents: "none" }}
-            onError={() => {
-              if (logoSrc !== BRAND_LOGO_FALLBACK) setLogoSrc(BRAND_LOGO_FALLBACK);
-            }}
-          />
-        </a>
-        {!hasSectionNav && (
+    <div className="flex flex-col gap-3">
+      <section className="bg-white border border-brand-border rounded-xl shadow-sm overflow-hidden">
+        <div className="flex items-center justify-between gap-3 px-4 sm:px-5 py-3">
+          <a
+            href={`https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=${utmMedium}&utm_campaign=brand_navigation&utm_content=report_header_logo`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center no-underline cursor-pointer relative z-10"
+            aria-label="Wunderbar Digital home"
+          >
+            <img
+              src={logoSrc}
+              alt="Wunderbar Digital"
+              width={160}
+              height={26}
+              style={{ width: 160, height: "auto", display: "block", pointerEvents: "none" }}
+              onError={() => {
+                if (logoSrc !== BRAND_LOGO_FALLBACK) setLogoSrc(BRAND_LOGO_FALLBACK);
+              }}
+            />
+          </a>
           <div className="flex flex-col items-end text-right">
             <span className="text-base sm:text-lg font-bold text-brand-navy leading-tight">
               {productName}
@@ -143,24 +150,25 @@ export function BlueprintPlusHeader({
               </a>
             </span>
           </div>
-        )}
-      </div>
+        </div>
+      </section>
 
-      {hasSectionNav && (
-        <div className="px-4 sm:px-5 border-b border-brand-border">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <div className="flex w-full items-center gap-2 sm:w-auto">
-            <nav className="-mx-1 flex items-center overflow-x-auto pr-1 sm:mx-0 sm:w-auto">
-              {navItems.map((item, index) => (
+      {hasSectionNav ? (
+        <nav
+          aria-label={`${productName} sections`}
+          className="sticky top-0 z-20 rounded-xl border border-[#07B0F2]/25 bg-[rgba(247,250,255,0.97)] px-3 py-2.5 shadow-[0_6px_18px_rgba(2,24,89,0.08)] backdrop-blur-md sm:px-4"
+        >
+          <p className="m-0 mb-2 text-[10px] font-extrabold uppercase tracking-[0.08em] text-brand-blue">
+            Jump to section
+          </p>
+          <div className="flex items-center gap-2">
+            <div className="-mx-1 flex flex-1 items-center gap-1.5 overflow-x-auto px-1 pb-0.5 sm:mx-0">
+              {navItems.map((item, index) =>
                 item.href ? (
                   <Link
                     key={item.id}
                     href={item.href}
-                    className={`inline-flex shrink-0 items-center whitespace-nowrap px-3 py-3 text-[11px] sm:text-xs font-bold uppercase tracking-[0.08em] no-underline border-b-2 transition-colors ${
-                      item.id === activeSectionId || (!activeSectionId && index === 0)
-                        ? "text-brand-navy border-brand-navy"
-                        : "text-brand-muted border-transparent hover:text-brand-navy hover:border-brand-blue/60"
-                    }`}
+                    className={navLinkClass(item, index)}
                   >
                     {item.label}
                   </Link>
@@ -169,68 +177,46 @@ export function BlueprintPlusHeader({
                     key={item.id}
                     href={`#${item.id}`}
                     onClick={(event) => handleNavClick(event, item.id)}
-                    className={`inline-flex shrink-0 items-center whitespace-nowrap px-3 py-3 text-[11px] sm:text-xs font-bold uppercase tracking-[0.08em] no-underline border-b-2 transition-colors ${
-                      item.id === activeSectionId || (!activeSectionId && index === 0)
-                        ? "text-brand-navy border-brand-navy"
-                        : "text-brand-muted border-transparent hover:text-brand-navy hover:border-brand-blue/60"
-                    }`}
+                    className={navLinkClass(item, index)}
                   >
                     {item.label}
                   </a>
-                )
-              ))}
-            </nav>
-              {routeNavMode && (
-                <div className="hidden sm:flex items-center gap-1">
-                  {prevItem?.href ? (
-                    <Link
-                      href={prevItem.href}
-                      className="inline-flex items-center px-2 py-1 rounded border border-brand-border text-[11px] font-bold text-brand-muted no-underline hover:text-brand-navy hover:border-brand-blue/40"
-                      aria-label={`Previous section: ${prevItem.label}`}
-                    >
-                      ← Prev
-                    </Link>
-                  ) : (
-                    <span className="inline-flex items-center px-2 py-1 rounded border border-brand-border text-[11px] font-bold text-brand-muted/50">
-                      ← Prev
-                    </span>
-                  )}
-                  {nextItem?.href ? (
-                    <Link
-                      href={nextItem.href}
-                      className="inline-flex items-center px-2 py-1 rounded border border-brand-border text-[11px] font-bold text-brand-muted no-underline hover:text-brand-navy hover:border-brand-blue/40"
-                      aria-label={`Next section: ${nextItem.label}`}
-                    >
-                      Next →
-                    </Link>
-                  ) : (
-                    <span className="inline-flex items-center px-2 py-1 rounded border border-brand-border text-[11px] font-bold text-brand-muted/50">
-                      Next →
-                    </span>
-                  )}
-                </div>
+                ),
               )}
             </div>
-            <div className="flex shrink-0 flex-col items-start text-left pb-2 sm:items-end sm:text-right">
-              <span className="text-sm sm:text-base font-bold text-brand-navy leading-tight">
-                {productName}
-              </span>
-              <span className="text-[11px] sm:text-xs text-brand-muted">
-                Powered by{" "}
-                <a
-                  href={`https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=${utmMedium}&utm_campaign=brand_navigation&utm_content=report_header_powered_by`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-brand-blue font-bold no-underline hover:underline"
-                >
-                  Wunderbar Digital
-                </a>
-              </span>
-            </div>
+            {routeNavMode ? (
+              <div className="hidden shrink-0 items-center gap-1 sm:flex">
+                {prevItem?.href ? (
+                  <Link
+                    href={prevItem.href}
+                    className="inline-flex items-center rounded border border-brand-border px-2 py-1 text-[11px] font-bold text-brand-muted no-underline hover:border-brand-blue/40 hover:text-brand-navy"
+                    aria-label={`Previous section: ${prevItem.label}`}
+                  >
+                    ← Prev
+                  </Link>
+                ) : (
+                  <span className="inline-flex items-center rounded border border-brand-border px-2 py-1 text-[11px] font-bold text-brand-muted/50">
+                    ← Prev
+                  </span>
+                )}
+                {nextItem?.href ? (
+                  <Link
+                    href={nextItem.href}
+                    className="inline-flex items-center rounded border border-brand-border px-2 py-1 text-[11px] font-bold text-brand-muted no-underline hover:border-brand-blue/40 hover:text-brand-navy"
+                    aria-label={`Next section: ${nextItem.label}`}
+                  >
+                    Next →
+                  </Link>
+                ) : (
+                  <span className="inline-flex items-center rounded border border-brand-border px-2 py-1 text-[11px] font-bold text-brand-muted/50">
+                    Next →
+                  </span>
+                )}
+              </div>
+            ) : null}
           </div>
-        </div>
-      )}
-
-    </section>
+        </nav>
+      ) : null}
+    </div>
   );
 }

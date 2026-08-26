@@ -13,6 +13,7 @@ import type {
   ProofPlacementItem,
   TalkTrackStageItem,
 } from "@/lib/strategy/strategyPlanExtract";
+import { chromeForLabeledField } from "@/lib/strategy/labeledFieldChrome";
 
 function Eyebrow({ children }: { children: string }) {
   return (
@@ -27,11 +28,19 @@ function Eyebrow({ children }: { children: string }) {
 
 function Field({ label, body }: { label: string; body: string }) {
   if (!body.trim()) return null;
+  const chrome = chromeForLabeledField(label);
   return (
-    <div>
+    <div
+      className="rounded-[5px] px-3 py-2.5"
+      style={{
+        border: `1px solid ${chrome.border}`,
+        background: chrome.bg,
+        borderLeft: `3px solid ${chrome.rail}`,
+      }}
+    >
       <p
         className="m-0 text-[11px] font-bold tracking-[0.03em]"
-        style={{ color: SUITE_NAVY, fontFamily: SUITE_FONT_UI }}
+        style={{ color: chrome.label, fontFamily: SUITE_FONT_UI }}
       >
         {label}
       </p>

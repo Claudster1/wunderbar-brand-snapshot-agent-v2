@@ -1,10 +1,29 @@
 import { describe, expect, it } from "vitest";
-import { splitLabeledParts } from "@/components/strategy/StrategyProseBody";
+import { splitLabeledParts } from "@/lib/strategy/labeledProse";
 
 describe("splitLabeledParts", () => {
   it("splits a single Label: value line", () => {
     expect(splitLabeledParts("Why ask: Surfaces narrative inconsistency.")).toEqual([
       { label: "Why ask", value: "Surfaces narrative inconsistency." },
+    ]);
+  });
+
+  it("splits title-case multi-word workbook labels", () => {
+    expect(splitLabeledParts("Voice Attributes: Clear, Confident, Insightful, Practical")).toEqual([
+      { label: "Voice Attributes", value: "Clear, Confident, Insightful, Practical" },
+    ]);
+    expect(splitLabeledParts("Primary Archetype: The Sage")).toEqual([
+      { label: "Primary Archetype", value: "The Sage" },
+    ]);
+    expect(
+      splitLabeledParts(
+        "Current Brand Verdict: Acme Co has a strong strategic base but inconsistent external execution.",
+      ),
+    ).toEqual([
+      {
+        label: "Current Brand Verdict",
+        value: "Acme Co has a strong strategic base but inconsistent external execution.",
+      },
     ]);
   });
 

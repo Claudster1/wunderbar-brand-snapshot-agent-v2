@@ -5,20 +5,35 @@ export type ParsedJourneyStage = {
   narrative: string;
 };
 
-const STAGE_SPLIT_RE = /(?:^|[\r\n])(Aware|Consider|Decide|Commit|Closed\/Won)\s*:\s*/gi;
+/** Engine (Awareness→Advocacy) + suite (Aware→Grow) stage headings in flattened journey prose. */
+const STAGE_SPLIT_RE =
+  /(?:^|[\r\n])(Aware|Consider|Decide|Commit|Closed\/Won|Grow|Awareness|Consideration|Decision|Onboarding|Retention|Advocacy)\s*:\s*/gi;
 
 export function formatJourneyStageLabel(key: string): string {
   if (/^closed\/won$/i.test(key)) return "Closed / won";
+  if (/^grow$/i.test(key)) return "Advocacy";
   return key;
 }
 
+export type CanonicalJourneyStageKey =
+  | "Aware"
+  | "Consider"
+  | "Decide"
+  | "Commit"
+  | "Closed/Won"
+  | "Grow";
+
 /**
  * Normalizes `customerJourneyMap.stages[].stage` labels (and similar) to canonical parser keys.
+ * Maps Blueprint engine stages Awareness→Advocacy onto the suite map vocabulary.
  */
-export function normalizeEngineJourneyStageKey(label: string): "Aware" | "Consider" | "Decide" | "Commit" | "Closed/Won" | null {
+export function normalizeEngineJourneyStageKey(label: string): CanonicalJourneyStageKey | null {
   const k = label.trim().toLowerCase().replace(/\s+/g, " ");
   if (!k) return null;
   if ((k.includes("closed") && k.includes("won")) || k.includes("closed/won")) return "Closed/Won";
+  if (k.includes("advoca") || /\bgrow\b/.test(k)) return "Grow";
+  if (k.includes("retention") || k.includes("retain")) return "Closed/Won";
+  if (k.includes("onboard")) return "Commit";
   if (k.includes("commit")) return "Commit";
   if (k.includes("decide") || k.includes("decision")) return "Decide";
   if (k.includes("consider") || k.includes("consideration")) return "Consider";
@@ -79,7 +94,8 @@ export function parseBuyerJourneyStages(raw: string): ParsedJourneyStage[] | nul
     const stages: ParsedJourneyStage[] = [];
     for (let i = 0; i < matches.length; i++) {
       const m = matches[i];
-      const key = m[1];
+      const rawKey = m[1]!;
+      const key = normalizeEngineJourneyStageKey(rawKey) ?? rawKey;
       const start = m.index! + m[0].length;
       const end = i + 1 < matches.length ? matches[i + 1].index! : t.length;
       let narrative = t.slice(start, end).trim();

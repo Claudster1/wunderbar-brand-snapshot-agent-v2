@@ -5,6 +5,7 @@ import { PdfHeader, PDF_HEADER_RESERVED } from "../components/PdfHeader";
 import { PdfFooter, PDF_FOOTER_RESERVED } from "../components/PdfFooter";
 import { registerPdfFonts } from "../registerFonts";
 import type { ProductTier } from "@/components/results/tabConfig";
+import { splitLabeledParts } from "@/lib/strategy/labeledProse";
 import { pdfTheme } from "../theme";
 
 registerPdfFonts();
@@ -64,6 +65,31 @@ const s = StyleSheet.create({
     borderLeftColor: "rgba(7, 176, 242, 0.55)",
     marginBottom: 10,
   },
+  fieldCard: {
+    backgroundColor: "#F8FBFF",
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: pdfTheme.colors.border,
+    borderLeftWidth: 3,
+    borderLeftColor: pdfTheme.colors.blue,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    marginBottom: 8,
+  },
+  fieldLabel: {
+    fontFamily: "Lato",
+    fontSize: 8,
+    fontWeight: 700,
+    color: pdfTheme.colors.navy,
+    letterSpacing: 0.4,
+    marginBottom: 4,
+  },
+  fieldValue: {
+    fontFamily: "Lato",
+    fontSize: 10,
+    lineHeight: 1.5,
+    color: pdfTheme.colors.text,
+  },
   paragraph: {
     fontFamily: "Lato",
     fontSize: 10,
@@ -89,11 +115,40 @@ function mapToDisclaimerTier(tier: ProductTier): "snapshot" | "snapshot_plus" | 
   return "blueprint";
 }
 
-function splitParagraphs(body: string): string[] {
-  return body
-    .split(/\n{2,}/g)
-    .map((p) => p.trim())
+function renderBodyLines(body: string): React.ReactNode[] {
+  const lines = body
+    .split("\n")
+    .map((line) => line.trim())
     .filter(Boolean);
+  if (lines.length === 0) {
+    return [
+      <Text key="empty" style={s.paragraph}>
+        No plan content available for this section.
+      </Text>,
+    ];
+  }
+
+  const nodes: React.ReactNode[] = [];
+  lines.forEach((line, idx) => {
+    const parts = splitLabeledParts(line);
+    if (parts) {
+      parts.forEach((part, pi) => {
+        nodes.push(
+          <View key={`${idx}-${pi}-${part.label}`} style={s.fieldCard} wrap={false}>
+            <Text style={s.fieldLabel}>{part.label}</Text>
+            <Text style={s.fieldValue}>{part.value}</Text>
+          </View>,
+        );
+      });
+      return;
+    }
+    nodes.push(
+      <Text key={`p-${idx}`} style={s.paragraph}>
+        {line}
+      </Text>,
+    );
+  });
+  return nodes;
 }
 
 export function ActivationPlanSectionDocument({
@@ -106,7 +161,6 @@ export function ActivationPlanSectionDocument({
 }: Props) {
   const disclaimerTier = mapToDisclaimerTier(productTier);
   const reportDate = new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
-  const paragraphs = splitParagraphs(sectionBody);
   const sourceLine =
     bodySource === "workbook"
       ? "Content source: saved Workbook text (matches your latest edits where the plan block is present)."
@@ -131,15 +185,7 @@ export function ActivationPlanSectionDocument({
 
         <View style={s.card}>
           <Text style={s.label}>Plan Content (Editable in Your Workbook)</Text>
-          {paragraphs.length > 0 ? (
-            paragraphs.map((p, idx) => (
-              <Text key={idx} style={s.paragraph}>
-                {p}
-              </Text>
-            ))
-          ) : (
-            <Text style={s.paragraph}>No plan content available for this section.</Text>
-          )}
+          {renderBodyLines(sectionBody)}
         </View>
 
         <Text style={s.meta}>Tip: use “Edit in Workbook” to update this plan, then download again.</Text>

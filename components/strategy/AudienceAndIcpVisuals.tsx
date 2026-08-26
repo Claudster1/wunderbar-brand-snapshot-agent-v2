@@ -294,8 +294,16 @@ function TransitionPlanCard({ rows }: { rows: StrategyAudienceTransitionRow[] })
         {rows.map((r) => (
           <div key={r.label} className="border-t border-slate-900/[0.06] pt-4 first:border-t-0 first:pt-0">
             <dt className="text-[11px] font-semibold uppercase tracking-[0.06em] text-brand-blue">{r.label}</dt>
-            <dd className="mt-1.5 whitespace-pre-line text-[13px] leading-relaxed sm:text-sm" style={{ color: SUITE_MUTED }}>
-              {r.value}
+            <dd className="mt-1.5 text-[13px] leading-relaxed sm:text-sm" style={{ color: SUITE_MUTED }}>
+              <StrategyProseBody
+                text={r.value}
+                paragraphStyle={{
+                  ...PROSE_PARA,
+                  margin: 0,
+                  fontSize: 13,
+                  color: SUITE_MUTED,
+                }}
+              />
             </dd>
           </div>
         ))}

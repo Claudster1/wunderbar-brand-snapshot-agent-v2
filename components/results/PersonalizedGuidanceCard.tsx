@@ -1,6 +1,7 @@
 "use client";
 
-import { EXAMPLE_CALLOUT, SEMANTIC_DO, SEMANTIC_DONT } from "@/src/pdf/reportVisualTokens";
+import { BrandExampleCallout } from "@/components/results/BrandExampleCallout";
+import { SEMANTIC_DO, SEMANTIC_DONT } from "@/src/pdf/reportVisualTokens";
 
 interface PersonalizedGuidanceCardProps {
   title: string;
@@ -10,7 +11,6 @@ interface PersonalizedGuidanceCardProps {
 }
 
 const BORDER = "#D6DFE8";
-const NAVY = "#021859";
 const MID = "#5A6B7E";
 
 export default function PersonalizedGuidanceCard({
@@ -71,20 +71,7 @@ export default function PersonalizedGuidanceCard({
           </p>
           <p style={{ margin: "6px 0 0", fontSize: 13, color: SEMANTIC_DONT.text, lineHeight: 1.55 }}>{dontText}</p>
         </div>
-        <div
-          style={{
-            marginTop: 2,
-            padding: "10px 12px",
-            borderRadius: 8,
-            border: `1px solid ${BORDER}`,
-            background: "#FAFBFC",
-          }}
-        >
-          <p style={{ margin: 0, fontSize: 11, fontWeight: 800, letterSpacing: "0.06em", color: EXAMPLE_CALLOUT.labelColor }}>
-            Brand-specific example
-          </p>
-          <p style={{ margin: "6px 0 0", fontSize: 13, color: NAVY, lineHeight: 1.6 }}>{example}</p>
-        </div>
+        <BrandExampleCallout>{example}</BrandExampleCallout>
       </div>
     </div>
   );

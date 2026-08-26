@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import StrategyProseBody from "@/components/strategy/StrategyProseBody";
 
 // Section IDs for navigation
 const SECTIONS = [
@@ -2326,11 +2327,31 @@ function WorkbookContent() {
             <div style={styles.refineDiffGrid}>
               <div style={styles.refineDiffCol}>
                 <div style={styles.refineDiffLabel}>Original</div>
-                <div style={styles.refineDiffBody}>{refinePreview.original || "—"}</div>
+                <div style={styles.refineDiffBody}>
+                  {refinePreview.original.trim() ? (
+                    <StrategyProseBody
+                      text={refinePreview.original}
+                      paragraphStyle={{ margin: 0, fontSize: 13.5, color: "#0F172A", lineHeight: 1.55, whiteSpace: "pre-line" }}
+                      blockGapClassName="gap-2"
+                    />
+                  ) : (
+                    "—"
+                  )}
+                </div>
               </div>
               <div style={styles.refineDiffCol}>
                 <div style={styles.refineDiffLabel}>AI Refined</div>
-                <div style={styles.refineDiffBody}>{refinePreview.refined || "—"}</div>
+                <div style={styles.refineDiffBody}>
+                  {refinePreview.refined.trim() ? (
+                    <StrategyProseBody
+                      text={refinePreview.refined}
+                      paragraphStyle={{ margin: 0, fontSize: 13.5, color: "#0F172A", lineHeight: 1.55, whiteSpace: "pre-line" }}
+                      blockGapClassName="gap-2"
+                    />
+                  ) : (
+                    "—"
+                  )}
+                </div>
               </div>
             </div>
             <div style={styles.refineModalActions}>
@@ -2410,6 +2431,8 @@ function EditableField({
   const [isFocused, setIsFocused] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
   const [showSavedTick, setShowSavedTick] = useState(false);
+  /** Prefer structured read view when content exists; empty editable fields start in edit. */
+  const [isEditing, setIsEditing] = useState(() => !readOnly && !value.trim());
 
   useEffect(() => {
     setLocalValue(value);
@@ -2421,6 +2444,10 @@ function EditableField({
     }
   }, [value, lastSavedAt]);
 
+  useEffect(() => {
+    if (readOnly) setIsEditing(false);
+  }, [readOnly]);
+
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (readOnly) return;
     setLocalValue(e.target.value);
@@ -2431,9 +2458,23 @@ function EditableField({
     await onSave(field, localValue);
     setDirty(false);
     setLastSavedAt(Date.now());
+    setIsEditing(false);
+  };
+
+  const startEditing = () => {
+    setLocalValue(value);
+    setDirty(false);
+    setIsEditing(true);
+  };
+
+  const cancelEditing = () => {
+    setLocalValue(value);
+    setDirty(false);
+    setIsEditing(false);
   };
 
   const isRefining = refining === field;
+  const showEditor = !readOnly && isEditing;
 
   return (
     <div
@@ -2449,58 +2490,110 @@ function EditableField({
           {readOnly && lockReason ? <span style={styles.lockedFieldBadge}>{lockReason}</span> : null}
         </div>
         <div style={styles.fieldActions}>
-          {!readOnly && (
+          {showEditor ? (
+            <>
+              {value.trim() ? (
+                <button
+                  type="button"
+                  onClick={cancelEditing}
+                  disabled={saving || isRefining}
+                  aria-label={`Cancel editing ${label}`}
+                  style={{
+                    ...styles.refineBtn,
+                    ...(saving || isRefining ? styles.refineBtnDisabled : {}),
+                  }}
+                >
+                  Cancel
+                </button>
+              ) : null}
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={saving || !dirty}
+                aria-label={`Save ${label}`}
+                onMouseEnter={() => setHoveredSave(true)}
+                onMouseLeave={() => setHoveredSave(false)}
+                style={{
+                  ...styles.saveBtn,
+                  ...(hoveredSave && !saving && dirty ? styles.saveBtnHover : {}),
+                  ...(saving || !dirty ? styles.saveBtnDisabled : {}),
+                }}
+              >
+                {saving ? "Saving..." : "Save"}
+              </button>
+              {value && value.length >= 5 && (
+                <button
+                  type="button"
+                  onClick={() => onRefine(field, localValue)}
+                  disabled={isRefining}
+                  aria-label={`Refine ${label} with AI`}
+                  onMouseEnter={() => setHoveredRefine(true)}
+                  onMouseLeave={() => setHoveredRefine(false)}
+                  style={{
+                    ...styles.refineBtn,
+                    ...(hoveredRefine && !isRefining ? styles.refineBtnHover : {}),
+                    ...(isRefining ? styles.refineBtnDisabled : {}),
+                  }}
+                >
+                  {isRefining ? "Refining..." : "Refine with AI"}
+                </button>
+              )}
+            </>
+          ) : !readOnly ? (
             <button
               type="button"
-              onClick={handleSave}
-              disabled={saving || !dirty}
-              aria-label={`Save ${label}`}
-              onMouseEnter={() => setHoveredSave(true)}
-              onMouseLeave={() => setHoveredSave(false)}
-              style={{
-                ...styles.saveBtn,
-                ...(hoveredSave && !saving && dirty ? styles.saveBtnHover : {}),
-                ...(saving || !dirty ? styles.saveBtnDisabled : {}),
-              }}
+              onClick={startEditing}
+              aria-label={`Edit ${label}`}
+              style={styles.saveBtn}
             >
-              {saving ? "Saving..." : "Save"}
+              Edit
             </button>
-          )}
-          {!readOnly && value && value.length >= 5 && (
-            <button
-              type="button"
-              onClick={() => onRefine(field, localValue)}
-              disabled={isRefining}
-              aria-label={`Refine ${label} with AI`}
-              onMouseEnter={() => setHoveredRefine(true)}
-              onMouseLeave={() => setHoveredRefine(false)}
-              style={{
-                ...styles.refineBtn,
-                ...(hoveredRefine && !isRefining ? styles.refineBtnHover : {}),
-                ...(isRefining ? styles.refineBtnDisabled : {}),
-              }}
-            >
-              {isRefining ? "Refining..." : "Refine with AI"}
-            </button>
-          )}
+          ) : null}
         </div>
       </div>
-      <textarea
-        value={localValue}
-        onChange={handleChange}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-        readOnly={readOnly}
-        rows={rows}
-        placeholder={placeholder || `Enter your ${label.toLowerCase()}...`}
-        style={{
-          ...styles.textarea,
-          ...(readOnly ? { background: "#F1F5F9", cursor: "default", opacity: 0.85 } : {}),
-          ...(isFocused && !readOnly ? styles.textareaFocus : {}),
-          ...(dirty ? styles.textareaDirty : {}),
-          ...(isRefining ? styles.textareaRefining : {}),
-        }}
-      />
+      {showEditor ? (
+        <textarea
+          value={localValue}
+          onChange={handleChange}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          rows={rows}
+          placeholder={placeholder || `Enter your ${label.toLowerCase()}...`}
+          style={{
+            ...styles.textarea,
+            ...(isFocused ? styles.textareaFocus : {}),
+            ...(dirty ? styles.textareaDirty : {}),
+            ...(isRefining ? styles.textareaRefining : {}),
+          }}
+        />
+      ) : (
+        <div
+          style={{
+            ...styles.textarea,
+            background: readOnly ? "#F1F5F9" : "#FFFFFF",
+            opacity: readOnly ? 0.95 : 1,
+            cursor: "default",
+            minHeight: Math.max(72, rows * 22),
+          }}
+        >
+          {value.trim() ? (
+            <StrategyProseBody
+              text={value}
+              paragraphStyle={{
+                margin: 0,
+                fontSize: 14,
+                color: "#0F172A",
+                lineHeight: 1.6,
+                whiteSpace: "pre-line",
+              }}
+            />
+          ) : (
+            <span style={{ color: "#94A3B8", fontStyle: "italic" }}>
+              {placeholder || `Enter your ${label.toLowerCase()}...`}
+            </span>
+          )}
+        </div>
+      )}
       {readOnly && lockReason ? <div style={styles.lockedFieldNote}>This field is locked. {lockReason}.</div> : null}
       {!readOnly && showSavedTick && lastSavedAt ? (
         <div style={styles.savedFieldNote}>

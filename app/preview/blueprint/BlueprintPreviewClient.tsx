@@ -6,6 +6,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import nextDynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
+import StrategyProseBody from "@/components/strategy/StrategyProseBody";
 
 // Lazy-load heavy interactive components to reduce initial bundle size
 const ReportNav = nextDynamic(() => import("@/components/reports/ReportNav"), { ssr: false });
@@ -1240,6 +1241,7 @@ export default function BrandBlueprintReport() {
             box-shadow: none !important;
           }
           [data-download-row] { display: none !important; }
+          [data-document-nav] { display: none !important; }
           [data-print-hidden] { display: none !important; }
           [data-journey-interactive] { display: none !important; }
           [data-journey-print] { display: block !important; }
@@ -1385,7 +1387,22 @@ export default function BrandBlueprintReport() {
               Save UI PDF
             </button>
           </div>
-          <div data-download-secondary style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "flex-end" }}>
+        </div>
+        <div style={{ height: 3, background: BLUE }} />
+      </div>
+
+      <div
+        data-document-nav
+        style={{
+          background: "rgba(247, 250, 255, 0.97)",
+          borderBottom: `1px solid ${BLUE}20`,
+        }}
+      >
+        <div style={{ maxWidth: 900, margin: "0 auto", padding: "10px 24px 8px" }}>
+          <div style={{ fontSize: 10, fontWeight: 800, color: BLUE, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
+            Report documents
+          </div>
+          <div data-download-secondary style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-start" }}>
             {[
               { key: "standards", label: "Brand Standards" },
               { key: "executive", label: "Executive Summary" },
@@ -1400,14 +1417,15 @@ export default function BrandBlueprintReport() {
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
-                  fontSize: 11,
+                  fontSize: 12,
                   color: NAVY,
-                  border: `1px solid ${BORDER}`,
+                  border: `1px solid ${BLUE}33`,
                   borderRadius: 999,
-                  padding: "4px 10px",
+                  padding: "8px 14px",
                   textDecoration: "none",
                   background: WHITE,
                   fontWeight: 700,
+                  whiteSpace: "nowrap",
                 }}
               >
                 {doc.label}
@@ -1416,21 +1434,21 @@ export default function BrandBlueprintReport() {
             <a
               href={workbookUrl}
               style={{
-                fontSize: 11,
+                fontSize: 12,
                 color: WHITE,
                 border: `1px solid ${BLUE}`,
                 borderRadius: 999,
-                padding: "4px 10px",
+                padding: "8px 14px",
                 textDecoration: "none",
                 background: BLUE,
                 fontWeight: 700,
+                whiteSpace: "nowrap",
               }}
             >
               Interactive Workbook
             </a>
           </div>
         </div>
-        <div style={{ height: 3, background: BLUE }} />
       </div>
 
       <div
@@ -1441,7 +1459,6 @@ export default function BrandBlueprintReport() {
           zIndex: 25,
           background: "rgba(247, 250, 255, 0.96)",
           backdropFilter: "blur(8px)",
-          borderTop: `1px solid ${BLUE}20`,
           borderBottom: `1px solid ${BLUE}25`,
           boxShadow: "0 6px 18px rgba(2, 24, 89, 0.08)",
         }}
@@ -2876,11 +2893,11 @@ export default function BrandBlueprintReport() {
             </div>
             <div>
               <div style={{ fontSize: 12, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>Narrative</div>
-              <div style={{ fontSize: 14, color: "#1a1a2e", lineHeight: 1.65 }}>
-                {((r as any).brandStory?.narrative ?? "").split("\n\n").map((p: string, i: number) => (
-                  <p key={i} style={{ margin: i > 0 ? "12px 0 0" : 0 }}>{p}</p>
-                ))}
-              </div>
+              <StrategyProseBody
+                text={String((r as any).brandStory?.narrative ?? "")}
+                paragraphStyle={{ margin: 0, fontSize: 14, color: "#1a1a2e", lineHeight: 1.65, whiteSpace: "pre-line" }}
+                blockGapClassName="gap-3"
+              />
             </div>
             <div style={{ padding: "14px 18px", borderRadius: 5, borderLeft: `4px solid ${BLUE}`, background: `${BLUE}06` }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>Elevator Pitch</div>

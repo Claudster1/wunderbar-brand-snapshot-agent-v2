@@ -670,13 +670,13 @@ const diagnosticData = {
   },
   salesConversationGuide: {
     openingFramework:
-      "Acme Co opener (Sage voice — calm, precise): “Before we talk channels, I want ten minutes on where Acme’s story and Acme’s funnel disagree. Most founder-led B2B services teams we work with leak deals between homepage promise and late-funnel proof—not from lack of spend. If that matches what you’re seeing, I’ll map one leak, one storyline, and a 14-day artifact you can show the buying group.”",
+      "“Thanks for making time. I noticed how Acme talks about the offer—and I’m curious whether the homepage promise and the late-funnel proof still feel like the same story. A lot of founder-led B2B teams we work with lose deals in that gap—not from lack of spend. If that rings true, would it help if we pick one place the story slips and sketch a simple next step you could share with the buying group? If I’m off, tell me and we’ll reset.”",
     talkTrackFramework: [
       {
         stage: "First 10 minutes",
-        objective: "Get permission to diagnose Acme’s story-vs-funnel gap—not pitch services.",
+        objective: "Invite a shared look at Acme’s story-vs-funnel gap—before pitching services.",
         keyMessage:
-          "Say: “We care more about Acme’s leak taxonomy than your channel mix. If the homepage, outbound hook, and deck slide 1 promise different jobs, no media plan will fix conversion quality.”",
+          "Say: “I’d love to understand the story first, then channels. If the homepage, outbound hook, and deck slide 1 promise different jobs, more media usually won’t fix conversion quality—can we check that together?”",
         proofToUse:
           "Show: one anonymized before/after pipeline snapshot from a similar ARR services motion (leave-behind PDF titled ‘Acme-style journey leak — 90-day delta’).",
       },
@@ -684,15 +684,15 @@ const diagnosticData = {
         stage: "Middle — discovery",
         objective: "Separate Acme’s positioning clarity from proof placement and sales handoff.",
         keyMessage:
-          "Say: “Marketing air cover only works if Acme’s reps use the same proof at the same stage. Let’s name the proof that sits beside the ask today—and who owns narrative consistency on Mondays.”",
+          "Say: “Marketing support works best when reps use the same proof at the same stage. Would it help if we name the proof that sits beside the ask today—and who keeps the story consistent week to week?”",
         proofToUse:
           "Show: three-bullet audit of Acme hero vs. deck vs. outbound line (print or Loom) with the broken promise highlighted.",
       },
       {
         stage: "Close",
-        objective: "Land a bounded Acme pilot with named owners and a customer-visible artifact in 14 days.",
+        objective: "Propose a bounded Acme pilot with named owners and a customer-visible artifact in 14 days.",
         keyMessage:
-          "Say: “You should see movement on one Acme journey before we expand scope. The pilot is two weeks, one owner on marketing, one on sales, and one artifact the buyer can open.”",
+          "Say: “Before we expand scope, can we start with one Acme journey for two weeks—one owner on marketing, one on sales, and one artifact the buyer can open? You’ll know quickly if it’s worth going further.”",
         proofToUse:
           "Show: Acme pilot RACI + milestone template with the first customer-visible deliverable dated.",
       },

@@ -777,7 +777,7 @@ const REPORT = {
         "Repurpose across channels: blog → LinkedIn → email → social",
         "Track which pillar-focused content performs best — double down there"
       ],
-      example: "Week 1 (Credibility): Acme Co case study — how we helped TechNova reduce sales cycles by 35%. Week 2 (Positioning): ‘Why B2B service companies hire Acme Co over generalist agencies’ → Acme Co's take on the industry's biggest blind spot → FAQ that reinforces Acme Co's positioning.",
+      example: "Week 1 (Credibility): Acme Co case study — how we helped TechNova reduce sales cycles by 35%. Week 2 (Positioning): ‘Why B2B service companies hire Acme Co over generalist agencies’ → Acme Co's take on a common industry mix-up → FAQ that reinforces Acme Co's positioning.",
       effort: "Medium",
       impact: "Medium"
     },

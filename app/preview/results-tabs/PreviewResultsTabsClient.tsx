@@ -598,7 +598,7 @@ const diagnosticData = {
   websiteCopyDirection: {
     overview: "Homepage sells the transformation; internal pages sell the operating model.",
     homepage: {
-      heroHeadline: "Turn scattered GTM into one proof-backed rhythm",
+      heroHeadline: "One clear story from homepage to close",
       heroSubheadline: "For founder-led teams who need pipeline quality, not more noise.",
       heroCtaButton: "Review your 90-day plan",
       valuePropSection: "Three moves: diagnose the leak, align the narrative, ship weekly proof.",
@@ -670,13 +670,13 @@ const diagnosticData = {
   },
   salesConversationGuide: {
     openingFramework:
-      "Acme Co opener (Sage voice — calm, precise): “Before we talk channels, I want ten minutes on where Acme’s story and Acme’s funnel disagree. Most founder-led B2B services teams we work with leak deals between homepage promise and late-funnel proof—not from lack of spend. If that matches what you’re seeing, I’ll map one leak, one storyline, and a 14-day artifact you can show the buying group.”",
+      "“Thanks for making time. I noticed how Acme talks about the offer—and I’m curious whether the homepage promise and the late-funnel proof still feel like the same story. A lot of founder-led B2B teams we work with lose deals in that gap—not from lack of spend. If that rings true, would it help if we pick one place the story slips and sketch a simple next step you could share with the buying group? If I’m off, tell me and we’ll reset.”",
     talkTrackFramework: [
       {
         stage: "First 10 minutes",
-        objective: "Get permission to diagnose Acme’s story-vs-funnel gap—not pitch services.",
+        objective: "Invite a shared look at Acme’s story-vs-funnel gap—before pitching services.",
         keyMessage:
-          "Say: “We care more about Acme’s leak taxonomy than your channel mix. If the homepage, outbound hook, and deck slide 1 promise different jobs, no media plan will fix conversion quality.”",
+          "Say: “I’d love to understand the story first, then channels. If the homepage, outbound hook, and deck slide 1 promise different jobs, more media usually won’t fix conversion quality—can we check that together?”",
         proofToUse:
           "Show: one anonymized before/after pipeline snapshot from a similar ARR services motion (leave-behind PDF titled ‘Acme-style journey leak — 90-day delta’).",
       },
@@ -684,15 +684,15 @@ const diagnosticData = {
         stage: "Middle — discovery",
         objective: "Separate Acme’s positioning clarity from proof placement and sales handoff.",
         keyMessage:
-          "Say: “Marketing air cover only works if Acme’s reps use the same proof at the same stage. Let’s name the proof that sits beside the ask today—and who owns narrative consistency on Mondays.”",
+          "Say: “Marketing support works best when reps use the same proof at the same stage. Would it help if we name the proof that sits beside the ask today—and who keeps the story consistent week to week?”",
         proofToUse:
           "Show: three-bullet audit of Acme hero vs. deck vs. outbound line (print or Loom) with the broken promise highlighted.",
       },
       {
         stage: "Close",
-        objective: "Land a bounded Acme pilot with named owners and a customer-visible artifact in 14 days.",
+        objective: "Propose a bounded Acme pilot with named owners and a customer-visible artifact in 14 days.",
         keyMessage:
-          "Say: “You should see movement on one Acme journey before we expand scope. The pilot is two weeks, one owner on marketing, one on sales, and one artifact the buyer can open.”",
+          "Say: “Before we expand scope, can we start with one Acme journey for two weeks—one owner on marketing, one on sales, and one artifact the buyer can open? You’ll know quickly if it’s worth going further.”",
         proofToUse:
           "Show: Acme pilot RACI + milestone template with the first customer-visible deliverable dated.",
       },
@@ -711,35 +711,35 @@ const diagnosticData = {
         whyThisQuestion:
           "Use when leadership claims ‘we’re aligned.’ Forces a concrete Acme narrative check without sounding accusatory.",
         listenFor:
-          "Hesitation or laughter → say: “That’s the leak. Acme’s paid spend is amplifying three different promises.” Instant yes → say: “Good—then we pressure-test proof placement next.”",
+          "Hesitation or laughter → say: “That’s often where deals get soft—spend amplifies three different promises. Want to pick one storyline to align first?” Instant yes → say: “Great—then we can pressure-test proof placement next.”",
       },
       {
         question: "What proof does an Acme rep actually show beside the ask in late funnel today?",
         whyThisQuestion:
           "Use when credibility scores look fine but close rates lag. Reveals whether Acme’s proof is deployed at decision moments.",
         listenFor:
-          "‘We send a PDF’ → say: “Let’s turn that into a one-pager tied to Acme’s evaluation stage with owners and dates.” ‘Nothing consistent’ → say: “That’s the first pilot artifact.”",
+          "‘We send a PDF’ → say: “Would it help to turn that into a one-pager tied to Acme’s evaluation stage with owners and dates?” ‘Nothing consistent’ → say: “That could be a strong first pilot artifact.”",
       },
       {
         question: "How do Acme marketing and sales currently define a qualified opportunity—same verbs, same threshold?",
         whyThisQuestion:
           "Use when demand spend is up but pipeline quality is disputed. Handoff tax often hides inside Acme’s definitions.",
         listenFor:
-          "Different verbs → say: “We will publish one Acme SQL definition on a shared one-pager before we touch creative.”",
+          "Different verbs → say: “Can we publish one shared Acme SQL definition on a one-pager before we touch creative?”",
       },
       {
         question: "What did Acme’s last growth or brand initiative change in the CRM within 30 days?",
         whyThisQuestion:
           "Use when they cite prior agency work. Tests whether past spend produced operating change Acme can see.",
         listenFor:
-          "Activity-only metrics → say: “This pilot’s success metric is stage movement or cycle time—not impressions.”",
+          "Activity-only metrics → say: “For this pilot, I’d suggest success look like stage movement or cycle time—not impressions. Does that feel fair?”",
       },
       {
         question: "Who owns Acme’s narrative consistency week to week—not the workshop, the habit?",
         whyThisQuestion:
           "Use before scoping a larger engagement. Without an owner, Acme’s messaging will drift after any project.",
         listenFor:
-          "Committee / agency-only → say: “Name one Acme owner for Mondays; the pilot fails without that.”",
+          "Committee / agency-only → say: “Would it help to name one Acme owner for Mondays? The pilot sticks better with that habit in place.”",
       },
     ],
     proofPointDeployment: [
@@ -815,7 +815,7 @@ const diagnosticData = {
       note: "Lead with Acme diagnostic clarity and owner-backed milestones; CFO gets payback framing, RevOps gets routing definitions—same vocabulary in ads and sales.",
     },
     closingLanguage:
-      "Acme close (Sage): “Let’s lock a two-week journey fix with named owners and one customer-visible artifact—not another scoping call. If Acme sees stage movement, we expand. If not, we stop. Who owns marketing QA and who owns the sales handoff?”",
+      "“Would it help if we start with a two-week journey fix—named owners and one customer-visible artifact—instead of another scoping call? If Acme sees stage movement, we can expand. If not, we stop. Who feels like the right owner for marketing QA, and who for the sales handoff?”",
   },
   channelPlans: {
     ...previewActivationContent.channelPlans,

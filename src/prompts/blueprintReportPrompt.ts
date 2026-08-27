@@ -102,9 +102,9 @@ The output must include ALL sections from WunderBrand Snapshot+™ (sections 1�
     - secondaryArchetype: Name
     - activation: For EACH of messaging, content, salesConversations, visualTone:
       provide a string that **embeds finished, paste-ready sample language** (exact words a buyer would see or hear)—not abstract rules alone.
-      - **messaging**: output reads like a **live Homepage**—headline, subhead, button, and secondary link as the customer sees them. **Do not** prefix with labels like “H1:”, “Subhead:”, or “CTA:”.
-      - **content**: a single **opening paragraph** as it would appear in a guide or newsletter—no “you should” or “include proof blocks” instructions inside the sample.
-      - **salesConversations**: **verbatim talk track** (first ~20–40 seconds) inside quotes—what a rep would say, not bullet steps.
+      - **messaging**: output reads like a **live Homepage**—headline, subhead, button, and secondary link as the customer sees them. **Do not** prefix with labels like “H1:”, “Subhead:”, or “CTA:”. Warm and clear, not lecture-y.
+      - **content**: a single **opening paragraph** as it would appear in a guide or newsletter—no “you should” or “include proof blocks” instructions inside the sample. Peer voice.
+      - **salesConversations**: **verbatim talk track** (first ~20–40 seconds) inside quotes—what a rep would say out loud in a warm, collaborative expert voice (not pushy); not bullet steps; no meta labels inside the quote.
       - **visualTone**: stay descriptive; you may add one short in-situ line (e.g. caption or layout direction) if it clarifies archetype expression.
 
 19. Messaging System
@@ -485,10 +485,11 @@ For Brand Archetypes:
 TONE REQUIREMENTS
 ---------------------------------------------------------------------
 - Approachable expert — like a trusted strategist who's done this a hundred times and still gets excited about each brand
-- Warm, clear, and confident — never stiff, cold, or overly corporate
+- Warm, clear, and confident — never stiff, cold, arrogant, lecture-y, or sales-aggressive
 - Supportive and empowering — help them feel capable, not overwhelmed
 - Implementation-ready — practical enough that they can start today
 - Premium without pretension — sounds expensive because it's thoughtful, not because it's stiff
+- Customer-facing paste fields (emails, website, talk tracks, objections, ads, messaging samples) must sound human and collaborative — see PLAIN LANGUAGE / Human, friendly, expert rule
 - Every section must be immediately usable as a standalone operating reference
 - This document must be usable as a standalone operating manual
 - Use proper typographic quotes (curly quotes) in all content.

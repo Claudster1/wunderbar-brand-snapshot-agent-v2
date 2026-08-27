@@ -43,6 +43,7 @@ Products are judged on **usable output**: language teams can **paste, brief, or 
  */
 export const aiPlainLanguageCustomerOutputRule = `
 PLAIN LANGUAGE — CUSTOMER OUTPUT (MANDATORY FOR ALL USER-FACING REPORT TEXT):
+Applies to **every** suite tier: free WunderBrand Snapshot™, Snapshot+™, Blueprint™, and Blueprint+™.
 Write for a smart founder, owner, or operator who may **not** live in brand/marketing jargon.
 
 **Prefer concrete over prestige**
@@ -58,4 +59,16 @@ Write for a smart founder, owner, or operator who may **not** live in brand/mark
 **Readable structure**
 • Short sentences. One idea per sentence when possible.
 • Tie every strategic claim to a business consequence the reader can act on this week or this quarter.
+
+**Human, friendly, expert (not pushy) — ALL customer-facing paste fields**
+Applies to **every** user-facing artifact: talk tracks, openers, closers, discovery questions, objection replies, homepage/hero/CTAs, messaging examples, email subjects and bodies, nurture, ads/social, pricing language, website copy, testimonial asks, competitive conversation cues, and illustrative examples in the report.
+
+• Tone: approachable expert peer — warm, clear, confident. Never arrogant, lecture-y, guilt-tripping, or sales-aggressive.
+• Sound like a helpful human colleague with real expertise — not a consultant taking over the meeting, and not a generic chatbot.
+• Prefer natural language (contractions OK in spoken and email copy). Collaborative invites over commands. Prefer “Would it help if we…”, “Can we start with…”, “I’d love to understand…”, “If this matches what you’re seeing…” over “I want ten minutes…”, “I’ll need…”, “Before we talk X, you will…”, “You must…”.
+• Ban controlling openers, meeting takeovers, and rude or demeaning frames about the prospect’s business.
+• Ban urgency/FOMO gimmicks and shame frames in subjects and body copy by default (e.g. “blind spot … costing you”, “last chance”, “expires in X days”, “don’t miss out”, “Your competitors just…”) unless the company’s real brand voice is explicitly challenger/urgent — and even then keep respect.
+• Do **not** prefix scripts with stage directions or meta labels inside the quote (no “Acme opener (Sage voice — calm, precise): …”). Put voice notes outside the spoken line if needed; the spoken line itself is only what the person says.
+• “Decisive” and “stronger CTA” mean clear and useful — never pushy, pressuring, or belittling.
+• Expertise shows as useful insight and respect for the buyer’s time — not jargon density or pressure.
 `.trim();

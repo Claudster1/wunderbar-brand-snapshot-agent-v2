@@ -65,13 +65,13 @@ export default function ResultsActivationRoutingCallout({ productTier, onOpenAct
           Execution plans
         </p>
         <p style={{ margin: "6px 0 0", fontSize: 15, fontWeight: 700, color: SUITE_NAVY, lineHeight: 1.35 }}>
-          All channel playbooks and schedules live in Activation
+          All channel plans and schedules live in Activation
         </p>
         <p style={{ margin: "8px 0 0", fontSize: 13, color: SUITE_MUTED, lineHeight: 1.55, maxWidth: 560 }}>
           {productTier === "blueprint-plus"
-            ? "Blueprint+ fills Activation with ship-ready copy, sequences, and plans—open it after Strategy when you are ready to run work in-market."
+            ? "Blueprint+ fills Activation with ready-to-paste copy, sequences, and plans—open it after Strategy when you are ready to publish and run campaigns."
             : productTier === "blueprint"
-              ? "Blueprint: Activation holds structured channel plans and schedules to execute Strategy. Blueprint+ adds more paste-ready content in the same places—the main tier gap is execution richness, not Strategy."
+              ? "Blueprint: Activation holds structured channel plans and schedules to execute Strategy. Blueprint+ adds more ready-to-paste content in the same places—the main tier gap is how finished the assets are, not Strategy."
               : "Use Activation after Strategy when you are ready to turn the plan into channel-specific plays, owners, and timelines."}
         </p>
       </div>

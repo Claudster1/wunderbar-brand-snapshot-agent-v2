@@ -417,10 +417,10 @@ export default function ActivationTab({
       >
         <h2 className="bs-h2 mb-3 mt-0">
           {productTier === "blueprint-plus"
-            ? "Activation: content & execution plans"
+            ? "Activation: content & plans you can run"
             : productTier === "blueprint"
               ? "Activation: plans to run your strategy"
-              : "Activation plan and channel playbooks"}
+              : "Activation plan and channel plans"}
         </h2>
         {suiteProgressHint ? (
           <p className="text-sm font-semibold text-brand-blue max-w-[760px] mb-3 m-0" style={{ lineHeight: 1.55 }}>
@@ -429,10 +429,10 @@ export default function ActivationTab({
         ) : null}
         <p className="bs-body-sm text-brand-muted max-w-[760px] mb-3.5 m-0 leading-relaxed">
           {productTier === "blueprint-plus"
-            ? "Blueprint+ is the full tier: Activation is where the actual deliverable lives—paste-ready copy and sequences, channel-by-channel execution plans, schedules, and prompt-backed drafts. This is not a thin checklist; it is what you ship and brief from. Refine in Workbook when you iterate."
+            ? "Blueprint+ is the full tier: Activation is where the actual deliverable lives—ready-to-paste copy and sequences, channel-by-channel plans, schedules, and prompt-backed drafts. This is not a thin checklist; it is what you publish and brief from. Refine in Workbook when you iterate."
             : productTier === "blueprint"
-              ? "Blueprint: Strategy (including what you sell—products or services) stays the same depth as Blueprint+. Here in Activation you get structured channel plans, roadmaps, and schedules to execute—built to brief your team and refine in Workbook. Blueprint+ layers in more ship-ready copy and deeper packaged assets in the same workflow."
-              : "Channel-ready plans and implementation playbooks, organized by section so your team can assign owners, ship content, and track measurable progress."}
+              ? "Blueprint: Strategy (including what you sell—products or services) stays the same depth as Blueprint+. Here in Activation you get structured channel plans, roadmaps, and schedules—built to brief your team and refine in Workbook. Blueprint+ adds more finished copy and deeper packaged assets in the same workflow."
+              : "Channel-ready plans organized by section so your team can assign owners, publish content, and track measurable progress."}
         </p>
         {activationPersonaIcpBanner ? (
           <p

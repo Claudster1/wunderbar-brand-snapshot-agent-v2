@@ -674,16 +674,16 @@ export function ChannelMixHubVisual({ hubLabel }: { hubLabel: string }) {
       eyebrow="Channel mix at a glance"
       description={
         <>
-          Each channel has one job in the system—all spokes should reinforce the same message spine. Ship-ready plans and
+          Each channel has one job—and all of them should reinforce the same core message. Ready-to-use plans and
           assets are on <strong style={{ color: NAVY }}>Activation</strong>.
         </>
       }
     >
       <HubAndSpokeDiagram
         hubLabel={hub}
-        hubSublabel="MESSAGE SPINE"
+        hubSublabel="CORE MESSAGE"
         nodes={CHANNEL_HUB_NODES}
-        ariaLabel="Diagram: message spine in the center with six channels connected around it"
+        ariaLabel="Diagram: core message in the center with six channels connected around it"
       />
     </SuiteVisualFrame>
   );

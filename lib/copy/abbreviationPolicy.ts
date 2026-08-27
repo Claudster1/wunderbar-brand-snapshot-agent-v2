@@ -32,7 +32,8 @@ export const PRODUCT_ACRONYM_GLOSSARY: readonly ProductAcronymEntry[] = [
   {
     term: "ICP",
     expanded: "ideal customer profile",
-    definition: "The best-fit buyers you intentionally design messaging and campaigns for first.",
+    definition:
+      "The customers you focus on first—who they are, what they need, and why they’re a good fit.",
   },
   {
     term: "ROI",
@@ -47,17 +48,20 @@ export const PRODUCT_ACRONYM_GLOSSARY: readonly ProductAcronymEntry[] = [
   {
     term: "AEO",
     expanded: "answer engine optimization",
-    definition: "Structuring content so AI and answer-style results can cite or surface your expertise clearly.",
+    definition:
+      "Making your expertise easy to surface in AI answers and featured-style results—not only classic search rankings.",
   },
   {
     term: "GTM",
     expanded: "go-to-market",
-    definition: "The practical plan for reaching and winning buyers—who first, which channels, what message, and how resources move.",
+    definition:
+      "Your practical plan for reaching and winning buyers—who first, which channels, what message, and how you use time and budget.",
   },
   {
     term: "JTBD",
     expanded: "jobs to be done",
-    definition: "The progress a buyer is trying to make when they hire your product or service—not just their job title.",
+    definition:
+      "The job a buyer is trying to get done when they buy—progress they want, not just their job title.",
   },
   {
     term: "CRM",
@@ -96,8 +100,9 @@ export const PRODUCT_ACRONYM_GLOSSARY: readonly ProductAcronymEntry[] = [
   },
   {
     term: "UTM",
-    expanded: "Urchin Tracking Module parameters",
-    definition: "Short labels added to links so you can tell which campaign, email, or post drove a visit or form fill.",
+    expanded: "campaign tracking tags",
+    definition:
+      "Short labels added to links so you can tell which campaign, email, or post drove a visit or form fill.",
   },
 ] as const;
 

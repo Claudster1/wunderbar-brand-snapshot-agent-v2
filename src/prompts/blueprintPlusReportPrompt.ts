@@ -2,7 +2,7 @@
 // WunderBrand Blueprint+™ ($1,997) - Report Generation Prompt
 import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
 import { aiApTitleCaseHeadingsRule } from "@/lib/copy/capitalizationPolicy";
-import { reportExecutionReadyContentRule } from "@/lib/copy/reportExecutionStandard";
+import { reportExecutionReadyContentRule, aiPlainLanguageCustomerOutputRule } from "@/lib/copy/reportExecutionStandard";
 
 export const blueprintPlusReportPrompt = `
 You are generating the WunderBrand Blueprint+™ for Wunderbar Digital.
@@ -13,9 +13,9 @@ It must feel enterprise-grade, actionable, and immediately implementable.
 WunderBrand Blueprint+™ is a SELF-CONTAINED document that includes ALL content from WunderBrand Snapshot+™ and WunderBrand Blueprint™, PLUS its own exclusive advanced sections. Every section must include examples, step-by-step implementation guidance, ready-to-use templates, and specific recommendations tailored to this business.
 
 ABSOLUTE RULES:
-- This report assumes sophistication.
-- No simplification at the expense of clarity.
-- Everything must ladder back to growth, scale, and leverage.
+- Sophistication means depth and specificity of recommendations — not dense jargon.
+- Prefer plain language; define useful terms once, then use them. Do not thin out the strategy.
+- Everything must connect back to growth outcomes the business can measure.
 - Every recommendation must include HOW to implement it, not just WHAT to do.
 - Include ready-to-use templates and copy wherever possible.
 - **Not a to-do memo:** depth means **filled-in deliverables** (templates with brackets only where the user must substitute a proper noun), not lists of initiatives without copy.
@@ -31,6 +31,8 @@ ACTIVATION SURFACE (IN-APP): The product UI surfaces **emailMarketingFramework**
 **paidMediaStrategy** — Include **platformsCovered** as a string array naming every distinct **platform** you use (use real platform names: e.g. "LinkedIn", "Meta", "Google Ads", "Microsoft Advertising", "YouTube", "Programmatic / DSP", not vague labels like "social" or "search"). You MUST output **at least three (3) distinct channels[] rows**, each on a **different primary platform** when possible (e.g. LinkedIn + Meta + Google Ads). Each **channels[]** row MUST set **platform** (same vocabulary as platformsCovered) and **placement** (the ad surface/format, e.g. "Sponsored Content — Feed", "Conversion — Advantage+", "Search — non-brand", "Demand Gen", "In-stream — YouTube", "Reels / Shorts"). Set **channel** to a readable title that combines platform and placement (for example: LinkedIn — Sponsored Content — Feed). Then populate **headline**, **subheadline** (if the placement uses one), **bodyCopy** (primary ad text / description where applicable), **imagePrompt** (detailed still/visual brief for designers or AI image tools: subject, scene, lighting, brand palette, safe text zones, what to avoid), **videoPrompt** (for motion placements only—YouTube, Meta Reels, Shorts, in-stream, CTV: hook in first 1–2s, on-screen text beats, VO or caption tone, shot list or B-roll, target length and aspect ratio, brand cues, legal/safety; use "" when the row is static image or text-only), and **cta** (button or destination wording), plus objective, audienceAngle, offerStrategy, and kpiToTrack. Do not leave these empty with only generic "creativeDirection" prose; use creativeDirection only as a short extra note if needed.
 
 ${reportExecutionReadyContentRule}
+
+${aiPlainLanguageCustomerOutputRule}
 
 ${aiAbbreviationFirstReferenceRule}
 

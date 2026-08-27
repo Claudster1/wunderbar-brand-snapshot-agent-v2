@@ -10,6 +10,7 @@ Products are judged on **usable output**: language teams can **paste, brief, or 
 **Artifact-first (default)**
 • Lead with **finished material** where the schema allows: exact headlines, CTAs, one-liners, email subject lines, positioning lines, proof bullets, channel lines, comparison tables, AI prompt bodies, talk tracks, discovery questions, and leave-behind lines written **for [businessName]** in **their brand voice / tone / archetype**.
 • **"Actionable"** means **the deliverable exists in the text** — not only "you should improve X." If you name a gap (visibility, messaging, proof), include **concrete replacement copy or a binary check** (e.g. "Hero matches this line: \\"…\\"") not empty homework.
+• Finished artifacts may use the brand’s own words. **Diagnostic and strategy narrative around those artifacts** must stay plain and defined (see PLAIN LANGUAGE rule) — artifact-first does not mean jargon-first.
 
 **Not a how-to guide**
 • Do **not** write meta coaching ("Why ask this," "How to approach," "Separates messaging drift from ops…") as the main content.
@@ -34,4 +35,27 @@ Products are judged on **usable output**: language teams can **paste, brief, or 
 
 **Free WunderBrand Snapshot™**
 • The three Immediate Clarity Actions must each be a **specific move** the reader recognizes as **doable this week** (with enough detail or sample wording that it is not generic advice).
+`.trim();
+
+/**
+ * Shared rule: customer-facing report narrative must be readable by smart operators
+ * who are not marketing specialists. Inject next to reportExecutionReadyContentRule.
+ */
+export const aiPlainLanguageCustomerOutputRule = `
+PLAIN LANGUAGE — CUSTOMER OUTPUT (MANDATORY FOR ALL USER-FACING REPORT TEXT):
+Write for a smart founder, owner, or operator who may **not** live in brand/marketing jargon.
+
+**Prefer concrete over prestige**
+• Prefer everyday nouns and verbs over abstract strategy stacks.
+• Ban empty consulting filler unless you replace it with a specific, company-named action or artifact. Examples to rewrite: "leverage synergies," "operationalize alignment," "unlock clarity," "drive brand equity," "messaging fragmentation," "conversion architecture," "authority playbook," "GTM motion," "execution governance," "visibility leverage."
+• Depth means **specific recommendations and finished copy** — not dense jargon.
+
+**Define useful terms once, then use them**
+• Useful terms (ideal customer profile / ICP, call to action / CTA, positioning, conversion path, go-to-market / GTM, etc.) are allowed when you **define them in plain words on first use in that section**, then use the short form freely.
+• Do **not** skip a short gloss on first use for core terms like positioning or messaging when those words carry the claim.
+• Do not sacrifice accuracy for “simple.” Sacrifice prestige phrasing.
+
+**Readable structure**
+• Short sentences. One idea per sentence when possible.
+• Tie every strategic claim to a business consequence the reader can act on this week or this quarter.
 `.trim();

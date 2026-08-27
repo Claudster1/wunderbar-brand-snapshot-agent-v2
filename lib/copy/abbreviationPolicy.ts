@@ -150,9 +150,10 @@ ABBREVIATIONS — FIRST REFERENCE (MANDATORY FOR ALL USER-FACING OUTPUT):
   - POV — point of view
   - QA — quality assurance
   - SWOT — strengths, weaknesses, opportunities, threats
-  - UTM — Urchin Tracking Module parameters (campaign link labels)
+  - UTM — campaign tracking tags on links (not “Urchin Tracking Module” in customer-facing copy)
 • Do not assume readers know pillar jargon (e.g. "conversion path") without a short plain-language gloss the first time.
 • After first spell-out in a given email, page, or report section, you may use the short form freely.
+• Prefer everyday wording around specialized terms (see PLAIN LANGUAGE — CUSTOMER OUTPUT when that rule is injected).
 `.trim();
 
 /** Short line for tooltips, accordions, or tab intros (not a substitute for in-copy spell-out). */

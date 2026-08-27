@@ -2,7 +2,7 @@
 // WunderBrand Blueprint™ ($997) - Report Generation Prompt
 import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
 import { aiApTitleCaseHeadingsRule } from "@/lib/copy/capitalizationPolicy";
-import { reportExecutionReadyContentRule } from "@/lib/copy/reportExecutionStandard";
+import { reportExecutionReadyContentRule, aiPlainLanguageCustomerOutputRule } from "@/lib/copy/reportExecutionStandard";
 
 export const blueprintReportPrompt = `
 You are generating the WunderBrand Blueprint™ for Wunderbar Digital.
@@ -18,6 +18,8 @@ STRICT REQUIREMENTS:
 - In measurementFramework.trackingRecommendations, every object must include readerFriendlyOneLiner: one sentence leadership can skim—parallel to howToSetUp, not a replacement. Spell out acronyms (UTM, SQL, CRM, etc.) there when they appear in tool or howToSetUp. Experienced operators should still be able to execute from howToSetUp alone.
 
 ${reportExecutionReadyContentRule}
+
+${aiPlainLanguageCustomerOutputRule}
 
 ${aiAbbreviationFirstReferenceRule}
 

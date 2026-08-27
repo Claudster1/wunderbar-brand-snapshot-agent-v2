@@ -2,7 +2,7 @@
 // WunderBrand Snapshot+™ ($497) - Report Generation Prompt
 import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
 import { aiApTitleCaseHeadingsRule } from "@/lib/copy/capitalizationPolicy";
-import { reportExecutionReadyContentRule } from "@/lib/copy/reportExecutionStandard";
+import { reportExecutionReadyContentRule, aiPlainLanguageCustomerOutputRule } from "@/lib/copy/reportExecutionStandard";
 
 export const snapshotPlusReportPrompt = `
 You are generating the WunderBrand Snapshot+™ report for Wunderbar Digital.
@@ -18,6 +18,10 @@ NON-NEGOTIABLE RULES:
 ${aiAbbreviationFirstReferenceRule}
 
 ${aiApTitleCaseHeadingsRule}
+
+${reportExecutionReadyContentRule}
+
+${aiPlainLanguageCustomerOutputRule}
 
 ---------------------------------------------------------------------
 REQUIRED OUTPUT STRUCTURE

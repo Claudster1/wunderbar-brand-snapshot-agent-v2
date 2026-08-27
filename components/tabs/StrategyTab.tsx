@@ -453,7 +453,7 @@ export default function StrategyTab({
     {
       id: "positioning",
       label: "Positioning Statement",
-      summary: "Your market position and differentiation baseline.",
+      summary: "How you stand out in the market—and what makes you different.",
       body:
         [positioningFromReport, differentiationFromReport].filter(Boolean).join("\n\n") ||
         positioningMessaging ||
@@ -462,14 +462,14 @@ export default function StrategyTab({
     },
     {
       id: "strategic-offer",
-      label: "Strategic offer & portfolio",
+      label: "What you sell",
       summary:
-        "What you sell (product, service, or program), the buyer job, scope boundaries, success signals, and how channels should reinforce the same offer—jobs to be done (JTBD) and outcome-oriented framing for go-to-market (GTM) and Activation.",
+        "Your main offer, the buyer job it helps with, what’s in or out of scope, success signals, and how every channel should describe the same offer.",
       body: (() => {
         const built = buildStrategicOfferPlanBody(diagnosticData as Record<string, unknown>);
         if (built) return built;
         if (productTier === "blueprint" || productTier === "blueprint-plus") {
-          return `Your Blueprint deliverable should include a **strategicOfferContext** block: primary offer, buyer job statement, pains and outcomes, in-scope vs out-of-scope promises, leading signals to review, channel alignment, and the riskiest assumption to validate. If this area is empty, regenerate your Blueprint report or capture the offer in Workbook (Strategic offer & portfolio).`;
+          return `Your Blueprint deliverable should include a **strategicOfferContext** block: primary offer, buyer job statement, pains and outcomes, in-scope vs out-of-scope promises, leading signals to review, channel alignment, and the riskiest assumption to validate. If this area is empty, regenerate your Blueprint report or capture the offer in Workbook (What you sell).`;
         }
         return "";
       })(),
@@ -477,8 +477,8 @@ export default function StrategyTab({
     },
     {
       id: "messaging-pillars",
-      label: "Messaging Pillars",
-      summary: "Core claims and proof points to repeat across channels.",
+      label: "Message themes",
+      summary: "The few claims and proof points you should repeat across channels.",
       body: formatMessagingSystemBody(
         ms,
         positioningMessaging ||
@@ -490,7 +490,7 @@ export default function StrategyTab({
       id: "archetype-voice",
       label: "Archetype & Voice System",
       summary:
-        "Planning lens only—the full archetype story, toggle, and voice applications live on Foundation (Voice & Expression).",
+        "Planning lens only—the full archetype story, toggle, and voice examples live on Foundation (Voice & Expression).",
       body: (() => {
         const label = [archetype, secondaryArchetype].filter(Boolean).join(" + ");
         const named = label ? `Your suite labels this pattern as ${label}. ` : "";
@@ -505,7 +505,7 @@ export default function StrategyTab({
       id: "icp-personas",
       label: "Audience Profiles",
       summary:
-        "Snapshot answers plus ideal customer profile (ICP) depth from your deliverable—segments, pains, objections, and transition plan when present.",
+        "Who you serve—segments, pains, objections, and how to shift toward your best-fit buyers when that plan is present.",
       body: buildAudienceProfilesBody({
         companyName,
         industry,
@@ -517,8 +517,8 @@ export default function StrategyTab({
     },
     {
       id: "persona-atlas",
-      label: "Customer Profiles",
-      summary: "Role-level buyer personas—motivations, objections, channels, and sample message hooks from your report.",
+      label: "Buyer role profiles",
+      summary: "Role-level buyer profiles—motivations, objections, channels, and sample message hooks from your report.",
       body: buildCustomerProfilesDeepBody({
         personaAtlasSummary,
         buyerPersonas: diagnosticData.buyerPersonas,
@@ -531,14 +531,14 @@ export default function StrategyTab({
       id: "buyer-journey-map",
       label: "Customer Decision Journey",
       summary:
-        "Stage-by-stage strategy (Aware → Consider → Decide → handoff). When your copy uses those labels, the map and narrative stay in sync.",
+        "How buyers move from first interest to a decision—and what you should say at each step.",
       body: buyerJourneySummary,
       workbookSectionId: "buyer-journey-map",
     },
     {
       id: "competitive-matrix",
-      label: "Competitive Landscape Matrix",
-      summary: "Competitive claims, overlap, and counter-positioning strategy.",
+      label: "Competitive Landscape",
+      summary: "What competitors claim, where you overlap, and how you answer when alternatives come up.",
       body: competitiveMatrixSummary,
       workbookSectionId: "competitive-landscape-matrix",
     },
@@ -546,7 +546,7 @@ export default function StrategyTab({
       id: "channel-strategy",
       label: "Channel Strategy",
       summary:
-        "Strategic channel roles and message fit—detailed channel plans, sequences, and assets are on Activation.",
+        "Which channels do which job—and how messages should fit. Detailed plans and assets are on Activation.",
       body:
         channelStrategySummary ||
         channelDirection ||
@@ -556,7 +556,7 @@ export default function StrategyTab({
     {
       id: "spend-roadmap",
       label: "Budget-Aligned Spend Roadmap",
-      summary: "Current-budget plan plus a phased path to hit growth goals.",
+      summary: "How to use today’s budget, then grow spend in phases as results improve.",
       body:
         spendPlanSummary ||
         `Allocate current spend by channel role first (demand capture, follow-up, conversion), then scale in 30/60/90-day phases tied to success check unlocks. Increase budget only when conversion efficiency and pipeline quality are stable.`,
@@ -565,7 +565,7 @@ export default function StrategyTab({
     {
       id: "execution-priorities",
       label: "Strategic Priorities",
-      summary: "Ordered strategic bets—what to prove first so activation and spend follow the same story.",
+      summary: "Ordered priorities—what to prove first so channels and budget tell the same story.",
       body:
         strategicPriorities.length > 0
           ? [
@@ -716,7 +716,7 @@ export default function StrategyTab({
       whyItMatters:
         "A steady voice builds trust. People decide faster when you sound like one brand—and when every brief points at the same Foundation definition.",
       parallelPlainRead:
-        "Use Foundation as the source of truth for how the archetype reads; keep Strategy for how you operationalize that voice inside campaigns and handoffs.",
+        "Use Foundation as the source of truth for how the archetype reads; keep Strategy for how you apply that voice inside campaigns and handoffs.",
       actions: [
         "List words to use, words to skip, and tone by channel.",
         "Check voice on high-impact pages before they go live.",
@@ -778,7 +778,7 @@ export default function StrategyTab({
     "channel-strategy": {
       whyItMatters: "Each channel works best when it matches what the reader needs right now.",
       parallelPlainRead:
-        "Give every channel one job and one score to watch; keep the same core story while the format fits the place. Use Strategy for framing—Activation for week-by-week channel plans, sequences, and ship-ready assets.",
+        "Give every channel one job and one score to watch; keep the same core story while the format fits the place. Use Strategy for framing—Activation for week-by-week channel plans, sequences, and ready-to-use assets.",
       actions: [
         "Give each channel one job and one simple score to watch.",
         "Plan content by stage, not by how many posts you can ship.",
@@ -1003,7 +1003,7 @@ export default function StrategyTab({
               }
               pathSupplement={
                 productTier === "blueprint-plus"
-                  ? "At this tier, ship-ready plays and exports live under Activation once strategy is set—the path above is the order we recommend."
+                  ? "At this tier, ready-to-use plays and exports live under Activation once strategy is set—the path above is the order we recommend."
                   : productTier === "blueprint"
                     ? "Blueprint+ adds deeper Activation assets and export packs; both Blueprint tiers share the same Strategy coverage in this tab."
                     : null
@@ -1014,15 +1014,15 @@ export default function StrategyTab({
                 How Foundation, Strategy, and Activation fit
               </p>
               <p style={{ margin: 0, fontSize: 15, lineHeight: 1.58, color: TEXT_BODY, fontFamily: SUITE_FONT_UI }}>
-                <strong style={{ color: NAVY }}>Foundation</strong> is the brand foundation—positioning, messaging pillars,
-                personas, voice, and how the story fits together. <strong style={{ color: NAVY }}>Strategy</strong> is the plan
+                <strong style={{ color: NAVY }}>Foundation</strong> is the brand basics—how you stand out, message themes,
+                buyer roles, voice, and how the story fits together. <strong style={{ color: NAVY }}>Strategy</strong> is the plan
                 on top of that: which audiences to prioritize, tactics, channels, spend, and sequencing.{" "}
                 <strong style={{ color: NAVY }}>Activation</strong>{" "}
                 {productTier === "blueprint-plus"
-                  ? "is where Blueprint+ puts the plan into ship-ready form: actual content, channel execution plans, timelines, and prompts—everything included at this tier."
+                  ? "is where Blueprint+ turns the plan into ready-to-use form: actual content, channel plans, timelines, and prompts—everything included at this tier."
                   : productTier === "blueprint"
-                    ? "is structured execution on Blueprint—channel plans, roadmaps, and schedules your team runs from Workbook. Blueprint+ is the same Strategy (including what you sell) with heavier ship-ready content inside Activation."
-                    : "is tactical execution of the plan—what to run, who owns it, and when."}{" "}
+                    ? "is structured execution on Blueprint—channel plans, roadmaps, and schedules your team runs from Workbook. Blueprint+ is the same Strategy (including what you sell) with more finished copy inside Activation."
+                    : "is where you run the plan—what to publish, who owns it, and when."}{" "}
                 Where Strategy touches the same bedrock as Foundation (for example archetype and voice), we link to the
                 Foundation section instead of pasting the full story twice.
               </p>
@@ -1054,7 +1054,7 @@ export default function StrategyTab({
               {productTier === "blueprint-plus"
                 ? "On Blueprint+, Activation is the full execution pack—paste-ready content, channel plans, schedules, and prompts. Line-by-line edits in Workbook; PDFs and bundles under Downloads."
                 : productTier === "blueprint"
-                  ? "On Blueprint, Activation is structured execution (plans and schedules); Blueprint+ adds more ship-ready copy and richer export packs—same Strategy depth on both tiers."
+                  ? "On Blueprint, Activation is structured execution (plans and schedules); Blueprint+ adds more ready-to-use copy and richer export packs—same Strategy depth on both tiers."
                   : "Channel playbooks and timelines live under Activation; line-by-line edits in Workbook; PDFs and bundles under Downloads."}
             </p>
             <p className="mt-3 text-sm leading-relaxed text-brand-muted sm:text-[15px]" style={{ marginBottom: 0 }}>

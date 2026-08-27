@@ -5,7 +5,7 @@
 import { supabaseServer } from "./supabaseServer";
 import { PILLARS, PillarKey } from "./pillars";
 import { completeWithFallback } from "@/lib/ai";
-import { reportExecutionReadyContentRule } from "@/lib/copy/reportExecutionStandard";
+import { reportExecutionReadyContentRule, aiPlainLanguageCustomerOutputRule } from "@/lib/copy/reportExecutionStandard";
 
 export type RefinementInput = {
   snapshotReportId: string;
@@ -141,7 +141,9 @@ Return as JSON with this exact structure:
           role: "system",
           content: `${reportExecutionReadyContentRule}
 
-You are a brand strategist refining a WunderBrand Snapshot+™ report. Insights are declarative; recommendation lines must carry paste-ready or verify-ready substance — not a generic to-do list.`,
+${aiPlainLanguageCustomerOutputRule}
+
+You are a brand strategist refining a WunderBrand Snapshot+™ report. Insights are declarative; recommendation lines must carry paste-ready or verify-ready substance — not a generic to-do list. Write so a smart operator who is not a marketing specialist can understand and act.`,
         },
         {
           role: "user",

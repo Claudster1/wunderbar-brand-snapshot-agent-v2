@@ -801,42 +801,42 @@ export function buildActivationPlanSectionsList(
   return [
     {
       id: "audience-segments",
-      label: "Audience Segments & Journey Triggers",
+      label: "Audiences & outreach triggers",
       summary: activationSegmentPlansBody
-        ? "ICP tiers, personas, and segment-level plays from your conversion intelligence."
-        : "Who each campaign is for and what event should trigger outreach.",
+        ? "Who each campaign is for—and what should start outreach—from your conversion plan."
+        : "Who each campaign is for and what event should start outreach.",
       body: audienceBody,
       workbookSectionId: "audience-profile",
     },
     {
       id: "journey-orchestration",
-      label: "Journey Orchestration",
+      label: "Buyer journey plan",
       summary:
         typeof diagnosticData.buyerJourneySummary === "string" && diagnosticData.buyerJourneySummary.trim()
-          ? "Stage-by-stage journey with persona-specific adaptations from your customer journey map."
-          : "Stage-aware sequencing across channels and lifecycle touchpoints.",
+          ? "Stage-by-stage journey with buyer-role adaptations from your customer journey map."
+          : "Ordered steps across channels from first contact toward purchase.",
       body: journeyBody,
       workbookSectionId: "buyer-journey-map",
     },
     {
       id: "competitive-motion-plan",
-      label: "Competitive Motion Plan",
+      label: "Competitive response plan",
       summary:
         typeof diagnosticData.competitiveMatrixSummary === "string" && diagnosticData.competitiveMatrixSummary.trim()
-          ? "Differentiation, whitespace, and competitive motion pulled from your positioning analysis."
-          : "How campaigns and sales motion respond to competitive pressure.",
+          ? "How you differ, where competitors are weak, and how campaigns should respond."
+          : "How campaigns and sales should respond when competitors come up.",
       body: competitiveBody,
       workbookSectionId: "competitive-landscape-matrix",
     },
     {
       id: "lead-magnet-planning",
-      label: "Lead Magnet Planning",
+      label: "Free offer / download plan",
       summary:
         typeof channelPlans["lead-magnet"] === "string" && channelPlans["lead-magnet"].length > 80
-          ? "CTA hierarchy, persona lead magnets, and conversion matrix from your Blueprint+ conversion strategy."
+          ? "CTA hierarchy, persona free offers, and conversion matrix from your conversion strategy."
           : tierBp
             ? "Lead capture path from your conversion strategy (or regenerate if this export is empty)."
-            : "Conversion asset plan linking ICP intent to offer, CTA, and nurture entry.",
+            : "Free offer plan linking buyer intent to offer, next step, and follow-up entry.",
       body: buildLeadMagnetSectionBody(diagnosticData, d),
       workbookSectionId: "channel-notes",
     },
@@ -846,7 +846,7 @@ export function buildActivationPlanSectionsList(
       summary:
         typeof channelPlans.email === "string" && channelPlans.email.length > 120
           ? "Welcome, nurture, and re-engagement sequences with subject lines and CTAs from your email framework."
-          : "Campaign sequencing by stage (welcome, follow-up, conversion, re-engagement).",
+          : "Email sequencing by stage (welcome, follow-up, conversion, re-engagement).",
       body: pickEmailLifecycleBody(diagnosticData, d),
       workbookSectionId: "channel-notes",
     },
@@ -881,7 +881,7 @@ export function buildActivationPlanSectionsList(
         (typeof channelPlans.social === "string" && channelPlans.social.length > 120) ||
         (typeof channelPlans.content === "string" && channelPlans.content.length > 120)
           ? "Social & content calendar from your report: platforms, example posts, and themes."
-          : "Social media plan: channel scope, content system, publishing cadence, and governance.",
+          : "Social media plan: channel scope, content system, publishing cadence, and ownership.",
       body:
         thoughtBody ||
         `Build a social plan around ${firstPriority.toLowerCase()} and ${secondPriority.toLowerCase()}, using ICP-aware channels and one measurable CTA per post.`,
@@ -894,7 +894,7 @@ export function buildActivationPlanSectionsList(
         (typeof channelPlans.pr === "string" && channelPlans.pr.length > 80) ||
         (typeof channelPlans.visibility === "string" && channelPlans.visibility.length > 80)
           ? "Media angles, hooks, and speaking lines from your thought leadership & PR plan."
-          : "Narrative hooks, media motions, and credibility amplification moments.",
+          : "Story hooks, media outreach, and credibility moments that support demand.",
       body: pickPrVisibilityBody(diagnosticData, d),
       workbookSectionId: "channel-notes",
     },

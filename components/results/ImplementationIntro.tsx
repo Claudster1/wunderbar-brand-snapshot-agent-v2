@@ -13,7 +13,7 @@ export function ImplementationIntro({ variant = "default" }: ImplementationIntro
       <section className="border-t border-brand-border/50 pt-6 sm:pt-7">
         <div className="max-w-2xl mx-auto text-center">
           <p className="bs-body-sm text-brand-muted leading-relaxed m-0">
-            Ready to operationalize?{" "}
+            Ready for help putting this into practice?{" "}
             <a
               href={WUNDERBAR_IMPLEMENTATION_OPTIONS_URL}
               target="_blank"
@@ -36,7 +36,7 @@ export function ImplementationIntro({ variant = "default" }: ImplementationIntro
 
       <p className="max-w-2xl mx-auto text-[15px] leading-relaxed text-slate-700">
         Some teams take these insights and implement them internally. Others
-        choose to work with us to operationalize what you’re seeing here — across
+        choose to work with us to put what you’re seeing here into practice — across
         messaging, visibility, and conversion.
       </p>
 

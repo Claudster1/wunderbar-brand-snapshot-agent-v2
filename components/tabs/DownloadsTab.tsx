@@ -319,7 +319,7 @@ const SECTION_LABELS: Record<string, string> = {
   "voice-attributes": "Voice & Tone",
   "brand-story": "Brand Story",
   "audience-profile": "Audience Profile",
-  "persona-atlas": "Persona Atlas",
+  "persona-atlas": "Buyer role profiles",
   "buyer-journey-map": "Buyer Journey Map",
   "competitive-landscape-matrix": "Competitive Landscape Matrix",
   "channel-notes": "Channel Strategy & Activation Notes",

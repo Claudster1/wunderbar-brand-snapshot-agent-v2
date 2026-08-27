@@ -2,12 +2,12 @@
 // WunderBrand Snapshot™ (Free) - Report Generation Prompt
 import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
 import { aiApTitleCaseHeadingsRule } from "@/lib/copy/capitalizationPolicy";
-import { reportExecutionReadyContentRule } from "@/lib/copy/reportExecutionStandard";
+import { reportExecutionReadyContentRule, aiPlainLanguageCustomerOutputRule } from "@/lib/copy/reportExecutionStandard";
 
 export const brandSnapshotReportPrompt = `
 You are generating the WunderBrand Snapshot™ report for Wunderbar Digital.
 
-This is a FREE but premium-feeling diagnostic. It must feel immediately valuable while clearly stopping short of deep strategic execution.
+This is a FREE but valuable diagnostic. It must feel immediately useful while clearly stopping short of deep strategic execution.
 
 STRICT RULES:
 - Use decisive, confident language. Avoid hedging ("may", "might", "often").
@@ -16,6 +16,8 @@ STRICT RULES:
 - This report diagnoses, prioritizes, and orients — it does NOT fully solve — but every section must still contain **specific, usable language** (not generic task reminders).
 
 ${reportExecutionReadyContentRule}
+
+${aiPlainLanguageCustomerOutputRule}
 
 ${aiAbbreviationFirstReferenceRule}
 

@@ -12,19 +12,19 @@ export const ACTIVATION_PLAN_PHASES: readonly ActivationPlanPhaseMeta[] = [
   {
     id: "foundation",
     title: "Foundation — who you’re talking to",
-    hint: "Align segments, journey stages, and competitive motion before media spend.",
+    hint: "Align audiences, journey stages, and competitive responses before you spend on media.",
     sectionIds: ["audience-segments", "journey-orchestration", "competitive-motion-plan"],
   },
   {
     id: "demand",
     title: "Demand — capture and convert",
-    hint: "Offers, lifecycle email, search, and paid — each row should ladder to one primary next step.",
+    hint: "Offers, lifecycle email, search, and paid — each row should end with one clear next step.",
     sectionIds: ["lead-magnet-planning", "email-lifecycle", "seo-aeo", "paid-ads"],
   },
   {
     id: "authority",
     title: "Authority — trust and visibility",
-    hint: "Organic POV and PR-style reach to support everything above.",
+    hint: "Your point of view in content, plus press and speaking that support everything above.",
     sectionIds: ["thought-leadership", "pr-plan"],
   },
   {

@@ -720,8 +720,8 @@ export default function BrandStandardsTab({
             <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.04em" }}>Brand snapshot</p>
             <p style={{ margin: "4px 0 0", fontSize: 13, color: MID_GRAY, lineHeight: 1.55, maxWidth: 720 }}>
               Shared context for {businessName}: who you serve, what you are doubling down on, and what you are fixing next.
-              The checklists and examples below plug into this spine so the tab reads like your playbook—not only do/don&apos;t
-              lists.
+              The checklists and examples below use this shared context so the tab reads like your brand guide—not only
+              do/don&apos;t lists.
             </p>
           </div>
         </div>
@@ -755,7 +755,7 @@ export default function BrandStandardsTab({
                 textTransform: "uppercase",
               }}
             >
-              Strategic spine
+              Shared brand context
             </p>
             <p style={{ margin: "8px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.55 }}>
               Lead pillar: <strong style={{ color: NAVY }}>{primaryPillar}</strong>. Archetype:{" "}
@@ -927,7 +927,8 @@ export default function BrandStandardsTab({
               </p>
             </div>
             <p style={{ margin: "2px 0 0", fontSize: 13, color: MID_GRAY }}>
-              Claim ladder and {firstReferenceForm("CTA")}s tailored to {businessName}—plus a worked example using your pillar and proof.
+              How to build a claim (problem → method → outcome → proof) and {firstReferenceForm("CTA")}s tailored to{" "}
+              {businessName}—plus a worked example using your message theme and proof.
             </p>
           </div>
           <button type="button" onClick={() => onEditInWorkbook("messaging-framework")} style={EDIT_IN_WORKBOOK_BTN}>
@@ -1641,10 +1642,10 @@ export default function BrandStandardsTab({
             accentColor={BLUE}
           >
             {visualSystemMode === "existing"
-              ? "Foundation is set to preserve your current logo, palette, and typography. Use this mood board for consistency, vendor briefs, and quality assurance (QA)—not as a signal to replace working assets. For “optimization” in the go-to-market (GTM) sense, lean on ideal customer profile (ICP) and persona guidance in Strategy and Foundation so creative and proof stay aligned with how priority buyers decide."
+              ? "Foundation is set to preserve your current logo, palette, and typography. Use this mood board for consistency, vendor briefs, and quality assurance (QA)—not as a signal to replace working assets. For marketing improvements, lean on best-fit buyer profiles in Strategy and Foundation so creative and proof stay aligned with how those buyers decide."
               : visualSystemMode === "optimize"
-                ? "Foundation keeps your core identity while tightening execution. Pair these mood cues and channel standards with Blueprint ideal customer profile (ICP) and persona outputs: optimize imagery and layout for clarity, proof, and the conversion paths each segment needs—not a wholesale rebrand."
-                : "Foundation allows evolving selected visual elements. Treat prompts and samples as exploration inputs; reconcile any refresh with positioning and ideal customer profile (ICP) messaging so new visuals still support priority segments. Strategy and Activation link execution to those buyer realities."}
+                ? "Foundation keeps your core identity while tightening execution. Pair these mood cues and channel standards with Blueprint best-fit buyer and role profiles: optimize imagery and layout for clarity, proof, and the conversion paths each segment needs—not a wholesale rebrand."
+                : "Foundation allows evolving selected visual elements. Treat prompts and samples as exploration inputs; reconcile any refresh with positioning and best-fit buyer messaging so new visuals still support priority segments. Strategy and Activation link execution to those buyer realities."}
           </ReportCallout>
         ) : (
           <p style={{ margin: "0 0 14px", fontSize: 13, color: MID_GRAY, lineHeight: 1.55, maxWidth: 720 }}>

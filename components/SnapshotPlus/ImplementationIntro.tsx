@@ -17,7 +17,7 @@ export function ImplementationIntro({ variant = "default" }: ImplementationIntro
       <section className="border-t border-brand-border/50 pt-6 sm:pt-7">
         <div className="max-w-2xl mx-auto text-center">
           <p className="bs-body-sm text-brand-muted leading-relaxed m-0">
-            Ready to operationalize?{" "}
+            Ready for help putting this into practice?{" "}
             <a
               href={WUNDERBAR_IMPLEMENTATION_OPTIONS_URL}
               target="_blank"
@@ -41,8 +41,8 @@ export function ImplementationIntro({ variant = "default" }: ImplementationIntro
 
         <p className="bs-body-sm text-brand-muted leading-relaxed">
           A diagnostic creates clarity. Activation creates results. Whether your team
-          implements these insights internally or you work with Wunderbar to operationalize
-          them across positioning, messaging, visibility, and conversion — the goal is
+          implements these insights internally or you work with Wunderbar to put them
+          into practice across positioning, messaging, visibility, and conversion — the goal is
           the same: turning what you now know into measurable brand performance.
         </p>
 

@@ -117,7 +117,7 @@ export default function ActivationStrategyBridgeBanner({ diagnosticData, onOpenS
             lineHeight: 1.5,
           }}
         >
-          <strong style={{ fontWeight: 700 }}>Primary offer anchor: </strong>
+          <strong style={{ fontWeight: 700 }}>Main offer this plan supports: </strong>
           {offerHook}
         </p>
       ) : null}

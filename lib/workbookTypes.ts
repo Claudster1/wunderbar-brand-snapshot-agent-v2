@@ -30,7 +30,7 @@ export const WORKBOOK_SECTIONS: WorkbookSection[] = [
     id: "positioning-statement",
     label: "Positioning Statement",
     description:
-      "Your finalized brand positioning — the single sentence every brand decision traces back to.",
+      "The one sentence every brand decision should come back to—how you stand out for the buyers you want.",
     placeholder:
       "Paste your positioning statement here. Use the F1 prompt output as a starting point, or write it from scratch.",
     pillar: "Positioning",
@@ -38,19 +38,19 @@ export const WORKBOOK_SECTIONS: WorkbookSection[] = [
   },
   {
     id: "strategic-offer-context",
-    label: "Strategic offer & portfolio",
+    label: "What you sell",
     description:
-      "What you sell (product, service, or program), the buyer job it serves, scope boundaries, and how channels should reinforce the same offer—Blueprint methodology slice for go-to-market (GTM) and Activation.",
+      "Your main offer (product, service, or program), the buyer job it helps with, what’s in or out of scope, and how every channel should describe the same offer.",
     placeholder:
-      "Primary offer name and one-line pitch. Job statement (When…, I want to…, so I can…). Pains relieved, outcomes, in-scope vs out-of-scope, leading signals to review, and channel alignment notes. Pull phrasing from the Strategy tab strategic offer panel and your Blueprint positioning context.",
+      "Primary offer name and one-line pitch. Job statement (When…, I want to…, so I can…). Pains relieved, outcomes, in-scope vs out-of-scope, leading signals to review, and channel alignment notes. Pull phrasing from the Strategy tab “What you sell” panel and your Blueprint positioning context.",
     pillar: "Positioning",
     availableFrom: "blueprint",
   },
   {
     id: "messaging-framework",
-    label: "Messaging Framework",
+    label: "Core messages",
     description:
-      "Your brand promise, narrative, and three message pillars with proof points.",
+      "Your brand promise, short story, and three message themes with proof you can repeat across channels.",
     placeholder:
       "Paste your core messaging framework here. Use the F3 prompt output as a starting point.",
     pillar: "Messaging",
@@ -60,7 +60,7 @@ export const WORKBOOK_SECTIONS: WorkbookSection[] = [
     id: "voice-attributes",
     label: "Voice & Tone Guidelines",
     description:
-      "Your four voice attributes, do/don't pairs, and channel tone adaptations.",
+      "How you sound: four voice traits, do/don’t examples, and how tone shifts by channel.",
     placeholder:
       "Paste your brand voice guidelines here. Use the F5 prompt output as a starting point.",
     pillar: "Messaging",
@@ -70,7 +70,7 @@ export const WORKBOOK_SECTIONS: WorkbookSection[] = [
     id: "brand-story",
     label: "Brand Story",
     description:
-      "Your elevator pitch, origin narrative, and boilerplate at multiple lengths.",
+      "Your elevator pitch, origin story, and short/long boilerplate for different uses.",
     placeholder:
       "Paste your brand story variants here. Use the F6 prompt output as a starting point.",
     pillar: "Positioning",
@@ -80,21 +80,21 @@ export const WORKBOOK_SECTIONS: WorkbookSection[] = [
     id: "audience-profile",
     label: "Audience Profile",
     description:
-      "Your target audience definition, personas, and decision-maker mapping.",
+      "Who you’re talking to: target audience, buyer roles, and how decisions get made.",
     placeholder:
       "Describe your target audience and personas here. Use A1 or A10 prompt outputs as a starting point.",
     availableFrom: "blueprint",
   },
   {
     id: "persona-atlas",
-    label: "Persona Atlas",
+    label: "Buyer role profiles",
     description:
-      "Structured buyer persona reference aligned with your deliverable: jobs to be done, objections, goals, roles, and channel-ready lines.",
+      "A reference for priority buyers: what they’re trying to accomplish, what stops them, goals, roles, and sample lines for each channel.",
     placeholder:
-      "Capture each priority persona with: role/title, company profile, job to be done (JTBD), top objections, success metrics, and preferred channels. Mirror or extend the interactive Persona Atlas in Foundation and Strategy.",
+      "Capture each priority persona with: role/title, company profile, job to be done (JTBD), top objections, success metrics, and preferred channels. Mirror or extend the buyer profiles in Foundation and Strategy.",
     inputTemplate:
       "Persona: VP Marketing - Series B SaaS\n" +
-      "Role: Economic buyer\n" +
+      "Role: Budget owner\n" +
       "Primary job to be done (JTBD): Build predictable pipeline without rising customer acquisition cost (CAC)\n" +
       "Core Frustration: Channel efforts are fragmented and hard to attribute\n" +
       "Primary Motivation: Hit growth targets with clearer performance visibility\n" +
@@ -104,20 +104,20 @@ export const WORKBOOK_SECTIONS: WorkbookSection[] = [
       "Sample Headline: Reduce channel waste and improve qualified pipeline in 90 days\n" +
       "Sample call to action (CTA): Review my priority rollout plan\n\n" +
       "Persona: Head of Demand Gen - Mid-Market B2B\n" +
-      "Role: Champion\n" +
+      "Role: Internal champion\n" +
       "Primary job to be done (JTBD): Increase conversion from existing traffic and campaigns\n" +
-      "Core Frustration: Strong content output but weak mid-funnel conversion\n" +
+      "Core Frustration: Strong content output but weak conversion in the middle of the buying process\n" +
       "Primary Motivation: Improve lead quality and campaign efficiency\n" +
       "Key Objections: Lack of proof assets, unclear sequencing, team misalignment\n" +
       "Preferred Channels: Email, Paid Social, Landing Pages\n" +
-      "Messaging Angle: Practical playbooks and proof frameworks for immediate lift",
+      "Messaging Angle: Practical plans and proof frameworks for immediate lift",
     availableFrom: "blueprint",
   },
   {
     id: "buyer-journey-map",
     label: "Buyer Journey Map",
     description:
-      "Stage-by-stage map of buyer questions, touchpoints, proof assets, and conversion triggers.",
+      "Stage-by-stage map of buyer questions, where they hear from you, proof that builds trust, and what gets them to take the next step.",
     placeholder:
       "Document journey stages (awareness to decision), buyer questions, objections, touchpoints, content assets, and stage-exit calls to action (CTAs).",
     inputTemplate:
@@ -143,11 +143,11 @@ export const WORKBOOK_SECTIONS: WorkbookSection[] = [
   },
   {
     id: "competitive-landscape-matrix",
-    label: "Competitive Landscape Matrix",
+    label: "Competitive Landscape",
     description:
-      "Competitor positioning and your counter-positioning narrative for sales and marketing alignment.",
+      "What competitors claim, where you overlap, and how you answer when alternatives come up—so sales and marketing stay aligned.",
     placeholder:
-      "For each competitor include: their core claim, ideal customer profile (ICP) overlap, strengths, weaknesses, where you win, and your displacement narrative.",
+      "For each competitor include: their core claim, ideal customer profile (ICP) overlap, strengths, weaknesses, where you win, and the line that explains why choose you instead.",
     inputTemplate:
       "Competitor: Competitor A\n" +
       "Their Headline Claim: AI-powered growth engine for modern teams\n" +
@@ -155,7 +155,7 @@ export const WORKBOOK_SECTIONS: WorkbookSection[] = [
       "Strengths: Strong category visibility, polished outbound narrative\n" +
       "Weaknesses: Generic positioning, low implementation depth, weak proof specificity\n" +
       "Where We Win: More tailored strategic sequencing and stronger proof architecture\n" +
-      "Displacement Narrative: We convert strategy into owner-ready execution that improves channel performance within 90 days\n" +
+      "Why choose us instead: We convert strategy into owner-ready execution that improves channel performance within 90 days\n" +
       "Traps to Avoid: Avoid broad 'all-in-one' claims that mirror their messaging\n\n" +
       "Competitor: Competitor B\n" +
       "Their Headline Claim: Fast brand refresh for growth-stage teams\n" +
@@ -163,16 +163,16 @@ export const WORKBOOK_SECTIONS: WorkbookSection[] = [
       "Strengths: Speed and visual polish\n" +
       "Weaknesses: Limited depth in journey mapping and conversion systems\n" +
       "Where We Win: Better linkage between messaging, activation, and measurable outcomes\n" +
-      "Displacement Narrative: We deliver both strategic clarity and execution governance, not surface-level refresh work",
+      "Why choose us instead: We deliver both strategic clarity and follow-through, not surface-level refresh work",
     availableFrom: "blueprint",
   },
   {
     id: "icp-conversion-intelligence",
-    label: "ICP Conversion Intelligence Framework",
+    label: "How best-fit buyers convert",
     description:
-      "Ideal customer profile (ICP) tier conversion mechanics that bridge Messaging Framework to channel activation execution.",
+      "How your best-fit buyers decide and convert—and how that connects your core messages to what you publish and send.",
     placeholder:
-      "Capture ideal customer profile (ICP) conversion profile, hook performance, channel mechanics, multi-touch sequence, content matrix, and behavioral triggers per ICP tier.",
+      "Capture conversion profile, what opens conversations, channel mechanics, follow-up order, content by stage, and signals that mean “ready to talk”—per ideal customer profile (ICP) tier.",
     inputTemplate:
       "ICP Tier: Primary ICP\n" +
       "Buying Cycle Length: 30-60 days\n" +
@@ -197,7 +197,7 @@ export const WORKBOOK_SECTIONS: WorkbookSection[] = [
     id: "channel-notes",
     label: "Channel Notes",
     description:
-      "Your channel-specific strategy notes: what to say, where, and how often.",
+      "Channel-specific notes: what to say, where, and how often.",
     placeholder:
       "Add channel strategy notes here. Use Activation tab channel plans and E-series outputs as source material.",
     availableFrom: "blueprint",

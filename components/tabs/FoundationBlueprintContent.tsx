@@ -114,17 +114,17 @@ const SUBSECTION_DESCRIPTORS: Record<string, string> = {
   "identity-brand-persona":
     "The person your brand sounds like in-market; it helps teams execute voice consistently under pressure.",
   "identity-origin":
-    "The founding narrative that explains why you exist; it builds trust and memorability.",
+    "The founding story that explains why you exist; it builds trust and memorability.",
   "positioning-icp":
-    "Your primary (Tier 1) ideal customer—the anchor segment. Additional ICPs are captured as tiers in later positioning, messaging, and audience sections.",
+    "Your primary best-fit customer—the main group you plan for first. Additional best-fit groups show up as tiers in later positioning, messaging, and audience sections.",
   "positioning-statement":
-    "Your strategic market position in one clear construct; it anchors all messaging and sales narratives.",
+    "Your market position in one clear sentence; use it to anchor marketing and sales.",
   "positioning-category":
-    "The market frame you compete in; it shapes buyer evaluation criteria in your favor.",
+    "The market frame you compete in; it shapes how buyers compare options.",
   "positioning-differentiators":
     "The defensible reasons buyers choose you; it turns claims into competitive advantage.",
   "positioning-not":
-    "Your strategic boundaries; it prevents dilution and protects positioning integrity.",
+    "What you are not claiming; it keeps you from blurring what you stand for.",
   "positioning-competitive-context":
     "Your real context versus alternatives; it informs where to attack, defend, and differentiate.",
   "messaging-value-proposition":
@@ -132,17 +132,17 @@ const SUBSECTION_DESCRIPTORS: Record<string, string> = {
   "messaging-pillars":
     "The core message themes repeated across channels; they build lasting brand associations.",
   "messaging-proof-library":
-    "The evidence layer behind your claims; it strengthens credibility and reduces buyer risk.",
+    "The evidence behind your claims; it strengthens credibility and reduces buyer risk.",
   "messaging-tagline":
     "A concise expression of positioning and personality; it improves memorability.",
   "messaging-elevator-pitch":
-    "Spoken narrative versions for live conversations; they improve clarity in high-stakes moments.",
+    "Spoken story versions for live conversations; they improve clarity in high-stakes moments.",
   "messaging-vocabulary":
     "Your preferred words and terms; it keeps communication distinctive and consistent.",
   "voice-brand-voice":
     "Your consistent communication character; it makes the brand recognizable in any format.",
   "voice-tone-registers":
-    "Context-specific tone settings; they adapt expression without losing brand identity.",
+    "Tone by situation (email vs social vs sales); they adapt expression without losing brand identity.",
   "voice-writing-principles":
     "The structural rules for written communication; they improve readability and quality control.",
   "voice-dodont":

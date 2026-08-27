@@ -58,13 +58,13 @@ export function buildActivationGuidanceMaps(diagnosticData: Record<string, unkno
       example: `${companyName} shares weekly ideas tied to ${firstPriority.toLowerCase()} and ends each piece with one next step.`,
     },
     "pr-plan": {
-      title: "Visibility Leverage",
+      title: "Getting noticed for the right reasons",
       doText: "Pitch stories that tie to real outcomes your buyers care about.",
       dontText: "Lead with vanity announcements that do not show why you are different.",
       example: `Each quarter, pitch a story that links progress to buyer pain and a sensible next step for readers.`,
     },
     "execution-roadmap": {
-      title: "Execution Governance",
+      title: "Keeping work on track",
       doText: "Give every item an owner, due date, what it depends on, and how you will know it worked.",
       dontText: "Track tasks with no owner and no clear link to results.",
       example: `Weekly check: Phase 1 (${firstPriority}), then Phase 2 (${secondPriority}), then Phase 3 (${thirdPriority}).`,

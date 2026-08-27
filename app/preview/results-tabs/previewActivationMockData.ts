@@ -196,7 +196,7 @@ export const previewIcpConversionIntelligenceFramework = {
       convertingCTA: "Book a 20-minute scope fit",
       exampleHeadline: "Scope fit call: what we deliver in the first 14 days (slide outline inside)",
       examplePrimaryCopy:
-        "Slide 1: Current state—where message-channel drift is costing you (one diagram). Slide 2: 12-week system—positioning lock, channel alignment, proof cadence, owners per workstream. Slide 3: First 14 days—three deliverables you can ship internally, one metric we move first. This is the same deck we use after pricing-page intent signals. CTA: pick a time; bring your analytics view-only link if you want sharper feedback.",
+        "Slide 1: Current state—where the homepage, outbound, and deck diverge (one diagram). Slide 2: 12-week system—positioning lock, channel alignment, proof cadence, owners per workstream. Slide 3: First 14 days—three deliverables you can ship internally, one metric we move first. This is the same deck we use after pricing-page intent signals. CTA: pick a time; bring your analytics view-only link if you want sharper feedback.",
       exampleImagePrompt:
         "Clean 16:9 presentation cover: title slide with navy header, white body, single bold line of copy, no faces.",
       exampleVideoPrompt: "",

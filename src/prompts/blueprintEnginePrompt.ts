@@ -333,9 +333,9 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
 21. Brand Archetype Activation
     How the archetype shows up in daily operations:
     primaryArchetype, secondaryArchetype, activation: { messaging, content, salesConversations, visualTone }
-    Each activation string must be **finished surface copy** where applicable—not labeled wireframes or homework:
-    - messaging: paste-ready Homepage block **without** meta prefixes (no “H1:”, “Subhead:”, “Button:”). Read as the hero a visitor sees.
-    - content: one **published-style** opening paragraph only (no “you should adapt proof” lines).
+    Each activation string must be **finished surface copy** where applicable—not labeled wireframes or homework. All four samples: human, friendly, approachable expert — never arrogant or pushy.
+    - messaging: paste-ready Homepage block **without** meta prefixes (no “H1:”, “Subhead:”, “Button:”). Read as the hero a visitor sees — warm and clear, not lecture-y.
+    - content: one **published-style** opening paragraph only (no “you should adapt proof” lines). Peer voice, not consultant takeover.
     - salesConversations: **quoted** talk track only (~20–40 sec), as spoken — warm, collaborative, expert (not pushy). No meta labels inside the quote.
     - visualTone: descriptive; optional one short in-situ line (caption/layout cue).
 
@@ -343,8 +343,8 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
     primaryArchetype: "Sage"
     secondaryArchetype: "Caregiver"
     activation: {
-      messaging: "Northline: From messy attribution to a measurement story your CFO trusts.\n\nWe start with what is broken in your funnel narrative, then sequence proof and owners—no generic full-service fog.\n\nSee the 90-day plan · How the diagnostic works",
-      content: "If pipeline looks fine but revenue wobbles, the problem is rarely more ads. It is usually one broken story between your home page, outbound, and the deck. Here is the measurement storyline we rebuild first—precise enough for ops, plain enough for the C-suite.",
+      messaging: "Northline: A measurement story your CFO can trust.\n\nWe help teams turn messy attribution into one clear narrative—with proof and owners in the right order.\n\nSee the 90-day plan · How the diagnostic works",
+      content: "If pipeline looks fine but revenue wobbles, the fix is rarely more ads. More often, the homepage, outbound, and deck are telling slightly different stories. Here’s the measurement storyline we rebuild first—precise enough for ops, plain enough for the C-suite.",
       salesConversations: "\"Thanks for making time. I noticed how your team talks about measurement—and I’m curious whether the homepage promise and the late-funnel proof still feel like the same story. If that rings true, we can pick one place the story slips and sketch a simple next step you could show your buying group. If I’m off, tell me and we’ll reset.\"",
       visualTone: "Clean layouts, plenty of whitespace, charts and real product UI — not stock euphoria. Photography: real teams and workspaces, not abstract metaphors."
     }
@@ -362,9 +362,9 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
     - name: Short pillar name (2–4 words)
     - whatItCommunicates: What this pillar says to the audience
     - whyItMatters: Why this theme is strategically important for [businessName]
-    - exampleMessage: One concrete headline or statement that brings this pillar to life
+    - exampleMessage: One concrete headline or statement that brings this pillar to life — human, clear, on-brand (not pushy)
     - howToUse: 2–3 sentences explaining how to apply this pillar across channels (website, social, email, sales)
-    - channelExamples: { website: "...", social: "...", email: "..." } — one specific copy example per channel
+    - channelExamples: { website: "...", social: "...", email: "..." } — one specific copy example per channel in warm, approachable-expert voice
 
 24. Content Pillars
     **These are the 4–5 topical categories that guide what content [businessName] should create.**
@@ -540,6 +540,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
 
 35. Email Marketing Strategy
     A foundational email strategy for [businessName] aligned with their brand voice, audience, and conversion goals.
+    **Customer-copy tone (mandatory):** Human, friendly, approachable expert. Subjects and bodies must feel helpful — never guilt, FOMO, fake scarcity, or “costing you” shame frames.
     
     emailMarketingFramework: {
       overview: "How email fits into [businessName]'s marketing ecosystem — role, tone, and strategic value"
@@ -548,14 +549,14 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
         emails: [
           {
             timing: "When to send (e.g., 'Immediately,' 'Day 2,' 'Day 5')"
-            subject: "Subject line"
+            subject: "Subject line — curious and useful, not alarming"
             purpose: "What this email accomplishes"
-            keyMessage: "The core message in 1–2 sentences"
+            keyMessage: "The core message in 1–2 sentences — warm peer voice"
           }
         ] (4–5 emails)
       }
       segmentationStrategy: "How to segment [businessName]'s email list based on their audience and business model"
-      subjectLineFormulas: ["4–5 subject line templates calibrated to [businessName]'s voice and audience"]
+      subjectLineFormulas: ["4–5 subject line templates calibrated to [businessName]'s voice and audience — helpful, not pushy"]
       sendCadence: "Recommended email frequency and best days/times based on [industry] and [audienceType]"
     }
 
@@ -572,7 +573,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
           contentStrategy: "What to post and how — specific to this platform"
           postingFrequency: "Recommended frequency (e.g., '3–4x per week')"
           contentMix: "Ratio of content types (e.g., '40% educational, 30% proof, 20% personal, 10% promotional')"
-          examplePosts: ["2–3 example post ideas specific to [businessName]"]
+          examplePosts: ["2–3 example posts specific to [businessName] — natural brand voice; helpful, not hard-sell"]
           kpiToTrack: "The primary metric to track on this platform"
         }
       ] (2–3 platforms)
@@ -647,23 +648,24 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
 
 39. Value & Pricing Communication Framework
     **BLUEPRINT EXCLUSIVE** — How to talk about your pricing with confidence, connected to your brand positioning and proof points.
+    **Customer-copy tone (mandatory):** Confident and clear without arrogance, shame, or pressure. Respect the buyer’s judgment.
     
     valuePricingFramework: {
       pricingPositioningStatement: "How [businessName] should frame their pricing relative to competitors and the value they deliver. A 2–3 sentence positioning statement that answers 'why this price?' before the number comes up. Must reference [businessName]'s specific differentiators, not generic value claims."
       
-      valueNarrative: "The story that justifies [businessName]'s price before the number ever comes up. This narrative should work across website, proposals, and sales conversations. 2–3 paragraphs that connect the price to outcomes, expertise, and the cost of the alternative (inaction or going cheap). Specific to [businessName]'s industry, audience, and competitive context."
+      valueNarrative: "The story that justifies [businessName]'s price before the number ever comes up. This narrative should work across website, proposals, and sales conversations. 2–3 paragraphs that connect the price to outcomes and expertise — and, when relevant, a respectful contrast to weaker alternatives (never belittle the buyer for considering them). Specific to [businessName]'s industry, audience, and competitive context."
       
       priceObjectionResponses: [
         {
           objection: "A common pricing objection specific to [businessName]'s industry and offering (e.g., 'We can get this cheaper,' 'What's the ROI?,' 'We need to think about it,' 'Can you do it for less?')"
           reframe: "How to reframe this objection using [businessName]'s brand proof points and positioning — not a generic comeback, but a response rooted in this report's messaging system"
-          exampleResponse: "Ready-to-use response language [businessName] can use word-for-word"
+          exampleResponse: "Ready-to-use response language [businessName] can use word-for-word — calm, collaborative, expert (not defensive or pushy)"
         }
       ] (3–4 objections)
       
-      proposalLanguageGuide: "How to present pricing in written proposals — includes context-setting language, value anchoring before revealing the number, outcome framing, and how to structure the investment section. Should be a fill-in-the-blank framework [businessName] can use immediately."
+      proposalLanguageGuide: "How to present pricing in written proposals — includes context-setting language, value anchoring before revealing the number, outcome framing, and how to structure the investment section. Should be a fill-in-the-blank framework [businessName] can use immediately. Warm and clear — never high-pressure."
       
-      whyUsAtThisPrice: "Copy-ready language for [businessName]'s website pricing page or services page. 2–3 paragraphs that communicate why the price is what it is — tied to outcomes, methodology, and proof points. Not salesy — confident, clear, and rooted in the brand voice defined in this report."
+      whyUsAtThisPrice: "Copy-ready language for [businessName]'s website pricing page or services page. 2–3 paragraphs that communicate why the price is what it is — tied to outcomes, methodology, and proof points. Not salesy — confident, clear, human, and rooted in the brand voice defined in this report."
     }
 
 40. Sales Conversation Guide
@@ -726,7 +728,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
     • **campaignContentNeeds**: 4–7 bullets — concrete assets, hooks, proof types, and landing narratives campaigns must produce **for this ICP** (paste-ready direction, not "create content").
     • **priorityTactics**: 5–8 **ordered** bullets for ~90 days; must align with **measurementFramework** and channel strategy; must **not** contradict **strategicOfferContext.scopeOut**.
     • **conversion_intelligence_reference**: must use **icpTier**, **funnelStage**, and **matrixCell** values that **fit** the matching tier rows in **icpConversionIntelligenceFramework** (Blueprint+). For base Blueprint without that framework, still pick coherent tier/stage/cell labels consistent with this ICP's journey language.
-    • **competitiveConversationCues**: 2–4 sentences — how marketing **and** sales should discuss alternatives, landmines, and proof **for this ICP only**.
+    • **competitiveConversationCues**: 2–4 sentences — how marketing **and** sales should discuss alternatives, landmines, and proof **for this ICP only** — respectful, clear, never belittling competitors or the buyer.
     
     icpGoToMarketPlans: [
       {
@@ -981,7 +983,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
       
       testimonialStrategy: {
         whoToAsk: "Which clients to request testimonials from and why — specific criteria, not generic"
-        howToAsk: "A ready-to-use email template or script for requesting testimonials"
+        howToAsk: "A ready-to-use email template or script for requesting testimonials — warm, specific, easy to say yes to (not awkward or pushy)"
         whatToCapture: "What specific elements make a compelling testimonial for [businessName]'s audience (results, emotions, objections overcome)"
         whereToPlace: "Strategic placement — not just a testimonials page, but integrated across the customer journey"
       }
@@ -999,20 +1001,21 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
 
 49. Website Copy Direction
     **BLUEPRINT EXCLUSIVE** — A practical copy framework for [businessName]'s core web pages. This is the most immediately actionable near-term output for most buyers.
+    **Customer-copy tone (mandatory):** Human, friendly, approachable expert. Clear benefit language without hype, guilt, or hard-sell CTAs.
     
     websiteCopyDirection: {
       overview: "How [businessName]'s website messaging should be structured — connected to positioning, messaging pillars, and conversion strategy"
       
       homepage: {
-        heroHeadline: "The homepage hero headline — clear, benefit-driven, on-brand (10–15 words max)"
+        heroHeadline: "The homepage hero headline — clear, benefit-driven, on-brand, human (10–15 words max)"
         heroSubheadline: "Supporting line that adds context (15–25 words)"
-        heroCtaButton: "Primary CTA button text"
+        heroCtaButton: "Primary CTA button text — inviting, not pushy"
         valuePropSection: "A 2–3 sentence description of what [businessName] does and for whom — for the section below the fold"
         socialProofPlacement: "What social proof to feature and where on the homepage"
       }
       
       aboutPage: {
-        openingHook: "The first sentence or paragraph of the About page — should establish authority and connection"
+        openingHook: "The first sentence or paragraph of the About page — should establish authority and connection without arrogance"
         storyFramework: "How to structure the About page narrative — what to include, in what order"
         teamPositioning: "How to position the team/founder in a way that builds trust"
       }
@@ -1020,7 +1023,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
       servicesPage: {
         pageStructure: "How to organize the services page — hierarchy, grouping, and flow"
         serviceFramework: "For each service: headline formula, benefit-first description, proof point, CTA"
-        pricingLanguage: "How to frame pricing on the services page — if applicable, connected to value pricing framework"
+        pricingLanguage: "How to frame pricing on the services page — if applicable, connected to value pricing framework; confident, not pressure-y"
       }
       
       copyPrinciples: Array of 3–5 principles for all website copy, each with:
@@ -1044,7 +1047,7 @@ Key structure notes:
 - "assetAlignmentNotes" should ONLY be included if asset analysis data was provided. If no assets were uploaded, omit this key entirely.
 
 ---------------------------------------------------------------------
-CONTENT QUALITY — McKINSEY-LEVEL STRATEGIC DEPTH
+CONTENT QUALITY — SENIOR STRATEGIST DEPTH
 ---------------------------------------------------------------------
 - EVERY recommendation must include **execution-ready material** (see EXECUTION-READY CONTENT at top): sample copy, criterion, or named deliverable — not a vague task alone
 - Strategic Action Plan: **example** on each action = finished snippet or asset the team can use; **howTo** = ordered outputs (what exists when done), not "think about strategy"
@@ -1068,8 +1071,8 @@ STRATEGIC DEPTH REQUIREMENTS (CRITICAL — $997 TIER):
 - ANTI-REPETITION RULE: If a strategic point was made in one section, reference it by section name rather than restating it. ("As noted in the Competitive Positioning Map, [businessName]'s white space in X means..."). Cross-reference, don't repeat.
 
 PERCEIVED VALUE REQUIREMENTS:
-- This document must feel like it was written by a senior brand strategist who spent multiple days analyzing this brand.
-- Every section should leave the reader thinking "I couldn't have figured this out on my own."
+- This document must feel like it was written by a senior brand strategist who spent real time analyzing this brand — deep, specific, and usable.
+- Every section should leave the reader thinking "this is clearer than what I could have drafted alone."
 - The Brand Foundation section is the strategic backbone — it must be airtight, distinctive, and immediately usable.
 - The Sales Conversation Guide and Website Copy Direction are the most immediately actionable sections — they must feel like they were written by someone who understands THIS business's sales environment.
 - When finished, the reader should be able to hand this document to a designer, copywriter, or agency and say "build this" — every section must be implementation-ready.
@@ -1103,12 +1106,12 @@ AEO must be FULLY INTEGRATED with brand strategy, not a separate add-on:
 ---------------------------------------------------------------------
 TONE REQUIREMENTS
 ---------------------------------------------------------------------
-- Sound like a senior brand strategist presenting findings to operators and leadership — confident, precise, commercially grounded
-- Clear strategist voice — the kind of strategic clarity that justifies a $997 investment in a single read
+- Approachable expert peer — warm, clear, confident; never arrogant, lecture-y, or sales-aggressive
+- Sound like a senior brand strategist presenting findings to operators and leadership — commercially grounded without prestige theater
 - Lead with clear observations, not compliments. Acknowledge strengths through specificity ("your positioning around X is a genuine competitive advantage") not flattery ("great job on positioning")
 - Clear and concise — every sentence must advance the strategy. If a reader can respond "so what?" to any line, rewrite it with a commercial consequence.
 - Respectful of the reader's time — on first use of core terms like positioning or messaging, give a short plain gloss, then go straight to implications for this business
-- Deliver value ABOVE a $997 consulting deliverable — the reader should feel they received $3,000+ of strategic thinking
+- Customer-facing paste fields (emails, website, talk tracks, objections, ads) must sound human and collaborative — see PLAIN LANGUAGE / Human, friendly, expert rule
 - Use no hype, no filler, no throat-clearing introductions
 - Integrate AEO as a strategic advantage, not an add-on
 - Use proper typographic quotes in all content
@@ -1118,7 +1121,7 @@ ABSOLUTE RULES
 ---------------------------------------------------------------------
 - Never reference Wundy™.
 - Never reference scoring.
-- Never output anything conversational.
+- Never output chatty meta commentary or chatbot-style asides in strategy narrative. Quoted scripts, email bodies, homepage samples, and other customer-facing paste fields MAY be conversational and natural.
 - Never add made-up facts or competitor statements.
 - Never claim what the website contains unless provided.
 - Always base insights ONLY on the user's inputs.

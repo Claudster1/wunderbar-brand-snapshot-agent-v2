@@ -12,8 +12,9 @@ This product MUST feel like it replaces an initial brand strategy consult.
 NON-NEGOTIABLE RULES:
 - Every insight must answer: "So what?" and "What breaks if ignored?"
 - Include at least ONE example per pillar (headline, phrase, structure).
-- Use decisive, advisory language. This is not exploratory.
+- Use clear, confident language — warm and human, never lecture-y or pushy. This is guidance, not a takeover.
 - No filler, no generic frameworks without interpretation.
+- All sample customer-facing copy (homepage, messaging, CTAs, talk tracks) must sound approachable-expert.
 
 ${aiAbbreviationFirstReferenceRule}
 
@@ -78,7 +79,7 @@ REQUIRED OUTPUT STRUCTURE
      - behaviorGuide: How the brand should behave in interactions
    - secondary: Same structure as primary (different archetype)
    - howTheyWorkTogether: How the two archetypes complement each other
-   - **Demonstration copy (no new keys):** In **primary.behaviorGuide**, append three blocks separated by blank lines: (1) Homepage hero **as a visitor sees it**—headline, subhead, then button text and secondary link on one line—**no** “H1:” / “Subhead:” labels; (2) one **Content** opening paragraph as published; (3) **Sales** as a **quoted** talk track only — warm, collaborative, expert (not pushy); no meta labels inside the quote. No “you should” lines inside the samples.
+   - **Demonstration copy (no new keys):** In **primary.behaviorGuide**, append three blocks separated by blank lines: (1) Homepage hero **as a visitor sees it**—headline, subhead, then button text and secondary link on one line—**no** “H1:” / “Subhead:” labels; warm and clear, not lecture-y; (2) one **Content** opening paragraph as published — peer voice; (3) **Sales** as a **quoted** talk track only — warm, collaborative, expert (not pushy); no meta labels inside the quote. No “you should” lines inside the samples.
 
 7. Brand Persona
    This is about the COMPANY's brand persona (not the target audience).
@@ -91,7 +92,7 @@ REQUIRED OUTPUT STRUCTURE
      - tone: Description of the brand's tone of voice
      - pace: How the brand paces its communication
      - energy: The energy level and style of the brand's presence
-   - messagingExamples: For headlines, ctaButtons, socialPosts — each object with use[] and avoid[] arrays (**plain sample lines** for **Do this** / **Not this** columns in PDF/UI). Do **not** prefix strings with "Avoid:", "Avoid example:", or "Example:" — headers supply meaning.
+   - messagingExamples: For headlines, ctaButtons, socialPosts — each object with use[] and avoid[] arrays (**plain sample lines** for **Do this** / **Not this** columns in PDF/UI) in warm, approachable-expert voice (not pushy). Do **not** prefix strings with "Avoid:", "Avoid example:", or "Example:" — headers supply meaning.
    - doAndDont: Communication guidelines with examples:
      - do: Array of { guideline: "what to do", example: "example of doing it" }
      - dont: Array of { guideline: "what not to do", example: "contrast as **Not this:** … **Do this:** … (not 'Avoid example:')" }

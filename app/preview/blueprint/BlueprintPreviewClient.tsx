@@ -949,19 +949,19 @@ Prioritize ruthlessly. A brand trying to fix everything at once fixes nothing.`,
       description: "A 5-email sequence that builds trust, delivers immediate value, and introduces the WunderBrand Suite™.",
       emails: [
         { timing: "Immediately", subject: "Your WunderBrand Snapshot™ is ready — here's what it means", purpose: "Deliver value and set expectations", keyMessage: "Welcome, here's how to read your results, and what to do first." },
-        { timing: "Day 2", subject: "The #1 thing holding most B2B brands back", purpose: "Educate and build authority", keyMessage: "Most B2B brands invest in tactics before strategy — here's why that's expensive." },
+        { timing: "Day 2", subject: "The quiet pattern we see in most B2B brands", purpose: "Educate and build authority", keyMessage: "Most B2B brands invest in tactics before strategy — here's a clearer way to sequence the work." },
         { timing: "Day 5", subject: "How [similar company] improved their brand score by 23 points", purpose: "Social proof and aspiration", keyMessage: "Case study showing the impact of brand alignment on real business metrics." },
-        { timing: "Day 8", subject: "Your brand has a blind spot (and it's costing you)", purpose: "Create urgency around gap identified in their Snapshot", keyMessage: "Based on your diagnostic, here's the one area that deserves attention first." },
+        { timing: "Day 8", subject: "One place your Snapshot suggests starting first", purpose: "Helpful focus on the gap identified in their Snapshot", keyMessage: "Based on your diagnostic, here's the one area that usually unlocks the most clarity first." },
         { timing: "Day 12", subject: "Ready to go deeper? Here's your next step", purpose: "Soft upsell to Snapshot+", keyMessage: "Introduce Snapshot+ as the logical next step — no pressure, just the option." },
       ]
     },
     segmentationStrategy: "Segment by: (1) Report tier (free vs. paid), (2) Primary pillar gap (Positioning, Messaging, etc.), (3) Industry, (4) Engagement level (opened, clicked, inactive). This enables highly targeted follow-ups based on each user's specific needs.",
     subjectLineFormulas: [
-      "Your [pillar] score is [score] — here's what to do about it",
+      "Your [pillar] score is [score] — here's a practical next step",
       "The [industry] brand playbook: [specific tactic]",
-      "[Name], your brand has an unfair advantage (here's how to use it)",
-      "3 things I'd change about your brand today",
-      "Most [industry] brands get this wrong — do you?"
+      "[Name], a strength in your brand worth leaning into",
+      "3 things I'd prioritize on your brand this month",
+      "A common [industry] brand mix-up — and a simple fix"
     ],
     sendCadence: "Weekly for the first month (welcome sequence), then bi-weekly for ongoing nurture. Best send times for B2B: Tuesday or Thursday, 9–10 AM recipient's local time."
   },

@@ -713,8 +713,8 @@ const REPORT = {
         guidance: "Lead with insight. Share observations before recommendations. Ask questions that demonstrate understanding. Use frameworks to structure complexity. Avoid jargon that creates distance.",
         examples: [
           { context: "LinkedIn post opening", onBrand: "Most B2B companies spend 60% of their marketing budget on tactics that don\u2019t connect to their positioning. Here\u2019s the diagnostic question that reveals if you\u2019re one of them:", offBrand: "We\u2019re the best marketing agency in the B2B space! Here\u2019s why you should work with us:" },
-          { context: "Email subject line", onBrand: "The positioning mistake that\u2019s costing you deals (and the 5-second fix)", offBrand: "Acme Co Newsletter \u2014 January Edition" },
-          { context: "Website headline", onBrand: "Your expertise is real. Your marketing doesn\u2019t show it. We fix that.", offBrand: "Welcome to Acme Co \u2014 Your Trusted Marketing Partner" }
+          { context: "Email subject line", onBrand: "A positioning tweak that often unlocks clearer deals (plus a 5-second check)", offBrand: "Acme Co Newsletter \u2014 January Edition" },
+          { context: "Website headline", onBrand: "Your expertise is real. Let\u2019s help your marketing show it.", offBrand: "Welcome to Acme Co \u2014 Your Trusted Marketing Partner" }
         ]
       },
       content: {
@@ -884,7 +884,7 @@ const REPORT = {
     emailNurtureTemplate: {
       description: "3-email welcome sequence for new leads who download your resource:",
       emails: [
-        { timing: "Immediately", subject: "Here\u2019s your Brand Clarity Checklist (+ a quick insight)", purpose: "Deliver value and establish expertise", body: "Hi [Name],\n\nHere\u2019s your checklist \u2014 [link].\n\nQuick insight before you dive in: Question #3 (\u2018Is your value proposition different from your top 3 competitors?\u2019) is where 80% of B2B companies discover their biggest blind spot.\n\nIf you want to chat through your results, I\u2019m here.\n\n\u2014 [Your name]" },
+        { timing: "Immediately", subject: "Here\u2019s your Brand Clarity Checklist (+ a quick insight)", purpose: "Deliver value and establish expertise", body: "Hi [Name],\n\nHere\u2019s your checklist \u2014 [link].\n\nQuick insight before you dive in: Question #3 (\u2018Is your value proposition different from your top 3 competitors?\u2019) is where many B2B companies find the clearest next improvement.\n\nIf you want to chat through your results, I\u2019m here.\n\n\u2014 [Your name]" },
         { timing: "Day 3", subject: "How TechNova went from invisible to undeniable in 90 days", purpose: "Build credibility with a specific example", body: "Hi [Name],\n\nTechNova had the same challenge many B2B service companies face: great work, zero visibility.\n\nHere\u2019s what we changed:\n\u2022 Rewrote their homepage headline (5-second clarity test)\n\u2022 Surfaced 3 testimonials at decision points\n\u2022 Created one lead magnet that captured 200+ emails\n\nResult: 47% increase in qualified leads in 90 days.\n\nFull case study: [link]\n\n\u2014 [Your name]" },
         { timing: "Day 7", subject: "Quick question about your brand clarity results", purpose: "Soft conversion ask", body: "Hi [Name],\n\nHow did the checklist go? If you found gaps (most people do), here\u2019s an option:\n\nI have a few 15-minute strategy call slots open this week. We\u2019ll look at your specific situation and I\u2019ll give you one concrete recommendation you can act on immediately.\n\nNo pitch, no obligation. Book here: [Calendly link]\n\n\u2014 [Your name]" }
       ]
@@ -1485,32 +1485,32 @@ Prioritize ruthlessly. A brand trying to fix everything at once fixes nothing.`,
       description: "A 6-email sequence that builds trust, delivers value, and introduces the WunderBrand Suite™.",
       emails: [
         { timing: "Immediately", subject: "Your WunderBrand Snapshot™ is ready \u2014 here's what it means", purpose: "Deliver value and set expectations", keyMessage: "Welcome, here's how to read your results and what to do first.", ctaButton: "View My Report \u2192" },
-        { timing: "Day 2", subject: "The #1 thing holding most B2B brands back", purpose: "Educate and build authority", keyMessage: "Most B2B brands invest in tactics before strategy \u2014 here's why that's expensive.", ctaButton: "Read the Full Article \u2192" },
-        { timing: "Day 4", subject: "Quick win: One thing you can fix today", purpose: "Deliver actionable value from their report", keyMessage: "Based on your diagnostic, here's one high-impact change you can make right now.", ctaButton: "See Your Top Priority \u2192" },
+        { timing: "Day 2", subject: "The quiet pattern we see in most B2B brands", purpose: "Educate and build authority", keyMessage: "Most B2B brands invest in tactics before strategy \u2014 here\u2019s a clearer way to sequence the work.", ctaButton: "Read the Full Article \u2192" },
+        { timing: "Day 4", subject: "Quick win: One thing you can try this week", purpose: "Deliver actionable value from their report", keyMessage: "Based on your diagnostic, here\u2019s one high-impact change you can make right now.", ctaButton: "See Your Top Priority \u2192" },
         { timing: "Day 7", subject: "How [similar company] improved their score by 23 points", purpose: "Social proof and aspiration", keyMessage: "Case study showing impact of brand alignment on real business metrics.", ctaButton: "Read the Case Study \u2192" },
-        { timing: "Day 10", subject: "Your brand has a blind spot (here's the data)", purpose: "Create urgency around identified gap", keyMessage: "Your [weakest pillar] score suggests a specific vulnerability. Here's what it means.", ctaButton: "Explore Your Options \u2192" },
-        { timing: "Day 14", subject: "Ready to go deeper? Your upgrade options", purpose: "Soft upsell to paid tier", keyMessage: "Introduce Snapshot+ or Blueprint as the logical next step.", ctaButton: "See What's Included \u2192" },
+        { timing: "Day 10", subject: "One place your Snapshot suggests starting first", purpose: "Helpful focus on an identified gap", keyMessage: "Your [weakest pillar] score points to a specific opportunity. Here\u2019s what it usually means.", ctaButton: "Explore Your Options \u2192" },
+        { timing: "Day 14", subject: "Ready to go deeper? Your upgrade options", purpose: "Soft upsell to paid tier", keyMessage: "Introduce Snapshot+ or Blueprint as the logical next step.", ctaButton: "See What\u2019s Included \u2192" },
       ]
     },
     nurtureCampaign: {
       description: "An ongoing nurture sequence for leads not yet ready to convert \u2014 builds trust over time.",
       emails: [
         { timing: "Week 3", subject: "The brand strategy framework we use with every client", purpose: "Share methodology \u2014 build credibility", keyMessage: "Our 5-pillar framework explained in plain language.", contentType: "Educational" },
-        { timing: "Week 5", subject: "3 questions every B2B brand should answer before spending on marketing", purpose: "Challenge assumptions", keyMessage: "Most brands skip these questions \u2014 and waste budget because of it.", contentType: "Thought leadership" },
-        { timing: "Week 7", subject: "[Industry] brands that got alignment right (and wrong)", purpose: "Industry-relevant proof", keyMessage: "Real examples of brands that invested in alignment vs. those that didn't.", contentType: "Social proof" },
-        { timing: "Week 9", subject: "Your brand score hasn't changed \u2014 here's why that matters", purpose: "Re-engage with diagnostic data", keyMessage: "A stale brand score means opportunities are slipping. Here's the cost of inaction.", contentType: "Urgency/re-engagement" },
+        { timing: "Week 5", subject: "3 questions worth answering before you spend on marketing", purpose: "Invite clearer planning", keyMessage: "These questions help teams avoid spending before the story is clear.", contentType: "Thought leadership" },
+        { timing: "Week 7", subject: "[Industry] brands that got alignment right (and what we learned)", purpose: "Industry-relevant proof", keyMessage: "Real examples of brands that invested in alignment vs. those that didn\u2019t.", contentType: "Social proof" },
+        { timing: "Week 9", subject: "Your brand score hasn\u2019t changed \u2014 a gentle nudge", purpose: "Re-engage with diagnostic data", keyMessage: "A stale brand score often means opportunities are waiting. Here\u2019s a simple way to revisit.", contentType: "Re-engagement" },
       ]
     },
     reEngagementSequence: {
       trigger: "30 days inactive (no opens or clicks)",
       emails: [
-        { timing: "Day 1 of sequence", subject: "We noticed you've been quiet \u2014 everything okay?", purpose: "Warm check-in", keyMessage: "No pressure \u2014 just checking in. Your brand data is still here if you want to revisit." },
-        { timing: "Day 5", subject: "3 new things since you last checked in", purpose: "Value-driven re-engagement", keyMessage: "Here's what's new: updated insights, new features, and fresh content." },
-        { timing: "Day 10", subject: "Last chance: Your brand insights expire in 30 days", purpose: "Create urgency", keyMessage: "Your diagnostic data will be archived. Access your report before it's gone." },
+        { timing: "Day 1 of sequence", subject: "We noticed you\u2019ve been quiet \u2014 everything okay?", purpose: "Warm check-in", keyMessage: "No pressure \u2014 just checking in. Your brand data is still here if you want to revisit." },
+        { timing: "Day 5", subject: "3 new things since you last checked in", purpose: "Value-driven re-engagement", keyMessage: "Here\u2019s what\u2019s new: updated insights, new features, and fresh content." },
+        { timing: "Day 10", subject: "Still here when you are \u2014 your insights are waiting", purpose: "Warm re-invite", keyMessage: "Your diagnostic is still available whenever you want to pick it back up." },
       ]
     },
     segmentationStrategy: "Segment by: (1) Report tier, (2) Primary pillar gap, (3) Industry, (4) Engagement level, (5) Purchase intent signals. This enables hyper-targeted follow-ups.",
-    subjectLineFormulas: ["Your [pillar] score is [score] \u2014 here's what to do", "The [industry] brand playbook: [specific tactic]", "[Name], your brand has an unfair advantage", "3 things I'd change about your brand today", "Most [industry] brands get this wrong \u2014 do you?", "The $15K strategy session \u2014 for free", "Your competitors just got more visible. Did you?"],
+    subjectLineFormulas: ["Your [pillar] score is [score] \u2014 here\u2019s a practical next step", "The [industry] brand playbook: [specific tactic]", "[Name], a strength in your brand worth leaning into", "3 things I\u2019d prioritize on your brand this month", "A common [industry] brand mix-up \u2014 and a simple fix", "A $15K strategy session \u2014 for free (here\u2019s what\u2019s inside)", "What similar brands are clarifying right now"],
     sendCadence: "Weekly for first month (welcome), bi-weekly for nurture, monthly for long-term engagement. Tuesday/Thursday 9\u201310 AM.",
     automationTriggers: ["Visits pricing page but doesn't purchase \u2192 Send comparison email", "Downloads lead magnet \u2192 Enter welcome sequence", "Opens 3+ emails without clicking \u2192 Send 'quick win' email with clear CTA", "Completes free Snapshot \u2192 Send upgrade sequence after 48 hours", "Clicks 'Talk to Expert' but doesn't book \u2192 Follow up in 24 hours"]
   },

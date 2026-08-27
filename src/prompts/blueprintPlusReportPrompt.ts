@@ -8,7 +8,7 @@ export const blueprintPlusReportPrompt = `
 You are generating the WunderBrand Blueprint+™ for Wunderbar Digital.
 
 This is the MOST ADVANCED strategic product — a complete brand operating system with implementation-level detail.
-It must feel enterprise-grade, actionable, and immediately implementable.
+It must feel thorough, actionable, and immediately implementable — enterprise depth without arrogance or stiff corporate-speak.
 
 WunderBrand Blueprint+™ is a SELF-CONTAINED document that includes ALL content from WunderBrand Snapshot+™ and WunderBrand Blueprint™, PLUS its own exclusive advanced sections. Every section must include examples, step-by-step implementation guidance, ready-to-use templates, and specific recommendations tailored to this business.
 
@@ -303,7 +303,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
           {
             objection: A specific hesitation this persona would have
             internalThought: What they're really thinking (the unspoken version)
-            response: How [businessName] should address it
+            response: How [businessName] should address it — calm, respectful, collaborative (not defensive or pushy)
             proofPoint: Specific evidence that overcomes this objection
           }
         ] (2–3 objections per persona)
@@ -342,7 +342,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
         - context: The situation (e.g., "LinkedIn post about industry trends")
         - onBrand: What on-brand looks like
         - offBrand: What off-brand looks like
-    **Required baseline samples (may live inside guidance or as the first scenario):** messaging = Homepage **as shipped** (no “H1:” / “Button:” labels); content = one **published** opening paragraph; salesConversations = **quoted** talk track only—warm, collaborative, expert (not pushy); no meta labels inside the quote; no embedded instructions (“adapt proof”, “include CTA”).
+    **Required baseline samples (may live inside guidance or as the first scenario):** messaging = Homepage **as shipped** (no “H1:” / “Button:” labels) — warm and clear, not lecture-y; content = one **published** opening paragraph — peer voice; salesConversations = **quoted** talk track only—warm, collaborative, expert (not pushy); no meta labels inside the quote; no embedded instructions (“adapt proof”, “include CTA”).
 
 20. Messaging System
     coreMessage, supportingMessages [], proofPoints [], whatNotToSay []
@@ -854,6 +854,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
 
 44. Email Marketing Strategy
     **BLUEPRINT+ ENHANCED** — Full email ecosystem with sequences, automation, and segmentation.
+    **Customer-copy tone (mandatory):** Human, friendly, approachable expert. Subjects and bodies must feel helpful — never guilt, FOMO, fake scarcity, or “costing you” shame frames.
     
     emailMarketingFramework: {
       overview: "Email's role in [businessName]'s marketing ecosystem"
@@ -863,10 +864,10 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
         emails: [
           {
             timing: "When to send"
-            subject: "Subject line"
+            subject: "Subject line — curious and useful, not alarming"
             purpose: "What this email accomplishes"
-            keyMessage: "Core message in 1–2 sentences"
-            ctaButton: "CTA text and destination"
+            keyMessage: "Core message in 1–2 sentences — warm peer voice"
+            ctaButton: "CTA text and destination — inviting, not pushy"
           }
         ] (5–6 emails)
       }
@@ -875,7 +876,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
         emails: [
           {
             timing: "Cadence (e.g., 'Week 2,' 'Week 4')"
-            subject: "Subject line"
+            subject: "Subject line — helpful, not FOMO"
             purpose: "What this email accomplishes"
             keyMessage: "Core message"
             contentType: "Type of email (educational, social proof, offer, etc.)"
@@ -1062,24 +1063,25 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
 
 53. Value & Pricing Communication Framework
     **BLUEPRINT+ ENHANCED** — Everything in Blueprint's pricing framework, plus persona-specific pricing narratives and enhanced proposal templates.
+    **Customer-copy tone (mandatory):** Confident and clear without arrogance, shame, or pressure. Respect the buyer’s judgment.
     
     valuePricingFramework: {
       pricingPositioningStatement: "How [businessName] should frame their pricing relative to competitors and the value they deliver. Must reference specific differentiators."
       
-      valueNarrative: "The story that justifies [businessName]'s price before the number ever comes up. Works across website, proposals, and sales conversations. Specific to industry, audience, and competitive context."
+      valueNarrative: "The story that justifies [businessName]'s price before the number ever comes up. Works across website, proposals, and sales conversations. Specific to industry, audience, and competitive context. Respectful contrast — never belittle the buyer."
       
       priceObjectionResponses: [
         {
           objection: "A common pricing objection specific to [businessName]'s industry"
           reframe: "How to reframe using [businessName]'s brand proof points and positioning"
-          exampleResponse: "Ready-to-use response language"
+          exampleResponse: "Ready-to-use response language — calm, collaborative, expert (not defensive or pushy)"
           personaContext: "Which buyer persona(s) most commonly raise this objection and how the response should shift for each (Blueprint+ exclusive)"
         }
       ] (4–5 objections — more than Blueprint's 3–4)
       
-      proposalLanguageGuide: "How to present pricing in written proposals — context-setting, value anchoring, outcome framing. Includes persona-specific proposal customization guidance (Blueprint+ exclusive)."
+      proposalLanguageGuide: "How to present pricing in written proposals — context-setting, value anchoring, outcome framing. Includes persona-specific proposal customization guidance (Blueprint+ exclusive). Warm and clear — never high-pressure."
       
-      whyUsAtThisPrice: "Copy-ready language for website pricing/services page. Tied to outcomes, methodology, and proof points."
+      whyUsAtThisPrice: "Copy-ready language for website pricing/services page. Tied to outcomes, methodology, and proof points. Confident, human, not salesy."
       
       personaPricingNarratives: [
         {
@@ -1087,11 +1089,11 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
           valueFrame: "How this persona thinks about value — what 'worth it' means to them"
           priceSensitivity: "How price-sensitive this persona is and why"
           messagingAngle: "The specific value angle that resonates (e.g., 'ROI-focused' vs. 'time-savings' vs. 'risk-reduction')"
-          exampleCopy: "Ready-to-use pricing language written for this persona"
+          exampleCopy: "Ready-to-use pricing language written for this persona — approachable expert, not pushy"
         }
       ] (one per buyer persona — 4–6 entries, Blueprint+ exclusive)
       
-      competitiveValueDifferentiation: "How [businessName] should position their pricing relative to competitors or alternatives — not by being cheaper, but by being different. Include specific language for the 'why us vs. them' conversation. (Blueprint+ exclusive)"
+      competitiveValueDifferentiation: "How [businessName] should position their pricing relative to competitors or alternatives — not by being cheaper, but by being different. Include specific language for the 'why us vs. them' conversation — respectful, never belittling. (Blueprint+ exclusive)"
     }
 
 54. Sales Conversation Guide
@@ -2046,12 +2048,13 @@ For Brand Archetypes:
 ---------------------------------------------------------------------
 DESIGN & TONE
 ---------------------------------------------------------------------
-- Approachable expert at the highest level — like a world-class strategist who speaks plainly and cares deeply
-- Warm confidence — never cold, never corporate-speak, never intimidating
+- Approachable expert — like a trusted senior strategist who speaks plainly and cares deeply
+- Warm confidence — never cold, never corporate-speak, never intimidating, never arrogant or pushy
 - Supportive and empowering — the reader should feel "I can do this" not "this is overwhelming"
 - Executive-level clarity without executive-level stiffness
 - No hype, no shortcuts, no jargon without explanation
 - Feels expensive because it is thorough and genuinely helpful
+- Customer-facing paste fields (emails, website, talk tracks, objections, ads, messaging) must sound human and collaborative — see PLAIN LANGUAGE / Human, friendly, expert rule
 - Every section demonstrates strategic thinking AND practical implementation
 - Write recommendations as if guiding a friend through their brand strategy
 - Use proper typographic quotes (curly quotes) in all content

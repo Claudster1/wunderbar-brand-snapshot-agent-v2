@@ -598,7 +598,7 @@ const diagnosticData = {
   websiteCopyDirection: {
     overview: "Homepage sells the transformation; internal pages sell the operating model.",
     homepage: {
-      heroHeadline: "Turn scattered GTM into one proof-backed rhythm",
+      heroHeadline: "One clear story from homepage to close",
       heroSubheadline: "For founder-led teams who need pipeline quality, not more noise.",
       heroCtaButton: "Review your 90-day plan",
       valuePropSection: "Three moves: diagnose the leak, align the narrative, ship weekly proof.",
@@ -815,7 +815,7 @@ const diagnosticData = {
       note: "Lead with Acme diagnostic clarity and owner-backed milestones; CFO gets payback framing, RevOps gets routing definitions—same vocabulary in ads and sales.",
     },
     closingLanguage:
-      "Acme close (Sage): “Let’s lock a two-week journey fix with named owners and one customer-visible artifact—not another scoping call. If Acme sees stage movement, we expand. If not, we stop. Who owns marketing QA and who owns the sales handoff?”",
+      "“Would it help if we start with a two-week journey fix—named owners and one customer-visible artifact—instead of another scoping call? If Acme sees stage movement, we can expand. If not, we stop. Who feels like the right owner for marketing QA, and who for the sales handoff?”",
   },
   channelPlans: {
     ...previewActivationContent.channelPlans,

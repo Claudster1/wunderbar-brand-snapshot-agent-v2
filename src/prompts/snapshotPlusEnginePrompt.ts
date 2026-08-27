@@ -212,7 +212,7 @@ SNAPSHOT+™ MUST INCLUDE:
    - primary + secondary archetypes (each: name, whenAligned, riskIfMisused, languageTone, behaviorGuide)
    - howTheyWorkTogether
    Use ONLY: Sage, Hero, Outlaw, Magician, Lover, Caregiver, Ruler, Creator, Innocent, Explorer, Neighbor, Entertainer
-   In **primary.behaviorGuide**, append three **surface-faithful** blocks (blank line between each): Homepage as visitors see it (headline, subhead, then CTA line—no “H1:” labels); one Content opening paragraph as published; Sales as a quoted talk track (~20–40 sec) — warm, collaborative, expert (not pushy); no meta labels inside the quote; no task language inside the samples.
+   In **primary.behaviorGuide**, append three **surface-faithful** blocks (blank line between each): Homepage as visitors see it (headline, subhead, then CTA line—no “H1:” labels) — warm and clear, not lecture-y; one Content opening paragraph as published — peer voice; Sales as a quoted talk track (~20–40 sec) — warm, collaborative, expert (not pushy); no meta labels inside the quote; no task language inside the samples.
 
    ILLUSTRATIVE OUTPUT EXAMPLE (fictional company — show depth; do not copy):
    primary: {
@@ -220,7 +220,7 @@ SNAPSHOT+™ MUST INCLUDE:
      whenAligned: "The brand earns trust by teaching — frameworks, honest tradeoffs, and language that helps buyers look smart internally.",
      riskIfMisused: "Reads as slow, academic, or overly cautious if proof and momentum aren't shown alongside insight.",
      languageTone: "Clear, precise, generous — explains the 'why' without condescension.",
-     behaviorGuide: "Lead with diagnosis, then recommendation — cite sources, show the math, invite questions.\n\nNorthline: From messy attribution to a measurement story your CFO trusts.\n\nWe name the broken narrative first, then sequence proof and owners—no generic full-service fog.\n\nSee the 90-day plan · How the diagnostic works\n\nIf pipeline looks fine but revenue wobbles, the problem is rarely more ads. It is usually one broken story between your home page, outbound, and the deck. Here is the storyline we rebuild first.\n\n\"Thanks for making time. I noticed how your team talks about measurement—and I’m curious whether the homepage promise and the late-funnel proof still feel like the same story. If that rings true, we can pick one place the story slips and sketch a simple next step. If I’m off, tell me and we’ll reset.\""
+     behaviorGuide: "Lead with diagnosis, then recommendation — cite sources, show the math, invite questions.\n\nNorthline: A measurement story your CFO can trust.\n\nWe help teams turn messy attribution into one clear narrative—with proof and owners in the right order.\n\nSee the 90-day plan · How the diagnostic works\n\nIf pipeline looks fine but revenue wobbles, the fix is rarely more ads. More often, the homepage, outbound, and deck are telling slightly different stories. Here’s the storyline we rebuild first.\n\n\"Thanks for making time. I noticed how your team talks about measurement—and I’m curious whether the homepage promise and the late-funnel proof still feel like the same story. If that rings true, we can pick one place the story slips and sketch a simple next step. If I’m off, tell me and we’ll reset.\""
    }
    secondary: {
      name: "Caregiver",
@@ -234,7 +234,7 @@ SNAPSHOT+™ MUST INCLUDE:
 7. Brand Persona (the COMPANY's brand persona, not the audience)
    - personaSummary, coreIdentity { whoYouAre, whatYouStandFor, howYouShowUp }
    - communicationStyle { tone, pace, energy }
-   - messagingExamples: { headlines, ctaButtons, socialPosts } — each with **use** (Do this) and **avoid** (Not this) arrays of plain sample lines; never prefix items with "Avoid example" or "Avoid:"
+   - messagingExamples: { headlines, ctaButtons, socialPosts } — each with **use** (Do this) and **avoid** (Not this) arrays of plain sample lines in warm, approachable-expert voice (not pushy); never prefix items with "Avoid example" or "Avoid:"
    - doAndDont: { do: [{ guideline, example }], dont: [{ guideline, example }] }
 
    ILLUSTRATIVE SNIPPET — messagingExamples + doAndDont (fictional B2B brand; show pattern):
@@ -259,7 +259,8 @@ SNAPSHOT+™ MUST INCLUDE:
      ],
      dont: [
        { guideline: "No vague superlatives", example: "Replace 'world-class' with one proof point or customer outcome." },
-       { guideline: "No jargon stacks", example: "One technical term per sentence; define it or cut it." }
+       { guideline: "No jargon stacks", example: "One technical term per sentence; define it or cut it." },
+       { guideline: "No pressure tactics", example: "Invite the next step; don't invent urgency or guilt." }
      ]
    }
 
@@ -269,7 +270,7 @@ SNAPSHOT+™ MUST INCLUDE:
    This is NOT the positioning statement (which is internal/strategic) or the core messages (which are thematic pillars). This is the one sentence someone puts on their homepage hero, LinkedIn bio, pitch deck opening slide, and email signature.
    
    valuePropositionStatement: {
-     statement: "A clear, compelling one-sentence value proposition — 15–25 words max. Must include: who [businessName] serves, what they do, and the key outcome or differentiator. (e.g., 'We help growth-stage SaaS companies turn inconsistent brand messaging into a scalable system that closes deals faster.')"
+     statement: "A clear, compelling one-sentence value proposition — 15–25 words max. Must include: who [businessName] serves, what they do, and the key outcome or differentiator. Human and confident — not hype. (e.g., 'We help growth-stage SaaS companies turn inconsistent brand messaging into a scalable system that closes deals faster.')"
      whereToUseIt: "Homepage hero, LinkedIn headline, pitch deck opening, email signature, social bio, proposal intro"
      whyThisWorks: "2–3 sentences explaining why this statement is strategically effective for [businessName] — what positioning, archetype, or audience insight it reflects"
    }
@@ -407,7 +408,7 @@ REPORT VISUAL LANGUAGE (PDF):
 - **Examples:** Put illustrative copy in the relevant example fields; PDF layout uses a **“Example —”** label + italic body — do not clutter JSON with redundant “Example:” prefixes unless the schema requires it.
 
 ---------------------------------------------------------------------
-CONTENT QUALITY — McKINSEY-LEVEL STRATEGIC DEPTH
+CONTENT QUALITY — SENIOR STRATEGIST DEPTH
 ---------------------------------------------------------------------
 - Every recommendation must include **execution-ready substance** (see EXECUTION-READY CONTENT at top): pasted copy, headline, line, or verify criterion — not "improve X" alone
 - AI prompts must be calibrated to THIS business (include business name, industry, audience)
@@ -425,18 +426,19 @@ STRATEGIC DEPTH REQUIREMENTS (CRITICAL):
 - Every insight should pass the "so what?" test: if a reader can respond "so what?" to any sentence, that sentence needs to be rewritten with a commercial consequence.
 
 PERCEIVED VALUE REQUIREMENTS:
-- This report must feel like it was written by a senior strategist who spent a full day analyzing this brand — not generated in seconds.
+- This report must feel like it was written by a senior strategist who spent real time analyzing this brand — deep, specific, and usable.
 - The executive summary should read like a board-ready brief: one paragraph that a CEO could forward to their team and everyone would understand the diagnosis.
-- Every section should leave the reader thinking "I couldn't have figured this out on my own" — the value is in the synthesis, not the data.
+- Every section should leave the reader thinking "this is clearer than what I could have drafted alone" — the value is in the synthesis, not the data.
 
 ---------------------------------------------------------------------
 TONE REQUIREMENTS
 ---------------------------------------------------------------------
-- Senior strategist voice — confident, precise, and commercially grounded
+- Approachable expert peer — warm, clear, confident; never arrogant, lecture-y, or sales-aggressive
 - Lead with clear observations, not compliments. Acknowledge strengths through specificity, not flattery.
 - Clear, useful insight — the kind that makes someone say "this is exactly what I needed to hear"
-- Clear, direct, and confident — no hedging with "consider" or "might want to"
+- Clear and confident — no hedging with "consider" or "might want to"; still collaborative, never controlling
 - Every sentence must advance understanding — no filler, no throat-clearing, no warm-up lines
+- Customer-facing paste fields (homepage, messaging, CTAs, talk tracks) must sound human and helpful — see PLAIN LANGUAGE / Human, friendly, expert rule
 - Zero fluff, zero harshness, zero generic advice
 - Make it feel like a real strategist who studied their brand — because the model IS studying their brand
 

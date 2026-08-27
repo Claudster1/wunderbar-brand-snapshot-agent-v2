@@ -711,35 +711,35 @@ const diagnosticData = {
         whyThisQuestion:
           "Use when leadership claims ‘we’re aligned.’ Forces a concrete Acme narrative check without sounding accusatory.",
         listenFor:
-          "Hesitation or laughter → say: “That’s the leak. Acme’s paid spend is amplifying three different promises.” Instant yes → say: “Good—then we pressure-test proof placement next.”",
+          "Hesitation or laughter → say: “That’s often where deals get soft—spend amplifies three different promises. Want to pick one storyline to align first?” Instant yes → say: “Great—then we can pressure-test proof placement next.”",
       },
       {
         question: "What proof does an Acme rep actually show beside the ask in late funnel today?",
         whyThisQuestion:
           "Use when credibility scores look fine but close rates lag. Reveals whether Acme’s proof is deployed at decision moments.",
         listenFor:
-          "‘We send a PDF’ → say: “Let’s turn that into a one-pager tied to Acme’s evaluation stage with owners and dates.” ‘Nothing consistent’ → say: “That’s the first pilot artifact.”",
+          "‘We send a PDF’ → say: “Would it help to turn that into a one-pager tied to Acme’s evaluation stage with owners and dates?” ‘Nothing consistent’ → say: “That could be a strong first pilot artifact.”",
       },
       {
         question: "How do Acme marketing and sales currently define a qualified opportunity—same verbs, same threshold?",
         whyThisQuestion:
           "Use when demand spend is up but pipeline quality is disputed. Handoff tax often hides inside Acme’s definitions.",
         listenFor:
-          "Different verbs → say: “We will publish one Acme SQL definition on a shared one-pager before we touch creative.”",
+          "Different verbs → say: “Can we publish one shared Acme SQL definition on a one-pager before we touch creative?”",
       },
       {
         question: "What did Acme’s last growth or brand initiative change in the CRM within 30 days?",
         whyThisQuestion:
           "Use when they cite prior agency work. Tests whether past spend produced operating change Acme can see.",
         listenFor:
-          "Activity-only metrics → say: “This pilot’s success metric is stage movement or cycle time—not impressions.”",
+          "Activity-only metrics → say: “For this pilot, I’d suggest success look like stage movement or cycle time—not impressions. Does that feel fair?”",
       },
       {
         question: "Who owns Acme’s narrative consistency week to week—not the workshop, the habit?",
         whyThisQuestion:
           "Use before scoping a larger engagement. Without an owner, Acme’s messaging will drift after any project.",
         listenFor:
-          "Committee / agency-only → say: “Name one Acme owner for Mondays; the pilot fails without that.”",
+          "Committee / agency-only → say: “Would it help to name one Acme owner for Mondays? The pilot sticks better with that habit in place.”",
       },
     ],
     proofPointDeployment: [

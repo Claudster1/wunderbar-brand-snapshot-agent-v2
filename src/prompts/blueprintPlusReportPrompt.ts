@@ -342,7 +342,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
         - context: The situation (e.g., "LinkedIn post about industry trends")
         - onBrand: What on-brand looks like
         - offBrand: What off-brand looks like
-    **Required baseline samples (may live inside guidance or as the first scenario):** messaging = Homepage **as shipped** (no “H1:” / “Button:” labels); content = one **published** opening paragraph; salesConversations = **quoted** talk track only—no embedded instructions (“adapt proof”, “include CTA”).
+    **Required baseline samples (may live inside guidance or as the first scenario):** messaging = Homepage **as shipped** (no “H1:” / “Button:” labels); content = one **published** opening paragraph; salesConversations = **quoted** talk track only—warm, collaborative, expert (not pushy); no meta labels inside the quote; no embedded instructions (“adapt proof”, “include CTA”).
 
 20. Messaging System
     coreMessage, supportingMessages [], proofPoints [], whatNotToSay []
@@ -1099,22 +1099,24 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
     
     Write in brand voice / archetype. Name [businessName]. Prefer quoted scripts (Say: / Show:) over meta coaching.
     
+    **Spoken-script tone (mandatory):** Human, friendly, approachable expertise — never arrogant or pushy. Collaborative invites over commands. No stage-direction prefixes inside the spoken line. Scripts must sound natural out loud.
+    
     salesConversationGuide: {
       conversion_intelligence_reference: { type: "ref", framework: "icp_conversion_intelligence_framework", icpTier: "", funnelStage: "", matrixCell: "" }
-      openingFramework: "Exact opening script for [businessName] (first ~60 seconds) in brand voice."
+      openingFramework: "Exact opening script for [businessName] (first ~60 seconds) in brand voice — quote only what is said; warm and collaborative, not controlling."
       
       talkTrackFramework: [
         {
           stage: "First 10 minutes | Middle — discovery | Close"
           objective: "Stage goal for [businessName]"
-          keyMessage: "Exact words to say (Say: …)"
+          keyMessage: "Exact words to say (Say: …) — conversational and respectful"
           proofToUse: "Exact proof to show (Show: …)"
         }
       ] (3 stages)
       
       discoveryQuestions: [
         {
-          question: "Exact question naming [businessName] / their funnel language"
+          question: "Exact curious, respectful question naming [businessName] / their funnel language"
           whyThisQuestion: "When to use it on the call (1 sentence)"
           listenFor: "What to hear AND the next line to say"
         }
@@ -1125,38 +1127,38 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
           persona: "The buyer persona this guidance applies to"
           stage: "Where in the conversation to deploy this proof point"
           proofPoint: "The specific proof / leave-behind for [businessName]"
-          howToDeliver: "Exact handoff language or action"
+          howToDeliver: "Exact handoff language or action — helpful, not hard-sell"
         }
       ] (one per buyer persona, covering different conversation stages)
       
       objectionHandlingPlaybook: [
         {
           objection: "A common sales objection for [businessName]'s industry"
-          response: "Exact reply in [businessName]'s voice"
+          response: "Exact reply in [businessName]'s voice — calm and respectful"
           pillarConnection: "Which brand pillar or messaging pillar this response draws from"
           proofPoint: "Which specific proof point to reference"
           personaVariation: "How this response should shift depending on which buyer persona raised it (Blueprint+ exclusive)"
         }
       ] (6–8 objections — more than Blueprint's 5–6)
       
-      closingLanguage: "Exact closing phrases for [businessName] calibrated to the brand archetype (quote 4–5)."
+      closingLanguage: "Exact closing phrases for [businessName] calibrated to the brand archetype (quote 4–5). Soft, clear closes—not pressure."
       
       personaConversationTracks: [
         {
           persona: "Buyer persona name (from Section 18)"
-          openingVariation: "Exact opening variation for this persona"
+          openingVariation: "Exact opening variation for this persona — collaborative, not pushy"
           keyDiscoveryQuestions: ["2–3 persona-specific discovery questions"]
           presentationEmphasis: "What to emphasize (e.g., 'Lead with data and ROI' vs. 'Lead with the vision')"
           likelyObjections: ["The 1–2 objections this persona most commonly raises"]
-          closingApproach: "Exact close lines for this persona"
-          samplePitch: "A 3–4 sentence pitch written specifically for this persona"
+          closingApproach: "Exact close lines for this persona — clear next step without pressure"
+          samplePitch: "A 3–4 sentence pitch written specifically for this persona — natural spoken English"
         }
       ] (one per buyer persona — 4–6 entries, Blueprint+ exclusive)
       
       scenarioScripts: [
         {
           scenario: "A specific sales situation (e.g., 'Cold outreach on LinkedIn,' 'Inbound discovery call,' 'Pricing follow-up after proposal,' 'Referral introduction call')"
-          script: "A ready-to-adapt conversation script for this scenario — opening, key questions, transition to pitch, close — written for [businessName]"
+          script: "A ready-to-adapt conversation script for this scenario — opening, key questions, transition to pitch, close — written for [businessName] in a warm, expert voice"
           personaNotes: "Which persona(s) this scenario is most common with"
         }
       ] (3–4 scenarios, Blueprint+ exclusive)
@@ -1164,7 +1166,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       salesEnablementTools: {
         onePageSellSheet: "An outline for a one-page sell sheet — what goes on it, in what order, using which messaging from this report"
         competitiveHandlingGuide: "Exact language for 'why you vs. [competitor]' — connected to Competitive Positioning"
-        referralRequestScript: "Exact on-brand referral ask for satisfied [businessName] clients"
+        referralRequestScript: "Exact on-brand referral ask for satisfied [businessName] clients — gracious, not awkward or pushy"
       }
     }
 

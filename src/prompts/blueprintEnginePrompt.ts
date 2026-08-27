@@ -336,7 +336,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
     Each activation string must be **finished surface copy** where applicable—not labeled wireframes or homework:
     - messaging: paste-ready Homepage block **without** meta prefixes (no “H1:”, “Subhead:”, “Button:”). Read as the hero a visitor sees.
     - content: one **published-style** opening paragraph only (no “you should adapt proof” lines).
-    - salesConversations: **quoted** talk track only (~20–40 sec), as spoken.
+    - salesConversations: **quoted** talk track only (~20–40 sec), as spoken — warm, collaborative, expert (not pushy). No meta labels inside the quote.
     - visualTone: descriptive; optional one short in-situ line (caption/layout cue).
 
     ILLUSTRATIVE OUTPUT EXAMPLE (fictional — show specificity; do not copy):
@@ -345,7 +345,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
     activation: {
       messaging: "Northline: From messy attribution to a measurement story your CFO trusts.\n\nWe start with what is broken in your funnel narrative, then sequence proof and owners—no generic full-service fog.\n\nSee the 90-day plan · How the diagnostic works",
       content: "If pipeline looks fine but revenue wobbles, the problem is rarely more ads. It is usually one broken story between your home page, outbound, and the deck. Here is the measurement storyline we rebuild first—precise enough for ops, plain enough for the C-suite.",
-      salesConversations: "\"Thanks for making time—I read how you talk about measurement with your team. I think I see executive distrust of the pipeline story. If that lands, I will show two moves teams try before they change spend. If I am wrong, say so and we will reset.\"",
+      salesConversations: "\"Thanks for making time. I noticed how your team talks about measurement—and I’m curious whether the homepage promise and the late-funnel proof still feel like the same story. If that rings true, we can pick one place the story slips and sketch a simple next step you could show your buying group. If I’m off, tell me and we’ll reset.\"",
       visualTone: "Clean layouts, plenty of whitespace, charts and real product UI — not stock euphoria. Photography: real teams and workspaces, not abstract metaphors."
     }
 
@@ -671,21 +671,23 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
     
     Write in [businessName]'s brand voice / archetype. Name the company. Scripts must be paste-ready: what to **say**, what to **show**, what to do with the answer. Ban meta coaching like "Separates messaging drift…" as the main content.
     
+    **Spoken-script tone (mandatory):** Human, friendly, approachable expertise — never arrogant or pushy. Collaborative invites over commands ("Would it help if we…" / "Can we start with…" — not "I want ten minutes…"). No stage-direction prefixes inside the spoken line (no "Company opener (Sage voice): …"). Scripts must sound natural out loud.
+    
     salesConversationGuide: {
-      openingFramework: "Exact opening script for [businessName] (first ~60 seconds) in brand voice — quote what the rep says. Reference [businessName] by name."
+      openingFramework: "Exact opening script for [businessName] (first ~60 seconds) in brand voice — quote only what the rep says. Warm, collaborative, expert. Reference [businessName] by name when natural."
       
       talkTrackFramework: [
         {
           stage: "First 10 minutes | Middle — discovery | Close (use these stage labels)"
           objective: "What this stage must achieve for [businessName] in one sentence"
-          keyMessage: "Exact words to say (prefix with Say: …). Company-specific, archetype-aligned."
+          keyMessage: "Exact words to say (prefix with Say: …). Company-specific, archetype-aligned, conversational—not controlling."
           proofToUse: "Exact proof to show (prefix with Show: …). Name the artifact."
         }
       ] (3 stages)
       
       discoveryQuestions: [
         {
-          question: "Exact question the rep asks — name [businessName] or their funnel language where natural"
+          question: "Exact question the rep asks — curious and respectful; name [businessName] or their funnel language where natural"
           whyThisQuestion: "When to use this question in the call (not abstract theory) — 1 sentence"
           listenFor: "What to listen for AND the next line to say based on common answers (ready reply, not coaching)"
         }
@@ -696,20 +698,20 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
           persona: "Buyer persona name from this report"
           stage: "Conversation stage"
           proofPoint: "The specific leave-behind / proof for [businessName]"
-          howToDeliver: "Exact handoff language or action (what you say or send)"
+          howToDeliver: "Exact handoff language or action (what you say or send)—helpful, not hard-sell"
         }
       ] (one per buyer persona, covering different conversation stages)
       
       objectionHandlingPlaybook: [
         {
           objection: "A common sales objection for [businessName]'s industry"
-          response: "Exact reply in [businessName]'s voice — quote the line"
+          response: "Exact reply in [businessName]'s voice — quote the line; calm and respectful, never defensive or condescending"
           pillarConnection: "Which brand pillar or messaging pillar this response draws from"
           proofPoint: "Which specific proof point to reference"
         }
       ] (5–6 objections)
       
-      closingLanguage: "Exact closing phrases for [businessName] calibrated to the brand archetype (quote 3–4 closers). Include next-step framing when they are not ready."
+      closingLanguage: "Exact closing phrases for [businessName] calibrated to the brand archetype (quote 3–4 closers). Include next-step framing when they are not ready. Soft, clear closes—not pressure."
       
       conversion_intelligence_reference: { type: "ref", framework: "icp_conversion_intelligence_framework", icpTier: "", funnelStage: "", matrixCell: "", note: "" } — **REQUIRED.** Set this to the **same object** as the **primary ICP** (or revenue-critical ICP) entry in the root-level **icpGoToMarketPlans** array below so legacy surfaces stay aligned.
     }

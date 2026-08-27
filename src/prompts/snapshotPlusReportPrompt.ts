@@ -78,7 +78,7 @@ REQUIRED OUTPUT STRUCTURE
      - behaviorGuide: How the brand should behave in interactions
    - secondary: Same structure as primary (different archetype)
    - howTheyWorkTogether: How the two archetypes complement each other
-   - **Demonstration copy (no new keys):** In **primary.behaviorGuide**, append three blocks separated by blank lines: (1) Homepage hero **as a visitor sees it**—headline, subhead, then button text and secondary link on one line—**no** “H1:” / “Subhead:” labels; (2) one **Content** opening paragraph as published; (3) **Sales** as a **quoted** talk track only. No “you should” lines inside the samples.
+   - **Demonstration copy (no new keys):** In **primary.behaviorGuide**, append three blocks separated by blank lines: (1) Homepage hero **as a visitor sees it**—headline, subhead, then button text and secondary link on one line—**no** “H1:” / “Subhead:” labels; (2) one **Content** opening paragraph as published; (3) **Sales** as a **quoted** talk track only — warm, collaborative, expert (not pushy); no meta labels inside the quote. No “you should” lines inside the samples.
 
 7. Brand Persona
    This is about the COMPANY's brand persona (not the target audience).

@@ -212,7 +212,7 @@ SNAPSHOT+™ MUST INCLUDE:
    - primary + secondary archetypes (each: name, whenAligned, riskIfMisused, languageTone, behaviorGuide)
    - howTheyWorkTogether
    Use ONLY: Sage, Hero, Outlaw, Magician, Lover, Caregiver, Ruler, Creator, Innocent, Explorer, Neighbor, Entertainer
-   In **primary.behaviorGuide**, append three **surface-faithful** blocks (blank line between each): Homepage as visitors see it (headline, subhead, then CTA line—no “H1:” labels); one Content opening paragraph as published; Sales as a quoted talk track (~20–40 sec). No task language inside the samples.
+   In **primary.behaviorGuide**, append three **surface-faithful** blocks (blank line between each): Homepage as visitors see it (headline, subhead, then CTA line—no “H1:” labels); one Content opening paragraph as published; Sales as a quoted talk track (~20–40 sec) — warm, collaborative, expert (not pushy); no meta labels inside the quote; no task language inside the samples.
 
    ILLUSTRATIVE OUTPUT EXAMPLE (fictional company — show depth; do not copy):
    primary: {
@@ -220,7 +220,7 @@ SNAPSHOT+™ MUST INCLUDE:
      whenAligned: "The brand earns trust by teaching — frameworks, honest tradeoffs, and language that helps buyers look smart internally.",
      riskIfMisused: "Reads as slow, academic, or overly cautious if proof and momentum aren't shown alongside insight.",
      languageTone: "Clear, precise, generous — explains the 'why' without condescension.",
-     behaviorGuide: "Lead with diagnosis, then recommendation — cite sources, show the math, invite questions.\n\nNorthline: From messy attribution to a measurement story your CFO trusts.\n\nWe name the broken narrative first, then sequence proof and owners—no generic full-service fog.\n\nSee the 90-day plan · How the diagnostic works\n\nIf pipeline looks fine but revenue wobbles, the problem is rarely more ads. It is usually one broken story between your home page, outbound, and the deck. Here is the storyline we rebuild first.\n\n\"Thanks for making time—I read how you talk about measurement with your team. I think I see distrust of the pipeline story at the exec level. If that lands, I will show two moves teams try before they change spend. If I am wrong, say so and we will reset.\""
+     behaviorGuide: "Lead with diagnosis, then recommendation — cite sources, show the math, invite questions.\n\nNorthline: From messy attribution to a measurement story your CFO trusts.\n\nWe name the broken narrative first, then sequence proof and owners—no generic full-service fog.\n\nSee the 90-day plan · How the diagnostic works\n\nIf pipeline looks fine but revenue wobbles, the problem is rarely more ads. It is usually one broken story between your home page, outbound, and the deck. Here is the storyline we rebuild first.\n\n\"Thanks for making time. I noticed how your team talks about measurement—and I’m curious whether the homepage promise and the late-funnel proof still feel like the same story. If that rings true, we can pick one place the story slips and sketch a simple next step. If I’m off, tell me and we’ll reset.\""
    }
    secondary: {
      name: "Caregiver",

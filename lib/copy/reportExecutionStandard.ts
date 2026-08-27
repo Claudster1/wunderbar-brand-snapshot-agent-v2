@@ -58,4 +58,12 @@ Write for a smart founder, owner, or operator who may **not** live in brand/mark
 **Readable structure**
 • Short sentences. One idea per sentence when possible.
 • Tie every strategic claim to a business consequence the reader can act on this week or this quarter.
+
+**Human, friendly, expert (not pushy) — especially spoken scripts**
+• Tone: approachable expert peer — warm, clear, confident. Never arrogant, lecture-y, or sales-aggressive.
+• Talk tracks, openers, objection replies, discovery questions, and closers must sound like something a real person would say out loud. Prefer natural spoken English (contractions OK).
+• Collaborative invites over commands. Prefer “Would it help if we…”, “Can we start with…”, “I’d love to understand…”, “If this matches what you’re seeing…” over “I want ten minutes…”, “I’ll need…”, “Before we talk X, you will…”.
+• Ban controlling openers and meeting takeovers. Ban rude or demeaning frames about the prospect’s business.
+• Do **not** prefix scripts with stage directions or meta labels inside the quote (no “Acme opener (Sage voice — calm, precise): …”). Put voice notes outside the spoken line if needed; the spoken line itself is only what the person says.
+• Expertise shows as useful insight and respect for the buyer’s time — not jargon density or pressure.
 `.trim();

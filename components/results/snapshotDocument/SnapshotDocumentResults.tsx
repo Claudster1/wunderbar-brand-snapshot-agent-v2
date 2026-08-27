@@ -14,6 +14,7 @@ import {
   LIGHT_BG,
   NAVY,
   ORANGE,
+  RADIUS_MD,
   RED_S,
   SUB,
   WHITE,
@@ -204,7 +205,7 @@ export function SnapshotDocumentResults({
         <SectionTitle description="Each pillar is scored out of 20, reflecting the strength and clarity of that dimension of your brand.">
           Brand Pillar Scores
         </SectionTitle>
-        <div data-snapshot-pillar-meters style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px 32px", padding: "20px 24px", background: LIGHT_BG, borderRadius: 5, marginBottom: 24 }}>
+        <div data-snapshot-pillar-meters style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px 32px", padding: "20px 24px", background: LIGHT_BG, borderRadius: RADIUS_MD, marginBottom: 24 }}>
           {entries.map((pillar) => (
             <div key={pillar.key} style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <PillarIcon pillar={pillar.key} size={20} />
@@ -227,7 +228,7 @@ export function SnapshotDocumentResults({
               pillar.score,
             );
             return (
-              <div key={pillar.key} style={{ padding: "24px 28px", borderRadius: 5, border: `1px solid ${BORDER}`, background: WHITE }}>
+              <div key={pillar.key} style={{ padding: "24px 28px", borderRadius: RADIUS_MD, border: `1px solid ${BORDER}`, background: WHITE }}>
                 <div data-snapshot-pillar-header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 12 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <PillarIcon pillar={pillar.key} size={22} />
@@ -235,7 +236,7 @@ export function SnapshotDocumentResults({
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <span style={{ fontSize: 14, fontWeight: 700, color: scoreColor(percent), textTransform: "uppercase" }}>{scoreLabel(percent)}</span>
-                    <span style={{ padding: "4px 12px", borderRadius: 5, background: scoreColor(percent), color: WHITE, fontSize: 16, fontWeight: 900 }}>{pillar.score}/20</span>
+                    <span style={{ padding: "4px 12px", borderRadius: RADIUS_MD, background: scoreColor(percent), color: WHITE, fontSize: 16, fontWeight: 900 }}>{pillar.score}/20</span>
                   </div>
                 </div>
                 <div data-snapshot-pillar-detail style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
@@ -258,7 +259,7 @@ export function SnapshotDocumentResults({
         </SectionTitle>
         <div data-snapshot-archetype-layout style={{ display: "flex", gap: 28, alignItems: "flex-start", flexWrap: "wrap" }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 180 }}>
-            <div style={{ width: 130, height: 130, borderRadius: 5, background: WHITE, border: `2px solid ${BORDER}`, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(2,24,89,0.08)" }}>
+            <div style={{ width: 130, height: 130, borderRadius: RADIUS_MD, background: WHITE, border: `2px solid ${BORDER}`, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 4px 16px rgba(2,24,89,0.08)" }}>
               <BrandArchetypeIcon archetype={likelyArchetype} size={88} color={BLUE} />
             </div>
             <div style={{ fontSize: 20, fontWeight: 900, color: BLUE, marginTop: 10, textAlign: "center" }}>
@@ -266,7 +267,7 @@ export function SnapshotDocumentResults({
             </div>
           </div>
           <div style={{ flex: 1, minWidth: 260, display: "flex", flexDirection: "column", gap: 14 }}>
-            <div style={{ padding: "14px 18px", borderRadius: 5, background: `${BLUE}08`, border: `1px solid ${BLUE}15`, fontSize: 15, color: "#1A1A2E", lineHeight: 1.65 }}>
+            <div style={{ padding: "14px 18px", borderRadius: RADIUS_MD, background: `${BLUE}08`, border: `1px solid ${BLUE}15`, fontSize: 15, color: "#1A1A2E", lineHeight: 1.65 }}>
               {resolvedArchetypeMeaning}
             </div>
             <SignalRail label="When Aligned" color={GREEN}>
@@ -287,7 +288,7 @@ export function SnapshotDocumentResults({
           {actions.map((action, index) => {
             const pillar = actionPillar(action, index === 0 ? weakest.key : entries[index % entries.length].key);
             return (
-              <div key={`${index}-${action}`} data-snapshot-action-item style={{ display: "flex", gap: 14, alignItems: "flex-start", padding: "18px 22px", borderRadius: 5, border: `1px solid ${BORDER}`, background: index === 0 ? `${BLUE}06` : WHITE }}>
+              <div key={`${index}-${action}`} data-snapshot-action-item style={{ display: "flex", gap: 14, alignItems: "flex-start", padding: "18px 22px", borderRadius: RADIUS_MD, border: `1px solid ${BORDER}`, background: index === 0 ? `${BLUE}06` : WHITE }}>
                 <span style={{ width: 32, height: 32, borderRadius: "50%", background: BLUE, display: "flex", alignItems: "center", justifyContent: "center", color: WHITE, fontWeight: 900, fontSize: 14, flexShrink: 0 }}>{index + 1}</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 13, fontWeight: 800, color: BLUE, letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 6 }}>
@@ -305,7 +306,7 @@ export function SnapshotDocumentResults({
   );
 
   return (
-    <div data-snapshot-document style={{ background: LIGHT_BG, borderRadius: 5, padding: "24px", fontFamily: "'Lato', sans-serif" }}>
+    <div data-snapshot-document style={{ background: LIGHT_BG, borderRadius: RADIUS_MD, padding: "24px", fontFamily: "'Lato', sans-serif" }}>
       <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 640px) {
           [data-snapshot-document] { padding: 12px !important; }
@@ -324,7 +325,7 @@ export function SnapshotDocumentResults({
         {reportDate ? <div style={{ fontSize: 13, color: SUB }}>{reportDate}</div> : null}
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 20px", borderRadius: 5, background: `${BLUE}06`, border: `1px solid ${BLUE}15` }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 20px", borderRadius: RADIUS_MD, background: `${BLUE}06`, border: `1px solid ${BLUE}15` }}>
           <span style={{ width: 22, height: 22, borderRadius: "50%", border: `2px solid ${BLUE}`, color: BLUE, display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 900, flexShrink: 0 }}>i</span>
           <div style={{ fontSize: 14, color: SUB, lineHeight: 1.5 }}>
             <strong style={{ color: NAVY }}>How to read this report:</strong> Each pillar is rated out of 20. Scores are <strong style={{ color: RED_S }}>Critical</strong> (0–19%), <strong style={{ color: ORANGE }}>Weak</strong> (20–39%), <strong style={{ color: YELLOW }}>Fair</strong> (40–59%), <strong style={{ color: GOOD_GREEN }}>Good</strong> (60–79%), or <strong style={{ color: GREEN }}>Strong</strong> (80–100%). The WunderBrand Score™ is the composite total out of 100.
@@ -338,7 +339,7 @@ export function SnapshotDocumentResults({
             <SummaryCard label="Strongest Pillar" score={strongest.score} max={20} pillar={strongest.label} icon="strongest" />
             <SummaryCard label={weakestPillarCallout((weakest.score / 20) * 100)} score={weakest.score} max={20} pillar={weakest.label} icon="opportunity" />
           </div>
-          <div style={{ padding: "16px 20px", borderRadius: 5, marginBottom: 16, background: `${BLUE}08`, borderLeft: `3px solid ${BLUE}`, fontSize: 18, fontWeight: 700, color: NAVY, lineHeight: 1.6, fontStyle: "italic" }}>
+          <div style={{ padding: "16px 20px", borderRadius: RADIUS_MD, marginBottom: 16, background: `${BLUE}08`, borderLeft: `3px solid ${BLUE}`, fontSize: 18, fontWeight: 700, color: NAVY, lineHeight: 1.6, fontStyle: "italic" }}>
             {resolvedDiagnosis}
           </div>
           <div style={{ fontSize: 16, color: "#1A1A2E", lineHeight: 1.75 }}>{resolvedOverview}</div>
@@ -427,7 +428,7 @@ function SummaryCard({
   const percent = (score / max) * 100;
   const color = scoreColor(percent);
   return (
-    <div style={{ padding: 20, borderRadius: 5, border: `1px solid ${BORDER}`, background: LIGHT_BG, display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+    <div style={{ padding: 20, borderRadius: RADIUS_MD, border: `1px solid ${BORDER}`, background: LIGHT_BG, display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
       <SummaryCardIcon kind={icon} />
       <div style={{ fontSize: 14, fontWeight: 700, color: NAVY, marginTop: 8 }}>{label}</div>
       <div style={{ display: "flex", alignItems: "baseline", gap: 5, marginTop: 10 }}>
@@ -435,7 +436,7 @@ function SummaryCard({
         <span style={{ fontSize: 16, fontWeight: 700, color }}>/{max}</span>
         <span style={{ fontSize: 12, fontWeight: 700, color, textTransform: "uppercase" }}>{scoreLabel(percent)}</span>
       </div>
-      {pillar ? <span style={{ display: "inline-block", marginTop: 8, padding: "4px 14px", borderRadius: 5, background: `${BLUE}12`, border: `1px solid ${BLUE}30`, fontSize: 14, fontWeight: 700, color: NAVY }}>{pillar}</span> : null}
+      {pillar ? <span style={{ display: "inline-block", marginTop: 8, padding: "4px 14px", borderRadius: RADIUS_MD, background: `${BLUE}12`, border: `1px solid ${BLUE}30`, fontSize: 14, fontWeight: 700, color: NAVY }}>{pillar}</span> : null}
     </div>
   );
 }
@@ -454,7 +455,7 @@ function SignalRail({ label, color, children }: { label: string; color: string; 
 
 function InsightCard({ label, text, color }: { label: string; text: string; color: string }) {
   return (
-    <div style={{ padding: "14px 16px", borderRadius: 5, background: `${color}08` }}>
+    <div style={{ padding: "14px 16px", borderRadius: RADIUS_MD, background: `${color}08` }}>
       <div style={{ fontSize: 12, fontWeight: 900, color, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>{label}</div>
       <div style={{ fontSize: 16, color: "#1A1A2E", lineHeight: 1.6 }}>{text}</div>
     </div>

@@ -1,9 +1,18 @@
 "use client";
 
-const NAVY = "#021859";
-const BLUE = "#07B0F2";
-const LIGHT_BLUE = "#E8F6FE";
-const MID_GRAY = "#5A6B7E";
+import {
+  SUITE_ACCENT_BRIGHT,
+  SUITE_BG_CARD,
+  SUITE_BORDER,
+  SUITE_FONT_UI,
+  SUITE_MUTED,
+  SUITE_NAVY,
+  SUITE_RADIUS_BUTTON,
+  SUITE_RADIUS_LG,
+  SUITE_SECTION_ACTIVE_BG,
+  SUITE_SHADOW_CARD,
+  SUITE_TEXT_PRIMARY,
+} from "@/components/results/suiteBrandTokens";
 
 interface LockedTabPromptProps {
   tabLabel: string;
@@ -37,11 +46,12 @@ export default function LockedTabPrompt({
         maxWidth: 600,
         margin: "80px auto",
         padding: "48px",
-        backgroundColor: "#ffffff",
-        border: "1px solid #E0E8F0",
-        borderRadius: 12,
-        borderTop: `4px solid ${BLUE}`,
-        fontFamily: "'Lato', sans-serif",
+        backgroundColor: SUITE_BG_CARD,
+        border: `1px solid ${SUITE_BORDER}`,
+        borderRadius: SUITE_RADIUS_LG,
+        borderTop: `3px solid ${SUITE_ACCENT_BRIGHT}`,
+        boxShadow: SUITE_SHADOW_CARD,
+        fontFamily: SUITE_FONT_UI,
         textAlign: "center",
       }}
     >
@@ -50,7 +60,7 @@ export default function LockedTabPrompt({
           width: 48,
           height: 48,
           borderRadius: "50%",
-          backgroundColor: LIGHT_BLUE,
+          backgroundColor: SUITE_SECTION_ACTIVE_BG,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -58,18 +68,23 @@ export default function LockedTabPrompt({
         }}
       >
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <rect x="3" y="9" width="14" height="10" rx="2" stroke={BLUE} strokeWidth="1.6" />
-          <path d="M6 9V6a4 4 0 1 1 8 0v3" stroke={BLUE} strokeWidth="1.6" strokeLinecap="round" />
+          <rect x="3" y="9" width="14" height="10" rx="2" stroke={SUITE_ACCENT_BRIGHT} strokeWidth="1.6" />
+          <path
+            d="M6 9V6a4 4 0 1 1 8 0v3"
+            stroke={SUITE_ACCENT_BRIGHT}
+            strokeWidth="1.6"
+            strokeLinecap="round"
+          />
         </svg>
       </div>
 
-      <h2 style={{ fontSize: 20, fontWeight: 700, color: NAVY, margin: "0 0 8px" }}>
+      <h2 style={{ fontSize: 20, fontWeight: 600, color: SUITE_NAVY, margin: "0 0 8px" }}>
         {tabLabel} is available in {productName}
       </h2>
 
-      <p style={{ fontSize: 15, color: MID_GRAY, lineHeight: 1.6, margin: "0 0 28px" }}>
-        Your current diagnostic includes the Foundation tab. The {tabLabel} tab is where strategy
-        becomes action.
+      <p style={{ fontSize: 15, color: SUITE_MUTED, lineHeight: 1.6, margin: "0 0 28px" }}>
+        Your current report unlocks the tabs you can open now. Upgrade to {productName} to add{" "}
+        {tabLabel} — where strategy becomes clearer, more usable action.
       </p>
 
       {featuresPreview.length > 0 && (
@@ -82,7 +97,7 @@ export default function LockedTabPrompt({
                 alignItems: "flex-start",
                 gap: 10,
                 fontSize: 14,
-                color: "#2D3A4A",
+                color: SUITE_TEXT_PRIMARY,
                 marginBottom: 10,
                 lineHeight: 1.5,
               }}
@@ -93,7 +108,7 @@ export default function LockedTabPrompt({
                   width: 18,
                   height: 18,
                   borderRadius: "50%",
-                  backgroundColor: LIGHT_BLUE,
+                  backgroundColor: SUITE_SECTION_ACTIVE_BG,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -101,7 +116,13 @@ export default function LockedTabPrompt({
                 }}
               >
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                  <path d="M2 5l2.5 2.5L8 2.5" stroke={BLUE} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  <path
+                    d="M2 5l2.5 2.5L8 2.5"
+                    stroke={SUITE_ACCENT_BRIGHT}
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </span>
               {feature}
@@ -116,18 +137,18 @@ export default function LockedTabPrompt({
           style={{
             display: "inline-block",
             padding: "13px 28px",
-            backgroundColor: BLUE,
+            backgroundColor: SUITE_ACCENT_BRIGHT,
             color: "#ffffff",
-            border: `2px solid ${BLUE}`,
-            borderRadius: 5,
+            border: `2px solid ${SUITE_ACCENT_BRIGHT}`,
+            borderRadius: SUITE_RADIUS_BUTTON,
             fontWeight: 700,
             fontSize: 14,
             textDecoration: "none",
             letterSpacing: "0.03em",
-            fontFamily: "'Lato', sans-serif",
+            fontFamily: SUITE_FONT_UI,
           }}
         >
-          See What's Included
+          See What&apos;s Included
         </a>
         <a
           href={talkToExpertUrl}
@@ -136,15 +157,15 @@ export default function LockedTabPrompt({
           style={{
             display: "inline-block",
             padding: "13px 28px",
-            backgroundColor: "#ffffff",
-            color: BLUE,
-            border: `2px solid ${BLUE}`,
-            borderRadius: 5,
+            backgroundColor: SUITE_BG_CARD,
+            color: SUITE_ACCENT_BRIGHT,
+            border: `2px solid ${SUITE_ACCENT_BRIGHT}`,
+            borderRadius: SUITE_RADIUS_BUTTON,
             fontWeight: 700,
             fontSize: 14,
             textDecoration: "none",
             letterSpacing: "0.03em",
-            fontFamily: "'Lato', sans-serif",
+            fontFamily: SUITE_FONT_UI,
           }}
         >
           Talk to an Expert
@@ -152,16 +173,17 @@ export default function LockedTabPrompt({
       </div>
 
       <button
+        type="button"
         onClick={onDismiss}
         style={{
           display: "block",
           margin: "20px auto 0",
           background: "none",
           border: "none",
-          color: MID_GRAY,
+          color: SUITE_MUTED,
           fontSize: 13,
           cursor: "pointer",
-          fontFamily: "'Lato', sans-serif",
+          fontFamily: SUITE_FONT_UI,
           textDecoration: "underline",
         }}
       >

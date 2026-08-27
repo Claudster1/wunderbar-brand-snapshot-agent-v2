@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
-import { ACCENT_BG, BORDER, NAVY, SUB, WHITE } from "./tokens";
+import { ACCENT_BG, BORDER, NAVY, RADIUS, RADIUS_SM, SUB, WHITE } from "./tokens";
 
 export function Section({
   children,
@@ -19,7 +19,7 @@ export function Section({
       data-page-break={pageBreak || undefined}
       style={{
         background: WHITE,
-        borderRadius: 5,
+        borderRadius: RADIUS,
         border: `1px solid ${BORDER}`,
         padding: "32px",
         ...style,
@@ -49,7 +49,7 @@ export function SectionTitle({
             style={{
               width: 36,
               height: 36,
-              borderRadius: 5,
+              borderRadius: RADIUS_SM,
               background: ACCENT_BG,
               display: "flex",
               alignItems: "center",

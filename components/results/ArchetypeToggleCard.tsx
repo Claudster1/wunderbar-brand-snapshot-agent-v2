@@ -76,16 +76,16 @@ export default function ArchetypeToggleCard({
     if (!d) return [];
     const rows: { id: string; label: string; body: string }[] = [];
     if (d.strategicImplication?.trim()) {
-      rows.push({ id: "strategic", label: "For your brand", body: d.strategicImplication.trim() });
+      rows.push({ id: "strategic", label: "How to use it", body: d.strategicImplication.trim() });
     }
     if (d.voiceApplication?.trim()) {
-      rows.push({ id: "voice", label: "Voice application", body: d.voiceApplication.trim() });
+      rows.push({ id: "voice", label: "Tone", body: d.voiceApplication.trim() });
     }
     if (d.visualApplication?.trim()) {
       rows.push({ id: "visual", label: "Visual direction", body: d.visualApplication.trim() });
     }
     if (d.conversionRisk?.trim()) {
-      rows.push({ id: "risk", label: "Watch-out", body: d.conversionRisk.trim() });
+      rows.push({ id: "risk", label: "Risk if misused", body: d.conversionRisk.trim() });
     }
     return rows;
   }, [active]);

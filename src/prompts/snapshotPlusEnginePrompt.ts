@@ -210,7 +210,13 @@ SNAPSHOT+™ MUST INCLUDE:
 
 6. Brand Archetype System
    - primary + secondary archetypes (each: name, whenAligned, riskIfMisused, languageTone, behaviorGuide)
-   - howTheyWorkTogether
+   - howTheyWorkTogether: 1–3 sentences on how the pair works for [businessName]
+   - **combinedImplementation** (REQUIRED when secondary is set): practical split for THIS business — not a restatement of each archetype
+     - oneLiner: "For [businessName]: Primary owns …; Secondary owns …"
+     - leadWithPrimary: 3–5 concrete surfaces/moments where primary leads (hero, pitch, ads…)
+     - leanOnSecondary: 3–5 surfaces where secondary leads (nurture, CS, proof…)
+     - neverMix: 2–4 anti-patterns (same beat, same asset) that confuse buyers
+     - weekOneMove: one specific action this week that uses the pair correctly
    Use ONLY: Sage, Hero, Outlaw, Magician, Lover, Caregiver, Ruler, Creator, Innocent, Explorer, Neighbor, Entertainer
    In **primary.behaviorGuide**, append three **surface-faithful** blocks (blank line between each): Homepage as visitors see it (headline, subhead, then CTA line—no “H1:” labels) — warm and clear, not lecture-y; one Content opening paragraph as published — peer voice; Sales as a quoted talk track (~20–40 sec) — warm, collaborative, expert (not pushy); no meta labels inside the quote; no task language inside the samples.
 
@@ -230,6 +236,13 @@ SNAPSHOT+™ MUST INCLUDE:
      behaviorGuide: "Use in lifecycle touchpoints: onboarding, renewals, recovery — not in the initial category claim."
    }
    howTheyWorkTogether: "Sage wins the first impression and category story; Caregiver wins retention and expansion — lead with Sage on the site hero, let Caregiver shape onboarding and CS scripts."
+   combinedImplementation: {
+     oneLiner: "For Northline: Sage owns the category claim and sales open; Caregiver owns nurture, onboarding, and proof handoffs.",
+     leadWithPrimary: ["Homepage hero + subhead", "First 60 seconds of sales calls", "Paid LinkedIn that introduces the measurement story"],
+     leanOnSecondary: ["Welcome + Day-5 nurture emails", "Case study openings and CS check-ins", "Renewal / expansion conversations"],
+     neverMix: ["Don't open the hero with soft Caregiver language — claim first", "Don't write nurture as another Sage lecture with no care beat"],
+     weekOneMove: "Ship one Sage hero line and one Caregiver nurture subject that share the same promise."
+   }
 
 7. Brand Persona (the COMPANY's brand persona, not the audience)
    - personaSummary, coreIdentity { whoYouAre, whatYouStandFor, howYouShowUp }

@@ -78,7 +78,8 @@ REQUIRED OUTPUT STRUCTURE
      - languageTone: How this archetype affects language and tone
      - behaviorGuide: How the brand should behave in interactions
    - secondary: Same structure as primary (different archetype)
-   - howTheyWorkTogether: How the two archetypes complement each other
+   - howTheyWorkTogether: How the two archetypes complement each other for this business
+   - combinedImplementation: { oneLiner, leadWithPrimary[], leanOnSecondary[], neverMix[], weekOneMove } — practical split (where primary leads vs secondary); company-specific, not generic blend copy
    - **Demonstration copy (no new keys):** In **primary.behaviorGuide**, append three blocks separated by blank lines: (1) Homepage hero **as a visitor sees it**—headline, subhead, then button text and secondary link on one line—**no** “H1:” / “Subhead:” labels; warm and clear, not lecture-y; (2) one **Content** opening paragraph as published — peer voice; (3) **Sales** as a **quoted** talk track only — warm, collaborative, expert (not pushy); no meta labels inside the quote. No “you should” lines inside the samples.
 
 7. Brand Persona
@@ -241,7 +242,14 @@ Return valid JSON with this EXACT structure:
   "brandArchetypeSystem": {
     "primary": { "name": "", "whenAligned": "", "riskIfMisused": "", "languageTone": "", "behaviorGuide": "" },
     "secondary": { "name": "", "whenAligned": "", "riskIfMisused": "", "languageTone": "", "behaviorGuide": "" },
-    "howTheyWorkTogether": ""
+    "howTheyWorkTogether": "",
+    "combinedImplementation": {
+      "oneLiner": "",
+      "leadWithPrimary": [],
+      "leanOnSecondary": [],
+      "neverMix": [],
+      "weekOneMove": ""
+    }
   },
   "brandPersona": {
     "personaSummary": "",

@@ -33,6 +33,7 @@ import { isWorkbookSectionId } from "@/lib/workbookTypes";
 import { wunderBrandScoreFromPillars } from "@/lib/wunderBrandScoreDisplay";
 import FoundationBlueprintContent from "@/components/tabs/FoundationBlueprintContent";
 import FoundationExtras from "@/components/FoundationExtras";
+import { extractBrandArchetypeSystem } from "@/lib/archetype/brandArchetypeSystem";
 import { getArchetypeIcon, getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
 import { buildActivationDiagnostics } from "@/lib/results/buildActivationDiagnostics";
 import { buildResultsTabNavItems } from "@/lib/results/buildResultsTabNavItems";
@@ -349,6 +350,11 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
     return null;
   })();
   const secondaryArchetypeMeaning = secondaryArchetype ? getArchetypeMeaning(secondaryArchetype) : null;
+  const brandArchetypeSystem = extractBrandArchetypeSystem(
+    report as Record<string, unknown>,
+    likelyArchetype ?? "",
+    secondaryArchetype ?? "",
+  );
   const topStrengths = extractStringArray(
     report.top_strengths,
     report.strengths,
@@ -554,6 +560,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
     tertiaryAudience,
     primaryArchetype: likelyArchetype ?? "Archetype pending",
     secondaryArchetype: secondaryArchetype ?? "Secondary archetype pending",
+    ...(brandArchetypeSystem ? { brandArchetypeSystem } : {}),
     archetypeMeaning: archetypeMeaning ?? "",
     archetypeIcon: archetypeIcon ?? "",
     topStrengths,

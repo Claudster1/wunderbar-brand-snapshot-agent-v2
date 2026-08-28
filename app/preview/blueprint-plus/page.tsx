@@ -4368,7 +4368,7 @@ export default function BrandBlueprintPlusReport() {
               </div>
               <a href="https://wunderbardigital.com/ai-consulting?utm_source=brand_blueprint_plus_report&utm_medium=report_cta&utm_campaign=explore_service&utm_content=blueprint_plus_ai_consulting" target="_blank" rel="noopener noreferrer" style={{
                 display: "block", width: "100%", padding: "14px 24px", borderRadius: 5,
-                border: `2px solid ${NAVY}`, background: "transparent", color: NAVY,
+                border: `2px solid ${BLUE}`, background: "transparent", color: BLUE,
                 fontSize: 15, fontWeight: 900, textAlign: "center", textDecoration: "none",
                 fontFamily: "Lato, sans-serif", boxSizing: "border-box",
               }}>Explore AI Consulting →</a>

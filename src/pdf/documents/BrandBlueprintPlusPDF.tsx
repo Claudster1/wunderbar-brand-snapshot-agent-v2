@@ -341,7 +341,7 @@ export const BrandBlueprintPlusPDF = ({
                   {archetype.behaviorGuide ? (
                     <Text style={stylePresets.body}>
                       <Text style={stylePresets.semibold}>Brand impact: </Text>
-                      {archetype.behaviorGuide}
+                      {sanitizeSpokenCustomerScript(archetype.behaviorGuide)}
                     </Text>
                   ) : null}
                 </>

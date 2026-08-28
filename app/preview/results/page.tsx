@@ -1065,7 +1065,7 @@ export default function BrandSnapshotReport() {
                     }}>Recommended</div>
                   )}
                 </div>
-                <div style={{ fontSize: 18, fontWeight: 700, color: NAVY, marginBottom: 6 }}>{product.name}<span style={{ fontSize: 9, verticalAlign: "super", lineHeight: 0 }}>™</span></div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: NAVY, marginBottom: 6 }}>{product.name}</div>
                 <div style={{ fontSize: 14, color: SUB, lineHeight: 1.55, marginBottom: 16 }}>{product.description}</div>
                 <div style={{ flex: 1, marginBottom: 18 }}>
                   {product.features.map((f, fi) => (
@@ -1084,9 +1084,9 @@ export default function BrandSnapshotReport() {
                   rel="noopener noreferrer"
                   style={{
                     display: "block", width: "100%", padding: "12px 24px", borderRadius: 5,
-                    border: product.highlight ? "none" : `2px solid ${NAVY}`,
+                    border: product.highlight ? "none" : `2px solid ${BLUE}`,
                     background: product.highlight ? BLUE : "transparent",
-                    color: product.highlight ? WHITE : NAVY,
+                    color: product.highlight ? WHITE : BLUE,
                     fontSize: 15, fontWeight: 900, textAlign: "center",
                     textDecoration: "none", fontFamily: "Lato, sans-serif",
                     boxSizing: "border-box",
@@ -1094,7 +1094,7 @@ export default function BrandSnapshotReport() {
                     transition: "all 0.2s ease",
                   }}
                 >
-                  {`Explore ${product.name}™ →`}
+                  {`Explore ${product.name} →`}
                 </a>
               </div>
             ))}

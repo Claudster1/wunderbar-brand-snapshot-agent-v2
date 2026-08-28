@@ -3167,8 +3167,8 @@ export default function BrandSnapshotPlusReport() {
                 target="_blank" rel="noopener noreferrer"
                 style={{
                   display: "block", width: "100%", padding: "12px 24px", borderRadius: 5,
-                  border: `2px solid ${NAVY}`, background: "transparent",
-                  color: NAVY, fontSize: 15, fontWeight: 900,
+                  border: `2px solid ${BLUE}`, background: "transparent",
+                  color: BLUE, fontSize: 15, fontWeight: 900,
                   textAlign: "center", textDecoration: "none", fontFamily: "Lato, sans-serif",
                   boxSizing: "border-box",
                   transition: "all 0.2s ease",

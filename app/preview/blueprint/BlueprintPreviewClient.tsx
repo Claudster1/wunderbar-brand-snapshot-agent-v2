@@ -3214,7 +3214,7 @@ export default function BrandBlueprintReport() {
                   <div style={{ fontSize: 16, fontWeight: 700, color: NAVY }}>AI Consulting</div>
                 </div>
                 <div style={{ fontSize: 13, color: SUB, lineHeight: 1.5, marginBottom: 12, flex: 1 }}>Expert guidance on integrating AI into your marketing workflow.</div>
-                <a href="https://wunderbardigital.com/ai-consulting?utm_source=brand_blueprint_report&utm_medium=report_cta&utm_campaign=explore_service&utm_content=blueprint_ai_consulting" target="_blank" rel="noopener noreferrer" style={{ display: "block", textAlign: "center", padding: "10px 20px", borderRadius: 5, border: `1.5px solid ${NAVY}`, background: "transparent", color: NAVY, fontSize: 14, fontWeight: 700, textDecoration: "none", fontFamily: "Lato, sans-serif" }}>Explore AI Consulting →</a>
+                <a href="https://wunderbardigital.com/ai-consulting?utm_source=brand_blueprint_report&utm_medium=report_cta&utm_campaign=explore_service&utm_content=blueprint_ai_consulting" target="_blank" rel="noopener noreferrer" style={{ display: "block", textAlign: "center", padding: "10px 20px", borderRadius: 5, border: `1.5px solid ${BLUE}`, background: "transparent", color: BLUE, fontSize: 14, fontWeight: 700, textDecoration: "none", fontFamily: "Lato, sans-serif" }}>Explore AI Consulting →</a>
               </div>
             </div>
           </div>

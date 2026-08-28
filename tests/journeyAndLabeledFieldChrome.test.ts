@@ -4,7 +4,12 @@ import {
   normalizeEngineJourneyStageKey,
   parseBuyerJourneyStages,
 } from "@/lib/strategy/parseBuyerJourneyStages";
-import { chromeForLabeledField, stripBrandReplyPrefix, stripSpokenScriptMetaPrefix } from "@/lib/strategy/labeledFieldChrome";
+import {
+  chromeForLabeledField,
+  stripBrandReplyPrefix,
+  stripSpokenScriptMetaPrefix,
+  sanitizeSpokenCustomerScript,
+} from "@/lib/strategy/labeledFieldChrome";
 
 describe("normalizeEngineJourneyStageKey", () => {
   it("maps Blueprint engine stages onto suite keys", () => {
@@ -62,5 +67,18 @@ describe("labeledFieldChrome", () => {
       stripSpokenScriptMetaPrefix("Acme opener (Sage voice — calm, precise): Can we look at the journey together?"),
     ).toBe("Can we look at the journey together?");
     expect(stripSpokenScriptMetaPrefix('Offer: "Happy to intro a peer."')).toBe('"Happy to intro a peer."');
+  });
+
+  it("softens pushy meeting-takeover openers", () => {
+    expect(
+      sanitizeSpokenCustomerScript(
+        "Acme Co opener (Sage voice — calm, precise): Before we talk channels, I want ten minutes on where Acme’s story and Acme’s funnel disagree.",
+      ),
+    ).toBe(
+      "Would it help if we start with a quick look at where Acme’s story and Acme’s funnel disagree.",
+    );
+    expect(sanitizeSpokenCustomerScript("I want ten minutes on the homepage gap.")).toBe(
+      "Would it help if we spend a few minutes on the homepage gap.",
+    );
   });
 });

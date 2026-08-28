@@ -1102,7 +1102,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
     
     Write in brand voice / archetype. Name [businessName]. Prefer quoted scripts (Say: / Show:) over meta coaching.
     
-    **Spoken-script tone (mandatory):** Human, friendly, approachable expertise — never arrogant or pushy. Collaborative invites over commands. No stage-direction prefixes inside the spoken line. Scripts must sound natural out loud.
+    **Spoken-script tone (mandatory):** Human, friendly, approachable expertise — never arrogant or pushy. Collaborative invites over commands ("Would it help if we…" — never "I want ten minutes…" / "Before we talk X, I want…"). No stage-direction prefixes inside the spoken line. Scripts must sound natural out loud.
     
     salesConversationGuide: {
       conversion_intelligence_reference: { type: "ref", framework: "icp_conversion_intelligence_framework", icpTier: "", funnelStage: "", matrixCell: "" }

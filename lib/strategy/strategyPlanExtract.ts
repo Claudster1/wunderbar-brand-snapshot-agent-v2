@@ -4,7 +4,7 @@
  */
 
 import { readerFriendlyTrackingRow } from "@/lib/strategy/strategyReaderFriendly";
-import { stripBrandReplyPrefix, stripSpokenScriptMetaPrefix } from "@/lib/strategy/labeledFieldChrome";
+import { stripBrandReplyPrefix, sanitizeSpokenCustomerScript } from "@/lib/strategy/labeledFieldChrome";
 
 function asRecord(v: unknown): Record<string, unknown> | null {
   if (!v || typeof v !== "object" || Array.isArray(v)) return null;
@@ -499,8 +499,9 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
   const tables: StrategyPlanSection["tables"] = [];
 
   /** Blueprint schema uses `openingFramework` / `discoveryQuestions`; tolerate legacy keys. */
-  const opening =
-    asString(sg.openingFramework) || asString(sg.overview) || asString(sg.opening_framework);
+  const opening = sanitizeSpokenCustomerScript(
+    asString(sg.openingFramework) || asString(sg.overview) || asString(sg.opening_framework),
+  );
   if (opening) blocks.push({ title: "Opening & first-call framing", body: opening });
 
   const icpPlansRaw = diagnostic.icpGoToMarketPlans;
@@ -590,7 +591,9 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
         return {
           stage: asString(r.stage) || "Stage",
           objective: asString(r.objective),
-          keyMessage: asString(r.keyMessage) || asString(r.sayThis),
+          keyMessage: sanitizeSpokenCustomerScript(
+            asString(r.keyMessage) || asString(r.sayThis),
+          ),
           proof: asString(r.proofToUse) || asString(r.proof),
         };
       })
@@ -652,7 +655,7 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
           persona: asString(r.persona) || "Persona",
           stage: asString(r.stage) || "Stage",
           proof: asString(r.proofPoint) || asString(r.proof),
-          delivery: stripSpokenScriptMetaPrefix(
+          delivery: sanitizeSpokenCustomerScript(
             asString(r.howToDeliver) || asString(r.delivery),
           ),
         };
@@ -680,7 +683,7 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
         label: o.length > 64 ? `${o.slice(0, 61)}…` : o,
         value: joinAsStrategyBullets(
           asString(r.response) &&
-            `Response: ${stripBrandReplyPrefix(stripSpokenScriptMetaPrefix(asString(r.response)))}`,
+            `Response: ${stripBrandReplyPrefix(sanitizeSpokenCustomerScript(asString(r.response)))}`,
           asString(r.pillarConnection) && `Pillar: ${asString(r.pillarConnection)}`,
           asString(r.proofPoint) && `Proof: ${asString(r.proofPoint)}`,
         ),
@@ -689,7 +692,7 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
     tables.push({ caption: "Objection replies", rows });
   }
 
-  const closing = stripSpokenScriptMetaPrefix(
+  const closing = sanitizeSpokenCustomerScript(
     asString(sg.closingLanguage) || asString(sg.closing_language),
   );
   if (closing) blocks.push({ title: "Closing lines & next steps", body: closing });

@@ -674,7 +674,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
     
     Write in [businessName]'s brand voice / archetype. Name the company. Scripts must be paste-ready: what to **say**, what to **show**, what to do with the answer. Ban meta coaching like "Separates messaging drift…" as the main content.
     
-    **Spoken-script tone (mandatory):** Human, friendly, approachable expertise — never arrogant or pushy. Collaborative invites over commands ("Would it help if we…" / "Can we start with…" — not "I want ten minutes…"). No stage-direction prefixes inside the spoken line (no "Company opener (Sage voice): …"). Scripts must sound natural out loud.
+    **Spoken-script tone (mandatory):** Human, friendly, approachable expertise — never arrogant or pushy. Collaborative invites over commands ("Would it help if we…" / "Can we start with…" — never "I want ten minutes…" / "Before we talk X, I want…"). No stage-direction prefixes inside the spoken line (no "Company opener (Sage voice): …"). Scripts must sound natural out loud.
     
     salesConversationGuide: {
       openingFramework: "Exact opening script for [businessName] (first ~60 seconds) in brand voice — quote only what the rep says. Warm, collaborative, expert. Reference [businessName] by name when natural."

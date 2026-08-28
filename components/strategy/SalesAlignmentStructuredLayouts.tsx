@@ -13,7 +13,7 @@ import type {
   ProofPlacementItem,
   TalkTrackStageItem,
 } from "@/lib/strategy/strategyPlanExtract";
-import { chromeForLabeledField, stripSpokenScriptMetaPrefix } from "@/lib/strategy/labeledFieldChrome";
+import { chromeForLabeledField, sanitizeSpokenCustomerScript } from "@/lib/strategy/labeledFieldChrome";
 
 function Eyebrow({ children }: { children: string }) {
   return (
@@ -27,7 +27,7 @@ function Eyebrow({ children }: { children: string }) {
 }
 
 function Field({ label, body }: { label: string; body: string }) {
-  const cleaned = stripSpokenScriptMetaPrefix(body);
+  const cleaned = sanitizeSpokenCustomerScript(body);
   if (!cleaned.trim()) return null;
   const chrome = chromeForLabeledField(label);
   return (

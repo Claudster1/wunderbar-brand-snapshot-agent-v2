@@ -111,3 +111,28 @@ export function stripSpokenScriptMetaPrefix(value: string): string {
   out = out.replace(/^offer:\s*/i, "");
   return out.trim();
 }
+
+/**
+ * Soften common pushy / meeting-takeover phrasing in spoken scripts
+ * so stored reports still read collaborative even if generated with older prompts.
+ */
+export function softenPushySpokenScript(value: string): string {
+  let out = value.trim();
+  out = out.replace(
+    /\bBefore we talk\s+[^,.]+[,.]\s*I (?:want|need)\s+(?:\w+\s+)?(?:five|ten|fifteen|twenty|\d+)\s+minutes?\s+(?:on|about|for)\s+/gi,
+    "Would it help if we start with a quick look at ",
+  );
+  out = out.replace(
+    /\bI (?:want|need)\s+(?:\w+\s+)?(?:five|ten|fifteen|twenty|\d+)\s+minutes?\s+(?:on|about|for)\s+/gi,
+    "Would it help if we spend a few minutes on ",
+  );
+  out = out.replace(/\bI['’]ll map\b/gi, "we could map");
+  out = out.replace(/\bI['’]ll need\b/gi, "it would help to");
+  out = out.replace(/\bLet['’]s lock\b/gi, "Can we agree on");
+  return out.trim();
+}
+
+/** Meta-prefix strip + pushy-phrase soften for customer-facing spoken lines. */
+export function sanitizeSpokenCustomerScript(value: string): string {
+  return softenPushySpokenScript(stripSpokenScriptMetaPrefix(value));
+}

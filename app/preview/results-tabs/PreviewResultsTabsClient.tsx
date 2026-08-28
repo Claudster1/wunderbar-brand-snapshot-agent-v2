@@ -670,13 +670,13 @@ const diagnosticData = {
   },
   salesConversationGuide: {
     openingFramework:
-      "“Thanks for making time. I noticed how Acme talks about the offer—and I’m curious whether the homepage promise and the late-funnel proof still feel like the same story. A lot of founder-led B2B teams we work with lose deals in that gap—not from lack of spend. If that rings true, would it help if we pick one place the story slips and sketch a simple next step you could share with the buying group? If I’m off, tell me and we’ll reset.”",
+      "“Thanks for making time. I was looking at how Acme talks about the offer, and I’m curious whether the homepage promise and the late-funnel proof still feel like the same story to you. Sometimes that gap is where deals soften—even when spend looks fine. If that matches what you’re seeing, would it help if we pick one place the story slips and sketch a simple next step together? If I’m off, tell me and we can reset.”",
     talkTrackFramework: [
       {
         stage: "First 10 minutes",
         objective: "Invite a shared look at Acme’s story-vs-funnel gap—before pitching services.",
         keyMessage:
-          "Say: “I’d love to understand the story first, then channels. If the homepage, outbound hook, and deck slide 1 promise different jobs, more media usually won’t fix conversion quality—can we check that together?”",
+          "Say: “I’d love to understand the story first, then channels. If the homepage, outbound hook, and deck slide 1 promise different jobs, more media usually won’t fix conversion quality—would it help if we check that together?”",
         proofToUse:
           "Show: one anonymized before/after pipeline snapshot from a similar revenue-stage services firm (one-pager titled ‘Acme-style journey leak — 90-day delta’).",
       },
@@ -692,29 +692,29 @@ const diagnosticData = {
         stage: "Close",
         objective: "Propose a bounded Acme pilot with named owners and a customer-visible artifact in 14 days.",
         keyMessage:
-          "Say: “Before we expand scope, can we start with one Acme journey for two weeks—one owner on marketing, one on sales, and one artifact the buyer can open? You’ll know quickly if it’s worth going further.”",
+          "Say: “Before we expand scope, would it help to try one Acme journey for two weeks—one owner on marketing, one on sales, and one artifact the buyer can open? You’ll know quickly if it’s worth going further.”",
         proofToUse:
           "Show: Acme pilot who-owns-what chart + milestone template with the first customer-visible deliverable dated.",
       },
     ],
     discoveryQuestions: [
       {
-        question: "Where does Acme’s pipeline typically stall today—by stage name, not by feeling?",
+        question: "Where does Acme’s pipeline typically stall today—by stage, if you have names for those stages?",
         whyThisQuestion:
           "Use when the room blames ‘lead quality’ without naming stages. Surfaces whether Acme’s issue is messaging drift, ops, or offer fit.",
         listenFor:
-          "If they say ‘top of funnel,’ reply: “Then Acme’s next proof belongs on the first sales touch, not another awareness campaign.” If they name a mid-stage, reply: “Then we place a one-pager at that exact handoff.”",
+          "If they say ‘top of funnel,’ reply: “Then Acme’s next proof may belong on the first sales touch, not another awareness campaign.” If they name a mid-stage, reply: “Then we could place a one-pager at that exact handoff.”",
       },
       {
         question:
           "If I read Acme’s homepage hero, your top outbound hook, and slide 1 of the deck—do they promise the same job-to-be-done?",
         whyThisQuestion:
-          "Use when leadership claims ‘we’re aligned.’ Forces a concrete Acme narrative check without sounding accusatory.",
+          "Use when leadership claims ‘we’re aligned.’ Invites a concrete Acme narrative check without sounding accusatory.",
         listenFor:
-          "Hesitation or laughter → say: “That’s often where deals get soft—spend amplifies three different promises. Want to pick one storyline to align first?” Instant yes → say: “Great—then we can pressure-test proof placement next.”",
+          "Hesitation or laughter → say: “That’s often where deals get soft—spend amplifies three different promises. Want to pick one storyline to align first?” Instant yes → say: “Great—then we can look at proof placement next.”",
       },
       {
-        question: "What proof does an Acme rep actually show beside the ask in late funnel today?",
+        question: "What proof does an Acme rep usually show beside the ask in late funnel today?",
         whyThisQuestion:
           "Use when credibility scores look fine but close rates lag. Reveals whether Acme’s proof is deployed at decision moments.",
         listenFor:
@@ -725,14 +725,14 @@ const diagnosticData = {
         whyThisQuestion:
           "Use when demand spend is up but pipeline quality is disputed. Handoff tax often hides inside Acme’s definitions.",
         listenFor:
-          "Different verbs → say: “Can we publish one shared Acme SQL definition on a one-pager before we touch creative?”",
+          "Different verbs → say: “Would it help to publish one shared Acme sales-ready definition on a one-pager before we touch creative?”",
       },
       {
         question: "What did Acme’s last growth or brand initiative change in the CRM within 30 days?",
         whyThisQuestion:
           "Use when they cite prior agency work. Tests whether past spend produced operating change Acme can see.",
         listenFor:
-          "Activity-only metrics → say: “For this pilot, I’d suggest success look like stage movement or cycle time—not impressions. Does that feel fair?”",
+          "Activity-only metrics → say: “For this pilot, would it help if success looked like stage movement or cycle time—not impressions?”",
       },
       {
         question: "Who owns Acme’s narrative consistency week to week—not the workshop, the habit?",

@@ -105,7 +105,7 @@ The output must include ALL sections from WunderBrand Snapshot+™ (sections 1�
       provide a string that **embeds finished, paste-ready sample language** (exact words a buyer would see or hear)—not abstract rules alone.
       - **messaging**: output reads like a **live Homepage**—headline, subhead, button, and secondary link as the customer sees them. **Do not** prefix with labels like “H1:”, “Subhead:”, or “CTA:”. Warm and clear, not lecture-y.
       - **content**: a single **opening paragraph** as it would appear in a guide or newsletter—no “you should” or “include proof blocks” instructions inside the sample. Peer voice.
-      - **salesConversations**: **verbatim talk track** (first ~20–40 seconds) inside quotes—what a rep would say out loud in a warm, collaborative expert voice (not pushy); not bullet steps; no meta labels inside the quote.
+      - **salesConversations**: **verbatim talk track** (first ~20–40 seconds) inside quotes—what a rep would say out loud in a warm, collaborative expert voice (not pushy); never “I want ten minutes…” / meeting takeovers; not bullet steps; no meta labels inside the quote.
       - **visualTone**: stay descriptive; you may add one short in-situ line (e.g. caption or layout direction) if it clarifies archetype expression.
 
 19. Messaging System

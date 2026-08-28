@@ -431,21 +431,22 @@ export const previewFullBlueprintReport: Record<string, unknown> = {
           subject: "Where qualified demand gets lost (3 surfaces to check)",
           purpose: "Diagnose message-channel drift without blaming the team.",
           keyMessage:
-            "If hero, first outbound line, and nurture subject disagree, you are taxing your own CPL—here is the 12-week fix outline.",
+            "If hero, first outbound line, and nurture subject disagree, you may be paying twice for the same attention—here is a 12-week fix outline.",
           ctaButton: "Read the 12-week plan outline",
         },
         {
           timing: "Day 2",
           subject: "How Acme fixes narrative drift in two weeks",
           purpose: "Mechanism + one anonymized before/after frame.",
-          keyMessage: "One owner map, one metric window, three surfaces locked first—no rebrand required.",
+          keyMessage: "One owner map, one metric window, three surfaces aligned first—no rebrand required.",
           ctaButton: "See the one-page map",
         },
         {
           timing: "Day 5",
           subject: "Your first 14-day activation sprint",
           purpose: "Bounded pilot CTA matching sales talk track.",
-          keyMessage: "Book a 20-minute scope fit—we confirm goal, metric, and owners; you leave with a dated RACI.",
+          keyMessage:
+            "Book a 20-minute scope fit—we confirm goal, metric, and owners; you leave with a one-pager that names who owns what.",
           ctaButton: "Book scope fit",
         },
       ],

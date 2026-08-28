@@ -22,6 +22,7 @@ import {
 } from "@/lib/foundationPersonaAtlas";
 import PersonaAtlasSuite from "@/components/persona/PersonaAtlasSuite";
 import { SUITE_PANEL_RAIL, SUITE_SHADOW_CARD } from "@/components/results/suiteBrandTokens";
+import { sanitizeSpokenCustomerScript } from "@/lib/strategy/labeledFieldChrome";
 
 interface FoundationBlueprintContentProps {
   businessName: string;
@@ -1905,8 +1906,10 @@ export default function FoundationBlueprintContent({
               secondaryMeaning={secondaryWhen}
               primaryDetails={{
                 strategicImplication:
-                  archetypeSystem?.primary?.behaviorGuide?.split("\n").find((l) => l.trim())?.trim() ||
-                  `${brandName} should lead with a ${primaryPillar.toLowerCase()} narrative that resolves ${(topGaps[0] || "message inconsistency").toLowerCase()}.`,
+                  sanitizeSpokenCustomerScript(
+                    archetypeSystem?.primary?.behaviorGuide?.split("\n").find((l) => l.trim())?.trim() ||
+                      `${brandName} should lead with a ${primaryPillar.toLowerCase()} narrative that resolves ${(topGaps[0] || "message inconsistency").toLowerCase()}.`,
+                  ),
                 voiceApplication:
                   archetypeSystem?.primary?.languageTone?.trim() ||
                   `“Here is what broke, here is what fixes it, here is who owns week one.”`,
@@ -1919,8 +1922,10 @@ export default function FoundationBlueprintContent({
                 hasRealSecondary
                   ? {
                       strategicImplication:
-                        archetypeSystem?.secondary?.behaviorGuide?.split("\n").find((l) => l.trim())?.trim() ||
-                        `${brandName} can apply secondary traits in campaign variation while keeping the primary signal dominant.`,
+                        sanitizeSpokenCustomerScript(
+                          archetypeSystem?.secondary?.behaviorGuide?.split("\n").find((l) => l.trim())?.trim() ||
+                            `${brandName} can apply secondary traits in campaign variation while keeping the primary signal dominant.`,
+                        ),
                       voiceApplication:
                         archetypeSystem?.secondary?.languageTone?.trim() ||
                         `Warmer turns in nurture and proof—still the same promise as the hero.`,

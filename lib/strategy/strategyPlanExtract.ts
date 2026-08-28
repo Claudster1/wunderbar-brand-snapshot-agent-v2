@@ -4,7 +4,11 @@
  */
 
 import { readerFriendlyTrackingRow } from "@/lib/strategy/strategyReaderFriendly";
-import { stripBrandReplyPrefix, sanitizeSpokenCustomerScript } from "@/lib/strategy/labeledFieldChrome";
+import {
+  stripBrandReplyPrefix,
+  sanitizeSpokenCustomerScript,
+  sanitizeSalesConversationGuide,
+} from "@/lib/strategy/labeledFieldChrome";
 
 function asRecord(v: unknown): Record<string, unknown> | null {
   if (!v || typeof v !== "object" || Array.isArray(v)) return null;
@@ -493,15 +497,14 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
   const sgRecord = asRecord(diagnostic.salesConversationGuide);
   const icpPlansPrecheck = Array.isArray(diagnostic.icpGoToMarketPlans) ? diagnostic.icpGoToMarketPlans : [];
   if (!sgRecord && icpPlansPrecheck.length === 0) return null;
-  const sg = sgRecord ?? {};
+  const sg = sanitizeSalesConversationGuide(sgRecord ?? {});
 
   const blocks: StrategyNarrativeBlock[] = [];
   const tables: StrategyPlanSection["tables"] = [];
 
   /** Blueprint schema uses `openingFramework` / `discoveryQuestions`; tolerate legacy keys. */
-  const opening = sanitizeSpokenCustomerScript(
-    asString(sg.openingFramework) || asString(sg.overview) || asString(sg.opening_framework),
-  );
+  const opening =
+    asString(sg.openingFramework) || asString(sg.overview) || asString(sg.opening_framework);
   if (opening) blocks.push({ title: "Opening & first-call framing", body: opening });
 
   const icpPlansRaw = diagnostic.icpGoToMarketPlans;
@@ -513,7 +516,7 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
       const label = asString(r.icpLabel) || `ICP ${idx + 1}`;
       const align = asString(r.alignmentToBusinessStrategy);
       const focus = asString(r.strategicFocus);
-      const cues = asString(r.competitiveConversationCues);
+      const cues = sanitizeSpokenCustomerScript(asString(r.competitiveConversationCues));
       const planRef = asRecord(r.conversion_intelligence_reference);
       const conversionRows: { label: string; value: string }[] = [];
       if (planRef) {
@@ -591,9 +594,7 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
         return {
           stage: asString(r.stage) || "Stage",
           objective: asString(r.objective),
-          keyMessage: sanitizeSpokenCustomerScript(
-            asString(r.keyMessage) || asString(r.sayThis),
-          ),
+          keyMessage: asString(r.keyMessage) || asString(r.sayThis),
           proof: asString(r.proofToUse) || asString(r.proof),
         };
       })
@@ -655,9 +656,7 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
           persona: asString(r.persona) || "Persona",
           stage: asString(r.stage) || "Stage",
           proof: asString(r.proofPoint) || asString(r.proof),
-          delivery: sanitizeSpokenCustomerScript(
-            asString(r.howToDeliver) || asString(r.delivery),
-          ),
+          delivery: asString(r.howToDeliver) || asString(r.delivery),
         };
       })
       .filter((row) => row.proof || row.delivery);
@@ -682,8 +681,7 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
       return {
         label: o.length > 64 ? `${o.slice(0, 61)}…` : o,
         value: joinAsStrategyBullets(
-          asString(r.response) &&
-            `Response: ${stripBrandReplyPrefix(sanitizeSpokenCustomerScript(asString(r.response)))}`,
+          asString(r.response) && `Response: ${stripBrandReplyPrefix(asString(r.response))}`,
           asString(r.pillarConnection) && `Pillar: ${asString(r.pillarConnection)}`,
           asString(r.proofPoint) && `Proof: ${asString(r.proofPoint)}`,
         ),
@@ -692,10 +690,36 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
     tables.push({ caption: "Objection replies", rows });
   }
 
-  const closing = sanitizeSpokenCustomerScript(
-    asString(sg.closingLanguage) || asString(sg.closing_language),
-  );
+  const closing = asString(sg.closingLanguage) || asString(sg.closing_language);
   if (closing) blocks.push({ title: "Closing lines & next steps", body: closing });
+
+  const personaTracks = Array.isArray(sg.personaConversationTracks)
+    ? sg.personaConversationTracks
+    : [];
+  if (personaTracks.length > 0) {
+    personaTracks.slice(0, 8).forEach((raw, idx) => {
+      const r = asRecord(raw);
+      if (!r) return;
+      const persona = asString(r.persona) || `Persona ${idx + 1}`;
+      const qs = Array.isArray(r.keyDiscoveryQuestions)
+        ? r.keyDiscoveryQuestions.filter((x): x is string => typeof x === "string" && x.trim().length > 0)
+        : [];
+      const objections = Array.isArray(r.likelyObjections)
+        ? r.likelyObjections.filter((x): x is string => typeof x === "string" && x.trim().length > 0)
+        : [];
+      const body = joinParagraphs(
+        asString(r.openingVariation) && `Opening: ${asString(r.openingVariation)}`,
+        asString(r.presentationEmphasis) && `Emphasize: ${asString(r.presentationEmphasis)}`,
+        qs.length > 0 ? `Discovery questions:\n${qs.map((q) => `• ${q.trim()}`).join("\n")}` : "",
+        objections.length > 0
+          ? `Likely objections:\n${objections.map((o) => `• ${o.trim()}`).join("\n")}`
+          : "",
+        asString(r.samplePitch) && `Sample pitch: ${asString(r.samplePitch)}`,
+        asString(r.closingApproach) && `Close: ${asString(r.closingApproach)}`,
+      );
+      if (body) blocks.push({ title: `Conversation track — ${persona}`, body });
+    });
+  }
 
   const ref = asRecord(sg.conversion_intelligence_reference);
   if (ref && icpPlans.length === 0) {

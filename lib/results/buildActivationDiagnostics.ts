@@ -13,6 +13,7 @@ import {
   normalizePaidChannel,
 } from "@/lib/activation/paidMediaPlanFields";
 import { normalizeEngineJourneyStageKey } from "@/lib/strategy/parseBuyerJourneyStages";
+import { sanitizeSpokenCustomerScript } from "@/lib/strategy/labeledFieldChrome";
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
@@ -44,7 +45,7 @@ function formatEmailPlan(em: Record<string, unknown> | null, companyName: string
       const sub = asString(e.subject);
       const timing = asString(e.timing);
       const purpose = asString(e.purpose);
-      const msg = asString(e.keyMessage);
+      const msg = sanitizeSpokenCustomerScript(asString(e.keyMessage));
       const cta = asString(e.ctaButton);
       return [
         `${i + 1}. ${timing || `Step ${i + 1}`}`,
@@ -74,7 +75,7 @@ function formatEmailPlan(em: Record<string, unknown> | null, companyName: string
       return [
         `${i + 1}. ${asString(e.timing) || `Nurture ${i + 1}`}`,
         asString(e.subject) ? `Subject: "${asString(e.subject)}"` : "",
-        asString(e.keyMessage) ? `Message: ${asString(e.keyMessage)}` : "",
+        asString(e.keyMessage) ? `Message: ${sanitizeSpokenCustomerScript(asString(e.keyMessage))}` : "",
         asString(e.contentType) ? `Format: ${asString(e.contentType)}` : "",
       ]
         .filter(Boolean)
@@ -92,7 +93,7 @@ function formatEmailPlan(em: Record<string, unknown> | null, companyName: string
       return [
         `${i + 1}. ${asString(e.timing) || `Re-engagement ${i + 1}`}`,
         asString(e.subject) ? `Subject: "${asString(e.subject)}"` : "",
-        asString(e.keyMessage) ? `Message: ${asString(e.keyMessage)}` : "",
+        asString(e.keyMessage) ? `Message: ${sanitizeSpokenCustomerScript(asString(e.keyMessage))}` : "",
       ]
         .filter(Boolean)
         .join("\n");

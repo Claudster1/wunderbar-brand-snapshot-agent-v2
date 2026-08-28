@@ -7,7 +7,7 @@ import {
   SUITE_RADIUS_SM,
   SUITE_TEXT_PRIMARY,
 } from "@/components/results/suiteBrandTokens";
-import { chromeForLabeledField, stripBrandReplyPrefix } from "@/lib/strategy/labeledFieldChrome";
+import { chromeForLabeledField, sanitizeSpokenCustomerScript, stripBrandReplyPrefix } from "@/lib/strategy/labeledFieldChrome";
 import type { LabeledPart } from "@/lib/strategy/labeledProse";
 
 type Props = {
@@ -17,6 +17,20 @@ type Props = {
   className?: string;
   style?: CSSProperties;
 };
+
+function shouldSanitizeSpokenField(label: string): boolean {
+  const key = label.trim().toLowerCase();
+  return (
+    /^(response|reply|say this|key message|supporting copy|email body|listen for|ask this|question)$/.test(
+      key,
+    ) ||
+    key.includes("response") ||
+    key.startsWith("say ") ||
+    key.startsWith("listen") ||
+    key.startsWith("ask ") ||
+    key.includes("what to say")
+  );
+}
 
 /**
  * Shared labeled-field cards for Strategy + Activation — role-colored rails
@@ -34,10 +48,13 @@ export default function LabeledFieldCards({
     <div className={className} style={style}>
       {parts.map((p, i) => {
         const chrome = chromeForLabeledField(p.label);
+        const cleaned = shouldSanitizeSpokenField(p.label)
+          ? sanitizeSpokenCustomerScript(p.value)
+          : p.value;
         const raw =
           /^response$/i.test(p.label.trim()) || /^reply$/i.test(p.label.trim())
-            ? stripBrandReplyPrefix(p.value)
-            : p.value;
+            ? stripBrandReplyPrefix(cleaned)
+            : cleaned;
         return (
           <div
             key={`${p.label}-${i}`}

@@ -23,6 +23,7 @@ import { BrandAlignmentScorePanel } from "./components/BrandAlignmentScorePanel"
 import { ContextCoverageMeter } from "./components/ContextCoverageMeter";
 import { pdfTheme } from "./theme";
 import { EXAMPLE_CALLOUT, SEMANTIC_DO, SEMANTIC_DONT } from "./reportVisualTokens";
+import { sanitizeSpokenCustomerScript } from "@/lib/strategy/labeledFieldChrome";
 import { registerPdfFonts } from "./registerFonts";
 import { getPrimaryPillar } from "@/src/lib/pillars/getPrimaryPillar";
 import { PILLAR_COPY } from "@/lib/pillars/pillarCopy";
@@ -246,7 +247,9 @@ export const BrandSnapshotPlusPDF = ({
     (typeof archetype === "string" ? archetype : "");
   const primaryArchetypeRisk = toText(archetypeObj?.risk);
   const primaryArchetypeLanguageTone = toText(archetypeObj?.languageTone);
-  const primaryArchetypeBehaviorGuide = toText(archetypeObj?.behaviorGuide);
+  const primaryArchetypeBehaviorGuide = sanitizeSpokenCustomerScript(
+    toText(archetypeObj?.behaviorGuide),
+  );
   const archetypePairingGuidance = toText(archetypeObj?.pairingGuidance);
   const secondaryArchetype = archetypeObj?.secondary;
   const secondaryArchetypeName =

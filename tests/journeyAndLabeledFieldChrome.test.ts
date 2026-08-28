@@ -9,6 +9,7 @@ import {
   stripBrandReplyPrefix,
   stripSpokenScriptMetaPrefix,
   sanitizeSpokenCustomerScript,
+  sanitizeSalesConversationGuide,
 } from "@/lib/strategy/labeledFieldChrome";
 
 describe("normalizeEngineJourneyStageKey", () => {
@@ -80,5 +81,30 @@ describe("labeledFieldChrome", () => {
     expect(sanitizeSpokenCustomerScript("I want ten minutes on the homepage gap.")).toBe(
       "Would it help if we spend a few minutes on the homepage gap.",
     );
+    expect(sanitizeSpokenCustomerScript("Give me ten minutes on the proof gap.")).toBe(
+      "Would it help if we spend a few minutes on the proof gap.",
+    );
+  });
+
+  it("sanitizes full salesConversationGuide trees for every tier surface", () => {
+    const cleaned = sanitizeSalesConversationGuide({
+      openingFramework: "Before we talk channels, I want ten minutes on the story gap.",
+      closingLanguage: "Let’s lock next week.",
+      talkTrackFramework: [{ keyMessage: "I want ten minutes on proof placement." }],
+      discoveryQuestions: [{ question: "Where does it stall?", listenFor: "I’ll need a stage name." }],
+      objectionHandlingPlaybook: [{ response: "Acme reply: We can start small." }],
+      personaConversationTracks: [
+        { persona: "CFO", openingVariation: "I want ten minutes on payback.", samplePitch: "Let’s lock the pilot." },
+      ],
+    });
+    expect(cleaned.openingFramework).toContain("Would it help if we start with a quick look at");
+    expect(cleaned.closingLanguage).toBe("Can we agree on next week.");
+    expect(cleaned.talkTrackFramework?.[0]?.keyMessage).toContain("Would it help if we spend a few minutes on");
+    expect(cleaned.discoveryQuestions?.[0]?.listenFor).toContain("it would help to");
+    expect(cleaned.objectionHandlingPlaybook?.[0]?.response).toBe("We can start small.");
+    expect(cleaned.personaConversationTracks?.[0]?.openingVariation).toContain(
+      "Would it help if we spend a few minutes on",
+    );
+    expect(cleaned.personaConversationTracks?.[0]?.samplePitch).toBe("Can we agree on the pilot.");
   });
 });

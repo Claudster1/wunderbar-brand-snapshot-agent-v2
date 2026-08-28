@@ -127,7 +127,7 @@ export function DiscoveryScriptCards({ items }: { items: DiscoveryScriptItem[] }
               className="m-0 mt-1.5 text-[15px] font-semibold leading-snug"
               style={{ color: SUITE_NAVY, fontFamily: SUITE_FONT_UI }}
             >
-              {item.question}
+              {sanitizeSpokenCustomerScript(item.question)}
             </p>
           </div>
           <div className="grid gap-0 sm:grid-cols-2">

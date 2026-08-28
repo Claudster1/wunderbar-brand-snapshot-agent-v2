@@ -8,6 +8,7 @@ import React from "react";
 import { supabaseServer } from "@/lib/supabase";
 import type { BlueprintEngineOutput } from "@/src/pdf/types/blueprintReport";
 import { normalizeBrandImageryDirection } from "@/lib/brand/brandImageryNormalize";
+import { sanitizeSalesConversationGuide } from "@/lib/strategy/labeledFieldChrome";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -568,7 +569,7 @@ function applyWorkbookOverrides(data: BlueprintEngineOutput, workbook?: Workbook
             }))
           : next.competitivePositioning?.players,
     };
-    next.salesConversationGuide = {
+    next.salesConversationGuide = sanitizeSalesConversationGuide({
       ...(next.salesConversationGuide || {}),
       openingFramework:
         (typeof next.salesConversationGuide?.openingFramework === "string" &&
@@ -588,7 +589,7 @@ function applyWorkbookOverrides(data: BlueprintEngineOutput, workbook?: Workbook
                 proofPoint: competitor.displacement || "Use role-specific evidence.",
               }))
           : next.salesConversationGuide?.objectionHandlingPlaybook,
-    };
+    });
   }
   if (
     typeof workbookTabSections["icp-conversion-intelligence"] === "string" &&
@@ -615,6 +616,10 @@ function applyWorkbookOverrides(data: BlueprintEngineOutput, workbook?: Workbook
   }
   if (typeof strategic.swot_threats === "string" && strategic.swot_threats.trim()) {
     next.swotAnalysis.threats = strategic.swot_threats.split("\n").map((s: string) => s.trim()).filter(Boolean);
+  }
+
+  if (next.salesConversationGuide) {
+    next.salesConversationGuide = sanitizeSalesConversationGuide(next.salesConversationGuide);
   }
 
   return next as BlueprintEngineOutput;

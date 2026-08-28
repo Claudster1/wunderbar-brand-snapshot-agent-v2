@@ -4,6 +4,10 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import Image from "next/image";
+import {
+  SUITE_CTA_OUTLINE_STYLE,
+  SUITE_CTA_SOLID_STYLE,
+} from "@/components/results/suiteBrandTokens";
 
 // Lazy-load heavy interactive components to reduce initial bundle size
 const ReportNav = dynamic(() => import("@/components/reports/ReportNav"), { ssr: false });
@@ -1082,17 +1086,7 @@ export default function BrandSnapshotReport() {
                   href={product.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{
-                    display: "block", width: "100%", padding: "12px 24px", borderRadius: 5,
-                    border: product.highlight ? "none" : `2px solid ${BLUE}`,
-                    background: product.highlight ? BLUE : "transparent",
-                    color: product.highlight ? WHITE : BLUE,
-                    fontSize: 15, fontWeight: 900, textAlign: "center",
-                    textDecoration: "none", fontFamily: "Lato, sans-serif",
-                    boxSizing: "border-box",
-                    boxShadow: product.highlight ? `0 4px 14px ${BLUE}40` : "none",
-                    transition: "all 0.2s ease",
-                  }}
+                  style={product.highlight ? SUITE_CTA_SOLID_STYLE : SUITE_CTA_OUTLINE_STYLE}
                 >
                   {`Explore ${product.name} →`}
                 </a>

@@ -9,6 +9,10 @@ import Link from "next/link";
 import nextDynamic from "next/dynamic";
 import Image from "next/image";
 import StrategyProseBody from "@/components/strategy/StrategyProseBody";
+import {
+  SUITE_CTA_OUTLINE_STYLE,
+  SUITE_CTA_SOLID_STYLE,
+} from "@/components/results/suiteBrandTokens";
 
 // Lazy-load heavy interactive components to reduce initial bundle size
 const ReportNav = nextDynamic(() => import("@/components/reports/ReportNav"), { ssr: false });
@@ -4336,22 +4340,17 @@ export default function BrandBlueprintPlusReport() {
                   </div>
                 ))}
               </div>
-              <a href="https://wunderbardigital.com/managed-marketing?utm_source=brand_blueprint_plus_report&utm_medium=report_cta&utm_campaign=explore_service&utm_content=blueprint_plus_managed_marketing" target="_blank" rel="noopener noreferrer" style={{
-                display: "block", width: "100%", padding: "14px 24px", borderRadius: 5, border: "none",
-                background: BLUE, color: WHITE, fontSize: 15, fontWeight: 900,
-                textAlign: "center", textDecoration: "none", fontFamily: "Lato, sans-serif",
-                boxSizing: "border-box", boxShadow: `0 4px 14px ${BLUE}40`,
-              }}>Explore Managed Marketing →</a>
+              <a href="https://wunderbardigital.com/managed-marketing?utm_source=brand_blueprint_plus_report&utm_medium=report_cta&utm_campaign=explore_service&utm_content=blueprint_plus_managed_marketing" target="_blank" rel="noopener noreferrer" style={{ ...SUITE_CTA_SOLID_STYLE, padding: "14px 24px" }}>Explore Managed Marketing →</a>
             </div>
 
             {/* AI Consulting */}
-            <div style={{ padding: "28px", borderRadius: 5, border: `2px solid ${NAVY}20`, background: `${NAVY}04`, display: "flex", flexDirection: "column" }}>
+            <div style={{ padding: "28px", borderRadius: 5, border: `2px solid ${BLUE}30`, background: `${BLUE}04`, display: "flex", flexDirection: "column" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-                <div style={{ width: 48, height: 48, borderRadius: "50%", background: `${NAVY}10`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <svg viewBox="0 0 24 24" fill="none" style={{ width: 24, height: 24 }}><rect x="3" y="3" width="18" height="18" rx="3" stroke={NAVY} strokeWidth="1.5"/><path d="M8 10l3 3-3 3" stroke={NAVY} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M14 16h3" stroke={NAVY} strokeWidth="2" strokeLinecap="round"/></svg>
+                <div style={{ width: 48, height: 48, borderRadius: "50%", background: `${BLUE}10`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg viewBox="0 0 24 24" fill="none" style={{ width: 24, height: 24 }}><rect x="3" y="3" width="18" height="18" rx="3" stroke={BLUE} strokeWidth="1.5"/><path d="M8 10l3 3-3 3" stroke={BLUE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M14 16h3" stroke={BLUE} strokeWidth="2" strokeLinecap="round"/></svg>
                 </div>
                 <div>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: NAVY, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 2 }}>Expert Guidance</div>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 2 }}>Expert Guidance</div>
                   <div style={{ fontSize: 20, fontWeight: 900, color: NAVY }}>AI Consulting</div>
                 </div>
               </div>
@@ -4361,17 +4360,12 @@ export default function BrandBlueprintPlusReport() {
               <div style={{ flex: 1, marginBottom: 20 }}>
                 {["Custom AI workflow design for your team", "Prompt engineering & optimization training", "AI tool selection & integration strategy", "Brand-safe AI content governance", "Ongoing AI strategy advisory"].map((f, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                    <svg viewBox="0 0 20 20" fill="none" style={{ width: 16, height: 16, flexShrink: 0 }}><circle cx="10" cy="10" r="9" fill={NAVY} opacity="0.12"/><path d="M6 10.5l2.5 2.5L14 7.5" stroke={NAVY} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    <svg viewBox="0 0 20 20" fill="none" style={{ width: 16, height: 16, flexShrink: 0 }}><circle cx="10" cy="10" r="9" fill={BLUE} opacity="0.12"/><path d="M6 10.5l2.5 2.5L14 7.5" stroke={BLUE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     <span style={{ fontSize: 13, color: "#1a1a2e" }}>{f}</span>
                   </div>
                 ))}
               </div>
-              <a href="https://wunderbardigital.com/ai-consulting?utm_source=brand_blueprint_plus_report&utm_medium=report_cta&utm_campaign=explore_service&utm_content=blueprint_plus_ai_consulting" target="_blank" rel="noopener noreferrer" style={{
-                display: "block", width: "100%", padding: "14px 24px", borderRadius: 5,
-                border: `2px solid ${BLUE}`, background: "transparent", color: BLUE,
-                fontSize: 15, fontWeight: 900, textAlign: "center", textDecoration: "none",
-                fontFamily: "Lato, sans-serif", boxSizing: "border-box",
-              }}>Explore AI Consulting →</a>
+              <a href="https://wunderbardigital.com/ai-consulting?utm_source=brand_blueprint_plus_report&utm_medium=report_cta&utm_campaign=explore_service&utm_content=blueprint_plus_ai_consulting" target="_blank" rel="noopener noreferrer" style={{ ...SUITE_CTA_OUTLINE_STYLE, padding: "14px 24px" }}>Explore AI Consulting →</a>
             </div>
           </div>
 

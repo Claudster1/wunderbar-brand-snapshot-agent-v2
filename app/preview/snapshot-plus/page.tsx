@@ -3,6 +3,11 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import {
+  SUITE_CTA_OUTLINE_COMPACT_STYLE,
+  SUITE_CTA_OUTLINE_STYLE,
+  SUITE_CTA_SOLID_STYLE,
+} from "@/components/results/suiteBrandTokens";
 
 // Lazy-load heavy interactive components to reduce initial bundle size
 const ReportNav = dynamic(() => import("@/components/reports/ReportNav"), { ssr: false });
@@ -3127,14 +3132,7 @@ export default function BrandSnapshotPlusReport() {
               <a
                 href="/checkout/blueprint?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=blueprint_upgrade&utm_content=snap_plus_explore_blueprint"
                 target="_blank" rel="noopener noreferrer"
-                style={{
-                  display: "block", width: "100%", padding: "12px 24px", borderRadius: 5, border: "none",
-                  background: BLUE, color: WHITE, fontSize: 15, fontWeight: 900,
-                  textAlign: "center", textDecoration: "none", fontFamily: "Lato, sans-serif",
-                  boxSizing: "border-box",
-                  boxShadow: `0 4px 14px ${BLUE}40`,
-                  transition: "transform 0.2s ease, box-shadow 0.2s ease",
-                }}
+                style={SUITE_CTA_SOLID_STYLE}
               >
                 Explore WunderBrand Blueprint™ →
               </a>
@@ -3165,14 +3163,7 @@ export default function BrandSnapshotPlusReport() {
               <a
                 href="/checkout/blueprint-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=blueprint_plus_upgrade&utm_content=snap_plus_explore_blueprint_plus"
                 target="_blank" rel="noopener noreferrer"
-                style={{
-                  display: "block", width: "100%", padding: "12px 24px", borderRadius: 5,
-                  border: `2px solid ${BLUE}`, background: "transparent",
-                  color: BLUE, fontSize: 15, fontWeight: 900,
-                  textAlign: "center", textDecoration: "none", fontFamily: "Lato, sans-serif",
-                  boxSizing: "border-box",
-                  transition: "all 0.2s ease",
-                }}
+                style={SUITE_CTA_OUTLINE_STYLE}
               >
                 Explore WunderBrand Blueprint+™ →
               </a>
@@ -3220,13 +3211,7 @@ export default function BrandSnapshotPlusReport() {
                 <a
                   href="https://wunderbardigital.com/managed-marketing?utm_source=brand_snapshot_plus_report&utm_medium=report_nav&utm_campaign=nav_nav_dropdown_item&utm_content=snap_plus_managed_marketing"
                   target="_blank" rel="noopener noreferrer"
-                  style={{
-                    display: "block", textAlign: "center", padding: "10px 20px", borderRadius: 5,
-                    border: `1.5px solid ${BLUE}`, background: "transparent",
-                    color: BLUE, fontSize: 14, fontWeight: 700,
-                    textDecoration: "none", fontFamily: "Lato, sans-serif",
-                    transition: "all 0.2s ease",
-                  }}
+                  style={SUITE_CTA_OUTLINE_COMPACT_STYLE}
                 >
                   Explore Managed Marketing →
                 </a>
@@ -3257,13 +3242,7 @@ export default function BrandSnapshotPlusReport() {
                 <a
                   href="https://wunderbardigital.com/ai-consulting?utm_source=brand_snapshot_plus_report&utm_medium=report_nav&utm_campaign=nav_nav_dropdown_item&utm_content=snap_plus_ai_consulting"
                   target="_blank" rel="noopener noreferrer"
-                  style={{
-                    display: "block", textAlign: "center", padding: "10px 20px", borderRadius: 5,
-                    border: `1.5px solid ${NAVY}`, background: "transparent",
-                    color: NAVY, fontSize: 14, fontWeight: 700,
-                    textDecoration: "none", fontFamily: "Lato, sans-serif",
-                    transition: "all 0.2s ease",
-                  }}
+                  style={SUITE_CTA_OUTLINE_COMPACT_STYLE}
                 >
                   Explore AI Consulting →
                 </a>

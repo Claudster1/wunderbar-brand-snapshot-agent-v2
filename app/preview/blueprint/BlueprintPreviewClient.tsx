@@ -7,6 +7,10 @@ import Link from "next/link";
 import nextDynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import StrategyProseBody from "@/components/strategy/StrategyProseBody";
+import {
+  SUITE_CTA_OUTLINE_COMPACT_STYLE,
+  SUITE_CTA_SOLID_STYLE,
+} from "@/components/results/suiteBrandTokens";
 
 // Lazy-load heavy interactive components to reduce initial bundle size
 const ReportNav = nextDynamic(() => import("@/components/reports/ReportNav"), { ssr: false });
@@ -3183,12 +3187,7 @@ export default function BrandBlueprintReport() {
                   </div>
                 ))}
               </div>
-              <a href="/checkout/blueprint-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=blueprint_plus_upgrade&utm_content=blueprint_explore_blueprint_plus" style={{
-                display: "block", width: "100%", padding: "12px 24px", borderRadius: 5, border: "none",
-                background: BLUE, color: WHITE, fontSize: 15, fontWeight: 900,
-                textAlign: "center", textDecoration: "none", fontFamily: "Lato, sans-serif",
-                boxSizing: "border-box", boxShadow: `0 4px 14px ${BLUE}40`, transition: "all 0.2s ease",
-              }}>Explore WunderBrand Blueprint+™ →</a>
+              <a href="/checkout/blueprint-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=blueprint_plus_upgrade&utm_content=blueprint_explore_blueprint_plus" style={SUITE_CTA_SOLID_STYLE}>Explore WunderBrand Blueprint+™ →</a>
             </div>
 
             {/* Services */}
@@ -3202,7 +3201,7 @@ export default function BrandBlueprintReport() {
                   <div style={{ fontSize: 16, fontWeight: 700, color: NAVY }}>Managed Marketing</div>
                 </div>
                 <div style={{ fontSize: 13, color: SUB, lineHeight: 1.5, marginBottom: 12, flex: 1 }}>We activate your brand strategy — content, campaigns, and performance optimization.</div>
-                <a href="https://wunderbardigital.com/managed-marketing?utm_source=brand_blueprint_report&utm_medium=report_cta&utm_campaign=explore_service&utm_content=blueprint_managed_marketing" target="_blank" rel="noopener noreferrer" style={{ display: "block", textAlign: "center", padding: "10px 20px", borderRadius: 5, border: `1.5px solid ${BLUE}`, background: "transparent", color: BLUE, fontSize: 14, fontWeight: 700, textDecoration: "none", fontFamily: "Lato, sans-serif" }}>Explore Managed Marketing →</a>
+                <a href="https://wunderbardigital.com/managed-marketing?utm_source=brand_blueprint_report&utm_medium=report_cta&utm_campaign=explore_service&utm_content=blueprint_managed_marketing" target="_blank" rel="noopener noreferrer" style={SUITE_CTA_OUTLINE_COMPACT_STYLE}>Explore Managed Marketing →</a>
               </div>
 
               {/* AI Consulting */}
@@ -3214,7 +3213,7 @@ export default function BrandBlueprintReport() {
                   <div style={{ fontSize: 16, fontWeight: 700, color: NAVY }}>AI Consulting</div>
                 </div>
                 <div style={{ fontSize: 13, color: SUB, lineHeight: 1.5, marginBottom: 12, flex: 1 }}>Expert guidance on integrating AI into your marketing workflow.</div>
-                <a href="https://wunderbardigital.com/ai-consulting?utm_source=brand_blueprint_report&utm_medium=report_cta&utm_campaign=explore_service&utm_content=blueprint_ai_consulting" target="_blank" rel="noopener noreferrer" style={{ display: "block", textAlign: "center", padding: "10px 20px", borderRadius: 5, border: `1.5px solid ${BLUE}`, background: "transparent", color: BLUE, fontSize: 14, fontWeight: 700, textDecoration: "none", fontFamily: "Lato, sans-serif" }}>Explore AI Consulting →</a>
+                <a href="https://wunderbardigital.com/ai-consulting?utm_source=brand_blueprint_report&utm_medium=report_cta&utm_campaign=explore_service&utm_content=blueprint_ai_consulting" target="_blank" rel="noopener noreferrer" style={SUITE_CTA_OUTLINE_COMPACT_STYLE}>Explore AI Consulting →</a>
               </div>
             </div>
           </div>

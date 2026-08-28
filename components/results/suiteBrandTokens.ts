@@ -70,6 +70,56 @@ export const SUITE_CONTENT_MAX_PX = 1280;
 export const SUITE_ACCENT_BRIGHT = SUITE_BLUE;
 
 /**
+ * Secondary / outline CTA — bright blue border + label on white.
+ * Use for Explore / secondary actions across all suite tiers (not dark navy outlines).
+ * Filled primary CTAs stay solid bright blue (`SUITE_CTA_SOLID_STYLE` / `.btn-primary` / `.wb-cta--solid`).
+ */
+export const SUITE_CTA_OUTLINE_STYLE: CSSProperties = {
+  display: "block",
+  width: "100%",
+  padding: "12px 24px",
+  borderRadius: SUITE_RADIUS_BUTTON,
+  border: `2px solid ${SUITE_BLUE}`,
+  background: "transparent",
+  color: SUITE_BLUE,
+  fontSize: 15,
+  fontWeight: 900,
+  textAlign: "center",
+  textDecoration: "none",
+  fontFamily: SUITE_FONT_UI,
+  boxSizing: "border-box",
+  transition: "all 0.2s ease",
+};
+
+/** Compact outline CTA (service cards, nested Explore links). */
+export const SUITE_CTA_OUTLINE_COMPACT_STYLE: CSSProperties = {
+  ...SUITE_CTA_OUTLINE_STYLE,
+  padding: "10px 20px",
+  borderWidth: 1.5,
+  fontSize: 14,
+  fontWeight: 700,
+};
+
+/** Primary filled CTA — solid bright blue. */
+export const SUITE_CTA_SOLID_STYLE: CSSProperties = {
+  display: "block",
+  width: "100%",
+  padding: "12px 24px",
+  borderRadius: SUITE_RADIUS_BUTTON,
+  border: "none",
+  background: SUITE_BLUE,
+  color: "#FFFFFF",
+  fontSize: 15,
+  fontWeight: 900,
+  textAlign: "center",
+  textDecoration: "none",
+  fontFamily: SUITE_FONT_UI,
+  boxSizing: "border-box",
+  boxShadow: `0 4px 14px ${SUITE_BLUE}40`,
+  transition: "all 0.2s ease",
+};
+
+/**
  * Section nav selected state — matches Foundation left rail + suite chip row (light blue wash).
  * Kept in the Wunderbar blue family so Results / Foundation / Strategy feel like one chrome system.
  */

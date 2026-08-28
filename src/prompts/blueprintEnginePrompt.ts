@@ -176,6 +176,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
 
 6. Brand Archetype System
    primary + secondary (each: name, whenAligned, riskIfMisused, languageTone, behaviorGuide), howTheyWorkTogether
+   **combinedImplementation** (REQUIRED): oneLiner, leadWithPrimary[], leanOnSecondary[], neverMix[], weekOneMove — how [businessName] uses both archetypes together by surface (not a restatement of each card)
    Use ONLY: Sage, Hero, Outlaw, Magician, Lover, Caregiver, Ruler, Creator, Innocent, Explorer, Neighbor, Entertainer
 
 7. Brand Persona

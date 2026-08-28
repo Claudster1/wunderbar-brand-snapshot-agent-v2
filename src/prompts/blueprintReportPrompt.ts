@@ -54,6 +54,7 @@ The output must include ALL sections from WunderBrand Snapshot+™ (sections 1�
 
 6. Brand Archetype System
    primary + secondary (each: name, whenAligned, riskIfMisused, languageTone, behaviorGuide), howTheyWorkTogether
+   combinedImplementation: { oneLiner, leadWithPrimary[], leanOnSecondary[], neverMix[], weekOneMove } — practical split for this business
 
 7. Brand Persona
    personaSummary, coreIdentity { whoYouAre, whatYouStandFor, howYouShowUp }, communicationStyle { tone, pace, energy }, messagingExamples { headlines, ctaButtons, socialPosts — each with use[] (**Do this**) and avoid[] (**Not this**) lines only; no "Avoid example" prefixes in strings }, doAndDont { do: [{ guideline, example }], dont: [{ guideline, example }] }
@@ -183,7 +184,14 @@ Return valid JSON with ALL these keys:
   "brandArchetypeSystem": {
     "primary": { "name": "", "whenAligned": "", "riskIfMisused": "", "languageTone": "", "behaviorGuide": "" },
     "secondary": { "name": "", "whenAligned": "", "riskIfMisused": "", "languageTone": "", "behaviorGuide": "" },
-    "howTheyWorkTogether": ""
+    "howTheyWorkTogether": "",
+    "combinedImplementation": {
+      "oneLiner": "",
+      "leadWithPrimary": [],
+      "leanOnSecondary": [],
+      "neverMix": [],
+      "weekOneMove": ""
+    }
   },
   "brandPersona": {
     "personaSummary": "",

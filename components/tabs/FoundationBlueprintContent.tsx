@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import ArchetypeToggleCard from "@/components/results/ArchetypeToggleCard";
+import ArchetypeCombinedImplementationPanel from "@/components/results/ArchetypeCombinedImplementationPanel";
 import { ReportPanel } from "@/components/results/ReportDesignPrimitives";
 import {
   filterFoundationAudienceSubsections,
@@ -11,6 +12,10 @@ import {
 } from "@/components/results/tabConfig";
 import { useResultsSuiteNav } from "@/components/results/ResultsSuiteNavContext";
 import { getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
+import {
+  fallbackCombinedImplementation,
+  type BrandArchetypeSystem,
+} from "@/lib/archetype/brandArchetypeSystem";
 import {
   buildFoundationPersonaAtlasEntries,
   extractBuyerPersonasRaw,
@@ -1855,10 +1860,16 @@ export default function FoundationBlueprintContent({
     if (sectionId === "identity-archetype") {
       const primaryName = primaryArchetype || "Primary archetype";
       const secondaryName = secondaryArchetype || undefined;
-      const primaryMeaning =
+      const archetypeSystem =
+        data.brandArchetypeSystem && typeof data.brandArchetypeSystem === "object"
+          ? (data.brandArchetypeSystem as BrandArchetypeSystem)
+          : null;
+      const primaryWhen =
+        archetypeSystem?.primary?.whenAligned?.trim() ||
         getArchetypeMeaning(normalizedPrimaryArchetype) ||
         "Primary archetype defines how your brand is recognized at first impression.";
-      const secondaryMeaning =
+      const secondaryWhen =
+        archetypeSystem?.secondary?.whenAligned?.trim() ||
         getArchetypeMeaning(normalizedSecondaryArchetype) ||
         "Secondary archetype adds nuance to voice and execution style.";
       const primaryLabelForSamples = normalizedPrimaryArchetype || "your primary archetype";
@@ -1874,47 +1885,67 @@ export default function FoundationBlueprintContent({
         voiceAttributes,
       });
       const { socialOrganic, paidAd, retargeting } = archetypeSamples;
+      const hasRealSecondary = Boolean(
+        secondaryName &&
+          secondaryName.trim() &&
+          !/pending|undefined|null/i.test(secondaryName.trim()),
+      );
+      const combined =
+        hasRealSecondary && archetypeSystem
+          ? fallbackCombinedImplementation(archetypeSystem, brandName)
+          : null;
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
           <div className="mb-3">
             <ArchetypeToggleCard
               brandName={brandName}
               primaryName={primaryName}
-              secondaryName={secondaryName}
-              primaryMeaning={primaryMeaning}
-              secondaryMeaning={secondaryMeaning}
+              secondaryName={hasRealSecondary ? secondaryName : undefined}
+              primaryMeaning={primaryWhen}
+              secondaryMeaning={secondaryWhen}
               primaryDetails={{
-                strategicImplication: `${brandName} should lead with a ${primaryPillar.toLowerCase()} narrative that resolves ${(topGaps[0] || "message inconsistency").toLowerCase()}.`,
-                voiceApplication: `“Here is what broke, here is what fixes it, here is who owns week one.”`,
+                strategicImplication:
+                  archetypeSystem?.primary?.behaviorGuide?.split("\n").find((l) => l.trim())?.trim() ||
+                  `${brandName} should lead with a ${primaryPillar.toLowerCase()} narrative that resolves ${(topGaps[0] || "message inconsistency").toLowerCase()}.`,
+                voiceApplication:
+                  archetypeSystem?.primary?.languageTone?.trim() ||
+                  `“Here is what broke, here is what fixes it, here is who owns week one.”`,
                 visualApplication: "Structured layouts: one dominant claim, proof beside it, one next step.",
-                conversionRisk: "If archetype tone is abstract, buyers perceive polish but not operational confidence.",
+                conversionRisk:
+                  archetypeSystem?.primary?.riskIfMisused?.trim() ||
+                  "If archetype tone is abstract, buyers perceive polish but not operational confidence.",
               }}
-              secondaryDetails={{
-                strategicImplication: `${brandName} can apply secondary traits in campaign variation while keeping the primary signal dominant.`,
-                voiceApplication: `Warmer turns in nurture and proof—still the same promise as the hero.`,
-                visualApplication: "Secondary cues in supporting visuals, not in the main positioning block.",
-                conversionRisk: "Overuse of secondary cues can dilute positioning clarity and message consistency.",
-              }}
+              secondaryDetails={
+                hasRealSecondary
+                  ? {
+                      strategicImplication:
+                        archetypeSystem?.secondary?.behaviorGuide?.split("\n").find((l) => l.trim())?.trim() ||
+                        `${brandName} can apply secondary traits in campaign variation while keeping the primary signal dominant.`,
+                      voiceApplication:
+                        archetypeSystem?.secondary?.languageTone?.trim() ||
+                        `Warmer turns in nurture and proof—still the same promise as the hero.`,
+                      visualApplication:
+                        "Secondary cues in supporting visuals, not in the main positioning block.",
+                      conversionRisk:
+                        archetypeSystem?.secondary?.riskIfMisused?.trim() ||
+                        "Overuse of secondary cues can dilute positioning clarity and message consistency.",
+                    }
+                  : null
+              }
             />
           </div>
+          {combined ? (
+            <ArchetypeCombinedImplementationPanel
+              brandName={brandName}
+              primaryName={primaryName}
+              secondaryName={secondaryName}
+              howTheyWorkTogether={archetypeSystem?.howTheyWorkTogether}
+              combined={combined}
+            />
+          ) : null}
           <div className="rounded-md border border-brand-border bg-white p-3 mb-3">
-            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">
-              How The Archetypes Work Together
-            </p>
-            <p className="bs-body-sm text-brand-midnight">
-              <span className="font-semibold text-brand-midnight">{primaryName}</span> sets the core market signal (authority, trust, and strategic clarity).
-              {secondaryName ? (
-                <>
-                  {" "}
-                  <span className="font-semibold text-brand-midnight">{secondaryName}</span> adds energy and variation in campaign formats
-                </>
-              ) : (
-                <> Secondary archetype adds energy and variation in campaign formats</>
-              )}{" "}
-              without changing the core positioning.
-            </p>
-            <p className="mt-3 text-sm sm:text-base leading-relaxed text-brand-muted">
-              Same archetype, three placements—written as it would ship.
+            <p className="mt-0 text-sm sm:text-base leading-relaxed text-brand-muted">
+              Same archetype pair, three placements—written as it would ship.
               Channel names sit in the header row once; each column is the same height with the CTA pinned to the bottom.
             </p>
             {(() => {

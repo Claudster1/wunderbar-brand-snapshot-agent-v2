@@ -139,6 +139,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
 
 6. Brand Archetype System
    primary + secondary (each: name, whenAligned, riskIfMisused, languageTone, behaviorGuide), howTheyWorkTogether
+   **combinedImplementation** (REQUIRED): oneLiner, leadWithPrimary[], leanOnSecondary[], neverMix[], weekOneMove — practical split for [businessName] (where primary leads vs secondary); company-specific
    Use ONLY: Sage, Hero, Outlaw, Magician, Lover, Caregiver, Ruler, Creator, Innocent, Explorer, Neighbor, Entertainer
 
 7. Brand Persona
@@ -1477,7 +1478,14 @@ Return valid JSON with ALL these keys:
   "brandArchetypeSystem": {
     "primary": { "name": "", "whenAligned": "", "riskIfMisused": "", "languageTone": "", "behaviorGuide": "" },
     "secondary": { "name": "", "whenAligned": "", "riskIfMisused": "", "languageTone": "", "behaviorGuide": "" },
-    "howTheyWorkTogether": ""
+    "howTheyWorkTogether": "",
+    "combinedImplementation": {
+      "oneLiner": "",
+      "leadWithPrimary": [],
+      "leanOnSecondary": [],
+      "neverMix": [],
+      "weekOneMove": ""
+    }
   },
   "brandPersona": {
     "personaSummary": "",

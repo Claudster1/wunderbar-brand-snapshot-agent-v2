@@ -411,6 +411,13 @@ export interface BlueprintEngineOutput {
     primary: Archetype;
     secondary: Archetype;
     howTheyWorkTogether: string;
+    combinedImplementation?: {
+      oneLiner: string;
+      leadWithPrimary: string[];
+      leanOnSecondary: string[];
+      neverMix: string[];
+      weekOneMove: string;
+    };
   };
   brandPersona: {
     personaSummary: string;

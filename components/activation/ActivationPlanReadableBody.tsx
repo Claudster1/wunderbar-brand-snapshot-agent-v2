@@ -9,6 +9,7 @@ import {
 } from "@/lib/activation/parseActivationPlanBody";
 import { getPlaybookSubsectionChrome } from "@/lib/strategy/journeyMapTileChrome";
 import StrategyProseBody from "@/components/strategy/StrategyProseBody";
+import LabeledFieldCards from "@/components/strategy/LabeledFieldCards";
 import {
   SUITE_ACCENT_BRIGHT,
   SUITE_BG_CARD,
@@ -74,60 +75,29 @@ function extractLabeledFields(content: string): { intro: string; fields: Labeled
   return { intro, fields };
 }
 
-function FieldStack({ fields, baseKey }: { fields: LabeledField[]; baseKey: string }) {
+function FieldStack({ fields }: { fields: LabeledField[]; baseKey: string }) {
   return (
-    <div style={{ display: "grid", gap: 14 }}>
-      {fields.map((f, idx) => (
-        <div
-          key={`${baseKey}-f-${idx}-${f.label}`}
-          style={{
-            paddingBottom: 14,
-            borderBottom: idx < fields.length - 1 ? `1px solid ${BORDER}` : undefined,
-          }}
-        >
-          <p
-            style={{
+    <LabeledFieldCards
+      parts={fields}
+      className="flex flex-col gap-3.5"
+      renderValue={(value) =>
+        value ? (
+          <StrategyProseBody
+            text={value}
+            paragraphStyle={{
               margin: 0,
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: "0.06em",
-              textTransform: "uppercase",
-              color: SUITE_CHROME_MUTED,
-              fontFamily: SUITE_FONT_UI,
-            }}
-          >
-            {f.label}
-          </p>
-          <div
-            style={{
-              marginTop: 6,
               fontSize: 14,
               color: SUITE_TEXT_PRIMARY,
               lineHeight: 1.65,
               fontFamily: SUITE_FONT_UI,
-              whiteSpace: "pre-wrap",
-              wordBreak: "break-word",
+              whiteSpace: "pre-line",
             }}
-          >
-            {f.value ? (
-              <StrategyProseBody
-                text={f.value}
-                paragraphStyle={{
-                  margin: 0,
-                  fontSize: 14,
-                  color: SUITE_TEXT_PRIMARY,
-                  lineHeight: 1.65,
-                  fontFamily: SUITE_FONT_UI,
-                  whiteSpace: "pre-line",
-                }}
-              />
-            ) : (
-              "—"
-            )}
-          </div>
-        </div>
-      ))}
-    </div>
+          />
+        ) : (
+          "—"
+        )
+      }
+    />
   );
 }
 

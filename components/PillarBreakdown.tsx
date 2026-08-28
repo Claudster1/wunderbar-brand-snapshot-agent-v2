@@ -60,7 +60,7 @@ export function PillarBreakdown({
   return (
     <div className="space-y-8 md:space-y-10">
       <div className="mb-0 pb-5 border-b border-brand-border/80 sm:pb-6">
-        <p className="text-[11px] sm:text-xs font-bold tracking-[0.12em] text-brand-blue mb-4">
+        <p className={`${SUITE_SECTION_KICKER_CLASS} mb-4`}>
           Pillar scores
         </p>
         <h2 className="bs-h2 mb-1">Brand Pillar Analysis</h2>

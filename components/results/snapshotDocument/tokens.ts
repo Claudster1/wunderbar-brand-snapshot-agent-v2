@@ -1,15 +1,32 @@
-export const NAVY = "#021859";
-export const BLUE = "#07B0F2";
-export const WHITE = "#FFFFFF";
-export const LIGHT_BG = "#F4F7FB";
-export const SUB = "#5A6B7E";
-export const BORDER = "#D6DFE8";
-export const GREEN = "#22C55E";
+/** Free Snapshot document chrome — aligned to suite brand tokens. */
+import {
+  SUITE_ACCENT_BRIGHT,
+  SUITE_BG_CARD,
+  SUITE_BG_PAGE,
+  SUITE_BORDER,
+  SUITE_MUTED,
+  SUITE_NAVY,
+  SUITE_RADIUS_LG,
+  SUITE_RADIUS_MD,
+  SUITE_RADIUS_SM,
+  SUITE_SECTION_ACTIVE_BG,
+} from "@/components/results/suiteBrandTokens";
+
+export const NAVY = SUITE_NAVY;
+export const BLUE = SUITE_ACCENT_BRIGHT;
+export const WHITE = SUITE_BG_CARD;
+export const LIGHT_BG = SUITE_BG_PAGE;
+export const SUB = SUITE_MUTED;
+export const BORDER = SUITE_BORDER;
+export const RADIUS = SUITE_RADIUS_LG;
+export const RADIUS_MD = SUITE_RADIUS_MD;
+export const RADIUS_SM = SUITE_RADIUS_SM;
+export const GREEN = "#16A34A";
 export const YELLOW = "#EAB308";
 export const ORANGE = "#F97316";
 export const RED_S = "#EF4444";
-export const GOOD_GREEN = "#4ADE80";
-export const ACCENT_BG = "#E8F6FE";
+export const GOOD_GREEN = "#16A34A";
+export const ACCENT_BG = SUITE_SECTION_ACTIVE_BG;
 
 export function scoreColor(percent: number) {
   if (percent >= 80) return GREEN;

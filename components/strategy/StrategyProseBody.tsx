@@ -2,10 +2,10 @@
 
 import type { CSSProperties, ReactNode } from "react";
 
+import LabeledFieldCards from "@/components/strategy/LabeledFieldCards";
 import { SUITE_FONT_UI, SUITE_TEXT_PRIMARY } from "@/components/results/suiteBrandTokens";
 import { parseStrategyProseToBlocks } from "@/lib/strategy/strategyProseBlocks";
-import { splitLabeledParts, type LabeledPart } from "@/lib/strategy/labeledProse";
-import { chromeForLabeledField, stripBrandReplyPrefix } from "@/lib/strategy/labeledFieldChrome";
+import { splitLabeledParts } from "@/lib/strategy/labeledProse";
 
 export { splitLabeledParts } from "@/lib/strategy/labeledProse";
 export type { LabeledPart } from "@/lib/strategy/labeledProse";
@@ -26,47 +26,9 @@ type Props = {
   blockGapClassName?: string;
 };
 
-function FieldStack({ parts }: { parts: LabeledPart[] }) {
-  return (
-    <div className="flex flex-col gap-3">
-      {parts.map((p, i) => {
-        const chrome = chromeForLabeledField(p.label);
-        const value =
-          /^response$/i.test(p.label.trim()) || /^reply$/i.test(p.label.trim())
-            ? stripBrandReplyPrefix(p.value)
-            : p.value;
-        return (
-          <div
-            key={`${p.label}-${i}`}
-            className="rounded-[5px] px-3.5 py-3"
-            style={{
-              border: `1px solid ${chrome.border}`,
-              background: chrome.bg,
-              borderLeft: `3px solid ${chrome.rail}`,
-            }}
-          >
-            <p
-              className="m-0 text-[11px] font-bold tracking-[0.04em]"
-              style={{ fontFamily: SUITE_FONT_UI, color: chrome.label }}
-            >
-              {p.label}
-            </p>
-            <p
-              className="m-0 mt-1.5 text-sm leading-relaxed sm:text-[15px]"
-              style={{ fontFamily: SUITE_FONT_UI, color: SUITE_TEXT_PRIMARY }}
-            >
-              {value}
-            </p>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 function RenderLine({ line, paragraphStyle }: { line: string; paragraphStyle: CSSProperties }) {
   const parts = splitLabeledParts(line);
-  if (parts) return <FieldStack parts={parts} />;
+  if (parts) return <LabeledFieldCards parts={parts} />;
   return <p style={{ ...DEFAULT_PARA, ...paragraphStyle }}>{line}</p>;
 }
 
@@ -103,7 +65,7 @@ export default function StrategyProseBody({
           return (
             <div key={`fields-${i}`} className="flex flex-col gap-3 sm:gap-4">
               {itemParts.map((row, j) => (
-                <FieldStack key={`${i}-${j}`} parts={row.parts!} />
+                <LabeledFieldCards key={`${i}-${j}`} parts={row.parts!} />
               ))}
             </div>
           );
@@ -118,7 +80,7 @@ export default function StrategyProseBody({
             >
               {itemParts.map((row, j) => (
                 <li key={`${i}-${j}`} className={row.parts ? "list-none pl-0" : "leading-relaxed"}>
-                  {row.parts ? <FieldStack parts={row.parts} /> : row.item}
+                  {row.parts ? <LabeledFieldCards parts={row.parts} /> : row.item}
                 </li>
               ))}
             </ul>
@@ -133,7 +95,7 @@ export default function StrategyProseBody({
           >
             {itemParts.map((row, j) => (
               <li key={`${i}-${j}`} className="leading-relaxed">
-                {row.parts ? <FieldStack parts={row.parts} /> : row.item}
+                {row.parts ? <LabeledFieldCards parts={row.parts} /> : row.item}
               </li>
             ))}
           </ol>

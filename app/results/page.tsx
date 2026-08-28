@@ -39,7 +39,7 @@ import { buildResultsTabNavItems } from "@/lib/results/buildResultsTabNavItems";
 import { normalizeBrandImageryDirection } from "@/lib/brand/brandImageryNormalize";
 import { TAB_SECTION_NAV_HINT_CHIPS_ONLY } from "@/lib/copy/resultsSuiteGuidance";
 import { loadSnapshotReportForResultsWithRetry } from "@/lib/loadSnapshotReportForResults";
-import { SUITE_CHIP_CARD_STYLE, SUITE_SECTION_KICKER_CLASS } from "@/components/results/suiteBrandTokens";
+import { SUITE_BG_PAGE, SUITE_CHIP_CARD_STYLE, SUITE_SECTION_KICKER_CLASS } from "@/components/results/suiteBrandTokens";
 import { ResultsArchetypeSection } from "@/app/results/components/ResultsArchetypeSection";
 import { RecommendationCard } from "@/src/components/results/RecommendationCard";
 import { ResultsSnapshotLeadGate } from "@/app/results/components/ResultsSnapshotLeadGate";
@@ -787,7 +787,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 
       <section
         id="priority-actions"
-        className="scroll-mt-28 rounded-[5px] border-2 border-brand-blue/20 bg-gradient-to-b from-white to-[#f4f9ff] p-6 sm:p-8 shadow-[0_6px_24px_rgba(2,24,89,0.06)]"
+        className="scroll-mt-28 rounded-xl border border-brand-blue/20 bg-gradient-to-b from-white to-[#f4f9ff] p-6 sm:p-8 shadow-[0_6px_24px_rgba(2,24,89,0.06)]"
       >
         <div className="mb-7 pb-6 border-b border-brand-border/70 sm:mb-8">
           <p className={`${SUITE_SECTION_KICKER_CLASS} mb-4`}>Opportunities</p>
@@ -804,7 +804,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
             {recommendationsList.slice(0, 5).map((item, idx) => (
               <li
                 key={`${idx}-${item.slice(0, 30)}`}
-                className="flex gap-4 items-start rounded-[5px] border border-brand-border/60 bg-white/90 p-4 sm:p-5 shadow-sm"
+                className="flex gap-4 items-start rounded-xl border border-brand-border/60 bg-white/90 p-4 sm:p-5 shadow-sm"
               >
                 <span
                   className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[5px] bg-brand-blue text-white text-sm font-bold tabular-nums shadow-sm"
@@ -964,7 +964,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   );
 
   return (
-    <main className="min-h-screen font-brand" style={{ backgroundColor: "#F5F7FA" }}>
+    <main className="min-h-screen font-brand" style={{ backgroundColor: SUITE_BG_PAGE }}>
       <Suspense
         fallback={
           <div className="flex min-h-[40vh] items-center justify-center px-4 text-sm text-brand-muted">

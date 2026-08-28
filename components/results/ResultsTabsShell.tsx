@@ -1493,9 +1493,9 @@ export default function ResultsTabsShell({
             <p style={SUITE_INTRO_EYEBROW_TEXT_STYLE}>
               {foundationTabIntro.eyebrow}
             </p>
-            <p style={SUITE_INTRO_TITLE_TEXT_STYLE}>
+            <h1 style={SUITE_INTRO_TITLE_TEXT_STYLE}>
               {foundationTabIntro.title}
-            </p>
+            </h1>
             <TabIntroGuidanceBlock intro={foundationTabIntro} guidanceStyle={SUITE_INTRO_GUIDANCE_TEXT_STYLE} />
           </div>
           <div style={SUITE_CHIP_CARD_STYLE}>
@@ -1513,7 +1513,7 @@ export default function ResultsTabsShell({
         <div className="strategy-tab-content" style={SUITE_TAB_BODY_SHELL}>
           <div style={SUITE_INTRO_BAND_STYLE}>
             <p style={SUITE_INTRO_EYEBROW_TEXT_STYLE}>{strategyTabIntro.eyebrow}</p>
-            <p style={SUITE_INTRO_TITLE_TEXT_STYLE}>{strategyTabIntro.title}</p>
+            <h1 style={SUITE_INTRO_TITLE_TEXT_STYLE}>{strategyTabIntro.title}</h1>
             <TabIntroGuidanceBlock intro={strategyTabIntro} guidanceStyle={SUITE_INTRO_GUIDANCE_TEXT_STYLE} />
           </div>
           <div style={SUITE_CHIP_CARD_STYLE}>
@@ -1538,7 +1538,7 @@ export default function ResultsTabsShell({
         <div className="standards-tab-content" style={SUITE_TAB_BODY_SHELL}>
           <div style={SUITE_INTRO_BAND_STYLE}>
             <p style={SUITE_INTRO_EYEBROW_TEXT_STYLE}>{standardsTabIntro.eyebrow}</p>
-            <p style={SUITE_INTRO_TITLE_TEXT_STYLE}>{standardsTabIntro.title}</p>
+            <h1 style={SUITE_INTRO_TITLE_TEXT_STYLE}>{standardsTabIntro.title}</h1>
             <TabIntroGuidanceBlock intro={standardsTabIntro} guidanceStyle={SUITE_INTRO_GUIDANCE_TEXT_STYLE} />
           </div>
           <div style={SUITE_CHIP_CARD_STYLE}>
@@ -1563,7 +1563,7 @@ export default function ResultsTabsShell({
         <div className="activation-tab-content" style={SUITE_TAB_BODY_SHELL}>
           <div style={SUITE_INTRO_BAND_STYLE}>
             <p style={SUITE_INTRO_EYEBROW_TEXT_STYLE}>{activationTabIntro.eyebrow}</p>
-            <p style={SUITE_INTRO_TITLE_TEXT_STYLE}>{activationTabIntro.title}</p>
+            <h1 style={SUITE_INTRO_TITLE_TEXT_STYLE}>{activationTabIntro.title}</h1>
             <TabIntroGuidanceBlock intro={activationTabIntro} guidanceStyle={SUITE_INTRO_GUIDANCE_TEXT_STYLE} />
           </div>
           <div style={SUITE_CHIP_CARD_STYLE}>
@@ -1603,7 +1603,7 @@ export default function ResultsTabsShell({
         <div className="workbook-tab-content" style={SUITE_TAB_BODY_SHELL}>
           <div style={SUITE_INTRO_BAND_STYLE}>
             <p style={SUITE_INTRO_EYEBROW_TEXT_STYLE}>{workbookTabIntro.eyebrow}</p>
-            <p style={SUITE_INTRO_TITLE_TEXT_STYLE}>{workbookTabIntro.title}</p>
+            <h1 style={SUITE_INTRO_TITLE_TEXT_STYLE}>{workbookTabIntro.title}</h1>
             <TabIntroGuidanceBlock intro={workbookTabIntro} guidanceStyle={SUITE_INTRO_GUIDANCE_TEXT_STYLE} />
           </div>
           <div style={SUITE_CHIP_CARD_STYLE}>
@@ -1645,7 +1645,7 @@ export default function ResultsTabsShell({
         <div className="downloads-tab-content" style={SUITE_TAB_BODY_SHELL}>
           <div style={SUITE_INTRO_BAND_STYLE}>
             <p style={SUITE_INTRO_EYEBROW_TEXT_STYLE}>{downloadsTabIntro.eyebrow}</p>
-            <p style={SUITE_INTRO_TITLE_TEXT_STYLE}>{downloadsTabIntro.title}</p>
+            <h1 style={SUITE_INTRO_TITLE_TEXT_STYLE}>{downloadsTabIntro.title}</h1>
             <TabIntroGuidanceBlock intro={downloadsTabIntro} guidanceStyle={SUITE_INTRO_GUIDANCE_TEXT_STYLE} />
           </div>
           <div style={SUITE_CHIP_CARD_STYLE}>

@@ -1102,7 +1102,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
     
     Write in brand voice / archetype. Name [businessName]. Prefer quoted scripts (Say: / Show:) over meta coaching.
     
-    **Spoken-script tone (mandatory):** Human, friendly, approachable expertise — never arrogant or pushy. Collaborative invites over commands. No stage-direction prefixes inside the spoken line. Scripts must sound natural out loud.
+    **Spoken-script tone (mandatory):** Human, friendly, approachable expertise — never arrogant or pushy. Collaborative invites over commands ("Would it help if we…" — never "I want ten minutes…" / "Before we talk X, I want…"). No stage-direction prefixes inside the spoken line. Scripts must sound natural out loud.
     
     salesConversationGuide: {
       conversion_intelligence_reference: { type: "ref", framework: "icp_conversion_intelligence_framework", icpTier: "", funnelStage: "", matrixCell: "" }
@@ -1128,23 +1128,23 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
       proofPointDeployment: [
         {
           persona: "The buyer persona this guidance applies to"
-          stage: "Where in the conversation to deploy this proof point"
-          proofPoint: "The specific proof / leave-behind for [businessName]"
-          howToDeliver: "Exact handoff language or action — helpful, not hard-sell"
+          stage: "Where in the conversation to share this proof — plain words"
+          proofPoint: "The specific proof / leave-behind for [businessName] in plain English. Define any specialist term in the same phrase or use everyday words."
+          howToDeliver: "Exact handoff language or action — quote what to say. Warm, collaborative (not hard-sell). No stage-direction prefixes."
         }
       ] (one per buyer persona, covering different conversation stages)
       
       objectionHandlingPlaybook: [
         {
           objection: "A common sales objection for [businessName]'s industry"
-          response: "Exact reply in [businessName]'s voice — calm and respectful"
+          response: "Exact reply in [businessName]'s voice — quote only; calm and respectful. No “Brand reply:” prefix."
           pillarConnection: "Which brand pillar or messaging pillar this response draws from"
-          proofPoint: "Which specific proof point to reference"
+          proofPoint: "Which specific proof point to reference — plain English"
           personaVariation: "How this response should shift depending on which buyer persona raised it (Blueprint+ exclusive)"
         }
       ] (6–8 objections — more than Blueprint's 5–6)
       
-      closingLanguage: "Exact closing phrases for [businessName] calibrated to the brand archetype (quote 4–5). Soft, clear closes—not pressure."
+      closingLanguage: "Exact closing phrases for [businessName] (quote 4–5 only — no “Company close (Sage):” prefixes). Soft, clear, collaborative closes—not pressure."
       
       personaConversationTracks: [
         {

@@ -134,7 +134,7 @@ THOUGHT LEADERSHIP (thoughtLeadershipActivity):
   - This feeds into the Voice & Tone Guide (what authority they project) and Visibility & Discovery (where they should be visible)
 CONVERSION INFRASTRUCTURE (hasEmailList, hasLeadMagnet, leadMagnetDetails, hasClearCTA):
   - Use these to inform the conversion pillar deep dive and action plan
-  - Missing email list = highest-leverage conversion recommendation
+  - Missing email list = highest-impact conversion recommendation
   - Missing lead magnet = content strategy opportunity
   - When hasLeadMagnet is true and **leadMagnetDetails** is populated (title, format, summary, optional urlOrLocation), use it explicitly in conversion and CTA recommendations — do not genericize their real asset
 CUSTOMER ACQUISITION (customerAcquisitionSource):
@@ -218,7 +218,7 @@ SNAPSHOT+™ MUST INCLUDE:
      - neverMix: 2–4 anti-patterns (same beat, same asset) that confuse buyers
      - weekOneMove: one specific action this week that uses the pair correctly
    Use ONLY: Sage, Hero, Outlaw, Magician, Lover, Caregiver, Ruler, Creator, Innocent, Explorer, Neighbor, Entertainer
-   In **primary.behaviorGuide**, append three **surface-faithful** blocks (blank line between each): Homepage as visitors see it (headline, subhead, then CTA line—no “H1:” labels) — warm and clear, not lecture-y; one Content opening paragraph as published — peer voice; Sales as a quoted talk track (~20–40 sec) — warm, collaborative, expert (not pushy); no meta labels inside the quote; no task language inside the samples.
+   In **primary.behaviorGuide**, append three **surface-faithful** blocks (blank line between each): Homepage as visitors see it (headline, subhead, then CTA line—no “H1:” labels) — warm and clear, not lecture-y; one Content opening paragraph as published — peer voice; Sales as a quoted talk track (~20–40 sec) — warm, collaborative, expert (not pushy); never “I want ten minutes…” / meeting takeovers; no meta labels inside the quote; no task language inside the samples.
 
    ILLUSTRATIVE OUTPUT EXAMPLE (fictional company — show depth; do not copy):
    primary: {

@@ -16,7 +16,7 @@ export function PricingComparison() {
       bpp: "Advanced",
     },
     {
-      feature: "Primary pillar diagnosis (highest-leverage opportunity)",
+      feature: "Primary pillar diagnosis (where improvement helps most)",
       free: "Included",
       plus: "Included",
       bp: "Included",

@@ -7,6 +7,10 @@ import Link from "next/link";
 import nextDynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import StrategyProseBody from "@/components/strategy/StrategyProseBody";
+import {
+  SUITE_CTA_OUTLINE_COMPACT_STYLE,
+  SUITE_CTA_SOLID_STYLE,
+} from "@/components/results/suiteBrandTokens";
 
 // Lazy-load heavy interactive components to reduce initial bundle size
 const ReportNav = nextDynamic(() => import("@/components/reports/ReportNav"), { ssr: false });
@@ -321,7 +325,7 @@ const REPORT = {
     industryBenchmark: "For a regional B2B marketing consultancy at Acme Co\u2019s revenue stage, a WunderBrand Score™ of 72 is above average \u2014 most firms in this space operate in the 58\u201368 range. Acme Co\u2019s positioning strength is a genuine competitive asset, but the credibility gap is where top-tier competitors pull ahead.",
   },
   priorityDiagnosis: {
-    primary: { whyFocus: "Credibility is the highest-leverage pillar because your positioning and messaging are already strong — but without visible proof, prospects cannot verify your claims. Trust is the bottleneck.", downstreamIssues: "Low credibility visibility forces your messaging to work harder, makes your positioning feel like marketing speak rather than fact, and causes prospects to hesitate at conversion points. Every pillar is underperforming because proof is not doing its job.", whatImproves: "When credibility is surfaced at key touchpoints, messaging becomes believable, positioning becomes defensible, and conversion friction drops. One change unlocks momentum across the system." },
+    primary: { whyFocus: "Credibility is the best place to focus first because your positioning and messaging are already strong — but without visible proof, prospects cannot verify your claims. Trust is the bottleneck.", downstreamIssues: "Low credibility visibility forces your messaging to work harder, makes your positioning feel like marketing speak rather than fact, and causes prospects to hesitate at conversion points. Every pillar is underperforming because proof is not doing its job.", whatImproves: "When credibility is surfaced at key touchpoints, messaging becomes believable, positioning becomes defensible, and conversion friction drops. One change unlocks momentum across the system." },
     secondary: { whyFocus: "Messaging is your secondary focus because while your core message is solid, it lacks the specific proof points that make claims believable. This creates a gap between what you say and what prospects can verify.", downstreamIssues: "Without concrete evidence backing your messaging, even strong positioning feels like marketing fluff. Prospects hear your value proposition but can't validate it, leading to longer decision cycles and price sensitivity.", whatImproves: "When messaging is reinforced with specific outcomes and evidence, your positioning gains teeth. Prospects move from ‘that sounds nice’ to ‘I believe that’ — shortening sales cycles and reducing objections." },
   },
   pillarDeepDives: {
@@ -1734,7 +1738,7 @@ export default function BrandBlueprintReport() {
           {/* Primary Focus Area Diagnosis */}
           <div data-print-always style={{ display: selectedFocus === "primary" ? "block" : "none" }}>
             <Section style={{ background: `linear-gradient(135deg, ${BLUE}04 0%, ${BLUE}08 100%)`, border: `2px solid ${BLUE}30` }}>
-              <SectionTitle hero description={`Deep analysis of why ${r.executiveSummary.primaryFocusArea} is your highest-leverage focus area.`}><span style={{ display: "flex", alignItems: "center", gap: 10 }}><div style={{ width: 32, height: 32, borderRadius: "50%", background: BLUE, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 900 }}>1</div>Primary Diagnosis: {r.executiveSummary.primaryFocusArea}</span></SectionTitle>
+              <SectionTitle hero description={`Deep analysis of why ${r.executiveSummary.primaryFocusArea} is your best focus area.`}><span style={{ display: "flex", alignItems: "center", gap: 10 }}><div style={{ width: 32, height: 32, borderRadius: "50%", background: BLUE, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 900 }}>1</div>Primary Diagnosis: {r.executiveSummary.primaryFocusArea}</span></SectionTitle>
               <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                 <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><div style={{ width: 4, minHeight: 40, borderRadius: 2, background: BLUE, flexShrink: 0, marginTop: 2 }} /><div><div style={{ fontSize: 14, fontWeight: 900, color: SUB, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>Why This Is Your Primary Focus</div><div style={{ fontSize: 16, color: "#1a1a2e", lineHeight: 1.7 }}>{r.priorityDiagnosis.primary.whyFocus}</div></div></div>
                 <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><div style={{ width: 4, minHeight: 40, borderRadius: 2, background: ORANGE, flexShrink: 0, marginTop: 2 }} /><div><div style={{ fontSize: 14, fontWeight: 900, color: SUB, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>Downstream Issues It Creates</div><div style={{ fontSize: 16, color: "#1a1a2e", lineHeight: 1.7 }}>{r.priorityDiagnosis.primary.downstreamIssues}</div></div></div>
@@ -1759,7 +1763,7 @@ export default function BrandBlueprintReport() {
         <Section id="pillar-deep-dives" pageBreak>
           <SectionTitle description="Strategic analysis of each pillar with examples and success metrics.">Brand Pillar Analysis</SectionTitle>
           <div style={{ fontSize: 14, color: SUB, lineHeight: 1.6, marginBottom: 14 }}>
-            {getSectionOverride("pillar_results", "Each pillar shows current performance, business impact, and the highest-leverage recommendations for improvement.")}
+            {getSectionOverride("pillar_results", "Each pillar shows current performance, business impact, and the most useful recommendations for improvement.")}
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px 32px", padding: "20px 24px", background: LIGHT_BG, borderRadius: 5, marginBottom: 24 }}>{PILLARS.map((p) => (<div key={p} style={{ display: "flex", alignItems: "center", gap: 10 }}><PillarIcon pillar={p} size={20} /><div style={{ flex: 1 }}><PillarMeter score={r.pillarDeepDives[p].score} label={PILLAR_LABELS[p]} /></div></div>))}</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>{PILLARS.map((p) => {
@@ -3183,12 +3187,7 @@ export default function BrandBlueprintReport() {
                   </div>
                 ))}
               </div>
-              <a href="/checkout/blueprint-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=blueprint_plus_upgrade&utm_content=blueprint_explore_blueprint_plus" style={{
-                display: "block", width: "100%", padding: "12px 24px", borderRadius: 5, border: "none",
-                background: BLUE, color: WHITE, fontSize: 15, fontWeight: 900,
-                textAlign: "center", textDecoration: "none", fontFamily: "Lato, sans-serif",
-                boxSizing: "border-box", boxShadow: `0 4px 14px ${BLUE}40`, transition: "all 0.2s ease",
-              }}>Explore WunderBrand Blueprint+™ →</a>
+              <a href="/checkout/blueprint-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=blueprint_plus_upgrade&utm_content=blueprint_explore_blueprint_plus" style={SUITE_CTA_SOLID_STYLE}>Explore WunderBrand Blueprint+™ →</a>
             </div>
 
             {/* Services */}
@@ -3202,7 +3201,7 @@ export default function BrandBlueprintReport() {
                   <div style={{ fontSize: 16, fontWeight: 700, color: NAVY }}>Managed Marketing</div>
                 </div>
                 <div style={{ fontSize: 13, color: SUB, lineHeight: 1.5, marginBottom: 12, flex: 1 }}>We activate your brand strategy — content, campaigns, and performance optimization.</div>
-                <a href="https://wunderbardigital.com/managed-marketing?utm_source=brand_blueprint_report&utm_medium=report_cta&utm_campaign=explore_service&utm_content=blueprint_managed_marketing" target="_blank" rel="noopener noreferrer" style={{ display: "block", textAlign: "center", padding: "10px 20px", borderRadius: 5, border: `1.5px solid ${BLUE}`, background: "transparent", color: BLUE, fontSize: 14, fontWeight: 700, textDecoration: "none", fontFamily: "Lato, sans-serif" }}>Explore Managed Marketing →</a>
+                <a href="https://wunderbardigital.com/managed-marketing?utm_source=brand_blueprint_report&utm_medium=report_cta&utm_campaign=explore_service&utm_content=blueprint_managed_marketing" target="_blank" rel="noopener noreferrer" style={SUITE_CTA_OUTLINE_COMPACT_STYLE}>Explore Managed Marketing →</a>
               </div>
 
               {/* AI Consulting */}
@@ -3214,7 +3213,7 @@ export default function BrandBlueprintReport() {
                   <div style={{ fontSize: 16, fontWeight: 700, color: NAVY }}>AI Consulting</div>
                 </div>
                 <div style={{ fontSize: 13, color: SUB, lineHeight: 1.5, marginBottom: 12, flex: 1 }}>Expert guidance on integrating AI into your marketing workflow.</div>
-                <a href="https://wunderbardigital.com/ai-consulting?utm_source=brand_blueprint_report&utm_medium=report_cta&utm_campaign=explore_service&utm_content=blueprint_ai_consulting" target="_blank" rel="noopener noreferrer" style={{ display: "block", textAlign: "center", padding: "10px 20px", borderRadius: 5, border: `1.5px solid ${NAVY}`, background: "transparent", color: NAVY, fontSize: 14, fontWeight: 700, textDecoration: "none", fontFamily: "Lato, sans-serif" }}>Explore AI Consulting →</a>
+                <a href="https://wunderbardigital.com/ai-consulting?utm_source=brand_blueprint_report&utm_medium=report_cta&utm_campaign=explore_service&utm_content=blueprint_ai_consulting" target="_blank" rel="noopener noreferrer" style={SUITE_CTA_OUTLINE_COMPACT_STYLE}>Explore AI Consulting →</a>
               </div>
             </div>
           </div>

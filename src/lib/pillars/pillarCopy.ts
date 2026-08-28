@@ -24,7 +24,7 @@ export const PILLAR_COPY: Record<PillarKey, PillarCopy> = {
     body: (businessName) =>
       `Your diagnostic identified a gap between what ${businessName} offers and how the market perceives it. Snapshot+\u2122 translates this into a complete positioning analysis \u2014 with a value proposition statement, competitive context, and clear strategic direction so the right customers self-select with confidence.`,
     whyItMatters: (businessName) =>
-      `Clear positioning is the single highest-leverage investment ${businessName} can make \u2014 it reduces customer acquisition cost, shortens sales cycles, and makes every downstream marketing dollar more effective.`,
+      `Clear positioning is the single highest-impact investment ${businessName} can make \u2014 it reduces customer acquisition cost, shortens sales cycles, and makes every downstream marketing dollar more effective.`,
     cta: {
       label: "Get your positioning strategy \u2192",
       href: "/checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=src_pillar_copy",

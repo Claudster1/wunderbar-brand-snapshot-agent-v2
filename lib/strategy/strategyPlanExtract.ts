@@ -4,7 +4,11 @@
  */
 
 import { readerFriendlyTrackingRow } from "@/lib/strategy/strategyReaderFriendly";
-import { stripBrandReplyPrefix } from "@/lib/strategy/labeledFieldChrome";
+import {
+  stripBrandReplyPrefix,
+  sanitizeSpokenCustomerScript,
+  sanitizeSalesConversationGuide,
+} from "@/lib/strategy/labeledFieldChrome";
 
 function asRecord(v: unknown): Record<string, unknown> | null {
   if (!v || typeof v !== "object" || Array.isArray(v)) return null;
@@ -328,7 +332,7 @@ export function extractConversionAndWeb(diagnostic: Record<string, unknown>): St
 
     if (body) {
       blocks.push({
-        title: "Commitment ladder (asks in sequence)",
+        title: "Asks in order (lighter → stronger)",
         body,
       });
     }
@@ -337,7 +341,7 @@ export function extractConversionAndWeb(diagnostic: Record<string, unknown>): St
   if (blocks.length === 0) return null;
 
   const intro =
-    "How your website and landing pages turn your positioning into action: clear story, believable proof, and a sensible order of “asks” so visitors are not pulled in five directions. Fine-grained page edits belong in Workbook; channel plans and timing live under Activation.";
+    "How your website and landing pages turn your positioning into action: clear story, believable proof, and a sensible order of asks so visitors are not pulled in five directions. Fine-grained page edits belong in Workbook; channel plans and timing live under Activation.";
 
   return {
     id: "strategy-conversion-web",
@@ -382,7 +386,7 @@ export function extractContentEditorial(diagnostic: Record<string, unknown>): St
 
   if (cal) {
     const overview = asString(cal.overview);
-    if (overview) blocks.push({ title: "Cadence & operating rhythm", body: overview });
+    if (overview) blocks.push({ title: "How often you publish", body: overview });
     const months = Array.isArray(cal.monthlyThemes) ? cal.monthlyThemes : [];
     if (months.length > 0) {
       const rows = months.slice(0, 6).map((raw) => {
@@ -406,7 +410,7 @@ export function extractContentEditorial(diagnostic: Record<string, unknown>): St
     }
     const batch = asString(cal.batchingStrategy);
     const rep = asString(cal.repurposingPlaybook);
-    if (batch || rep) blocks.push({ title: "Production model", body: joinAsStrategyBullets(batch, rep) });
+    if (batch || rep) blocks.push({ title: "How content gets made and reused", body: joinAsStrategyBullets(batch, rep) });
   }
 
   if (blocks.length === 0 && tables.length === 0) return null;
@@ -427,7 +431,7 @@ export function extractCredibilityProof(diagnostic: Record<string, unknown>): St
 
   const blocks: StrategyNarrativeBlock[] = [];
   const overview = asString(cr.overview);
-  if (overview) blocks.push({ title: "Proof thesis", body: overview });
+  if (overview) blocks.push({ title: "Why buyers should believe you", body: overview });
 
   const ts = asRecord(cr.testimonialStrategy);
   if (ts) {
@@ -437,7 +441,7 @@ export function extractCredibilityProof(diagnostic: Record<string, unknown>): St
       asString(ts.whatToCapture) && `What the story must include: ${asString(ts.whatToCapture)}`,
       asString(ts.whereToPlace) && `Where it belongs in the journey: ${asString(ts.whereToPlace)}`,
     );
-    if (body) blocks.push({ title: "Social proof architecture", body });
+    if (body) blocks.push({ title: "Where and how to show proof", body });
   }
 
   const gaps = asString(cr.trustGaps);
@@ -483,7 +487,7 @@ export function extractCredibilityProof(diagnostic: Record<string, unknown>): St
     id: "strategy-credibility-proof",
     label: "Credibility & Proof Strategy",
     intro:
-      "How the brand earns belief before and after the sale—what proof you need, where it belongs, and which gaps undermine conversion. Capture workflows are strategic choices, not busywork.",
+      "How the brand earns belief before and after the sale—what proof you need, where it belongs, and which gaps undermine trust. Capture workflows are strategic choices, not busywork.",
     blocks,
     tables: tables.length ? tables : undefined,
   };
@@ -493,7 +497,7 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
   const sgRecord = asRecord(diagnostic.salesConversationGuide);
   const icpPlansPrecheck = Array.isArray(diagnostic.icpGoToMarketPlans) ? diagnostic.icpGoToMarketPlans : [];
   if (!sgRecord && icpPlansPrecheck.length === 0) return null;
-  const sg = sgRecord ?? {};
+  const sg = sanitizeSalesConversationGuide(sgRecord ?? {});
 
   const blocks: StrategyNarrativeBlock[] = [];
   const tables: StrategyPlanSection["tables"] = [];
@@ -512,7 +516,7 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
       const label = asString(r.icpLabel) || `ICP ${idx + 1}`;
       const align = asString(r.alignmentToBusinessStrategy);
       const focus = asString(r.strategicFocus);
-      const cues = asString(r.competitiveConversationCues);
+      const cues = sanitizeSpokenCustomerScript(asString(r.competitiveConversationCues));
       const planRef = asRecord(r.conversion_intelligence_reference);
       const conversionRows: { label: string; value: string }[] = [];
       if (planRef) {
@@ -520,10 +524,10 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
         const stage = asString(planRef.funnelStage);
         const cell = asString(planRef.matrixCell);
         const note = asString(planRef.note);
-        if (tier) conversionRows.push({ label: "ICP tier", value: tier });
-        if (stage) conversionRows.push({ label: "Funnel stage", value: stage });
-        if (cell) conversionRows.push({ label: "Intelligence matrix", value: cell });
-        if (note) conversionRows.push({ label: "Call to action (CTA) / anchor note", value: note });
+        if (tier) conversionRows.push({ label: "Ideal customer group", value: tier });
+        if (stage) conversionRows.push({ label: "Buying stage", value: stage });
+        if (cell) conversionRows.push({ label: "Where this fits the journey", value: cell });
+        if (note) conversionRows.push({ label: "What to emphasize", value: note });
       }
       const refBody = conversionRows.length
         ? joinParagraphs(
@@ -568,7 +572,7 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
         icpPlaybookBody.competitiveCues;
       if (body)
         blocks.push({
-          title: `ICP playbook — ${label}`,
+          title: `Ideal-customer plan — ${label}`,
           body,
           visualVariant: "icp-playbook",
           icpPlaybookIndex: idx + 1,
@@ -604,7 +608,7 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
       .join("\n\n");
     if (talkTrackItems.length > 0) {
       blocks.push({
-        title: "Talk track by stage — say this",
+        title: "What to say by stage",
         body,
         visualVariant: "talk-tracks",
         talkTrackItems,
@@ -661,7 +665,7 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
       .join("\n\n");
     if (proofItems.length > 0) {
       blocks.push({
-        title: "Proof to deploy — ready leave-behinds",
+        title: "Proof to share — one-pagers and handouts",
         body,
         visualVariant: "proof-placements",
         proofItems,
@@ -683,21 +687,49 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
         ),
       };
     });
-    tables.push({ caption: "Objection architecture", rows });
+    tables.push({ caption: "Objection replies", rows });
   }
 
   const closing = asString(sg.closingLanguage) || asString(sg.closing_language);
-  if (closing) blocks.push({ title: "Closing language & next-step framing", body: closing });
+  if (closing) blocks.push({ title: "Closing lines & next steps", body: closing });
+
+  const personaTracks = Array.isArray(sg.personaConversationTracks)
+    ? sg.personaConversationTracks
+    : [];
+  if (personaTracks.length > 0) {
+    personaTracks.slice(0, 8).forEach((raw, idx) => {
+      const r = asRecord(raw);
+      if (!r) return;
+      const persona = asString(r.persona) || `Persona ${idx + 1}`;
+      const qs = Array.isArray(r.keyDiscoveryQuestions)
+        ? r.keyDiscoveryQuestions.filter((x): x is string => typeof x === "string" && x.trim().length > 0)
+        : [];
+      const objections = Array.isArray(r.likelyObjections)
+        ? r.likelyObjections.filter((x): x is string => typeof x === "string" && x.trim().length > 0)
+        : [];
+      const body = joinParagraphs(
+        asString(r.openingVariation) && `Opening: ${asString(r.openingVariation)}`,
+        asString(r.presentationEmphasis) && `Emphasize: ${asString(r.presentationEmphasis)}`,
+        qs.length > 0 ? `Discovery questions:\n${qs.map((q) => `• ${q.trim()}`).join("\n")}` : "",
+        objections.length > 0
+          ? `Likely objections:\n${objections.map((o) => `• ${o.trim()}`).join("\n")}`
+          : "",
+        asString(r.samplePitch) && `Sample pitch: ${asString(r.samplePitch)}`,
+        asString(r.closingApproach) && `Close: ${asString(r.closingApproach)}`,
+      );
+      if (body) blocks.push({ title: `Conversation track — ${persona}`, body });
+    });
+  }
 
   const ref = asRecord(sg.conversion_intelligence_reference);
   if (ref && icpPlans.length === 0) {
     const refBody = joinAsStrategyBullets(
-      asString(ref.icpTier) && `ICP tier: ${asString(ref.icpTier)}`,
-      asString(ref.funnelStage) && `Funnel stage: ${asString(ref.funnelStage)}`,
-      asString(ref.matrixCell) && `Intelligence matrix cell: ${asString(ref.matrixCell)}`,
+      asString(ref.icpTier) && `Ideal customer group: ${asString(ref.icpTier)}`,
+      asString(ref.funnelStage) && `Buying stage: ${asString(ref.funnelStage)}`,
+      asString(ref.matrixCell) && `Journey fit: ${asString(ref.matrixCell)}`,
       asString(ref.note) && asString(ref.note),
     );
-    if (refBody) blocks.push({ title: "Conversion intelligence anchor (ICP × stage)", body: refBody });
+    if (refBody) blocks.push({ title: "Where this segment sits in the buying journey", body: refBody });
   }
 
   if (blocks.length === 0 && tables.length === 0) return null;
@@ -706,7 +738,7 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
     id: "strategy-sales-alignment",
     label: "Sales & Marketing Alignment",
     intro:
-      "Ready-to-use sales and marketing language for this brand: per-ICP playbooks (when present), opening lines, discovery scripts, proof leave-behinds, objection responses, and close language—so ads, content, and conversations use the same words.",
+      "Ready-to-use sales and marketing language for this brand: ideal-customer plans (when present), opening lines, discovery scripts, proof one-pagers, objection replies, and close language—so ads, content, and conversations use the same words.",
     blocks,
     tables: tables.length ? tables : undefined,
   };

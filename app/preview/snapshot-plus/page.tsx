@@ -3,6 +3,11 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import {
+  SUITE_CTA_OUTLINE_COMPACT_STYLE,
+  SUITE_CTA_OUTLINE_STYLE,
+  SUITE_CTA_SOLID_STYLE,
+} from "@/components/results/suiteBrandTokens";
 
 // Lazy-load heavy interactive components to reduce initial bundle size
 const ReportNav = dynamic(() => import("@/components/reports/ReportNav"), { ssr: false });
@@ -494,7 +499,7 @@ const REPORT = {
   },
   priorityDiagnosis: {
     primary: {
-      whyFocus: "Credibility is the highest-leverage pillar because your positioning and messaging are already strong — but without visible proof, prospects cannot verify your claims. Trust is the bottleneck.",
+      whyFocus: "Credibility is the best place to focus first because your positioning and messaging are already strong — but without visible proof, prospects cannot verify your claims. Trust is the bottleneck.",
       downstreamIssues: "Low credibility visibility forces your messaging to work harder, makes your positioning feel like marketing speak rather than fact, and causes prospects to hesitate at conversion points. Every pillar is underperforming because proof is not doing its job.",
       whatImproves: "When credibility is surfaced at key touchpoints, messaging becomes believable, positioning becomes defensible, and conversion friction drops. One change unlocks momentum across the system.",
     },
@@ -1726,7 +1731,7 @@ export default function BrandSnapshotPlusReport() {
           {/* Primary Focus Area Diagnosis */}
           <div data-print-always style={{ display: selectedFocus === "primary" ? "block" : "none" }}>
             <Section style={{ background: `linear-gradient(135deg, ${BLUE}04 0%, ${BLUE}08 100%)`, border: `2px solid ${BLUE}30` }}>
-              <SectionTitle hero description={`Deep analysis of why ${r.executiveSummary.primaryFocusArea} is your highest-leverage focus area.`}>
+              <SectionTitle hero description={`Deep analysis of why ${r.executiveSummary.primaryFocusArea} is your best focus area.`}>
                 <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <div style={{ width: 32, height: 32, borderRadius: "50%", background: BLUE, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 900 }}>1</div>
                   Primary Diagnosis: {r.executiveSummary.primaryFocusArea}
@@ -3127,14 +3132,7 @@ export default function BrandSnapshotPlusReport() {
               <a
                 href="/checkout/blueprint?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=blueprint_upgrade&utm_content=snap_plus_explore_blueprint"
                 target="_blank" rel="noopener noreferrer"
-                style={{
-                  display: "block", width: "100%", padding: "12px 24px", borderRadius: 5, border: "none",
-                  background: BLUE, color: WHITE, fontSize: 15, fontWeight: 900,
-                  textAlign: "center", textDecoration: "none", fontFamily: "Lato, sans-serif",
-                  boxSizing: "border-box",
-                  boxShadow: `0 4px 14px ${BLUE}40`,
-                  transition: "transform 0.2s ease, box-shadow 0.2s ease",
-                }}
+                style={SUITE_CTA_SOLID_STYLE}
               >
                 Explore WunderBrand Blueprint™ →
               </a>
@@ -3165,14 +3163,7 @@ export default function BrandSnapshotPlusReport() {
               <a
                 href="/checkout/blueprint-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=blueprint_plus_upgrade&utm_content=snap_plus_explore_blueprint_plus"
                 target="_blank" rel="noopener noreferrer"
-                style={{
-                  display: "block", width: "100%", padding: "12px 24px", borderRadius: 5,
-                  border: `2px solid ${NAVY}`, background: "transparent",
-                  color: NAVY, fontSize: 15, fontWeight: 900,
-                  textAlign: "center", textDecoration: "none", fontFamily: "Lato, sans-serif",
-                  boxSizing: "border-box",
-                  transition: "all 0.2s ease",
-                }}
+                style={SUITE_CTA_OUTLINE_STYLE}
               >
                 Explore WunderBrand Blueprint+™ →
               </a>
@@ -3220,13 +3211,7 @@ export default function BrandSnapshotPlusReport() {
                 <a
                   href="https://wunderbardigital.com/managed-marketing?utm_source=brand_snapshot_plus_report&utm_medium=report_nav&utm_campaign=nav_nav_dropdown_item&utm_content=snap_plus_managed_marketing"
                   target="_blank" rel="noopener noreferrer"
-                  style={{
-                    display: "block", textAlign: "center", padding: "10px 20px", borderRadius: 5,
-                    border: `1.5px solid ${BLUE}`, background: "transparent",
-                    color: BLUE, fontSize: 14, fontWeight: 700,
-                    textDecoration: "none", fontFamily: "Lato, sans-serif",
-                    transition: "all 0.2s ease",
-                  }}
+                  style={SUITE_CTA_OUTLINE_COMPACT_STYLE}
                 >
                   Explore Managed Marketing →
                 </a>
@@ -3257,13 +3242,7 @@ export default function BrandSnapshotPlusReport() {
                 <a
                   href="https://wunderbardigital.com/ai-consulting?utm_source=brand_snapshot_plus_report&utm_medium=report_nav&utm_campaign=nav_nav_dropdown_item&utm_content=snap_plus_ai_consulting"
                   target="_blank" rel="noopener noreferrer"
-                  style={{
-                    display: "block", textAlign: "center", padding: "10px 20px", borderRadius: 5,
-                    border: `1.5px solid ${NAVY}`, background: "transparent",
-                    color: NAVY, fontSize: 14, fontWeight: 700,
-                    textDecoration: "none", fontFamily: "Lato, sans-serif",
-                    transition: "all 0.2s ease",
-                  }}
+                  style={SUITE_CTA_OUTLINE_COMPACT_STYLE}
                 >
                   Explore AI Consulting →
                 </a>

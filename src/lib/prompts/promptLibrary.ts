@@ -403,7 +403,7 @@ Identify 6-8 questions we should appear for in AI answers, with rationale and be
 
 3) Schema and Technical Priorities
 - Priority schema types
-- One highest-leverage implementation
+- One highest-impact implementation
 - About/team page E-E-A-T improvements
 
 4) Authority Signal Checklist

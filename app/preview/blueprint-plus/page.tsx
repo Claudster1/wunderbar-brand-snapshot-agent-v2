@@ -9,6 +9,10 @@ import Link from "next/link";
 import nextDynamic from "next/dynamic";
 import Image from "next/image";
 import StrategyProseBody from "@/components/strategy/StrategyProseBody";
+import {
+  SUITE_CTA_OUTLINE_STYLE,
+  SUITE_CTA_SOLID_STYLE,
+} from "@/components/results/suiteBrandTokens";
 
 // Lazy-load heavy interactive components to reduce initial bundle size
 const ReportNav = nextDynamic(() => import("@/components/reports/ReportNav"), { ssr: false });
@@ -325,7 +329,7 @@ const REPORT = {
     industryBenchmark: "For a regional B2B marketing consultancy at Acme Co\u2019s revenue stage, a WunderBrand Score™ of 72 places Acme Co in the upper-middle tier \u2014 ahead of most peers, but below the market leaders who have invested in systematic brand infrastructure. Closing the credibility gap alone could move Acme Co into the top 15% of its competitive set.",
   },
   priorityDiagnosis: {
-    primary: { whyFocus: "Credibility is the highest-leverage pillar because your positioning and messaging are already strong — but without visible proof, prospects cannot verify your claims. Trust is the bottleneck.", downstreamIssues: "Low credibility visibility forces your messaging to work harder, makes your positioning feel like marketing speak rather than fact, and causes prospects to hesitate at conversion points. Every pillar is underperforming because proof is not doing its job.", whatImproves: "When credibility is surfaced at key touchpoints, messaging becomes believable, positioning becomes defensible, and conversion friction drops. One change unlocks momentum across the system." },
+    primary: { whyFocus: "Credibility is the best place to focus first because your positioning and messaging are already strong — but without visible proof, prospects cannot verify your claims. Trust is the bottleneck.", downstreamIssues: "Low credibility visibility forces your messaging to work harder, makes your positioning feel like marketing speak rather than fact, and causes prospects to hesitate at conversion points. Every pillar is underperforming because proof is not doing its job.", whatImproves: "When credibility is surfaced at key touchpoints, messaging becomes believable, positioning becomes defensible, and conversion friction drops. One change unlocks momentum across the system." },
     secondary: { whyFocus: "Messaging is your secondary focus because while your core message is solid, it lacks the specific proof points that make claims believable. This creates a gap between what you say and what prospects can verify.", downstreamIssues: "Without concrete evidence backing your messaging, even strong positioning feels like marketing fluff. Prospects hear your value proposition but can't validate it, leading to longer decision cycles and price sensitivity.", whatImproves: "When messaging is reinforced with specific outcomes and evidence, your positioning gains teeth. Prospects move from ‘that sounds nice’ to ‘I believe that’ — shortening sales cycles and reducing objections." },
   },
   pillarDeepDives: {
@@ -1977,7 +1981,7 @@ export default function BrandBlueprintPlusReport() {
           {/* Primary Focus Area Diagnosis */}
           <div data-print-always style={{ display: selectedFocus === "primary" ? "block" : "none" }}>
             <Section style={{ background: `linear-gradient(135deg, ${BLUE}04 0%, ${BLUE}08 100%)`, border: `2px solid ${BLUE}30` }}>
-              <SectionTitle hero description={`Deep analysis of why ${r.executiveSummary.primaryFocusArea} is your highest-leverage focus area.`}><span style={{ display: "flex", alignItems: "center", gap: 10 }}><div style={{ width: 32, height: 32, borderRadius: "50%", background: BLUE, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 900 }}>1</div>Primary Diagnosis: {r.executiveSummary.primaryFocusArea}</span></SectionTitle>
+              <SectionTitle hero description={`Deep analysis of why ${r.executiveSummary.primaryFocusArea} is your best focus area.`}><span style={{ display: "flex", alignItems: "center", gap: 10 }}><div style={{ width: 32, height: 32, borderRadius: "50%", background: BLUE, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 900 }}>1</div>Primary Diagnosis: {r.executiveSummary.primaryFocusArea}</span></SectionTitle>
               <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                 <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><div style={{ width: 4, minHeight: 40, borderRadius: 2, background: BLUE, flexShrink: 0, marginTop: 2 }} /><div><div style={{ fontSize: 14, fontWeight: 900, color: SUB, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>Why This Is Your Primary Focus</div><div style={{ fontSize: 16, color: "#1a1a2e", lineHeight: 1.7 }}>{r.priorityDiagnosis.primary.whyFocus}</div></div></div>
                 <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}><div style={{ width: 4, minHeight: 40, borderRadius: 2, background: ORANGE, flexShrink: 0, marginTop: 2 }} /><div><div style={{ fontSize: 14, fontWeight: 900, color: SUB, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6 }}>Downstream Issues It Creates</div><div style={{ fontSize: 16, color: "#1a1a2e", lineHeight: 1.7 }}>{r.priorityDiagnosis.primary.downstreamIssues}</div></div></div>
@@ -4336,22 +4340,17 @@ export default function BrandBlueprintPlusReport() {
                   </div>
                 ))}
               </div>
-              <a href="https://wunderbardigital.com/managed-marketing?utm_source=brand_blueprint_plus_report&utm_medium=report_cta&utm_campaign=explore_service&utm_content=blueprint_plus_managed_marketing" target="_blank" rel="noopener noreferrer" style={{
-                display: "block", width: "100%", padding: "14px 24px", borderRadius: 5, border: "none",
-                background: BLUE, color: WHITE, fontSize: 15, fontWeight: 900,
-                textAlign: "center", textDecoration: "none", fontFamily: "Lato, sans-serif",
-                boxSizing: "border-box", boxShadow: `0 4px 14px ${BLUE}40`,
-              }}>Explore Managed Marketing →</a>
+              <a href="https://wunderbardigital.com/managed-marketing?utm_source=brand_blueprint_plus_report&utm_medium=report_cta&utm_campaign=explore_service&utm_content=blueprint_plus_managed_marketing" target="_blank" rel="noopener noreferrer" style={{ ...SUITE_CTA_SOLID_STYLE, padding: "14px 24px" }}>Explore Managed Marketing →</a>
             </div>
 
             {/* AI Consulting */}
-            <div style={{ padding: "28px", borderRadius: 5, border: `2px solid ${NAVY}20`, background: `${NAVY}04`, display: "flex", flexDirection: "column" }}>
+            <div style={{ padding: "28px", borderRadius: 5, border: `2px solid ${BLUE}30`, background: `${BLUE}04`, display: "flex", flexDirection: "column" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-                <div style={{ width: 48, height: 48, borderRadius: "50%", background: `${NAVY}10`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <svg viewBox="0 0 24 24" fill="none" style={{ width: 24, height: 24 }}><rect x="3" y="3" width="18" height="18" rx="3" stroke={NAVY} strokeWidth="1.5"/><path d="M8 10l3 3-3 3" stroke={NAVY} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M14 16h3" stroke={NAVY} strokeWidth="2" strokeLinecap="round"/></svg>
+                <div style={{ width: 48, height: 48, borderRadius: "50%", background: `${BLUE}10`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg viewBox="0 0 24 24" fill="none" style={{ width: 24, height: 24 }}><rect x="3" y="3" width="18" height="18" rx="3" stroke={BLUE} strokeWidth="1.5"/><path d="M8 10l3 3-3 3" stroke={BLUE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M14 16h3" stroke={BLUE} strokeWidth="2" strokeLinecap="round"/></svg>
                 </div>
                 <div>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: NAVY, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 2 }}>Expert Guidance</div>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: BLUE, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 2 }}>Expert Guidance</div>
                   <div style={{ fontSize: 20, fontWeight: 900, color: NAVY }}>AI Consulting</div>
                 </div>
               </div>
@@ -4361,17 +4360,12 @@ export default function BrandBlueprintPlusReport() {
               <div style={{ flex: 1, marginBottom: 20 }}>
                 {["Custom AI workflow design for your team", "Prompt engineering & optimization training", "AI tool selection & integration strategy", "Brand-safe AI content governance", "Ongoing AI strategy advisory"].map((f, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                    <svg viewBox="0 0 20 20" fill="none" style={{ width: 16, height: 16, flexShrink: 0 }}><circle cx="10" cy="10" r="9" fill={NAVY} opacity="0.12"/><path d="M6 10.5l2.5 2.5L14 7.5" stroke={NAVY} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    <svg viewBox="0 0 20 20" fill="none" style={{ width: 16, height: 16, flexShrink: 0 }}><circle cx="10" cy="10" r="9" fill={BLUE} opacity="0.12"/><path d="M6 10.5l2.5 2.5L14 7.5" stroke={BLUE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     <span style={{ fontSize: 13, color: "#1a1a2e" }}>{f}</span>
                   </div>
                 ))}
               </div>
-              <a href="https://wunderbardigital.com/ai-consulting?utm_source=brand_blueprint_plus_report&utm_medium=report_cta&utm_campaign=explore_service&utm_content=blueprint_plus_ai_consulting" target="_blank" rel="noopener noreferrer" style={{
-                display: "block", width: "100%", padding: "14px 24px", borderRadius: 5,
-                border: `2px solid ${NAVY}`, background: "transparent", color: NAVY,
-                fontSize: 15, fontWeight: 900, textAlign: "center", textDecoration: "none",
-                fontFamily: "Lato, sans-serif", boxSizing: "border-box",
-              }}>Explore AI Consulting →</a>
+              <a href="https://wunderbardigital.com/ai-consulting?utm_source=brand_blueprint_plus_report&utm_medium=report_cta&utm_campaign=explore_service&utm_content=blueprint_plus_ai_consulting" target="_blank" rel="noopener noreferrer" style={{ ...SUITE_CTA_OUTLINE_STYLE, padding: "14px 24px" }}>Explore AI Consulting →</a>
             </div>
           </div>
 

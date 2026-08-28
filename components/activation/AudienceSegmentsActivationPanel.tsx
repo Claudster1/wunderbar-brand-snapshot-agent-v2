@@ -186,7 +186,7 @@ export default function AudienceSegmentsActivationPanel({
     <div style={{ display: "grid", gap: 16 }}>
       {icpDefBlocks.length > 0 ? (
         <div>
-          <SectionKicker>ICP &amp; Audience Definitions</SectionKicker>
+          <SectionKicker>Ideal customers &amp; audience definitions</SectionKicker>
           <div style={{ display: "grid", gap: 12 }}>
             {icpDefBlocks.map((block, i) => (
               <CardShell key={`${block.title}-${i}`} title={block.title}>
@@ -199,7 +199,7 @@ export default function AudienceSegmentsActivationPanel({
 
       {overview ? (
         <div>
-          <SectionKicker>Conversion intelligence overview</SectionKicker>
+          <SectionKicker>How these buyers decide</SectionKicker>
           <div style={{ fontSize: 14, color: "#2D3A4A", lineHeight: 1.6 }}>
             <RichTextCell text={overview} />
           </div>
@@ -208,7 +208,7 @@ export default function AudienceSegmentsActivationPanel({
 
       {conversionProfiles.length > 0 ? (
         <div>
-          <SectionKicker>ICP Conversion Profiles</SectionKicker>
+          <SectionKicker>How each priority customer converts</SectionKicker>
           <div style={{ display: "grid", gap: 10 }}>
             {conversionProfiles.slice(0, 6).map((raw, i) => {
               const p = asRecord(raw) ?? {};
@@ -229,7 +229,7 @@ export default function AudienceSegmentsActivationPanel({
 
       {matrix.length > 0 ? (
         <div>
-          <SectionKicker>Content × Funnel Matrix</SectionKicker>
+          <SectionKicker>Content by buying stage</SectionKicker>
           <div style={{ overflowX: "auto", border: `1px solid ${BORDER}`, borderRadius: SUITE_RADIUS_SM, background: SUITE_BG_CARD }}>
             <table
               style={{
@@ -243,7 +243,7 @@ export default function AudienceSegmentsActivationPanel({
               <thead>
                 <tr style={{ background: NAVY, color: SUITE_BG_CARD }}>
                   {[
-                    "ICP Tier",
+                    "Ideal customer",
                     "Stage",
                     "Winning Format",
                     "CTA",
@@ -318,7 +318,7 @@ export default function AudienceSegmentsActivationPanel({
 
       {mechanics.length > 0 ? (
         <div>
-          <SectionKicker>Channel-Level Conversion Mechanics</SectionKicker>
+          <SectionKicker>How channels turn interest into next steps</SectionKicker>
           <div style={{ display: "grid", gap: 10 }}>
             {mechanics.slice(0, 10).map((raw, i) => {
               const m = asRecord(raw) ?? {};

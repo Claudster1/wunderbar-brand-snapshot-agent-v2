@@ -32,7 +32,7 @@ REQUIRED OUTPUT STRUCTURE
    - WunderBrand Score™ (0–100)
    - synthesis: One-paragraph synthesis connecting all 5 pillars
    - diagnosis: One-sentence diagnosis ("Your brand is currently ___ because ___")
-   - primaryFocusArea: The highest-leverage pillar to address first
+   - primaryFocusArea: The pillar to address first (highest impact)
    - secondaryFocusArea: The second-highest priority pillar
 
 2. Priority Diagnosis (Primary AND Secondary)
@@ -80,7 +80,7 @@ REQUIRED OUTPUT STRUCTURE
    - secondary: Same structure as primary (different archetype)
    - howTheyWorkTogether: How the two archetypes complement each other for this business
    - combinedImplementation: { oneLiner, leadWithPrimary[], leanOnSecondary[], neverMix[], weekOneMove } — practical split (where primary leads vs secondary); company-specific, not generic blend copy
-   - **Demonstration copy (no new keys):** In **primary.behaviorGuide**, append three blocks separated by blank lines: (1) Homepage hero **as a visitor sees it**—headline, subhead, then button text and secondary link on one line—**no** “H1:” / “Subhead:” labels; warm and clear, not lecture-y; (2) one **Content** opening paragraph as published — peer voice; (3) **Sales** as a **quoted** talk track only — warm, collaborative, expert (not pushy); no meta labels inside the quote. No “you should” lines inside the samples.
+   - **Demonstration copy (no new keys):** In **primary.behaviorGuide**, append three blocks separated by blank lines: (1) Homepage hero **as a visitor sees it**—headline, subhead, then button text and secondary link on one line—**no** “H1:” / “Subhead:” labels; warm and clear, not lecture-y; (2) one **Content** opening paragraph as published — peer voice; (3) **Sales** as a **quoted** talk track only — warm, collaborative, expert (not pushy); never “I want ten minutes…” / meeting takeovers; no meta labels inside the quote. No “you should” lines inside the samples.
 
 7. Brand Persona
    This is about the COMPANY's brand persona (not the target audience).

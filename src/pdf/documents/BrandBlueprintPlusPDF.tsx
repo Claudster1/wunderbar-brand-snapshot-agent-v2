@@ -12,6 +12,7 @@ import { PdfFooter } from "../components/PdfFooter";
 import { ColorSwatch } from "../components/ColorSwatch";
 import { getArchetypeIcon, getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
 import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
+import { sanitizeSpokenCustomerScript } from "@/lib/strategy/labeledFieldChrome";
 
 // Register fonts
 registerPdfFonts();
@@ -340,7 +341,7 @@ export const BrandBlueprintPlusPDF = ({
                   {archetype.behaviorGuide ? (
                     <Text style={stylePresets.body}>
                       <Text style={stylePresets.semibold}>Brand impact: </Text>
-                      {archetype.behaviorGuide}
+                      {sanitizeSpokenCustomerScript(archetype.behaviorGuide)}
                     </Text>
                   ) : null}
                 </>

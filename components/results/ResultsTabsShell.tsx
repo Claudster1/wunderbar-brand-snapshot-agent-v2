@@ -86,7 +86,7 @@ const LOCKED_TAB_FEATURES: Record<
     availableFrom: "snapshot-plus",
     features: [
       "Priorities ranked by diagnostic impact",
-      "Messaging architecture and narrative decisions",
+      "Core messages and story choices",
       "Channel strategy by section before activation",
       "Cross-functional strategy your team can align on",
     ],
@@ -312,7 +312,7 @@ function buildWorkbookSeedContent(
     .join("\n");
 
   sectionContent["icp-conversion-intelligence"] = [
-    `ICP Tier: Primary ICP`,
+    `Ideal customer: Primary`,
     `Primary Conversion Barrier: ${
       competitiveVulnerability.implication || "Unclear confidence in implementation feasibility."
     }`,
@@ -547,7 +547,7 @@ const FOUNDATION_MENU_ITEMS = [
   { id: "messaging-foundation", label: "Messaging", icon: "MS" },
   { id: "archetype-voice", label: "Voice & Expression", icon: "VE" },
   { id: "visual-direction", label: "Visual Identity", icon: "VI" },
-  { id: "icp-persona-foundation", label: "ICP & Personas", icon: "IC" },
+  { id: "icp-persona-foundation", label: "Ideal customers", icon: "IC" },
   { id: "foundation-90day", label: "90-Day Priorities", icon: "90" },
 ];
 

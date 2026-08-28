@@ -5,7 +5,7 @@ export function stageModifier(stage: BrandStage): string {
     case "early":
       return "At this stage, every point of clarity creates disproportionate leverage — the brands that define their position early spend less to acquire customers later.";
     case "growing":
-      return "Growth amplifies inconsistency — the gap between what your brand promises and how it's experienced widens with every new touchpoint, making alignment the highest-leverage investment right now.";
+      return "Growth amplifies inconsistency — the gap between what your brand promises and how it's experienced widens with every new touchpoint, making alignment the highest-impact investment right now.";
     case "scaling":
       return "At scale, brand precision protects margin — even small misalignments across channels compound into measurable revenue leakage and diluted market position.";
   }

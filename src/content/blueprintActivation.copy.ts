@@ -11,7 +11,7 @@ export const blueprintActivationCopy: Record<
   positioning: {
     headline: "Define a market position competitors can\u2019t replicate",
     value:
-      "Your Snapshot+\u2122 identified positioning as the highest-leverage pillar. Blueprint\u2122 transforms that diagnosis into a complete positioning system \u2014 including a defensible positioning statement, audience personas, competitive mapping, and a value proposition the market can articulate without you in the room.",
+      "Your Snapshot+\u2122 identified positioning as the best place to focus first. Blueprint\u2122 transforms that diagnosis into a complete positioning system \u2014 including a defensible positioning statement, audience personas, competitive mapping, and a value proposition the market can articulate without you in the room.",
     outcome:
       "Your brand occupies a clear, ownable position that makes the right customers choose faster and pay more confidently.",
   },

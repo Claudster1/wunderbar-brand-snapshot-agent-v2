@@ -20,6 +20,10 @@ import { SectionDividerPage } from "../components/SectionDividerPage";
 import type { BlueprintEngineOutput } from "../types/blueprintReport";
 import { normalizePromptItemForPdf } from "@/src/pdf/lib/promptPackDisplay";
 import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
+import {
+  sanitizeSalesConversationGuide,
+  sanitizeSpokenCustomerScript,
+} from "@/lib/strategy/labeledFieldChrome";
 
 registerPdfFonts();
 
@@ -178,6 +182,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
     productName: "WunderBrand Blueprint™" as const,
   };
   const d = data;
+  const salesGuide = sanitizeSalesConversationGuide(d.salesConversationGuide);
   const pillars = ["positioning", "messaging", "visibility", "credibility", "conversion"] as const;
   const pillarLabels: Record<string, string> = { positioning: "Positioning", messaging: "Messaging", visibility: "Visibility", credibility: "Credibility", conversion: "Conversion" };
 
@@ -1184,15 +1189,15 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
             >
               Example response
             </Text>
-            <Text style={{ ...s.body, fontStyle: "italic", color: EXAMPLE_CALLOUT.bodyColor }}>"{obj.exampleResponse}"</Text>
+            <Text style={{ ...s.body, fontStyle: "italic", color: EXAMPLE_CALLOUT.bodyColor }}>"{sanitizeSpokenCustomerScript(obj.exampleResponse || "")}"</Text>
           </View>
         ))}
 
         <Text style={s.h1}>Sales Conversation Guide</Text>
         <Text style={s.label}>Opening Framework</Text>
-        <View style={s.accentCard}><BodyRichText text={d.salesConversationGuide?.openingFramework} /></View>
+        <View style={s.accentCard}><BodyRichText text={salesGuide?.openingFramework} /></View>
         <Text style={s.h3}>Discovery Questions</Text>
-        {d.salesConversationGuide?.discoveryQuestions?.map((q, i) => (
+        {salesGuide?.discoveryQuestions?.map((q, i) => (
           <View key={i} style={s.card} wrap={false}>
             <Text style={s.cardTitle}>"{q.question}"</Text>
             <BodyRichText text={q.whyThisQuestion} />
@@ -1200,7 +1205,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
           </View>
         ))}
         <Text style={s.h3}>Objection Handling</Text>
-        {d.salesConversationGuide?.objectionHandlingPlaybook?.map((obj, i) => (
+        {salesGuide?.objectionHandlingPlaybook?.map((obj, i) => (
           <View key={i} style={s.card} wrap={false}>
             <Text style={s.cardTitle}>"{obj.objection}"</Text>
             <BodyRichText text={obj.response} />
@@ -1208,7 +1213,24 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
           </View>
         ))}
         <Text style={s.label}>Closing Language</Text>
-        <BodyRichText text={d.salesConversationGuide?.closingLanguage} />
+        <BodyRichText text={salesGuide?.closingLanguage} />
+        {salesGuide?.personaConversationTracks?.length ? (
+          <>
+            <Text style={s.h3}>Persona Conversation Tracks</Text>
+            {salesGuide.personaConversationTracks.map((track, i) => (
+              <View key={i} style={s.card} wrap={false}>
+                <Text style={s.cardTitle}>{track.persona || `Persona ${i + 1}`}</Text>
+                {track.openingVariation ? <BodyRichText text={track.openingVariation} /> : null}
+                {track.samplePitch ? (
+                  <Text style={s.small}>Pitch: {track.samplePitch}</Text>
+                ) : null}
+                {track.closingApproach ? (
+                  <Text style={s.small}>Close: {track.closingApproach}</Text>
+                ) : null}
+              </View>
+            ))}
+          </>
+        ) : null}
         <PdfFooter businessName={brandName} productName="WunderBrand Blueprint™" showPageNumbers />
       </Page>
 
@@ -1246,7 +1268,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         {d.brandStrategyRollout?.internalRolloutTalkingPoints?.map((tp, i) => (
           <View key={i} style={s.card} wrap={false}>
             <Text style={s.cardTitle}>{tp.topic}</Text>
-            <Text style={s.body}>{tp.whatToSay}</Text>
+            <Text style={s.body}>{sanitizeSpokenCustomerScript(tp.whatToSay || "")}</Text>
             <Text style={s.small}>Reference: {tp.whatToReference}</Text>
           </View>
         ))}

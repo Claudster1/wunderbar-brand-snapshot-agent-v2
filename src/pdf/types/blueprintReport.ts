@@ -690,6 +690,15 @@ export interface BlueprintEngineOutput {
     proofPointDeployment: { persona: string; stage: string; proofPoint: string; howToDeliver: string }[];
     objectionHandlingPlaybook: { objection: string; response: string; pillarConnection: string; proofPoint: string }[];
     closingLanguage: string;
+    personaConversationTracks?: {
+      persona: string;
+      openingVariation: string;
+      keyDiscoveryQuestions: string[];
+      presentationEmphasis: string;
+      likelyObjections: string[];
+      closingApproach: string;
+      samplePitch: string;
+    }[];
   };
   measurementFramework: {
     overview: string;

@@ -221,8 +221,8 @@ export function ResultsHeroSection({
                       Your diagnostic flags{" "}
                       <span className="font-semibold text-brand-navy">{PILLAR_LABELS[primaryKey]}</span>
                       {typeof primaryScore === "number"
-                        ? ` (${primaryScore}/20) as the highest-leverage place to intervene`
-                        : " as the highest-leverage place to intervene"}
+                        ? ` (${primaryScore}/20) as the best place to intervene`
+                        : " as the best place to intervene"}
                       — improvements there usually compound across messaging, credibility, and conversion.
                     </span>
                   </div>

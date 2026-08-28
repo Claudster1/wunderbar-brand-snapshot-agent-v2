@@ -109,9 +109,9 @@ const DOCUMENT_DEFS: DocumentDef[] = [
   },
   {
     id: "icp-conversion-snapshot",
-    label: "ICP Conversion Snapshot",
+    label: "Ideal-customer conversion snapshot",
     description:
-      "Blueprint quickview: ICP conversion barriers, top hooks, and stage-level CTA guidance.",
+      "Quick view: what slows each priority customer, top hooks, and stage-by-stage next-step guidance.",
     format: "pdf",
     generationType: "workbook-linked",
     availableFrom: "blueprint",
@@ -120,9 +120,9 @@ const DOCUMENT_DEFS: DocumentDef[] = [
   },
   {
     id: "icp-conversion-intelligence-framework",
-    label: "ICP Conversion Intelligence Framework",
+    label: "Ideal-customer conversion map",
     description:
-      "Performance optimization backbone linking ICP-tier conversion logic to channel execution.",
+      "How each priority customer moves from interest to a clear next step—and how channels support that path.",
     format: "pdf",
     generationType: "workbook-linked",
     availableFrom: "blueprint-plus",
@@ -326,7 +326,7 @@ const SECTION_LABELS: Record<string, string> = {
   "mood-board": "Mood Board Reference Images",
   "action-plan": "Strategic Action Plan",
   "prompt-outputs": "Prompt Outputs",
-  "icp-conversion-intelligence": "ICP Conversion Intelligence",
+  "icp-conversion-intelligence": "Ideal-customer conversion map",
 };
 
 const TIER_RANK: Record<ProductTier, number> = {

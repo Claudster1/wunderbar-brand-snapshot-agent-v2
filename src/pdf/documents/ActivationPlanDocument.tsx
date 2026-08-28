@@ -13,6 +13,7 @@ import type { BlueprintEngineOutput } from "../types/blueprintReport";
 import { parseHexAccent } from "@/src/pdf/lib/promptPackDisplay";
 import { getArchetypeIcon, getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
 import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
+import { sanitizeSpokenCustomerScript } from "@/lib/strategy/labeledFieldChrome";
 
 registerPdfFonts();
 
@@ -217,7 +218,7 @@ export function ActivationPlanDocument({ data, brandName }: Props) {
         {d.brandStrategyRollout?.internalRolloutTalkingPoints?.map((tp, i) => (
           <View key={i} style={s.card} wrap={false}>
             <Text style={s.cardTitle}>{tp.topic}</Text>
-            <Text style={s.body}>{tp.whatToSay}</Text>
+            <Text style={s.body}>{sanitizeSpokenCustomerScript(tp.whatToSay || "")}</Text>
             <Text style={s.small}>Reference: {tp.whatToReference}</Text>
           </View>
         ))}

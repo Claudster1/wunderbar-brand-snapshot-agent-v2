@@ -674,7 +674,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
     
     Write in [businessName]'s brand voice / archetype. Name the company. Scripts must be paste-ready: what to **say**, what to **show**, what to do with the answer. Ban meta coaching like "Separates messaging drift…" as the main content.
     
-    **Spoken-script tone (mandatory):** Human, friendly, approachable expertise — never arrogant or pushy. Collaborative invites over commands ("Would it help if we…" / "Can we start with…" — not "I want ten minutes…"). No stage-direction prefixes inside the spoken line (no "Company opener (Sage voice): …"). Scripts must sound natural out loud.
+    **Spoken-script tone (mandatory):** Human, friendly, approachable expertise — never arrogant or pushy. Collaborative invites over commands ("Would it help if we…" / "Can we start with…" — never "I want ten minutes…" / "Before we talk X, I want…"). No stage-direction prefixes inside the spoken line (no "Company opener (Sage voice): …"). Scripts must sound natural out loud.
     
     salesConversationGuide: {
       openingFramework: "Exact opening script for [businessName] (first ~60 seconds) in brand voice — quote only what the rep says. Warm, collaborative, expert. Reference [businessName] by name when natural."
@@ -699,22 +699,22 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
       proofPointDeployment: [
         {
           persona: "Buyer persona name from this report"
-          stage: "Conversation stage"
-          proofPoint: "The specific leave-behind / proof for [businessName]"
-          howToDeliver: "Exact handoff language or action (what you say or send)—helpful, not hard-sell"
+          stage: "Conversation stage in plain words (e.g. Evaluation, late stage) — not internal codes"
+          proofPoint: "The specific leave-behind for [businessName] in plain English. Name the artifact. If you mention ops terms (RACI, UTM, CRM, ARR), define them in the same phrase or use everyday words."
+          howToDeliver: "Exact handoff language or action — quote what to say. Warm, collaborative, helpful (not hard-sell). No stage-direction prefixes."
         }
       ] (one per buyer persona, covering different conversation stages)
       
       objectionHandlingPlaybook: [
         {
           objection: "A common sales objection for [businessName]'s industry"
-          response: "Exact reply in [businessName]'s voice — quote the line; calm and respectful, never defensive or condescending"
+          response: "Exact reply in [businessName]'s voice — quote the line only; calm and respectful, never defensive or condescending. No “Brand reply:” prefix."
           pillarConnection: "Which brand pillar or messaging pillar this response draws from"
-          proofPoint: "Which specific proof point to reference"
+          proofPoint: "Which specific proof point to reference — plain English"
         }
       ] (5–6 objections)
       
-      closingLanguage: "Exact closing phrases for [businessName] calibrated to the brand archetype (quote 3–4 closers). Include next-step framing when they are not ready. Soft, clear closes—not pressure."
+      closingLanguage: "Exact closing phrases for [businessName] (quote 3–4 closers only — no “Company close (Sage):” prefixes). Include next-step framing when they are not ready. Soft collaborative closes—not pressure."
       
       conversion_intelligence_reference: { type: "ref", framework: "icp_conversion_intelligence_framework", icpTier: "", funnelStage: "", matrixCell: "", note: "" } — **REQUIRED.** Set this to the **same object** as the **primary ICP** (or revenue-critical ICP) entry in the root-level **icpGoToMarketPlans** array below so legacy surfaces stay aligned.
     }

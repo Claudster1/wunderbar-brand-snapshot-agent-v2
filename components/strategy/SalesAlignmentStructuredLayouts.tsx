@@ -13,7 +13,7 @@ import type {
   ProofPlacementItem,
   TalkTrackStageItem,
 } from "@/lib/strategy/strategyPlanExtract";
-import { chromeForLabeledField } from "@/lib/strategy/labeledFieldChrome";
+import { chromeForLabeledField, sanitizeSpokenCustomerScript } from "@/lib/strategy/labeledFieldChrome";
 
 function Eyebrow({ children }: { children: string }) {
   return (
@@ -27,7 +27,8 @@ function Eyebrow({ children }: { children: string }) {
 }
 
 function Field({ label, body }: { label: string; body: string }) {
-  if (!body.trim()) return null;
+  const cleaned = sanitizeSpokenCustomerScript(body);
+  if (!cleaned.trim()) return null;
   const chrome = chromeForLabeledField(label);
   return (
     <div
@@ -48,7 +49,7 @@ function Field({ label, body }: { label: string; body: string }) {
         className="m-0 mt-1.5 text-sm leading-relaxed sm:text-[15px]"
         style={{ color: SUITE_TEXT_PRIMARY, fontFamily: SUITE_FONT_UI }}
       >
-        {body}
+        {cleaned}
       </p>
     </div>
   );
@@ -62,7 +63,7 @@ export function TalkTrackStageCards({ items }: { items: TalkTrackStageItem[] }) 
         className="m-0 text-[11px] font-extrabold tracking-[0.06em]"
         style={{ color: SUITE_NAVY, fontFamily: SUITE_FONT_UI }}
       >
-        Talk track by stage — say this
+        Talk track by stage
       </p>
       <div className="grid gap-3 md:grid-cols-3">
         {items.map((item, i) => (
@@ -126,7 +127,7 @@ export function DiscoveryScriptCards({ items }: { items: DiscoveryScriptItem[] }
               className="m-0 mt-1.5 text-[15px] font-semibold leading-snug"
               style={{ color: SUITE_NAVY, fontFamily: SUITE_FONT_UI }}
             >
-              {item.question}
+              {sanitizeSpokenCustomerScript(item.question)}
             </p>
           </div>
           <div className="grid gap-0 sm:grid-cols-2">
@@ -151,7 +152,7 @@ export function ProofPlacementCards({ items }: { items: ProofPlacementItem[] }) 
         className="m-0 text-[11px] font-extrabold tracking-[0.06em]"
         style={{ color: SUITE_NAVY, fontFamily: SUITE_FONT_UI }}
       >
-        Proof to deploy — ready leave-behinds
+        Proof to share — one-pagers and handouts
       </p>
       <div className="grid gap-3 sm:grid-cols-2">
         {items.map((item, i) => (
@@ -175,8 +176,8 @@ export function ProofPlacementCards({ items }: { items: ProofPlacementItem[] }) 
                 {item.persona}
               </p>
             </div>
-            <Field label="Proof they need" body={item.proof} />
-            <Field label="How you hand it over" body={item.delivery} />
+            <Field label="What to share" body={item.proof} />
+            <Field label="What to say when you share it" body={item.delivery} />
           </div>
         ))}
       </div>

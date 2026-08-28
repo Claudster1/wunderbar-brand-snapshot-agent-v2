@@ -92,7 +92,7 @@ export function HumanAssistCTA(props: Props) {
     <section className="bs-card rounded-xl p-6 sm:p-7 border border-brand-border">
       <h3 className="bs-h3 mb-2">Need a Fast Path with an Expert?</h3>
       <p className="bs-body-sm text-brand-muted">
-        Get a guided walkthrough of your score, priority actions, and the highest-leverage next step for your brand.
+        Get a guided walkthrough of your score, priority actions, and the best next step for your brand.
       </p>
       <a
         href={href}

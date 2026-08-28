@@ -4,10 +4,11 @@ import {
   SUITE_ACCENT_BRIGHT,
   SUITE_BG_CARD,
   SUITE_BORDER,
+  SUITE_CTA_OUTLINE_STYLE,
+  SUITE_CTA_SOLID_STYLE,
   SUITE_FONT_UI,
   SUITE_MUTED,
   SUITE_NAVY,
-  SUITE_RADIUS_BUTTON,
   SUITE_RADIUS_LG,
   SUITE_SECTION_ACTIVE_BG,
   SUITE_SHADOW_CARD,
@@ -135,17 +136,14 @@ export default function LockedTabPrompt({
         <a
           href={seeWhatsIncludedUrl}
           style={{
+            ...SUITE_CTA_SOLID_STYLE,
             display: "inline-block",
+            width: "auto",
             padding: "13px 28px",
-            backgroundColor: SUITE_ACCENT_BRIGHT,
-            color: "#ffffff",
-            border: `2px solid ${SUITE_ACCENT_BRIGHT}`,
-            borderRadius: SUITE_RADIUS_BUTTON,
-            fontWeight: 700,
             fontSize: 14,
-            textDecoration: "none",
+            fontWeight: 700,
             letterSpacing: "0.03em",
-            fontFamily: SUITE_FONT_UI,
+            boxShadow: "none",
           }}
         >
           See What&apos;s Included
@@ -155,17 +153,13 @@ export default function LockedTabPrompt({
           target="_blank"
           rel="noopener noreferrer"
           style={{
+            ...SUITE_CTA_OUTLINE_STYLE,
             display: "inline-block",
+            width: "auto",
             padding: "13px 28px",
-            backgroundColor: SUITE_BG_CARD,
-            color: SUITE_ACCENT_BRIGHT,
-            border: `2px solid ${SUITE_ACCENT_BRIGHT}`,
-            borderRadius: SUITE_RADIUS_BUTTON,
-            fontWeight: 700,
             fontSize: 14,
-            textDecoration: "none",
+            fontWeight: 700,
             letterSpacing: "0.03em",
-            fontFamily: SUITE_FONT_UI,
           }}
         >
           Talk to an Expert

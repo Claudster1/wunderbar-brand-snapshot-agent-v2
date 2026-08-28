@@ -253,7 +253,7 @@ const MOCK_BLUEPRINT_PLUS_DATA = {
       campaignContentNeeds: [
         "Founder POV content tied to pipeline-quality language.",
         "Late-funnel page variant with proof module above the fold.",
-        "Sales leave-behind: 14-day pilot RACI.",
+        "Sales one-pager: 14-day pilot with who owns what.",
       ],
       priorityTactics: [
         "Align homepage and deck openers to one headline family in 14 days.",
@@ -274,7 +274,7 @@ const MOCK_BLUEPRINT_PLUS_DATA = {
       icpLabel: "Secondary ICP",
       alignmentToBusinessStrategy:
         "Expand deal size when marketing and RevOps adopt shared definitions and proof placement at decision moments.",
-      strategicFocus: "MQL→SQL clarity, enablement sales will run, and finance-legible leading metrics.",
+      strategicFocus: "Clear lead-to-opportunity definitions, enablement sales will run, and leading metrics finance can follow.",
       campaignContentNeeds: [
         "Co-authored SQL definition one-pager.",
         "Nurture branch with stage-matched proof for marketing-led accounts.",
@@ -312,7 +312,7 @@ const MOCK_WORKBOOK_DATA = {
   competitive_differentiation: "Unlike agencies that deliver generic templates, every Acme Co recommendation is generated from your actual diagnostic data — making it specific, actionable, and measurable.",
   elevator_pitch_30s: "We help B2B service businesses stop blending in. Using a proprietary brand diagnostic, we identify exactly where your brand is strong and where it's losing clients — then give you a clear plan to fix it in 90 days.",
   elevator_pitch_60s: "Most B2B service businesses know they have a brand problem but can't pinpoint what it is. Their messaging is scattered, their positioning is vague, and they're losing deals to competitors who aren't necessarily better — just clearer. Acme Co solves this with a diagnostic-first approach. We score your brand across five key pillars, identify the specific gaps, and deliver a strategic blueprint with exact next steps. Our clients typically see measurable improvement in brand clarity within 90 days.",
-  elevator_pitch_email: "Hi — I'm the founder of Acme Co. We help B2B service businesses build brands that attract premium clients. Using our proprietary diagnostic, we pinpoint exactly where your brand messaging is strong and where it's costing you revenue — then deliver a clear, actionable plan. Would you be open to a quick conversation about your brand?",
+  elevator_pitch_email: "Hi — I'm the founder of Acme Co. We help B2B service businesses build brands that attract premium clients. Using our proprietary diagnostic, we pinpoint exactly where your brand messaging is strong and where it's slowing growth — then deliver a clear, actionable plan. Would you be open to a quick conversation about your brand?",
   messaging_pillars: [
     { title: "Expert Authority", description: "Position every piece of content around your unique methodology and proven results.", proof_points: ["15+ years of brand strategy experience", "200+ brands diagnosed", "92% client satisfaction rate"] },
     { title: "Client Transformation", description: "Lead with the outcome your clients achieve, not the process you follow.", proof_points: ["Average 40% increase in qualified leads", "Clients report clearer messaging within 30 days", "87% of clients expand engagement"] },

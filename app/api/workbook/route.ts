@@ -511,7 +511,7 @@ function buildSampleWorkbook(reportId: string, email: string) {
         pillar_results:
           "Positioning and messaging are directionally strong; visibility, credibility, and conversion improve when proof-backed language is applied consistently.",
         strategic_signals:
-          "The highest-leverage signal is proof placement: when evidence appears earlier in the buyer journey, trust and conversion efficiency rise together.",
+          "The strongest signal is proof placement: when evidence appears earlier in the buyer journey, trust and conversion efficiency rise together.",
         competitive_positioning:
           "Sample Brand differentiates through a diagnostic-led approach that translates strategy into practical execution for B2B teams.",
         journey_map:

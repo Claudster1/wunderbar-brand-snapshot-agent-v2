@@ -4,6 +4,10 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import Image from "next/image";
+import {
+  SUITE_CTA_OUTLINE_STYLE,
+  SUITE_CTA_SOLID_STYLE,
+} from "@/components/results/suiteBrandTokens";
 
 // Lazy-load heavy interactive components to reduce initial bundle size
 const ReportNav = dynamic(() => import("@/components/reports/ReportNav"), { ssr: false });
@@ -1065,7 +1069,7 @@ export default function BrandSnapshotReport() {
                     }}>Recommended</div>
                   )}
                 </div>
-                <div style={{ fontSize: 18, fontWeight: 700, color: NAVY, marginBottom: 6 }}>{product.name}<span style={{ fontSize: 9, verticalAlign: "super", lineHeight: 0 }}>™</span></div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: NAVY, marginBottom: 6 }}>{product.name}</div>
                 <div style={{ fontSize: 14, color: SUB, lineHeight: 1.55, marginBottom: 16 }}>{product.description}</div>
                 <div style={{ flex: 1, marginBottom: 18 }}>
                   {product.features.map((f, fi) => (
@@ -1082,19 +1086,9 @@ export default function BrandSnapshotReport() {
                   href={product.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{
-                    display: "block", width: "100%", padding: "12px 24px", borderRadius: 5,
-                    border: product.highlight ? "none" : `2px solid ${NAVY}`,
-                    background: product.highlight ? BLUE : "transparent",
-                    color: product.highlight ? WHITE : NAVY,
-                    fontSize: 15, fontWeight: 900, textAlign: "center",
-                    textDecoration: "none", fontFamily: "Lato, sans-serif",
-                    boxSizing: "border-box",
-                    boxShadow: product.highlight ? `0 4px 14px ${BLUE}40` : "none",
-                    transition: "all 0.2s ease",
-                  }}
+                  style={product.highlight ? SUITE_CTA_SOLID_STYLE : SUITE_CTA_OUTLINE_STYLE}
                 >
-                  {`Explore ${product.name}™ →`}
+                  {`Explore ${product.name} →`}
                 </a>
               </div>
             ))}

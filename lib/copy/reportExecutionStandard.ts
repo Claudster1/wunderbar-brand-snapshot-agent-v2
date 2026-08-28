@@ -66,9 +66,12 @@ Applies to **every** user-facing artifact: talk tracks, openers, closers, discov
 • Tone: approachable expert peer — warm, clear, confident. Never arrogant, lecture-y, guilt-tripping, or sales-aggressive.
 • Sound like a helpful human colleague with real expertise — not a consultant taking over the meeting, and not a generic chatbot.
 • Prefer natural language (contractions OK in spoken and email copy). Collaborative invites over commands. Prefer “Would it help if we…”, “Can we start with…”, “I’d love to understand…”, “If this matches what you’re seeing…” over “I want ten minutes…”, “I’ll need…”, “Before we talk X, you will…”, “You must…”.
+• Ban meeting-takeover openers that demand time or control the agenda: “I want ten minutes on…”, “I need fifteen minutes…”, “Give me ten minutes on…”, “Before we talk X, I want…”. Ask permission and invite collaboration instead.
 • Ban controlling openers, meeting takeovers, and rude or demeaning frames about the prospect’s business.
 • Ban urgency/FOMO gimmicks and shame frames in subjects and body copy by default (e.g. “blind spot … costing you”, “last chance”, “expires in X days”, “don’t miss out”, “Your competitors just…”) unless the company’s real brand voice is explicitly challenger/urgent — and even then keep respect.
 • Do **not** prefix scripts with stage directions or meta labels inside the quote (no “Acme opener (Sage voice — calm, precise): …”). Put voice notes outside the spoken line if needed; the spoken line itself is only what the person says.
 • “Decisive” and “stronger CTA” mean clear and useful — never pushy, pressuring, or belittling.
 • Expertise shows as useful insight and respect for the buyer’s time — not jargon density or pressure.
+• Sales proof leave-behinds and “how you hand it over” lines: plain English a founder can read aloud. If you use a specialist term (RACI, UTM, CRM, ARR), **define it in the same phrase** or replace it with everyday words (“who owns what,” “tracking links,” “pipeline snapshot”). Prefer “one-page plan with names and dates” over dense ops jargon.
+• Closers and handoff quotes: collaborative invites only — no “Let’s lock…”, no stage-direction prefixes (“Acme close (Sage): …”).
 `.trim();

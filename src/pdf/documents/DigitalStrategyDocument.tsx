@@ -12,6 +12,7 @@ import { registerPdfFonts } from "../registerFonts";
 import type { BlueprintEngineOutput } from "../types/blueprintReport";
 import { parseHexAccent } from "@/src/pdf/lib/promptPackDisplay";
 import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
+import { sanitizeSpokenCustomerScript } from "@/lib/strategy/labeledFieldChrome";
 
 registerPdfFonts();
 
@@ -194,7 +195,7 @@ export function DigitalStrategyDocument({ data, brandName }: Props) {
               <Text style={s.cardTitle}>{e.subject}</Text>
               <View style={s.tag}><Text style={s.tagText}>{e.timing}</Text></View>
             </View>
-            <Text style={s.body}>{e.keyMessage}</Text>
+            <Text style={s.body}>{sanitizeSpokenCustomerScript(e.keyMessage || "")}</Text>
             <Text style={s.small}>{e.purpose}</Text>
           </View>
         ))}

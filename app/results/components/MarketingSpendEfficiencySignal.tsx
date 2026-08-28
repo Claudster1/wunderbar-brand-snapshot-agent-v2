@@ -138,7 +138,7 @@ export function MarketingSpendEfficiencySignal({
           <p className="bs-body-sm text-brand-midnight">
             Based on your declared budget ({budgetLabel(budgetBand!)}), your current
             highest-risk inefficiency is <strong>{risk}</strong>. For your business model, the
-            highest-leverage allocation usually prioritizes {allocation}. Snapshot+ shows exactly
+            best allocation usually prioritizes {allocation}. Snapshot+ shows exactly
             where to focus first so spend works harder before scaling.
           </p>
         ) : (

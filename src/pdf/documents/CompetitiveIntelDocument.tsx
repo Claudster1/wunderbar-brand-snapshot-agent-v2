@@ -13,6 +13,10 @@ import { registerPdfFonts } from "../registerFonts";
 import type { BlueprintEngineOutput } from "../types/blueprintReport";
 import { parseHexAccent } from "@/src/pdf/lib/promptPackDisplay";
 import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
+import {
+  sanitizeSalesConversationGuide,
+  sanitizeSpokenCustomerScript,
+} from "@/lib/strategy/labeledFieldChrome";
 
 registerPdfFonts();
 
@@ -48,7 +52,8 @@ export function CompetitiveIntelDocument({ data, brandName }: Props) {
   const palette = d.visualDirection?.colorPalette as Array<{ hex?: string }> | undefined;
   const brandAccent = parseHexAccent(Array.isArray(palette) ? palette.map((entry) => entry?.hex).find(Boolean) : undefined) || pdfTheme.colors.blue;
   const printedDate = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-  const salesRef = d.salesConversationGuide?.conversion_intelligence_reference;
+  const salesGuide = sanitizeSalesConversationGuide(d.salesConversationGuide);
+  const salesRef = salesGuide?.conversion_intelligence_reference;
   return (
     <Document>
       <Page size="A4" style={s.cover}>
@@ -143,7 +148,7 @@ export function CompetitiveIntelDocument({ data, brandName }: Props) {
             <Text style={s.label}>Reframe</Text>
             <Text style={s.body}>{obj.reframe}</Text>
             <Text style={s.label}>Say This</Text>
-            <Text style={{ ...s.body, fontStyle: "italic" }}>"{obj.exampleResponse}"</Text>
+            <Text style={{ ...s.body, fontStyle: "italic" }}>"{sanitizeSpokenCustomerScript(obj.exampleResponse || "")}"</Text>
           </View>
         ))}
         <Text style={s.label}>Website Pricing Language</Text>
@@ -172,9 +177,9 @@ export function CompetitiveIntelDocument({ data, brandName }: Props) {
           </View>
         ) : null}
         <Text style={s.label}>Opening Framework</Text>
-        <View style={s.accentCard}><Text style={s.body}>{d.salesConversationGuide?.openingFramework}</Text></View>
+        <View style={s.accentCard}><Text style={s.body}>{salesGuide?.openingFramework}</Text></View>
         <Text style={s.h2}>Discovery Questions</Text>
-        {d.salesConversationGuide?.discoveryQuestions?.map((q, i) => (
+        {salesGuide?.discoveryQuestions?.map((q, i) => (
           <View key={i} style={s.card} wrap={false}>
             <Text style={s.cardTitle}>"{q.question}"</Text>
             <Text style={s.body}>{q.whyThisQuestion}</Text>
@@ -182,7 +187,7 @@ export function CompetitiveIntelDocument({ data, brandName }: Props) {
           </View>
         ))}
         <Text style={s.h2}>Objection Handling</Text>
-        {d.salesConversationGuide?.objectionHandlingPlaybook?.map((obj, i) => (
+        {salesGuide?.objectionHandlingPlaybook?.map((obj, i) => (
           <View key={i} style={s.card} wrap={false}>
             <Text style={s.cardTitle}>"{obj.objection}"</Text>
             <Text style={s.body}>{obj.response}</Text>
@@ -190,7 +195,7 @@ export function CompetitiveIntelDocument({ data, brandName }: Props) {
           </View>
         ))}
         <Text style={s.label}>Closing Language</Text>
-        <Text style={s.body}>{d.salesConversationGuide?.closingLanguage}</Text>
+        <Text style={s.body}>{salesGuide?.closingLanguage}</Text>
 
         {/* Positioning for context */}
         <Text style={s.h1}>Quick Reference</Text>

@@ -185,7 +185,7 @@ export function SnapshotDocumentResults({
     `If ${weakest.label.toLowerCase()} remains unresolved, stronger pillars may not translate into consistent trust or action.`;
   const resolvedOverview =
     cleanText(overview) ??
-    `${businessName}'s strongest signal is ${strongest.label.toLowerCase()} at ${strongest.score}/20. ${weakest.label} is the highest-leverage area to improve next at ${weakest.score}/20.`;
+    `${businessName}'s strongest signal is ${strongest.label.toLowerCase()} at ${strongest.score}/20. ${weakest.label} is the best place to improve next at ${weakest.score}/20.`;
   const resolvedArchetypeMeaning =
     cleanText(archetypeMeaning) ??
     getArchetypeMeaning(likelyArchetype) ??
@@ -281,7 +281,7 @@ export function SnapshotDocumentResults({
       </Section>
 
       <Section id="next-steps">
-        <SectionTitle description="Focus on these practical actions over the next 7–14 days, starting with the highest-leverage gap.">
+        <SectionTitle description="Focus on these practical actions over the next 7–14 days, starting with the gap that matters most.">
           Your Next Steps
         </SectionTitle>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>

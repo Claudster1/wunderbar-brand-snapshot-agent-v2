@@ -107,7 +107,7 @@ function contentFormatChannelTeaser(type: string): string {
     case "local_service":
       return "Your audience-mapped format and channel plan is ready: trust-building formats, local discovery channels, and booking/show-rate priorities.";
     default:
-      return "Your audience-mapped format and channel plan is ready: top content formats, highest-leverage channels, and funnel-stage priorities.";
+      return "Your audience-mapped format and channel plan is ready: top content formats, priority channels, and funnel-stage priorities.";
   }
 }
 

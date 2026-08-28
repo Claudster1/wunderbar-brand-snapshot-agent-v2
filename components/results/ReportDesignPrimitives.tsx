@@ -145,10 +145,12 @@ export function ReportCallout({ label, children, accentColor }: { label: string;
       <p
         style={{
           margin: "0 0 10px",
-          fontSize: 12,
-          fontWeight: 600,
+          fontSize: 11,
+          fontWeight: 700,
           color: accent,
-          letterSpacing: "0.04em",
+          letterSpacing: "0.1em",
+          textTransform: "uppercase",
+          fontFamily: SUITE_FONT_UI,
         }}
       >
         {label}

@@ -37,6 +37,17 @@ const BORDER = SUITE_BORDER;
 const WHITE = "#FFFFFF";
 /** Wunderbar Digital long-form body (aligned with PDF example / narrative text). */
 const BODY_TEXT = EXAMPLE_CALLOUT.bodyColor;
+/** Section eyebrows — all-caps suite chrome (matches Strategy / Foundation). */
+const STANDARDS_SECTION_EYEBROW: CSSProperties = {
+  margin: 0,
+  fontSize: 14,
+  fontWeight: 700,
+  color: BLUE,
+  letterSpacing: "0.1em",
+  textTransform: "uppercase",
+  fontFamily: SUITE_FONT_UI,
+};
+
 const SECTION_SHELL: CSSProperties = {
   border: `1px solid ${BORDER}`,
   borderRadius: SUITE_RADIUS_MD,
@@ -717,7 +728,7 @@ export default function BrandStandardsTab({
         <div style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 8 }}>
           <SectionGlyph token="positioning" size={20} color={BLUE} />
           <div>
-            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.04em" }}>Brand snapshot</p>
+            <p style={STANDARDS_SECTION_EYEBROW}>Brand snapshot</p>
             <p style={{ margin: "4px 0 0", fontSize: 13, color: MID_GRAY, lineHeight: 1.55, maxWidth: 720 }}>
               Shared context for {businessName}: who you serve, what you are doubling down on, and what you are fixing next.
               The checklists and examples below use this shared context so the tab reads like your brand guide—not only
@@ -825,7 +836,7 @@ export default function BrandStandardsTab({
         <div style={{ marginBottom: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <SectionGlyph token="framework" size={18} color={BLUE} />
-            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.04em" }}>
+            <p style={STANDARDS_SECTION_EYEBROW}>
               Document versions
             </p>
           </div>
@@ -868,7 +879,7 @@ export default function BrandStandardsTab({
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <SectionGlyph token="voice" size={18} color={BLUE} />
-              <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.04em" }}>
+              <p style={STANDARDS_SECTION_EYEBROW}>
                 Voice standards
               </p>
             </div>
@@ -922,7 +933,7 @@ export default function BrandStandardsTab({
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <SectionGlyph token="messaging" size={14} color={BLUE} />
-              <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.04em" }}>
+              <p style={STANDARDS_SECTION_EYEBROW}>
                 Messaging standards
               </p>
             </div>
@@ -1087,7 +1098,7 @@ export default function BrandStandardsTab({
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <SectionGlyph token="visual" size={18} color={BLUE} />
-              <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.04em" }}>
+              <p style={STANDARDS_SECTION_EYEBROW}>
                 Visual direction
               </p>
             </div>
@@ -1204,7 +1215,7 @@ export default function BrandStandardsTab({
       </section>
 
       <section id="standards-channel-do-dont" style={SECTION_SHELL}>
-        <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.04em" }}>
+        <p style={STANDARDS_SECTION_EYEBROW}>
           Channel do / don&apos;t matrix
         </p>
         <p style={{ margin: "6px 0 10px", fontSize: 13, color: MID_GRAY, lineHeight: 1.55, maxWidth: 720 }}>
@@ -1237,7 +1248,7 @@ export default function BrandStandardsTab({
       </section>
 
       <section id="standards-imagery" style={SECTION_SHELL}>
-        <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.04em" }}>
+        <p style={STANDARDS_SECTION_EYEBROW}>
           Imagery suggestions
         </p>
         <p style={{ margin: "6px 0 10px", fontSize: 13, color: MID_GRAY }}>
@@ -1347,7 +1358,7 @@ export default function BrandStandardsTab({
       <section id="standards-logo-direction" style={SECTION_SHELL}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 8 }}>
           <div>
-            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.04em" }}>
+            <p style={STANDARDS_SECTION_EYEBROW}>
               Logo design direction
             </p>
             <p style={{ margin: "6px 0 0", fontSize: 13, color: MID_GRAY }}>
@@ -1468,7 +1479,7 @@ export default function BrandStandardsTab({
         <div className="flex flex-wrap items-start gap-3">
           <SectionGlyph token="roadmap" size={22} color={BLUE} />
           <div className="min-w-0 flex-1">
-            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.04em" }}>
+            <p style={STANDARDS_SECTION_EYEBROW}>
               Implementation examples
             </p>
             <p style={{ margin: "6px 0 0", fontSize: 13, color: MID_GRAY, lineHeight: 1.55 }}>
@@ -1569,7 +1580,7 @@ export default function BrandStandardsTab({
       </section>
 
       <section id="standards-typography" style={SECTION_SHELL}>
-        <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.04em" }}>
+        <p style={STANDARDS_SECTION_EYEBROW}>
           Typography standards
         </p>
         <p style={{ margin: "6px 0 10px", fontSize: 13, color: MID_GRAY, lineHeight: 1.55 }}>
@@ -1616,7 +1627,7 @@ export default function BrandStandardsTab({
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <SectionGlyph token="visual" size={18} color={BLUE} />
-              <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.04em" }}>
+              <p style={STANDARDS_SECTION_EYEBROW}>
                 Mood board
               </p>
             </div>

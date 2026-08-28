@@ -24,10 +24,7 @@ import {
 import { filterActivationPlanSections } from "@/components/results/tabConfig";
 import { getSuiteProgressHint } from "@/lib/copy/resultsSuiteGuidance";
 import { ACTIVATION_SECTION_ICON_TOKEN, buildActivationPlanSectionsList } from "@/lib/activation/activationPlanModel";
-import {
-  campaignRecommendsLeadMagnet,
-  groupActivationPlanSections,
-} from "@/lib/activation/activationPlanGroups";
+import { groupActivationPlanSections } from "@/lib/activation/activationPlanGroups";
 import {
   filterActivationSectionsByTabFocus,
   isActivationAudienceJourneySectionId,
@@ -37,13 +34,21 @@ import {
 } from "@/lib/activation/activationPlanAudienceVsCampaign";
 import { buildActivationNavMenuItems } from "@/lib/activation/activationTabNav";
 import { buildActivationFullPlanHref } from "@/lib/activation/activationPlanLinks";
+import {
+  activationPromptLibraryDomId,
+  hasActivationPromptLibrary,
+  promptSectionForActivationPlan,
+  promptSectionsForProductTier,
+  scrollToActivationPromptSection,
+} from "@/lib/activation/activationPromptLibrary";
 import { downloadActivationPackMarkdown } from "@/lib/activation/exportActivationPack";
 import { WORKBOOK_SECTIONS, type WorkbookSectionId } from "@/lib/workbookTypes";
 import { getActivationDownloadsHint } from "@/lib/tierDeliverables";
 import { ExecutionChannelPlans } from "@/app/results/components/ExecutionChannelPlans";
 import { ExecutionReadyDrafts } from "@/app/results/components/ExecutionReadyDrafts";
-import { ExecutionPromptCards } from "@/app/results/components/ExecutionPromptCards";
 import { MessagingMatrix } from "@/app/results/components/MessagingMatrix";
+import ExecutionSection from "@/components/ExecutionSection";
+import type { Prompt, SectionId } from "@/lib/promptPackData";
 import type { BrandPromptContext } from "@/src/lib/prompts/promptLibrary";
 import AudienceFoundationInfoTrigger from "@/components/activation/AudienceFoundationInfoTrigger";
 import ActivationStrategyBridgeBanner from "@/components/activation/ActivationStrategyBridgeBanner";
@@ -123,6 +128,7 @@ interface ActivationTabProps {
   onEditInWorkbook: (sectionId: WorkbookSectionId, activationPlanId?: string) => void;
   /** Switch suite tab to Strategy (from ResultsTabsShell). */
   onOpenStrategyTab: () => void;
+  onAskWundy: (prompt: Prompt) => void;
   shellRendersSectionChips?: boolean;
   shellActiveSectionId?: string | null;
 }
@@ -271,6 +277,7 @@ export default function ActivationTab({
   onExportSchedule,
   onEditInWorkbook,
   onOpenStrategyTab,
+  onAskWundy,
   shellRendersSectionChips = false,
   shellActiveSectionId = null,
 }: ActivationTabProps) {
@@ -342,6 +349,29 @@ export default function ActivationTab({
     };
   }, [searchParamsKey]);
 
+  /** Deep link: `?promptSection=email` → Activation Prompt Library subsection. */
+  useEffect(() => {
+    const raw = searchParams.get("promptSection");
+    const section = typeof raw === "string" ? raw.trim() : "";
+    if (!section) return;
+    const targetId =
+      section === "library" || section === "prompt-library"
+        ? activationPromptLibraryDomId()
+        : activationPromptLibraryDomId(section as SectionId);
+    const run = () => {
+      const el = document.getElementById(targetId);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+    const raf = window.requestAnimationFrame(run);
+    const t1 = window.setTimeout(run, 160);
+    const t2 = window.setTimeout(run, 450);
+    return () => {
+      window.cancelAnimationFrame(raf);
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+  }, [searchParamsKey]);
+
   const setActivationFocusInUrl = (next: ActivationTabFocus) => {
     const params = new URLSearchParams(searchParams.toString());
     if (next === "campaigns") params.delete("activationFocus");
@@ -357,7 +387,8 @@ export default function ActivationTab({
       sections: group.sections.map((section) => ({ section, stripeIdx: row++ })),
     }));
   }, [groupedChannelPlans]);
-  const showLeadMagnetOfferPrompt = useMemo(() => campaignRecommendsLeadMagnet(diagnosticData), [diagnosticData]);
+  const promptPackSections = promptSectionsForProductTier(productTier);
+  const showPromptLibrary = hasActivationPromptLibrary(productTier);
   const activationMenuItems = useMemo(
     () =>
       buildActivationNavMenuItems(
@@ -463,7 +494,7 @@ export default function ActivationTab({
                   : ""}
             .{" "}
           </span>
-          Each plan opens on its own page for print/PDF. Prompt packs live in Workbook. {downloadsHint}
+          Each plan opens on its own page for print/PDF. Prompt Library is on this tab. {downloadsHint}
         </p>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 14 }}>
           {productTier !== "snapshot" ? (
@@ -503,7 +534,7 @@ export default function ActivationTab({
               ? "Everything included at this tier is here: the same depth as your PDFs plus interactive copy blocks, plans, and timelines—so you can brief agencies, assign owners, and execute without re-deriving strategy elsewhere."
               : productTier === "blueprint"
                 ? "Blueprint: each row links to a clear plan page and schedule hooks—structured for owners and timelines. Upgrade to Blueprint+ when you want the same flow with more paste-ready copy blocks and fuller export packs."
-                : "Each channel row below links to a focused plan page with full narrative and exports. Use Workbook to refine, save versions, and run prompts from the Prompt library."}
+                : "Each channel row below links to a focused plan page with full narrative and exports. Use the Prompt Library on this tab to draft with AI, then refine and save in Workbook."}
           </p>
         </div>
       </section>
@@ -512,8 +543,8 @@ export default function ActivationTab({
         <section style={{ marginBottom: 40, paddingBottom: 8, borderBottom: `1px solid ${BORDER}` }}>
           <ActivationSectionHeading
             kicker="Strategy layers"
-            title="Messaging, drafts, and prompts"
-            description="Optional depth: matrix filters, ready-to-run drafts, and prompt cards. Collapse with “Hide strategy layers” when you only need channel plans."
+            title="Messaging and ready-to-run drafts"
+            description="Optional depth: matrix filters and draft assets. Collapse with “Hide strategy layers” when you only need channel plans. AI prompts live in Prompt Library below."
           />
           <div style={{ marginBottom: 16 }}>
             <MessagingMatrix productTier={promptTier} diagnosticData={diagnosticData} />
@@ -528,46 +559,10 @@ export default function ActivationTab({
           >
             <p style={{ margin: 0, fontSize: 13, color: NAVY, fontWeight: 700 }}>Execution-ready assets</p>
             <p style={{ margin: "6px 0 0", fontSize: 12, color: MID_GRAY, lineHeight: 1.55 }}>
-              Generated from your brand context and tier. Copy, run, and refine in Workbook.
+              Generated from your brand context and tier. Copy drafts here; run the full Prompt Library further down this
+              tab, then refine in Workbook.
             </p>
           </div>
-          {showLeadMagnetOfferPrompt ? (
-            productTier === "blueprint-plus" ? (
-              <div
-                style={{
-                  ...PANEL_SURFACE,
-                  marginBottom: 16,
-                  padding: "12px 14px",
-                  borderLeft: `3px solid #059669`,
-                  background: "#F0FDF4",
-                }}
-              >
-                <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: NAVY }}>Offer or lead magnet in your plan</p>
-                <p style={{ margin: "6px 0 0", fontSize: 12, color: MID_GRAY, lineHeight: 1.55 }}>
-                  Your report includes lead-magnet or gated-offer language. Prompt <strong>LM1 — Lead Magnet &amp; Offer Builder</strong>{" "}
-                  appears below with your channel notes pre-filled — use it to draft the asset, landing page, and nurture
-                  bridge in one pass.
-                </p>
-              </div>
-            ) : (
-              <div
-                style={{
-                  ...PANEL_SURFACE,
-                  marginBottom: 16,
-                  padding: "12px 14px",
-                  borderLeft: `3px solid ${BORDER}`,
-                  background: "#FAFBFC",
-                }}
-              >
-                <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: NAVY }}>Lead magnets &amp; offers detected</p>
-                <p style={{ margin: "6px 0 0", fontSize: 12, color: MID_GRAY, lineHeight: 1.55 }}>
-                  Your channel copy points at gated assets or downloads. On <strong>Blueprint+</strong>, prompt{" "}
-                  <strong>LM1</strong> appears in the list below (locked until you upgrade) to generate a full offer package,
-                  landing copy, and nurture outline.
-                </p>
-              </div>
-            )
-          ) : null}
           <div style={{ display: "grid", gap: 16 }}>
             <ExecutionReadyDrafts
               productTier={promptTier}
@@ -582,11 +577,6 @@ export default function ActivationTab({
                   : null
               }
               messagePillars={messagePillars}
-            />
-            <ExecutionPromptCards
-              brandContext={promptContext}
-              productTier={promptTier}
-              includeLeadMagnetOfferPrompt={showLeadMagnetOfferPrompt}
             />
           </div>
         </section>
@@ -714,7 +704,8 @@ export default function ActivationTab({
         <p className="m-0 mt-[10px] max-w-[900px] text-xs leading-relaxed text-brand-muted">
           <span className="font-semibold text-brand-midnight">Exports:</span> this button downloads every activation
           playbook as one Markdown file (great for Notion, Docs, or handoff). Editable source of truth for channel copy
-          lives in <strong className="text-brand-midnight">Workbook</strong> (refine, version history, prompts). Packaged{" "}
+          lives in <strong className="text-brand-midnight">Workbook</strong> (refine and version history). Run the{" "}
+          <strong className="text-brand-midnight">Prompt Library</strong> on this tab for AI drafts. Packaged{" "}
           <strong className="text-brand-midnight">PDFs and bundles</strong> are on the <strong className="text-brand-midnight">Downloads</strong> tab;
           opening <strong className="text-brand-midnight">Open plan</strong> for one channel also offers a single-plan PDF.
         </p>
@@ -867,6 +858,27 @@ export default function ActivationTab({
                               Open plan
                             </Link>
                           ) : null}
+                          {(() => {
+                            const promptSection = promptSectionForActivationPlan(section.id, productTier);
+                            if (!promptSection) return null;
+                            return (
+                              <button
+                                type="button"
+                                onClick={() => scrollToActivationPromptSection(promptSection)}
+                                style={{
+                                  ...LINK_BTN,
+                                  minWidth: 108,
+                                  textAlign: "center",
+                                  fontSize: 11,
+                                  padding: "6px 10px",
+                                  borderColor: BLUE,
+                                  color: BLUE,
+                                }}
+                              >
+                                AI prompts
+                              </button>
+                            );
+                          })()}
                           <button
                             type="button"
                             onClick={() => onEditInWorkbook(section.workbookSectionId, section.id)}
@@ -1080,6 +1092,25 @@ export default function ActivationTab({
                         ) : (
                           <span style={{ fontSize: 12, color: MID_GRAY, fontWeight: 600 }}>Add report id</span>
                         )}
+                        {(() => {
+                          const promptSection = promptSectionForActivationPlan(section.id, productTier);
+                          if (!promptSection) return null;
+                          return (
+                            <button
+                              type="button"
+                              onClick={() => scrollToActivationPromptSection(promptSection)}
+                              style={{
+                                ...LINK_BTN,
+                                minWidth: 118,
+                                textAlign: "center",
+                                borderColor: BLUE,
+                                color: BLUE,
+                              }}
+                            >
+                              AI prompts
+                            </button>
+                          );
+                        })()}
                         <button
                           type="button"
                           onClick={() => onEditInWorkbook(section.workbookSectionId, section.id)}
@@ -1132,6 +1163,49 @@ export default function ActivationTab({
           <ExecutionSchedule rows={scheduleRows} onExportClick={onExportSchedule} showHeading={false} />
         </section>
       )}
+
+      {showPromptLibrary ? (
+        <section
+          id={activationPromptLibraryDomId()}
+          style={{
+            scrollMarginTop: 160,
+            marginTop: 36,
+            paddingTop: 28,
+            borderTop: `2px solid ${BORDER}`,
+          }}
+        >
+          <ActivationSectionHeading
+            kicker={scheduleRows.length > 0 ? "Step 4" : "Step 3"}
+            title="Prompt Library"
+            description="Tier-matched AI prompts by topic. Copy a prompt into ChatGPT, Claude, or Ask Wundy—then paste finished language into Workbook and save before Downloads."
+          />
+          <div
+            style={{
+              ...PANEL_SURFACE,
+              padding: "14px 16px",
+              marginBottom: 8,
+              borderLeft: `3px solid ${BLUE}`,
+            }}
+          >
+            <p style={{ margin: 0, fontSize: 13, color: NAVY, fontWeight: 700 }}>One library for execution</p>
+            <p style={{ margin: "6px 0 0", fontSize: 12, color: MID_GRAY, lineHeight: 1.55 }}>
+              Channel rows above link here when a matching prompt pack exists. Workbook is for edits and versions—not a
+              second prompt catalog.
+            </p>
+          </div>
+          {promptPackSections.map((sectionId) => (
+            <div key={sectionId} id={activationPromptLibraryDomId(sectionId)} style={{ scrollMarginTop: 120 }}>
+              <ExecutionSection
+                sectionId={sectionId}
+                productTier={productTier}
+                diagnosticData={diagnosticData}
+                onAskWundy={onAskWundy}
+                activePack="all"
+              />
+            </div>
+          ))}
+        </section>
+      ) : null}
     </TabPageWithSidebar>
   );
 }

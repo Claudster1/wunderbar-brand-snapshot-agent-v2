@@ -69,6 +69,8 @@ export type ActivationPlanSectionPanelProps = {
   showGuidance?: boolean;
   /** On campaign plans, links to foundation playbooks (segments, journey, competitive motion). */
   audienceJourneyPlanLinks?: Array<{ label: string; href: string }>;
+  /** Deep-link into Activation Prompt Library for this playbook's matching pack. */
+  promptLibraryHref?: string | null;
 };
 
 const BTN_STYLE: React.CSSProperties = {
@@ -97,6 +99,7 @@ export default function ActivationPlanSectionPanel({
   sectionDomId,
   showGuidance = false,
   audienceJourneyPlanLinks,
+  promptLibraryHref,
 }: ActivationPlanSectionPanelProps) {
   const showInstructionalSidebars = showGuidance;
   const paidStrategyRaw =
@@ -166,7 +169,7 @@ export default function ActivationPlanSectionPanel({
                 fontSize: 11,
                 fontWeight: 700,
                 color: BLUE,
-                letterSpacing: "0.08em",
+                letterSpacing: "0.1em",
                 textTransform: "uppercase",
               }}
             >
@@ -179,6 +182,18 @@ export default function ActivationPlanSectionPanel({
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
           {extraHeaderActions}
+          {promptLibraryHref ? (
+            <Link
+              href={promptLibraryHref}
+              style={{
+                ...BTN_STYLE,
+                borderColor: BLUE,
+                color: BLUE,
+              }}
+            >
+              AI prompts
+            </Link>
+          ) : null}
           {editAction.mode === "link" ? (
             <Link href={editAction.href} style={BTN_STYLE}>
               Edit in Workbook
@@ -232,7 +247,8 @@ export default function ActivationPlanSectionPanel({
               fontSize: 11,
               fontWeight: 800,
               color: BLUE,
-              letterSpacing: "0.04em",
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
             }}
           >
             At a Glance — Journey Shape

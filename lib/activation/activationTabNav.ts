@@ -9,6 +9,10 @@ import {
   splitActivationSectionsByAudienceVsCampaign,
   type ActivationTabFocus,
 } from "@/lib/activation/activationPlanAudienceVsCampaign";
+import {
+  activationPromptLibraryDomId,
+  hasActivationPromptLibrary,
+} from "@/lib/activation/activationPromptLibrary";
 
 function clampActivationFocus(
   focus: ActivationTabFocus,
@@ -54,6 +58,9 @@ export function buildActivationNavMenuItems(
   }
   if ((!showFoundationCampaignToggle || activationFocus === "campaigns") && scheduleRows.length > 0) {
     items.push({ id: "activation-spreadsheet-schedule", label: "Schedule (.xlsx)", icon: "SC" });
+  }
+  if (hasActivationPromptLibrary(productTier)) {
+    items.push({ id: activationPromptLibraryDomId(), label: "Prompt Library", icon: "PL" });
   }
   return items;
 }

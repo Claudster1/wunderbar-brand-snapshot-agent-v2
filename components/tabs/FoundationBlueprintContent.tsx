@@ -88,7 +88,8 @@ const FN_DESCRIPTOR =
   "rounded-xl px-4 py-3.5 text-sm sm:text-base leading-relaxed text-brand-muted shadow-[0_1px_0_rgba(2,24,89,0.04),inset_0_0_0_1px_rgba(2,24,89,0.05)] sm:px-5 sm:py-4";
 const FN_DRAFT_SHELL =
   "rounded-xl bg-[#F7FBFF] shadow-[inset_0_0_0_1px_rgba(7,176,242,0.12),0_1px_2px_rgba(2,24,89,0.04)]";
-const FN_DRAFT_EYEBROW = "text-[14px] font-semibold tracking-[0.08em]";
+const FN_DRAFT_EYEBROW = "text-[14px] font-semibold uppercase tracking-[0.1em]";
+const FN_SUBHEAD_EYEBROW = "text-xs sm:text-sm font-semibold uppercase tracking-[0.1em]";
 const FN_DRAFT_HELPER = "mt-1.5 text-sm sm:text-base leading-relaxed text-brand-muted";
 
 function asString(value: unknown): string {
@@ -1154,7 +1155,7 @@ function SubsectionCard({ item, densityMode }: { item: Subsection; densityMode: 
                   →
                 </span>
                 <div className="min-w-0">
-                  <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue m-0 mb-3">
+                  <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue m-0 mb-3`}>
                     Put It to Work
                   </p>
                   <p className="m-0 text-sm sm:text-base leading-relaxed text-brand-midnight">
@@ -1365,7 +1366,7 @@ function DomainSection({
           {sectionNumber || ""}
         </div>
         <div>
-          <p className={`mb-2 ${FN_DRAFT_EYEBROW} text-brand-navy`}>{eyebrow}</p>
+          <p className={`mb-2 ${FN_DRAFT_EYEBROW} text-brand-blue`}>{eyebrow}</p>
           <h3 className="bs-h2 mb-3">{title}</h3>
           <p className="text-sm sm:text-base leading-relaxed text-brand-muted max-w-3xl">{intro}</p>
         </div>
@@ -1796,7 +1797,7 @@ export default function FoundationBlueprintContent({
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
           <div className="rounded-md border border-brand-border bg-white p-3 mb-3">
-            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">
+            <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-3`}>
               Personality Operating Model
             </p>
             <p className="bs-body-sm text-brand-midnight">
@@ -1816,7 +1817,7 @@ export default function FoundationBlueprintContent({
           </div>
 
           <div className="rounded-md border border-brand-border bg-white p-3 mb-3">
-            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">Example</p>
+            <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-3`}>Example</p>
             <div className="grid gap-2 md:grid-cols-3">
               <div className="rounded-md border border-brand-border bg-[#EFF6FF] p-2">
                 <p className="text-sm sm:text-base font-medium text-brand-blue">Organic Social</p>
@@ -1842,13 +1843,13 @@ export default function FoundationBlueprintContent({
 
           <div className="grid gap-2 md:grid-cols-2">
             <div className="rounded-md border border-[#86EFAC] bg-[#F0FDF4] p-3">
-              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#166534]">Do This</p>
+              <p className={`${FN_SUBHEAD_EYEBROW} text-[#166534]`}>Do This</p>
               <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Keep language specific and decision-led: diagnosis, implication, action.
               </p>
             </div>
             <div className="rounded-md border border-[#FCA5A5] bg-[#FEF2F2] p-3">
-              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#B91C1C]">Not This</p>
+              <p className={`${FN_SUBHEAD_EYEBROW} text-[#B91C1C]`}>Not This</p>
               <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Avoid generic “innovative solutions” phrasing that removes ownership and proof.
               </p>
@@ -2046,13 +2047,13 @@ export default function FoundationBlueprintContent({
           </div>
           <div className="grid gap-2 md:grid-cols-2 mt-3">
             <div className="rounded-md border border-[#86EFAC] bg-[#F0FDF4] p-3">
-              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#166534]">Do This</p>
+              <p className={`${FN_SUBHEAD_EYEBROW} text-[#166534]`}>Do This</p>
               <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Keep the primary archetype dominant in core positioning, and use secondary traits only in supporting contexts.
               </p>
             </div>
             <div className="rounded-md border border-[#FCA5A5] bg-[#FEF2F2] p-3">
-              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#B91C1C]">Not This</p>
+              <p className={`${FN_SUBHEAD_EYEBROW} text-[#B91C1C]`}>Not This</p>
               <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Do not alternate archetypes between major sections; that creates mixed signals and weakens trust.
               </p>
@@ -2069,7 +2070,7 @@ export default function FoundationBlueprintContent({
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
           <div className="rounded-md border border-brand-border bg-white p-3 mb-3">
-            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">Brand Persona Profile</p>
+            <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-3`}>Brand Persona Profile</p>
             <p className="text-base sm:text-lg font-semibold text-brand-blue">{personaName}</p>
             <p className="text-sm sm:text-base text-brand-midnight mt-1">{personaRole}</p>
             <p className="text-sm sm:text-base text-brand-midnight mt-2">
@@ -2079,13 +2080,13 @@ export default function FoundationBlueprintContent({
           </div>
           <div className="grid gap-2 md:grid-cols-2">
             <div className="rounded-md border border-emerald-300/90 bg-emerald-50/95 p-3">
-              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#059669]">Do This</p>
+              <p className={`${FN_SUBHEAD_EYEBROW} text-[#059669]`}>Do This</p>
               <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 "Your highest-risk gap is {topGap}; here is the first implementation move and the owner."
               </p>
             </div>
             <div className="rounded-md border border-red-300/90 bg-red-50/95 p-3">
-              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#991B1B]">Not This</p>
+              <p className={`${FN_SUBHEAD_EYEBROW} text-[#991B1B]`}>Not This</p>
               <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 "We offer innovative, end-to-end solutions for businesses of all sizes."
               </p>
@@ -2115,7 +2116,7 @@ export default function FoundationBlueprintContent({
       ];
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
-          <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-4">Pillar Application Matrix</p>
+          <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-4`}>Pillar Application Matrix</p>
           <div className="grid gap-3">
             {rows.map((row) => (
               <div key={row.pillar} className="rounded-md border border-brand-border bg-white p-3">
@@ -2141,7 +2142,7 @@ export default function FoundationBlueprintContent({
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
           <div className="rounded-md border border-brand-border bg-white p-3 mb-3">
-            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">Positioning Hierarchy</p>
+            <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-3`}>Positioning Hierarchy</p>
             <div className="grid gap-2 md:grid-cols-2">
               <div className="rounded-md border border-brand-border bg-[#EFF6FF] p-2">
                 <p className="text-sm sm:text-base font-medium text-brand-blue">Long-Form Positioning</p>
@@ -2154,7 +2155,7 @@ export default function FoundationBlueprintContent({
             </div>
           </div>
           <div className="rounded-md border border-brand-border bg-white p-3 mb-3">
-            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">Before / After</p>
+            <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-3`}>Before / After</p>
             <div className="grid gap-2 md:grid-cols-2">
               <div className="rounded-md border border-[#FCA5A5] bg-[#FEF2F2] p-2">
                 <p className="text-xs sm:text-sm font-semibold text-[#B91C1C]">Before</p>
@@ -2168,13 +2169,13 @@ export default function FoundationBlueprintContent({
           </div>
           <div className="grid gap-2 md:grid-cols-2">
             <div className="rounded-md border border-[#86EFAC] bg-[#F0FDF4] p-3">
-              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#166534]">Do This</p>
+              <p className={`${FN_SUBHEAD_EYEBROW} text-[#166534]`}>Do This</p>
               <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Keep every positioning statement tied to audience, differentiated method, and measurable business outcome.
               </p>
             </div>
             <div className="rounded-md border border-[#FCA5A5] bg-[#FEF2F2] p-3">
-              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#B91C1C]">Not This</p>
+              <p className={`${FN_SUBHEAD_EYEBROW} text-[#B91C1C]`}>Not This</p>
               <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Do not use interchangeable category language that any competitor can plausibly claim.
               </p>
@@ -2207,7 +2208,7 @@ export default function FoundationBlueprintContent({
       ];
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
-          <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-4">Differentiator Evidence Matrix</p>
+          <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-4`}>Differentiator Evidence Matrix</p>
           <div className="grid gap-2">
             {differentiators.map((item) => (
               <div
@@ -2247,7 +2248,7 @@ export default function FoundationBlueprintContent({
     if (sectionId === "positioning-competitive-context") {
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
-          <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-4">Competitive Position Map</p>
+          <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-4`}>Competitive Position Map</p>
           <div className="grid gap-2 md:grid-cols-2">
             <div className="rounded-md border border-brand-border bg-white p-3">
               <p className="text-sm sm:text-base font-medium text-brand-blue">High Strategy / Low Execution</p>
@@ -2279,7 +2280,7 @@ export default function FoundationBlueprintContent({
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
           <div className="rounded-md border border-brand-border bg-white p-3 mb-3">
-            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">Value Proposition Stack</p>
+            <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-3`}>Value Proposition Stack</p>
             <div className="grid gap-2 md:grid-cols-3">
               <div className="rounded-md border border-brand-border bg-[#EFF6FF] p-2">
                 <p className="text-sm sm:text-base font-medium text-brand-blue">Core Outcome</p>
@@ -2300,7 +2301,7 @@ export default function FoundationBlueprintContent({
             </div>
           </div>
           <div className="rounded-md border border-brand-border bg-white p-3 mb-3">
-            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">Example</p>
+            <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-3`}>Example</p>
             <div className="grid gap-2 md:grid-cols-2">
               <div className="rounded-md border border-[#FCA5A5] bg-[#FEF2F2] p-2">
                 <p className="text-xs sm:text-sm font-semibold text-[#B91C1C]">Before</p>
@@ -2314,13 +2315,13 @@ export default function FoundationBlueprintContent({
           </div>
           <div className="grid gap-2 md:grid-cols-2">
             <div className="rounded-md border border-[#86EFAC] bg-[#F0FDF4] p-3">
-              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#166534]">Do This</p>
+              <p className={`${FN_SUBHEAD_EYEBROW} text-[#166534]`}>Do This</p>
               <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Tie value language to one outcome, one mechanism, and one immediate action.
               </p>
             </div>
             <div className="rounded-md border border-[#FCA5A5] bg-[#FEF2F2] p-3">
-              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#B91C1C]">Not This</p>
+              <p className={`${FN_SUBHEAD_EYEBROW} text-[#B91C1C]`}>Not This</p>
               <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Avoid broad “growth” language without a proof path or execution model.
               </p>
@@ -2347,7 +2348,7 @@ export default function FoundationBlueprintContent({
       ];
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
-          <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-4">Proof Readiness Board</p>
+          <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-4`}>Proof Readiness Board</p>
           <div className="grid gap-2 md:grid-cols-3">
             {proofRows.map((row) => (
               <div key={row.label} className="rounded-md border border-brand-border bg-white p-3">
@@ -2357,7 +2358,7 @@ export default function FoundationBlueprintContent({
             ))}
           </div>
           <div className="mt-3 rounded-md border border-brand-border bg-white p-3">
-            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">Example</p>
+            <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue`}>Example</p>
             <p className="text-sm sm:text-base text-brand-midnight mt-1">
               Claim: “We improve {primaryPillar.toLowerCase()} performance.” Proof package: baseline metric, identified leakage point,
               first 30-day action owner, and expected movement range.
@@ -2401,7 +2402,7 @@ export default function FoundationBlueprintContent({
 
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
-          <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-2">Color Specification Board</p>
+          <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-2`}>Color Specification Board</p>
           <p className="text-sm sm:text-base text-brand-midnight mb-3">
             <span className="text-brand-muted font-medium">Mode:</span> {visualModeLabel}
           </p>
@@ -2434,7 +2435,7 @@ export default function FoundationBlueprintContent({
             ))}
           </div>
           <div className="mt-3 rounded-md border border-brand-border bg-white p-3">
-            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">Example</p>
+            <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue`}>Example</p>
             <p className="text-sm sm:text-base text-brand-midnight mt-1">
               {visualSystemMode === "existing"
                 ? "Keep current primary and secondary colors unchanged, but standardize when each appears so visual hierarchy stays consistent."
@@ -2475,7 +2476,7 @@ export default function FoundationBlueprintContent({
 
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
-          <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-2">Typography Showcase</p>
+          <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-2`}>Typography Showcase</p>
           <p className="text-sm sm:text-base text-brand-midnight mb-3">
             <span className="text-brand-muted font-medium">Mode:</span> {visualModeLabel}
           </p>
@@ -2483,7 +2484,7 @@ export default function FoundationBlueprintContent({
             {typeRows.map((row) => (
               <div key={row.role} className="rounded-md border border-brand-border bg-white p-4">
                 <div className="flex items-center justify-between gap-3 mb-2">
-                  <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">{row.role}</p>
+                  <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue`}>{row.role}</p>
                   <p className="text-sm sm:text-base text-brand-muted">{row.spec}</p>
                 </div>
                 <p className={row.className}>{row.sample}</p>
@@ -2494,7 +2495,7 @@ export default function FoundationBlueprintContent({
             ))}
           </div>
           <div className="mt-3 rounded-md border border-brand-border bg-white p-3">
-            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">Recommended Font Stack</p>
+            <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue`}>Recommended Font Stack</p>
             <p className="text-sm sm:text-base text-brand-midnight mt-1">
               <span className="text-brand-muted font-medium">Primary:</span>{" "}
               {visualSystemMode === "refresh" ? "Lato (or approved brand update) for Headline, Subhead, Body" : "Lato for Headline, Subhead, Body"}
@@ -2510,7 +2511,7 @@ export default function FoundationBlueprintContent({
     if (sectionId === "visual-iconography") {
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
-          <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-4">Iconography Application Examples</p>
+          <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-4`}>Iconography Application Examples</p>
           <div className="grid gap-2 md:grid-cols-3">
             <div className="rounded-md border border-brand-border bg-white p-3">
               <p className="text-sm sm:text-base font-medium text-brand-blue mb-2">Social / ad creative row</p>
@@ -2536,13 +2537,13 @@ export default function FoundationBlueprintContent({
           </div>
           <div className="mt-3 grid gap-2 md:grid-cols-2">
             <div className="rounded-md border border-[#86EFAC] bg-[#F0FDF4] p-3">
-              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#166534]">Do This</p>
+              <p className={`${FN_SUBHEAD_EYEBROW} text-[#166534]`}>Do This</p>
               <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Keep one icon family, one stroke behavior, and role-based color usage across all assets.
               </p>
             </div>
             <div className="rounded-md border border-[#FCA5A5] bg-[#FEF2F2] p-3">
-              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#B91C1C]">Not This</p>
+              <p className={`${FN_SUBHEAD_EYEBROW} text-[#B91C1C]`}>Not This</p>
               <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Avoid mixing filled and outlined icon sets or rotating icon styles between pages.
               </p>
@@ -2555,7 +2556,7 @@ export default function FoundationBlueprintContent({
     if (sectionId === "visual-photography") {
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
-          <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-4">Photography Direction Examples</p>
+          <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-4`}>Photography Direction Examples</p>
           <div className="grid gap-2 md:grid-cols-2">
             <div className="rounded-md border border-brand-border bg-white p-3">
               <p className="text-sm sm:text-base font-medium text-brand-blue">Example</p>
@@ -2589,7 +2590,7 @@ export default function FoundationBlueprintContent({
     if (sectionId === "visual-layout") {
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
-          <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-4">Layout Execution Examples</p>
+          <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-4`}>Layout Execution Examples</p>
           <div className="rounded-md border border-brand-border bg-white p-3 mb-3">
             <p className="text-sm sm:text-base font-medium text-brand-blue mb-2">Recommended Page Pattern</p>
             <div className="grid gap-2 md:grid-cols-3">
@@ -2609,13 +2610,13 @@ export default function FoundationBlueprintContent({
           </div>
           <div className="grid gap-2 md:grid-cols-2">
             <div className="rounded-md border border-[#86EFAC] bg-[#F0FDF4] p-3">
-              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#166534]">Do This</p>
+              <p className={`${FN_SUBHEAD_EYEBROW} text-[#166534]`}>Do This</p>
               <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Keep each viewport focused on one decision and one supporting evidence layer.
               </p>
             </div>
             <div className="rounded-md border border-[#FCA5A5] bg-[#FEF2F2] p-3">
-              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#B91C1C]">Not This</p>
+              <p className={`${FN_SUBHEAD_EYEBROW} text-[#B91C1C]`}>Not This</p>
               <p className="text-sm sm:text-base text-brand-midnight mt-1">
                 Avoid stacking multiple CTAs and unrelated claims in the same visual block.
               </p>
@@ -2628,7 +2629,7 @@ export default function FoundationBlueprintContent({
     if (sectionId === "visual-motion") {
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
-          <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-4">Motion Behavior Examples</p>
+          <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-4`}>Motion Behavior Examples</p>
           <div className="grid gap-2 md:grid-cols-3">
             <div className="rounded-md border border-brand-border bg-white p-3">
               <p className="text-sm sm:text-base font-medium text-brand-blue">Tab Transition</p>
@@ -2650,7 +2651,7 @@ export default function FoundationBlueprintContent({
             </div>
           </div>
           <div className="mt-3 rounded-md border border-[#FCA5A5] bg-[#FEF2F2] p-3">
-            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#B91C1C]">Avoid Example</p>
+            <p className={`${FN_SUBHEAD_EYEBROW} text-[#B91C1C]`}>Avoid Example</p>
             <p className="text-sm sm:text-base text-brand-midnight mt-1">
               Long, decorative animations that delay interaction or distract from strategic content.
             </p>
@@ -2679,7 +2680,7 @@ export default function FoundationBlueprintContent({
       const activeStage = journeyStages.find((stage) => stage.id === selectedJourneyStage) || journeyStages[2];
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
-          <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-1">
+          <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-1`}>
             Interactive Buyer Journey Map
           </p>
           <p className="mb-4 text-sm text-brand-muted leading-snug max-w-3xl">
@@ -2699,7 +2700,7 @@ export default function FoundationBlueprintContent({
                 }}
               >
                 <div className="flex items-start justify-between gap-2">
-                  <p className="text-xs sm:text-sm font-semibold tracking-[0.08em]" style={{ color: stage.color.text }}>
+                  <p className={FN_SUBHEAD_EYEBROW} style={{ color: stage.color.text }}>
                     {stage.title}
                   </p>
                   <span
@@ -2763,7 +2764,7 @@ export default function FoundationBlueprintContent({
           >
             <div className="flex items-center gap-2 mb-2">
               <span
-                className="rounded-full px-2.5 py-1 text-xs sm:text-sm font-semibold tracking-[0.08em]"
+                className={`${FN_SUBHEAD_EYEBROW} rounded-full px-2.5 py-1`}
                 style={{ backgroundColor: activeStage.color.chip, color: activeStage.color.text }}
               >
                 {activeStage.title} Stage
@@ -2800,11 +2801,11 @@ export default function FoundationBlueprintContent({
 
             <div className="mt-2 grid gap-2 md:grid-cols-2">
               <div className="rounded-md border border-[#86EFAC] bg-[#F0FDF4] p-2">
-                <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#166534]">How You Know This Is Working</p>
+                <p className={`${FN_SUBHEAD_EYEBROW} text-[#166534]`}>How You Know This Is Working</p>
                 <p className="text-sm sm:text-base text-brand-midnight mt-1">{activeStage.kpi}</p>
               </div>
               <div className="rounded-md border border-[#FCA5A5] bg-[#FEF2F2] p-2">
-                <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-[#B91C1C]">Avoid This Move</p>
+                <p className={`${FN_SUBHEAD_EYEBROW} text-[#B91C1C]`}>Avoid This Move</p>
                 <p className="text-sm sm:text-base text-brand-midnight mt-1">{activeStage.avoid}</p>
               </div>
             </div>
@@ -2860,7 +2861,7 @@ export default function FoundationBlueprintContent({
       return (
         <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4 space-y-4">
           <div>
-            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-2">Objection Handling (Q&amp;A)</p>
+            <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-2`}>Objection Handling (Q&amp;A)</p>
             <p className="text-sm sm:text-base text-brand-muted leading-relaxed">
               Pair each buyer concern with a clear answer. Use the same structure in paid ads, landing pages, and organic posts so objections don’t blur into generic talking points.
             </p>
@@ -2895,7 +2896,7 @@ export default function FoundationBlueprintContent({
                       A
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">{brandName} Responds</p>
+                      <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue`}>{brandName} Responds</p>
                       <p className="mt-1 text-sm sm:text-base leading-relaxed text-brand-midnight">{pair.answer}</p>
                     </div>
                   </div>
@@ -4081,7 +4082,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
     <div className="w-full max-w-full space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-white px-4 py-3 shadow-[0_4px_20px_rgba(2,24,89,0.05)] ring-1 ring-slate-900/[0.05]">
         <div>
-          <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">Reading Density</p>
+          <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue`}>Reading Density</p>
           <p className="text-sm sm:text-base text-brand-muted leading-relaxed">Switch between comfortable spacing and compact scan mode.</p>
         </div>
         <div className="inline-flex rounded-lg bg-[#F8FAFC] p-1 ring-1 ring-slate-900/[0.06]">
@@ -4093,7 +4094,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
               key={mode.id}
               type="button"
               onClick={() => setDensityMode(mode.id)}
-              className="rounded px-3 py-2 text-xs sm:text-sm font-semibold tracking-[0.08em] transition"
+              className={`${FN_SUBHEAD_EYEBROW} rounded px-3 py-2  transition`}
               style={{
                 backgroundColor: densityMode === mode.id ? "#E6F7FE" : "transparent",
                 color: densityMode === mode.id ? "#021859" : "#5A6C8A",
@@ -4107,14 +4108,13 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
       {/* Flex avoids grid mis-placing the main column when the aside is display:none below lg. */}
       <div
         className={`flex w-full flex-col items-stretch ${
-          densityMode === "compact" ? "gap-6 lg:flex-row lg:gap-8" : "gap-8 lg:flex-row lg:gap-10"
+          densityMode === "compact" ? "gap-6 md:flex-row md:items-start md:gap-8" : "gap-8 md:flex-row md:items-start md:gap-10"
         }`}
       >
-      <aside className="hidden min-h-0 w-full shrink-0 lg:block lg:w-[256px] lg:max-w-[256px]">
+      <aside className="min-h-0 w-full shrink-0 self-start md:sticky md:top-[120px] md:w-[256px] md:max-w-[256px]">
         <div
-          className="sticky z-10 space-y-5 overflow-y-auto overscroll-contain pr-1"
+          className="z-10 space-y-5 overflow-y-auto overscroll-contain pr-1"
           style={{
-            top: "120px",
             maxHeight: "calc(100dvh - 9rem)",
           }}
         >
@@ -4157,7 +4157,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
         densityMode={densityMode}
         visual={
           <div className="rounded-xl bg-white p-4 shadow-[0_2px_12px_rgba(2,24,89,0.04)] ring-1 ring-slate-900/[0.05] sm:p-5">
-            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">Identity System Map</p>
+            <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue`}>Identity System Map</p>
             <p className="mt-2 max-w-3xl text-sm leading-relaxed text-brand-muted">
               Read down each pillar: general definition, then how it applies for {brandName}, then the cost of neglecting
               it.
@@ -4318,7 +4318,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
         densityMode={densityMode}
         visual={
           <div className="rounded-lg border border-brand-border bg-white p-4">
-            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">
+            <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-3`}>
               Positioning Decision Framework
             </p>
             <div className="grid gap-2 md:grid-cols-2">
@@ -4360,7 +4360,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
         densityMode={densityMode}
         visual={
           <div className="rounded-lg border border-brand-border bg-white p-4">
-            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">Messaging Conversion Flow</p>
+            <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-3`}>Messaging Conversion Flow</p>
             <div className="grid gap-2 md:grid-cols-4">
               {["Claim", "Proof", "Outcome", "CTA"].map((stage) => (
                 <div key={stage} className="flex h-full flex-col rounded-md border border-brand-border bg-[#F7FBFF] px-3 py-2">
@@ -4529,14 +4529,14 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
         densityMode={densityMode}
         visual={
           <div className="rounded-lg border border-brand-border bg-white p-4">
-            <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">Visual System Stack</p>
+            <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-3`}>Visual System Stack</p>
             <div className="mb-3 rounded-md border border-brand-border bg-[#F7FBFF] p-2">
-              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">Visual System Mode</p>
+              <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-3`}>Visual System Mode</p>
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
                   onClick={() => setVisualSystemMode("existing")}
-                  className={`rounded-md border px-3 py-2 text-xs sm:text-sm font-semibold tracking-[0.08em] transition ${
+                  className={`rounded-md border px-3 py-2 text-xs sm:text-sm font-semibold uppercase tracking-[0.1em] transition ${
                     visualSystemMode === "existing"
                       ? "border-brand-blue bg-brand-blue text-white"
                       : "border-brand-border bg-white text-brand-midnight"
@@ -4547,7 +4547,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
                 <button
                   type="button"
                   onClick={() => setVisualSystemMode("optimize")}
-                  className={`rounded-md border px-3 py-2 text-xs sm:text-sm font-semibold tracking-[0.08em] transition ${
+                  className={`rounded-md border px-3 py-2 text-xs sm:text-sm font-semibold uppercase tracking-[0.1em] transition ${
                     visualSystemMode === "optimize"
                       ? "border-brand-blue bg-brand-blue text-white"
                       : "border-brand-border bg-white text-brand-midnight"
@@ -4558,7 +4558,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
                 <button
                   type="button"
                   onClick={() => setVisualSystemMode("refresh")}
-                  className={`rounded-md border px-3 py-2 text-xs sm:text-sm font-semibold tracking-[0.08em] transition ${
+                  className={`rounded-md border px-3 py-2 text-xs sm:text-sm font-semibold uppercase tracking-[0.1em] transition ${
                     visualSystemMode === "refresh"
                       ? "border-brand-blue bg-brand-blue text-white"
                       : "border-brand-border bg-white text-brand-midnight"
@@ -4595,7 +4595,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
               </div>
             </div>
             <div className="mt-3 rounded-md border border-brand-border bg-white p-3">
-              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-2">Example</p>
+              <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-2`}>Example</p>
               <div className="rounded-lg border border-[#021859] overflow-hidden">
                 <div className="bg-[#021859] px-4 py-4">
                   <p className="text-xs sm:text-sm tracking-[0.12em] text-[#7DD3FC]">Example</p>
@@ -4613,15 +4613,15 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
                 </div>
                 <div className="grid gap-2 md:grid-cols-3 bg-[#F8FBFF] p-3">
                   <div className="rounded-md border border-brand-border bg-white p-3">
-                    <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">Message</p>
+                    <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue`}>Message</p>
                     <p className="text-sm sm:text-base text-brand-midnight mt-1">One strategic claim per section.</p>
                   </div>
                   <div className="rounded-md border border-brand-border bg-white p-3">
-                    <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">Proof</p>
+                    <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue`}>Proof</p>
                     <p className="text-sm sm:text-base text-brand-midnight mt-1">Pair claims with metric + mechanism.</p>
                   </div>
                   <div className="rounded-md border border-brand-border bg-white p-3">
-                    <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue">Action</p>
+                    <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue`}>Action</p>
                     <p className="text-sm sm:text-base text-brand-midnight mt-1">End with one explicit next step.</p>
                   </div>
                 </div>
@@ -4647,7 +4647,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
           densityMode={densityMode}
           visual={
             <div className="rounded-lg border border-brand-border bg-white p-4">
-              <p className="text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue mb-3">Audience Journey Map</p>
+              <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-3`}>Audience Journey Map</p>
               <div className="grid gap-2 md:grid-cols-6">
                 {["Unaware", "Aware", "Considering", "Evaluating", "Deciding", "Retained"].map((stage) => (
                   <div key={stage} className="flex h-full flex-col rounded-md border border-brand-border bg-[#F7FBFF] px-2 py-2 text-center">

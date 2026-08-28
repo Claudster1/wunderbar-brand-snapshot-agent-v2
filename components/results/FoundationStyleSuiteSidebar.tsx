@@ -34,11 +34,10 @@ export default function FoundationStyleSuiteSidebar({ groups, activeSectionId }:
   if (visibleGroups.length === 0) return null;
 
   return (
-    <aside className="hidden min-h-0 w-full shrink-0 lg:block lg:w-[256px] lg:max-w-[256px]">
+    <aside className="min-h-0 w-full shrink-0 self-start md:sticky md:top-[120px] md:w-[256px] md:max-w-[256px]">
       <div
-        className="sticky z-10 space-y-5 overflow-y-auto overscroll-contain pr-1"
+        className="z-10 space-y-5 overflow-y-auto overscroll-contain pr-1"
         style={{
-          top: "120px",
           maxHeight: "calc(100dvh - 9rem)",
         }}
       >

@@ -90,7 +90,7 @@ export default function ActivationStrategyBridgeBanner({ diagnosticData, onOpenS
           margin: 0,
           fontSize: 11,
           fontWeight: 800,
-          letterSpacing: "0.08em",
+          letterSpacing: "0.1em",
           textTransform: "uppercase",
           color: SUITE_ACCENT_BRIGHT,
         }}

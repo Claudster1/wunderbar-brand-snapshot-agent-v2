@@ -25,6 +25,8 @@ export function buildResultsActivationTabHref(
     mode?: ResultsActivationHrefMode;
     /** Deep-link to highlight/open this plan row in the Activation tab (scroll target `activation-{id}`). */
     activationPlanId?: string;
+    /** Deep-link into Activation Prompt Library (scroll target `activation-prompt-{section}`). */
+    promptSection?: string;
   },
 ): string {
   const focusSuffix =
@@ -32,11 +34,11 @@ export function buildResultsActivationTabHref(
   const emailSuffix =
     options?.mode === "preview-tabs" || !userEmail ? "" : `&email=${encodeURIComponent(userEmail)}`;
   const planId = options?.activationPlanId?.trim();
-  const planSuffix =
-    planId && options?.mode !== "preview-tabs" ? `&activationPlanId=${encodeURIComponent(planId)}` : "";
+  const planSuffix = planId ? `&activationPlanId=${encodeURIComponent(planId)}` : "";
+  const promptSection = options?.promptSection?.trim();
+  const promptSuffix = promptSection ? `&promptSection=${encodeURIComponent(promptSection)}` : "";
   if (options?.mode === "preview-tabs") {
-    const previewPlan = planId ? `&activationPlanId=${encodeURIComponent(planId)}` : "";
-    return `/preview/results-tabs?tab=activation${focusSuffix}${previewPlan}`;
+    return `/preview/results-tabs?tab=activation${focusSuffix}${planSuffix}${promptSuffix}`;
   }
-  return `/results?reportId=${encodeURIComponent(reportId)}&tab=activation${focusSuffix}${emailSuffix}${planSuffix}`;
+  return `/results?reportId=${encodeURIComponent(reportId)}&tab=activation${focusSuffix}${emailSuffix}${planSuffix}${promptSuffix}`;
 }

@@ -98,14 +98,12 @@ const STRATEGY_CARD_HEAD: CSSProperties = {
   margin: "0 0 12px",
   paddingBottom: 10,
   borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
-  textTransform: "none",
 };
 
 const STRATEGY_MSG_SUBHEAD: CSSProperties = {
   ...SUITE_FOUNDATION_SUBHEAD_STYLE,
   margin: "0 0 8px",
   fontSize: 12,
-  textTransform: "none",
 };
 
 /** In-card micro labels (Applying this topic → success metric, do / don’t) — Foundation blue subhead scale */
@@ -113,7 +111,6 @@ const STRATEGY_IMPL_SUBHEAD: CSSProperties = {
   ...SUITE_FOUNDATION_SUBHEAD_STYLE,
   margin: 0,
   fontSize: 12,
-  textTransform: "none",
 };
 
 const STRATEGY_BODY_PARA: CSSProperties = {
@@ -974,7 +971,6 @@ export default function StrategyTab({
               ...SUITE_FOUNDATION_SUBHEAD_STYLE,
               margin: 0,
               fontSize: 12,
-              letterSpacing: "0.08em",
             }}
           >
             Strategic marketing plan
@@ -1269,7 +1265,7 @@ export default function StrategyTab({
       {strategySectionsVisible.length > 0 ? (
         <div className="flex flex-col gap-10 md:gap-12">
           <div className="max-w-3xl">
-            <p className="text-[14px] font-semibold tracking-[0.08em] text-brand-blue">Reference panels</p>
+            <p className="text-[14px] font-semibold uppercase tracking-[0.1em] text-brand-blue">Reference panels</p>
             <h3 className="bs-h3 mt-2 text-brand-navy">Strategy by domain</h3>
             <p className="mt-2 text-sm leading-relaxed text-brand-muted sm:text-base">
               Use these panels for one slice of the plan at a time—audience, journey, channels, spend, and priorities. Audience

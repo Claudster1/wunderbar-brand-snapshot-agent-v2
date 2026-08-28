@@ -614,7 +614,7 @@ export default function DownloadsTab({
                 : "downloads-role-packs";
         return (
           <div key={group} id={groupId} style={{ marginBottom: 40, scrollMarginTop: 120 }}>
-            <h3 style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.04em", color: MID_GRAY, margin: "0 0 16px", paddingBottom: 10, borderBottom: `1px solid ${BORDER}` }}>
+            <h3 style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: MID_GRAY, margin: "0 0 16px", paddingBottom: 10, borderBottom: `1px solid ${BORDER}` }}>
               {GROUP_LABELS[group]}
             </h3>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16 }}>

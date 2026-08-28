@@ -51,7 +51,7 @@ export default function PersonalizedGuidanceCard({
             borderLeftWidth: 4,
           }}
         >
-          <p style={{ margin: 0, fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: SEMANTIC_DO.label }}>
+          <p style={{ margin: 0, fontSize: 11, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: SEMANTIC_DO.label }}>
             Do this
           </p>
           <p style={{ margin: "6px 0 0", fontSize: 13, color: SEMANTIC_DO.text, lineHeight: 1.55 }}>{doText}</p>
@@ -66,7 +66,7 @@ export default function PersonalizedGuidanceCard({
             borderLeftWidth: 4,
           }}
         >
-          <p style={{ margin: 0, fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: SEMANTIC_DONT.label }}>
+          <p style={{ margin: 0, fontSize: 11, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: SEMANTIC_DONT.label }}>
             Don&apos;t / not this
           </p>
           <p style={{ margin: "6px 0 0", fontSize: 13, color: SEMANTIC_DONT.text, lineHeight: 1.55 }}>{dontText}</p>

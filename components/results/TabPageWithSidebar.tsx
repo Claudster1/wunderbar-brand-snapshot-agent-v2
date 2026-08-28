@@ -95,7 +95,7 @@ export default function TabPageWithSidebar({
           />
         </div>
       )}
-      <div className="flex w-full flex-col items-stretch gap-8 lg:flex-row lg:gap-10">
+      <div className="flex w-full flex-col items-stretch gap-8 md:flex-row md:items-start md:gap-10">
         <FoundationStyleSuiteSidebar groups={sidebarGroups} activeSectionId={activeSectionId} />
         <div className="tab-page-main min-w-0 flex-1">{children}</div>
       </div>

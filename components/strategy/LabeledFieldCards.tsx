@@ -67,7 +67,7 @@ export default function LabeledFieldCards({
             }}
           >
             <p
-              className="m-0 text-[11px] font-bold tracking-[0.04em]"
+              className="m-0 text-[11px] font-bold uppercase tracking-[0.1em]"
               style={{ fontFamily: SUITE_FONT_UI, color: chrome.label }}
             >
               {p.label}

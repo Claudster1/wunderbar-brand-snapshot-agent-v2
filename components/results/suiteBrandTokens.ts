@@ -163,18 +163,34 @@ export const SUITE_INTRO_EYEBROW_TEXT_STYLE: CSSProperties = {
   margin: "0 0 8px",
   fontSize: 14,
   fontWeight: 600,
-  letterSpacing: "0.06em",
+  letterSpacing: "0.1em",
+  textTransform: "uppercase",
   color: SUITE_ACCENT_BRIGHT,
+  fontFamily: SUITE_FONT_UI,
 };
 
 /**
- * Bright blue in-card subheads — matches Foundation tab
- * (`text-xs sm:text-sm font-semibold tracking-[0.08em] text-brand-blue` in `FoundationBlueprintContent.tsx`).
+ * Micro-eyebrow inside insight cards / callouts / visuals (Channel mix, Strategy vs Activation, etc.).
+ * Always all-caps — use this (or match these tokens) so suite chrome stays consistent.
+ */
+export const SUITE_MICRO_EYEBROW_STYLE: CSSProperties = {
+  margin: 0,
+  fontSize: 11,
+  fontWeight: 700,
+  letterSpacing: "0.1em",
+  textTransform: "uppercase",
+  color: SUITE_ACCENT_BRIGHT,
+  fontFamily: SUITE_FONT_UI,
+};
+
+/**
+ * Bright blue in-card subheads — matches Foundation tab micro-eyebrows (all caps).
  */
 export const SUITE_FOUNDATION_SUBHEAD_STYLE: CSSProperties = {
   fontSize: 13,
   fontWeight: 600,
-  letterSpacing: "0.08em",
+  letterSpacing: "0.1em",
+  textTransform: "uppercase",
   color: SUITE_ACCENT_BRIGHT,
   fontFamily: SUITE_FONT_UI,
 };
@@ -212,11 +228,19 @@ export const SUITE_TAB_BODY_SHELL: CSSProperties = {
 };
 
 /**
- * Small blue section headers on Results (pillar cards, context meter, hero kickers).
- * Tailwind must see this string; this file lives under components/ so it is picked up by the Tailwind content globs.
+ * Small blue section headers / eyebrows on Results and suite tabs (pillar cards, context meter, hero kickers).
+ * Always all-caps — Tailwind must see this string; this file is under components/ for content globs.
  */
 export const SUITE_SECTION_KICKER_CLASS =
-  "text-[14px] font-semibold tracking-[0.08em] text-brand-blue";
+  "text-[14px] font-semibold uppercase tracking-[0.1em] text-brand-blue";
+
+/** Tailwind class twin of `SUITE_MICRO_EYEBROW_STYLE` for Foundation / Strategy draft chrome. */
+export const SUITE_MICRO_EYEBROW_CLASS =
+  "text-xs sm:text-sm font-semibold uppercase tracking-[0.1em] text-brand-blue";
+
+/** Domain-section eyebrow (Foundation / Strategy section headers). */
+export const SUITE_DOMAIN_EYEBROW_CLASS =
+  "text-[14px] font-semibold uppercase tracking-[0.1em] text-brand-blue";
 
 export const SUITE_BACKDROP_BLUR: CSSProperties = {
   backdropFilter: "saturate(180%) blur(20px)",

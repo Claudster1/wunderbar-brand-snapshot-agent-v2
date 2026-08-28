@@ -164,7 +164,7 @@ export function ResultsHeroSection({
           />
           <div className="relative flex flex-col gap-1.5 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:gap-x-6 sm:gap-y-1">
             <div className="min-w-0">
-              <p className="m-0 text-[13px] sm:text-sm font-semibold tracking-[0.08em] text-brand-muted">
+              <p className="m-0 text-[13px] sm:text-sm font-semibold uppercase tracking-[0.1em] text-brand-muted">
                 WunderBrand Score™
               </p>
               <p

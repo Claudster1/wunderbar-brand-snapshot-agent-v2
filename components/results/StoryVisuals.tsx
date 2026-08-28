@@ -6,6 +6,7 @@ import {
   SUITE_BLUE,
   SUITE_BORDER,
   SUITE_FONT_UI,
+  SUITE_MICRO_EYEBROW_STYLE,
   SUITE_MUTED,
   SUITE_NAVY,
 } from "@/components/results/suiteBrandTokens";
@@ -52,7 +53,7 @@ function funnelChromeForIndex(index: number, total: number): FunnelStepChrome {
   return stops[pos];
 }
 
-/** Gradient frame + navy eyebrow — matches Channel mix and other suite “insight” visuals. */
+/** Gradient frame + bright-blue all-caps eyebrow — matches Channel mix and other suite “insight” visuals. */
 export function SuiteVisualFrame({
   eyebrow,
   description,
@@ -80,11 +81,8 @@ export function SuiteVisualFrame({
     >
       <p
         style={{
+          ...SUITE_MICRO_EYEBROW_STYLE,
           margin: description ? "0 0 4px" : "0 0 10px",
-          fontSize: 11,
-          fontWeight: 800,
-          color: NAVY,
-          letterSpacing: "0.06em",
         }}
       >
         {eyebrow}
@@ -108,123 +106,287 @@ function HubAndSpokeDiagram({
   nodes: Array<{ label: string; sub: string }>;
   ariaLabel: string;
 }) {
-  const uid = useId().replace(/:/g, "");
-  const glowId = `hub-glow-${uid}`;
-  const spokeId = `hub-spoke-${uid}`;
-  const cx = 200;
-  const cy = 180;
-  const rHub = 56;
-  const rRing = 124;
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(520);
   const n = Math.max(1, nodes.length);
   const hub = hubLabel.trim() || "Your brand";
-  const hubPrimary = hub.length > 20 ? `${hub.slice(0, 18)}…` : hub;
-  /** Spoke cards: room for wrapped title + sub-label */
-  const w = 128;
-  const h = 64;
+
+  useLayoutEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const measure = () => setWidth(Math.max(280, el.getBoundingClientRect().width));
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const compact = width < 480;
+  const size = Math.min(width, 520);
+  const height = compact ? undefined : Math.round(size * 0.92);
+  const cx = size / 2;
+  const cy = (height ?? size) / 2;
+  const rOrbit = Math.min(cx, cy) * 0.62;
+  const rHub = Math.min(58, size * 0.12);
+  const cardW = Math.min(128, Math.max(100, size * 0.24));
+
+  if (compact) {
+    return (
+      <div
+        ref={wrapRef}
+        role="img"
+        aria-label={ariaLabel}
+        style={{ width: "100%", maxWidth: 520, margin: "0 auto" }}
+      >
+        <div
+          style={{
+            textAlign: "center",
+            padding: "20px 18px",
+            marginBottom: 14,
+            borderRadius: 999,
+            width: Math.min(168, width * 0.55),
+            aspectRatio: "1",
+            marginLeft: "auto",
+            marginRight: "auto",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            background: `radial-gradient(circle at 35% 30%, rgba(7,176,242,0.18) 0%, ${NAVY} 72%)`,
+            boxShadow: "0 8px 28px rgba(2, 24, 89, 0.18)",
+            boxSizing: "border-box",
+          }}
+        >
+          <p
+            style={{
+              margin: 0,
+              fontSize: 13,
+              fontWeight: 800,
+              color: "#FFFFFF",
+              lineHeight: 1.3,
+              fontFamily: SUITE_FONT_UI,
+              maxWidth: "90%",
+            }}
+          >
+            {hub}
+          </p>
+          <p
+            style={{
+              margin: "6px 0 0",
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: "rgba(255,255,255,0.78)",
+              fontFamily: SUITE_FONT_UI,
+            }}
+          >
+            {hubSublabel}
+          </p>
+        </div>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+            gap: 10,
+          }}
+        >
+          {nodes.map((ch, i) => (
+            <div
+              key={`${ch.label}-${i}`}
+              style={{
+                padding: "12px 14px",
+                borderRadius: 10,
+                background: "#FFFFFF",
+                border: `1px solid ${BORDER}`,
+                borderTop: `2px solid ${BLUE}`,
+                boxSizing: "border-box",
+              }}
+            >
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: NAVY,
+                  lineHeight: 1.35,
+                  fontFamily: SUITE_FONT_UI,
+                }}
+              >
+                {ch.label}
+              </p>
+              <p
+                style={{
+                  margin: "4px 0 0",
+                  fontSize: 11,
+                  color: MID_GRAY,
+                  lineHeight: 1.35,
+                  fontFamily: SUITE_FONT_UI,
+                }}
+              >
+                {ch.sub}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <svg
-      viewBox="0 6 400 336"
-      width="100%"
-      style={{ maxWidth: 440, maxHeight: 360, display: "block", margin: "0 auto" }}
-      overflow="visible"
+    <div
+      ref={wrapRef}
       role="img"
       aria-label={ariaLabel}
+      style={{
+        position: "relative",
+        width: "100%",
+        maxWidth: 520,
+        height,
+        margin: "0 auto",
+      }}
     >
-      <defs>
-        <radialGradient id={glowId} cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor={BLUE} stopOpacity="0.14" />
-          <stop offset="70%" stopColor={BLUE} stopOpacity="0.02" />
-          <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
-        </radialGradient>
-        <linearGradient id={spokeId} x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor={BLUE} stopOpacity="0.2" />
-          <stop offset="55%" stopColor={BLUE} stopOpacity="0.65" />
-          <stop offset="100%" stopColor={BLUE_DEEP} stopOpacity="0.85" />
-        </linearGradient>
-      </defs>
-      <circle cx={cx} cy={cy} r={rRing + 36} fill={`url(#${glowId})`} />
+      <svg
+        width={size}
+        height={height}
+        viewBox={`0 0 ${size} ${height}`}
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
+        aria-hidden
+      >
+        <circle
+          cx={cx}
+          cy={cy}
+          r={rOrbit}
+          fill="none"
+          stroke="rgba(7, 176, 242, 0.22)"
+          strokeWidth={1}
+          strokeDasharray="3 5"
+        />
+        {nodes.map((_, i) => {
+          const angle = -Math.PI / 2 + (i * 2 * Math.PI) / n;
+          const x = cx + rOrbit * Math.cos(angle);
+          const y = cy + rOrbit * Math.sin(angle);
+          const x0 = cx + (rHub + 4) * Math.cos(angle);
+          const y0 = cy + (rHub + 4) * Math.sin(angle);
+          return (
+            <g key={`spoke-line-${i}`}>
+              <line
+                x1={x0}
+                y1={y0}
+                x2={x}
+                y2={y}
+                stroke="rgba(2, 24, 89, 0.18)"
+                strokeWidth={1.25}
+                strokeLinecap="round"
+              />
+              <circle cx={x} cy={y} r={3.25} fill={BLUE} fillOpacity={0.85} />
+            </g>
+          );
+        })}
+      </svg>
+
+      <div
+        style={{
+          position: "absolute",
+          left: cx,
+          top: cy,
+          width: rHub * 2,
+          height: rHub * 2,
+          marginLeft: -rHub,
+          marginTop: -rHub,
+          borderRadius: "50%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          padding: 10,
+          boxSizing: "border-box",
+          background: `radial-gradient(circle at 32% 28%, rgba(7,176,242,0.35) 0%, ${NAVY} 68%)`,
+          boxShadow: "0 10px 28px rgba(2, 24, 89, 0.22), 0 0 0 6px rgba(7, 176, 242, 0.08)",
+          zIndex: 2,
+        }}
+      >
+        <p
+          style={{
+            margin: 0,
+            fontSize: hub.length > 16 ? 11 : 13,
+            fontWeight: 800,
+            color: "#FFFFFF",
+            lineHeight: 1.25,
+            fontFamily: SUITE_FONT_UI,
+            maxWidth: "100%",
+            overflowWrap: "anywhere",
+          }}
+        >
+          {hub}
+        </p>
+        <p
+          style={{
+            margin: "5px 0 0",
+            fontSize: 8.5,
+            fontWeight: 700,
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            color: "rgba(255,255,255,0.78)",
+            fontFamily: SUITE_FONT_UI,
+          }}
+        >
+          {hubSublabel}
+        </p>
+      </div>
+
       {nodes.map((ch, i) => {
         const angle = -Math.PI / 2 + (i * 2 * Math.PI) / n;
-        const x = cx + rRing * Math.cos(angle);
-        const y = cy + rRing * Math.sin(angle);
-        const x0 = cx + (rHub + 2) * Math.cos(angle);
-        const y0 = cy + (rHub + 2) * Math.sin(angle);
+        const x = cx + rOrbit * Math.cos(angle);
+        const y = cy + rOrbit * Math.sin(angle);
         return (
-          <g key={`${ch.label}-${i}`}>
-            <line
-              x1={x0}
-              y1={y0}
-              x2={x - (w / 2 - 10) * Math.cos(angle)}
-              y2={y - (h / 2 - 10) * Math.sin(angle)}
-              stroke={`url(#${spokeId})`}
-              strokeWidth={2.75}
-              strokeLinecap="round"
-            />
-            <rect
-              x={x - w / 2}
-              y={y - h / 2}
-              width={w}
-              height={h}
-              rx={10}
-              fill="#EEF6FC"
-              stroke="rgba(2, 24, 89, 0.16)"
-              strokeWidth={1.25}
-              style={{ filter: "drop-shadow(0 2px 8px rgba(2,24,89,0.1))" }}
-            />
-            <text
-              x={x}
-              y={y - h / 2 + 16}
-              textAnchor="middle"
-              dominantBaseline="hanging"
-              fill={NAVY}
-              style={{ fontSize: 10.5, fontWeight: 700, fontFamily: "system-ui, sans-serif" }}
+          <div
+            key={`${ch.label}-${i}`}
+            style={{
+              position: "absolute",
+              left: x,
+              top: y,
+              width: cardW,
+              marginLeft: -cardW / 2,
+              marginTop: -34,
+              padding: "10px 12px",
+              borderRadius: 10,
+              background: "#FFFFFF",
+              border: `1px solid ${BORDER}`,
+              boxShadow: "0 2px 10px rgba(2, 24, 89, 0.06)",
+              boxSizing: "border-box",
+              textAlign: "center",
+              zIndex: 3,
+            }}
+          >
+            <p
+              style={{
+                margin: 0,
+                fontSize: 12,
+                fontWeight: 700,
+                color: NAVY,
+                lineHeight: 1.3,
+                fontFamily: SUITE_FONT_UI,
+              }}
             >
               {ch.label}
-            </text>
-            <text
-              x={x}
-              y={y - h / 2 + 34}
-              textAnchor="middle"
-              dominantBaseline="hanging"
-              fill={BLUE_DEEP}
-              style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.06em", fontFamily: "system-ui, sans-serif" }}
+            </p>
+            <p
+              style={{
+                margin: "3px 0 0",
+                fontSize: 10.5,
+                color: MID_GRAY,
+                lineHeight: 1.3,
+                fontFamily: SUITE_FONT_UI,
+              }}
             >
               {ch.sub}
-            </text>
-          </g>
+            </p>
+          </div>
         );
       })}
-      <circle
-        cx={cx}
-        cy={cy}
-        r={rHub}
-        fill="#F5FAFD"
-        stroke={BLUE}
-        strokeWidth={2.75}
-        style={{ filter: "drop-shadow(0 3px 12px rgba(7,176,242,0.28))" }}
-      />
-      <text
-        x={cx}
-        y={cy - rHub + 18}
-        textAnchor="middle"
-        dominantBaseline="hanging"
-        fill={NAVY}
-        style={{ fontSize: 11.5, fontWeight: 800, fontFamily: "system-ui, sans-serif" }}
-      >
-        {hubPrimary}
-      </text>
-      <text
-        x={cx}
-        y={cy - rHub + 34}
-        textAnchor="middle"
-        dominantBaseline="hanging"
-        fill={BLUE}
-        style={{ fontSize: 8.5, fontWeight: 700, letterSpacing: "0.12em", fontFamily: "system-ui, sans-serif" }}
-      >
-        {hubSublabel}
-      </text>
-    </svg>
+    </div>
   );
 }
 

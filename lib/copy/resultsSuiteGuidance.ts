@@ -247,7 +247,7 @@ export function getSuiteTabIntro(
             : tier === "blueprint-plus"
               ? forCompany(
                   co,
-                  "Blueprint+ Activation is built around finished pieces: ready-to-paste copy, email sequences, channel plans, schedules, and prompts grounded in your diagnostic. Roadmaps still show order, but each block should give you something you can brief or publish—not a vague to-do list. Polish in Workbook, then package from Downloads.",
+                  "Blueprint+ Activation is built around finished pieces: ready-to-paste copy, email sequences, channel plans, schedules, and the Prompt Library grounded in your diagnostic. Roadmaps still show order, but each block should give you something you can brief or publish—not a vague to-do list. Polish in Workbook, then package from Downloads.",
                 )
               : tier === "blueprint"
                 ? forCompany(
@@ -284,7 +284,7 @@ export function getSuiteTabIntro(
           tier === "snapshot" || tier === "snapshot-plus"
             ? forCompany(
                 co,
-                "Edit here while you read Foundation through Activation. Saved Workbook text flows into linked PDFs when you generate from Downloads (where your tier includes exports).",
+                "Edit here while you read Foundation through Activation. Run AI prompts from Activation → Prompt Library, paste finished language here, then generate linked PDFs from Downloads (where your tier includes exports).",
               )
             : forCompany(
                 co,

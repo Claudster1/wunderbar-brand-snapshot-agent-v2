@@ -2,7 +2,7 @@
 
 import type { CSSProperties, ReactNode } from "react";
 
-const FN_DRAFT_EYEBROW = "text-[14px] font-semibold tracking-[0.08em]";
+const FN_DRAFT_EYEBROW = "text-[14px] font-semibold uppercase tracking-[0.1em]";
 
 function safeDisplayString(value: unknown): string {
   if (typeof value === "string") return value;
@@ -71,7 +71,7 @@ export function StrategyDomainSection({
             {ordinalText}
           </div>
           <div className="min-w-0 flex-1">
-            <p className={`mb-2 ${FN_DRAFT_EYEBROW} text-brand-navy`}>{eyebrowText}</p>
+            <p className={`mb-2 ${FN_DRAFT_EYEBROW} text-brand-blue`}>{eyebrowText}</p>
             <h3 className="bs-h2 mb-3">{titleText}</h3>
             {introText ? (
               <p className="max-w-3xl text-sm leading-relaxed text-brand-muted sm:text-base">{introText}</p>

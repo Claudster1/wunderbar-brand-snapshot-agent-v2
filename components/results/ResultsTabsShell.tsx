@@ -105,6 +105,7 @@ const LOCKED_TAB_FEATURES: Record<
     features: [
       "Strategic priorities ranked from your diagnostic",
       "Channel execution plans (email, social, SEO, paid, PR, journey, competitive motion)",
+      "Prompt Library: tier-matched AI prompts by section",
       "90-day roadmap and activation schedule when included",
     ],
   },
@@ -112,7 +113,6 @@ const LOCKED_TAB_FEATURES: Record<
     availableFrom: "snapshot-plus",
     features: [
       "Edit your positioning, messaging, and channel plans",
-      "Prompt library: tier-matched AI prompts by section (separate from Activation plans)",
       "Paste and save AI outputs next to workbook sections",
       "Update your activation schedule as you implement",
       "Export versioned plans for your team",
@@ -787,7 +787,7 @@ export default function ResultsTabsShell({
     window.dispatchEvent(
       new CustomEvent("wundy:ask", {
         detail: {
-          message: `I'm looking at "${prompt.name}" in my Workbook Prompt library. Can you walk me through how to use it and what strong output looks like for my brand?`,
+          message: `I'm looking at "${prompt.name}" in my Activation Prompt Library. Can you walk me through how to use it and what strong output looks like for my brand?`,
           autoSend: false,
         },
       }),
@@ -1593,6 +1593,7 @@ export default function ResultsTabsShell({
                 setLockedTabContext(null);
                 setActiveTab("strategy");
               }}
+              onAskWundy={handleAskWundy}
               shellRendersSectionChips
               shellActiveSectionId={activationShellActiveId}
             />
@@ -1635,7 +1636,16 @@ export default function ResultsTabsShell({
             onSaveVersion={handleSaveVersion}
             onRestoreVersion={handleRestoreVersion}
             onExportWorkbook={() => setActiveTab("downloads")}
-            onAskWundy={handleAskWundy}
+            onOpenActivationPromptLibrary={() => {
+              setLockedTabContext(null);
+              setActiveTab("activation");
+              window.setTimeout(() => {
+                document.getElementById("activation-prompt-library")?.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start",
+                });
+              }, 180);
+            }}
             shellRendersSectionChips
             shellActiveSectionId={workbookShellActiveId}
           />

@@ -554,7 +554,7 @@ export function resolvePromptText(
   };
 }
 
-/** Sections with AI prompt packs by tier — used in Workbook Prompt Library (separate from Activation plans). */
+/** Sections with AI prompt packs by tier — used in Activation Prompt Library. */
 export const PROMPT_SECTIONS_BY_PRODUCT_TIER: Record<
   "snapshot" | "snapshot-plus" | "blueprint" | "blueprint-plus",
   SectionId[]

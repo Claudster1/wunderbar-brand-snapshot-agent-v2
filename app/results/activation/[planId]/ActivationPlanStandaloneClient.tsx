@@ -12,6 +12,7 @@ import {
   splitActivationSectionsByAudienceVsCampaign,
 } from "@/lib/activation/activationPlanAudienceVsCampaign";
 import { buildActivationFullPlanHref, buildResultsActivationTabHref } from "@/lib/activation/activationPlanLinks";
+import { promptSectionForActivationPlan } from "@/lib/activation/activationPromptLibrary";
 import type { ScheduleRow } from "@/components/ExecutionSchedule";
 import {
   SUITE_ACCENT_BRIGHT,
@@ -122,6 +123,16 @@ export default function ActivationPlanStandaloneClient({
     });
   }, [section.id, reportId, userEmail, isPreviewReport]);
 
+  const promptLibraryHref = useMemo(() => {
+    const promptSection = promptSectionForActivationPlan(section.id, productTier);
+    if (!promptSection) return null;
+    return buildResultsActivationTabHref(reportId, userEmail, {
+      activationFocus: isActivationAudienceJourneySectionId(section.id) ? "audience-journey" : "campaigns",
+      mode: isPreviewReport ? "preview-tabs" : undefined,
+      promptSection,
+    });
+  }, [section.id, productTier, reportId, userEmail, isPreviewReport]);
+
   const activationHref =
     resultsActivationHref ??
     buildResultsActivationTabHref(reportId, userEmail, {
@@ -225,6 +236,7 @@ export default function ActivationPlanStandaloneClient({
         diagnosticData={diagnosticData}
         scheduleRows={scheduleRows}
         audienceJourneyPlanLinks={audienceJourneyPlanLinks}
+        promptLibraryHref={promptLibraryHref}
         editAction={{ mode: "link", href: editWorkbookHref }}
         showGuidance
         onExportSchedule={

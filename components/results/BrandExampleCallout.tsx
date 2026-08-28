@@ -29,7 +29,7 @@ export function BrandExampleCallout({ children, style }: Props) {
           margin: 0,
           fontSize: 11,
           fontWeight: 800,
-          letterSpacing: "0.08em",
+          letterSpacing: "0.1em",
           textTransform: "uppercase",
           color: EXAMPLE_CALLOUT.labelColor,
         }}

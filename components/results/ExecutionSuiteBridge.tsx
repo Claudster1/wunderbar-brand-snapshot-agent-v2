@@ -107,13 +107,13 @@ export default function ExecutionSuiteBridge({
       <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
         <Segment
           label="Activation"
-          description="Channel playbooks, schedules, paste-ready copy."
+          description="Channel playbooks, schedules, Prompt Library."
           active={mode === "activation"}
           onClick={onSelectPlans}
         />
         <Segment
           label="Workbook"
-          description="Inputs, versions, prompts — what regenerates into plans."
+          description="Edits and versions — what regenerates into exports."
           active={mode === "workbook"}
           onClick={onSelectWorkbook}
         />

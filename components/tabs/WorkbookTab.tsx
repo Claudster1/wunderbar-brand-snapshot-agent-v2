@@ -8,7 +8,6 @@ import {
   type WorkbookState,
   type WorkbookVersion,
 } from "@/lib/workbookTypes";
-import ExecutionSection from "@/components/ExecutionSection";
 import DiagnosticTruthPanel from "@/components/workbook/DiagnosticTruthPanel";
 import WorkbookSectionComponent from "@/components/workbook/WorkbookSection";
 import MoodBoardWorkbookPanel from "@/components/workbook/MoodBoardWorkbookPanel";
@@ -16,9 +15,8 @@ import type { NormalizedImagerySample } from "@/lib/brand/brandImageryNormalize"
 import VersionHistory from "@/components/workbook/VersionHistory";
 import TabPageWithSidebar from "@/components/results/TabPageWithSidebar";
 import { getSuiteProgressHint } from "@/lib/copy/resultsSuiteGuidance";
-import type { Prompt } from "@/lib/promptPackData";
 import { buildWorkbookNavMenuItems } from "@/lib/workbook/workbookNavMenu";
-import { PROMPT_SECTIONS_BY_PRODUCT_TIER } from "@/lib/promptPackData";
+import { hasActivationPromptLibrary } from "@/lib/activation/activationPromptLibrary";
 
 import {
   SUITE_ACCENT_BRIGHT,
@@ -87,7 +85,8 @@ interface WorkbookTabProps {
   onSaveVersion: (label?: string) => Promise<void>;
   onRestoreVersion: (version: WorkbookVersion) => Promise<void>;
   onExportWorkbook: () => void;
-  onAskWundy: (prompt: Prompt) => void;
+  /** Jump to Activation → Prompt Library (prompts no longer live on Workbook). */
+  onOpenActivationPromptLibrary?: () => void;
   shellRendersSectionChips?: boolean;
   shellActiveSectionId?: string | null;
 }
@@ -118,7 +117,7 @@ export default function WorkbookTab({
   onSaveVersion,
   onRestoreVersion,
   onExportWorkbook,
-  onAskWundy,
+  onOpenActivationPromptLibrary,
   shellRendersSectionChips = false,
   shellActiveSectionId = null,
 }: WorkbookTabProps) {
@@ -155,8 +154,7 @@ export default function WorkbookTab({
   const textWorkbookSections = availableSections.filter((s) => s.id !== "mood-board");
   const showMoodBoardSection = availableSections.some((s) => s.id === "mood-board");
   const workbookMenuItems = buildWorkbookNavMenuItems(productTier, workbookState.versions.length);
-  const promptPackSections = PROMPT_SECTIONS_BY_PRODUCT_TIER[productTier] ?? [];
-  const hasPromptLibrary = promptPackSections.length > 0;
+  const showPromptLibraryLink = hasActivationPromptLibrary(productTier);
 
   const pillarScores = (
     (diagnosticData.pillarScores as Record<string, number> | undefined) ?? {}
@@ -265,29 +263,36 @@ export default function WorkbookTab({
         </div>
       </div>
       <div id="workbook-deliverable" style={WORKBOOK_CALLOUT}>
-        <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: BLUE }}>
+        <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.1em]" style={{ color: BLUE }}>
           How this tab fits
         </p>
         <p className="m-0 text-[15px] font-semibold leading-snug" style={{ color: NAVY }}>
           Refine copy here, then export
         </p>
         <p className="m-0 text-sm leading-relaxed" style={{ color: BODY, maxWidth: 720 }}>
-          Diagnostic truth stays locked. Editable sections follow your product tier. The Prompt Library below is for
-          drafting with AI outputs you can paste into sections — it is separate from Activation channel execution plans.
+          Diagnostic truth stays locked. Editable sections follow your product tier. Run AI prompts in{" "}
+          <strong style={{ color: NAVY }}>Activation → Prompt Library</strong>, then paste finished language into the
+          sections below and save a version before Downloads.
         </p>
         <ol
           className="m-0 grid list-decimal gap-2 pl-5 text-[13px] leading-relaxed sm:text-sm"
           style={{ color: MID_GRAY, maxWidth: 720 }}
         >
-          <li>Review Activation for channel-specific plans.</li>
+          <li>Review Activation for channel plans and the Prompt Library.</li>
           <li>Update workbook sections with your final language.</li>
-          <li>Use Prompt Library when you want structured AI drafts.</li>
           <li>
             {isBlueprintPlus
               ? "Save a named version, then export from Downloads."
               : "Export from Downloads when you are ready to share."}
           </li>
         </ol>
+        {showPromptLibraryLink && onOpenActivationPromptLibrary ? (
+          <div>
+            <button type="button" onClick={onOpenActivationPromptLibrary} style={BTN_PRIMARY}>
+              Open Prompt Library in Activation
+            </button>
+          </div>
+        ) : null}
       </div>
 
       <div id="workbook-diagnostic-truth" style={{ scrollMarginTop: 120 }}>
@@ -332,31 +337,6 @@ export default function WorkbookTab({
           />
         </div>
       ) : null}
-
-      {hasPromptLibrary && (
-        <div id="workbook-prompt-library" style={{ scrollMarginTop: 120 }}>
-          <div style={{ ...WORKBOOK_CALLOUT, marginBottom: 20 }}>
-            <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.08em]" style={{ color: BLUE }}>
-              Prompt Library
-            </p>
-            <p className="m-0 text-sm leading-relaxed sm:text-[15px]" style={{ color: BODY, maxWidth: 720 }}>
-              Tier-matched prompts by topic. Run a prompt, copy the output, and paste it into the matching workbook
-              section above. Activation tab remains the home for paid, owned, and earned channel plans.
-            </p>
-          </div>
-          {promptPackSections.map((sectionId) => (
-            <div key={sectionId} id={`workbook-prompt-${sectionId}`} style={{ scrollMarginTop: 120 }}>
-              <ExecutionSection
-                sectionId={sectionId}
-                productTier={productTier}
-                diagnosticData={diagnosticData}
-                onAskWundy={onAskWundy}
-                activePack="all"
-              />
-            </div>
-          ))}
-        </div>
-      )}
 
       {showVersionHistory && (
         <div id="workbook-version-history" style={{ scrollMarginTop: 120 }}>

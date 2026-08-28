@@ -226,7 +226,7 @@ export function SnapshotPlusReport({
         <Text style={styles.h2}>Content Format & Channel Snapshot</Text>
         <Text style={styles.body}>
           {contentFormatChannelSnapshot ||
-            "This section maps your primary audience to the highest-leverage formats, channels, and funnel-stage priorities so execution starts with the right sequence."}
+            "This section maps your primary audience to the most effective formats, channels, and funnel-stage priorities so execution starts with the right sequence."}
         </Text>
 
         <Text style={styles.h2}>Marketing Spend Efficiency Signal</Text>

@@ -18,7 +18,7 @@ export const brandSnapshotCopy = {
         "Your brand is evaluated across five core pillars using a calibrated scoring methodology that benchmarks clarity, consistency, and competitive readiness.",
     },
     {
-      title: "Identify your highest-leverage opportunity",
+      title: "Identify where improvement helps most",
       description:
         "Your results pinpoint the single pillar where focused improvement will create the greatest cascading impact across your entire brand system.",
     },

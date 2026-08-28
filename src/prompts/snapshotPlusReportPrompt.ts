@@ -32,7 +32,7 @@ REQUIRED OUTPUT STRUCTURE
    - WunderBrand Score™ (0–100)
    - synthesis: One-paragraph synthesis connecting all 5 pillars
    - diagnosis: One-sentence diagnosis ("Your brand is currently ___ because ___")
-   - primaryFocusArea: The highest-leverage pillar to address first
+   - primaryFocusArea: The pillar to address first (highest impact)
    - secondaryFocusArea: The second-highest priority pillar
 
 2. Priority Diagnosis (Primary AND Secondary)

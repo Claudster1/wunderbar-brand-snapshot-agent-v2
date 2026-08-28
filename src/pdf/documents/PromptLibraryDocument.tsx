@@ -322,7 +322,7 @@ export function PromptLibraryDocument({ data, brandName }: Props) {
     {
       section: "Executive Summary",
       purpose: "Create a concise top-line narrative for leadership and stakeholders.",
-      prompt: `${brandStandardsPromptPrefix} Write a 200-word executive summary for ${brandName}. Include current strategic context, the highest-leverage priority, and the expected 90-day outcome.`,
+      prompt: `${brandStandardsPromptPrefix} Write a 200-word executive summary for ${brandName}. Include current strategic context, the highest-impact priority, and the expected 90-day outcome.`,
     },
     {
       section: "Brand Diagnostic Context",

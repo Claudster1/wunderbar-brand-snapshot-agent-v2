@@ -654,7 +654,7 @@ function contentFormatChannelTeaser(type: string): string {
     case "local_service":
       return "Your audience-mapped format and channel plan is ready: trust-building formats, local discovery channels, and booking/show-rate priorities.";
     default:
-      return "Your audience-mapped format and channel plan is ready: top content formats, highest-leverage channels, and funnel-stage priorities.";
+      return "Your audience-mapped format and channel plan is ready: top content formats, priority channels, and funnel-stage priorities.";
   }
 }
 
@@ -768,7 +768,7 @@ export const BrandSnapshotPDF = ({
   const primaryLabel = primaryPillar.charAt(0).toUpperCase() + primaryPillar.slice(1);
 
   const diagnosis = `${businessName} has a ${scoreBand} brand foundation, with the clearest opportunity concentrated in ${weakest.label.toLowerCase()}.`;
-  const overview = `${businessName}'s strongest signal is ${strongest.label.toLowerCase()} at ${strongest.score}/20. ${weakest.label} is the highest-leverage area to improve next at ${weakest.score}/20.`;
+  const overview = `${businessName}'s strongest signal is ${strongest.label.toLowerCase()} at ${strongest.score}/20. ${weakest.label} is the best place to improve next at ${weakest.score}/20.`;
   const opportunity = `Strengthen ${weakest.label.toLowerCase()} first so improvements carry through the rest of the customer journey.`;
   const risk = `If ${weakest.label.toLowerCase()} remains unresolved, stronger pillars may not translate into consistent trust or action.`;
 
@@ -1099,7 +1099,7 @@ export const BrandSnapshotPDF = ({
           <Text style={styles.sectionTitle}>Your Next Steps</Text>
           <Text style={styles.sectionDesc}>
             Focus on these practical actions over the next 7–14 days, starting with the
-            highest-leverage gap.
+            gap that matters most.
           </Text>
           {nextActions.map((action, index) => {
             const pillar = actionPillar(action, index === 0 ? weakest.key : entries[index % entries.length].key);

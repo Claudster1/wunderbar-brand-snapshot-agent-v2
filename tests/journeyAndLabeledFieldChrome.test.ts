@@ -4,7 +4,7 @@ import {
   normalizeEngineJourneyStageKey,
   parseBuyerJourneyStages,
 } from "@/lib/strategy/parseBuyerJourneyStages";
-import { chromeForLabeledField, stripBrandReplyPrefix } from "@/lib/strategy/labeledFieldChrome";
+import { chromeForLabeledField, stripBrandReplyPrefix, stripSpokenScriptMetaPrefix } from "@/lib/strategy/labeledFieldChrome";
 
 describe("normalizeEngineJourneyStageKey", () => {
   it("maps Blueprint engine stages onto suite keys", () => {
@@ -52,5 +52,15 @@ describe("labeledFieldChrome", () => {
     expect(stripBrandReplyPrefix('Acme reply: "We do not sell workshops."')).toBe(
       '"We do not sell workshops."',
     );
+  });
+
+  it("strips stage-direction prefixes from spoken lines", () => {
+    expect(stripSpokenScriptMetaPrefix("Acme close (Sage): Would it help if we start with two weeks?")).toBe(
+      "Would it help if we start with two weeks?",
+    );
+    expect(
+      stripSpokenScriptMetaPrefix("Acme opener (Sage voice — calm, precise): Can we look at the journey together?"),
+    ).toBe("Can we look at the journey together?");
+    expect(stripSpokenScriptMetaPrefix('Offer: "Happy to intro a peer."')).toBe('"Happy to intro a peer."');
   });
 });

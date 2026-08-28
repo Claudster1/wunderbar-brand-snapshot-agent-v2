@@ -494,7 +494,7 @@ const REPORT = {
   },
   priorityDiagnosis: {
     primary: {
-      whyFocus: "Credibility is the highest-leverage pillar because your positioning and messaging are already strong — but without visible proof, prospects cannot verify your claims. Trust is the bottleneck.",
+      whyFocus: "Credibility is the best place to focus first because your positioning and messaging are already strong — but without visible proof, prospects cannot verify your claims. Trust is the bottleneck.",
       downstreamIssues: "Low credibility visibility forces your messaging to work harder, makes your positioning feel like marketing speak rather than fact, and causes prospects to hesitate at conversion points. Every pillar is underperforming because proof is not doing its job.",
       whatImproves: "When credibility is surfaced at key touchpoints, messaging becomes believable, positioning becomes defensible, and conversion friction drops. One change unlocks momentum across the system.",
     },
@@ -1726,7 +1726,7 @@ export default function BrandSnapshotPlusReport() {
           {/* Primary Focus Area Diagnosis */}
           <div data-print-always style={{ display: selectedFocus === "primary" ? "block" : "none" }}>
             <Section style={{ background: `linear-gradient(135deg, ${BLUE}04 0%, ${BLUE}08 100%)`, border: `2px solid ${BLUE}30` }}>
-              <SectionTitle hero description={`Deep analysis of why ${r.executiveSummary.primaryFocusArea} is your highest-leverage focus area.`}>
+              <SectionTitle hero description={`Deep analysis of why ${r.executiveSummary.primaryFocusArea} is your best focus area.`}>
                 <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <div style={{ width: 32, height: 32, borderRadius: "50%", background: BLUE, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 900 }}>1</div>
                   Primary Diagnosis: {r.executiveSummary.primaryFocusArea}

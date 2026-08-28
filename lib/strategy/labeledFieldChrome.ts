@@ -97,3 +97,17 @@ export function chromeForLabeledField(label: string): LabeledFieldChrome {
 export function stripBrandReplyPrefix(value: string): string {
   return value.replace(/^[A-Za-z0-9 .&'’-]{1,48}\s+reply:\s*/i, "").trim();
 }
+
+/**
+ * Strip stage-direction / meta prefixes from spoken lines
+ * (e.g. "Acme close (Sage): …", "Acme opener (Sage voice — calm): …").
+ */
+export function stripSpokenScriptMetaPrefix(value: string): string {
+  let out = value.trim();
+  out = out.replace(
+    /^[A-Za-z0-9 .&'’-]{1,48}\s+(?:close|opener|opening|talk track)\s*(?:\([^)]*\))?\s*:\s*/i,
+    "",
+  );
+  out = out.replace(/^offer:\s*/i, "");
+  return out.trim();
+}

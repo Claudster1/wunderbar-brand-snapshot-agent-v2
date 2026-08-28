@@ -34,7 +34,7 @@ export function getUpgradeNudgeCopy({ primaryPillar, tiePillars }: CopyContext) 
   }
 
   return {
-    headline: `Your highest-leverage move: ${pillarNudgeMap[primaryPillar] || primaryPillar}`,
+    headline: `Your best next move: ${pillarNudgeMap[primaryPillar] || primaryPillar}`,
     body: `Your diagnostic identified ${primaryPillar} as the pillar where focused investment will create the most cascading impact across your entire brand system.`,
     detail:
       `${SNAPSHOT_PLUS_LABEL} transforms this score into a strategic roadmap — commercial impact analysis, concrete before-and-after examples, a prioritized action plan, and 8 AI prompts calibrated to your brand.`,

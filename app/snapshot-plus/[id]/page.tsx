@@ -77,7 +77,7 @@ const SAMPLE_SNAPSHOT_PLUS_REPORTS: Record<string, any> = {
       "Top opportunities: sharpen first-impression clarity, elevate proof placement, and simplify conversion pathways.",
     roadmap_30: "Refine homepage hero, reposition proof blocks, and align CTA sequence.",
     roadmap_60: "Deploy authority content cadence and optimize high-intent landing journeys.",
-    roadmap_90: "Scale top-performing channels and standardize message architecture across assets.",
+    roadmap_90: "Scale top-performing channels and standardize your core messages across assets.",
     content_format_channel_snapshot:
       "Prioritize authority-led short-form insights and case-based long-form content distributed through LinkedIn and search.",
     marketing_spend_audit_signal:
@@ -649,7 +649,7 @@ export default async function SnapshotPlusPage({
             {
               id: "foundation",
               label: "Foundation",
-              description: "Decision snapshot with current state, risks, and the highest-leverage move.",
+              description: "Decision snapshot with current state, risks, and the best next move.",
               href: sectionHref("foundation"),
             },
             {
@@ -768,7 +768,7 @@ export default async function SnapshotPlusPage({
         <h2>Content Format &amp; Channel Snapshot</h2>
         <p style={{ lineHeight: "1.65" }}>
           {content_format_channel_snapshot ||
-            "This section maps your audience to the most effective content formats, highest-leverage channels, and funnel-stage priorities so execution starts with the right sequence."}
+            "This section maps your audience to the most effective content formats, priority channels, and funnel-stage priorities so execution starts with the right sequence."}
         </p>
       </div>
       )}

@@ -96,7 +96,7 @@ const STATIC_ATLAS_BASE: Array<Omit<FoundationPersonaAtlasEntry, "portraitSrc" |
     ],
     fears: [
       "Buying another tool that creates implementation overhead.",
-      "Failing to show finance-legible ROI for operations investments.",
+      "Failing to show ROI finance can follow for operations investments.",
     ],
     channels: "LinkedIn thought leadership, operations-focused landing pages, diagnostic call follow-up email.",
     cta: "Review my operations rollout plan",

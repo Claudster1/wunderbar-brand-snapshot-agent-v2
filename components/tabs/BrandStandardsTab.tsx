@@ -1563,7 +1563,7 @@ export default function BrandStandardsTab({
                 content: `Review your ${primaryPillar} rollout plan`,
               },
             ]}
-            example={`Hi [Name] — after reviewing ${businessName}’s diagnostic, the highest-leverage move is ${firstPriority.toLowerCase()} (your ${primaryPillar.toLowerCase()} gap). One proof: teams that fix this before scaling spend see clearer pipeline quality. Recommended next step: review your ${primaryPillar} rollout plan this week.`}
+            example={`Hi [Name] — after reviewing ${businessName}’s diagnostic, the best next move is ${firstPriority.toLowerCase()} (your ${primaryPillar.toLowerCase()} gap). One proof: teams that fix this before scaling spend see clearer pipeline quality. Recommended next step: review your ${primaryPillar} rollout plan this week.`}
           />
         </div>
       </section>

@@ -324,7 +324,7 @@ export const BrandSnapshotPlusPDF = ({
           <Text style={styles.heading}>Content Format & Channel Snapshot</Text>
           <Text style={styles.para}>
             {contentFormatChannelSnapshot ||
-              "This section maps your audience to the most effective content formats, highest-leverage channels, and funnel-stage priorities so execution starts with the right sequence."}
+              "This section maps your audience to the most effective content formats, priority channels, and funnel-stage priorities so execution starts with the right sequence."}
           </Text>
         </Section>
 

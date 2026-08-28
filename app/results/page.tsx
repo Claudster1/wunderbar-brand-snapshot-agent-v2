@@ -598,7 +598,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       "Use one clear positioning promise and reinforce it with consistent message pillars across homepage, email, social, and sales narratives.",
     topOpportunity:
       recommendationsList[0] ??
-      "Sharpen your highest-leverage message and apply it consistently across homepage, email, and social touchpoints.",
+      "Sharpen your strongest message and apply it consistently across homepage, email, and social touchpoints.",
     synthesisPoints: [
       {
         label: "What to protect",

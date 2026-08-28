@@ -134,7 +134,7 @@ THOUGHT LEADERSHIP (thoughtLeadershipActivity):
   - This feeds into the Voice & Tone Guide (what authority they project) and Visibility & Discovery (where they should be visible)
 CONVERSION INFRASTRUCTURE (hasEmailList, hasLeadMagnet, leadMagnetDetails, hasClearCTA):
   - Use these to inform the conversion pillar deep dive and action plan
-  - Missing email list = highest-leverage conversion recommendation
+  - Missing email list = highest-impact conversion recommendation
   - Missing lead magnet = content strategy opportunity
   - When hasLeadMagnet is true and **leadMagnetDetails** is populated (title, format, summary, optional urlOrLocation), use it explicitly in conversion and CTA recommendations — do not genericize their real asset
 CUSTOMER ACQUISITION (customerAcquisitionSource):

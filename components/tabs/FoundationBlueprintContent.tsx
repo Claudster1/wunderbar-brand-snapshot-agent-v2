@@ -2189,7 +2189,7 @@ export default function FoundationBlueprintContent({
         },
         {
           title: "Pillar-Level Prioritization",
-          impact: `Focuses teams on the highest-leverage ${primaryPillar.toLowerCase()} moves first.`,
+          impact: `Focuses teams on the ${primaryPillar.toLowerCase()} moves that help most first.`,
           proof: "Priority order mapped to conversion-quality outcomes.",
           tone: { border: "#34D399", bg: "#ECFDF5", chip: "#D1FAE5", text: "#047857" },
         },
@@ -3258,7 +3258,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
       case "positioning-differentiators":
         return compact([
           `Differentiator 1: proprietary diagnostic-to-activation workflow that closes the gap between analysis and implementation.`,
-          `Differentiator 2: pillar-level strategic sequencing that identifies highest-leverage moves before channel spend scales.`,
+          `Differentiator 2: pillar-level sequencing that identifies the highest-impact moves before channel spend scales.`,
           `Differentiator 3: integrated workbook and downloadable deliverables that keep strategy, execution, and governance aligned.`,
           `Outcome linkage: this model improves decision velocity, message consistency, and conversion quality in the first 90 days.`,
           competitiveVulnerability.recommendation ? `Defensibility move: ${competitiveVulnerability.recommendation}` : null,
@@ -3346,7 +3346,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
       case "messaging-elevator-pitch":
         return compact([
           `30-second pitch: "Most ${market.toLowerCase()} teams don't have an activity problem - they have an alignment problem. ${brandName} fixes that by turning strategic clarity into execution that converts."`,
-          `60-second pitch: "${commonNarrative} We diagnose the highest-impact gaps, align your message architecture, and deliver owner-ready actions your team can execute now."`,
+          `60-second pitch: "${commonNarrative} We diagnose the highest-impact gaps, align your core messages, and deliver owner-ready actions your team can execute now."`,
           `90-second close: "The result is stronger conversion quality, less wasted spend, and a repeatable system your team can scale with confidence."`,
           `Conversion prompt: "Would it be useful to review your highest-impact 90-day priority and owner plan together?"`,
           `In use (Open): "If your team is active but still underperforming, the issue is usually message-to-execution misalignment."`,
@@ -3379,7 +3379,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
           `Voice execution rule: every customer-facing block includes one decision, one reason, and one next action.`,
           `Stress-test behavior: when stakes increase, tone stays calm, specific, and accountable—never frantic or vague.`,
           `In use (Organic Social): "${brandName} helps ${audience.toLowerCase()} close ${firstGap}. Diagnostic signal and owner-ready plan on request—book a short priority review."`,
-          `In use (Paid Ad secondary text): "We start where ${firstGap} is costing you—which maps straight to ${primaryPillar.toLowerCase()}."`,
+          `In use (Paid Ad secondary text): "We start where ${firstGap} is slowing results—which maps straight to ${primaryPillar.toLowerCase()}."`,
           `In use (Product): "Something went wrong—here is the fix and who owns the next step." Same steady voice as marketing, not playful disclaimers.`,
           `Next step: Add voice attributes (${voiceAttributes.length > 0 ? voiceAttributes.join(", ") : "clear, confident, practical"}) to the creative brief header as non-optional fields.`,
           `Next step: Review one support macro and one billing email this week—rewrite any line that breaks the steady-voice rule.`,
@@ -4433,7 +4433,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
               <div className="overflow-hidden rounded-[5px] border border-brand-border bg-white">
                 <div className="border-b border-brand-border/80 bg-gradient-to-br from-[#F7FBFF] to-white px-4 py-4 sm:px-5 sm:py-5">
                   <p className="m-0 text-xs font-semibold tracking-[0.08em] text-brand-blue sm:text-sm">
-                    Voice Architecture
+                    Voice map
                   </p>
                   <p className="m-0 mt-1.5 max-w-3xl text-sm leading-relaxed text-brand-muted sm:text-base">
                     One constant core voice. Three context registers with sample lines you can paste and adapt.
@@ -4599,7 +4599,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
                   </p>
                   <p className="text-sm sm:text-base text-[#D6E4FF] mt-2 max-w-2xl leading-relaxed">
                     {apStyleArrowChain(
-                      `diagnose the highest-impact gap → align your message architecture → execute with owner-level accountability`,
+                      `diagnose the highest-impact gap → align your core messages → execute with owner-level accountability`,
                     )}
                   </p>
                   <div className="mt-3 inline-flex items-center rounded-[5px] bg-[#07B0F2] px-3 py-2">
@@ -4673,7 +4673,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
           <div className="rounded-lg border border-brand-border bg-white p-4">
             <p className="text-[14px] font-semibold tracking-wide text-brand-blue">Days 1-30</p>
             <p className="bs-body-sm text-brand-midnight mt-1">
-              Finalize identity, positioning, and message architecture, led by:{" "}
+              Finalize identity, positioning, and core messages, led by:{" "}
               {topPriority?.title || `the highest-impact ${primaryPillar.toLowerCase()} priority`}.
             </p>
           </div>

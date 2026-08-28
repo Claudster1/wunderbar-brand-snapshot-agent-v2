@@ -45,7 +45,7 @@ export const PILLARS: Record<PillarKey, PillarContent> = {
 
     expanded: {
       early: (brand) =>
-        `At this stage, ${brand} is still forming how it shows up in the market. The offer and audience are emerging, but they aren't yet anchored to a single, clear point of view. This is the highest-leverage moment to define positioning — the brands that get this right early spend 40–60% less to acquire customers over time.`,
+        `At this stage, ${brand} is still forming how it shows up in the market. The offer and audience are emerging, but they aren't yet anchored to a single, clear point of view. This is the highest-impact moment to define positioning — the brands that get this right early spend 40–60% less to acquire customers over time.`,
 
       scaling: (brand) =>
         `${brand} has traction, but the positioning hasn't kept pace with growth. As your audience expands, slight inconsistencies in how the brand describes what it does compound into diluted differentiation and longer sales cycles.`,

@@ -535,7 +535,7 @@ export const previewFullBlueprintReport: Record<string, unknown> = {
       primaryMacroConversion: PREVIEW_ENGINE_MACRO,
       primaryOfferAnchor: PREVIEW_ENGINE_OFFER,
       advancesConversion:
-        "Earns third-party validation and speaking hooks that feed nurture proof blocks and sales leave-behinds—not a separate storyline.",
+        "Earns third-party validation and speaking hooks that feed nurture proof blocks and sales one-pagers—not a separate storyline.",
     },
     authorityPositioning: { expertiseAreas: ["GTM narrative"], uniquePerspective: "Diagnostic-to-shipped rhythm", targetOutlets: [] },
     speakingTopics: [],

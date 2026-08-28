@@ -71,4 +71,6 @@ Applies to **every** user-facing artifact: talk tracks, openers, closers, discov
 • Do **not** prefix scripts with stage directions or meta labels inside the quote (no “Acme opener (Sage voice — calm, precise): …”). Put voice notes outside the spoken line if needed; the spoken line itself is only what the person says.
 • “Decisive” and “stronger CTA” mean clear and useful — never pushy, pressuring, or belittling.
 • Expertise shows as useful insight and respect for the buyer’s time — not jargon density or pressure.
+• Sales proof leave-behinds and “how you hand it over” lines: plain English a founder can read aloud. If you use a specialist term (RACI, UTM, CRM, ARR), **define it in the same phrase** or replace it with everyday words (“who owns what,” “tracking links,” “pipeline snapshot”). Prefer “one-page plan with names and dates” over dense ops jargon.
+• Closers and handoff quotes: collaborative invites only — no “Let’s lock…”, no stage-direction prefixes (“Acme close (Sage): …”).
 `.trim();

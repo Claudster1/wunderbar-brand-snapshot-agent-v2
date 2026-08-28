@@ -129,7 +129,7 @@ const diagnosticData = {
   positioningMessagingFramework:
     "Use one category promise, three proof-backed message pillars, and channel-specific CTA sequencing.",
   topOpportunity:
-    "Tighten visibility strategy around a single message architecture to compound authority and demand.",
+    "Tighten visibility around one clear message system so authority and demand build on each other.",
   synthesisPoints: [
     { label: "What to protect", content: "Strong positioning clarity and advisory tone." },
     { label: "What to prioritize", content: "Visibility consistency and proof-led messaging." },
@@ -148,7 +148,7 @@ const diagnosticData = {
       oneLinePitch:
         "A fixed-scope diagnostic plus a 90-day rollout map with owners, weekly leading signals, and channel copy that all point to the same offer.",
       whoItsFor:
-        "Founder-led and marketing-led B2B services firms ($2–15M ARR) running multi-channel demand but seeing flat SQL quality.",
+        "Founder-led and marketing-led B2B services firms ($2–15M annual revenue) running multi-channel demand but seeing flat sales-ready opportunity quality.",
       substitutesConsidered:
         "Full-service agencies, freelance strategists, in-house playbooks from peer networks, and DIY templates.",
       whyTheySwitch:
@@ -156,7 +156,7 @@ const diagnosticData = {
     },
     secondaryOffers: [
       { name: "Executive narrative audit (2-week)", role: "entry" },
-      { name: "RevOps + messaging alignment workshop", role: "upsell" },
+      { name: "Revenue ops + messaging alignment workshop", role: "upsell" },
     ],
     painsRelieved: [
       "Message-market drift across LinkedIn, outbound, and the site.",
@@ -184,9 +184,9 @@ const diagnosticData = {
         whyItMatters: "Leading indicator that narrative drift is closing before SQL mix improves.",
       },
       {
-        signal: "MQL→SQL rate and stage velocity on the named ICP segment",
+        signal: "Lead-to-opportunity rate and stage speed on the named ideal-customer segment",
         reviewCadence: "monthly",
-        whyItMatters: "Ties the offer story to revenue-facing outcomes without overfitting to vanity reach.",
+        whyItMatters: "Ties the offer story to revenue outcomes without chasing vanity reach.",
       },
     ],
     channelExecutionAlignment:
@@ -203,7 +203,7 @@ const diagnosticData = {
     positioningAxis2: {
       label: "Buyer sophistication",
       lowEnd: "SMB DIY tooling",
-      highEnd: "Mid-market operator-led GTM",
+      highEnd: "Mid-market operator-led go-to-market",
     },
     players: [
       {
@@ -255,7 +255,7 @@ const diagnosticData = {
       icpAlignment: "Secondary ICP",
       role: "CFO",
       coreFrustration: "Hard to tie brand and demand spend to revenue efficiency with confidence.",
-      primaryMotivation: "A finance-legible model: payback window, risk controls, and scenario planning.",
+      primaryMotivation: "A model finance can follow: payback window, risk controls, and scenario planning.",
       decisionStyle: "Conservative; requires ROI framing and phased investment gates.",
       informationSources: "Board materials, finance peer forums, and vendor security or procurement packets.",
       messagingAngle:
@@ -276,23 +276,23 @@ const diagnosticData = {
       coreFrustration: "CRM and campaigns tell different stories; handoffs break under scale.",
       primaryMotivation: "One operating model: shared definitions, attribution guardrails, and rollout governance.",
       decisionStyle: "Systems thinker; validates integrations and data lineage before committing.",
-      informationSources: "RevOps communities, solution architects, and reference calls with similar stacks.",
+      informationSources: "Revenue-ops communities, solution architects, and reference calls with similar stacks.",
       messagingAngle:
         "Acme Co should show how messaging, routing, and reporting stay synchronized as channels multiply.",
-      contentPreferences: "Implementation checklists, RACI templates, and technical validation calls.",
+      contentPreferences: "Implementation checklists, who-owns-what charts, and technical validation calls.",
       objectionAndResponse: {
         objection: "Another framework will not fix broken handoffs between marketing and sales.",
         response: "Lead with ownership mapping plus a two-week pilot on one journey before broad rollout.",
       },
-      channelPriority: ["Sales enablement sessions", "Slack/Teams async", "RevOps office hours"],
-      sampleHeadline: "Align GTM narrative with the systems your team already runs every Monday.",
+      channelPriority: ["Sales enablement sessions", "Slack/Teams async", "Revenue-ops office hours"],
+      sampleHeadline: "Align your go-to-market story with the systems your team already runs every Monday.",
       sampleCTA: "Validate integration and ownership plan",
     },
   ],
   audiencePersonas: {
     primaryICP: {
       icpLabel: "Primary — founder-led B2B services",
-      name: "Founder-led services firms ($2–15M ARR)",
+      name: "Founder-led services firms ($2–15M annual revenue)",
       summary:
         "Leaders who feel pipeline quality slipping despite visible marketing activity; they want one narrative spine, named owners, and proof at decision moments—not more campaigns.",
       demographics:
@@ -309,7 +309,7 @@ const diagnosticData = {
       buyingJourney:
         "Peer referral or inbound → founder-led eval → workshop or diagnostic → pilot with milestones → expand if checkpoints hit.",
       languageTheyUse:
-        "Pipeline quality, payback, narrative consistency, owners, checkpoints, RevOps, not another deck.",
+        "Pipeline quality, payback, story consistency, owners, checkpoints, revenue ops—not another deck.",
       whereToBeFindable:
         "LinkedIn founder POV, targeted outbound to economic buyers, partner intros, niche communities and vertical podcasts.",
       objections: [
@@ -319,25 +319,25 @@ const diagnosticData = {
     },
     secondaryICP: {
       icpLabel: "Secondary — growth-stage marketing-led",
-      name: "Marketing-led scale-ups modernizing GTM",
+      name: "Marketing-led scale-ups modernizing go-to-market",
       summary:
-        "CMO or VP Marketing tasked with proving which motions actually move SQLs; needs alignment with sales and finance on definitions and proof.",
+        "CMO or VP Marketing tasked with proving which motions actually move sales-ready opportunities; needs alignment with sales and finance on definitions and proof.",
       demographics:
         "Series A–C or bootstrapped high growth; 50–400 employees; multi-channel demand programs already live.",
       psychographics:
-        "Data-hungry but frustrated by messy attribution; wants a pragmatic operating cadence, not a rebrand for its own sake.",
+        "Data-hungry but frustrated by messy attribution; wants a practical weekly rhythm, not a rebrand for its own sake.",
       painPoints: [
         "Campaign reporting and CRM stages tell different stories.",
-        "Content calendar is busy but not tied to one message architecture.",
+        "Content calendar is busy but not tied to one message system.",
       ],
       goals:
-        "Raise MQL→SQL quality while keeping spend flat; show leadership a 90-day plan with weekly leading indicators.",
+        "Raise lead-to-opportunity quality while keeping spend flat; show leadership a 90-day plan with weekly leading indicators.",
       buyingJourney:
         "Internal business case → vendor shortlist → deep dive on methodology and references → pilot tied to one journey or segment.",
       languageTheyUse:
-        "Attribution, stage definitions, nurture, CAC, payback, message-market fit, enablement.",
+        "Attribution, stage definitions, nurture, cost to acquire, payback, message-market fit, enablement.",
       whereToBeFindable:
-        "Marketing leadership communities, analyst content, webinars, and peer referrals from RevOps or CFO networks.",
+        "Marketing leadership communities, analyst content, webinars, and peer referrals from revenue-ops or CFO networks.",
       objections: [
         "We already have a positioning doc—execution is the problem.",
         "Sales will not adopt another messaging framework.",
@@ -348,13 +348,13 @@ const diagnosticData = {
         icpLabel: "Partner — implementation & SI ecosystem",
         name: "Regional SIs and boutique consultancies",
         summary:
-          "Partners who bring you into multi-vendor deals when the buyer needs narrative + operating rhythm, not point tactics.",
-        demographics: "10–80 person firms; often co-selling with your team on transformation or GTM programs.",
-        psychographics: "Reputation-sensitive; need repeatable co-sell stories and clear handoff RACI.",
+          "Partners who bring you into multi-vendor deals when the buyer needs a clear story plus a weekly operating rhythm—not point tactics.",
+        demographics: "10–80 person firms; often joint-selling with your team on transformation or go-to-market programs.",
+        psychographics: "Reputation-sensitive; need repeatable joint-sell stories and clear who-owns-what handoffs.",
         painPoints: ["Unclear joint value story on proposals", "Overlap anxiety with their own strategy practice"],
         goals: "Win larger engagements with a credible brand and execution layer.",
         buyingJourney: "Partner manager intro → joint workshop template → shared case format → quarterly pipeline review.",
-        languageTheyUse: "Co-sell, RACI, joint IP, referenceable outcomes, deal registration.",
+        languageTheyUse: "Joint sell, who owns what, shared materials, referenceable outcomes, deal registration.",
         whereToBeFindable: "Partner portals, industry events, warm intros from existing customer success.",
         objections: ["Your team might compete with ours on strategy"],
       },
@@ -370,10 +370,10 @@ const diagnosticData = {
         "From we do everything growth to we diagnose the leak, align the narrative, and ship weekly proof with owners.",
       channelShifts:
         "Fewer one-off campaigns; one pillar-led weekly rhythm; late-funnel pages and decks carry the same proof modules as paid and outbound.",
-      timeline: "90 days to baseline consistency; 6 months to harden enablement and RevOps tie-in.",
+      timeline: "90 days to baseline consistency; 6 months to harden enablement and revenue-ops tie-in.",
       repositioningSteps: [
         "Audit hero, outbound hook, and deck opener against one positioning statement.",
-        "Define SQL in writing and align nurture CTAs to that definition.",
+        "Define sales-ready opportunity in writing and align nurture CTAs to that definition.",
         "Place one proof module beside every primary CTA in evaluation paths.",
         "Run a two-week sales/marketing sync on talk tracks and objection responses.",
       ],
@@ -383,20 +383,20 @@ const diagnosticData = {
     {
       icpLabel: "Primary — founder-led B2B services",
       alignmentToBusinessStrategy:
-        "Acme Co’s growth goals depend on winning founder-led services firms where narrative drift is the hidden tax on demand—this ICP funds the 90-day operating-plan offer and proves the diagnostic-to-shipped rhythm that differentiates the brand.",
+        "Acme Co’s growth goals depend on winning founder-led services firms where story drift is the hidden tax on demand—this segment funds the 90-day operating-plan offer and proves the diagnose-then-ship rhythm that differentiates the brand.",
       strategicFocus:
         "Earn trust with one spine across hero, outbound, and deck; pair proof modules with late-funnel asks and named owners on every milestone.",
       campaignContentNeeds: [
         "Founder POV LinkedIn series tied to pipeline-quality and payback language.",
         "Late-funnel landing variant with proof beside the primary CTA (not buried on About).",
         "Outbound hook family that mirrors the homepage job-to-be-done.",
-        "14-day pilot RACI one-pager for sales leave-behinds.",
-        "Short Loom: three-surface narrative audit (hero, slide 1, first outbound line).",
+        "14-day pilot one-pager: who owns what, for sales to hand over.",
+        "Short Loom: three-surface story check (hero, slide 1, first outbound line).",
       ],
       priorityTactics: [
         "Week 1–2: publish one proof-led hero test vs. control; track scroll-to-proof and CTA click.",
         "Week 3–4: align sales talk track to the same headline family as paid and outbound.",
-        "Week 5–8: run weekly narrative consistency score on homepage + deck + top outbound cohort.",
+        "Week 5–8: run weekly story consistency check on homepage + deck + top outbound cohort.",
         "Week 9–12: book six founder reference conversations; capture one anonymized before/after pipeline snapshot.",
       ],
       conversion_intelligence_reference: {
@@ -408,24 +408,24 @@ const diagnosticData = {
         note: "Lead with diagnostic clarity and owner-backed milestones.",
       },
       competitiveConversationCues:
-        "Contrast full-service agencies on shipped artifacts and weekly checkpoints, not hours. With DIY templates, stress operator burden and CRM-stage truth; never attack individuals—attack the pattern of narrative drift.",
+        "Contrast full-service agencies on shipped deliverables and weekly checkpoints, not hours. With DIY templates, stress operator burden and clean CRM stages; never attack individuals—attack the pattern of story drift.",
     },
     {
       icpLabel: "Secondary — growth-stage marketing-led",
       alignmentToBusinessStrategy:
-        "This segment expands ACV and logo velocity when marketing and sales share one message architecture; it supports the brand’s goal of repeatable, finance-legible GTM without a full rebrand.",
+        "This segment grows deal size and logo count when marketing and sales share one message system; it supports a repeatable go-to-market plan finance can follow—without a full rebrand.",
       strategicFocus:
-        "Win on attribution clarity, stage definitions, and enablement that sales will actually run on Monday.",
+        "Win on clear attribution, shared stage definitions, and enablement sales will actually run on Monday.",
       campaignContentNeeds: [
-        "MQL→SQL definition one-pager co-branded with sales leadership.",
+        "One-pager: when a lead becomes sales-ready (marketing + sales leadership co-sign).",
         "Nurture branch for marketing-led accounts with stage-matched proof.",
         "Webinar or live teardown: ‘one journey, three surfaces’ using their real copy (sanitized).",
-        "RevOps-facing checklist: UTM, stage hygiene, handoff SLA.",
+        "Ops checklist: tracking links, clean CRM stages, and clear handoff timing.",
       ],
       priorityTactics: [
-        "Align CRM stages to nurture CTAs in two workshops (marketing + RevOps).",
-        "Publish one pillar-led monthly theme with sales talk-track appendix.",
-        "Run a 30-day test on late-funnel page with proof module above the fold.",
+        "Align CRM stages to nurture CTAs in two workshops (marketing + revenue ops).",
+        "Publish one monthly theme with a short sales talk-track appendix.",
+        "Run a 30-day test on the late-funnel page with proof above the fold.",
         "Monthly leading metric: % of opportunities using the approved headline family.",
       ],
       conversion_intelligence_reference: {
@@ -434,24 +434,24 @@ const diagnosticData = {
         icpTier: "Secondary — growth-stage marketing-led",
         funnelStage: "Consideration → decision",
         matrixCell: "Enablement × nurture proof branch",
-        note: "CFO-friendly payback framing optional in late emails; RevOps cares about definitions.",
+        note: "Optional payback framing for finance in late emails; ops cares about shared definitions.",
       },
       competitiveConversationCues:
-        "Vs. ‘we already have a positioning doc,’ sell operating rhythm and adoption, not more PDFs. Vs. point agencies, show cross-channel narrative governance and sales-ready proof modules.",
+        "Vs. ‘we already have a positioning doc,’ sell weekly habits and adoption—not more PDFs. Vs. point agencies, show the same story across channels plus proof pieces sales can hand over.",
     },
     {
       icpLabel: "Partner — implementation & SI ecosystem",
       alignmentToBusinessStrategy:
-        "Partners extend reach into multi-vendor deals without diluting the core offer story; they support the firm’s goal of larger engagements with clear co-sell and handoff IP.",
+        "Partners extend reach into multi-vendor deals without diluting the core offer story; they support larger engagements with clear who-leads-what and shared handoff materials.",
       strategicFocus:
-        "Make joint value obvious on proposals and protect RACI so overlap anxiety drops.",
+        "Make joint value obvious on proposals and name who owns what so overlap anxiety drops.",
       campaignContentNeeds: [
-        "Co-sell one-pager: when Acme Co vs. partner leads strategy vs. delivery.",
+        "Joint-sell one-pager: when Acme Co vs. partner leads strategy vs. delivery.",
         "Joint case outline template with shared proof slots.",
         "Partner webinar kit: title options, hook, and Q&A guardrails.",
       ],
       priorityTactics: [
-        "Quarterly partner pipeline review with shared opportunity taxonomy.",
+        "Quarterly partner pipeline review with shared opportunity labels.",
         "Two joint workshops using a fixed agenda and shared customer story.",
         "Publish one partner-safe anonymized win with implementation milestones.",
       ],
@@ -459,12 +459,12 @@ const diagnosticData = {
         type: "ref",
         framework: "icp_conversion_intelligence_framework",
         icpTier: "Partner — implementation & SI ecosystem",
-        funnelStage: "Partner co-sell",
-        matrixCell: "Joint narrative × RACI",
+        funnelStage: "Partner joint sell",
+        matrixCell: "Joint narrative × who owns what",
         note: "Reputation-sensitive; avoid competing on strategy language—clarify lanes.",
       },
       competitiveConversationCues:
-        "Emphasize complementary lanes: partner owns transformation scope, Acme Co owns narrative spine and weekly operating checkpoints. Pre-handle ‘you compete with our strategy’ with explicit RACI and deal-registration etiquette.",
+        "Emphasize complementary lanes: partner owns transformation scope, Acme Co owns the story spine and weekly checkpoints. Pre-handle ‘you compete with our strategy’ with a clear who-owns-what chart and deal-registration etiquette.",
     },
   ],
   ...previewActivationContent,
@@ -478,7 +478,7 @@ const diagnosticData = {
   },
   strategicAlignmentOverview: {
     summary:
-      "Positioning and messaging are the strongest pillars; credibility assets exist but are under-deployed at decision moments. Visibility creates reach but needs tighter ties to the core message architecture. Conversion mechanics work when proof and narrative align upstream.",
+      "Positioning and messaging are the strongest pillars; credibility assets exist but are under-used at decision moments. Visibility creates reach but needs tighter ties to the core message. Conversion mechanics work when proof and narrative align upstream.",
     reinforcements: [
       {
         pillars: "Positioning → Messaging",
@@ -491,15 +491,15 @@ const diagnosticData = {
     ],
   },
   messagingSystem: {
-    coreMessage: "Acme Co turns fragmented GTM motion into one pillar-led growth rhythm with named owners and weekly proof.",
+    coreMessage: "Acme Co turns scattered marketing into one clear story and a weekly growth rhythm—with named owners and weekly proof.",
     supportingMessages: [
       "Diagnose the leak before you fund more channels.",
       "One storyline from LinkedIn to landing page to nurture.",
-      "Finance-legible milestones for every phase of spend.",
+      "Milestones finance can follow for every phase of spend.",
     ],
     proofPoints: [
       "Before/after pipeline quality examples from similar B2B services clients.",
-      "90-day rollout templates with RACI and checkpoint criteria.",
+      "90-day rollout templates with who-owns-what charts and checkpoint criteria.",
       "Channel mix models tied to payback gates—not vanity reach.",
     ],
     whatNotToSay: ["Full-service agency for everyone", "We transform your brand overnight", "Generic thought leadership with no CTA"],
@@ -610,7 +610,7 @@ const diagnosticData = {
   contentPillars: [
     {
       name: "Pipeline truth",
-      description: "Expose where funnel math breaks with evidence, not opinions.",
+      description: "Show where the path from interest to sale breaks—with numbers, not guesses.",
       exampleTopics: ["CAC reality check", "Win/loss patterns", "Channel attribution sanity"],
       suggestedFormats: ["LinkedIn essay", "One-pager", "Webinar hook"],
       messagingPillarConnection: "Credibility",
@@ -678,7 +678,7 @@ const diagnosticData = {
         keyMessage:
           "Say: “I’d love to understand the story first, then channels. If the homepage, outbound hook, and deck slide 1 promise different jobs, more media usually won’t fix conversion quality—can we check that together?”",
         proofToUse:
-          "Show: one anonymized before/after pipeline snapshot from a similar ARR services motion (leave-behind PDF titled ‘Acme-style journey leak — 90-day delta’).",
+          "Show: one anonymized before/after pipeline snapshot from a similar revenue-stage services firm (one-pager titled ‘Acme-style journey leak — 90-day delta’).",
       },
       {
         stage: "Middle — discovery",
@@ -694,7 +694,7 @@ const diagnosticData = {
         keyMessage:
           "Say: “Before we expand scope, can we start with one Acme journey for two weeks—one owner on marketing, one on sales, and one artifact the buyer can open? You’ll know quickly if it’s worth going further.”",
         proofToUse:
-          "Show: Acme pilot RACI + milestone template with the first customer-visible deliverable dated.",
+          "Show: Acme pilot who-owns-what chart + milestone template with the first customer-visible deliverable dated.",
       },
     ],
     discoveryQuestions: [
@@ -703,7 +703,7 @@ const diagnosticData = {
         whyThisQuestion:
           "Use when the room blames ‘lead quality’ without naming stages. Surfaces whether Acme’s issue is messaging drift, ops, or offer fit.",
         listenFor:
-          "If they say ‘top of funnel,’ reply: “Then Acme’s next proof belongs on the first sales touch, not another awareness campaign.” If they name a mid-stage, reply: “Then we place Acme’s leave-behind at that exact handoff.”",
+          "If they say ‘top of funnel,’ reply: “Then Acme’s next proof belongs on the first sales touch, not another awareness campaign.” If they name a mid-stage, reply: “Then we place a one-pager at that exact handoff.”",
       },
       {
         question:
@@ -747,61 +747,61 @@ const diagnosticData = {
         persona: "VP Marketing",
         stage: "Evaluation",
         proofPoint:
-          "Acme rollout one-pager: named milestones, owners, and dates for the journey fix (not a generic strategy deck).",
+          "A one-page Acme rollout plan: milestones, who owns each step, and dates for the journey fix (not a generic strategy deck).",
         howToDeliver:
-          "Hand it in the room: “This is Acme’s 14-day path—your name is on marketing QA for the customer-visible artifact.”",
+          "Share it in the meeting: “Here’s Acme’s 14-day path—you’d own marketing QA on the piece the customer can see.”",
       },
       {
         persona: "CFO",
         stage: "Evaluation",
         proofPoint:
-          "Acme payback scenario: cost-of-delay framing tied to their funnel math (editable assumptions on one appendix slide).",
+          "A simple payback worksheet: what delay costs Acme, using their funnel numbers (assumptions they can edit on one appendix slide).",
         howToDeliver:
-          "Say: “Edit the yellow cells—Acme’s payback story should use your numbers, not ours.”",
+          "Say: “Feel free to edit the yellow cells—Acme’s payback story should use your numbers, not ours.”",
       },
       {
         persona: "Head of RevOps",
         stage: "Technical validation",
         proofPoint:
-          "Acme RACI + routing diagram: how messaging updates propagate to CRM stages, UTMs, and campaigns.",
+          "A who-owns-what chart plus routing map: how message updates flow into CRM stages, campaign tracking links, and live campaigns.",
         howToDeliver:
-          "Send a 4-minute Loom plus checklist: “Here’s how Acme keeps stage hygiene when copy changes.”",
+          "Send a 4-minute Loom plus checklist: “Here’s how Acme keeps stages clean when the copy changes.”",
       },
       {
         persona: "Founder",
         stage: "Late stage",
         proofPoint:
-          "Reference call + anonymized pipeline snapshot from a similar ARR band to Acme’s motion.",
+          "A peer reference call plus an anonymized pipeline snapshot from a company similar to Acme’s size and sales motion.",
         howToDeliver:
-          "Offer: “I’ll intro a peer within 48 hours—same services motion, same founder-led buying group.”",
+          "Offer: “Happy to intro a peer within a couple of days—same kind of services business, same founder-led buying group.”",
       },
     ],
     objectionHandlingPlaybook: [
       {
         objection: "We have tried strategy firms before",
         response:
-          "Acme reply: “We don’t sell another workshop. The product is a 14-day pilot: one owner, one date, one customer-visible Acme artifact—then we expand only if stage movement shows up.”",
+          "“We don’t sell another workshop. The product is a 14-day pilot: one owner, one date, one customer-visible Acme deliverable—then we expand only if stage movement shows up.”",
         pillarConnection: "Execution",
         proofPoint: "Sample Acme-style 14-day deliverable cadence from a comparable client",
       },
       {
         objection: "Sales will not adopt another messaging framework",
         response:
-          "Acme reply: “We won’t ship a framework first. We ship one Acme talk track and three proof modules for the journey your team already runs on Mondays.”",
+          "“We won’t ship a framework first. We ship one Acme talk track and three proof pieces for the journey your team already runs on Mondays.”",
         pillarConnection: "Messaging",
         proofPoint: "Acme talk-track one-pager + objection/response pairs from last quarter",
       },
       {
         objection: "We cannot pause demand gen to fix narrative",
         response:
-          "Acme reply: “We don’t pause. We narrow Acme spend to one ICP and one journey so quality rises—then scale the line that wins.”",
+          "“We don’t pause. We narrow Acme spend to one ideal customer and one journey so quality rises—then scale the line that wins.”",
         pillarConnection: "Conversion",
-        proofPoint: "Acme ICP-weighted efficiency snapshot template",
+        proofPoint: "Acme efficiency snapshot template weighted by ideal customer",
       },
       {
         objection: "Brand work feels subjective next to performance channels",
         response:
-          "Acme reply: “We tie the work to conversion quality, cycle time, and stage-exit rates—using the same definitions Acme finance already trusts.”",
+          "“We tie the work to conversion quality, cycle time, and how often deals exit each stage—using the same definitions Acme finance already trusts.”",
         pillarConnection: "Credibility",
         proofPoint: "Board-ready Acme KPI tree: leading vs. lagging, weekly vs. monthly",
       },
@@ -812,10 +812,10 @@ const diagnosticData = {
       icpTier: "Primary — founder-led B2B services (Acme)",
       funnelStage: "Evaluation (technical + economic buyer in same room)",
       matrixCell: "Proof placement × late-funnel CTA",
-      note: "Lead with Acme diagnostic clarity and owner-backed milestones; CFO gets payback framing, RevOps gets routing definitions—same vocabulary in ads and sales.",
+      note: "Lead with Acme diagnostic clarity and owner-backed milestones; finance gets payback framing, revenue ops gets clear routing definitions—same vocabulary in ads and sales.",
     },
     closingLanguage:
-      "“Would it help if we start with a two-week journey fix—named owners and one customer-visible artifact—instead of another scoping call? If Acme sees stage movement, we can expand. If not, we stop. Who feels like the right owner for marketing QA, and who for the sales handoff?”",
+      "“Would it help if we start with a two-week journey fix—named owners and one customer-visible deliverable—instead of another scoping call? If Acme sees stage movement, we can expand. If not, we stop. Who feels like the right owner for marketing QA, and who for the sales handoff?”",
   },
   channelPlans: {
     ...previewActivationContent.channelPlans,

@@ -1,4 +1,5 @@
-import { buildPersonaPortraitSeed, dicebearPersonaPortraitUrlForPersona } from "@/lib/personaPortrait";
+import { buildPersonaPortraitSeed, inferPersonaAudienceKind } from "@/lib/personaPortrait";
+import { resolveLocalPersonaPortraitSrc } from "@/lib/personaPortraitAssets";
 
 /** Normalize audience fields from report / workbook / enrichment (string or `{ description }`). */
 export function audienceFieldToString(v: unknown): string {
@@ -607,7 +608,7 @@ export type StrategyBuyerPersonaCard = {
   title: string;
   subtitle: string;
   rows: Array<{ label: string; value: string }>;
-  /** Same deterministic Notionists avatars as Foundation Persona Atlas */
+  /** Same local WunderBrand persona illustrations as Foundation Persona Atlas */
   portraitSrc: string;
   portraitAlt: string;
 };
@@ -671,13 +672,14 @@ export function buyerPersonasToStrategyCards(
       title,
       subtitle,
       rows,
-      portraitSrc: dicebearPersonaPortraitUrlForPersona({
-        seed,
-        index: i,
-        diagnostic: ctx?.diagnostic,
+      portraitSrc: resolveLocalPersonaPortraitSrc({
+        role: roleForSeed,
         personaName: title,
+        index: i,
+        audienceKind: inferPersonaAudienceKind(ctx?.diagnostic ?? undefined),
         personaRecord: p,
-      }),
+        seedKey: seed,
+      }).src,
       portraitAlt: `Illustrated persona: ${title} (${roleForSeed})`,
     });
   }

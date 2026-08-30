@@ -406,6 +406,15 @@ export function CookieBanner() {
     return () => clearTimeout(t);
   }, [consent]);
 
+  // Let layout/CSS lift chat UI above the cookie bar on mobile.
+  useEffect(() => {
+    const root = document.documentElement;
+    const show = visible && !modalOpen;
+    if (show) root.setAttribute("data-cookie-banner", "1");
+    else root.removeAttribute("data-cookie-banner");
+    return () => root.removeAttribute("data-cookie-banner");
+  }, [visible, modalOpen]);
+
   // Expose global function for "Cookie Settings" footer link
   useEffect(() => {
     type CookieWindow = Window & { __openCookieSettings?: () => void };
@@ -499,6 +508,7 @@ export function CookieBanner() {
       {/* ─── Bottom Banner ─── */}
       {visible && !modalOpen && (
         <div
+          className="cookie-consent-banner"
           role="dialog"
           aria-label="Cookie consent"
           style={{
@@ -509,6 +519,7 @@ export function CookieBanner() {
             zIndex: 10000,
             fontFamily: "'Lato', sans-serif",
             animation: "cookieBannerSlide 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+            paddingBottom: "env(safe-area-inset-bottom, 0px)",
           }}
         >
           <div

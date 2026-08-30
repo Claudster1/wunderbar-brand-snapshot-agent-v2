@@ -181,7 +181,7 @@ export default function PersonaAtlasSuite({
                   alt=""
                   width={44}
                   height={44}
-                  className="h-11 w-11 shrink-0 rounded-[10px] object-cover ring-1 ring-black/[0.06]"
+                  className="h-11 w-11 shrink-0 rounded-full bg-[#E8F6FE] object-cover ring-2 ring-white shadow-sm"
                   loading="lazy"
                   decoding="async"
                   referrerPolicy="no-referrer"
@@ -212,10 +212,10 @@ export default function PersonaAtlasSuite({
         <div className="grid gap-6 lg:grid-cols-[minmax(0,300px)_1fr] lg:gap-8">
           <div className="flex flex-col items-center gap-4 lg:items-start">
             <div
-              className="relative overflow-hidden rounded-2xl p-1"
+              className="relative inline-flex rounded-full p-1.5"
               style={{
-                background: "linear-gradient(145deg, rgba(7,176,242,0.2), rgba(2,24,89,0.06))",
-                boxShadow: "0 12px 40px rgba(2,24,89,0.08)",
+                background: "linear-gradient(145deg, rgba(7,176,242,0.45), rgba(2,24,89,0.2))",
+                boxShadow: "0 12px 40px rgba(2,24,89,0.1)",
               }}
             >
               <img
@@ -223,7 +223,7 @@ export default function PersonaAtlasSuite({
                 alt={profile.portraitAlt}
                 width={160}
                 height={160}
-                className="h-36 w-36 rounded-[14px] bg-[#E8F6FE] object-cover sm:h-40 sm:w-40"
+                className="h-36 w-36 rounded-full bg-[#E8F6FE] object-cover ring-4 ring-white sm:h-40 sm:w-40"
                 loading="lazy"
                 decoding="async"
                 referrerPolicy="no-referrer"

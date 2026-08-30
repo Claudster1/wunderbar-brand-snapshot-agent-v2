@@ -1,4 +1,5 @@
-import { buildPersonaPortraitSeed, dicebearPersonaPortraitUrlForPersona } from "@/lib/personaPortrait";
+import { buildPersonaPortraitSeed, inferPersonaAudienceKind } from "@/lib/personaPortrait";
+import { resolveLocalPersonaPortraitSrc } from "@/lib/personaPortraitAssets";
 
 export type FoundationPersonaAtlasEntry = {
   key: string;
@@ -158,17 +159,17 @@ export function buildFoundationPersonaAtlasEntries(params: {
         role: row.role,
         index,
       });
-      const portraitSrc = dicebearPersonaPortraitUrlForPersona({
-        seed,
-        index,
-        diagnostic: params.diagnosticData,
+      const local = resolveLocalPersonaPortraitSrc({
+        role: row.role,
         personaName: row.title,
-        personaRecord: null,
+        index,
+        audienceKind: inferPersonaAudienceKind(params.diagnosticData),
+        seedKey: seed,
       });
       return {
         ...row,
-        portraitSrc,
-        portraitRemote: true,
+        portraitSrc: local.src,
+        portraitRemote: false,
         messageAngle:
           row.key === "static-vp-ops"
             ? `${brandName} helps operations leaders remove ${gap} with owner-ready rollout sequencing.`
@@ -190,12 +191,13 @@ export function buildFoundationPersonaAtlasEntries(params: {
       role,
       index,
     });
-    const portraitSrc = dicebearPersonaPortraitUrlForPersona({
-      seed,
-      index,
-      diagnostic: params.diagnosticData,
+    const local = resolveLocalPersonaPortraitSrc({
+      role,
       personaName,
+      index,
+      audienceKind: inferPersonaAudienceKind(params.diagnosticData),
       personaRecord: o,
+      seedKey: seed,
     });
     const ma = asString(o.messagingAngle) || asString(o.messaging_angle);
     const messageAngle =
@@ -207,9 +209,9 @@ export function buildFoundationPersonaAtlasEntries(params: {
       tabLabel: tabLabelFromRole(role, index),
       title: personaName,
       role,
-      portraitSrc,
-      portraitAlt: `Generated illustration for buyer persona: ${personaName} (${role})`,
-      portraitRemote: true,
+      portraitSrc: local.src,
+      portraitAlt: `Illustrated persona: ${personaName} (${role})`,
+      portraitRemote: false,
       goals: goalsFromPersona(o),
       fears: fearsFromPersona(o),
       messageAngle,

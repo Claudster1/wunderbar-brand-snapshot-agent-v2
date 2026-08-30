@@ -1398,6 +1398,17 @@ export default function HomePageClient({
                       setInputValue(event.target.value);
                       behaviorTrackerRef.current?.recordKeystroke();
                     }}
+                    onFocus={(event) => {
+                      // Keep composer visible above the iOS keyboard / cookie bar.
+                      const target = event.currentTarget;
+                      window.setTimeout(() => {
+                        target.scrollIntoView({ block: "nearest", behavior: "smooth" });
+                        chatMessagesRef.current?.scrollTo({
+                          top: chatMessagesRef.current.scrollHeight,
+                          behavior: "smooth",
+                        });
+                      }, 300);
+                    }}
                     onKeyDown={(event: KeyboardEvent<HTMLTextAreaElement>) => {
                       if (event.key !== "Enter" || event.shiftKey) return;
                       event.preventDefault();
@@ -1409,6 +1420,7 @@ export default function HomePageClient({
                         : "Type your reply… (Enter to send, Shift+Enter for a new line)"
                     }
                     disabled={isLoading || isFinalizing || isUploading}
+                    enterKeyHint="send"
                     autoFocus
                   />
                   <button

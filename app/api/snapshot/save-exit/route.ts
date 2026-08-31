@@ -132,9 +132,31 @@ export async function POST(req: Request) {
       logger.error("[Save-Exit] AC field sync failed", { error: describeError(fieldErr) });
     }
 
-    // Fire AC site tracking webhook so an automation can send the resume email.
-    // Email timing is on ActiveCampaign (usually seconds–few minutes). If the webhook
-    // is missing or fails, we still return success and include resumeUrl for copy/paste.
+    // Immediate transactional resume email (Resend) — users expect this within minutes.
+    // ActiveCampaign Sequence 9 still handles nurture follow-ups (+24h / +4d / +10d).
+    let resumeEmailSent = false;
+    try {
+      const { sendResumeProgressEmail } = await import("@/lib/email/resumeProgressEmail");
+      const emailResult = await sendResumeProgressEmail({
+        to: normalized,
+        resumeUrl: resumeLink,
+        firstName: typeof firstName === "string" ? firstName : "",
+      });
+      resumeEmailSent = emailResult.ok;
+      if (!emailResult.ok) {
+        logger.warn("[Save-Exit] Transactional resume email failed", {
+          provider: emailResult.provider,
+          error: emailResult.error,
+        });
+      }
+    } catch (emailErr) {
+      logger.error("[Save-Exit] Transactional resume email threw", {
+        error: describeError(emailErr),
+      });
+    }
+
+    // Fire AC site tracking / tags so nurture Sequence 9 can still run later.
+    // Email timing for AC is on ActiveCampaign (Seq 9 Email 1 is +24 hours).
     let resumeEventSent = false;
     try {
       // Apply the trigger tags via the Contacts API and record the event via Event
@@ -177,7 +199,9 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       resumeUrl: resumeLink,
-      resumeEventSent,
+      /** True when the immediate Resend email OR the AC event queue succeeded. */
+      resumeEventSent: resumeEmailSent || resumeEventSent,
+      resumeEmailSent,
     });
   } catch (err) {
     logger.error("[Save-Exit API] Error", { error: describeError(err) });

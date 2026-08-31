@@ -1610,8 +1610,8 @@ export default function HomePageClient({
                 </h3>
                 <p style={{ color: "#5A6B7E", fontSize: 14, lineHeight: 1.6, margin: "0 0 12px" }}>
                   {saveResumeEventSent === false
-                    ? "We saved your progress. We couldn’t queue the automated resume email (check ActiveCampaign webhook / automation). Use the link below to continue anytime."
-                    : "Check your email within a few minutes for your resume link (ActiveCampaign automations usually send quickly). Your answers are already saved — Wundy™ will be waiting."}
+                    ? "We saved your progress, but the resume email didn’t send. Use the link below to continue anytime (and check spam if you try again later)."
+                    : "We emailed you a resume link — it usually arrives within a minute. Check spam/promotions if you don’t see it. Your answers are already saved."}
                 </p>
                 {saveResumeUrl ? (
                   <div style={{ margin: "0 0 16px", textAlign: "left" }}>
@@ -1689,7 +1689,7 @@ export default function HomePageClient({
                   Save and continue later
                 </h3>
                 <p style={{ color: "#5A6B7E", fontSize: 14, lineHeight: 1.6, margin: "0 0 20px" }}>
-                  Your progress is saved automatically. Enter your email and we&rsquo;ll send you a link to pick up where you left off.
+                  Enter your email and we&rsquo;ll send a resume link right away so you can pick up where you left off.
                 </p>
                 <input
                   type="email"

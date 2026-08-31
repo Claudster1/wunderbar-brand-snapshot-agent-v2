@@ -216,9 +216,10 @@ export default function HomePageClient({
   const [saveEmail, setSaveEmail] = useState("");
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [saveErrorMessage, setSaveErrorMessage] = useState<string | null>(null);
-  /** Populated after successful save-exit so users can resume even if AC email is delayed or misconfigured. */
+  /** Populated after successful save-exit so users can resume even if email delivery fails. */
   const [saveResumeUrl, setSaveResumeUrl] = useState<string | null>(null);
-  const [saveResumeEventSent, setSaveResumeEventSent] = useState<boolean | null>(null);
+  /** True only when the immediate transactional resume email succeeded. */
+  const [saveResumeEmailSent, setSaveResumeEmailSent] = useState<boolean | null>(null);
   const [capturedSummaryOpen, setCapturedSummaryOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatMessagesRef = useRef<HTMLDivElement>(null);
@@ -449,6 +450,11 @@ export default function HomePageClient({
   // Save progress and email a resume link
   const handleSaveAndExit = async () => {
     if (!saveEmail.trim() || !saveEmail.includes("@")) return;
+    if (!reportId) {
+      setSaveErrorMessage("Missing session. Refresh the page and try again.");
+      setSaveStatus("error");
+      return;
+    }
     setSaveStatus("saving");
     setSaveErrorMessage(null);
     try {
@@ -481,7 +487,11 @@ export default function HomePageClient({
         }
         throw new Error(message);
       }
-      let payload: { resumeUrl?: string; resumeEventSent?: boolean } = {};
+      let payload: {
+        resumeUrl?: string;
+        resumeEventSent?: boolean;
+        resumeEmailSent?: boolean;
+      } = {};
       try {
         payload = await saveExitRes.json();
       } catch {
@@ -498,7 +508,14 @@ export default function HomePageClient({
       } else {
         setSaveResumeUrl(null);
       }
-      setSaveResumeEventSent(typeof payload.resumeEventSent === "boolean" ? payload.resumeEventSent : null);
+      // Prefer resumeEmailSent (actual Resend delivery). Fall back to resumeEventSent for older API responses.
+      const emailed =
+        typeof payload.resumeEmailSent === "boolean"
+          ? payload.resumeEmailSent
+          : typeof payload.resumeEventSent === "boolean"
+            ? payload.resumeEventSent
+            : null;
+      setSaveResumeEmailSent(emailed);
       setSaveStatus("saved");
       setSaveErrorMessage(null);
       syncChatEmailFromStorage();
@@ -1543,7 +1560,7 @@ export default function HomePageClient({
                   type="button"
                   onClick={() => {
                     setSaveResumeUrl(null);
-                    setSaveResumeEventSent(null);
+                    setSaveResumeEmailSent(null);
                     setShowSaveModal(true);
                   }}
                   style={{
@@ -1581,7 +1598,7 @@ export default function HomePageClient({
             if (saveStatus !== "saving") {
               setShowSaveModal(false);
               setSaveResumeUrl(null);
-              setSaveResumeEventSent(null);
+              setSaveResumeEmailSent(null);
             }
           }}
         >
@@ -1609,7 +1626,7 @@ export default function HomePageClient({
                   Progress saved
                 </h3>
                 <p style={{ color: "#5A6B7E", fontSize: 14, lineHeight: 1.6, margin: "0 0 12px" }}>
-                  {saveResumeEventSent === false
+                  {saveResumeEmailSent === false
                     ? "We saved your progress, but the resume email didn’t send. Use the link below to continue anytime (and check spam if you try again later)."
                     : "We emailed you a resume link — it usually arrives within a minute. Check spam/promotions if you don’t see it. Your answers are already saved."}
                 </p>
@@ -1667,7 +1684,7 @@ export default function HomePageClient({
                   onClick={() => {
                     setShowSaveModal(false);
                     setSaveResumeUrl(null);
-                    setSaveResumeEventSent(null);
+                    setSaveResumeEmailSent(null);
                   }}
                   style={{
                     padding: "10px 24px",

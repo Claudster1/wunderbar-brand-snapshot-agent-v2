@@ -1,6 +1,6 @@
 // app/api/snapshot/save-exit/route.ts
-// Stores the user's email against their draft report and triggers
-// an ActiveCampaign event to send them a resume link.
+// Stores the user's email against their draft report, sends an immediate
+// transactional resume email (Resend), and tags ActiveCampaign for Seq 9 nurture.
 
 import { NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
@@ -60,6 +60,14 @@ export async function POST(req: Request) {
       );
     }
 
+    const { isValidUUID, sanitizeString } = await import("@/lib/security/inputValidation");
+    if (!isValidUUID(reportId)) {
+      return NextResponse.json(
+        { error: "Missing session. Refresh the page and try again." },
+        { status: 400 }
+      );
+    }
+
     if (!email || !email.includes("@")) {
       return NextResponse.json({ error: "Invalid email" }, { status: 400 });
     }
@@ -76,12 +84,20 @@ export async function POST(req: Request) {
 
     const normalized = email.trim().toLowerCase();
     const BASE_URL = resolveOutboundAppBaseUrl(req);
-    const resumeLink = `${BASE_URL}/?resume=${reportId}`;
+    const resumeLink = `${BASE_URL}/?resume=${encodeURIComponent(reportId)}`;
+    const firstName =
+      typeof body.firstName === "string" || typeof body.userName === "string"
+        ? sanitizeString(body.firstName || body.userName).slice(0, 80)
+        : "";
+    const tier =
+      typeof body.tier === "string" && body.tier.trim()
+        ? sanitizeString(body.tier).slice(0, 40)
+        : "snapshot";
 
     // Update the draft report with the user's email.
     // Draft flow persists UUID in `id`; legacy/report flows may use `report_id`.
     const supabase = getSupabase();
-    if (supabase && reportId) {
+    if (supabase) {
       const { withRetry } = await import("@/lib/supabase/withRetry");
       const { error: idError } = await withRetry<{ error: SupabaseLikeError | null }>(
         async () =>
@@ -110,61 +126,63 @@ export async function POST(req: Request) {
       }
     }
 
-    // Set contact fields for personalized resume email
+    // Immediate Resend email + AC field sync in parallel (AC nurture still +24h).
     const { setContactFields, getOrCreateContactId } = await import("@/lib/applyActiveCampaignTags");
-    const firstName = body.firstName || body.userName || "";
-    const tier = body.tier || "snapshot";
-
-    try {
-      if (firstName) {
-        await getOrCreateContactId(normalized, { firstName });
-      }
-      await setContactFields({
-        email: normalized,
-        fields: {
-          resume_link: resumeLink,
-          report_id: reportId || "",
-          product_key: tier,
-          ...(firstName ? { first_name_custom: firstName } : {}),
-        },
-      });
-    } catch (fieldErr) {
-      logger.error("[Save-Exit] AC field sync failed", { error: describeError(fieldErr) });
-    }
-
-    // Immediate transactional resume email (Resend) — users expect this within minutes.
-    // ActiveCampaign Sequence 9 still handles nurture follow-ups (+24h / +4d / +10d).
     let resumeEmailSent = false;
-    try {
-      const { sendResumeProgressEmail } = await import("@/lib/email/resumeProgressEmail");
-      const emailResult = await sendResumeProgressEmail({
-        to: normalized,
-        resumeUrl: resumeLink,
-        firstName: typeof firstName === "string" ? firstName : "",
-      });
-      resumeEmailSent = emailResult.ok;
-      if (!emailResult.ok) {
-        logger.warn("[Save-Exit] Transactional resume email failed", {
-          provider: emailResult.provider,
-          error: emailResult.error,
+
+    const sendImmediateEmail = async () => {
+      try {
+        const { sendResumeProgressEmail } = await import("@/lib/email/resumeProgressEmail");
+        const emailResult = await sendResumeProgressEmail({
+          to: normalized,
+          resumeUrl: resumeLink,
+          firstName,
+        });
+        resumeEmailSent = emailResult.ok;
+        if (!emailResult.ok) {
+          logger.warn("[Save-Exit] Transactional resume email failed", {
+            provider: emailResult.provider,
+            error: emailResult.error,
+          });
+        }
+      } catch (emailErr) {
+        logger.error("[Save-Exit] Transactional resume email threw", {
+          error: describeError(emailErr),
         });
       }
-    } catch (emailErr) {
-      logger.error("[Save-Exit] Transactional resume email threw", {
-        error: describeError(emailErr),
-      });
-    }
+    };
+
+    const syncAcFields = async () => {
+      try {
+        if (firstName) {
+          await getOrCreateContactId(normalized, { firstName });
+        }
+        await setContactFields({
+          email: normalized,
+          fields: {
+            resume_link: resumeLink,
+            report_id: reportId,
+            product_key: tier,
+            ...(firstName ? { first_name_custom: firstName } : {}),
+          },
+        });
+      } catch (fieldErr) {
+        logger.error("[Save-Exit] AC field sync failed", { error: describeError(fieldErr) });
+      }
+    };
+
+    await Promise.all([sendImmediateEmail(), syncAcFields()]);
 
     // Fire AC site tracking / tags so nurture Sequence 9 can still run later.
     // Email timing for AC is on ActiveCampaign (Seq 9 Email 1 is +24 hours).
     let resumeEventSent = false;
     try {
-      // Apply the trigger tags via the Contacts API and record the event via Event
-      // Tracking so the resume automation fires without the legacy ACTIVE_CAMPAIGN_WEBHOOK.
       const { applyActiveCampaignTags } = await import("@/lib/applyActiveCampaignTags");
+      // Always apply both Seq 9 triggers so AC +24h nurture remains a backup if Resend fails.
+      const tags = ["snapshot:paused", "snapshot:resume-link-sent"] as const;
       await applyActiveCampaignTags({
         email: normalized,
-        tags: ["snapshot:paused", "snapshot:resume-link-sent"],
+        tags: [...tags],
       });
       const eventTracked = await trackActiveCampaignSiteEvent({
         email: normalized,
@@ -175,11 +193,11 @@ export async function POST(req: Request) {
       const webhookSent = await fireACEvent({
         email: normalized,
         eventName: "assessment_paused",
-        tags: ["snapshot:paused", "snapshot:resume-link-sent"],
+        tags: [...tags],
         fields: {
           first_name: firstName,
           resume_link: resumeLink,
-          report_id: reportId || "",
+          report_id: reportId,
           product_tier: tier,
         },
       });
@@ -199,7 +217,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       resumeUrl: resumeLink,
-      /** True when the immediate Resend email OR the AC event queue succeeded. */
+      /** Prefer resumeEmailSent on the client for copy; this is email OR AC for backward compat. */
       resumeEventSent: resumeEmailSent || resumeEventSent,
       resumeEmailSent,
     });

@@ -543,11 +543,15 @@ export default function HomePageClient({
   // Auto-scroll to bottom when messages change or loading state changes.
   // IMPORTANT: Scroll only the .chat-messages container — NOT scrollIntoView,
   // which walks up the DOM and scrolls the page body (pushing content past the footer).
+  // On mobile, also bring the composer into view so Send is never trapped under the cookie bar.
   useEffect(() => {
     requestAnimationFrame(() => {
       const container = chatMessagesRef.current;
       if (container) {
-        container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+        container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+      }
+      if (typeof window !== "undefined" && window.matchMedia("(max-width: 640px)").matches) {
+        inputRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
       }
     });
   }, [messages, isLoading]);
@@ -1402,12 +1406,12 @@ export default function HomePageClient({
                       // Keep composer visible above the iOS keyboard / cookie bar.
                       const target = event.currentTarget;
                       window.setTimeout(() => {
-                        target.scrollIntoView({ block: "nearest", behavior: "smooth" });
+                        target.scrollIntoView({ block: "center", behavior: "smooth" });
                         chatMessagesRef.current?.scrollTo({
                           top: chatMessagesRef.current.scrollHeight,
                           behavior: "smooth",
                         });
-                      }, 300);
+                      }, 350);
                     }}
                     onKeyDown={(event: KeyboardEvent<HTMLTextAreaElement>) => {
                       if (event.key !== "Enter" || event.shiftKey) return;

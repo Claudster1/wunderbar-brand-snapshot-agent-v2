@@ -2,9 +2,9 @@
 
 ## Buyer persona portraits (WunderBrand illustrated cast)
 
-Primary portraits are **local PNGs** in `public/assets/persona-portraits/`.
+Primary portraits are **local PNGs** in `public/personas/` (75 assets: B2B, B2C, Shared, Youth).
 
-Role → archetype mapping: `lib/personaPortraitAssets.ts`  
+Role → archetype mapping + registry: `lib/personaPortraitAssets.ts`  
 Legacy DiceBear helpers (unused by atlas once local assets resolve): `lib/personaPortrait.ts`
 
 ## Brand archetype symbols (sprite)

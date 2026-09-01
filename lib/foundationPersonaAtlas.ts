@@ -1,5 +1,6 @@
 import { buildPersonaPortraitSeed, inferPersonaAudienceKind } from "@/lib/personaPortrait";
 import { resolveLocalPersonaPortraitSrc } from "@/lib/personaPortraitAssets";
+import { alignPersonaNameToPortraitHeritage } from "@/lib/personaPortraitHeritage";
 
 export type FoundationPersonaAtlasEntry = {
   key: string;
@@ -83,14 +84,14 @@ function tabLabelFromRole(role: string, index: number): string {
   return `Persona ${index + 1}`;
 }
 
-/** Sample roles when the diagnostic has no `buyerPersonas` — portraits are generated (DiceBear), not fixed SVGs. */
+/** Sample roles when the diagnostic has no `buyerPersonas` — ethnically-neutral / role-safe names. */
 const STATIC_ATLAS_BASE: Array<Omit<FoundationPersonaAtlasEntry, "portraitSrc" | "portraitRemote" | "messageAngle">> = [
   {
     key: "static-vp-ops",
     tabLabel: "VP Operations",
-    title: "Sarah Chen",
+    title: "Jordan Ellis",
     role: "VP Operations",
-    portraitAlt: "Avatar for Sarah Chen, VP Operations (sample persona)",
+    portraitAlt: "Avatar for Jordan Ellis, VP Operations (sample persona)",
     goals: [
       "Build coordination infrastructure before the next hiring wave.",
       "Reduce leadership escalations caused by cross-team misalignment.",
@@ -105,9 +106,9 @@ const STATIC_ATLAS_BASE: Array<Omit<FoundationPersonaAtlasEntry, "portraitSrc" |
   {
     key: "static-cfo-coo",
     tabLabel: "CFO / COO",
-    title: "David Park",
+    title: "Casey Morgan",
     role: "CFO / COO",
-    portraitAlt: "Avatar for David Park, CFO / COO (sample persona)",
+    portraitAlt: "Avatar for Casey Morgan, CFO / COO (sample persona)",
     goals: [
       "Increase revenue efficiency from current headcount investments.",
       "Reduce operational waste and duplicated execution costs.",
@@ -122,9 +123,9 @@ const STATIC_ATLAS_BASE: Array<Omit<FoundationPersonaAtlasEntry, "portraitSrc" |
   {
     key: "static-revops",
     tabLabel: "RevOps / Chief of Staff",
-    title: "Alex Rivera",
+    title: "Alex Reed",
     role: "Head of RevOps / Chief of Staff",
-    portraitAlt: "Avatar for Alex Rivera, RevOps / Chief of Staff (sample persona)",
+    portraitAlt: "Avatar for Alex Reed, RevOps / Chief of Staff (sample persona)",
     goals: [
       "Create one trusted data narrative across GTM teams.",
       "Improve implementation confidence without adding integration sprawl.",
@@ -182,23 +183,29 @@ export function buildFoundationPersonaAtlasEntries(params: {
 
   return raw.slice(0, 3).map((item, index) => {
     const o = asRecord(item) ?? {};
-    const personaName = asString(o.personaName) || asString(o.name) || `Persona ${index + 1}`;
+    const rawName = asString(o.personaName) || asString(o.name) || `Persona ${index + 1}`;
     const role = asString(o.role) || asString(o.jobTitle) || "Decision maker";
     const seed = buildPersonaPortraitSeed({
       reportId: params.reportId,
       companyName: params.businessName,
-      personaName,
+      personaName: rawName,
       role,
       index,
     });
     const local = resolveLocalPersonaPortraitSrc({
       role,
-      personaName,
+      personaName: rawName,
       index,
       audienceKind: inferPersonaAudienceKind(params.diagnosticData),
       personaRecord: o,
       seedKey: seed,
     });
+    const aligned = alignPersonaNameToPortraitHeritage({
+      personaName: rawName,
+      portraitHeritage: local.heritageGroup,
+      seedKey: seed,
+    });
+    const personaName = aligned.name;
     const ma = asString(o.messagingAngle) || asString(o.messaging_angle);
     const messageAngle =
       ma ||

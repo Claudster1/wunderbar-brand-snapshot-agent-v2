@@ -1,5 +1,6 @@
 import { buildPersonaPortraitSeed, inferPersonaAudienceKind } from "@/lib/personaPortrait";
 import { resolveLocalPersonaPortraitSrc } from "@/lib/personaPortraitAssets";
+import { alignPersonaNameToPortraitHeritage } from "@/lib/personaPortraitHeritage";
 
 /** Normalize audience fields from report / workbook / enrichment (string or `{ description }`). */
 export function audienceFieldToString(v: unknown): string {
@@ -630,7 +631,7 @@ export function buyerPersonasToStrategyCards(
     const raw = list[i];
     if (!raw || typeof raw !== "object" || Array.isArray(raw)) continue;
     const p = raw as Record<string, unknown>;
-    const title = asStr(p.personaName) || `Persona ${i + 1}`;
+    const rawTitle = asStr(p.personaName) || `Persona ${i + 1}`;
     const subtitle =
       [asStr(p.role), asStr(p.icpAlignment)].filter(Boolean).join(" · ") ||
       "Buyer role";
@@ -639,10 +640,24 @@ export function buyerPersonasToStrategyCards(
     const seed = buildPersonaPortraitSeed({
       reportId: ctx?.reportId,
       companyName: ctx?.companyName?.trim() ?? "",
-      personaName: title,
+      personaName: rawTitle,
       role: roleForSeed,
       index: i,
     });
+    const local = resolveLocalPersonaPortraitSrc({
+      role: roleForSeed,
+      personaName: rawTitle,
+      index: i,
+      audienceKind: inferPersonaAudienceKind(ctx?.diagnostic ?? undefined),
+      personaRecord: p,
+      seedKey: seed,
+    });
+    const aligned = alignPersonaNameToPortraitHeritage({
+      personaName: rawTitle,
+      portraitHeritage: local.heritageGroup,
+      seedKey: seed,
+    });
+    const title = aligned.name;
     const rows: Array<{ label: string; value: string }> = [];
     const add = (label: string, v: string) => {
       const t = v.trim();
@@ -672,14 +687,7 @@ export function buyerPersonasToStrategyCards(
       title,
       subtitle,
       rows,
-      portraitSrc: resolveLocalPersonaPortraitSrc({
-        role: roleForSeed,
-        personaName: title,
-        index: i,
-        audienceKind: inferPersonaAudienceKind(ctx?.diagnostic ?? undefined),
-        personaRecord: p,
-        seedKey: seed,
-      }).src,
+      portraitSrc: local.src,
       portraitAlt: `Illustrated persona: ${title} (${roleForSeed})`,
     });
   }

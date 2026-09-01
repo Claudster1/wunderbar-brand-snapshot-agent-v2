@@ -8,9 +8,23 @@ import {
   inferPersonaPortraitGender,
   type PersonaPortraitGenderHint,
 } from "@/lib/personaPortrait";
+import { inferHeritageFromPersonaName } from "@/lib/personaPortraitHeritage";
 
 export type PersonaContext = 'B2B' | 'B2C' | 'Shared' | 'Youth';
 export type PersonaVariant = 'a' | 'b' | 'c';
+
+/** Presentation group from generation Representation line (for name/portrait alignment). */
+export type PersonaHeritageGroup =
+  | 'white'
+  | 'hispanic'
+  | 'black'
+  | 'east_asian'
+  | 'south_asian'
+  | 'southeast_asian'
+  | 'mena'
+  | 'indigenous'
+  | 'mixed'
+  | 'unknown';
 
 export interface PersonaPortrait {
   /** Stable id, e.g. 'wb-econ-buyer-a' */
@@ -22,6 +36,8 @@ export interface PersonaPortrait {
   /** Inclusive age range the portrait depicts */
   ageMin: number;
   ageMax: number;
+  /** Coarse heritage group for aligning culturally coded names to avatars. */
+  heritageGroup: PersonaHeritageGroup;
   filename: string;
   src: string;
 }
@@ -37,6 +53,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 55,
     ageMax: 64,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-econ-buyer-a.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-econ-buyer-a.png`,
   },
@@ -48,6 +65,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 45,
     ageMax: 54,
+    heritageGroup: 'hispanic',
     filename: 'wunderbar-persona-wb-econ-buyer-b.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-econ-buyer-b.png`,
   },
@@ -59,6 +77,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 36,
     ageMax: 44,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-econ-buyer-c.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-econ-buyer-c.png`,
   },
@@ -70,6 +89,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 55,
     ageMax: 64,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-exec-sponsor-a.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-exec-sponsor-a.png`,
   },
@@ -81,6 +101,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 45,
     ageMax: 54,
+    heritageGroup: 'hispanic',
     filename: 'wunderbar-persona-wb-exec-sponsor-b.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-exec-sponsor-b.png`,
   },
@@ -92,6 +113,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 40,
     ageMax: 45,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-exec-sponsor-c.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-exec-sponsor-c.png`,
   },
@@ -103,6 +125,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 25,
     ageMax: 34,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-func-champion-a.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-func-champion-a.png`,
   },
@@ -114,6 +137,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 55,
     ageMax: 60,
+    heritageGroup: 'hispanic',
     filename: 'wunderbar-persona-wb-func-champion-b.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-func-champion-b.png`,
   },
@@ -125,6 +149,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 35,
     ageMax: 44,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-func-champion-c.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-func-champion-c.png`,
   },
@@ -136,6 +161,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 26,
     ageMax: 34,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-ops-owner-a.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-ops-owner-a.png`,
   },
@@ -147,6 +173,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 45,
     ageMax: 54,
+    heritageGroup: 'hispanic',
     filename: 'wunderbar-persona-wb-ops-owner-b.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-ops-owner-b.png`,
   },
@@ -158,6 +185,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 55,
     ageMax: 64,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-ops-owner-c.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-ops-owner-c.png`,
   },
@@ -169,6 +197,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 21,
     ageMax: 26,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-tech-eval-a.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-tech-eval-a.png`,
   },
@@ -180,6 +209,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 25,
     ageMax: 34,
+    heritageGroup: 'hispanic',
     filename: 'wunderbar-persona-wb-tech-eval-b.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-tech-eval-b.png`,
   },
@@ -191,6 +221,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 55,
     ageMax: 60,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-tech-eval-c.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-tech-eval-c.png`,
   },
@@ -202,6 +233,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 25,
     ageMax: 34,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-rev-lead-a.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-rev-lead-a.png`,
   },
@@ -213,6 +245,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 35,
     ageMax: 44,
+    heritageGroup: 'hispanic',
     filename: 'wunderbar-persona-wb-rev-lead-b.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-rev-lead-b.png`,
   },
@@ -224,6 +257,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 45,
     ageMax: 54,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-rev-lead-c.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-rev-lead-c.png`,
   },
@@ -235,6 +269,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 25,
     ageMax: 34,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-people-ops-a.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-people-ops-a.png`,
   },
@@ -246,6 +281,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 55,
     ageMax: 64,
+    heritageGroup: 'hispanic',
     filename: 'wunderbar-persona-wb-people-ops-b.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-people-ops-b.png`,
   },
@@ -257,6 +293,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 35,
     ageMax: 44,
+    heritageGroup: 'black',
     filename: 'wunderbar-persona-wb-people-ops-c.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-people-ops-c.png`,
   },
@@ -268,6 +305,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 20,
     ageMax: 25,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-practitioner-a.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-practitioner-a.png`,
   },
@@ -279,6 +317,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 25,
     ageMax: 34,
+    heritageGroup: 'hispanic',
     filename: 'wunderbar-persona-wb-practitioner-b.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-practitioner-b.png`,
   },
@@ -290,6 +329,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 65,
     ageMax: 70,
+    heritageGroup: 'black',
     filename: 'wunderbar-persona-wb-practitioner-c.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-practitioner-c.png`,
   },
@@ -301,6 +341,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 65,
     ageMax: 70,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-procurement-a.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-procurement-a.png`,
   },
@@ -312,6 +353,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 45,
     ageMax: 54,
+    heritageGroup: 'hispanic',
     filename: 'wunderbar-persona-wb-procurement-b.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-procurement-b.png`,
   },
@@ -323,6 +365,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 55,
     ageMax: 64,
+    heritageGroup: 'black',
     filename: 'wunderbar-persona-wb-procurement-c.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-procurement-c.png`,
   },
@@ -334,6 +377,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 26,
     ageMax: 34,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-partner-a.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-partner-a.png`,
   },
@@ -345,6 +389,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 35,
     ageMax: 44,
+    heritageGroup: 'hispanic',
     filename: 'wunderbar-persona-wb-partner-b.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-partner-b.png`,
   },
@@ -356,6 +401,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2B',
     ageMin: 45,
     ageMax: 54,
+    heritageGroup: 'black',
     filename: 'wunderbar-persona-wb-partner-c.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-partner-c.png`,
   },
@@ -367,6 +413,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2C',
     ageMin: 20,
     ageMax: 25,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-primary-shopper-a.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-primary-shopper-a.png`,
   },
@@ -378,6 +425,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2C',
     ageMin: 25,
     ageMax: 34,
+    heritageGroup: 'hispanic',
     filename: 'wunderbar-persona-wb-primary-shopper-b.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-primary-shopper-b.png`,
   },
@@ -389,6 +437,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2C',
     ageMin: 65,
     ageMax: 72,
+    heritageGroup: 'black',
     filename: 'wunderbar-persona-wb-primary-shopper-c.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-primary-shopper-c.png`,
   },
@@ -400,6 +449,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2C',
     ageMin: 75,
     ageMax: 80,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-value-buyer-a.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-value-buyer-a.png`,
   },
@@ -411,6 +461,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2C',
     ageMin: 75,
     ageMax: 80,
+    heritageGroup: 'hispanic',
     filename: 'wunderbar-persona-wb-value-buyer-b.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-value-buyer-b.png`,
   },
@@ -422,6 +473,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2C',
     ageMin: 75,
     ageMax: 80,
+    heritageGroup: 'black',
     filename: 'wunderbar-persona-wb-value-buyer-c.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-value-buyer-c.png`,
   },
@@ -433,6 +485,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2C',
     ageMin: 26,
     ageMax: 34,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-premium-buyer-a.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-premium-buyer-a.png`,
   },
@@ -444,6 +497,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2C',
     ageMin: 65,
     ageMax: 70,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-premium-buyer-b.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-premium-buyer-b.png`,
   },
@@ -455,6 +509,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2C',
     ageMin: 55,
     ageMax: 64,
+    heritageGroup: 'black',
     filename: 'wunderbar-persona-wb-premium-buyer-c.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-premium-buyer-c.png`,
   },
@@ -466,6 +521,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2C',
     ageMin: 25,
     ageMax: 34,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-parent-a.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-parent-a.png`,
   },
@@ -477,6 +533,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2C',
     ageMin: 35,
     ageMax: 44,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-parent-b.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-parent-b.png`,
   },
@@ -488,6 +545,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2C',
     ageMin: 45,
     ageMax: 54,
+    heritageGroup: 'black',
     filename: 'wunderbar-persona-wb-parent-c.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-parent-c.png`,
   },
@@ -499,6 +557,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2C',
     ageMin: 21,
     ageMax: 26,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-life-pro-a.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-life-pro-a.png`,
   },
@@ -510,6 +569,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2C',
     ageMin: 25,
     ageMax: 34,
+    heritageGroup: 'black',
     filename: 'wunderbar-persona-wb-life-pro-b.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-life-pro-b.png`,
   },
@@ -521,6 +581,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2C',
     ageMin: 35,
     ageMax: 44,
+    heritageGroup: 'black',
     filename: 'wunderbar-persona-wb-life-pro-c.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-life-pro-c.png`,
   },
@@ -532,6 +593,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2C',
     ageMin: 20,
     ageMax: 25,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-wellness-a.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-wellness-a.png`,
   },
@@ -543,6 +605,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2C',
     ageMin: 25,
     ageMax: 34,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-wellness-b.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-wellness-b.png`,
   },
@@ -554,6 +617,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2C',
     ageMin: 45,
     ageMax: 54,
+    heritageGroup: 'east_asian',
     filename: 'wunderbar-persona-wb-wellness-c.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-wellness-c.png`,
   },
@@ -565,6 +629,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2C',
     ageMin: 75,
     ageMax: 80,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-local-a.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-local-a.png`,
   },
@@ -576,6 +641,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2C',
     ageMin: 55,
     ageMax: 64,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-local-b.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-local-b.png`,
   },
@@ -587,6 +653,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2C',
     ageMin: 65,
     ageMax: 74,
+    heritageGroup: 'east_asian',
     filename: 'wunderbar-persona-wb-local-c.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-local-c.png`,
   },
@@ -598,6 +665,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2C',
     ageMin: 20,
     ageMax: 25,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-gift-a.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-gift-a.png`,
   },
@@ -609,6 +677,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2C',
     ageMin: 20,
     ageMax: 25,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-gift-b.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-gift-b.png`,
   },
@@ -620,6 +689,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'B2C',
     ageMin: 20,
     ageMax: 25,
+    heritageGroup: 'east_asian',
     filename: 'wunderbar-persona-wb-gift-c.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-gift-c.png`,
   },
@@ -631,6 +701,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'Shared',
     ageMin: 20,
     ageMax: 25,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-founder-a.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-founder-a.png`,
   },
@@ -642,6 +713,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'Shared',
     ageMin: 25,
     ageMax: 34,
+    heritageGroup: 'black',
     filename: 'wunderbar-persona-wb-founder-b.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-founder-b.png`,
   },
@@ -653,6 +725,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'Shared',
     ageMin: 45,
     ageMax: 54,
+    heritageGroup: 'black',
     filename: 'wunderbar-persona-wb-founder-c.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-founder-c.png`,
   },
@@ -664,6 +737,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'Shared',
     ageMin: 25,
     ageMax: 34,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-smb-owner-a.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-smb-owner-a.png`,
   },
@@ -675,6 +749,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'Shared',
     ageMin: 65,
     ageMax: 70,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-smb-owner-b.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-smb-owner-b.png`,
   },
@@ -686,6 +761,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'Shared',
     ageMin: 35,
     ageMax: 44,
+    heritageGroup: 'mena',
     filename: 'wunderbar-persona-wb-smb-owner-c.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-smb-owner-c.png`,
   },
@@ -697,6 +773,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'Shared',
     ageMin: 65,
     ageMax: 74,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-senior-a.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-senior-a.png`,
   },
@@ -708,6 +785,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'Shared',
     ageMin: 75,
     ageMax: 84,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-senior-b.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-senior-b.png`,
   },
@@ -719,6 +797,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'Shared',
     ageMin: 65,
     ageMax: 74,
+    heritageGroup: 'south_asian',
     filename: 'wunderbar-persona-wb-senior-c.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-senior-c.png`,
   },
@@ -730,6 +809,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'Shared',
     ageMin: 18,
     ageMax: 24,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-youth-a.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-youth-a.png`,
   },
@@ -741,6 +821,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'Shared',
     ageMin: 18,
     ageMax: 24,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-youth-b.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-youth-b.png`,
   },
@@ -752,6 +833,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'Shared',
     ageMin: 18,
     ageMax: 24,
+    heritageGroup: 'south_asian',
     filename: 'wunderbar-persona-wb-youth-c.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-youth-c.png`,
   },
@@ -763,6 +845,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'Youth',
     ageMin: 13,
     ageMax: 15,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-teen-consumer-a.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-teen-consumer-a.png`,
   },
@@ -774,6 +857,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'Youth',
     ageMin: 15,
     ageMax: 17,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-teen-consumer-b.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-teen-consumer-b.png`,
   },
@@ -785,6 +869,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'Youth',
     ageMin: 16,
     ageMax: 17,
+    heritageGroup: 'east_asian',
     filename: 'wunderbar-persona-wb-teen-consumer-c.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-teen-consumer-c.png`,
   },
@@ -796,6 +881,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'Youth',
     ageMin: 13,
     ageMax: 15,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-teen-student-a.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-teen-student-a.png`,
   },
@@ -807,6 +893,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'Youth',
     ageMin: 15,
     ageMax: 17,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-teen-student-b.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-teen-student-b.png`,
   },
@@ -818,6 +905,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'Youth',
     ageMin: 16,
     ageMax: 17,
+    heritageGroup: 'mixed',
     filename: 'wunderbar-persona-wb-teen-student-c.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-teen-student-c.png`,
   },
@@ -829,6 +917,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'Youth',
     ageMin: 13,
     ageMax: 15,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-teen-influencer-a.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-teen-influencer-a.png`,
   },
@@ -840,6 +929,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'Youth',
     ageMin: 15,
     ageMax: 17,
+    heritageGroup: 'white',
     filename: 'wunderbar-persona-wb-teen-influencer-b.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-teen-influencer-b.png`,
   },
@@ -851,6 +941,7 @@ export const personaPortraits: PersonaPortrait[] = [
     context: 'Youth',
     ageMin: 16,
     ageMax: 17,
+    heritageGroup: 'black',
     filename: 'wunderbar-persona-wb-teen-influencer-c.png',
     src: `${PERSONA_PORTRAIT_BASE}/wunderbar-persona-wb-teen-influencer-c.png`,
   },
@@ -979,13 +1070,22 @@ function pickVariant(params: {
   gender: PersonaPortraitGenderHint;
   seedKey: string;
   ageYears?: number | null;
+  heritageHint?: PersonaHeritageGroup | null;
 }): PersonaVariant {
   const options = portraitsForArchetype(params.archetypeId);
   if (options.length === 0) return "a";
 
+  let pool = options;
+
+  // Prefer heritage-aligned portraits when the name strongly implies one.
+  if (params.heritageHint) {
+    const heritageHits = pool.filter((p) => p.heritageGroup === params.heritageHint);
+    if (heritageHits.length > 0) pool = heritageHits;
+  }
+
   // Prefer age-appropriate portrait when we have an age signal.
   if (typeof params.ageYears === "number" && Number.isFinite(params.ageYears)) {
-    const ageHits = options.filter(
+    const ageHits = pool.filter(
       (p) => params.ageYears! >= p.ageMin && params.ageYears! <= p.ageMax,
     );
     if (ageHits.length === 1) return ageHits[0]!.variant;
@@ -995,7 +1095,7 @@ function pickVariant(params: {
     }
   }
 
-  // Stable gender-biased pick across a/b/c when no age match.
+  // Stable gender-biased pick across remaining variants.
   const order: PersonaVariant[] =
     params.gender === "male"
       ? ["b", "c", "a"]
@@ -1003,10 +1103,10 @@ function pickVariant(params: {
         ? ["a", "c", "b"]
         : ["a", "b", "c"];
   for (const v of order) {
-    if (options.some((p) => p.variant === v)) return v;
+    if (pool.some((p) => p.variant === v)) return v;
   }
-  const i = hashToUint(params.seedKey) % options.length;
-  return options[i]!.variant;
+  const i = hashToUint(params.seedKey) % pool.length;
+  return pool[i]!.variant;
 }
 
 /**
@@ -1027,6 +1127,7 @@ export function resolveLocalPersonaPortraitSrc(params: {
   remote: false;
   ageMin?: number;
   ageMax?: number;
+  heritageGroup: PersonaHeritageGroup;
 } {
   const archetypeId = resolvePersonaArchetypeId({
     role: params.role,
@@ -1038,19 +1139,37 @@ export function resolveLocalPersonaPortraitSrc(params: {
     personaName: params.personaName?.trim() ?? "",
     personaRecord: params.personaRecord,
   });
+  const heritageHint = inferHeritageFromPersonaName(params.personaName?.trim() ?? "");
   const variant = pickVariant({
     archetypeId,
     gender,
     seedKey: params.seedKey ?? `${params.role}|${params.personaName ?? ""}|${params.index ?? 0}`,
     ageYears: params.ageYears,
+    heritageHint,
   });
-  const portrait = personaPortraitById[`${archetypeId}-${variant}`];
+
+  // If the name asked for a heritage this archetype doesn't have, try same-context peers.
+  let portrait = personaPortraitById[`${archetypeId}-${variant}`];
+  if (heritageHint && portrait && portrait.heritageGroup !== heritageHint) {
+    const peers = personaPortraits.filter(
+      (p) => p.context === portrait!.context && p.heritageGroup === heritageHint,
+    );
+    if (peers.length > 0) {
+      const i =
+        hashToUint(
+          `${params.seedKey ?? params.personaName ?? archetypeId}|heritage-peer`,
+        ) % peers.length;
+      portrait = peers[i]!;
+    }
+  }
+
   return {
     src: portrait?.src ?? personaPortraitPublicPath(archetypeId, variant),
-    archetypeId,
-    variant,
+    archetypeId: (portrait?.archetypeId as PersonaArchetypeId) ?? archetypeId,
+    variant: portrait?.variant ?? variant,
     remote: false,
     ageMin: portrait?.ageMin,
     ageMax: portrait?.ageMax,
+    heritageGroup: portrait?.heritageGroup ?? "unknown",
   };
 }

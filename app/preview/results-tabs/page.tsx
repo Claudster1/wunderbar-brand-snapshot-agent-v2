@@ -13,7 +13,7 @@ function firstQueryString(
   return undefined;
 }
 
-/** Rebuild query string so we can add `tab=strategy` while keeping workbook / activation deep links. */
+/** Rebuild query string so we can add `tab=results` while keeping workbook / activation deep links. */
 function toUrlSearchParams(sp: Record<string, string | string[] | undefined>): URLSearchParams {
   const params = new URLSearchParams();
   for (const [key, raw] of Object.entries(sp)) {
@@ -41,7 +41,7 @@ export default async function PreviewResultsTabsPage({ searchParams }: PageProps
   const tabUnset = tabQuery === undefined || tabQuery.trim() === "";
   if (tabUnset) {
     const params = toUrlSearchParams(sp);
-    params.set("tab", "strategy");
+    params.set("tab", "results");
     redirect(`/preview/results-tabs?${params.toString()}`);
   }
   const initialActiveTab = parseResultsTabId(sp.tab);

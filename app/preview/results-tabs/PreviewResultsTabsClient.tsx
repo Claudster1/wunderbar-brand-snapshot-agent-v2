@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { Suspense, useEffect, useMemo } from "react";
+import { Suspense, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import ResultsTabsShell from "@/components/results/ResultsTabsShell";
 import {
@@ -232,7 +232,7 @@ const diagnosticData = {
   audiencePersonaDefinition: previewAudiencePersonaDefinition,
   buyerPersonas: [
     {
-      personaName: "Jordan Malik",
+      personaName: "Jordan Ellis",
       icpAlignment: "Primary ICP",
       role: "VP Marketing",
       coreFrustration: "Campaigns look polished but pipeline quality is flat quarter over quarter.",
@@ -251,7 +251,7 @@ const diagnosticData = {
       sampleCTA: "Review my priority rollout plan",
     },
     {
-      personaName: "Priya Nandakumar",
+      personaName: "Casey Morgan",
       icpAlignment: "Secondary ICP",
       role: "CFO",
       coreFrustration: "Hard to tie brand and demand spend to revenue efficiency with confidence.",
@@ -270,7 +270,7 @@ const diagnosticData = {
       sampleCTA: "See the financial impact model",
     },
     {
-      personaName: "Marcus Webb",
+      personaName: "Alex Reed",
       icpAlignment: "Primary ICP",
       role: "Head of Revenue Operations",
       coreFrustration: "CRM and campaigns tell different stories; handoffs break under scale.",
@@ -979,17 +979,9 @@ function PreviewResultsTabsClientInner({
   const searchParams = useSearchParams();
   const resolvedTab = useMemo((): ResultsTab => {
     const raw = searchParams.get("tab");
-    if (!raw?.trim()) return initialActiveTab ?? "strategy";
+    if (!raw?.trim()) return initialActiveTab ?? "results";
     return parseResultsTabId(raw) ?? "results";
   }, [searchParams, initialActiveTab]);
-
-  useEffect(() => {
-    if (resolvedTab !== "strategy") return;
-    const id = window.setTimeout(() => {
-      document.getElementById("strategy-sales-alignment")?.scrollIntoView({ block: "start", behavior: "smooth" });
-    }, 350);
-    return () => window.clearTimeout(id);
-  }, [resolvedTab]);
 
   return (
     <main className="min-h-screen font-brand" style={{ backgroundColor: "#F5F7FA" }}>
@@ -1006,8 +998,8 @@ function PreviewResultsTabsClientInner({
 
       <div style={{ maxWidth: SUITE_CONTENT_MAX_PX, margin: "0 auto", padding: "0 min(28px, 4vw) 28px" }}>
         <p style={{ fontSize: 12, color: "#5A6B7E", margin: 0 }}>
-          Preview mode with mock data (URL defaults to <code style={{ fontSize: 11 }}>?tab=strategy</code>; use{" "}
-          <code style={{ fontSize: 11 }}>?tab=results</code> for the scores overview).{" "}
+          Preview mode with mock data. Use the top tabs (Results → Foundation → …) or deep-link with{" "}
+          <code style={{ fontSize: 11 }}>?tab=foundation</code>.{" "}
           <Link href="/preview" style={{ color: "#021859", textDecoration: "underline", fontWeight: 700 }}>
             Back to all previews
           </Link>

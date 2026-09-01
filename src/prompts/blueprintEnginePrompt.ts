@@ -310,7 +310,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
     
     buyerPersonas: [
       {
-        personaName: A memorable, descriptive name (e.g., "The Overwhelmed CMO", "The Budget-Conscious Startup Founder", "The Referral-Driven Mom")
+        personaName: A memorable, descriptive name preferred (e.g., "The Overwhelmed CMO", "The Budget-Conscious Startup Founder", "The Referral-Driven Mom"). If using a first+last name, keep it ethnically ambiguous (Jordan Ellis, Casey Morgan, Alex Reed) — never invent a culturally specific name that could clash with the illustrated avatar.
         icpAlignment: REQUIRED — MUST be an EXACT copy of the icpLabel string from the ICP this persona belongs to (primaryICP.icpLabel, secondaryICP.icpLabel, or one additionalICPs[].icpLabel). Do not write "primary" or "secondary" alone unless that is literally the icpLabel.
         role: Their role or identity (B2B: job title, decision authority; B2C: life role, identity)
         coreFrustration: The one thing that keeps them up at night related to what [businessName] solves

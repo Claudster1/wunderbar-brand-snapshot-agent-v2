@@ -271,7 +271,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
     
     buyerPersonas: [
       {
-        personaName: A vivid, memorable name (e.g., "The Overwhelmed CMO", "The Side-Hustle Mom", "The Risk-Averse CFO")
+        personaName: A vivid, memorable name preferred (e.g., "The Overwhelmed CMO", "The Side-Hustle Mom", "The Risk-Averse CFO"). If using a first+last name, keep it ethnically ambiguous (Jordan Ellis, Casey Morgan, Alex Reed) — never invent a culturally specific name that could clash with the illustrated avatar.
         icpAlignment: REQUIRED — exact string match to the icpLabel of primaryICP, secondaryICP, or one additionalICPs[] item
         narrativeSnapshot: A 3–4 sentence story that brings this persona to life — who they are, what their day looks like, what frustrates them. Written in third person.
         role: Their role or identity (B2B: job title, seniority, decision authority; B2C: life role, identity, values)

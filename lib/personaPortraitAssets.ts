@@ -1071,6 +1071,8 @@ function pickVariant(params: {
   seedKey: string;
   ageYears?: number | null;
   heritageHint?: PersonaHeritageGroup | null;
+  /** Prefer portraits outside these groups when the name does not force a heritage. */
+  avoidHeritageGroups?: readonly PersonaHeritageGroup[];
 }): PersonaVariant {
   const options = portraitsForArchetype(params.archetypeId);
   if (options.length === 0) return "a";
@@ -1081,6 +1083,11 @@ function pickVariant(params: {
   if (params.heritageHint) {
     const heritageHits = pool.filter((p) => p.heritageGroup === params.heritageHint);
     if (heritageHits.length > 0) pool = heritageHits;
+  } else if (params.avoidHeritageGroups && params.avoidHeritageGroups.length > 0) {
+    // ICP set diversity: keep co-presented personas on different heritage groups when possible.
+    const avoided = new Set(params.avoidHeritageGroups);
+    const diversified = pool.filter((p) => !avoided.has(p.heritageGroup));
+    if (diversified.length > 0) pool = diversified;
   }
 
   // Prefer age-appropriate portrait when we have an age signal.
@@ -1111,6 +1118,7 @@ function pickVariant(params: {
 
 /**
  * Prefer local WunderBrand illustrations; callers may still fall back to DiceBear if null.
+ * Pass `avoidHeritageGroups` when resolving a set of ICPs so co-presented faces stay diverse.
  */
 export function resolveLocalPersonaPortraitSrc(params: {
   role: string;
@@ -1120,6 +1128,8 @@ export function resolveLocalPersonaPortraitSrc(params: {
   personaRecord?: Record<string, unknown> | null;
   seedKey?: string;
   ageYears?: number | null;
+  /** Heritage groups already used by earlier personas in the same ICP set. */
+  avoidHeritageGroups?: readonly PersonaHeritageGroup[];
 }): {
   src: string;
   archetypeId: PersonaArchetypeId;
@@ -1129,6 +1139,8 @@ export function resolveLocalPersonaPortraitSrc(params: {
   ageMax?: number;
   heritageGroup: PersonaHeritageGroup;
 } {
+  const seedKey =
+    params.seedKey ?? `${params.role}|${params.personaName ?? ""}|${params.index ?? 0}`;
   const archetypeId = resolvePersonaArchetypeId({
     role: params.role,
     personaName: params.personaName,
@@ -1140,12 +1152,14 @@ export function resolveLocalPersonaPortraitSrc(params: {
     personaRecord: params.personaRecord,
   });
   const heritageHint = inferHeritageFromPersonaName(params.personaName?.trim() ?? "");
+  const avoidHeritageGroups = params.avoidHeritageGroups ?? [];
   const variant = pickVariant({
     archetypeId,
     gender,
-    seedKey: params.seedKey ?? `${params.role}|${params.personaName ?? ""}|${params.index ?? 0}`,
+    seedKey,
     ageYears: params.ageYears,
     heritageHint,
+    avoidHeritageGroups,
   });
 
   // If the name asked for a heritage this archetype doesn't have, try same-context peers.
@@ -1155,10 +1169,25 @@ export function resolveLocalPersonaPortraitSrc(params: {
       (p) => p.context === portrait!.context && p.heritageGroup === heritageHint,
     );
     if (peers.length > 0) {
-      const i =
-        hashToUint(
-          `${params.seedKey ?? params.personaName ?? archetypeId}|heritage-peer`,
-        ) % peers.length;
+      const i = hashToUint(`${seedKey}|heritage-peer`) % peers.length;
+      portrait = peers[i]!;
+    }
+  }
+
+  // Set-level diversity escape: when every local variant is already used, borrow a peer
+  // from the same audience context with an unused heritage (name hint still wins above).
+  if (
+    !heritageHint &&
+    avoidHeritageGroups.length > 0 &&
+    portrait &&
+    avoidHeritageGroups.includes(portrait.heritageGroup)
+  ) {
+    const avoided = new Set(avoidHeritageGroups);
+    const peers = personaPortraits.filter(
+      (p) => p.context === portrait!.context && !avoided.has(p.heritageGroup),
+    );
+    if (peers.length > 0) {
+      const i = hashToUint(`${seedKey}|diverse-peer`) % peers.length;
       portrait = peers[i]!;
     }
   }

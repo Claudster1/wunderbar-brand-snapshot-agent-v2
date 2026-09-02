@@ -1,5 +1,8 @@
 import { buildPersonaPortraitSeed, inferPersonaAudienceKind } from "@/lib/personaPortrait";
-import { resolveLocalPersonaPortraitSrc } from "@/lib/personaPortraitAssets";
+import {
+  resolveLocalPersonaPortraitSrc,
+  type PersonaHeritageGroup,
+} from "@/lib/personaPortraitAssets";
 import { alignPersonaNameToPortraitHeritage } from "@/lib/personaPortraitHeritage";
 
 /** Normalize audience fields from report / workbook / enrichment (string or `{ description }`). */
@@ -627,6 +630,8 @@ export function buyerPersonasToStrategyCards(
 ): StrategyBuyerPersonaCard[] {
   if (!Array.isArray(list) || list.length === 0) return [];
   const out: StrategyBuyerPersonaCard[] = [];
+  const usedHeritageGroups: PersonaHeritageGroup[] = [];
+  const audienceKind = inferPersonaAudienceKind(ctx?.diagnostic ?? undefined);
   for (let i = 0; i < list.length && i < 8; i++) {
     const raw = list[i];
     if (!raw || typeof raw !== "object" || Array.isArray(raw)) continue;
@@ -648,10 +653,12 @@ export function buyerPersonasToStrategyCards(
       role: roleForSeed,
       personaName: rawTitle,
       index: i,
-      audienceKind: inferPersonaAudienceKind(ctx?.diagnostic ?? undefined),
+      audienceKind,
       personaRecord: p,
       seedKey: seed,
+      avoidHeritageGroups: usedHeritageGroups,
     });
+    usedHeritageGroups.push(local.heritageGroup);
     const aligned = alignPersonaNameToPortraitHeritage({
       personaName: rawTitle,
       portraitHeritage: local.heritageGroup,

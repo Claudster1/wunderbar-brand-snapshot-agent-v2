@@ -1,5 +1,8 @@
 import { buildPersonaPortraitSeed, inferPersonaAudienceKind } from "@/lib/personaPortrait";
-import { resolveLocalPersonaPortraitSrc } from "@/lib/personaPortraitAssets";
+import {
+  resolveLocalPersonaPortraitSrc,
+  type PersonaHeritageGroup,
+} from "@/lib/personaPortraitAssets";
 import { alignPersonaNameToPortraitHeritage } from "@/lib/personaPortraitHeritage";
 
 export type FoundationPersonaAtlasEntry = {
@@ -150,6 +153,8 @@ export function buildFoundationPersonaAtlasEntries(params: {
   const brandName = params.businessName.trim() || "Your Brand";
   const pillar = params.primaryPillar.toLowerCase();
   const gap = params.topGap.toLowerCase();
+  const audienceKind = inferPersonaAudienceKind(params.diagnosticData);
+  const usedHeritageGroups: PersonaHeritageGroup[] = [];
 
   if (raw.length === 0) {
     return STATIC_ATLAS_BASE.map((row, index) => {
@@ -164,13 +169,22 @@ export function buildFoundationPersonaAtlasEntries(params: {
         role: row.role,
         personaName: row.title,
         index,
-        audienceKind: inferPersonaAudienceKind(params.diagnosticData),
+        audienceKind,
+        seedKey: seed,
+        avoidHeritageGroups: usedHeritageGroups,
+      });
+      usedHeritageGroups.push(local.heritageGroup);
+      const aligned = alignPersonaNameToPortraitHeritage({
+        personaName: row.title,
+        portraitHeritage: local.heritageGroup,
         seedKey: seed,
       });
       return {
         ...row,
+        title: aligned.name,
         portraitSrc: local.src,
         portraitRemote: false,
+        portraitAlt: `Illustrated persona: ${aligned.name} (${row.role})`,
         messageAngle:
           row.key === "static-vp-ops"
             ? `${brandName} helps operations leaders remove ${gap} with a clear rollout sequence your team can run.`
@@ -196,10 +210,12 @@ export function buildFoundationPersonaAtlasEntries(params: {
       role,
       personaName: rawName,
       index,
-      audienceKind: inferPersonaAudienceKind(params.diagnosticData),
+      audienceKind,
       personaRecord: o,
       seedKey: seed,
+      avoidHeritageGroups: usedHeritageGroups,
     });
+    usedHeritageGroups.push(local.heritageGroup);
     const aligned = alignPersonaNameToPortraitHeritage({
       personaName: rawName,
       portraitHeritage: local.heritageGroup,

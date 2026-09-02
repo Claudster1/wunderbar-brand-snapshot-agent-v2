@@ -1187,8 +1187,19 @@ export function resolveLocalPersonaPortraitSrc(params: {
       (p) => p.context === portrait!.context && !avoided.has(p.heritageGroup),
     );
     if (peers.length > 0) {
-      const i = hashToUint(`${seedKey}|diverse-peer`) % peers.length;
-      portrait = peers[i]!;
+      // Prefer gender-aligned variants among unused-heritage peers when we have a signal.
+      const genderOrder: PersonaVariant[] =
+        gender === "male" ? ["b", "c", "a"] : gender === "female" ? ["a", "c", "b"] : ["a", "b", "c"];
+      let peerPool = peers;
+      for (const v of genderOrder) {
+        const hits = peers.filter((p) => p.variant === v);
+        if (hits.length > 0) {
+          peerPool = hits;
+          break;
+        }
+      }
+      const i = hashToUint(`${seedKey}|diverse-peer`) % peerPool.length;
+      portrait = peerPool[i]!;
     }
   }
 

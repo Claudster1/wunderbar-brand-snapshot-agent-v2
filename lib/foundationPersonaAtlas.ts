@@ -12,7 +12,7 @@ export type FoundationPersonaAtlasEntry = {
   role: string;
   portraitSrc: string;
   portraitAlt: string;
-  /** Local `/assets/...` vs DiceBear URL */
+  /** Local `/personas/...` illustration vs remote (e.g. DiceBear) URL */
   portraitRemote: boolean;
   goals: string[];
   fears: string[];

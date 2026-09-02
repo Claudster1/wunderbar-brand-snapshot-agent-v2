@@ -100,7 +100,7 @@ const NAME_POOLS: Record<PersonaHeritageGroup, readonly string[]> = {
   black: [
     "Jordan Brooks",
     "Alex Hayes",
-    "Casey Morgan",
+    "Casey Wells",
     "Riley Scott",
     "Sam Jordan",
     "Taylor Reid",

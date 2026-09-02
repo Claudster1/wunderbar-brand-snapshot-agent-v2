@@ -274,7 +274,7 @@ function buildWorkbookSeedContent(
     "Role: Economic buyer",
     `Primary job to be done (JTBD): Improve ${primaryPillar.toLowerCase()} performance in ${industry.toLowerCase()}`,
     `Core Frustration: ${topOpportunity || "Current strategy does not convert consistently."}`,
-    `Messaging Angle: ${company} provides a practical, owner-ready implementation roadmap.`,
+    `Messaging Angle: ${company} provides a practical rollout plan your team can run.`,
     "",
     "Persona Tier 2: Secondary Audience Operator",
     "Role: Functional champion",
@@ -316,7 +316,7 @@ function buildWorkbookSeedContent(
     `Primary Conversion Barrier: ${
       competitiveVulnerability.implication || "Unclear confidence in implementation feasibility."
     }`,
-    `Decision Trigger: Practical proof + clear owner-ready rollout`,
+    `Decision Trigger: Practical proof + a clear rollout with named owners`,
     `Best Hook Type: Data-led insight + social proof`,
     `Channels to Prioritize: ${
       linesFromMap.length > 0 ? linesFromMap.slice(0, 3).map((line) => line.split(":")[0]).join(", ") : "Email, Search, LinkedIn"

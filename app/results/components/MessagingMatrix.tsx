@@ -47,9 +47,9 @@ function buildSegments(diagnosticData: Record<string, unknown>) {
     supporting: [
       `The approach is practical and mapped to ${primaryPillar.toLowerCase()} priorities.`,
       "I can see proof and know what to do next.",
-      "The plan is staged and owner-ready.",
+      "The plan is staged and ready for your team to run.",
     ],
-    useWords: ["clear", "practical", "proof-backed", "owner-ready"],
+    useWords: ["clear", "practical", "proof-backed", "ready to run"],
     avoidWords: ["revolutionary", "disruptive", "best-in-class", "generic growth"],
     tone: topStrength ? `Confident, direct, ${topStrength.toLowerCase()}` : "Confident, direct, practical",
   });

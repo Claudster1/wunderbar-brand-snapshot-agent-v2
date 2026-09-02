@@ -291,7 +291,7 @@ const MOCK_BLUEPRINT_PLUS_DATA = {
         matrixCell: "secondary-icp:consideration:paid-offer-ad",
       },
       competitiveConversationCues:
-        "Vs. ‘we have a positioning doc,’ sell adoption and weekly operating cadence, not more PDFs.",
+        "Vs. ‘we have a positioning doc,’ sell adoption and a weekly working rhythm, not more PDFs.",
     },
   ],
   thoughtLeadershipStrategy: {
@@ -438,7 +438,7 @@ const MOCK_WORKBOOK_DATA = {
       {
         url: "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=1200&q=80",
         caption: "Execution Team in Motion",
-        rationale: "Supports operational credibility and implementation readiness.",
+        rationale: "Supports operational credibility and readiness to run the plan.",
       },
       {
         url: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80",

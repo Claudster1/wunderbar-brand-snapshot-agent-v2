@@ -221,7 +221,7 @@ export function buildStrategyNavMenuItems(
       body: formatMessagingSystemBody(
         ms,
         positioningMessaging ||
-          `Build 3-5 pillars anchored on ${primaryPillar.toLowerCase()}. For ${companyName}, each pillar should include a clear claim, one proof artifact, and one outcome statement tied to ${firstPriority.toLowerCase()}.`,
+          `Build 3-5 pillars anchored on ${primaryPillar.toLowerCase()}. For ${companyName}, each pillar should include a clear claim, one proof point, and one outcome statement tied to ${firstPriority.toLowerCase()}.`,
       ),
       workbookSectionId: "messaging-framework",
     },

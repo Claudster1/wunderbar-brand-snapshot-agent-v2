@@ -355,7 +355,7 @@ function ensureActivationChannelCompleteness(content: LooseRecord): void {
   const platforms = Array.isArray(social.platforms) ? social.platforms : [];
   if (platforms.length === 0) {
     social.platforms = [
-      { platform: "LinkedIn", whyThisPlatform: "B2B authority and demand capture", audienceOnPlatform: "Economic buyers and operators", contentStrategy: "Proof-led thought leadership + clear CTA handoffs", postingFrequency: "3x weekly", contentMix: "50% education, 30% proof, 20% offer", examplePosts: ["Outcome story with metric + mechanism", "Common leak and fix", "Offer-linked insight post"], kpiToTrack: "Qualified leads from social" },
+      { platform: "LinkedIn", whyThisPlatform: "B2B authority and demand capture", audienceOnPlatform: "Economic buyers and operators", contentStrategy: "Proof-led thought leadership + clear CTA handoffs", postingFrequency: "3x weekly", contentMix: "50% education, 30% proof, 20% offer", examplePosts: ["Outcome story with metric + how it works", "Common leak and fix", "Offer-linked insight post"], kpiToTrack: "Qualified leads from social" },
       { platform: "Email/Newsletter amplification", whyThisPlatform: "Owned distribution", audienceOnPlatform: "Warm prospects and current customers", contentStrategy: "Reinforce campaign message spine weekly", postingFrequency: "1x weekly", contentMix: "70% education, 30% conversion", examplePosts: ["Weekly insight with CTA", "Proof summary with next step"], kpiToTrack: "Click-through to conversion pages" },
     ];
   }

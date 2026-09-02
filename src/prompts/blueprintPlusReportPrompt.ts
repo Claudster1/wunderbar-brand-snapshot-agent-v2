@@ -2063,6 +2063,7 @@ DESIGN & TONE
 - No hype, no shortcuts, no jargon without explanation
 - Feels expensive because it is thorough and genuinely helpful
 - Customer-facing paste fields (emails, website, talk tracks, objections, ads, messaging) must sound human and collaborative — see PLAIN LANGUAGE / Human, friendly, expert rule
+- Ban stock AI phrasing: "practitioner-advisor", "name the real constraint", "show the mechanism", "accountable next move", "generic hype". Prefer everyday words a founder would say out loud.
 - Every section demonstrates strategic thinking AND practical implementation
 - Write recommendations as if guiding a friend through their brand strategy
 - Use proper typographic quotes (curly quotes) in all content

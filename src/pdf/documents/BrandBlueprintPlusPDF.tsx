@@ -263,7 +263,7 @@ export const BrandBlueprintPlusPDF = ({
         </View>
 
         <Text style={{ ...stylePresets.body, marginTop: spacing.xl }}>
-          {businessName ? `${businessName}\u2019s` : "Your"} WunderBrand Blueprint+™ is a comprehensive brand operating system — synthesizing customer intelligence, narrative architecture, positioning strategy, competitive analysis, and a complete AEO implementation roadmap into a single, execution-ready document. Every section is designed to be handed directly to your team, agency, or freelancers as a production brief.
+          {businessName ? `${businessName}\u2019s` : "Your"} WunderBrand Blueprint+™ is a comprehensive brand operating system — synthesizing customer intelligence, narrative architecture, positioning strategy, competitive analysis, and a complete AEO implementation roadmap into a single document your team can use right away. Every section is designed to be handed directly to your team, agency, or freelancers as a production brief.
         </Text>
 
         <View style={{ marginTop: spacing.xl, padding: spacing.md, backgroundColor: colors.bgSecondary, borderRadius: 8 }}>

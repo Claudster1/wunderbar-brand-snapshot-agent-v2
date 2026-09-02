@@ -4377,7 +4377,7 @@ export default function BrandBlueprintPlusReport() {
         </Section>
 
         <Section id="strategic-signals">
-          <SectionTitle description="Executive-level diagnostic signals with implementation implications for growth and profitability.">
+          <SectionTitle description="Executive-level diagnostic takeaways with clear implications for growth and profitability.">
             Strategic Signals
           </SectionTitle>
           <div style={{ display: "grid", gap: 14 }}>

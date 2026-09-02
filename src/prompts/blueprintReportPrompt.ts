@@ -14,7 +14,7 @@ STRICT REQUIREMENTS:
 - Everything must be explicit. Do not assume prior context.
 - No references to "as mentioned earlier".
 - This report defines HOW the brand operates going forward.
-- Include examples, specific copy, and **execution-ready** guidance throughout — not vague to-do language without the actual words.
+- Include examples, specific copy, and **ready-to-use** guidance throughout — not vague to-do language without the actual words.
 - In measurementFramework.trackingRecommendations, every object must include readerFriendlyOneLiner: one sentence leadership can skim—parallel to howToSetUp, not a replacement. Spell out acronyms (UTM, SQL, CRM, etc.) there when they appear in tool or howToSetUp. Experienced operators should still be able to execute from howToSetUp alone.
 
 ${reportExecutionReadyContentRule}

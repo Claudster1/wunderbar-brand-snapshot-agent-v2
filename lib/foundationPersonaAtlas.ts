@@ -173,7 +173,7 @@ export function buildFoundationPersonaAtlasEntries(params: {
         portraitRemote: false,
         messageAngle:
           row.key === "static-vp-ops"
-            ? `${brandName} helps operations leaders remove ${gap} with owner-ready rollout sequencing.`
+            ? `${brandName} helps operations leaders remove ${gap} with a clear rollout sequence your team can run.`
             : row.key === "static-cfo-coo"
               ? `${brandName} improves ${pillar} outcomes with measurable impact on decision velocity and execution efficiency.`
               : `${brandName} gives RevOps leaders a clarity-first operating model that keeps cross-functional execution accountable.`,

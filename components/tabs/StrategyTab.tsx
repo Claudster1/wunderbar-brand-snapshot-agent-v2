@@ -479,7 +479,7 @@ export default function StrategyTab({
       body: formatMessagingSystemBody(
         ms,
         positioningMessaging ||
-          `Build 3-5 pillars anchored on ${primaryPillar.toLowerCase()}. For ${companyName}, each pillar should include a clear claim, one proof artifact, and one outcome statement tied to ${firstPriority.toLowerCase()}.`,
+          `Build 3-5 pillars anchored on ${primaryPillar.toLowerCase()}. For ${companyName}, each pillar should include a clear claim, one proof point, and one outcome statement tied to ${firstPriority.toLowerCase()}.`,
       ),
       workbookSectionId: "messaging-framework",
     },
@@ -638,7 +638,7 @@ export default function StrategyTab({
       title: "Competitive framing",
       doText: `Show how ${companyName} wins on real results and reliable follow-through.`,
       dontText: "Say you are faster or better with no proof.",
-      example: `One line you can use: "Where others stop at ideas, ${companyName} ships owner-ready work tied to 90-day milestones."`,
+      example: `One line you can use: "Where others stop at ideas, ${companyName} ships work your team can run—tied to 90-day milestones."`,
     },
     "channel-strategy": {
       title: "Channel discipline",

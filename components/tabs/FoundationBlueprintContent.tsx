@@ -765,7 +765,7 @@ function buildArchetypeChannelSamples(params: {
       ? promise
       : diff
         ? diff
-        : `${brandName} · One ${pillar} promise, one mechanism, one next step—same voice from ad to landing.`;
+        : `${brandName} · One ${pillar} promise, how it works, one next step—same voice from ad to landing.`;
 
   const paidAd = {
     headline: foundation?.positioningStatement
@@ -1216,7 +1216,7 @@ function SubsectionCard({ item, densityMode }: { item: Subsection; densityMode: 
                                 key={`${item.id}-cv-${index}-sec-${si}-${s.label}`}
                                 className={si === 0 ? "mt-5" : "mt-5 border-t border-slate-200/90 pt-5"}
                               >
-                                <p className="m-0 text-xs sm:text-sm font-medium tracking-[0.08em] text-brand-blue">
+                                <p className="m-0 text-xs sm:text-sm font-medium uppercase tracking-[0.1em] text-brand-blue">
                                   {s.label}
                                 </p>
                                 <p className="mt-2.5 text-[15px] sm:text-base leading-relaxed text-brand-midnight">
@@ -1267,7 +1267,7 @@ function SubsectionCard({ item, densityMode }: { item: Subsection; densityMode: 
                     >
                       {isExample ? (
                         <div className="mb-3 flex flex-wrap items-center gap-2">
-                          <span className="inline-flex rounded-md border border-amber-300/90 bg-white/90 px-2.5 py-1 text-xs font-medium tracking-[0.08em] text-amber-900">
+                          <span className="inline-flex rounded-md border border-amber-300/90 bg-white/90 px-2.5 py-1 text-xs font-medium uppercase tracking-[0.1em] text-amber-900">
                             Example
                           </span>
                           <span className="text-xs sm:text-sm font-medium leading-snug text-amber-900/75">
@@ -1275,7 +1275,7 @@ function SubsectionCard({ item, densityMode }: { item: Subsection; densityMode: 
                           </span>
                         </div>
                       ) : meta.tag ? (
-                        <span className="mb-2 inline-flex rounded-full border border-brand-border/70 bg-[#F0F9FF] px-2.5 py-1 text-xs sm:text-sm font-medium tracking-[0.08em] text-brand-blue">
+                        <span className="mb-2 inline-flex rounded-full border border-brand-border/70 bg-[#F0F9FF] px-2.5 py-1 text-xs sm:text-sm font-medium uppercase tracking-[0.1em] text-brand-blue">
                           {meta.tag}
                         </span>
                       ) : null}
@@ -1463,7 +1463,7 @@ export default function FoundationBlueprintContent({
       objective: "Create problem awareness and category tension.",
       buyerMindset: `They do not yet connect ${topGap} to commercial impact.`,
       message: `${brandName} shows why active marketing still underperforms when strategy and execution are disconnected.`,
-      proof: "Use benchmark stats, category trend shifts, and diagnostic signal snapshots.",
+      proof: "Use benchmark stats, category trend shifts, and a short snapshot of what the diagnostic shows.",
       channels: "Thought leadership social, SEO/AEO educational content, podcast/short-form POV.",
       content: "Problem-framing insight posts, contrarian articles, myth-vs-reality narratives.",
       cta: "See the hidden growth leaks",
@@ -1490,7 +1490,7 @@ export default function FoundationBlueprintContent({
       color: { border: "#5CC4F5", bg: "#E8F6FE", text: "#021859", chip: "#D6EEFB" },
       objective: "Increase solution confidence and fit.",
       buyerMindset: `They compare options and evaluate whether ${brandName} fits their context.`,
-      message: `${brandName} aligns ${primaryPillar.toLowerCase()} strategy with owner-ready execution to improve decision confidence.`,
+      message: `${brandName} lines up ${primaryPillar.toLowerCase()} strategy with a plan your team can run—so decisions feel clearer, not louder.`,
       proof: "Use before/after messaging examples, priority plans, and channel sequence demonstrations.",
       channels: "Comparison pages, nurture email, live demos, pillar-specific case content.",
       content: "Use-case breakdowns, ROI narratives, implementation sequence previews.",
@@ -1786,8 +1786,8 @@ export default function FoundationBlueprintContent({
       const traitDescriptions: Record<string, string> = {
         Strategic: "Frames decisions in terms of long-term market and conversion impact.",
         Direct: "Communicates clearly without hedging or unnecessary abstraction.",
-        Credible: "Grounds recommendations in evidence, mechanism, and measurable outcomes.",
-        "Action-Oriented": "Ends communication with explicit next steps and ownership.",
+        Credible: "Grounds recommendations in evidence, how it works, and measurable outcomes.",
+        "Action-Oriented": "Ends communication with a clear next step and who owns it.",
         Clear: "Prioritizes simple language and unambiguous structure.",
         Confident: "Signals authority without overclaiming or exaggeration.",
         Practical: "Focuses on what teams can execute now with available resources.",
@@ -1966,7 +1966,7 @@ export default function FoundationBlueprintContent({
                 .slice(0, 28);
               return (
                 <div className="mt-4">
-                  <div className="mb-2 hidden text-xs font-medium tracking-[0.08em] text-brand-muted md:grid md:grid-cols-3 md:gap-3">
+                  <div className="mb-2 hidden text-xs font-medium uppercase tracking-[0.1em] text-brand-muted md:grid md:grid-cols-3 md:gap-3">
                     <div>Organic Social</div>
                     <div>Paid Social Ad</div>
                     <div>Retargeting</div>
@@ -2100,7 +2100,7 @@ export default function FoundationBlueprintContent({
       const rows = [
         {
           pillar: topPriority?.title || `Strengthen ${primaryPillar} clarity`,
-          proof: synthesisPoints[0]?.content || "Use baseline score and gap-specific proof artifacts.",
+          proof: synthesisPoints[0]?.content || "Use baseline score and gap-specific proof points.",
           cta: "Review 90-day priority plan",
         },
         {
@@ -2225,7 +2225,7 @@ export default function FoundationBlueprintContent({
                     {item.title}
                   </p>
                   <span
-                    className="rounded-full px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold tracking-[0.06em]"
+                    className="rounded-full px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.1em]"
                     style={{ backgroundColor: item.tone.chip, color: item.tone.text }}
                   >
                     Differentiator
@@ -2287,9 +2287,9 @@ export default function FoundationBlueprintContent({
                 <p className="text-sm sm:text-base text-brand-midnight mt-1">{valueHeadline}</p>
               </div>
               <div className="rounded-md border border-brand-border bg-[#EFF6FF] p-2">
-                <p className="text-sm sm:text-base font-medium text-brand-blue">Mechanism</p>
+                <p className="text-sm sm:text-base font-medium text-brand-blue">How It Works</p>
                 <p className="text-sm sm:text-base text-brand-midnight mt-1">
-                  {apStyleArrowChain(`diagnose highest-gap pillar → prioritize by impact → deploy owner-ready actions`)}
+                  {apStyleArrowChain(`find the biggest gap → prioritize by impact → ship steps your team can run`)}
                 </p>
               </div>
               <div className="rounded-md border border-brand-border bg-[#EFF6FF] p-2">
@@ -2317,7 +2317,7 @@ export default function FoundationBlueprintContent({
             <div className="rounded-md border border-[#86EFAC] bg-[#F0FDF4] p-3">
               <p className={`${FN_SUBHEAD_EYEBROW} text-[#166534]`}>Do This</p>
               <p className="text-sm sm:text-base text-brand-midnight mt-1">
-                Tie value language to one outcome, one mechanism, and one immediate action.
+                Tie value language to one outcome, how it works, and one next step this week.
               </p>
             </div>
             <div className="rounded-md border border-[#FCA5A5] bg-[#FEF2F2] p-3">
@@ -2467,7 +2467,7 @@ export default function FoundationBlueprintContent({
         {
           role: "Body",
           sample:
-            `${brandName} uses diagnosis-first messaging, proof-backed logic, and owner-ready action steps to keep execution consistent.`,
+            `${brandName} leads with a clear diagnosis, backs it with proof, and ends with steps your team can run the same week.`,
           spec: "Lato, 400, 16/26",
           className: "text-[16px] leading-[1.65] font-normal text-brand-midnight",
           usage: "Long-form guidance, examples, and implementation details.",
@@ -2704,7 +2704,7 @@ export default function FoundationBlueprintContent({
                     {stage.title}
                   </p>
                   <span
-                    className="rounded-full px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold tracking-[0.06em]"
+                    className="rounded-full px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.1em]"
                     style={{ backgroundColor: stage.color.chip, color: stage.color.text }}
                   >
                     {stageDurationById[stage.id]}
@@ -2882,7 +2882,7 @@ export default function FoundationBlueprintContent({
                       Q
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="text-xs sm:text-sm font-medium tracking-[0.08em] text-amber-900/85">{pair.tag} · Buyer Asks</p>
+                      <p className="text-xs sm:text-sm font-medium uppercase tracking-[0.1em] text-amber-900/85">{pair.tag} · Buyer Asks</p>
                       <p className="mt-1 text-[14px] font-semibold leading-snug text-brand-midnight">{pair.question}</p>
                     </div>
                   </div>
@@ -2906,24 +2906,24 @@ export default function FoundationBlueprintContent({
           </div>
 
           <div className="rounded-md border border-slate-200 bg-white px-4 py-3">
-            <p className="text-xs sm:text-sm font-medium tracking-[0.08em] text-brand-midnight mb-1">Response Sequence (Every Time)</p>
+            <p className="text-xs sm:text-sm font-medium uppercase tracking-[0.1em] text-brand-midnight mb-1">Response Sequence (Every Time)</p>
             <ol className="m-0 list-decimal space-y-1.5 pl-4 text-sm sm:text-base leading-relaxed text-brand-midnight">
               <li>Acknowledge the concern in their words.</li>
               <li>Reframe with strategic logic (why this matters before tactics).</li>
-              <li>Validate with evidence (diagnostic, proof, mechanism).</li>
-              <li>Advance with one concrete next step (owner + timeline).</li>
+              <li>Validate with evidence (diagnostic, proof, how it works).</li>
+              <li>Advance with one concrete next step (who owns it + by when).</li>
             </ol>
           </div>
 
           {competitiveVulnerability.implication ? (
             <div className="rounded-md border border-brand-blue/25 bg-[#F0F9FF] px-4 py-3">
-              <p className="text-xs sm:text-sm font-medium tracking-[0.08em] text-brand-navy mb-1">Market-Specific Objection Cue</p>
+              <p className="text-xs sm:text-sm font-medium uppercase tracking-[0.1em] text-brand-navy mb-1">Market-Specific Objection Cue</p>
               <p className="text-sm sm:text-base text-brand-midnight leading-relaxed">{competitiveVulnerability.implication}</p>
             </div>
           ) : null}
 
           <div className="rounded-md border border-dashed border-slate-300 bg-slate-50/90 px-4 py-3">
-            <p className="text-xs sm:text-sm font-medium tracking-[0.08em] text-slate-600 mb-2">Sample Q&amp;A (Adapt)</p>
+            <p className="text-xs sm:text-sm font-medium uppercase tracking-[0.1em] text-slate-600 mb-2">Sample Q&amp;A (Adapt)</p>
             <div className="space-y-3">
               <div>
                 <p className="text-xs sm:text-sm font-semibold text-amber-900/90">Q</p>
@@ -2932,7 +2932,7 @@ export default function FoundationBlueprintContent({
                 </p>
                 <p className="mt-1.5 text-sm sm:text-base font-medium text-brand-blue">A</p>
                 <p className="text-sm sm:text-base text-brand-midnight leading-relaxed">
-                  Start with your highest-gap pillar baseline and a first 30-day owner plan—one metric, one mechanism, one accountable role—then expand proof as those numbers move.
+                  Start with your highest-gap pillar baseline and a first 30-day plan—one metric, how you’ll move it, and who owns it—then expand proof as those numbers move.
                 </p>
               </div>
               <div className="border-t border-slate-200/90 pt-3">
@@ -2996,15 +2996,15 @@ export default function FoundationBlueprintContent({
         case "identity-vision":
           return `Application example: ${brandName} publishes a short LinkedIn note: “In ${mkt}, teams that win in 12 months compound ${strength}—here’s the one metric we’re moving monthly for ${aud}.”`;
         case "identity-mission":
-          return `Application example: ${executionOwner} sends a weekly “how ${brandName} runs mission” note: ${apStyleArrowChain(`diagnose → prioritize → ship → review`)}, plus one ${pillar} artifact due in 14 days that ${aud} can actually see.`;
+          return `Application example: ${executionOwner} sends a weekly “how ${brandName} runs mission” note: ${apStyleArrowChain(`diagnose → prioritize → ship → review`)}, plus one ${pillar} page, email, or creative due in 14 days that ${aud} can actually see.`;
         case "identity-values":
-          return `Application example: During a ${brandName} review, speed threatens proof—someone cites your values veto: two-sentence log of why the draft breaks “proof over preference” or strategic clarity, tied to ${gap}.`;
+          return `Application example: During a ${brandName} review, speed threatens proof—someone cites your values veto: two-sentence log of why the draft breaks “proof over preference” or clear strategy, tied to ${gap}.`;
         case "identity-personality":
           return `Application example: A draft to ${aud} opens with a vague check-in—${brandName} rewrites the first line to lead with diagnosis: “Your highest-risk gap is ${firstGap}; here’s the first move this week.”`;
         case "identity-archetype":
           return `Application example: ${brandName} ships a paid ad where the primary archetype owns headline + CTA; any secondary warmth sits only in the proof line so ${aud} see one clear character in the hero.`;
         case "identity-brand-persona":
-          return `Application example: ${brandName}’s organic post opens: “Here’s what we’re seeing in your diagnostic—and the first move this week”—practitioner-advisor frame, no generic hype, signed as ${brandName}.`;
+          return `Application example: ${brandName}’s organic post opens: “Here’s what we’re seeing in your diagnostic—and the first move this week”—helpful and specific, not hype, signed as ${brandName}.`;
         case "identity-origin":
           return `Application example: ${brandName}’s About opener becomes two short paragraphs: founding tension (${topOpportunity || "strategy vs execution split"}) + conviction, then proof—before timeline fluff competitors could copy.`;
         case "positioning-icp":
@@ -3014,13 +3014,13 @@ export default function FoundationBlueprintContent({
             ? `Application example: ${brandName}’s hero leads with your positioning line: “${clipForSample(foundationSnippets.positioningStatement, 200)}”—after a 15-minute read-aloud with someone skeptical from ${aud}.`
             : `Application example: ${brandName}’s hero swaps generic growth language for: “${afterSpecificLine}”—after a 15-minute read-aloud with someone skeptical from ${aud}.`;
         case "positioning-category":
-          return `Application example: When a prospect buckets ${brandName} with generic agencies, your 20-second answer uses this category frame: judged on ${pillar} and implementation readiness, not a deliverables menu.`;
+          return `Application example: When a prospect buckets ${brandName} with generic agencies, your 20-second answer uses this category frame: judged on ${pillar}, proof depth, and whether you can run the plan—not a deliverables menu.`;
         case "positioning-differentiators":
-          return `Application example: ${brandName}’s deck includes a battle slide: Column A = commodity claim rivals make; Column B = your differentiator + one dated proof artifact from this quarter.`;
+          return `Application example: ${brandName}’s deck includes a battle slide: Column A = commodity claim rivals make; Column B = your differentiator + one dated proof point from this quarter.`;
         case "positioning-not":
           return `Application example: ${brandName} redlines a “we do everything” services page—each line rewrites as a ${pillar} outcome so ${aud} see the boundary, not a laundry list.`;
         case "positioning-competitive-context":
-          return `Application example: After a loss on price, ${brandName} follows with one page: your counter-positioning line + link to proof of implementation sequencing—no discount-first reply.`;
+          return `Application example: After a loss on price, ${brandName} follows with one page: your counter-positioning line + link to proof of how you sequence the work—no discount-first reply.`;
         case "messaging-value-proposition":
           return `Application example: ${brandName} runs a hero A/B: current vs “${brandName} helps ${aud} improve ${pillar} outcomes…” with a proof strip using ${scoreBit}.`;
         case "messaging-pillars":
@@ -3038,7 +3038,7 @@ export default function FoundationBlueprintContent({
         case "messaging-vocabulary":
           return `Application example: Before launch, ${brandName} runs Ctrl+F on the next campaign for banned terms (“world-class,” “cutting-edge”) and swaps to approved ${pillar}-tied language.`;
         case "voice-brand-voice":
-          return `Application example: ${brandName} posts: “${brandName} helps ${aud} close ${firstGap}. Diagnostic signal + owner-ready plan—book a short priority review.”—matches your voice attributes in a real channel.`;
+          return `Application example: ${brandName} posts: “${brandName} helps ${aud} close ${firstGap}. Clear diagnosis + a plan you can run—book a short priority review.”—matches your voice attributes in a real channel.`;
         case "voice-tone-registers":
           return `Application example: ${brandName}’s sales email stays commercially direct (“Your top risk is ${firstGap}…”) while nurture uses the education register—same voice, different proof density for ${aud}.`;
         case "voice-writing-principles":
@@ -3056,7 +3056,7 @@ export default function FoundationBlueprintContent({
         case "visual-photography":
           return `Application example: ${brandName} replaces handshake stock in paid social with one real ${aud} context frame + one product/UI frame from your approved mood board.`;
         case "visual-layout":
-          return `Application example: ${brandName}’s mobile QA catches two H1s above the fold—you collapse to one message, one proof strip, one CTA per viewport before launch.`;
+          return `Application example: ${brandName}’s mobile QA catches two H1s above the fold—you collapse to one message, one proof strip, one CTA before launch.`;
         case "visual-motion":
           return `Application example: ${brandName} caps transitions at ~200ms on strategy surfaces; no decorative bounce on dense reading views—motion only for navigation and save states.`;
         case "audience-persona-atlas":
@@ -3080,11 +3080,11 @@ export default function FoundationBlueprintContent({
           `Strategic thesis for ${brandName}: ${strategicThesis}`,
           `Purpose in practice at ${brandName}: every recommendation must improve ${primaryPillar.toLowerCase()} outcomes for ${audience.toLowerCase()}.`,
           topOpportunity
-            ? `Load-bearing belief: ${topOpportunity}`
-            : `Load-bearing belief for ${market.toLowerCase()}: clarity and consistency outperform volume and noise.`,
+            ? `Core belief: ${topOpportunity}`
+            : `Core belief for ${market.toLowerCase()}: clarity and consistency beat volume and noise.`,
           `Authenticity standard: ${brandName} does not sacrifice strategic integrity for short-term vanity performance.`,
           topPriority?.title ? `Current purpose priority: ${topPriority.title}.` : null,
-          revenueImpact ? `Business impact signal: ${revenueImpact}` : null,
+          revenueImpact ? `Business impact: ${revenueImpact}` : null,
           `Next step: Run a 30-minute purpose check with leadership—list three real decisions from the last 90 days and tag each as “on-purpose” or “off-purpose” with one sentence of evidence.`,
           `Next step: Add this purpose as the first slide or paragraph in any external narrative review (campaign brief, landing copy, major deck)—if it does not fit, the work is scoped wrong.`,
           `Use this when: a channel owner pushes for spend or volume that dilutes story—reread the purpose aloud and decide what to defer, not what to justify.`,
@@ -3093,13 +3093,13 @@ export default function FoundationBlueprintContent({
       case "identity-vision":
         return compact([
           `Vision statement: within 5-10 years, ${brandName} is the most trusted strategic authority in ${market.toLowerCase()} for ${audience.toLowerCase()}.`,
-          `Future-state outcome: buyers expect proof-backed strategy with execution accountability as the default engagement model.`,
+          `Future-state outcome: buyers expect proof-backed strategy with clear ownership of the work—not vague advice.`,
           `Strategic advantage to compound: make ${concreteStrength.toLowerCase()} the through-line in your external story—repeat it with proof in organic, paid, and landing so ${audience.toLowerCase()} files ${brandName} under that edge, not generic competence.`,
-          `Constraint to remove as vision matures: ${concreteGap.toLowerCase()} is the ceiling on how credible the vision feels until it is owned and measured; treat lifting it as a sequenced program (owner, mechanism, 90-day signal), not a one-off copy tweak.`,
+          `Constraint to remove as vision matures: ${concreteGap.toLowerCase()} is the ceiling on how credible the vision feels until someone owns it and you can measure progress; treat lifting it as a 90-day plan (owner, how you’ll fix it, signal you’ll watch)—not a one-off copy tweak.`,
           topPriority?.title ? `Vision priority now: ${topPriority.title}.` : null,
           pillarDependency ? `System dependency to resolve: ${pillarDependency}` : null,
           revenueImpact ? `Commercial upside if achieved: ${revenueImpact}` : null,
-          `Execution test: if this vision is true in 12 months, one measurable buyer behavior should improve (conversion rate, sales-cycle velocity, or qualified pipeline quality).`,
+          `Execution test: if this vision is true in 12 months, one measurable buyer behavior should improve (conversion rate, sales-cycle speed, or qualified pipeline quality).`,
           `Next step: Pick one metric (e.g. qualified lead rate, sales cycle, or win rate) and write “${apStyleArrowChain(`current → 12-month target → leading indicator we will move monthly`)}” on a single page.`,
           `Next step: Socialize the vision in one internal forum and one external touch (e.g. leadership note + organic post)—same story, different depth; note where language drifted and fix the brief.`,
           `Use this when: the team debates tactics—ask which option compounds ${concreteStrength.toLowerCase()} and which only adds noise for ${audience.toLowerCase()}.`,
@@ -3107,16 +3107,16 @@ export default function FoundationBlueprintContent({
         ]);
       case "identity-mission":
         return compact([
-          `Mission statement: ${brandName} translates diagnostic insight into execution-ready plans that ${audience.toLowerCase()} can run with confidence.`,
-          `Mission components: diagnose precisely, prioritize by impact, and operationalize through owner-ready plans under ${executionOwner}.`,
+          `Mission statement: ${brandName} turns what the diagnostic shows into plans ${audience.toLowerCase()} can run with confidence.`,
+          `Mission components: diagnose precisely, prioritize by impact, and ship plans with named owners under ${executionOwner}.`,
           topPriority?.title ? `Current mission focus: ${topPriority.title}.` : null,
           secondPriority?.title ? `Secondary mission priority: ${secondPriority.title}.` : null,
-          `Current mission blocker: ${concreteGap.toLowerCase()} slows mission delivery until it has a countermeasure with a named owner and weekly evidence—not a one-off workshop.`,
+          `Current mission blocker: ${concreteGap.toLowerCase()} slows delivery until it has a countermeasure with a named owner and weekly evidence—not a one-off workshop.`,
           `90-day performance objective: ${pillarKpi}`,
           revenueImpact ? `Expected business outcome: ${revenueImpact}` : null,
           `In use (Priority card): Every shipped priority names an owner, a timeline, and what “done” looks like.`,
           `Next step: ${executionOwner} publishes a one-page “how we run mission this quarter”: ${apStyleArrowChain(`diagnose → prioritize → ship → review`)}, with dates for the next four checkpoints.`,
-          `Next step: Tie the top mission priority to one customer-visible artifact due in 14 days (page, email, or creative) so the mission is not trapped in strategy docs.`,
+          `Next step: Tie the top mission priority to one page, email, or creative buyers can see within 14 days—so the mission is not trapped in strategy docs.`,
           `Use this when: scope creeps—if the ask does not improve ${primaryPillar.toLowerCase()} for ${audience.toLowerCase()}, it waits for the next planning cycle.`,
           `This connects to: clearing ${concreteGap.toLowerCase()} is a mission success criterion; add it to the same scoreboard as revenue or pipeline where leadership already looks weekly.`,
         ]);
@@ -3129,11 +3129,11 @@ ${brandName} launches campaigns only after positioning and message hierarchy are
           `Value: Proof over preference.
 
 Behavior
-${brandName} requires evidence, mechanism logic, or observable outcomes before scaling claims in ${market.toLowerCase()}.`,
+${brandName} requires evidence, a clear explanation of how it works, or observable outcomes before scaling claims in ${market.toLowerCase()}.`,
           `Value: Execution ownership.
 
 Behavior
-Each ${brandName} initiative has one accountable owner and a specific timeline.`,
+Each ${brandName} initiative has one named owner and a specific timeline.`,
         ]);
         const fromReport =
           brandValueRows.length > 0
@@ -3197,10 +3197,10 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
       }
       case "identity-brand-persona":
         return compact([
-          `Brand Persona Profile: Morgan, the practitioner-advisor who translates complexity into direct execution guidance.`,
-          `Persona communication rule: lead with diagnosis, then action, then owner.`,
-          `Persona stress behavior: under pressure, language becomes more specific and more accountable, never vague.`,
-          `Persona use case: every homepage, email, and sales asset is reviewed with the question "Would this sound like Morgan?"`,
+          `Brand Persona Profile: Morgan, the trusted advisor who turns complex strategy into clear, doable next steps.`,
+          `How Morgan talks: name the problem first, then the fix, then who owns it.`,
+          `Under pressure: Morgan gets more specific—never vaguer.`,
+          `Gut-check: every homepage, email, and sales asset should sound like something Morgan would actually say.`,
           `In use (Organic Social): "Here is what we are seeing in your diagnostic—and the first move this week."`,
           `In use (Paid Ad primary text): "You are not underinvesting in marketing—you are underwriting confusion between channels. Here is the sequence we use before spend moves."`,
           `Next step: Create a “Morgan test” doc: 6 before/after sentences from real drafts; use it in onboarding for anyone who writes customer-facing copy.`,
@@ -3213,7 +3213,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
           topOpportunity
             ? `Founding tension: ${topOpportunity}`
             : `Founding tension: high effort and low conversion quality caused by fragmented messaging and poor strategic sequencing.`,
-          `Founding conviction: growth improves when positioning, proof, and activation mechanics are designed as one integrated system.`,
+          `Founding conviction: growth improves when positioning, proof, and go-to-market work are designed as one system.`,
           `Founder quote: "We built this so teams can stop guessing and scale with strategic confidence."`,
           `In use (Profile / About): "${brandName} exists because ${topOpportunity || "strategy and execution kept splitting"}—and growth should not stay noisy or fragile for teams like yours."`,
           `In use (Retargeting ad): "Why now: ${topOpportunity || "the gap between what ads promise and what the landing page proves"}—then how ${brandName} closes it before the next budget cycle."`,
@@ -3226,8 +3226,8 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
           `Primary ideal customer profile (ICP): ${audience}.`,
           `Best-fit profile: organizations in ${market.toLowerCase()} with growth ambition, existing demand activity, and willingness to align teams around one strategic platform.`,
           topPriority?.pillar ? `Primary evaluation axis for this ICP: ${topPriority.pillar}.` : null,
-          `Negative ICP: teams seeking tactical execution without strategic alignment or accountability.`,
-          `Commercial fit signal: buyers who value implementation accountability over one-off deliverables.`,
+          `Negative ICP: teams seeking tactical execution without strategic alignment or clear ownership.`,
+          `Commercial fit signal: buyers who value named owners and a clear plan over one-off deliverables.`,
           `In use (Organic Social hook): "Most ${audience} we talk to are tired of ${primaryPillar.toLowerCase()} promises that never match what their team actually ships."`,
           `In use (Fit note): Growth-stage ${market.toLowerCase()} teams with demand in motion—roles that own revenue story and cross-channel coherence.`,
           `Next step: Document 3 “good-fit” and 3 “bad-fit” signals from last quarter’s conversations—add them to the CRM picklist or brief template reps actually open.`,
@@ -3251,15 +3251,15 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
       case "positioning-category":
         return compact([
           `Category decision: compete as a strategy-plus-execution system, not a standalone branding or campaign service.`,
-          `Category framing: buyers should evaluate options by strategic precision, evidence quality, and implementation readiness.`,
+          `Category framing: buyers should compare options on strategic precision, evidence quality, and whether you can actually run the plan.`,
           score > 0 ? `Current category narrative anchor: score ${score}/100 highlights measurable upside from consistency improvements.` : null,
-          `Evaluation criteria to lead: strategic clarity, proof architecture, and conversion pathway design.`,
-          `In use (Paid Ad headline): Outcomes and operating cadence—not a flat deliverables menu.`,
+          `Evaluation criteria to lead: strategic clarity, proof architecture, and a clear path from interest to purchase.`,
+          `In use (Paid Ad headline): Outcomes and a weekly rhythm—not a flat deliverables menu.`,
           `In use (Organic Social): "${brandName} — for ${market.toLowerCase()} teams that need strategy and execution in one system, not another generic agency pitch."`,
-          `In use (Paid lead form): "${brandName} · Judge us on ${primaryPillar.toLowerCase()}, proof depth, and implementation readiness—then open scope."`,
+          `In use (Paid lead form): "${brandName} · Judge us on ${primaryPillar.toLowerCase()}, proof depth, and whether we can run the plan—then open scope."`,
           `Next step: List the three evaluation criteria on your primary offer or pricing page as subheads with one proof line each—no adjectives without evidence.`,
           `Next step: Train reps on a 20-second category answer: what you are, what you are not, and the one metric buyers should use to compare.`,
-          `Use this when: a prospect buckets you with agencies—use the category frame line, then show implementation readiness (owners, cadence, deliverable shape).`,
+          `Use this when: a prospect buckets you with agencies—use the category frame line, then show named owners, cadence, and what “done” looks like.`,
         ]);
       case "positioning-differentiators":
         return compact([
@@ -3271,7 +3271,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
           `In use (Comparison): "More content" is easy; ${brandName} ships priority sequencing and measurable movement.`,
           `In use (Paid campaign): Three workstreams mapped to ${primaryPillar.toLowerCase()} impact and ${concreteStrength}—not a tactic buffet.`,
           `Next step: Turn each differentiator into a “proof hook” (metric, customer quote, or process step) and assign an owner to refresh it quarterly.`,
-          `Next step: Add a competitive battle slide: column A = commodity claim competitors make, column B = your differentiator + proof artifact.`,
+          `Next step: Add a competitive battle slide: column A = commodity claim competitors make, column B = your differentiator + dated proof point.`,
           `This connects to: ${competitiveVulnerability.recommendation ? competitiveVulnerability.recommendation : "Defensibility is showing the workflow others skip, not claiming louder."}`,
         ]);
       case "positioning-not":
@@ -3300,7 +3300,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
       case "messaging-value-proposition":
         return compact([
           `Value proposition headline: ${brandName} helps ${audience.toLowerCase()} improve ${primaryPillar.toLowerCase()} outcomes with strategy built for execution.`,
-          `Supporting statement: the platform diagnoses where performance is leaking, prioritizes high-impact fixes, and delivers owner-ready actions across channel and team workflows.`,
+          `Supporting statement: the platform finds where performance is leaking, prioritizes high-impact fixes, and delivers steps your team can run across channels and roles.`,
           topOpportunity ? `Primary benefit emphasis: ${topOpportunity}` : null,
           `Measurement priority: ${pillarKpi}`,
           `Memory line: clarity first, execution second, compounding growth third.`,
@@ -3320,7 +3320,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
           `In use (Channel): ${firstChannelRoute}`,
           `In use (Landing section): One pillar, one proof (${concreteStrength}), one CTA tied to ${primaryPillar.toLowerCase()}.`,
           `Next step: Map each pillar to one “hero surface” (site section, ad set, or email series) for the next 30 days—no pillar without a live asset.`,
-          `Next step: ${executionOwner} maintains a one-page pillar map: claim, proof artifact link, owner, last refreshed date.`,
+          `Next step: ${executionOwner} maintains a one-page pillar map: claim, proof link, owner, last refreshed date.`,
           `Use this when: a new initiative appears—assign it to the pillar it strengthens; if it strengthens none, deprioritize.`,
         ]);
       case "messaging-proof-library":
@@ -3329,7 +3329,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
           `Proof asset 2: narrative before/after examples showing message clarity and conversion implication improvements.`,
           synthesisPoints[0]?.content ? `Proof asset 3: strategic synthesis - ${synthesisPoints[0].content}` : null,
           `Proof governance: monthly review cadence with staleness checks before major campaign pushes; owner ${executionOwner}.`,
-          `In use (Landing): Every claim sits next to a number, a mechanism, and one clear next step.`,
+          `In use (Landing): Every claim sits next to a number, how it works, and one clear next step.`,
           `In use (Evidence line): Baseline, method, expected 90-day movement—stated in one tight line.`,
           `In use (Paid carousel card): "${apStyleArrowChain(`Before ${firstGap} → after measurable lift → owner ${executionOwner}`)}."`,
           `Next step: Build a proof library folder (5–8 items): benchmark, before/after copy, customer quote, methodology one-pager—each tagged to a pillar.`,
@@ -3352,7 +3352,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
       case "messaging-elevator-pitch":
         return compact([
           `30-second pitch: "Most ${market.toLowerCase()} teams don't have an activity problem - they have an alignment problem. ${brandName} fixes that by turning strategic clarity into execution that converts."`,
-          `60-second pitch: "${commonNarrative} We diagnose the highest-impact gaps, align your core messages, and deliver owner-ready actions your team can execute now."`,
+          `60-second pitch: "${commonNarrative} We find the highest-impact gaps, align your core messages, and hand you steps your team can run this week."`,
           `90-second close: "The result is stronger conversion quality, less wasted spend, and a repeatable system your team can scale with confidence."`,
           `Conversion prompt: "Would it be useful to review your highest-impact 90-day priority and owner plan together?"`,
           `In use (Open): "If your team is active but still underperforming, the issue is usually message-to-execution misalignment."`,
@@ -3365,7 +3365,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
       case "messaging-vocabulary":
         return compact([
           `Owned terms: WunderBrand Score™, Brand Pillar Analysis, Implementation Readiness, Conversion Path.`,
-          `Preferred words: strategic clarity, proof-backed, execution-ready, conversion quality, prioritized sequencing.`,
+          `Preferred words: clear strategy, proof-backed, ready to run, conversion quality, prioritized sequencing.`,
           `Words to avoid: "best-in-class," "cutting-edge," "world-class," and vague innovation claims without evidence.`,
           `Style rule: concise, specific, practical word choice across every channel.`,
           `In use (Rewrite): "Increase conversion-quality consistency" instead of "optimize growth."`,
@@ -3384,7 +3384,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
             : `Voice is the audible form of your archetype—same character in organic social, paid creative, and product UI.`,
           `Voice execution rule: every customer-facing block includes one decision, one reason, and one next action.`,
           `Stress-test behavior: when stakes increase, tone stays calm, specific, and accountable—never frantic or vague.`,
-          `In use (Organic Social): "${brandName} helps ${audience.toLowerCase()} close ${firstGap}. Diagnostic signal and owner-ready plan on request—book a short priority review."`,
+          `In use (Organic Social): "${brandName} helps ${audience.toLowerCase()} close ${firstGap}. Clear diagnosis and a plan you can run—book a short priority review."`,
           `In use (Paid Ad secondary text): "We start where ${firstGap} is slowing results—which maps straight to ${primaryPillar.toLowerCase()}."`,
           `In use (Product): "Something went wrong—here is the fix and who owns the next step." Same steady voice as marketing, not playful disclaimers.`,
           `Next step: Add voice attributes (${voiceAttributes.length > 0 ? voiceAttributes.join(", ") : "clear, confident, practical"}) to the creative brief header as non-optional fields.`,
@@ -3393,7 +3393,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
         ]);
       case "voice-tone-registers":
         return compact([
-          `How registers map to archetype: thought leadership carries the "expert" spine; sales carries the "decision" spine; education carries the "guide" spine—all still recognizably ${brandName}.`,
+          `How tone shifts by context: thought leadership carries the "expert" spine; sales carries the "decision" spine; education carries the "guide" spine—all still recognizably ${brandName}.`,
           `Thought leadership register: insight-led, evidence-backed, perspective-forward—use when ${audience.toLowerCase()} are still forming the problem.`,
           `Sales register: concise, commercially focused, objection-aware—use when budget and timing are on the table.`,
           `Educational register: structured, plain-language, implementation-oriented—use for onboarding and how-to.`,
@@ -3411,7 +3411,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
         return compact([
           `Writing principle 1: lead with a strategic claim before detail.`,
           `Writing principle 2: use short, high-signal paragraphs and avoid stacked abstractions.`,
-          `Writing principle 3: pair every claim with proof, mechanism, or measurable implication.`,
+          `Writing principle 3: pair every claim with proof, how it works, or a measurable implication.`,
           `Writing principle 4: remove language patterns that reintroduce ${concreteGap}.`,
           `Editorial QA rule: if a paragraph cannot be linked to a decision or KPI, it is rewritten.`,
           `Before paragraph: "${beforeGenericLine}"`,
@@ -3421,7 +3421,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
           `In use (Organic carousel): Four short cards max for ${market.toLowerCase()} feeds; longer drafts get split or cut.`,
           `Next step: Add the editorial QA rule to your publish checklist: every block links to a decision or KPI or it does not ship.`,
           `Next step: Pick two long pages; split into sections with H2s that each carry one claim + one proof + one action.`,
-          `Use this when: a draft stacks adjectives—replace with mechanism + number + owner.`,
+          `Use this when: a draft stacks adjectives—replace with how it works + a number + who owns it.`,
         ]);
       case "voice-dodont":
         return compact([
@@ -3635,7 +3635,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
         "Document the 3-5 behavioral standards that actually govern decisions today. Values must be evidence-backed, with explicit examples of what each value permits and prohibits.",
       contentRequirements: [
         "3-5 values with definition, in-practice examples, and what each value rules out.",
-        "Load-bearing value called out with rationale.",
+        "Core value called out with rationale.",
         "Conflict rule for value trade-offs when values are in tension.",
       ],
     },
@@ -3848,7 +3848,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
       whatItIs:
         "Set channel/context-specific tone dials without changing core voice (thought leadership, sales, education, social, support, crisis).",
       contentRequirements: [
-        "4-6 tone registers with activation context.",
+        "4-6 tone contexts (thought leadership, sales, education, support) with when-to-use notes.",
         "What to dial up/down plus annotated examples.",
         "Decision guide for selecting the right register quickly.",
       ],
@@ -4120,7 +4120,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
         >
           {sidebarGroups.map((group) => (
             <div key={group.label} className="rounded-xl bg-white p-3 shadow-[0_4px_18px_rgba(2,24,89,0.05)] ring-1 ring-slate-900/[0.05]">
-              <p className="px-2 pb-2 text-xs sm:text-sm font-semibold tracking-[0.1em] text-brand-blue">{group.label}</p>
+              <p className="px-2 pb-2 text-xs sm:text-sm font-semibold uppercase tracking-[0.1em] text-brand-blue">{group.label}</p>
               <div className="space-y-1.5">
                 {group.links.map((link) => (
                   <button
@@ -4203,11 +4203,11 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
                   ? "rounded-lg bg-[#FEF2F2]/90 px-3 py-3"
                   : "rounded-lg bg-[#FEF2F2]/90 px-3 py-3.5 sm:px-4 sm:py-4";
               const rowLabelClass =
-                "flex h-full min-h-[2.75rem] items-center text-xs font-medium tracking-[0.08em] leading-snug text-brand-muted pr-3";
+                "flex h-full min-h-[2.75rem] items-center text-xs font-medium uppercase tracking-[0.1em] leading-snug text-brand-muted pr-3";
               const rowLabelCompanyClass =
                 "flex h-full min-h-0 items-start py-2 pr-3 text-sm font-semibold leading-snug text-brand-navy break-words [hyphens:auto]";
               const rowLabelRiskClass =
-                "flex h-full min-h-[2.75rem] items-center text-xs font-medium tracking-[0.08em] leading-snug text-[#991B1B] pr-3";
+                "flex h-full min-h-[2.75rem] items-center text-xs font-medium uppercase tracking-[0.1em] leading-snug text-[#991B1B] pr-3";
               return (
                 <>
                   {/* Mobile / tablet: legend once; cards use spacing + color only (no repeated row headers) */}
@@ -4390,11 +4390,11 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
             const voiceTraitSummary =
               voiceAttributes.length > 0
                 ? voiceAttributes.slice(0, 4).join(", ")
-                : "strategic, clear, credible, action-oriented";
-            const coreVoiceExample = `"${brandName} speaks like a practitioner-advisor: we name the real constraint, show the mechanism, and give ${audience.toLowerCase()} one accountable next move—not generic hype."`;
-            const tlExample = `"In ${market.toLowerCase()}, the teams that win aren't the busiest—they're the ones who align message, proof, and execution before they scale spend. Here's the pattern we see most often…"`;
-            const salesExample = `"Your top risk right now is ${topGap}. If we fix that first, ${primaryPillar.toLowerCase()} improves without adding more random activity—want to walk through the 90-day sequence?"`;
-            const eduExample = `"First, tighten the hero to one promise for ${audience.toLowerCase()}. Second, add one proof block with a metric or mechanism. Third, one CTA that matches where they are in the journey."`;
+                : "clear, practical, credible, direct";
+            const coreVoiceExample = `"${brandName} talks like a trusted advisor: we say what’s really getting in the way, explain how we’ll fix it, and leave ${audience.toLowerCase()} with one clear next step—not empty slogans."`;
+            const tlExample = `"In ${market.toLowerCase()}, the companies that win aren’t the busiest—they’re the ones who get their story, proof, and plan lined up before they spend more. Here’s the pattern we see most often…"`;
+            const salesExample = `"Right now, your biggest risk is ${topGap}. If we fix that first, ${primaryPillar.toLowerCase()} gets stronger without adding more random activity—want to walk through a simple 90-day plan?"`;
+            const eduExample = `"First, make the homepage say one clear promise for ${audience.toLowerCase()}. Second, add one proof point with a real result. Third, one call to action that matches where they are in the buying process."`;
             const tiles: Array<{
               id: string;
               title: string;
@@ -4407,28 +4407,28 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
                 id: "core",
                 title: "Core Voice",
                 traits: voiceTraitSummary,
-                when: "The through-line in every channel—who you sound like when the brand shows up.",
+                when: "How you should sound in every channel—the through-line when the brand shows up.",
                 sample: coreVoiceExample,
                 accent: "#021859",
               },
               {
                 id: "thought",
                 title: "Thought Leadership",
-                when: `Insight-led and perspective-forward—while ${audience.toLowerCase()} are still naming the problem.`,
+                when: `Insight-led and useful—while ${audience.toLowerCase()} are still figuring out the problem.`,
                 sample: tlExample,
                 accent: "#07B0F2",
               },
               {
                 id: "sales",
                 title: "Sales",
-                when: "Concise and commercially sharp—when budget, timing, and objections are live.",
+                when: "Short and commercially clear—when budget, timing, and objections are on the table.",
                 sample: salesExample,
                 accent: "#0D9488",
               },
               {
                 id: "education",
                 title: "Education",
-                when: "Plain-language and stepwise—for onboarding, nurture, and how-to moments.",
+                when: "Plain language and step-by-step—for onboarding, nurture, and how-to moments.",
                 sample: eduExample,
                 accent: "#6366F1",
               },
@@ -4437,7 +4437,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
             return (
               <div className="overflow-hidden rounded-[5px] border border-brand-border bg-white">
                 <div className="border-b border-brand-border/80 bg-gradient-to-br from-[#F7FBFF] to-white px-4 py-4 sm:px-5 sm:py-5">
-                  <p className="m-0 text-xs font-semibold tracking-[0.08em] text-brand-blue sm:text-sm">
+                  <p className="m-0 text-xs font-semibold uppercase tracking-[0.1em] text-brand-blue sm:text-sm">
                     Voice map
                   </p>
                   <p className="m-0 mt-1.5 max-w-3xl text-sm leading-relaxed text-brand-muted sm:text-base">
@@ -4465,7 +4465,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
                       {coreTile.when}
                     </p>
                     <blockquote className="m-0 mt-4 rounded-[5px] border border-slate-200/90 bg-[#F8FBFF] px-4 py-3.5 sm:px-5">
-                      <p className="m-0 text-[11px] font-bold tracking-[0.06em] text-slate-500">Example</p>
+                      <p className="m-0 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-500">Example</p>
                       <p className="m-0 mt-2 text-[15px] leading-relaxed text-brand-midnight sm:text-base">
                         {coreTile.sample}
                       </p>
@@ -4496,7 +4496,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
                         </div>
                         <p className="m-0 mt-3 text-sm leading-relaxed text-brand-muted">{tile.when}</p>
                         <div className="mt-auto pt-4">
-                          <p className="m-0 text-[11px] font-bold tracking-[0.06em] text-slate-500">Example</p>
+                          <p className="m-0 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-500">Example</p>
                           <p
                             className="m-0 mt-2 border-l-[3px] pl-3 text-sm leading-relaxed text-brand-midnight sm:text-[15px]"
                             style={{ borderColor: tile.accent }}
@@ -4598,7 +4598,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
               <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-2`}>Example</p>
               <div className="rounded-lg border border-[#021859] overflow-hidden">
                 <div className="bg-[#021859] px-4 py-4">
-                  <p className="text-xs sm:text-sm tracking-[0.12em] text-[#7DD3FC]">Example</p>
+                  <p className="text-xs sm:text-sm uppercase tracking-[0.12em] text-[#7DD3FC]">Example</p>
                   <p className="text-[24px] leading-tight font-semibold text-white mt-1">
                     {brandName} Turns Strategic Clarity Into Conversion Quality
                   </p>
@@ -4618,7 +4618,7 @@ Each ${brandName} initiative has one accountable owner and a specific timeline.`
                   </div>
                   <div className="rounded-md border border-brand-border bg-white p-3">
                     <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue`}>Proof</p>
-                    <p className="text-sm sm:text-base text-brand-midnight mt-1">Pair claims with metric + mechanism.</p>
+                    <p className="text-sm sm:text-base text-brand-midnight mt-1">Pair claims with a metric + how it works.</p>
                   </div>
                   <div className="rounded-md border border-brand-border bg-white p-3">
                     <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue`}>Action</p>

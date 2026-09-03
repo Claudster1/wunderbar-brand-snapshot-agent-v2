@@ -271,7 +271,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
     
     buyerPersonas: [
       {
-        personaName: A vivid, memorable name (e.g., "The Overwhelmed CMO", "The Side-Hustle Mom", "The Risk-Averse CFO")
+        personaName: A vivid, memorable name preferred (e.g., "The Overwhelmed CMO", "The Side-Hustle Mom", "The Risk-Averse CFO"). If using a first+last name, keep it ethnically ambiguous (Jordan Ellis, Casey Morgan, Alex Reed) — never invent a culturally specific name that could clash with the illustrated avatar.
         icpAlignment: REQUIRED — exact string match to the icpLabel of primaryICP, secondaryICP, or one additionalICPs[] item
         narrativeSnapshot: A 3–4 sentence story that brings this persona to life — who they are, what their day looks like, what frustrates them. Written in third person.
         role: Their role or identity (B2B: job title, seniority, decision authority; B2C: life role, identity, values)
@@ -2063,6 +2063,7 @@ DESIGN & TONE
 - No hype, no shortcuts, no jargon without explanation
 - Feels expensive because it is thorough and genuinely helpful
 - Customer-facing paste fields (emails, website, talk tracks, objections, ads, messaging) must sound human and collaborative — see PLAIN LANGUAGE / Human, friendly, expert rule
+- Ban stock AI phrasing: "practitioner-advisor", "name the real constraint", "show the mechanism", "accountable next move", "generic hype". Prefer everyday words a founder would say out loud.
 - Every section demonstrates strategic thinking AND practical implementation
 - Write recommendations as if guiding a friend through their brand strategy
 - Use proper typographic quotes (curly quotes) in all content

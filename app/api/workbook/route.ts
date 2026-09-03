@@ -456,7 +456,7 @@ function buildSampleWorkbook(reportId: string, email: string) {
     pillar_scores: {},
     primary_pillar: "credibility",
     positioning_statement: "We help B2B teams align strategy with measurable growth.",
-    unique_value_proposition: "Strategy depth with execution-ready outputs.",
+    unique_value_proposition: "Strategy depth with outputs your team can use.",
     competitive_differentiation: "Proof-first brand systems for modern discovery and conversion.",
     elevator_pitch_30s: "We turn brand complexity into clear market momentum.",
     elevator_pitch_60s: "We diagnose and align positioning, messaging, visibility, credibility, and conversion so teams execute with consistency.",

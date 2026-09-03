@@ -166,7 +166,7 @@ export const previewIcpConversionIntelligenceFramework = {
       buyingCycleLength: "45–90 days",
       primaryConversionBarrier: "Fear of another vague strategy engagement without execution path",
       decisionTrigger: "Missed quarter on qualified pipeline or CAC spike after message drift",
-      conversionBehaviorPattern: "Researches 3–5 vendors; needs mechanism + timeline before booking",
+      conversionBehaviorPattern: "Researches 3–5 vendors; needs to see how it works + a timeline before booking",
     },
   ],
   contentTypeConversionMatrix: [
@@ -174,13 +174,13 @@ export const previewIcpConversionIntelligenceFramework = {
       icpTier: "Primary ICP",
       funnelStage: "Consideration",
       highestConvertingContentType: "6-min Loom + one-page before/after PDF",
-      whyItConverts: "Shows mechanism without a sales call; matches how they evaluate agencies.",
+      whyItConverts: "Shows how it works without a sales call; matches how they evaluate agencies.",
       requiredContentAttributes: ["Named metric window", "Role-specific example", "Single CTA"],
       leadMessagePillar: "Credibility",
       convertingCTA: "See the 12-week message-system map",
       exampleHeadline: "The 90-day leak most founder-led firms miss (and how to plug it)",
       examplePrimaryCopy:
-        "If your homepage, ads, and outbound all promise something slightly different, you are not losing to competitors—you are taxing your own pipeline. In this walkthrough we show one service brand that cut unqualified conversations by 31% in twelve weeks by locking one storyline across LinkedIn, email, and the offer page. You will see the exact before/after message map, the metric window we used, and the single CTA we repeated at every step. No fluff: mechanism, timeline, owner. When you are done, you will know whether your next dollar should go to creative, landing, or nurture—and why.",
+        "If your homepage, ads, and outbound all promise something slightly different, you are not losing to competitors—you are taxing your own pipeline. In this walkthrough we show one service brand that cut unqualified conversations by 31% in twelve weeks by locking one storyline across LinkedIn, email, and the offer page. You will see the exact before/after message map, the metric window we used, and the single CTA we repeated at every step. No fluff: how it works, timeline, who owns it. When you are done, you will know whether your next dollar should go to creative, landing, or nurture—and why.",
       exampleImagePrompt:
         "Founder at desk, single monitor showing a simple before/after message matrix (blurred), navy UI accents, daylight, no stock-handshake clichés, subtle Acme wordmark on doc corner.",
       exampleVideoPrompt:
@@ -288,7 +288,7 @@ export const previewIcpConversionIntelligenceFramework = {
       icpTier: "Primary ICP",
       reliableHookTypes: [
         { hookType: "Hidden cost / leakage", whyItConverts: "Matches founder fear of wasted spend on wrong-fit traffic." },
-        { hookType: "Before/after mechanism", whyItConverts: "Shows how you work without fluff." },
+        { hookType: "Before/after how it works", whyItConverts: "Shows how you work without fluff." },
       ],
       hookTypesToAvoid: [
         { hookType: "Generic inspiration quotes", whyToAvoid: "Reads as consumer B2C; erodes trust for services buyers." },
@@ -306,7 +306,7 @@ export const previewActivationContent = {
     "Content × funnel execution matrix (paste into briefs)\n" +
     "— Primary ICP × Consideration —\n" +
     "Winning format: 6-minute Loom walkthrough + one-page before/after PDF\n" +
-    "Why it converts: Shows mechanism and timeline without a sales call.\n" +
+    "Why it converts: Shows how it works and the timeline without a sales call.\n" +
     "Message pillar: Credibility\n" +
     "Required in asset: named metric window, role-specific example, single CTA\n" +
     "Use this CTA: \"See the 12-week message-system map\"\n\n" +
@@ -332,11 +332,11 @@ export const previewActivationContent = {
     "Sales handoff when: Demo request or reply with budget/timeline language",
   buyerJourneySummary:
     "Aware: Publish POV-led visibility assets that diagnose the hidden cost of channel/message drift.\n\n" +
-    "Consider: Sequence proof assets (before/after narrative, mechanism explanation, role-specific examples) and route by intent signal.\n\n" +
+    "Consider: Sequence proof assets (before/after narrative, how it works, role-specific examples) and route by intent signal.\n\n" +
     "Decide: Present one implementation path with owner map, 30/60/90 milestones, and low-risk first sprint scope.\n\n" +
     "Closed/Won: Hand off with activation checklist, KPI baseline, and weekly review ritual to protect execution quality.",
   competitiveMatrixSummary:
-    "Differentiate on execution depth, not generic strategy claims. Competitors emphasize speed or tooling breadth; Acme wins by linking strategy decisions to owner-ready channel execution.\n\n" +
+    "Differentiate on execution depth, not generic strategy claims. Competitors emphasize speed or tooling breadth; Acme wins by linking strategy decisions to channel work your team can run.\n\n" +
     "Competitive motion plan:\n" +
     "- Use comparison proof blocks on high-intent pages.\n" +
     "- Arm sales with 3 short rebuttal scripts tied to common alternatives.\n" +
@@ -358,7 +358,7 @@ export const previewActivationContent = {
     email:
       "Welcome sequence (3 emails):\n" +
       "1) Subject: \"Where qualified demand gets lost\" -> diagnose current funnel leakage + CTA to 12-week plan.\n" +
-      "2) Subject: \"How Acme fixes message-channel drift\" -> mechanism + mini case proof.\n" +
+      "2) Subject: \"How Acme fixes message-channel drift\" -> how it works + mini case proof.\n" +
       "3) Subject: \"Your first 14-day activation sprint\" -> owner map + kickoff CTA.\n\n" +
       "Nurture sequence (weekly): insight -> proof -> implementation.\n" +
       "Re-engagement trigger: no click in 14 days -> send concise benchmark + single next step.",
@@ -424,7 +424,7 @@ export const previewFullBlueprintReport: Record<string, unknown> = {
         "Nurtures consideration-stage buyers with staged proof until they book the scope workshop or download the alignment asset tied to the primary offer.",
     },
     welcomeSequence: {
-      description: "Three-email spine: leak diagnosis → mechanism → bounded next step.",
+      description: "Three-email spine: leak diagnosis → how it works → bounded next step.",
       emails: [
         {
           timing: "Day 0",
@@ -452,7 +452,7 @@ export const previewFullBlueprintReport: Record<string, unknown> = {
       ],
     },
     segmentationStrategy: "Route by intent: pricing revisits → fast-track proof branch; education-only → weekly nurture.",
-    subjectLineFormulas: ["Hidden cost: {symptom} → {mechanism}", "Proof: {metric window} on {surface}"],
+    subjectLineFormulas: ["Hidden cost: {symptom} → {howItWorks}", "Proof: {metric window} on {surface}"],
     sendCadence: "Tue/Thu sends; one re-engagement branch after 14d no click.",
   },
   socialMediaStrategy: {
@@ -481,7 +481,7 @@ export const previewFullBlueprintReport: Record<string, unknown> = {
         ],
         exampleVideoPrompts: ["9:16 hook in 2s; captions on; CTA card matches nurture subject line."],
         kpiToTrack: "Save rate + profile visits from ICP titles",
-        competitorInsight: "Competitors post generic inspiration; you post mechanism + metric.",
+        competitorInsight: "Competitors post generic inspiration; you post how it works + a metric.",
         growthTactics: ["Comment-to-DM playbook for “map” replies"],
       },
     ],
@@ -564,7 +564,7 @@ export const previewFullBlueprintReport: Record<string, unknown> = {
       },
       {
         stage: "Consider",
-        customerMindset: "Comparing vendors; needs mechanism",
+        customerMindset: "Comparing vendors; needs to see how it works",
         messagingFocus: "Proof + timeline",
         conversionTrigger: "Guide or Loom CTA",
         personaVariations: [],
@@ -580,7 +580,7 @@ export const previewFullBlueprintReport: Record<string, unknown> = {
         stage: "Closed/Won",
         customerMindset: "Expecting fast time-to-value without surprise scope",
         messagingFocus: "Activation checklist + KPI baseline + weekly governance",
-        conversionTrigger: "Kickoff pack + first customer-visible artifact date",
+        conversionTrigger: "Kickoff pack + first buyer-facing deliverable date",
         personaVariations: [],
       },
     ],
@@ -593,7 +593,7 @@ export const previewFullBlueprintReport: Record<string, unknown> = {
     vulnerabilities: "If proof stays on About, rivals with clearer ROI stories win late funnel.",
   },
   ninetyDayRoadmap: {
-    overview: "Phased delivery with customer-visible artifacts each phase.",
+    overview: "Phased delivery with something buyers can see each phase.",
     phase1: {
       name: "Phase 1 — Lock",
       objective: "One storyline on hero, welcome v1, paid message matrix",

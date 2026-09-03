@@ -88,45 +88,76 @@ export default function HomePageClient({
   const tierTokenParam = tokenParam;
 
   // ─── Security: Validate paid tier access ───
-  // If someone visits /?tier=blueprint without a valid token, downgrade to free tier
+  // If someone visits /?tier=blueprint without a valid token, try resume from
+  // verified-session + purchase ledger before downgrading to free.
   const [validatedTier, setValidatedTier] = useState(tier === "snapshot" ? "snapshot" : "pending");
   useEffect(() => {
     if (tier === "snapshot") {
       setValidatedTier("snapshot");
       return;
     }
-    // Paid tier: validate token
-    if (!tierTokenParam) {
-      console.warn("[Tier] No token for paid tier — downgrading to snapshot");
-      setValidatedTier("snapshot");
-      return;
-    }
-    fetch(`/api/validate-tier?token=${encodeURIComponent(tierTokenParam)}&tier=${tier}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.valid) {
-          setValidatedTier(tier);
-        } else {
+
+    let cancelled = false;
+
+    async function unlockPaidTier() {
+      if (tierTokenParam) {
+        try {
+          const res = await fetch(
+            `/api/validate-tier?token=${encodeURIComponent(tierTokenParam)}&tier=${tier}`,
+          );
+          const data = await res.json();
+          if (cancelled) return;
+          if (data.valid) {
+            setValidatedTier(tier);
+            return;
+          }
           console.warn("[Tier] Token validation failed:", data.reason);
-          setValidatedTier("snapshot");
+        } catch {
+          if (cancelled) return;
         }
-      })
-      .catch(() => {
-        setValidatedTier("snapshot");
-      });
+      } else {
+        console.warn("[Tier] No token for paid tier — trying purchase resume");
+      }
+
+      try {
+        const resume = await fetch(
+          `/api/access/resume-tier?tier=${encodeURIComponent(tier)}`,
+          { credentials: "include" },
+        );
+        const body = await resume.json().catch(() => null);
+        if (cancelled) return;
+        if (resume.ok && body?.ok && body.token && body.tier) {
+          const params = new URLSearchParams(window.location.search);
+          params.set("tier", body.tier);
+          params.set("token", body.token);
+          window.history.replaceState({}, "", `/?${params.toString()}`);
+          setValidatedTier(body.tier);
+          return;
+        }
+      } catch {
+        if (cancelled) return;
+      }
+
+      if (!cancelled) setValidatedTier("snapshot");
+    }
+
+    void unlockPaidTier();
+    return () => {
+      cancelled = true;
+    };
   }, [tier, tierTokenParam]);
 
-  // Use URL tier optimistically while validating token so resume + upgrade continuation use paid intake rules immediately.
+  // Use URL tier optimistically while validating token / purchase resume so
+  // resume + upgrade continuation use paid intake rules immediately.
   const activeTier: ChatTier =
-    validatedTier === "pending" && tier !== "snapshot" && tierTokenParam
+    validatedTier === "pending" && tier !== "snapshot"
       ? tier
       : validatedTier === "pending"
         ? "snapshot"
         : (validatedTier as ChatTier);
   const activeTierConfig = useMemo(() => getChatTierConfig(activeTier), [activeTier]);
-  /** Wait for /api/validate-tier before loading ?resume= so paid upgrade continuation uses the correct product tier. */
-  const resumeHoldUntilValidated =
-    tier !== "snapshot" && Boolean(tierTokenParam) && validatedTier === "pending";
+  /** Wait for token validate or purchase resume before loading ?resume=. */
+  const resumeHoldUntilValidated = tier !== "snapshot" && validatedTier === "pending";
 
   // Greeting resolution:
   //   Name known (any tier) → interpolate {firstName} in greeting, complete intro in one message
@@ -216,9 +247,10 @@ export default function HomePageClient({
   const [saveEmail, setSaveEmail] = useState("");
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [saveErrorMessage, setSaveErrorMessage] = useState<string | null>(null);
-  /** Populated after successful save-exit so users can resume even if AC email is delayed or misconfigured. */
+  /** Populated after successful save-exit so users can resume even if email delivery fails. */
   const [saveResumeUrl, setSaveResumeUrl] = useState<string | null>(null);
-  const [saveResumeEventSent, setSaveResumeEventSent] = useState<boolean | null>(null);
+  /** True only when the immediate transactional resume email succeeded. */
+  const [saveResumeEmailSent, setSaveResumeEmailSent] = useState<boolean | null>(null);
   const [capturedSummaryOpen, setCapturedSummaryOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatMessagesRef = useRef<HTMLDivElement>(null);
@@ -449,6 +481,11 @@ export default function HomePageClient({
   // Save progress and email a resume link
   const handleSaveAndExit = async () => {
     if (!saveEmail.trim() || !saveEmail.includes("@")) return;
+    if (!reportId) {
+      setSaveErrorMessage("Missing session. Refresh the page and try again.");
+      setSaveStatus("error");
+      return;
+    }
     setSaveStatus("saving");
     setSaveErrorMessage(null);
     try {
@@ -481,7 +518,11 @@ export default function HomePageClient({
         }
         throw new Error(message);
       }
-      let payload: { resumeUrl?: string; resumeEventSent?: boolean } = {};
+      let payload: {
+        resumeUrl?: string;
+        resumeEventSent?: boolean;
+        resumeEmailSent?: boolean;
+      } = {};
       try {
         payload = await saveExitRes.json();
       } catch {
@@ -498,7 +539,14 @@ export default function HomePageClient({
       } else {
         setSaveResumeUrl(null);
       }
-      setSaveResumeEventSent(typeof payload.resumeEventSent === "boolean" ? payload.resumeEventSent : null);
+      // Prefer resumeEmailSent (actual Resend delivery). Fall back to resumeEventSent for older API responses.
+      const emailed =
+        typeof payload.resumeEmailSent === "boolean"
+          ? payload.resumeEmailSent
+          : typeof payload.resumeEventSent === "boolean"
+            ? payload.resumeEventSent
+            : null;
+      setSaveResumeEmailSent(emailed);
       setSaveStatus("saved");
       setSaveErrorMessage(null);
       syncChatEmailFromStorage();
@@ -543,11 +591,15 @@ export default function HomePageClient({
   // Auto-scroll to bottom when messages change or loading state changes.
   // IMPORTANT: Scroll only the .chat-messages container — NOT scrollIntoView,
   // which walks up the DOM and scrolls the page body (pushing content past the footer).
+  // On mobile, also bring the composer into view so Send is never trapped under the cookie bar.
   useEffect(() => {
     requestAnimationFrame(() => {
       const container = chatMessagesRef.current;
       if (container) {
-        container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+        container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+      }
+      if (typeof window !== "undefined" && window.matchMedia("(max-width: 640px)").matches) {
+        inputRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
       }
     });
   }, [messages, isLoading]);
@@ -1398,6 +1450,17 @@ export default function HomePageClient({
                       setInputValue(event.target.value);
                       behaviorTrackerRef.current?.recordKeystroke();
                     }}
+                    onFocus={(event) => {
+                      // Keep composer visible above the iOS keyboard / cookie bar.
+                      const target = event.currentTarget;
+                      window.setTimeout(() => {
+                        target.scrollIntoView({ block: "center", behavior: "smooth" });
+                        chatMessagesRef.current?.scrollTo({
+                          top: chatMessagesRef.current.scrollHeight,
+                          behavior: "smooth",
+                        });
+                      }, 350);
+                    }}
                     onKeyDown={(event: KeyboardEvent<HTMLTextAreaElement>) => {
                       if (event.key !== "Enter" || event.shiftKey) return;
                       event.preventDefault();
@@ -1409,6 +1472,7 @@ export default function HomePageClient({
                         : "Type your reply… (Enter to send, Shift+Enter for a new line)"
                     }
                     disabled={isLoading || isFinalizing || isUploading}
+                    enterKeyHint="send"
                     autoFocus
                   />
                   <button
@@ -1527,7 +1591,7 @@ export default function HomePageClient({
                   type="button"
                   onClick={() => {
                     setSaveResumeUrl(null);
-                    setSaveResumeEventSent(null);
+                    setSaveResumeEmailSent(null);
                     setShowSaveModal(true);
                   }}
                   style={{
@@ -1565,7 +1629,7 @@ export default function HomePageClient({
             if (saveStatus !== "saving") {
               setShowSaveModal(false);
               setSaveResumeUrl(null);
-              setSaveResumeEventSent(null);
+              setSaveResumeEmailSent(null);
             }
           }}
         >
@@ -1593,9 +1657,9 @@ export default function HomePageClient({
                   Progress saved
                 </h3>
                 <p style={{ color: "#5A6B7E", fontSize: 14, lineHeight: 1.6, margin: "0 0 12px" }}>
-                  {saveResumeEventSent === false
-                    ? "We saved your progress. We couldn’t queue the automated resume email (check ActiveCampaign webhook / automation). Use the link below to continue anytime."
-                    : "Check your email within a few minutes for your resume link (ActiveCampaign automations usually send quickly). Your answers are already saved — Wundy™ will be waiting."}
+                  {saveResumeEmailSent === false
+                    ? "We saved your progress, but the resume email didn’t send. Use the link below to continue anytime (and check spam if you try again later)."
+                    : "We emailed you a resume link — it usually arrives within a minute. Check spam/promotions if you don’t see it. Your answers are already saved."}
                 </p>
                 {saveResumeUrl ? (
                   <div style={{ margin: "0 0 16px", textAlign: "left" }}>
@@ -1651,7 +1715,7 @@ export default function HomePageClient({
                   onClick={() => {
                     setShowSaveModal(false);
                     setSaveResumeUrl(null);
-                    setSaveResumeEventSent(null);
+                    setSaveResumeEmailSent(null);
                   }}
                   style={{
                     padding: "10px 24px",
@@ -1673,7 +1737,7 @@ export default function HomePageClient({
                   Save and continue later
                 </h3>
                 <p style={{ color: "#5A6B7E", fontSize: 14, lineHeight: 1.6, margin: "0 0 20px" }}>
-                  Your progress is saved automatically. Enter your email and we&rsquo;ll send you a link to pick up where you left off.
+                  Enter your email and we&rsquo;ll send a resume link right away so you can pick up where you left off.
                 </p>
                 <input
                   type="email"

@@ -50,14 +50,25 @@ export async function POST(req: Request) {
       // Look up the email from the report
       const { data: reportRow } = await (supabase
         .from("brand_snapshot_reports") as any)
-        .select("user_email")
+        .select("user_email, email")
         .eq("report_id", reportId)
         .limit(1);
 
-      const userEmail = reportRow?.[0]?.user_email;
+      const userEmail =
+        reportRow?.[0]?.user_email || reportRow?.[0]?.email || null;
       if (userEmail) {
         const { recordRefreshUsed } = await import("@/lib/refreshEntitlements");
         await recordRefreshUsed(userEmail);
+        try {
+          const { markPurchasesFulfilledForEmail } = await import(
+            "@/lib/purchases/markPurchaseFulfilled"
+          );
+          await markPurchasesFulfilledForEmail(userEmail, reportId);
+        } catch (fulfillErr) {
+          logger.warn("[Snapshot Complete] Purchase fulfill mark failed", {
+            error: fulfillErr instanceof Error ? fulfillErr.message : String(fulfillErr),
+          });
+        }
       }
     } catch (refreshErr) {
       // Non-blocking: don't fail the completion if refresh tracking errors

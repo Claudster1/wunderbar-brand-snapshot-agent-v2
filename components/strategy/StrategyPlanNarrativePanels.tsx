@@ -242,7 +242,8 @@ export default function StrategyPlanNarrativePanels({
                         borderBottom: "1px solid rgba(7, 176, 242, 0.14)",
                         fontSize: 11,
                         fontWeight: 800,
-                        letterSpacing: "0.06em",
+                        letterSpacing: "0.1em",
+                        textTransform: "uppercase",
                         color: SUITE_NAVY,
                         fontFamily: SUITE_FONT_UI,
                       }}
@@ -280,7 +281,8 @@ export default function StrategyPlanNarrativePanels({
                         margin: "0 0 8px",
                         fontSize: 11,
                         fontWeight: 800,
-                        letterSpacing: "0.06em",
+                        letterSpacing: "0.1em",
+                        textTransform: "uppercase",
                         color: SUITE_NAVY,
                         fontFamily: SUITE_FONT_UI,
                       }}

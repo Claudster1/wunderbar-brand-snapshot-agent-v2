@@ -115,7 +115,7 @@ Based on the user's additional context, provide a structured refinement with:
 
 2. **Recommendations** (object with priority and actions):
    - priority: "high" or "medium" based on impact and urgency
-   - actions: 3-5 strings — each must include **execution-ready detail** (sample headline, line of copy, criterion, or exact next move), not vague tasks like "improve messaging"
+   - actions: 3-5 strings — each must include **usable detail** (sample headline, line of copy, criterion, or exact next move), not vague tasks like "improve messaging"
 
 Return as JSON with this exact structure:
 {

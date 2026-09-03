@@ -46,7 +46,8 @@ export function StrategicPrioritiesBarChart({ items }: Props) {
           borderBottom: "1px solid rgba(7, 176, 242, 0.14)",
           fontSize: 11,
           fontWeight: 800,
-          letterSpacing: "0.06em",
+          letterSpacing: "0.1em",
+          textTransform: "uppercase",
           color: SUITE_NAVY,
         }}
       >

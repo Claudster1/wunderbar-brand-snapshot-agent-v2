@@ -110,18 +110,74 @@ export async function POST(req: NextRequest) {
         const customerEmail = session.customer_details?.email;
         const metadata = session.metadata || {};
 
-        const rawProduct =
-          METADATA_PRODUCT_KEYS.map((k) => metadata[k]).find(Boolean) ?? "";
-        const productKey = normalizeProductKey(rawProduct);
-        const snapshotId = metadata.snapshot_id as string | undefined;
-        const userId = metadata.user_id as string | undefined;
-        const smsOptedIn = String(metadata.sms_opted_in || "").toLowerCase() === "true";
-        const emailMarketingOptedIn = String(metadata.email_marketing_opted_in || "").toLowerCase() === "true";
+        const {
+          productKeyFromCheckoutLineItems,
+          productKeyFromMetadata,
+          productKeyFromStripePriceId,
+          normalizeStripeProductKey,
+        } = await import("@/lib/stripe/resolveCheckoutProductKey");
+
+        let productKey =
+          productKeyFromMetadata(metadata) ||
+          normalizeStripeProductKey(
+            METADATA_PRODUCT_KEYS.map((k) => metadata[k]).find(Boolean) ?? "",
+          ) ||
+          productKeyFromCheckoutLineItems(session);
+
+        let hydratedSession = session;
+        // Hydrate line items + custom fields when metadata product/brand is incomplete
+        if (!productKey || !brandNameFromCheckoutSession(session)) {
+          try {
+            hydratedSession = await getStripe().checkout.sessions.retrieve(session.id, {
+              expand: ["line_items.data.price"],
+            });
+            if (!productKey) {
+              productKey =
+                productKeyFromCheckoutLineItems(hydratedSession) ||
+                productKeyFromMetadata(hydratedSession.metadata) ||
+                null;
+            }
+            // Some Dashboard Payment Links only expose price on the PaymentIntent
+            if (!productKey && hydratedSession.line_items?.data?.[0]) {
+              const priceRef = hydratedSession.line_items.data[0].price;
+              const priceId = typeof priceRef === "string" ? priceRef : priceRef?.id;
+              productKey = productKeyFromStripePriceId(priceId);
+            }
+          } catch (hydrateErr) {
+            logger.warn("[Stripe Webhook] Session hydrate failed", {
+              error: hydrateErr instanceof Error ? hydrateErr.message : String(hydrateErr),
+              sessionId: session.id,
+            });
+          }
+        }
+
+        // Keep legacy local normalizer as final fallback for odd Payment Link strings
+        if (!productKey) {
+          const rawProduct =
+            METADATA_PRODUCT_KEYS.map((k) => metadata[k]).find(Boolean) ?? "";
+          productKey = normalizeProductKey(rawProduct);
+        }
+
+        const snapshotId = (metadata.snapshot_id ||
+          hydratedSession.metadata?.snapshot_id) as string | undefined;
+        const userId = (metadata.user_id || hydratedSession.metadata?.user_id) as
+          | string
+          | undefined;
+        const smsOptedIn =
+          String(metadata.sms_opted_in || hydratedSession.metadata?.sms_opted_in || "")
+            .toLowerCase() === "true";
+        const emailMarketingOptedIn =
+          String(
+            metadata.email_marketing_opted_in ||
+              hydratedSession.metadata?.email_marketing_opted_in ||
+              "",
+          ).toLowerCase() === "true";
 
         if (!customerEmail || !productKey) {
           logger.warn("[Stripe Webhook] Missing email or product", {
             hasEmail: !!customerEmail,
-            rawProduct,
+            rawProduct: METADATA_PRODUCT_KEYS.map((k) => metadata[k]).find(Boolean) ?? "",
+            sessionId: session.id,
           });
           break;
         }
@@ -174,13 +230,16 @@ export async function POST(req: NextRequest) {
 
         // ─── Create refresh entitlement + register brand access ───
         // Only for full-tier purchases (not refresh purchases themselves)
+        let resolvedBrandName: string | null = null;
         if (!isRefreshProduct(productKey)) {
           try {
             const { supabaseServer: supabaseSrv } = await import("@/lib/supabase");
             const sb = supabaseSrv();
             // Prefer brand captured on Checkout (custom field / metadata). Fall back to
             // latest report only when the field is missing (legacy Payment Links).
-            let brandName = brandNameFromCheckoutSession(session);
+            let brandName =
+              brandNameFromCheckoutSession(hydratedSession) ||
+              brandNameFromCheckoutSession(session);
             if (!brandName) {
               const { data: reportRow } = await (sb
                 .from("brand_snapshot_reports" as any)
@@ -193,30 +252,31 @@ export async function POST(req: NextRequest) {
                 reportRow?.[0]?.company_name ||
                 null;
             }
-            if (!brandName || brandName === "Unknown") {
+            resolvedBrandName = brandName && brandName !== "Unknown" ? brandName : null;
+            if (!resolvedBrandName) {
               logger.error(
-                "[Stripe Webhook] Paid session missing brand name — brand-scoped access not granted",
+                "[Stripe Webhook] Paid session missing brand name — brand-scoped access not granted; purchase ledger + email access still apply",
                 { sessionId: session.id, email: customerEmail, productKey },
               );
             } else {
               await createRefreshEntitlement({
                 email: customerEmail,
                 productTier: productKey as "snapshot_plus" | "blueprint" | "blueprint_plus",
-                brandName,
+                brandName: resolvedBrandName,
                 purchaseId: undefined,
               });
 
               const { grantBrandAccess } = await import("@/lib/userBrands");
               await grantBrandAccess({
                 email: customerEmail,
-                brandName,
+                brandName: resolvedBrandName,
                 productTier: productKey as "snapshot_plus" | "blueprint" | "blueprint_plus",
               });
 
               logger.info("[Stripe Webhook] Refresh entitlement + brand access created", {
                 email: customerEmail,
                 tier: productKey,
-                brandName,
+                brandName: resolvedBrandName,
               });
             }
           } catch (entErr) {
@@ -227,7 +287,10 @@ export async function POST(req: NextRequest) {
         }
 
         // Extract customer name for AC personalization
-        const customerName = session.customer_details?.name?.split(" ")[0] || "";
+        const customerName =
+          hydratedSession.customer_details?.name?.split(" ")[0] ||
+          session.customer_details?.name?.split(" ")[0] ||
+          "";
 
         if (isRefreshProduct(productKey)) {
           await triggerRefreshActiveCampaign({
@@ -245,7 +308,11 @@ export async function POST(req: NextRequest) {
             amountPaid: session.amount_total ?? undefined,
             smsOptedIn,
             emailMarketingOptedIn,
-            phoneMobile: session.customer_details?.phone || undefined,
+            phoneMobile:
+              hydratedSession.customer_details?.phone ||
+              session.customer_details?.phone ||
+              undefined,
+            brandName: resolvedBrandName,
           });
         }
 
@@ -488,6 +555,7 @@ async function triggerActiveCampaign({
   smsOptedIn,
   emailMarketingOptedIn,
   phoneMobile,
+  brandName,
 }: {
   email: string;
   productKey: ProductKey;
@@ -497,6 +565,7 @@ async function triggerActiveCampaign({
   smsOptedIn?: boolean;
   emailMarketingOptedIn?: boolean;
   phoneMobile?: string;
+  brandName?: string | null;
 }) {
   const applyTags: string[] = [];
   const removeTags: string[] = [];
@@ -533,6 +602,7 @@ async function triggerActiveCampaign({
 
   // --- Onboarding tag (triggers welcome sequence in AC) ---
   applyTags.push(`onboarding:${productKey.replace("_", "-")}`);
+  applyTags.push("onboarding:awaiting-start");
 
   // --- Report-ready tag (triggers the report-delivery automation in AC).
   //     Applied via the Contacts API so it fires without the legacy
@@ -571,7 +641,9 @@ async function triggerActiveCampaign({
 
   // --- Set custom fields on the contact for email personalization ---
   const BASE_URL =
-    process.env.NEXT_PUBLIC_APP_URL || "https://app.wunderbrand.ai";
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    "https://app.wunderbrand.ai";
   const reportLink = reportId
     ? `${BASE_URL}/report/${reportId}`
     : `${BASE_URL}/access`;
@@ -580,7 +652,31 @@ async function triggerActiveCampaign({
 
   // Tier slug for URL params (snapshot-plus, blueprint, blueprint-plus)
   const tierSlug = productKey.replace(/_/g, "-");
-  const startDiagnosticLink = `${BASE_URL}/?tier=${tierSlug}${customerName ? `&name=${encodeURIComponent(customerName)}` : ""}`;
+  const amountPaidLabel = amountPaid ? `$${(amountPaid / 100).toFixed(0)}` : "";
+
+  // 90-day one-click access link (transactional email + AC fields)
+  let accessClaimUrl = `${BASE_URL}/?tier=${tierSlug}${customerName ? `&name=${encodeURIComponent(customerName)}` : ""}`;
+  try {
+    const {
+      buildPurchaseAccessUrl,
+      createPurchaseAccessToken,
+    } = await import("@/lib/security/purchaseAccessLink");
+    const accessTok = createPurchaseAccessToken({
+      email,
+      tier: tierSlug,
+      brand: brandName,
+      firstName: customerName,
+    });
+    if (accessTok) {
+      accessClaimUrl = buildPurchaseAccessUrl(BASE_URL, accessTok);
+    }
+  } catch (linkErr) {
+    logger.warn("[Stripe Webhook] Purchase access link mint failed", {
+      error: linkErr instanceof Error ? linkErr.message : String(linkErr),
+    });
+  }
+
+  const startDiagnosticLink = accessClaimUrl;
 
   const TIME_ESTIMATES: Record<string, string> = {
     snapshot_plus: "15\u201320 minutes",
@@ -605,6 +701,7 @@ async function triggerActiveCampaign({
     report_id: reportId || "",
     dashboard_link: `${BASE_URL}/dashboard`,
     start_diagnostic_link: startDiagnosticLink,
+    access_claim_link: accessClaimUrl,
     time_estimate: TIME_ESTIMATES[productKey] || "15\u201320 minutes",
     upload_limit: UPLOAD_LIMITS[productKey] || "",
     checklist_summary: CHECKLIST_ITEMS[productKey] || "",
@@ -617,7 +714,7 @@ async function triggerActiveCampaign({
       : productKey === "blueprint"
         ? new Date(Date.now() + 90 * 86400000).toISOString().split("T")[0]
         : "",
-    refresh_brand_name: "",
+    refresh_brand_name: brandName || "",
     upgrade_product_name: upgradeProductName,
     upgrade_product_url: upgradeProductUrl,
     upgrade_price: upgradePrice,
@@ -628,7 +725,8 @@ async function triggerActiveCampaign({
   };
   if (smsOptedIn && phoneMobile) contactFields.phone_mobile = phoneMobile;
   if (customerName) contactFields.first_name_custom = customerName;
-  if (amountPaid) contactFields.amount_paid = `$${(amountPaid / 100).toFixed(0)}`;
+  if (amountPaidLabel) contactFields.amount_paid = amountPaidLabel;
+  if (brandName) contactFields.purchased_brand_name = brandName;
 
   try {
     if (customerName) {
@@ -637,6 +735,42 @@ async function triggerActiveCampaign({
     await setContactFields({ email, fields: contactFields });
   } catch (err) {
     logger.error("[Stripe Webhook] AC field sync failed", { error: err instanceof Error ? err.message : String(err) });
+  }
+
+  // --- Transactional purchase confirmation (Resend) — independent of ActiveCampaign ---
+  if (productKey === "snapshot_plus" || productKey === "blueprint" || productKey === "blueprint_plus") {
+    try {
+      const { sendPurchaseConfirmationEmail } = await import(
+        "@/lib/email/purchaseConfirmationEmail"
+      );
+      const sent = await sendPurchaseConfirmationEmail({
+        to: email,
+        tier: productKey,
+        firstName: customerName,
+        accessUrl: accessClaimUrl,
+        dashboardUrl: `${BASE_URL}/dashboard`,
+        brandName,
+        amountPaidLabel: amountPaidLabel || null,
+      });
+      if (!sent.ok) {
+        logger.error("[Stripe Webhook] Purchase confirmation email failed", {
+          email,
+          provider: sent.provider,
+          error: sent.error,
+        });
+      } else {
+        logger.info("[Stripe Webhook] Purchase confirmation email sent", {
+          email,
+          provider: sent.provider,
+          id: sent.id,
+          productKey,
+        });
+      }
+    } catch (emailErr) {
+      logger.error("[Stripe Webhook] Purchase confirmation email threw", {
+        error: emailErr instanceof Error ? emailErr.message : String(emailErr),
+      });
+    }
   }
 
   const AC_WEBHOOK_URL =
@@ -658,12 +792,14 @@ async function triggerActiveCampaign({
             product_name: PRODUCT_DISPLAY_NAMES[productKey],
             product_key: productKey,
             start_diagnostic_link: startDiagnosticLink,
+            access_claim_link: accessClaimUrl,
             dashboard_link: `${BASE_URL}/dashboard`,
             time_estimate: TIME_ESTIMATES[productKey] || "20\u201325 minutes",
             upload_limit: UPLOAD_LIMITS[productKey] || "",
             checklist_summary: CHECKLIST_ITEMS[productKey] || "",
             purchase_date: new Date().toISOString().split("T")[0],
-            amount_paid: amountPaid ? `$${(amountPaid / 100).toFixed(0)}` : "",
+            amount_paid: amountPaidLabel,
+            purchased_brand_name: brandName || "",
             email_subject: emailCopy?.subject || "",
             email_opening: emailCopy?.opening || "",
             email_checklist_intro: emailCopy?.checklistIntro || "",

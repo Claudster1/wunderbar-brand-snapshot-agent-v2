@@ -310,7 +310,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
     
     buyerPersonas: [
       {
-        personaName: A memorable, descriptive name (e.g., "The Overwhelmed CMO", "The Budget-Conscious Startup Founder", "The Referral-Driven Mom")
+        personaName: A memorable, descriptive name preferred (e.g., "The Overwhelmed CMO", "The Budget-Conscious Startup Founder", "The Referral-Driven Mom"). If using a first+last name, keep it ethnically ambiguous (Jordan Ellis, Casey Morgan, Alex Reed) — never invent a culturally specific name that could clash with the illustrated avatar.
         icpAlignment: REQUIRED — MUST be an EXACT copy of the icpLabel string from the ICP this persona belongs to (primaryICP.icpLabel, secondaryICP.icpLabel, or one additionalICPs[].icpLabel). Do not write "primary" or "secondary" alone unless that is literally the icpLabel.
         role: Their role or identity (B2B: job title, decision authority; B2C: life role, identity)
         coreFrustration: The one thing that keeps them up at night related to what [businessName] solves
@@ -1050,7 +1050,7 @@ Key structure notes:
 ---------------------------------------------------------------------
 CONTENT QUALITY — SENIOR STRATEGIST DEPTH
 ---------------------------------------------------------------------
-- EVERY recommendation must include **execution-ready material** (see EXECUTION-READY CONTENT at top): sample copy, criterion, or named deliverable — not a vague task alone
+- EVERY recommendation must include **usable material** (see READY-TO-USE CONTENT at top): sample copy, criterion, or named deliverable — not a vague task alone
 - Strategic Action Plan: **example** on each action = finished snippet or asset the team can use; **howTo** = ordered outputs (what exists when done), not "think about strategy"
 - AI Prompt Packs (both Foundational and Execution) must be calibrated to THIS business
 - The Execution Prompt Pack must be MORE ADVANCED than the Foundational pack
@@ -1113,6 +1113,7 @@ TONE REQUIREMENTS
 - Clear and concise — every sentence must advance the strategy. If a reader can respond "so what?" to any line, rewrite it with a commercial consequence.
 - Respectful of the reader's time — on first use of core terms like positioning or messaging, give a short plain gloss, then go straight to implications for this business
 - Customer-facing paste fields (emails, website, talk tracks, objections, ads) must sound human and collaborative — see PLAIN LANGUAGE / Human, friendly, expert rule
+- Ban stock AI phrasing: "practitioner-advisor", "name the real constraint", "show the mechanism", "accountable next move", "generic hype". Prefer everyday words a founder would say out loud.
 - Use no hype, no filler, no throat-clearing introductions
 - Integrate AEO as a strategic advantage, not an add-on
 - Use proper typographic quotes in all content

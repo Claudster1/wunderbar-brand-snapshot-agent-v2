@@ -372,8 +372,8 @@ export default function TabSectionMenu({
           margin: description && !isSidebar ? "0 0 6px" : "0 0 10px",
           fontSize: isSidebar ? 12 : 14,
           fontWeight: 600,
-          textTransform: "none",
-          letterSpacing: "0.06em",
+          textTransform: "uppercase",
+          letterSpacing: "0.1em",
           color: SKY,
         }}
       >

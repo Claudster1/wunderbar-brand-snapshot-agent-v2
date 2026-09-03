@@ -10,7 +10,7 @@ const SECTIONS = [
   { id: "pitches", label: "Brand Narrative", shortLabel: "Narrative", hint: "Shape your company description and reusable pitch copy.", accent: "#0284C7" },
   { id: "messaging", label: "Messaging Pillars", shortLabel: "Messaging", hint: "Build repeatable messages and proof points.", accent: "#2563EB" },
   { id: "voice", label: "Brand Voice & Tone", shortLabel: "Voice", hint: "Refine language rules and stylistic guardrails.", accent: "#7C3AED" },
-  { id: "report-sections", label: "Campaign + Channel Copy", shortLabel: "Channel Copy", hint: "Edit email, social, and other execution-ready copy.", accent: "#0369A1" },
+  { id: "report-sections", label: "Campaign + Channel Copy", shortLabel: "Channel Copy", hint: "Edit email, social, and other copy ready to publish.", accent: "#0369A1" },
 ] as const;
 
 type Workbook = Record<string, any>;
@@ -269,7 +269,7 @@ Preview text: A simple framework to reduce friction and build momentum.
 Body:
 Hi [First Name],
 
-Many teams know what they want to achieve but still struggle with message consistency across channels. ${business} helps teams turn strategy into execution-ready language they can actually use.
+Many teams know what they want to achieve but still struggle with message consistency across channels. ${business} helps teams turn strategy into language they can actually use.
 
 In this first note, start by naming one friction point your audience feels every week, then connect it to one practical shift they can make right now.
 
@@ -1919,7 +1919,7 @@ function WorkbookContent() {
             </div>
             <h1 style={styles.sectionTitle}>Campaign + Channel Copy</h1>
             <p style={styles.sectionDesc}>
-              Focus on execution-ready copy your team can deploy immediately. Email and social are included here with full editable drafts.
+              Focus on copy your team can publish immediately. Email and social are included here with full editable drafts.
             </p>
             <div style={styles.sectionInlineActions}>
               <button

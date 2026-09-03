@@ -155,7 +155,7 @@ export const WORKBOOK_SECTIONS: WorkbookSection[] = [
       "Strengths: Strong category visibility, polished outbound narrative\n" +
       "Weaknesses: Generic positioning, low implementation depth, weak proof specificity\n" +
       "Where We Win: More tailored strategic sequencing and stronger proof architecture\n" +
-      "Why choose us instead: We convert strategy into owner-ready execution that improves channel performance within 90 days\n" +
+      "Why choose us instead: We convert strategy into work your team can run that improves channel performance within 90 days\n" +
       "Traps to Avoid: Avoid broad 'all-in-one' claims that mirror their messaging\n\n" +
       "Competitor: Competitor B\n" +
       "Their Headline Claim: Fast brand refresh for growth-stage teams\n" +

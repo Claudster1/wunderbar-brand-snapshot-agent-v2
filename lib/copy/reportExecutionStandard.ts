@@ -1,16 +1,16 @@
 /**
- * Shared rule: Suite reports deliver execution-ready artifacts (copy, criteria,
+ * Shared rule: Suite reports deliver ready-to-use materials (copy, criteria,
  * prompts) — not vague consulting to-do lists. Import into all report + engine prompts.
  */
 
 export const reportExecutionReadyContentRule = `
-EXECUTION-READY CONTENT (ALL WUNDERBRAND SUITE™ REPORTS — MANDATORY):
+READY-TO-USE CONTENT (ALL WUNDERBRAND SUITE™ REPORTS — MANDATORY):
 Products are judged on **usable output**: language teams can **paste, brief, or verify** — not a pile of reminders to "work on brand."
 
-**Artifact-first (default)**
+**Finished material first (default)**
 • Lead with **finished material** where the schema allows: exact headlines, CTAs, one-liners, email subject lines, positioning lines, proof bullets, channel lines, comparison tables, AI prompt bodies, talk tracks, discovery questions, and leave-behind lines written **for [businessName]** in **their brand voice / tone / archetype**.
 • **"Actionable"** means **the deliverable exists in the text** — not only "you should improve X." If you name a gap (visibility, messaging, proof), include **concrete replacement copy or a binary check** (e.g. "Hero matches this line: \\"…\\"") not empty homework.
-• Finished artifacts may use the brand’s own words. **Diagnostic and strategy narrative around those artifacts** must stay plain and defined (see PLAIN LANGUAGE rule) — artifact-first does not mean jargon-first.
+• Finished materials may use the brand’s own words. **Diagnostic and strategy narrative around those materials** must stay plain and defined (see PLAIN LANGUAGE rule) — finished-first does not mean jargon-first.
 
 **Not a how-to guide**
 • Do **not** write meta coaching ("Why ask this," "How to approach," "Separates messaging drift from ops…") as the main content.
@@ -18,7 +18,7 @@ Products are judged on **usable output**: language teams can **paste, brief, or 
 • Every example must be **specific to this company** (name, offer, ICP, proof, stage). Ban interchangeable B2B filler that could apply to any firm.
 
 **Avoid vague task-speak**
-• Ban bulk imperatives without artifacts: "improve messaging," "increase visibility," "align positioning," "build credibility," "audit the website," "optimize the funnel," "invest in content" **as the whole answer**. Pair every lever with **specific words, structures, or criteria** this business can use this week.
+• Ban bulk imperatives without finished copy: "improve messaging," "increase visibility," "align positioning," "build credibility," "audit the website," "optimize the funnel," "invest in content" **as the whole answer**. Pair every lever with **specific words, structures, or criteria** this business can use this week.
 
 **Narrative vs. roadmap**
 • **Synthesis, diagnosis, purpose, promise, pillar interpretations, archetype framing** stay **declarative** — stated beliefs, stakes, and clarity — **not** disguised project lists (see Brand Purpose rules in Blueprint prompts).
@@ -45,23 +45,35 @@ export const aiPlainLanguageCustomerOutputRule = `
 PLAIN LANGUAGE — CUSTOMER OUTPUT (MANDATORY FOR ALL USER-FACING REPORT TEXT):
 Applies to **every** suite tier: free WunderBrand Snapshot™, Snapshot+™, Blueprint™, and Blueprint+™.
 Write for a smart founder, owner, or operator who may **not** live in brand/marketing jargon.
+If a line wouldn’t sound natural read aloud on a sales call or team standup, rewrite it.
+
+**Sound human first**
+• Prefer everyday words a founder would say: “what’s getting in the way,” “how it works,” “who owns it,” “next step this week,” “proof,” “homepage,” “email.”
+• Ban stock AI / consultant prestige phrases in customer-facing text (rewrite every time):
+  - "practitioner-advisor", "name the real constraint", "show the mechanism", "accountable next move", "generic hype"
+  - "owner-ready", "execution-ready", "diagnostic signal", "implementation readiness", "operating cadence"
+  - "sequenced program", "load-bearing belief", "mechanism logic", "tone register" (say “tone” or “how we sound in this context”)
+  - "proof artifact" / "customer-visible artifact" → “proof point,” “finished page/email/ad,” or “something buyers can see”
+• Depth means **specific recommendations and finished copy** — not dense jargon stacks.
+• Prefer concrete scenes (who does what, where) over abstract triplets of strategy nouns.
 
 **Prefer concrete over prestige**
 • Prefer everyday nouns and verbs over abstract strategy stacks.
-• Ban empty consulting filler unless you replace it with a specific, company-named action or artifact. Examples to rewrite: "leverage synergies," "operationalize alignment," "unlock clarity," "drive brand equity," "messaging fragmentation," "conversion architecture," "authority playbook," "GTM motion," "execution governance," "visibility leverage."
-• Depth means **specific recommendations and finished copy** — not dense jargon.
+• Ban empty consulting filler unless you replace it with a specific, company-named action or finished line. Examples to rewrite: "leverage synergies," "operationalize alignment," "unlock clarity," "drive brand equity," "messaging fragmentation," "conversion architecture," "authority playbook," "GTM motion," "execution governance," "visibility leverage."
+• When you need “how it works,” write that — do not write “mechanism.” When you need “who owns it,” write that — do not write “accountable owner” unless naming a real person/role.
 
 **Define useful terms once, then use them**
-• Useful terms (ideal customer profile / ICP, call to action / CTA, positioning, conversion path, go-to-market / GTM, etc.) are allowed when you **define them in plain words on first use in that section**, then use the short form freely.
+• Useful terms (ideal customer profile / ICP, call to action / CTA, positioning, conversion path, go-to-market / GTM, score areas / pillars, etc.) are allowed when you **define them in plain words on first use in that section**, then use the short form freely.
 • Do **not** skip a short gloss on first use for core terms like positioning or messaging when those words carry the claim.
 • Do not sacrifice accuracy for “simple.” Sacrifice prestige phrasing.
 
 **Readable structure**
 • Short sentences. One idea per sentence when possible.
 • Tie every strategic claim to a business consequence the reader can act on this week or this quarter.
+• End guidance with a **clear next step** (who / what / by when) whenever possible.
 
 **Human, friendly, expert (not pushy) — ALL customer-facing paste fields**
-Applies to **every** user-facing artifact: talk tracks, openers, closers, discovery questions, objection replies, homepage/hero/CTAs, messaging examples, email subjects and bodies, nurture, ads/social, pricing language, website copy, testimonial asks, competitive conversation cues, and illustrative examples in the report.
+Applies to **every** user-facing finished line: talk tracks, openers, closers, discovery questions, objection replies, homepage/hero/CTAs, messaging examples, email subjects and bodies, nurture, ads/social, pricing language, website copy, testimonial asks, competitive conversation cues, and illustrative examples in the report.
 
 • Tone: approachable expert peer — warm, clear, confident. Never arrogant, lecture-y, guilt-tripping, or sales-aggressive.
 • Sound like a helpful human colleague with real expertise — not a consultant taking over the meeting, and not a generic chatbot.

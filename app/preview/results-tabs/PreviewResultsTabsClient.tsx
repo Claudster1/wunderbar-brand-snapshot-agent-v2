@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { Suspense, useEffect, useMemo } from "react";
+import { Suspense, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import ResultsTabsShell from "@/components/results/ResultsTabsShell";
 import {
@@ -232,7 +232,7 @@ const diagnosticData = {
   audiencePersonaDefinition: previewAudiencePersonaDefinition,
   buyerPersonas: [
     {
-      personaName: "Jordan Malik",
+      personaName: "Jordan Ellis",
       icpAlignment: "Primary ICP",
       role: "VP Marketing",
       coreFrustration: "Campaigns look polished but pipeline quality is flat quarter over quarter.",
@@ -244,14 +244,14 @@ const diagnosticData = {
       contentPreferences: "Short executive summaries, one-page rollout plans, and live walkthroughs of the priority queue.",
       objectionAndResponse: {
         objection: "We have tried agency-style strategy decks before with no execution lift.",
-        response: "Pair every recommendation with an owner, timeline, and one customer-visible artifact due in 14 days.",
+        response: "Pair every recommendation with an owner, timeline, and one page, email, or creative buyers can see within 14 days.",
       },
       channelPriority: ["LinkedIn", "Email nurture", "High-intent landing pages"],
       sampleHeadline: "Stop funding fragmented messaging—run one pillar-led growth rhythm for 90 days.",
       sampleCTA: "Review my priority rollout plan",
     },
     {
-      personaName: "Priya Nandakumar",
+      personaName: "Casey Morgan",
       icpAlignment: "Secondary ICP",
       role: "CFO",
       coreFrustration: "Hard to tie brand and demand spend to revenue efficiency with confidence.",
@@ -270,7 +270,7 @@ const diagnosticData = {
       sampleCTA: "See the financial impact model",
     },
     {
-      personaName: "Marcus Webb",
+      personaName: "Alex Reed",
       icpAlignment: "Primary ICP",
       role: "Head of Revenue Operations",
       coreFrustration: "CRM and campaigns tell different stories; handoffs break under scale.",
@@ -470,7 +470,7 @@ const diagnosticData = {
   ...previewActivationContent,
   executiveSummary: {
     synthesis:
-      "Acme Co wins when buyers see one disciplined story from first touch to proposal: diagnostic clarity, proof-backed sequencing, and owner-ready execution. The brand is already credible; the gap is repetition and channel-specific discipline so every asset reinforces the same promise.",
+      "Acme Co wins when buyers see one clear story from first touch to proposal: a sharp diagnosis, proof in the right order, and work their team can actually run. The brand is already credible; the gap is repeating that story with discipline so every asset reinforces the same promise.",
     diagnosis:
       "Visibility and conversion are pulling in different directions because messaging is strong at the narrative level but inconsistently expressed in high-intent surfaces.",
     primaryFocusArea: "Messaging",
@@ -520,7 +520,7 @@ const diagnosticData = {
       },
       {
         name: "Proof over preference",
-        description: "Claims scale only when evidence, mechanism, or observable outcomes back them.",
+        description: "Claims scale only when evidence, a clear explanation of how it works, or observable outcomes back them.",
         inAction: "Every paid or organic case card lists before metric, lever pulled, and window of time—not adjectives.",
         whyItMatters: "B2B buyers in competitive services default to skepticism; proof is the trust shortcut.",
       },
@@ -587,7 +587,7 @@ const diagnosticData = {
     laggingIndicators: [],
   },
   conversionStrategy: {
-    howTrustIsBuilt: "Lead with mechanism and named proof; avoid generic authority claims.",
+    howTrustIsBuilt: "Lead with how it works and named proof; avoid generic authority claims.",
     howClarityDrivesAction: "One decisive CTA per page; secondary paths for researchers.",
     ctaHierarchy: [
       { level: "Primary", action: "Book diagnostic review", context: "High-intent pages" },
@@ -662,7 +662,7 @@ const diagnosticData = {
     testimonialStrategy: {
       whoToAsk: "Economic buyers post-implementation",
       howToAsk: "Outcome-led interview, not generic praise",
-      whatToCapture: "Metric, mechanism, timeframe",
+      whatToCapture: "Metric, how it works, timeframe",
       whereToPlace: "Proposal appendix + site proof module",
     },
     authoritySignals: [{ signal: "Founder POV column", impact: "Top-of-funnel trust", timeline: "60 days" }],
@@ -690,11 +690,11 @@ const diagnosticData = {
       },
       {
         stage: "Close",
-        objective: "Propose a bounded Acme pilot with named owners and a customer-visible artifact in 14 days.",
+        objective: "Propose a bounded Acme pilot with named owners and one buyer-facing deliverable in 14 days.",
         keyMessage:
           "Say: “Before we expand scope, would it help to try one Acme journey for two weeks—one owner on marketing, one on sales, and one artifact the buyer can open? You’ll know quickly if it’s worth going further.”",
         proofToUse:
-          "Show: Acme pilot who-owns-what chart + milestone template with the first customer-visible deliverable dated.",
+          "Show: Acme pilot who-owns-what chart + milestone template with the first buyer-facing deliverable dated.",
       },
     ],
     discoveryQuestions: [
@@ -780,7 +780,7 @@ const diagnosticData = {
       {
         objection: "We have tried strategy firms before",
         response:
-          "“We don’t sell another workshop. The product is a 14-day pilot: one owner, one date, one customer-visible Acme deliverable—then we expand only if stage movement shows up.”",
+          "“We don’t sell another workshop. The product is a 14-day pilot: one owner, one date, one buyer-facing Acme deliverable—then we expand only if stage movement shows up.”",
         pillarConnection: "Execution",
         proofPoint: "Sample Acme-style 14-day deliverable cadence from a comparable client",
       },
@@ -815,7 +815,7 @@ const diagnosticData = {
       note: "Lead with Acme diagnostic clarity and owner-backed milestones; finance gets payback framing, revenue ops gets clear routing definitions—same vocabulary in ads and sales.",
     },
     closingLanguage:
-      "“Would it help if we start with a two-week journey fix—named owners and one customer-visible deliverable—instead of another scoping call? If Acme sees stage movement, we can expand. If not, we stop. Who feels like the right owner for marketing QA, and who for the sales handoff?”",
+      "“Would it help if we start with a two-week journey fix—named owners and one buyer-facing deliverable—instead of another scoping call? If Acme sees stage movement, we can expand. If not, we stop. Who feels like the right owner for marketing QA, and who for the sales handoff?”",
   },
   channelPlans: {
     ...previewActivationContent.channelPlans,
@@ -979,17 +979,9 @@ function PreviewResultsTabsClientInner({
   const searchParams = useSearchParams();
   const resolvedTab = useMemo((): ResultsTab => {
     const raw = searchParams.get("tab");
-    if (!raw?.trim()) return initialActiveTab ?? "strategy";
+    if (!raw?.trim()) return initialActiveTab ?? "results";
     return parseResultsTabId(raw) ?? "results";
   }, [searchParams, initialActiveTab]);
-
-  useEffect(() => {
-    if (resolvedTab !== "strategy") return;
-    const id = window.setTimeout(() => {
-      document.getElementById("strategy-sales-alignment")?.scrollIntoView({ block: "start", behavior: "smooth" });
-    }, 350);
-    return () => window.clearTimeout(id);
-  }, [resolvedTab]);
 
   return (
     <main className="min-h-screen font-brand" style={{ backgroundColor: "#F5F7FA" }}>
@@ -1006,8 +998,8 @@ function PreviewResultsTabsClientInner({
 
       <div style={{ maxWidth: SUITE_CONTENT_MAX_PX, margin: "0 auto", padding: "0 min(28px, 4vw) 28px" }}>
         <p style={{ fontSize: 12, color: "#5A6B7E", margin: 0 }}>
-          Preview mode with mock data (URL defaults to <code style={{ fontSize: 11 }}>?tab=strategy</code>; use{" "}
-          <code style={{ fontSize: 11 }}>?tab=results</code> for the scores overview).{" "}
+          Preview mode with mock data. Use the top tabs (Results → Foundation → …) or deep-link with{" "}
+          <code style={{ fontSize: 11 }}>?tab=foundation</code>.{" "}
           <Link href="/preview" style={{ color: "#021859", textDecoration: "underline", fontWeight: 700 }}>
             Back to all previews
           </Link>

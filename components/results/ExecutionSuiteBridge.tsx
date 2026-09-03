@@ -97,7 +97,7 @@ export default function ExecutionSuiteBridge({
         fontFamily: SUITE_FONT_UI,
       }}
     >
-      <p style={{ margin: "0 0 10px", fontSize: 11, fontWeight: 800, color: BLUE, letterSpacing: "0.06em" }}>
+      <p style={{ margin: "0 0 10px", fontSize: 11, fontWeight: 800, color: BLUE, letterSpacing: "0.1em", textTransform: "uppercase" }}>
         EXECUTION FLOW
       </p>
       <p style={{ margin: "0 0 12px", fontSize: 13, color: NAVY, fontWeight: 700, lineHeight: 1.4 }}>

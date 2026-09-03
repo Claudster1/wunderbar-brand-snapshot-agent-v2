@@ -85,7 +85,7 @@ function InsightPanel({
       }}
     >
       <p
-        className="m-0 text-[11px] font-semibold tracking-[0.08em]"
+        className="m-0 text-[11px] font-semibold uppercase tracking-[0.1em]"
         style={{ color: SUITE_ACCENT_BRIGHT }}
       >
         {label}
@@ -137,7 +137,7 @@ export default function PersonaAtlasSuite({
       <div className="border-b border-black/[0.06] px-4 py-4 sm:px-6 sm:py-5">
         <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="m-0 text-[11px] font-semibold tracking-[0.1em] text-brand-blue sm:text-xs">Persona atlas</p>
+            <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.1em] text-brand-blue sm:text-xs">Persona atlas</p>
             <h3 className="bs-h3 mt-1.5 mb-0 text-brand-navy" style={{ color: SUITE_NAVY }}>
               Role-level buyer reference
             </h3>
@@ -181,7 +181,7 @@ export default function PersonaAtlasSuite({
                   alt=""
                   width={44}
                   height={44}
-                  className="h-11 w-11 shrink-0 rounded-[10px] object-cover ring-1 ring-black/[0.06]"
+                  className="h-11 w-11 shrink-0 rounded-full bg-[#E8F6FE] object-cover ring-2 ring-white shadow-sm"
                   loading="lazy"
                   decoding="async"
                   referrerPolicy="no-referrer"
@@ -212,10 +212,10 @@ export default function PersonaAtlasSuite({
         <div className="grid gap-6 lg:grid-cols-[minmax(0,300px)_1fr] lg:gap-8">
           <div className="flex flex-col items-center gap-4 lg:items-start">
             <div
-              className="relative overflow-hidden rounded-2xl p-1"
+              className="relative inline-flex rounded-full p-1.5"
               style={{
-                background: "linear-gradient(145deg, rgba(7,176,242,0.2), rgba(2,24,89,0.06))",
-                boxShadow: "0 12px 40px rgba(2,24,89,0.08)",
+                background: "linear-gradient(145deg, rgba(7,176,242,0.45), rgba(2,24,89,0.2))",
+                boxShadow: "0 12px 40px rgba(2,24,89,0.1)",
               }}
             >
               <img
@@ -223,7 +223,7 @@ export default function PersonaAtlasSuite({
                 alt={profile.portraitAlt}
                 width={160}
                 height={160}
-                className="h-36 w-36 rounded-[14px] bg-[#E8F6FE] object-cover sm:h-40 sm:w-40"
+                className="h-36 w-36 rounded-full bg-[#E8F6FE] object-cover ring-4 ring-white sm:h-40 sm:w-40"
                 loading="lazy"
                 decoding="async"
                 referrerPolicy="no-referrer"
@@ -241,7 +241,7 @@ export default function PersonaAtlasSuite({
 
           <div className="grid min-w-0 gap-5 sm:grid-cols-2">
             <div>
-              <p className="m-0 text-[11px] font-semibold tracking-[0.08em]" style={{ color: SUITE_ACCENT_BRIGHT }}>
+              <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.1em]" style={{ color: SUITE_ACCENT_BRIGHT }}>
                 What they are optimizing for
               </p>
               <div className="mt-3 flex flex-col gap-2.5">
@@ -267,7 +267,7 @@ export default function PersonaAtlasSuite({
               </div>
             </div>
             <div>
-              <p className="m-0 text-[11px] font-semibold tracking-[0.08em]" style={{ color: SUITE_ACCENT_BRIGHT }}>
+              <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.1em]" style={{ color: SUITE_ACCENT_BRIGHT }}>
                 What could block the yes
               </p>
               <div className="mt-3 flex flex-col gap-2.5">

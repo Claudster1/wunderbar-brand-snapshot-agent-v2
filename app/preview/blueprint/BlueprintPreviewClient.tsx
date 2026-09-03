@@ -828,7 +828,7 @@ Prioritize ruthlessly. A brand trying to fix everything at once fixes nothing.`,
     ],
     weaknesses: [
       { item: "Credibility signals not consistently surfaced", evidence: "Proof artifacts are present but not always at high-intent conversion points.", mitigation: "Add case studies, testimonials, and results blocks to every mid-funnel page." },
-      { item: "Content system activation variance", evidence: "Publishing cadence and format consistency fluctuate by channel.", mitigation: "Implement a monthly content operating cadence tied to pillar priorities." },
+      { item: "Content system activation variance", evidence: "Publishing cadence and format consistency fluctuate by channel.", mitigation: "Implement a monthly content rhythm tied to pillar priorities." },
       { item: "Conversion pathways can be fragmented", evidence: "CTA narrative differs across paid, organic, and landing flows.", mitigation: "Align one primary CTA narrative per campaign cluster." },
     ],
     opportunities: [

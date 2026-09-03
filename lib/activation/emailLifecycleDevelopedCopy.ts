@@ -50,7 +50,7 @@ export function buildDevelopedEmailLifecyclePlan(d: EmailLifecycleDerivatives): 
     ``,
     `You opened the sketch—here is the “after” view we use with teams like yours: same spend window, one agreed metric, and the exact three surfaces we aligned first (usually hero, first nurture email, first sales deck slide).`,
     ``,
-    `If this matches how you want to run ${p2} this quarter, the next email shows the mechanism in one screen flow—still one CTA.`,
+    `If this matches how you want to run ${p2} this quarter, the next email shows how it works in one screen flow—still one CTA.`,
     ``,
     `— {{sender_name}}`,
     `- **Primary CTA (button):** See the one-screen flow`,

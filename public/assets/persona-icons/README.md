@@ -1,14 +1,11 @@
 # Persona assets
 
-## Buyer persona portraits (generated)
+## Buyer persona portraits (WunderBrand illustrated cast)
 
-Persona **faces are not stored in this repo**. They are rendered by [DiceBear](https://www.dicebear.com/) (`api.dicebear.com`) using a deterministic seed:
+Primary portraits are **local PNGs** in `public/personas/` (75 assets: B2B, B2C, Shared, Youth).
 
-`report id + company + persona name + role + index`
-
-The app picks an illustration **style per persona slot** from a large B2B / B2C / neutral pool so multi-persona views stay visually distinct. Fallback sample personas (when the diagnostic has no `buyerPersonas`) use the same pipeline.
-
-Implementation: `lib/personaPortrait.ts`, `lib/foundationPersonaAtlas.ts`, `lib/strategy/audienceNarrative.ts`.
+Role → archetype mapping + registry: `lib/personaPortraitAssets.ts`  
+Legacy DiceBear helpers (unused by atlas once local assets resolve): `lib/personaPortrait.ts`
 
 ## Brand archetype symbols (sprite)
 

@@ -53,7 +53,7 @@ export default function FoundationStyleSuiteSidebar({ groups, activeSectionId }:
             }}
           >
             <p
-              className="px-2 pb-2 text-xs sm:text-sm font-semibold tracking-[0.1em]"
+              className="px-2 pb-2 text-xs sm:text-sm font-semibold uppercase tracking-[0.1em]"
               style={{ color: SUITE_ACCENT_BRIGHT }}
             >
               {group.label}

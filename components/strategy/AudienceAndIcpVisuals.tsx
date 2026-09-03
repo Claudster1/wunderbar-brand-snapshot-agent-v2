@@ -395,7 +395,7 @@ function BuyerPersonaCard({ card }: { card: StrategyBuyerPersonaCard }) {
           alt={card.portraitAlt}
           width={88}
           height={88}
-          className="h-[5.5rem] w-[5.5rem] shrink-0 self-start rounded-xl bg-[#E8F6FE] object-cover shadow-sm ring-1 ring-slate-200/80 sm:h-24 sm:w-24"
+          className="h-[5.5rem] w-[5.5rem] shrink-0 self-start rounded-full bg-[#E8F6FE] object-cover shadow-sm ring-2 ring-white sm:h-24 sm:w-24"
           loading="lazy"
           decoding="async"
           referrerPolicy="no-referrer"

@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, Suspense, useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import LockedTabPrompt from "@/components/LockedTabPrompt";
 import ResultsTabNav, { ProductTier, ResultsTab } from "@/components/ResultsTabNav";
 import {
@@ -274,7 +274,7 @@ function buildWorkbookSeedContent(
     "Role: Economic buyer",
     `Primary job to be done (JTBD): Improve ${primaryPillar.toLowerCase()} performance in ${industry.toLowerCase()}`,
     `Core Frustration: ${topOpportunity || "Current strategy does not convert consistently."}`,
-    `Messaging Angle: ${company} provides a practical, owner-ready implementation roadmap.`,
+    `Messaging Angle: ${company} provides a practical rollout plan your team can run.`,
     "",
     "Persona Tier 2: Secondary Audience Operator",
     "Role: Functional champion",
@@ -316,7 +316,7 @@ function buildWorkbookSeedContent(
     `Primary Conversion Barrier: ${
       competitiveVulnerability.implication || "Unclear confidence in implementation feasibility."
     }`,
-    `Decision Trigger: Practical proof + clear owner-ready rollout`,
+    `Decision Trigger: Practical proof + a clear rollout with named owners`,
     `Best Hook Type: Data-led insight + social proof`,
     `Channels to Prioritize: ${
       linesFromMap.length > 0 ? linesFromMap.slice(0, 3).map((line) => line.split(":")[0]).join(", ") : "Email, Search, LinkedIn"
@@ -741,6 +741,7 @@ export default function ResultsTabsShell({
     };
   });
 
+  const router = useRouter();
   const searchParams = useSearchParams();
   const activationFocusQueryParam = searchParams.get("activationFocus");
   const activationFocusFromQuery =
@@ -751,6 +752,23 @@ export default function ResultsTabsShell({
   const activationFocusRaw =
     activationFocusFromQuery ??
     (typeof activationFocusProp === "string" && activationFocusProp.trim() ? activationFocusProp.trim() : null);
+
+  const selectTab = useCallback(
+    (tabId: ResultsTab) => {
+      setLockedTabContext(null);
+      setActiveTab(tabId);
+      try {
+        const params = new URLSearchParams(searchParams.toString());
+        if (params.get("tab") === tabId) return;
+        params.set("tab", tabId);
+        const qs = params.toString();
+        router.replace(qs ? `?${qs}` : "?", { scroll: false });
+      } catch {
+        /* ignore */
+      }
+    },
+    [router, searchParams],
+  );
 
   const strategyNavItems = useMemo(
     () => buildStrategyNavMenuItems(productTier, diagnosticData),
@@ -1257,8 +1275,7 @@ export default function ResultsTabsShell({
     const tab = TAB_DEFINITIONS.find((item) => item.id === tabId);
     if (!tab) return;
     if (isTabAvailable(tab, productTier)) {
-      setLockedTabContext(null);
-      setActiveTab(tabId);
+      selectTab(tabId);
       return;
     }
     if (tab.id === "results") return;
@@ -1276,9 +1293,9 @@ export default function ResultsTabsShell({
       if (!id) return;
       setLockedTabContext(null);
       setPendingFoundationSectionId(id);
-      setActiveTab("foundation");
+      selectTab("foundation");
     },
-    [foundationTabAvailable],
+    [foundationTabAvailable, selectTab],
   );
 
   function jumpToWorkbookSection(sectionId: WorkbookSectionId, activationPlanId?: string): void {
@@ -1290,8 +1307,7 @@ export default function ResultsTabsShell({
       setPendingActivationPlanId(activationPlanId as ActivationPlanSectionId);
     }
     setFocusedWorkbookSectionId(sectionId);
-    setLockedTabContext(null);
-    setActiveTab("workbook");
+    selectTab("workbook");
   }
 
   useEffect(() => {
@@ -1437,8 +1453,7 @@ export default function ResultsTabsShell({
         <ResultsTabNav
           activeTab={activeTab}
           onTabChange={(tab) => {
-            setLockedTabContext(null);
-            setActiveTab(tab);
+            selectTab(tab);
           }}
           productTier={productTier}
           onLockedTabClick={(tab) => {
@@ -1463,8 +1478,7 @@ export default function ResultsTabsShell({
           seeWhatsIncludedUrl={WUNDERBAR_SUITE_LOCKED_TAB_URL}
           talkToExpertUrl="https://calendly.com/claudine-wunderbardigital/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=locked_tab&utm_campaign=nav_cta_secondary&utm_content=talk_expert"
           onDismiss={() => {
-            setLockedTabContext(null);
-            setActiveTab("results");
+            selectTab("results");
           }}
         />
       )}
@@ -1587,11 +1601,10 @@ export default function ResultsTabsShell({
               productTier={productTier}
               diagnosticData={diagnosticData}
               scheduleRows={scheduleRows}
-              onExportSchedule={() => setActiveTab("downloads")}
+              onExportSchedule={() => selectTab("downloads")}
               onEditInWorkbook={jumpToWorkbookSection}
               onOpenStrategyTab={() => {
-                setLockedTabContext(null);
-                setActiveTab("strategy");
+                selectTab("strategy");
               }}
               onAskWundy={handleAskWundy}
               shellRendersSectionChips
@@ -1635,10 +1648,9 @@ export default function ResultsTabsShell({
             moodBoardSamples={moodBoardSamplesPersisted}
             onSaveVersion={handleSaveVersion}
             onRestoreVersion={handleRestoreVersion}
-            onExportWorkbook={() => setActiveTab("downloads")}
+            onExportWorkbook={() => selectTab("downloads")}
             onOpenActivationPromptLibrary={() => {
-              setLockedTabContext(null);
-              setActiveTab("activation");
+              selectTab("activation");
               window.setTimeout(() => {
                 document.getElementById("activation-prompt-library")?.scrollIntoView({
                   behavior: "smooth",

@@ -1,4 +1,9 @@
-import { buildPersonaPortraitSeed, dicebearPersonaPortraitUrlForPersona } from "@/lib/personaPortrait";
+import { buildPersonaPortraitSeed, inferPersonaAudienceKind } from "@/lib/personaPortrait";
+import {
+  resolveLocalPersonaPortraitSrc,
+  type PersonaHeritageGroup,
+} from "@/lib/personaPortraitAssets";
+import { alignPersonaNameToPortraitHeritage } from "@/lib/personaPortraitHeritage";
 
 export type FoundationPersonaAtlasEntry = {
   key: string;
@@ -7,7 +12,7 @@ export type FoundationPersonaAtlasEntry = {
   role: string;
   portraitSrc: string;
   portraitAlt: string;
-  /** Local `/assets/...` vs DiceBear URL */
+  /** Local `/personas/...` illustration vs remote (e.g. DiceBear) URL */
   portraitRemote: boolean;
   goals: string[];
   fears: string[];
@@ -82,14 +87,14 @@ function tabLabelFromRole(role: string, index: number): string {
   return `Persona ${index + 1}`;
 }
 
-/** Sample roles when the diagnostic has no `buyerPersonas` — portraits are generated (DiceBear), not fixed SVGs. */
+/** Sample roles when the diagnostic has no `buyerPersonas` — ethnically-neutral / role-safe names. */
 const STATIC_ATLAS_BASE: Array<Omit<FoundationPersonaAtlasEntry, "portraitSrc" | "portraitRemote" | "messageAngle">> = [
   {
     key: "static-vp-ops",
     tabLabel: "VP Operations",
-    title: "Sarah Chen",
+    title: "Jordan Ellis",
     role: "VP Operations",
-    portraitAlt: "Avatar for Sarah Chen, VP Operations (sample persona)",
+    portraitAlt: "Avatar for Jordan Ellis, VP Operations (sample persona)",
     goals: [
       "Build coordination infrastructure before the next hiring wave.",
       "Reduce leadership escalations caused by cross-team misalignment.",
@@ -104,9 +109,9 @@ const STATIC_ATLAS_BASE: Array<Omit<FoundationPersonaAtlasEntry, "portraitSrc" |
   {
     key: "static-cfo-coo",
     tabLabel: "CFO / COO",
-    title: "David Park",
+    title: "Casey Morgan",
     role: "CFO / COO",
-    portraitAlt: "Avatar for David Park, CFO / COO (sample persona)",
+    portraitAlt: "Avatar for Casey Morgan, CFO / COO (sample persona)",
     goals: [
       "Increase revenue efficiency from current headcount investments.",
       "Reduce operational waste and duplicated execution costs.",
@@ -121,9 +126,9 @@ const STATIC_ATLAS_BASE: Array<Omit<FoundationPersonaAtlasEntry, "portraitSrc" |
   {
     key: "static-revops",
     tabLabel: "RevOps / Chief of Staff",
-    title: "Alex Rivera",
+    title: "Alex Reed",
     role: "Head of RevOps / Chief of Staff",
-    portraitAlt: "Avatar for Alex Rivera, RevOps / Chief of Staff (sample persona)",
+    portraitAlt: "Avatar for Alex Reed, RevOps / Chief of Staff (sample persona)",
     goals: [
       "Create one trusted data narrative across GTM teams.",
       "Improve implementation confidence without adding integration sprawl.",
@@ -148,6 +153,8 @@ export function buildFoundationPersonaAtlasEntries(params: {
   const brandName = params.businessName.trim() || "Your Brand";
   const pillar = params.primaryPillar.toLowerCase();
   const gap = params.topGap.toLowerCase();
+  const audienceKind = inferPersonaAudienceKind(params.diagnosticData);
+  const usedHeritageGroups: PersonaHeritageGroup[] = [];
 
   if (raw.length === 0) {
     return STATIC_ATLAS_BASE.map((row, index) => {
@@ -158,20 +165,29 @@ export function buildFoundationPersonaAtlasEntries(params: {
         role: row.role,
         index,
       });
-      const portraitSrc = dicebearPersonaPortraitUrlForPersona({
-        seed,
-        index,
-        diagnostic: params.diagnosticData,
+      const local = resolveLocalPersonaPortraitSrc({
+        role: row.role,
         personaName: row.title,
-        personaRecord: null,
+        index,
+        audienceKind,
+        seedKey: seed,
+        avoidHeritageGroups: usedHeritageGroups,
+      });
+      usedHeritageGroups.push(local.heritageGroup);
+      const aligned = alignPersonaNameToPortraitHeritage({
+        personaName: row.title,
+        portraitHeritage: local.heritageGroup,
+        seedKey: seed,
       });
       return {
         ...row,
-        portraitSrc,
-        portraitRemote: true,
+        title: aligned.name,
+        portraitSrc: local.src,
+        portraitRemote: false,
+        portraitAlt: `Illustrated persona: ${aligned.name} (${row.role})`,
         messageAngle:
           row.key === "static-vp-ops"
-            ? `${brandName} helps operations leaders remove ${gap} with owner-ready rollout sequencing.`
+            ? `${brandName} helps operations leaders remove ${gap} with a clear rollout sequence your team can run.`
             : row.key === "static-cfo-coo"
               ? `${brandName} improves ${pillar} outcomes with measurable impact on decision velocity and execution efficiency.`
               : `${brandName} gives RevOps leaders a clarity-first operating model that keeps cross-functional execution accountable.`,
@@ -181,22 +197,31 @@ export function buildFoundationPersonaAtlasEntries(params: {
 
   return raw.slice(0, 3).map((item, index) => {
     const o = asRecord(item) ?? {};
-    const personaName = asString(o.personaName) || asString(o.name) || `Persona ${index + 1}`;
+    const rawName = asString(o.personaName) || asString(o.name) || `Persona ${index + 1}`;
     const role = asString(o.role) || asString(o.jobTitle) || "Decision maker";
     const seed = buildPersonaPortraitSeed({
       reportId: params.reportId,
       companyName: params.businessName,
-      personaName,
+      personaName: rawName,
       role,
       index,
     });
-    const portraitSrc = dicebearPersonaPortraitUrlForPersona({
-      seed,
+    const local = resolveLocalPersonaPortraitSrc({
+      role,
+      personaName: rawName,
       index,
-      diagnostic: params.diagnosticData,
-      personaName,
+      audienceKind,
       personaRecord: o,
+      seedKey: seed,
+      avoidHeritageGroups: usedHeritageGroups,
     });
+    usedHeritageGroups.push(local.heritageGroup);
+    const aligned = alignPersonaNameToPortraitHeritage({
+      personaName: rawName,
+      portraitHeritage: local.heritageGroup,
+      seedKey: seed,
+    });
+    const personaName = aligned.name;
     const ma = asString(o.messagingAngle) || asString(o.messaging_angle);
     const messageAngle =
       ma ||
@@ -207,9 +232,9 @@ export function buildFoundationPersonaAtlasEntries(params: {
       tabLabel: tabLabelFromRole(role, index),
       title: personaName,
       role,
-      portraitSrc,
-      portraitAlt: `Generated illustration for buyer persona: ${personaName} (${role})`,
-      portraitRemote: true,
+      portraitSrc: local.src,
+      portraitAlt: `Illustrated persona: ${personaName} (${role})`,
+      portraitRemote: false,
       goals: goalsFromPersona(o),
       fears: fearsFromPersona(o),
       messageAngle,

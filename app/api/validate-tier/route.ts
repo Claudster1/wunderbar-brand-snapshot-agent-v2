@@ -23,19 +23,23 @@ export async function GET(req: Request) {
   }
 
   try {
-    const { validateTierToken } = await import("@/lib/security/tierToken");
+    const { normalizeAccessTier, validateTierToken } = await import("@/lib/security/tierToken");
     const result = validateTierToken(token);
 
     if (!result.valid) {
       return NextResponse.json({ valid: false, reason: result.reason });
     }
 
-    // Token tier must match requested tier
-    if (result.tier !== tier) {
+    // Token tier must match requested tier (underscores / hyphens / refresh SKUs normalize)
+    if (normalizeAccessTier(result.tier) !== normalizeAccessTier(tier)) {
       return NextResponse.json({ valid: false, reason: "tier_mismatch" });
     }
 
-    return NextResponse.json({ valid: true, email: result.email });
+    return NextResponse.json({
+      valid: true,
+      email: result.email,
+      tier: normalizeAccessTier(result.tier) || result.tier,
+    });
   } catch (err) {
     logger.error("[Validate Tier] Error", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ valid: false, reason: "server_error" });

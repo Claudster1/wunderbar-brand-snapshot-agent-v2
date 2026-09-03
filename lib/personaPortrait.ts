@@ -66,7 +66,7 @@ const BG_B2B = ["e8f6fe", "e6f0ff", "eef6ff", "e0f2fe", "f0f4ff"] as const;
 const BG_B2C = ["fff4ec", "fef3e2", "fdf2f8", "fff1f2", "fef9c3"] as const;
 const BG_NEUTRAL = ["e8f6fe", "f4f0ff", "f0f9ff", "ecfdf5", "fdf4ff"] as const;
 
-export type PersonaAudienceKind = "b2b" | "b2c" | "unknown";
+export type PersonaAudienceKind = "b2b" | "b2c" | "youth" | "unknown";
 
 export type PersonaPortraitGenderHint = "male" | "female" | "unknown";
 
@@ -251,6 +251,13 @@ export function inferPersonaAudienceKind(
     .join(" ")
     .toLowerCase();
 
+  if (
+    /\b(teens?|teenagers?|youth market|gen ?alpha|middle[- ]school|high[- ]school|school[- ]age|kids? ages? 1[3-7])\b/.test(
+      corpus,
+    )
+  ) {
+    return "youth";
+  }
   if (
     /\b(b2c|consumer|consumers|shoppers?|patients?|guests?|parents?|homeowners?|dtc|direct[- ]to[- ]consumer|e-?commerce|retail|boutique)\b/.test(
       corpus,

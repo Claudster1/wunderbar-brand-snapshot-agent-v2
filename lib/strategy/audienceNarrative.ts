@@ -1,4 +1,9 @@
-import { buildPersonaPortraitSeed, dicebearPersonaPortraitUrlForPersona } from "@/lib/personaPortrait";
+import { buildPersonaPortraitSeed, inferPersonaAudienceKind } from "@/lib/personaPortrait";
+import {
+  resolveLocalPersonaPortraitSrc,
+  type PersonaHeritageGroup,
+} from "@/lib/personaPortraitAssets";
+import { alignPersonaNameToPortraitHeritage } from "@/lib/personaPortraitHeritage";
 
 /** Normalize audience fields from report / workbook / enrichment (string or `{ description }`). */
 export function audienceFieldToString(v: unknown): string {
@@ -607,7 +612,7 @@ export type StrategyBuyerPersonaCard = {
   title: string;
   subtitle: string;
   rows: Array<{ label: string; value: string }>;
-  /** Same deterministic Notionists avatars as Foundation Persona Atlas */
+  /** Same local WunderBrand persona illustrations as Foundation Persona Atlas */
   portraitSrc: string;
   portraitAlt: string;
 };
@@ -625,11 +630,13 @@ export function buyerPersonasToStrategyCards(
 ): StrategyBuyerPersonaCard[] {
   if (!Array.isArray(list) || list.length === 0) return [];
   const out: StrategyBuyerPersonaCard[] = [];
+  const usedHeritageGroups: PersonaHeritageGroup[] = [];
+  const audienceKind = inferPersonaAudienceKind(ctx?.diagnostic ?? undefined);
   for (let i = 0; i < list.length && i < 8; i++) {
     const raw = list[i];
     if (!raw || typeof raw !== "object" || Array.isArray(raw)) continue;
     const p = raw as Record<string, unknown>;
-    const title = asStr(p.personaName) || `Persona ${i + 1}`;
+    const rawTitle = asStr(p.personaName) || `Persona ${i + 1}`;
     const subtitle =
       [asStr(p.role), asStr(p.icpAlignment)].filter(Boolean).join(" · ") ||
       "Buyer role";
@@ -638,10 +645,26 @@ export function buyerPersonasToStrategyCards(
     const seed = buildPersonaPortraitSeed({
       reportId: ctx?.reportId,
       companyName: ctx?.companyName?.trim() ?? "",
-      personaName: title,
+      personaName: rawTitle,
       role: roleForSeed,
       index: i,
     });
+    const local = resolveLocalPersonaPortraitSrc({
+      role: roleForSeed,
+      personaName: rawTitle,
+      index: i,
+      audienceKind,
+      personaRecord: p,
+      seedKey: seed,
+      avoidHeritageGroups: usedHeritageGroups,
+    });
+    usedHeritageGroups.push(local.heritageGroup);
+    const aligned = alignPersonaNameToPortraitHeritage({
+      personaName: rawTitle,
+      portraitHeritage: local.heritageGroup,
+      seedKey: seed,
+    });
+    const title = aligned.name;
     const rows: Array<{ label: string; value: string }> = [];
     const add = (label: string, v: string) => {
       const t = v.trim();
@@ -671,13 +694,7 @@ export function buyerPersonasToStrategyCards(
       title,
       subtitle,
       rows,
-      portraitSrc: dicebearPersonaPortraitUrlForPersona({
-        seed,
-        index: i,
-        diagnostic: ctx?.diagnostic,
-        personaName: title,
-        personaRecord: p,
-      }),
+      portraitSrc: local.src,
       portraitAlt: `Illustrated persona: ${title} (${roleForSeed})`,
     });
   }

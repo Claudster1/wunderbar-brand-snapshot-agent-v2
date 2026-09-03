@@ -12,7 +12,7 @@ import { createRefreshEntitlement } from "@/lib/refreshEntitlements";
 import { brandNameFromCheckoutSession } from "@/lib/stripe/checkoutBrandField";
 import { logger } from "@/lib/logger";
 import { POST_PURCHASE_EMAILS, type EmailTier } from "@/content/postPurchaseEmails";
-import { trackActiveCampaignSiteEvent } from "@/lib/fireACEvent";
+import { fireACEvent, trackActiveCampaignSiteEvent } from "@/lib/fireACEvent";
 import {
   getStripeWebhookSecrets,
   stripeWebhookSecretFingerprint,
@@ -817,6 +817,28 @@ async function triggerActiveCampaign({
     }
   }
 
+  // Alias event for older AC automations / docs that listen for `start_diagnostic`
+  try {
+    await fireACEvent({
+      email,
+      eventName: "start_diagnostic",
+      tags: [`onboarding:${tierSlug}`, "onboarding:awaiting-start"],
+      fields: {
+        first_name: customerName || "",
+        product_key: productKey,
+        product_name: PRODUCT_DISPLAY_NAMES[productKey],
+        start_diagnostic_link: startDiagnosticLink,
+        access_claim_link: accessClaimUrl,
+        dashboard_link: `${BASE_URL}/dashboard`,
+        purchased_brand_name: brandName || "",
+      },
+    });
+  } catch (err) {
+    logger.warn("[Stripe Webhook] start_diagnostic AC event failed", {
+      error: err instanceof Error ? err.message : String(err),
+    });
+  }
+
   // --- Fire "report_ready" event (AC automation sends email with report link) ---
   if (AC_WEBHOOK_URL) {
     try {
@@ -856,6 +878,7 @@ async function triggerActiveCampaign({
   //     "event is recorded", independent of the legacy JSON webhook above. ---
   await Promise.all([
     trackActiveCampaignSiteEvent({ email, eventName: "purchase_complete", eventData: productKey }),
+    trackActiveCampaignSiteEvent({ email, eventName: "start_diagnostic", eventData: productKey }),
     trackActiveCampaignSiteEvent({ email, eventName: "report_ready", eventData: reportLink }),
   ]);
 

@@ -56,11 +56,40 @@ export async function markPurchasesFulfilledForEmail(
     try {
       await removeActiveCampaignTags({
         email: normalized,
-        tags: ["onboarding:awaiting-start"],
+        tags: [
+          "onboarding:awaiting-start",
+          "reminder:purchase-start-2d",
+          "reminder:purchase-start-7d",
+          "reminder:purchase-start-21d",
+        ],
       });
       await applyActiveCampaignTags({
         email: normalized,
         tags: ["diagnostic:completed"],
+      });
+      const { fireACEvent, trackActiveCampaignSiteEvent } = await import("@/lib/fireACEvent");
+      const baseUrl =
+        process.env.NEXT_PUBLIC_BASE_URL ||
+        process.env.NEXT_PUBLIC_APP_URL ||
+        "https://app.wunderbrand.ai";
+      const reportLink =
+        reportId && /^[0-9a-f-]{36}$/i.test(reportId)
+          ? `${baseUrl.replace(/\/$/, "")}/report/${reportId}`
+          : `${baseUrl.replace(/\/$/, "")}/dashboard`;
+      await fireACEvent({
+        email: normalized,
+        eventName: "diagnostic_completed",
+        tags: ["diagnostic:completed"],
+        fields: {
+          report_link: reportLink,
+          report_id: reportId || "",
+          dashboard_link: `${baseUrl.replace(/\/$/, "")}/dashboard`,
+        },
+      });
+      await trackActiveCampaignSiteEvent({
+        email: normalized,
+        eventName: "diagnostic_completed",
+        eventData: reportId || "completed",
       });
     } catch (acErr) {
       logger.warn("[markPurchasesFulfilled] AC tag update failed", {

@@ -211,25 +211,34 @@ Personalize with %ABANDONEDPRODUCT%, %ABANDONEDPRODUCTPRICE%, %ABANDONEDPRODUCTU
 ```
 
 ### 4.3 — Post-purchase onboarding / welcome
-- **Goal:** activate the buyer, deliver next steps, reduce refunds.
-- **Entry trigger:** tag `onboarding:snapshot-plus` (build one per tier, or a single flow entered by
-  any `onboarding:*` tag with tier branching). *(live)*
-- **Exit goal:** none (transactional); or refund tag `purchase:refunded`.
-- **Personalization:** `%PRODUCTPURCHASED%`, `%DASHBOARDLINK%`, `%REPORTLINK%`.
-- **Copy source:** `docs/EMAIL_BLUEPRINT_INVITATION.md` and product pages for tier specifics.
-- **Flow:** Email 1 (immediate welcome + how to start/access) → wait 2d → Email 2 (get-the-most-out-of-it tips) → wait 5d → Email 3 (check-in + surface next tier).
+- **Goal:** activate the buyer with one-click access; exit when they finish the diagnostic.
+- **Entry trigger:** tag **`onboarding:awaiting-start`** (also applied with `onboarding:snapshot-plus` /
+  `onboarding:blueprint` / `onboarding:blueprint-plus`). *(live — Stripe webhook)*
+- **Exit goal:** tag **`diagnostic:completed`** (applied when `/api/snapshot/complete` marks the
+  purchase fulfilled). Also exit if `onboarding:awaiting-start` is removed.
+- **Personalization:** `%ACCESS_CLAIM_LINK%` / `access_claim_link` (preferred CTA),
+  `%START_DIAGNOSTIC_LINK%`, `%DASHBOARD_LINK%`, `%PRODUCT_PURCHASED%`, `%PURCHASED_BRAND_NAME%`.
+- **Important:** Day 2 / 7 / 21 “start now” nudges are sent by the **app (Resend cron)**.
+  Do **not** duplicate those waits in AC. See [ACTIVECAMPAIGN_PURCHASE_ACCESS.md](./ACTIVECAMPAIGN_PURCHASE_ACCESS.md).
+- **Flow:** Email 1 (immediate welcome + claim-link CTA) → optional wait 4d tips email **only if**
+  still `onboarding:awaiting-start` → end.
 
 **AI builder prompt:**
 ```
-Create an automation named "Post-Purchase Onboarding".
-Trigger: when any tag matching "onboarding:snapshot-plus", "onboarding:blueprint", or
-"onboarding:blueprint-plus" is added. Runs once per contact.
-Branch on the tier tag to swap product-specific copy.
-Steps: send welcome Email 1 now; wait 2 days; send Email 2 (tips); wait 5 days; send Email 3
-(check-in + next-tier CTA using %UPGRADEPRODUCTNAME% / %UPGRADEPRODUCTURL%); end.
-Personalize with %PRODUCTPURCHASED%, %DASHBOARDLINK%, %REPORTLINK%.
+Create or update automation "Post-Purchase Onboarding".
+Trigger: tag "onboarding:awaiting-start" is added. Runs once per contact.
+Goal (exit): tag "diagnostic:completed" is added OR "onboarding:awaiting-start" is removed.
+Steps: send Email 1 now with primary CTA = field access_claim_link (fallback start_diagnostic_link);
+wait 4 days; if contact still has onboarding:awaiting-start, send Email 2 (tips only, same CTA); end.
+Do not send day-2/7/21 start reminders — the app Resend cron owns those.
+Personalize with access_claim_link, start_diagnostic_link, dashboard_link, product_purchased.
 ```
 
+### 4.3b — Purchase start reminder tags (app-owned email)
+- **Tags (live):** `reminder:purchase-start-2d`, `reminder:purchase-start-7d`, `reminder:purchase-start-21d`
+- **Events:** `purchase_start_reminder_2d` / `_7d` / `_21d`
+- **Use in AC:** lead score / CRM notes only — **do not** send email (Resend already did).
+- Cleared automatically when `diagnostic:completed` is applied.
 ### 4.4 — Upgrade ladder (Snapshot+ → Blueprint → Blueprint+)
 - **Goal:** move customers up the $497 → $997 → $1,997 ladder (upgrade credits apply).
 - **Entry trigger:** tag `intent:upgrade-blueprint` or `intent:upgrade-blueprint-plus`. *(live — applied at purchase)*

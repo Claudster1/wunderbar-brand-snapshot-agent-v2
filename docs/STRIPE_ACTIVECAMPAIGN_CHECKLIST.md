@@ -93,7 +93,22 @@ Create these tags in ActiveCampaign (Settings → Tags) so the webhook can apply
 | `intent:upgrade-blueprint` | In Blueprint nurture; applied after Snapshot+ purchase, removed when they purchase Blueprint |
 | `intent:upgrade-blueprint-plus` | Optional; removed when they purchase Blueprint+ |
 | `nurture:other-services` | In "other services" nurture (managed marketing, AI consulting); **applied** when they purchase Blueprint+ |
+| `onboarding:awaiting-start` | Applied at paid purchase; removed when diagnostic completes |
+| `diagnostic:completed` | Applied when paid diagnostic is completed |
+| `reminder:purchase-start-2d` | App cron (~day 2) if still unfulfilled — Resend already emailed |
+| `reminder:purchase-start-7d` | App cron (~day 7) if still unfulfilled |
+| `reminder:purchase-start-21d` | App cron (~day 21) if still unfulfilled |
 
+### Custom fields (purchase access)
+
+| Field title | Purpose |
+|-------------|---------|
+| `access_claim_link` | 90-day one-click claim URL (preferred email CTA) |
+| `start_diagnostic_link` | Same URL (alias for older templates) |
+| `dashboard_link` | Dashboard fallback |
+| `purchased_brand_name` | Brand licensed on Checkout |
+
+See [ACTIVECAMPAIGN_PURCHASE_ACCESS.md](./ACTIVECAMPAIGN_PURCHASE_ACCESS.md) for the operator automation checklist.
 ### Nurture sequence flow
 
 1. **Snapshot+ nurture** — Trigger: Tag added `intent:upgrade-snapshot-plus`. When they **purchase Snapshot+**: that tag is **removed** (exit sequence); `purchased:snapshot-plus` and `intent:upgrade-blueprint` are **added** (enter Blueprint nurture).
@@ -102,6 +117,11 @@ Create these tags in ActiveCampaign (Settings → Tags) so the webhook can apply
 4. **Other services nurture** (managed marketing, AI consulting) — Trigger: Tag added `nurture:other-services`. Use this automation to promote managed marketing and AI consulting (no product upsell).
 
 ### Automations to build in AC
+
+- **Tag added: `onboarding:awaiting-start`**  
+  → Post-purchase welcome with **`access_claim_link` CTA**; exit on `diagnostic:completed`.  
+  → Do **not** duplicate day-2/7/21 start nudges (app Resend cron).  
+  → Details: [ACTIVECAMPAIGN_PURCHASE_ACCESS.md](./ACTIVECAMPAIGN_PURCHASE_ACCESS.md)
 
 - **Tag added: `purchased:snapshot-plus`**  
   → Send “Welcome to Snapshot+”, link to report/dashboard, etc.

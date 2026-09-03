@@ -1069,14 +1069,14 @@ export default function HomePageClient({
                 />
               </div>
               <div className="assessment-progress-label">
-                <span>
+                <span className="assessment-progress-eyebrow">
                   {assessmentProgress < 30
-                    ? "Getting started..."
+                    ? "GETTING STARTED"
                     : assessmentProgress < 60
-                    ? "Making progress..."
+                    ? "MAKING PROGRESS"
                     : assessmentProgress < 85
-                    ? "Almost there..."
-                    : "Wrapping up!"}
+                    ? "ALMOST THERE"
+                    : "WRAPPING UP"}
                 </span>
                 <span>
                   {assessmentProgress}% complete

@@ -44,6 +44,7 @@ import { SUITE_BG_PAGE, SUITE_CHIP_CARD_STYLE, SUITE_SECTION_KICKER_CLASS } from
 import { ResultsArchetypeSection } from "@/app/results/components/ResultsArchetypeSection";
 import { RecommendationCard } from "@/src/components/results/RecommendationCard";
 import { ResultsSnapshotLeadGate } from "@/app/results/components/ResultsSnapshotLeadGate";
+import { ReportAccessDenied } from "@/components/reports/ReportAccessDenied";
 import { getChatTierConfig, type ChatTier } from "@/lib/chatTierConfig";
 import {
   isPaidReportTier,
@@ -51,8 +52,10 @@ import {
   resolveStoredProductTier,
 } from "@/lib/results/resolveReportProductTier";
 import { isResultsEmailUnlocked } from "@/lib/results/resultsEmailUnlock";
+import { authorizeReportPageRead } from "@/lib/reportAccess";
 import { ResultsBottomFunnel } from "@/app/results/components/ResultsBottomFunnel";
 import { SnapshotDocumentResults } from "@/components/results/snapshotDocument/SnapshotDocumentResults";
+import { headers } from "next/headers";
 
 const PillarBreakdown = nextDynamic(
   () => import("@/components/PillarBreakdown").then((m) => ({ default: m.PillarBreakdown })),
@@ -456,6 +459,61 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
     typeof reportAnswers.userName === "string" && reportAnswers.userName.trim()
       ? reportAnswers.userName.trim().split(/\s+/)[0]
       : undefined;
+
+  const headerList = await headers();
+  const shareTokenRaw = resolved.shareToken ?? resolved.token;
+  const shareToken =
+    typeof shareTokenRaw === "string"
+      ? shareTokenRaw
+      : Array.isArray(shareTokenRaw)
+        ? shareTokenRaw[0]
+        : null;
+  const access = await authorizeReportPageRead({
+    reportId: String(data.reportId || reportId),
+    reportOwnerEmail: typeof data.userEmail === "string" ? data.userEmail : null,
+    cookieHeader: headerList.get("cookie"),
+    shareToken,
+  });
+
+  const returnTo = `/results?reportId=${encodeURIComponent(String(data.reportId || reportId))}`;
+
+  // Free Snapshot before email unlock: only render capture UI (never SSR the report body),
+  // even if a verified session already exists from another flow.
+  if (showSnapshotLeadEmail) {
+    return (
+      <main className="min-h-screen font-brand px-4 py-12" style={{ backgroundColor: "#F5F7FA" }}>
+        <div className="mx-auto w-full max-w-[40rem]">
+          <h1 className="bs-h2 mb-2 text-center text-[#021859]">Your WunderBrand Snapshot™ is ready</h1>
+          <p className="bs-body mb-8 text-center text-brand-muted">
+            Enter your email to unlock your results and get a link in your inbox.
+          </p>
+          <ResultsSnapshotLeadGate
+            reportId={String(data.reportId || reportId)}
+            requiresEmailGate
+            initiallyUnlocked={false}
+            productTier="snapshot"
+            productName={snapshotLeadProductName}
+            {...(snapshotLeadFirstNameHint ? { firstNameHint: snapshotLeadFirstNameHint } : {})}
+            reloadOnUnlock
+          >
+            {null}
+          </ResultsSnapshotLeadGate>
+        </div>
+      </main>
+    );
+  }
+
+  // Unlocked / paid reports require a verified session or share token.
+  if (!access.hasAccess) {
+    return (
+      <ReportAccessDenied
+        reportId={String(data.reportId || reportId)}
+        returnTo={returnTo}
+        allowSessionRemint
+      />
+    );
+  }
+
   const upstreamPillar = getUpstreamPillar(data.pillarScores, primaryPillarStr);
   const primaryRecommendation = recommendationsList[0] ?? "Align your top-of-funnel narrative to the strongest audience need.";
   const competitiveSeverity: SignalSeverity =

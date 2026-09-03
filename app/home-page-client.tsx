@@ -88,45 +88,76 @@ export default function HomePageClient({
   const tierTokenParam = tokenParam;
 
   // ─── Security: Validate paid tier access ───
-  // If someone visits /?tier=blueprint without a valid token, downgrade to free tier
+  // If someone visits /?tier=blueprint without a valid token, try resume from
+  // verified-session + purchase ledger before downgrading to free.
   const [validatedTier, setValidatedTier] = useState(tier === "snapshot" ? "snapshot" : "pending");
   useEffect(() => {
     if (tier === "snapshot") {
       setValidatedTier("snapshot");
       return;
     }
-    // Paid tier: validate token
-    if (!tierTokenParam) {
-      console.warn("[Tier] No token for paid tier — downgrading to snapshot");
-      setValidatedTier("snapshot");
-      return;
-    }
-    fetch(`/api/validate-tier?token=${encodeURIComponent(tierTokenParam)}&tier=${tier}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.valid) {
-          setValidatedTier(tier);
-        } else {
+
+    let cancelled = false;
+
+    async function unlockPaidTier() {
+      if (tierTokenParam) {
+        try {
+          const res = await fetch(
+            `/api/validate-tier?token=${encodeURIComponent(tierTokenParam)}&tier=${tier}`,
+          );
+          const data = await res.json();
+          if (cancelled) return;
+          if (data.valid) {
+            setValidatedTier(tier);
+            return;
+          }
           console.warn("[Tier] Token validation failed:", data.reason);
-          setValidatedTier("snapshot");
+        } catch {
+          if (cancelled) return;
         }
-      })
-      .catch(() => {
-        setValidatedTier("snapshot");
-      });
+      } else {
+        console.warn("[Tier] No token for paid tier — trying purchase resume");
+      }
+
+      try {
+        const resume = await fetch(
+          `/api/access/resume-tier?tier=${encodeURIComponent(tier)}`,
+          { credentials: "include" },
+        );
+        const body = await resume.json().catch(() => null);
+        if (cancelled) return;
+        if (resume.ok && body?.ok && body.token && body.tier) {
+          const params = new URLSearchParams(window.location.search);
+          params.set("tier", body.tier);
+          params.set("token", body.token);
+          window.history.replaceState({}, "", `/?${params.toString()}`);
+          setValidatedTier(body.tier);
+          return;
+        }
+      } catch {
+        if (cancelled) return;
+      }
+
+      if (!cancelled) setValidatedTier("snapshot");
+    }
+
+    void unlockPaidTier();
+    return () => {
+      cancelled = true;
+    };
   }, [tier, tierTokenParam]);
 
-  // Use URL tier optimistically while validating token so resume + upgrade continuation use paid intake rules immediately.
+  // Use URL tier optimistically while validating token / purchase resume so
+  // resume + upgrade continuation use paid intake rules immediately.
   const activeTier: ChatTier =
-    validatedTier === "pending" && tier !== "snapshot" && tierTokenParam
+    validatedTier === "pending" && tier !== "snapshot"
       ? tier
       : validatedTier === "pending"
         ? "snapshot"
         : (validatedTier as ChatTier);
   const activeTierConfig = useMemo(() => getChatTierConfig(activeTier), [activeTier]);
-  /** Wait for /api/validate-tier before loading ?resume= so paid upgrade continuation uses the correct product tier. */
-  const resumeHoldUntilValidated =
-    tier !== "snapshot" && Boolean(tierTokenParam) && validatedTier === "pending";
+  /** Wait for token validate or purchase resume before loading ?resume=. */
+  const resumeHoldUntilValidated = tier !== "snapshot" && validatedTier === "pending";
 
   // Greeting resolution:
   //   Name known (any tier) → interpolate {firstName} in greeting, complete intro in one message

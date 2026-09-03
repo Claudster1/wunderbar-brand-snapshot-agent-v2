@@ -82,6 +82,12 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    const resolvedProductKey =
+      (typeof rawProductKey === "string" && rawProductKey.trim()
+        ? rawProductKey.trim().toLowerCase().replace(/-/g, "_")
+        : null) || priceIdToProductKey(priceId);
+    const productSlug = (resolvedProductKey || "snapshot_plus").replaceAll("_", "-");
+
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       mode: "payment",
       // Klarna/Afterpay enabled — must also be enabled in Stripe Dashboard → Settings → Payment Methods
@@ -94,12 +100,11 @@ export async function POST(req: NextRequest) {
       ],
       customer_email: email,
       custom_fields: checkoutBrandCustomFields(),
-      custom_text: checkoutBrandPolicyCustomText(
-        rawProductKey || priceIdToProductKey(priceId),
-      ),
-      success_url: `${baseUrl}/checkout/success?product=snapshot-plus&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/checkout/cancel?product=snapshot-plus`,
+      custom_text: checkoutBrandPolicyCustomText(resolvedProductKey),
+      success_url: `${baseUrl}/checkout/success?product=${productSlug}&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/checkout/cancel?product=${productSlug}`,
       metadata: {
+        ...(resolvedProductKey ? { product_key: resolvedProductKey } : {}),
         snapshot_id: snapshotId ?? "",
         ...(smsOptedIn === true ? { sms_opted_in: "true", sms_optin_source: "create_checkout_session" } : {}),
         ...(emailMarketingOptedIn === true

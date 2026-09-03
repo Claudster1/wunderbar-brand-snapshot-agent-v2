@@ -21,7 +21,7 @@ export const POST_PURCHASE_EMAILS: Record<EmailTier, PostPurchaseEmail> = {
     subject:
       "Your WunderBrand Snapshot+\u2122 is ready \u2014 here\u2019s what\u2019s waiting for you",
     opening:
-      "You\u2019re about to have the clearest picture of your brand you\u2019ve ever had. Here\u2019s how to get started.",
+      "Smart call — you just unlocked the clearest picture of your brand you\u2019ve ever had. Here\u2019s how to get started (one click unlocks access).",
     checklistIntro:
       "Before you begin, it helps to have these handy \u2014 but you may not have all of them, or any of them, and that\u2019s completely fine. Wundy\u2122 works with whatever you bring.",
     checklistItems: [
@@ -37,14 +37,14 @@ export const POST_PURCHASE_EMAILS: Record<EmailTier, PostPurchaseEmail> = {
     sessionNote: null,
     buttonLabel: "Start Your WunderBrand Snapshot+\u2122 \u2192",
     closing:
-      "Not ready yet? No rush. Your progress saves automatically, and you can pause and come back anytime.",
+      "Not ready yet? No rush. Use the access button in this email anytime in the next 90 days — your purchase stays attached to this email, and progress saves automatically. We\u2019ll send a few gentle reminders if you haven\u2019t finished yet.",
   },
 
   blueprint: {
     subject:
       "Your brand strategy starts now \u2014 here\u2019s how to begin",
     opening:
-      "Your complete brand strategy starts with a single conversation. Here\u2019s what to expect \u2014 and how to get the most out of it.",
+      "You chose strategy mapped with an activation-ready plan — that\u2019s the move that turns clarity into execution. Here\u2019s what to expect, and a one-click link to open your Blueprint\u2122.",
     checklistIntro:
       "You may not have all of this \u2014 or any of it \u2014 and that\u2019s completely fine. Wundy\u2122 meets you where you are. Any materials you can share will directly sharpen your results.",
     checklistItems: [
@@ -64,14 +64,14 @@ export const POST_PURCHASE_EMAILS: Record<EmailTier, PostPurchaseEmail> = {
     sessionNote: null,
     buttonLabel: "Start Your WunderBrand Blueprint\u2122 \u2192",
     closing:
-      "Not ready yet? No rush. Your progress saves automatically, and you can pause and come back anytime.",
+      "Not ready yet? No rush. Use the access button in this email anytime in the next 90 days — your purchase stays attached to this email, and progress saves automatically. We\u2019ll send a few gentle reminders if you haven\u2019t finished yet.",
   },
 
   blueprint_plus: {
     subject:
       "You\u2019re all set \u2014 your WunderBrand Blueprint+\u2122 is ready to start",
     opening:
-      "You\u2019ve made a significant investment in your brand. Here\u2019s everything that\u2019s waiting for you \u2014 and how to make the most of it.",
+      "You invested in the full strategic system — clarity, activation, and a Strategy Activation Session. Here\u2019s everything waiting for you, with one-click access to start.",
     checklistIntro:
       "You may not have all of this \u2014 or any of it \u2014 and that\u2019s completely fine. Wundy\u2122 will build you a strong diagnostic regardless. Any materials you can upload become part of what Wundy\u2122 analyzes \u2014 the more context you bring, the more precisely your results will reflect where your brand actually stands today.",
     checklistItems: [
@@ -96,7 +96,7 @@ export const POST_PURCHASE_EMAILS: Record<EmailTier, PostPurchaseEmail> = {
       "Your complimentary Strategy Activation Session is available for 30 days from the date your results are generated. We recommend completing your diagnostic soon so you have the full window to book your session.",
     buttonLabel: "Start Your WunderBrand Blueprint+\u2122 \u2192",
     closing:
-      "Not ready yet? No rush. Your progress saves automatically, and you can pause and come back anytime.",
+      "Not ready yet? No rush. Use the access button in this email anytime in the next 90 days — your purchase stays attached to this email, and progress saves automatically. We\u2019ll send a few gentle reminders if you haven\u2019t finished yet.",
   },
 };
 

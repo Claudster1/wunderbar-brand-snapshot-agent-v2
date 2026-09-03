@@ -922,7 +922,8 @@ export function JourneyMapVisual({
                         margin: "4px 0 0",
                         fontSize: 10,
                         fontWeight: 700,
-                        letterSpacing: "0.06em",
+                        letterSpacing: "0.1em",
+                        textTransform: "uppercase",
                         color: SUB,
                         fontFamily: SUITE_FONT_UI,
                       }}
@@ -970,7 +971,7 @@ export function FunnelVisual({
                 padding: "12px 14px",
               }}
             >
-              <p style={{ margin: 0, fontSize: 12, fontWeight: 600, letterSpacing: "0.08em", color: BLUE }}>{step.label}</p>
+              <p style={{ margin: 0, fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: BLUE }}>{step.label}</p>
               <p style={{ margin: "4px 0 0", fontSize: 12, color: SUB, lineHeight: 1.45 }}>{step.detail}</p>
             </div>
           );
@@ -1110,7 +1111,8 @@ export function SwotVisual({
               fontSize: 11,
               fontWeight: 800,
               color: NAVY,
-              letterSpacing: "0.06em",
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
             }}
           >
             Named competitors
@@ -1163,14 +1165,15 @@ export function SwotVisual({
           fontSize: 11,
           fontWeight: 800,
           color: NAVY,
-          letterSpacing: "0.06em",
+          letterSpacing: "0.1em",
+          textTransform: "uppercase",
         }}
       >
         SWOT snapshot
       </p>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <div style={{ ...cardStyle, borderLeft: "3px solid #16A34A", background: "#F0FDF4" }}>
-          <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: "#166534" }}>
+          <p style={{ margin: 0, fontSize: 11, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "#166534" }}>
             Strengths
           </p>
           {strengths.slice(0, 2).map((item, index) => (
@@ -1180,7 +1183,7 @@ export function SwotVisual({
           ))}
         </div>
         <div style={{ ...cardStyle, borderLeft: "3px solid #DC2626", background: "#FEF2F2" }}>
-          <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: "#991B1B" }}>
+          <p style={{ margin: 0, fontSize: 11, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "#991B1B" }}>
             Weaknesses
           </p>
           {weaknesses.slice(0, 2).map((item, index) => (
@@ -1190,7 +1193,7 @@ export function SwotVisual({
           ))}
         </div>
         <div style={{ ...cardStyle, borderLeft: "3px solid #0284C7", background: "#F0F9FF" }}>
-          <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: "#0369A1" }}>
+          <p style={{ margin: 0, fontSize: 11, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "#0369A1" }}>
             Opportunities
           </p>
           {opportunities.slice(0, 2).map((item, index) => (
@@ -1200,7 +1203,7 @@ export function SwotVisual({
           ))}
         </div>
         <div style={{ ...cardStyle, borderLeft: "3px solid #B45309", background: "#FFF7ED" }}>
-          <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: "#9A3412" }}>
+          <p style={{ margin: 0, fontSize: 11, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "#9A3412" }}>
             Threats
           </p>
           {threats.slice(0, 2).map((item, index) => (

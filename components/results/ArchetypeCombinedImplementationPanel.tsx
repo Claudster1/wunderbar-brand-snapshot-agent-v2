@@ -46,7 +46,8 @@ function ListBlock({
           margin: "0 0 10px",
           fontSize: 12,
           fontWeight: 700,
-          letterSpacing: "0.06em",
+          letterSpacing: "0.1em",
+          textTransform: "uppercase",
           color: accent,
           fontFamily: SUITE_FONT_UI,
         }}
@@ -103,7 +104,8 @@ export default function ArchetypeCombinedImplementationPanel({
           margin: "0 0 6px",
           fontSize: 12,
           fontWeight: 700,
-          letterSpacing: "0.08em",
+          letterSpacing: "0.1em",
+          textTransform: "uppercase",
           color: SUITE_ACCENT_BRIGHT,
         }}
       >
@@ -168,7 +170,8 @@ export default function ArchetypeCombinedImplementationPanel({
               margin: "0 0 4px",
               fontSize: 11,
               fontWeight: 700,
-              letterSpacing: "0.06em",
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
               color: SUITE_ACCENT_BRIGHT,
             }}
           >

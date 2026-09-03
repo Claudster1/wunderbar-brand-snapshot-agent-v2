@@ -267,7 +267,7 @@ export default function PaidMediaActivationCreatives({ strategy }: { strategy: R
             }}
           >
             <div style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 0, flex: "1 1 200px" }}>
-              <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: MID, letterSpacing: "0.06em" }}>
+              <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: MID, letterSpacing: "0.1em", textTransform: "uppercase" }}>
                 Channel creative (one at a time)
               </p>
               {platformSummary.length > 0 ? (

@@ -55,8 +55,12 @@ export async function GET(req: NextRequest) {
     let tierToken: string | null = null;
     if (rawProduct && email) {
       try {
-        const { createTierToken } = await import("@/lib/security/tierToken");
-        tierToken = createTierToken(rawProduct, email);
+        const { createTierToken, normalizeAccessTier } = await import("@/lib/security/tierToken");
+        // Mint with chat slug (snapshot-plus) so success → /?tier=snapshot-plus&token=… validates.
+        const chatTier = normalizeAccessTier(rawProduct);
+        if (chatTier && chatTier !== "snapshot") {
+          tierToken = createTierToken(chatTier, email);
+        }
       } catch (err) {
         logger.warn("[Session Email] Failed to create tier token", { error: err instanceof Error ? err.message : String(err) });
       }

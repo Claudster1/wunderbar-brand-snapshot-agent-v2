@@ -1216,7 +1216,7 @@ function SubsectionCard({ item, densityMode }: { item: Subsection; densityMode: 
                                 key={`${item.id}-cv-${index}-sec-${si}-${s.label}`}
                                 className={si === 0 ? "mt-5" : "mt-5 border-t border-slate-200/90 pt-5"}
                               >
-                                <p className="m-0 text-xs sm:text-sm font-medium tracking-[0.08em] text-brand-blue">
+                                <p className="m-0 text-xs sm:text-sm font-medium uppercase tracking-[0.1em] text-brand-blue">
                                   {s.label}
                                 </p>
                                 <p className="mt-2.5 text-[15px] sm:text-base leading-relaxed text-brand-midnight">
@@ -1267,7 +1267,7 @@ function SubsectionCard({ item, densityMode }: { item: Subsection; densityMode: 
                     >
                       {isExample ? (
                         <div className="mb-3 flex flex-wrap items-center gap-2">
-                          <span className="inline-flex rounded-md border border-amber-300/90 bg-white/90 px-2.5 py-1 text-xs font-medium tracking-[0.08em] text-amber-900">
+                          <span className="inline-flex rounded-md border border-amber-300/90 bg-white/90 px-2.5 py-1 text-xs font-medium uppercase tracking-[0.1em] text-amber-900">
                             Example
                           </span>
                           <span className="text-xs sm:text-sm font-medium leading-snug text-amber-900/75">
@@ -1275,7 +1275,7 @@ function SubsectionCard({ item, densityMode }: { item: Subsection; densityMode: 
                           </span>
                         </div>
                       ) : meta.tag ? (
-                        <span className="mb-2 inline-flex rounded-full border border-brand-border/70 bg-[#F0F9FF] px-2.5 py-1 text-xs sm:text-sm font-medium tracking-[0.08em] text-brand-blue">
+                        <span className="mb-2 inline-flex rounded-full border border-brand-border/70 bg-[#F0F9FF] px-2.5 py-1 text-xs sm:text-sm font-medium uppercase tracking-[0.1em] text-brand-blue">
                           {meta.tag}
                         </span>
                       ) : null}
@@ -1966,7 +1966,7 @@ export default function FoundationBlueprintContent({
                 .slice(0, 28);
               return (
                 <div className="mt-4">
-                  <div className="mb-2 hidden text-xs font-medium tracking-[0.08em] text-brand-muted md:grid md:grid-cols-3 md:gap-3">
+                  <div className="mb-2 hidden text-xs font-medium uppercase tracking-[0.1em] text-brand-muted md:grid md:grid-cols-3 md:gap-3">
                     <div>Organic Social</div>
                     <div>Paid Social Ad</div>
                     <div>Retargeting</div>
@@ -2225,7 +2225,7 @@ export default function FoundationBlueprintContent({
                     {item.title}
                   </p>
                   <span
-                    className="rounded-full px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold tracking-[0.06em]"
+                    className="rounded-full px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.1em]"
                     style={{ backgroundColor: item.tone.chip, color: item.tone.text }}
                   >
                     Differentiator
@@ -2704,7 +2704,7 @@ export default function FoundationBlueprintContent({
                     {stage.title}
                   </p>
                   <span
-                    className="rounded-full px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold tracking-[0.06em]"
+                    className="rounded-full px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.1em]"
                     style={{ backgroundColor: stage.color.chip, color: stage.color.text }}
                   >
                     {stageDurationById[stage.id]}
@@ -2882,7 +2882,7 @@ export default function FoundationBlueprintContent({
                       Q
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="text-xs sm:text-sm font-medium tracking-[0.08em] text-amber-900/85">{pair.tag} · Buyer Asks</p>
+                      <p className="text-xs sm:text-sm font-medium uppercase tracking-[0.1em] text-amber-900/85">{pair.tag} · Buyer Asks</p>
                       <p className="mt-1 text-[14px] font-semibold leading-snug text-brand-midnight">{pair.question}</p>
                     </div>
                   </div>
@@ -2906,7 +2906,7 @@ export default function FoundationBlueprintContent({
           </div>
 
           <div className="rounded-md border border-slate-200 bg-white px-4 py-3">
-            <p className="text-xs sm:text-sm font-medium tracking-[0.08em] text-brand-midnight mb-1">Response Sequence (Every Time)</p>
+            <p className="text-xs sm:text-sm font-medium uppercase tracking-[0.1em] text-brand-midnight mb-1">Response Sequence (Every Time)</p>
             <ol className="m-0 list-decimal space-y-1.5 pl-4 text-sm sm:text-base leading-relaxed text-brand-midnight">
               <li>Acknowledge the concern in their words.</li>
               <li>Reframe with strategic logic (why this matters before tactics).</li>
@@ -2917,13 +2917,13 @@ export default function FoundationBlueprintContent({
 
           {competitiveVulnerability.implication ? (
             <div className="rounded-md border border-brand-blue/25 bg-[#F0F9FF] px-4 py-3">
-              <p className="text-xs sm:text-sm font-medium tracking-[0.08em] text-brand-navy mb-1">Market-Specific Objection Cue</p>
+              <p className="text-xs sm:text-sm font-medium uppercase tracking-[0.1em] text-brand-navy mb-1">Market-Specific Objection Cue</p>
               <p className="text-sm sm:text-base text-brand-midnight leading-relaxed">{competitiveVulnerability.implication}</p>
             </div>
           ) : null}
 
           <div className="rounded-md border border-dashed border-slate-300 bg-slate-50/90 px-4 py-3">
-            <p className="text-xs sm:text-sm font-medium tracking-[0.08em] text-slate-600 mb-2">Sample Q&amp;A (Adapt)</p>
+            <p className="text-xs sm:text-sm font-medium uppercase tracking-[0.1em] text-slate-600 mb-2">Sample Q&amp;A (Adapt)</p>
             <div className="space-y-3">
               <div>
                 <p className="text-xs sm:text-sm font-semibold text-amber-900/90">Q</p>
@@ -4120,7 +4120,7 @@ Each ${brandName} initiative has one named owner and a specific timeline.`,
         >
           {sidebarGroups.map((group) => (
             <div key={group.label} className="rounded-xl bg-white p-3 shadow-[0_4px_18px_rgba(2,24,89,0.05)] ring-1 ring-slate-900/[0.05]">
-              <p className="px-2 pb-2 text-xs sm:text-sm font-semibold tracking-[0.1em] text-brand-blue">{group.label}</p>
+              <p className="px-2 pb-2 text-xs sm:text-sm font-semibold uppercase tracking-[0.1em] text-brand-blue">{group.label}</p>
               <div className="space-y-1.5">
                 {group.links.map((link) => (
                   <button
@@ -4203,11 +4203,11 @@ Each ${brandName} initiative has one named owner and a specific timeline.`,
                   ? "rounded-lg bg-[#FEF2F2]/90 px-3 py-3"
                   : "rounded-lg bg-[#FEF2F2]/90 px-3 py-3.5 sm:px-4 sm:py-4";
               const rowLabelClass =
-                "flex h-full min-h-[2.75rem] items-center text-xs font-medium tracking-[0.08em] leading-snug text-brand-muted pr-3";
+                "flex h-full min-h-[2.75rem] items-center text-xs font-medium uppercase tracking-[0.1em] leading-snug text-brand-muted pr-3";
               const rowLabelCompanyClass =
                 "flex h-full min-h-0 items-start py-2 pr-3 text-sm font-semibold leading-snug text-brand-navy break-words [hyphens:auto]";
               const rowLabelRiskClass =
-                "flex h-full min-h-[2.75rem] items-center text-xs font-medium tracking-[0.08em] leading-snug text-[#991B1B] pr-3";
+                "flex h-full min-h-[2.75rem] items-center text-xs font-medium uppercase tracking-[0.1em] leading-snug text-[#991B1B] pr-3";
               return (
                 <>
                   {/* Mobile / tablet: legend once; cards use spacing + color only (no repeated row headers) */}
@@ -4437,7 +4437,7 @@ Each ${brandName} initiative has one named owner and a specific timeline.`,
             return (
               <div className="overflow-hidden rounded-[5px] border border-brand-border bg-white">
                 <div className="border-b border-brand-border/80 bg-gradient-to-br from-[#F7FBFF] to-white px-4 py-4 sm:px-5 sm:py-5">
-                  <p className="m-0 text-xs font-semibold tracking-[0.08em] text-brand-blue sm:text-sm">
+                  <p className="m-0 text-xs font-semibold uppercase tracking-[0.1em] text-brand-blue sm:text-sm">
                     Voice map
                   </p>
                   <p className="m-0 mt-1.5 max-w-3xl text-sm leading-relaxed text-brand-muted sm:text-base">
@@ -4465,7 +4465,7 @@ Each ${brandName} initiative has one named owner and a specific timeline.`,
                       {coreTile.when}
                     </p>
                     <blockquote className="m-0 mt-4 rounded-[5px] border border-slate-200/90 bg-[#F8FBFF] px-4 py-3.5 sm:px-5">
-                      <p className="m-0 text-[11px] font-bold tracking-[0.06em] text-slate-500">Example</p>
+                      <p className="m-0 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-500">Example</p>
                       <p className="m-0 mt-2 text-[15px] leading-relaxed text-brand-midnight sm:text-base">
                         {coreTile.sample}
                       </p>
@@ -4496,7 +4496,7 @@ Each ${brandName} initiative has one named owner and a specific timeline.`,
                         </div>
                         <p className="m-0 mt-3 text-sm leading-relaxed text-brand-muted">{tile.when}</p>
                         <div className="mt-auto pt-4">
-                          <p className="m-0 text-[11px] font-bold tracking-[0.06em] text-slate-500">Example</p>
+                          <p className="m-0 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-500">Example</p>
                           <p
                             className="m-0 mt-2 border-l-[3px] pl-3 text-sm leading-relaxed text-brand-midnight sm:text-[15px]"
                             style={{ borderColor: tile.accent }}
@@ -4598,7 +4598,7 @@ Each ${brandName} initiative has one named owner and a specific timeline.`,
               <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-2`}>Example</p>
               <div className="rounded-lg border border-[#021859] overflow-hidden">
                 <div className="bg-[#021859] px-4 py-4">
-                  <p className="text-xs sm:text-sm tracking-[0.12em] text-[#7DD3FC]">Example</p>
+                  <p className="text-xs sm:text-sm uppercase tracking-[0.12em] text-[#7DD3FC]">Example</p>
                   <p className="text-[24px] leading-tight font-semibold text-white mt-1">
                     {brandName} Turns Strategic Clarity Into Conversion Quality
                   </p>

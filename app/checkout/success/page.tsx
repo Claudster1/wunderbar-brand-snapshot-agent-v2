@@ -35,6 +35,7 @@ function SuccessContent() {
     null
   );
   const [tierToken, setTierToken] = useState<string | null>(null);
+  const [accessReady, setAccessReady] = useState(!sessionId);
   const [resumeReportId, setResumeReportId] = useState<string | null>(reportId);
   const [customerEmail, setCustomerEmail] = useState<string | null>(
     emailParam || getPersistedEmail()
@@ -45,26 +46,36 @@ function SuccessContent() {
     if (emailParam) {
       persistEmail(emailParam);
     }
-    if (sessionId) {
-      fetch(`/api/stripe/session-email?session_id=${sessionId}`)
-        .then((r) => (r.ok ? r.json() : null))
-        .then((data) => {
-          if (data?.email) {
-            persistEmail(data.email);
-            setCustomerEmail(data.email);
-          }
-          if (data?.name) {
-            setCustomerFirstName(data.name.split(/\s+/)[0]);
-          }
-          if (data?.tierToken) {
-            setTierToken(data.tierToken);
-          }
-          if (data?.resumeReportId) {
-            setResumeReportId(data.resumeReportId);
-          }
-        })
-        .catch(() => {});
+    if (!sessionId) {
+      setAccessReady(true);
+      return;
     }
+    let cancelled = false;
+    fetch(`/api/stripe/session-email?session_id=${sessionId}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled) return;
+        if (data?.email) {
+          persistEmail(data.email);
+          setCustomerEmail(data.email);
+        }
+        if (data?.name) {
+          setCustomerFirstName(data.name.split(/\s+/)[0]);
+        }
+        if (data?.tierToken) {
+          setTierToken(data.tierToken);
+        }
+        if (data?.resumeReportId) {
+          setResumeReportId(data.resumeReportId);
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setAccessReady(true);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [emailParam, sessionId]);
 
   useEffect(() => {
@@ -84,7 +95,15 @@ function SuccessContent() {
   }, [product, sessionId, copy.eyebrow]);
 
   const startHref = `/?tier=${product}${customerFirstName ? `&name=${encodeURIComponent(customerFirstName)}` : ""}${tierToken ? `&token=${encodeURIComponent(tierToken)}` : ""}${resumeReportId ? `&resume=${encodeURIComponent(resumeReportId)}` : ""}`;
-
+  const preparingAccess = Boolean(sessionId) && !accessReady;
+  const canStartPaidChat = Boolean(tierToken) || !sessionId;
+  const primaryHref = canStartPaidChat ? startHref : "/dashboard";
+  const primaryLabel = preparingAccess
+    ? "Preparing your access…"
+    : canStartPaidChat
+      ? copy.primaryCta
+      : "Go to your dashboard";
+  const primaryCtaReady = accessReady;
   return (
     <main
       style={{
@@ -414,27 +433,68 @@ function SuccessContent() {
           alignItems: "center",
         }}
       >
-        <a
-          href={startHref}
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "100%",
-            maxWidth: 400,
-            height: 54,
-            borderRadius: 8,
-            background: BLUE,
-            color: WHITE,
-            fontWeight: 700,
-            fontSize: 16,
-            textDecoration: "none",
-            transition: "background 0.2s",
-          }}
-        >
-          {copy.primaryCta}
-        </a>
+        {primaryCtaReady ? (
+          <a
+            href={primaryHref}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "100%",
+              maxWidth: 400,
+              height: 54,
+              borderRadius: 8,
+              background: BLUE,
+              color: WHITE,
+              fontWeight: 700,
+              fontSize: 16,
+              textDecoration: "none",
+              transition: "background 0.2s",
+            }}
+          >
+            {primaryLabel}
+          </a>
+        ) : (
+          <button
+            type="button"
+            disabled
+            aria-busy="true"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "100%",
+              maxWidth: 400,
+              height: 54,
+              borderRadius: 8,
+              background: BLUE,
+              color: WHITE,
+              fontWeight: 700,
+              fontSize: 16,
+              border: "none",
+              opacity: 0.72,
+              cursor: "wait",
+            }}
+          >
+            {primaryLabel}
+          </button>
+        )}
 
+        {accessReady && sessionId && !tierToken ? (
+          <p
+            style={{
+              margin: 0,
+              maxWidth: 400,
+              textAlign: "center",
+              fontSize: 13,
+              color: SUB,
+              lineHeight: 1.5,
+            }}
+          >
+            Payment received. Open your dashboard with the email you used at checkout — your product access
+            is attached there.
+          </p>
+        ) : null}
         {reportId && (
           <a
             href={`/report/${reportId}`}

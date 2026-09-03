@@ -75,8 +75,8 @@ export async function POST(req: Request) {
         ...(upgradeDescription ? { upgrade_credit: upgradeDescription } : {}),
         ...(metadata ?? {}),
       },
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/success?product=${normalizedKey.replace("_", "-")}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/cancel?product=${normalizedKey.replace("_", "-")}`,
+      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/success?product=${normalizedKey.replaceAll("_", "-")}&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/cancel?product=${normalizedKey.replaceAll("_", "-")}`,
     };
 
     if (discounts.length > 0) {

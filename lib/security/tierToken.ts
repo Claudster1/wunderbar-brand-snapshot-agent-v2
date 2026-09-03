@@ -11,13 +11,33 @@ const TOKEN_SECRET =
 const TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
 
 /**
+ * Normalize Stripe / URL / metadata product keys into the chat URL tier slug
+ * (`snapshot-plus`, `blueprint`, `blueprint-plus`). Underscores and refresh SKUs
+ * map to the parent paid chat experience.
+ */
+export function normalizeAccessTier(tier: string | null | undefined): string {
+  if (!tier) return "";
+  const n = String(tier).toLowerCase().trim().replace(/_/g, "-");
+  if (!n || n === "snapshot" || n === "brand-snapshot") return "snapshot";
+  if (n === "snapshot-plus" || n.startsWith("snapshot-plus-")) return "snapshot-plus";
+  if (n === "blueprint-plus" || n.startsWith("blueprint-plus-")) return "blueprint-plus";
+  if (n === "blueprint" || n === "blueprint-refresh" || n.startsWith("blueprint-refresh")) {
+    return "blueprint";
+  }
+  return n;
+}
+
+/**
  * Create a signed tier-access token.
  * Payload: tier + email + timestamp, signed with HMAC-SHA256.
  * Format: base64url(JSON) + "." + base64url(signature)
+ *
+ * Always stores the hyphenated chat tier so success-page `?tier=` matches.
  */
 export function createTierToken(tier: string, email: string): string {
+  const normalizedTier = normalizeAccessTier(tier) || tier;
   const payload = JSON.stringify({
-    tier,
+    tier: normalizedTier,
     email: email.toLowerCase(),
     ts: Date.now(),
   });
@@ -69,7 +89,7 @@ export function validateTierToken(token: string): TierTokenResult {
 
     return {
       valid: true,
-      tier: payload.tier,
+      tier: normalizeAccessTier(payload.tier) || payload.tier,
       email: payload.email,
     };
   } catch {

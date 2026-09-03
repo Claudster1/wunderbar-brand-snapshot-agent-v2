@@ -1481,7 +1481,8 @@ export default function StrategyTab({
                               margin: "0 0 10px",
                               fontSize: 11,
                               fontWeight: 700,
-                              letterSpacing: "0.06em",
+                              letterSpacing: "0.1em",
+                              textTransform: "uppercase",
                               color: MID_GRAY,
                               fontFamily: SUITE_FONT_UI,
                             }}

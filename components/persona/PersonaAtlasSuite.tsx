@@ -85,7 +85,7 @@ function InsightPanel({
       }}
     >
       <p
-        className="m-0 text-[11px] font-semibold tracking-[0.08em]"
+        className="m-0 text-[11px] font-semibold uppercase tracking-[0.1em]"
         style={{ color: SUITE_ACCENT_BRIGHT }}
       >
         {label}
@@ -137,7 +137,7 @@ export default function PersonaAtlasSuite({
       <div className="border-b border-black/[0.06] px-4 py-4 sm:px-6 sm:py-5">
         <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="m-0 text-[11px] font-semibold tracking-[0.1em] text-brand-blue sm:text-xs">Persona atlas</p>
+            <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.1em] text-brand-blue sm:text-xs">Persona atlas</p>
             <h3 className="bs-h3 mt-1.5 mb-0 text-brand-navy" style={{ color: SUITE_NAVY }}>
               Role-level buyer reference
             </h3>
@@ -241,7 +241,7 @@ export default function PersonaAtlasSuite({
 
           <div className="grid min-w-0 gap-5 sm:grid-cols-2">
             <div>
-              <p className="m-0 text-[11px] font-semibold tracking-[0.08em]" style={{ color: SUITE_ACCENT_BRIGHT }}>
+              <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.1em]" style={{ color: SUITE_ACCENT_BRIGHT }}>
                 What they are optimizing for
               </p>
               <div className="mt-3 flex flex-col gap-2.5">
@@ -267,7 +267,7 @@ export default function PersonaAtlasSuite({
               </div>
             </div>
             <div>
-              <p className="m-0 text-[11px] font-semibold tracking-[0.08em]" style={{ color: SUITE_ACCENT_BRIGHT }}>
+              <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.1em]" style={{ color: SUITE_ACCENT_BRIGHT }}>
                 What could block the yes
               </p>
               <div className="mt-3 flex flex-col gap-2.5">

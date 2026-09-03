@@ -232,7 +232,10 @@ Events fired by the app (use as automation triggers in AC):
 |---|---|---|
 | `free_report_ready` | Free Snapshot completed | `first_name`, `report_link`, `brand_alignment_score`, `weakest_pillar`, `upgrade_product_name`, `upgrade_price` |
 | `report_ready` | Paid product completed | `first_name`, `product_name`, `report_link`, `experience_survey_link`, `purchase_date`, `amount_paid`, `refresh_price`, `upgrade_product_name`, `upgrade_price` |
-| `start_diagnostic` | Purchase completed, diagnostic ready | `first_name`, `product_key`, `start_diagnostic_link` |
+| `start_diagnostic` | Purchase completed, diagnostic ready to start | `first_name`, `product_key`, `start_diagnostic_link`, `access_claim_link`, `dashboard_link` |
+| `purchase_complete` | Same moment (alias / legacy) | Same + email copy fields |
+| `purchase_start_reminder_2d` / `_7d` / `_21d` | App cron — incomplete purchase | `start_diagnostic_link`, `dashboard_link`, `product_sku` |
+| `diagnostic_completed` | Paid diagnostic finished | `report_link`, `report_id`, `dashboard_link` |
 | `refresh_report_ready` | Quarterly refresh completed | `first_name`, `product_name`, `report_link`, `dashboard_link` |
 | `checkout_abandoned` | Stripe checkout expired | `first_name`, `abandoned_product`, `abandoned_product_url`, `abandoned_product_price` |
 | `assessment_paused` | User saves and exits diagnostic | `first_name`, `resume_link`, `product_tier` |
@@ -267,7 +270,8 @@ Events fired by the app (use as automation triggers in AC):
 | **No-Show** | `noshow:needs-followup`, `noshow:rescheduled` |
 | **Retention** | `retention:at-risk` |
 | **Lifecycle** | `lifecycle:lead`, `lifecycle:customer`, `lifecycle:advocate`, `lifecycle:at-risk`, `evergreen:complete` |
-| **Onboarding** | `onboarding:snapshot`, `onboarding:snapshot-plus`, `onboarding:blueprint`, `onboarding:blueprint-plus` |
+| **Onboarding** | `onboarding:snapshot`, `onboarding:snapshot-plus`, `onboarding:blueprint`, `onboarding:blueprint-plus`, `onboarding:awaiting-start`, `diagnostic:completed` |
+| **Purchase start reminders** | `reminder:purchase-start-2d`, `reminder:purchase-start-7d`, `reminder:purchase-start-21d` (app Resend owns email; use tags for CRM/score only) |
 | **Support** | `support:new_request` |
 
 ---

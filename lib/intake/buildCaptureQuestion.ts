@@ -105,6 +105,9 @@ export function buildCaptureQuestion(
       if (tone === "b2c_hospitality") {
         return "**How clear is your menu or experience to someone discovering you for the first time?**";
       }
+      if (tone === "b2c_professional") {
+        return "**How clear is what you help with to someone encountering you for the first time?**";
+      }
       if (tone === "b2c_local_service") {
         return "**How clear are your services to someone encountering you for the first time?**";
       }
@@ -113,11 +116,16 @@ export function buildCaptureQuestion(
       return "**How clear and consistent does your messaging feel across channels today?**";
     case "credibility_proof":
       return consumer
-        ? "**What customer proof do you have today?** Tap all that apply — reviews, testimonials, before/after or success stories, or neither yet."
+        ? tone === "b2c_professional"
+          ? "**What client proof do you have today?** Tap all that apply — reviews, testimonials, outcome stories, or neither yet."
+          : "**What customer proof do you have today?** Tap all that apply — reviews, testimonials, before/after or success stories, or neither yet."
         : "**What customer proof do you have today?** Tap all that apply — testimonials/reviews, case studies, or neither yet.";
     case "visual_confidence":
       return "**How confident do you feel about how the brand looks visually?**";
     case "thought_leadership":
+      if (tone === "b2c_professional") {
+        return "**Are you sharing plain-language education or guidance publicly yet** — short posts, email tips, a simple guide, or not really?";
+      }
       if (consumer) {
         return "**Are you sharing tips, behind-the-scenes, or expertise publicly yet** — social posts, short videos, a blog, or not really?";
       }
@@ -128,10 +136,16 @@ export function buildCaptureQuestion(
       if (hybridShop) {
         return "**Where does your brand show up today?** Name the platforms that matter for both online shoppers and in-store visitors (Instagram, Google, site, etc.) — or say *none / not really active yet*.";
       }
+      if (tone === "b2c_professional") {
+        return "**Where do people find you online today?** Name what matters (Google, LinkedIn, site, email) — or say *none / not really active yet*.";
+      }
       return consumer
         ? "**Where does your brand show up on social today?** Name the platforms that matter (Instagram, Google, TikTok, etc.) — or say *none / not really active yet*."
         : "**Where does your brand show up on social today?** Name the platforms that matter (or say *none / not really active yet*).";
     case "additional_marketing_surfaces":
+      if (tone === "b2c_professional") {
+        return "**Beyond your website and profiles, where else are you putting time or budget** — email nurture, Google/local listings, referral partners, paid ads, or mostly word of mouth?";
+      }
       return consumer
         ? "**Beyond your website and social, where else are you putting time or budget** — email, Google/local listings, paid ads, events, or mostly word of mouth?"
         : "**Beyond your website and social, where else are you putting time or budget** — email, SEO, paid, events, or mostly referrals?";
@@ -143,6 +157,9 @@ export function buildCaptureQuestion(
       }
       if (tone === "b2c_hospitality") {
         return "**About what is a typical ticket or average check today?** A rough estimate is fine.";
+      }
+      if (tone === "b2c_professional") {
+        return "**About what is a typical engagement or consult value today?** A rough estimate is fine.";
       }
       if (tone === "b2c_local_service") {
         return "**About what is a typical booking or service value today?** A rough estimate is fine.";
@@ -157,6 +174,9 @@ export function buildCaptureQuestion(
       }
       if (tone === "b2c_hospitality") {
         return "**Of the people who find you or inquire, roughly what share actually visit or book — or do you not track that yet?**";
+      }
+      if (tone === "b2c_professional") {
+        return "**Of the people who inquire, roughly what share book a consult — or do you not track that yet?**";
       }
       if (tone === "b2c_local_service") {
         return "**Of the people who inquire or message you, roughly what share book — or do you not track that yet?**";
@@ -191,6 +211,9 @@ export function buildCaptureQuestion(
     case "has_email_list":
       return "**Do you have an email list you're sending to today** — even a small one?";
     case "has_lead_magnet":
+      if (tone === "b2c_professional") {
+        return "**Do you offer anything free in exchange for an email** — a checklist, guide, or clarity tool — or not yet?";
+      }
       if (consumer) {
         return "**Do you offer anything free in exchange for an email** — a discount, waitlist perk, tip sheet, or not yet?";
       }
@@ -201,6 +224,9 @@ export function buildCaptureQuestion(
       }
       if (tone === "b2c_hospitality") {
         return "**On your main website, Google listing, or primary profile, how clear is the next step** — reserve, order, visit — or still a bit mixed?";
+      }
+      if (tone === "b2c_professional") {
+        return "**On your main website or primary profile, how clear is the next step** — book a consult, request a review — or still a bit mixed?";
       }
       if (tone === "b2c_local_service") {
         return "**On your main website or primary profile, how clear is the next step** — book, call, or message — or still a bit mixed?";

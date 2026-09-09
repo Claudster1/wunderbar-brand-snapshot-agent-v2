@@ -13,6 +13,7 @@ import {
 type Props = {
   primaryPillar: PillarKey;
   businessType?: string | null;
+  industry?: string | null;
   monthlyRevenueRange?: string | null;
   annualRevenueRange?: string | null;
   averageTransactionValue?: string | null;
@@ -72,20 +73,10 @@ function parseConversionRate(input?: string | null): number | null {
   return n / 100;
 }
 
-function upliftAssumption(
-  primaryPillar: PillarKey,
-  businessType?: string | null,
-): { label: string; multiplier: number } {
-  return resultsUpliftAssumption(primaryPillar, businessType);
-}
-
-function proxyStatement(primaryPillar: PillarKey, businessType?: string | null): string {
-  return resultsRevenueProxyStatement(primaryPillar, businessType);
-}
-
 export function RevenueImpactStatement({
   primaryPillar,
   businessType,
+  industry,
   monthlyRevenueRange,
   annualRevenueRange,
   averageTransactionValue,
@@ -96,7 +87,7 @@ export function RevenueImpactStatement({
   const monthlyRevenue = monthlyRevenueFromRange(monthlyRevenueRange, annualRevenueRange);
   const avgValue = parseMoneyValue(averageTransactionValue);
   const conversionRate = parseConversionRate(conversionRateEstimate);
-  const assumption = upliftAssumption(primaryPillar, businessType);
+  const assumption = resultsUpliftAssumption(primaryPillar, businessType, industry);
 
   const canEstimate = Boolean(monthlyRevenue && avgValue && conversionRate);
   let estimateText = "";
@@ -145,7 +136,9 @@ export function RevenueImpactStatement({
             </p>
           </>
         ) : (
-          <p className="bs-body-sm text-brand-midnight">{proxyStatement(primaryPillar, businessType)}</p>
+          <p className="bs-body-sm text-brand-midnight">
+            {resultsRevenueProxyStatement(primaryPillar, businessType, industry)}
+          </p>
         )}
         <Link
           href="/checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=revenue_impact_statement"

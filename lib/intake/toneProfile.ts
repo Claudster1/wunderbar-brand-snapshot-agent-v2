@@ -3,6 +3,8 @@
  * Capture questions and chips branch on this; scoring fields stay the same.
  */
 
+import { inferConsumerVertical } from "@/lib/intake/consumerVertical";
+
 export type CaptureBusinessType =
   | "service_b2b"
   | "service_b2c"
@@ -21,6 +23,7 @@ export type ToneProfileId =
   | "b2c_local_service"
   | "b2c_hospitality"
   | "b2c_retail"
+  | "b2c_professional"
   | "ecommerce"
   | "saas"
   | "neutral";
@@ -42,6 +45,8 @@ const LOCAL_BEAUTY_RE =
   /\b(salon|hair|barber|beauty|spa|nails?|esthetic|medspa|med spa|massage|tattoo|pilates|yoga studio|dental|dentist|chiro|clinic|vet|grooming)\b/i;
 const LOCAL_TRADES_RE =
   /\b(hvac|plumb|electric|roofing|landscap|contractor|trades?|cleaning|detailing|auto repair)\b/i;
+const CONSUMER_PRO_RE =
+  /\b(financial advisor|financial \/ advisory|wealth|insurance|tax prepar|bookkeep|cpa\b|consumer legal|family law|estate planning|real estate agent|realtor|mortgage|lending|credit repair|personal finance|consumer financial)\b/i;
 
 /** Shared heuristic — salon/hospitality must not default to B2B consulting. */
 export function inferBusinessTypeFromCorpus(userCorpus: string): CaptureBusinessType | null {
@@ -66,6 +71,10 @@ export function inferBusinessTypeFromCorpus(userCorpus: string): CaptureBusiness
   if (HOSPITALITY_RE.test(c)) {
     return "retail";
   }
+  // Consumer finance / advisory / realtor etc. before B2B consulting
+  if (CONSUMER_PRO_RE.test(c)) {
+    return "service_b2c";
+  }
   if (
     LOCAL_BEAUTY_RE.test(c) ||
     LOCAL_TRADES_RE.test(c) ||
@@ -79,7 +88,7 @@ export function inferBusinessTypeFromCorpus(userCorpus: string): CaptureBusiness
   if (/\bb2c|consumers|consumer clients|personal service|individual clients|guests|patients|shoppers\b/.test(c)) {
     return "service_b2c";
   }
-  // Explicit consulting/agency AFTER local/hospitality checks
+  // Explicit consulting/agency AFTER local/hospitality/consumer-pro checks
   if (
     /\b(consulting|consultants?|agency|agencies|freelance|professional services|b2b coaching|executive coaching)\b/.test(
       c,
@@ -221,6 +230,7 @@ function toneFromAudienceFocus(
   if (!focus) return null;
   if (focus === "B2C") {
     if (HOSPITALITY_RE.test(corpus)) return "b2c_hospitality";
+    if (CONSUMER_PRO_RE.test(corpus)) return "b2c_professional";
     if (type === "ecommerce") return "ecommerce";
     if (type === "retail") return "b2c_retail";
     if (type === "local_service" || type === "service_b2c" || !type) return "b2c_local_service";
@@ -239,6 +249,12 @@ export function resolveToneProfile(ctx: ToneContext = {}): ToneProfileId {
   const focus =
     ctx.marketingAudienceFocus ??
     (audience === "both" && corpus ? inferMarketingAudienceFocusFromCorpus(corpus) : null);
+  const vertical = inferConsumerVertical({
+    businessType: type,
+    industry: ctx.industryHint,
+    audienceType: audience,
+    corpus,
+  });
 
   if (type === "saas" && audience !== "both") return "saas";
   if (type === "ecommerce" && audience !== "both") return "ecommerce";
@@ -248,6 +264,9 @@ export function resolveToneProfile(ctx: ToneContext = {}): ToneProfileId {
     const fromFocus = toneFromAudienceFocus(focus, type, corpus);
     if (fromFocus) return fromFocus;
     if (HOSPITALITY_RE.test(corpus)) return "b2c_hospitality";
+    if (vertical === "consumer_professional" || CONSUMER_PRO_RE.test(corpus)) {
+      return "b2c_professional";
+    }
     if (type === "local_service" || type === "service_b2c") return "b2c_local_service";
     if (type === "retail") return "b2c_retail";
     if (type === "ecommerce") return "ecommerce";
@@ -259,6 +278,11 @@ export function resolveToneProfile(ctx: ToneContext = {}): ToneProfileId {
   // Hospitality venues get hospitality voice even when classified as retail
   if (HOSPITALITY_RE.test(corpus) || (type === "retail" && HOSPITALITY_RE.test(corpus))) {
     return "b2c_hospitality";
+  }
+
+  // Consumer finance / advisory — consult/trust voice (not Instagram-first salon copy)
+  if (vertical === "consumer_professional" || CONSUMER_PRO_RE.test(corpus)) {
+    return "b2c_professional";
   }
 
   if (type === "local_service" || type === "service_b2c") {
@@ -279,6 +303,7 @@ export function isConsumerFacingTone(profile: ToneProfileId): boolean {
     profile === "b2c_local_service" ||
     profile === "b2c_hospitality" ||
     profile === "b2c_retail" ||
+    profile === "b2c_professional" ||
     profile === "ecommerce"
   );
 }
@@ -289,6 +314,7 @@ export function customerNoun(profile: ToneProfileId): string {
     case "b2c_hospitality":
       return "guests";
     case "b2c_local_service":
+    case "b2c_professional":
       return "clients";
     case "b2b_professional":
     case "saas":

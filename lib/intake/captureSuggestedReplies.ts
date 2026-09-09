@@ -45,10 +45,26 @@ function resolveTone(options?: CaptureChipOptions): ToneProfileId {
 }
 
 export function getPrimaryGoalChipsForTone(tone: ToneProfileId): string[] {
+  if (tone === "b2c_professional") {
+    return [
+      "More consult bookings",
+      "Stronger trust / credibility",
+      "Clearer offer / who I help",
+      "Better Google / referral visibility",
+      "More consistent brand look",
+      "Grow revenue without more explain-loops",
+      OTHER,
+    ];
+  }
   if (isConsumerFacingTone(tone)) {
     const hospitality = tone === "b2c_hospitality";
+    const retail = tone === "b2c_retail" || tone === "ecommerce";
     return [
-      hospitality ? "More guests / foot traffic" : "More bookings / appointments",
+      hospitality
+        ? "More guests / foot traffic"
+        : retail
+          ? "More shoppers / sales"
+          : "More bookings / appointments",
       "More repeat customers",
       "Stronger local awareness",
       "Better reviews & reputation",
@@ -116,6 +132,18 @@ export function getContentFormatChipsForTone(tone: ToneProfileId): string[] {
 }
 
 export function getCustomerAcquisitionChipsForTone(tone: ToneProfileId): string[] {
+  if (tone === "b2c_professional") {
+    return [
+      "Word of mouth / referrals",
+      "Google / Maps search",
+      "Partner referrals",
+      "Email / content",
+      "Paid advertising",
+      "Events / networking",
+      "Not sure",
+      OTHER,
+    ];
+  }
   if (isConsumerFacingTone(tone)) {
     return [
       "Word of mouth / referrals",
@@ -149,6 +177,17 @@ export function getBrandPersonalityChipsForTone(tone: ToneProfileId): string[] {
       "Neighborhood favorite",
       "Bold and memorable",
       "Generous hospitality",
+      OTHER,
+    ];
+  }
+  if (tone === "b2c_professional") {
+    return [
+      "Clear and calm",
+      "Trusted / steady",
+      "Approachable / no jargon",
+      "Protective / thorough",
+      "Premium / polished",
+      "Warm and human",
       OTHER,
     ];
   }
@@ -200,6 +239,15 @@ export function getCustomerExpectationChipsForTone(tone: ToneProfileId): string[
       "Clear menu and easy next step",
       "Warm hospitality they can feel",
       "Consistency every time",
+      OTHER,
+    ];
+  }
+  if (tone === "b2c_professional") {
+    return [
+      "Clear guidance and expertise",
+      "Trust and reliability",
+      "A calm, jargon-light consult",
+      "An obvious next step",
       OTHER,
     ];
   }
@@ -318,6 +366,18 @@ export function getSuggestedRepliesForCapture(
     case "website_presence":
       return getWebsitePresenceSuggestedReplies(options?.messages);
     case "social_platform_presence":
+      if (tone === "b2c_professional") {
+        return [
+          "Google Business / Maps",
+          "LinkedIn",
+          "Email / newsletter",
+          "Instagram",
+          "Facebook",
+          "YouTube",
+          "Not really active yet",
+          OTHER,
+        ];
+      }
       if (consumer) {
         return [
           "Instagram",
@@ -340,27 +400,38 @@ export function getSuggestedRepliesForCapture(
         OTHER,
       ];
     case "additional_marketing_surfaces":
-      return consumer
+      return tone === "b2c_professional"
         ? [
-            "Email / newsletter",
+            "Email nurture",
             "Google / local SEO",
+            "Referral partners",
             "Paid ads",
-            "Word of mouth / referrals",
-            "Events / partnerships",
+            "Events / speaking",
             "Mostly word of mouth",
             "Nothing else yet",
             OTHER,
           ]
-        : [
-            "Email / newsletter",
-            "SEO",
-            "Paid ads",
-            "Referrals / word of mouth",
-            "Events",
-            "Mostly referrals",
-            "Nothing else yet",
-            OTHER,
-          ];
+        : consumer
+          ? [
+              "Email / newsletter",
+              "Google / local SEO",
+              "Paid ads",
+              "Word of mouth / referrals",
+              "Events / partnerships",
+              "Mostly word of mouth",
+              "Nothing else yet",
+              OTHER,
+            ]
+          : [
+              "Email / newsletter",
+              "SEO",
+              "Paid ads",
+              "Referrals / word of mouth",
+              "Events",
+              "Mostly referrals",
+              "Nothing else yet",
+              OTHER,
+            ];
     case "monthly_revenue_range":
       return [
         "Under $5k/mo",
@@ -373,47 +444,67 @@ export function getSuggestedRepliesForCapture(
         BETWEEN,
       ];
     case "average_transaction_value":
-      if (tone === "b2c_hospitality" || tone === "b2c_local_service" || tone === "b2c_retail") {
+      if (
+        tone === "b2c_hospitality" ||
+        tone === "b2c_local_service" ||
+        tone === "b2c_retail" ||
+        tone === "b2c_professional"
+      ) {
         return ["Under $50", "$50–$150", "$150–$500", "$500–$2k", "$2k+", "Varies a lot", "Not sure", BETWEEN];
       }
       return ["Under $500", "$500–$2k", "$2k–$10k", "$10k+", "Varies a lot", "Not sure", BETWEEN];
     case "conversion_rate_estimate":
       return ["I track it (~X%)", "I don't track this yet", "Rough guess", "Not sure"];
     case "primary_acquisition_channel":
-      return consumer
+      return tone === "b2c_professional"
         ? [
             "Word of mouth / referrals",
             "Google / Maps search",
-            "Social (Instagram / TikTok / etc.)",
-            "Walk-ins / foot traffic",
+            "Partner referrals",
+            "Email / content",
             "Paid ads",
             "Direct / repeat",
             "Mix of channels",
             OTHER,
           ]
-        : [
-            "Referrals / word of mouth",
-            "Organic search",
-            "Social",
-            "Paid ads",
-            "Direct / repeat",
-            "Events / partnerships",
-            "Mix of channels",
-            OTHER,
-          ];
+        : consumer
+          ? [
+              "Word of mouth / referrals",
+              "Google / Maps search",
+              "Social (Instagram / TikTok / etc.)",
+              "Walk-ins / foot traffic",
+              "Paid ads",
+              "Direct / repeat",
+              "Mix of channels",
+              OTHER,
+            ]
+          : [
+              "Referrals / word of mouth",
+              "Organic search",
+              "Social",
+              "Paid ads",
+              "Direct / repeat",
+              "Events / partnerships",
+              "Mix of channels",
+              OTHER,
+            ];
     case "monthly_marketing_budget":
       return ["Under $500", "$500–$2k", "$2k–$5k", "$5k+", "$0 / not spending yet", BETWEEN];
     case "content_creation_capacity":
       return ["Under 2 hrs/week", "2–5 hrs/week", "5–10 hrs/week", "10+ hrs/week", "Minimal right now"];
     case "competitive_pressure_point":
       return consumer
-        ? ["Price", "Convenience / location", "Trust / reviews", "Clarity of offer", "Speed / availability", "Fit / vibe", "Mix"]
+        ? tone === "b2c_professional"
+          ? ["Trust / credentials", "Clarity of offer", "Price", "Availability", "Fit / rapport", "Mix"]
+          : ["Price", "Convenience / location", "Trust / reviews", "Clarity of offer", "Speed / availability", "Fit / vibe", "Mix"]
         : ["Price", "Trust", "Clarity", "Speed", "Proof / credibility", "Fit", "Mix"];
     case "has_email_list":
       return ["Yes", "Small list", "Building one", "No"];
     case "has_lead_magnet":
       return consumer
-        ? ["Yes — discount / perk / tip", "Not yet", "Planning one"]
+        ? tone === "b2c_professional"
+          ? ["Yes — guide / checklist", "Not yet", "Planning one"]
+          : ["Yes — discount / perk / tip", "Not yet", "Planning one"]
         : ["Yes", "Not yet", "Planning one"];
     case "has_clear_cta":
       return ["Pretty clear", "Somewhat clear", "Still figuring it out", "Mixed / confusing"];

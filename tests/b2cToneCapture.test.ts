@@ -41,11 +41,24 @@ describe("toneProfile inference", () => {
     ).toBe("b2c_local_service");
     expect(
       resolveToneProfile({
+        businessType: "service_b2c",
+        audienceType: "B2C",
+        industryHint: "Consumer financial / advisory",
+        userCorpus: "financial advisor for families",
+      }),
+    ).toBe("b2c_professional");
+    expect(
+      resolveToneProfile({
         businessType: "service_b2b",
         audienceType: "B2B",
         userCorpus: "consulting",
       }),
     ).toBe("b2b_professional");
+  });
+
+  it("classifies financial advisors as service_b2c (not B2B consulting)", () => {
+    expect(inferBusinessTypeFromCorpus("I'm a financial advisor for families")).toBe("service_b2c");
+    expect(inferBusinessTypeFromCorpus("consumer financial / advisory practice")).toBe("service_b2c");
   });
 });
 
@@ -83,6 +96,38 @@ describe("B2C capture wording", () => {
     const industry = getSuggestedRepliesForCapture("industry", { messages });
     expect(industry).toContain("Hair / beauty / spa");
     expect(industry[0]).not.toBe("Professional services / consulting");
+  });
+
+  it("uses consult/trust language for consumer financial / advisory", () => {
+    const messages = [
+      { role: "user", content: "Local / personal services" },
+      { role: "user", content: "Mostly B2C" },
+      { role: "user", content: "Consumer financial / advisory — financial advisor for families" },
+    ];
+    expect(resolveToneProfile({
+      businessType: "local_service",
+      audienceType: "B2C",
+      userCorpus: messages.map((m) => m.content).join(" "),
+      industryHint: "Consumer financial / advisory",
+    })).toBe("b2c_professional");
+    expect(buildCaptureQuestion("average_transaction_value", "local_service", { messages })).toMatch(
+      /engagement or consult/i,
+    );
+    expect(buildCaptureQuestion("conversion_rate_estimate", "local_service", { messages })).toMatch(
+      /book a consult/i,
+    );
+    expect(buildCaptureQuestion("has_clear_cta", "local_service", { messages })).toMatch(
+      /book a consult|request a review/i,
+    );
+    expect(buildCaptureQuestion("social_platform_presence", "local_service", { messages })).toMatch(
+      /Google, LinkedIn/i,
+    );
+    expect(buildCaptureQuestion("social_platform_presence", "local_service", { messages })).not.toMatch(
+      /Instagram, Google, TikTok/i,
+    );
+    const social = getSuggestedRepliesForCapture("social_platform_presence", { messages });
+    expect(social[0]).toBe("Google Business / Maps");
+    expect(social[0]).not.toBe("Instagram");
   });
 
   it("keeps B2B deal/pipeline language for consulting", () => {

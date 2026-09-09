@@ -9,11 +9,16 @@ import { trackUpgradeClick } from "@/lib/adTracking";
 import { SNAPSHOT_PLUS_LOCKED_PROMPT_TITLES } from "@/src/lib/prompts/promptLibrary";
 import { PRICING, formatPrice } from "@/lib/pricing";
 import { normalizeBusinessTypeOrGeneral } from "@/lib/intake/normalizeBusinessType";
+import {
+  resolveResultsVertical,
+  resultsSpendAllocationHint,
+} from "@/lib/results/audienceFacingCopy";
 
 type Props = {
   primaryPillar: PillarKey;
   pillarScores: Record<PillarKey, number>;
   businessType?: string | null;
+  industry?: string | null;
   businessName?: string | null;
   reportId?: string;
   email?: string;
@@ -81,7 +86,20 @@ function getAudienceAlignmentTeaser(primaryPillar: PillarKey): string {
   return teasers[primaryPillar];
 }
 
-function contentFormatChannelTeaser(type: string): string {
+function contentFormatChannelTeaser(type: string, industry?: string | null): string {
+  const vertical = resolveResultsVertical({ businessType: type, industry });
+  if (vertical === "fashion_retail" || vertical === "dtc_product") {
+    return "Your audience-mapped format and channel plan is ready: product/storytelling formats, social discovery channels, and shop/visit conversion priorities.";
+  }
+  if (vertical === "consumer_professional") {
+    return "Your audience-mapped format and channel plan is ready: clarity-led education formats, Google/referral channels, and consult-booking priorities.";
+  }
+  if (vertical === "beauty_wellness" || vertical === "health_clinic") {
+    return "Your audience-mapped format and channel plan is ready: trust-building formats, local discovery channels, and booking/show-rate priorities.";
+  }
+  if (vertical === "hospitality") {
+    return "Your audience-mapped format and channel plan is ready: local demand formats, Maps/Instagram discovery, and reserve/visit priorities.";
+  }
   switch (type) {
     case "service_b2b":
       return "Your audience-mapped format and channel plan is ready: long-form authority content, relationship-driven channels, and funnel-stage priorities.";
@@ -95,8 +113,10 @@ function contentFormatChannelTeaser(type: string): string {
       return "Your audience-mapped format and channel plan is ready: education-led formats, activation-focused channels, and lifecycle conversion priorities.";
     case "local_service":
       return "Your audience-mapped format and channel plan is ready: trust-building formats, local discovery channels, and booking/show-rate priorities.";
-    default:
-      return "Your audience-mapped format and channel plan is ready: top content formats, priority channels, and funnel-stage priorities.";
+    default: {
+      const hint = resultsSpendAllocationHint(type, industry);
+      return `Your audience-mapped format and channel plan is ready: priorities around ${hint}.`;
+    }
   }
 }
 
@@ -104,6 +124,7 @@ export function LockedResultsPreview({
   primaryPillar,
   pillarScores,
   businessType,
+  industry,
   businessName,
   reportId,
   email,
@@ -274,7 +295,7 @@ export function LockedResultsPreview({
             Content Format &amp; Channel Recommendations
           </p>
           <p className="bs-body-sm text-brand-midnight mb-2">
-            {contentFormatChannelTeaser(normalizedBusinessType)}
+            {contentFormatChannelTeaser(normalizedBusinessType, industry)}
           </p>
           <p className="bs-small text-brand-blue font-bold">Locked — available in Snapshot+</p>
           <Link

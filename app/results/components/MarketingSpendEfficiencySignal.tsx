@@ -6,7 +6,10 @@ import { trackEvent } from "@/lib/analytics";
 import { trackUpgradeClick } from "@/lib/adTracking";
 import { fireACEvent } from "@/lib/fireACEvent";
 import { normalizeBusinessTypeOrGeneral } from "@/lib/intake/normalizeBusinessType";
-import { resultsSpendRiskLabel } from "@/lib/results/audienceFacingCopy";
+import {
+  resultsSpendAllocationHint,
+  resultsSpendRiskLabel,
+} from "@/lib/results/audienceFacingCopy";
 
 type BudgetBand =
   | "under_500"
@@ -16,6 +19,7 @@ type BudgetBand =
 
 type Props = {
   businessType?: string | null;
+  industry?: string | null;
   monthlyMarketingBudget?: string | null;
   primaryPillar: PillarKey;
   reportId?: string;
@@ -49,27 +53,9 @@ function toBudgetBand(value?: string | null): BudgetBand | undefined {
   return undefined;
 }
 
-function recommendationByBusinessType(type: string): string {
-  switch (type) {
-    case "service_b2b":
-      return "LinkedIn thought leadership, email nurturing, and case-study-driven conversion assets";
-    case "service_b2c":
-      return "social proof content, local search visibility, and booking-focused conversion paths";
-    case "retail":
-      return "local search/GBP visibility, repeat visits, and guest/shopper-facing demand content";
-    case "ecommerce":
-      return "high-intent product content, conversion optimization, and retention/repeat-purchase flows";
-    case "saas":
-      return "product education content, activation-focused onboarding, and conversion path optimization";
-    case "local_service":
-      return "Google Business/local SEO, review/trust signals, Instagram proof, and booking/show-rate optimization";
-    default:
-      return "the channels and content formats most aligned to how your customers find and choose you";
-  }
-}
-
 export function MarketingSpendEfficiencySignal({
   businessType,
+  industry,
   monthlyMarketingBudget,
   primaryPillar,
   reportId,
@@ -78,8 +64,8 @@ export function MarketingSpendEfficiencySignal({
   const type = normalizeBusinessTypeOrGeneral(businessType);
   const budgetBand = toBudgetBand(monthlyMarketingBudget);
   const hasBudget = Boolean(budgetBand);
-  const allocation = recommendationByBusinessType(type);
-  const risk = resultsSpendRiskLabel(primaryPillar, type);
+  const allocation = resultsSpendAllocationHint(type, industry);
+  const risk = resultsSpendRiskLabel(primaryPillar, type, industry);
   const onCtaClick = () => {
     trackEvent("UPGRADE_CLICKED", {
       target: "Snapshot+",

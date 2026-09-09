@@ -8,8 +8,12 @@ export type QaSeedId =
   | "handoff"
   | "near-end-salon"
   | "near-end-restaurant"
+  | "near-end-fashion"
+  | "near-end-consumer-finance"
   | "handoff-salon"
-  | "handoff-restaurant";
+  | "handoff-restaurant"
+  | "handoff-fashion"
+  | "handoff-consumer-finance";
 
 type SeedTurn = { role: "assistant" | "user"; text: string };
 
@@ -36,8 +40,24 @@ export function parseQaSeedParam(raw: string | null | undefined): QaSeedId | nul
   if (v === "near-end-restaurant" || v === "restaurant" || v === "near_end_restaurant") {
     return "near-end-restaurant";
   }
+  if (v === "near-end-fashion" || v === "fashion" || v === "near_end_fashion" || v === "boutique") {
+    return "near-end-fashion";
+  }
+  if (
+    v === "near-end-consumer-finance" ||
+    v === "consumer-finance" ||
+    v === "finance" ||
+    v === "advisor" ||
+    v === "near_end_consumer_finance"
+  ) {
+    return "near-end-consumer-finance";
+  }
   if (v === "handoff-salon" || v === "salon-handoff") return "handoff-salon";
   if (v === "handoff-restaurant" || v === "restaurant-handoff") return "handoff-restaurant";
+  if (v === "handoff-fashion" || v === "fashion-handoff") return "handoff-fashion";
+  if (v === "handoff-consumer-finance" || v === "finance-handoff" || v === "advisor-handoff") {
+    return "handoff-consumer-finance";
+  }
   return null;
 }
 
@@ -460,6 +480,278 @@ const HANDOFF_RESTAURANT_TURNS: SeedTurn[] = [
   { role: "user", text: "Worked with a freelancer on the logo and menu design once" },
 ];
 
+const NEAR_END_FASHION_TURNS: SeedTurn[] = [
+  { role: "assistant", text: "Hi — I'm Wundy™. What's your first name?" },
+  { role: "user", text: "Maya" },
+  {
+    role: "assistant",
+    text: "Nice to meet you, Maya. **What's the name of your business?**",
+  },
+  { role: "user", text: "Thread & Tide" },
+  {
+    role: "assistant",
+    text: "**How do you primarily get paid today** — local/personal services, business consulting, a product (online or in-person), SaaS/subscription, or something else?",
+  },
+  { role: "user", text: "Retail or in-person" },
+  {
+    role: "assistant",
+    text: "**How do you think about your role here?** Tap below — or type your own.",
+  },
+  { role: "user", text: "I'm a founder / co-founder" },
+  {
+    role: "assistant",
+    text: "**Who do you mainly sell to** — mostly other businesses (B2B), mostly consumers (B2C), or a meaningful mix of both?",
+  },
+  { role: "user", text: "Mostly B2C" },
+  {
+    role: "assistant",
+    text: "**What kind of business is this?** Hair salon, restaurant, retail shop, wellness, home services — whatever fits.",
+  },
+  { role: "user", text: "Fashion / apparel / boutique" },
+  {
+    role: "assistant",
+    text: "**Where do you mainly serve people** — your neighborhood or city, a wider region, nationally, or online everywhere?",
+  },
+  { role: "user", text: "Locally (city or metro)" },
+  {
+    role: "assistant",
+    text: "**Roughly how long have you been operating?**",
+  },
+  { role: "user", text: "1–3 years" },
+  {
+    role: "assistant",
+    text: "**Do you have a website?** If yes, **paste the URL in the message box below** (e.g. `yoursite.com` or `https://yoursite.com`) and send. If you don't have one yet, tap a chip.",
+  },
+  { role: "user", text: "https://threadandtide.example" },
+  {
+    role: "assistant",
+    text: "**Where does your brand show up on social today?** Name the platforms that matter (Instagram, Google, TikTok, etc.) — or say *none / not really active yet*.",
+  },
+  { role: "user", text: "Instagram, TikTok, Google Business / Maps" },
+  {
+    role: "assistant",
+    text: "**When a brand-new customer first discovers you, where does that usually happen?**",
+  },
+  { role: "user", text: "Instagram / walk-by" },
+  {
+    role: "assistant",
+    text: "**When customers choose a competitor over you, what reason comes up most often?**",
+  },
+  { role: "user", text: "Price" },
+  {
+    role: "assistant",
+    text: "**How clear is your offer to someone encountering you for the first time?**",
+  },
+  { role: "user", text: "Somewhat clear" },
+  {
+    role: "assistant",
+    text: "**What customer proof do you have today?** Tap all that apply — reviews, testimonials, before/after or success stories, or neither yet.",
+  },
+  { role: "user", text: "Reviews (Google / Yelp / etc.)" },
+  {
+    role: "assistant",
+    text: "**How confident do you feel about how the brand looks visually?**",
+  },
+  { role: "user", text: "Somewhat confident" },
+  {
+    role: "assistant",
+    text: "Which outcomes matter most for Thread & Tide in the next 6–12 months? Tap all that apply below.",
+  },
+  { role: "user", text: "More shoppers / sales" },
+  {
+    role: "assistant",
+    text: "What feels like the biggest challenge with your brand or marketing right now?",
+  },
+  {
+    role: "user",
+    text: "Lots of likes, not enough buy — people browse the lookbook vibe but hesitate on fit and price.",
+  },
+  {
+    role: "assistant",
+    text: "What makes you different from look-alike competitors?",
+  },
+  {
+    role: "user",
+    text: "Coastal everyday pieces with careful fit notes — not fast-fashion dump drops.",
+  },
+  {
+    role: "assistant",
+    text: "What's the deeper why behind the business — the mission that keeps you going?",
+  },
+  {
+    role: "user",
+    text: "Help people dress like themselves for real life, not just for the feed.",
+  },
+  {
+    role: "assistant",
+    text: "**How clear and consistent does your messaging feel across channels today?**",
+  },
+  { role: "user", text: "Somewhat clear" },
+  {
+    role: "assistant",
+    text: "If your brand were a person, how would you describe their personality?",
+  },
+  { role: "user", text: "Stylish, unfussy, a little coastal-cool" },
+  {
+    role: "assistant",
+    text: "What topics or themes do you talk about most with customers?",
+  },
+  {
+    role: "user",
+    text: "Fit, fabric, capsule wardrobes, and how to style one piece three ways.",
+  },
+  {
+    role: "assistant",
+    text: "**Are you sharing tips, behind-the-scenes, or expertise publicly yet** — social posts, short videos, a blog, or not really?",
+  },
+  { role: "user", text: "Yes — regularly on social" },
+  {
+    role: "assistant",
+    text: "One last thing — have you done any formal brand strategy work before? Could be on your own, with a freelancer, or through an agency.",
+  },
+];
+
+const HANDOFF_FASHION_TURNS: SeedTurn[] = [
+  ...NEAR_END_FASHION_TURNS,
+  { role: "user", text: "Just DIY so far — Instagram and product photos on my own" },
+];
+
+const NEAR_END_CONSUMER_FINANCE_TURNS: SeedTurn[] = [
+  { role: "assistant", text: "Hi — I'm Wundy™. What's your first name?" },
+  { role: "user", text: "Priya" },
+  {
+    role: "assistant",
+    text: "Nice to meet you, Priya. **What's the name of your business?**",
+  },
+  { role: "user", text: "Northshore Wealth" },
+  {
+    role: "assistant",
+    text: "**How do you primarily get paid today** — local/personal services, business consulting, a product (online or in-person), SaaS/subscription, or something else?",
+  },
+  { role: "user", text: "Local / personal services" },
+  {
+    role: "assistant",
+    text: "**How do you think about your role here?** Tap below — or type your own.",
+  },
+  { role: "user", text: "I'm a founder / co-founder" },
+  {
+    role: "assistant",
+    text: "**Who do you mainly sell to** — mostly other businesses (B2B), mostly consumers (B2C), or a meaningful mix of both?",
+  },
+  { role: "user", text: "Mostly B2C" },
+  {
+    role: "assistant",
+    text: "**What kind of business is this?** Hair salon, restaurant, retail shop, wellness, home services — whatever fits.",
+  },
+  { role: "user", text: "Consumer financial / advisory" },
+  {
+    role: "assistant",
+    text: "**Where do you mainly serve people** — your neighborhood or city, a wider region, nationally, or online everywhere?",
+  },
+  { role: "user", text: "Regionally (state or multi-state)" },
+  {
+    role: "assistant",
+    text: "**Roughly how long have you been operating?**",
+  },
+  { role: "user", text: "5–10 years" },
+  {
+    role: "assistant",
+    text: "**Do you have a website?** If yes, **paste the URL in the message box below** (e.g. `yoursite.com` or `https://yoursite.com`) and send. If you don't have one yet, tap a chip.",
+  },
+  { role: "user", text: "https://northshorewealth.example" },
+  {
+    role: "assistant",
+    text: "**Where do people find you online today?** Name what matters (Google, LinkedIn, site, email) — or say *none / not really active yet*.",
+  },
+  { role: "user", text: "Google Business / Maps, LinkedIn, Email / newsletter" },
+  {
+    role: "assistant",
+    text: "**When a brand-new client first discovers you, where does that usually happen?**",
+  },
+  { role: "user", text: "Word of mouth / referrals" },
+  {
+    role: "assistant",
+    text: "**When clients choose a competitor over you, what reason comes up most often?**",
+  },
+  { role: "user", text: "Trust / credentials" },
+  {
+    role: "assistant",
+    text: "**How clear is what you help with to someone encountering you for the first time?**",
+  },
+  { role: "user", text: "Somewhat clear" },
+  {
+    role: "assistant",
+    text: "**What client proof do you have today?** Tap all that apply — reviews, testimonials, outcome stories, or neither yet.",
+  },
+  { role: "user", text: "Testimonials" },
+  {
+    role: "assistant",
+    text: "**How confident do you feel about how the brand looks visually?**",
+  },
+  { role: "user", text: "Somewhat confident" },
+  {
+    role: "assistant",
+    text: "Which outcomes matter most for Northshore Wealth in the next 6–12 months? Tap all that apply below.",
+  },
+  { role: "user", text: "More consult bookings" },
+  {
+    role: "assistant",
+    text: "What feels like the biggest challenge with your brand or marketing right now?",
+  },
+  {
+    role: "user",
+    text: "People don't understand who we help until a long first call — too many explain-loops before trust.",
+  },
+  {
+    role: "assistant",
+    text: "What makes you different from look-alike competitors?",
+  },
+  {
+    role: "user",
+    text: "Plain-language planning for families — not product-pushing or jargon-heavy pitches.",
+  },
+  {
+    role: "assistant",
+    text: "What's the deeper why behind the business — the mission that keeps you going?",
+  },
+  {
+    role: "user",
+    text: "Help people feel calm and clear about money decisions that shape their family's future.",
+  },
+  {
+    role: "assistant",
+    text: "**How clear and consistent does your messaging feel across channels today?**",
+  },
+  { role: "user", text: "Somewhat clear" },
+  {
+    role: "assistant",
+    text: "If your brand were a person, how would you describe their personality?",
+  },
+  { role: "user", text: "Clear, calm, trusted" },
+  {
+    role: "assistant",
+    text: "What topics or themes do you talk about most with customers?",
+  },
+  {
+    role: "user",
+    text: "Retirement clarity, protecting family income, and simple next steps after a consult.",
+  },
+  {
+    role: "assistant",
+    text: "**Are you sharing plain-language education or guidance publicly yet** — short posts, email tips, a simple guide, or not really?",
+  },
+  { role: "user", text: "A little / informal" },
+  {
+    role: "assistant",
+    text: "One last thing — have you done any formal brand strategy work before? Could be on your own, with a freelancer, or through an agency.",
+  },
+];
+
+const HANDOFF_CONSUMER_FINANCE_TURNS: SeedTurn[] = [
+  ...NEAR_END_CONSUMER_FINANCE_TURNS,
+  { role: "user", text: "Worked with a freelancer on the website once — nothing ongoing" },
+];
+
 export function getQaSeedTurns(seed: QaSeedId): SeedTurn[] {
   switch (seed) {
     case "near-end":
@@ -474,6 +766,14 @@ export function getQaSeedTurns(seed: QaSeedId): SeedTurn[] {
       return NEAR_END_RESTAURANT_TURNS.map((t) => ({ ...t }));
     case "handoff-restaurant":
       return HANDOFF_RESTAURANT_TURNS.map((t) => ({ ...t }));
+    case "near-end-fashion":
+      return NEAR_END_FASHION_TURNS.map((t) => ({ ...t }));
+    case "handoff-fashion":
+      return HANDOFF_FASHION_TURNS.map((t) => ({ ...t }));
+    case "near-end-consumer-finance":
+      return NEAR_END_CONSUMER_FINANCE_TURNS.map((t) => ({ ...t }));
+    case "handoff-consumer-finance":
+      return HANDOFF_CONSUMER_FINANCE_TURNS.map((t) => ({ ...t }));
     default:
       return [];
   }
@@ -485,7 +785,11 @@ export function listQaSeedIds(): QaSeedId[] {
     "handoff",
     "near-end-salon",
     "near-end-restaurant",
+    "near-end-fashion",
+    "near-end-consumer-finance",
     "handoff-salon",
     "handoff-restaurant",
+    "handoff-fashion",
+    "handoff-consumer-finance",
   ];
 }

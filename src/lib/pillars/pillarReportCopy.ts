@@ -1,5 +1,9 @@
 import type { PillarKey } from "./pillarCopy";
-import { isConsumerFacingBusinessType } from "@/lib/results/audienceFacingCopy";
+import {
+  isConsumerFacingResultsContext,
+  resolveResultsVertical,
+} from "@/lib/results/audienceFacingCopy";
+import type { ConsumerVerticalId } from "@/lib/intake/consumerVertical";
 
 export type BrandStage = "early" | "scaling" | "growing";
 
@@ -167,14 +171,92 @@ export const PILLAR_OPPORTUNITY_EXPANDED_CONSUMER: Record<PillarKey, string> = {
     "Map the path from first touch to booked or purchased. Cut competing buttons and mixed CTAs down to one primary next step everywhere you show up online.",
 };
 
-export function getPillarOpportunity(pillar: PillarKey, businessType?: string | null): string {
-  return isConsumerFacingBusinessType(businessType)
+const PILLAR_OPPORTUNITY_FASHION: Record<PillarKey, string> = {
+  positioning:
+    "Make your style POV obvious \u2014 so the right shoppers self-select and you spend less time competing on price alone.",
+  messaging:
+    "Keep one clear fashion story across site, social, and store \u2014 so every look builds desire instead of resetting the brand.",
+  visibility:
+    "Show up where shoppers discover style \u2014 Instagram/TikTok, search, and (if relevant) local store discovery.",
+  credibility:
+    "Put fit, quality, and social proof where hesitation happens \u2014 PDP, cart, and first follow-up.",
+  conversion:
+    "Make shop / visit / try-on obvious \u2014 so browse interest turns into purchase instead of abandoned carts.",
+};
+
+const PILLAR_OPPORTUNITY_EXPANDED_FASHION: Record<PillarKey, string> = {
+  positioning:
+    "Write one sentence: who you dress, what aesthetic you own, and why it feels different. Put it on your homepage hero, Instagram bio, and store signage. Test it with 3 ideal customers this week.",
+  messaging:
+    "Pick 3 themes (e.g. fit, fabric, lifestyle) and use them on every drop and post. Audit homepage, last 5 posts, and PDP copy: same story?",
+  visibility:
+    "List the 5 ways shoppers find brands like yours (social, search, marketplace, walk-by, referrals). Strengthen one discovery channel for 30 days before adding another.",
+  credibility:
+    "Move your best UGC, fit notes, and return policy clarity to PDP and cart. Proof placement beats more posts.",
+  conversion:
+    "Map browse \u2192 product \u2192 cart \u2192 purchase. Cut competing CTAs and make one primary action (shop / visit) dominant everywhere.",
+};
+
+const PILLAR_OPPORTUNITY_CONSUMER_PRO: Record<PillarKey, string> = {
+  positioning:
+    "Make it obvious who you help and what outcome you create \u2014 so the right clients self-select and trust starts earlier.",
+  messaging:
+    "Keep one clear, jargon-light story across Google, site, and first emails \u2014 so every touch builds confidence.",
+  visibility:
+    "Show up where people search for trusted advice \u2014 Google, referrals, and credentialed directories.",
+  credibility:
+    "Put credentials, clarity, and outcomes where hesitation happens \u2014 homepage, consult page, and first reply.",
+  conversion:
+    "Make book-a-consult the obvious next step \u2014 so interest turns into scheduled conversations, not endless FAQ loops.",
+};
+
+const PILLAR_OPPORTUNITY_EXPANDED_CONSUMER_PRO: Record<PillarKey, string> = {
+  positioning:
+    "Write one plain sentence: who you serve, what you help them decide or fix, and why you\u2019re a safe next step. Put it on your homepage and Google listing. Test it with 3 recent clients.",
+  messaging:
+    "Pick 3 themes (e.g. clarity, protection, peace of mind) and use them on every page and follow-up. Audit homepage, Google description, and last client email: same story?",
+  visibility:
+    "List the 5 ways new clients find advisors like you (Google, referrals, partners, content, events). Strengthen one for 30 days.",
+  credibility:
+    "Surface credentials, process clarity, and client outcomes on the consult page and first reply \u2014 not buried on an About page.",
+  conversion:
+    "Map inquiry \u2192 trust \u2192 booked consult. Remove mixed CTAs and make one primary booking action dominant.",
+};
+
+function opportunityMapsForVertical(
+  vertical: ConsumerVerticalId | null,
+): { short: Record<PillarKey, string>; expanded: Record<PillarKey, string> } | null {
+  if (vertical === "fashion_retail" || vertical === "dtc_product") {
+    return { short: PILLAR_OPPORTUNITY_FASHION, expanded: PILLAR_OPPORTUNITY_EXPANDED_FASHION };
+  }
+  if (vertical === "consumer_professional") {
+    return { short: PILLAR_OPPORTUNITY_CONSUMER_PRO, expanded: PILLAR_OPPORTUNITY_EXPANDED_CONSUMER_PRO };
+  }
+  return null;
+}
+
+export function getPillarOpportunity(
+  pillar: PillarKey,
+  businessType?: string | null,
+  industry?: string | null,
+): string {
+  const vertical = resolveResultsVertical({ businessType, industry });
+  const maps = opportunityMapsForVertical(vertical);
+  if (maps) return maps.short[pillar];
+  return isConsumerFacingResultsContext({ businessType, industry })
     ? PILLAR_OPPORTUNITY_CONSUMER[pillar]
     : PILLAR_OPPORTUNITY[pillar];
 }
 
-export function getPillarOpportunityExpanded(pillar: PillarKey, businessType?: string | null): string {
-  return isConsumerFacingBusinessType(businessType)
+export function getPillarOpportunityExpanded(
+  pillar: PillarKey,
+  businessType?: string | null,
+  industry?: string | null,
+): string {
+  const vertical = resolveResultsVertical({ businessType, industry });
+  const maps = opportunityMapsForVertical(vertical);
+  if (maps) return maps.expanded[pillar];
+  return isConsumerFacingResultsContext({ businessType, industry })
     ? PILLAR_OPPORTUNITY_EXPANDED_CONSUMER[pillar]
     : PILLAR_OPPORTUNITY_EXPANDED[pillar];
 }

@@ -41,6 +41,7 @@ interface PillarBreakdownProps {
   };
   businessName?: string;
   businessType?: string | null;
+  industry?: string | null;
   stage?: "early" | "scaling" | "growing";
 }
 
@@ -49,6 +50,7 @@ export function PillarBreakdown({
   insights,
   businessName = "Your brand",
   businessType = null,
+  industry = null,
   stage = "scaling",
 }: PillarBreakdownProps) {
   const pillarList: { key: PillarKey; label: string }[] = [
@@ -113,8 +115,12 @@ export function PillarBreakdown({
           const percent = (score / 20) * 100;
           const band = getScoreBand(score);
           const scoreVisual = getPillarScoreVisual(score);
-          const pillarOpportunity = getPillarOpportunity(pillar.key, businessType);
-          const pillarOpportunityExpanded = getPillarOpportunityExpanded(pillar.key, businessType);
+          const pillarOpportunity = getPillarOpportunity(pillar.key, businessType, industry);
+          const pillarOpportunityExpanded = getPillarOpportunityExpanded(
+            pillar.key,
+            businessType,
+            industry,
+          );
           const stageCopy = getPillarStageCopy(pillar.key, businessName, stage);
 
           return (

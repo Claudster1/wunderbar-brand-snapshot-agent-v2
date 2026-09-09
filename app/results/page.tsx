@@ -781,6 +781,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
           insights={pillarInsightsRaw}
           businessName={data.businessName}
           businessType={businessType}
+          industry={industry}
           stage={data.stage}
         />
       </div>
@@ -846,6 +847,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
             primaryPillar={primaryPillarStr}
             pillarScores={data.pillarScores}
             businessType={businessType}
+            industry={industry}
             businessName={data.businessName}
             reportId={data.reportId}
             email={data.userEmail}
@@ -906,6 +908,8 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       />
       <SnapshotDocumentResults
         businessName={data.businessName}
+        businessType={businessType}
+        industry={industry}
         {...(snapshotReportDate ? { reportDate: snapshotReportDate } : {})}
         brandAlignmentScore={data.brandAlignmentScore}
         pillarScores={data.pillarScores}

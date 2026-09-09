@@ -22,6 +22,7 @@ import {
   WUNDERBAR_SNAPSHOT_PLUS_PDF_DISPLAY,
   WUNDERBAR_SNAPSHOT_PLUS_PDF_URL,
 } from "@/lib/wunderbarExternalUrls";
+import { normalizeBusinessTypeOrGeneral } from "@/lib/intake/normalizeBusinessType";
 import {
   SUITE_ACCENT_BRIGHT,
   SUITE_BG_PAGE,
@@ -659,15 +660,7 @@ function contentFormatChannelTeaser(type: string): string {
 }
 
 function normalizeBusinessType(input?: string | null): string {
-  if (!input) return "general";
-  const v = String(input).toLowerCase();
-  if (v.includes("service_b2b")) return "service_b2b";
-  if (v.includes("service_b2c")) return "service_b2c";
-  if (v.includes("retail")) return "retail";
-  if (v.includes("ecommerce")) return "ecommerce";
-  if (v.includes("saas") || v.includes("software")) return "saas";
-  if (v.includes("local_service")) return "local_service";
-  return "general";
+  return normalizeBusinessTypeOrGeneral(input);
 }
 
 function parseMoney(input?: string | null): number | null {

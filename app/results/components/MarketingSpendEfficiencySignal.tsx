@@ -5,6 +5,7 @@ import type { PillarKey } from "@/src/types/pillars";
 import { trackEvent } from "@/lib/analytics";
 import { trackUpgradeClick } from "@/lib/adTracking";
 import { fireACEvent } from "@/lib/fireACEvent";
+import { normalizeBusinessTypeOrGeneral } from "@/lib/intake/normalizeBusinessType";
 
 type BudgetBand =
   | "under_500"
@@ -19,18 +20,6 @@ type Props = {
   reportId?: string;
   email?: string;
 };
-
-function normalizeBusinessType(input?: string | null): string {
-  if (!input) return "general";
-  const v = String(input).toLowerCase();
-  if (v.includes("service_b2b")) return "service_b2b";
-  if (v.includes("service_b2c")) return "service_b2c";
-  if (v.includes("retail")) return "retail";
-  if (v.includes("ecommerce")) return "ecommerce";
-  if (v.includes("saas") || v.includes("software")) return "saas";
-  if (v.includes("local_service")) return "local_service";
-  return "general";
-}
 
 function budgetLabel(budget: string | null | undefined): string {
   switch (budget) {
@@ -102,7 +91,7 @@ export function MarketingSpendEfficiencySignal({
   reportId,
   email,
 }: Props) {
-  const type = normalizeBusinessType(businessType);
+  const type = normalizeBusinessTypeOrGeneral(businessType);
   const budgetBand = toBudgetBand(monthlyMarketingBudget);
   const hasBudget = Boolean(budgetBand);
   const allocation = recommendationByBusinessType(type);

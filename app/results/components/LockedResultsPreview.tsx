@@ -8,6 +8,7 @@ import { fireACEvent } from "@/lib/fireACEvent";
 import { trackUpgradeClick } from "@/lib/adTracking";
 import { SNAPSHOT_PLUS_LOCKED_PROMPT_TITLES } from "@/src/lib/prompts/promptLibrary";
 import { PRICING, formatPrice } from "@/lib/pricing";
+import { normalizeBusinessTypeOrGeneral } from "@/lib/intake/normalizeBusinessType";
 
 type Props = {
   primaryPillar: PillarKey;
@@ -80,18 +81,6 @@ function getAudienceAlignmentTeaser(primaryPillar: PillarKey): string {
   return teasers[primaryPillar];
 }
 
-function normalizeBusinessType(input?: string | null): string {
-  if (!input) return "general";
-  const v = String(input).toLowerCase();
-  if (v.includes("service_b2b")) return "service_b2b";
-  if (v.includes("service_b2c")) return "service_b2c";
-  if (v.includes("retail")) return "retail";
-  if (v.includes("ecommerce")) return "ecommerce";
-  if (v.includes("saas") || v.includes("software")) return "saas";
-  if (v.includes("local_service")) return "local_service";
-  return "general";
-}
-
 function contentFormatChannelTeaser(type: string): string {
   switch (type) {
     case "service_b2b":
@@ -123,7 +112,7 @@ export function LockedResultsPreview({
   archetypeIcon,
 }: Props) {
   const primaryLabel = toLabel(primaryPillar);
-  const normalizedBusinessType = normalizeBusinessType(businessType);
+  const normalizedBusinessType = normalizeBusinessTypeOrGeneral(businessType);
   const promptPackLabel = `${SNAPSHOT_PLUS_LOCKED_PROMPT_TITLES.length} prompts built for ${businessName?.trim() || "your brand"}`;
 
   useEffect(() => {

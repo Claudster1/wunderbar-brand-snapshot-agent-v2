@@ -5,57 +5,32 @@
 
 import type { CaptureKey } from "@/lib/intake/flexibleDirectCaptureComplete";
 import {
+  getBrandPersonalityChipsForTone,
   getChipSelectionModeForCapture,
+  getContentFormatChipsForTone,
+  getCustomerAcquisitionChipsForTone,
+  getCustomerExpectationChipsForTone,
+  getDecisionStyleChipsForTone,
+  getPaidAdsObjectiveChipsForTone,
+  getPrimaryGoalChipsForTone,
   getSuggestedRepliesForCapture,
   type ChipSelectionMode,
 } from "@/lib/intake/captureSuggestedReplies";
+import { toneFromMessages, type ToneProfileId } from "@/lib/intake/toneProfile";
 
 export type { ChipSelectionMode };
 
 export const OTHER_CHIP = "Something else (type below)";
 export const BETWEEN_BANDS_CHIP = "Between bands / not sure — describe below";
 
-/** Default chips for 6–12 month outcome / primary goals questions. */
-export const PRIMARY_GOAL_CHIPS: string[] = [
-  "Attract more qualified leads",
-  "Build brand awareness and credibility",
-  "Differentiate from look-alike competitors",
-  "Improve conversion — turn interest into paying customers",
-  "Launch or establish the brand properly",
-  "Build authority and thought leadership in the space",
-  OTHER_CHIP,
-];
+/** Default chips for 6–12 month outcome / primary goals questions (B2B-leaning fallback). */
+export const PRIMARY_GOAL_CHIPS: string[] = getPrimaryGoalChipsForTone("b2b_professional");
 
-export const BRAND_PERSONALITY_CHIPS: string[] = [
-  "Sharp and credible",
-  "Approachable / no jargon",
-  "Challenger / category-pushing",
-  "Calm and steady",
-  "Warm and human",
-  "Premium / polished",
-  OTHER_CHIP,
-];
+export const BRAND_PERSONALITY_CHIPS: string[] = getBrandPersonalityChipsForTone("b2b_professional");
 
-export const CONTENT_FORMAT_CHIPS: string[] = [
-  "Short social posts / reels",
-  "Long-form articles / LinkedIn",
-  "Video / podcast",
-  "Email newsletters",
-  "Case studies / proof content",
-  "Not creating much yet",
-  OTHER_CHIP,
-];
+export const CONTENT_FORMAT_CHIPS: string[] = getContentFormatChipsForTone("b2b_professional");
 
-export const CUSTOMER_ACQUISITION_CHIPS: string[] = [
-  "Referrals / word of mouth",
-  "Google / organic search",
-  "Social media",
-  "Paid advertising",
-  "Networking / events",
-  "Partnerships",
-  "Not sure",
-  OTHER_CHIP,
-];
+export const CUSTOMER_ACQUISITION_CHIPS: string[] = getCustomerAcquisitionChipsForTone("b2b_professional");
 
 export const GEOGRAPHIC_SCOPE_CHIPS: string[] = [
   "Locally (city or metro)",
@@ -176,15 +151,7 @@ export const PAID_ADS_BUDGET_CHIPS: string[] = [
   BETWEEN_BANDS_CHIP,
 ];
 
-export const PAID_ADS_OBJECTIVE_CHIPS: string[] = [
-  "Generate more qualified leads",
-  "Drive more sales/conversions",
-  "Lower cost per lead/acquisition",
-  "Improve ROAS",
-  "Improve pipeline quality",
-  "Build awareness first",
-  OTHER_CHIP,
-];
+export const PAID_ADS_OBJECTIVE_CHIPS: string[] = getPaidAdsObjectiveChipsForTone("b2b_professional");
 
 export const PREVIOUS_BRAND_WORK_CHIPS: string[] = [
   "First time thinking about brand strategy",
@@ -214,13 +181,7 @@ export const EXPERT_CONVERSATION_CHIPS: string[] = [
   "Maybe later — include the link in my diagnostic",
 ];
 
-export const DECISION_STYLE_CHIPS: string[] = [
-  "I trust my instincts and move quickly",
-  "I research thoroughly before acting",
-  "I collaborate and seek alignment",
-  "I rely on proven systems and expertise",
-  OTHER_CHIP,
-];
+export const DECISION_STYLE_CHIPS: string[] = getDecisionStyleChipsForTone("b2b_professional");
 
 export const AUTHORITY_SOURCE_CHIPS: string[] = [
   "Personal experience or story",
@@ -238,15 +199,30 @@ export const RISK_ORIENTATION_CHIPS: string[] = [
   OTHER_CHIP,
 ];
 
-export const CUSTOMER_EXPECTATION_CHIPS: string[] = [
-  "Innovation or fresh thinking",
-  "Clear guidance and expertise",
-  "Trust and reliability",
-  "Connection and shared values",
-  OTHER_CHIP,
-];
+export const CUSTOMER_EXPECTATION_CHIPS: string[] = getCustomerExpectationChipsForTone("b2b_professional");
 
-type TopicRule = { test: RegExp; chips: string[]; mode: ChipSelectionMode };
+type TopicRule = {
+  test: RegExp;
+  mode: ChipSelectionMode;
+  /** Static chips (tone-invariant). */
+  chips?: string[];
+  /** Resolve from capture catalog with tone. */
+  captureKey?: CaptureKey;
+  /** Custom tone-aware factory. */
+  chipFactory?: (tone: ToneProfileId) => string[];
+};
+
+function chipsForRule(
+  rule: TopicRule,
+  tone: ToneProfileId,
+  messages?: Array<{ role: string; content: string }>,
+): string[] {
+  if (rule.chipFactory) return rule.chipFactory(tone);
+  if (rule.captureKey) {
+    return getSuggestedRepliesForCapture(rule.captureKey, { messages, toneProfile: tone });
+  }
+  return rule.chips ?? [];
+}
 
 /**
  * Ordered topic detectors — first match wins.
@@ -254,13 +230,13 @@ type TopicRule = { test: RegExp; chips: string[]; mode: ChipSelectionMode };
  */
 const TOPIC_RULES: TopicRule[] = [
   {
-    test: /\b(6\s*[–-]\s*12\s*months|next (6|12) months|primary goals?|outcomes that matter|hoping to achieve|priorities for .{0,40}(brand|business|company))\b/i,
-    chips: PRIMARY_GOAL_CHIPS,
+    test: /\b(6\s*[–-]\s*12\s*months|next (6|12) months|primary goals?|outcomes that matter|hoping to achieve|priorities for .{0,40}(brand|business|company)|more bookings|more guests|foot traffic)\b/i,
+    chipFactory: getPrimaryGoalChipsForTone,
     mode: "multi",
   },
   {
-    test: /\b(brand personality|if .{0,60} were a person|how would you describe (them|the brand)|personality words|person in a room)\b/i,
-    chips: BRAND_PERSONALITY_CHIPS,
+    test: /\b(brand personality|if .{0,60} were a person|how would you describe (them|the brand)|personality words|person in a room|walked into the room)\b/i,
+    chipFactory: getBrandPersonalityChipsForTone,
     mode: "multi",
   },
   {
@@ -270,109 +246,124 @@ const TOPIC_RULES: TopicRule[] = [
   },
   {
     test: /\b(content formats?|types? of content|what (do you|kind of content) (create|publish)|what formats|formats?.{0,40}audience|audience engages?)\b/i,
-    chips: CONTENT_FORMAT_CHIPS,
+    chipFactory: getContentFormatChipsForTone,
     mode: "multi",
   },
   {
-    test: /\b(brand-?new prospect|first discovers you|discovers you|usually happen|top acquisition|primary acquisition)\b/i,
-    chips: getSuggestedRepliesForCapture("primary_acquisition_channel"),
+    test: /\b(brand-?new (prospect|guest|client|customer)|first discovers you|discovers you|usually happen|top acquisition|primary acquisition)\b/i,
+    captureKey: "primary_acquisition_channel",
     mode: "single",
   },
   {
     test: /\b(customers? come from|how (do|does) people (typically )?find|where do most of your customers|most new customers find)\b/i,
-    chips: CUSTOMER_ACQUISITION_CHIPS,
+    chipFactory: getCustomerAcquisitionChipsForTone,
     mode: "multi",
   },
   {
-    test: /\b(industry or space|what industry|line of business|what space is the business)\b/i,
-    chips: getSuggestedRepliesForCapture("industry"),
+    test: /\b(industry or space|what industry|kind of business is this|line of business|what space is the business|hair salon|restaurant)\b/i,
+    captureKey: "industry",
     mode: "single",
   },
   {
-    test: /\b(how clear is your offer|offer to someone encountering|encountering you for the first time)\b/i,
-    chips: getSuggestedRepliesForCapture("offer_clarity"),
+    test: /\b(how clear is your offer|how clear is your menu|how clear are your services|offer to someone encountering|encountering you for the first time)\b/i,
+    captureKey: "offer_clarity",
     mode: "single",
   },
   {
     test: /\b(messaging feel across|how clear and consistent does your messaging)\b/i,
-    chips: getSuggestedRepliesForCapture("messaging_clarity"),
+    captureKey: "messaging_clarity",
     mode: "single",
   },
   {
-    test: /\b(customer proof|testimonials?\/reviews|case studies,? or neither)\b/i,
-    chips: getSuggestedRepliesForCapture("credibility_proof"),
+    test: /\b(customer proof|testimonials?\/reviews|case studies,? or neither|reviews \(google|before\/after)\b/i,
+    captureKey: "credibility_proof",
     mode: "multi",
   },
   {
-    test: /\b(thought leadership|linkedin pov|blog, speaking)\b/i,
-    chips: getSuggestedRepliesForCapture("thought_leadership"),
+    test: /\b(thought leadership|linkedin pov|blog, speaking|behind-the-scenes|sharing tips)\b/i,
+    captureKey: "thought_leadership",
     mode: "single",
   },
   {
-    test: /\b(do you have a website\?|website url to share|landing page or store|not on the web yet|great — what'?s the url|what'?s the url\?|paste the link)\b/i,
-    chips: getSuggestedRepliesForCapture("website_presence"),
-    mode: "single",
-  },
-  {
-    test: /\b(great — what'?s the url|what'?s the url\?|paste the link|skip for now)\b/i,
-    chips: ["I'll paste the URL", "Skip for now", "Actually — no website yet"],
+    test: /\b(do you have a website\?|website url to share|landing page or store|not on the web yet|paste (your website )?url|message box below)\b/i,
+    captureKey: "website_presence",
     mode: "single",
   },
   {
     test: /\b(beyond your website and social|where else are you putting time or budget)\b/i,
-    chips: getSuggestedRepliesForCapture("additional_marketing_surfaces"),
+    captureKey: "additional_marketing_surfaces",
     mode: "multi",
   },
   {
     test: /\b(email list you.re sending|mailing list|list you.re sending to today)\b/i,
-    chips: getSuggestedRepliesForCapture("has_email_list"),
+    captureKey: "has_email_list",
     mode: "single",
   },
   {
-    test: /\b(free download, guide, or template|lead magnet|in exchange for email)\b/i,
-    chips: getSuggestedRepliesForCapture("has_lead_magnet"),
+    test: /\b(free download|lead magnet|guide, or template|discount, waitlist perk|tip sheet)\b/i,
+    captureKey: "has_lead_magnet",
     mode: "single",
   },
   {
-    test: /\b(how clear is the next step|pretty obvious, or still a bit mixed)\b/i,
-    chips: getSuggestedRepliesForCapture("has_clear_cta"),
+    test: /\b(how clear is the next step|pretty obvious, or still a bit mixed|reserve, order, visit|book, call, or message)\b/i,
+    captureKey: "has_clear_cta",
+    mode: "single",
+  },
+  {
+    test: /\b(average deal or order size|average order value|typical ticket|average check|typical booking or service value)\b/i,
+    captureKey: "average_transaction_value",
+    mode: "single",
+  },
+  {
+    test: /\b(conversion or close rate|approximate conversion|what share (actually )?(visit|book)|inquire or message you)\b/i,
+    captureKey: "conversion_rate_estimate",
+    mode: "single",
+  },
+  {
+    test: /\b(choose a competitor over you|prospects choose a competitor|guests choose a competitor|clients choose a competitor)\b/i,
+    captureKey: "competitive_pressure_point",
+    mode: "single",
+  },
+  {
+    test: /\b(paid ads? (primary )?objective|what are you optimizing|pipeline quality|more bookings \/ visits|primary goal for paid|goal for paid)\b/i,
+    chipFactory: getPaidAdsObjectiveChipsForTone,
     mode: "single",
   },
   {
     test: /\b(primarily get paid|how you earn revenue|services\/consulting, a physical)\b/i,
-    chips: getSuggestedRepliesForCapture("business_type_classifier"),
+    captureKey: "business_type_classifier",
     mode: "single",
   },
   {
-    test: /\b(geographic (reach|scope)|serve customers locally|locally,? regionally|nationally,? or globally|mainly serve customers|where do you (mainly )?do business|where .{0,40}(do business|operate|based))\b/i,
-    chips: getSuggestedRepliesForCapture("geographic_scope"),
+    test: /\b(geographic (reach|scope)|serve customers locally|serve people|locally,? regionally|nationally,? or globally|mainly serve customers|where do you (mainly )?do business|where .{0,40}(do business|operate|based))\b/i,
+    captureKey: "geographic_scope",
     mode: "single",
   },
   {
     test: /\b(sell to other businesses|primarily sell to|mainly sell to|directly to consumers|audience type|customers mostly (other companies|individual)|B2B \/ B2C|B2B or B2C|businesses,? (directly )?to consumers,? or both)\b/i,
-    chips: getSuggestedRepliesForCapture("audience_type_classifier"),
+    captureKey: "audience_type_classifier",
+    mode: "single",
+  },
+  {
+    test: /\b(sell to both businesses and consumers|which side does most of your marketing|consumer \/ b2c side|business \/ b2b side|keep both in mind)\b/i,
+    captureKey: "marketing_audience_focus",
     mode: "single",
   },
   {
     test: /\b(how long .{0,40}(operating|in business|been around)|years in business|roughly how long)\b/i,
-    chips: getSuggestedRepliesForCapture("years_in_business"),
+    captureKey: "years_in_business",
     mode: "single",
   },
   {
     test: /\b(how big is (your|the) team|team size|how many people (are )?involved)\b/i,
-    chips: getSuggestedRepliesForCapture("team_size"),
+    captureKey: "team_size",
     mode: "single",
   },
   {
     // Require an ask about platforms — bare "social presence" in bridge copy must not steal chips.
     test: /\b(where does .{0,60} show up on social|show up on social today|name the platforms that matter|platforms that matter|which (social )?platforms?|social (media )?platforms?\b.{0,50}(active|matter|today|using))\b/i,
-    chips: getSuggestedRepliesForCapture("social_platform_presence"),
+    captureKey: "social_platform_presence",
     mode: "multi",
-  },
-  {
-    test: /\b(choose a competitor|competitive pressure|reason comes up most|price,? trust,? clarity|prospects choose a competitor)\b/i,
-    chips: getSuggestedRepliesForCapture("competitive_pressure_point"),
-    mode: "single",
   },
   {
     test: /\b(makes you different|competitive advantage|what sets you apart|stand out from|look-?alike competitors|differentiation|unique (value|edge|positioning))\b/i,
@@ -389,12 +380,12 @@ const TOPIC_RULES: TopicRule[] = [
   },
   {
     test: /\b(marketing (channels?|levers?)|channels? (are you|you are) (actively )?(using|running)|pulling .{0,20}today)\b/i,
-    chips: getSuggestedRepliesForCapture("marketing_channel_mix"),
+    captureKey: "marketing_channel_mix",
     mode: "multi",
   },
   {
     test: /\b(visual (side|confidence)|how (confident|happy).{0,40}(look|logo|visual|brand looks))\b/i,
-    chips: getSuggestedRepliesForCapture("visual_confidence"),
+    captureKey: "visual_confidence",
     mode: "single",
   },
   {
@@ -404,27 +395,22 @@ const TOPIC_RULES: TopicRule[] = [
   },
   {
     test: /\b(month to month|monthly (revenue|sales)|generate month)\b/i,
-    chips: getSuggestedRepliesForCapture("monthly_revenue_range"),
+    captureKey: "monthly_revenue_range",
     mode: "single",
   },
   {
     test: /\b(monthly marketing budget|marketing budget today)\b/i,
-    chips: getSuggestedRepliesForCapture("monthly_marketing_budget"),
+    captureKey: "monthly_marketing_budget",
     mode: "single",
   },
   {
     test: /\b(content creation|hours?.{0,20}(week|content)|dedicate .{0,20}content|time .{0,40}content each week)\b/i,
-    chips: getSuggestedRepliesForCapture("content_creation_capacity"),
+    captureKey: "content_creation_capacity",
     mode: "single",
   },
   {
     test: /\b(investing in paid ads|paid ads each month|paid media|ad spend)\b/i,
     chips: PAID_ADS_BUDGET_CHIPS,
-    mode: "single",
-  },
-  {
-    test: /\b(primary goal for paid|paid channels right now|goal for paid)\b/i,
-    chips: PAID_ADS_OBJECTIVE_CHIPS,
     mode: "single",
   },
   {
@@ -434,7 +420,7 @@ const TOPIC_RULES: TopicRule[] = [
   },
   {
     test: /\b(your role at|how do you think about your role|founder \/ co-founder|run the business day-to-day)\b/i,
-    chips: getSuggestedRepliesForCapture("user_role_context"),
+    captureKey: "user_role_context",
     mode: "single",
   },
   {
@@ -448,8 +434,8 @@ const TOPIC_RULES: TopicRule[] = [
     mode: "single",
   },
   {
-    test: /\b(make decisions|making decisions|decision style|which pattern fits|what pattern fits you|when you decide)\b/i,
-    chips: DECISION_STYLE_CHIPS,
+    test: /\b(make decisions|making decisions|decision style|which pattern fits|what pattern fits you|when you decide|try a new offer|ship a feature)\b/i,
+    chipFactory: getDecisionStyleChipsForTone,
     mode: "single",
   },
   {
@@ -463,19 +449,8 @@ const TOPIC_RULES: TopicRule[] = [
     mode: "single",
   },
   {
-    test: /\b(customers? most expect|hoping they.ll feel|what do .{0,30} expect when they (choose|say yes))\b/i,
-    chips: CUSTOMER_EXPECTATION_CHIPS,
-    mode: "single",
-  },
-  {
-    test: /\b(average (transaction|deal)|deal size)\b/i,
-    chips: getSuggestedRepliesForCapture("average_transaction_value"),
-    mode: "single",
-  },
-  {
-    // Keep narrow — bare "conversion" matches goal chips / narrative and steals wrong pills.
-    test: /\b(conversion (or |\/ )?close rate|close rate|approximate conversion|win rate|don'?t track (that|this|conversion)|do you not track)\b/i,
-    chips: getSuggestedRepliesForCapture("conversion_rate_estimate"),
+    test: /\b(customers? most expect|guests? most expect|clients? most expect|hoping they.ll feel|what do .{0,30} expect when they (choose|say yes|book|visit))\b/i,
+    chipFactory: getCustomerExpectationChipsForTone,
     mode: "single",
   },
 ];
@@ -513,16 +488,25 @@ function lastMatchingTopicRule(
 export function resolveSuggestedReplies(params: {
   nextPendingKey: CaptureKey | null;
   lastAssistantText?: string | null;
+  messages?: Array<{ role: string; content?: string | null }>;
 }): string[] | null {
   const t = String(params.lastAssistantText || "");
+  const normalizedMessages = (params.messages ?? []).map((m) => ({
+    role: m.role,
+    content: String(m.content || ""),
+  }));
+  const tone = toneFromMessages(normalizedMessages);
 
   if (t.trim()) {
     const matched = lastMatchingTopicRule(t);
-    if (matched) return matched.chips;
+    if (matched) return chipsForRule(matched, tone, normalizedMessages);
   }
 
   if (params.nextPendingKey) {
-    const fromCapture = getSuggestedRepliesForCapture(params.nextPendingKey);
+    const fromCapture = getSuggestedRepliesForCapture(params.nextPendingKey, {
+      messages: normalizedMessages,
+      toneProfile: tone,
+    });
     if (fromCapture.length > 0) return fromCapture;
   }
 

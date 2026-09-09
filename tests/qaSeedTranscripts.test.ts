@@ -9,6 +9,8 @@ describe("qaSeedTranscripts", () => {
   it("parses seed ids", () => {
     expect(parseQaSeedParam("near-end")).toBe("near-end");
     expect(parseQaSeedParam("handoff")).toBe("handoff");
+    expect(parseQaSeedParam("salon")).toBe("near-end-salon");
+    expect(parseQaSeedParam("restaurant")).toBe("near-end-restaurant");
     expect(parseQaSeedParam("nope")).toBeNull();
   });
 
@@ -30,5 +32,24 @@ describe("qaSeedTranscripts", () => {
     const turns = getQaSeedTurns("handoff");
     expect(turns[turns.length - 1]?.role).toBe("user");
     expect(turns[turns.length - 1]?.text).toMatch(/on my own/i);
+  });
+
+  it("salon seed uses client language, not prospects / LinkedIn POV", () => {
+    const turns = getQaSeedTurns("near-end-salon");
+    const joined = turns.map((t) => t.text).join("\n");
+    expect(joined).toMatch(/Luna Hair Studio/);
+    expect(joined).toMatch(/brand-new client/i);
+    expect(joined).not.toMatch(/prospects choose/i);
+    expect(joined).not.toMatch(/LinkedIn POV/i);
+    expect(turns[turns.length - 1]?.role).toBe("assistant");
+  });
+
+  it("restaurant seed uses guest / hospitality language", () => {
+    const turns = getQaSeedTurns("near-end-restaurant");
+    const joined = turns.map((t) => t.text).join("\n");
+    expect(joined).toMatch(/Harbor Kitchen/);
+    expect(joined).toMatch(/brand-new guest/i);
+    expect(joined).toMatch(/menu or experience/i);
+    expect(joined).not.toMatch(/LinkedIn POV/i);
   });
 });

@@ -55,7 +55,7 @@ const FULL_NARRATIVE_MILESTONES: NarrativeMilestone[] = [
     id: "voice",
     label: "Brand voice",
     detect:
-      /\b(brand personality|person in a room|personality words|how would you describe (them|your brand)|sharp and credible|approachable|no jargon|challenger|calm and steady|warm and human|premium \/ polished)\b/i,
+      /\b(brand personality|person in a room|walked into the room|personality words|how would you describe (them|your brand)|sharp and credible|approachable|no jargon|challenger|calm and steady|warm and (human|welcoming)|premium \/ polished|trusted local|stylish and polished)\b/i,
   },
   {
     id: "topics",

@@ -16,7 +16,7 @@ export function correctionChipHintForLabel(label: string): string | null {
     return "Where do you mainly serve customers — locally, regionally, nationally, or globally?";
   }
   if (l.includes("website") || l === "site") {
-    return "Do you have a website URL to share today — even a simple landing page or store link?";
+    return "Do you have a website? If yes, paste the URL in the message box below (e.g. yoursite.com) and send.";
   }
   if (l.includes("social")) {
     return "Where does your brand show up on social today? Name the platforms that matter.";

@@ -1035,7 +1035,9 @@ export function useBrandChat(options?: UseBrandChatOptions) {
                 pendingCaptureLabels: prev?.pendingCaptureLabels ?? [],
                 nextCaptureKey: prev?.nextCaptureKey ?? null,
                 intakeReadyForFinalize: false,
-                suggestedReplies: buildCompletenessNudgeChips(missingSignals),
+                suggestedReplies: buildCompletenessNudgeChips(missingSignals, {
+                  messages: updatedHistory,
+                }),
                 chipSelectionMode: 'single',
                 questionsRemainingEstimate: Math.max(1, missingSignals.length),
                 capturedSummary: prev?.capturedSummary ?? [],

@@ -11,13 +11,14 @@ const WEBSITE_NO_SITE_RE =
 
 /** Chip / freeform affirmations that mean “I have a site” but do not supply a URL. */
 const WEBSITE_AFFIRM_WITHOUT_URL_RE =
-  /^(yes|yeah|yep|yup|sure)([,.!]|\s|$)|yes[,\s—–-]*(here'?s|i'?ll|i will|i can)?\s*(the\s+)?(url|link|website)|yes\s*[—–-]\s*i'?ll paste|i('?ll| will) paste (the )?(url|link)|we (do )?have (a )?(website|site)|i have (a )?(website|site)|our (website|site) (is|exists)|yes i have/i;
+  /^(yes|yeah|yep|yup|sure)([,.!]|\s|$)|yes[,\s—–-]*(here'?s|i'?ll|i will|i can)?\s*(the\s+)?(url|link|website)|yes\s*[—–-]\s*i'?ll (paste|type)|i('?ll| will) (paste|type) (the )?(url|link)|i('?ll| will) type (it|the url) in the (box|chat|message)|we (do )?have (a )?(website|site)|i have (a )?(website|site)|our (website|site) (is|exists)|yes i have/i;
 
+/** Prefer paste-first: clear where the URL goes (chat input under chips). */
 export const WEBSITE_PRESENCE_INITIAL_PROMPT =
-  "**Do you have a website?** If yes, you can share the URL next — or say if you are not on the web yet.";
+  "**Do you have a website?** If yes, **paste the URL in the message box below** (e.g. `yoursite.com` or `https://yoursite.com`) and send. If you don't have one yet, tap a chip.";
 
 export const WEBSITE_PRESENCE_URL_FOLLOWUP_PROMPT =
-  "**Great — what's the URL?** Paste the link (even a simple landing page or store). If you'd rather skip the link for now, say *skip for now*.";
+  "**Paste your website URL in the message box below** (the text field under these chips) — e.g. `yoursite.com` or `https://…` — then hit send. Or tap *Skip for now*.";
 
 export function textHasWebsiteUrl(text: string): boolean {
   return WEBSITE_URL_RE.test(String(text || ""));
@@ -68,7 +69,7 @@ export function shouldAskWebsiteUrlFollowUp(
   const { lastAssistant, lastUser } = lastUserAndAssistant(messages);
   if (!textAffirmsWebsiteWithoutUrl(lastUser)) return false;
   // Assistant was on the website topic (initial or any website ask).
-  return /\b(website|url|web address|domain|site to share|online home|landing page|not on the web)\b/i.test(
+  return /\b(website|url|web address|domain|site to share|online home|landing page|not on the web|message box below)\b/i.test(
     lastAssistant,
   );
 }
@@ -82,14 +83,17 @@ export function buildWebsitePresenceCaptureQuestion(
   return WEBSITE_PRESENCE_INITIAL_PROMPT;
 }
 
-/** Initial yes/no chips vs URL follow-up chips. */
+/**
+ * Initial: no-site chips only — happy path is paste URL into the chat input (not a chip).
+ * Follow-up: skip / no-site only — never “I'll paste” (that chip never pastes anything).
+ */
 export function getWebsitePresenceSuggestedReplies(
   messages?: Array<{ role: string; content?: string }>,
 ): string[] {
   if (messages && shouldAskWebsiteUrlFollowUp(messages)) {
-    return ["I'll paste the URL", "Skip for now", "Actually — no website yet"];
+    return ["Skip for now", "Actually — no website yet"];
   }
-  return ["Yes", "Yes — I'll paste the URL", "No website yet", "Social / marketplace only", "Coming soon"];
+  return ["No website yet", "Social / marketplace only", "Coming soon"];
 }
 
 /** Create/build-a-site coaching is never a valid website capture turn. */
@@ -105,7 +109,7 @@ export function assistantSuggestsCreatingWebsite(content: string): boolean {
 export function assistantWebsiteReplyLooksOnTopic(content: string): boolean {
   const t = String(content || "");
   if (assistantSuggestsCreatingWebsite(t)) return false;
-  return /\b(do you have (a )?website|website url|what'?s (the )?url|share .{0,20}(url|link)|paste .{0,16}(url|link)|landing page or store|not on the web|online home|web address)\b/i.test(
+  return /\b(do you have (a )?website|website url|what'?s (the )?url|share .{0,20}(url|link)|paste .{0,40}(url|link)|message box below|landing page or store|not on the web|online home|web address)\b/i.test(
     t,
   );
 }
@@ -128,7 +132,7 @@ export function transcriptImpliesHasWebsite(
     const prevAssistant = [...messages.slice(0, i)].reverse().find((x) => x.role === "assistant");
     if (
       prevAssistant &&
-      /\b(website|url|web address|domain|site to share|landing|not on the web)\b/i.test(
+      /\b(website|url|web address|domain|site to share|landing|not on the web|message box below)\b/i.test(
         prevAssistant.content || "",
       )
     ) {

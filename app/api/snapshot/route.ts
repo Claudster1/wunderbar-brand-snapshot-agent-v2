@@ -37,6 +37,8 @@ import {
   normalizeIntakeTierForStorage,
   storedTierToProductTierField,
 } from "@/lib/results/resolveReportProductTier";
+import { inferBusinessTypeFromAnswersCorpus } from "@/lib/intake/toneProfile";
+import { normalizeBusinessTypeLabel } from "@/lib/intake/normalizeBusinessType";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -46,37 +48,11 @@ export const maxDuration = 60;
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://app.wunderbrand.ai";
 
 function normalizeBusinessType(raw: unknown): string | null {
-  if (typeof raw !== "string") return null;
-  const value = raw.trim().toLowerCase();
-  if (!value) return null;
-  if (value.includes("service_b2b") || value.includes("b2b service")) return "service_b2b";
-  if (value.includes("service_b2c") || value.includes("b2c service")) return "service_b2c";
-  if (value.includes("retail")) return "retail";
-  if (value.includes("ecommerce") || value.includes("e-commerce") || value.includes("product brand")) return "ecommerce";
-  if (value.includes("saas") || value.includes("software") || value.includes("app")) return "saas";
-  if (value.includes("local_service") || value.includes("local service")) return "local_service";
-  return null;
+  return normalizeBusinessTypeLabel(raw);
 }
 
 function inferBusinessTypeFromAnswers(answers: Record<string, unknown>): string {
-  const corpus = [
-    answers.businessName,
-    answers.industry,
-    answers.what_you_do,
-    answers.response_1,
-    answers.response_2,
-    answers.response_3,
-  ]
-    .filter((x): x is string => typeof x === "string")
-    .join(" ")
-    .toLowerCase();
-
-  if (/\bsaas|software|app|subscription\b/.test(corpus)) return "saas";
-  if (/\be-?commerce|shopify|amazon|dtc|product\b/.test(corpus)) return "ecommerce";
-  if (/\bretail|storefront|restaurant|boutique|food|beverage\b/.test(corpus)) return "retail";
-  if (/\blocal|dental|medical|legal|salon|studio|clinic|contractor|trade\b/.test(corpus)) return "local_service";
-  if (/\bb2c|consumer|clients|customers\b/.test(corpus)) return "service_b2c";
-  return "service_b2b";
+  return inferBusinessTypeFromAnswersCorpus(answers);
 }
 
 function normalizeAnswers(answers: Record<string, unknown>): Record<string, unknown> {

@@ -10,6 +10,7 @@ import { resolveSuggestedReplies } from "@/lib/intake/multiSelectChipCatalog";
 const CAPTURE_KEYS_WITH_CHIPS: CaptureKey[] = [
   "business_type_classifier",
   "audience_type_classifier",
+  "marketing_audience_focus",
   "user_role_context",
   "team_size",
   "industry",
@@ -181,7 +182,34 @@ describe("chip ↔ question alignment QC", () => {
       lastAssistantText:
         "If Wunderbar Digital were a person in a room, how would you describe them? Tap a few below — or type your own words.",
     });
-    expect(chips?.[0]).toMatch(/Sharp|Approachable|Challenger/i);
+    expect(chips?.[0]).toMatch(/Sharp|Approachable|Challenger|Warm/i);
+  });
+
+  it("personality wording with salon transcript prefers consumer chips", () => {
+    const chips = resolveSuggestedReplies({
+      nextPendingKey: null,
+      lastAssistantText:
+        "If the brand walked into the room like a person, how would guests or clients describe them?",
+      messages: [
+        { role: "user", content: "Local / personal services" },
+        { role: "user", content: "Mostly B2C" },
+        { role: "user", content: "Hair / beauty / spa" },
+      ],
+    });
+    expect(chips?.[0]).toMatch(/Warm and welcoming/i);
+  });
+
+  it("decision-style owner-operator wording resolves decision chips", () => {
+    const chips = resolveSuggestedReplies({
+      nextPendingKey: null,
+      lastAssistantText:
+        "When you decide to try a new offer, price, or promo, what pattern fits you best? Tap below — or type your own.",
+      messages: [
+        { role: "user", content: "Local / personal services" },
+        { role: "user", content: "Mostly B2C" },
+      ],
+    });
+    expect(chips?.[0]).toMatch(/gut|research|team|worked/i);
   });
 
   it("content formats wording with 'engages' resolves chips", () => {

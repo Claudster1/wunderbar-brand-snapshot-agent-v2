@@ -41,12 +41,20 @@ describe("websitePresenceCapture", () => {
       { role: "user", content: "yes" },
     ];
     const followUp = buildWebsitePresenceCaptureQuestion(messages);
-    expect(followUp).toMatch(/url/i);
+    expect(followUp).toMatch(/message box below/i);
     expect(followUp).not.toMatch(/do you have a website\?/i);
     expect(buildCaptureQuestion("website_presence", null, { messages })).toBe(followUp);
-    expect(getSuggestedRepliesForCapture("website_presence", { messages })).toContain(
-      "I'll paste the URL",
-    );
+    expect(getSuggestedRepliesForCapture("website_presence", { messages })).toEqual([
+      "Skip for now",
+      "Actually — no website yet",
+    ]);
+  });
+
+  it("initial chips push paste-in-box, not I'll-paste", () => {
+    expect(LA_WEBSITE).toMatch(/message box below/i);
+    const chips = getSuggestedRepliesForCapture("website_presence");
+    expect(chips).toContain("No website yet");
+    expect(chips.join(" ")).not.toMatch(/i'?ll paste/i);
   });
 
   it("flags create-a-site coaching as off-topic", () => {
@@ -55,7 +63,7 @@ describe("websitePresenceCapture", () => {
     expect(assistantSuggestsCreatingWebsite(bad)).toBe(true);
     expect(assistantWebsiteReplyLooksOnTopic(bad)).toBe(false);
     const good =
-      "Got it — you have a site. **What's the URL?** Paste the link when you can.";
+      "Got it — you have a site. **Paste your website URL in the message box below** when you can.";
     expect(assistantWebsiteReplyLooksOnTopic(good)).toBe(true);
   });
 

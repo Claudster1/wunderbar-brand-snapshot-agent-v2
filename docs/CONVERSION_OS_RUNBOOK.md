@@ -76,7 +76,7 @@ Automations **must be built in the AC UI** (API cannot create them). Use build p
 | 1 ⭐ | Free Snapshot → Snapshot+ | `purchased:snapshot` | `ACTIVECAMPAIGN_REVENUE_AUTOMATION_EMAILS.md` → 4.1 |
 | 2 ⭐ | Abandoned checkout | `checkout:abandoned` | …REVENUE… → 4.2 |
 | 3 | Report Ready | `report:*-ready` | …REVENUE… → 4.8 |
-| 4 | Brand Education | `nurture:brand-education` | `ACTIVECAMPAIGN_BRAND_EDUCATION_NURTURE.md` |
+| 4 | Seq 15 — Brand Growth Series | `nurture:brand-education` | `ACTIVECAMPAIGN_BRAND_EDUCATION_NURTURE.md` |
 | 5 💰 | Managed Marketing MQL | `mql:managed-marketing` | `ACTIVECAMPAIGN_CALL_AUTOMATION_EMAILS.md` → B |
 | 6 💰 | MM pre-booking | `services:managed_marketing` | …CALL… → E |
 | 7 💰 | AI Consulting MQL | `mql:ai-consulting` | …CALL… → C |

@@ -45,7 +45,7 @@ email bodies — so you build each one from a single place, no flipping. Recomme
 | 1 | Free Snapshot → Snapshot+ upgrade ⭐ | `purchased:snapshot` | `ACTIVECAMPAIGN_REVENUE_AUTOMATION_EMAILS.md` → 4.1 |
 | 2 | Abandoned checkout ⭐ | `checkout:abandoned` | `…REVENUE…` → 4.2 |
 | 3 | Report Ready | `report:*-ready` | `…REVENUE…` → 4.8 |
-| 4 | Brand Education series | `nurture:brand-education` | `ACTIVECAMPAIGN_BRAND_EDUCATION_NURTURE.md` |
+| 4 | Seq 15 — Brand Growth Series | `nurture:brand-education` | `ACTIVECAMPAIGN_BRAND_EDUCATION_NURTURE.md` |
 | 5 | Managed Marketing MQL 💰 | `mql:managed-marketing` | `ACTIVECAMPAIGN_CALL_AUTOMATION_EMAILS.md` → B |
 | 6 | Managed Marketing pre-booking 💰 | `services:managed_marketing` | `…CALL…` → E |
 | 7 | Free AI Consultation MQL 💰 | `mql:ai-consulting` | `…CALL…` → C |
@@ -384,12 +384,13 @@ Exit goal: tag "mql:managed-marketing" is added (also exit if any tag starting "
 Steps: Email 1 now; wait 3 days; if goal not met, Email 2; wait 3 days; if goal not met, Email 3; end.
 ```
 
-### 4.13 — Brand Education series ("The Brand Growth Series")  📚
-- **Goal:** trust + usefulness (NOT conversion). Teach why brand drives growth and retention; earn the
+### 4.13 — Seq 15: Brand Education series ("The Brand Growth Series")  📚
+- **Goal:** trust + usefulness (NOT hard conversion). Teach why brand drives growth and retention; earn the
   right to sell elsewhere in the funnel. Soft snapshot/reply CTAs only.
+- **This is Sequence 15** in the nurture map. Do not also build the legacy 10-email evergreen on the same tag.
 - **Entry trigger:** tag `nurture:brand-education` (apply on snapshot lead capture for non-buyers, and on
-  newsletter/education opt-ins).
-- **Cadence:** 7 evergreen lessons, one every 5–7 days. E1 frames it; E2–E6 = one pillar each
+  newsletter/education opt-ins; also Seq 14 handoff / failed upgrade exits).
+- **Cadence:** 7 evergreen lessons, one every 7 days. E1 frames it; E2–E6 = one pillar each
   (Positioning, Messaging, Visibility, Credibility, Conversion); E7 = retention/advocacy + softest ask.
 - **Suppression:** pause while a contact is in an active call/booking sequence (has `session:pending` /
   `mql:*`); **exit** on any `purchased:*` tag (move to onboarding/retention).
@@ -397,10 +398,10 @@ Steps: Email 1 now; wait 3 days; if goal not met, Email 2; wait 3 days; if goal 
 
 **AI builder prompt:**
 ```
-Create an automation named "Brand Growth Series (Education)".
+Create an automation named "Seq 15 — Brand Growth Series".
 Trigger: when the tag "nurture:brand-education" is added.
 Exit: if any tag starting with "purchased:" is added, remove from this automation.
-Steps: send Education Email 1 now; wait 7 days; send Email 2; ... repeat through Email 7 (7-day waits); end.
+Steps: send Education Email 1 now; wait 7 days; send Email 2; ... repeat through Email 7 (7-day waits); apply tag "evergreen:complete"; end.
 Before each send, if the contact has tag "session:pending" or any "mql:" tag, wait 1 day, then continue.
 ```
 

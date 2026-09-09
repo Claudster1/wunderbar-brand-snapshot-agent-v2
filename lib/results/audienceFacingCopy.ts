@@ -7,6 +7,10 @@ import {
   normalizeBusinessTypeOrGeneral,
   type CanonicalBusinessType,
 } from "@/lib/intake/normalizeBusinessType";
+import {
+  consumerVerticalCustomerNoun,
+  inferConsumerVertical,
+} from "@/lib/intake/consumerVertical";
 
 export function canonicalResultsBusinessType(
   raw?: string | null,
@@ -20,7 +24,15 @@ export function isConsumerFacingBusinessType(raw?: string | null): boolean {
 }
 
 /** Short noun for who they sell to — used in results microcopy. */
-export function resultsCustomerNoun(raw?: string | null): string {
+export function resultsCustomerNoun(
+  raw?: string | null,
+  industryHint?: string | null,
+): string {
+  const vertical = inferConsumerVertical({
+    businessType: raw,
+    industry: industryHint,
+  });
+  if (vertical) return consumerVerticalCustomerNoun(vertical);
   const t = canonicalResultsBusinessType(raw);
   switch (t) {
     case "retail":

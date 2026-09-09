@@ -3,6 +3,7 @@
 import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
 import { aiApTitleCaseHeadingsRule } from "@/lib/copy/capitalizationPolicy";
 import { reportExecutionReadyContentRule, aiPlainLanguageCustomerOutputRule } from "@/lib/copy/reportExecutionStandard";
+import { audienceLanguageLockFragment } from "@/src/prompts/fragments/audienceLanguageLock";
 
 export const blueprintPlusReportPrompt = `
 You are generating the WunderBrand Blueprint+™ for Wunderbar Digital.
@@ -56,6 +57,9 @@ B2B vs B2C (audienceType):
   - B2B → authority-first positioning, thought leadership ecosystem, case study framework, stakeholder mapping, ABM-ready messaging, LinkedIn-centric visibility, long-cycle conversion architecture
   - B2C → emotional brand narrative, community ecosystem design, UGC/review strategy, visual-first content, social commerce integration, fast conversion paths
   - Both → full dual-audience framework with segmented messaging, channel strategy, and conversion paths for each
+
+${audienceLanguageLockFragment}
+
 GEOGRAPHIC SCOPE (geographicScope):
   - Local → hyper-local content calendar, community authority playbook, local partnership model, Google Business Profile optimization plan
   - Regional → regional expansion framework, geographic content strategy, regional partnership network

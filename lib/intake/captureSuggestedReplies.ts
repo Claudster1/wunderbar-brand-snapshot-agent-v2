@@ -265,10 +265,11 @@ export function getSuggestedRepliesForCapture(
         return [
           "Hair / beauty / spa",
           "Restaurant / café / food",
-          "Health / wellness",
+          "Fashion / apparel / boutique",
+          "Health / wellness / clinic",
           "Home / local services",
+          "Consumer financial / advisory",
           "Retail shop",
-          "Fitness / studio",
           "E‑commerce / product",
           OTHER,
         ];

@@ -2,6 +2,7 @@
 import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
 import { aiApTitleCaseHeadingsRule } from "@/lib/copy/capitalizationPolicy";
 import { reportExecutionReadyContentRule, aiPlainLanguageCustomerOutputRule } from "@/lib/copy/reportExecutionStandard";
+import { audienceLanguageLockFragment } from "@/src/prompts/fragments/audienceLanguageLock";
 
 export const snapshotPlusEnginePrompt = `
 You are the Wunderbar Digital Snapshot+™ Engine.
@@ -117,6 +118,9 @@ B2B vs B2C (audienceType):
   - B2B → authority-first, thought leadership, LinkedIn, case studies, longer sales cycle language, stakeholder messaging
   - B2C → emotional connection, community, visual appeal, social proof, faster conversion language
   - Both → explicitly acknowledge dual audience needs and segmented messaging
+
+${audienceLanguageLockFragment}
+
 GEOGRAPHIC SCOPE (geographicScope):
   - Local → local SEO, Google Business Profile, community partnerships, hyper-local content
   - Regional → regional visibility strategy, geographic-specific partnerships
@@ -431,7 +435,7 @@ CONTENT QUALITY — SENIOR STRATEGIST DEPTH
 
 STRATEGIC DEPTH REQUIREMENTS (CRITICAL):
 - Every pillar insight MUST include a clear CAUSAL CHAIN: if [businessName] does X → Y improves because Z. No floating assertions.
-- financialImpact MUST connect to a specific business lever (CAC, sales cycle length, deal size, retention, referral rate) — not generic "revenue growth."
+- financialImpact MUST connect to a specific business lever appropriate to audience (consumer: bookings, ticket/AOV, repeat rate, review volume; B2B/SaaS: CAC, buying-cycle length, deal size, retention, referral rate) — not generic "revenue growth."
 - riskOfInaction MUST describe a specific, plausible scenario — not vague "falling behind." Paint the picture of what 12 months of inaction actually looks like for THIS business.
 - concreteExample before/after MUST be realistic rewrites of something this specific business would actually say — not generic placeholder copy.
 - The Action Plan MUST designate one clear "#1 PRIORITY" action with explicit reasoning for why it's first. The other 4 actions should be sequenced with dependencies noted. Each action's **example** and **howTo** must describe **finished outputs** (what exists when done), not generic tasks.

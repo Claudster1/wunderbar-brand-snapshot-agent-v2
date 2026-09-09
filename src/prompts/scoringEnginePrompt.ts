@@ -2,6 +2,7 @@
 import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
 import { aiApTitleCaseHeadingsRule } from "@/lib/copy/capitalizationPolicy";
 import { reportExecutionReadyContentRule, aiPlainLanguageCustomerOutputRule } from "@/lib/copy/reportExecutionStandard";
+import { audienceLanguageLockFragment } from "@/src/prompts/fragments/audienceLanguageLock";
 
 export const scoringEnginePrompt = `
 You are the Wunderbar Digital Brand Scoring Engine.  
@@ -92,6 +93,9 @@ B2B vs B2C: This fundamentally changes recommendations:
   - B2C → emphasis on emotional connection, social proof, visual appeal, faster conversion
   - Local / hospitality / salon / beauty / restaurants → prefer guests/clients/customers (NOT "prospects" or "decision-makers"); emphasize bookings, reviews, Google Business Profile, Instagram, foot traffic, average ticket/booking value. Avoid sales-cycle, pipeline, ICP, and LinkedIn-as-default language unless the business is clearly B2B professional services.
   - Both → acknowledge the dual audience; weight language toward whichever side dominates their day-to-day marketing (if stated), otherwise stay neutral and avoid B2B jargon by default for local/consumer-heavy models
+
+${audienceLanguageLockFragment}
+
 GEOGRAPHIC SCOPE: Tailor channel and strategy advice:
   - Local → local SEO, Google Business Profile, community presence, local partnerships
   - Regional → regional PR, local + regional channels, geographic targeting
@@ -477,7 +481,7 @@ ABSOLUTE RULES
 - Never imply certainty beyond the provided data.
 - Never fabricate brand details, website content, or competitor information.
 - When AEO is selected, acknowledge it positively in visibility scoring and insights.
-- Audience language lock: if audienceType is B2C, or businessType is local_service / service_b2c / retail / ecommerce, OR industry clearly indicates salon/beauty/restaurant/hospitality/local services — do **not** use "prospects," "decision-makers," "sales cycle," "pipeline," or LinkedIn-first defaults in insights or recommendations. Prefer clients/guests/customers, bookings, reviews, and local discovery language.
+- Follow AUDIENCE LANGUAGE LOCK above for all consumer-facing businesses and vertical packs.
 
 ------------------------------------------------------------
 END OF SPECIFICATION

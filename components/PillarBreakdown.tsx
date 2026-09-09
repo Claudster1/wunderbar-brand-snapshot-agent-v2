@@ -7,8 +7,8 @@ import {
   getPillarStageCopy,
   getPillarScoreVisual,
   getScoreBand,
-  PILLAR_OPPORTUNITY,
-  PILLAR_OPPORTUNITY_EXPANDED,
+  getPillarOpportunity,
+  getPillarOpportunityExpanded,
   PILLAR_SCORE_METER_GRADIENT,
 } from "@/src/lib/pillars/pillarReportCopy";
 import type { PillarKey } from "@/src/lib/pillars/pillarCopy";
@@ -40,6 +40,7 @@ interface PillarBreakdownProps {
     conversion?: string | PillarInsight;
   };
   businessName?: string;
+  businessType?: string | null;
   stage?: "early" | "scaling" | "growing";
 }
 
@@ -47,6 +48,7 @@ export function PillarBreakdown({
   pillars,
   insights,
   businessName = "Your brand",
+  businessType = null,
   stage = "scaling",
 }: PillarBreakdownProps) {
   const pillarList: { key: PillarKey; label: string }[] = [
@@ -111,8 +113,8 @@ export function PillarBreakdown({
           const percent = (score / 20) * 100;
           const band = getScoreBand(score);
           const scoreVisual = getPillarScoreVisual(score);
-          const pillarOpportunity = PILLAR_OPPORTUNITY[pillar.key];
-          const pillarOpportunityExpanded = PILLAR_OPPORTUNITY_EXPANDED[pillar.key];
+          const pillarOpportunity = getPillarOpportunity(pillar.key, businessType);
+          const pillarOpportunityExpanded = getPillarOpportunityExpanded(pillar.key, businessType);
           const stageCopy = getPillarStageCopy(pillar.key, businessName, stage);
 
           return (

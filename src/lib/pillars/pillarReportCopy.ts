@@ -1,4 +1,5 @@
 import type { PillarKey } from "./pillarCopy";
+import { isConsumerFacingBusinessType } from "@/lib/results/audienceFacingCopy";
 
 export type BrandStage = "early" | "scaling" | "growing";
 
@@ -122,13 +123,13 @@ export const PILLAR_OPPORTUNITY: Record<PillarKey, string> = {
   positioning: "Define how the market understands you \u2014 so the right customers self-select and the wrong ones don\u2019t waste your time.",
   messaging: "Codify one consistent narrative across every touchpoint \u2014 so each interaction compounds trust instead of starting from zero.",
   visibility: "Close the discovery gap between where your best customers search and where your brand appears \u2014 including AI-powered platforms.",
-  credibility: "Deploy trust signals where buying decisions happen \u2014 so prospects choose with confidence instead of defaulting to safer alternatives.",
+  credibility: "Deploy trust signals where buying decisions happen \u2014 so customers choose with confidence instead of defaulting to safer alternatives.",
   conversion: "Remove the structural friction between interest and action \u2014 so the attention you generate becomes the revenue you deserve.",
 };
 
 export const PILLAR_OPPORTUNITY_EXPANDED: Record<PillarKey, string> = {
   positioning:
-    "Write one sentence that answers \u2018who you serve, what you do, and why it matters\u2019 \u2014 then deploy it on your homepage hero, LinkedIn headline, email signature, and sales deck opening slide. When positioning is unclear, every downstream investment (messaging, campaigns, sales) underperforms. Test the statement with 3\u20135 ideal customers this week: if they can repeat it back accurately, you\u2019ve found your position.",
+    "Write one sentence that answers \u2018who you serve, what you do, and why it matters\u2019 \u2014 then deploy it on your homepage hero, primary profile, email signature, and any pitch or booking page. When positioning is unclear, every downstream investment (messaging, campaigns, sales) underperforms. Test the statement with 3\u20135 ideal customers this week: if they can repeat it back accurately, you\u2019ve found your position.",
   messaging:
     "Define 3 messaging pillars \u2014 the strategic themes your brand always comes back to \u2014 and use them as the backbone of every piece of content, copy, and communication. Right now, your message likely shifts by channel and context, which prevents trust from compounding. Start by auditing your homepage, top social profile, and most-used email template: do they tell the same story?",
   visibility:
@@ -138,3 +139,42 @@ export const PILLAR_OPPORTUNITY_EXPANDED: Record<PillarKey, string> = {
   conversion:
     "Map the exact path from first visit to first conversion on your site. Count the clicks, choices, and distractions. Then reduce it to 3 steps maximum: arrive \u2192 understand the value \u2192 take one clear action. The most common conversion killer isn\u2019t missing features or wrong pricing \u2014 it\u2019s too many options competing for the same click.",
 };
+
+/** Consumer / local-facing opportunity copy (salon, retail, hospitality, ecommerce). */
+export const PILLAR_OPPORTUNITY_CONSUMER: Record<PillarKey, string> = {
+  positioning:
+    "Make it obvious who you\u2019re for \u2014 so the right clients or guests self-select and you spend less time explaining.",
+  messaging:
+    "Keep one clear story across Google, Instagram, your site, and in-person \u2014 so every touch builds trust instead of resetting it.",
+  visibility:
+    "Show up where people already look \u2014 Maps, Google, Instagram, and local search \u2014 so discovery isn\u2019t left to chance.",
+  credibility:
+    "Put reviews and proof where decisions happen \u2014 profiles, booking pages, and first replies \u2014 so people choose with confidence.",
+  conversion:
+    "Make the next step obvious \u2014 book, call, visit, or buy \u2014 so interest turns into revenue instead of browsing.",
+};
+
+export const PILLAR_OPPORTUNITY_EXPANDED_CONSUMER: Record<PillarKey, string> = {
+  positioning:
+    "Write one plain sentence: who you serve, what you do, and why it feels different. Put it on your homepage, Google listing, and Instagram bio. Test it with 3 regular clients or guests this week \u2014 if they can repeat it back, you\u2019ve found your position.",
+  messaging:
+    "Pick 3 themes you always come back to (e.g. results, experience, ease) and use them on every post and page. Audit your homepage, Google description, and last 5 Instagram posts: do they tell the same story?",
+  visibility:
+    "List the 5 ways new people find a business like yours (Maps, Google, Instagram, referrals, walk-by). Check where you\u2019re weak, then strengthen one discovery channel for 30 days before adding another.",
+  credibility:
+    "Move your best reviews or before/after proof to the moments of hesitation: Google listing, booking page, and first reply after an inquiry. Collection helps; placement converts.",
+  conversion:
+    "Map the path from first touch to booked or purchased. Cut competing buttons and mixed CTAs down to one primary next step everywhere you show up online.",
+};
+
+export function getPillarOpportunity(pillar: PillarKey, businessType?: string | null): string {
+  return isConsumerFacingBusinessType(businessType)
+    ? PILLAR_OPPORTUNITY_CONSUMER[pillar]
+    : PILLAR_OPPORTUNITY[pillar];
+}
+
+export function getPillarOpportunityExpanded(pillar: PillarKey, businessType?: string | null): string {
+  return isConsumerFacingBusinessType(businessType)
+    ? PILLAR_OPPORTUNITY_EXPANDED_CONSUMER[pillar]
+    : PILLAR_OPPORTUNITY_EXPANDED[pillar];
+}

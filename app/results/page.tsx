@@ -780,6 +780,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
           pillars={data.pillarScores}
           insights={pillarInsightsRaw}
           businessName={data.businessName}
+          businessType={businessType}
           stage={data.stage}
         />
       </div>

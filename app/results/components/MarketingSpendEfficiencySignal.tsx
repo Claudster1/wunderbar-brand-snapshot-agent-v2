@@ -6,6 +6,7 @@ import { trackEvent } from "@/lib/analytics";
 import { trackUpgradeClick } from "@/lib/adTracking";
 import { fireACEvent } from "@/lib/fireACEvent";
 import { normalizeBusinessTypeOrGeneral } from "@/lib/intake/normalizeBusinessType";
+import { resultsSpendRiskLabel } from "@/lib/results/audienceFacingCopy";
 
 type BudgetBand =
   | "under_500"
@@ -55,32 +56,15 @@ function recommendationByBusinessType(type: string): string {
     case "service_b2c":
       return "social proof content, local search visibility, and booking-focused conversion paths";
     case "retail":
-      return "local search/GBP visibility, repeat-purchase retention, and in-store demand content";
+      return "local search/GBP visibility, repeat visits, and guest/shopper-facing demand content";
     case "ecommerce":
       return "high-intent product content, conversion optimization, and retention/repeat-purchase flows";
     case "saas":
       return "product education content, activation-focused onboarding, and conversion path optimization";
     case "local_service":
-      return "Google Business/local SEO, trust-signal content, and booking/show-rate optimization";
+      return "Google Business/local SEO, review/trust signals, Instagram proof, and booking/show-rate optimization";
     default:
-      return "the channels and content formats most aligned to your buyer behavior and conversion path";
-  }
-}
-
-function pillarRisk(primaryPillar: PillarKey): string {
-  switch (primaryPillar) {
-    case "positioning":
-      return "attracting attention from lower-fit buyers";
-    case "messaging":
-      return "losing response at first contact";
-    case "visibility":
-      return "being under-discovered where buyers are already searching";
-    case "credibility":
-      return "losing trust at the decision point";
-    case "conversion":
-      return "leakage between interest and action";
-    default:
-      return "conversion inefficiency";
+      return "the channels and content formats most aligned to how your customers find and choose you";
   }
 }
 
@@ -95,7 +79,7 @@ export function MarketingSpendEfficiencySignal({
   const budgetBand = toBudgetBand(monthlyMarketingBudget);
   const hasBudget = Boolean(budgetBand);
   const allocation = recommendationByBusinessType(type);
-  const risk = pillarRisk(primaryPillar);
+  const risk = resultsSpendRiskLabel(primaryPillar, type);
   const onCtaClick = () => {
     trackEvent("UPGRADE_CLICKED", {
       target: "Snapshot+",

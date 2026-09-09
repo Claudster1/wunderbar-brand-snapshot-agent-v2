@@ -342,6 +342,7 @@ export default async function SnapshotResultPage({
                 pillars={pillar_scores || {}}
                 insights={insights || {}}
                 businessName={company_name || "Your brand"}
+                businessType={businessType}
                 stage={(report.snapshot_stage || report.stage || "scaling") as "early" | "scaling" | "growing"}
               />
             </div>
@@ -397,6 +398,7 @@ export default async function SnapshotResultPage({
 
               <RevenueImpactStatement
                 primaryPillar={primaryPillar}
+                businessType={businessType}
                 monthlyRevenueRange={monthlyRevenueRange}
                 annualRevenueRange={annualRevenueRange}
                 averageTransactionValue={averageTransactionValue}

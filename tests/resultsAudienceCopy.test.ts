@@ -62,6 +62,31 @@ describe("audienceFacingCopy / results B2C language", () => {
     ).toMatch(/PDP|cart|UGC|fit/i);
   });
 
+  it("serves dedicated home_services and health_clinic packs", () => {
+    expect(resultsSpendRiskLabel("conversion", "local_service", "HVAC and plumbing")).toMatch(
+      /call|estimate|booking/i,
+    );
+    expect(resultsSpendRiskLabel("conversion", "local_service", "dental clinic")).toMatch(
+      /appointment/i,
+    );
+    expect(resultsRevenueProxyStatement("positioning", "local_service", "HVAC")).toMatch(
+      /homeowners|estimate|calls/i,
+    );
+    expect(resultsRevenueProxyStatement("conversion", "local_service", "dental clinic")).toMatch(
+      /book|call|appointment/i,
+    );
+    expect(getPillarOpportunity("conversion", "local_service", "HVAC and plumbing")).toMatch(
+      /estimate|call|book/i,
+    );
+    expect(getPillarOpportunity("conversion", "local_service", "dental clinic")).toMatch(
+      /book|call|appointment/i,
+    );
+    expect(getPillarOpportunity("conversion", "local_service", "HVAC")).not.toMatch(/Instagram bio/i);
+    expect(
+      resultsSpendAllocationHint("local_service", "Home / local services — plumbing"),
+    ).toMatch(/estimate|Google|review/i);
+  });
+
   it("serves consumer pillar opportunity copy for local businesses", () => {
     expect(getPillarOpportunity("credibility", "local_service")).toMatch(/reviews|booking/i);
     expect(getPillarOpportunity("credibility", "local_service")).not.toMatch(/prospects/i);

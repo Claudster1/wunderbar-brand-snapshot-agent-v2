@@ -11,7 +11,9 @@ import { PRICING, formatPrice } from "@/lib/pricing";
 import { normalizeBusinessTypeOrGeneral } from "@/lib/intake/normalizeBusinessType";
 import {
   resolveResultsVertical,
+  resultsCustomerNoun,
   resultsSpendAllocationHint,
+  isConsumerFacingResultsContext,
 } from "@/lib/results/audienceFacingCopy";
 
 type Props = {
@@ -47,9 +49,41 @@ function getLowestAndHighest(scores: Record<PillarKey, number>): {
   return { low: low[0], high: high[0] };
 }
 
-function getVulnerabilitySignal(scores: Record<PillarKey, number>): string {
+function getVulnerabilitySignal(
+  scores: Record<PillarKey, number>,
+  businessType?: string | null,
+  industry?: string | null,
+): string {
   const { low, high } = getLowestAndHighest(scores);
   const key = `${low}:${high}`;
+  const who = resultsCustomerNoun(businessType, industry);
+  const consumer = isConsumerFacingResultsContext({ businessType, industry });
+  const vertical = resolveResultsVertical({ businessType, industry });
+
+  if (consumer) {
+    const map: Record<string, string> = {
+      "visibility:positioning":
+        `Your brand has strong differentiation that is not reaching enough of the right ${who}. Competitors with weaker positioning but stronger local/online visibility may win business you are better positioned to serve.`,
+      "conversion:credibility":
+        vertical === "home_services"
+          ? "Your brand is building trust effectively but losing homeowners at the call/estimate step. You are earning consideration and then not converting it."
+          : vertical === "health_clinic" || vertical === "consumer_professional"
+            ? "Your brand is building trust effectively but losing people at the booking step. You are earning consideration and then not converting it."
+            : vertical === "fashion_retail" || vertical === "dtc_product"
+              ? "Your brand is building trust effectively but losing shoppers at the purchase step. You are earning consideration and then not converting it."
+              : "Your brand is building trust effectively but losing people at the booking or purchase step. You are earning consideration and then not converting it.",
+      "positioning:visibility":
+        `Your brand has reach but may be attracting the wrong ${who}, which makes every marketing dollar work harder than it should.`,
+      "messaging:positioning":
+        "You know what makes you different, but your language is not landing consistently. The gap is in translation, not in substance.",
+      "credibility:messaging":
+        `Your brand communicates well but may lack the proof signals ${who} need before they commit. Strong messaging gets attention; credibility closes it.`,
+    };
+    return (
+      map[key] ??
+      "Your score pattern indicates a meaningful competitive exposure. Snapshot+ prioritizes which gap to fix first for the fastest impact."
+    );
+  }
 
   const map: Record<string, string> = {
     "visibility:positioning":
@@ -70,18 +104,50 @@ function getVulnerabilitySignal(scores: Record<PillarKey, number>): string {
   );
 }
 
-function getAudienceAlignmentTeaser(primaryPillar: PillarKey): string {
+function getAudienceAlignmentTeaser(
+  primaryPillar: PillarKey,
+  businessType?: string | null,
+  industry?: string | null,
+): string {
+  const who = resultsCustomerNoun(businessType, industry);
+  const vertical = resolveResultsVertical({ businessType, industry });
+  const consumer = isConsumerFacingResultsContext({ businessType, industry });
+
+  if (!consumer) {
+    const teasers: Record<PillarKey, string> = {
+      positioning:
+        "The question your ideal client asks before choosing between you and a competitor is identified in Snapshot+.",
+      messaging:
+        "The exact language pattern your audience uses when they are ready to buy is identified in Snapshot+.",
+      visibility:
+        "The channel where your ideal audience is actively searching and where your presence is currently weak is identified in Snapshot+.",
+      credibility:
+        "The specific trust signal your audience looks for before committing is identified in Snapshot+.",
+      conversion:
+        "The exact point in your buyer journey where interest most often drops off is identified in Snapshot+.",
+    };
+    return teasers[primaryPillar];
+  }
+
+  const journeyLabel =
+    vertical === "fashion_retail" || vertical === "dtc_product"
+      ? "shopper journey"
+      : vertical === "home_services"
+        ? "call / estimate path"
+        : vertical === "health_clinic"
+          ? "appointment path"
+          : vertical === "consumer_professional"
+            ? "consult path"
+            : vertical === "hospitality"
+              ? "reserve / visit path"
+              : "booking or purchase path";
+
   const teasers: Record<PillarKey, string> = {
-    positioning:
-      "The question your ideal client asks before choosing between you and a competitor is identified in Snapshot+.",
-    messaging:
-      "The exact language pattern your audience uses when they are ready to buy is identified in Snapshot+.",
-    visibility:
-      "The channel where your ideal audience is actively searching and where your presence is currently weak is identified in Snapshot+.",
-    credibility:
-      "The specific trust signal your audience looks for before committing is identified in Snapshot+.",
-    conversion:
-      "The exact point in your buyer journey where interest most often drops off is identified in Snapshot+.",
+    positioning: `The question your ideal ${who.replace(/s$/, "")} asks before choosing between you and a competitor is identified in Snapshot+.`,
+    messaging: `The exact language pattern your ${who} use when they are ready to take the next step is identified in Snapshot+.`,
+    visibility: `The channel where your ideal ${who} are already searching — and where your presence is currently weak — is identified in Snapshot+.`,
+    credibility: `The specific trust signal your ${who} look for before committing is identified in Snapshot+.`,
+    conversion: `The exact point in your ${journeyLabel} where interest most often drops off is identified in Snapshot+.`,
   };
   return teasers[primaryPillar];
 }
@@ -94,8 +160,14 @@ function contentFormatChannelTeaser(type: string, industry?: string | null): str
   if (vertical === "consumer_professional") {
     return "Your audience-mapped format and channel plan is ready: clarity-led education formats, Google/referral channels, and consult-booking priorities.";
   }
-  if (vertical === "beauty_wellness" || vertical === "health_clinic") {
+  if (vertical === "beauty_wellness") {
     return "Your audience-mapped format and channel plan is ready: trust-building formats, local discovery channels, and booking/show-rate priorities.";
+  }
+  if (vertical === "health_clinic") {
+    return "Your audience-mapped format and channel plan is ready: trust-building formats, local search/reviews, and appointment-booking priorities.";
+  }
+  if (vertical === "home_services") {
+    return "Your audience-mapped format and channel plan is ready: review/trust formats, Google/Maps discovery, and call/estimate conversion priorities.";
   }
   if (vertical === "hospitality") {
     return "Your audience-mapped format and channel plan is ready: local demand formats, Maps/Instagram discovery, and reserve/visit priorities.";
@@ -193,7 +265,9 @@ export function LockedResultsPreview({
         <p className="text-xs font-bold tracking-[0.04em] text-brand-blue mb-4">
           Competitive Vulnerability Signal
         </p>
-        <p className="bs-body-sm text-brand-midnight">{getVulnerabilitySignal(pillarScores)}</p>
+        <p className="bs-body-sm text-brand-midnight">
+          {getVulnerabilitySignal(pillarScores, businessType, industry)}
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -252,7 +326,7 @@ export function LockedResultsPreview({
             Your Audience Alignment Gap
           </p>
           <p className="bs-body-sm text-brand-midnight mb-2">
-            {getAudienceAlignmentTeaser(primaryPillar)}
+            {getAudienceAlignmentTeaser(primaryPillar, businessType, industry)}
           </p>
           <p className="bs-small text-brand-blue font-bold">Locked — available in Snapshot+</p>
           <Link

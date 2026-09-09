@@ -112,6 +112,40 @@ export function resultsSpendRiskLabel(
     }
   }
 
+  if (vertical === "home_services") {
+    switch (primaryPillar) {
+      case "positioning":
+        return "attracting homeowners who aren't a good fit for your jobs";
+      case "messaging":
+        return "losing clarity before someone requests an estimate";
+      case "visibility":
+        return "being hard to find in Google/Maps when homeowners need you now";
+      case "credibility":
+        return "losing trust before someone calls or books an estimate";
+      case "conversion":
+        return "leakage between interest and call / estimate / booking";
+      default:
+        return "friction before homeowners take the next step";
+    }
+  }
+
+  if (vertical === "health_clinic") {
+    switch (primaryPillar) {
+      case "positioning":
+        return "attracting patients who aren't a good fit for your care";
+      case "messaging":
+        return "losing clarity about services or next steps at first contact";
+      case "visibility":
+        return "being hard to find when patients search locally for care";
+      case "credibility":
+        return "losing trust before someone books an appointment";
+      case "conversion":
+        return "leakage between interest and booked appointment";
+      default:
+        return "friction before patients take the next care step";
+    }
+  }
+
   if (!consumer) {
     switch (primaryPillar) {
       case "positioning":
@@ -178,13 +212,30 @@ export function resultsRevenueProxyStatement(
     return map[primaryPillar] || map.conversion;
   }
 
+  if (vertical === "home_services") {
+    const map: Record<string, string> = {
+      positioning: `Your Positioning score suggests you're attracting some of the wrong ${who}. The likely cost shows up as price shopping, tire-kickers, and more explaining before someone calls or books an estimate.`,
+      messaging: `Your Messaging score suggests first-contact leakage. The likely cost shows up as unclear services/scope and more back-and-forth before an estimate request.`,
+      visibility: `Your Visibility score suggests missed local demand. The likely cost shows up as homeowners finding competitors first via ${hints.channels}.`,
+      credibility: `Your Credibility score suggests trust friction near the decision. The likely cost shows up as hesitation before calling — ${hints.proof} isn't doing enough work.`,
+      conversion: `Your Conversion score suggests friction between interest and action. The likely cost shows up as drop-off before ${hints.cta}.`,
+    };
+    return map[primaryPillar] || map.conversion;
+  }
+
+  if (vertical === "health_clinic") {
+    const map: Record<string, string> = {
+      positioning: `Your Positioning score suggests you're attracting some of the wrong ${who}. The likely cost shows up as mismatched appointments and more explaining before someone books care.`,
+      messaging: `Your Messaging score suggests first-contact leakage. The likely cost shows up as confusion about services, insurance/next steps, or who you help.`,
+      visibility: `Your Visibility score suggests missed local care demand. The likely cost shows up as patients finding competitors first via ${hints.channels}.`,
+      credibility: `Your Credibility score suggests trust friction near the decision. The likely cost shows up as hesitation before booking — ${hints.proof} isn't landing early enough.`,
+      conversion: `Your Conversion score suggests friction between interest and action. The likely cost shows up as drop-off before ${hints.cta}.`,
+    };
+    return map[primaryPillar] || map.conversion;
+  }
+
   if (consumer) {
-    const action =
-      vertical === "hospitality"
-        ? "reserves or visits"
-        : vertical === "home_services"
-          ? "calls or books"
-          : "books or buys";
+    const action = vertical === "hospitality" ? "reserves or visits" : "books or buys";
     const map: Record<string, string> = {
       positioning: `Your Positioning score suggests you're attracting some of the wrong ${who}. The likely cost shows up as price shopping, no-shows, and more explaining before someone ${action}.`,
       messaging: `Your Messaging score suggests first-contact leakage. The likely cost shows up as lower replies, weaker intent, and more back-and-forth to explain what you offer.`,
@@ -248,6 +299,40 @@ export function resultsUpliftAssumption(
         return { label: "10% consult-booking path efficiency gain", multiplier: 1.1 };
       case "visibility":
         return { label: "10% lift in qualified discovery", multiplier: 1.1 };
+      default:
+        return { label: "10% performance lift", multiplier: 1.1 };
+    }
+  }
+
+  if (vertical === "home_services") {
+    switch (primaryPillar) {
+      case "positioning":
+        return { label: "5 percentage-point lift in fit of new job inquiries", multiplier: 1.25 };
+      case "messaging":
+        return { label: "3 percentage-point lift in estimate-request intent", multiplier: 1.15 };
+      case "credibility":
+        return { label: "4 percentage-point lift in trust before calling", multiplier: 1.2 };
+      case "conversion":
+        return { label: "10% call / estimate / booking-path efficiency gain", multiplier: 1.1 };
+      case "visibility":
+        return { label: "10% lift in qualified local discovery", multiplier: 1.1 };
+      default:
+        return { label: "10% performance lift", multiplier: 1.1 };
+    }
+  }
+
+  if (vertical === "health_clinic") {
+    switch (primaryPillar) {
+      case "positioning":
+        return { label: "5 percentage-point lift in fit of new patient inquiries", multiplier: 1.25 };
+      case "messaging":
+        return { label: "3 percentage-point lift in appointment intent", multiplier: 1.15 };
+      case "credibility":
+        return { label: "4 percentage-point lift in trust before booking", multiplier: 1.2 };
+      case "conversion":
+        return { label: "10% appointment-booking path efficiency gain", multiplier: 1.1 };
+      case "visibility":
+        return { label: "10% lift in qualified local discovery", multiplier: 1.1 };
       default:
         return { label: "10% performance lift", multiplier: 1.1 };
     }

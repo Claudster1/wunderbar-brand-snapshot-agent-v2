@@ -1,7 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { isConsumerFacingBusinessType } from "@/lib/results/audienceFacingCopy";
+import {
+  isConsumerFacingResultsContext,
+  resolveResultsVertical,
+  resultsCustomerNoun,
+} from "@/lib/results/audienceFacingCopy";
 
 type ProductTier = "snapshot" | "snapshot_plus" | "blueprint" | "blueprint_plus";
 
@@ -33,15 +37,31 @@ function buildSegments(diagnosticData: Record<string, unknown>) {
   }> = [];
 
   const businessType = asString(diagnosticData.businessType) || asString(diagnosticData.business_type);
+  const industry = asString(diagnosticData.industry);
   const audienceType = asString(diagnosticData.audienceType) || asString(diagnosticData.audience_type);
   const consumer =
-    isConsumerFacingBusinessType(businessType) ||
+    isConsumerFacingResultsContext({ businessType, industry }) ||
     /\bb2c\b/i.test(audienceType) ||
     /\bconsumers?\b/i.test(audienceType);
+  const vertical = resolveResultsVertical({ businessType, industry });
+  const who = resultsCustomerNoun(businessType, industry || null);
+
+  const nextStep =
+    vertical === "home_services"
+      ? "call, book, or request an estimate"
+      : vertical === "health_clinic"
+        ? "book an appointment"
+        : vertical === "consumer_professional"
+          ? "book a consult"
+          : vertical === "fashion_retail" || vertical === "dtc_product"
+            ? "shop or visit"
+            : vertical === "hospitality"
+              ? "reserve, order, or visit"
+              : "book, buy, or return";
 
   const audience = asString(
     diagnosticData.targetAudience,
-    consumer ? "Primary customer audience" : "Primary decision-maker audience",
+    consumer ? `Primary ${who} audience` : "Primary decision-maker audience",
   );
   const primaryPillar = asString(diagnosticData.primaryPillar, "Messaging");
   const topOpportunity = asString(diagnosticData.topOpportunity, "faster, clearer growth");
@@ -50,10 +70,10 @@ function buildSegments(diagnosticData: Record<string, unknown>) {
 
   segments.push({
     id: "primary-icp",
-    name: firstWords(audience, 6) || (consumer ? "Primary customers" : "Primary ICP"),
-    role: consumer ? "Best-fit customer" : "Economic buyer",
+    name: firstWords(audience, 6) || (consumer ? `Primary ${who}` : "Primary ICP"),
+    role: consumer ? `Best-fit ${who.replace(/s$/, "")}` : "Economic buyer",
     goal: consumer
-      ? `Improve ${primaryPillar.toLowerCase()} so the right people book, buy, or return`
+      ? `Improve ${primaryPillar.toLowerCase()} so the right ${who} ${nextStep}`
       : `Improve ${primaryPillar.toLowerCase()} outcomes with less execution risk`,
     fear: topGap || (consumer ? "Unclear offer and mixed next steps" : "Inconsistent execution across channels"),
     primaryMessage: consumer
@@ -61,8 +81,10 @@ function buildSegments(diagnosticData: Record<string, unknown>) {
       : `This brand gives me a clear path to ${topOpportunity.toLowerCase()} without extra complexity.`,
     supporting: consumer
       ? [
-          `The story stays consistent from discovery to booking or purchase.`,
-          "I can see proof (reviews, results, or social) and trust the next step.",
+          `The story stays consistent from discovery to ${nextStep}.`,
+          vertical === "home_services" || vertical === "health_clinic" || vertical === "consumer_professional"
+            ? "I can see proof (reviews, credentials, or outcomes) and trust the next step."
+            : "I can see proof (reviews, results, or social) and trust the next step.",
           "The plan is simple enough to run without a big marketing team.",
         ]
       : [
@@ -82,15 +104,25 @@ function buildSegments(diagnosticData: Record<string, unknown>) {
     name: consumer ? "Owner / day-to-day operator" : "Operator / Influencer",
     role: consumer ? "Runs the business day to day" : "Execution owner",
     goal: consumer ? "Stay consistent without reinventing every post" : "Ship consistently with fewer revisions",
-    fear: consumer ? "Scattered posts and an unclear booking path" : "Unclear priorities and scattered messaging",
+    fear: consumer
+      ? vertical === "home_services"
+        ? "Scattered posts and an unclear call/estimate path"
+        : vertical === "health_clinic" || vertical === "consumer_professional"
+          ? "Scattered posts and an unclear booking path"
+          : "Scattered posts and an unclear booking path"
+      : "Unclear priorities and scattered messaging",
     primaryMessage: consumer
       ? "I can stay consistent because the message and channels are already aligned."
       : "I can execute this quickly because messaging and channel direction are aligned.",
     supporting: consumer
       ? [
-          "Each channel has one clear job (discovery, proof, or booking).",
+          vertical === "home_services"
+            ? "Each channel has one clear job (discovery, proof, or estimate/call)."
+            : vertical === "health_clinic" || vertical === "consumer_professional"
+              ? "Each channel has one clear job (discovery, proof, or booking)."
+              : "Each channel has one clear job (discovery, proof, or booking).",
           "Content can be reused without sounding generic.",
-          "The next step for customers is obvious before you publish.",
+          `The next step for ${who} is obvious before you publish.`,
         ]
       : [
           "Each channel has one clear role and KPI.",

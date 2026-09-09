@@ -1,5 +1,6 @@
 import type { IntakeMessage } from "@/lib/intake/buildIntakeTopicResume";
 import { mergeMessagesWithPriorSynthetic } from "@/lib/intake/priorAnswersResume";
+import { customerNoun, isConsumerFacingTone, toneFromMessages } from "@/lib/intake/toneProfile";
 
 export type CapturedSummaryItem = {
   id: string;
@@ -116,8 +117,15 @@ export function buildCapturedSummary(
     if (/\b(choose a competitor|competitive pressure|reason comes up most)\b/i.test(q)) {
       push("pressure", "Competitive pressure", a);
     }
-    if (/\b(discovers you|acquisition|brand-?new prospect|usually happen)\b/i.test(q)) {
-      push("acquisition", "How prospects find you", a);
+    if (/\b(discovers you|acquisition|brand-?new (prospect|guest|client|customer)|usually happen)\b/i.test(q)) {
+      const tone = toneFromMessages(
+        merged.map((m) => ({ role: m.role, content: m.content || "" })),
+      );
+      const who = customerNoun(tone);
+      const label = isConsumerFacingTone(tone)
+        ? `How ${who} find you`
+        : "How prospects find you";
+      push("acquisition", label, a);
     }
     if (/\b(how clear is your offer|offer to someone encountering)\b/i.test(q)) {
       push("offer", "Offer clarity", a);

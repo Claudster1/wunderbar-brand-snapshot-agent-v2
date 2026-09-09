@@ -21,7 +21,7 @@ describe("splitTerseEnumeration", () => {
 /** Minimal assistant stubs that only need to satisfy the “asked about this topic” detector. */
 const LA = {
   business:
-    "**How do you primarily get paid today** — mostly services/consulting, a physical or digital product, SaaS/subscription, retail, or something else?",
+    "**How do you primarily get paid today** — local/personal services, business consulting, a product (online or in-person), SaaS/subscription, or something else?",
   businessConfirm: "Does that feel accurate, or would you describe your revenue model differently?",
   audience: "**Who do you mainly sell to** — mostly other businesses (B2B), mostly consumers (B2C), or a meaningful mix of both?",
   role: "**How do you think about your role here?** Tap below — or type your own.",
@@ -298,6 +298,10 @@ describe("flexibleDirectCaptureComplete", () => {
     const table: Record<CaptureKey, { la: string; lu: string }> = {
       business_type_classifier: { la: LA.business, lu: "local service business" },
       audience_type_classifier: { la: LA.audience, lu: "mostly B2B" },
+      marketing_audience_focus: {
+        la: "**You sell to both businesses and consumers — which side does most of your marketing speak to today?**",
+        lu: "Consumer / B2C side of marketing",
+      },
       user_role_context: { la: LA.role, lu: "I'm a founder / co-founder" },
       team_size: { la: LA.teamSize, lu: "2–5 people" },
       industry: { la: "**What industry or space is the business in?**", lu: "B2B professional services" },

@@ -4,6 +4,9 @@
 // 2) Adjusted Priority Gap ranking with business-type multipliers
 // 3) Upstream tie-break when values are within threshold
 
+import type { CanonicalBusinessType } from "@/lib/intake/normalizeBusinessType";
+import { normalizeBusinessTypeLabel } from "@/lib/intake/normalizeBusinessType";
+
 const PILLAR_ORDER = [
   "positioning",
   "messaging",
@@ -13,13 +16,7 @@ const PILLAR_ORDER = [
 ] as const;
 
 type PillarKey = (typeof PILLAR_ORDER)[number];
-type BusinessType =
-  | "service_b2b"
-  | "service_b2c"
-  | "retail"
-  | "ecommerce"
-  | "saas"
-  | "local_service";
+type BusinessType = CanonicalBusinessType;
 
 export type PrimaryPillarResult = {
   type: "single" | "tie";
@@ -73,15 +70,7 @@ const REVENUE_RISK_MULTIPLIERS: Record<BusinessType, Record<PillarKey, number>> 
 };
 
 function normalizeBusinessType(input?: string | null): BusinessType | null {
-  if (!input) return null;
-  const value = String(input).toLowerCase().trim();
-  if (value.includes("service_b2b")) return "service_b2b";
-  if (value.includes("service_b2c")) return "service_b2c";
-  if (value.includes("retail")) return "retail";
-  if (value.includes("ecommerce")) return "ecommerce";
-  if (value.includes("saas") || value.includes("software")) return "saas";
-  if (value.includes("local_service") || value.includes("local")) return "local_service";
-  return null;
+  return normalizeBusinessTypeLabel(input);
 }
 
 function scoreOf(pillars: Record<string, number>, key: PillarKey): number {

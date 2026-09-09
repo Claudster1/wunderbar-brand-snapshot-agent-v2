@@ -8,24 +8,43 @@ import {
   extractWebsiteUrlFromText,
   transcriptImpliesHasWebsite,
 } from "@/lib/intake/websitePresenceCapture";
+import {
+  inferAudienceTypeFromCorpus,
+  inferBusinessTypeFromCorpus,
+  type CaptureBusinessType,
+} from "@/lib/intake/toneProfile";
 
-type BusinessType =
-  | "service_b2b"
-  | "service_b2c"
-  | "retail"
-  | "ecommerce"
-  | "saas"
-  | "local_service";
+type BusinessType = CaptureBusinessType;
 
 function inferBusinessType(userCorpus: string): BusinessType {
-  const c = userCorpus.toLowerCase();
-  if (/\bsaas|software|app|subscription|platform\b/.test(c)) return "saas";
-  if (/\be-?commerce|shopify|dtc|amazon|online store|product brand\b/.test(c)) return "ecommerce";
-  if (/\bretail|storefront|boutique|restaurant\b/.test(c)) return "retail";
-  if (/\blocal service|clinic|dental|contractor\b/.test(c)) return "local_service";
-  if (/\bb2c|consumers\b/.test(c)) return "service_b2c";
-  if (/\b(consulting|agency|agencies|marketing|b2b|smbs?|businesses)\b/.test(c)) return "service_b2b";
-  return "service_b2b";
+  return inferBusinessTypeFromCorpus(userCorpus) ?? "service_b2b";
+}
+
+function inferAudienceAndIndustry(userCorpus: string, businessType: BusinessType): {
+  audienceType: "B2B" | "B2C" | "both";
+  industry: string;
+} {
+  const audience = inferAudienceTypeFromCorpus(userCorpus);
+  if (
+    businessType === "local_service" ||
+    businessType === "service_b2c" ||
+    businessType === "retail" ||
+    businessType === "ecommerce"
+  ) {
+    let industry = "Local consumer services";
+    if (/\b(restaurant|cafe|café|food|bakery)\b/i.test(userCorpus)) industry = "Restaurant / food hospitality";
+    else if (/\b(salon|hair|beauty|spa|nails?)\b/i.test(userCorpus)) industry = "Hair / beauty / spa";
+    else if (/\b(retail|boutique|shop)\b/i.test(userCorpus)) industry = "Retail";
+    else if (businessType === "ecommerce") industry = "E-commerce / product";
+    return { audienceType: audience ?? "B2C", industry };
+  }
+  if (businessType === "saas") {
+    return { audienceType: audience ?? "B2B", industry: "SaaS / software" };
+  }
+  return {
+    audienceType: audience ?? "B2B",
+    industry: "Marketing and professional services",
+  };
 }
 
 function firstUserLine(messages: IntakeMessage[]): string {
@@ -100,6 +119,7 @@ export function buildFallbackAnswersFromMessages(
     .join("\n");
   const all = messages.map((m) => m.content || "").join("\n");
   const businessType = inferBusinessType(users);
+  const { audienceType, industry } = inferAudienceAndIndustry(users, businessType);
   const website = extractWebsite(users);
   const hasWebsite = Boolean(website) || transcriptImpliesHasWebsite(messages);
   const socials = extractSocials(users);
@@ -109,7 +129,9 @@ export function buildFallbackAnswersFromMessages(
 
   const currentCustomers =
     lastSubstantiveUserAnswer(messages, /launch|no clients?|customers? today|serving|smbs?/i) ||
-    "Early-stage; building first clients.";
+    (audienceType === "B2C"
+      ? "Early-stage; building first customers."
+      : "Early-stage; building first clients.");
   const idealCustomers =
     lastSubstantiveUserAnswer(messages, /ideal|would love|perfect fit|targeting|smbs?|startups?/i) ||
     currentCustomers;
@@ -124,10 +146,9 @@ export function buildFallbackAnswersFromMessages(
     businessName: extractBusinessName(messages),
     businessType,
     primaryRevenueDriver: null,
-    industry: "Marketing and professional services",
-    geographicScope: "national",
-    audienceType: "B2B",
-    website,
+    industry,
+    geographicScope: audienceType === "B2C" ? "local" : "national",
+    audienceType,    website,
     hasWebsite,
     socials,
     competitorNames: /\bagenc/i.test(all) ? ["Other marketing agencies"] : [],

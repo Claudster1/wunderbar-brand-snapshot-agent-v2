@@ -1049,7 +1049,9 @@ export default function HomePageClient({
               >
                 QA seed active: <strong>{activeQaSeed}</strong>
                 {" — "}
-                {activeQaSeed === "near-end"
+                {activeQaSeed === "near-end" ||
+                activeQaSeed === "near-end-salon" ||
+                activeQaSeed === "near-end-restaurant"
                   ? "answer the last question to exercise wrap-up."
                   : "send any short reply to exercise finalize."}
                 {" "}

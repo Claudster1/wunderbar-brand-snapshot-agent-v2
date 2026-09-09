@@ -22,6 +22,7 @@ import {
   WUNDERBAR_SNAPSHOT_PLUS_PDF_DISPLAY,
   WUNDERBAR_SNAPSHOT_PLUS_PDF_URL,
 } from "@/lib/wunderbarExternalUrls";
+import { normalizeBusinessTypeOrGeneral } from "@/lib/intake/normalizeBusinessType";
 import {
   SUITE_ACCENT_BRIGHT,
   SUITE_BG_PAGE,
@@ -125,13 +126,13 @@ const FALLBACKS: Record<
   credibility: {
     working: "Your experience and customer outcomes provide a foundation for trust.",
     unclear: "Proof points may be missing or hard to find at key decision moments.",
-    matters: "Visible proof reduces perceived risk and helps prospects act with confidence.",
+    matters: "Visible proof reduces perceived risk and helps customers act with confidence.",
     action: "Add a specific testimonial, result, or trust signal near your primary call to action.",
   },
   conversion: {
-    working: "Your brand gives prospective customers a path toward taking action.",
+    working: "Your brand gives people a path toward taking action.",
     unclear: "The next step or follow-up journey may not be clear enough.",
-    matters: "A focused conversion path turns brand attention into qualified demand.",
+    matters: "A focused conversion path turns brand attention into bookings, purchases, or qualified demand.",
     action: "Audit your primary call to action and remove competing next steps.",
   },
 };
@@ -659,15 +660,7 @@ function contentFormatChannelTeaser(type: string): string {
 }
 
 function normalizeBusinessType(input?: string | null): string {
-  if (!input) return "general";
-  const v = String(input).toLowerCase();
-  if (v.includes("service_b2b")) return "service_b2b";
-  if (v.includes("service_b2c")) return "service_b2c";
-  if (v.includes("retail")) return "retail";
-  if (v.includes("ecommerce")) return "ecommerce";
-  if (v.includes("saas") || v.includes("software")) return "saas";
-  if (v.includes("local_service")) return "local_service";
-  return "general";
+  return normalizeBusinessTypeOrGeneral(input);
 }
 
 function parseMoney(input?: string | null): number | null {

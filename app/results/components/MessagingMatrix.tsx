@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { isConsumerFacingBusinessType } from "@/lib/results/audienceFacingCopy";
 
 type ProductTier = "snapshot" | "snapshot_plus" | "blueprint" | "blueprint_plus";
 
@@ -31,7 +32,17 @@ function buildSegments(diagnosticData: Record<string, unknown>) {
     tone: string;
   }> = [];
 
-  const audience = asString(diagnosticData.targetAudience, "Primary decision-maker audience");
+  const businessType = asString(diagnosticData.businessType) || asString(diagnosticData.business_type);
+  const audienceType = asString(diagnosticData.audienceType) || asString(diagnosticData.audience_type);
+  const consumer =
+    isConsumerFacingBusinessType(businessType) ||
+    /\bb2c\b/i.test(audienceType) ||
+    /\bconsumers?\b/i.test(audienceType);
+
+  const audience = asString(
+    diagnosticData.targetAudience,
+    consumer ? "Primary customer audience" : "Primary decision-maker audience",
+  );
   const primaryPillar = asString(diagnosticData.primaryPillar, "Messaging");
   const topOpportunity = asString(diagnosticData.topOpportunity, "faster, clearer growth");
   const topGap = Array.isArray(diagnosticData.topGaps) ? String(diagnosticData.topGaps[0] || "") : "";
@@ -39,33 +50,53 @@ function buildSegments(diagnosticData: Record<string, unknown>) {
 
   segments.push({
     id: "primary-icp",
-    name: firstWords(audience, 6) || "Primary ICP",
-    role: "Economic buyer",
-    goal: `Improve ${primaryPillar.toLowerCase()} outcomes with less execution risk`,
-    fear: topGap || "Inconsistent execution across channels",
-    primaryMessage: `This brand gives me a clear path to ${topOpportunity.toLowerCase()} without extra complexity.`,
-    supporting: [
-      `The approach is practical and mapped to ${primaryPillar.toLowerCase()} priorities.`,
-      "I can see proof and know what to do next.",
-      "The plan is staged and ready for your team to run.",
-    ],
-    useWords: ["clear", "practical", "proof-backed", "ready to run"],
+    name: firstWords(audience, 6) || (consumer ? "Primary customers" : "Primary ICP"),
+    role: consumer ? "Best-fit customer" : "Economic buyer",
+    goal: consumer
+      ? `Improve ${primaryPillar.toLowerCase()} so the right people book, buy, or return`
+      : `Improve ${primaryPillar.toLowerCase()} outcomes with less execution risk`,
+    fear: topGap || (consumer ? "Unclear offer and mixed next steps" : "Inconsistent execution across channels"),
+    primaryMessage: consumer
+      ? `This brand makes it obvious why I should choose them — and what to do next.`
+      : `This brand gives me a clear path to ${topOpportunity.toLowerCase()} without extra complexity.`,
+    supporting: consumer
+      ? [
+          `The story stays consistent from discovery to booking or purchase.`,
+          "I can see proof (reviews, results, or social) and trust the next step.",
+          "The plan is simple enough to run without a big marketing team.",
+        ]
+      : [
+          `The approach is practical and mapped to ${primaryPillar.toLowerCase()} priorities.`,
+          "I can see proof and know what to do next.",
+          "The plan is staged and ready for your team to run.",
+        ],
+    useWords: consumer
+      ? ["clear", "welcoming", "proof-backed", "easy next step"]
+      : ["clear", "practical", "proof-backed", "ready to run"],
     avoidWords: ["revolutionary", "disruptive", "best-in-class", "generic growth"],
     tone: topStrength ? `Confident, direct, ${topStrength.toLowerCase()}` : "Confident, direct, practical",
   });
 
   segments.push({
     id: "operator-influencer",
-    name: "Operator / Influencer",
-    role: "Execution owner",
-    goal: "Ship consistently with fewer revisions",
-    fear: "Unclear priorities and scattered messaging",
-    primaryMessage: "I can execute this quickly because messaging and channel direction are aligned.",
-    supporting: [
-      "Each channel has one clear role and KPI.",
-      "Content can be repurposed without losing message integrity.",
-      "Review standards are explicit before publishing.",
-    ],
+    name: consumer ? "Owner / day-to-day operator" : "Operator / Influencer",
+    role: consumer ? "Runs the business day to day" : "Execution owner",
+    goal: consumer ? "Stay consistent without reinventing every post" : "Ship consistently with fewer revisions",
+    fear: consumer ? "Scattered posts and an unclear booking path" : "Unclear priorities and scattered messaging",
+    primaryMessage: consumer
+      ? "I can stay consistent because the message and channels are already aligned."
+      : "I can execute this quickly because messaging and channel direction are aligned.",
+    supporting: consumer
+      ? [
+          "Each channel has one clear job (discovery, proof, or booking).",
+          "Content can be reused without sounding generic.",
+          "The next step for customers is obvious before you publish.",
+        ]
+      : [
+          "Each channel has one clear role and KPI.",
+          "Content can be repurposed without losing message integrity.",
+          "Review standards are explicit before publishing.",
+        ],
     useWords: ["specific", "actionable", "structured", "measurable"],
     avoidWords: ["high-level", "visionary only", "broad", "undefined"],
     tone: "Supportive, structured, action-oriented",

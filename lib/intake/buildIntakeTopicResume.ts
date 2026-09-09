@@ -80,8 +80,8 @@ export function buildIntakeTopicResumeLines(
     );
   }
 
-  if (/\b(trust|proof|price|clarity|speed|fit)\b/i.test(users) && /\b(competitor|choose|instead|over you|prospects?)\b/i.test(users)) {
-    lines.push("COMPETITIVE PRESSURE: already answered — do **not** re-ask why prospects choose competitors.");
+  if (/\b(trust|proof|price|clarity|speed|fit)\b/i.test(users) && /\b(competitor|choose|instead|over you|prospects?|guests?|clients?|customers?)\b/i.test(users)) {
+    lines.push("COMPETITIVE PRESSURE: already answered — do **not** re-ask why people choose competitors.");
   }
 
   if (/\b(proprietary|different|unique|ai[- ]?driven|platform|what makes you|level the playing)\b/i.test(users)) {

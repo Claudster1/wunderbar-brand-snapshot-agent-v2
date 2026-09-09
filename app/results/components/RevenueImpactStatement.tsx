@@ -5,9 +5,15 @@ import type { PillarKey } from "@/src/types/pillars";
 import { trackEvent } from "@/lib/analytics";
 import { fireACEvent } from "@/lib/fireACEvent";
 import { trackUpgradeClick } from "@/lib/adTracking";
+import {
+  resultsRevenueProxyStatement,
+  resultsUpliftAssumption,
+} from "@/lib/results/audienceFacingCopy";
 
 type Props = {
   primaryPillar: PillarKey;
+  businessType?: string | null;
+  industry?: string | null;
   monthlyRevenueRange?: string | null;
   annualRevenueRange?: string | null;
   averageTransactionValue?: string | null;
@@ -67,41 +73,10 @@ function parseConversionRate(input?: string | null): number | null {
   return n / 100;
 }
 
-function upliftAssumption(primaryPillar: PillarKey): { label: string; multiplier: number } {
-  switch (primaryPillar) {
-    case "positioning":
-      return { label: "5 percentage-point close-rate improvement", multiplier: 1.25 };
-    case "messaging":
-      return { label: "3 percentage-point close-rate improvement", multiplier: 1.15 };
-    case "credibility":
-      return { label: "4 percentage-point close-rate improvement", multiplier: 1.2 };
-    case "conversion":
-      return { label: "10% conversion-path efficiency gain", multiplier: 1.1 };
-    case "visibility":
-      return { label: "10% lift in qualified inbound opportunities", multiplier: 1.1 };
-    default:
-      return { label: "10% performance lift", multiplier: 1.1 };
-  }
-}
-
-function proxyStatement(primaryPillar: PillarKey): string {
-  const map: Record<PillarKey, string> = {
-    positioning:
-      "Your Positioning score suggests close-rate drag from lower-fit inquiries. The likely cost appears in longer sales cycles and additional conversations needed to close.",
-    messaging:
-      "Your Messaging score suggests first-contact leakage. The likely cost appears in lower click-through, weaker proposal conversion, and more explanation required to sell.",
-    visibility:
-      "Your Visibility score suggests missed inbound demand. The likely cost appears in lost discovery where buyers are actively searching.",
-    credibility:
-      "Your Credibility score suggests trust friction near the decision point. The likely cost appears in late-stage hesitation and fewer committed buyers.",
-    conversion:
-      "Your Conversion score suggests friction between interest and action. The likely cost appears in drop-off before booking, checkout, or direct response.",
-  };
-  return map[primaryPillar];
-}
-
 export function RevenueImpactStatement({
   primaryPillar,
+  businessType,
+  industry,
   monthlyRevenueRange,
   annualRevenueRange,
   averageTransactionValue,
@@ -112,7 +87,7 @@ export function RevenueImpactStatement({
   const monthlyRevenue = monthlyRevenueFromRange(monthlyRevenueRange, annualRevenueRange);
   const avgValue = parseMoneyValue(averageTransactionValue);
   const conversionRate = parseConversionRate(conversionRateEstimate);
-  const assumption = upliftAssumption(primaryPillar);
+  const assumption = resultsUpliftAssumption(primaryPillar, businessType, industry);
 
   const canEstimate = Boolean(monthlyRevenue && avgValue && conversionRate);
   let estimateText = "";
@@ -161,7 +136,9 @@ export function RevenueImpactStatement({
             </p>
           </>
         ) : (
-          <p className="bs-body-sm text-brand-midnight">{proxyStatement(primaryPillar)}</p>
+          <p className="bs-body-sm text-brand-midnight">
+            {resultsRevenueProxyStatement(primaryPillar, businessType, industry)}
+          </p>
         )}
         <Link
           href="/checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=revenue_impact_statement"

@@ -2,6 +2,14 @@ import type { ReactNode } from "react";
 import { ResultsSnapshotLeadGate } from "@/app/results/components/ResultsSnapshotLeadGate";
 import { BrandArchetypeIcon } from "@/components/results/BrandIcons";
 import { getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
+import {
+  isConsumerFacingResultsContext,
+  resolveResultsVertical,
+} from "@/lib/results/audienceFacingCopy";
+import {
+  getPillarOpportunity,
+  getPillarOpportunityExpanded,
+} from "@/src/lib/pillars/pillarReportCopy";
 import { MainGauge } from "./MainGauge";
 import { PillarIcon } from "./PillarIcon";
 import { PillarMeter } from "./PillarMeter";
@@ -40,6 +48,8 @@ type PillarInsight =
 
 export type SnapshotDocumentResultsProps = {
   businessName: string;
+  businessType?: string | null;
+  industry?: string | null;
   reportDate?: string;
   brandAlignmentScore: number;
   pillarScores: Record<PillarKey, number>;
@@ -72,7 +82,7 @@ const PILLAR_LABELS: Record<PillarKey, string> = {
   conversion: "Conversion",
 };
 
-const FALLBACKS: Record<
+const FALLBACKS_B2B: Record<
   PillarKey,
   { working: string; unclear: string; matters: string; action: string }
 > = {
@@ -97,7 +107,7 @@ const FALLBACKS: Record<
   credibility: {
     working: "Your experience and customer outcomes provide a foundation for trust.",
     unclear: "Proof points may be missing or hard to find at key decision moments.",
-    matters: "Visible proof reduces perceived risk and helps prospects act with confidence.",
+    matters: "Visible proof reduces perceived risk and helps buyers act with confidence.",
     action: "Add a specific testimonial, result, or trust signal near your primary call to action.",
   },
   conversion: {
@@ -108,6 +118,40 @@ const FALLBACKS: Record<
   },
 };
 
+function pillarFallbacks(
+  businessType?: string | null,
+  industry?: string | null,
+): Record<PillarKey, { working: string; unclear: string; matters: string; action: string }> {
+  const ctx = { businessType, industry };
+  if (!isConsumerFacingResultsContext(ctx)) return FALLBACKS_B2B;
+
+  const vertical = resolveResultsVertical(ctx);
+  const who =
+    vertical === "fashion_retail" || vertical === "dtc_product"
+      ? "shoppers"
+      : vertical === "hospitality"
+        ? "guests"
+        : vertical === "consumer_professional"
+          ? "clients"
+          : "customers";
+
+  const result = {} as Record<
+    PillarKey,
+    { working: string; unclear: string; matters: string; action: string }
+  >;
+  for (const pillar of PILLARS) {
+    const opportunity = getPillarOpportunity(pillar, businessType, industry);
+    const expanded = getPillarOpportunityExpanded(pillar, businessType, industry);
+    result[pillar] = {
+      working: `Your ${PILLAR_LABELS[pillar].toLowerCase()} has a usable foundation ${who} can recognize.`,
+      unclear: opportunity,
+      matters: expanded,
+      action: opportunity,
+    };
+  }
+  return result;
+}
+
 function cleanText(value: unknown): string | undefined {
   return typeof value === "string" && value.trim() ? value.trim() : undefined;
 }
@@ -117,8 +161,9 @@ function normalizeInsight(
   insight: PillarInsight | undefined,
   overview: string | undefined,
   score: number,
+  fallbacks: Record<PillarKey, { working: string; unclear: string; matters: string; action: string }>,
 ) {
-  const fallback = FALLBACKS[pillar];
+  const fallback = fallbacks[pillar];
   if (typeof insight === "string") {
     return {
       whatsWorking: score >= 14 ? fallback.working : `There is a usable foundation in your ${PILLAR_LABELS[pillar].toLowerCase()} work.`,
@@ -150,6 +195,8 @@ function actionPillar(action: string, fallback: PillarKey): PillarKey {
 
 export function SnapshotDocumentResults({
   businessName,
+  businessType = null,
+  industry = null,
   reportDate,
   brandAlignmentScore,
   pillarScores,
@@ -165,6 +212,7 @@ export function SnapshotDocumentResults({
   emailGate,
   suiteCta,
 }: SnapshotDocumentResultsProps) {
+  const fallbacks = pillarFallbacks(businessType, industry);
   const entries = PILLARS.map((key) => ({
     key,
     label: PILLAR_LABELS[key],
@@ -194,8 +242,8 @@ export function SnapshotDocumentResults({
     recommendations.filter((item) => cleanText(item)).slice(0, 5).length > 0
       ? recommendations.filter((item) => cleanText(item)).slice(0, 5)
       : [
-          FALLBACKS[weakest.key].action,
-          FALLBACKS[entries[1]?.key ?? "messaging"].action,
+          fallbacks[weakest.key].action,
+          fallbacks[entries[1]?.key ?? "messaging"].action,
           "Review these changes after 30 days and track which message creates the clearest response.",
         ];
 
@@ -226,6 +274,7 @@ export function SnapshotDocumentResults({
               pillarInsights[pillar.key],
               pillarOverviews?.[pillar.key],
               pillar.score,
+              fallbacks,
             );
             return (
               <div key={pillar.key} style={{ padding: "24px 28px", borderRadius: RADIUS_MD, border: `1px solid ${BORDER}`, background: WHITE }}>

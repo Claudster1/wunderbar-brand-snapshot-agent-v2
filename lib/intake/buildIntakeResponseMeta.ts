@@ -107,6 +107,7 @@ export function buildIntakeResponseMeta(params: {
   const suggestedReplies = resolveSuggestedReplies({
     nextPendingKey: chipKeyForFallback,
     lastAssistantText: chipSourceText,
+    messages,
   });
   const chipSelectionMode = resolveChipSelectionMode({
     nextPendingKey: chipKeyForFallback,

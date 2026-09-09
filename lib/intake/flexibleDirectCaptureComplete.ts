@@ -9,6 +9,7 @@ import { websitePresenceUserSatisfiesCapture } from "@/lib/intake/websitePresenc
 export type CaptureKey =
   | "business_type_classifier"
   | "audience_type_classifier"
+  | "marketing_audience_focus"
   | "user_role_context"
   | "team_size"
   | "industry"
@@ -296,6 +297,10 @@ export function assistantTurnAsksAboutCapture(key: CaptureKey, la: string): bool
       return /\b(who (are you |do you )?(mainly )?sell|selling (to|mostly)|mainly (b2b|b2c)|b2b or b2c|your customers|your buyers|ideal customer|target (customer|market|audience)|audience (type|segment))\b/i.test(
         la,
       );
+    case "marketing_audience_focus":
+      return /\b(which side|dominat|marketing (voice|side|mostly)|b2b\+b2c|mix.{0,40}marketing|consumer side|business side|day[- ]?to[- ]?day marketing)\b/i.test(
+        la,
+      );
     case "user_role_context":
       return /\b(your role|role at|how do you think about your role|founder|co-?founder|day-to-day|lead strategy|oversee marketing|run the business)\b/i.test(
         la,
@@ -331,19 +336,19 @@ export function assistantTurnAsksAboutCapture(key: CaptureKey, la: string): bool
         la,
       );
     case "thought_leadership":
-      return /\b(thought leadership|known for|publish|speak(ing)?|blog|publicly|authority content)\b/i.test(la);
+      return /\b(thought leadership|known for|publish|speak(ing)?|blog|publicly|authority content|behind-the-scenes|sharing tips)\b/i.test(la);
     case "monthly_revenue_range":
       return /\b(month to month|monthly|bring in|generate|revenue|figures|mrr|arr|ballpark|how much.*business)\b/i.test(
         la,
       );
     case "average_transaction_value":
       return (
-        /\b(average|deal size|transaction|order value|ticket|rough estimate|ballpark).*\b(value|size|today)\b|\b(how much|what).*\b(deal|order|transaction|project|hour)\b/i.test(
+        /\b(average|deal size|transaction|order value|ticket|check|booking|service value|rough estimate|ballpark).*\b(value|size|today)\b|\b(how much|what).*\b(deal|order|transaction|project|hour|ticket|check|booking)\b|\btypical (ticket|check|booking)\b/i.test(
           la,
         )
       );
     case "conversion_rate_estimate":
-      return /\b(conversion|close rate|win rate|track it|do you track)\b/i.test(la);
+      return /\b(conversion|close rate|win rate|track it|do you track|what share|actually (visit|book)|inquire or message)\b/i.test(la);
     case "website_presence":
       return (
         /\b(do you have (a )?website|website url|what'?s (the )?url|web address|domain|site to share|online home|landing page|not on the web|paste the link)\b/i.test(
@@ -365,13 +370,13 @@ export function assistantTurnAsksAboutCapture(key: CaptureKey, la: string): bool
     case "content_creation_capacity":
       return /\b(content creation|hours|per week|time.*content|invest in content)\b/i.test(la);
     case "competitive_pressure_point":
-      return /\b(competitor|competition|choose (a )?competitor|over you|instead of you|why (they|people|buyers|prospects) (pick|choose)|pressure point|lose (deals|a deal)|comes up most often)\b/i.test(
+      return /\b(competitor|competition|choose (a )?competitor|over you|instead of you|why (they|people|buyers|prospects|guests|clients|customers) (pick|choose)|pressure point|lose (deals|a deal)|comes up most often)\b/i.test(
         la,
       );
     case "has_email_list":
       return /\b(email list|newsletter|mailing list|sending to)\b/i.test(la);
     case "has_lead_magnet":
-      return /\b(lead magnet|free download|template|guide|checklist|exchange for.*email|gated|opt-?in|free.*email)\b/i.test(
+      return /\b(lead magnet|free download|template|guide|checklist|exchange for.*email|gated|opt-?in|free.*email|discount|waitlist perk|tip sheet)\b/i.test(
         la,
       );
     case "has_clear_cta":
@@ -425,7 +430,7 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
       const confirmedShort = askedAsConfirmation && isBareAffirmOrDeny(t);
       /** Revenue / offer model — not B2B/B2C (that's audience_type_classifier). */
       const answered =
-        /\b(saas|e-?commerce|ecommerce|retail|consult|consulting|agency|freelanc|product|local|service|software|app|subscription|shopify|amazon|coaching|contractor|clinic|restaurant|dtc|marketplace|nonprofit|wholesale|manufactur|membership)\b/i.test(
+        /\b(saas|e-?commerce|ecommerce|retail|consult|consulting|agency|freelanc|product|local|service|software|app|subscription|shopify|amazon|coaching|contractor|clinic|restaurant|dtc|marketplace|nonprofit|wholesale|manufactur|membership|personal services|business consulting)\b/i.test(
           t,
         );
       const listAnswer = asked && terseMultiItemAllMatch(t, 2, CHUNK_BUSINESS_MODEL);
@@ -457,6 +462,14 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
           t,
         );
       return (asked && (answered || audienceDescriptor));
+    }
+    case "marketing_audience_focus": {
+      const asked = assistantTurnAsksAboutCapture("marketing_audience_focus", la);
+      const answered =
+        /\b(consumer|b2c|guest|client|shopper|patient|business|b2b|enterprise|smb|about equal|both (in mind|sides)|neither|equal)\b/i.test(
+          t,
+        );
+      return asked && answered;
     }
     case "user_role_context": {
       const asked =
@@ -573,17 +586,17 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
     }
     case "average_transaction_value": {
       const asked =
-        /\b(average|deal size|transaction|order value|ticket|rough estimate|ballpark).*\b(value|size|today)\b|\b(how much|what).*\b(deal|order|transaction|project|hour)\b/i.test(
+        /\b(average|deal size|transaction|order value|ticket|check|booking|service value|rough estimate|ballpark).*\b(value|size|today)\b|\b(how much|what).*\b(deal|order|transaction|project|hour|ticket|check|booking)\b|\btypical (ticket|check|booking)\b/i.test(
           la,
         );
       const answered =
-        /\$|€|£|~\s*\$|hourly|per hour|per project|aov|\d{1,3}(,\d{3})*|\d+k?\b|smaller|larger|varies|depends|retainer|package/i.test(
+        /\$|€|£|~\s*\$|hourly|per hour|per project|aov|\d{1,3}(,\d{3})*|\d+k?\b|smaller|larger|varies|depends|retainer|package|under \$?\d/i.test(
           t,
         );
       return asked && answered;
     }
     case "conversion_rate_estimate": {
-      const asked = /\b(conversion|close rate|win rate|track it|do you track)\b/i.test(la);
+      const asked = /\b(conversion|close rate|win rate|track it|do you track|what share|actually (visit|book)|inquire or message)\b/i.test(la);
       const answered =
         /\d\s*%|\d+\s*percent|one in \d|don'?t track|do not track|not tracking|no data|n\/a|roughly|approx|wild guess|haven'?t measured/i.test(
           t,
@@ -653,7 +666,7 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
     }
     case "competitive_pressure_point": {
       const asked =
-        /\b(competitor|competition|choose (a )?competitor|over you|instead of you|why (they|people|buyers|prospects) (pick|choose)|pressure point|lose (deals|a deal)|comes up most often)\b/i.test(
+        /\b(competitor|competition|choose (a )?competitor|over you|instead of you|why (they|people|buyers|prospects|guests|clients|customers) (pick|choose)|pressure point|lose (deals|a deal)|comes up most often)\b/i.test(
           la,
         );
       if (!asked || t.length > 160) return false;
@@ -680,7 +693,7 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
     }
     case "has_lead_magnet": {
       const asked =
-        /\b(lead magnet|free download|template|guide|checklist|exchange for.*email|gated|opt-?in|free.*email)\b/i.test(
+        /\b(lead magnet|free download|template|guide|checklist|exchange for.*email|gated|opt-?in|free.*email|discount|waitlist perk|tip sheet)\b/i.test(
           la,
         );
       return (

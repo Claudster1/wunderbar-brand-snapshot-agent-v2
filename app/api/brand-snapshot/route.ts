@@ -15,6 +15,14 @@ import { buildIntakeResponseMeta } from "@/lib/intake/buildIntakeResponseMeta";
 import { buildCaptureQuestion } from "@/lib/intake/buildCaptureQuestion";
 import type { CaptureBusinessType } from "@/lib/intake/buildCaptureQuestion";
 import {
+  inferBusinessTypeFromAnswersCorpus,
+  inferBusinessTypeFromCorpus,
+  lockedAudienceFromMessages,
+  lockedBusinessTypeFromMessages,
+  lockedMarketingAudienceFocusFromMessages,
+} from "@/lib/intake/toneProfile";
+import { normalizeBusinessTypeLabel as sharedNormalizeBusinessTypeLabel } from "@/lib/intake/normalizeBusinessType";
+import {
   assistantSuggestsCreatingWebsite,
   assistantWebsiteReplyLooksOnTopic,
   shouldAskWebsiteUrlFollowUp,
@@ -80,37 +88,25 @@ function inferBusinessTypeFromHistory(
     .join(" ")
     .toLowerCase();
 
-  if (!userCorpus) return null;
-  if (/\bsaas|software|app|subscription|platform\b/.test(userCorpus)) return "saas";
-  if (/\be-?commerce|shopify|dtc|amazon|online store|product brand\b/.test(userCorpus)) return "ecommerce";
-  if (/\bretail|storefront|boutique|restaurant|cafe|food|beverage\b/.test(userCorpus)) return "retail";
-  if (/\blocal service|clinic|dental|medical|legal|salon|studio|contractor|trades?\b/.test(userCorpus)) return "local_service";
-  if (/\bb2b|other businesses|business clients|enterprise\b/.test(userCorpus)) return "service_b2b";
-  if (/\bb2c|consumers|consumer clients|personal service\b/.test(userCorpus)) return "service_b2c";
-  if (/\b(consulting|consultants?|agency|agencies|freelance|contractors?|professional services|coaching)\b/.test(userCorpus))
-    return "service_b2b";
-  if (/\b(homeowners|patients|families|shoppers|guests)\b/.test(userCorpus)) return "service_b2c";
-  if (/\b(etsy|amazon seller|shopify|dtc|dropship)\b/.test(userCorpus)) return "ecommerce";
-  if (/\b(hvac|plumb|electric|roofing|landscap)\b/.test(userCorpus)) return "local_service";
-  return null;
+  return inferBusinessTypeFromCorpus(userCorpus) as BusinessType | null;
 }
 
 function getBusinessTypeRoutingNotes(type: BusinessType | null): string {
   switch (type) {
     case "service_b2b":
-      return "Prioritize B2B track: LinkedIn/email attention channels, deal-size and sales-cycle capture, consultation/proposal conversion language.";
+      return "VOICE: B2B professional. Prioritize LinkedIn/email, deal-size and sales-cycle capture, consultation/proposal language. Use prospects/buyers, pipeline, ICP only when they already speak that way.";
     case "service_b2c":
-      return "Prioritize B2C service track: social proof and referral patterns, booking/call conversion path, trust and process clarity signals.";
+      return "VOICE: consumer service. Prefer clients/customers (not prospects). Emphasize bookings, reviews, Instagram/Google, word-of-mouth. Avoid pipeline, ICP, LinkedIn POV, and deal-size language unless they volunteer it.";
     case "retail":
-      return "Prioritize retail track: local search/GBP behavior, foot-traffic + repeat purchase dynamics, in-store + local channel emphasis.";
+      return "VOICE: retail / hospitality-aware. Prefer guests/customers, foot traffic, average check or ticket, Google/Maps and Instagram, repeat visits. Avoid B2B deal/pipeline jargon.";
     case "ecommerce":
-      return "Prioritize e-commerce track: product discovery channels, add-to-cart/checkout/retention funnel, AOV and repeat purchase levers.";
+      return "VOICE: e-commerce. Prefer shoppers/customers, AOV, product discovery, cart/checkout trust. Social + paid + email; skip B2B pipeline language.";
     case "saas":
-      return "Prioritize SaaS track: acquisition-to-activation flow, trial/freemium conversion, retention/churn and expansion signals.";
+      return "VOICE: SaaS. Prioritize acquisition-to-activation, trial/freemium conversion, retention/churn. Buyer complexity and proof OK; still keep questions plain.";
     case "local_service":
-      return "Prioritize local service track: local discovery channels, review/trust signals, booking-to-show-rate conversion path.";
+      return "VOICE: local service (salon, beauty, trades, clinic). Prefer clients, bookings/appointments, reviews/Google Business, Instagram. Use booking value not deal size; avoid pipeline, ICP, thought-leadership-as-LinkedIn framing.";
     default:
-      return "Business type not confidently inferred yet: ask the Business Type Classifier early and lock one primary revenue model before proceeding.";
+      return "Business type not confidently inferred yet: ask the Business Type Classifier early and lock one primary revenue model before proceeding. Stay neutral — do not default to B2B jargon.";
   }
 }
 
@@ -209,6 +205,8 @@ const ON_TOPIC_ASSISTANT_HINTS: Record<CaptureKey, RegExp> = {
     /\b(revenue|paid|model|launch|accurate|describe|get paid|primarily|service|product|saas|e-?commerce|tailor)\b/i,
   audience_type_classifier:
     /\b(who|sell|selling|b2b|b2c|customers|clients|buyers|audience|businesses|consumers)\b/i,
+  marketing_audience_focus:
+    /\b(which side|dominat|marketing (voice|side|mostly)|consumer side|business side|b2b\+b2c|keep both)\b/i,
   user_role_context:
     /\b(role|founder|co-?founder|operator|strategy|marketing|day-to-day|run the business|lead)\b/i,
   team_size: /\b(team|people|headcount|solo|just me|how many|size)\b/i,
@@ -280,6 +278,7 @@ function shouldIncludeCaptureForTier(capture: CaptureKey, tier: IntakeTier): boo
   const snapshotCritical: CaptureKey[] = [
     "business_type_classifier",
     "audience_type_classifier",
+    "marketing_audience_focus",
     "industry",
     "geographic_scope",
     "years_in_business",
@@ -306,6 +305,7 @@ function shouldIncludeCaptureForTier(capture: CaptureKey, tier: IntakeTier): boo
     "business_type_classifier",
     "user_role_context",
     "audience_type_classifier",
+    "marketing_audience_focus",
     ...credibilityCore,
     "primary_acquisition_channel",
     "competitive_pressure_point",
@@ -383,6 +383,8 @@ function modelFacingCaptureHint(key: CaptureKey): string {
       return "how you earn revenue (services, product, SaaS, retail, etc.) — not yet who the customer is";
     case "audience_type_classifier":
       return "who you mainly sell to — other businesses (B2B), consumers (B2C), or a real mix";
+    case "marketing_audience_focus":
+      return "when you serve both B2B and B2C, which side most of your marketing speaks to today";
     case "user_role_context":
       return "how you think about your role here — founder, day-to-day operator, strategy, or marketing/brand";
     case "team_size":
@@ -532,6 +534,25 @@ function getCaptureStates(
         refused(/\bwho (do )?you (mainly )?sell|b2b or b2c|target (customer|audience)|ideal customer\b/i) ||
         flexibleDirectCaptureComplete("audience_type_classifier", la, lu) ||
         captureKeySatisfiedFromHistory("audience_type_classifier", messages),
+    },
+    {
+      key: "marketing_audience_focus",
+      label: "which side of B2B+B2C mix drives marketing",
+      completed: (() => {
+        const audience = lockedAudienceFromMessages(messages);
+        // Only required when they sell to both — otherwise auto-complete.
+        if (audience !== "both") return true;
+        return (
+          lockedMarketingAudienceFocusFromMessages(messages) !== null ||
+          hasSignal(
+            messages,
+            /\b(about equal|keep both in mind|consumer \/ b2c side|business \/ b2b side|marketing (is )?mostly|side of (the )?mix|side of marketing)\b/i,
+          ) ||
+          refused(/\bwhich side|marketing (voice|side)|dominat|b2b\+b2c mix\b/i) ||
+          flexibleDirectCaptureComplete("marketing_audience_focus", la, lu) ||
+          captureKeySatisfiedFromHistory("marketing_audience_focus", messages)
+        );
+      })(),
     },
     {
       key: "industry",
@@ -990,6 +1011,8 @@ function capturePromptPatternForKey(key: CaptureKey): RegExp {
       return /\b(primary revenue|how you generate revenue|how do you get paid|primarily get paid|earn revenue|it sounds like you'?re primarily|business model|revenue model|describe (?:your|the) revenue|services vs product|offer \(services|does that match|how do you primarily get paid)\b/i;
     case "audience_type_classifier":
       return /\b(who do you (mainly )?sell|selling to|mainly (b2b|b2c)|b2b or b2c|mix of both|meaningful mix|consumers \(b2c\)|businesses \(b2b\)|target customer|ideal customer)\b/i;
+    case "marketing_audience_focus":
+      return /\b(which side|sell to both|marketing speak|consumer \/ b2c side|business \/ b2b side|keep both in mind|day[- ]?to[- ]?day marketing)\b/i;
     case "user_role_context":
       return /\b(your role|role at|how do you think about your role|founder \/ co-founder|day-to-day|lead strategy|oversee marketing)\b/i;
     case "team_size":
@@ -1104,38 +1127,11 @@ function maybeWarnSocialDedicatedPromptDetectorGap(
 }
 
 function normalizeBusinessTypeLabel(raw: unknown): BusinessType | null {
-  if (typeof raw !== "string") return null;
-  const value = raw.trim().toLowerCase();
-  if (!value) return null;
-  if (value.includes("service_b2b") || value.includes("b2b service")) return "service_b2b";
-  if (value.includes("service_b2c") || value.includes("b2c service")) return "service_b2c";
-  if (value.includes("retail")) return "retail";
-  if (value.includes("ecommerce") || value.includes("e-commerce") || value.includes("product brand")) return "ecommerce";
-  if (value.includes("saas") || value.includes("software") || value.includes("app")) return "saas";
-  if (value.includes("local_service") || value.includes("local service")) return "local_service";
-  return null;
+  return sharedNormalizeBusinessTypeLabel(raw);
 }
 
 function inferBusinessTypeFromAnswers(answers: Record<string, unknown>): BusinessType {
-  const corpus = [
-    answers.businessName,
-    answers.industry,
-    answers.what_you_do,
-    answers.businessDescription,
-    answers.response_1,
-    answers.response_2,
-    answers.response_3,
-  ]
-    .filter((x): x is string => typeof x === "string")
-    .join(" ")
-    .toLowerCase();
-
-  if (/\bsaas|software|app|subscription|platform\b/.test(corpus)) return "saas";
-  if (/\be-?commerce|shopify|amazon|dtc|product\b/.test(corpus)) return "ecommerce";
-  if (/\bretail|storefront|restaurant|boutique|food|beverage\b/.test(corpus)) return "retail";
-  if (/\blocal|dental|medical|legal|salon|studio|clinic|contractor|trade\b/.test(corpus)) return "local_service";
-  if (/\bb2c|consumer|clients|customers\b/.test(corpus)) return "service_b2c";
-  return "service_b2b";
+  return inferBusinessTypeFromAnswersCorpus(answers) as BusinessType;
 }
 
 function normalizeStoredAnswers(raw: unknown): Record<string, unknown> {
@@ -1413,7 +1409,9 @@ export async function POST(req: Request) {
 
     const intakeTier = normalizeIntakeTier(productTier);
     const includeBudgetCapture = isActivationPlanningTier(productTier);
-    const inferredType = inferBusinessTypeFromHistory(messages);
+    const inferredType =
+      lockedBusinessTypeFromMessages(messages) ?? inferBusinessTypeFromHistory(messages);
+    const lockedAudience = lockedAudienceFromMessages(messages);
     const useUpgradeContinuation =
       intakeTier !== "snapshot" &&
       continuationReportId.length > 0 &&
@@ -1437,9 +1435,14 @@ export async function POST(req: Request) {
       priorAnswers,
     };
 
+    const captureQuestionOpts = {
+      messages,
+      audienceType: lockedAudience,
+    };
+
     const rawPending = getNextPendingCapture(messages, captureOpts);
     const rawForced = rawPending
-      ? buildCaptureQuestion(rawPending.key, inferredType, { messages })
+      ? buildCaptureQuestion(rawPending.key, inferredType, captureQuestionOpts)
       : null;
     const softSkipKeys = new Set<CaptureKey>();
     if (
@@ -1452,7 +1455,7 @@ export async function POST(req: Request) {
 
     const nextPendingCapture = getNextPendingCapture(messages, captureOpts, softSkipKeys);
     const forcedCapturePrompt = nextPendingCapture
-      ? buildCaptureQuestion(nextPendingCapture.key, inferredType, { messages })
+      ? buildCaptureQuestion(nextPendingCapture.key, inferredType, captureQuestionOpts)
       : null;
 
     const routingGuard = buildDeterministicRoutingGuard(messages, captureOpts, softSkipKeys);

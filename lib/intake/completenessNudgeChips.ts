@@ -12,28 +12,41 @@ const LABEL_TO_CAPTURE: Array<{ match: RegExp; key: CaptureKey }> = [
   { match: /years in business/i, key: "years_in_business" },
   { match: /offer clarity/i, key: "offer_clarity" },
   { match: /messaging clarity/i, key: "messaging_clarity" },
-  { match: /customer proof|testimonial|case stud/i, key: "credibility_proof" },
+  { match: /customer proof|testimonial|case stud|reviews/i, key: "credibility_proof" },
   { match: /visual confidence/i, key: "visual_confidence" },
-  { match: /thought leadership/i, key: "thought_leadership" },
+  { match: /thought leadership|sharing tips|behind-the-scenes/i, key: "thought_leadership" },
   { match: /acquisition channel/i, key: "primary_acquisition_channel" },
   { match: /revenue range/i, key: "monthly_revenue_range" },
-  { match: /transaction value|deal size/i, key: "average_transaction_value" },
-  { match: /conversion|close rate/i, key: "conversion_rate_estimate" },
+  { match: /transaction value|deal size|average check|ticket|booking or service value|order value/i, key: "average_transaction_value" },
+  { match: /conversion|close rate|what share .{0,20} book/i, key: "conversion_rate_estimate" },
   { match: /content creation/i, key: "content_creation_capacity" },
   { match: /marketing budget/i, key: "monthly_marketing_budget" },
   { match: /email list/i, key: "has_email_list" },
-  { match: /free download|lead magnet|sign-up offer/i, key: "has_lead_magnet" },
+  { match: /free download|lead magnet|sign-up offer|discount|tip sheet/i, key: "has_lead_magnet" },
   { match: /next step|cta/i, key: "has_clear_cta" },
   { match: /channels you are active/i, key: "marketing_channel_mix" },
 ];
 
+export type CompletenessNudgeChipOptions = {
+  messages?: Array<{ role: string; content?: string | null }>;
+};
+
 /** Chips for the first missing high-impact signal + Continue anyway. */
-export function buildCompletenessNudgeChips(missingLabels: string[]): string[] {
+export function buildCompletenessNudgeChips(
+  missingLabels: string[],
+  options?: CompletenessNudgeChipOptions,
+): string[] {
   const first = missingLabels[0];
   if (!first) return [CONTINUE_ANYWAY_CHIP];
 
   const mapped = LABEL_TO_CAPTURE.find((row) => row.match.test(first));
-  const topicChips = mapped ? getSuggestedRepliesForCapture(mapped.key) : [];
+  const messages = (options?.messages ?? []).map((m) => ({
+    role: m.role,
+    content: String(m.content || ""),
+  }));
+  const topicChips = mapped
+    ? getSuggestedRepliesForCapture(mapped.key, { messages })
+    : [];
   const deduped = [...topicChips.filter((c) => c !== CONTINUE_ANYWAY_CHIP), CONTINUE_ANYWAY_CHIP];
   return deduped.slice(0, 9);
 }

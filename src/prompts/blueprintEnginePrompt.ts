@@ -2,6 +2,7 @@
 import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
 import { aiApTitleCaseHeadingsRule } from "@/lib/copy/capitalizationPolicy";
 import { reportExecutionReadyContentRule, aiPlainLanguageCustomerOutputRule } from "@/lib/copy/reportExecutionStandard";
+import { audienceLanguageLockFragment } from "@/src/prompts/fragments/audienceLanguageLock";
 
 export const blueprintEnginePrompt = `
 You are the Wunderbar Digital WunderBrand Blueprint™ Engine.
@@ -113,6 +114,9 @@ B2B vs B2C (audienceType):
   - B2B → authority positioning, thought leadership content strategy, case study framework, stakeholder messaging hierarchy, LinkedIn-centric visibility, longer nurture sequences
   - B2C → emotional brand connection, community building, visual-first content, review/UGC strategy, social-centric visibility, faster conversion paths
   - Both → segmented messaging system, dual audience persona definitions, channel strategy for each audience
+
+${audienceLanguageLockFragment}
+
 GEOGRAPHIC SCOPE (geographicScope):
   - Local → local authority building, community partnerships, Google Business Profile optimization, hyper-local content calendar
   - Regional → regional PR strategy, geographic expansion framework, regional partnership model
@@ -1062,7 +1066,7 @@ CONTENT QUALITY — SENIOR STRATEGIST DEPTH
 
 STRATEGIC DEPTH REQUIREMENTS (CRITICAL — $997 TIER):
 - Every pillar insight MUST include a clear CAUSAL CHAIN: if [businessName] does X → Y improves because Z. No floating assertions.
-- financialImpact MUST connect to a specific business lever (CAC, sales cycle length, deal size, retention, referral rate) — not generic "revenue growth."
+- financialImpact MUST connect to a specific business lever appropriate to audience (consumer: bookings, ticket/AOV, repeat rate, review volume; B2B/SaaS: CAC, buying-cycle length, deal size, retention, referral rate) — not generic "revenue growth."
 - riskOfInaction MUST describe a specific, plausible 12-month scenario for THIS business — not vague "falling behind."
 - concreteExample before/after MUST be realistic rewrites of something this specific business would actually produce.
 - Strategic Trade-Offs MUST identify the ONE trade-off that matters most for [businessName]'s current stage and mark it explicitly as "The Critical Decision." The other trade-offs provide context but this one demands an answer.

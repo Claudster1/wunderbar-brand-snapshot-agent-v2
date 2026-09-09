@@ -225,6 +225,12 @@ export default async function SnapshotResultPage({
   const reportAnswers = (report.full_report?.answers ?? report.answers ?? {}) as Record<string, unknown>;
   const businessType =
     typeof reportAnswers.businessType === "string" ? reportAnswers.businessType : null;
+  const industry =
+    typeof reportAnswers.industry === "string"
+      ? reportAnswers.industry
+      : typeof reportAnswers.businessType === "string"
+        ? reportAnswers.businessType
+        : null;
   const monthlyMarketingBudget = asBudgetBand(reportAnswers.monthlyMarketingBudget);
   const monthlyRevenueRange =
     typeof reportAnswers.monthlyRevenueRange === "string"
@@ -342,6 +348,8 @@ export default async function SnapshotResultPage({
                 pillars={pillar_scores || {}}
                 insights={insights || {}}
                 businessName={company_name || "Your brand"}
+                businessType={businessType}
+                industry={industry}
                 stage={(report.snapshot_stage || report.stage || "scaling") as "early" | "scaling" | "growing"}
               />
             </div>
@@ -389,6 +397,7 @@ export default async function SnapshotResultPage({
             <div id="activation" className="space-y-16 md:space-y-20">
               <MarketingSpendEfficiencySignal
                 businessType={businessType}
+                industry={industry}
                 monthlyMarketingBudget={monthlyMarketingBudget}
                 primaryPillar={primaryPillar}
                 reportId={report.report_id}
@@ -397,6 +406,8 @@ export default async function SnapshotResultPage({
 
               <RevenueImpactStatement
                 primaryPillar={primaryPillar}
+                businessType={businessType}
+                industry={industry}
                 monthlyRevenueRange={monthlyRevenueRange}
                 annualRevenueRange={annualRevenueRange}
                 averageTransactionValue={averageTransactionValue}
@@ -420,6 +431,7 @@ export default async function SnapshotResultPage({
               primaryPillar={primaryPillar}
               pillarScores={normalizedScores}
               businessType={businessType}
+              industry={industry}
               businessName={company_name}
               reportId={report.report_id}
               email={report.user_email}

@@ -278,7 +278,7 @@ Theme: What brand clarity actually looks like. The clarity problem framing — s
 **Email 5** — Send: +14 days
 Theme: Your results are there when you're ready. Soft close — no pressure. Mention upgrade credit if applicable.
 
-**On exit without conversion:** Move to Sequence 15 (Evergreen Education).
+**On exit without conversion:** Move to Sequence 15 (Brand Growth Series).
 
 ---
 
@@ -297,7 +297,7 @@ Theme: What you'll walk away with. Dynamic content block keyed to product_key sh
 **Email 3** — Send: +3 days
 Theme: Have questions? We're here. Last note — link to support and checkout.
 
-**On exit without conversion:** Move to Sequence 15 (Evergreen Education).
+**On exit without conversion:** Move to Sequence 15 (Brand Growth Series).
 
 ---
 
@@ -387,7 +387,7 @@ Theme: One document. Every collaborator on-brand from day one. Brand Standards P
 **Email 4** — Send: +30 days
 Theme: Your brand is already evolving — is your strategy keeping up? Last note. Foundation you keep, build on, and share.
 
-**On exit without conversion:** Move to Sequence 15 (Evergreen Education).
+**On exit without conversion:** Move to Sequence 15 (Brand Growth Series).
 
 ---
 
@@ -410,7 +410,7 @@ Theme: The one thing that separates Blueprint+ from every other brand tool. Stra
 **Email 4** — Send: +30 days
 Theme: Last note on Blueprint+ — and a thought on timing. Brand consistency compounds; inconsistency compounds too.
 
-**On exit without conversion:** Move to Sequence 15 (Evergreen Education).
+**On exit without conversion:** Move to Sequence 15 (Brand Growth Series).
 
 ---
 
@@ -535,7 +535,7 @@ Theme: What working together actually looks like. Demand generation plan, conten
 
 ### SEQUENCE 14: Content Opt-In Welcome
 **Trigger:** Tag `content:opt-in` (applied on form submit from lead magnet, blog, or content download)
-**Exit:** Runs to completion — contact moves to Sequence 15 (Evergreen Education)
+**Exit:** Runs to completion — contact moves to Sequence 15 (Brand Growth Series)
 **Sender:** Email 1: Wunderbar Digital | hello@wunderbardigital.com | Branded. Email 2: Claudine | claudine@wunderbardigital.com | Founder
 **Available fields:** `%FIRSTNAME%`, `%CONTENT_DOWNLOAD_LINK%`
 
@@ -549,26 +549,25 @@ Theme: A bit about who we are. Claudine intro — 25 years, WunderBrand story. C
 
 ---
 
-### SEQUENCE 15: Evergreen Education
-**Trigger:** Contact exits Seq 1/2/3/6/7 without conversion, Seq 14 completes, or manually enrolled
-**Exit:** Any `purchased:*` tag
-**Cadence:** Every 12 days (Emails 1–9), +14 days for Email 10
-**All emails:** Claudine at Wunderbar Digital | claudine@wunderbardigital.com | Founder template
-**Available fields:** `%FIRSTNAME%`
-**Soft CTA in each email — never the primary purpose. Each email stands alone.**
+### SEQUENCE 15: Brand Growth Series (Education)
+**Canonical Seq 15.** Full production copy: `docs/ACTIVECAMPAIGN_BRAND_EDUCATION_NURTURE.md`
+**Do not** also run the legacy 10-email “Evergreen Education” drip on the same trigger.
+**Trigger:** Tag `nurture:brand-education` (marketing opt-in, Seq 14 handoff, exits Seq 1/2/3/6/7 without conversion, or manual enrollment)
+**Exit:** Any paid `purchased:*` tag; pause while `session:pending` or any `mql:*`
+**Cadence:** Email 1 immediate, then every **7 days** (Emails 2–7)
+**Sender:** Claudine at Wunderbar Digital | claudine@wunderbardigital.com | Founder template
+**Available fields:** `%FIRSTNAME%`, `%COMPANYNAME%` (optional conditional `%WEAKESTPILLAR%`, `%BRANDALIGNMENTSCORE%` with fallbacks)
+**Soft CTA only — one ask per email, usually in P.S. Teach first.**
 
-**Email 1** — The real reason most brands don't convert. Clarity problem framing. 3 things brands skip.
-**Email 2** — Why brand consistency is harder than it looks. Documentation as fix. Messaging framework, brand standards, prompt templates.
-**Email 3** — What positioning actually means. Practical definition. Common mistakes: positioning to everyone, on features, only in your head.
-**Email 4** — The messaging mistake that makes good brands invisible. Speaking to specific person, reflecting your voice, answering the real question.
-**Email 5** — Visibility without strategy is just noise. Where your clients actually go. Their language vs. yours. AEO mention.
-**Email 6** — Credibility signals: what buyers look for before they say yes. Social proof, authority, consistency, specificity, accessibility.
-**Email 7** — Where most sales are actually lost. Conversion leaks before the call. Weak CTAs, unclear value, missing proof, friction.
-**Email 8** — How to use AI for brand content without losing your voice. Brand foundation as AI brief. Share with collaborators.
-**Email 9** — Brand archetypes: why they matter more than you think. Decision-making lens, not personality quiz. Sage/Champion/Guide/Maker.
-**Email 10** — The brand strategy question worth sitting with. "If someone encountered your brand today, would they get a clear picture?" Final email with honest invitation.
+**Email 1** — Brand isn't your logo. It's your growth engine.
+**Email 2** — Positioning
+**Email 3** — Messaging
+**Email 4** — Visibility
+**Email 5** — Credibility
+**Email 6** — Conversion
+**Email 7** — Retention / advocacy + softest next step
 
-**After Email 10:** Move to Sequence 16 (Newsletter) or tag as `evergreen:complete`.
+**After Email 7:** Apply `evergreen:complete`. Newsletter Seq 16 continues via `content:opted_in`.
 
 ---
 
@@ -626,7 +625,7 @@ Theme: A bit about who we are. Claudine intro — 25 years, WunderBrand story. C
 **Email 2** — +7 days: What's shifted in %PRIMARYPILLAR% since your last diagnostic. Dynamic content: 5 conditional blocks with pillar-specific market observations.
 **Email 3** — +14 days: Still here when you're ready. Dashboard link. Soft close.
 
-**On exit without conversion:** Move to Sequence 15 (Evergreen Education).
+**On exit without conversion:** Move to Sequence 15 (Brand Growth Series).
 
 ---
 

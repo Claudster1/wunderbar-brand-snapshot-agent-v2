@@ -71,7 +71,7 @@ Build in this order (see `docs/ACTIVECAMPAIGN_AI_BUILDER_BRIEF.md` §1 index):
 1. Free Snapshot → Snapshot+ upgrade — `purchased:snapshot`
 2. Abandoned checkout — `checkout:abandoned`
 3. Report Ready — `report:*-ready`
-4. Brand Education series — `nurture:brand-education`
+4. Seq 15 — Brand Growth Series — `nurture:brand-education`
 5. Managed Marketing MQL — `mql:managed-marketing`
 6. Managed Marketing pre-booking — `services:managed_marketing`
 7. Free AI Consultation MQL — `mql:ai-consulting`

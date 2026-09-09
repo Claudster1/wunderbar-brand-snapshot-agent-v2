@@ -1,11 +1,14 @@
-# WunderBrand → ActiveCampaign: Brand Education Nurture ("The Brand Growth Series")
+# WunderBrand → ActiveCampaign: Seq 15 — Brand Growth Series
 
 Evergreen, **value-first** email series that teaches *why brand drives growth and retention* — and how
-to actually build it. The job of this track is **trust and usefulness, not conversion.** Every email
+to actually build it. The job of this track is **trust and usefulness, not hard conversion.** Every email
 teaches one idea and gives one thing the reader can do this week. CTAs are soft and live at the bottom;
 the free Snapshot is offered as a *tool to apply the lesson*, never as a hard sell.
 
-**Status: DRAFT for review.** Nothing is live until you build the automation in AC.
+**Role in the nurture map:** This **is Sequence 15**. Do not also run the legacy 10-email “Evergreen
+Education” drip on the same `nurture:brand-education` trigger.
+
+**Status:** Ready to build in AC (paste prompt below; attach E1–E7 from this doc).
 
 Shared setup (sender, reply-to, domain, merge-tag fallbacks) is the same as
 `docs/ACTIVECAMPAIGN_CALL_AUTOMATION_EMAILS.md` → *Global setup*. This doc only adds what's specific to
@@ -66,15 +69,16 @@ block and always provide a non-personalized default, since not every reader has 
 
 All links append `?utm_source=activecampaign&utm_medium=email&utm_campaign=brand_education&utm_content=<email_id>`.
 
-**🔧 Build in AC**
+**🔧 Build in AC** (Seq 15)
 ```
-Create an automation named "Brand Growth Series (Education)".
-Trigger: when the tag "nurture:brand-education" is added.
+Create an automation named "Seq 15 — Brand Growth Series".
+Trigger: when the tag "nurture:brand-education" is added. Runs once.
 Exit: if any tag starting with "purchased:" is added → remove from this automation.
 Steps: send E1 now; wait 7 days; send E2; wait 7 days; send E3; wait 7 days; send E4; wait 7 days;
-send E5; wait 7 days; send E6; wait 7 days; send E7; end.
+send E5; wait 7 days; send E6; wait 7 days; send E7; apply tag "evergreen:complete"; end.
 Optional courtesy hold: before each send, if the contact has "session:pending" or any "mql:" tag,
 wait 1 day, then continue.
+Soft CTAs only — teach first. I will paste the 7 email bodies from this doc.
 ```
 Send-step order: **E1** now, then **E2–E7** every +7 days.
 

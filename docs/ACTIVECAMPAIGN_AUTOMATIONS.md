@@ -114,7 +114,7 @@ All 19 nurture sequences are documented in [NURTURE_IMPLEMENTATION_GUIDE.md](./N
 | 12 | Session Booking (B+) | `session:pending` + `report:blueprint-plus-ready` | 3 |
 | 13 | Services Interest | `intent:services` | 2 |
 | 14 | Content Opt-In Welcome | `content:opt-in` | 2 |
-| 15 | Evergreen Education | Exits conversion sequences | 10 |
+| 15 | Brand Growth Series | `nurture:brand-education` | 7 |
 | 16 | It's Wunderbar Newsletter | `content:opted_in` | Ongoing |
 | 17 | Customer Retention | 30d after report | 8 |
 | 18 | Win-Back | 90d+ since report | 3 |

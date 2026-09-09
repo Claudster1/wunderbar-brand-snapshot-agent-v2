@@ -35,7 +35,7 @@ To stay aligned with the current rebuild strategy:
 | 12 | Blueprint+ Strategy Activation Session Booking | `session:pending` + `report:blueprint-plus-ready` | 3 | `session:activation-scheduled` |
 | 13 | Services Interest — Managed Marketing | `intent:services` | 2 | `services:call-booked` or `services:client-active` |
 | 14 | Content Opt-In Welcome | `content:opt-in` | 2 | Runs to completion → Seq 15 |
-| 15 | Evergreen Education | Exits Seq 1/2/3/6/7 without conversion, or Seq 14 completes | 10 | Any `purchased:*` |
+| 15 | Brand Growth Series (Education) | `nurture:brand-education` (exits Seq 1/2/3/6/7 without conversion, Seq 14, marketing opt-in) | 7 | Any paid `purchased:*` |
 | 16 | It's Wunderbar — The Newsletter | `content:opted_in` (after Seq 14/15) | Ongoing (4 samples) | Unsubscribe |
 | 17 | Customer Retention — Brand Momentum Series | 30 days after `report:*-ready`, no active upgrade seq | 8 | `purchased:*` / `services:expert_call_requested` / `call:expert-scheduled` |
 | 18 | Win-Back — Lapsed Customers | 90+ days since report, no refresh, no engagement | 3 | `purchased:*` / `snapshot:viewed-results` / `call:expert-scheduled` |
@@ -50,7 +50,7 @@ To stay aligned with the current rebuild strategy:
 
 ```
 Free Snapshot → Seq 1 (upgrade to S+) → [converts] → Seq 4 (welcome) → Seq 5 (report ready) → Seq 6 (upgrade to B)
-                                        → [no convert] → Seq 15 (evergreen education) → Seq 16 (newsletter)
+                                        → [no convert] → Seq 15 (Brand Growth Series) → Seq 16 (newsletter)
 
 Paid Purchase → Seq 4 (welcome) → Seq 5 (report ready) → Seq 6/7 (upgrade)
                                                           → Seq 11 (experience survey follow-up)
@@ -99,7 +99,7 @@ Connect Form Inquiry → Seq 22 → [team responded] confirmation branch OR [no 
 - **Sender:** All emails: Claudine at Wunderbar Digital | claudine@wunderbardigital.com | Founder template
 - **Merge fields:** `%FIRSTNAME%`, `%COMPANYNAME%`, `%BRANDALIGNMENTSCORE%`, `%POSITIONINGSCORE%`, `%MESSAGINGSCORE%`, `%VISIBILITYSCORE%`, `%CREDIBILITYSCORE%`, `%CONVERSIONSCORE%`, `%PRIMARYPILLAR%`, `%REPORTLINK%`, `%UPGRADEPRODUCTURL%`
 - **Dynamic content:** Email 2 uses 5 conditional blocks keyed to `%PRIMARYPILLAR%` value
-- **On exit without conversion:** Move to Sequence 15 (Evergreen Education)
+- **On exit without conversion:** Move to Sequence 15 (Brand Growth Series) via tag `nurture:brand-education`
 - **Salutation fallback:** Hi there,
 
 ### SEQUENCE 2: Checkout Abandoned
@@ -229,30 +229,30 @@ Connect Form Inquiry → Seq 22 → [team responded] confirmation branch OR [no 
 ### SEQUENCE 14: Content Opt-In Welcome
 - **Trigger:** Tag `content:opt-in`
 - **Timing:** Email 1 immediate, Email 2 at +2 days
-- **Exit:** Runs to completion → move to Seq 15 (Evergreen Education)
+- **Exit:** Runs to completion → apply `nurture:brand-education` → Seq 15 (Brand Growth Series)
 - **Sender:** Email 1: Wunderbar Digital | hello@ | Branded. Email 2: Claudine | claudine@ | Founder
 - **Merge fields:** `%FIRSTNAME%`, `%CONTENT_DOWNLOAD_LINK%`
-- **Note:** On Email 2 completion, apply `content:opted_in` tag (triggers Seq 16 newsletter)
+- **Note:** On Email 2 completion, apply `content:opted_in` tag (triggers Seq 16 newsletter) and `nurture:brand-education`
 - **Salutation fallback:** Hi there,
 
-### SEQUENCE 15: Evergreen Education
-- **Trigger:** Contact exits Seq 1/2/3/6/7 without conversion, Seq 14 completes, or manually enrolled
-- **Timing:** Email 1 immediate, then every 12 days (Emails 2–9), Email 10 at +14 days after Email 9
-- **Exit:** Any `purchased:*` tag
-- **Sender:** All: Claudine | claudine@ | Founder template
-- **10 emails:**
-  1. Why brands don't convert
-  2. Brand consistency
-  3. Positioning
-  4. Messaging
-  5. Visibility
-  6. Credibility
-  7. Conversion
-  8. AI + brand voice
-  9. Brand archetypes
-  10. The five pillars as a system
-- **Merge fields:** `%FIRSTNAME%`
-- **After Email 10:** Move to Seq 16 (Newsletter) or tag as `evergreen:complete`
+### SEQUENCE 15: Brand Growth Series (Education)
+- **Canonical implementation:** 7-email “Brand Growth Series” — full copy in [ACTIVECAMPAIGN_BRAND_EDUCATION_NURTURE.md](./ACTIVECAMPAIGN_BRAND_EDUCATION_NURTURE.md)
+- **Trigger:** Tag `nurture:brand-education` (marketing opt-in, Seq 14 handoff, exits Seq 1/2/3/6/7 without conversion, or manual enrollment)
+- **Timing:** Email 1 immediate, then every **7 days** (Emails 2–7)
+- **Exit:** Any paid `purchased:*` tag; pause while `session:pending` or any `mql:*` tag
+- **Sender:** Claudine | claudine@ | Founder template (unless copy doc specifies branded)
+- **7 emails:**
+  1. Brand isn't your logo — it's your growth engine
+  2. Positioning
+  3. Messaging
+  4. Visibility
+  5. Credibility
+  6. Conversion
+  7. Retention / advocacy + softest next step
+- **Merge fields:** `%FIRSTNAME%`, `%COMPANYNAME%` (optional conditional `%WEAKESTPILLAR%`, `%BRANDALIGNMENTSCORE%` with fallbacks)
+- **Soft CTAs only** (one per email): free Snapshot, reply, late-series calendar — not hard upgrade sells
+- **After Email 7:** Apply `evergreen:complete`; newsletter Seq 16 continues via `content:opted_in`
+- **Do not also run** the legacy 10-email “Evergreen Education” drip on the same trigger (deferred / different tag if revived)
 - **Salutation fallback:** Hi there,
 
 ### SEQUENCE 16: It's Wunderbar — The Newsletter
@@ -527,6 +527,6 @@ These emails require conditional content blocks built in ActiveCampaign:
 3. **Recovery sequences:** Seq 2 (abandoned cart), Seq 3 (coverage gap), Seq 10 (no-show)
 4. **Post-report sequences:** Seq 11 (experience follow-up), Seq 12 (session booking)
 5. **Retention sequences:** Seq 17 (retention), Seq 8 (refresh), Seq 18 (win-back)
-6. **Content sequences:** Seq 14 (opt-in), Seq 15 (evergreen), Seq 16 (newsletter)
+6. **Content sequences:** Seq 14 (opt-in), Seq 15 (Brand Growth Series), Seq 16 (newsletter)
 7. **Services sequences:** Seq 13 (services interest), Seq 19 (cross-sell)
 8. **Conversation follow-up sequences:** Seq 20 (post-expert), Seq 21 (post-activation), Seq 22 (connect inquiry)

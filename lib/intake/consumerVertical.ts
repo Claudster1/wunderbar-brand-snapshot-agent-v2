@@ -25,7 +25,7 @@ const HOME_SERVICES_RE =
 const CONSUMER_PRO_RE =
   /\b(financial advisor|financial \/ advisory|wealth|insurance|tax prepar|bookkeep|cpa\b|consumer legal|family law|estate planning|real estate agent|realtor|mortgage|lending|credit repair|personal finance|consumer financial)\b/i;
 const HEALTH_CLINIC_RE =
-  /\b(dental|dentist|chiro|physio|physical therap|veterinary|vet clinic|optometr|urgent care|outpatient|therapy practice|counseling|mental health)\b/i;
+  /\b(dental|dentist|chiropractic|chiro\b|physio|physical therap|veterinary|vet clinic|optometr|urgent care|outpatient|therapy practice|counseling|mental health|family clinic|medical clinic|health clinic)\b/i;
 const DTC_RE =
   /\b(e-?commerce|shopify|dtc|amazon seller|online store|product brand|dropship|subscription box)\b/i;
 const WELLNESS_STUDIO_RE =
@@ -44,10 +44,10 @@ export function inferConsumerVertical(ctx: ConsumerVerticalContext = {}): Consum
     .join("\n");
   if (!blob.trim()) return null;
 
-  // Specific packs first
+  // Specific packs first — health before beauty so "dental clinic" / chiro don't misroute
   if (HOSPITALITY_RE.test(blob)) return "hospitality";
-  if (BEAUTY_RE.test(blob) || WELLNESS_STUDIO_RE.test(blob)) return "beauty_wellness";
   if (HEALTH_CLINIC_RE.test(blob)) return "health_clinic";
+  if (BEAUTY_RE.test(blob) || WELLNESS_STUDIO_RE.test(blob)) return "beauty_wellness";
   if (CONSUMER_PRO_RE.test(blob)) return "consumer_professional";
   if (HOME_SERVICES_RE.test(blob)) return "home_services";
   if (FASHION_RE.test(blob)) return "fashion_retail";

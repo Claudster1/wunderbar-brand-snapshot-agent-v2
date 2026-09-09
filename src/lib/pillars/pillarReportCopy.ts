@@ -223,6 +223,58 @@ const PILLAR_OPPORTUNITY_EXPANDED_CONSUMER_PRO: Record<PillarKey, string> = {
     "Map inquiry \u2192 trust \u2192 booked consult. Remove mixed CTAs and make one primary booking action dominant.",
 };
 
+const PILLAR_OPPORTUNITY_HOME_SERVICES: Record<PillarKey, string> = {
+  positioning:
+    "Make it obvious which jobs and homeowners you\u2019re built for \u2014 so the right calls come in and tire-kickers self-select out.",
+  messaging:
+    "Keep one clear services story across Google, site, and estimate follow-ups \u2014 so every touch builds trust instead of resetting it.",
+  visibility:
+    "Show up where homeowners look when they need help now \u2014 Google/Maps, reviews, and referral loops.",
+  credibility:
+    "Put reviews, credentials, and job photos where hesitation happens \u2014 Google listing, estimate page, and first reply.",
+  conversion:
+    "Make call / book / get an estimate the obvious next step \u2014 so interest turns into scheduled jobs, not endless browsing.",
+};
+
+const PILLAR_OPPORTUNITY_EXPANDED_HOME_SERVICES: Record<PillarKey, string> = {
+  positioning:
+    "Write one plain sentence: who you serve, what jobs you take, and why homeowners trust you. Put it on your homepage and Google listing. Test it with 3 recent customers.",
+  messaging:
+    "Pick 3 themes (e.g. reliability, speed, tidy job sites) and use them on every page and estimate follow-up. Audit homepage, Google description, and last reply: same story?",
+  visibility:
+    "List the 5 ways homeowners find trades like yours (Maps, Google, referrals, truck/yard signs, partners). Strengthen one for 30 days.",
+  credibility:
+    "Move your best reviews, licenses/insurance clarity, and before/after job photos to Google and the estimate path \u2014 not buried on an About page.",
+  conversion:
+    "Map search \u2192 trust \u2192 call/estimate \u2192 booked job. Cut competing CTAs and make one primary action dominant.",
+};
+
+const PILLAR_OPPORTUNITY_HEALTH_CLINIC: Record<PillarKey, string> = {
+  positioning:
+    "Make it obvious who you help and what care outcomes you create \u2014 so the right patients self-select and trust starts earlier.",
+  messaging:
+    "Keep one clear, calm care story across Google, site, and first replies \u2014 so every touch reduces anxiety instead of adding jargon.",
+  visibility:
+    "Show up where patients search for trusted local care \u2014 Google/Maps, reviews, and appointment booking paths.",
+  credibility:
+    "Put reviews, outcomes, and care credentials where hesitation happens \u2014 homepage, booking page, and first reply.",
+  conversion:
+    "Make book / call the obvious next step \u2014 so interest turns into scheduled appointments, not endless FAQ loops.",
+};
+
+const PILLAR_OPPORTUNITY_EXPANDED_HEALTH_CLINIC: Record<PillarKey, string> = {
+  positioning:
+    "Write one plain sentence: who you serve, what you treat or support, and why patients feel safe choosing you. Put it on your homepage and Google listing. Test it with 3 recent patients.",
+  messaging:
+    "Pick 3 themes (e.g. clarity, comfort, outcomes) and use them on every page and follow-up. Audit homepage, Google description, and booking page: same story?",
+  visibility:
+    "List the 5 ways new patients find clinics like yours (Maps, Google, referrals, insurers/directories, partners). Strengthen one for 30 days.",
+  credibility:
+    "Surface reviews, outcomes, and credentials on the booking page and first reply \u2014 not buried on an About page.",
+  conversion:
+    "Map inquiry \u2192 trust \u2192 booked appointment. Remove mixed CTAs and make one primary booking action dominant.",
+};
+
 function opportunityMapsForVertical(
   vertical: ConsumerVerticalId | null,
 ): { short: Record<PillarKey, string>; expanded: Record<PillarKey, string> } | null {
@@ -231,6 +283,12 @@ function opportunityMapsForVertical(
   }
   if (vertical === "consumer_professional") {
     return { short: PILLAR_OPPORTUNITY_CONSUMER_PRO, expanded: PILLAR_OPPORTUNITY_EXPANDED_CONSUMER_PRO };
+  }
+  if (vertical === "home_services") {
+    return { short: PILLAR_OPPORTUNITY_HOME_SERVICES, expanded: PILLAR_OPPORTUNITY_EXPANDED_HOME_SERVICES };
+  }
+  if (vertical === "health_clinic") {
+    return { short: PILLAR_OPPORTUNITY_HEALTH_CLINIC, expanded: PILLAR_OPPORTUNITY_EXPANDED_HEALTH_CLINIC };
   }
   return null;
 }

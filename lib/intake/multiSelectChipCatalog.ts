@@ -161,10 +161,10 @@ export const PREVIOUS_BRAND_WORK_CHIPS: string[] = [
   OTHER_CHIP,
 ];
 
-export const USER_ROLE_CHIPS: string[] = [
+export const USER_ROLE_CHIPS: string[] = getSuggestedRepliesForCapture("user_role_context") ?? [
   "I run the business day-to-day",
   "I lead strategy and growth",
-  "I oversee marketing or brand",
+  "In-house marketing / brand",
   "I'm a founder / co-founder",
   OTHER_CHIP,
 ];
@@ -260,7 +260,7 @@ const TOPIC_RULES: TopicRule[] = [
     mode: "multi",
   },
   {
-    test: /\b(industry or space|what industry|kind of business is this|line of business|what space is the business|hair salon|restaurant)\b/i,
+    test: /\b(industry or space|what industry|industry is the company|kind of business is this|line of business|what space is the business|hair salon|restaurant|not your marketing job)\b/i,
     captureKey: "industry",
     mode: "single",
   },
@@ -285,7 +285,7 @@ const TOPIC_RULES: TopicRule[] = [
     mode: "single",
   },
   {
-    test: /\b(do you have a website\?|website url to share|landing page or store|not on the web yet|paste (your website )?url|message box below)\b/i,
+    test: /\b(do you have a website|website url to share|landing page or store|not on the web yet|paste (your website )?url|message box (below|and)|type url below)\b/i,
     captureKey: "website_presence",
     mode: "single",
   },

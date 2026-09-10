@@ -277,6 +277,7 @@ function shouldIncludeCaptureForTier(capture: CaptureKey, tier: IntakeTier): boo
    */
   const snapshotCritical: CaptureKey[] = [
     "business_type_classifier",
+    "user_role_context",
     "audience_type_classifier",
     "marketing_audience_focus",
     "industry",
@@ -390,7 +391,7 @@ function modelFacingCaptureHint(key: CaptureKey): string {
     case "team_size":
       return "roughly how big the team is today (including you)";
     case "industry":
-      return "what industry or space you're in (a plain category is enough)";
+      return "what industry or space the *company* is in (business category — not the person's marketing job title)";
     case "geographic_scope":
       return "whether you mainly serve locally, regionally, nationally, or globally";
     case "years_in_business":
@@ -516,7 +517,7 @@ function getCaptureStates(
       completed:
         hasRecentUserSignal(
           messages,
-          /\b(i'?m (a )?founder|co-?founder|i (run|own) (the|this) business|day[- ]?to[- ]?day|i lead strategy|i oversee marketing|marketing lead|strategic lead|i'?m the (owner|ceo|operator)|my role is)\b/i,
+          /\b(i'?m (a )?founder|co-?founder|i (run|own) (the|this) business|day[- ]?to[- ]?day|i lead strategy|i oversee marketing|i lead marketing|marketing \/ brand in[- ]?house|in[- ]?house marketing|marketing lead|strategic lead|i'?m the (owner|ceo|operator)|my role is)\b/i,
           6,
         ) ||
         refused(/\b(your role|role at|how do you think about your role)\b/i) ||
@@ -1014,7 +1015,7 @@ function capturePromptPatternForKey(key: CaptureKey): RegExp {
     case "marketing_audience_focus":
       return /\b(which side|sell to both|marketing speak|consumer \/ b2c side|business \/ b2b side|keep both in mind|day[- ]?to[- ]?day marketing)\b/i;
     case "user_role_context":
-      return /\b(your role|role at|how do you think about your role|founder \/ co-founder|day-to-day|lead strategy|oversee marketing)\b/i;
+      return /\b(your role|role at|how do you think about your role|founder \/ co-founder|day-to-day|lead strategy|oversee marketing|lead marketing)\b/i;
     case "team_size":
       return /\b(how big is (your|the) team|team size|how many people|people (are )?involved|team today)\b/i;
     case "industry":

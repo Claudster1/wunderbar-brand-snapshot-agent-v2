@@ -31,6 +31,30 @@ describe("buildIntakeTopicResumeLines", () => {
     expect(joined).toMatch(/CUSTOMERS/i);
   });
 
+  it("does not mark role done from agency-for-clients industry chip", () => {
+    const lines = buildIntakeTopicResumeLines([
+      { role: "user", content: "Claudine" },
+      { role: "user", content: "Agency / studio / freelance (for clients)" },
+    ]);
+    expect(lines.join(" ")).not.toMatch(/USER ROLE/i);
+  });
+
+  it("marks industry done from agency-for-clients chip alone", () => {
+    const lines = buildIntakeTopicResumeLines([
+      { role: "user", content: "Claudine" },
+      { role: "user", content: "Agency / studio / freelance (for clients)" },
+    ]);
+    expect(lines.join(" ")).toMatch(/INDUSTRY/i);
+  });
+
+  it("marks role done from in-house marketing role chip", () => {
+    const lines = buildIntakeTopicResumeLines([
+      { role: "user", content: "Claudine" },
+      { role: "user", content: "In-house marketing / brand" },
+    ]);
+    expect(lines.join(" ")).toMatch(/USER ROLE/i);
+  });
+
   it("does not mark narrative topics done from assistant-only playbook phrasing", () => {
     const lines = buildIntakeTopicResumeLines([
       { role: "user", content: "Claudine" },

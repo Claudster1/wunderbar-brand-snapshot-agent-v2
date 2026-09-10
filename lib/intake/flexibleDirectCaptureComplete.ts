@@ -302,13 +302,13 @@ export function assistantTurnAsksAboutCapture(key: CaptureKey, la: string): bool
         la,
       );
     case "user_role_context":
-      return /\b(your role|role at|how do you think about your role|founder|co-?founder|day-to-day|lead strategy|oversee marketing|run the business)\b/i.test(
+      return /\b(your role|role at|how do you think about your role|founder|co-?founder|day-to-day|lead strategy|oversee marketing|lead marketing|run the business)\b/i.test(
         la,
       );
     case "team_size":
       return /\b(how big|team size|how many people|people (are )?involved|team today|headcount)\b/i.test(la);
     case "industry":
-      return /\b(industry|what space|operates in|category|line of business|what (kind|type) of (business|work))\b/i.test(
+      return /\b(industry|what space|operates in|category|line of business|what (kind|type) of (business|work)|not your marketing job|industry is the company)\b/i.test(
         la,
       );
     case "geographic_scope":
@@ -473,11 +473,12 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
     }
     case "user_role_context": {
       const asked =
-        /\b(your role|role at|how do you think about your role|founder|co-?founder|day-to-day|lead strategy|oversee marketing|run the business)\b/i.test(
+        /\b(your role|role at|how do you think about your role|founder|co-?founder|day-to-day|lead strategy|oversee marketing|lead marketing|run the business)\b/i.test(
           la,
         );
+      // Do not match bare agency/studio client chips as a role answer.
       const answered =
-        /\b(founder|co-?founder|owner|ceo|operator|day[- ]?to[- ]?day|strateg(y|ic)|growth|marketing|brand|cmo|director|manager|i run|i lead|i oversee)\b/i.test(
+        /\b(founder|co-?founder|owner|ceo|operator|day[- ]?to[- ]?day|strateg(y|ic)|growth|marketing|brand|in[- ]?house marketing|marketing \/ brand in[- ]?house|cmo|director|manager|i run|i lead|i oversee)\b/i.test(
           t,
         );
       return asked && answered;
@@ -493,7 +494,7 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
     }
     case "industry": {
       const asked =
-        /\b(industry|what space|operates in|category|line of business|what (kind|type) of (business|work))\b/i.test(
+        /\b(industry|what space|operates in|category|line of business|what (kind|type) of (business|work)|not your marketing job|industry is the company)\b/i.test(
           la,
         );
       const wordCount = t.split(/\s+/).filter(Boolean).length;

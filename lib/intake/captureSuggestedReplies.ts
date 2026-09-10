@@ -302,7 +302,7 @@ export function getSuggestedRepliesForCapture(
       return [
         "I run the business day-to-day",
         "I lead strategy and growth",
-        "I oversee marketing or brand",
+        "In-house marketing / brand",
         "I'm a founder / co-founder",
         OTHER,
       ];
@@ -324,8 +324,7 @@ export function getSuggestedRepliesForCapture(
       }
       return [
         "Professional services / consulting",
-        "Marketing / advertising agency",
-        "Creative / design / media",
+        "Agency / studio / freelance (for clients)",
         "SaaS / software",
         "E‑commerce / retail",
         "Health / wellness",

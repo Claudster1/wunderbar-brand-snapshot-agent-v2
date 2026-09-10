@@ -91,10 +91,18 @@ export function buildCaptureQuestion(
       return "**How do you think about your role here?** Tap below — or type your own.";
     case "team_size":
       return "**How big is your team today** — including you?";
-    case "industry":
-      return consumer
-        ? "**What kind of business is this?** Hair salon, restaurant, retail shop, wellness, home services — whatever fits."
-        : "**What industry or space is the business in?** A simple category is perfect.";
+    case "industry": {
+      const marketingLead = /\b(in[- ]?house marketing|marketing \/ brand in[- ]?house|i lead marketing|i oversee marketing)\b/i.test(
+        corpus,
+      );
+      if (consumer) {
+        return "**What kind of business is this?** Hair salon, restaurant, retail shop, wellness, home services — whatever fits.";
+      }
+      if (marketingLead) {
+        return "**What industry is the company in?** Pick the business category (SaaS, clinic, retail…) — not your marketing job.";
+      }
+      return "**What industry or space is the business in?** A simple category is perfect.";
+    }
     case "geographic_scope":
       return consumer
         ? "**Where do you mainly serve people** — your neighborhood or city, a wider region, nationally, or online everywhere?"

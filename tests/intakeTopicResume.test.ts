@@ -31,10 +31,10 @@ describe("buildIntakeTopicResumeLines", () => {
     expect(joined).toMatch(/CUSTOMERS/i);
   });
 
-  it("does not mark role done from agency industry chip that says not in-house", () => {
+  it("does not mark role done from agency-for-clients industry chip", () => {
     const lines = buildIntakeTopicResumeLines([
       { role: "user", content: "Claudine" },
-      { role: "user", content: "Agency / freelance (not in-house)" },
+      { role: "user", content: "Agency / studio / freelance (for clients)" },
     ]);
     expect(lines.join(" ")).not.toMatch(/USER ROLE/i);
   });
@@ -42,7 +42,7 @@ describe("buildIntakeTopicResumeLines", () => {
   it("marks role done from in-house marketing role chip", () => {
     const lines = buildIntakeTopicResumeLines([
       { role: "user", content: "Claudine" },
-      { role: "user", content: "I lead marketing / brand in-house" },
+      { role: "user", content: "In-house marketing / brand" },
     ]);
     expect(lines.join(" ")).toMatch(/USER ROLE/i);
   });

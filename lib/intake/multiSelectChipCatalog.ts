@@ -164,7 +164,7 @@ export const PREVIOUS_BRAND_WORK_CHIPS: string[] = [
 export const USER_ROLE_CHIPS: string[] = [
   "I run the business day-to-day",
   "I lead strategy and growth",
-  "I lead marketing / brand in-house",
+  "In-house marketing / brand",
   "I'm a founder / co-founder",
   OTHER_CHIP,
 ];
@@ -260,7 +260,7 @@ const TOPIC_RULES: TopicRule[] = [
     mode: "multi",
   },
   {
-    test: /\b(industry or space|what industry|kind of business is this|line of business|what space is the business|hair salon|restaurant)\b/i,
+    test: /\b(industry or space|what industry|industry is the company|kind of business is this|line of business|what space is the business|hair salon|restaurant|not your marketing job)\b/i,
     captureKey: "industry",
     mode: "single",
   },

@@ -277,6 +277,7 @@ function shouldIncludeCaptureForTier(capture: CaptureKey, tier: IntakeTier): boo
    */
   const snapshotCritical: CaptureKey[] = [
     "business_type_classifier",
+    "user_role_context",
     "audience_type_classifier",
     "marketing_audience_focus",
     "industry",
@@ -390,7 +391,7 @@ function modelFacingCaptureHint(key: CaptureKey): string {
     case "team_size":
       return "roughly how big the team is today (including you)";
     case "industry":
-      return "what industry or space you're in (a plain category is enough)";
+      return "what industry or space the *company* is in (business category — not the person's marketing job title)";
     case "geographic_scope":
       return "whether you mainly serve locally, regionally, nationally, or globally";
     case "years_in_business":

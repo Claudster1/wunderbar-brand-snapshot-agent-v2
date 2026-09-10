@@ -476,7 +476,7 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
         /\b(your role|role at|how do you think about your role|founder|co-?founder|day-to-day|lead strategy|oversee marketing|lead marketing|run the business)\b/i.test(
           la,
         );
-      // Do not match bare "in-house" — agency industry chips say "(not in-house)".
+      // Do not match bare agency/studio client chips as a role answer.
       const answered =
         /\b(founder|co-?founder|owner|ceo|operator|day[- ]?to[- ]?day|strateg(y|ic)|growth|marketing|brand|in[- ]?house marketing|marketing \/ brand in[- ]?house|cmo|director|manager|i run|i lead|i oversee)\b/i.test(
           t,

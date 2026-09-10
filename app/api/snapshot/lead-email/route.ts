@@ -183,10 +183,6 @@ export async function POST(req: Request) {
         firstName,
         logoUrl: `${BASE_URL}/assets/pdf/wunderbar-logo.png`,
       });
-<<<<<<< HEAD
-      const sendResult = await sendTransactionalEmail({ to: normalized, subject, html, text });
-      emailDeliveryOk = sendResult.ok;
-=======
       const sendResult = await sendTransactionalEmail({
         to: normalized,
         subject,
@@ -194,7 +190,7 @@ export async function POST(req: Request) {
         text,
         from: buildTransactionalHumanFrom(defaultTransactionalFromAddress()),
       });
->>>>>>> origin/main
+      emailDeliveryOk = sendResult.ok;
       if (!sendResult.ok) {
         emailDeliveryError = sendResult.error || "email_send_failed";
         logger.warn("[Lead Email] Results delivery email failed", {

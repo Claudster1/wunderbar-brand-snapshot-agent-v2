@@ -1,6 +1,7 @@
 import type { CaptureKey } from "@/lib/intake/flexibleDirectCaptureComplete";
 import {
   isConsumerFacingTone,
+  lockedBusinessTypeFromMessages,
   resolveToneProfile,
   toneFromMessages,
   type CaptureBusinessType,
@@ -19,6 +20,97 @@ export type CaptureChipOptions = {
   businessType?: CaptureBusinessType | null;
   audienceType?: "B2B" | "B2C" | "both" | null;
 };
+
+function withOther(chips: string[]): string[] {
+  return [...chips, OTHER];
+}
+
+function resolveBusinessType(options?: CaptureChipOptions): CaptureBusinessType | null {
+  if (options?.businessType) return options.businessType;
+  if (options?.messages?.length) return lockedBusinessTypeFromMessages(options.messages);
+  return null;
+}
+
+/**
+ * Industry chips filtered by locked revenue model + tone — flat adaptive menus, not nested cascades.
+ * Always ends with Other so edge cases can free-type.
+ */
+export function getIndustrySuggestedReplies(options?: CaptureChipOptions): string[] {
+  const tone = resolveTone(options);
+  const type = resolveBusinessType(options);
+  const consumer = isConsumerFacingTone(tone);
+
+  if (type === "local_service" || type === "service_b2c") {
+    return withOther([
+      "Hair / beauty / spa",
+      "Health / wellness / clinic",
+      "Home / local services",
+      "Consumer financial / advisory",
+      "Fitness / yoga / wellness studio",
+    ]);
+  }
+
+  if (type === "retail") {
+    return withOther([
+      "Restaurant / café / food",
+      "Fashion / apparel / boutique",
+      "Retail shop",
+      "Hair / beauty / spa",
+    ]);
+  }
+
+  if (type === "ecommerce") {
+    return withOther([
+      "E‑commerce / product",
+      "Fashion / apparel / boutique",
+      "Food / beverage brand",
+      "Home / lifestyle products",
+    ]);
+  }
+
+  if (type === "saas") {
+    return withOther([
+      "SaaS / software",
+      "Marketplace or platform",
+      "Professional services / consulting",
+    ]);
+  }
+
+  if (type === "service_b2b" || (!consumer && type == null)) {
+    return withOther([
+      "Professional services / consulting",
+      "SaaS / software",
+      "E‑commerce / retail",
+      "Health / wellness",
+      "Education / coaching",
+      "Creative / media",
+    ]);
+  }
+
+  // Consumer tone without a locked model — broad B2C set
+  if (consumer) {
+    return withOther([
+      "Hair / beauty / spa",
+      "Restaurant / café / food",
+      "Fashion / apparel / boutique",
+      "Health / wellness / clinic",
+      "Home / local services",
+      "Consumer financial / advisory",
+      "Retail shop",
+      "E‑commerce / product",
+    ]);
+  }
+
+  return withOther([
+    "Professional services / consulting",
+    "SaaS / software",
+    "E‑commerce / retail",
+    "Health / wellness",
+    "Home / local services",
+    "Education / coaching",
+    "Creative / media",
+  ]);
+}
 
 /** True for mutually exclusive / banded captures — UI should auto-send on one tap. */
 export function getChipSelectionModeForCapture(key: CaptureKey): ChipSelectionMode {
@@ -309,29 +401,7 @@ export function getSuggestedRepliesForCapture(
     case "team_size":
       return ["Just me", "2–5 people", "6–15 people", "16–50 people", "50+ people", OTHER];
     case "industry":
-      if (consumer) {
-        return [
-          "Hair / beauty / spa",
-          "Restaurant / café / food",
-          "Fashion / apparel / boutique",
-          "Health / wellness / clinic",
-          "Home / local services",
-          "Consumer financial / advisory",
-          "Retail shop",
-          "E‑commerce / product",
-          OTHER,
-        ];
-      }
-      return [
-        "Professional services / consulting",
-        "SaaS / software",
-        "E‑commerce / retail",
-        "Health / wellness",
-        "Home / local services",
-        "Education / coaching",
-        "Creative / media",
-        OTHER,
-      ];
+      return getIndustrySuggestedReplies(options);
     case "geographic_scope":
       return [
         "Locally (city or metro)",

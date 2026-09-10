@@ -29,7 +29,7 @@ const HEALTH_CLINIC_RE =
 const DTC_RE =
   /\b(e-?commerce|shopify|dtc|amazon seller|online store|product brand|dropship|subscription box)\b/i;
 const WELLNESS_STUDIO_RE =
-  /\b(pilates|yoga studio|fitness studio|personal train|wellness studio|gym\b)\b/i;
+  /\b(pilates|yoga studio|fitness studio|personal train|wellness studio|gym\b|fitness \/ yoga)\b/i;
 
 export type ConsumerVerticalContext = {
   industry?: string | null;
@@ -44,16 +44,22 @@ export function inferConsumerVertical(ctx: ConsumerVerticalContext = {}): Consum
     .join("\n");
   if (!blob.trim()) return null;
 
+  const type = normalizeBusinessTypeOrGeneral(ctx.businessType);
+
   // Specific packs first — health before beauty so "dental clinic" / chiro don't misroute
   if (HOSPITALITY_RE.test(blob)) return "hospitality";
   if (HEALTH_CLINIC_RE.test(blob)) return "health_clinic";
+  // Ecommerce beauty/CPG should stay product voice, not salon book/rebook
+  if (type === "ecommerce") {
+    if (FASHION_RE.test(blob)) return "fashion_retail";
+    return "dtc_product";
+  }
   if (BEAUTY_RE.test(blob) || WELLNESS_STUDIO_RE.test(blob)) return "beauty_wellness";
   if (CONSUMER_PRO_RE.test(blob)) return "consumer_professional";
   if (HOME_SERVICES_RE.test(blob)) return "home_services";
   if (FASHION_RE.test(blob)) return "fashion_retail";
   if (DTC_RE.test(blob)) return "dtc_product";
 
-  const type = normalizeBusinessTypeOrGeneral(ctx.businessType);
   // Type alone is too coarse for local_service / retail — require industry/corpus signals above.
   if (type === "ecommerce") return "dtc_product";
 

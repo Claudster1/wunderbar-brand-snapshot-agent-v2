@@ -13,6 +13,10 @@ describe("qaSeedTranscripts", () => {
     expect(parseQaSeedParam("restaurant")).toBe("near-end-restaurant");
     expect(parseQaSeedParam("fashion")).toBe("near-end-fashion");
     expect(parseQaSeedParam("finance")).toBe("near-end-consumer-finance");
+    expect(parseQaSeedParam("hvac")).toBe("near-end-hvac");
+    expect(parseQaSeedParam("dental")).toBe("near-end-dental");
+    expect(parseQaSeedParam("dual-b2c")).toBe("near-end-dual-b2c");
+    expect(parseQaSeedParam("dual-b2b")).toBe("near-end-dual-b2b");
     expect(parseQaSeedParam("nope")).toBeNull();
   });
 
@@ -72,5 +76,41 @@ describe("qaSeedTranscripts", () => {
     expect(joined).toMatch(/consult|credentials|Google, LinkedIn/i);
     expect(joined).not.toMatch(/Instagram, Google, TikTok/i);
     expect(joined).not.toMatch(/LinkedIn POV/i);
+  });
+
+  it("hvac seed uses homeowner / estimate language", () => {
+    const turns = getQaSeedTurns("near-end-hvac");
+    const joined = turns.map((t) => t.text).join("\n");
+    expect(joined).toMatch(/Summit Air/);
+    expect(joined).toMatch(/HVAC|plumbing/i);
+    expect(joined).toMatch(/brand-new client|estimate/i);
+    expect(joined).not.toMatch(/LinkedIn POV|prospects choose/i);
+  });
+
+  it("dental seed uses appointment / clinic language", () => {
+    const turns = getQaSeedTurns("near-end-dental");
+    const joined = turns.map((t) => t.text).join("\n");
+    expect(joined).toMatch(/Cedar Family Dental/);
+    expect(joined).toMatch(/dental clinic/i);
+    expect(joined).toMatch(/book|appointment|Google/i);
+    expect(joined).not.toMatch(/LinkedIn POV|prospects choose/i);
+  });
+
+  it("dual-b2c seed keeps consumer marketing focus", () => {
+    const turns = getQaSeedTurns("near-end-dual-b2c");
+    const joined = turns.map((t) => t.text).join("\n");
+    expect(joined).toMatch(/Meaningful mix of both/);
+    expect(joined).toMatch(/Consumer \/ B2C side of marketing/);
+    expect(joined).toMatch(/brand-new client/i);
+    expect(joined).not.toMatch(/LinkedIn POV/i);
+  });
+
+  it("dual-b2b seed keeps B2B marketing focus", () => {
+    const turns = getQaSeedTurns("near-end-dual-b2b");
+    const joined = turns.map((t) => t.text).join("\n");
+    expect(joined).toMatch(/Meaningful mix of both/);
+    expect(joined).toMatch(/Business \/ B2B side of marketing/);
+    expect(joined).toMatch(/LinkedIn POV|prospects choose/i);
+    expect(joined).not.toMatch(/Instagram, Google, TikTok/i);
   });
 });

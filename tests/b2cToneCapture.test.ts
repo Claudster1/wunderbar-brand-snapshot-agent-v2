@@ -3,9 +3,11 @@ import { buildCaptureQuestion } from "@/lib/intake/buildCaptureQuestion";
 import { getSuggestedRepliesForCapture } from "@/lib/intake/captureSuggestedReplies";
 import {
   inferBusinessTypeFromCorpus,
+  inferMarketingAudienceFocusFromCorpus,
   lockedAudienceFromMessages,
   lockedBusinessTypeFromMessages,
   resolveToneProfile,
+  toneFromMessages,
 } from "@/lib/intake/toneProfile";
 
 describe("toneProfile inference", () => {
@@ -96,6 +98,64 @@ describe("B2C capture wording", () => {
     const industry = getSuggestedRepliesForCapture("industry", { messages });
     expect(industry).toContain("Hair / beauty / spa");
     expect(industry[0]).not.toBe("Professional services / consulting");
+  });
+
+  it("filters industry chips by locked revenue model", () => {
+    const local = getSuggestedRepliesForCapture("industry", {
+      messages: [
+        { role: "user", content: "Local / personal services" },
+        { role: "user", content: "Mostly B2C" },
+      ],
+    });
+    expect(local).toEqual([
+      "Hair / beauty / spa",
+      "Health / wellness / clinic",
+      "Home / local services",
+      "Consumer financial / advisory",
+      "Fitness / yoga / wellness studio",
+      "Something else (type below)",
+    ]);
+    expect(local).not.toContain("Restaurant / café / food");
+    expect(local).not.toContain("SaaS / software");
+    expect(buildCaptureQuestion("industry", "local_service", {
+      messages: [
+        { role: "user", content: "Local / personal services" },
+        { role: "user", content: "Mostly B2C" },
+      ],
+    })).toMatch(/salon or spa|clinic|home services/i);
+
+    const retail = getSuggestedRepliesForCapture("industry", {
+      messages: [
+        { role: "user", content: "Retail or in-person" },
+        { role: "user", content: "Mostly B2C" },
+      ],
+    });
+    expect(retail[0]).toBe("Restaurant / café / food");
+    expect(retail).toContain("Fashion / apparel / boutique");
+    expect(retail).not.toContain("Home / local services");
+    expect(retail).not.toContain("SaaS / software");
+
+    const ecommerce = getSuggestedRepliesForCapture("industry", {
+      messages: [
+        { role: "user", content: "E‑commerce / DTC product" },
+        { role: "user", content: "Mostly B2C" },
+      ],
+    });
+    expect(ecommerce[0]).toBe("E‑commerce / product");
+    expect(ecommerce).toContain("Fashion / apparel / boutique");
+    expect(ecommerce).not.toContain("Hair / beauty / spa");
+    expect(ecommerce).not.toContain("Professional services / consulting");
+
+    const b2b = getSuggestedRepliesForCapture("industry", {
+      messages: [
+        { role: "user", content: "Business consulting / agency" },
+        { role: "user", content: "Mostly B2B" },
+      ],
+    });
+    expect(b2b[0]).toBe("Professional services / consulting");
+    expect(b2b).toContain("SaaS / software");
+    expect(b2b).not.toContain("Hair / beauty / spa");
+    expect(b2b).not.toContain("Consumer financial / advisory");
   });
 
   it("uses consult/trust language for consumer financial / advisory", () => {
@@ -214,6 +274,29 @@ describe("B2C capture wording", () => {
         userCorpus: "Meaningful mix of both — salon + a few corporate clients",
       }),
     ).toBe("b2c_local_service");
+  });
+
+  it("prefers marketing-focus chips over later freeform that mentions the other side", () => {
+    expect(
+      inferMarketingAudienceFocusFromCorpus(
+        "Meaningful mix of both\nBusiness / B2B side of marketing\nWe also serve a few consumers on the coaching side",
+      ),
+    ).toBe("B2B");
+    expect(
+      inferMarketingAudienceFocusFromCorpus(
+        "Meaningful mix of both\nConsumer / B2C side of marketing\nWe still talk to some B2B partners",
+      ),
+    ).toBe("B2C");
+    expect(
+      toneFromMessages([
+        { role: "user", content: "Meaningful mix of both" },
+        { role: "user", content: "Business / B2B side of marketing" },
+        {
+          role: "user",
+          content: "We have a small consumer coaching side, but LinkedIn stays aimed at SMB buyers.",
+        },
+      ]),
+    ).toBe("b2b_professional");
   });
 
   it("completes average transaction capture for hospitality wording", async () => {

@@ -100,7 +100,7 @@ export function buildIntakeTopicResumeLines(
     lines.push("OFFER / MESSAGING CLARITY: already answered — do **not** re-ask clarity questions (playbook §19–20).");
   }
 
-  if (/\b(i'?m (a )?founder|co-?founder|i (run|own) (the|this) business|day[- ]?to[- ]?day|i lead strategy|i oversee marketing|my role)\b/i.test(users)) {
+  if (/\b(i'?m (a )?founder|co-?founder|i (run|own) (the|this) business|day[- ]?to[- ]?day|i lead strategy|i oversee marketing|i lead marketing|in[- ]?house|my role)\b/i.test(users)) {
     lines.push("USER ROLE: already answered — do **not** re-ask role (playbook §2B / §38).");
   }
 

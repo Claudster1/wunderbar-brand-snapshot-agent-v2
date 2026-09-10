@@ -164,7 +164,7 @@ export const PREVIOUS_BRAND_WORK_CHIPS: string[] = [
 export const USER_ROLE_CHIPS: string[] = [
   "I run the business day-to-day",
   "I lead strategy and growth",
-  "I oversee marketing or brand",
+  "I lead marketing / brand in-house",
   "I'm a founder / co-founder",
   OTHER_CHIP,
 ];

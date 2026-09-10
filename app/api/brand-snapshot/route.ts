@@ -516,7 +516,7 @@ function getCaptureStates(
       completed:
         hasRecentUserSignal(
           messages,
-          /\b(i'?m (a )?founder|co-?founder|i (run|own) (the|this) business|day[- ]?to[- ]?day|i lead strategy|i oversee marketing|marketing lead|strategic lead|i'?m the (owner|ceo|operator)|my role is)\b/i,
+          /\b(i'?m (a )?founder|co-?founder|i (run|own) (the|this) business|day[- ]?to[- ]?day|i lead strategy|i oversee marketing|i lead marketing|in[- ]?house|marketing lead|strategic lead|i'?m the (owner|ceo|operator)|my role is)\b/i,
           6,
         ) ||
         refused(/\b(your role|role at|how do you think about your role)\b/i) ||
@@ -1014,7 +1014,7 @@ function capturePromptPatternForKey(key: CaptureKey): RegExp {
     case "marketing_audience_focus":
       return /\b(which side|sell to both|marketing speak|consumer \/ b2c side|business \/ b2b side|keep both in mind|day[- ]?to[- ]?day marketing)\b/i;
     case "user_role_context":
-      return /\b(your role|role at|how do you think about your role|founder \/ co-founder|day-to-day|lead strategy|oversee marketing)\b/i;
+      return /\b(your role|role at|how do you think about your role|founder \/ co-founder|day-to-day|lead strategy|oversee marketing|lead marketing|in-house)\b/i;
     case "team_size":
       return /\b(how big is (your|the) team|team size|how many people|people (are )?involved|team today)\b/i;
     case "industry":

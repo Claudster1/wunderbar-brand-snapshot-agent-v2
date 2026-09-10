@@ -322,7 +322,7 @@
       "options": [
         { "label": "I run the business day-to-day", "value": "operator" },
         { "label": "I lead strategy and growth", "value": "strategic_lead" },
-        { "label": "I oversee marketing or brand", "value": "marketing_lead" },
+        { "label": "I lead marketing / brand in-house", "value": "marketing_lead" },
         { "label": "I'm a founder / co-founder", "value": "founder" },
         { "label": "Something else", "value": "other" }
       ],

@@ -9,6 +9,7 @@ import { PdfFooter } from "../components/PdfFooter";
 import { registerPdfFonts } from "../registerFonts";
 import { SectionDividerPage } from "../components/SectionDividerPage";
 import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
+import { pdfAudienceChrome } from "@/src/pdf/lib/pdfAudienceChrome";
 
 registerPdfFonts();
 
@@ -143,6 +144,7 @@ function IcpPlanCard({ plan, index }: { plan: IcpGoToMarketPlan; index: number }
 }
 
 export function BattleCardsDocument({ data, brandName }: Props) {
+  const chrome = pdfAudienceChrome(data);
   const reportDate = new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
   const headerChrome = { businessName: brandName, date: reportDate, productName: "Battle Cards" as const };
 
@@ -171,13 +173,13 @@ export function BattleCardsDocument({ data, brandName }: Props) {
         <>
           <SectionDividerPage
             label="Section"
-            title="ICP playbooks"
+            title={chrome.icpPlaybooksTitle}
             subtitle="Per-segment strategy, campaign support, 90-day tactics, and conversion-intelligence anchors for sales and marketing."
           />
           <Page size="A4" style={s.page} wrap>
         <PdfHeader title="Battle Cards" {...headerChrome} />
         <PdfFooter businessName={brandName} productName="Battle Cards" showPageNumbers />
-            <Text style={s.h1}>ICP playbooks</Text>
+            <Text style={s.h1}>{chrome.icpPlaybooksTitle}</Text>
             <Text style={s.body}>
               Use one playbook per prioritized segment so field conversations, nurture, and creative all reinforce the same
               story, proof, and matrix cell from your ICI framework.
@@ -202,7 +204,9 @@ export function BattleCardsDocument({ data, brandName }: Props) {
         <Text style={s.h1}>{hasIcpPlans ? "Competitive battle cards" : "Battle Cards"}</Text>
         {!hasIcpPlans && salesRef ? (
           <View style={s.card}>
-            <Text style={s.label}>ICP Conversion Intelligence Link</Text>
+            <Text style={s.label}>
+              {chrome.consumer ? "Customer conversion link" : "ICP Conversion Intelligence Link"}
+            </Text>
             <Text style={s.body}>
               {salesRef.icpTier} | {salesRef.funnelStage} | {salesRef.matrixCell}
             </Text>
@@ -210,7 +214,9 @@ export function BattleCardsDocument({ data, brandName }: Props) {
         ) : null}
         <Text style={s.body}>
           {hasIcpPlans
-            ? "Named-competitor cards below complement the ICP playbooks: use them when displacement or bake-off conversations come up."
+            ? chrome.consumer
+              ? "Named-competitor cards below complement the audience playbooks: use them when someone compares you to another local option."
+              : "Named-competitor cards below complement the ICP playbooks: use them when displacement or bake-off conversations come up."
             : 'Use these cards in live sales and marketing conversations. Each one translates competitive context into "what to say", "what to avoid", and "how we win" guidance.'}
         </Text>
 

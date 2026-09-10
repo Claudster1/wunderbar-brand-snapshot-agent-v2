@@ -1059,7 +1059,7 @@ export function buildActivationPlanSectionsList(
   return [
     {
       id: "audience-segments",
-      label: "Audiences & outreach triggers",
+      label: d.voice.consumer ? "Audiences & outreach triggers" : "Audiences & outreach triggers",
       summary: activationSegmentPlansBody
         ? "Who each campaign is for—and what should start outreach—from your conversion plan."
         : "Who each campaign is for and what event should start outreach.",
@@ -1068,21 +1068,27 @@ export function buildActivationPlanSectionsList(
     },
     {
       id: "journey-orchestration",
-      label: "Buyer journey plan",
+      label: d.voice.consumer ? "Customer journey plan" : "Buyer journey plan",
       summary:
         typeof diagnosticData.buyerJourneySummary === "string" && diagnosticData.buyerJourneySummary.trim()
-          ? "Stage-by-stage journey with buyer-role adaptations from your customer journey map."
-          : "Ordered steps across channels from first contact toward purchase.",
+          ? d.voice.consumer
+            ? "Stage-by-stage path from discovery to booking or purchase."
+            : "Stage-by-stage journey with buyer-role adaptations from your customer journey map."
+          : d.voice.consumer
+            ? "Ordered steps from first discovery toward booking or purchase."
+            : "Ordered steps across channels from first contact toward purchase.",
       body: journeyBody,
       workbookSectionId: "buyer-journey-map",
     },
     {
       id: "competitive-motion-plan",
-      label: "Competitive response plan",
+      label: d.voice.consumer ? "Standing out locally" : "Competitive response plan",
       summary:
         typeof diagnosticData.competitiveMatrixSummary === "string" && diagnosticData.competitiveMatrixSummary.trim()
           ? "How you differ, where competitors are weak, and how campaigns should respond."
-          : "How campaigns and sales should respond when competitors come up.",
+          : d.voice.consumer
+            ? "How to respond when customers compare you to other local options."
+            : "How campaigns and sales should respond when competitors come up.",
       body: competitiveBody,
       workbookSectionId: "competitive-landscape-matrix",
     },
@@ -1134,25 +1140,31 @@ export function buildActivationPlanSectionsList(
     },
     {
       id: "thought-leadership",
-      label: "Thought Leadership Plan",
+      label: d.voice.consumer ? "Social content plan" : "Thought Leadership Plan",
       summary:
         (typeof channelPlans.social === "string" && channelPlans.social.length > 120) ||
         (typeof channelPlans.content === "string" && channelPlans.content.length > 120)
           ? "Social & content calendar from your report: platforms, example posts, and themes."
-          : "Social media plan: channel scope, content system, publishing cadence, and ownership.",
+          : d.voice.consumer
+            ? "Posts and cadence on the channels your customers already use."
+            : "Social media plan: channel scope, content system, publishing cadence, and ownership.",
       body:
         thoughtBody ||
-        `Build a social plan around ${firstPriority.toLowerCase()} and ${secondPriority.toLowerCase()}, using ICP-aware channels and one measurable CTA per post.`,
+        (d.voice.consumer
+          ? `Post useful updates for ${d.voice.who} on ${d.voice.channelsLine}, and make it easy to ${d.voice.primaryCta.toLowerCase()}.`
+          : `Build a social plan around ${firstPriority.toLowerCase()} and ${secondPriority.toLowerCase()}, using ICP-aware channels and one measurable CTA per post.`),
       workbookSectionId: "channel-notes",
     },
     {
       id: "pr-plan",
-      label: "PR & Visibility Plan",
+      label: d.voice.consumer ? "Local visibility & PR" : "PR & Visibility Plan",
       summary:
         (typeof channelPlans.pr === "string" && channelPlans.pr.length > 80) ||
         (typeof channelPlans.visibility === "string" && channelPlans.visibility.length > 80)
           ? "Media angles, hooks, and speaking lines from your thought leadership & PR plan."
-          : "Story hooks, media outreach, and credibility moments that support demand.",
+          : d.voice.consumer
+            ? "Neighborhood and community visibility that supports trust and demand."
+            : "Story hooks, media outreach, and credibility moments that support demand.",
       body: pickPrVisibilityBody(diagnosticData, d),
       workbookSectionId: "channel-notes",
     },

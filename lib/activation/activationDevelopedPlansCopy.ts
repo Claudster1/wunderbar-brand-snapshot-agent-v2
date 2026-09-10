@@ -4,6 +4,15 @@
  */
 import { buildDevelopedEmailLifecyclePlan } from "@/lib/activation/emailLifecycleDevelopedCopy";
 import type { ActivationAudienceVoice } from "@/lib/activation/activationAudienceVoice";
+import {
+  buildConsumerCompetitivePlan,
+  buildConsumerExecutionRoadmap,
+  buildConsumerJourneyPlan,
+  buildConsumerLeadMagnetPlan,
+  buildConsumerPaidCreativesPack,
+  buildConsumerPrPlan,
+  buildConsumerThoughtLeadershipPack,
+} from "@/lib/activation/consumerDevelopedPacksCopy";
 
 export type ActivationDevelopedContext = {
   companyName: string;
@@ -167,6 +176,7 @@ export function buildDevelopedAudiencePlan(ctx: ActivationDevelopedContext): str
 
 
 export function buildDevelopedJourneyPlan(ctx: ActivationDevelopedContext): string {
+  if (ctx.voice?.consumer) return buildConsumerJourneyPlan(ctx);
   const cn = ctx.companyName;
   const p1 = ctx.firstPriority.toLowerCase();
   return [
@@ -196,6 +206,7 @@ export function buildDevelopedJourneyPlan(ctx: ActivationDevelopedContext): stri
 }
 
 export function buildDevelopedCompetitivePlan(ctx: ActivationDevelopedContext): string {
+  if (ctx.voice?.consumer) return buildConsumerCompetitivePlan(ctx);
   const cn = ctx.companyName;
   const ind = ctx.industry.toLowerCase();
   return [
@@ -220,6 +231,7 @@ export function buildDevelopedCompetitivePlan(ctx: ActivationDevelopedContext): 
 }
 
 export function buildDevelopedLeadMagnetPlan(ctx: ActivationDevelopedContext): string {
+  if (ctx.voice?.consumer) return buildConsumerLeadMagnetPlan(ctx);
   const cn = ctx.companyName;
   const p1 = ctx.firstPriority.toLowerCase();
   const p2 = ctx.secondPriority.toLowerCase();
@@ -266,6 +278,7 @@ export function buildDevelopedLeadMagnetPlan(ctx: ActivationDevelopedContext): s
 }
 
 export function buildDevelopedPaidCreativesPack(ctx: ActivationDevelopedContext): string {
+  if (ctx.voice?.consumer) return buildConsumerPaidCreativesPack(ctx);
   const cn = ctx.companyName;
   const p1 = ctx.firstPriority.toLowerCase();
   const p2 = ctx.secondPriority.toLowerCase();
@@ -326,6 +339,7 @@ export function buildDevelopedPaidCreativesPack(ctx: ActivationDevelopedContext)
 }
 
 export function buildDevelopedThoughtLeadershipPack(ctx: ActivationDevelopedContext): string {
+  if (ctx.voice?.consumer) return buildConsumerThoughtLeadershipPack(ctx);
   const cn = ctx.companyName;
   const p1 = ctx.firstPriority.toLowerCase();
   const p2 = ctx.secondPriority.toLowerCase();
@@ -377,6 +391,7 @@ export function buildDevelopedThoughtLeadershipPack(ctx: ActivationDevelopedCont
 }
 
 export function buildDevelopedPrPlan(ctx: ActivationDevelopedContext): string {
+  if (ctx.voice?.consumer) return buildConsumerPrPlan(ctx);
   const cn = ctx.companyName;
   const ind = ctx.industry.toLowerCase();
   const p3 = ctx.thirdPriority.toLowerCase();
@@ -403,6 +418,7 @@ export function buildDevelopedPrPlan(ctx: ActivationDevelopedContext): string {
 }
 
 export function buildDevelopedExecutionRoadmap(ctx: ActivationDevelopedContext): string {
+  if (ctx.voice?.consumer) return buildConsumerExecutionRoadmap(ctx);
   const cn = ctx.companyName;
   const p1 = ctx.firstPriority.toLowerCase();
   const p2 = ctx.secondPriority.toLowerCase();

@@ -10,6 +10,7 @@ import { PdfFooter } from "../components/PdfFooter";
 import { registerPdfFonts } from "../registerFonts";
 import { parseHexAccent } from "@/src/pdf/lib/promptPackDisplay";
 import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
+import { pdfAudienceChrome } from "@/src/pdf/lib/pdfAudienceChrome";
 
 registerPdfFonts();
 
@@ -43,6 +44,9 @@ interface Props {
 const FALLBACK_STAGES = ["Aware", "Considering", "Evaluating", "Decision"];
 
 export function ICPConversionIntelligenceDocument({ data, brandName }: Props) {
+  const chrome = pdfAudienceChrome(data);
+  const productName = chrome.conversionIntelligenceProduct;
+  const frameworkTitle = chrome.conversionIntelligenceTitle;
   const palette = data.visualDirection?.colorPalette as Array<{ hex?: string }> | undefined;
   const brandAccent = parseHexAccent(Array.isArray(palette) ? palette.map((entry) => entry?.hex).find(Boolean) : undefined) || pdfTheme.colors.blue;
   const printedDate = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
@@ -166,7 +170,7 @@ export function ICPConversionIntelligenceDocument({ data, brandName }: Props) {
       <Page size="A4" style={s.cover}>
         {/* eslint-disable-next-line jsx-a11y/alt-text */}
         <Image src={PDF_WUNDERBAR_LOGO_SRC} style={s.logo} />
-        <Text style={s.coverTitle}>ICP Conversion Intelligence Framework</Text>
+        <Text style={s.coverTitle}>{frameworkTitle}</Text>
         <Text style={s.coverSub}>{brandName} — Blueprint+ Performance Backbone</Text>
         <View style={{ width: 76, height: 3, borderRadius: 999, backgroundColor: brandAccent, marginTop: 10, marginBottom: 16 }} />
         <Text style={{ ...s.coverMeta, marginTop: 26 }}>{printedDate}</Text>
@@ -177,14 +181,18 @@ export function ICPConversionIntelligenceDocument({ data, brandName }: Props) {
 
       <SectionDividerPage
         label="Section"
-        title="ICP Conversion Diagnostics"
-        subtitle="Conversion profile, hook performance, and channel-level mechanics by ICP tier."
+        title={chrome.consumer ? "Customer conversion diagnostics" : "ICP Conversion Diagnostics"}
+        subtitle={
+          chrome.consumer
+            ? "Conversion profile, hooks, and channel mechanics by audience."
+            : "Conversion profile, hook performance, and channel-level mechanics by ICP tier."
+        }
         accentHex={brandAccent}
       />
 
       <Page size="A4" style={s.page} wrap>
-        <PdfFooter businessName={brandName} productName="ICP Conversion Intelligence" showPageNumbers />
-        <PdfHeader title="ICP Conversion Intelligence Framework" businessName={brandName} date={printedDate} accentHex={brandAccent} />
+        <PdfFooter businessName={brandName} productName={productName} showPageNumbers />
+        <PdfHeader title={frameworkTitle} businessName={brandName} date={printedDate} accentHex={brandAccent} />
 
         {framework?.overview ? <View style={s.accentCard}><Text style={s.body}>{framework.overview}</Text></View> : null}
 
@@ -223,8 +231,8 @@ export function ICPConversionIntelligenceDocument({ data, brandName }: Props) {
       />
 
       <Page size="A4" style={s.page} wrap>
-        <PdfFooter businessName={brandName} productName="ICP Conversion Intelligence" showPageNumbers />
-        <PdfHeader title="ICP Conversion Intelligence Framework" businessName={brandName} date={printedDate} accentHex={brandAccent} />
+        <PdfFooter businessName={brandName} productName={productName} showPageNumbers />
+        <PdfHeader title={frameworkTitle} businessName={brandName} date={printedDate} accentHex={brandAccent} />
 
         <Text style={s.h1}>3) Channel-Level Conversion Mechanics</Text>
         {channelMechanics.slice(0, 12).map((row, i) => (
@@ -254,8 +262,8 @@ export function ICPConversionIntelligenceDocument({ data, brandName }: Props) {
       </Page>
 
       <Page size="A4" style={s.page} wrap>
-        <PdfFooter businessName={brandName} productName="ICP Conversion Intelligence" showPageNumbers />
-        <PdfHeader title="ICP Conversion Intelligence Framework" businessName={brandName} date={printedDate} accentHex={brandAccent} />
+        <PdfFooter businessName={brandName} productName={productName} showPageNumbers />
+        <PdfHeader title={frameworkTitle} businessName={brandName} date={printedDate} accentHex={brandAccent} />
 
         <Text style={s.h1}>5) Content Type × Conversion Matrix</Text>
         {matrix.slice(0, 16).map((row, i) => (
@@ -280,8 +288,8 @@ export function ICPConversionIntelligenceDocument({ data, brandName }: Props) {
       </Page>
 
       <Page size="A4" style={s.page} wrap>
-        <PdfFooter businessName={brandName} productName="ICP Conversion Intelligence" showPageNumbers />
-        <PdfHeader title="ICP Conversion Intelligence Framework" businessName={brandName} date={printedDate} accentHex={brandAccent} />
+        <PdfFooter businessName={brandName} productName={productName} showPageNumbers />
+        <PdfHeader title={frameworkTitle} businessName={brandName} date={printedDate} accentHex={brandAccent} />
 
         <Text style={s.h1}>Scoring Signals</Text>
         <View style={s.accentCard}>

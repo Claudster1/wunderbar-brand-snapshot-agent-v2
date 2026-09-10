@@ -9,6 +9,7 @@ import { PdfFooter } from "../components/PdfFooter";
 import { registerPdfFonts } from "../registerFonts";
 import { parseHexAccent } from "@/src/pdf/lib/promptPackDisplay";
 import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
+import { pdfAudienceChrome } from "@/src/pdf/lib/pdfAudienceChrome";
 
 registerPdfFonts();
 
@@ -36,6 +37,7 @@ interface Props {
 }
 
 export function ICPConversionSnapshotDocument({ data, brandName }: Props) {
+  const chrome = pdfAudienceChrome(data);
   const palette = data.visualDirection?.colorPalette as Array<{ hex?: string }> | undefined;
   const brandAccent = parseHexAccent(Array.isArray(palette) ? palette.map((entry) => entry?.hex).find(Boolean) : undefined) || pdfTheme.colors.blue;
   const printedDate = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
@@ -49,11 +51,17 @@ export function ICPConversionSnapshotDocument({ data, brandName }: Props) {
       ? profiles
       : [
           {
-            icpTier: "Primary ICP",
-            buyingCycleLength: "30-60 days",
-            primaryConversionBarrier: "Unclear proof that implementation will work in their current context.",
-            decisionTrigger: "Sees role-specific roadmap + comparable proof.",
-            conversionBehaviorPattern: "Consumes one insight asset and one proof asset before booking.",
+            icpTier: chrome.primarySegmentLabel,
+            buyingCycleLength: chrome.consumer ? "Days to weeks" : "30-60 days",
+            primaryConversionBarrier: chrome.consumer
+              ? "Unclear what to expect or how to take the next step."
+              : "Unclear proof that implementation will work in their current context.",
+            decisionTrigger: chrome.consumer
+              ? "Sees clear reviews/proof and an easy way to book or inquire."
+              : "Sees role-specific roadmap + comparable proof.",
+            conversionBehaviorPattern: chrome.consumer
+              ? "Checks reviews and proof, then books or reaches out."
+              : "Consumes one insight asset and one proof asset before booking.",
           },
         ];
 
@@ -62,18 +70,20 @@ export function ICPConversionSnapshotDocument({ data, brandName }: Props) {
       <Page size="A4" style={s.cover}>
         {/* eslint-disable-next-line jsx-a11y/alt-text */}
         <Image src={PDF_WUNDERBAR_LOGO_SRC} style={s.logo} />
-        <Text style={s.coverTitle}>ICP Conversion Snapshot</Text>
+        <Text style={s.coverTitle}>{chrome.conversionSnapshotTitle}</Text>
         <Text style={s.coverSub}>{brandName} — Blueprint conversion quickview</Text>
         <View style={{ width: 76, height: 3, borderRadius: 999, backgroundColor: brandAccent, marginTop: 10, marginBottom: 16 }} />
         <Text style={{ ...s.coverMeta, marginTop: 26 }}>{printedDate}</Text>
         <Text style={{ ...s.coverMeta, marginTop: 34, fontSize: 8 }}>
-          Upgrade to Blueprint+ for the full ICP Conversion Intelligence Framework
+          {chrome.consumer
+            ? `Upgrade to Blueprint+ for the full ${chrome.conversionIntelligenceTitle}`
+            : "Upgrade to Blueprint+ for the full ICP Conversion Intelligence Framework"}
         </Text>
       </Page>
 
       <Page size="A4" style={s.page} wrap>
-        <PdfFooter businessName={brandName} productName="ICP Conversion Snapshot" showPageNumbers />
-        <PdfHeader title="ICP Conversion Snapshot" businessName={brandName} date={printedDate} accentHex={brandAccent} />
+        <PdfFooter businessName={brandName} productName={chrome.conversionSnapshotTitle} showPageNumbers />
+        <PdfHeader title={chrome.conversionSnapshotTitle} businessName={brandName} date={printedDate} accentHex={brandAccent} />
 
         <Text style={s.h1}>Conversion Profile (Lite)</Text>
         {(framework?.overview || "").trim() ? (

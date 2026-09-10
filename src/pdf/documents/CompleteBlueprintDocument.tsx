@@ -20,6 +20,7 @@ import { SectionDividerPage } from "../components/SectionDividerPage";
 import type { BlueprintEngineOutput } from "../types/blueprintReport";
 import { normalizePromptItemForPdf } from "@/src/pdf/lib/promptPackDisplay";
 import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
+import { pdfAudienceChrome } from "@/src/pdf/lib/pdfAudienceChrome";
 import {
   sanitizeSalesConversationGuide,
   sanitizeSpokenCustomerScript,
@@ -182,6 +183,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
     productName: "WunderBrand Blueprint™" as const,
   };
   const d = data;
+  const chrome = pdfAudienceChrome(d);
   const salesGuide = sanitizeSalesConversationGuide(d.salesConversationGuide);
   const pillars = ["positioning", "messaging", "visibility", "credibility", "conversion"] as const;
   const pillarLabels: Record<string, string> = { positioning: "Positioning", messaging: "Messaging", visibility: "Visibility", credibility: "Credibility", conversion: "Conversion" };
@@ -685,19 +687,22 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
       {/* Audience & ICPs */}
       <SectionDividerPage
         label="Section"
-        title="Audience and Buyer Personas"
-        subtitle="Labeled ICPs (segments) and buyer personas (people inside each segment)."
+        title={chrome.consumer ? "Audiences and Customer Personas" : "Audience and Buyer Personas"}
+        subtitle={
+          chrome.consumer
+            ? "Audience segments and the people inside them."
+            : "Labeled ICPs (segments) and buyer personas (people inside each segment)."
+        }
       />
       <Page size="A4" style={s.page} wrap>
         <PdfHeader title="WunderBrand Blueprint™" {...headerChrome} />
-        <Text style={s.h1}>Ideal Customer Profiles</Text>
+        <Text style={s.h1}>{chrome.consumer ? "Priority Audiences" : "Ideal Customer Profiles"}</Text>
         <View style={{ ...s.warnCard, marginBottom: 12 }}>
           <Text style={s.body}>
-            <Text style={{ fontWeight: 700 }}>ICP vs. personas: </Text>
-            An ideal customer profile (ICP) describes a strategic segment — who you prioritize (e.g. company
-            size, industry, or consumer cohort). Buyer personas are named individuals inside that segment who
-            discover, evaluate, and buy. Every persona&apos;s &quot;ICP alignment&quot; tag must match exactly
-            one ICP label in this section.
+            <Text style={{ fontWeight: 700 }}>
+              {chrome.consumer ? "Audiences vs. personas: " : "ICP vs. personas: "}
+            </Text>
+            {chrome.segmentVsPersonaBlurb}
           </Text>
         </View>
 
@@ -705,7 +710,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
           const icp = d.audiencePersonas?.[icpKey];
           if (!icp) return null;
           const defaultLabel =
-            icpKey === "primaryICP" ? "Primary ICP — best-fit segment" : "Secondary ICP — adjacent or expansion segment";
+            icpKey === "primaryICP" ? chrome.primarySegmentLabel : chrome.secondarySegmentLabel;
           return (
             <View key={icpKey} style={s.card} wrap={false}>
               <Text style={s.label}>{icp.icpLabel?.trim() || defaultLabel}</Text>

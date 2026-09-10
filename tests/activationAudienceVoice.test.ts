@@ -1,8 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { resolveActivationAudienceVoice } from "@/lib/activation/activationAudienceVoice";
-import { buildDevelopedEmailPlan, buildDevelopedSeoAeoPlan } from "@/lib/activation/activationDevelopedPlansCopy";
+import {
+  buildDevelopedCompetitivePlan,
+  buildDevelopedEmailPlan,
+  buildDevelopedExecutionRoadmap,
+  buildDevelopedJourneyPlan,
+  buildDevelopedPrPlan,
+  buildDevelopedSeoAeoPlan,
+  buildDevelopedThoughtLeadershipPack,
+} from "@/lib/activation/activationDevelopedPlansCopy";
 import { extractActivationDerivatives, buildActivationPlanSectionsList } from "@/lib/activation/activationPlanModel";
 import { ensurePaidMediaChannelsMinimum } from "@/lib/activation/paidMediaPlanFields";
+import { pdfAudienceChrome } from "@/src/pdf/lib/pdfAudienceChrome";
+import type { BlueprintEngineOutput } from "@/src/pdf/types/blueprintReport";
 
 function salonDiagnostic() {
   return {
@@ -97,10 +107,52 @@ describe("activation plan consumer fallbacks", () => {
     expect(channels[0]?.platform).not.toBe("LinkedIn");
   });
 
+  it("salon journey / PR / thought-leadership packs stay natural", () => {
+    const d = extractActivationDerivatives(salonDiagnostic());
+    const ctx = {
+      companyName: d.companyName,
+      industry: d.industry,
+      primaryPillar: d.primaryPillar,
+      firstPriority: d.firstPriority,
+      secondPriority: d.secondPriority,
+      thirdPriority: d.thirdPriority,
+      audienceShort: d.audienceShort,
+      audienceSummary: d.audienceSummary,
+      voice: d.voice,
+    };
+
+    expect(buildDevelopedJourneyPlan(ctx)).toMatch(/Customer journey|Book an appointment/i);
+    expect(buildDevelopedJourneyPlan(ctx)).not.toMatch(/scope fit|CRM/i);
+    expect(buildDevelopedThoughtLeadershipPack(ctx)).toMatch(/Instagram|Google|Book an appointment/i);
+    expect(buildDevelopedThoughtLeadershipPack(ctx)).not.toMatch(/LinkedIn-length|comment “map”/i);
+    expect(buildDevelopedPrPlan(ctx)).toMatch(/Local visibility|neighborhood/i);
+    expect(buildDevelopedPrPlan(ctx)).not.toMatch(/RFP|procurement/i);
+    expect(buildDevelopedCompetitivePlan(ctx)).toMatch(/Standing out locally/i);
+    expect(buildDevelopedExecutionRoadmap(ctx)).toMatch(/Google Business|Book an appointment/i);
+  });
+
   it("buildActivationPlanSectionsList includes consumer social body for salon", () => {
     const sections = buildActivationPlanSectionsList(salonDiagnostic() as Record<string, unknown>, "snapshot-plus");
     const social = sections.find((s) => /social|thought/i.test(s.id) || /social|thought/i.test(s.label));
     expect(social?.body || "").toMatch(/Book an appointment|Instagram/i);
     expect(social?.body || "").not.toMatch(/scope fit|ICP filters/i);
+    expect(sections.find((s) => s.id === "journey-orchestration")?.label).toBe("Customer journey plan");
+  });
+
+  it("Blueprint PDF chrome uses customer language for salon-like audiences", () => {
+    const data = {
+      audienceClarity: {
+        audienceSignals: {
+          primaryAudience: "Local clients looking for color and cuts",
+          audienceCharacteristics: "Hair / beauty / spa",
+          audienceLanguage: "warm and clear",
+        },
+      },
+    } as BlueprintEngineOutput;
+    const chrome = pdfAudienceChrome(data);
+    expect(chrome.consumer).toBe(true);
+    expect(chrome.conversionBackboneLabel).toBe("How customers decide");
+    expect(chrome.conversionSnapshotTitle).toBe("Customer Conversion Snapshot");
+    expect(chrome.primarySegmentLabel).toBe("Primary audience");
   });
 });

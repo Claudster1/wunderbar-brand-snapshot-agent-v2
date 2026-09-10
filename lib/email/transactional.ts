@@ -17,6 +17,11 @@ export interface TransactionalEmail {
   subject: string;
   html: string;
   text: string;
+  /**
+   * Optional From override (must stay on a verified domain).
+   * Used for human-named Snapshot results/resume mail.
+   */
+  from?: string;
 }
 
 export interface SendResult {
@@ -44,13 +49,14 @@ function fromAddress(): string {
  */
 export async function sendTransactionalEmail(msg: TransactionalEmail): Promise<SendResult> {
   const resendKey = process.env.RESEND_API_KEY;
+  const from = (msg.from || fromAddress()).trim();
 
   if (resendKey) {
     try {
       const { Resend } = await import("resend");
       const resend = new Resend(resendKey);
       const { data, error } = await resend.emails.send({
-        from: fromAddress(),
+        from,
         to: msg.to,
         subject: msg.subject,
         html: msg.html,
@@ -72,6 +78,7 @@ export async function sendTransactionalEmail(msg: TransactionalEmail): Promise<S
   if (process.env.NODE_ENV !== "production") {
     logger.warn("[transactional] No RESEND_API_KEY set — logging email to console (dev only)", {
       to: msg.to,
+      from,
       subject: msg.subject,
       text: msg.text,
     });
@@ -80,4 +87,9 @@ export async function sendTransactionalEmail(msg: TransactionalEmail): Promise<S
 
   logger.error("[transactional] No transactional email provider configured in production");
   return { ok: false, provider: "none", error: "email_provider_not_configured" };
+}
+
+/** Default From used when callers omit `from` (OTP, magic link, etc.). */
+export function defaultTransactionalFromAddress(): string {
+  return fromAddress();
 }

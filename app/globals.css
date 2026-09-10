@@ -699,6 +699,20 @@ body:has(.app-root) {
   align-items: center;
 }
 
+/* Long chip sets (geo, etc.) scroll inside the strip so “Something else” isn’t the only visible option. */
+.chat-chip-strip {
+  align-items: flex-start;
+  max-height: min(32vh, 220px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 2px 2px 6px;
+  scrollbar-width: thin;
+}
+
+.chat-composer-region {
+  width: 100%;
+}
+
 .chat-input-row input,
 .chat-input-row textarea {
   flex: 1 1 100%;
@@ -1926,6 +1940,15 @@ a.sr-only:focus {
   .chat-input-row input,
   .chat-input-row textarea {
     font-size: 16px; /* Prevent iOS zoom on focus */
+  }
+
+  /* Shorter box when chips are present — more room for option pills */
+  .chat-composer-form.has-chips textarea {
+    min-height: 56px;
+  }
+
+  .chat-chip-strip {
+    max-height: min(36vh, 240px);
   }
 
   /* Never sticky on mobile — sticky + cookie banner hid Send mid-intake */

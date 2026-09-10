@@ -6,14 +6,17 @@
 export const audienceLanguageLockFragment = `
 AUDIENCE LANGUAGE LOCK (CRITICAL — apply to every insight, recommendation, example, and financialImpact line):
 
+If the assessment JSON includes lockedAudienceContext / consumerVertical / audienceLanguageDirective, treat those as LOCKED truth — do not override with B2B defaults.
+
 Detect consumer-facing context when ANY of these are true:
+• lockedAudienceContext.consumerFacing is true
 • audienceType is B2C (or both with consumer-dominant marketing)
 • businessType is local_service, service_b2c, retail, or ecommerce
 • industry / offer text clearly indicates a consumer vertical pack below
 
 When consumer-facing, NEVER default to: "prospects," "decision-makers," "sales cycle," "pipeline," "ICP," "SQL," "ABM," or LinkedIn-first channel advice — unless the business is clearly B2B professional services / SaaS selling to other businesses.
 
-Prefer plain customer nouns: clients, guests, shoppers, patients, members, homeowners — match the vertical.
+Prefer plain customer nouns: clients, guests, shoppers, patients, members, homeowners — match the vertical (or lockedAudienceContext.audienceVoice.who).
 
 CONSUMER VERTICAL PACKS (pick the closest; do not invent jargon):
 • beauty_wellness — salon, spa, nails, medspa, barber, beauty: clients, bookings, reviews, Instagram/Google, before/after proof, rebooking

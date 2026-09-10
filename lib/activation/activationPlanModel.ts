@@ -16,6 +16,7 @@ import {
   resolveActivationAudienceVoice,
   type ActivationAudienceVoice,
 } from "@/lib/activation/activationAudienceVoice";
+import { textHasB2bAudienceDrift } from "@/lib/results/sanitizeConsumerReportLanguage";
 
 export type ActivationPlanSection = {
   id: string;
@@ -534,10 +535,24 @@ function developedContextFromD(d: ReturnType<typeof extractActivationDerivatives
 }
 
 /** When report/workbook copy is already long, keep it alone; otherwise append paste-ready developed pack. */
-function appendDevelopedPack(report: string, pack: string, minCompleteChars: number): string {
+function appendDevelopedPack(
+  report: string,
+  pack: string,
+  minCompleteChars: number,
+  opts?: { consumer?: boolean },
+): string {
   const trimmed = report.trim();
-  if (trimmed.length >= minCompleteChars) return report;
   if (!pack.trim()) return report;
+
+  // Consumer: prefer natural packs when LLM copy is thin or still sounds B2B.
+  if (opts?.consumer) {
+    if (!trimmed.length) return pack;
+    if (textHasB2bAudienceDrift(trimmed)) return pack;
+    if (trimmed.length < Math.max(minCompleteChars, 900)) return pack;
+    return trimmed;
+  }
+
+  if (trimmed.length >= minCompleteChars) return report;
   const sep = "\n\n---\n\n";
   if (!trimmed.length) return pack;
   return `${trimmed}${sep}${pack}`;
@@ -578,6 +593,15 @@ function pickSocialThoughtLeadershipBody(
 ): string {
   const social = typeof d.channelPlans.social === "string" ? d.channelPlans.social.trim() : "";
   const content = typeof d.channelPlans.content === "string" ? d.channelPlans.content.trim() : "";
+  const candidate = social.length >= content.length ? social : content;
+
+  if (d.voice.consumer) {
+    if (candidate.length > 400 && !textHasB2bAudienceDrift(candidate)) {
+      return withNinetyDaySocialAppendix(candidate);
+    }
+    return d.socialMediaPlan;
+  }
+
   if (social.length > 120) return withNinetyDaySocialAppendix(social);
   if (content.length > 120) return withNinetyDaySocialAppendix(content);
   if (isBlueprintPlusTier(diagnosticData)) {
@@ -731,6 +755,17 @@ function pickPaidAdsBody(
   const campaigns = typeof d.channelPlans.campaigns === "string" ? d.channelPlans.campaigns.trim() : "";
   const merged = [ads, campaigns].filter(Boolean).join("\n\n").trim();
 
+  if (d.voice.consumer) {
+    if (merged.length >= PAID_ADS_SUBSTANTIVE_MIN_CHARS && !textHasB2bAudienceDrift(merged)) {
+      return merged;
+    }
+    const spend = d.paidSpendSection?.trim() ?? "";
+    if (spend.length >= 120) {
+      return [spend, "", buildDefaultPaidAdsPlanBody(d)].join("\n");
+    }
+    return buildDefaultPaidAdsPlanBody(d);
+  }
+
   if (merged.length >= PAID_ADS_SUBSTANTIVE_MIN_CHARS) {
     return merged;
   }
@@ -853,6 +888,18 @@ function pickEmailLifecycleBody(
   const guide = buildEmailLifecycleHowToReadMarkdown();
   /** If the report already shipped a very long email playbook, avoid duplicating the developed pack. */
   const REPORT_EMAIL_COMPLETE_MIN = 2800;
+
+  if (d.voice.consumer) {
+    if (e.length >= REPORT_EMAIL_COMPLETE_MIN && !textHasB2bAudienceDrift(e)) {
+      return [guide, e].filter((x) => x.trim().length > 0).join("\n\n---\n\n");
+    }
+    // Skip ICP appendix chrome for consumer — developed pack is the conversion path.
+    if (!e.length || textHasB2bAudienceDrift(e) || e.length < 900) {
+      return [guide, developed].filter((x) => x.trim().length > 0).join("\n\n---\n\n");
+    }
+    return [guide, e, developed].filter((x) => x.trim().length > 0).join("\n\n---\n\n");
+  }
+
   if (e.length >= REPORT_EMAIL_COMPLETE_MIN) {
     return [guide, e, icpAppendix].filter((x) => x.trim().length > 0).join("\n\n---\n\n");
   }
@@ -899,6 +946,13 @@ function pickSeoAeoBody(
     "";
   const developed = buildDevelopedSeoAeoPlan(developedContextFromD(d));
   const SEO_COMPLETE_MIN = 2200;
+  if (d.voice.consumer) {
+    if (a.length >= SEO_COMPLETE_MIN && !textHasB2bAudienceDrift(a)) return a;
+    if (a.length > 200 && !textHasB2bAudienceDrift(a)) {
+      return appendDevelopedPack(a, developed, SEO_COMPLETE_MIN, { consumer: true });
+    }
+    return developed;
+  }
   if (a.length >= SEO_COMPLETE_MIN) return a;
   if (a.length > 0) {
     return [a, developed].join("\n\n---\n\n");
@@ -924,17 +978,24 @@ function pickPrVisibilityBody(
     (typeof d.channelPlans.visibility === "string" && d.channelPlans.visibility.trim()) ||
     "";
   const developed = buildDevelopedPrPlan(developedContextFromD(d));
-  if (pr.length >= PR_VISIBILITY_COMPLETE_MIN_CHARS) return pr;
-  if (pr.length > 0) return appendDevelopedPack(pr, developed, PR_VISIBILITY_COMPLETE_MIN_CHARS);
+  const consumerOpts = { consumer: d.voice.consumer };
+  if (pr.length >= PR_VISIBILITY_COMPLETE_MIN_CHARS) {
+    if (d.voice.consumer && textHasB2bAudienceDrift(pr)) return developed;
+    return pr;
+  }
+  if (pr.length > 0) return appendDevelopedPack(pr, developed, PR_VISIBILITY_COMPLETE_MIN_CHARS, consumerOpts);
   if (isBlueprintPlusTier(diagnosticData)) {
     return appendDevelopedPack(
       blueprintPlusEmptyBlockMessage(d.companyName, "PR & visibility"),
       developed,
       PR_VISIBILITY_COMPLETE_MIN_CHARS,
+      consumerOpts,
     );
   }
-  const baseline = `Create quarterly PR hooks tied to measurable outcomes from ${d.thirdPriority.toLowerCase()}. Prioritize placements where ${d.audienceShort} already evaluates vendors and strategic partners.`;
-  return appendDevelopedPack(baseline, developed, PR_VISIBILITY_COMPLETE_MIN_CHARS);
+  const baseline = d.voice.consumer
+    ? `Build local visibility for ${d.companyName} where ${d.voice.who} already look — reviews, community, and neighborhood media.`
+    : `Create quarterly PR hooks tied to measurable outcomes from ${d.thirdPriority.toLowerCase()}. Prioritize placements where ${d.audienceShort} already evaluates vendors and strategic partners.`;
+  return appendDevelopedPack(baseline, developed, PR_VISIBILITY_COMPLETE_MIN_CHARS, consumerOpts);
 }
 
 function buildLeadMagnetSectionBody(
@@ -942,8 +1003,12 @@ function buildLeadMagnetSectionBody(
   d: ReturnType<typeof extractActivationDerivatives>,
 ): string {
   const lm = typeof d.channelPlans["lead-magnet"] === "string" ? d.channelPlans["lead-magnet"].trim() : "";
-  if (lm.length > 80) return lm;
   const developed = buildDevelopedLeadMagnetPlan(developedContextFromD(d));
+  if (lm.length > 80) {
+    if (d.voice.consumer && textHasB2bAudienceDrift(lm)) return developed;
+    return lm;
+  }
+  if (d.voice.consumer) return developed;
   const cn = d.companyName;
   const p1 = d.firstPriority.toLowerCase();
   const p2 = d.secondPriority.toLowerCase();
@@ -1024,15 +1089,18 @@ export function buildActivationPlanSectionsList(
 
   const tierBp = isBlueprintPlusTier(diagnosticData);
   const ctx = developedContextFromD(d);
+  const consumerOpts = { consumer: d.voice.consumer };
   const thoughtBody = appendDevelopedPack(
     pickSocialThoughtLeadershipBody(diagnosticData, d),
     buildDevelopedThoughtLeadershipPack(ctx),
     2600,
+    consumerOpts,
   );
   const paidBody = appendDevelopedPack(
     pickPaidAdsBody(diagnosticData, d),
     buildDevelopedPaidCreativesPack(ctx),
     4200,
+    consumerOpts,
   );
 
   const audienceBase =
@@ -1040,12 +1108,23 @@ export function buildActivationPlanSectionsList(
     (tierBp
       ? blueprintPlusEmptyBlockMessage(companyName, "Audience segments & triggers")
       : `Primary audience: ${audienceSummary}. Build segment-level trigger points (intent signal, engagement signal, buying-stage signal) and map each trigger to one campaign objective for ${companyName}.`);
-  const audienceBody = appendDevelopedPack(audienceBase, buildDevelopedAudiencePlan(ctx), 2600);
-  const journeyBody = appendDevelopedPack(buyerJourneySummary, buildDevelopedJourneyPlan(ctx), 2400);
+  const audienceBody = appendDevelopedPack(
+    audienceBase,
+    buildDevelopedAudiencePlan(ctx),
+    2600,
+    consumerOpts,
+  );
+  const journeyBody = appendDevelopedPack(
+    buyerJourneySummary,
+    buildDevelopedJourneyPlan(ctx),
+    2400,
+    consumerOpts,
+  );
   const competitiveBody = appendDevelopedPack(
     competitiveMatrixSummary,
     buildDevelopedCompetitivePlan(ctx),
     2600,
+    consumerOpts,
   );
   const roadmapBase =
     activationRoadmapPlansBody ||
@@ -1054,7 +1133,12 @@ export function buildActivationPlanSectionsList(
       : scheduleRowsCount > 0
         ? `Current schedule has ${scheduleRowsCount} planned items. Phase 1: ${firstPriority}. Phase 2: ${secondPriority}. Phase 3: ${thirdPriority}. Review owners, due windows, and bottlenecks weekly.`
         : `Define a 30/60/90 plan: (30) ${firstPriority}, (60) ${secondPriority}, (90) ${thirdPriority}, each with owner, due date, dependency, and success check.`);
-  const executionBody = appendDevelopedPack(roadmapBase, buildDevelopedExecutionRoadmap(ctx), 2200);
+  const executionBody = appendDevelopedPack(
+    roadmapBase,
+    buildDevelopedExecutionRoadmap(ctx),
+    2200,
+    consumerOpts,
+  );
 
   return [
     {

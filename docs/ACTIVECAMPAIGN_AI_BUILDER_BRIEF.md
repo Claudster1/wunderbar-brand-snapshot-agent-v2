@@ -148,8 +148,11 @@ all of them). Full reference: `docs/ACTIVECAMPAIGN_AUTOMATIONS.md` §"Custom Fie
 | `credibility_score` | `%CREDIBILITYSCORE%` | `upgrade_price` | `%UPGRADEPRICE%` |
 | `conversion_score` | `%CONVERSIONSCORE%` | `abandoned_product` | `%ABANDONEDPRODUCT%` |
 | `business_type` | `%BUSINESSTYPE%` | `abandoned_product_url` | `%ABANDONEDPRODUCTURL%` |
+| `industry` | `%INDUSTRY%` | `role_phrase` | `%ROLEPHRASE%` |
 | `refresh_price` | `%REFRESHPRICE%` | `abandoned_product_price` | `%ABANDONEDPRODUCTPRICE%` |
 | `refresh_type` | `%REFRESHTYPE%` | first name (native) | `%FIRSTNAME%` |
+
+> **Nurture note:** Prefer `%INDUSTRY%` and `%ROLEPHRASE%` (not `%ROLE_PHRASE%`). Snapshot completion now writes both when present.
 
 *(`setContactFields` auto-creates any missing field as of the 2026-07-28 hardening, so new titles no longer drop silently — but the merge tag still won't resolve until at least one contact has been written with that field, so prefer the verified tags above.)*
 

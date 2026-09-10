@@ -230,10 +230,12 @@ const PAID_CHANNEL_SCAFFOLDS: Array<Record<string, string>> = [
 
 /**
  * Ensures at least `MIN_PAID_CHANNEL_ROWS` channel rows for UI and exports when the model under-delivers.
+ * Pass `preferredPlatforms` (e.g. Meta, Google first for local B2C) to control scaffold order.
  */
 export function ensurePaidMediaChannelsMinimum(
   strategy: Record<string, unknown>,
   min = MIN_PAID_CHANNEL_ROWS,
+  preferredPlatforms?: Array<"Meta" | "Google Ads" | "LinkedIn">,
 ): Record<string, unknown> {
   const existing = Array.isArray(strategy.channels) ? [...strategy.channels] : [];
   if (existing.length >= min) return strategy;
@@ -245,7 +247,21 @@ export function ensurePaidMediaChannelsMinimum(
     if (n.platform) usedPlatforms.add(n.platform.toLowerCase());
   }
 
+  const byPlatform = new Map(PAID_CHANNEL_SCAFFOLDS.map((s) => [s.platform, s]));
+  const orderedScaffolds: Array<Record<string, string>> = [];
+  if (preferredPlatforms?.length) {
+    for (const name of preferredPlatforms) {
+      const row = byPlatform.get(name);
+      if (row) orderedScaffolds.push(row);
+    }
+  }
   for (const scaffold of PAID_CHANNEL_SCAFFOLDS) {
+    if (!orderedScaffolds.some((s) => s.platform === scaffold.platform)) {
+      orderedScaffolds.push(scaffold);
+    }
+  }
+
+  for (const scaffold of orderedScaffolds) {
     if (next.length >= min) break;
     const key = scaffold.platform.toLowerCase();
     if (usedPlatforms.has(key)) continue;

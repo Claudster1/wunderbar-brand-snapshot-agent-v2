@@ -3,6 +3,7 @@
  * Each pack includes concrete headlines/subjects, image prompts, and CTAs where relevant.
  */
 import { buildDevelopedEmailLifecyclePlan } from "@/lib/activation/emailLifecycleDevelopedCopy";
+import type { ActivationAudienceVoice } from "@/lib/activation/activationAudienceVoice";
 
 export type ActivationDevelopedContext = {
   companyName: string;
@@ -13,6 +14,7 @@ export type ActivationDevelopedContext = {
   thirdPriority: string;
   audienceShort: string;
   audienceSummary: string;
+  voice?: ActivationAudienceVoice | null;
 };
 
 export function buildDevelopedEmailPlan(ctx: ActivationDevelopedContext): string {
@@ -24,10 +26,14 @@ export function buildDevelopedEmailPlan(ctx: ActivationDevelopedContext): string
     secondPriority: ctx.secondPriority,
     thirdPriority: ctx.thirdPriority,
     audienceShort: ctx.audienceShort,
+    voice: ctx.voice,
   });
 }
 
 export function buildDevelopedSeoAeoPlan(ctx: ActivationDevelopedContext): string {
+  if (ctx.voice?.consumer) {
+    return buildConsumerSeoAeoPlan(ctx);
+  }
   const cn = ctx.companyName;
   const ind = ctx.industry.toLowerCase();
   const aud = ctx.audienceShort;
@@ -68,7 +74,67 @@ export function buildDevelopedSeoAeoPlan(ctx: ActivationDevelopedContext): strin
   ].join("\n");
 }
 
+function buildConsumerSeoAeoPlan(ctx: ActivationDevelopedContext): string {
+  const cn = ctx.companyName;
+  const who = ctx.voice?.who ?? "customers";
+  const cta = ctx.voice?.primaryCta ?? "Get in touch";
+  const ind = ctx.industry.toLowerCase();
+  return [
+    "## Local SEO / FAQ page pack (paste-ready)",
+    "",
+    `Write for **${who}** searching nearby — answer real questions, then one clear next step: **${cta}**.`,
+    "",
+    "### Page A — services overview",
+    `- **H1:** ${cn} — ${ind} in your area`,
+    `- **Meta description:** Who you help, what you offer, how to ${cta.toLowerCase()}.`,
+    `- **Body outline:** Plain intro → services list → what a first visit/job looks like → reviews → FAQ → single CTA.`,
+    `- **Primary CTA:** ${cta}`,
+    "",
+    "### Page B — “near me” / neighborhood FAQ",
+    `- **H1:** Questions ${who} ask before they choose ${cn}`,
+    `- **Body outline:** Hours, parking/access, pricing style (ranges OK), what to bring, how booking works.`,
+    `- **Primary CTA:** ${cta}`,
+    "",
+    "### Page C — proof / reviews hub",
+    `- **H1:** Reviews and real results from ${who}`,
+    `- **Body outline:** 5–10 Google reviews (with permission) → short notes on common outcomes → CTA.`,
+    `- **Primary CTA:** ${cta}`,
+    "",
+    "### AEO / FAQ tips",
+    "- Lead each section with a 40–60 word direct answer.",
+    "- Mirror the words people use when they call or text you.",
+    "- One primary CTA per page — don’t stack competing asks.",
+  ].join("\n");
+}
+
+
 export function buildDevelopedAudiencePlan(ctx: ActivationDevelopedContext): string {
+  if (ctx.voice?.consumer) {
+    const who = ctx.voice.who;
+    const cta = ctx.voice.primaryCta;
+    const cn = ctx.companyName;
+    return [
+      "## Audience segments (local / consumer)",
+      "",
+      `### Segment A — Ready to act`,
+      `- **Who:** ${who} who viewed services/pricing or started booking in the last 7 days.`,
+      `- **What to do:** Short reminder email or SMS with one ask: **${cta}**.`,
+      `- **Pause when:** They booked, reserved, or asked for an estimate.`,
+      "",
+      `### Segment B — Still learning`,
+      `- **Who:** Opened an email or followed you, but haven’t taken a next step.`,
+      `- **What to do:** One useful note (what to expect, FAQ, or seasonal tip) — then **${cta}**.`,
+      "",
+      `### Segment C — Quiet / haven’t heard from in a while`,
+      `- **Who:** No open or visit in ~45 days.`,
+      `- **What to do:** One friendly check-in. No multi-email chase.`,
+      `- **Subject idea:** “Still thinking about ${cn}?”`,
+      `- **CTA:** ${cta}`,
+      "",
+      "### Handoff",
+      "- When someone replies with a real question, a person answers — don’t push them into an automated funnel.",
+    ].join("\n");
+  }
   const cn = ctx.companyName;
   const aud = ctx.audienceShort;
   const p1 = ctx.firstPriority.toLowerCase();
@@ -98,6 +164,7 @@ export function buildDevelopedAudiencePlan(ctx: ActivationDevelopedContext): str
     "- **CTA for SDR:** “Book 20-minute scope fit” with owner map attached.",
   ].join("\n");
 }
+
 
 export function buildDevelopedJourneyPlan(ctx: ActivationDevelopedContext): string {
   const cn = ctx.companyName;

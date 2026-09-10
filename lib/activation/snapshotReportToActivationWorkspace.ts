@@ -1,6 +1,7 @@
 import { buildActivationDiagnostics } from "@/lib/results/buildActivationDiagnostics";
 import { normalizeBrandImageryDirection } from "@/lib/brand/brandImageryNormalize";
 import { ensurePaidMediaChannelsMinimum } from "@/lib/activation/paidMediaPlanFields";
+import { resolveActivationAudienceVoice } from "@/lib/activation/activationAudienceVoice";
 import { getArchetypeIcon, getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
 import { getPrimaryPillar } from "@/lib/upgrade/primaryPillar";
 import type { ProductTier } from "@/components/results/tabConfig";
@@ -296,7 +297,12 @@ export function snapshotReportToActivationWorkspace(
 
   const paidRaw = fullReport?.paidMediaStrategy;
   if (paidRaw && typeof paidRaw === "object" && !Array.isArray(paidRaw)) {
-    diagnosticData.paidMediaStrategy = ensurePaidMediaChannelsMinimum(paidRaw as Record<string, unknown>);
+    const voice = resolveActivationAudienceVoice(diagnosticData);
+    diagnosticData.paidMediaStrategy = ensurePaidMediaChannelsMinimum(
+      paidRaw as Record<string, unknown>,
+      3,
+      voice.consumer ? voice.paidPlatforms : undefined,
+    );
   }
 
   const icpRaw = fullReport?.icpConversionIntelligenceFramework;

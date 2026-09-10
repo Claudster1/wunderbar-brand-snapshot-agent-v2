@@ -12,6 +12,10 @@ import {
   buildDevelopedSeoAeoPlan,
   buildDevelopedThoughtLeadershipPack,
 } from "@/lib/activation/activationDevelopedPlansCopy";
+import {
+  resolveActivationAudienceVoice,
+  type ActivationAudienceVoice,
+} from "@/lib/activation/activationAudienceVoice";
 
 export type ActivationPlanSection = {
   id: string;
@@ -79,21 +83,20 @@ function buildSocialMediaPlan(
     audienceSummary: string;
     audienceShort: string;
     socialSeed: string;
+    voice: ActivationAudienceVoice;
   },
 ): string {
+  if (opts.voice.consumer) {
+    return buildConsumerSocialMediaPlan(diagnosticData, opts);
+  }
+
   const personaLines = extractPersonaSummaries(diagnosticData);
   const channelPlans = (diagnosticData.channelPlans as Record<string, string> | undefined) ?? {};
   const socialSignals = [channelPlans.social, channelPlans.content]
     .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
     .join("\n\n");
   const platformHint = socialSignals.toLowerCase();
-  const candidatePlatforms = [
-    { name: "LinkedIn", reason: "B2B education, authority building, and demand capture." },
-    { name: "Instagram", reason: "Storytelling, visual proof, and trust reinforcement." },
-    { name: "YouTube", reason: "Searchable long-form explainers and proof-rich walkthroughs." },
-    { name: "X / Twitter", reason: "Fast POV distribution and narrative testing." },
-    { name: "TikTok", reason: "Short-form educational reach and top-of-funnel hooks." },
-  ];
+  const candidatePlatforms = opts.voice.socialPlatforms;
   const selectedPlatforms = candidatePlatforms.filter((item) =>
     platformHint.includes(item.name.toLowerCase().replace(" / ", " ").split(" ")[0]),
   );
@@ -208,6 +211,194 @@ function buildSocialMediaPlan(
     .join("\n");
 }
 
+function buildConsumerSocialMediaPlan(
+  diagnosticData: Record<string, unknown>,
+  opts: {
+    companyName: string;
+    industry: string;
+    firstPriority: string;
+    secondPriority: string;
+    audienceSummary: string;
+    socialSeed: string;
+    voice: ActivationAudienceVoice;
+  },
+): string {
+  const channelPlans = (diagnosticData.channelPlans as Record<string, string> | undefined) ?? {};
+  const socialSignals = [channelPlans.social, channelPlans.content]
+    .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+    .join("\n\n");
+  const who = opts.voice.who;
+  const cta = opts.voice.primaryCta;
+  const platformsList = opts.voice.socialPlatforms.slice(0, 3);
+  const platformBlocks = platformsList
+    .map((item, index) => {
+      const priority = index === 0 ? "Primary" : "Secondary";
+      const cadence = index === 0 ? "3x/week" : "1–2x/week";
+      return `### ${item.name} (${priority}, ${cadence})\n\n${item.reason}\n\nKeep captions conversational. End with one clear next step — usually **${cta}**.`;
+    })
+    .join("\n\n");
+  const samples = consumerSocialSamples(opts.voice, opts.companyName, cta);
+
+  return [
+    "## Social media plan",
+    "",
+    `${opts.companyName} (${opts.industry}) — written so you can post this week. Talk the way you talk to ${who}: clear, warm, no marketing slogans.`,
+    "",
+    "### Goals (90 days)",
+    "",
+    `**More of the right ${who} finding you** — on ${opts.voice.channelsLine}.`,
+    "",
+    `**Trust** — ${opts.voice.proofLine}.`,
+    "",
+    `**A clear next step** — most posts should make it easy to **${cta.toLowerCase()}**.`,
+    "",
+    "### Who this is for",
+    "",
+    opts.audienceSummary,
+    "",
+    "### Platform focus",
+    "",
+    platformBlocks,
+    "",
+    "Skip channels you won’t actually keep up with. Consistency on two beats a thin presence on five.",
+    "",
+    "### What to post",
+    "",
+    `**~40% — useful / educational** — answer the questions ${who} already ask you.`,
+    "",
+    `**~35% — proof** — real work, real reviews, real moments (with permission).`,
+    "",
+    `**~25% — invitation** — openings, hours, how to ${cta.toLowerCase()}.`,
+    "",
+    "### Sample posts (adapt in your voice)",
+    "",
+    samples,
+    "",
+    "### Weekly rhythm",
+    "",
+    "Aim for a few solid posts per week on your primary channel. Reply to comments and reviews when you can — that often matters more than one more carousel.",
+    "",
+    "### 90 days",
+    "",
+    "**Days 1–30** — Pick primary + secondary channels. Post steadily. Collect 5–10 review asks from happy ${who}.",
+    "",
+    `**Days 31–60** — Repeat what got saves, DMs, or bookings. Light boost on posts that already worked.`,
+    "",
+    `**Days 61–90** — Drop what feels forced. Keep a simple monthly mix: education, proof, invitation.`,
+    "",
+    opts.socialSeed || socialSignals
+      ? `### Notes from your report\n\n${opts.socialSeed || socialSignals}`
+      : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+function consumerSocialSamples(voice: ActivationAudienceVoice, companyName: string, cta: string): string {
+  switch (voice.vertical) {
+    case "beauty_wellness":
+      return [
+        "**Post 1 — what to expect**",
+        "",
+        `Caption: First time with us? Here’s how appointments usually go — we confirm the time, talk through what you want, and take it from there. Questions welcome anytime.`,
+        "",
+        `CTA: ${cta}`,
+        "",
+        "**Post 2 — real work**",
+        "",
+        `Caption: Recent work (shared with permission). Every head/skin/body is different — this is one example of how we approached it.`,
+        "",
+        `CTA: ${cta}`,
+        "",
+        "**Post 3 — reviews**",
+        "",
+        `Caption: Grateful for kind words from clients. If we’ve taken care of you, a Google review helps the next person feel comfortable walking in.`,
+        "",
+        `CTA: ${cta}`,
+      ].join("\n");
+    case "hospitality":
+      return [
+        "**Post 1 — this week**",
+        "",
+        `Caption: What’s on at ${companyName} this week — specials, hours, or a dish we’re proud of. Come hungry.`,
+        "",
+        `CTA: ${cta}`,
+        "",
+        "**Post 2 — the room**",
+        "",
+        `Caption: A look at the space / a favorite plate / the team. Keep it real — phone photos are fine.`,
+        "",
+        `CTA: ${cta}`,
+        "",
+        "**Post 3 — guests**",
+        "",
+        `Caption: Thanks to everyone who visited recently. Tag us if you share a photo — we love seeing it.`,
+        "",
+        `CTA: ${cta}`,
+      ].join("\n");
+    case "home_services":
+      return [
+        "**Post 1 — how we work**",
+        "",
+        `Caption: Before we start a job, we walk it with you and explain options in plain language. No surprise scope.`,
+        "",
+        `CTA: ${cta}`,
+        "",
+        "**Post 2 — job photo**",
+        "",
+        `Caption: Recent work (with homeowner permission). Here’s what we ran into and how we fixed it.`,
+        "",
+        `CTA: ${cta}`,
+        "",
+        "**Post 3 — reviews**",
+        "",
+        `Caption: Local reviews are how most homeowners choose who to call. Grateful for the trust — and always happy to help the next neighbor.`,
+        "",
+        `CTA: ${cta}`,
+      ].join("\n");
+    case "health_clinic":
+      return [
+        "**Post 1 — first visit**",
+        "",
+        `Caption: New here? We’ll help with scheduling and paperwork, and explain next steps in everyday language.`,
+        "",
+        `CTA: ${cta}`,
+        "",
+        "**Post 2 — team / office**",
+        "",
+        `Caption: A quick look at our team and office — so walking in feels a little more familiar.`,
+        "",
+        `CTA: ${cta}`,
+        "",
+        "**Post 3 — care reminders**",
+        "",
+        `Caption: Gentle reminder that routine visits matter. When you’re ready, schedule online or call the front desk.`,
+        "",
+        `CTA: ${cta}`,
+      ].join("\n");
+    default:
+      return [
+        "**Post 1 — useful**",
+        "",
+        `Caption: Answer one question ${voice.who} ask you all the time. Keep it short.`,
+        "",
+        `CTA: ${cta}`,
+        "",
+        "**Post 2 — proof**",
+        "",
+        `Caption: Share a real review or photo (with permission).`,
+        "",
+        `CTA: ${cta}`,
+        "",
+        "**Post 3 — invitation**",
+        "",
+        `Caption: Openings, hours, or how to take the next step with ${companyName}.`,
+        "",
+        `CTA: ${cta}`,
+      ].join("\n");
+  }
+}
+
 export function extractActivationDerivatives(diagnosticData: Record<string, unknown>) {
   const companyName =
     typeof diagnosticData.companyName === "string" && diagnosticData.companyName
@@ -258,7 +449,9 @@ export function extractActivationDerivatives(diagnosticData: Record<string, unkn
     typeof diagnosticData.targetAudience === "string"
       ? diagnosticData.targetAudience
       : "Audience grouping is inferred from your diagnostic inputs.";
-  const audienceShort = firstNWords(audienceSummary, 10).toLowerCase() || "decision-makers";
+  const voice = resolveActivationAudienceVoice(diagnosticData);
+  const audienceShort =
+    firstNWords(audienceSummary, 10).toLowerCase() || voice.audienceShortFallback;
   const spendContext =
     diagnosticData.spendRecommendationContext && typeof diagnosticData.spendRecommendationContext === "object"
       ? (diagnosticData.spendRecommendationContext as {
@@ -294,6 +487,7 @@ export function extractActivationDerivatives(diagnosticData: Record<string, unkn
     thirdPriority,
     audienceSummary,
     audienceShort,
+    voice,
     socialSeed:
       (typeof channelPlans.social === "string" && channelPlans.social.trim()) ||
       (typeof channelPlans.content === "string" && channelPlans.content.trim()) ||
@@ -315,6 +509,7 @@ export function extractActivationDerivatives(diagnosticData: Record<string, unkn
     activationRoadmapPlansBody,
     audienceSummary,
     audienceShort,
+    voice,
     paidSpendSection,
     socialMediaPlan,
   };
@@ -334,6 +529,7 @@ function developedContextFromD(d: ReturnType<typeof extractActivationDerivatives
     thirdPriority: d.thirdPriority,
     audienceShort: d.audienceShort,
     audienceSummary: d.audienceSummary,
+    voice: d.voice,
   };
 }
 
@@ -394,6 +590,9 @@ function pickSocialThoughtLeadershipBody(
 const PAID_ADS_SUBSTANTIVE_MIN_CHARS = 320;
 
 function buildDefaultPaidAdsPlanBody(d: ReturnType<typeof extractActivationDerivatives>): string {
+  if (d.voice.consumer) {
+    return buildConsumerPaidAdsPlanBody(d);
+  }
   const p = d.primaryPillar.toLowerCase();
   const ind = d.industry.toLowerCase();
   return [
@@ -462,6 +661,65 @@ function buildDefaultPaidAdsPlanBody(d: ReturnType<typeof extractActivationDeriv
     "### Creative angles to rotate",
     "",
     `**Outcome** — Measurable language for ${p}. **Proof** — Testimonial, metric, or mini case for ${ind} buyers. **Contrast** — Versus the status quo or a generic alternative (avoid naming competitors unless legal approves).`,
+  ].join("\n");
+}
+
+function buildConsumerPaidAdsPlanBody(d: ReturnType<typeof extractActivationDerivatives>): string {
+  const who = d.voice.who;
+  const cta = d.voice.primaryCta;
+  const channels = d.voice.paidPlatforms.filter((p) => p !== "LinkedIn").join(" / ") || "Meta / Google";
+  return [
+    "## Paid media starter plan",
+    "",
+    `For **${d.companyName}** — keep ads as simple as how you’d explain the business to a neighbor.`,
+    "",
+    "### What you’re trying to do",
+    "",
+    `**Awareness** — Reach nearby ${who} who don’t know you yet.`,
+    "",
+    `**Consideration** — Show real proof (${d.voice.proofLine}) to people who already engaged.`,
+    "",
+    `**Conversion** — Make it easy to **${cta.toLowerCase()}**.`,
+    "",
+    "### Where to start",
+    "",
+    `Prefer **${channels}** first. Add LinkedIn only if you truly sell to businesses day-to-day.`,
+    "",
+    `**Who to reach**  \n${d.audienceSummary}`,
+    "",
+    "Start with two or three ad sets: people nearby, people who visited your site or profile, and a small retargeting pool. Keep frequency gentle.",
+    "",
+    "### Sample ad — awareness",
+    "",
+    `**Headline**  \n${d.companyName} — for ${who} nearby`,
+    "",
+    `**Primary text**  \nA plain line about what you do and who you help. End with how to ${cta.toLowerCase()}.`,
+    "",
+    `**CTA**  \n${cta}`,
+    "",
+    "### Sample ad — proof",
+    "",
+    `**Headline**  \nWhat ${who} say about working with us`,
+    "",
+    `**Primary text**  \nOne short review or result (real words). Then invite them to take the same next step.`,
+    "",
+    `**CTA**  \n${cta}`,
+    "",
+    "### Sample ad — conversion",
+    "",
+    `**Headline**  \nReady when you are`,
+    "",
+    `**Primary text**  \nOpenings / how scheduling works / what happens after they reach out. One ask only.`,
+    "",
+    `**CTA**  \n${cta}`,
+    "",
+    "### Landing",
+    "",
+    `Send ads to a page that repeats the same promise and the same CTA (**${cta}**). Don’t drop people on a generic homepage with five competing asks.`,
+    "",
+    "### Measurement",
+    "",
+    `Watch cost per ${cta.toLowerCase()}, and whether people who click actually complete the next step. Pause ads that spend without conversations or bookings.`,
   ].join("\n");
 }
 

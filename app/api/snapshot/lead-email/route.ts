@@ -135,20 +135,33 @@ export async function POST(req: Request) {
     }
 
     const { resolveOutboundAppBaseUrl } = await import("@/lib/server/runtimeBaseUrl");
+    const { sanitizeString } = await import("@/lib/security/inputValidation");
     const BASE_URL = resolveOutboundAppBaseUrl(req);
     const resumeLink = `${BASE_URL}/?resume=${encodeURIComponent(reportId)}`;
     const resultsUrl = `${BASE_URL}/results?reportId=${encodeURIComponent(reportId)}`;
-
-    const { sanitizeString } = await import("@/lib/security/inputValidation");
-    const firstName =
-      typeof rawFirstName === "string" && rawFirstName.trim() ? sanitizeString(rawFirstName).slice(0, 80) : "";
     const productTier =
       typeof rawTier === "string" && rawTier.trim() ? sanitizeString(rawTier).slice(0, 40) : "snapshot";
 
-    // Deliver the results to the user's inbox (transactional). THIS is the actual
-    // "email me my results" delivery — previously the results page unlocked but no
-    // email was ever sent, despite the UI promising delivery. Fire-and-forget so a
-    // mail hiccup never blocks the capture/unlock.
+    // Prefer client firstName; fall back to intake userName on the report.
+    let firstName =
+      typeof rawFirstName === "string" && rawFirstName.trim()
+        ? sanitizeString(rawFirstName).slice(0, 80)
+        : "";
+    if (!firstName) {
+      const answers = existingFullReport?.answers;
+      const userName =
+        answers && typeof answers === "object" && !Array.isArray(answers)
+          ? (answers as Record<string, unknown>).userName
+          : null;
+      if (typeof userName === "string" && userName.trim()) {
+        firstName = sanitizeString(userName.trim().split(/\s+/)[0] || "").slice(0, 80);
+      }
+    }
+
+    // Deliver the results to the user's inbox (transactional). Await so we can
+    // tell the client whether delivery succeeded (Resend / status UX).
+    let emailDeliveryOk = false;
+    let emailDeliveryError: string | undefined;
     try {
       const { sendTransactionalEmail } = await import("@/lib/email/transactional");
       const { buildSnapshotReportEmail } = await import("@/lib/email/reportDeliveryEmail");
@@ -160,6 +173,7 @@ export async function POST(req: Request) {
         medium: "email",
         campaign: "results_delivery",
       });
+
       const { subject, html, text } = buildSnapshotReportEmail({
         resultsUrl: emailResultsUrl,
         productName,
@@ -167,14 +181,17 @@ export async function POST(req: Request) {
         logoUrl: `${BASE_URL}/assets/pdf/wunderbar-logo.png`,
       });
       const sendResult = await sendTransactionalEmail({ to: normalized, subject, html, text });
+      emailDeliveryOk = sendResult.ok;
       if (!sendResult.ok) {
+        emailDeliveryError = sendResult.error || "email_send_failed";
         logger.warn("[Lead Email] Results delivery email failed", {
           error: sendResult.error,
           provider: sendResult.provider,
         });
       }
     } catch (mailErr) {
-      logger.warn("[Lead Email] Results delivery email threw", { error: describeError(mailErr) });
+      emailDeliveryError = describeError(mailErr);
+      logger.warn("[Lead Email] Results delivery email threw", { error: emailDeliveryError });
     }
 
     const hasAcWebhook =
@@ -332,7 +349,14 @@ export async function POST(req: Request) {
     // Results unlock proves inbox intent via Turnstile + email capture (and we email
     // the results link). Issue a verified session so Export / PDF works immediately —
     // otherwise setting user_email locks the PDF behind OTP the free Snapshot flow never runs.
-    const response = NextResponse.json({ success: true, email: normalized });
+    const response = NextResponse.json({
+      success: true,
+      email: normalized,
+      emailDelivery: {
+        ok: emailDeliveryOk,
+        ...(emailDeliveryError ? { error: emailDeliveryError } : {}),
+      },
+    });
     try {
       const {
         createSessionToken,

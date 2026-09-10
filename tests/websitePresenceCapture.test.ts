@@ -50,9 +50,10 @@ describe("websitePresenceCapture", () => {
     ]);
   });
 
-  it("initial chips push paste-in-box, not I'll-paste", () => {
-    expect(LA_WEBSITE).toMatch(/message box below/i);
+  it("initial chips include type-URL affordance, not I'll-paste", () => {
+    expect(LA_WEBSITE).toMatch(/type URL below|message box/i);
     const chips = getSuggestedRepliesForCapture("website_presence");
+    expect(chips).toContain("I have a website — type URL below");
     expect(chips).toContain("No website yet");
     expect(chips.join(" ")).not.toMatch(/i'?ll paste/i);
   });

@@ -324,12 +324,13 @@ export function getSuggestedRepliesForCapture(
       }
       return [
         "Professional services / consulting",
+        "Marketing / advertising agency",
+        "Creative / design / media",
         "SaaS / software",
         "E‑commerce / retail",
         "Health / wellness",
         "Home / local services",
         "Education / coaching",
-        "Creative / media",
         OTHER,
       ];
     case "geographic_scope":

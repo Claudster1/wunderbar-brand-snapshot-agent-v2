@@ -14,6 +14,7 @@ import {
 } from "@/components/results/tabConfig";
 import CompactResultsHeader from "@/components/results/CompactResultsHeader";
 import HowToUseBanner from "@/components/results/HowToUseBanner";
+import { printTab } from "@/lib/printUtils";
 import { getSuiteTabIntro, TAB_SECTION_NAV_HINT_CHIPS_ONLY } from "@/lib/copy/resultsSuiteGuidance";
 import { getPersistedEmail } from "@/lib/persistEmail";
 import {
@@ -1446,7 +1447,20 @@ export default function ResultsTabsShell({
           ? { exportRequiresEmail: true, onRequestEmailForExport: requestEmailForExport }
           : {})}
         {...(productTier === "snapshot"
-          ? {}
+          ? {
+              onPrint: () =>
+                printTab("snapshot", {
+                  businessName:
+                    typeof diagnosticData.companyName === "string" && diagnosticData.companyName
+                      ? diagnosticData.companyName
+                      : "Your Brand",
+                  productName: productDisplayName,
+                  date:
+                    typeof diagnosticData.resultsDeliveredAt === "string"
+                      ? new Date(diagnosticData.resultsDeliveredAt).toLocaleDateString()
+                      : new Date().toLocaleDateString(),
+                }),
+            }
           : { onGoToDownloads: () => openOrLockTab("downloads") })}
       />
       {productTier !== "snapshot" ? (

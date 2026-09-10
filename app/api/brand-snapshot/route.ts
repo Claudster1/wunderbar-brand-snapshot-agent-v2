@@ -1413,9 +1413,7 @@ export async function POST(req: Request) {
       lockedBusinessTypeFromMessages(messages) ?? inferBusinessTypeFromHistory(messages);
     const lockedAudience = lockedAudienceFromMessages(messages);
     const useUpgradeContinuation =
-      intakeTier !== "snapshot" &&
-      continuationReportId.length > 0 &&
-      CONTINUATION_REPORT_UUID_RE.test(continuationReportId);
+      continuationReportId.length > 0 && CONTINUATION_REPORT_UUID_RE.test(continuationReportId);
 
     let priorAnswers: Record<string, unknown> | null = null;
     let continuationAnswersPrimer: string | null = null;

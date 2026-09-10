@@ -1,4 +1,4 @@
-export type PrintScope = "executive-summary" | "foundation" | "strategy" | "activation";
+export type PrintScope = "executive-summary" | "foundation" | "strategy" | "activation" | "snapshot";
 
 export function printTab(
   scope: PrintScope,

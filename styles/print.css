@@ -97,6 +97,21 @@
     display: none !important;
   }
 
+  /* Free Snapshot on-page diagnostic */
+  .print-scope-snapshot .results-gate-capture,
+  .print-scope-snapshot .results-bottom-funnel,
+  .print-scope-snapshot .how-to-use-banner,
+  .print-scope-snapshot .compact-results-header,
+  .print-scope-snapshot [data-results-suite-cta] {
+    display: none !important;
+  }
+
+  .print-scope-snapshot [data-snapshot-document] {
+    background: #ffffff !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+  }
+
   h1,
   h2,
   h3 {

@@ -39,6 +39,8 @@ interface CompactResultsHeaderProps {
   onRequestEmailForExport?: () => void;
   /** Paid suite — open the Downloads tab for the full deliverable pack. */
   onGoToDownloads?: () => void;
+  /** Free Snapshot — browser print of the on-page diagnostic. */
+  onPrint?: () => void;
   onHelpClick?: () => void;
 }
 
@@ -61,6 +63,7 @@ export default function CompactResultsHeader({
   exportRequiresEmail = false,
   onRequestEmailForExport,
   onGoToDownloads,
+  onPrint,
   onHelpClick,
 }: CompactResultsHeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -320,6 +323,35 @@ export default function CompactResultsHeader({
               Export
             </a>
           )
+        ) : null}
+        {onPrint ? (
+          <button
+            type="button"
+            className="print-safe"
+            onClick={onPrint}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              minHeight: 32,
+              padding: "0 12px",
+              borderRadius: 5,
+              border: `1.5px solid ${SUITE_BORDER}`,
+              backgroundColor: "#FFFFFF",
+              color: SUITE_NAVY,
+              fontSize: 11,
+              fontWeight: 800,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              fontFamily: SUITE_FONT_UI,
+              whiteSpace: "nowrap",
+              cursor: "pointer",
+            }}
+            aria-label="Print results"
+            title="Print this diagnostic"
+          >
+            Print
+          </button>
         ) : null}
         {onGoToDownloads ? (
           <div style={{ position: "relative" }} ref={menuRef}>

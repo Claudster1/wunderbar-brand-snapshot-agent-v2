@@ -78,6 +78,8 @@ export function SnapshotResultsLeadEmail({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [honeypot, setHoneypot] = useState("");
+  const [emailDeliveryOk, setEmailDeliveryOk] = useState<boolean | null>(null);
+  const [resending, setResending] = useState(false);
 
   useEffect(() => {
     // Session restore / returning visitor — hide Access without skipping a fresh unlock→tips flow.
@@ -135,13 +137,17 @@ export function SnapshotResultsLeadEmail({
             ...(firstName ? { firstName } : {}),
           }),
         });
-        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        const data = (await res.json().catch(() => ({}))) as {
+          error?: string;
+          emailDelivery?: { ok?: boolean };
+        };
         if (!res.ok) {
           setError(typeof data.error === "string" ? data.error : "Could not save. Please try again.");
           return;
         }
         persistEmail(trimmed);
         unlockedViaEmailSubmitRef.current = true;
+        setEmailDeliveryOk(data.emailDelivery?.ok !== false);
         onEmailCaptured?.();
         // Lead-email consumed this Turnstile token — tips needs a fresh one.
         setTurnstileToken(null);
@@ -213,6 +219,55 @@ export function SnapshotResultsLeadEmail({
     [contentOptIn, email, finishCaptureFlow, reportId, turnstileToken],
   );
 
+  const handleResendResultsEmail = useCallback(async () => {
+    setError(null);
+    const trimmed = email.trim().toLowerCase();
+    if (!trimmed.includes("@")) {
+      setError("Something went wrong — refresh and unlock again.");
+      return;
+    }
+    if (TURNSTILE_REQUIRED && !turnstileToken) {
+      setError("Security check is still loading — wait a second and try again.");
+      return;
+    }
+    setResending(true);
+    try {
+      const firstName =
+        typeof firstNameHint === "string" && firstNameHint.trim()
+          ? firstNameHint.trim().split(/\s+/)[0]
+          : undefined;
+      const res = await fetch("/api/snapshot/lead-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          reportId,
+          email: trimmed,
+          turnstileToken,
+          productTier,
+          honeypot: "",
+          ...(firstName ? { firstName } : {}),
+        }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        emailDelivery?: { ok?: boolean };
+      };
+      if (!res.ok) {
+        setError(typeof data.error === "string" ? data.error : "Could not resend. Try again.");
+        setTurnstileToken(null);
+        setTurnstileEpoch((n) => n + 1);
+        return;
+      }
+      setEmailDeliveryOk(data.emailDelivery?.ok !== false);
+      setTurnstileToken(null);
+      setTurnstileEpoch((n) => n + 1);
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setResending(false);
+    }
+  }, [email, firstNameHint, productTier, reportId, turnstileToken]);
+
   if (phase === "hidden") return null;
 
   if (phase === "opening") {
@@ -232,6 +287,42 @@ export function SnapshotResultsLeadEmail({
       <section className="results-gate-capture" aria-label="Stay current with brand tips">
         <TurnstileWidget key={`tips-${turnstileEpoch}`} onToken={handleTurnstileToken} />
         <div className="results-gate-capture__inner">
+          <div
+            role="status"
+            style={{
+              marginBottom: 16,
+              padding: "12px 14px",
+              borderRadius: 8,
+              border: `1px solid ${emailDeliveryOk === false ? "#F59E0B" : "#A7F3D0"}`,
+              background: emailDeliveryOk === false ? "#FFFBEB" : "#ECFDF5",
+              fontSize: 14,
+              lineHeight: 1.45,
+              color: "#021859",
+            }}
+          >
+            {emailDeliveryOk === false ? (
+              <>
+                We unlocked your results here, but the email may not have sent. Use{" "}
+                <strong>Resend results email</strong> below, or stay on this page — your report is
+                already open after the next step.
+              </>
+            ) : (
+              <>
+                We emailed your results link to <strong>{email.trim().toLowerCase()}</strong>. Check
+                spam if you don’t see it in a minute.
+              </>
+            )}
+            <div style={{ marginTop: 10 }}>
+              <button
+                type="button"
+                className="results-gate-capture__back"
+                disabled={saving || resending}
+                onClick={() => void handleResendResultsEmail()}
+              >
+                {resending ? "Sending…" : "Resend results email"}
+              </button>
+            </div>
+          </div>
           <header className="results-gate-capture__header results-gate-capture__offer">
             <p className="results-gate-capture__eyebrow m-0 mb-2">
               {resultsEmailGatePreferenceEyebrow()}

@@ -333,6 +333,37 @@ export function SnapshotDocumentResults({
         <SectionTitle description="Focus on these practical actions over the next 7–14 days, starting with the gap that matters most.">
           Your Next Steps
         </SectionTitle>
+        {actions[0] ? (
+          <div
+            data-snapshot-do-this-first
+            style={{
+              marginBottom: 14,
+              padding: "16px 18px",
+              borderRadius: RADIUS_MD,
+              border: `2px solid ${BLUE}`,
+              background: `${BLUE}0A`,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 12,
+                fontWeight: 800,
+                color: BLUE,
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+                marginBottom: 6,
+              }}
+            >
+              Do this first
+            </div>
+            <div style={{ fontSize: 17, fontWeight: 700, color: NAVY, lineHeight: 1.45 }}>
+              {actions[0]}
+            </div>
+            <div style={{ fontSize: 13, color: SUB, marginTop: 8, lineHeight: 1.45 }}>
+              {resolvedOpportunity}
+            </div>
+          </div>
+        ) : null}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {actions.map((action, index) => {
             const pillar = actionPillar(action, index === 0 ? weakest.key : entries[index % entries.length].key);

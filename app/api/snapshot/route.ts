@@ -613,10 +613,20 @@ export async function POST(req: Request) {
       const monthlyMarketingBudgetForAc = asStringOrNull(snapshotInput.monthlyMarketingBudget);
       const contentCreationCapacityForAc = asStringOrNull(snapshotInput.contentCreationCapacity);
       const primaryRevenueDriverForAc = asStringOrNull(snapshotInput.primaryRevenueDriver);
+      const industryForAc = asStringOrNull(snapshotInput.industry);
+      const { mapRolePhrase, normalizeUserRoleContext } = await import(
+        "@/src/lib/activeCampaign/mapRolePhrase"
+      );
+      const roleForAc = normalizeUserRoleContext(
+        snapshotInput.userRoleContext ?? snapshotInput.user_role_context,
+      );
 
       const reportLink = `${BASE_URL}/brand-snapshot/results/${report_id}`;
       const acFields: Record<string, string | number> = {
         company_name: companyName ?? "",
+        // Title `industry` → %INDUSTRY%; `role_phrase` → %ROLEPHRASE% (AC strips underscores).
+        industry: asStringOrEmpty(industryForAc),
+        ...(roleForAc ? { role_phrase: mapRolePhrase(roleForAc) } : {}),
         report_link: reportLink,
         report_id,
         dashboard_link: `${BASE_URL}/dashboard`,

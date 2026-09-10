@@ -39,6 +39,14 @@ describe("buildIntakeTopicResumeLines", () => {
     expect(lines.join(" ")).not.toMatch(/USER ROLE/i);
   });
 
+  it("marks industry done from agency-for-clients chip alone", () => {
+    const lines = buildIntakeTopicResumeLines([
+      { role: "user", content: "Claudine" },
+      { role: "user", content: "Agency / studio / freelance (for clients)" },
+    ]);
+    expect(lines.join(" ")).toMatch(/INDUSTRY/i);
+  });
+
   it("marks role done from in-house marketing role chip", () => {
     const lines = buildIntakeTopicResumeLines([
       { role: "user", content: "Claudine" },

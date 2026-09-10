@@ -108,7 +108,13 @@ export function buildIntakeTopicResumeLines(
     lines.push("TEAM SIZE: already answered — do **not** re-ask team size (playbook §8).");
   }
 
-  if (/\b(industry|professional services|saas|e-?commerce|health|wellness|coaching)\b/i.test(users) && /\b(in|space|category|we'?re in|operate)\b/i.test(users)) {
+  if (
+    /\b(professional services \/ consulting|agency \/ studio|saas \/ software|e-?commerce \/ retail|health \/ wellness|home \/ local services|education \/ coaching|hair \/ beauty|restaurant \/ café|e-?commerce \/ product|retail shop)\b/i.test(
+      users,
+    ) ||
+    (/\b(industry|professional services|saas|e-?commerce|health|wellness|coaching)\b/i.test(users) &&
+      /\b(in|space|category|we'?re in|operate)\b/i.test(users))
+  ) {
     lines.push("INDUSTRY: already answered — do **not** re-ask industry/category.");
   }
 

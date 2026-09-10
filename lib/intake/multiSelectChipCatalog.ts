@@ -161,7 +161,7 @@ export const PREVIOUS_BRAND_WORK_CHIPS: string[] = [
   OTHER_CHIP,
 ];
 
-export const USER_ROLE_CHIPS: string[] = [
+export const USER_ROLE_CHIPS: string[] = getSuggestedRepliesForCapture("user_role_context") ?? [
   "I run the business day-to-day",
   "I lead strategy and growth",
   "In-house marketing / brand",

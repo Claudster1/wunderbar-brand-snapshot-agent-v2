@@ -87,4 +87,14 @@ describe("early role + team size captures", () => {
       ),
     ).toBe(true);
   });
+
+  it("completes industry after marketing-lead helper prompt", () => {
+    expect(
+      flexibleDirectCaptureComplete(
+        "industry",
+        "What industry is the company in? Pick the business category (SaaS, clinic, retail…) — not your marketing job.",
+        "SaaS / software",
+      ),
+    ).toBe(true);
+  });
 });

@@ -308,7 +308,7 @@ export function assistantTurnAsksAboutCapture(key: CaptureKey, la: string): bool
     case "team_size":
       return /\b(how big|team size|how many people|people (are )?involved|team today|headcount)\b/i.test(la);
     case "industry":
-      return /\b(industry|what space|operates in|category|line of business|what (kind|type) of (business|work))\b/i.test(
+      return /\b(industry|what space|operates in|category|line of business|what (kind|type) of (business|work)|not your marketing job|industry is the company)\b/i.test(
         la,
       );
     case "geographic_scope":
@@ -494,7 +494,7 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
     }
     case "industry": {
       const asked =
-        /\b(industry|what space|operates in|category|line of business|what (kind|type) of (business|work))\b/i.test(
+        /\b(industry|what space|operates in|category|line of business|what (kind|type) of (business|work)|not your marketing job|industry is the company)\b/i.test(
           la,
         );
       const wordCount = t.split(/\s+/).filter(Boolean).length;

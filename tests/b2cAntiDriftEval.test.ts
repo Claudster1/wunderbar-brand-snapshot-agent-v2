@@ -99,6 +99,7 @@ describe("b2c anti-drift eval (salon / HVAC / dental)", () => {
         const blob = sections.map((s) => `${s.label}\n${s.body}`).join("\n");
         expect(blob).not.toMatch(BANNED);
         expect(blob).toMatch(fixture.cta);
+        expect(blob).not.toMatch(/\bTOFU\b|\bMOFU\b|\bBOFU\b/);
       });
 
       it("sanitizer clears seeded B2B drift in report JSON", () => {

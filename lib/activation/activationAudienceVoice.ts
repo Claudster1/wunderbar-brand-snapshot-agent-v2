@@ -51,11 +51,37 @@ export function resolveActivationAudienceVoice(
       : typeof diagnosticData.audience_type === "string"
         ? diagnosticData.audience_type
         : null;
+  const marketingFocus =
+    (typeof diagnosticData.marketingAudienceFocus === "string" &&
+      diagnosticData.marketingAudienceFocus) ||
+    (typeof diagnosticData.marketing_audience_focus === "string" &&
+      diagnosticData.marketing_audience_focus) ||
+    null;
+  const targetAudience =
+    typeof diagnosticData.targetAudience === "string"
+      ? diagnosticData.targetAudience
+      : typeof diagnosticData.primaryAudience === "string"
+        ? diagnosticData.primaryAudience
+        : null;
+  const corpusFromInput =
+    typeof diagnosticData.corpus === "string" ? diagnosticData.corpus : null;
+  const corpus = [
+    corpusFromInput,
+    industry,
+    audienceType,
+    businessType,
+    marketingFocus,
+    targetAudience,
+    typeof diagnosticData.idealCustomers === "string" ? diagnosticData.idealCustomers : null,
+    typeof diagnosticData.currentCustomers === "string" ? diagnosticData.currentCustomers : null,
+  ]
+    .filter(Boolean)
+    .join(" ");
   const vertical = inferConsumerVertical({
     industry,
     businessType,
     audienceType,
-    corpus: [industry, audienceType, businessType].filter(Boolean).join(" "),
+    corpus,
   });
   const hints = consumerVerticalHints(vertical);
   const who = consumerVerticalCustomerNoun(vertical);

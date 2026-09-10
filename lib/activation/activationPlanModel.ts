@@ -543,17 +543,16 @@ function appendDevelopedPack(
 ): string {
   const trimmed = report.trim();
   if (!pack.trim()) return report;
+  const sep = "\n\n---\n\n";
 
-  // Consumer: prefer natural packs when LLM copy is thin or still sounds B2B.
+  // Consumer: replace only when copy is missing or still sounds B2B; otherwise keep notes + pack.
   if (opts?.consumer) {
-    if (!trimmed.length) return pack;
-    if (textHasB2bAudienceDrift(trimmed)) return pack;
-    if (trimmed.length < Math.max(minCompleteChars, 900)) return pack;
-    return trimmed;
+    if (!trimmed.length || textHasB2bAudienceDrift(trimmed)) return pack;
+    if (trimmed.length >= minCompleteChars) return trimmed;
+    return `${trimmed}${sep}${pack}`;
   }
 
   if (trimmed.length >= minCompleteChars) return report;
-  const sep = "\n\n---\n\n";
   if (!trimmed.length) return pack;
   return `${trimmed}${sep}${pack}`;
 }
@@ -568,7 +567,19 @@ function blueprintPlusEmptyBlockMessage(companyName: string, topic: string): str
 
 const NINETY_DAY_SOCIAL_MARKER = /10\)\s*90-day|90-day rollout calendar|\bDays\s*1[–-]30\b/i;
 
-function socialThoughtLeadershipNinetyDayAddendum(): string {
+function socialThoughtLeadershipNinetyDayAddendum(opts?: { consumer?: boolean }): string {
+  if (opts?.consumer) {
+    return [
+      "",
+      "---",
+      "",
+      "90-day social rollout (add to your calendar if not already spelled out above)",
+      "- Days 1–30 — Post ~3x/week on your main channel; test 2 hook styles; track saves, profile visits, and inquiries.",
+      "- Days 31–60 — Double down on posts that drive bookings or questions; try one new format (Reels, carousel, or Stories).",
+      "- Days 61–90 — Cut weak themes; run one month-long story arc; lock a simple monthly content kit.",
+      "- Each month: mix education, proof (reviews / before-after), and one clear next-step post.",
+    ].join("\n");
+  }
   return [
     "",
     "---",
@@ -581,9 +592,9 @@ function socialThoughtLeadershipNinetyDayAddendum(): string {
   ].join("\n");
 }
 
-function withNinetyDaySocialAppendix(body: string): string {
+function withNinetyDaySocialAppendix(body: string, opts?: { consumer?: boolean }): string {
   if (!body.trim() || NINETY_DAY_SOCIAL_MARKER.test(body)) return body;
-  return body + socialThoughtLeadershipNinetyDayAddendum();
+  return body + socialThoughtLeadershipNinetyDayAddendum(opts);
 }
 
 /** Prefer real channel copy from the report; avoid generic templates when substantive content exists. */
@@ -597,7 +608,7 @@ function pickSocialThoughtLeadershipBody(
 
   if (d.voice.consumer) {
     if (candidate.length > 400 && !textHasB2bAudienceDrift(candidate)) {
-      return withNinetyDaySocialAppendix(candidate);
+      return withNinetyDaySocialAppendix(candidate, { consumer: true });
     }
     return d.socialMediaPlan;
   }

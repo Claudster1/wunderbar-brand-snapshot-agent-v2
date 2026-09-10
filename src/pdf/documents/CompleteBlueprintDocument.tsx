@@ -775,7 +775,9 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
 
         <Text style={s.h1}>Buyer Personas</Text>
         <Text style={{ ...s.body, marginBottom: 10, color: "#4B5563" }}>
-          Tags show which ICP this persona belongs to — use the same wording as the ICP labels above.
+          {chrome.consumer
+            ? "Tags show which audience segment this persona belongs to — use the same wording as the audience labels above."
+            : "Tags show which ICP this persona belongs to — use the same wording as the ICP labels above."}
         </Text>
         {d.buyerPersonas?.map((bp, i) => (
           <View key={i} style={s.card} wrap={false}>

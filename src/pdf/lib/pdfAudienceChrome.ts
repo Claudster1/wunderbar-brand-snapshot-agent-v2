@@ -10,13 +10,22 @@ export function blueprintReportIsConsumerFacing(data: BlueprintEngineOutput): bo
     data.audienceClarity?.audienceSignals?.audienceLanguage ||
     "";
   const industryHint =
+    data.pillarDeepDives?.positioning?.industryContext ||
     data.visibilityDiscovery?.discoveryDiagnosis?.whereTheyShouldFind ||
     data.audienceClarity?.audienceSignals?.audienceCharacteristics ||
+    data.executiveSummary?.industryBenchmark ||
     "";
+  const joined = [audience, industryHint].filter(Boolean).join("\n");
+  // "clients" alone is too ambiguous (B2B consulting uses it too).
+  const explicitB2b = /\b(b2b|businesses?|companies|decision[- ]makers?|enterprise|saas)\b/i.test(
+    joined,
+  );
+  const explicitB2c =
+    /\b(b2c|consumers?|guests?|patients?|shoppers?|homeowners?|diners?|members)\b/i.test(joined);
   const voice = resolveActivationAudienceVoice({
-    industry: audience || industryHint,
-    corpus: [audience, industryHint].filter(Boolean).join("\n"),
-    audienceType: /\b(b2b|businesses?|companies)\b/i.test(audience) ? "B2B" : /\b(b2c|consumers?|guests?|patients?|clients?|shoppers?)\b/i.test(audience) ? "B2C" : null,
+    industry: industryHint || audience,
+    corpus: joined,
+    audienceType: explicitB2b ? "B2B" : explicitB2c ? "B2C" : null,
   });
   return voice.consumer;
 }

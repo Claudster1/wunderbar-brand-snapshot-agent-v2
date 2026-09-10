@@ -49,6 +49,18 @@ describe("activationAudienceVoice", () => {
     expect(voice.primaryCta).toMatch(/estimate|call/i);
   });
 
+  it("resolves from targetAudience corpus when industry is thin", () => {
+    const voice = resolveActivationAudienceVoice({
+      industry: "Local service",
+      businessType: "local_service",
+      audienceType: "B2C",
+      targetAudience: "Homeowners needing HVAC repair and furnace tune-ups",
+    });
+    expect(voice.consumer).toBe(true);
+    expect(voice.vertical).toBe("home_services");
+    expect(voice.who).toBe("homeowners");
+  });
+
   it("keeps B2B consulting on buyer / LinkedIn-first path", () => {
     const voice = resolveActivationAudienceVoice({
       industry: "Professional services / consulting",
@@ -135,8 +147,28 @@ describe("activation plan consumer fallbacks", () => {
     const sections = buildActivationPlanSectionsList(salonDiagnostic() as Record<string, unknown>, "snapshot-plus");
     const social = sections.find((s) => /social|thought/i.test(s.id) || /social|thought/i.test(s.label));
     expect(social?.body || "").toMatch(/Book an appointment|Instagram/i);
-    expect(social?.body || "").not.toMatch(/scope fit|ICP filters/i);
+    expect(social?.body || "").not.toMatch(/scope fit|ICP filters|TOFU|MOFU|BOFU/i);
     expect(sections.find((s) => s.id === "journey-orchestration")?.label).toBe("Customer journey plan");
+  });
+
+  it("keeps thin consumer report SEO notes and appends developed pack", () => {
+    const reportSeo = [
+      "Focus Google Business Profile photos and service pages on color and cuts for local clients seeking appointments.",
+      "Keep FAQ answers short, mention neighborhoods you serve, and end every page with one booking path.",
+      "Refresh review replies weekly so searchers see an active, trustworthy salon.",
+    ].join(" ");
+    expect(reportSeo.length).toBeGreaterThan(200);
+    const sections = buildActivationPlanSectionsList(
+      {
+        ...salonDiagnostic(),
+        channelPlans: { seo: reportSeo },
+      } as Record<string, unknown>,
+      "snapshot-plus",
+    );
+    const seo = sections.find((s) => /seo|aeo/i.test(s.id) || /seo|aeo/i.test(s.label));
+    expect(seo?.body || "").toMatch(/Google Business Profile photos/i);
+    expect(seo?.body || "").toMatch(/Local SEO|near me|Book an appointment/i);
+    expect(seo?.body || "").toContain("---");
   });
 
   it("Blueprint PDF chrome uses customer language for salon-like audiences", () => {
@@ -154,5 +186,24 @@ describe("activation plan consumer fallbacks", () => {
     expect(chrome.conversionBackboneLabel).toBe("How customers decide");
     expect(chrome.conversionSnapshotTitle).toBe("Customer Conversion Snapshot");
     expect(chrome.primarySegmentLabel).toBe("Primary audience");
+  });
+
+  it("does not treat B2B consulting 'clients' as consumer PDF chrome", () => {
+    const data = {
+      audienceClarity: {
+        audienceSignals: {
+          primaryAudience: "Enterprise clients buying consulting retainers",
+          audienceCharacteristics: "B2B professional services",
+          audienceLanguage: "executive and precise",
+        },
+      },
+      pillarDeepDives: {
+        positioning: { industryContext: "Professional services / consulting" },
+      },
+      executiveSummary: { industryBenchmark: "B2B consulting" },
+    } as unknown as BlueprintEngineOutput;
+    const chrome = pdfAudienceChrome(data);
+    expect(chrome.consumer).toBe(false);
+    expect(chrome.conversionBackboneLabel).toMatch(/ICP/i);
   });
 });

@@ -38,6 +38,11 @@ import {
   resolveChipSelectionMode,
   resolveSuggestedReplies,
 } from "@/lib/intake/multiSelectChipCatalog";
+import {
+  composerCanSubmit,
+  composerSendTitle,
+  composerShowsAffordanceHint,
+} from "@/lib/intake/composerSubmitState";
 import { isQaSeedAllowed, parseQaSeedParam } from "@/lib/intake/qaSeedTranscripts";
 
 /** Chip labels that mean “type your answer” — never send the label alone (even in single-select). */
@@ -256,6 +261,9 @@ export default function HomePageClient({
   const chatMessagesRef = useRef<HTMLDivElement>(null);
   const messageFormRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  /** Chip strip above the textarea — keep visible on mobile (don’t scroll chips off-screen). */
+  const chipStripRef = useRef<HTMLDivElement>(null);
+  const composerRegionRef = useRef<HTMLDivElement>(null);
 
   // ─── Security: Turnstile token ───
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
@@ -588,10 +596,9 @@ export default function HomePageClient({
     }
   }, [isLoading]);
 
-  // Auto-scroll to bottom when messages change or loading state changes.
-  // IMPORTANT: Scroll only the .chat-messages container — NOT scrollIntoView,
-  // which walks up the DOM and scrolls the page body (pushing content past the footer).
-  // On mobile, also bring the composer into view so Send is never trapped under the cookie bar.
+  // Auto-scroll thread to latest message. On mobile, bring the chip strip (or composer)
+  // into view with block:"nearest" — centering the textarea alone hid geographic chips
+  // and left users with only “Something else” + a dead Send (user testing Aug 2026).
   useEffect(() => {
     requestAnimationFrame(() => {
       const container = chatMessagesRef.current;
@@ -599,7 +606,16 @@ export default function HomePageClient({
         container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
       }
       if (typeof window !== "undefined" && window.matchMedia("(max-width: 640px)").matches) {
-        inputRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+        const chips = chipStripRef.current;
+        if (chips) {
+          chips.scrollTop = 0;
+          chips.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        } else {
+          (composerRegionRef.current ?? inputRef.current)?.scrollIntoView({
+            block: "nearest",
+            behavior: "smooth",
+          });
+        }
       }
     });
   }, [messages, isLoading]);
@@ -855,10 +871,28 @@ export default function HomePageClient({
   };
 
   const composerBusy = isLoading || isFinalizing || isUploading;
-  const canSubmitComposer =
-    !composerBusy &&
-    (inputValue.trim().length > 0 ||
-      selectedQuickReplyPills.some((p) => !AFFORDANCE_CHIPS.has(p)));
+  const inputTrimmed = inputValue.trim();
+  const canSubmitComposer = composerCanSubmit({
+    busy: composerBusy,
+    inputTrimmed,
+    selectedPills: selectedQuickReplyPills,
+    affordanceChips: AFFORDANCE_CHIPS,
+  });
+  const showAffordanceHint = composerShowsAffordanceHint({
+    inputTrimmed,
+    selectedPills: selectedQuickReplyPills,
+    affordanceChips: AFFORDANCE_CHIPS,
+  });
+  const sendButtonTitle = composerSendTitle({
+    busy: composerBusy,
+    canSubmit: canSubmitComposer,
+    inputTrimmed,
+    selectedPills: selectedQuickReplyPills,
+    affordanceChips: AFFORDANCE_CHIPS,
+  });
+  const chipsVisible = Boolean(
+    serverQuickReplies && serverQuickReplies.options.length > 0 && chatAwaitingChoiceOnLatestAssistant,
+  );
 
   return (
     <div className="app-root">
@@ -1328,17 +1362,18 @@ export default function HomePageClient({
               )}
 
               {composerHidden ? null : (
-                <>
-                  {serverQuickReplies && serverQuickReplies.options.length > 0 && chatAwaitingChoiceOnLatestAssistant && (
+                <div ref={composerRegionRef} className="chat-composer-region">
+                  {chipsVisible && serverQuickReplies && (
                     <>
                     <div
+                      ref={chipStripRef}
                       role="group"
                       aria-label={
                         effectiveChipSelectionMode === "single"
                           ? "Quick reply suggestions — tap one to send"
                           : "Quick reply suggestions — select one or more, then press Send"
                       }
-                      className="chat-input-row"
+                      className="chat-input-row chat-chip-strip"
                       style={{ marginBottom: 10 }}
                     >
                       {serverQuickReplies.options.map((opt, pillIdx) => {
@@ -1384,12 +1419,27 @@ export default function HomePageClient({
                             </>
                           )}
                       </p>
+                      {showAffordanceHint ? (
+                        <p
+                          role="status"
+                          style={{
+                            margin: "0 0 10px",
+                            width: "100%",
+                            fontSize: 13,
+                            fontWeight: 600,
+                            color: "#021859",
+                            lineHeight: 1.4,
+                          }}
+                        >
+                          Type your answer in the box below, then tap <strong>Send</strong>.
+                        </p>
+                      ) : null}
                     </>
                   )}
                   {/* One composer: optional chips + textarea + Send — no alternate "Continue" mode */}
                   <form
                     ref={messageFormRef}
-                    className="chat-input-row chat-composer-form"
+                    className={`chat-input-row chat-composer-form${chipsVisible ? " has-chips" : ""}`}
                     onSubmit={handleSubmit}
                   >
                   <label htmlFor="brand-message" className="sr-only">
@@ -1446,17 +1496,21 @@ export default function HomePageClient({
                     ref={inputRef}
                     id="brand-message"
                     name="brand-message"
-                    rows={3}
+                    rows={chipsVisible ? 2 : 3}
                     value={inputValue}
                     onChange={(event) => {
                       setInputValue(event.target.value);
                       behaviorTrackerRef.current?.recordKeystroke();
                     }}
                     onFocus={(event) => {
-                      // Keep composer visible above the iOS keyboard / cookie bar.
+                      // Keep chips + Send visible — do not center the textarea (hides chips above).
                       const target = event.currentTarget;
                       window.setTimeout(() => {
-                        target.scrollIntoView({ block: "center", behavior: "smooth" });
+                        if (chipStripRef.current) {
+                          chipStripRef.current.scrollIntoView({ block: "nearest", behavior: "smooth" });
+                        } else {
+                          target.scrollIntoView({ block: "nearest", behavior: "smooth" });
+                        }
                         chatMessagesRef.current?.scrollTo({
                           top: chatMessagesRef.current.scrollHeight,
                           behavior: "smooth",
@@ -1471,7 +1525,9 @@ export default function HomePageClient({
                     placeholder={
                       isUploading
                         ? "Uploading file…"
-                        : "Type your reply… (Enter to send, Shift+Enter for a new line)"
+                        : showAffordanceHint
+                          ? "Type your answer here…"
+                          : "Type your reply… (Enter to send, Shift+Enter for a new line)"
                     }
                     disabled={isLoading || isFinalizing || isUploading}
                     enterKeyHint="send"
@@ -1482,13 +1538,7 @@ export default function HomePageClient({
                     className="chat-send"
                     disabled={!canSubmitComposer}
                     aria-disabled={!canSubmitComposer}
-                    title={
-                      composerBusy
-                        ? "Please wait…"
-                        : canSubmitComposer
-                          ? "Send your reply"
-                          : "Type a reply or select an option first"
-                    }
+                    title={sendButtonTitle}
                   >
                     {isUploading ? "Uploading…" : isLoading || isFinalizing ? "Sending…" : "Send"}
                   </button>
@@ -1504,7 +1554,7 @@ export default function HomePageClient({
                     </button>
                   )}
                   </form>
-                </>
+                </div>
               )}
 
               {seamlessWrapUpActive && (

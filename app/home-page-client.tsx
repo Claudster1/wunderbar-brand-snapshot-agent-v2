@@ -39,6 +39,10 @@ import {
   resolveSuggestedReplies,
 } from "@/lib/intake/multiSelectChipCatalog";
 import {
+  WEBSITE_HAVE_SITE_CHIP,
+  transcriptHasWebsiteResolution,
+} from "@/lib/intake/websitePresenceCapture";
+import {
   composerCanSubmit,
   composerSendTitle,
   composerShowsAffordanceHint,
@@ -50,6 +54,7 @@ const AFFORDANCE_CHIPS = new Set([
   OTHER_CHIP,
   BETWEEN_BANDS_CHIP,
   "Yes, here's the URL",
+  WEBSITE_HAVE_SITE_CHIP,
   "I track it (~X%)",
   "Rough guess",
 ]);
@@ -416,6 +421,10 @@ export default function HomePageClient({
   }, [clearFinalizeError]);
 
   const seamlessFinalizeConsumedRef = useRef(false);
+  const websiteNudgeConsumedRef = useRef(false);
+  /** User chose “Add website” — pause auto-finalize until they send a reply. */
+  const websiteCollectingRef = useRef(false);
+  const [websiteNudgeOpen, setWebsiteNudgeOpen] = useState(false);
 
   useEffect(() => {
     if (!resultsEntryUrl || postVerifyDestination || !snapshotish) return;
@@ -790,7 +799,14 @@ export default function HomePageClient({
         return;
       }
       if (effectiveChipSelectionMode === "single") {
-        void sendComposerOutgoing(opt);
+        void sendComposerOutgoing(opt).then(() => {
+          if (websiteCollectingRef.current) {
+            websiteCollectingRef.current = false;
+            websiteNudgeConsumedRef.current = true;
+            seamlessFinalizeConsumedRef.current = true;
+            void finalizeFnRef.current();
+          }
+        });
         return;
       }
       toggleQuickReplyPill(opt);
@@ -824,15 +840,36 @@ export default function HomePageClient({
     postVerifyDestination,
   });
 
-  const composerHidden = computeComposerHidden(intakeInputHidden, seamlessWrapUpActive);
+  const composerHidden =
+    computeComposerHidden(intakeInputHidden, seamlessWrapUpActive && !websiteNudgeOpen) &&
+    !websiteNudgeOpen;
+
+  // Keep latest messages for website-resolution check without re-arming the finalize timer
+  // when the transcript updates (that cancelled the timeout and left consumed=true → stuck).
+  const messagesForWebsiteGateRef = useRef(messages);
+  messagesForWebsiteGateRef.current = messages;
 
   useEffect(() => {
     if (!intakeReadyForSeamlessFinalize) {
       seamlessFinalizeConsumedRef.current = false;
+      websiteCollectingRef.current = false;
+      setWebsiteNudgeOpen(false);
       return;
     }
     if (seamlessFinalizeConsumedRef.current) return;
+    if (websiteCollectingRef.current) return;
+
+    const chatMessages = messagesForWebsiteGateRef.current.map((m) => ({
+      role: m.role,
+      content: typeof m.text === "string" ? m.text : "",
+    }));
+    if (!websiteNudgeConsumedRef.current && !transcriptHasWebsiteResolution(chatMessages)) {
+      setWebsiteNudgeOpen(true);
+      return;
+    }
+
     seamlessFinalizeConsumedRef.current = true;
+    setWebsiteNudgeOpen(false);
     const t = window.setTimeout(() => {
       void finalizeFnRef.current();
     }, 450);
@@ -868,6 +905,12 @@ export default function HomePageClient({
         : pillLine || trimmed;
 
     await sendComposerOutgoing(outgoing);
+    if (websiteCollectingRef.current) {
+      websiteCollectingRef.current = false;
+      websiteNudgeConsumedRef.current = true;
+      seamlessFinalizeConsumedRef.current = true;
+      void finalizeFnRef.current();
+    }
   };
 
   const composerBusy = isLoading || isFinalizing || isUploading;
@@ -1557,7 +1600,50 @@ export default function HomePageClient({
                 </div>
               )}
 
-              {seamlessWrapUpActive && (
+              {websiteNudgeOpen && (
+                <div
+                  className="chat-finalize-dock"
+                  role="dialog"
+                  aria-label="Add website for sharper results"
+                  style={{ borderColor: "#07B0F2" }}
+                >
+                  <p className="chat-finalize-dock-title">Results are sharper with a website</p>
+                  <p className="chat-finalize-dock-sub">
+                    Paste your URL below (e.g. yoursite.com) and send — or continue without one.
+                  </p>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
+                    <button
+                      type="button"
+                      className="chat-send"
+                      style={{ flex: "1 1 auto" }}
+                      onClick={() => {
+                        websiteCollectingRef.current = true;
+                        setWebsiteNudgeOpen(false);
+                        setInputValue("");
+                        setSelectedQuickReplyPills([WEBSITE_HAVE_SITE_CHIP]);
+                        window.setTimeout(() => inputRef.current?.focus(), 0);
+                      }}
+                    >
+                      Add website URL
+                    </button>
+                    <button
+                      type="button"
+                      className="chat-skip"
+                      onClick={() => {
+                        websiteNudgeConsumedRef.current = true;
+                        websiteCollectingRef.current = false;
+                        setWebsiteNudgeOpen(false);
+                        seamlessFinalizeConsumedRef.current = true;
+                        void finalizeFnRef.current();
+                      }}
+                    >
+                      Continue without website
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {seamlessWrapUpActive && !websiteNudgeOpen && (
                 <div
                   className="chat-finalize-dock"
                   role="status"

@@ -1412,14 +1412,14 @@ export async function POST(req: Request) {
     const inferredType =
       lockedBusinessTypeFromMessages(messages) ?? inferBusinessTypeFromHistory(messages);
     const lockedAudience = lockedAudienceFromMessages(messages);
-    const useUpgradeContinuation =
-      intakeTier !== "snapshot" &&
-      continuationReportId.length > 0 &&
-      CONTINUATION_REPORT_UUID_RE.test(continuationReportId);
+    const hasContinuationReportId =
+      continuationReportId.length > 0 && CONTINUATION_REPORT_UUID_RE.test(continuationReportId);
+    // Upgrade prompt is paid-only; free Snapshot resume still loads prior answers below.
+    const useUpgradeContinuation = hasContinuationReportId && intakeTier !== "snapshot";
 
     let priorAnswers: Record<string, unknown> | null = null;
     let continuationAnswersPrimer: string | null = null;
-    if (useUpgradeContinuation) {
+    if (hasContinuationReportId) {
       priorAnswers = await loadPriorSnapshotAnswers(continuationReportId);
       if (priorAnswers && Object.keys(priorAnswers).length > 0) {
         continuationAnswersPrimer = [

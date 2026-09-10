@@ -74,7 +74,8 @@ export async function GET(req: Request) {
       lastStep: r.last_step,
       progress,
       continuationMode,
-      priorAnswers: continuationMode === "answers_only" ? priorAnswers : undefined,
+      // Always return structured answers when present so free resume can suppress re-asks.
+      ...(priorAnswers && Object.keys(priorAnswers).length > 0 ? { priorAnswers } : {}),
       report: {
         business_name: r.business_name || r.brand_name,
         user_email: r.user_email,

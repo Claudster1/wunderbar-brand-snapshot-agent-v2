@@ -439,7 +439,9 @@ export function useBrandChat(options?: UseBrandChatOptions) {
             if (paidTier) {
               continuationReportIdForApiRef.current = data.reportId;
             } else {
-              continuationReportIdForApiRef.current = null;
+              // Free Snapshot: keep continuation id so structured answers (when present)
+              // suppress re-asks after save-and-continue.
+              continuationReportIdForApiRef.current = data.reportId;
             }
             return;
           }
@@ -851,10 +853,12 @@ export function useBrandChat(options?: UseBrandChatOptions) {
     sendAbortRef.current = ac;
 
     try {
+      // Paid upgrade: fall back to draft reportId. Free Snapshot: only when resume set the ref
+      // (never treat a fresh draft reportId as upgrade/prior-answers continuation).
       const paidTier = options?.productTier && options.productTier !== 'snapshot';
       const continuationReportId = paidTier
         ? continuationReportIdForApiRef.current ?? reportId
-        : null;
+        : continuationReportIdForApiRef.current;
       const streamingMessage = createMessage('assistant', '');
       const streamingMessageId = streamingMessage.id;
       setMessages([...nextHistory, streamingMessage]);

@@ -15,7 +15,7 @@ const WEBSITE_AFFIRM_WITHOUT_URL_RE =
 
 /** Prefer paste-first: clear where the URL goes (chat input under chips). */
 export const WEBSITE_PRESENCE_INITIAL_PROMPT =
-  "**Do you have a website?** If yes, **paste the URL in the message box below** (e.g. `yoursite.com` or `https://yoursite.com`) and send. If you don't have one yet, tap a chip.";
+  "**Do you have a website?** If yes, tap **I have a website — type URL below**, then paste `yoursite.com` (or `https://…`) in the message box and send. If you don't have one yet, tap a chip.";
 
 export const WEBSITE_PRESENCE_URL_FOLLOWUP_PROMPT =
   "**Paste your website URL in the message box below** (the text field under these chips) — e.g. `yoursite.com` or `https://…` — then hit send. Or tap *Skip for now*.";
@@ -84,16 +84,28 @@ export function buildWebsitePresenceCaptureQuestion(
 }
 
 /**
- * Initial: no-site chips only — happy path is paste URL into the chat input (not a chip).
- * Follow-up: skip / no-site only — never “I'll paste” (that chip never pastes anything).
+ * Initial: affordance chip focuses the box for paste; no-site chips for everyone else.
+ * Follow-up: skip / no-site only — never “I'll paste” alone (that never pastes anything).
  */
+export const WEBSITE_HAVE_SITE_CHIP = "I have a website — type URL below";
+
 export function getWebsitePresenceSuggestedReplies(
   messages?: Array<{ role: string; content?: string }>,
 ): string[] {
   if (messages && shouldAskWebsiteUrlFollowUp(messages)) {
     return ["Skip for now", "Actually — no website yet"];
   }
-  return ["No website yet", "Social / marketplace only", "Coming soon"];
+  return [WEBSITE_HAVE_SITE_CHIP, "No website yet", "Social / marketplace only", "Coming soon"];
+}
+
+/** True when the transcript already resolved website (URL, no-site, or explicit skip). */
+export function transcriptHasWebsiteResolution(
+  messages: Array<{ role: string; content?: string }>,
+): boolean {
+  const users = messages.filter((m) => m.role === "user").map((m) => m.content || "");
+  return users.some(
+    (u) => textHasWebsiteUrl(u) || textDeclaresNoWebsite(u) || textSkipsWebsiteUrl(u),
+  );
 }
 
 /** Create/build-a-site coaching is never a valid website capture turn. */

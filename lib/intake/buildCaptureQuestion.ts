@@ -91,10 +91,23 @@ export function buildCaptureQuestion(
       return "**How do you think about your role here?** Tap below — or type your own.";
     case "team_size":
       return "**How big is your team today** — including you?";
-    case "industry":
+    case "industry": {
+      if (inferredType === "local_service" || inferredType === "service_b2c") {
+        return "**What kind of business is this?** Salon or spa, clinic, home services, advisory, fitness — whatever fits.";
+      }
+      if (inferredType === "retail") {
+        return "**What kind of business is this?** Restaurant, boutique, shop, or similar — whatever fits.";
+      }
+      if (inferredType === "ecommerce") {
+        return "**What kind of product brand is this?** Fashion, food & beverage, home/lifestyle, or something else.";
+      }
+      if (inferredType === "saas") {
+        return "**What space is the product in?** SaaS, marketplace/platform, or adjacent — a simple category is perfect.";
+      }
       return consumer
         ? "**What kind of business is this?** Hair salon, restaurant, retail shop, wellness, home services — whatever fits."
         : "**What industry or space is the business in?** A simple category is perfect.";
+    }
     case "geographic_scope":
       return consumer
         ? "**Where do you mainly serve people** — your neighborhood or city, a wider region, nationally, or online everywhere?"

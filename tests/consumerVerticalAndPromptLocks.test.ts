@@ -23,6 +23,12 @@ describe("consumerVertical", () => {
     expect(inferConsumerVertical({ businessType: "ecommerce", industry: "skincare" })).toBe(
       "dtc_product",
     );
+    expect(
+      inferConsumerVertical({ businessType: "ecommerce", industry: "beauty / personal care products" }),
+    ).toBe("dtc_product");
+    expect(
+      inferConsumerVertical({ industry: "Fitness / yoga / wellness studio" }),
+    ).toBe("beauty_wellness");
   });
 
   it("maps nouns and channel hints by vertical", () => {

@@ -101,7 +101,7 @@ describe("audienceFacingCopy / results B2C language", () => {
   });
 });
 
-describe("salon / restaurant / fashion / finance QA seeds → tone", () => {
+describe("salon / restaurant / fashion / finance / hvac / dental / dual QA seeds → tone", () => {
   it("salon seed resolves to local service consumer tone", () => {
     const turns = getQaSeedTurns("near-end-salon");
     const messages = turns.map((t) => ({ role: t.role, content: t.text }));
@@ -136,5 +136,37 @@ describe("salon / restaurant / fashion / finance QA seeds → tone", () => {
     expect(joined).toMatch(/consult|Consumer financial|Northshore Wealth/i);
     expect(joined).not.toMatch(/Instagram, Google, TikTok/i);
     expect(joined).not.toMatch(/LinkedIn POV|prospects choose/i);
+  });
+
+  it("hvac seed resolves to local service tone with home_services pack language", () => {
+    const turns = getQaSeedTurns("near-end-hvac");
+    const messages = turns.map((t) => ({ role: t.role, content: t.text }));
+    expect(toneFromMessages(messages)).toBe("b2c_local_service");
+    expect(getPillarOpportunity("conversion", "local_service", "HVAC and plumbing")).toMatch(
+      /estimate|call|book/i,
+    );
+  });
+
+  it("dental seed resolves to local service tone with health_clinic pack language", () => {
+    const turns = getQaSeedTurns("near-end-dental");
+    const messages = turns.map((t) => ({ role: t.role, content: t.text }));
+    expect(toneFromMessages(messages)).toBe("b2c_local_service");
+    expect(getPillarOpportunity("conversion", "local_service", "dental clinic for families")).toMatch(
+      /book|call|appointment/i,
+    );
+  });
+
+  it("dual-audience with B2C marketing focus stays consumer local tone", () => {
+    const turns = getQaSeedTurns("near-end-dual-b2c");
+    const messages = turns.map((t) => ({ role: t.role, content: t.text }));
+    expect(toneFromMessages(messages)).toBe("b2c_local_service");
+    expect(turns.map((t) => t.text).join("\n")).toMatch(/Consumer \/ B2C side of marketing/);
+  });
+
+  it("dual-audience with B2B marketing focus stays b2b professional tone", () => {
+    const turns = getQaSeedTurns("near-end-dual-b2b");
+    const messages = turns.map((t) => ({ role: t.role, content: t.text }));
+    expect(toneFromMessages(messages)).toBe("b2b_professional");
+    expect(turns.map((t) => t.text).join("\n")).toMatch(/Business \/ B2B side of marketing|LinkedIn POV/);
   });
 });

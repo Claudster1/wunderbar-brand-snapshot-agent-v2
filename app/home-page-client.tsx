@@ -1051,7 +1051,13 @@ export default function HomePageClient({
                 {" — "}
                 {activeQaSeed === "near-end" ||
                 activeQaSeed === "near-end-salon" ||
-                activeQaSeed === "near-end-restaurant"
+                activeQaSeed === "near-end-restaurant" ||
+                activeQaSeed === "near-end-fashion" ||
+                activeQaSeed === "near-end-consumer-finance" ||
+                activeQaSeed === "near-end-hvac" ||
+                activeQaSeed === "near-end-dental" ||
+                activeQaSeed === "near-end-dual-b2c" ||
+                activeQaSeed === "near-end-dual-b2b"
                   ? "answer the last question to exercise wrap-up."
                   : "send any short reply to exercise finalize."}
                 {" "}

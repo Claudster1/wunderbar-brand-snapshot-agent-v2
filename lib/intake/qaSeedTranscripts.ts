@@ -10,10 +10,18 @@ export type QaSeedId =
   | "near-end-restaurant"
   | "near-end-fashion"
   | "near-end-consumer-finance"
+  | "near-end-hvac"
+  | "near-end-dental"
+  | "near-end-dual-b2c"
+  | "near-end-dual-b2b"
   | "handoff-salon"
   | "handoff-restaurant"
   | "handoff-fashion"
-  | "handoff-consumer-finance";
+  | "handoff-consumer-finance"
+  | "handoff-hvac"
+  | "handoff-dental"
+  | "handoff-dual-b2c"
+  | "handoff-dual-b2b";
 
 type SeedTurn = { role: "assistant" | "user"; text: string };
 
@@ -58,6 +66,32 @@ export function parseQaSeedParam(raw: string | null | undefined): QaSeedId | nul
   if (v === "handoff-consumer-finance" || v === "finance-handoff" || v === "advisor-handoff") {
     return "handoff-consumer-finance";
   }
+  if (v === "near-end-hvac" || v === "hvac" || v === "near_end_hvac" || v === "plumbing") {
+    return "near-end-hvac";
+  }
+  if (v === "near-end-dental" || v === "dental" || v === "near_end_dental" || v === "clinic") {
+    return "near-end-dental";
+  }
+  if (
+    v === "near-end-dual-b2c" ||
+    v === "dual-b2c" ||
+    v === "mix-b2c" ||
+    v === "near_end_dual_b2c"
+  ) {
+    return "near-end-dual-b2c";
+  }
+  if (
+    v === "near-end-dual-b2b" ||
+    v === "dual-b2b" ||
+    v === "mix-b2b" ||
+    v === "near_end_dual_b2b"
+  ) {
+    return "near-end-dual-b2b";
+  }
+  if (v === "handoff-hvac" || v === "hvac-handoff") return "handoff-hvac";
+  if (v === "handoff-dental" || v === "dental-handoff") return "handoff-dental";
+  if (v === "handoff-dual-b2c" || v === "dual-b2c-handoff") return "handoff-dual-b2c";
+  if (v === "handoff-dual-b2b" || v === "dual-b2b-handoff") return "handoff-dual-b2b";
   return null;
 }
 
@@ -752,6 +786,562 @@ const HANDOFF_CONSUMER_FINANCE_TURNS: SeedTurn[] = [
   { role: "user", text: "Worked with a freelancer on the website once — nothing ongoing" },
 ];
 
+const NEAR_END_HVAC_TURNS: SeedTurn[] = [
+  { role: "assistant", text: "Hi — I'm Wundy™. What's your first name?" },
+  { role: "user", text: "Derek" },
+  {
+    role: "assistant",
+    text: "Nice to meet you, Derek. **What's the name of your business?**",
+  },
+  { role: "user", text: "Summit Air & Plumbing" },
+  {
+    role: "assistant",
+    text: "**How do you primarily get paid today** — local/personal services, business consulting, a product (online or in-person), SaaS/subscription, or something else?",
+  },
+  { role: "user", text: "Local / personal services" },
+  {
+    role: "assistant",
+    text: "**How do you think about your role here?** Tap below — or type your own.",
+  },
+  { role: "user", text: "I run the business day-to-day" },
+  {
+    role: "assistant",
+    text: "**Who do you mainly sell to** — mostly other businesses (B2B), mostly consumers (B2C), or a meaningful mix of both?",
+  },
+  { role: "user", text: "Mostly B2C" },
+  {
+    role: "assistant",
+    text: "**What kind of business is this?** Hair salon, restaurant, retail shop, wellness, home services — whatever fits.",
+  },
+  { role: "user", text: "Home / local services — HVAC and plumbing" },
+  {
+    role: "assistant",
+    text: "**Where do you mainly serve people** — your neighborhood or city, a wider region, nationally, or online everywhere?",
+  },
+  { role: "user", text: "Locally (city or metro)" },
+  {
+    role: "assistant",
+    text: "**Roughly how long have you been operating?**",
+  },
+  { role: "user", text: "5–10 years" },
+  {
+    role: "assistant",
+    text: "**Do you have a website?** If yes, **paste the URL in the message box below** (e.g. `yoursite.com` or `https://yoursite.com`) and send. If you don't have one yet, tap a chip.",
+  },
+  { role: "user", text: "https://summitairplumbing.example" },
+  {
+    role: "assistant",
+    text: "**Where does your brand show up on social today?** Name the platforms that matter (Instagram, Google, TikTok, etc.) — or say *none / not really active yet*.",
+  },
+  { role: "user", text: "Google Business / Maps, Facebook" },
+  {
+    role: "assistant",
+    text: "**When a brand-new client first discovers you, where does that usually happen?**",
+  },
+  { role: "user", text: "Google / Maps search" },
+  {
+    role: "assistant",
+    text: "**When clients choose a competitor over you, what reason comes up most often?**",
+  },
+  { role: "user", text: "Price" },
+  {
+    role: "assistant",
+    text: "**How clear are your services to someone encountering you for the first time?**",
+  },
+  { role: "user", text: "Somewhat clear" },
+  {
+    role: "assistant",
+    text: "**What customer proof do you have today?** Tap all that apply — reviews, testimonials, before/after or success stories, or neither yet.",
+  },
+  { role: "user", text: "Reviews (Google / Yelp / etc.)" },
+  {
+    role: "assistant",
+    text: "**How confident do you feel about how the brand looks visually?**",
+  },
+  { role: "user", text: "Somewhat confident" },
+  {
+    role: "assistant",
+    text: "Which outcomes matter most for Summit Air & Plumbing in the next 6–12 months? Tap all that apply below.",
+  },
+  { role: "user", text: "More bookings / appointments" },
+  {
+    role: "assistant",
+    text: "What feels like the biggest challenge with your brand or marketing right now?",
+  },
+  {
+    role: "user",
+    text: "Emergency calls find us, but planned HVAC replacements go to bigger brands with clearer estimate paths.",
+  },
+  {
+    role: "assistant",
+    text: "What makes you different from look-alike competitors?",
+  },
+  {
+    role: "user",
+    text: "Licensed techs who show up on time, explain options plainly, and leave the job site tidy.",
+  },
+  {
+    role: "assistant",
+    text: "What's the deeper why behind the business — the mission that keeps you going?",
+  },
+  {
+    role: "user",
+    text: "Keep local homes comfortable without the runaround — fair estimates, real craftsmanship.",
+  },
+  {
+    role: "assistant",
+    text: "**How clear and consistent does your messaging feel across channels today?**",
+  },
+  { role: "user", text: "Somewhat clear" },
+  {
+    role: "assistant",
+    text: "If your brand were a person, how would you describe their personality?",
+  },
+  { role: "user", text: "Reliable, plainspoken, no-drama" },
+  {
+    role: "assistant",
+    text: "What topics or themes do you talk about most with customers?",
+  },
+  {
+    role: "user",
+    text: "Maintenance vs repair, when to replace a system, and how to book an estimate without the sales pressure.",
+  },
+  {
+    role: "assistant",
+    text: "**Are you sharing tips, behind-the-scenes, or expertise publicly yet** — social posts, short videos, a blog, or not really?",
+  },
+  { role: "user", text: "A little / informal" },
+  {
+    role: "assistant",
+    text: "One last thing — have you done any formal brand strategy work before? Could be on your own, with a freelancer, or through an agency.",
+  },
+];
+
+const HANDOFF_HVAC_TURNS: SeedTurn[] = [
+  ...NEAR_END_HVAC_TURNS,
+  { role: "user", text: "Just DIY so far — Google listing and truck wrap on my own" },
+];
+
+const NEAR_END_DENTAL_TURNS: SeedTurn[] = [
+  { role: "assistant", text: "Hi — I'm Wundy™. What's your first name?" },
+  { role: "user", text: "Elena" },
+  {
+    role: "assistant",
+    text: "Nice to meet you, Elena. **What's the name of your business?**",
+  },
+  { role: "user", text: "Cedar Family Dental" },
+  {
+    role: "assistant",
+    text: "**How do you primarily get paid today** — local/personal services, business consulting, a product (online or in-person), SaaS/subscription, or something else?",
+  },
+  { role: "user", text: "Local / personal services" },
+  {
+    role: "assistant",
+    text: "**How do you think about your role here?** Tap below — or type your own.",
+  },
+  { role: "user", text: "I'm a founder / co-founder" },
+  {
+    role: "assistant",
+    text: "**Who do you mainly sell to** — mostly other businesses (B2B), mostly consumers (B2C), or a meaningful mix of both?",
+  },
+  { role: "user", text: "Mostly B2C" },
+  {
+    role: "assistant",
+    text: "**What kind of business is this?** Hair salon, restaurant, retail shop, wellness, home services — whatever fits.",
+  },
+  { role: "user", text: "Health / wellness / clinic — dental clinic for families" },
+  {
+    role: "assistant",
+    text: "**Where do you mainly serve people** — your neighborhood or city, a wider region, nationally, or online everywhere?",
+  },
+  { role: "user", text: "Locally (city or metro)" },
+  {
+    role: "assistant",
+    text: "**Roughly how long have you been operating?**",
+  },
+  { role: "user", text: "3–5 years" },
+  {
+    role: "assistant",
+    text: "**Do you have a website?** If yes, **paste the URL in the message box below** (e.g. `yoursite.com` or `https://yoursite.com`) and send. If you don't have one yet, tap a chip.",
+  },
+  { role: "user", text: "https://cedarfamilydental.example" },
+  {
+    role: "assistant",
+    text: "**Where does your brand show up on social today?** Name the platforms that matter (Instagram, Google, TikTok, etc.) — or say *none / not really active yet*.",
+  },
+  { role: "user", text: "Google Business / Maps, Instagram, Facebook" },
+  {
+    role: "assistant",
+    text: "**When a brand-new client first discovers you, where does that usually happen?**",
+  },
+  { role: "user", text: "Google / Maps search" },
+  {
+    role: "assistant",
+    text: "**When clients choose a competitor over you, what reason comes up most often?**",
+  },
+  { role: "user", text: "Trust / reviews" },
+  {
+    role: "assistant",
+    text: "**How clear are your services to someone encountering you for the first time?**",
+  },
+  { role: "user", text: "Somewhat clear" },
+  {
+    role: "assistant",
+    text: "**What customer proof do you have today?** Tap all that apply — reviews, testimonials, before/after or success stories, or neither yet.",
+  },
+  { role: "user", text: "Reviews (Google / Yelp / etc.)" },
+  {
+    role: "assistant",
+    text: "**How confident do you feel about how the brand looks visually?**",
+  },
+  { role: "user", text: "Somewhat confident" },
+  {
+    role: "assistant",
+    text: "Which outcomes matter most for Cedar Family Dental in the next 6–12 months? Tap all that apply below.",
+  },
+  { role: "user", text: "More bookings / appointments" },
+  {
+    role: "assistant",
+    text: "What feels like the biggest challenge with your brand or marketing right now?",
+  },
+  {
+    role: "user",
+    text: "New patients stall between finding us on Google and actually booking — the next step feels clinical and unclear.",
+  },
+  {
+    role: "assistant",
+    text: "What makes you different from look-alike competitors?",
+  },
+  {
+    role: "user",
+    text: "Gentle care for anxious patients and clear treatment plans families can understand.",
+  },
+  {
+    role: "assistant",
+    text: "What's the deeper why behind the business — the mission that keeps you going?",
+  },
+  {
+    role: "user",
+    text: "Help every patient feel calm and informed — not rushed through a chair.",
+  },
+  {
+    role: "assistant",
+    text: "**How clear and consistent does your messaging feel across channels today?**",
+  },
+  { role: "user", text: "Somewhat clear" },
+  {
+    role: "assistant",
+    text: "If your brand were a person, how would you describe their personality?",
+  },
+  { role: "user", text: "Warm, calm, reassuring" },
+  {
+    role: "assistant",
+    text: "What topics or themes do you talk about most with customers?",
+  },
+  {
+    role: "user",
+    text: "Preventive care, what to expect at the first visit, and how to book without the phone-tag.",
+  },
+  {
+    role: "assistant",
+    text: "**Are you sharing tips, behind-the-scenes, or expertise publicly yet** — social posts, short videos, a blog, or not really?",
+  },
+  { role: "user", text: "A little / informal" },
+  {
+    role: "assistant",
+    text: "One last thing — have you done any formal brand strategy work before? Could be on your own, with a freelancer, or through an agency.",
+  },
+];
+
+const HANDOFF_DENTAL_TURNS: SeedTurn[] = [
+  ...NEAR_END_DENTAL_TURNS,
+  { role: "user", text: "Worked with a freelancer on the logo and website once" },
+];
+
+/** Dual audience — local salon/studio with some corporate clients; marketing stays consumer-led. */
+const NEAR_END_DUAL_B2C_TURNS: SeedTurn[] = [
+  { role: "assistant", text: "Hi — I'm Wundy™. What's your first name?" },
+  { role: "user", text: "Sam" },
+  {
+    role: "assistant",
+    text: "Nice to meet you, Sam. **What's the name of your business?**",
+  },
+  { role: "user", text: "Studio North Color" },
+  {
+    role: "assistant",
+    text: "**How do you primarily get paid today** — local/personal services, business consulting, a product (online or in-person), SaaS/subscription, or something else?",
+  },
+  { role: "user", text: "Local / personal services" },
+  {
+    role: "assistant",
+    text: "**How do you think about your role here?** Tap below — or type your own.",
+  },
+  { role: "user", text: "I'm a founder / co-founder" },
+  {
+    role: "assistant",
+    text: "**Who do you mainly sell to** — mostly other businesses (B2B), mostly consumers (B2C), or a meaningful mix of both?",
+  },
+  { role: "user", text: "Meaningful mix of both" },
+  {
+    role: "assistant",
+    text: "**You sell to both businesses and consumers — which side does most of your marketing speak to today?** That keeps the diagnostic voice on the side you actually invest in.",
+  },
+  { role: "user", text: "Consumer / B2C side of marketing" },
+  {
+    role: "assistant",
+    text: "**What kind of business is this?** Hair salon, restaurant, retail shop, wellness, home services — whatever fits.",
+  },
+  { role: "user", text: "Hair / beauty / spa — salon plus a few corporate event clients" },
+  {
+    role: "assistant",
+    text: "**Where do you mainly serve people** — your neighborhood or city, a wider region, nationally, or online everywhere?",
+  },
+  { role: "user", text: "Locally (city or metro)" },
+  {
+    role: "assistant",
+    text: "**Roughly how long have you been operating?**",
+  },
+  { role: "user", text: "3–5 years" },
+  {
+    role: "assistant",
+    text: "**Do you have a website?** If yes, **paste the URL in the message box below** (e.g. `yoursite.com` or `https://yoursite.com`) and send. If you don't have one yet, tap a chip.",
+  },
+  { role: "user", text: "https://studionorthcolor.example" },
+  {
+    role: "assistant",
+    text: "**Where does your brand show up on social today?** Name the platforms that matter (Instagram, Google, TikTok, etc.) — or say *none / not really active yet*.",
+  },
+  { role: "user", text: "Instagram, Google Business / Maps" },
+  {
+    role: "assistant",
+    text: "**When a brand-new client first discovers you, where does that usually happen?**",
+  },
+  { role: "user", text: "Instagram / Google" },
+  {
+    role: "assistant",
+    text: "**When clients choose a competitor over you, what reason comes up most often?**",
+  },
+  { role: "user", text: "Price" },
+  {
+    role: "assistant",
+    text: "**How clear are your services to someone encountering you for the first time?**",
+  },
+  { role: "user", text: "Somewhat clear" },
+  {
+    role: "assistant",
+    text: "**What customer proof do you have today?** Tap all that apply — reviews, testimonials, before/after or success stories, or neither yet.",
+  },
+  { role: "user", text: "Reviews (Google / Yelp / etc.)" },
+  {
+    role: "assistant",
+    text: "**How confident do you feel about how the brand looks visually?**",
+  },
+  { role: "user", text: "Somewhat confident" },
+  {
+    role: "assistant",
+    text: "Which outcomes matter most for Studio North Color in the next 6–12 months? Tap all that apply below.",
+  },
+  { role: "user", text: "More bookings / appointments" },
+  {
+    role: "assistant",
+    text: "What feels like the biggest challenge with your brand or marketing right now?",
+  },
+  {
+    role: "user",
+    text: "Retail clients are the core — corporate events are a bonus, but our marketing still needs to sound like a salon, not a B2B agency.",
+  },
+  {
+    role: "assistant",
+    text: "What makes you different from look-alike competitors?",
+  },
+  {
+    role: "user",
+    text: "Color specialists with a calm studio vibe — plus a small team that can handle on-site event styling when asked.",
+  },
+  {
+    role: "assistant",
+    text: "What's the deeper why behind the business — the mission that keeps you going?",
+  },
+  {
+    role: "user",
+    text: "Help people feel like themselves — whether it's a regular appointment or a one-day event.",
+  },
+  {
+    role: "assistant",
+    text: "**How clear and consistent does your messaging feel across channels today?**",
+  },
+  { role: "user", text: "Somewhat clear" },
+  {
+    role: "assistant",
+    text: "If your brand were a person, how would you describe their personality?",
+  },
+  { role: "user", text: "Warm, stylish, unfussy" },
+  {
+    role: "assistant",
+    text: "What topics or themes do you talk about most with customers?",
+  },
+  {
+    role: "user",
+    text: "Hair health, color maintenance, and how to book the right service.",
+  },
+  {
+    role: "assistant",
+    text: "**Are you sharing tips, behind-the-scenes, or expertise publicly yet** — social posts, short videos, a blog, or not really?",
+  },
+  { role: "user", text: "Yes — regularly on social" },
+  {
+    role: "assistant",
+    text: "One last thing — have you done any formal brand strategy work before? Could be on your own, with a freelancer, or through an agency.",
+  },
+];
+
+const HANDOFF_DUAL_B2C_TURNS: SeedTurn[] = [
+  ...NEAR_END_DUAL_B2C_TURNS,
+  { role: "user", text: "Just DIY so far — Instagram and Google on my own" },
+];
+
+/** Dual audience — consulting firm that also serves some consumers; marketing stays B2B-led. */
+const NEAR_END_DUAL_B2B_TURNS: SeedTurn[] = [
+  { role: "assistant", text: "Hi — I'm Wundy™. What's your first name?" },
+  { role: "user", text: "Alex" },
+  {
+    role: "assistant",
+    text: "Nice to meet you, Alex. **What's the name of your business?**",
+  },
+  { role: "user", text: "Northline Advisory" },
+  {
+    role: "assistant",
+    text: "**How do you primarily get paid today** — local/personal services, business consulting, a product (online or in-person), SaaS/subscription, or something else?",
+  },
+  { role: "user", text: "Business consulting / agency" },
+  {
+    role: "assistant",
+    text: "**How do you think about your role here?** Tap below — or type your own.",
+  },
+  { role: "user", text: "I'm a founder / co-founder" },
+  {
+    role: "assistant",
+    text: "**Who do you mainly sell to** — mostly other businesses (B2B), mostly consumers (B2C), or a meaningful mix of both?",
+  },
+  { role: "user", text: "Meaningful mix of both" },
+  {
+    role: "assistant",
+    text: "**You sell to both businesses and consumers — which side does most of your marketing speak to today?** That keeps the diagnostic voice on the side you actually invest in.",
+  },
+  { role: "user", text: "Business / B2B side of marketing" },
+  {
+    role: "assistant",
+    text: "**What industry or space is the business in?** A simple category is perfect.",
+  },
+  { role: "user", text: "Professional services / consulting — ops advising for SMBs, plus a few consumer coaching clients" },
+  {
+    role: "assistant",
+    text: "**Where do you mainly serve customers** — locally, regionally, nationally, or globally?",
+  },
+  { role: "user", text: "Nationally" },
+  {
+    role: "assistant",
+    text: "**Roughly how long have you been operating?**",
+  },
+  { role: "user", text: "1–3 years" },
+  {
+    role: "assistant",
+    text: "**Do you have a website?** If yes, **paste the URL in the message box below** (e.g. `yoursite.com` or `https://yoursite.com`) and send. If you don't have one yet, tap a chip.",
+  },
+  { role: "user", text: "https://northlineadvisory.example" },
+  {
+    role: "assistant",
+    text: "**Where does your brand show up on social today?** Name the platforms that matter (or say *none / not really active yet*).",
+  },
+  { role: "user", text: "LinkedIn, Instagram — LinkedIn is where we invest" },
+  {
+    role: "assistant",
+    text: "**When a brand-new prospect first discovers you, where does that usually happen?**",
+  },
+  { role: "user", text: "Referrals / word of mouth" },
+  {
+    role: "assistant",
+    text: "**When prospects choose a competitor over you, what reason comes up most often?**",
+  },
+  { role: "user", text: "Trust" },
+  {
+    role: "assistant",
+    text: "**How clear is your offer to someone encountering you for the first time?**",
+  },
+  { role: "user", text: "Somewhat clear" },
+  {
+    role: "assistant",
+    text: "**What customer proof do you have today?** Tap all that apply — testimonials/reviews, case studies, or neither yet.",
+  },
+  { role: "user", text: "Testimonials / reviews" },
+  {
+    role: "assistant",
+    text: "**How confident do you feel about how the brand looks visually?**",
+  },
+  { role: "user", text: "Somewhat confident" },
+  {
+    role: "assistant",
+    text: "Which outcomes matter most for Northline Advisory in the next 6–12 months? Tap all that apply below.",
+  },
+  { role: "user", text: "Attract more qualified leads" },
+  {
+    role: "assistant",
+    text: "What feels like the biggest challenge with your brand or marketing right now?",
+  },
+  {
+    role: "user",
+    text: "We have a small consumer coaching side, but marketing spend and LinkedIn POV stay aimed at SMB buyers.",
+  },
+  {
+    role: "assistant",
+    text: "What makes you different from look-alike competitors?",
+  },
+  {
+    role: "user",
+    text: "Operator-led advisory with clear scopes — not vague coaching packages.",
+  },
+  {
+    role: "assistant",
+    text: "What's the deeper why behind the business — the mission that keeps you going?",
+  },
+  {
+    role: "user",
+    text: "Help growing companies make cleaner operating decisions without the fluff.",
+  },
+  {
+    role: "assistant",
+    text: "**How clear and consistent does your messaging feel across channels today?**",
+  },
+  { role: "user", text: "Somewhat clear" },
+  {
+    role: "assistant",
+    text: "If your brand were a person, how would you describe their personality?",
+  },
+  { role: "user", text: "Sharp, credible, approachable" },
+  {
+    role: "assistant",
+    text: "What topics or themes do you talk about most with customers?",
+  },
+  {
+    role: "user",
+    text: "Prioritization, hiring timing, and how to run a cleaner weekly operating cadence.",
+  },
+  {
+    role: "assistant",
+    text: "**Are you doing any thought leadership publicly yet** — blog, speaking, LinkedIn POV, or similar?",
+  },
+  { role: "user", text: "A little / informal" },
+  {
+    role: "assistant",
+    text: "One last thing — have you done any formal brand strategy work before? Could be on your own, with a freelancer, or through an agency.",
+  },
+];
+
+const HANDOFF_DUAL_B2B_TURNS: SeedTurn[] = [
+  ...NEAR_END_DUAL_B2B_TURNS,
+  { role: "user", text: "Just DIY so far — LinkedIn and a simple site on my own" },
+];
+
 export function getQaSeedTurns(seed: QaSeedId): SeedTurn[] {
   switch (seed) {
     case "near-end":
@@ -774,6 +1364,22 @@ export function getQaSeedTurns(seed: QaSeedId): SeedTurn[] {
       return NEAR_END_CONSUMER_FINANCE_TURNS.map((t) => ({ ...t }));
     case "handoff-consumer-finance":
       return HANDOFF_CONSUMER_FINANCE_TURNS.map((t) => ({ ...t }));
+    case "near-end-hvac":
+      return NEAR_END_HVAC_TURNS.map((t) => ({ ...t }));
+    case "handoff-hvac":
+      return HANDOFF_HVAC_TURNS.map((t) => ({ ...t }));
+    case "near-end-dental":
+      return NEAR_END_DENTAL_TURNS.map((t) => ({ ...t }));
+    case "handoff-dental":
+      return HANDOFF_DENTAL_TURNS.map((t) => ({ ...t }));
+    case "near-end-dual-b2c":
+      return NEAR_END_DUAL_B2C_TURNS.map((t) => ({ ...t }));
+    case "handoff-dual-b2c":
+      return HANDOFF_DUAL_B2C_TURNS.map((t) => ({ ...t }));
+    case "near-end-dual-b2b":
+      return NEAR_END_DUAL_B2B_TURNS.map((t) => ({ ...t }));
+    case "handoff-dual-b2b":
+      return HANDOFF_DUAL_B2B_TURNS.map((t) => ({ ...t }));
     default:
       return [];
   }
@@ -787,9 +1393,17 @@ export function listQaSeedIds(): QaSeedId[] {
     "near-end-restaurant",
     "near-end-fashion",
     "near-end-consumer-finance",
+    "near-end-hvac",
+    "near-end-dental",
+    "near-end-dual-b2c",
+    "near-end-dual-b2b",
     "handoff-salon",
     "handoff-restaurant",
     "handoff-fashion",
     "handoff-consumer-finance",
+    "handoff-hvac",
+    "handoff-dental",
+    "handoff-dual-b2c",
+    "handoff-dual-b2b",
   ];
 }

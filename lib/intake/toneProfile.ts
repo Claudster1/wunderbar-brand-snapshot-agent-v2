@@ -181,8 +181,12 @@ export function inferMarketingAudienceFocusFromCorpus(
 ): MarketingAudienceFocus | null {
   const c = userCorpus.toLowerCase();
   if (!c.trim()) return null;
+  // Exact chip labels win over freeform heuristics (later answers can mention the other side).
+  if (/\bconsumer \/ b2c side (of marketing|dominates)\b/i.test(userCorpus)) return "B2C";
+  if (/\bbusiness \/ b2b side (of marketing|dominates)\b/i.test(userCorpus)) return "B2B";
+  if (/\babout equal — keep both in mind\b/i.test(userCorpus)) return null;
   if (
-    /\b(consumer|b2c|guest|patient|shopper|local customer).{0,40}(side|marketing|dominat|mostly|mainly|primary)\b/.test(
+    /\b(consumer|b2c|guest|patient|shopper|local customer).{0,40}(side|dominat|mostly|mainly|primary)\b/.test(
       c,
     ) ||
     /\b(marketing|brand voice|day[- ]?to[- ]?day).{0,40}(mostly|mainly|primarily).{0,20}(consumer|b2c|guest|client)\b/.test(
@@ -195,20 +199,16 @@ export function inferMarketingAudienceFocusFromCorpus(
     return "B2C";
   }
   if (
-    /\b(business|b2b|enterprise|smb).{0,40}(side|marketing|dominat|mostly|mainly|primary)\b/.test(c) ||
+    /\b(business|b2b|enterprise|smb).{0,40}(side|dominat|mostly|mainly|primary)\b/.test(c) ||
     /\b(marketing|brand voice|day[- ]?to[- ]?day).{0,40}(mostly|mainly|primarily).{0,20}(business|b2b|enterprise)\b/.test(
       c,
     ) ||
     /\bmostly (the )?(b2b|business) (side|audience|marketing)\b/.test(c) ||
     /\bb2b side (of (the )?mix|dominates|for marketing)\b/.test(c) ||
-    /\bmarketing (is )?mostly (for )?(businesses?|b2b|companies)\b/.test(c)
+    /\bmarketing (is )?mostly (for )?(businesses?|b2b|companies|smb)\b/.test(c)
   ) {
     return "B2B";
   }
-  // Exact chip labels
-  if (/\bconsumer \/ b2c side (of marketing|dominates)\b/i.test(userCorpus)) return "B2C";
-  if (/\bbusiness \/ b2b side (of marketing|dominates)\b/i.test(userCorpus)) return "B2B";
-  if (/\babout equal — keep both in mind\b/i.test(userCorpus)) return null;
   return null;
 }
 

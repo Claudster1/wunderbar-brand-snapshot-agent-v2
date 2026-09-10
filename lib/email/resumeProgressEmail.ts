@@ -4,7 +4,18 @@
 
 import "server-only";
 
-import { sendTransactionalEmail, type SendResult } from "@/lib/email/transactional";
+import {
+  defaultTransactionalFromAddress,
+  sendTransactionalEmail,
+  type SendResult,
+} from "@/lib/email/transactional";
+import {
+  TRANSACTIONAL_HUMAN_SIGN_OFF_NAME,
+  TRANSACTIONAL_HUMAN_SIGN_OFF_TITLE,
+  TRANSACTIONAL_RESUME_NOT_PROMO_FOOTER,
+  buildTransactionalHumanFrom,
+  transactionalHumanSignOffText,
+} from "@/lib/email/transactionalHumanSender";
 
 function escapeHtml(value: string): string {
   return value
@@ -25,6 +36,7 @@ export async function sendResumeProgressEmail(params: {
   const safeGreeting = escapeHtml(greeting);
   const safeResumeUrl = escapeHtml(params.resumeUrl);
   const subject = "Your WunderBrand Snapshot™ — pick up where you left off";
+  const signOff = transactionalHumanSignOffText();
   const text = [
     greeting,
     "",
@@ -34,7 +46,9 @@ export async function sendResumeProgressEmail(params: {
     "",
     "If you didn’t request this, you can ignore this email — nothing else will happen.",
     "",
-    "— The Wunderbar Digital Team",
+    TRANSACTIONAL_RESUME_NOT_PROMO_FOOTER,
+    "",
+    signOff,
   ].join("\n");
 
   const html = `
@@ -54,8 +68,20 @@ export async function sendResumeProgressEmail(params: {
       <p style="color:#8794A3;font-size:13px;margin:20px 0 0">
         If you didn’t request this, you can safely ignore this email.
       </p>
-      <p style="color:#8794A3;font-size:13px;margin:16px 0 0">— The Wunderbar Digital Team</p>
+      <p style="color:#8794A3;font-size:12px;line-height:1.5;margin:16px 0 0">
+        ${TRANSACTIONAL_RESUME_NOT_PROMO_FOOTER}
+      </p>
+      <p style="color:#5A6B7E;font-size:13px;line-height:1.5;margin:16px 0 0">
+        — ${TRANSACTIONAL_HUMAN_SIGN_OFF_NAME}<br />
+        <span style="color:#8794A3">${TRANSACTIONAL_HUMAN_SIGN_OFF_TITLE}</span>
+      </p>
     </div>`;
 
-  return sendTransactionalEmail({ to: params.to, subject, html, text });
+  return sendTransactionalEmail({
+    to: params.to,
+    subject,
+    html,
+    text,
+    from: buildTransactionalHumanFrom(defaultTransactionalFromAddress()),
+  });
 }

@@ -163,8 +163,11 @@ export async function POST(req: Request) {
     let emailDeliveryOk = false;
     let emailDeliveryError: string | undefined;
     try {
-      const { sendTransactionalEmail } = await import("@/lib/email/transactional");
+      const { sendTransactionalEmail, defaultTransactionalFromAddress } = await import(
+        "@/lib/email/transactional"
+      );
       const { buildSnapshotReportEmail } = await import("@/lib/email/reportDeliveryEmail");
+      const { buildTransactionalHumanFrom } = await import("@/lib/email/transactionalHumanSender");
       const { withUtm } = await import("@/lib/utm");
       const productName =
         productTier === "snapshot-plus" ? "WunderBrand Snapshot+\u2122" : "WunderBrand Snapshot\u2122";
@@ -180,8 +183,18 @@ export async function POST(req: Request) {
         firstName,
         logoUrl: `${BASE_URL}/assets/pdf/wunderbar-logo.png`,
       });
+<<<<<<< HEAD
       const sendResult = await sendTransactionalEmail({ to: normalized, subject, html, text });
       emailDeliveryOk = sendResult.ok;
+=======
+      const sendResult = await sendTransactionalEmail({
+        to: normalized,
+        subject,
+        html,
+        text,
+        from: buildTransactionalHumanFrom(defaultTransactionalFromAddress()),
+      });
+>>>>>>> origin/main
       if (!sendResult.ok) {
         emailDeliveryError = sendResult.error || "email_send_failed";
         logger.warn("[Lead Email] Results delivery email failed", {

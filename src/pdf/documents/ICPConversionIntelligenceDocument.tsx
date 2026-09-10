@@ -57,7 +57,7 @@ export function ICPConversionIntelligenceDocument({ data, brandName }: Props) {
     new Set([
       ...(framework?.conversionProfile?.map((row) => row.icpTier) || []),
       ...icpFromPersonas,
-      "Primary ICP",
+      chrome.primarySegmentLabel,
     ].filter(Boolean)),
   ).slice(0, 4);
 
@@ -66,10 +66,22 @@ export function ICPConversionIntelligenceDocument({ data, brandName }: Props) {
       ? framework.conversionProfile
       : icpTiers.map((tier, index) => ({
           icpTier: tier,
-          buyingCycleLength: index === 0 ? "30-60 days" : "45-90 days",
-          primaryConversionBarrier: "Unclear proof that this strategy is implementable for their team context.",
-          decisionTrigger: "Sees a role-specific roadmap plus evidence from a comparable business.",
-          conversionBehaviorPattern: "Consumes one insight asset, one proof asset, then books a strategy call.",
+          buyingCycleLength: chrome.consumer
+            ? index === 0
+              ? "Days to a couple of weeks"
+              : "When they’re ready"
+            : index === 0
+              ? "30-60 days"
+              : "45-90 days",
+          primaryConversionBarrier: chrome.consumer
+            ? "Unclear what to expect or how to take the next step."
+            : "Unclear proof that this strategy is implementable for their team context.",
+          decisionTrigger: chrome.consumer
+            ? "Sees clear reviews/proof and an easy way to book or inquire."
+            : "Sees a role-specific roadmap plus evidence from a comparable business.",
+          conversionBehaviorPattern: chrome.consumer
+            ? "Checks reviews and proof, then books or reaches out."
+            : "Consumes one insight asset, one proof asset, then books a strategy call.",
         }));
 
   const hookTypePerformance =

@@ -223,7 +223,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
         <Text style={s.tocItem}>Voice & Tone Guide</Text>
         <Text style={s.tocItem}>Brand Story & Origin Narrative</Text>
         <Text style={s.tocItem}>Brand Persona & Communication Style</Text>
-        <Text style={s.tocItem}>Audience Personas & ICPs</Text>
+        <Text style={s.tocItem}>{chrome.consumer ? "Audiences & Personas" : "Audience Personas & ICPs"}</Text>
         <Text style={s.tocItem}>Buyer Personas</Text>
 
         <Text style={s.tocPart}>Part III — Messaging & Content</Text>
@@ -781,7 +781,7 @@ export function CompleteBlueprintDocument({ data, brandName, userName }: Props) 
           <View key={i} style={s.card} wrap={false}>
             <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
               <Text style={s.cardTitle}>{bp.personaName}</Text>
-              <View style={s.tag}><Text style={s.tagText}>ICP: {bp.icpAlignment}</Text></View>
+              <View style={s.tag}><Text style={s.tagText}>{chrome.consumer ? "Audience" : "ICP"}: {bp.icpAlignment}</Text></View>
             </View>
             <Text style={s.small}>{bp.role}</Text>
             <Text style={s.h4}>Core Frustration</Text>

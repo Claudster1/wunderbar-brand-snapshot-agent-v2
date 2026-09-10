@@ -787,6 +787,8 @@ export default function HomePageClient({
           if (websiteCollectingRef.current) {
             websiteCollectingRef.current = false;
             websiteNudgeConsumedRef.current = true;
+            seamlessFinalizeConsumedRef.current = true;
+            void finalizeFnRef.current();
           }
         });
         return;
@@ -826,6 +828,11 @@ export default function HomePageClient({
     computeComposerHidden(intakeInputHidden, seamlessWrapUpActive && !websiteNudgeOpen) &&
     !websiteNudgeOpen;
 
+  // Keep latest messages for website-resolution check without re-arming the finalize timer
+  // when the transcript updates (that cancelled the timeout and left consumed=true → stuck).
+  const messagesForWebsiteGateRef = useRef(messages);
+  messagesForWebsiteGateRef.current = messages;
+
   useEffect(() => {
     if (!intakeReadyForSeamlessFinalize) {
       seamlessFinalizeConsumedRef.current = false;
@@ -836,7 +843,7 @@ export default function HomePageClient({
     if (seamlessFinalizeConsumedRef.current) return;
     if (websiteCollectingRef.current) return;
 
-    const chatMessages = messages.map((m) => ({
+    const chatMessages = messagesForWebsiteGateRef.current.map((m) => ({
       role: m.role,
       content: typeof m.text === "string" ? m.text : "",
     }));
@@ -851,7 +858,7 @@ export default function HomePageClient({
       void finalizeFnRef.current();
     }, 450);
     return () => window.clearTimeout(t);
-  }, [intakeReadyForSeamlessFinalize, messages]);
+  }, [intakeReadyForSeamlessFinalize]);
 
   useEffect(() => {
     if (!seamlessWrapUpActive) return;
@@ -885,6 +892,8 @@ export default function HomePageClient({
     if (websiteCollectingRef.current) {
       websiteCollectingRef.current = false;
       websiteNudgeConsumedRef.current = true;
+      seamlessFinalizeConsumedRef.current = true;
+      void finalizeFnRef.current();
     }
   };
 

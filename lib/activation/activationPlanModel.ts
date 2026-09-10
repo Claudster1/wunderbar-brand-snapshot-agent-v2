@@ -860,7 +860,23 @@ function buildIcpEmailTouchesAppendix(diagnosticData: Record<string, unknown>): 
   ].join("\n\n");
 }
 
-function buildEmailLifecycleHowToReadMarkdown(): string {
+function buildEmailLifecycleHowToReadMarkdown(opts?: { consumer?: boolean }): string {
+  if (opts?.consumer) {
+    return [
+      "## How to read this email plan",
+      "",
+      "Up to **two layers** appear in this view (use the **On This page** chips to jump).",
+      "",
+      "1. **Report notes** — Email channel copy from your export when the engine filled `channelPlans.email`.",
+      "2. **Starter nurture sequence** — Paste-ready lifecycle emails (`## Email 1 …` onward). Each block is **one** email: **subject line** → **preheader** (the short inbox preview line; **not** a second subject) → body → image prompt → CTAs.",
+      "",
+      "### Where to edit and export",
+      "- **Update copy:** **Workbook** → Channel notes (and version history). Regenerate the report when you want a full engine rewrite from inputs.",
+      "- **All activation sections at once:** **Download activation pack (.md)** on this tab.",
+      "- **PDFs and bundles:** **Downloads** tab.",
+      "- **Single plan PDF:** open **Open plan** for a channel, then **Download plan (PDF)** on that page.",
+    ].join("\n");
+  }
   return [
     "## How to read this email plan",
     "",
@@ -885,7 +901,7 @@ function pickEmailLifecycleBody(
   const e = typeof d.channelPlans.email === "string" ? d.channelPlans.email.trim() : "";
   const developed = buildDevelopedEmailPlan(developedContextFromD(d));
   const icpAppendix = buildIcpEmailTouchesAppendix(diagnosticData);
-  const guide = buildEmailLifecycleHowToReadMarkdown();
+  const guide = buildEmailLifecycleHowToReadMarkdown({ consumer: d.voice.consumer });
   /** If the report already shipped a very long email playbook, avoid duplicating the developed pack. */
   const REPORT_EMAIL_COMPLETE_MIN = 2800;
 
@@ -1063,7 +1079,7 @@ function buildLeadMagnetSectionBody(
   const base = isBlueprintPlusTier(diagnosticData)
     ? blueprintPlusEmptyBlockMessage(d.companyName, "Lead magnet & conversion")
     : scaffold;
-  return appendDevelopedPack(base, developed, 4000);
+  return appendDevelopedPack(base, developed, 4000, { consumer: d.voice.consumer });
 }
 
 export function buildActivationPlanSectionsList(

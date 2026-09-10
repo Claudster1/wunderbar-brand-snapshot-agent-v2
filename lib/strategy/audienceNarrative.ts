@@ -1,9 +1,29 @@
+import { resolveActivationAudienceVoice } from "@/lib/activation/activationAudienceVoice";
 import { buildPersonaPortraitSeed, inferPersonaAudienceKind } from "@/lib/personaPortrait";
 import {
   resolveLocalPersonaPortraitSrc,
   type PersonaHeritageGroup,
 } from "@/lib/personaPortraitAssets";
 import { alignPersonaNameToPortraitHeritage } from "@/lib/personaPortraitHeritage";
+
+function audienceSegmentTitles(diagnostic: Record<string, unknown>): {
+  primary: string;
+  secondary: string;
+  additional: string;
+} {
+  if (resolveActivationAudienceVoice(diagnostic).consumer) {
+    return {
+      primary: "Primary audience",
+      secondary: "Secondary audience",
+      additional: "Additional segment",
+    };
+  }
+  return {
+    primary: "Primary ICP",
+    secondary: "Secondary ICP",
+    additional: "Additional segment",
+  };
+}
 
 /** Normalize audience fields from report / workbook / enrichment (string or `{ description }`). */
 export function audienceFieldToString(v: unknown): string {
@@ -396,19 +416,20 @@ export function buildStrategyAudienceProfilesUiModel(params: {
     intakeSegments.push({ label: "Additional segment", body: tertiary });
   }
 
+  const titles = audienceSegmentTitles(diagnostic);
   const icpDetails: StrategyIcpDetail[] = [];
   if (ap) {
-    const a = icpUnknownToStrategyDetail(ap.primaryICP, "Primary", "Primary ICP");
+    const a = icpUnknownToStrategyDetail(ap.primaryICP, "Primary", titles.primary);
     if (a) icpDetails.push(a);
     const b = icpUnknownToStrategyDetail(
       ap.secondaryICP,
       "Secondary",
-      "Secondary ICP",
+      titles.secondary,
     );
     if (b) icpDetails.push(b);
     const add = Array.isArray(ap.additionalICPs) ? ap.additionalICPs : [];
     for (const raw of add.slice(0, MAX_ADDITIONAL_ICP_SLOTS)) {
-      const d = icpUnknownToStrategyDetail(raw, "Also consider", "Segment");
+      const d = icpUnknownToStrategyDetail(raw, "Also consider", titles.additional);
       if (d) icpDetails.push(d);
     }
   }
@@ -540,17 +561,18 @@ export function appendAudiencePersonasFromReport(
     return baseBody;
   const ap = apRaw as Record<string, unknown>;
 
+  const titles = audienceSegmentTitles(diagnostic);
   const extras: string[] = [];
 
-  const primary = formatIcpDetail(ap.primaryICP, "Primary ICP");
+  const primary = formatIcpDetail(ap.primaryICP, titles.primary);
   if (primary) extras.push(primary);
 
-  const secondary = formatIcpDetail(ap.secondaryICP, "Secondary ICP");
+  const secondary = formatIcpDetail(ap.secondaryICP, titles.secondary);
   if (secondary) extras.push(secondary);
 
   const add = Array.isArray(ap.additionalICPs) ? ap.additionalICPs : [];
   for (const raw of add.slice(0, MAX_ADDITIONAL_ICP_SLOTS)) {
-    const block = formatIcpDetail(raw, "Additional segment");
+    const block = formatIcpDetail(raw, titles.additional);
     if (block) extras.push(block);
   }
 
@@ -570,12 +592,17 @@ export function appendAudiencePersonasFromReport(
   return joinBlocks(baseBody, extras.join("\n\n"));
 }
 
-function formatOneBuyerPersona(raw: unknown, index: number): string | null {
+function formatOneBuyerPersona(
+  raw: unknown,
+  index: number,
+  opts?: { consumer?: boolean },
+): string | null {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
   const p = raw as Record<string, unknown>;
   const name = asStr(p.personaName) || `Persona ${index + 1}`;
+  const alignmentLabel = opts?.consumer ? "Audience alignment" : "ICP alignment";
   const body = joinBlocks(
-    asStr(p.icpAlignment) && `ICP alignment: ${asStr(p.icpAlignment)}`,
+    asStr(p.icpAlignment) && `${alignmentLabel}: ${asStr(p.icpAlignment)}`,
     asStr(p.role) && `Role: ${asStr(p.role)}`,
     asStr(p.coreFrustration) && `Core frustration: ${asStr(p.coreFrustration)}`,
     asStr(p.primaryMotivation) &&
@@ -701,14 +728,20 @@ export function buyerPersonasToStrategyCards(
   return out;
 }
 
-export function formatBuyerPersonasDeep(list: unknown): string | null {
+export function formatBuyerPersonasDeep(
+  list: unknown,
+  opts?: { consumer?: boolean },
+): string | null {
   if (!Array.isArray(list) || list.length === 0) return null;
   const blocks = list
     .slice(0, 8)
-    .map((raw, i) => formatOneBuyerPersona(raw, i))
+    .map((raw, i) => formatOneBuyerPersona(raw, i, opts))
     .filter((x): x is string => Boolean(x));
   if (blocks.length === 0) return null;
-  return `Role-level profiles (from your deliverable)\n\n${blocks.join("\n\n—\n\n")}`;
+  const header = opts?.consumer
+    ? "People profiles (from your deliverable)"
+    : "Role-level profiles (from your deliverable)";
+  return `${header}\n\n${blocks.join("\n\n—\n\n")}`;
 }
 
 /** Customer Profiles panel: summary line + rich buyer persona rows when present. */
@@ -717,11 +750,16 @@ export function buildCustomerProfilesDeepBody(params: {
   buyerPersonas: unknown;
   companyName: string;
   audienceShort: string;
+  consumer?: boolean;
 }): string {
   try {
     const summary = params.personaAtlasSummary.trim();
-    const deep = formatBuyerPersonasDeep(params.buyerPersonas);
-    const fallback = `${params.companyName} should define a primary customer profile for ${params.audienceShort}, plus 1–2 secondary buyer roles. For each: jobs-to-be-done, top objections, decision criteria, and preferred channels.`;
+    const deep = formatBuyerPersonasDeep(params.buyerPersonas, {
+      consumer: params.consumer,
+    });
+    const fallback = params.consumer
+      ? `${params.companyName} should define a primary profile for ${params.audienceShort}, plus 1–2 supporting segments. For each: what they want, what stops them, and how they prefer to get in touch.`
+      : `${params.companyName} should define a primary customer profile for ${params.audienceShort}, plus 1–2 secondary buyer roles. For each: jobs-to-be-done, top objections, decision criteria, and preferred channels.`;
 
     if (summary && deep) {
       const first = Array.isArray(params.buyerPersonas)
@@ -750,7 +788,9 @@ export function buildCustomerProfilesDeepBody(params: {
     return fallback;
   } catch (err) {
     console.error("[strategy] buildCustomerProfilesDeepBody failed", err);
-    return `${params.companyName} should define a primary customer profile for ${params.audienceShort}, plus 1–2 secondary buyer roles. For each: jobs-to-be-done, top objections, decision criteria, and preferred channels.`;
+    return params.consumer
+      ? `${params.companyName} should define a primary profile for ${params.audienceShort}, plus 1–2 supporting segments. For each: what they want, what stops them, and how they prefer to get in touch.`
+      : `${params.companyName} should define a primary customer profile for ${params.audienceShort}, plus 1–2 secondary buyer roles. For each: jobs-to-be-done, top objections, decision criteria, and preferred channels.`;
   }
 }
 
@@ -810,10 +850,11 @@ export function buildAudienceProfilesBody(params: {
     if (includeTertiary && tertiary) {
       parts.push(`Additional segment:\n\n${tertiary}`);
     }
-    const base =
-      parts.length > 0
-        ? parts.join("\n\n")
-        : `${companyName}'s highest-fit profile should name a primary buyer, any secondary audience, and influencer or blocker roles so your offer and proof sequence match real buying behavior in ${industry}. Until populated, center narrative on ${audienceShort}.`;
+    const consumer = resolveActivationAudienceVoice(diagnostic).consumer;
+    const emptyFallback = consumer
+      ? `${companyName}'s highest-fit profile should name who you serve most, any supporting segment, and what proof helps people choose you in ${industry}. Until populated, center narrative on ${audienceShort}.`
+      : `${companyName}'s highest-fit profile should name a primary buyer, any secondary audience, and influencer or blocker roles so your offer and proof sequence match real buying behavior in ${industry}. Until populated, center narrative on ${audienceShort}.`;
+    const base = parts.length > 0 ? parts.join("\n\n") : emptyFallback;
 
     const transitionDedupe: string[] = [];
     if (includePrimary && primary) transitionDedupe.push(primary);
@@ -823,6 +864,9 @@ export function buildAudienceProfilesBody(params: {
     return appendAudiencePersonasFromReport(base, diagnostic, transitionDedupe);
   } catch (err) {
     console.error("[strategy] buildAudienceProfilesBody failed", err);
-    return `${params.companyName}'s highest-fit profile should name a primary buyer, any secondary audience, and influencer or blocker roles so your offer and proof sequence match real buying behavior in ${params.industry}. Until populated, center narrative on ${params.audienceShort}.`;
+    const consumer = resolveActivationAudienceVoice(params.diagnostic).consumer;
+    return consumer
+      ? `${params.companyName}'s highest-fit profile should name who you serve most, any supporting segment, and what proof helps people choose you in ${params.industry}. Until populated, center narrative on ${params.audienceShort}.`
+      : `${params.companyName}'s highest-fit profile should name a primary buyer, any secondary audience, and influencer or blocker roles so your offer and proof sequence match real buying behavior in ${params.industry}. Until populated, center narrative on ${params.audienceShort}.`;
   }
 }

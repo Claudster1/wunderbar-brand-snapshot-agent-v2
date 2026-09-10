@@ -82,10 +82,10 @@ export function buildLockedReportAudienceContext(
 
   const languageDirective = voice.consumer
     ? [
-        `LOCKED consumer vertical: ${vertical ?? "consumer_general"}.`,
+        `LOCKED consumer vertical: ${vertical ?? "consumer_general"} — do not use B2B vocabulary.`,
         `Speak to ${voice.who}. Primary next step: "${voice.primaryCta}".`,
         `Prefer channels: ${voice.channelsLine}. Proof: ${voice.proofLine}.`,
-        "Do not use B2B jargon (prospects, pipeline, ICP, decision-makers, scope fit, LinkedIn-first) unless this business clearly sells to other companies.",
+        "Banned unless clearly B2B: prospects, pipeline, ICP, decision-makers, scope fit, SQL, ABM, LinkedIn-first, demo/intro-call CTAs.",
       ].join(" ")
     : [
         `LOCKED audience mode: B2B / professional.`,

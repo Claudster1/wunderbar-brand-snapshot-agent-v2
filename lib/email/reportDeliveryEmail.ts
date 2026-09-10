@@ -6,8 +6,15 @@
 // ActiveCampaign marketing automation.
 //
 // Copy: logo → unique report link → view on page → Export → soft suite education CTA.
+// From / sign-off: human founder identity (see transactionalHumanSender).
 
 import { WUNDERBAR_SUITE_RESULTS_FUNNEL_URL } from "@/lib/wunderbarExternalUrls";
+import {
+  TRANSACTIONAL_HUMAN_SIGN_OFF_NAME,
+  TRANSACTIONAL_HUMAN_SIGN_OFF_TITLE,
+  TRANSACTIONAL_RESULTS_NOT_PROMO_FOOTER,
+  transactionalHumanSignOffText,
+} from "@/lib/email/transactionalHumanSender";
 
 /** Absolute PNG for HTML email clients (avoid SVG/WebP — Outlook etc.). */
 export const DEFAULT_TRANSACTIONAL_EMAIL_LOGO_URL =
@@ -27,6 +34,7 @@ export function buildSnapshotReportEmail(opts: {
   const suiteUrl = opts.suiteUrl?.trim() || WUNDERBAR_SUITE_RESULTS_FUNNEL_URL;
   const logoUrl = opts.logoUrl?.trim() || DEFAULT_TRANSACTIONAL_EMAIL_LOGO_URL;
   const subject = `Your ${productName} results are ready`;
+  const signOff = transactionalHumanSignOffText();
 
   const text = [
     `Hi${greetingName},`,
@@ -45,7 +53,9 @@ export function buildSnapshotReportEmail(opts: {
     "Snapshot+™, Blueprint™, and Blueprint+™ turn this diagnosis into that clarity—so growth becomes more efficient and more repeatable:",
     suiteUrl,
     "",
-    "— The Wunderbar Digital Team",
+    TRANSACTIONAL_RESULTS_NOT_PROMO_FOOTER,
+    "",
+    signOff,
   ].join("\n");
 
   const html = `
@@ -112,7 +122,13 @@ export function buildSnapshotReportEmail(opts: {
         If the button doesn't work, copy and paste this link into your browser:<br />
         <a href="${opts.resultsUrl}" style="color:#07B0F2;word-break:break-all">${opts.resultsUrl}</a>
       </p>
-      <p style="color:#8794A3;font-size:13px;margin:20px 0 0">&mdash; The Wunderbar Digital Team</p>
+      <p style="color:#8794A3;font-size:12px;line-height:1.5;margin:20px 0 0">
+        ${TRANSACTIONAL_RESULTS_NOT_PROMO_FOOTER}
+      </p>
+      <p style="color:#5A6B7E;font-size:13px;line-height:1.5;margin:16px 0 0">
+        &mdash; ${TRANSACTIONAL_HUMAN_SIGN_OFF_NAME}<br />
+        <span style="color:#8794A3">${TRANSACTIONAL_HUMAN_SIGN_OFF_TITLE}</span>
+      </p>
     </div>`;
 
   return { subject, text, html };

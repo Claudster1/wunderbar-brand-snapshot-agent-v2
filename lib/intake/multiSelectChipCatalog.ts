@@ -285,7 +285,7 @@ const TOPIC_RULES: TopicRule[] = [
     mode: "single",
   },
   {
-    test: /\b(do you have a website\?|website url to share|landing page or store|not on the web yet|paste (your website )?url|message box below)\b/i,
+    test: /\b(do you have a website|website url to share|landing page or store|not on the web yet|paste (your website )?url|message box (below|and)|type url below)\b/i,
     captureKey: "website_presence",
     mode: "single",
   },

@@ -31,6 +31,22 @@ describe("buildIntakeTopicResumeLines", () => {
     expect(joined).toMatch(/CUSTOMERS/i);
   });
 
+  it("does not mark role done from agency industry chip that says not in-house", () => {
+    const lines = buildIntakeTopicResumeLines([
+      { role: "user", content: "Claudine" },
+      { role: "user", content: "Agency / freelance (not in-house)" },
+    ]);
+    expect(lines.join(" ")).not.toMatch(/USER ROLE/i);
+  });
+
+  it("marks role done from in-house marketing role chip", () => {
+    const lines = buildIntakeTopicResumeLines([
+      { role: "user", content: "Claudine" },
+      { role: "user", content: "I lead marketing / brand in-house" },
+    ]);
+    expect(lines.join(" ")).toMatch(/USER ROLE/i);
+  });
+
   it("does not mark narrative topics done from assistant-only playbook phrasing", () => {
     const lines = buildIntakeTopicResumeLines([
       { role: "user", content: "Claudine" },

@@ -324,8 +324,8 @@ export function getSuggestedRepliesForCapture(
       }
       return [
         "Professional services / consulting",
-        "Marketing agency / freelance (not in-house)",
-        "Creative / design studio (not in-house)",
+        "Agency / freelance (not in-house)",
+        "Creative studio (not in-house)",
         "SaaS / software",
         "E‑commerce / retail",
         "Health / wellness",

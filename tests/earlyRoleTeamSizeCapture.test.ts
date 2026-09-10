@@ -13,9 +13,19 @@ describe("early role + team size captures", () => {
 
   it("keeps agency/creative industry chips distinct from in-house role", () => {
     const industry = getSuggestedRepliesForCapture("industry") ?? [];
-    expect(industry).toContain("Marketing agency / freelance (not in-house)");
-    expect(industry).toContain("Creative / design studio (not in-house)");
+    expect(industry).toContain("Agency / freelance (not in-house)");
+    expect(industry).toContain("Creative studio (not in-house)");
     expect(industry.some((c) => /in-house marketing/i.test(c))).toBe(false);
+  });
+
+  it("does not treat agency '(not in-house)' industry pick as a role answer", () => {
+    expect(
+      flexibleDirectCaptureComplete(
+        "user_role_context",
+        "How do you think about your role here?",
+        "Agency / freelance (not in-house)",
+      ),
+    ).toBe(false);
   });
 
   it("completes in-house marketing role chip after role ask", () => {

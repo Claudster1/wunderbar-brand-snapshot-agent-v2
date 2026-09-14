@@ -53,13 +53,9 @@ Missed phone → Sona → Calendly / message → Slack if hot
 
 Do in this order every business day:
 
-1. **Slack** — Clear sales/CRM alerts (new purchase, booking, hot lead). Reply same day.
+1. **Slack** — Clear sales/CRM alerts (new purchase, booking, hot lead, **session follow-up ready for review**). Reply same day.
 2. **Quo inbox** — Answer SMS replies. Priority: pricing / “call me” / Snapshot+ questions → book Calendly or send checkout link.
-3. **Otter review queue** — List pending, edit if needed, approve + send within 24h of the call.
-   ```bash
-   curl -s -H "Authorization: Bearer $ADMIN_API_KEY" \
-     "https://app.wunderbrand.ai/api/session/followups?status=pending_review"
-   ```
+3. **Otter review queue** — Open from the Slack link or `/admin/followups`. Edit if needed, approve + send within 24h of the call.
 4. **Calendly** — Confirm today’s calls; Otter recording on; Quo recording **off** for those meetings.
 5. **Sona / missed calls** — Scan any Sona handoffs or voicemails; call back hot leads before noon.
 
@@ -156,6 +152,8 @@ Full steps: `OTTER_ZAPIER_SETUP.md`.
 | Zap trigger | Otter → New Transcript |
 | Zap action | Webhooks by Zapier → POST |
 | URL | `https://app.wunderbrand.ai/api/session/process-transcript` |
+| Auth header | `x-zapier-secret: <ZAPIER_WEBHOOK_SECRET>` |
+| After queue | Slack CRM channel gets “follow-up ready” → open `/admin/followups` |
 | Header | `x-zapier-secret: <ZAPIER_WEBHOOK_SECRET>` |
 | `session_type` | `talk_to_expert` or `activation_session` (filter by meeting title) |
 | Env vars | `ZAPIER_WEBHOOK_SECRET`, `ADMIN_API_KEY`, `OPENAI_API_KEY`, AC keys |

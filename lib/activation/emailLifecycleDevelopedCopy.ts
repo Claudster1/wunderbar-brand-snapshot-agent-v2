@@ -2,6 +2,9 @@
  * Paste-ready email lifecycle: subjects, preheaders, body copy, hero image prompts, and CTAs.
  * Wired from diagnostic derivatives (company, audience, pillars, priorities).
  */
+import { buildConsumerEmailLifecyclePlan } from "@/lib/activation/consumerEmailLifecycleCopy";
+import type { ActivationAudienceVoice } from "@/lib/activation/activationAudienceVoice";
+
 export type EmailLifecycleDerivatives = {
   companyName: string;
   industry: string;
@@ -10,9 +13,14 @@ export type EmailLifecycleDerivatives = {
   secondPriority: string;
   thirdPriority: string;
   audienceShort: string;
+  voice?: ActivationAudienceVoice | null;
 };
 
 export function buildDevelopedEmailLifecyclePlan(d: EmailLifecycleDerivatives): string {
+  if (d.voice?.consumer) {
+    return buildConsumerEmailLifecyclePlan(d, d.voice);
+  }
+
   const cn = d.companyName;
   const ind = d.industry.toLowerCase();
   const pillar = d.primaryPillar.toLowerCase();

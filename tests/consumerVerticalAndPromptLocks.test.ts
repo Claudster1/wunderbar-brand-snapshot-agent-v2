@@ -37,8 +37,9 @@ describe("consumerVertical", () => {
 describe("paid-tier audience language lock", () => {
   it("embeds the shared lock in scoring and paid engines", () => {
     expect(audienceLanguageLockFragment).toMatch(/fashion_retail|consumer_professional/i);
-    expect(audienceLanguageLockFragment).toContain("NEVER default to:");
+    expect(audienceLanguageLockFragment).toMatch(/Explicit ban list|NEVER default to:/i);
     expect(audienceLanguageLockFragment).toContain("prospects");
+    expect(audienceLanguageLockFragment).toMatch(/LOCKED/i);
 
     for (const prompt of [
       scoringEnginePrompt,

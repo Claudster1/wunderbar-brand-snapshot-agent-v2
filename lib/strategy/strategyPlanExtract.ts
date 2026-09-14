@@ -3,6 +3,7 @@
  * Shapes are defensive — AI output uses camelCase; we tolerate partial objects.
  */
 
+import { resolveActivationAudienceVoice } from "@/lib/activation/activationAudienceVoice";
 import { readerFriendlyTrackingRow } from "@/lib/strategy/strategyReaderFriendly";
 import {
   stripBrandReplyPrefix,
@@ -507,13 +508,16 @@ export function extractSalesAlignment(diagnostic: Record<string, unknown>): Stra
     asString(sg.openingFramework) || asString(sg.overview) || asString(sg.opening_framework);
   if (opening) blocks.push({ title: "Opening & first-call framing", body: opening });
 
+  const consumer = resolveActivationAudienceVoice(diagnostic).consumer;
   const icpPlansRaw = diagnostic.icpGoToMarketPlans;
   const icpPlans = Array.isArray(icpPlansRaw) ? icpPlansRaw : [];
   if (icpPlans.length > 0) {
     icpPlans.slice(0, 8).forEach((raw, idx) => {
       const r = asRecord(raw);
       if (!r) return;
-      const label = asString(r.icpLabel) || `ICP ${idx + 1}`;
+      const label =
+        asString(r.icpLabel) ||
+        (consumer ? `Audience segment ${idx + 1}` : `ICP ${idx + 1}`);
       const align = asString(r.alignmentToBusinessStrategy);
       const focus = asString(r.strategicFocus);
       const cues = sanitizeSpokenCustomerScript(asString(r.competitiveConversationCues));

@@ -6,14 +6,21 @@
 export const audienceLanguageLockFragment = `
 AUDIENCE LANGUAGE LOCK (CRITICAL — apply to every insight, recommendation, example, and financialImpact line):
 
+If the assessment JSON includes lockedAudienceContext / consumerVertical / audienceLanguageDirective, treat those as LOCKED truth — do not override with B2B defaults.
+
+When lockedAudienceContext.consumerFacing is true OR consumerVertical is set (e.g. beauty_wellness, home_services, health_clinic):
+• That vertical is LOCKED for the entire report. Do not switch to B2B vocabulary mid-section.
+• Explicit ban list: prospects, decision-makers, sales cycle, pipeline, ICP, SQL, ABM, "scope fit," LinkedIn-first channel advice, "book a demo" / "intro call" as the default CTA.
+• Use lockedAudienceContext.audienceVoice (who / primaryCta / channelsLine / proofLine) when present; otherwise match the vertical pack below.
+• Example: LOCKED vertical beauty_wellness → clients, bookings, reviews, Instagram/Google — never "prospects in pipeline."
+
 Detect consumer-facing context when ANY of these are true:
+• lockedAudienceContext.consumerFacing is true
 • audienceType is B2C (or both with consumer-dominant marketing)
 • businessType is local_service, service_b2c, retail, or ecommerce
 • industry / offer text clearly indicates a consumer vertical pack below
 
-When consumer-facing, NEVER default to: "prospects," "decision-makers," "sales cycle," "pipeline," "ICP," "SQL," "ABM," or LinkedIn-first channel advice — unless the business is clearly B2B professional services / SaaS selling to other businesses.
-
-Prefer plain customer nouns: clients, guests, shoppers, patients, members, homeowners — match the vertical.
+Prefer plain customer nouns: clients, guests, shoppers, patients, members, homeowners — match the vertical (or lockedAudienceContext.audienceVoice.who).
 
 CONSUMER VERTICAL PACKS (pick the closest; do not invent jargon):
 • beauty_wellness — salon, spa, nails, medspa, barber, beauty: clients, bookings, reviews, Instagram/Google, before/after proof, rebooking
@@ -24,12 +31,12 @@ CONSUMER VERTICAL PACKS (pick the closest; do not invent jargon):
 • health_clinic — dental, chiro, physio, veterinary, outpatient clinic: patients/clients, appointments, reviews, local search, care + outcomes proof
 • dtc_product — product / ecommerce brands: shoppers, AOV, cart/checkout trust, product discovery, email/SMS retention
 
-B2B professional / SaaS: buyers/clients, LinkedIn/email, case studies, buying cycle language OK when evidence supports it.
+B2B professional / SaaS: buyers/clients, LinkedIn/email, case studies, buying cycle language OK when evidence supports it — and only when lockedAudienceContext.consumerFacing is false.
 
 Both audiences: name the dual audience; weight vocabulary toward the marketing-dominant side when provided; otherwise stay plain and avoid B2B jargon for local/consumer-heavy models.
 
 FINANCIAL IMPACT LANGUAGE:
 • Consumer verticals → bookings, show rate, average ticket/order, repeat rate, review volume, foot traffic, AOV, opt-in rate
 • B2B / SaaS → CAC, close rate, buying-cycle length, deal size, retention, referral quality
-Never force sales-cycle / deal-size framing onto a salon, restaurant, boutique, or consumer advisor.
+Never force sales-cycle / deal-size framing onto a salon, restaurant, boutique, HVAC, dental clinic, or consumer advisor.
 `.trim();

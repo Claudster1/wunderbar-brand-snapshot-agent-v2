@@ -20,6 +20,8 @@ import {
   upsertCrmContact,
 } from "@/lib/crm/inbound";
 import { resolveAutoAssignedOwner } from "@/lib/crm/assignment";
+import { notifyFollowupPendingSlack } from "@/lib/session/notifyFollowupPendingSlack";
+import { resolveOutboundAppBaseUrl } from "@/lib/server/runtimeBaseUrl";
 
 export const runtime = "nodejs";
 export const maxDuration = 60; // Allow up to 60s for OpenAI generation
@@ -254,6 +256,20 @@ export async function POST(req: NextRequest) {
     if (dbError) {
       logger.error("[Session] DB insert failed", { error: dbError.message });
       return NextResponse.json({ error: "Failed to save follow-up." }, { status: 500 });
+    }
+
+    // Slack: ping CRM channel so ops open /admin/followups (non-blocking).
+    if (data?.id) {
+      void notifyFollowupPendingSlack({
+        followupId: data.id,
+        contactEmail: contact_email.trim().toLowerCase(),
+        contactName: contact_name || null,
+        sessionType: session_type,
+        subject: generated.subject || data.generated_subject || null,
+        teamMemberName: team_member_name || null,
+        source: source || (isZapier ? "otter_zapier" : "manual"),
+        appBaseUrl: resolveOutboundAppBaseUrl(req),
+      });
     }
 
     // ─── Also add transcript-driven inquiry to CRM inbox (non-blocking) ───

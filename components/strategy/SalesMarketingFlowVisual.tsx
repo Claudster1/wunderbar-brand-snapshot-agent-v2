@@ -42,12 +42,12 @@ function FlowCard({
     <div className={`${CARD} ${c.border} ${c.bg}`}>
       <div className="mb-1.5 flex items-center gap-2">
         <span
-          className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${c.chip}`}
+          className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[12px] font-bold ${c.chip}`}
           aria-hidden
         >
           {c.icon}
         </span>
-        <span className="text-[10px] font-semibold uppercase tracking-wide text-brand-blue">{label}</span>
+        <span className="text-[12px] font-semibold uppercase tracking-wide text-brand-blue">{label}</span>
       </div>
       <span className="text-sm font-semibold leading-snug" style={{ color: SUITE_NAVY }}>
         {title}
@@ -68,7 +68,7 @@ export default function SalesMarketingFlowVisual() {
       className="mb-5 rounded-xl border border-slate-900/[0.07] bg-gradient-to-b from-slate-50 to-white px-3 py-4 sm:px-4"
       style={{ fontFamily: SUITE_FONT_UI }}
     >
-      <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.1em] text-brand-blue sm:text-xs">One story, two teams</p>
+      <p className="m-0 text-[12px] font-semibold uppercase tracking-[0.1em] text-brand-blue sm:text-xs">One story, two teams</p>
       <p className="mt-1.5 max-w-3xl text-[12px] leading-relaxed sm:text-sm" style={{ color: SUITE_MUTED }}>
         Marketing brings attention and trust. Sales turns interest into a clear next step. The sections below spell out how
         that should sound in practice.

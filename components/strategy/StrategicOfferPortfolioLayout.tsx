@@ -11,6 +11,7 @@ import {
   SUITE_TEXT_PRIMARY,
 } from "@/components/results/suiteBrandTokens";
 import type { StrategicOfferViewModel } from "@/lib/strategy/strategicOfferPlan";
+import { renderInlineMarkdown } from "@/lib/strategy/renderInlineMarkdown";
 import { SEMANTIC_DO, SEMANTIC_DONT } from "@/src/pdf/reportVisualTokens";
 
 const TEXT: CSSProperties = {
@@ -23,7 +24,7 @@ const TEXT: CSSProperties = {
 
 const LABEL: CSSProperties = {
   margin: "0 0 6px",
-  fontSize: 11,
+  fontSize: 12,
   fontWeight: 700,
   letterSpacing: "0.06em",
   textTransform: "uppercase" as const,
@@ -135,7 +136,7 @@ function ListBlock({
             style={{ background: "var(--wb-bullet-accent, #07b0f2)" }}
             aria-hidden
           />
-          <span className="min-w-0 flex-1">{line}</span>
+          <span className="min-w-0 flex-1">{renderInlineMarkdown(line)}</span>
         </li>
       ))}
     </ul>
@@ -175,7 +176,7 @@ export default function StrategicOfferPortfolioLayout({ model }: Props) {
             borderRadius: SUITE_RADIUS_MD,
             padding: "18px 20px",
             boxShadow: SUITE_SHADOW_CARD,
-            borderLeft: `4px solid ${SUITE_ACCENT_BRIGHT}`,
+            borderTop: `3px solid ${SUITE_ACCENT_BRIGHT}`,
           }}
         >
           <div className="flex flex-wrap items-start gap-3">
@@ -206,7 +207,7 @@ export default function StrategicOfferPortfolioLayout({ model }: Props) {
           <div className="mb-4 flex flex-wrap items-center gap-2">
             {po.offerType ? (
               <span
-                className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide"
+                className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[12px] font-bold uppercase tracking-wide"
                 style={{
                   background: "rgba(7, 176, 242, 0.12)",
                   color: SUITE_NAVY,
@@ -218,7 +219,7 @@ export default function StrategicOfferPortfolioLayout({ model }: Props) {
               </span>
             ) : null}
             <span
-              className="text-[11px] font-semibold uppercase tracking-wide text-brand-muted"
+              className="text-[12px] font-semibold uppercase tracking-wide text-brand-muted"
               style={{ fontFamily: SUITE_FONT_UI }}
             >
               Primary offer
@@ -286,7 +287,7 @@ export default function StrategicOfferPortfolioLayout({ model }: Props) {
                   <span className="text-[15px] font-semibold text-brand-navy">{row.name}</span>
                   {row.role ? (
                     <span
-                      className="w-fit rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide"
+                      className="w-fit rounded px-1.5 py-0.5 text-[12px] font-bold uppercase tracking-wide"
                       style={{
                         background: "rgba(255,255,255,0.75)",
                         color: tone.color,
@@ -351,7 +352,7 @@ export default function StrategicOfferPortfolioLayout({ model }: Props) {
                 borderRadius: SUITE_RADIUS_MD,
                 background: SEMANTIC_DO.bg,
                 border: `1px solid rgba(5, 150, 105, 0.22)`,
-                borderLeft: `4px solid ${SEMANTIC_DO.border}`,
+                borderTop: `3px solid ${SEMANTIC_DO.border}`,
               }}
             >
               <p style={{ ...LABEL, color: "rgba(5, 100, 72, 0.9)" }}>In scope</p>
@@ -365,7 +366,7 @@ export default function StrategicOfferPortfolioLayout({ model }: Props) {
                 borderRadius: SUITE_RADIUS_MD,
                 background: SEMANTIC_DONT.bg,
                 border: `1px solid rgba(239, 68, 68, 0.2)`,
-                borderLeft: `4px solid ${SEMANTIC_DONT.border}`,
+                borderTop: `3px solid ${SEMANTIC_DONT.border}`,
               }}
             >
               <p style={{ ...LABEL, color: "rgba(127, 29, 29, 0.85)" }}>Explicitly out of scope</p>
@@ -393,8 +394,9 @@ export default function StrategicOfferPortfolioLayout({ model }: Props) {
                   borderRadius: SUITE_RADIUS_MD,
                   padding: "14px 16px",
                   boxShadow: SUITE_SHADOW_CARD,
-                  borderLeftWidth: 4,
-                  borderLeftColor: SUITE_ACCENT_BRIGHT,
+                  borderTopWidth: 3,
+                  borderTopStyle: "solid",
+                  borderTopColor: SUITE_ACCENT_BRIGHT,
                   fontFamily: SUITE_FONT_UI,
                 }}
               >
@@ -406,7 +408,7 @@ export default function StrategicOfferPortfolioLayout({ model }: Props) {
                 </div>
                 {sig.reviewCadence ? (
                   <span
-                    className="flex-shrink-0 self-start rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide"
+                    className="flex-shrink-0 self-start rounded-full px-2.5 py-1 text-[12px] font-bold uppercase tracking-wide"
                     style={{
                       background: "rgba(2, 24, 89, 0.06)",
                       color: SUITE_NAVY,

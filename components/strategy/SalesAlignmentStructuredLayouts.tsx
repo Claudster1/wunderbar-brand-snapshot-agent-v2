@@ -18,7 +18,7 @@ import { chromeForLabeledField, sanitizeSpokenCustomerScript } from "@/lib/strat
 function Eyebrow({ children }: { children: string }) {
   return (
     <p
-      className="m-0 text-[10px] font-extrabold uppercase tracking-[0.1em]"
+      className="m-0 text-[12px] font-extrabold uppercase tracking-[0.1em]"
       style={{ color: "rgba(2, 24, 89, 0.55)", fontFamily: SUITE_FONT_UI }}
     >
       {children}
@@ -36,11 +36,11 @@ function Field({ label, body }: { label: string; body: string }) {
       style={{
         border: `1px solid ${chrome.border}`,
         background: chrome.bg,
-        borderLeft: `3px solid ${chrome.rail}`,
+        borderTop: `2px solid ${chrome.rail}`,
       }}
     >
       <p
-        className="m-0 text-[11px] font-bold uppercase tracking-[0.1em]"
+        className="m-0 text-[12px] font-bold uppercase tracking-[0.1em]"
         style={{ color: chrome.label, fontFamily: SUITE_FONT_UI }}
       >
         {label}
@@ -60,7 +60,7 @@ export function TalkTrackStageCards({ items }: { items: TalkTrackStageItem[] }) 
   return (
     <div className="flex flex-col gap-4">
       <p
-        className="m-0 text-[11px] font-extrabold uppercase tracking-[0.1em]"
+        className="m-0 text-[12px] font-extrabold uppercase tracking-[0.1em]"
         style={{ color: SUITE_NAVY, fontFamily: SUITE_FONT_UI }}
       >
         Talk track by stage
@@ -103,7 +103,7 @@ export function DiscoveryScriptCards({ items }: { items: DiscoveryScriptItem[] }
   return (
     <div className="flex flex-col gap-3">
       <p
-        className="m-0 text-[11px] font-extrabold uppercase tracking-[0.1em]"
+        className="m-0 text-[12px] font-extrabold uppercase tracking-[0.1em]"
         style={{ color: SUITE_NAVY, fontFamily: SUITE_FONT_UI }}
       >
         Discovery scripts — ask, then use what you hear
@@ -149,7 +149,7 @@ export function ProofPlacementCards({ items }: { items: ProofPlacementItem[] }) 
   return (
     <div className="flex flex-col gap-3">
       <p
-        className="m-0 text-[11px] font-extrabold uppercase tracking-[0.1em]"
+        className="m-0 text-[12px] font-extrabold uppercase tracking-[0.1em]"
         style={{ color: SUITE_NAVY, fontFamily: SUITE_FONT_UI }}
       >
         Proof to share — one-pagers and handouts

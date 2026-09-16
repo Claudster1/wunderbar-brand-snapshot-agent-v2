@@ -26,8 +26,7 @@ export function SectionOverviewTiles({ productName, tiles }: SectionOverviewTile
       <p
         style={{
           margin: 0,
-          fontSize: 11,
-          fontWeight: 800,
+          fontSize: 14, fontWeight: 800,
           letterSpacing: "0.08em",
           textTransform: "uppercase",
           color: "#5A6B7E",

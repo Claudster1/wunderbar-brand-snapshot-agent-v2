@@ -84,7 +84,7 @@ export default function SuiteWundyGuideBar({ activeTab }: Props) {
             <p className="m-0 text-sm font-semibold leading-snug" style={{ color: SUITE_TEXT_PRIMARY }}>
               Wundy™ — your in-report guide
             </p>
-            <p className="mt-1 text-xs leading-relaxed text-brand-muted sm:text-[13px]">
+            <p className="mt-1 text-[13px] leading-relaxed text-brand-muted sm:text-[13px]">
               Open the chat in the lower-right anytime to clarify scores, a tab, or your next step. The detailed report
               stays the source of truth—Wundy helps you navigate it.
             </p>

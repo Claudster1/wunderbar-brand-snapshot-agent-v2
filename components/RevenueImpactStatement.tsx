@@ -57,7 +57,7 @@ export default function RevenueImpactStatement({
           padding: "16px 20px",
           backgroundColor: "rgba(7, 176, 242, 0.12)",
           borderRadius: 8,
-          borderLeft: `3px solid ${BLUE}`,
+          borderTop: `2px solid ${BLUE}`,
         }}
       >
         <span

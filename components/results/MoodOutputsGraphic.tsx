@@ -168,7 +168,7 @@ export function MoodOutputsGraphic({ moodDesc }: Props) {
           </svg>
           {donutSlices.length > 0 ? (
             <ul
-              className="mt-3 flex max-w-xs flex-wrap justify-center gap-x-4 gap-y-1.5 p-0 text-[11px] sm:text-xs"
+              className="mt-3 flex max-w-xs flex-wrap justify-center gap-x-4 gap-y-1.5 p-0 text-[12px] sm:text-xs"
               style={{ listStyle: "none", margin: 0 }}
               aria-hidden
             >
@@ -220,7 +220,7 @@ export function MoodOutputsGraphic({ moodDesc }: Props) {
                 ) : null}
               </div>
             ) : (
-              <p className="m-0 mt-2 text-xs text-brand-muted">No lighting, color, or designer brief in this block.</p>
+              <p className="m-0 mt-2 text-[13px] text-brand-muted">No lighting, color, or designer brief in this block.</p>
             )}
           </div>
         </div>
@@ -256,7 +256,7 @@ function MoodPillarCard({
             return (
               <span
                 key={`${title}-${t}-${i}`}
-                className="rounded-full border px-2.5 py-0.5 text-[11px] font-semibold sm:text-xs"
+                className="rounded-full border px-2.5 py-0.5 text-[12px] font-semibold sm:text-xs"
                 style={{
                   borderColor: `${c}55`,
                   backgroundColor: `${c}18`,
@@ -269,7 +269,7 @@ function MoodPillarCard({
           })}
         </div>
       ) : (
-        <p className="m-0 mt-2 text-xs text-brand-muted">—</p>
+        <p className="m-0 mt-2 text-[13px] text-brand-muted">—</p>
       )}
     </div>
   );

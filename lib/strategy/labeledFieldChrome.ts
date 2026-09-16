@@ -55,6 +55,34 @@ const ASK_CHROME: LabeledFieldChrome = {
   label: "#1E40AF",
 };
 
+const SUBJECT_CHROME: LabeledFieldChrome = {
+  rail: "#021859",
+  bg: "#F1F5F9",
+  border: "rgba(2, 24, 89, 0.2)",
+  label: "#021859",
+};
+
+const PREHEADER_CHROME: LabeledFieldChrome = {
+  rail: "#64748B",
+  bg: "#F8FAFC",
+  border: "rgba(100, 116, 139, 0.35)",
+  label: "#475569",
+};
+
+const CTA_CHROME: LabeledFieldChrome = {
+  rail: "#059669",
+  bg: "#ECFDF5",
+  border: "rgba(5, 150, 105, 0.28)",
+  label: "#047857",
+};
+
+const BODY_CHROME: LabeledFieldChrome = {
+  rail: "#07B0F2",
+  bg: "#FFFFFF",
+  border: "rgba(7, 176, 242, 0.35)",
+  label: "#0369A1",
+};
+
 /**
  * Role-colored chrome for common strategy/activation field labels so Response /
  * Pillar / Proof (and siblings) scan as distinct layers, not one blue stack.
@@ -62,6 +90,26 @@ const ASK_CHROME: LabeledFieldChrome = {
 export function chromeForLabeledField(label: string): LabeledFieldChrome {
   const key = label.trim().toLowerCase();
   if (!key) return DEFAULT_CHROME;
+
+  if (/^(subject|subject line)$/.test(key)) return SUBJECT_CHROME;
+  if (/^(preheader|preview|inbox preview)$/.test(key) || key.includes("preheader") || key.includes("inbox preview")) {
+    return PREHEADER_CHROME;
+  }
+  if (
+    /^(body|body \(paste-ready\)|email body|paste-ready body)$/.test(key) ||
+    key.startsWith("body") ||
+    key === "email body"
+  ) {
+    return BODY_CHROME;
+  }
+  if (
+    /^(primary cta|secondary cta|cta|cta button|main next step|optional second step|next step)$/.test(key) ||
+    key.includes("cta") ||
+    key.includes("next step")
+  ) {
+    return CTA_CHROME;
+  }
+  if (/hero image|image prompt|image idea|video prompt|video idea/.test(key)) return PROOF_CHROME;
 
   if (
     /^(response|reply|say this|key message|supporting copy|email body)$/.test(key) ||

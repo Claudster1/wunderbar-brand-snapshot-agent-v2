@@ -66,7 +66,7 @@ export default function ResultsError({
           onClick={reset}
           style={{
             padding: "10px 24px",
-            borderRadius: 6,
+            borderRadius: 5,
             background: "#07B0F2",
             color: "#fff",
             fontWeight: 700,
@@ -81,7 +81,7 @@ export default function ResultsError({
           href="/brand-snapshot"
           style={{
             padding: "10px 24px",
-            borderRadius: 6,
+            borderRadius: 5,
             border: "2px solid #D6DFE8",
             color: "#021859",
             fontWeight: 700,

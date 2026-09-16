@@ -161,7 +161,7 @@ export default function ExecutiveSummary({
         </div>
       </div>
 
-      <div style={{ borderLeft: `3px solid ${BLUE}`, paddingLeft: 16, marginBottom: 24 }}>
+      <div style={{ borderTop: `2px solid ${BLUE}`, paddingLeft: 16, marginBottom: 24 }}>
         <p style={{ fontSize: 17, fontStyle: "italic", fontWeight: 600, color: NAVY, margin: 0, lineHeight: 1.5 }}>
           {data.brandHealthVerdict}
         </p>

@@ -136,7 +136,7 @@ export default function WhatThisMeans({
               padding: "20px 24px",
               backgroundColor: LIGHT_BLUE,
               borderRadius: 8,
-              borderLeft: `4px solid ${BLUE}`,
+              borderTop: `3px solid ${BLUE}`,
               marginBottom: 32,
             }}
           >

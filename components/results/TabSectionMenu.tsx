@@ -22,6 +22,8 @@ export interface TabSectionMenuItem {
   icon?: string;
   /** When set, follow this link instead of scrolling to an element with `id`. */
   href?: string;
+  /** Non-interactive group label (sidebar / chips). */
+  kind?: "item" | "heading";
 }
 
 export interface TabSectionMenuProps {
@@ -293,6 +295,28 @@ export default function TabSectionMenu({
   }
 
   const buttonBase = (item: TabSectionMenuItem) => {
+    if (item.kind === "heading") {
+      return (
+        <p
+          key={item.id}
+          style={{
+            margin: isSidebar ? "10px 0 4px" : "0 8px 0 0",
+            padding: isSidebar ? "4px 2px 0" : "8px 0 0",
+            fontSize: 12,
+            fontWeight: 800,
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
+            color: SUITE_CHROME_MUTED,
+            fontFamily: SUITE_FONT_UI,
+            width: isSidebar ? "100%" : undefined,
+            flexBasis: isSidebar ? undefined : "100%",
+          }}
+        >
+          {item.label}
+        </p>
+      );
+    }
+
     const style = navItemStyleFor(item);
     const isActive = activeSectionId !== null && item.id === activeSectionId;
     const inner = (

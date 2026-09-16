@@ -120,7 +120,7 @@ export default function MoodBoardWorkbookPanel({
         padding: "18px 20px",
         border: `1px solid ${BORDER}`,
         borderRadius: 8,
-        borderLeft: `4px solid ${BLUE}`,
+        borderTop: `3px solid ${BLUE}`,
         background: "linear-gradient(135deg, #FFFFFF 0%, #F7FBFF 100%)",
         boxShadow: "0 8px 20px rgba(2,24,89,0.05)",
         scrollMarginTop: 120,
@@ -137,7 +137,7 @@ export default function MoodBoardWorkbookPanel({
           </p>
         </div>
         {blocked ? (
-          <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: MID_GRAY }}>
+          <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: MID_GRAY }}>
             {editWindowExpired ? "Blueprint edit window closed." : "Upgrade to Blueprint to edit."}
           </p>
         ) : (
@@ -150,7 +150,7 @@ export default function MoodBoardWorkbookPanel({
               backgroundColor: BLUE,
               color: "#fff",
               border: "none",
-              borderRadius: 6,
+              borderRadius: 5,
               fontWeight: 700,
               fontSize: 13,
               cursor: saving ? "wait" : "pointer",
@@ -180,7 +180,7 @@ export default function MoodBoardWorkbookPanel({
             }}
           >
             <label style={{ display: "grid", gap: 4 }}>
-              <span style={{ fontSize: 11, fontWeight: 800, color: NAVY, letterSpacing: "0.03em" }}>
+              <span style={{ fontSize: 14, fontWeight: 800, color: NAVY, letterSpacing: "0.03em" }}>
                 Image URL
               </span>
               <input
@@ -200,7 +200,7 @@ export default function MoodBoardWorkbookPanel({
             </label>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 8 }}>
               <label style={{ display: "grid", gap: 4 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, color: MID_GRAY }}>Caption (optional)</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: MID_GRAY }}>Caption (optional)</span>
                 <input
                   type="text"
                   value={row.caption}
@@ -215,7 +215,7 @@ export default function MoodBoardWorkbookPanel({
                 />
               </label>
               <label style={{ display: "grid", gap: 4 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, color: MID_GRAY }}>Why this fits (optional)</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: MID_GRAY }}>Why this fits (optional)</span>
                 <input
                   type="text"
                   value={row.rationale}
@@ -265,7 +265,7 @@ export default function MoodBoardWorkbookPanel({
             color: BLUE,
             background: `${BLUE}12`,
             border: `1px solid ${BORDER}`,
-            borderRadius: 6,
+            borderRadius: 5,
             cursor: "pointer",
             fontFamily: "'Lato', sans-serif",
           }}

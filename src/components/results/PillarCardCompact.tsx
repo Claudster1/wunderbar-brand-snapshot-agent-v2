@@ -33,7 +33,7 @@ export function PillarCardCompact({
       }`}
     >
       {isPrimaryOpportunity && (
-        <span className="absolute -top-3 left-4 bg-brand-blue text-white text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full">
+        <span className="absolute -top-3 left-4 bg-brand-blue text-white text-[12px] font-bold uppercase tracking-wider px-3 py-1 rounded-full">
           Primary opportunity
         </span>
       )}

@@ -1,7 +1,10 @@
 /**
- * Paste-ready email lifecycle: subjects, preheaders, body copy, hero image prompts, and CTAs.
- * Wired from diagnostic derivatives (company, audience, pillars, priorities).
+ * Paste-ready email lifecycle for operators who may not live in marketing jargon.
+ * Tone: Wunderbar — friendly, approachable expert (clear help, never condescending).
+ * Structure: send map → one card per email → simple send rhythm & checklist last.
  */
+import { walkthroughSecondaryCta } from "@/lib/activation/formatAgnosticRecommendations";
+
 export type EmailLifecycleDerivatives = {
   companyName: string;
   industry: string;
@@ -12,6 +15,49 @@ export type EmailLifecycleDerivatives = {
   audienceShort: string;
 };
 
+type StarterEmail = {
+  day: string;
+  /** Plain-English job of this email (not funnel jargon). */
+  stage: string;
+  subject: string;
+  preheader: string;
+  imagePrompt: string;
+  bodyLines: string[];
+  primaryCta: string;
+  secondaryCta?: string;
+  note?: string;
+};
+
+function emailCard(n: number, email: StarterEmail): string {
+  const lines = [
+    `### Email ${n} · ${email.day} · ${email.stage}`,
+    "",
+    email.note ? `_${email.note}_` : "",
+    email.note ? "" : "",
+    `- **Subject line:** ${email.subject}`,
+    `- **Inbox preview:** ${email.preheader}`,
+    `- **Image idea:** ${email.imagePrompt}`,
+    `- **Email body:**`,
+    ...email.bodyLines,
+    `- **Main next step:** ${email.primaryCta}`,
+    email.secondaryCta ? `- **Optional second step:** ${email.secondaryCta}` : "",
+  ].filter((line, i, arr) => {
+    if (line === "" && arr[i - 1] === "") return false;
+    return true;
+  });
+  return lines.join("\n");
+}
+
+/** Keep priority phrases short enough for subjects/preheaders. */
+function shortTopic(raw: string): string {
+  const cleaned = raw.replace(/\s+/g, " ").trim().toLowerCase();
+  if (!cleaned) return "your next priority";
+  if (cleaned.length <= 48) return cleaned;
+  const stop = new Set(["and", "the", "of", "to", "for", "a", "an", "on", "in", "with", "tied"]);
+  const words = cleaned.split(" ").filter((w) => !stop.has(w));
+  return words.slice(0, 5).join(" ") || "your next priority";
+}
+
 export function buildDevelopedEmailLifecyclePlan(d: EmailLifecycleDerivatives): string {
   const cn = d.companyName;
   const ind = d.industry.toLowerCase();
@@ -21,154 +67,211 @@ export function buildDevelopedEmailLifecyclePlan(d: EmailLifecycleDerivatives): 
   const p3 = d.thirdPriority.toLowerCase();
   const aud = d.audienceShort;
 
+  const emails: StarterEmail[] = [
+    {
+      day: "Day 0",
+      stage: "Getting noticed",
+      subject: `Does your ad say one thing — and your website another?`,
+      preheader: `A short note for ${aud} about keeping the story consistent.`,
+      imagePrompt: `Side-by-side: messy analytics on the left, calm laptop with one clear headline for ${cn} on the right. Soft daylight, navy and sky blue accents, no stock handshakes.`,
+      bodyLines: [
+        `Hi {{first_name}},`,
+        ``,
+        `If you are ${aud}, you have probably cleaned up your ads before. Here is the pattern we see a lot in ${ind}: the ad promises one result, the website talks about something else, and the first email adds a third idea. People do not feel “more content.” They feel confused.`,
+        ``,
+        `${cn} helps you keep one clear story from the first click through ${p1}. This note is not a hard sell — it is a quick way to decide where your next dollar should go: the ad, the page, or the follow-up email.`,
+        ``,
+        `— {{sender_name}}`,
+      ],
+      primaryCta: "See the 3-slide sketch",
+      secondaryCta: walkthroughSecondaryCta("audit"),
+    },
+    {
+      day: "Day 2",
+      stage: "Getting noticed",
+      subject: `The kind of proof ${aud} usually ask for`,
+      preheader: "One before-and-after example — short and honest.",
+      imagePrompt: `Simple before/after table (blur names), one big number callout, ${cn} brand colors, lots of white space.`,
+      bodyLines: [
+        `Hi {{first_name}},`,
+        ``,
+        `Thanks for opening the sketch. Here is the “after” view we share with teams like yours: same budget window, one number you both agree on, and the first three places we make match — usually the homepage hero, the first follow-up email, and the first slide in a sales deck.`,
+        ``,
+        `If that is how you want to handle ${p2} this quarter, the next email shows the flow on one screen — still with one clear next step.`,
+        ``,
+        `— {{sender_name}}`,
+      ],
+      primaryCta: "See the one-screen flow",
+      secondaryCta: "Forward this to a teammate",
+    },
+    {
+      day: "Day 5",
+      stage: "Looking closer",
+      subject: "Who owns what in the first two weeks?",
+      preheader: "A simple plan so work does not stall between teams.",
+      imagePrompt: `Simple three-column “who owns what” chart on white. Navy text, one sky-blue highlight on the owner column. Small ${cn} footer only.`,
+      bodyLines: [
+        `Hi {{first_name}},`,
+        ``,
+        `You already know we care about a matching story across ads, pages, and email. The next question people ask — especially in ${ind} — is whether the work will get stuck between marketing, sales, and delivery.`,
+        ``,
+        `Here is how we run the first 14 days: named owners, a short weekly checklist, and one shared number so nobody argues about definitions mid-project.`,
+        ``,
+        `If your team already works this way, it will feel familiar. If not, this is often the fastest win.`,
+        ``,
+        `— {{sender_name}}`,
+      ],
+      primaryCta: "Download the 14-day owner map (PDF)",
+      secondaryCta: "Book a 20-minute fit call",
+    },
+    {
+      day: "Day 8",
+      stage: "Looking closer",
+      subject: "What changed in 12 weeks (with honest caveats)",
+      preheader: "Real numbers, real timeframe, no fluff.",
+      imagePrompt:
+        "One simple chart comparing conversations before and after. Footnote text easy to read. Brand colors only.",
+      bodyLines: [
+        `Hi {{first_name}},`,
+        ``,
+        `Here is the proof people ask for most: a 12-week window, conversations that came from real interest (not empty clicks), and the change that helped — usually a tighter ${pillar} story on the first three places buyers see you.`,
+        ``,
+        `Honest caveat: if most of your leads come from one channel, we adjust the plan. We do not force every channel to look the same.`,
+        ``,
+        `— {{sender_name}}`,
+      ],
+      primaryCta: "Open the one-page proof summary",
+      secondaryCta: "Reply “numbers” for how we define the metric",
+    },
+    {
+      day: "Day 12",
+      stage: "Looking closer",
+      subject: "How to compare partners without the RFP circus",
+      preheader: `Five plain questions ${cn} uses — and you can use too.`,
+      imagePrompt:
+        "Checklist graphic with five criteria (clarity, proof, owners, timeline, risk). Simple icons, brand colors.",
+      bodyLines: [
+        `Hi {{first_name}},`,
+        ``,
+        `If you are comparing ${ind} partners this quarter, try these five checks: (1) Is the story the same everywhere? (2) Is proof easy to find on the first pages? (3) Are owners named for the first 14 days? (4) Do they say when they are not a fit? (5) Do you both agree on one number to move first?`,
+        ``,
+        `We put extra weight on ${p3}, because that is usually where progress stacks — and where mixed messages quietly waste budget.`,
+        ``,
+        `— {{sender_name}}`,
+      ],
+      primaryCta: "Save the comparison checklist",
+      secondaryCta: "Share with finance or procurement",
+    },
+    {
+      day: "Day 16",
+      stage: "Ready to choose",
+      subject: "What you get in the first 14 days (and what you do not)",
+      preheader: "Clear deliverables, clear timeline, clear fit.",
+      imagePrompt: `Three columns: Week 1–2 / 3–4 / 5+. Clean type, ${cn} header bar.`,
+      bodyLines: [
+        `Hi {{first_name}},`,
+        ``,
+        `Clear scope saves everyone later regret. In weeks 1–2 we lock the story and ship the first matching pages and emails. Weeks 3–4 add proof updates and short lines sales can reuse. Week 5+ grows what already moved the number you care about.`,
+        ``,
+        `We are not the right fit if you need brand-new demand overnight with zero story changes. Say that early — we will still leave you with a prioritized fix list.`,
+        ``,
+        `— {{sender_name}}`,
+      ],
+      primaryCta: "Book a 20-minute fit call",
+      secondaryCta: "Reply “later” to pause for now",
+    },
+    {
+      day: "Day 21",
+      stage: "Ready to choose",
+      subject: "One next step — when capacity is open",
+      preheader: "Honest timing only. No fake countdown clocks.",
+      imagePrompt: "Calm calendar with a few highlighted slots. Short overlay text (six words or fewer).",
+      bodyLines: [
+        `Hi {{first_name}},`,
+        ``,
+        `We keep new projects small so delivery matches what we promise. If ${p1} is still a priority this quarter, grab a short call this week. Same agenda: your goal, the first number that matters, and an honest fit check.`,
+        ``,
+        `If timing slips, reply with your preferred month and we will send one recap — no chase sequence.`,
+        ``,
+        `— {{sender_name}}`,
+      ],
+      primaryCta: "Pick a time — 20-minute fit call",
+      secondaryCta: "Get the recap PDF instead",
+    },
+    {
+      day: "Monthly",
+      stage: "Stay in touch",
+      subject: "What changed this month (one chart)",
+      preheader: "A short win log — plus one upgrade only if it clearly helps.",
+      imagePrompt: "One number tile with a small trend line. Brand colors. Optional product screenshot crop.",
+      bodyLines: [
+        `Hi {{first_name}},`,
+        ``,
+        `Quick monthly check-in: one chart on the number we share, one recommendation, and one optional add-on only if it clearly helps the goal you already set.`,
+        ``,
+        `— {{sender_name}}`,
+      ],
+      primaryCta: "Open this month’s update",
+      note: "For active customers / subscribers only — keep this separate from the nurture emails above.",
+    },
+    {
+      day: "45 days quiet",
+      stage: "Welcome back",
+      subject: "Still on your list? One idea — no guilt trip",
+      preheader: `A short note on ${shortTopic(p2)} for ${aud}. Easy to ignore.`,
+      imagePrompt:
+        "One bold headline on a simple textured background. Soft shadow. Brand colors. No countdown clocks or “last chance” banners.",
+      bodyLines: [
+        `Hi {{first_name}},`,
+        ``,
+        `We noticed it has been quiet — totally fine. If ${shortTopic(p2)} for ${aud} is still on your list, here is one updated idea and a single next step. If not, ignore this or unsubscribe below. No chase sequence after this email.`,
+        ``,
+        `— {{sender_name}}`,
+      ],
+      primaryCta: "See the one idea",
+      secondaryCta: "Unsubscribe with one click",
+      note:
+        "Automation rule: send once when someone has not opened or clicked for about 45 days after Email 7 (or your last nurture send). Keep this list separate from monthly customer emails. If they still do not engage, stop — do not keep nudging.",
+    },
+  ];
+
+  const glanceTable = [
+    "| EMAIL # | WHEN | JOB OF THIS EMAIL | SUBJECT |",
+    "| --- | --- | --- | --- |",
+    ...emails.map((e, i) => {
+      const subjectClean = e.subject.replace(/\|/g, "/").replace(/\n/g, " ");
+      return `| ${i + 1} | ${e.day} | ${e.stage} | ${subjectClean} |`;
+    }),
+  ].join("\n");
+
   return [
-    "## Starter nurture sequence (paste-ready)",
+    "## Start here — your email sequence",
     "",
-    "Use merge tags (`{{first_name}}`, `{{company}}`) in your ESP. Swap metrics with real proof when available. Each **Email N** block below is one send: subject line → preheader (inbox preview) → body → prompts → CTAs.",
+    "**Step 1 — Scan the send map** below so you know the order and timing.",
     "",
-    "## Email 1 — Awareness",
-    `- **Subject line:** Still seeing qualified interest leak after you fix the ad?`,
-    `- **Preheader (inbox preview):** A 3-minute read for ${aud} on ${pillar} drift.`,
-    `- **Hero image prompt:** Split 1200×628 layout: left panel noisy analytics UI (muted reds), right calm laptop showing one headline + proof strip for ${cn}; daylight office, navy #021859 and sky #07B0F2 accents, no stock handshakes, subtle ${cn} wordmark on doc corner.`,
-    `- **Body (paste-ready):**`,
-    `Hi {{first_name}},`,
-    ``,
-    `If you are ${aud}, you have probably already tightened creative once or twice. The frustrating pattern we see in ${ind} is simpler: the ad promises one outcome, the landing page argues another, and the first follow-up email introduces a third. Buyers do not experience “more content”—they experience tax.`,
-    ``,
-    `${cn} maps one storyline from first touch through ${p1}. This note is not a pitch; it is a quick way to check whether your next dollar should go to creative, landing, or nurture—and why.`,
-    ``,
-    `— {{sender_name}}`,
-    `- **Primary CTA (button):** Read the 3-slide “message → channel” sketch`,
-    `- **Secondary CTA:** Reply “audit” for a 6-minute Loom walkthrough`,
+    "**Step 2 — Build each email** in your email tool (Mailchimp, Klaviyo, HubSpot, ActiveCampaign, etc.). Each card is **one email**. Replace `{{first_name}}` and `{{company}}` with your tool’s name fields. Swap sample numbers for your real results when you have them.",
     "",
-    "## Email 2 — Awareness",
-    `- **Subject line:** The proof ${aud} actually asked for last quarter`,
-    `- **Preheader (inbox preview):** One before/after frame—no case-study theater.`,
-    `- **Hero image prompt:** 1080×1080 static: before/after table (blurred client names), single bold metric callout, ${cn} color bars only, generous whitespace, caption-safe lower third.`,
-    `- **Body (paste-ready):**`,
-    `Hi {{first_name}},`,
-    ``,
-    `You opened the sketch—here is the “after” view we use with teams like yours: same spend window, one agreed metric, and the exact three surfaces we aligned first (usually hero, first nurture email, first sales deck slide).`,
-    ``,
-    `If this matches how you want to run ${p2} this quarter, the next email shows how it works in one screen flow—still one CTA.`,
-    ``,
-    `— {{sender_name}}`,
-    `- **Primary CTA (button):** See the one-screen flow`,
-    `- **Secondary CTA:** Forward to your growth lead`,
+    "**Step 3 — Finish setup** in “After you build the sequence” (send rhythm + quick check before you hit send).",
     "",
-    "## Email 3 — Consideration",
-    `- **Subject line:** Governance, ownership, and “who moves first?”`,
-    `- **Preheader (inbox preview):** De-risking the engagement without slowing the deal.`,
-    `- **Hero image prompt:** Simple RACI-style diagram on white, three swimlanes, navy text, one sky highlight on “owner” column; no logos except ${cn} small footer.`,
-    `- **Body (paste-ready):**`,
-    `Hi {{first_name}},`,
-    ``,
-    `By now you know we care about message-channel fit. The next question buyers ask—especially in ${ind}—is whether work will stall between marketing, sales, and delivery. Here is how we run the first 14 days: named owners, weekly ship checklist, and one shared metric so no one debates definitions mid-sprint.`,
-    ``,
-    `If your team already runs a strong ops rhythm, this will feel familiar. If not, it becomes your fastest win.`,
-    ``,
-    `— {{sender_name}}`,
-    `- **Primary CTA (button):** Download the 14-day owner map (PDF)`,
-    `- **Secondary CTA:** Book a 20-minute scope fit`,
+    "**Send map**",
     "",
-    "## Email 4 — Consideration",
-    `- **Subject line:** Outcome proof: what moved in 12 weeks (numbers + caveats)`,
-    `- **Preheader (inbox preview):** Named window, named role, honest scope.`,
-    `- **Hero image prompt:** Single chart: pipeline-sourced conversations vs. baseline; footnote text legible; brand colors; optional anonymized logo strip blurred.`,
-    `- **Body (paste-ready):**`,
-    `Hi {{first_name}},`,
-    ``,
-    `Here is the proof block buyers asked for most often: 12-week window, pipeline-sourced conversations (not vanity clicks), and the operational change that unlocked it—usually a tighter ${pillar} story on the first three buyer-facing surfaces.`,
-    ``,
-    `Caveat we always share: if your inbound is dominated by one channel, we re-weight the plan instead of forcing channel symmetry.`,
-    ``,
-    `— {{sender_name}}`,
-    `- **Primary CTA (button):** Open the proof one-pager`,
-    `- **Secondary CTA:** Reply “metric” to see the definition sheet`,
+    glanceTable,
     "",
-    "## Email 5 — Consideration",
-    `- **Subject line:** How to evaluate partners (without the RFP theater)`,
-    `- **Preheader (inbox preview):** Decision criteria + methodology—${cn} neutral tone.`,
-    `- **Hero image prompt:** Checklist graphic: 5 criteria with icons (clarity, proof, owners, timeline, risk), monochrome + sky checkmarks.`,
-    `- **Body (paste-ready):**`,
-    `Hi {{first_name}},`,
-    ``,
-    `If you are comparing ${ind} partners this quarter, use the same five criteria we use internally: (1) single storyline test, (2) proof density on first pages, (3) named owners for 14 days, (4) honest “not a fit” language, (5) one metric you both agree to move first.`,
-    ``,
-    `We bias toward ${p3} because that is where compounding usually hides—and where drift quietly taxes CAC.`,
-    ``,
-    `— {{sender_name}}`,
-    `- **Primary CTA (button):** Save the evaluation checklist`,
-    `- **Secondary CTA:** Share with procurement / finance`,
+    ...emails.map((e, i) => emailCard(i + 1, e)),
     "",
-    "## Email 6 — Decision",
-    `- **Subject line:** What we deliver in the first 14 days (and what we do not)`,
-    `- **Preheader (inbox preview):** Deliverables, timeline, fit boundaries.`,
-    `- **Hero image prompt:** Three-column “Week 1–2 / 3–4 / 5+” roadmap graphic; clean sans; ${cn} header bar.`,
-    `- **Body (paste-ready):**`,
-    `Hi {{first_name}},`,
-    ``,
-    `Scope clarity reduces regret. In weeks 1–2 we lock the storyline and ship the first aligned surfaces. Weeks 3–4 add proof cadence and sales enablement snippets. Week 5+ scales what already moved your agreed metric.`,
-    ``,
-    `We are not a fit if you need instant net-new demand with zero narrative change—say so early; we will still leave you with a prioritized fix list.`,
-    ``,
-    `— {{sender_name}}`,
-    `- **Primary CTA (button):** Book a 20-minute scope fit`,
-    `- **Secondary CTA:** Reply “later” to pause the thread`,
+    "## After you build the sequence",
     "",
-    "## Email 7 — Decision",
-    `- **Subject line:** Cohort / capacity note + one primary next step`,
-    `- **Preheader (inbox preview):** Honest urgency only—no false scarcity.`,
-    `- **Hero image prompt:** Calendar month view with limited highlighted slots; neutral background; text overlay max 6 words.`,
-    `- **Body (paste-ready):**`,
-    `Hi {{first_name}},`,
-    ``,
-    `We keep onboarding windows small so delivery keeps pace with promises. If ${p1} is still a priority this quarter, grab a slot this week—same scope-fit agenda: goal, first metric, honest fit.`,
-    ``,
-    `If timing slips, reply “Q3” and we will send one recap asset with no automated chase sequence.`,
-    ``,
-    `— {{sender_name}}`,
-    `- **Primary CTA (button):** Pick a time — 20-minute scope fit`,
-    `- **Secondary CTA:** Get the recap PDF instead`,
+    "_Step 3 — setup tips for you. Not email bodies to paste._",
     "",
-    "## Email 8 — Retention (customers & subscribers)",
-    "_Use for active customers or opted-in subscribers — one chart, one recommendation._",
+    "### A simple 12-week rhythm",
+    "- Weeks 1–4: up to 2 emails per week (teach + show proof).",
+    "- Weeks 5–8: 1–2 emails per week (deeper stories + a clearer offer).",
+    "- Weeks 9–12: refresh weak subject lines; pause a series if opens stay very low after a few sends.",
     "",
-    `- **Subject line:** What changed in your funnel this month (1 chart)`,
-    `- **Preheader (inbox preview):** Short win log + one upgrade path only if value is obvious.`,
-    `- **Hero image prompt:** Single KPI tile + sparkline; brand colors; optional product UI crop.`,
-    `- **Body (paste-ready):**`,
-    `Hi {{first_name}},`,
-    ``,
-    `Quick monthly pulse: one chart on the metric we own together, one recommendation, one optional add-on only if it clears a value bar you already set.`,
-    ``,
-    `— {{sender_name}}`,
-    `- **Primary CTA (button):** Open the monthly pulse`,
-    "",
-    "## Email 9 — Re-engagement (dormant or cold list)",
-    "_Separate send — do not mix with Email 8. One subject line, one body, one primary CTA._",
-    "",
-    `- **Subject line:** A fresher angle on ${p2} (low friction)`,
-    `- **Preheader (inbox preview):** One POV + one proof strip—no guilt trips.`,
-    `- **Hero image prompt:** Single bold headline on textured paper photo; soft shadow; brand colors.`,
-    `- **Body (paste-ready):**`,
-    `Hi {{first_name}},`,
-    ``,
-    `We have not heard from you—totally fine. If tightening ${p2} for ${aud} is still the job to be done, here is one updated POV with a single CTA to re-enter without re-explaining your stack.`,
-    ``,
-    `— {{sender_name}}`,
-    `- **Primary CTA (button):** See the refreshed POV`,
-    `- **Secondary CTA:** Unsubscribe with one click`,
-    "",
-    "## 12-week operational rhythm (send rules)",
-    "- Weeks 1–4: up to 2 emails/week (education + proof). Alternate long-form vs. short proof strip.",
-    "- Weeks 5–8: 1–2 emails/week (deeper cases + offer ramp). Introduce one sales-assist touch when reply or high intent.",
-    "- Weeks 9–12: refresh underperforming subject lines; pause any line below ~12% open after 3 sends; duplicate winner as static ad creative.",
-    "",
-    "## QA checklist before each send",
-    "- One job per email, one primary CTA above the fold.",
-    "- Subject line + preheader + hero all express the same promise.",
-    "- Image prompts avoid unlicensed logos and competitor marks.",
-    "- Proof numbers include timeframe and definition.",
+    "### Quick check before you hit send",
+    "- Each email has one job and one main next step near the top.",
+    "- Subject line, inbox preview, and image all say the same thing.",
+    "- Any number you share includes the timeframe and what it means.",
+    "- Email 9 (“45 days quiet”) is a one-time win-back only — not part of the weekly rhythm.",
   ].join("\n");
 }

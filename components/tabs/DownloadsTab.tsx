@@ -343,16 +343,27 @@ const DOWNLOADS_GROUPS: Array<"core" | "strategy" | "activation" | "role-packs">
   "role-packs",
 ];
 
+function downloadsGroupsForMode(
+  prioritizeRolePacks: boolean,
+): Array<"core" | "strategy" | "activation" | "role-packs"> {
+  if (!prioritizeRolePacks) return DOWNLOADS_GROUPS;
+  return ["role-packs", "core", "strategy", "activation"];
+}
+
 /** Shared by `ResultsTabsShell` (chips) and `DownloadsTab` — keep nav ids aligned with on-page anchors. */
-export function buildDownloadsNavModel(productTier: ProductTier): {
+export function buildDownloadsNavModel(
+  productTier: ProductTier,
+  options?: { prioritizeRolePacks?: boolean },
+): {
   navItems: (typeof DOWNLOADS_NAV_ITEMS)[number][];
   sidebarGroups: Array<{ label: string; items: (typeof DOWNLOADS_NAV_ITEMS)[number][] }>;
 } {
   const tierRank = TIER_RANK[productTier] ?? 0;
   const availableDocs = DOCUMENT_DEFS.filter((doc) => TIER_RANK[doc.availableFrom] <= tierRank);
+  const groups = downloadsGroupsForMode(Boolean(options?.prioritizeRolePacks));
   const downloadsNavItems = [
     DOWNLOADS_NAV_ITEMS[0],
-    ...DOWNLOADS_GROUPS.map((group) => {
+    ...groups.map((group) => {
       const count = availableDocs.filter((doc) => doc.group === group).length;
       if (count === 0) return null;
       const item = DOWNLOADS_NAV_ITEMS.find(
@@ -369,7 +380,7 @@ export function buildDownloadsNavModel(productTier: ProductTier): {
   const sidebarGroups: Array<{ label: string; items: (typeof DOWNLOADS_NAV_ITEMS)[number][] }> = [
     { label: "Overview", items: [DOWNLOADS_NAV_ITEMS[0]] },
   ];
-  for (const groupKey of DOWNLOADS_GROUPS) {
+  for (const groupKey of groups) {
     const groupDocs = availableDocs.filter((doc) => doc.group === groupKey);
     if (groupDocs.length === 0) continue;
     const navItem = DOWNLOADS_NAV_ITEMS.find(
@@ -399,6 +410,8 @@ interface DownloadsTabProps {
   onDownloadAll?: () => void;
   shellRendersSectionChips?: boolean;
   shellActiveSectionId?: string | null;
+  /** Blueprint+ Guided: surface role packs first. */
+  prioritizeRolePacks?: boolean;
 }
 
 function DocumentTile({
@@ -448,7 +461,7 @@ function DocumentTile({
         padding: "20px 22px",
         background: "linear-gradient(135deg, #FFFFFF 0%, #F8FBFF 100%)",
         border: `1px solid ${BORDER}`,
-        borderLeft: `4px solid ${BLUE}`,
+        borderTop: `3px solid ${BLUE}`,
         borderRadius: 8,
         display: "flex",
         flexDirection: "column",
@@ -458,14 +471,14 @@ function DocumentTile({
       <div style={{ marginBottom: 8 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
           <span style={{ fontSize: 15, fontWeight: 700, color: NAVY }}>{doc.label}</span>
-          <span style={{ padding: "1px 8px", borderRadius: SUITE_RADIUS_SM, fontSize: 10, fontWeight: 700, letterSpacing: "0.03em", backgroundColor: LIGHT, color: MID_GRAY }}>
+          <span style={{ padding: "1px 8px", borderRadius: SUITE_RADIUS_SM, fontSize: 13, fontWeight: 700, letterSpacing: "0.03em", backgroundColor: LIGHT, color: MID_GRAY }}>
             {formatLabel[doc.format]}
           </span>
           <span
             style={{
               padding: "1px 8px",
               borderRadius: SUITE_RADIUS_SM,
-              fontSize: 10,
+              fontSize: 12,
               fontWeight: 700,
               letterSpacing: "0.03em",
               backgroundColor: lifecycleColorMap[lifecycle].bg,
@@ -475,7 +488,7 @@ function DocumentTile({
             {lifecycleLabelMap[lifecycle]}
           </span>
           {isWorkbookLinked && (
-            <span style={{ padding: "1px 8px", borderRadius: SUITE_RADIUS_SM, fontSize: 10, fontWeight: 700, letterSpacing: "0.03em", backgroundColor: "#E8F6FE", color: BLUE }}>
+            <span style={{ padding: "1px 8px", borderRadius: SUITE_RADIUS_SM, fontSize: 12, fontWeight: 700, letterSpacing: "0.03em", backgroundColor: "#E8F6FE", color: BLUE }}>
               Workbook-Linked
             </span>
           )}
@@ -487,9 +500,7 @@ function DocumentTile({
               <span
                 key={`${doc.id}-${sectionId}`}
                 style={{
-                  fontSize: 10,
-                  fontWeight: 700,
-                  color: NAVY,
+                  fontSize: 14, fontWeight: 700, color: NAVY,
                   backgroundColor: "#EEF7FF",
                   border: "1px solid #CFE6FA",
                   borderRadius: 999,
@@ -504,9 +515,9 @@ function DocumentTile({
         ) : null}
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14, marginTop: 6 }}>
-        <span style={{ fontSize: 11, color: needsRegen ? AMBER : "#94A3B8" }}>{lastGenText}</span>
+        <span style={{ fontSize: 12, color: needsRegen ? AMBER : "#94A3B8" }}>{lastGenText}</span>
         {needsRegen && (
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 700, color: AMBER, backgroundColor: "#FEF3C7", padding: "2px 8px", borderRadius: SUITE_RADIUS_SM }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12, fontWeight: 700, color: AMBER, backgroundColor: "#FEF3C7", padding: "2px 8px", borderRadius: SUITE_RADIUS_SM }}>
             Updated since last generation
           </span>
         )}
@@ -532,6 +543,7 @@ export default function DownloadsTab({
   onDownloadAll,
   shellRendersSectionChips = false,
   shellActiveSectionId = null,
+  prioritizeRolePacks = false,
 }: DownloadsTabProps) {
   const tierRank = TIER_RANK[productTier] ?? 0;
   const isBlueprintPlus = productTier === "blueprint-plus";
@@ -540,10 +552,11 @@ export default function DownloadsTab({
     documentStates.map((state) => [state.documentId, state]),
   ) as Record<DocumentId, DocumentTileState | undefined>;
   const docsNeedingRegen = availableDocs.filter((doc) => stateMap[doc.id]?.needsRegeneration).length;
+  const groupOrder = downloadsGroupsForMode(prioritizeRolePacks);
 
   const { navItems: downloadsNavItems, sidebarGroups: downloadsSidebarGroups } = useMemo(
-    () => buildDownloadsNavModel(productTier),
-    [productTier],
+    () => buildDownloadsNavModel(productTier, { prioritizeRolePacks }),
+    [productTier, prioritizeRolePacks],
   );
 
   const suiteProgressHint = getSuiteProgressHint(productTier, "downloads");
@@ -569,7 +582,7 @@ export default function DownloadsTab({
           scrollMarginTop: 120,
           padding: "18px 20px",
           border: `1px solid ${BORDER}`,
-          borderLeft: `3px solid rgba(7, 176, 242, 0.55)`,
+          borderTop: `2px solid rgba(7, 176, 242, 0.55)`,
           background: "linear-gradient(165deg, rgba(7, 176, 242, 0.09) 0%, rgba(255, 255, 255, 0.97) 55%, #FFFFFF 100%)",
           boxShadow: "0 2px 16px rgba(0, 0, 0, 0.06), 0 0 1px rgba(0, 0, 0, 0.06)",
         }}
@@ -589,6 +602,11 @@ export default function DownloadsTab({
           <p className="bs-small text-brand-muted max-w-[720px] mt-2 mb-0">
             Organize by document type and export what each stakeholder needs.
           </p>
+          {prioritizeRolePacks ? (
+            <p className="bs-small max-w-[720px] mt-2 mb-0" style={{ color: BLUE, fontWeight: 600 }}>
+              Guided tip: start with Role Packs so each teammate gets a sized brief—not the entire library.
+            </p>
+          ) : null}
           <p className="bs-small text-brand-muted max-w-[720px] mt-2 mb-0">
             Everything you see and refine in the tabs is included in your downloadable deliverables.
             Workbook-linked documents pull the latest version of tab content (strategy, standards, and activation)
@@ -601,7 +619,7 @@ export default function DownloadsTab({
           </button>
         )}
       </div>
-      {DOWNLOADS_GROUPS.map((group) => {
+      {groupOrder.map((group) => {
         const groupDocs = availableDocs.filter((doc) => doc.group === group);
         if (groupDocs.length === 0) return null;
         const groupId =

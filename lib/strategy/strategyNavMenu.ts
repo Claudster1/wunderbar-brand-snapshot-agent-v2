@@ -4,6 +4,11 @@ import { filterStrategySections, showStrategyPlanNarrativePanels } from "@/compo
 import { buildAudienceProfilesBody, buildCustomerProfilesDeepBody } from "@/lib/strategy/audienceNarrative";
 import { collectStrategyPlanSections, joinAsStrategyBullets } from "@/lib/strategy/strategyPlanExtract";
 import { buildStrategicOfferPlanBody } from "@/lib/strategy/strategicOfferPlan";
+import {
+  filterBlueprintPlusGuidedStrategySections,
+  guidedStrategyChipLabel,
+  type BlueprintPlusViewMode,
+} from "@/lib/results/blueprintPlusGuidedMode";
 import type { WorkbookSectionId } from "@/lib/workbookTypes";
 
 function asRecordLoose(v: unknown): Record<string, unknown> | null {
@@ -40,7 +45,10 @@ function firstNWords(input: string, count: number): string {
 export function buildStrategyNavMenuItems(
   productTier: ProductTier,
   diagnosticData: Record<string, unknown>,
+  blueprintPlusViewMode: BlueprintPlusViewMode = "reference",
 ): TabSectionMenuItem[] {
+  const guided =
+    productTier === "blueprint-plus" && blueprintPlusViewMode === "guided";
   const positioningMessaging =
     typeof diagnosticData.positioningMessagingFramework === "string"
       ? diagnosticData.positioningMessagingFramework
@@ -315,16 +323,23 @@ export function buildStrategyNavMenuItems(
       workbookSectionId: "action-plan",
     },
   ];
-  const strategySectionsVisible = filterStrategySections(productTier, strategySections);
-  const strategyPlanSections = showStrategyPlanNarrativePanels(productTier)
-    ? collectStrategyPlanSections(diagnosticData as Record<string, unknown>)
-    : [];
+  const strategySectionsVisible = filterBlueprintPlusGuidedStrategySections(
+    filterStrategySections(productTier, strategySections),
+    guided ? "guided" : "reference",
+    diagnosticData as Record<string, unknown>,
+  );
+  const strategyPlanSections =
+    !guided && showStrategyPlanNarrativePanels(productTier)
+      ? collectStrategyPlanSections(diagnosticData as Record<string, unknown>)
+      : [];
   return [
-    ...(showMarketingStrategyHero ? [{ id: "strategy-marketing-core", label: "Marketing Strategy" }] : []),
+    ...(!guided && showMarketingStrategyHero
+      ? [{ id: "strategy-marketing-core", label: "Marketing Strategy" }]
+      : []),
     ...strategyPlanSections.map((s) => ({ id: s.id, label: s.label })),
     ...strategySectionsVisible.map((section) => ({
       id: `strategy-${section.id}`,
-      label: section.label,
+      label: guided ? guidedStrategyChipLabel(section.id, section.label) : section.label,
     })),
   ];
 }

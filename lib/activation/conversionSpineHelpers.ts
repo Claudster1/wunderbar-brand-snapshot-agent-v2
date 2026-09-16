@@ -31,15 +31,15 @@ export function extractConversionSpine(
 
 /** Plain lines for diagnostics / export (no markdown ## so it nests under existing headings). */
 export function formatConversionSpinePlainLines(spine: ConversionSpineFields): string[] {
-  const out: string[] = ["Conversion spine (this strategy)"];
+  const out: string[] = ["Conversion focus (this strategy)"];
   if (spine.primaryMacroConversion) {
-    out.push(`Primary macro conversion: ${spine.primaryMacroConversion}`);
+    out.push(`Main conversion goal: ${spine.primaryMacroConversion}`);
   }
   if (spine.primaryOfferAnchor) {
-    out.push(`Primary offer anchor: ${spine.primaryOfferAnchor}`);
+    out.push(`Primary offer: ${spine.primaryOfferAnchor}`);
   }
   if (spine.advancesConversion) {
-    out.push(`How this advances conversion: ${spine.advancesConversion}`);
+    out.push(`How this channel helps: ${spine.advancesConversion}`);
   }
   return out;
 }
@@ -47,13 +47,13 @@ export function formatConversionSpinePlainLines(spine: ConversionSpineFields): s
 /** Markdown block for bodies that support ## sections (prepended ahead of overview). */
 export function formatConversionSpineMarkdownBlock(spine: ConversionSpineFields): string {
   const lines = [
-    "## Conversion spine",
+    "## Conversion focus",
     "",
     spine.primaryMacroConversion
-      ? `**Primary macro conversion:** ${spine.primaryMacroConversion}`
+      ? `**Main conversion goal:** ${spine.primaryMacroConversion}`
       : "",
-    spine.primaryOfferAnchor ? `**Primary offer anchor:** ${spine.primaryOfferAnchor}` : "",
-    spine.advancesConversion ? `**How this strategy advances conversion:** ${spine.advancesConversion}` : "",
+    spine.primaryOfferAnchor ? `**Primary offer:** ${spine.primaryOfferAnchor}` : "",
+    spine.advancesConversion ? `**How this channel helps:** ${spine.advancesConversion}` : "",
   ].filter(Boolean);
   return lines.join("\n");
 }

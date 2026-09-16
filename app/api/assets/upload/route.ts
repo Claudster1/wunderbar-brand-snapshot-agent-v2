@@ -1,6 +1,7 @@
 // POST /api/assets/upload
 // Handles marketing asset uploads for Blueprint/Blueprint+ diagnostics.
 // Stores files in Supabase Storage (brand-assets bucket) and tracks metadata.
+// SECURITY: Requires verified email session; storage paths are sanitized.
 
 import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
@@ -8,73 +9,75 @@ import { supabaseServer } from "@/lib/supabase";
 import { randomUUID } from "crypto";
 import { apiGuard } from "@/lib/security/apiGuard";
 import { GENERAL_RATE_LIMIT } from "@/lib/security/rateLimit";
+import { isValidEmail, isValidUUID } from "@/lib/security/inputValidation";
+import {
+  isBlueprintLogoTier,
+} from "@/lib/brandLogo";
+import { clearOtherPrimaryLogos } from "@/lib/brandLogoServer";
+import {
+  buildBrandAssetStoragePath,
+  categorizeUploadedAsset,
+} from "@/lib/assets/brandAssetPaths";
+import { ASSET_TIER_LIMITS } from "@/lib/assets/assetTierLimits";
 
 export const dynamic = "force-dynamic";
 
-const TIER_LIMITS: Record<string, { maxFiles: number; allowedTypes: string[] }> = {
-  blueprint: {
-    maxFiles: 3,
-    allowedTypes: ["image/jpeg", "image/png", "image/webp", "image/gif", "application/pdf"],
-  },
-  "blueprint-plus": {
-    maxFiles: 10,
-    allowedTypes: [
-      "image/jpeg", "image/png", "image/webp", "image/gif",
-      "application/pdf",
-      "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    ],
-  },
-};
-
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
 
-function categorizeAsset(fileName: string, mimeType: string): string {
-  const lower = fileName.toLowerCase();
-  if (mimeType.startsWith("image/")) return "image";
-  if (lower.endsWith(".pdf")) return "document";
-  if (lower.endsWith(".pptx")) return "presentation";
-  if (lower.endsWith(".docx")) return "document";
-  if (/deck|presentation|slide/i.test(lower)) return "presentation";
-  if (/email|newsletter/i.test(lower)) return "email";
-  if (/collateral|brochure|flyer/i.test(lower)) return "collateral";
-  return "other";
-}
-
 export async function POST(req: NextRequest) {
-  const guard = await apiGuard(req, { routeId: "assets-upload", rateLimit: GENERAL_RATE_LIMIT, maxBodySize: 25_000_000 });
+  const guard = await apiGuard(req, {
+    routeId: "assets-upload",
+    rateLimit: GENERAL_RATE_LIMIT,
+    maxBodySize: 25_000_000,
+  });
   if (!guard.passed) return guard.errorResponse;
 
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
-    const email = formData.get("email") as string | null;
+    const claimedEmail = formData.get("email") as string | null;
     const tier = formData.get("tier") as string | null;
-    const sessionId = formData.get("sessionId") as string | null;
+    const sessionIdRaw = formData.get("sessionId") as string | null;
 
-    if (!file || !email || !tier) {
+    if (!file || !tier) {
       return NextResponse.json(
-        { error: "Missing required fields: file, email, tier" },
+        { error: "Missing required fields: file, tier" },
         { status: 400 }
       );
     }
 
-    const tierConfig = TIER_LIMITS[tier];
-    if (!tierConfig) {
+    const { requireVerifiedEmail } = await import("@/lib/reportAccess");
+    const auth = requireVerifiedEmail(req, claimedEmail);
+    if ("error" in auth) return auth.error;
+
+    if (!isValidEmail(auth.email)) {
+      return NextResponse.json({ error: "Invalid session email." }, { status: 400 });
+    }
+
+    if (!isBlueprintLogoTier(tier) || !(tier in ASSET_TIER_LIMITS)) {
       return NextResponse.json(
         { error: "Asset uploads are available for Blueprint™ and Blueprint+™ only." },
         { status: 403 }
       );
     }
 
-    if (!tierConfig.allowedTypes.includes(file.type)) {
-      const allowed = tier === "blueprint"
-        ? "images and PDFs"
-        : "images, PDFs, PPTX, and DOCX files";
+    const tierConfig = ASSET_TIER_LIMITS[tier];
+
+    if (!file.type || !tierConfig.allowedTypes.includes(file.type)) {
+      const allowed =
+        tier === "blueprint" ? "images and PDFs" : "images, PDFs, PPTX, and DOCX files";
       return NextResponse.json(
-        { error: `File type not allowed. ${tierConfig.maxFiles === 3 ? "Blueprint™" : "Blueprint+™"} accepts ${allowed}.` },
+        {
+          error: `File type not allowed. ${
+            tier === "blueprint" ? "Blueprint™" : "Blueprint+™"
+          } accepts ${allowed}.`,
+        },
         { status: 400 }
       );
+    }
+
+    if (!file.size || file.size <= 0) {
+      return NextResponse.json({ error: "Empty files are not allowed." }, { status: 400 });
     }
 
     if (file.size > MAX_FILE_SIZE) {
@@ -84,52 +87,73 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const sb = supabaseServer();
+    // sessionId is optional; only accept UUIDs (blocks path injection). Non-UUID preview ids → "direct".
+    let sessionId: string | null = null;
+    if (typeof sessionIdRaw === "string" && sessionIdRaw.trim()) {
+      const trimmed = sessionIdRaw.trim();
+      if (isValidUUID(trimmed)) {
+        sessionId = trimmed;
+      }
+    }
 
-    // Check existing upload count
-    const { count } = await sb
+    const sb = supabaseServer();
+    const email = auth.email;
+
+    const { count } = (await sb
       .from("brand_asset_uploads")
       .select("id", { count: "exact", head: true })
-      .eq("user_email", email.toLowerCase())
-      .eq("tier", tier) as { count: number | null };
+      .eq("user_email", email)
+      .eq("tier", tier)) as { count: number | null };
 
     if ((count ?? 0) >= tierConfig.maxFiles) {
       return NextResponse.json(
-        { error: `Upload limit reached. ${tier === "blueprint" ? "Blueprint™" : "Blueprint+™"} allows up to ${tierConfig.maxFiles} assets.` },
+        {
+          error: `Upload limit reached. ${
+            tier === "blueprint" ? "Blueprint™" : "Blueprint+™"
+          } allows up to ${tierConfig.maxFiles} assets.`,
+        },
         { status: 400 }
       );
     }
 
-    // Upload to Supabase Storage
     const fileId = randomUUID();
-    const ext = file.name.split(".").pop() || "bin";
-    const storagePath = `${email.toLowerCase()}/${sessionId || "direct"}/${fileId}.${ext}`;
+    const storagePath = buildBrandAssetStoragePath({
+      email,
+      sessionId,
+      fileId,
+      mimeType: file.type,
+      fileName: file.name,
+    });
 
     const arrayBuffer = await file.arrayBuffer();
-    const { error: uploadError } = await sb.storage
-      .from("brand-assets")
-      .upload(storagePath, arrayBuffer, {
-        contentType: file.type,
-        upsert: false,
-      });
+    if (!arrayBuffer.byteLength) {
+      return NextResponse.json({ error: "Empty files are not allowed." }, { status: 400 });
+    }
+
+    const { error: uploadError } = await sb.storage.from("brand-assets").upload(storagePath, arrayBuffer, {
+      contentType: file.type,
+      upsert: false,
+    });
 
     if (uploadError) {
-      logger.error("[Asset Upload] Storage error", { error: uploadError instanceof Error ? uploadError.message : String(uploadError) });
+      logger.error("[Asset Upload] Storage error", {
+        error: uploadError instanceof Error ? uploadError.message : String(uploadError),
+      });
       return NextResponse.json(
         { error: "Failed to upload file. Please try again." },
         { status: 500 }
       );
     }
 
-    // Save metadata
-    const category = categorizeAsset(file.name, file.type);
-    const { data: record, error: dbError } = await (sb
-      .from("brand_asset_uploads") as any)
+    const category = categorizeUploadedAsset(file.name, file.type);
+    const safeFileName = file.name.replace(/[<>\u0000]/g, "").slice(0, 255) || "upload";
+
+    const { data: record, error: dbError } = await (sb.from("brand_asset_uploads") as any)
       .insert({
-        user_email: email.toLowerCase(),
+        user_email: email,
         session_id: sessionId,
         tier,
-        file_name: file.name,
+        file_name: safeFileName,
         file_type: file.type,
         file_size: file.size,
         storage_path: storagePath,
@@ -139,13 +163,21 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (dbError) {
-      logger.error("[Asset Upload] DB error", { error: dbError instanceof Error ? dbError.message : String(dbError) });
-      // Clean up the uploaded file
+      logger.error("[Asset Upload] DB error", {
+        error: dbError instanceof Error ? dbError.message : String(dbError),
+      });
       await sb.storage.from("brand-assets").remove([storagePath]);
-      return NextResponse.json(
-        { error: "Failed to save upload record." },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to save upload record." }, { status: 500 });
+    }
+
+    if (category === "logo" && record?.id) {
+      try {
+        await clearOtherPrimaryLogos(email, tier, record.id);
+      } catch (clearErr) {
+        logger.error("[Asset Upload] Failed to clear prior primary logos", {
+          error: clearErr instanceof Error ? clearErr.message : String(clearErr),
+        });
+      }
     }
 
     return NextResponse.json({
@@ -154,7 +186,9 @@ export async function POST(req: NextRequest) {
       remaining: tierConfig.maxFiles - ((count ?? 0) + 1),
     });
   } catch (err) {
-    logger.error("[Asset Upload] Unexpected error", { error: err instanceof Error ? err.message : String(err) });
+    logger.error("[Asset Upload] Unexpected error", {
+      error: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json(
       { error: "Something went wrong. Please try again." },
       { status: 500 }

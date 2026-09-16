@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
+import { clearUploadedBrandLogoCache } from "@/components/brand/UploadedBrandLogo";
 
 interface UploadedAsset {
   id: string;
@@ -9,6 +10,7 @@ interface UploadedAsset {
   file_size: number;
   asset_category: string;
   created_at: string;
+  preview_url?: string | null;
 }
 
 interface AssetUploadPanelProps {
@@ -35,6 +37,7 @@ const TIER_CONFIG = {
 };
 
 const CATEGORY_ICONS: Record<string, string> = {
+  logo: "\uD83C\uDFA8",
   image: "\uD83D\uDDBC\uFE0F",
   document: "\uD83D\uDCC4",
   presentation: "\uD83D\uDCCA",
@@ -61,13 +64,15 @@ export function AssetUploadPanel({
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [payoff, setPayoff] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchAssets = useCallback(async () => {
     try {
       const res = await fetch(
-        `/api/assets/list?email=${encodeURIComponent(email)}&tier=${tier}`
+        `/api/assets/list?email=${encodeURIComponent(email)}&tier=${tier}`,
+        { credentials: "same-origin" }
       );
       if (res.ok) {
         const data = await res.json();
@@ -84,8 +89,15 @@ export function AssetUploadPanel({
     fetchAssets();
   }, [fetchAssets]);
 
+  useEffect(() => {
+    if (!payoff) return;
+    const t = window.setTimeout(() => setPayoff(null), 8000);
+    return () => window.clearTimeout(t);
+  }, [payoff]);
+
   const uploadFile = async (file: File) => {
     setError(null);
+    setPayoff(null);
     setUploading(true);
 
     try {
@@ -98,6 +110,7 @@ export function AssetUploadPanel({
       const res = await fetch("/api/assets/upload", {
         method: "POST",
         body: formData,
+        credentials: "same-origin",
       });
 
       const data = await res.json();
@@ -107,13 +120,48 @@ export function AssetUploadPanel({
         return;
       }
 
-      setAssets((prev) => [...prev, data.asset]);
-      setRemaining(data.remaining);
-      onAssetsChange?.([...assets, data.asset]);
+      await fetchAssets();
+      if (data.asset?.asset_category === "logo") {
+        clearUploadedBrandLogoCache();
+        setPayoff(
+          "Primary logo saved — it will appear in Foundation → Logo System and your Brand Standards PDF."
+        );
+      } else if (data.asset?.file_type?.startsWith("image/")) {
+        setPayoff(
+          "Uploaded. Tap Use as logo on an image to embed it in Foundation and Brand Standards exports."
+        );
+      } else {
+        setPayoff("Uploaded — we’ll factor this into your diagnostic analysis.");
+      }
     } catch {
       setError("Upload failed. Please try again.");
     } finally {
       setUploading(false);
+    }
+  };
+
+  const setAsPrimaryLogo = async (id: string) => {
+    setError(null);
+    setPayoff(null);
+    try {
+      const res = await fetch("/api/assets/set-primary-logo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, tier, assetId: id }),
+        credentials: "same-origin",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Could not set logo.");
+        return;
+      }
+      await fetchAssets();
+      clearUploadedBrandLogoCache();
+      setPayoff(
+        "Primary logo set — it will appear in Foundation → Logo System and your Brand Standards PDF."
+      );
+    } catch {
+      setError("Could not set logo. Please try again.");
     }
   };
 
@@ -123,6 +171,7 @@ export function AssetUploadPanel({
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, email }),
+        credentials: "same-origin",
       });
 
       if (res.ok) {
@@ -130,6 +179,8 @@ export function AssetUploadPanel({
         setAssets(updated);
         setRemaining((r) => r + 1);
         onAssetsChange?.(updated);
+        setPayoff(null);
+        clearUploadedBrandLogoCache();
       }
     } catch {
       // silent
@@ -149,6 +200,8 @@ export function AssetUploadPanel({
     handleFiles(e.dataTransfer.files);
   };
 
+  const hasPrimaryLogo = assets.some((a) => a.asset_category === "logo");
+
   return (
     <div
       style={{
@@ -159,7 +212,6 @@ export function AssetUploadPanel({
         marginBottom: 12,
       }}
     >
-      {/* Header */}
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
@@ -190,13 +242,7 @@ export function AssetUploadPanel({
             <polyline points="17 8 12 3 7 8" />
             <line x1="12" y1="3" x2="12" y2="15" />
           </svg>
-          <span
-            style={{
-              fontSize: 13,
-              fontWeight: 600,
-              color: "#021859",
-            }}
-          >
+          <span style={{ fontSize: 13, fontWeight: 600, color: "#021859" }}>
             Upload Brand Materials
             {assets.length > 0 && (
               <span
@@ -210,6 +256,22 @@ export function AssetUploadPanel({
                 ({assets.length}/{config.maxFiles})
               </span>
             )}
+            {hasPrimaryLogo ? (
+              <span
+                style={{
+                  marginLeft: 8,
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: "#047857",
+                  background: "#ECFDF5",
+                  border: "1px solid #A7F3D0",
+                  borderRadius: 4,
+                  padding: "2px 6px",
+                }}
+              >
+                Logo ready
+              </span>
+            ) : null}
           </span>
         </div>
         <svg
@@ -231,7 +293,6 @@ export function AssetUploadPanel({
         </svg>
       </button>
 
-      {/* Expanded content */}
       {expanded && (
         <div style={{ marginTop: 12 }}>
           <p
@@ -242,16 +303,15 @@ export function AssetUploadPanel({
               margin: "0 0 10px",
             }}
           >
-            Share your existing brand materials — style guides, logos,
-            pitch decks, marketing collateral, or anything that represents
-            your brand today. We&apos;ll factor them into your diagnostic.{" "}
+            Share style guides, logos, decks, or collateral. Mark one image as your{" "}
+            <strong>primary logo</strong> so it embeds in Foundation and Brand Standards
+            (on-screen + PDF).{" "}
             <strong>
               {config.label}: up to {config.maxFiles} files
             </strong>{" "}
             ({config.description}, max 20 MB each).
           </p>
 
-          {/* Drop zone */}
           {remaining > 0 && (
             <div
               onDragOver={(e) => {
@@ -285,9 +345,7 @@ export function AssetUploadPanel({
                 </span>
               ) : (
                 <>
-                  <span
-                    style={{ fontSize: 13, color: "#5A6B7E", fontWeight: 500 }}
-                  >
+                  <span style={{ fontSize: 13, color: "#5A6B7E", fontWeight: 500 }}>
                     Drag &amp; drop a file here, or{" "}
                     <span style={{ color: "#07B0F2", textDecoration: "underline" }}>
                       browse
@@ -295,14 +353,31 @@ export function AssetUploadPanel({
                   </span>
                   <br />
                   <span style={{ fontSize: 11, color: "#9CA3AF" }}>
-                    {remaining} upload{remaining !== 1 ? "s" : ""} remaining
+                    Prefer a PNG/SVG-style logo export · {remaining} slot
+                    {remaining !== 1 ? "s" : ""} left
                   </span>
                 </>
               )}
             </div>
           )}
 
-          {/* Error */}
+          {payoff && (
+            <p
+              style={{
+                fontSize: 12,
+                color: "#065F46",
+                margin: "0 0 8px",
+                padding: "8px 10px",
+                background: "#ECFDF5",
+                border: "1px solid #A7F3D0",
+                borderRadius: 6,
+                lineHeight: 1.45,
+              }}
+            >
+              {payoff}
+            </p>
+          )}
+
           {error && (
             <p
               style={{
@@ -318,66 +393,149 @@ export function AssetUploadPanel({
             </p>
           )}
 
-          {/* Uploaded files list */}
           {assets.length > 0 && (
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              {assets.map((asset) => (
-                <div
-                  key={asset.id}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "8px 10px",
-                    background: "#FFFFFF",
-                    border: "1px solid #E6EAF2",
-                    borderRadius: 6,
-                    fontSize: 12,
-                  }}
-                >
+              {assets.map((asset) => {
+                const isLogo = asset.asset_category === "logo";
+                const isImage = asset.file_type.startsWith("image/");
+                return (
                   <div
-                    style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0 }}
+                    key={asset.id}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "8px 10px",
+                      background: isLogo ? "#F0FDF9" : "#FFFFFF",
+                      border: isLogo ? "1px solid #A7F3D0" : "1px solid #E6EAF2",
+                      borderRadius: 6,
+                      fontSize: 12,
+                    }}
                   >
-                    <span style={{ fontSize: 16, flexShrink: 0 }}>
-                      {CATEGORY_ICONS[asset.asset_category] || CATEGORY_ICONS.other}
-                    </span>
-                    <div style={{ minWidth: 0, flex: 1 }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        flex: 1,
+                        minWidth: 0,
+                      }}
+                    >
                       <div
                         style={{
-                          fontWeight: 600,
-                          color: "#021859",
+                          width: 40,
+                          height: 40,
+                          borderRadius: 6,
+                          border: "1px solid #E6EAF2",
+                          background: "#F8FAFC",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
                           overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
+                          flexShrink: 0,
                         }}
                       >
-                        {asset.file_name}
+                        {isImage && asset.preview_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={asset.preview_url}
+                            alt=""
+                            style={{
+                              maxWidth: "100%",
+                              maxHeight: "100%",
+                              objectFit: "contain",
+                            }}
+                          />
+                        ) : (
+                          <span style={{ fontSize: 16 }}>
+                            {CATEGORY_ICONS[asset.asset_category] || CATEGORY_ICONS.other}
+                          </span>
+                        )}
                       </div>
-                      <div style={{ color: "#9CA3AF", fontSize: 11 }}>
-                        {formatFileSize(asset.file_size)} &middot;{" "}
-                        {asset.asset_category}
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div
+                          style={{
+                            fontWeight: 600,
+                            color: "#021859",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {asset.file_name}
+                        </div>
+                        <div style={{ color: "#9CA3AF", fontSize: 11 }}>
+                          {formatFileSize(asset.file_size)} &middot;{" "}
+                          {isLogo ? "primary logo" : asset.asset_category}
+                        </div>
                       </div>
                     </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 4,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {isImage && !isLogo ? (
+                        <button
+                          type="button"
+                          onClick={() => setAsPrimaryLogo(asset.id)}
+                          style={{
+                            background: "#EFF6FF",
+                            border: "1px solid #BFDBFE",
+                            borderRadius: 5,
+                            cursor: "pointer",
+                            color: "#1D4ED8",
+                            padding: "3px 8px",
+                            fontSize: 11,
+                            fontWeight: 600,
+                            lineHeight: 1.2,
+                            whiteSpace: "nowrap",
+                          }}
+                          title="Embed this image in Foundation and Brand Standards"
+                        >
+                          Use as logo
+                        </button>
+                      ) : null}
+                      {isLogo ? (
+                        <span
+                          style={{
+                            background: "#ECFDF5",
+                            border: "1px solid #A7F3D0",
+                            borderRadius: 5,
+                            color: "#047857",
+                            padding: "3px 8px",
+                            fontSize: 11,
+                            fontWeight: 600,
+                            lineHeight: 1.2,
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          Logo
+                        </span>
+                      ) : null}
+                      <button
+                        type="button"
+                        onClick={() => deleteAsset(asset.id)}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer",
+                          color: "#9CA3AF",
+                          padding: "2px 6px",
+                          fontSize: 14,
+                          lineHeight: 1,
+                        }}
+                        title="Remove"
+                      >
+                        &times;
+                      </button>
+                    </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => deleteAsset(asset.id)}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      color: "#9CA3AF",
-                      padding: "2px 6px",
-                      fontSize: 14,
-                      lineHeight: 1,
-                      flexShrink: 0,
-                    }}
-                    title="Remove"
-                  >
-                    &times;
-                  </button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
 
@@ -390,8 +548,7 @@ export function AssetUploadPanel({
                 fontWeight: 500,
               }}
             >
-              All {config.maxFiles} upload slots used. Remove a file to upload a
-              different one.
+              All {config.maxFiles} upload slots used. Remove a file to upload a different one.
             </p>
           )}
         </div>

@@ -29,6 +29,9 @@ import { STANDARDS_SUITE_NAV_ITEMS } from "@/lib/results/standardsSuiteNav";
 import type { WorkbookSectionId } from "@/lib/workbookTypes";
 import { EXAMPLE_CALLOUT, SEMANTIC_DO, SEMANTIC_DONT } from "@/src/pdf/reportVisualTokens";
 import { firstReferenceForm } from "@/lib/copy/abbreviationPolicy";
+import { renderInlineMarkdown } from "@/lib/strategy/renderInlineMarkdown";
+import { UploadedBrandLogo } from "@/components/brand/UploadedBrandLogo";
+import { getPersistedEmail } from "@/lib/persistEmail";
 
 const NAVY = SUITE_NAVY;
 const BLUE = SUITE_ACCENT_BRIGHT;
@@ -51,8 +54,7 @@ const STANDARDS_SECTION_EYEBROW: CSSProperties = {
 const SECTION_SHELL: CSSProperties = {
   border: `1px solid ${BORDER}`,
   borderRadius: SUITE_RADIUS_MD,
-  borderTop: `2px solid ${BLUE}30`,
-  borderLeft: `3px solid ${SUITE_PANEL_RAIL}`,
+  borderTop: `2px solid ${SUITE_PANEL_RAIL}`,
   background: "linear-gradient(135deg, #FFFFFF 0%, #F8FBFF 100%)",
   padding: "18px 20px",
   marginBottom: 14,
@@ -210,31 +212,35 @@ function ExampleCard({
 }) {
   return (
     <div style={{ ...INNER_CARD, padding: "14px 16px" }}>
-      <p style={{ margin: 0, fontSize: 12, fontWeight: 800, letterSpacing: "0.04em", color: MID_GRAY }}>
+      <p style={{ margin: 0, fontSize: 13, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: MID_GRAY }}>
         {title}
       </p>
       <div style={{ marginTop: 10, display: "grid", gap: 10 }}>
         <div
           style={{
-            borderLeft: `3px solid ${SEMANTIC_DO.border}`,
+            borderTop: `3px solid ${SEMANTIC_DO.border}`,
             background: SEMANTIC_DO.bg,
             padding: "8px 10px",
             borderRadius: 5,
           }}
         >
-          <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: SEMANTIC_DO.label }}>Do this</p>
-          <p style={{ margin: "4px 0 0", fontSize: 13, color: SEMANTIC_DO.text, lineHeight: 1.55 }}>{doText}</p>
+          <p style={{ margin: 0, fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: SEMANTIC_DO.label }}>Do this</p>
+          <p style={{ margin: "4px 0 0", fontSize: 13, color: SEMANTIC_DO.text, lineHeight: 1.55 }}>
+            {renderInlineMarkdown(doText)}
+          </p>
         </div>
         <div
           style={{
-            borderLeft: `3px solid ${SEMANTIC_DONT.border}`,
+            borderTop: `3px solid ${SEMANTIC_DONT.border}`,
             background: SEMANTIC_DONT.bg,
             padding: "8px 10px",
             borderRadius: 5,
           }}
         >
-          <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: SEMANTIC_DONT.label }}>Not this</p>
-          <p style={{ margin: "4px 0 0", fontSize: 13, color: SEMANTIC_DONT.text, lineHeight: 1.55 }}>{dontText}</p>
+          <p style={{ margin: 0, fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: SEMANTIC_DONT.label }}>Not this</p>
+          <p style={{ margin: "4px 0 0", fontSize: 13, color: SEMANTIC_DONT.text, lineHeight: 1.55 }}>
+            {renderInlineMarkdown(dontText)}
+          </p>
         </div>
         <BrandExampleCallout>{example}</BrandExampleCallout>
       </div>
@@ -255,7 +261,7 @@ const IMPL_TYPO = {
     marginBottom: 6,
     fontFamily: SUITE_FONT_UI,
     fontWeight: 700,
-    fontSize: 9,
+    fontSize: 12,
     letterSpacing: "0.1em",
     textTransform: "uppercase" as const,
     color: MID_GRAY,
@@ -285,14 +291,14 @@ const IMPL_TYPO = {
   metaCaption: {
     fontFamily: SUITE_FONT_UI,
     fontWeight: 500,
-    fontSize: 12,
+    fontSize: 13,
     lineHeight: 1.55,
     color: MID_GRAY,
   },
   channelLabel: {
     fontFamily: SUITE_FONT_UI,
     fontWeight: 700,
-    fontSize: 10,
+    fontSize: 13,
     letterSpacing: "0.12em",
     textTransform: "uppercase" as const,
     color: MID_GRAY,
@@ -358,7 +364,7 @@ function ImplementationExampleCard({
       className="flex h-full flex-col overflow-hidden rounded-lg border border-black/[0.07]"
       style={{
         background: accent.wash,
-        borderLeft: `4px solid ${accent.rail}`,
+        borderTop: `3px solid ${accent.rail}`,
         boxShadow: "0 2px 16px rgba(2, 24, 89, 0.06)",
       }}
     >
@@ -459,12 +465,33 @@ export default function BrandStandardsTab({
   const reportLogoMinSize = asStringLoose(logoG?.minimumSize ?? logoG?.minimum_size);
   const reportLogoPlacement = asStringListLoose(logoG?.placementRules ?? logoG?.placement_rules);
   const reportLogoIncorrect = asStringListLoose(logoG?.incorrectUses ?? logoG?.incorrect_uses);
+  const reportLogoBackgrounds = asStringLoose(logoG?.approvedBackgrounds ?? logoG?.approved_backgrounds);
+  const reportLogoCoBrand = asStringLoose(logoG?.coBranding ?? logoG?.co_branding);
+  const reportLogoUsageExamples = (() => {
+    const raw = logoG?.usageExamples ?? logoG?.usage_examples;
+    if (!Array.isArray(raw)) return [] as Array<{ surface: string; correct: string; incorrect: string }>;
+    return raw
+      .map((item) => {
+        if (!item || typeof item !== "object" || Array.isArray(item)) return null;
+        const o = item as Record<string, unknown>;
+        const surface = asStringLoose(o.surface ?? o.context ?? o.channel);
+        const correct = asStringLoose(o.correct ?? o.doExample ?? o.do);
+        const incorrect = asStringLoose(o.incorrect ?? o.dontExample ?? o.dont);
+        if (!surface || (!correct && !incorrect)) return null;
+        return { surface, correct, incorrect };
+      })
+      .filter((x): x is { surface: string; correct: string; incorrect: string } => Boolean(x))
+      .slice(0, 6);
+  })();
   const hasReportLogoGuidance =
     Boolean(reportLogoOverview) ||
     Boolean(reportLogoClearSpace) ||
     Boolean(reportLogoMinSize) ||
+    Boolean(reportLogoBackgrounds) ||
+    Boolean(reportLogoCoBrand) ||
     reportLogoPlacement.length > 0 ||
-    reportLogoIncorrect.length > 0;
+    reportLogoIncorrect.length > 0 ||
+    reportLogoUsageExamples.length > 0;
 
   const stock = imageryNorm?.stock_photo_selection_criteria;
   const stockLines = stock
@@ -741,8 +768,7 @@ export default function BrandStandardsTab({
             <p
               style={{
                 margin: 0,
-                fontSize: 11,
-                fontWeight: 800,
+                fontSize: 14, fontWeight: 800,
                 letterSpacing: "0.08em",
                 color: MID_GRAY,
                 textTransform: "uppercase",
@@ -759,8 +785,7 @@ export default function BrandStandardsTab({
             <p
               style={{
                 margin: 0,
-                fontSize: 11,
-                fontWeight: 800,
+                fontSize: 14, fontWeight: 800,
                 letterSpacing: "0.08em",
                 color: MID_GRAY,
                 textTransform: "uppercase",
@@ -779,8 +804,7 @@ export default function BrandStandardsTab({
             <p
               style={{
                 margin: 0,
-                fontSize: 11,
-                fontWeight: 800,
+                fontSize: 14, fontWeight: 800,
                 letterSpacing: "0.08em",
                 color: MID_GRAY,
                 textTransform: "uppercase",
@@ -811,15 +835,14 @@ export default function BrandStandardsTab({
               marginTop: 12,
               ...INNER_CARD,
               padding: "12px 14px",
-              borderLeft: `3px solid ${BLUE}`,
+              borderTop: `2px solid ${BLUE}`,
               background: "#FCFDFF",
             }}
           >
             <p
               style={{
                 margin: 0,
-                fontSize: 11,
-                fontWeight: 800,
+                fontSize: 14, fontWeight: 800,
                 letterSpacing: "0.08em",
                 color: MID_GRAY,
                 textTransform: "uppercase",
@@ -851,7 +874,7 @@ export default function BrandStandardsTab({
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
                   <div>
                     <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: NAVY }}>{plan.title}</p>
-                    <p style={{ margin: "2px 0 0", fontSize: 12, color: MID_GRAY }}>{plan.audience}</p>
+                    <p style={{ margin: "2px 0 0", fontSize: 13, color: MID_GRAY }}>{plan.audience}</p>
                   </div>
                   <button
                     type="button"
@@ -948,7 +971,7 @@ export default function BrandStandardsTab({
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 10 }}>
           <div style={{ ...INNER_CARD, padding: "10px 12px", background: "#FCFDFF" }}>
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Claim formula</p>
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>Claim formula</p>
             <p style={{ margin: "6px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.6 }}>
               Problem → Method → Outcome → Proof
             </p>
@@ -961,7 +984,7 @@ export default function BrandStandardsTab({
             </div>
           </div>
           <div style={{ ...INNER_CARD, padding: "10px 12px", background: "#FCFDFF" }}>
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Next step wording</p>
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>Next step wording</p>
             <p style={{ margin: "6px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.6 }}>
               Use action + outcome language. Avoid generic defaults like &quot;Submit&quot; and &quot;Click Here&quot;.
             </p>
@@ -980,7 +1003,7 @@ export default function BrandStandardsTab({
             borderRadius: 5,
             border: `1px solid ${BORDER}`,
             background: "linear-gradient(135deg, #FFFFFF 0%, #F6FAFF 100%)",
-            borderLeft: `3px solid ${BLUE}`,
+            borderTop: `2px solid ${BLUE}`,
           }}
         >
           <BrandExampleCallout style={{ marginTop: 0, border: "none", background: "transparent", padding: 0 }}>
@@ -1002,7 +1025,7 @@ export default function BrandStandardsTab({
             borderRadius: 8,
             overflow: "hidden",
             border: `1px solid ${BORDER}`,
-            borderLeft: `4px solid ${BLUE}`,
+            borderTop: `3px solid ${BLUE}`,
             background: "linear-gradient(165deg, #F5FAFF 0%, #FFFFFF 42%, #FFFFFF 100%)",
             boxShadow: "0 2px 18px rgba(2, 24, 89, 0.06)",
           }}
@@ -1023,7 +1046,7 @@ export default function BrandStandardsTab({
               <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY, letterSpacing: "0.03em" }}>
                 Publishing quality assurance (QA) checklist
               </p>
-              <p style={{ margin: "4px 0 0", fontSize: 12, color: MID_GRAY, lineHeight: 1.5, maxWidth: 520 }}>
+              <p style={{ margin: "4px 0 0", fontSize: 13, color: MID_GRAY, lineHeight: 1.5, maxWidth: 520 }}>
                 {standardsDepth.publishingChecklist.length} pass/fail checks before anything goes live—covering claim, proof,
                 voice, CTA intent, and measurable signals.
               </p>
@@ -1033,8 +1056,7 @@ export default function BrandStandardsTab({
                 alignSelf: "center",
                 padding: "4px 10px",
                 borderRadius: 999,
-                fontSize: 10,
-                fontWeight: 800,
+                fontSize: 14, fontWeight: 800,
                 letterSpacing: "0.08em",
                 textTransform: "uppercase",
                 color: "#024E70",
@@ -1077,8 +1099,7 @@ export default function BrandStandardsTab({
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: 12,
-                    fontWeight: 800,
+                    fontSize: 14, fontWeight: 800,
                     color: NAVY,
                     background: `${BLUE}14`,
                     boxShadow: `inset 0 0 0 1px ${BLUE}33`,
@@ -1115,16 +1136,16 @@ export default function BrandStandardsTab({
             <div key={`${row.name}-${row.hex}`} style={{ ...INNER_CARD, overflow: "hidden", padding: 0 }}>
               <div style={{ height: 40, background: row.hex }} />
               <div style={{ padding: "8px 10px" }}>
-                <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>
+                <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>
                   {row.name} <span style={{ color: MID_GRAY, fontWeight: 600 }}>({row.hex})</span>
                 </p>
-                <p style={{ margin: "4px 0 0", fontSize: 12, color: MID_GRAY }}>
+                <p style={{ margin: "4px 0 0", fontSize: 13, color: MID_GRAY }}>
                   RGB: {row.rgb} | CMYK: {row.cmyk}
                 </p>
                 <p style={{ margin: "4px 0 0", fontSize: 12, color: BODY_TEXT, lineHeight: 1.5 }}>
                   {row.description}
                 </p>
-                <p style={{ margin: "4px 0 0", fontSize: 12, color: MID_GRAY, lineHeight: 1.5 }}>
+                <p style={{ margin: "4px 0 0", fontSize: 13, color: MID_GRAY, lineHeight: 1.5 }}>
                   <strong style={{ color: NAVY }}>Rationale:</strong> {row.rationale}
                 </p>
               </div>
@@ -1133,8 +1154,8 @@ export default function BrandStandardsTab({
         </div>
         <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 10 }}>
           <div style={{ ...INNER_CARD, padding: "10px 12px" }}>
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Typography</p>
-            <p style={{ margin: "4px 0 0", fontSize: 14, color: MID_GRAY, lineHeight: 1.55 }}>
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>Typography</p>
+            <p style={{ margin: "4px 0 0", fontSize: 15, color: MID_GRAY, lineHeight: 1.55 }}>
               Body style for this account: {voiceAttributes.join(", ")}. Keep subcopy tied to concrete proof and next action.
             </p>
             <div style={{ marginTop: 8 }}>
@@ -1144,7 +1165,7 @@ export default function BrandStandardsTab({
             </div>
           </div>
           <div style={{ ...INNER_CARD, padding: "10px 12px" }}>
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Visual composition</p>
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>Visual composition</p>
             <p style={{ margin: "6px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.6 }}>
               Imagery direction: {visualCues.imagery}
               <br />
@@ -1171,7 +1192,7 @@ export default function BrandStandardsTab({
               padding: "12px 14px",
               borderRadius: 5,
               background: SEMANTIC_DO.bg,
-              borderLeft: `3px solid ${SEMANTIC_DO.border}`,
+              borderTop: `3px solid ${SEMANTIC_DO.border}`,
             }}
           >
             <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: SEMANTIC_DO.label, letterSpacing: "0.03em" }}>
@@ -1190,7 +1211,7 @@ export default function BrandStandardsTab({
               padding: "12px 14px",
               borderRadius: 5,
               background: SEMANTIC_DONT.bg,
-              borderLeft: `3px solid ${SEMANTIC_DONT.border}`,
+              borderTop: `3px solid ${SEMANTIC_DONT.border}`,
             }}
           >
             <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: SEMANTIC_DONT.label, letterSpacing: "0.03em" }}>
@@ -1256,14 +1277,14 @@ export default function BrandStandardsTab({
         </p>
         <div style={{ display: "grid", gap: 10 }}>
           <div style={{ ...INNER_CARD, padding: "12px 14px" }}>
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Primary imagery style</p>
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>Primary imagery style</p>
             <p style={{ margin: "5px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.55 }}>
               {imageryNorm?.photography_style_direction ||
                 "Use documentary-style brand imagery that shows real implementation context: strategy sessions, collaboration moments, process artifacts, and outcome-oriented visuals. Prioritize credibility over abstract stock imagery."}
             </p>
           </div>
           <div style={{ ...INNER_CARD, padding: "12px 14px" }}>
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Composition and treatment</p>
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>Composition and treatment</p>
             <p style={{ margin: "5px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.55 }}>
               {imageryNorm?.color_application_in_imagery ||
                 "Compose with clear focal subject + negative space for overlays. Use role-based color accents from your palette and maintain consistent contrast. Avoid over-saturated filters, heavy vignettes, and gimmick effects."}
@@ -1271,7 +1292,7 @@ export default function BrandStandardsTab({
             {stockLines.length > 0 ? (
               <ul className="strategy-suite-ul" style={{ margin: "8px 0 0", color: BODY_TEXT, fontSize: 13, lineHeight: 1.55 }}>
                 {stockLines.map((line, li) => (
-                  <li key={`stock-${li}`}>{line}</li>
+                  <li key={`stock-${li}`}>{renderInlineMarkdown(line)}</li>
                 ))}
               </ul>
             ) : null}
@@ -1282,7 +1303,7 @@ export default function BrandStandardsTab({
                 padding: "10px 12px",
                 borderRadius: 5,
                 background: SEMANTIC_DO.bg,
-                borderLeft: `3px solid ${SEMANTIC_DO.border}`,
+                borderTop: `3px solid ${SEMANTIC_DO.border}`,
               }}
             >
               <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: SEMANTIC_DO.label, letterSpacing: "0.03em" }}>
@@ -1305,7 +1326,7 @@ export default function BrandStandardsTab({
                 padding: "10px 12px",
                 borderRadius: 5,
                 background: SEMANTIC_DONT.bg,
-                borderLeft: `3px solid ${SEMANTIC_DONT.border}`,
+                borderTop: `3px solid ${SEMANTIC_DONT.border}`,
               }}
             >
               <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: SEMANTIC_DONT.label, letterSpacing: "0.03em" }}>
@@ -1326,13 +1347,13 @@ export default function BrandStandardsTab({
           </div>
           {reportImageDonts.length > 0 ? (
             <div style={{ ...INNER_CARD, padding: "12px 14px" }}>
-              <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Imagery pitfalls (from your report)</p>
+              <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>Imagery pitfalls (from your report)</p>
               <div style={{ marginTop: 8, display: "grid", gap: 8 }}>
                 {reportImageDonts.slice(0, 6).map((row, i) => (
                   <div
                     key={`img-dont-${i}`}
                     style={{
-                      borderLeft: `3px solid ${SEMANTIC_DONT.border}`,
+                      borderTop: `3px solid ${SEMANTIC_DONT.border}`,
                       background: SEMANTIC_DONT.bg,
                       padding: "8px 10px",
                       borderRadius: 5,
@@ -1340,7 +1361,7 @@ export default function BrandStandardsTab({
                   >
                     <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: SEMANTIC_DONT.text }}>{row.dont}</p>
                     {row.why ? (
-                      <p style={{ margin: "4px 0 0", fontSize: 12, color: MID_GRAY, lineHeight: 1.5 }}>Why: {row.why}</p>
+                      <p style={{ margin: "4px 0 0", fontSize: 13, color: MID_GRAY, lineHeight: 1.5 }}>Why: {row.why}</p>
                     ) : null}
                     {row.alternative ? (
                       <p style={{ margin: "4px 0 0", fontSize: 12, color: SEMANTIC_DO.text, lineHeight: 1.5 }}>
@@ -1370,20 +1391,32 @@ export default function BrandStandardsTab({
           </button>
         </div>
         <ReportCallout label="About logo files" accentColor={BLUE}>
-          Wunderbar provides usage guidance; your team supplies the actual logo artwork (vector, raster, and brand-approved
-          variants). If you are still pre-mark, use the interim path below until a designer delivers lockups.
+          WunderBrand provides usage guidance. On Blueprint™ / Blueprint+™, upload or mark a primary logo during
+          intake and it embeds here and in PDF exports. If you are still pre-mark, use the interim wordmark path
+          below until a designer delivers lockups.
         </ReportCallout>
+        {(productTier === "blueprint" || productTier === "blueprint-plus") && (
+          <UploadedBrandLogo
+            email={
+              (typeof diagnosticData.userEmail === "string" && diagnosticData.userEmail) ||
+              getPersistedEmail()
+            }
+            tier={productTier}
+            variant="card"
+            showEmptyState
+          />
+        )}
         {hasReportLogoGuidance ? (
           <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
             {reportLogoOverview ? (
               <div style={{ ...INNER_CARD, padding: "12px 14px" }}>
-                <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Overview</p>
+                <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>Overview</p>
                 <p style={{ margin: "5px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.55 }}>{reportLogoOverview}</p>
               </div>
             ) : null}
             {reportLogoClearSpace || reportLogoMinSize ? (
               <div style={{ ...INNER_CARD, padding: "12px 14px" }}>
-                <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Clear space and minimum size</p>
+                <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>Clear space and minimum size</p>
                 {reportLogoClearSpace ? (
                   <p style={{ margin: "5px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.55 }}>{reportLogoClearSpace}</p>
                 ) : null}
@@ -1394,7 +1427,7 @@ export default function BrandStandardsTab({
             ) : null}
             {reportLogoPlacement.length > 0 ? (
               <div style={{ ...INNER_CARD, padding: "12px 14px" }}>
-                <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Placement</p>
+                <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>Placement</p>
                 <ul className="strategy-suite-ul" style={{ margin: "6px 0 0", color: BODY_TEXT, fontSize: 13, lineHeight: 1.55 }}>
                   {reportLogoPlacement.map((rule) => (
                     <li key={rule}>{rule}</li>
@@ -1402,13 +1435,94 @@ export default function BrandStandardsTab({
                 </ul>
               </div>
             ) : null}
+            {reportLogoBackgrounds ? (
+              <div style={{ ...INNER_CARD, padding: "12px 14px" }}>
+                <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>Approved backgrounds</p>
+                <p style={{ margin: "5px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.55 }}>
+                  {reportLogoBackgrounds}
+                </p>
+              </div>
+            ) : null}
+            {reportLogoCoBrand ? (
+              <div style={{ ...INNER_CARD, padding: "12px 14px" }}>
+                <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>Co-branding</p>
+                <p style={{ margin: "5px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.55 }}>
+                  {reportLogoCoBrand}
+                </p>
+              </div>
+            ) : null}
+            <div style={{ display: "grid", gap: 10 }}>
+              <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>Logo usage examples</p>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 10 }}>
+                {(reportLogoUsageExamples.length > 0
+                  ? reportLogoUsageExamples
+                  : [
+                      {
+                        surface: "Website header",
+                        correct: "Primary horizontal lockup as SVG with full clear space on a solid brand or white field.",
+                        incorrect: "Stretched raster, off-palette fill, or logo crowded into the clear-space zone.",
+                      },
+                      {
+                        surface: "Social avatar",
+                        correct: "Stacked lockup or monogram with safe margins for round crops.",
+                        incorrect: "Full wordmark forced into a circle crop on a busy photo.",
+                      },
+                      {
+                        surface: "Email / deck",
+                        correct: "Approved lockup at or above minimum size; partner marks stay subordinate.",
+                        incorrect: "Effects, equal-weight co-branding on the hero, or illegible micro marks.",
+                      },
+                    ]
+                ).map((ex) => (
+                  <div key={ex.surface} style={{ ...INNER_CARD, padding: "12px 14px" }}>
+                    <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>{ex.surface}</p>
+                    {ex.correct ? (
+                      <div
+                        style={{
+                          marginTop: 8,
+                          borderTop: `3px solid ${SEMANTIC_DO.border}`,
+                          background: SEMANTIC_DO.bg,
+                          padding: "8px 10px",
+                          borderRadius: 5,
+                        }}
+                      >
+                        <p style={{ margin: 0, fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: SEMANTIC_DO.label }}>
+                          Do this
+                        </p>
+                        <p style={{ margin: "4px 0 0", fontSize: 13, color: SEMANTIC_DO.text, lineHeight: 1.55 }}>
+                          {ex.correct}
+                        </p>
+                      </div>
+                    ) : null}
+                    {ex.incorrect ? (
+                      <div
+                        style={{
+                          marginTop: 8,
+                          borderTop: `3px solid ${SEMANTIC_DONT.border}`,
+                          background: SEMANTIC_DONT.bg,
+                          padding: "8px 10px",
+                          borderRadius: 5,
+                        }}
+                      >
+                        <p style={{ margin: 0, fontSize: 12, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: SEMANTIC_DONT.label }}>
+                          Not this
+                        </p>
+                        <p style={{ margin: "4px 0 0", fontSize: 13, color: SEMANTIC_DONT.text, lineHeight: 1.55 }}>
+                          {ex.incorrect}
+                        </p>
+                      </div>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            </div>
             {reportLogoIncorrect.length > 0 ? (
               <div
                 style={{
                   padding: "10px 12px",
                   borderRadius: 5,
                   background: SEMANTIC_DONT.bg,
-                  borderLeft: `3px solid ${SEMANTIC_DONT.border}`,
+                  borderTop: `3px solid ${SEMANTIC_DONT.border}`,
                 }}
               >
                 <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: SEMANTIC_DONT.label, letterSpacing: "0.03em" }}>
@@ -1423,8 +1537,8 @@ export default function BrandStandardsTab({
             ) : null}
           </div>
         ) : (
-          <div style={{ ...INNER_CARD, padding: "12px 14px", marginTop: 12, borderLeft: `3px solid ${BLUE}` }}>
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Interim identity (no final logo yet)</p>
+          <div style={{ ...INNER_CARD, padding: "12px 14px", marginTop: 12, borderTop: `2px solid ${BLUE}` }}>
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>Interim identity (no final logo yet)</p>
             <p style={{ margin: "6px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.55 }}>
               Until you have an approved mark, ship a consistent <strong>wordmark</strong> using your approved type palette (
               {voiceAttributes.slice(0, 2).join(", ")}) and the color roles on this tab. Pair it with the mood board and imagery
@@ -1444,7 +1558,7 @@ export default function BrandStandardsTab({
                 padding: "10px 12px",
                 borderRadius: 5,
                 background: SEMANTIC_DO.bg,
-                borderLeft: `3px solid ${SEMANTIC_DO.border}`,
+                borderTop: `3px solid ${SEMANTIC_DO.border}`,
               }}
             >
               <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: SEMANTIC_DO.label, letterSpacing: "0.03em" }}>
@@ -1460,7 +1574,7 @@ export default function BrandStandardsTab({
                 padding: "10px 12px",
                 borderRadius: 5,
                 background: SEMANTIC_DONT.bg,
-                borderLeft: `3px solid ${SEMANTIC_DONT.border}`,
+                borderTop: `3px solid ${SEMANTIC_DONT.border}`,
               }}
             >
               <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: SEMANTIC_DONT.label, letterSpacing: "0.03em" }}>
@@ -1590,31 +1704,31 @@ export default function BrandStandardsTab({
         </p>
         <div style={{ display: "grid", gap: 8 }}>
           <div style={{ ...INNER_CARD, padding: "10px 12px" }}>
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Headline (H1 / H2)</p>
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>Headline (H1 / H2)</p>
             <p style={{ margin: "4px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.5 }}>
               Font: <strong>Lato</strong>, fallback <strong>system-ui, sans-serif</strong> | Weight: 700–800 | Color: {NAVY} | Size: 34–48px (web), 30–40px (reports)
             </p>
           </div>
           <div style={{ ...INNER_CARD, padding: "10px 12px" }}>
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Subhead (H3 / section lead)</p>
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>Subhead (H3 / section lead)</p>
             <p style={{ margin: "4px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.5 }}>
               Font: <strong>Lato</strong> | Weight: 600–700 | Size: 20–28px | Color: {NAVY} or {MID_GRAY} for de-emphasis
             </p>
           </div>
           <div style={{ ...INNER_CARD, padding: "10px 12px" }}>
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Body Copy</p>
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>Body Copy</p>
             <p style={{ margin: "4px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.5 }}>
               Font: <strong>Lato</strong> | Weight: 400–500 | Size: 15–17px | Line-height: 1.55–1.7 | Color: {BODY_TEXT} for long-form
             </p>
           </div>
           <div style={{ ...INNER_CARD, padding: "10px 12px" }}>
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Meta / Captions / Labels</p>
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>Meta / Captions / Labels</p>
             <p style={{ margin: "4px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.5 }}>
               Font: <strong>Lato</strong> | Weight: 700 for labels, 500 for metadata | Size: 11–13px | Uppercase + letter-spacing for section labels; accent {BLUE} for interactive emphasis
             </p>
           </div>
           <div style={{ ...INNER_CARD, padding: "10px 12px" }}>
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>CTA buttons</p>
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>CTA buttons</p>
             <p style={{ margin: "4px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.5 }}>
               Font: <strong>Lato</strong> | Weight: 700 | Size: 13–15px | Fill or outline using {BLUE}; keep CTAs to 3–6 words with outcome language
             </p>
@@ -1667,13 +1781,13 @@ export default function BrandStandardsTab({
         )}
         {hasMoodBoardFallbackFromImagery ? (
           <div style={{ ...INNER_CARD, padding: "12px 14px", marginBottom: 12 }}>
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Mood direction from your report</p>
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>Mood direction from your report</p>
             {photographyDirection ? (
               <p style={{ margin: "6px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.55 }}>{photographyDirection}</p>
             ) : null}
             {subjectShow.length > 0 ? (
               <>
-                <p style={{ margin: "10px 0 0", fontSize: 12, fontWeight: 800, color: NAVY }}>Favor these subjects and settings</p>
+                <p style={{ margin: "10px 0 0", fontSize: 14, fontWeight: 800, color: NAVY }}>Favor these subjects and settings</p>
                 <ul className="strategy-suite-ul" style={{ margin: "6px 0 0", fontSize: 13, color: BODY_TEXT, lineHeight: 1.5 }}>
                   {subjectShow.slice(0, 8).map((item) => (
                     <li key={item}>{item}</li>
@@ -1681,7 +1795,7 @@ export default function BrandStandardsTab({
                 </ul>
               </>
             ) : null}
-            <p style={{ margin: "10px 0 0", fontSize: 12, color: MID_GRAY, lineHeight: 1.55 }}>
+            <p style={{ margin: "10px 0 0", fontSize: 13, color: MID_GRAY, lineHeight: 1.55 }}>
               Structured mood tags (keywords, textures, designer brief) appear when your report includes{" "}
               <strong>moodBoardDescriptors</strong>—included on new Blueprint reports. Blueprint+ adds AI exploration prompts.
               Full stock criteria and show/avoid lists are in <strong>Imagery Suggestions</strong> above.
@@ -1695,7 +1809,7 @@ export default function BrandStandardsTab({
         ) : null}
         {moodBoardSamples.length > 0 ? (
           <div style={{ marginBottom: 12 }}>
-            <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 800, letterSpacing: "0.04em", color: MID_GRAY }}>
+            <p style={{ margin: "0 0 8px", fontSize: 13, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: MID_GRAY }}>
               Reference Image Samples
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 10 }}>
@@ -1707,11 +1821,11 @@ export default function BrandStandardsTab({
                     style={{ width: "100%", height: 130, objectFit: "cover", display: "block" }}
                   />
                   <div style={{ padding: "8px 10px" }}>
-                    <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: NAVY }}>
+                    <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: NAVY }}>
                       {sample.caption || `Sample ${index + 1}`}
                     </p>
                     {sample.rationale ? (
-                      <p style={{ margin: "4px 0 0", fontSize: 12, color: MID_GRAY, lineHeight: 1.5 }}>
+                      <p style={{ margin: "4px 0 0", fontSize: 13, color: MID_GRAY, lineHeight: 1.5 }}>
                         {sample.rationale}
                       </p>
                     ) : null}
@@ -1723,15 +1837,15 @@ export default function BrandStandardsTab({
         ) : null}
         {aiImagePrompts.length > 0 ? (
           <div style={{ ...INNER_CARD, padding: "12px 14px", marginBottom: 12 }}>
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>Reference prompts (exploration, not final assets)</p>
-            <p style={{ margin: "4px 0 0", fontSize: 12, color: MID_GRAY, lineHeight: 1.5 }}>
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>Reference prompts (exploration, not final assets)</p>
+            <p style={{ margin: "4px 0 0", fontSize: 13, color: MID_GRAY, lineHeight: 1.5 }}>
               Use with your preferred image tool to explore direction; have a designer refine anything customer-facing.
             </p>
             <div style={{ marginTop: 10, display: "grid", gap: 10 }}>
               {aiImagePrompts.slice(0, 4).map((row, i) => (
                 <div key={`ai-prompt-${i}`} style={{ padding: "8px 10px", borderRadius: 5, border: `1px solid ${BORDER}`, background: "#FCFDFF" }}>
                   {row.useCase ? (
-                    <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: BLUE, letterSpacing: "0.03em" }}>
+                    <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.1em", textTransform: "uppercase" }}>
                       {row.useCase}
                     </p>
                   ) : null}
@@ -1739,7 +1853,7 @@ export default function BrandStandardsTab({
                     {row.prompt}
                   </p>
                   {row.negativePrompt ? (
-                    <p style={{ margin: "6px 0 0", fontSize: 12, color: MID_GRAY, lineHeight: 1.5 }}>
+                    <p style={{ margin: "6px 0 0", fontSize: 13, color: MID_GRAY, lineHeight: 1.5 }}>
                       Avoid: {row.negativePrompt}
                     </p>
                   ) : null}

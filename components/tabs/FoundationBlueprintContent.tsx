@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import ArchetypeToggleCard from "@/components/results/ArchetypeToggleCard";
 import ArchetypeCombinedImplementationPanel from "@/components/results/ArchetypeCombinedImplementationPanel";
 import { ReportPanel } from "@/components/results/ReportDesignPrimitives";
+import { UploadedBrandLogo } from "@/components/brand/UploadedBrandLogo";
 import {
   filterFoundationAudienceSubsections,
   normalizeProductTierString,
@@ -94,6 +95,11 @@ const FN_DRAFT_HELPER = "mt-1.5 text-sm sm:text-base leading-relaxed text-brand-
 
 function asString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
+}
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  return value as Record<string, unknown>;
 }
 
 function asStringList(value: unknown): string[] {
@@ -1981,7 +1987,7 @@ export default function FoundationBlueprintContent({
                           </span>
                           <div className="min-w-0">
                             <p className="truncate text-sm font-semibold text-brand-midnight">{brandName}</p>
-                            <p className="text-[11px] text-slate-500">Organic post preview</p>
+                            <p className="text-[12px] text-slate-500">Organic post preview</p>
                           </div>
                         </div>
                         <p className="mt-3 text-[15px] font-semibold leading-snug text-brand-midnight">{socialOrganic.hook}</p>
@@ -2001,14 +2007,14 @@ export default function FoundationBlueprintContent({
                       <p className="mb-2 text-xs font-semibold text-brand-blue md:hidden">Paid Social Ad</p>
                       <div className="flex min-h-[248px] flex-1 flex-col overflow-hidden rounded-lg border border-slate-300/90 bg-white shadow-md ring-1 ring-black/[0.04]">
                         <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-2.5 py-1.5">
-                          <span className="text-[10px] font-semibold tracking-wide text-slate-500">Sponsored</span>
-                          <span className="max-w-[55%] truncate text-[11px] font-semibold text-slate-700">{brandName}</span>
+                          <span className="text-[12px] font-semibold tracking-wide text-slate-500">Sponsored</span>
+                          <span className="max-w-[55%] truncate text-[12px] font-semibold text-slate-700">{brandName}</span>
                         </div>
                         <div className="h-[4.5rem] w-full shrink-0 bg-gradient-to-br from-slate-100 via-[#E8F4FE] to-slate-200" aria-hidden />
                         <div className="flex min-h-0 flex-1 flex-col px-3 pb-3 pt-2">
                           <p className="text-[15px] font-semibold leading-[1.25] text-[#0f172a]">{paidAd.headline}</p>
                           <p className="mt-1.5 text-[13px] leading-snug text-slate-600">{paidAd.body}</p>
-                          <p className="mt-2 text-[11px] text-slate-400">
+                          <p className="mt-2 text-[12px] text-slate-400">
                             {adPreviewSlug ? `example.ad/${adPreviewSlug}` : "example.ad/learn-more"}
                           </p>
                           <ArchetypeChannelPreviewCta
@@ -2026,7 +2032,7 @@ export default function FoundationBlueprintContent({
                     <div className={`${channelShell} flex min-h-0 flex-col`}>
                       <p className="mb-2 text-xs font-semibold text-brand-blue md:hidden">Retargeting</p>
                       <div className="flex min-h-[248px] flex-1 flex-col rounded-lg border border-slate-200/90 bg-white p-3 shadow-sm">
-                        <p className="text-[10px] font-semibold tracking-wide text-slate-500">Reminder ad</p>
+                        <p className="text-[12px] font-semibold tracking-wide text-slate-500">Reminder ad</p>
                         <p className="mt-3 min-h-0 flex-1 font-serif text-base italic leading-relaxed text-[#1C1917]">
                           &ldquo;{retargeting.quote}&rdquo;
                         </p>
@@ -2225,7 +2231,7 @@ export default function FoundationBlueprintContent({
                     {item.title}
                   </p>
                   <span
-                    className="rounded-full px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.1em]"
+                    className="rounded-full px-2 py-0.5 text-[12px] sm:text-[12px] font-semibold uppercase tracking-[0.1em]"
                     style={{ backgroundColor: item.tone.chip, color: item.tone.text }}
                   >
                     Differentiator
@@ -2363,6 +2369,195 @@ export default function FoundationBlueprintContent({
               Claim: “We improve {primaryPillar.toLowerCase()} performance.” Proof package: baseline metric, identified leakage point,
               first 30-day action owner, and expected movement range.
             </p>
+          </div>
+        </div>
+      );
+    }
+
+    if (sectionId === "visual-logo-system") {
+      const bsg =
+        asRecord(data.brandStandardsGuide) ||
+        asRecord(data.brand_standards_guide) ||
+        null;
+      const logoG =
+        (bsg && (asRecord(bsg.logoGuidelines) || asRecord(bsg.logo_guidelines))) || null;
+      const logoOverview =
+        (logoG && (asString(logoG.overview) || asString(logoG.Overview))) ||
+        (visualSystemMode === "existing"
+          ? `Preserve ${brandName}'s approved logo assets and lockups. Usage rules below protect recognizability—your team supplies the artwork files.`
+          : visualSystemMode === "optimize"
+            ? `Keep ${brandName}'s current logo system and tighten usage consistency across web, export, and partner surfaces.`
+            : `Evaluate selective logo refinements only when legibility or premium signal is limited; until then, apply the usage rules below to the current mark.`);
+      const clearSpace =
+        (logoG && (asString(logoG.clearSpace) || asString(logoG.clear_space))) ||
+        "Keep clear space equal to at least the height of the primary mark (or the x-height of the wordmark) on all sides. No competing graphics, type, or edges inside that zone.";
+      const minSize =
+        (logoG && (asString(logoG.minimumSize) || asString(logoG.minimum_size))) ||
+        "Digital: no smaller than 72px wide for the primary lockup (favicon/monogram may go smaller). Print: no smaller than 1 inch / 25mm wide unless a designer-approved micro mark is provided.";
+      const placementRules = (() => {
+        if (!logoG) return [] as string[];
+        const raw = logoG.placementRules ?? logoG.placement_rules;
+        if (!Array.isArray(raw)) return [] as string[];
+        return raw.map((r) => String(r).trim()).filter(Boolean).slice(0, 6);
+      })();
+      const incorrectUses = (() => {
+        if (!logoG) return [] as string[];
+        const raw = logoG.incorrectUses ?? logoG.incorrect_uses;
+        if (!Array.isArray(raw)) return [] as string[];
+        return raw.map((r) => String(r).trim()).filter(Boolean).slice(0, 6);
+      })();
+      const usageExamplesRaw = (() => {
+        if (!logoG) return [] as Array<{ surface: string; correct: string; incorrect: string }>;
+        const raw = logoG.usageExamples ?? logoG.usage_examples;
+        if (!Array.isArray(raw)) return [];
+        return raw
+          .map((item) => {
+            const o = asRecord(item);
+            if (!o) return null;
+            const surface = asString(o.surface) || asString(o.context) || asString(o.channel);
+            const correct = asString(o.correct) || asString(o.doExample) || asString(o.do);
+            const incorrect = asString(o.incorrect) || asString(o.dontExample) || asString(o.dont);
+            if (!surface || (!correct && !incorrect)) return null;
+            return { surface, correct, incorrect };
+          })
+          .filter((x): x is { surface: string; correct: string; incorrect: string } => Boolean(x))
+          .slice(0, 6);
+      })();
+      const coBranding =
+        (logoG && (asString(logoG.coBranding) || asString(logoG.co_branding))) ||
+        `Partner marks stay subordinate: cap partner logos at ~60% the width of ${brandName}'s primary lockup, never on the hero, and always with equal or greater clear space for ${brandName}.`;
+      const approvedBackgrounds =
+        (logoG &&
+          (asString(logoG.approvedBackgrounds) || asString(logoG.approved_backgrounds))) ||
+        "Prefer white, near-white, Brand Navy, or Brand Blue fields with sufficient contrast. Avoid busy photography, gradients that wash out edges, and low-contrast mid-tones.";
+
+      const defaultUsageExamples = [
+        {
+          surface: "Website header",
+          correct: `Primary horizontal lockup as SVG, left-aligned, with full clear space and brand-navy or white field.`,
+          incorrect: `Stretched raster PNG, off-palette fill, or logo crowded against nav links inside the clear-space zone.`,
+        },
+        {
+          surface: "Social avatar",
+          correct: `Stacked lockup or monogram centered in a square; safe margins so the mark is not cropped on round crops.`,
+          incorrect: `Full wordmark forced into a circle crop, or a photo background that fights the mark.`,
+        },
+        {
+          surface: "Email header",
+          correct: `Primary or simplified lockup at or above minimum digital size; solid or approved brand field only.`,
+          incorrect: `Tiny illegible mark, drop shadows, or logo repeated as a watermark behind body copy.`,
+        },
+        {
+          surface: "Presentation / partner deck",
+          correct: `Primary lockup on title and footer; partner marks smaller and never competing on the opening hero.`,
+          incorrect: `Equal-weight co-branding on the hero, rotated marks, or unapproved color treatments.`,
+        },
+        {
+          surface: "Paid / ads",
+          correct: `Approved lockup in a clean safe zone; match destination page logo treatment for trust continuity.`,
+          incorrect: `Effects, outlines, or recolored marks that do not match the landing page identity.`,
+        },
+      ];
+      const usageExamples =
+        usageExamplesRaw.length > 0 ? usageExamplesRaw : defaultUsageExamples;
+      const misuseList =
+        incorrectUses.length > 0
+          ? incorrectUses
+          : [
+              "Do not stretch, skew, or rotate the logo.",
+              "Do not recolor outside the approved palette.",
+              "Do not place the logo on busy photography without a solid or high-contrast field.",
+              "Do not add shadows, glows, outlines, or 3D effects to the mark.",
+              "Do not use low-resolution rasters when an SVG or high-res master exists.",
+            ];
+
+      return (
+        <div className="rounded-lg border border-brand-border/70 bg-[#F7FBFF] p-4">
+          <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-2`}>Logo System & Usage</p>
+          <p className="text-sm sm:text-base text-brand-midnight mb-1">
+            <span className="text-brand-muted font-medium">Mode:</span> {visualModeLabel}
+          </p>
+          <p className="text-sm sm:text-base text-brand-midnight mb-4 leading-relaxed">{logoOverview}</p>
+
+          <div className="mb-4 rounded-md border border-brand-border bg-white p-3">
+            <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue`}>About logo files</p>
+            <p className="text-sm sm:text-base text-brand-midnight mt-1 leading-relaxed">
+              WunderBrand defines how the logo may be used. On Blueprint™ / Blueprint+™, upload or mark a
+              primary logo during intake and it embeds here and in Brand Standards exports. Until a final mark
+              exists, use a consistent wordmark from the typography system with these same spacing and misuse
+              rules.
+            </p>
+          </div>
+
+          {(normalizedTier === "blueprint" || normalizedTier === "blueprint-plus") && (
+            <UploadedBrandLogo
+              email={userEmail}
+              tier={normalizedTier}
+              variant="compact"
+              showEmptyState
+            />
+          )}
+
+          <div className="grid gap-3 md:grid-cols-2 mb-4">
+            <div className="rounded-md border border-brand-border bg-white p-3">
+              <p className="text-sm sm:text-base font-semibold text-brand-navy">Clear space</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-1 leading-relaxed">{clearSpace}</p>
+            </div>
+            <div className="rounded-md border border-brand-border bg-white p-3">
+              <p className="text-sm sm:text-base font-semibold text-brand-navy">Minimum size</p>
+              <p className="text-sm sm:text-base text-brand-midnight mt-1 leading-relaxed">{minSize}</p>
+            </div>
+          </div>
+
+          <div className="rounded-md border border-brand-border bg-white p-3 mb-4">
+            <p className="text-sm sm:text-base font-semibold text-brand-navy">Approved backgrounds</p>
+            <p className="text-sm sm:text-base text-brand-midnight mt-1 leading-relaxed">{approvedBackgrounds}</p>
+          </div>
+
+          {placementRules.length > 0 ? (
+            <div className="rounded-md border border-brand-border bg-white p-3 mb-4">
+              <p className="text-sm sm:text-base font-semibold text-brand-navy mb-2">Placement rules</p>
+              <ul className="m-0 list-disc space-y-1 pl-5 text-sm sm:text-base text-brand-midnight leading-relaxed">
+                {placementRules.map((rule) => (
+                  <li key={rule}>{rule}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
+          <p className={`${FN_SUBHEAD_EYEBROW} text-brand-blue mb-3`}>Logo usage examples</p>
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 mb-4">
+            {usageExamples.map((ex) => (
+              <div key={ex.surface} className="rounded-md border border-brand-border bg-white p-3 flex flex-col gap-2">
+                <p className="text-sm sm:text-base font-semibold text-brand-navy m-0">{ex.surface}</p>
+                {ex.correct ? (
+                  <div className="rounded-[5px] border border-[#86EFAC] bg-[#F0FDF4] p-2.5">
+                    <p className={`${FN_SUBHEAD_EYEBROW} text-[#166534] m-0`}>Do this</p>
+                    <p className="text-sm sm:text-base text-brand-midnight mt-1 mb-0 leading-relaxed">{ex.correct}</p>
+                  </div>
+                ) : null}
+                {ex.incorrect ? (
+                  <div className="rounded-[5px] border border-[#FCA5A5] bg-[#FEF2F2] p-2.5">
+                    <p className={`${FN_SUBHEAD_EYEBROW} text-[#B91C1C] m-0`}>Not this</p>
+                    <p className="text-sm sm:text-base text-brand-midnight mt-1 mb-0 leading-relaxed">{ex.incorrect}</p>
+                  </div>
+                ) : null}
+              </div>
+            ))}
+          </div>
+
+          <div className="rounded-md border border-brand-border bg-white p-3 mb-4">
+            <p className="text-sm sm:text-base font-semibold text-brand-navy">Co-branding</p>
+            <p className="text-sm sm:text-base text-brand-midnight mt-1 leading-relaxed">{coBranding}</p>
+          </div>
+
+          <div className="rounded-md border border-[#FCA5A5] bg-[#FEF2F2] p-3">
+            <p className={`${FN_SUBHEAD_EYEBROW} text-[#B91C1C]`}>Misuse to avoid</p>
+            <ul className="mt-2 mb-0 list-disc space-y-1 pl-5 text-sm sm:text-base text-brand-midnight leading-relaxed">
+              {misuseList.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
           </div>
         </div>
       );
@@ -2704,13 +2899,13 @@ export default function FoundationBlueprintContent({
                     {stage.title}
                   </p>
                   <span
-                    className="rounded-full px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.1em]"
+                    className="rounded-full px-2 py-0.5 text-[12px] sm:text-[12px] font-semibold uppercase tracking-[0.1em]"
                     style={{ backgroundColor: stage.color.chip, color: stage.color.text }}
                   >
                     {stageDurationById[stage.id]}
                   </span>
                 </div>
-                <p className="text-[11px] sm:text-xs mt-1.5" style={{ color: stage.color.text }}>
+                <p className="text-[12px] sm:text-xs mt-1.5" style={{ color: stage.color.text }}>
                   {stageCueById[stage.id]}
                 </p>
               </div>
@@ -2747,7 +2942,7 @@ export default function FoundationBlueprintContent({
                   {stage.title}
                 </p>
                 <p
-                  className="mt-1 text-[10px] sm:text-[11px] leading-snug"
+                  className="mt-1 text-[12px] sm:text-[12px] leading-snug"
                   style={{ color: selectedJourneyStage === stage.id ? stage.color.text : "#5A6C8A" }}
                 >
                   {stageCueById[stage.id]}
@@ -3204,7 +3399,7 @@ Each ${brandName} initiative has one named owner and a specific timeline.`,
           `In use (Organic Social): "Here is what we are seeing in your diagnostic—and the first move this week."`,
           `In use (Paid Ad primary text): "You are not underinvesting in marketing—you are underwriting confusion between channels. Here is the sequence we use before spend moves."`,
           `Next step: Create a “Morgan test” doc: 6 before/after sentences from real drafts; use it in onboarding for anyone who writes customer-facing copy.`,
-          `Next step: Record a 3-minute Loom walking through one customer email in Morgan’s voice—share with sales and support as the reference clip.`,
+          `Next step: Capture one reference example of Morgan’s voice—annotated email PDF or a short screen recording (any tool)—and share with sales and support.`,
           `Use this when: a launch is rushed—default to Morgan’s stress behavior (more specific, more accountable), not shorter generic reassurance.`,
         ]);
       case "identity-origin":
@@ -3380,7 +3575,7 @@ Each ${brandName} initiative has one named owner and a specific timeline.`,
           `Voice baseline (archetype-informed): ${archetypePair || "authority-led and practically focused"}—how ${brandName} sounds must match how the brand character shows up, not a generic "marketing voice."`,
           voiceAttributes.length > 0 ? `Voice attributes in active use: ${voiceAttributes.join(", ")}.` : `Voice attributes in active use: clear, confident, practical, insightful.`,
           normalizedPrimaryArchetype && normalizedSecondaryArchetype
-            ? `Archetype × voice: ${normalizedPrimaryArchetype} sets the decisive spine (what we say first); ${normalizedSecondaryArchetype} sets approachability (how we say it) so ${audience.toLowerCase()} get both conviction and trust.`
+            ? `Archetype × voice: ${normalizedPrimaryArchetype} sets what we say first; ${normalizedSecondaryArchetype} sets how we say it so ${audience.toLowerCase()} get both conviction and trust.`
             : `Voice is the audible form of your archetype—same character in organic social, paid creative, and product UI.`,
           `Voice execution rule: every customer-facing block includes one decision, one reason, and one next action.`,
           `Stress-test behavior: when stakes increase, tone stays calm, specific, and accountable—never frantic or vague.`,
@@ -3393,7 +3588,7 @@ Each ${brandName} initiative has one named owner and a specific timeline.`,
         ]);
       case "voice-tone-registers":
         return compact([
-          `How tone shifts by context: thought leadership carries the "expert" spine; sales carries the "decision" spine; education carries the "guide" spine—all still recognizably ${brandName}.`,
+          `How tone shifts by context: thought leadership leads with expertise; sales leads with decisions; education leads with guidance—all still recognizably ${brandName}.`,
           `Thought leadership register: insight-led, evidence-backed, perspective-forward—use when ${audience.toLowerCase()} are still forming the problem.`,
           `Sales register: concise, commercially focused, objection-aware—use when budget and timing are on the table.`,
           `Educational register: structured, plain-language, implementation-oriented—use for onboarding and how-to.`,
@@ -3884,8 +4079,9 @@ Each ${brandName} initiative has one named owner and a specific timeline.`,
       whatItIs:
         "Define the full logo architecture and usage guardrails for digital, print, and partner contexts.",
       contentRequirements: [
-        "Primary/secondary/mark/wordmark/reversed/single-color sets in required formats.",
+        "Primary/secondary/mark/wordmark/reversed/single-color sets in required formats (team-supplied artwork).",
         "Min size, clear-space, approved backgrounds, prohibited uses.",
+        "Surface-by-surface usage examples (web, social, email, deck, ads) with do / not-this pairs.",
         "Co-branding guidance and examples.",
       ],
     },
@@ -4211,7 +4407,7 @@ Each ${brandName} initiative has one named owner and a specific timeline.`,
               return (
                 <>
                   {/* Mobile / tablet: legend once; cards use spacing + color only (no repeated row headers) */}
-                  <div className="mt-4 rounded-lg bg-slate-50/90 px-3 py-2.5 text-xs leading-relaxed text-brand-muted lg:hidden">
+                  <div className="mt-4 rounded-lg bg-slate-50/90 px-3 py-2.5 text-[13px] leading-relaxed text-brand-muted lg:hidden">
                     <span className="font-semibold text-brand-midnight">How to read each card:</span> plain text = the
                     standard idea; frosted white block = how it applies for {brandName}; red-tinted block = strategic risk
                     if you skip it.
@@ -4448,10 +4644,10 @@ Each ${brandName} initiative has one named owner and a specific timeline.`,
                 {coreTile ? (
                   <div
                     className="border-b border-brand-border/80 px-4 py-5 sm:px-5 sm:py-6"
-                    style={{ borderLeft: `4px solid ${coreTile.accent}` }}
+                    style={{ borderTop: `3px solid ${coreTile.accent}` }}
                   >
                     <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                      <p className="m-0 text-[10px] font-extrabold uppercase tracking-[0.12em] text-brand-navy/55">
+                      <p className="m-0 text-[12px] font-extrabold uppercase tracking-[0.12em] text-brand-navy/55">
                         Constant
                       </p>
                       <p className="m-0 text-base font-bold text-brand-navy sm:text-lg">{coreTile.title}</p>
@@ -4465,7 +4661,7 @@ Each ${brandName} initiative has one named owner and a specific timeline.`,
                       {coreTile.when}
                     </p>
                     <blockquote className="m-0 mt-4 rounded-[5px] border border-slate-200/90 bg-[#F8FBFF] px-4 py-3.5 sm:px-5">
-                      <p className="m-0 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-500">Example</p>
+                      <p className="m-0 text-[12px] font-bold uppercase tracking-[0.1em] text-slate-500">Example</p>
                       <p className="m-0 mt-2 text-[15px] leading-relaxed text-brand-midnight sm:text-base">
                         {coreTile.sample}
                       </p>
@@ -4474,7 +4670,7 @@ Each ${brandName} initiative has one named owner and a specific timeline.`,
                 ) : null}
 
                 <div className="px-4 py-4 sm:px-5 sm:py-5">
-                  <p className="m-0 mb-3 text-[10px] font-extrabold uppercase tracking-[0.1em] text-brand-navy/50">
+                  <p className="m-0 mb-3 text-[12px] font-extrabold uppercase tracking-[0.1em] text-brand-navy/50">
                     Tone by context
                   </p>
                   <div className="grid gap-3 sm:gap-4 lg:grid-cols-3">
@@ -4496,7 +4692,7 @@ Each ${brandName} initiative has one named owner and a specific timeline.`,
                         </div>
                         <p className="m-0 mt-3 text-sm leading-relaxed text-brand-muted">{tile.when}</p>
                         <div className="mt-auto pt-4">
-                          <p className="m-0 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-500">Example</p>
+                          <p className="m-0 text-[12px] font-bold uppercase tracking-[0.1em] text-slate-500">Example</p>
                           <p
                             className="m-0 mt-2 border-l-[3px] pl-3 text-sm leading-relaxed text-brand-midnight sm:text-[15px]"
                             style={{ borderColor: tile.accent }}
@@ -4670,7 +4866,7 @@ Each ${brandName} initiative has one named owner and a specific timeline.`,
         className={`bs-card rounded-xl border border-brand-border ${
           densityMode === "compact" ? "p-4 sm:p-5" : "p-5 sm:p-6"
         }`}
-        style={{ borderLeft: "4px solid #16A34A", background: "linear-gradient(135deg, #FFFFFF 0%, #F3FCF6 100%)" }}
+        style={{ borderTop: "3px solid #16A34A", background: "linear-gradient(135deg, #FFFFFF 0%, #F3FCF6 100%)" }}
       >
         <p className="text-[14px] font-semibold tracking-wide text-brand-blue mb-2">Foundation Rollout</p>
         <h3 className="bs-h3 mb-2">90-day implementation sequencing</h3>

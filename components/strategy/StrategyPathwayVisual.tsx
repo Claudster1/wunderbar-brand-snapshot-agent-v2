@@ -58,17 +58,17 @@ function Step({
       }}
     >
       <span
-        className="mb-1 inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.07em] sm:text-[10px]"
+        className="mb-1 inline-flex items-center rounded-full px-2 py-0.5 text-[12px] font-bold uppercase tracking-[0.07em] sm:text-[12px]"
         style={{ color: chrome.chipText, background: chrome.chipBg }}
       >
         Step {index + 1}
       </span>
-      <span className="block text-[11px] font-bold leading-snug sm:text-xs" style={{ color: SUITE_NAVY }}>
+      <span className="block text-[12px] font-bold leading-snug sm:text-xs" style={{ color: SUITE_NAVY }}>
         {label}
       </span>
       {sub ? (
         <span
-          className="mt-1.5 block max-w-[9.5rem] text-[10px] font-normal leading-snug sm:max-w-[11rem] sm:text-[11px]"
+          className="mt-1.5 block max-w-[9.5rem] text-[12px] font-normal leading-snug sm:max-w-[11rem] sm:text-[12px]"
           style={{ color: SUITE_MUTED }}
         >
           {sub}
@@ -113,8 +113,7 @@ export default function StrategyPathwayVisual({
           paddingBottom: 12,
           marginBottom: 2,
           borderBottom: "1px solid rgba(7, 176, 242, 0.14)",
-          fontSize: 11,
-          fontWeight: 800,
+          fontSize: 14, fontWeight: 800,
           letterSpacing: "0.1em",
           textTransform: "uppercase",
           color: SUITE_NAVY,

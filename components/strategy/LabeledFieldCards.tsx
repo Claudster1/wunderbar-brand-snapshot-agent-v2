@@ -33,8 +33,8 @@ function shouldSanitizeSpokenField(label: string): boolean {
 }
 
 /**
- * Shared labeled-field cards for Strategy + Activation — role-colored rails
- * (Response / Pillar / Proof / …) so both tabs scan as one system.
+ * Shared labeled-field cards for Strategy + Activation.
+ * Role color lives in the label (and soft background) — no stacked left rails.
  */
 export default function LabeledFieldCards({
   parts,
@@ -62,18 +62,18 @@ export default function LabeledFieldCards({
             style={{
               border: `1px solid ${chrome.border}`,
               background: chrome.bg,
-              borderLeft: `3px solid ${chrome.rail}`,
               borderRadius: SUITE_RADIUS_SM,
+              boxShadow: "inset 0 2px 0 0 " + chrome.rail,
             }}
           >
             <p
-              className="m-0 text-[11px] font-bold uppercase tracking-[0.1em]"
+              className="m-0 text-[12px] font-bold uppercase tracking-[0.1em]"
               style={{ fontFamily: SUITE_FONT_UI, color: chrome.label }}
             >
               {p.label}
             </p>
             <div
-              className="m-0 mt-1.5 text-sm leading-relaxed sm:text-[15px]"
+              className="m-0 mt-1.5 text-[15px] leading-relaxed"
               style={{ fontFamily: SUITE_FONT_UI, color: SUITE_TEXT_PRIMARY }}
             >
               {renderValue ? renderValue(raw, p.label) : raw || "—"}

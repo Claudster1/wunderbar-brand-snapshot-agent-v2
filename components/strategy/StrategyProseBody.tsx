@@ -6,6 +6,7 @@ import LabeledFieldCards from "@/components/strategy/LabeledFieldCards";
 import { SUITE_FONT_UI, SUITE_TEXT_PRIMARY } from "@/components/results/suiteBrandTokens";
 import { parseStrategyProseToBlocks } from "@/lib/strategy/strategyProseBlocks";
 import { splitLabeledParts } from "@/lib/strategy/labeledProse";
+import { renderInlineMarkdown } from "@/lib/strategy/renderInlineMarkdown";
 
 export { splitLabeledParts } from "@/lib/strategy/labeledProse";
 export type { LabeledPart } from "@/lib/strategy/labeledProse";
@@ -29,7 +30,7 @@ type Props = {
 function RenderLine({ line, paragraphStyle }: { line: string; paragraphStyle: CSSProperties }) {
   const parts = splitLabeledParts(line);
   if (parts) return <LabeledFieldCards parts={parts} />;
-  return <p style={{ ...DEFAULT_PARA, ...paragraphStyle }}>{line}</p>;
+  return <p style={{ ...DEFAULT_PARA, ...paragraphStyle }}>{renderInlineMarkdown(line)}</p>;
 }
 
 /**
@@ -80,7 +81,7 @@ export default function StrategyProseBody({
             >
               {itemParts.map((row, j) => (
                 <li key={`${i}-${j}`} className={row.parts ? "list-none pl-0" : "leading-relaxed"}>
-                  {row.parts ? <LabeledFieldCards parts={row.parts} /> : row.item}
+                  {row.parts ? <LabeledFieldCards parts={row.parts} /> : renderInlineMarkdown(row.item)}
                 </li>
               ))}
             </ul>
@@ -95,7 +96,7 @@ export default function StrategyProseBody({
           >
             {itemParts.map((row, j) => (
               <li key={`${i}-${j}`} className="leading-relaxed">
-                {row.parts ? <LabeledFieldCards parts={row.parts} /> : row.item}
+                {row.parts ? <LabeledFieldCards parts={row.parts} /> : renderInlineMarkdown(row.item)}
               </li>
             ))}
           </ol>

@@ -318,7 +318,7 @@ function ReportCard({ item }: { item: HistoryItem }) {
               alignItems: "center",
               gap: 6,
               padding: "6px 14px",
-              borderRadius: 6,
+              borderRadius: 5,
               border: `1px solid ${expanded ? BLUE : BORDER}`,
               background: expanded ? "#E8F6FE" : "#FAFBFF",
               color: expanded ? NAVY : SUB,
@@ -499,7 +499,7 @@ export default function DashboardHistory() {
             if (email) fetchHistory(email);
           }}
           style={{
-            padding: "8px 20px", borderRadius: 6,
+            padding: "8px 20px", borderRadius: 5,
             background: BLUE, color: WHITE, border: "none",
             fontWeight: 700, fontSize: 14, cursor: "pointer",
           }}
@@ -569,7 +569,7 @@ export default function DashboardHistory() {
               onClick={() => setActiveBrand(null)}
               style={{
                 padding: "10px 16px",
-                borderRadius: 8,
+                borderRadius: 5,
                 border: !activeBrand ? `2px solid ${BLUE}` : `1px solid ${BORDER}`,
                 background: !activeBrand ? `${BLUE}06` : WHITE,
                 color: !activeBrand ? BLUE : NAVY,
@@ -592,7 +592,7 @@ export default function DashboardHistory() {
                   onClick={() => setActiveBrand(isActive ? null : summary.brandName)}
                   style={{
                     padding: "10px 16px",
-                    borderRadius: 8,
+                    borderRadius: 5,
                     border: isActive ? `2px solid ${BLUE}` : `1px solid ${BORDER}`,
                     background: isActive ? `${BLUE}06` : WHITE,
                     color: isActive ? BLUE : NAVY,
@@ -689,7 +689,7 @@ export default function DashboardHistory() {
                 onClick={() => setFilterTier(t.key)}
                 style={{
                   padding: "6px 14px",
-                  borderRadius: 6,
+                  borderRadius: 5,
                   border: filterTier === t.key ? `1.5px solid ${BLUE}` : `1px solid ${BORDER}`,
                   background: filterTier === t.key ? `${BLUE}08` : WHITE,
                   color: filterTier === t.key ? BLUE : SUB,
@@ -732,7 +732,7 @@ export default function DashboardHistory() {
             onClick={() => setActiveBrand(null)}
             style={{
               padding: "4px 10px",
-              borderRadius: 4,
+              borderRadius: 5,
               border: `1px solid ${BORDER}`,
               background: WHITE,
               color: SUB,

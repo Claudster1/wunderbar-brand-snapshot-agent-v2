@@ -79,7 +79,7 @@ export default function ExecutionSchedule({
             backgroundColor: "transparent",
             color: SUITE_NAVY,
             border: `2px solid ${SUITE_BORDER}`,
-            borderRadius: 6,
+            borderRadius: 5,
             fontWeight: 700,
             fontSize: 13,
             cursor: "pointer",

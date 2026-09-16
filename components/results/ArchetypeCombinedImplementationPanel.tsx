@@ -38,7 +38,7 @@ function ListBlock({
         borderRadius: SUITE_RADIUS_MD,
         background: "#FFFFFF",
         padding: "14px 16px",
-        borderLeft: `3px solid ${accent}`,
+        borderTop: `2px solid ${accent}`,
       }}
     >
       <p
@@ -168,7 +168,7 @@ export default function ArchetypeCombinedImplementationPanel({
           <p
             style={{
               margin: "0 0 4px",
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: 700,
               letterSpacing: "0.1em",
               textTransform: "uppercase",

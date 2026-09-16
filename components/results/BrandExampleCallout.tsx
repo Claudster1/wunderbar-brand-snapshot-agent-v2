@@ -27,8 +27,7 @@ export function BrandExampleCallout({ children, style }: Props) {
       <p
         style={{
           margin: 0,
-          fontSize: 11,
-          fontWeight: 800,
+          fontSize: 14, fontWeight: 800,
           letterSpacing: "0.1em",
           textTransform: "uppercase",
           color: EXAMPLE_CALLOUT.labelColor,

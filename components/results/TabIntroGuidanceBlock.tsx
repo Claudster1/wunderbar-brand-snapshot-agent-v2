@@ -47,7 +47,7 @@ export function TabIntroGuidanceBlock({
               lineHeight: 1.4,
             }}
           >
-            <span aria-hidden style={{ color: "#07B0F2", fontSize: 11, fontWeight: 800 }}>
+            <span aria-hidden style={{ color: "#07B0F2", fontSize: 14, fontWeight: 800 }}>
               {open ? "▾" : "▸"}
             </span>
             <span>
@@ -73,8 +73,7 @@ export function TabIntroGuidanceBlock({
               <p
                 style={{
                   margin: "0 0 12px",
-                  fontSize: 12,
-                  lineHeight: 1.5,
+                  fontSize: 13, lineHeight: 1.5,
                   color: "#5A6B7E",
                   fontWeight: 500,
                 }}
@@ -94,9 +93,9 @@ export function TabIntroGuidanceBlock({
                     <dt
                       style={{
                         margin: 0,
-                        fontSize: 12,
-                        fontWeight: 800,
-                        letterSpacing: "0.03em",
+                        fontSize: 14, fontWeight: 800,
+                        letterSpacing: "0.1em",
+                        textTransform: "uppercase",
                         color: "#021859",
                       }}
                     >

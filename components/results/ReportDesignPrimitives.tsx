@@ -6,12 +6,14 @@ import {
   SUITE_BLUE,
   SUITE_BORDER,
   SUITE_FONT_UI,
+  SUITE_MICRO_EYEBROW_STYLE,
   SUITE_MUTED,
   SUITE_NAVY,
   SUITE_RADIUS_LG,
   SUITE_RADIUS_MD,
   SUITE_SHADOW_CARD,
   SUITE_TEXT_PRIMARY,
+  SUITE_TYPE,
   SUITE_BG_CARD,
 } from "@/components/results/suiteBrandTokens";
 
@@ -27,8 +29,8 @@ export function ReportPanel({
   accentColor,
   tint,
   style,
-  /** Default `left` (suite rail). Use `none` or `top` when stacked panels feel too “striped.” */
-  edgeAccent = "left",
+  /** Default `top` (suite accent). Use `none` or `left` only when a vertical rail is intentional. */
+  edgeAccent = "top",
 }: {
   children: ReactNode;
   id?: string;
@@ -137,25 +139,31 @@ export function ReportCallout({ label, children, accentColor }: { label: string;
         borderRadius: SUITE_RADIUS_MD,
         background: "linear-gradient(165deg, rgba(7, 176, 242, 0.07) 0%, rgba(255, 255, 255, 0.98) 52%, #FFFFFF 100%)",
         border: `1px solid ${SUITE_BORDER}`,
-        borderLeft: `3px solid ${accent}`,
+        borderTop: `3px solid ${accent}`,
         boxShadow: SUITE_SHADOW_CARD,
         fontFamily: SUITE_FONT_UI,
       }}
     >
       <p
         style={{
+          ...SUITE_MICRO_EYEBROW_STYLE,
           margin: "0 0 10px",
-          fontSize: 11,
-          fontWeight: 700,
           color: accent,
-          letterSpacing: "0.1em",
-          textTransform: "uppercase",
-          fontFamily: SUITE_FONT_UI,
         }}
       >
         {label}
       </p>
-      <div style={{ margin: 0, color: SUITE_TEXT_PRIMARY, fontSize: 16, lineHeight: 1.55, fontWeight: 400 }}>{children}</div>
+      <div
+        style={{
+          margin: 0,
+          color: SUITE_TEXT_PRIMARY,
+          fontSize: SUITE_TYPE.body + 1,
+          lineHeight: 1.55,
+          fontWeight: 400,
+        }}
+      >
+        {children}
+      </div>
     </div>
   );
 }

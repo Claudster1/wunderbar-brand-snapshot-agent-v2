@@ -803,7 +803,7 @@ export default function ReportNav({
 
           {activeSection && (
             <>
-              <span style={{ fontSize: 11, fontWeight: 700, color: accentColor, lineHeight: 1 }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: accentColor, lineHeight: 1 }}>
                 {activeIdx + 1} of {sections.length}
               </span>
               <span style={{
@@ -827,11 +827,11 @@ export default function ReportNav({
               alignItems: "center",
               gap: 5,
               padding: "4px 10px",
-              borderRadius: 6,
+              borderRadius: 5,
               border: `1px solid ${focusMode ? accentColor : BORDER}`,
               background: focusMode ? `${accentColor}12` : WHITE,
               color: focusMode ? accentColor : SUB,
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: focusMode ? 700 : 500,
               cursor: "pointer",
               fontFamily: "Lato, sans-serif",
@@ -858,7 +858,7 @@ export default function ReportNav({
               padding: "4px 8px",
               borderRadius: 6,
               background: readPct === 100 ? `${READ_GREEN}12` : `${navyColor}06`,
-              fontSize: 11,
+              fontSize: 13,
               fontWeight: 700,
               color: readPct === 100 ? READ_GREEN : SUB,
               fontFamily: "Lato, sans-serif",
@@ -889,7 +889,7 @@ export default function ReportNav({
               title="Previous section (K)"
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center",
-                width: 28, height: 28, borderRadius: 6,
+                width: 28, height: 28, borderRadius: 5,
                 border: `1px solid ${BORDER}`, background: WHITE,
                 cursor: activeIdx <= 0 ? "default" : "pointer",
                 padding: 0, opacity: activeIdx <= 0 ? 0.35 : 1,
@@ -906,7 +906,7 @@ export default function ReportNav({
               title="Next section (J)"
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center",
-                width: 28, height: 28, borderRadius: 6,
+                width: 28, height: 28, borderRadius: 5,
                 border: `1px solid ${BORDER}`, background: WHITE,
                 cursor: activeIdx >= sections.length - 1 ? "default" : "pointer",
                 padding: 0, opacity: activeIdx >= sections.length - 1 ? 0.35 : 1,
@@ -928,9 +928,9 @@ export default function ReportNav({
             }}
             style={{
               display: "flex", alignItems: "center", gap: 5,
-              padding: "4px 10px", borderRadius: 6,
+              padding: "4px 10px", borderRadius: 5,
               border: `1px solid ${BORDER}`, background: WHITE,
-              color: SUB, fontSize: 12, fontWeight: 500,
+              color: SUB, fontSize: 13, fontWeight: 500,
               cursor: "pointer", fontFamily: "Lato, sans-serif",
             }}
           >
@@ -939,7 +939,7 @@ export default function ReportNav({
               <path d="M11 11l3 3" stroke={SUB} strokeWidth="1.5" strokeLinecap="round" />
             </svg>
             <span>Search</span>
-            <span style={{ fontSize: 10, color: `${SUB}80`, marginLeft: 2 }}>&#8984;K</span>
+            <span style={{ fontSize: 13, color: `${SUB}80`, marginLeft: 2 }}>&#8984;K</span>
           </button>
 
           {/* Back to top */}
@@ -947,7 +947,7 @@ export default function ReportNav({
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             style={{
               display: "flex", alignItems: "center", justifyContent: "center",
-              width: 28, height: 28, borderRadius: 6,
+              width: 28, height: 28, borderRadius: 5,
               border: `1px solid ${BORDER}`, background: WHITE,
               cursor: "pointer", padding: 0,
             }}
@@ -1012,7 +1012,7 @@ export default function ReportNav({
               position: "absolute", top: -4, right: -4,
               width: 20, height: 20, borderRadius: "50%",
               background: navyColor, color: WHITE,
-              fontSize: 10, fontWeight: 800,
+              fontSize: 14, fontWeight: 800,
               display: "flex", alignItems: "center", justifyContent: "center",
               border: `2px solid ${WHITE}`,
               fontFamily: "Lato, sans-serif",
@@ -1052,7 +1052,7 @@ export default function ReportNav({
             <p style={{ fontSize: 13, lineHeight: 1.5, margin: 0, color: navyColor, opacity: 0.85 }}>
               Jump to any section, search content, bookmark, or use focus mode. Keyboard: J/K to navigate, F for focus mode.
             </p>
-            <div style={{ fontSize: 11, marginTop: 8, opacity: 0.45, fontWeight: 600, color: navyColor }}>
+            <div style={{ fontSize: 12, marginTop: 8, opacity: 0.45, fontWeight: 600, color: navyColor }}>
               Click to dismiss &middot; &#8984;K to search
             </div>
           </div>
@@ -1145,7 +1145,7 @@ export default function ReportNav({
                 Report Navigation
               </span>
             </div>
-            <span style={{ fontSize: 11, color: SUB, fontWeight: 600 }}>
+            <span style={{ fontSize: 13, color: SUB, fontWeight: 600 }}>
               {readCount}/{totalCount} read
             </span>
           </div>
@@ -1165,11 +1165,11 @@ export default function ReportNav({
                   style={{
                     flex: 1,
                     padding: "5px 8px",
-                    borderRadius: 6,
+                    borderRadius: 5,
                     border: `1px solid ${isActive ? accentColor + "40" : BORDER}`,
                     background: isActive ? `${accentColor}10` : WHITE,
                     color: isActive ? accentColor : SUB,
-                    fontSize: 11,
+                    fontSize: 13,
                     fontWeight: isActive ? 700 : 500,
                     cursor: "pointer",
                     fontFamily: "Lato, sans-serif",
@@ -1231,7 +1231,7 @@ export default function ReportNav({
           {/* Search results */}
           {searchQuery && searchResults.length > 0 && (
             <div style={{ padding: "4px 14px 8px" }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: SUB, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: SUB, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
                 {searchResults.length} result{searchResults.length !== 1 ? "s" : ""}
               </div>
               {searchResults.map((result, i) => (
@@ -1240,7 +1240,7 @@ export default function ReportNav({
                   onClick={() => scrollTo(result.elementId)}
                   style={{
                     display: "block", width: "100%", textAlign: "left",
-                    padding: "8px 12px", borderRadius: 6, border: "none",
+                    padding: "8px 12px", borderRadius: 5, border: "none",
                     background: "transparent", cursor: "pointer",
                     fontSize: 13, color: "#1a1a2e", lineHeight: 1.4,
                     fontFamily: "Lato, sans-serif", marginBottom: 2,
@@ -1250,7 +1250,7 @@ export default function ReportNav({
                   onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
                 >
                   <HighlightText text={result.text} query={searchQuery} color={accentColor} />
-                  <div style={{ fontSize: 11, color: SUB, marginTop: 2 }}>
+                  <div style={{ fontSize: 13, color: SUB, marginTop: 2 }}>
                     in {sections.find((s) => s.id === result.elementId)?.label}
                   </div>
                 </button>
@@ -1261,7 +1261,7 @@ export default function ReportNav({
           {searchQuery && searchResults.length === 0 && (
             <div style={{ padding: "20px 18px", textAlign: "center" }}>
               <div style={{ fontSize: 13, color: SUB }}>No results for &ldquo;{searchQuery}&rdquo;</div>
-              <div style={{ fontSize: 12, color: `${SUB}80`, marginTop: 4 }}>Try a different search term</div>
+              <div style={{ fontSize: 13, color: `${SUB}80`, marginTop: 4 }}>Try a different search term</div>
             </div>
           )}
 
@@ -1270,7 +1270,7 @@ export default function ReportNav({
             <div style={{ padding: "28px 18px", textAlign: "center" }}>
               <div style={{ fontSize: 24, marginBottom: 8 }}>{"\u2606"}</div>
               <div style={{ fontSize: 13, color: SUB, fontWeight: 600 }}>No starred sections yet</div>
-              <div style={{ fontSize: 12, color: `${SUB}80`, marginTop: 4 }}>
+              <div style={{ fontSize: 13, color: `${SUB}80`, marginTop: 4 }}>
                 Click the star icon next to any section to bookmark it
               </div>
             </div>
@@ -1281,7 +1281,7 @@ export default function ReportNav({
             <div style={{ padding: "28px 18px", textAlign: "center" }}>
               <div style={{ fontSize: 24, marginBottom: 8 }}>{"\u2714"}</div>
               <div style={{ fontSize: 13, color: READ_GREEN, fontWeight: 700 }}>All sections reviewed!</div>
-              <div style={{ fontSize: 12, color: `${SUB}80`, marginTop: 4 }}>
+              <div style={{ fontSize: 13, color: `${SUB}80`, marginTop: 4 }}>
                 You&apos;ve read through the entire report
               </div>
             </div>
@@ -1291,7 +1291,7 @@ export default function ReportNav({
           {displaySections.length > 0 && (
             <div>
               {!searchQuery && searchResults.length === 0 && (
-                <div style={{ padding: "4px 14px 6px", fontSize: 11, fontWeight: 700, color: SUB, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                <div style={{ padding: "4px 14px 6px", fontSize: 13, fontWeight: 700, color: SUB, textTransform: "uppercase", letterSpacing: "0.08em" }}>
                   Jump to section
                 </div>
               )}
@@ -1312,7 +1312,7 @@ export default function ReportNav({
                           width: "100%", textAlign: "left",
                           padding: "7px 14px", border: "none",
                           background: groupHasActive ? `${accentColor}06` : "transparent",
-                          cursor: "pointer", fontSize: 11, fontWeight: 800,
+                          cursor: "pointer", fontSize: 14, fontWeight: 800,
                           color: groupHasActive ? accentColor : SUB,
                           fontFamily: "Lato, sans-serif",
                           textTransform: "uppercase", letterSpacing: "0.06em",
@@ -1330,7 +1330,7 @@ export default function ReportNav({
                           <path d="M2 3l3 3.5L8 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                         <span style={{ flex: 1 }}>{group}</span>
-                        <span style={{ fontSize: 10, fontWeight: 600, color: `${SUB}80` }}>{groupSecs.length}</span>
+                        <span style={{ fontSize: 13, fontWeight: 600, color: `${SUB}80` }}>{groupSecs.length}</span>
                       </button>
                       {!isCollapsed && groupSecs.map((section) => {
                         const isActive = section.id === activeSection;
@@ -1412,7 +1412,7 @@ export default function ReportNav({
                     }}
                   />
                 </div>
-                <span style={{ fontSize: 11, color: readPct === 100 ? READ_GREEN : SUB, fontWeight: 600 }}>
+                <span style={{ fontSize: 13, color: readPct === 100 ? READ_GREEN : SUB, fontWeight: 600 }}>
                   {readPct}% read
                 </span>
               </div>
@@ -1431,7 +1431,7 @@ export default function ReportNav({
                     }}
                   />
                 </div>
-                <span style={{ fontSize: 11, color: SUB, fontWeight: 600 }}>
+                <span style={{ fontSize: 13, color: SUB, fontWeight: 600 }}>
                   {Math.round(scrollProgress)}% scrolled
                 </span>
               </div>
@@ -1446,7 +1446,7 @@ export default function ReportNav({
                 display: "flex", alignItems: "center", gap: 4,
                 padding: "4px 10px", borderRadius: 5,
                 border: `1px solid ${navyColor}25`, background: `${navyColor}08`,
-                color: navyColor, fontSize: 11, fontWeight: 700,
+                color: navyColor, fontSize: 12, fontWeight: 700,
                 cursor: "pointer", fontFamily: "Lato, sans-serif",
               }}
             >
@@ -1462,7 +1462,7 @@ export default function ReportNav({
                 display: "flex", alignItems: "center", gap: 4,
                 padding: "4px 10px", borderRadius: 5,
                 border: `1px solid ${BORDER}`, background: WHITE,
-                color: SUB, fontSize: 11, fontWeight: 600,
+                color: SUB, fontSize: 13, fontWeight: 600,
                 cursor: "pointer", fontFamily: "Lato, sans-serif",
               }}
             >
@@ -1490,11 +1490,11 @@ export default function ReportNav({
             { keys: "\u2318K", label: "search" },
             { keys: "Esc", label: "close" },
           ].map(({ keys, label }) => (
-            <span key={keys} style={{ fontSize: 10, color: `${SUB}90`, fontFamily: "Lato, sans-serif" }}>
+            <span key={keys} style={{ fontSize: 13, color: `${SUB}90`, fontFamily: "Lato, sans-serif" }}>
               <span style={{
                 padding: "1px 4px", borderRadius: 3,
                 background: `${navyColor}08`, border: `1px solid ${BORDER}`,
-                fontSize: 9, fontWeight: 700, color: SUB,
+                fontSize: 12, fontWeight: 700, color: SUB,
                 fontFamily: "'SF Mono', Monaco, monospace",
               }}>
                 {keys}
@@ -1638,7 +1638,7 @@ function SectionButton({
           onClick={(e) => { e.stopPropagation(); onToggleBookmark(); }}
           title={isBookmarked ? "Remove bookmark" : "Bookmark this section"}
           style={{
-            width: 24, height: 24, borderRadius: 4,
+            width: 24, height: 24, borderRadius: 5,
             border: "none", background: "transparent",
             cursor: "pointer", display: "flex",
             alignItems: "center", justifyContent: "center",
@@ -1663,7 +1663,7 @@ function SectionButton({
           onClick={(e) => { e.stopPropagation(); onCopyLink(); }}
           title="Copy link to this section"
           style={{
-            width: 24, height: 24, borderRadius: 4,
+            width: 24, height: 24, borderRadius: 5,
             border: "none", background: "transparent",
             cursor: "pointer", display: "flex",
             alignItems: "center", justifyContent: "center",

@@ -44,8 +44,7 @@ export function StrategicPrioritiesBarChart({ items }: Props) {
           paddingBottom: 14,
           marginBottom: 6,
           borderBottom: "1px solid rgba(7, 176, 242, 0.14)",
-          fontSize: 11,
-          fontWeight: 800,
+          fontSize: 14, fontWeight: 800,
           letterSpacing: "0.1em",
           textTransform: "uppercase",
           color: SUITE_NAVY,
@@ -53,7 +52,7 @@ export function StrategicPrioritiesBarChart({ items }: Props) {
       >
         Priority order
       </p>
-      <p style={{ margin: "10px 0 0", fontSize: 12, lineHeight: 1.5, color: SUITE_MUTED }}>
+      <p style={{ margin: "10px 0 0", fontSize: 13, lineHeight: 1.5, color: SUITE_MUTED }}>
         Numbered steps show <strong style={{ color: SUITE_NAVY, fontWeight: 700 }}>sequence</strong>, not how “done” each
         item is—work #1 before you overload the team on #2 and below.
       </p>
@@ -117,7 +116,7 @@ export function StrategicPrioritiesBarChart({ items }: Props) {
                   {row.title}
                 </p>
                 {row.pillar ? (
-                  <p style={{ margin: "6px 0 0", fontSize: 12, lineHeight: 1.45, color: SUITE_MUTED }}>
+                  <p style={{ margin: "6px 0 0", fontSize: 13, lineHeight: 1.45, color: SUITE_MUTED }}>
                     Pillar: <span style={{ color: SUITE_NAVY, fontWeight: 600 }}>{row.pillar}</span>
                   </p>
                 ) : null}

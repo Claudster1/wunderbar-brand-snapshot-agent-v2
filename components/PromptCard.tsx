@@ -46,7 +46,7 @@ export default function PromptCard({
     <div
       style={{
         border: `1px solid ${BORDER}`,
-        borderLeft: `3px solid ${packColor}`,
+        borderTop: `2px solid ${packColor}`,
         borderRadius: 8,
         backgroundColor: "#ffffff",
         marginBottom: 10,
@@ -138,13 +138,14 @@ export default function PromptCard({
               style={{
                 fontSize: 10,
                 fontWeight: 700,
-                letterSpacing: "0.04em",
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
                 color: MID_GRAY,
                 display: "block",
                 marginBottom: 4,
               }}
             >
-              Why This Works for You
+              Why this works for you
             </span>
             <p style={{ fontSize: 13, color: "#2D3A4A", lineHeight: 1.6, margin: 0 }}>
               {prompt.whyItMatters}
@@ -163,13 +164,14 @@ export default function PromptCard({
               style={{
                 fontSize: 10,
                 fontWeight: 700,
-                letterSpacing: "0.04em",
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
                 color: BLUE,
                 display: "block",
                 marginBottom: 4,
               }}
             >
-              How to Use
+              How to use
             </span>
             <p style={{ fontSize: 13, color: NAVY, lineHeight: 1.5, margin: 0 }}>
               {prompt.howToUse}
@@ -229,7 +231,7 @@ export default function PromptCard({
                 backgroundColor: copied ? "#16A34A" : BLUE,
                 color: "#ffffff",
                 border: "none",
-                borderRadius: 6,
+                borderRadius: 5,
                 fontWeight: 700,
                 fontSize: 13,
                 cursor: "pointer",
@@ -246,7 +248,7 @@ export default function PromptCard({
                 backgroundColor: "transparent",
                 color: NAVY,
                 border: `2px solid ${BORDER}`,
-                borderRadius: 6,
+                borderRadius: 5,
                 fontWeight: 700,
                 fontSize: 13,
                 cursor: "pointer",

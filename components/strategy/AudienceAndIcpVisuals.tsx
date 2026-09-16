@@ -81,7 +81,7 @@ export function IcpSegmentCards({ audiencePersonas }: { audiencePersonas: unknow
 
   return (
     <div className="mb-5" style={{ fontFamily: SUITE_FONT_UI }}>
-      <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.1em] text-brand-blue sm:text-xs">Who you sell to</p>
+      <p className="m-0 text-[12px] font-semibold uppercase tracking-[0.1em] text-brand-blue sm:text-xs">Who you sell to</p>
       <p className="mt-1 max-w-3xl text-[12px] leading-relaxed text-brand-muted sm:text-sm">
         Quick read of your main customer groups. Scroll the text under each card for the full detail.
       </p>
@@ -90,9 +90,9 @@ export function IcpSegmentCards({ audiencePersonas }: { audiencePersonas: unknow
           <div
             key={`${c.title}-${i}`}
             className="rounded-xl border border-slate-900/[0.08] bg-white p-4 shadow-sm"
-            style={{ borderLeftWidth: 3, borderLeftColor: SUITE_ACCENT_BRIGHT }}
+            style={{ borderTopWidth: 2, borderTopColor: SUITE_ACCENT_BRIGHT }}
           >
-            <span className="text-[10px] font-semibold uppercase tracking-wide text-brand-blue">{c.badge}</span>
+            <span className="text-[12px] font-semibold uppercase tracking-wide text-brand-blue">{c.badge}</span>
             <p className="mt-1 text-sm font-semibold leading-snug text-brand-navy sm:text-[15px]" style={{ color: SUITE_NAVY }}>
               {c.title}
             </p>
@@ -144,7 +144,7 @@ export function BuyerPersonaTileStrip({ buyerPersonas }: { buyerPersonas: unknow
 
   return (
     <div className="mb-5" style={{ fontFamily: SUITE_FONT_UI }}>
-      <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.1em] text-brand-blue sm:text-xs">People behind the purchase</p>
+      <p className="m-0 text-[12px] font-semibold uppercase tracking-[0.1em] text-brand-blue sm:text-xs">People behind the purchase</p>
       <p className="mt-1 max-w-3xl text-[12px] leading-relaxed text-brand-muted sm:text-sm">
         One card per buyer role. Use them to keep sales and marketing talking about the same person.
       </p>
@@ -176,7 +176,7 @@ export function BuyerPersonaTileStrip({ buyerPersonas }: { buyerPersonas: unknow
 function SectionEyebrow({ children }: { children: string }) {
   return (
     <p
-      className="m-0 text-[11px] font-semibold uppercase tracking-[0.1em] text-brand-blue sm:text-xs"
+      className="m-0 text-[12px] font-semibold uppercase tracking-[0.1em] text-brand-blue sm:text-xs"
       style={{ fontFamily: SUITE_FONT_UI }}
     >
       {children}
@@ -198,7 +198,7 @@ function IntakeSegmentStrip({ segments }: { segments: StrategyIntakeSegment[] })
             key={s.label}
             className="rounded-xl border border-slate-900/[0.08] bg-gradient-to-b from-slate-50/90 to-white p-4 shadow-sm"
           >
-            <p className="m-0 text-[10px] font-semibold uppercase tracking-wide text-brand-blue">{s.label}</p>
+            <p className="m-0 text-[12px] font-semibold uppercase tracking-wide text-brand-blue">{s.label}</p>
             <p className="mt-2 text-[13px] leading-relaxed text-brand-midnight sm:text-sm">{s.body}</p>
           </div>
         ))}
@@ -219,10 +219,10 @@ function IcpDetailCard({
   return (
     <article
       className="overflow-hidden rounded-xl border border-slate-900/[0.1] bg-white shadow-sm"
-      style={{ borderLeftWidth: 4, borderLeftColor: accent, fontFamily: SUITE_FONT_UI }}
+      style={{ borderTopWidth: 3, borderTopColor: accent, borderTopStyle: "solid", fontFamily: SUITE_FONT_UI }}
     >
       <div className="border-b border-slate-900/[0.06] bg-slate-50/80 px-4 py-3 sm:px-5 sm:py-4">
-        <span className="inline-block rounded-full bg-white px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-blue ring-1 ring-slate-900/[0.08]">
+        <span className="inline-block rounded-full bg-white px-2.5 py-0.5 text-[12px] font-semibold uppercase tracking-wide text-brand-blue ring-1 ring-slate-900/[0.08]">
           {detail.badge}
         </span>
         <h4 className="mt-2 text-base font-semibold leading-snug text-brand-navy sm:text-lg" style={{ color: SUITE_NAVY }}>
@@ -237,7 +237,7 @@ function IcpDetailCard({
           <div className="grid gap-4 md:grid-cols-2">
             {detail.fields.map((f) => (
               <div key={f.label} className="min-w-0">
-                <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-brand-blue">{f.label}</p>
+                <p className="m-0 text-[12px] font-semibold uppercase tracking-[0.06em] text-brand-blue">{f.label}</p>
                 <p className="mt-1.5 text-[13px] leading-relaxed sm:text-sm" style={{ color: SUITE_MUTED }}>
                   {f.value}
                 </p>
@@ -250,7 +250,7 @@ function IcpDetailCard({
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             {detail.painPoints.length > 0 ? (
               <div className="rounded-lg border border-rose-900/[0.08] bg-rose-50/40 px-3 py-3 sm:px-4">
-                <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-rose-800/90">
+                <p className="m-0 text-[12px] font-semibold uppercase tracking-[0.06em] text-rose-800/90">
                   Pain points
                 </p>
                 <ul className="strategy-suite-ul mb-0 mt-2 text-[13px] leading-relaxed text-brand-midnight sm:text-sm">
@@ -262,7 +262,7 @@ function IcpDetailCard({
             ) : null}
             {detail.objections.length > 0 ? (
               <div className="rounded-lg border border-amber-900/[0.1] bg-amber-50/50 px-3 py-3 sm:px-4">
-                <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-amber-900/85">
+                <p className="m-0 text-[12px] font-semibold uppercase tracking-[0.06em] text-amber-900/85">
                   Typical objections
                 </p>
                 <ul className="strategy-suite-ul mb-0 mt-2 text-[13px] leading-relaxed text-brand-midnight sm:text-sm">
@@ -293,7 +293,7 @@ function TransitionPlanCard({ rows }: { rows: StrategyAudienceTransitionRow[] })
       <dl className="mt-4 space-y-4">
         {rows.map((r) => (
           <div key={r.label} className="border-t border-slate-900/[0.06] pt-4 first:border-t-0 first:pt-0">
-            <dt className="text-[11px] font-semibold uppercase tracking-[0.06em] text-brand-blue">{r.label}</dt>
+            <dt className="text-[12px] font-semibold uppercase tracking-[0.06em] text-brand-blue">{r.label}</dt>
             <dd className="mt-1.5 text-[13px] leading-relaxed sm:text-sm" style={{ color: SUITE_MUTED }}>
               <StrategyProseBody
                 text={r.value}
@@ -410,7 +410,7 @@ function BuyerPersonaCard({ card }: { card: StrategyBuyerPersonaCard }) {
       <div className="grid gap-3 px-4 py-4 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-3 sm:px-5 sm:py-5">
         {card.rows.map((row) => (
           <div key={row.label} className="min-w-0">
-            <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-brand-blue">{row.label}</p>
+            <p className="m-0 text-[12px] font-semibold uppercase tracking-[0.06em] text-brand-blue">{row.label}</p>
             <p className="mt-1.5 text-[13px] leading-relaxed sm:text-sm" style={{ color: SUITE_MUTED }}>
               {row.value}
             </p>

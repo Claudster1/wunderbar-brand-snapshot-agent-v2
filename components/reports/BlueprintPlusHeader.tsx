@@ -138,7 +138,7 @@ export function BlueprintPlusHeader({
             <span className="text-base sm:text-lg font-bold text-brand-navy leading-tight">
               {productName}
             </span>
-            <span className="text-[11px] sm:text-xs text-brand-muted">
+            <span className="text-[12px] sm:text-[13px] text-brand-muted">
               Powered by{" "}
               <a
                 href={`https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=${utmMedium}&utm_campaign=brand_navigation&utm_content=report_header_powered_by`}
@@ -158,7 +158,7 @@ export function BlueprintPlusHeader({
           aria-label={`${productName} sections`}
           className="sticky top-0 z-20 rounded-xl border border-[#07B0F2]/25 bg-[rgba(247,250,255,0.97)] px-3 py-2.5 shadow-[0_6px_18px_rgba(2,24,89,0.08)] backdrop-blur-md sm:px-4"
         >
-          <p className="m-0 mb-2 text-[10px] font-extrabold uppercase tracking-[0.08em] text-brand-blue">
+          <p className="m-0 mb-2 text-[12px] font-extrabold uppercase tracking-[0.08em] text-brand-blue">
             Jump to section
           </p>
           <div className="flex items-center gap-2">
@@ -189,26 +189,26 @@ export function BlueprintPlusHeader({
                 {prevItem?.href ? (
                   <Link
                     href={prevItem.href}
-                    className="inline-flex items-center rounded border border-brand-border px-2 py-1 text-[11px] font-bold text-brand-muted no-underline hover:border-brand-blue/40 hover:text-brand-navy"
+                    className="inline-flex items-center rounded border border-brand-border px-2 py-1 text-[12px] font-bold text-brand-muted no-underline hover:border-brand-blue/40 hover:text-brand-navy"
                     aria-label={`Previous section: ${prevItem.label}`}
                   >
                     ← Prev
                   </Link>
                 ) : (
-                  <span className="inline-flex items-center rounded border border-brand-border px-2 py-1 text-[11px] font-bold text-brand-muted/50">
+                  <span className="inline-flex items-center rounded border border-brand-border px-2 py-1 text-[12px] font-bold text-brand-muted/50">
                     ← Prev
                   </span>
                 )}
                 {nextItem?.href ? (
                   <Link
                     href={nextItem.href}
-                    className="inline-flex items-center rounded border border-brand-border px-2 py-1 text-[11px] font-bold text-brand-muted no-underline hover:border-brand-blue/40 hover:text-brand-navy"
+                    className="inline-flex items-center rounded border border-brand-border px-2 py-1 text-[12px] font-bold text-brand-muted no-underline hover:border-brand-blue/40 hover:text-brand-navy"
                     aria-label={`Next section: ${nextItem.label}`}
                   >
                     Next →
                   </Link>
                 ) : (
-                  <span className="inline-flex items-center rounded border border-brand-border px-2 py-1 text-[11px] font-bold text-brand-muted/50">
+                  <span className="inline-flex items-center rounded border border-brand-border px-2 py-1 text-[12px] font-bold text-brand-muted/50">
                     Next →
                   </span>
                 )}

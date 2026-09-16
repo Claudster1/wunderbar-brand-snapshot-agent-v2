@@ -125,7 +125,7 @@ export function MainGauge({ score }: { score: number }) {
           <div style={{ fontSize: 50, fontWeight: 900, color: NAVY, lineHeight: 1 }}>
             <AnimatedNumber value={safeScore} />
           </div>
-          <div style={{ fontSize: 14, color: SUB, marginTop: 2 }}>out of 100</div>
+          <div style={{ fontSize: 15, color: SUB, marginTop: 2 }}>out of 100</div>
         </div>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -135,7 +135,7 @@ export function MainGauge({ score }: { score: number }) {
             <div key={range.label} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 14px", borderRadius: 5, background: active ? `${range.color}12` : "transparent", border: active ? `2px solid ${range.color}35` : "2px solid transparent" }}>
               <div style={{ width: 12, height: 12, borderRadius: "50%", background: range.color }} />
               <span style={{ fontSize: 14, fontWeight: 700, color: active ? range.color : SUB, minWidth: 56 }}>{range.label}</span>
-              <span style={{ fontSize: 14, color: SUB, opacity: 0.55 }}>{range.min}–{range.max}</span>
+              <span style={{ fontSize: 15, color: SUB, opacity: 0.55 }}>{range.min}–{range.max}</span>
             </div>
           );
         })}

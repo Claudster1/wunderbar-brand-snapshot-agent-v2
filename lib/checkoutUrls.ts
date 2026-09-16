@@ -29,7 +29,7 @@ export function getTrackedCheckoutUrl({
   product,
   medium,
   content,
-  source = "wunderbar_app",
+  source = "wunderbrand_app",
   campaign,
   baseReportId,
 }: CheckoutTrackingInput): string {

@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 
+/** Legacy marketing route → in-app suite (comparison + checkout). */
 export default function BrandSnapshotSuitePage() {
-  redirect(
-    "https://wunderbardigital.com/wunderbrand-suite?utm_source=wunderbrand_app&utm_medium=legacy_route&utm_campaign=route_migration"
-  );
+  redirect("/brand-suite");
 }

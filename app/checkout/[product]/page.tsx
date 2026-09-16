@@ -38,7 +38,7 @@ function CheckoutProductInner() {
             emailMarketingOptedIn: getEmailMarketingOptInPreference(),
             metadata: {
               ...(baseReportId ? { base_report_id: baseReportId } : {}),
-              utm_source: searchParams.get("utm_source") || "wunderbar_app",
+              utm_source: searchParams.get("utm_source") || "wunderbrand_app",
               utm_medium: searchParams.get("utm_medium") || "checkout",
               utm_campaign: searchParams.get("utm_campaign") || "",
               utm_content: searchParams.get("utm_content") || "",

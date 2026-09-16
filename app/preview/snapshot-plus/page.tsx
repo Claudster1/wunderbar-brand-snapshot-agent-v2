@@ -3130,7 +3130,7 @@ export default function BrandSnapshotPlusReport() {
                 ))}
               </div>
               <a
-                href="/checkout/blueprint?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=blueprint_upgrade&utm_content=snap_plus_explore_blueprint"
+                href="/checkout/blueprint?utm_source=wunderbrand_app&utm_medium=results_cta&utm_campaign=blueprint_upgrade&utm_content=snap_plus_explore_blueprint"
                 target="_blank" rel="noopener noreferrer"
                 style={SUITE_CTA_SOLID_STYLE}
               >
@@ -3161,7 +3161,7 @@ export default function BrandSnapshotPlusReport() {
                 ))}
               </div>
               <a
-                href="/checkout/blueprint-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=blueprint_plus_upgrade&utm_content=snap_plus_explore_blueprint_plus"
+                href="/checkout/blueprint-plus?utm_source=wunderbrand_app&utm_medium=results_cta&utm_campaign=blueprint_plus_upgrade&utm_content=snap_plus_explore_blueprint_plus"
                 target="_blank" rel="noopener noreferrer"
                 style={SUITE_CTA_OUTLINE_STYLE}
               >

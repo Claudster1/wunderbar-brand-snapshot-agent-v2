@@ -295,7 +295,7 @@ export function LockedResultsPreview({
             </p>
           )}
           <Link
-            href="/checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=archetype_activation"
+            href="/checkout/snapshot-plus?utm_source=wunderbrand_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=archetype_activation"
             onClick={() => trackLockedClick("archetype_activation")}
             className="text-sm font-semibold text-brand-blue hover:underline underline-offset-2"
           >
@@ -313,7 +313,7 @@ export function LockedResultsPreview({
           </p>
           <p className="bs-small text-brand-blue font-bold">Locked — available in Snapshot+</p>
           <Link
-            href="/checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=dominant_factor_lock"
+            href="/checkout/snapshot-plus?utm_source=wunderbrand_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=dominant_factor_lock"
             onClick={() => trackLockedClick("dominant_factor")}
             className="inline-flex mt-3 text-sm font-bold text-brand-blue hover:underline"
           >
@@ -330,7 +330,7 @@ export function LockedResultsPreview({
           </p>
           <p className="bs-small text-brand-blue font-bold">Locked — available in Snapshot+</p>
           <Link
-            href="/checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=audience_alignment_lock"
+            href="/checkout/snapshot-plus?utm_source=wunderbrand_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=audience_alignment_lock"
             onClick={() => trackLockedClick("audience_alignment")}
             className="inline-flex mt-3 text-sm font-bold text-brand-blue hover:underline"
           >
@@ -356,7 +356,7 @@ export function LockedResultsPreview({
           </ul>
           <p className="bs-small text-brand-blue font-bold">Locked — available in Snapshot+</p>
           <Link
-            href="/checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=prompt_pack_lock"
+            href="/checkout/snapshot-plus?utm_source=wunderbrand_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=prompt_pack_lock"
             onClick={() => trackLockedClick("prompt_pack")}
             className="inline-flex mt-3 text-sm font-bold text-brand-blue hover:underline"
           >
@@ -373,7 +373,7 @@ export function LockedResultsPreview({
           </p>
           <p className="bs-small text-brand-blue font-bold">Locked — available in Snapshot+</p>
           <Link
-            href="/checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=format_channel_lock"
+            href="/checkout/snapshot-plus?utm_source=wunderbrand_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=format_channel_lock"
             onClick={() => trackLockedClick("format_channel")}
             className="inline-flex mt-3 text-sm font-bold text-brand-blue hover:underline"
           >
@@ -384,7 +384,7 @@ export function LockedResultsPreview({
 
       <div className="pt-4 border-t border-brand-border">
         <Link
-          href="/checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=full_results_lock"
+          href="/checkout/snapshot-plus?utm_source=wunderbrand_app&utm_medium=results_cta&utm_campaign=snapshot_plus_upgrade&utm_content=full_results_lock"
           onClick={() => trackLockedClick("full_results")}
           className="btn-primary inline-flex w-full sm:w-auto justify-center text-base px-8 py-3.5 shadow-[0_4px_14px_rgba(7,176,242,0.35)]"
         >

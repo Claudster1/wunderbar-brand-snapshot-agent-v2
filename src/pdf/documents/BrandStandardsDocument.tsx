@@ -27,6 +27,7 @@ import { PdfFooter } from "../components/PdfFooter";
 import { registerPdfFonts } from "../registerFonts";
 import { sampleStyleForRole } from "../typography/brandStandardsTypeSamples";
 import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
+import { isHttpsImageUrl } from "@/lib/assets/brandAssetPaths";
 
 registerPdfFonts();
 
@@ -222,6 +223,8 @@ interface WorkbookData {
       minimum_size?: string;
       placement_rules?: string[];
       incorrect_uses?: string[];
+      /** Signed URL for uploaded primary logo (Blueprint / Blueprint+). */
+      logo_image_url?: string;
     };
     layout_guidelines?: {
       overview?: string;
@@ -292,6 +295,13 @@ const s = StyleSheet.create({
     flex: 1,
   },
   coverLogo: { width: 140, marginBottom: 48, opacity: 0.9 },
+  coverClientLogo: {
+    maxWidth: 220,
+    maxHeight: 96,
+    objectFit: "contain" as const,
+    marginBottom: 28,
+  },
+  coverPoweredLogo: { width: 100, marginTop: 28, opacity: 0.85 },
   coverTitle: {
     fontSize: 36, fontWeight: 700, color: "#FFFFFF",
     textAlign: "center", marginBottom: 12,
@@ -545,8 +555,16 @@ function ColorSwatchBlock({ swatch }: { swatch: ColorSwatch }) {
 export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
   const biz = data.business_name || "Your Brand";
   const reportDate = new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
-  const headerChrome = { businessName: biz, date: reportDate, productName: "Brand Standards" as const };
   const bsd = data.brand_standards_data || {};
+  // Cover + Logo System only — never put remote client logos in fixed PdfHeader (N page fetches / flaky PDF).
+  const clientLogoUrl = isHttpsImageUrl(bsd.logo_guidelines?.logo_image_url)
+    ? bsd.logo_guidelines!.logo_image_url
+    : undefined;
+  const headerChrome = {
+    businessName: biz,
+    date: reportDate,
+    productName: "Brand Standards" as const,
+  };
   const visualSystemMode =
     bsd.visual_system_mode === "existing" || bsd.visual_system_mode === "optimize" || bsd.visual_system_mode === "refresh"
       ? bsd.visual_system_mode
@@ -584,8 +602,17 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
       {/* ═══════ Cover Page ═══════ */}
       <Page size="A4" style={s.coverPage}>
         <View style={s.coverInner}>
-          {/* eslint-disable-next-line jsx-a11y/alt-text */}
-          <Image style={s.coverLogo} src={PDF_WUNDERBAR_LOGO_SRC} />
+          {clientLogoUrl ? (
+            <>
+              {/* eslint-disable-next-line jsx-a11y/alt-text */}
+              <Image style={s.coverClientLogo} src={clientLogoUrl} />
+            </>
+          ) : (
+            <>
+              {/* eslint-disable-next-line jsx-a11y/alt-text */}
+              <Image style={s.coverLogo} src={PDF_WUNDERBAR_LOGO_SRC} />
+            </>
+          )}
           <Text style={s.coverTitle}>Brand Standards{"\n"}& Guidelines</Text>
           <Text style={s.coverSubtitle}>WunderBrand Blueprint+{"\u2122"}</Text>
           <Text style={s.coverPreparedLabel}>Prepared for</Text>
@@ -594,6 +621,12 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
           <Text style={s.coverConfidential}>
             Confidential {"\u2014"} For internal and authorized partner use only
           </Text>
+          {clientLogoUrl ? (
+            <>
+              {/* eslint-disable-next-line jsx-a11y/alt-text */}
+              <Image style={s.coverPoweredLogo} src={PDF_WUNDERBAR_LOGO_SRC} />
+            </>
+          ) : null}
           <Link src="https://wunderbardigital.com/?utm_source=wunderbrand_app&utm_medium=pdf_cover&utm_campaign=report_delivery&utm_content=brand_standards_cover" style={s.coverUrl}>
             wunderbardigital.com
           </Link>
@@ -892,6 +925,27 @@ export function BrandStandardsDocument({ data }: { data: WorkbookData }) {
         <Page size="A4" style={s.page}>
         <PdfHeader title="Brand Standards" {...headerChrome} />
           <Text style={s.sectionTitle}>Logo System</Text>
+
+          {bsd.logo_guidelines.logo_image_url ? (
+            <View style={{ ...s.card, alignItems: "center" as const, marginBottom: 12, paddingVertical: 16 }}>
+              <Text style={{ ...s.cardTitle, marginBottom: 10 }}>Primary logo</Text>
+              <Image
+                src={bsd.logo_guidelines.logo_image_url}
+                style={{ maxHeight: 90, maxWidth: 280, objectFit: "contain" as const }}
+              />
+              <Text style={{ ...s.bodySmall, marginTop: 8, textAlign: "center" as const }}>
+                Uploaded brand artwork. Apply the usage rules below to this mark.
+              </Text>
+            </View>
+          ) : (
+            <View style={{ ...s.card, marginBottom: 12 }}>
+              <Text style={s.cardTitle}>Interim identity</Text>
+              <Text style={s.bodySmall}>
+                No logo file was uploaded for this report. Until approved artwork exists, use a consistent
+                wordmark from the type system with the clear-space and misuse rules below.
+              </Text>
+            </View>
+          )}
 
           {bsd.logo_guidelines.overview && (
             <Text style={s.body}>{bsd.logo_guidelines.overview}</Text>

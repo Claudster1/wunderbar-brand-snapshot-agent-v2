@@ -492,6 +492,13 @@ export function getSuggestedRepliesForCapture(
       return ["Under $500", "$500–$2k", "$2k–$5k", "$5k+", "$0 / not spending yet", BETWEEN];
     case "content_creation_capacity":
       return ["Under 2 hrs/week", "2–5 hrs/week", "5–10 hrs/week", "10+ hrs/week", "Minimal right now"];
+    case "video_comfort":
+      return [
+        "Happy to record short videos",
+        "Prefer written / slides",
+        "Mix — depends on the week",
+        "Not sure yet",
+      ];
     case "competitive_pressure_point":
       return consumer
         ? tone === "b2c_professional"

@@ -99,7 +99,7 @@ export default function ArchetypeToggleCard({
         padding: "18px 18px 20px",
       }}
     >
-        <p style={{ margin: "0 0 14px", fontSize: 12, fontWeight: 800, color: NAVY, letterSpacing: "0.02em" }}>
+        <p style={{ margin: "0 0 14px", fontSize: 14, fontWeight: 800, color: NAVY, letterSpacing: "0.02em" }}>
           {brandName.trim() || "Your brand"} Archetypes
         </p>
       <div style={{ display: "grid", gridTemplateColumns: hasSecondary ? "1fr 1fr" : "1fr", gap: 12 }}>
@@ -139,10 +139,10 @@ export default function ArchetypeToggleCard({
             <p
               style={{
                 margin: 0,
-                fontSize: 11,
-                fontWeight: 800,
+                fontSize: 14, fontWeight: 800,
                 color: selected === "primary" ? "rgba(255,255,255,0.9)" : SUB,
-                letterSpacing: "0.03em",
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
               }}
             >
               Primary
@@ -193,8 +193,7 @@ export default function ArchetypeToggleCard({
               <p
                 style={{
                   margin: 0,
-                  fontSize: 11,
-                  fontWeight: 800,
+                  fontSize: 14, fontWeight: 800,
                   color: selected === "secondary" ? "rgba(255,255,255,0.9)" : SUB,
                   textTransform: "uppercase",
                   letterSpacing: "0.06em",
@@ -261,10 +260,10 @@ export default function ArchetypeToggleCard({
                 <p
                   style={{
                     margin: 0,
-                    fontSize: 10,
-                    fontWeight: 800,
+                    fontSize: 14, fontWeight: 800,
                     color: BLUE,
-                    letterSpacing: "0.04em",
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
                   }}
                 >
                   {row.label}
@@ -273,7 +272,7 @@ export default function ArchetypeToggleCard({
                   style={{
                     margin: "10px 0 0",
                     paddingLeft: 12,
-                    borderLeft: `3px solid ${BLUE}`,
+                    borderTop: `2px solid ${BLUE}`,
                     fontSize: 14,
                     color: "#334155",
                     lineHeight: 1.65,

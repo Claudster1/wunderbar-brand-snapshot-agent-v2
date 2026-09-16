@@ -9,6 +9,7 @@ import {
   SUITE_FONT_UI,
   SUITE_MUTED,
   SUITE_NAVY,
+  SUITE_RADIUS_BUTTON,
   SUITE_RADIUS_MD,
   SUITE_SHADOW_CARD,
   SUITE_TEXT_PRIMARY,
@@ -120,7 +121,7 @@ export default function WorkbookSectionComponent({
                 style={{
                   padding: "2px 10px",
                   borderRadius: 999,
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: 700,
                   backgroundColor: "rgba(7,176,242,0.1)",
                   color: BLUE,
@@ -134,7 +135,7 @@ export default function WorkbookSectionComponent({
                 style={{
                   padding: "2px 10px",
                   borderRadius: 999,
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: 700,
                   backgroundColor: "#F1F5F9",
                   color: MID_GRAY,
@@ -144,7 +145,7 @@ export default function WorkbookSectionComponent({
               </span>
             )}
           </div>
-          <p style={{ fontSize: 14, color: MID_GRAY, margin: 0, lineHeight: 1.55, maxWidth: 720 }}>{section.description}</p>
+          <p style={{ fontSize: 15, color: MID_GRAY, margin: 0, lineHeight: 1.55, maxWidth: 720 }}>{section.description}</p>
         </div>
 
         {isEditable && (
@@ -158,10 +159,10 @@ export default function WorkbookSectionComponent({
               </span>
             )}
             {isEditing && isDirty && saveStatus === "idle" && (
-              <span style={{ fontSize: 11, color: MID_GRAY, fontWeight: 600 }}>Unsaved changes</span>
+              <span style={{ fontSize: 13, color: MID_GRAY, fontWeight: 600 }}>Unsaved changes</span>
             )}
             {lastSaved && saveStatus === "idle" && !isDirty && (
-              <span style={{ fontSize: 11, color: "#94A3B8" }}>
+              <span style={{ fontSize: 12, color: "#94A3B8" }}>
                 Last saved {lastSaved.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
               </span>
             )}
@@ -177,7 +178,7 @@ export default function WorkbookSectionComponent({
                       backgroundColor: "transparent",
                       color: MID_GRAY,
                       border: `1px solid ${BORDER}`,
-                      borderRadius: SUITE_RADIUS_MD,
+                      borderRadius: SUITE_RADIUS_BUTTON,
                       fontWeight: 600,
                       fontSize: 13,
                       cursor: saveStatus === "saving" ? "not-allowed" : "pointer",
@@ -196,7 +197,7 @@ export default function WorkbookSectionComponent({
                     backgroundColor: isDirty ? BLUE : "#E8ECF0",
                     color: isDirty ? "#ffffff" : "#94A3B8",
                     border: "none",
-                    borderRadius: SUITE_RADIUS_MD,
+                    borderRadius: SUITE_RADIUS_BUTTON,
                     fontWeight: 700,
                     fontSize: 13,
                     cursor: isDirty ? "pointer" : "not-allowed",
@@ -215,7 +216,7 @@ export default function WorkbookSectionComponent({
                   backgroundColor: BLUE,
                   color: "#ffffff",
                   border: "none",
-                  borderRadius: SUITE_RADIUS_MD,
+                  borderRadius: SUITE_RADIUS_BUTTON,
                   fontWeight: 700,
                   fontSize: 13,
                   cursor: "pointer",
@@ -282,7 +283,7 @@ export default function WorkbookSectionComponent({
               <p
                 style={{
                   margin: "0 0 8px",
-                  fontSize: 11,
+                  fontSize: 13,
                   fontWeight: 700,
                   color: MID_GRAY,
                   letterSpacing: "0.1em",
@@ -341,7 +342,7 @@ export default function WorkbookSectionComponent({
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              fontSize: 11,
+              fontSize: 12,
               color: "#94A3B8",
               marginTop: 6,
               gap: 14,

@@ -13,6 +13,7 @@ import {
   SUITE_RADIUS_SM,
 } from "@/components/results/suiteBrandTokens";
 import { strategicOfferPrimaryLabel } from "@/lib/strategy/strategicOfferPlan";
+import { renderInlineMarkdown } from "@/lib/strategy/renderInlineMarkdown";
 
 type Props = {
   diagnosticData: Record<string, unknown>;
@@ -78,7 +79,7 @@ export default function ActivationStrategyBridgeBanner({ diagnosticData, onOpenS
         padding: "16px 18px",
         borderRadius: SUITE_RADIUS_MD,
         border: "1px solid rgba(0, 0, 0, 0.08)",
-        borderLeft: `3px solid ${SUITE_ACCENT_BRIGHT}`,
+        borderTop: `2px solid ${SUITE_ACCENT_BRIGHT}`,
         background: "#FAFBFC",
         maxWidth: 760,
         fontFamily: SUITE_FONT_UI,
@@ -88,8 +89,7 @@ export default function ActivationStrategyBridgeBanner({ diagnosticData, onOpenS
         id="activation-strategy-bridge-title"
         style={{
           margin: 0,
-          fontSize: 11,
-          fontWeight: 800,
+          fontSize: 14, fontWeight: 800,
           letterSpacing: "0.1em",
           textTransform: "uppercase",
           color: SUITE_ACCENT_BRIGHT,
@@ -133,7 +133,7 @@ export default function ActivationStrategyBridgeBanner({ diagnosticData, onOpenS
         >
           {lines.map((line) => (
             <li key={line} style={{ marginBottom: 6 }}>
-              {line}
+              {renderInlineMarkdown(line)}
             </li>
           ))}
         </ul>
@@ -142,7 +142,7 @@ export default function ActivationStrategyBridgeBanner({ diagnosticData, onOpenS
           Open Strategy for ranked priorities, audience focus, and channel decisions that inform every plan in this tab.
         </p>
       )}
-      <p style={{ margin: "14px 0 0", fontSize: 12, color: SUITE_MUTED, lineHeight: 1.5, fontStyle: "italic" }}>
+      <p style={{ margin: "14px 0 0", fontSize: 13, color: SUITE_MUTED, lineHeight: 1.5, fontStyle: "italic" }}>
         This week: choose one plan below, assign an owner, and set a due date in Workbook or your own tracker—small moves
         keep momentum.
       </p>

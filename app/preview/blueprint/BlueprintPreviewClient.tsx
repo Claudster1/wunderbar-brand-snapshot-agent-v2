@@ -3187,7 +3187,7 @@ export default function BrandBlueprintReport() {
                   </div>
                 ))}
               </div>
-              <a href="/checkout/blueprint-plus?utm_source=wunderbar_app&utm_medium=results_cta&utm_campaign=blueprint_plus_upgrade&utm_content=blueprint_explore_blueprint_plus" style={SUITE_CTA_SOLID_STYLE}>Explore WunderBrand Blueprint+™ →</a>
+              <a href="/checkout/blueprint-plus?utm_source=wunderbrand_app&utm_medium=results_cta&utm_campaign=blueprint_plus_upgrade&utm_content=blueprint_explore_blueprint_plus" style={SUITE_CTA_SOLID_STYLE}>Explore WunderBrand Blueprint+™ →</a>
             </div>
 
             {/* Services */}

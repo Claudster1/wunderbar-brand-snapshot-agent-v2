@@ -57,6 +57,12 @@ If a line wouldn’t sound natural read aloud on a sales call or team standup, r
 • Depth means **specific recommendations and finished copy** — not dense jargon stacks.
 • Prefer concrete scenes (who does what, where) over abstract triplets of strategy nouns.
 
+**Activation plans & starter packs (email, ads, SEO, social)**
+• Write like a helpful Wunderbar strategist sitting beside a smart founder: warm, clear, confident — never condescending, never “Marketing 101” cute.
+• Prefer everyday labels: “email tool” over ESP, “inbox preview” over preheader, “main next step” over CTA (define CTA once if you use it), “who you serve” over ICP on first mention.
+• Funnel words (awareness, nurture, re-engagement) → plain jobs: “getting noticed,” “looking closer,” “ready to choose,” “stay in touch,” “welcome back.”
+• Setup tips stay outside paste-ready email/ad bodies. Body copy is only what the recipient should read.
+
 **Prefer concrete over prestige**
 • Prefer everyday nouns and verbs over abstract strategy stacks.
 • Ban empty consulting filler unless you replace it with a specific, company-named action or finished line. Examples to rewrite: "leverage synergies," "operationalize alignment," "unlock clarity," "drive brand equity," "messaging fragmentation," "conversion architecture," "authority playbook," "GTM motion," "execution governance," "visibility leverage."

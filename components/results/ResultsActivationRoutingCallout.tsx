@@ -49,7 +49,7 @@ export default function ResultsActivationRoutingCallout({ productTier, onOpenAct
         padding: "16px 18px",
         borderRadius: SUITE_RADIUS_MD,
         border: "1px solid rgba(0, 0, 0, 0.08)",
-        borderLeft: `3px solid ${SUITE_ACCENT_BRIGHT}`,
+        borderTop: `2px solid ${SUITE_ACCENT_BRIGHT}`,
         background: "#FFFFFF",
         boxShadow: SUITE_SHADOW_CARD,
         display: "flex",
@@ -61,7 +61,7 @@ export default function ResultsActivationRoutingCallout({ productTier, onOpenAct
       }}
     >
       <div style={{ minWidth: 0, flex: "1 1 240px" }}>
-        <p style={{ margin: 0, fontSize: 12, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: SUITE_ACCENT_BRIGHT }}>
+        <p style={{ margin: 0, fontSize: 14, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: SUITE_ACCENT_BRIGHT }}>
           Execution plans
         </p>
         <p style={{ margin: "6px 0 0", fontSize: 15, fontWeight: 700, color: SUITE_NAVY, lineHeight: 1.35 }}>

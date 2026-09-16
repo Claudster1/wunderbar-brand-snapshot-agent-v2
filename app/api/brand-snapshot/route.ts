@@ -233,6 +233,8 @@ const ON_TOPIC_ASSISTANT_HINTS: Record<CaptureKey, RegExp> = {
     /\b(channel|find you|discover|prospect|net-?new|referral|search|social|paid|organic|leads?|source|customers|traffic)\b/i,
   monthly_marketing_budget: /\b(marketing|budget|spend|ads?|paid|monthly|ballpark|\$)\b/i,
   content_creation_capacity: /\b(content|hours|week|time|create|writing|video|capacity)\b/i,
+  video_comfort:
+    /\b(video|camera|screen.?record|loom|written|slides|pdf|async|comfortable|prefer written)\b/i,
   competitive_pressure_point:
     /\b(compet|prospect|lose|win|price|trust|clarity|proof|pressure|choose|instead|tilt)\b/i,
   has_email_list: /\b(email|list|newsletter|subscribers|mailing|sending to)\b/i,
@@ -319,6 +321,7 @@ function shouldIncludeCaptureForTier(capture: CaptureKey, tier: IntakeTier): boo
     "average_transaction_value",
     "conversion_rate_estimate",
     "content_creation_capacity",
+    "video_comfort",
   ];
 
   const blueprintConversion: CaptureKey[] = [
@@ -424,6 +427,8 @@ function modelFacingCaptureHint(key: CaptureKey): string {
       return "what you are comfortable spending on marketing each month";
     case "content_creation_capacity":
       return "how much time you can realistically put into content each week";
+    case "video_comfort":
+      return "how you feel about short videos or screen recordings for customers (written/slides are always fine too)";
     case "competitive_pressure_point":
       return "what usually tilts prospects toward a competitor instead of you";
     case "has_email_list":
@@ -740,6 +745,19 @@ function getCaptureStates(
         captureKeySatisfiedFromHistory("content_creation_capacity", messages),
     },
     {
+      key: "video_comfort",
+      label: "video / screen-recording comfort",
+      completed:
+        hasRecentUserSignal(
+          messages,
+          /\b(happy to record|prefer written|prefer slides|prefer text|camera.?shy|not comfortable (on |with )?video|mix — depends|depends on the week|not sure yet)\b/i,
+          5,
+        ) ||
+        refused(/\b(short videos?|screen recordings?|camera|video comfort|on camera)\b/i) ||
+        flexibleDirectCaptureComplete("video_comfort", la, lu) ||
+        captureKeySatisfiedFromHistory("video_comfort", messages),
+    },
+    {
       key: "competitive_pressure_point",
       label: "competitive pressure point",
       completed:
@@ -1052,6 +1070,8 @@ function capturePromptPatternForKey(key: CaptureKey): RegExp {
       return /\b(monthly marketing budget|marketing spend|ad spend|under \$?500|\$?2,?000|\$?5,?000|budget)\b/i;
     case "content_creation_capacity":
       return /\b(content creation|hours per week|under 2 hours|2[–-]5 hours|5[–-]10 hours|10\+ hours|time.*content|how much time)\b/i;
+    case "video_comfort":
+      return /\b(short videos?|screen recordings?|camera|video comfort|prefer written|prefer slides|happy to record|on camera|async video)\b/i;
     case "competitive_pressure_point":
       return /\b(lose deals|competitive|competitor|prospects choose|price|trust|clarity|proof|fit|why buyers|tilts? toward|compared to)\b/i;
     case "has_email_list":
@@ -1161,6 +1181,10 @@ function normalizeStoredAnswers(raw: unknown): Record<string, unknown> {
   }
   if (typeof answers.contentCreationCapacity !== "string" && typeof answers.content_creation_capacity === "string") {
     answers.contentCreationCapacity = answers.content_creation_capacity;
+  }
+  if (typeof answers.videoComfort !== "string") {
+    if (typeof answers.video_comfort === "string") answers.videoComfort = answers.video_comfort;
+    else if (typeof answers.asyncVideoComfort === "string") answers.videoComfort = answers.asyncVideoComfort;
   }
 
   if (!answers.leadMagnetDetails && answers.lead_magnet_details && typeof answers.lead_magnet_details === "object") {

@@ -46,7 +46,7 @@ function Segment({
         flex: "1 1 160px",
         textAlign: "left",
         padding: "12px 14px",
-        borderRadius: 10,
+        borderRadius: 5,
         border: `1px solid ${active ? BLUE : BORDER}`,
         background: active ? "linear-gradient(135deg, #E8F6FE 0%, #FFFFFF 100%)" : "#FFFFFF",
         cursor: "pointer",
@@ -66,7 +66,7 @@ function Segment({
       >
         {label}
       </span>
-      <span style={{ display: "block", marginTop: 4, fontSize: 11, color: MID, lineHeight: 1.45 }}>{description}</span>
+      <span style={{ display: "block", marginTop: 4, fontSize: 12, color: MID, lineHeight: 1.45 }}>{description}</span>
     </button>
   );
 }
@@ -97,7 +97,7 @@ export default function ExecutionSuiteBridge({
         fontFamily: SUITE_FONT_UI,
       }}
     >
-      <p style={{ margin: "0 0 10px", fontSize: 11, fontWeight: 800, color: BLUE, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+      <p style={{ margin: "0 0 10px", fontSize: 14, fontWeight: 800, color: BLUE, letterSpacing: "0.1em", textTransform: "uppercase" }}>
         EXECUTION FLOW
       </p>
       <p style={{ margin: "0 0 12px", fontSize: 13, color: NAVY, fontWeight: 700, lineHeight: 1.4 }}>

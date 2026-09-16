@@ -12,6 +12,7 @@ import {
   buildDevelopedSeoAeoPlan,
   buildDevelopedThoughtLeadershipPack,
 } from "@/lib/activation/activationDevelopedPlansCopy";
+import { optionalWalkthroughBodyLine } from "@/lib/activation/formatAgnosticRecommendations";
 
 export type ActivationPlanSection = {
   id: string;
@@ -156,7 +157,7 @@ function buildSocialMediaPlan(
     "",
     `Hook: Most ${opts.firstPriority.toLowerCase()} roadmaps fail in week three—not because teams lack ideas, but because the story on social, the landing page, and the first sales email disagree.`,
     "",
-    `Body: If your ${opts.audienceShort} sees three different promises in three clicks, they stop believing any of them. Pick one outcome, one timeframe, and one proof point. Build this week’s content from that spine only.`,
+    `Body: If your ${opts.audienceShort} sees three different promises in three clicks, they stop believing any of them. Pick one outcome, one timeframe, and one proof point. Build this week’s content from that message only.`,
     "",
     "CTA: Comment “map” if you want the one-page message alignment sketch we use with new clients.",
     "",
@@ -534,13 +535,14 @@ function buildIcpEmailTouchesAppendix(diagnosticData: Record<string, unknown>): 
       if (subj) lines.push(`- **Subject line:** ${subj}`);
       if (sub) lines.push(`- **Preheader (inbox preview):** ${sub}`);
       if (body) {
-        lines.push("- **Body (paste-ready):**", "", body);
+        lines.push("- **Body (paste-ready):**", "", body, "");
       }
       if (cta) lines.push(`- **Primary CTA:** ${cta}`);
       if (img) lines.push(`- **Hero image prompt:** ${img}`);
       if (vid) lines.push(`- **Video prompt:** ${vid}`);
+      // Operator note — keep outside paste-ready body so it never looks like customer copy.
       if (typeof s.performanceRationale === "string" && s.performanceRationale.trim()) {
-        lines.push(`- **Why it works:** ${String(s.performanceRationale).trim()}`);
+        lines.push("", `_Team note (do not paste):_ ${String(s.performanceRationale).trim()}`);
       }
       if (lines.length > 1) emailChunks.push(lines.join("\n"));
     }
@@ -548,9 +550,9 @@ function buildIcpEmailTouchesAppendix(diagnosticData: Record<string, unknown>): 
     if (emailChunks.length === 0) continue;
     byTier.push(
       [
-        `## ICP: ${icpTier}`,
+        `## Audience: ${icpTier}`,
         "",
-        "_Only **email** steps from this ICP’s multi-touch sequence appear here. Other channels (LinkedIn, etc.) stay in your PDF and Strategy views._",
+        "_Only the **email** steps for this audience appear here. Other channels (LinkedIn, etc.) stay in your PDF and Strategy views._",
         "",
         emailChunks.join("\n\n"),
       ].join("\n"),
@@ -559,9 +561,9 @@ function buildIcpEmailTouchesAppendix(diagnosticData: Record<string, unknown>): 
 
   if (!byTier.length) return "";
   return [
-    "## ICP-specific email touches (conversion intelligence)",
+    "## Extra emails by audience type",
     "",
-    "Organized **by ICP tier** (Primary, Secondary, …). Each **ICP:** section below is one tier. Within a tier, each block starts with the touch name, then **subject line** → **preheader** (inbox preview, not a second subject) → **body** → CTAs and prompts.",
+    "Grouped by who you are writing to (primary audience, secondary, and so on). Each block has a subject line, inbox preview, email body, and next steps. Any _Team note_ is for you — do not paste it into the email.",
     "",
     ...byTier,
   ].join("\n\n");
@@ -569,19 +571,18 @@ function buildIcpEmailTouchesAppendix(diagnosticData: Record<string, unknown>): 
 
 function buildEmailLifecycleHowToReadMarkdown(): string {
   return [
-    "## How to read this email plan",
+    "## How to use the rest of this plan",
     "",
-    "Up to **three layers** appear in this view (use the **On This page** chips to jump). They are independent sources — not three subject lines for one email.",
+    "You already have Steps 1–3 in **Start here — your email sequence**. Use this section for extras from your full report:",
     "",
-    "1. **Report notes** — Email channel copy from your export when the engine filled `channelPlans.email`.",
-    "2. **ICP-specific touches** — From your conversion intelligence, **grouped by ICP tier**. Only email-channel steps are listed.",
-    "3. **Starter nurture sequence** — Paste-ready lifecycle emails (`## Email 1 …` onward). Each block is **one** email: **subject line** → **preheader** (the short inbox preview line; **not** a second subject) → body → image prompt → CTAs.",
+    "- **Sequences from your report** — welcome / follow-up / win-back outlines when included.",
+    "- **Setup once** — list rules and send timing in your email tool (not email bodies).",
+    "- **Extra emails by audience** (if present) — optional add-ons for different customer types.",
     "",
     "### Where to edit and export",
-    "- **Update copy:** **Workbook** → Channel notes (and version history). Regenerate the report when you want a full engine rewrite from inputs.",
-    "- **All activation sections at once:** **Download activation pack (.md)** on this tab.",
-    "- **PDFs and bundles:** **Downloads** tab.",
-    "- **Single plan PDF:** open **Open plan** for a channel, then **Download plan (PDF)** on that page.",
+    "- **One plan as a doc:** Download plan (document) on the plan header — open in Docs/Word/Notion, then copy pieces into your tools.",
+    "- **All activation sections:** Download activation pack (document) on this tab.",
+    "- **PDFs:** Downloads tab, or Open plan → Download plan (PDF).",
   ].join("\n");
 }
 
@@ -596,10 +597,14 @@ function pickEmailLifecycleBody(
   /** If the report already shipped a very long email playbook, avoid duplicating the developed pack. */
   const REPORT_EMAIL_COMPLETE_MIN = 2800;
   if (e.length >= REPORT_EMAIL_COMPLETE_MIN) {
-    return [guide, e, icpAppendix].filter((x) => x.trim().length > 0).join("\n\n---\n\n");
+    // Lead with report playbook (the work), then short orientation.
+    return [e, guide, icpAppendix].filter((x) => x.trim().length > 0).join("\n\n---\n\n");
   }
 
-  const fragments: string[] = [guide];
+  // Start here: paste-ready sequence first — then how-to, report extras, audience add-ons.
+  const fragments: string[] = [];
+  if (developed.trim()) fragments.push(developed);
+  fragments.push(guide);
 
   if (isBlueprintPlusTier(diagnosticData) && e.length === 0) {
     fragments.push(
@@ -608,24 +613,16 @@ function pickEmailLifecycleBody(
         "",
         blueprintPlusEmptyBlockMessage(d.companyName, "Email lifecycle"),
         "",
-        "_The starter sequence below is generated so you still leave with paste-ready copy; regenerate the report if you expected populated channel notes._",
-      ].join("\n"),
-    );
-  } else if (e.length === 0 && !isBlueprintPlusTier(diagnosticData)) {
-    fragments.push(
-      [
-        "## Context",
-        "",
-        `Lifecycle email plan focused on ${d.firstPriority.toLowerCase()} — starter copy follows.`,
+        "_Starter sequence above is generated so you still leave with emails you can paste; regenerate the report if you expected fuller channel notes from your Blueprint+ export._",
       ].join("\n"),
     );
   }
 
   if (e.length > 0) {
-    fragments.push(`## From your report (channelPlans.email)\n\n${e}`);
+    fragments.push(e);
   }
+
   if (icpAppendix.trim()) fragments.push(icpAppendix);
-  if (developed.trim()) fragments.push(developed);
 
   return fragments.filter((x) => x.trim().length > 0).join("\n\n---\n\n");
 }
@@ -703,7 +700,7 @@ function buildLeadMagnetSectionBody(
     "",
     "**Format**  \nPDF, eight to twelve pages, plus a one-page worksheet they can print.",
     "",
-    "### Segment versions (same spine, different opening page)",
+    "### Segment versions (same core message, different opening page)",
     "",
     `**${aud} (practitioners)** — Lead with a practical guide: step-by-step checks, screenshots or diagrams, and one implementation action in the conclusion.`,
     "",
@@ -725,7 +722,9 @@ function buildLeadMagnetSectionBody(
     "",
     "### Thank-you + nurture (paste-ready)",
     "",
-    "**Email 1 — instant delivery**  \nSubject: Your kit + the one move we would make first  \nPreheader: The checklist is attached—start with item one today.  \nBody: Thanks for downloading the alignment kit. Open the PDF to page two and complete the owner map in pencil first; it keeps the conversation honest. If you want a two-minute Loom walkthrough, reply with the word “loom” and we will send one.  \nCTA button: Open the kit",
+    "**Email 1 — instant delivery**  \nSubject: Your kit + the one move we would make first  \nPreheader: The checklist is attached—start with item one today.  \nBody: Thanks for downloading the alignment kit. Open the PDF to page two and complete the owner map in pencil first; it keeps the conversation honest. " +
+      optionalWalkthroughBodyLine(2) +
+      "  \nCTA button: Open the kit",
     "",
     "**Email 2 — day 3**  \nSubject: The proof block your peers asked for  \nBody: Here is the anonymized before/after we discussed in the kit, with the footnote on how we counted the metric. Same storyline as your ad team is testing—use it on the landing page hero this week.  \nCTA: Read the proof one-pager",
     "",
@@ -801,107 +800,107 @@ export function buildActivationPlanSectionsList(
   return [
     {
       id: "audience-segments",
-      label: "Audiences & outreach triggers",
+      label: "Audiences",
       summary: activationSegmentPlansBody
-        ? "Who each campaign is for—and what should start outreach—from your conversion plan."
-        : "Who each campaign is for and what event should start outreach.",
+        ? "Who each campaign is for — and what should start a message — from your conversion plan."
+        : "Who each campaign is for, and what should trigger the first outreach.",
       body: audienceBody,
       workbookSectionId: "audience-profile",
     },
     {
       id: "journey-orchestration",
-      label: "Buyer journey plan",
+      label: "Buyer journey",
       summary:
         typeof diagnosticData.buyerJourneySummary === "string" && diagnosticData.buyerJourneySummary.trim()
-          ? "Stage-by-stage journey with buyer-role adaptations from your customer journey map."
-          : "Ordered steps across channels from first contact toward purchase.",
+          ? "Step-by-step path from first hello toward a yes, with notes for different buyer roles."
+          : "The order of touchpoints from first contact toward a purchase.",
       body: journeyBody,
       workbookSectionId: "buyer-journey-map",
     },
     {
       id: "competitive-motion-plan",
-      label: "Competitive response plan",
+      label: "Competitive response",
       summary:
         typeof diagnosticData.competitiveMatrixSummary === "string" && diagnosticData.competitiveMatrixSummary.trim()
-          ? "How you differ, where competitors are weak, and how campaigns should respond."
-          : "How campaigns and sales should respond when competitors come up.",
+          ? "How you stand out, where competitors are weak, and what to say when they come up."
+          : "What to say and do when a competitor comes up in a sales or marketing conversation.",
       body: competitiveBody,
       workbookSectionId: "competitive-landscape-matrix",
     },
     {
       id: "lead-magnet-planning",
-      label: "Free offer / download plan",
+      label: "Free offer",
       summary:
         typeof channelPlans["lead-magnet"] === "string" && channelPlans["lead-magnet"].length > 80
-          ? "CTA hierarchy, persona free offers, and conversion matrix from your conversion strategy."
+          ? "What to offer for free, who it is for, and the next step after someone downloads it."
           : tierBp
             ? "Lead capture path from your conversion strategy (or regenerate if this export is empty)."
-            : "Free offer plan linking buyer intent to offer, next step, and follow-up entry.",
+            : "A free offer plan that links what someone wants to what you ask them to do next.",
       body: buildLeadMagnetSectionBody(diagnosticData, d),
       workbookSectionId: "channel-notes",
     },
     {
       id: "email-lifecycle",
-      label: "Email Lifecycle Plan",
+      label: "Email sequence",
       summary:
         typeof channelPlans.email === "string" && channelPlans.email.length > 120
-          ? "Welcome, nurture, and re-engagement sequences with subject lines and CTAs from your email framework."
-          : "Email sequencing by stage (welcome, follow-up, conversion, re-engagement).",
+          ? "Welcome, follow-up, and win-back emails with subject lines and next steps you can paste into your email tool."
+          : "A simple email sequence: welcome, follow-up, decide, and welcome-back — written in plain language.",
       body: pickEmailLifecycleBody(diagnosticData, d),
       workbookSectionId: "channel-notes",
     },
     {
       id: "seo-aeo",
-      label: "Search & AI Discovery Plan",
+      label: "SEO & AEO",
       summary:
         (typeof channelPlans["content-seo"] === "string" && channelPlans["content-seo"].length > 120) ||
         (typeof channelPlans.seo === "string" && channelPlans.seo.length > 120)
-          ? "Keyword/page targets plus AI-discovery (AEO) priorities from your SEO + AEO strategy."
-          : "Topic clusters, search-intent mapping, and visibility in search and AI results.",
+          ? "Pages and topics to publish so people — and AI tools — can find and trust you."
+          : "What to publish so you show up in Google and in AI answers.",
       body: pickSeoAeoBody(diagnosticData, d),
       workbookSectionId: "channel-notes",
     },
     {
       id: "paid-ads",
-      label: "Paid Ads Plan",
+      label: "Paid ads",
       summary:
         (typeof channelPlans.ads === "string" && channelPlans.ads.length > 80) ||
         (typeof channelPlans.campaigns === "string" && channelPlans.campaigns.length > 80)
-          ? "Channel objectives, creative angles, and budget scenarios from your paid media strategy."
-          : "Audience-targeted campaigns, message tests, and landing-page flow.",
+          ? "Who to reach, what to say, and how to test ads without wasting budget."
+          : "Simple ad angles, who they are for, and where clicks should land.",
       body:
         paidBody ||
-        `Test 2-3 ad angles around ${primaryPillar.toLowerCase()} outcomes. Route clicks to dedicated landing pages aligned to ${secondPriority.toLowerCase()} with stage-specific next step language.`,
+        `Test 2–3 ad angles around ${primaryPillar.toLowerCase()} outcomes. Send clicks to a page that matches the ad promise and asks for one clear next step tied to ${secondPriority.toLowerCase()}.`,
       workbookSectionId: "channel-notes",
     },
     {
       id: "thought-leadership",
-      label: "Thought Leadership Plan",
+      label: "Content & social",
       summary:
         (typeof channelPlans.social === "string" && channelPlans.social.length > 120) ||
         (typeof channelPlans.content === "string" && channelPlans.content.length > 120)
-          ? "Social & content calendar from your report: platforms, example posts, and themes."
-          : "Social media plan: channel scope, content system, publishing cadence, and ownership.",
+          ? "Where to post, what to talk about, and example posts you can adapt."
+          : "A practical social plan: where to show up, what to say, and how often.",
       body:
         thoughtBody ||
-        `Build a social plan around ${firstPriority.toLowerCase()} and ${secondPriority.toLowerCase()}, using ICP-aware channels and one measurable CTA per post.`,
+        `Build a social plan around ${firstPriority.toLowerCase()} and ${secondPriority.toLowerCase()}. Stick to channels where your best customers already hang out, and give each post one clear next step.`,
       workbookSectionId: "channel-notes",
     },
     {
       id: "pr-plan",
-      label: "PR & Visibility Plan",
+      label: "Press & PR",
       summary:
         (typeof channelPlans.pr === "string" && channelPlans.pr.length > 80) ||
         (typeof channelPlans.visibility === "string" && channelPlans.visibility.length > 80)
-          ? "Media angles, hooks, and speaking lines from your thought leadership & PR plan."
-          : "Story hooks, media outreach, and credibility moments that support demand.",
+          ? "Story angles, outreach hooks, and talking points that build trust."
+          : "Story hooks and outreach ideas that help the right people notice you.",
       body: pickPrVisibilityBody(diagnosticData, d),
       workbookSectionId: "channel-notes",
     },
     {
       id: "execution-roadmap",
-      label: "90-Day Execution Roadmap",
-      summary: "Phased weeks, tasks, and deliverables from your 90-day roadmap.",
+      label: "90-day roadmap",
+      summary: "What to do in the next 90 days — in order — with owners and checkpoints.",
       body: executionBody,
       workbookSectionId: "action-plan",
     },

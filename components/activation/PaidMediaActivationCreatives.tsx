@@ -20,6 +20,10 @@ import {
   paidChannelDisplayTitle,
   type NormalizedPaidChannel,
 } from "@/lib/activation/paidMediaPlanFields";
+import {
+  copyTextToClipboard,
+  formatAdPlatformPaste,
+} from "@/lib/activation/campaignPasteHelpers";
 import StrategyProseBody from "@/components/strategy/StrategyProseBody";
 
 const NAVY = SUITE_NAVY;
@@ -112,7 +116,7 @@ export default function PaidMediaActivationCreatives({ strategy }: { strategy: R
   const normalizedChannels = rawChannels.map((raw) => normalizePaidChannel(raw));
 
   const [activeIndex, setActiveIndex] = useState(0);
-  const [copyFlash, setCopyFlash] = useState<"channel" | "overview" | null>(null);
+  const [copyFlash, setCopyFlash] = useState<"channel" | "overview" | "ads" | null>(null);
 
   useEffect(() => {
     setActiveIndex((i) => {
@@ -139,24 +143,33 @@ export default function PaidMediaActivationCreatives({ strategy }: { strategy: R
   async function copyActiveChannel() {
     if (!activeCh) return;
     const text = channelToPlainText(activeCh, activeIndex);
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopyFlash("channel");
-      window.setTimeout(() => setCopyFlash(null), 2000);
-    } catch {
-      /* ignore */
-    }
+    const ok = await copyTextToClipboard(text);
+    if (!ok) return;
+    setCopyFlash("channel");
+    window.setTimeout(() => setCopyFlash(null), 2000);
   }
 
   async function copyOverview() {
     if (!overview) return;
-    try {
-      await navigator.clipboard.writeText(overview);
-      setCopyFlash("overview");
-      window.setTimeout(() => setCopyFlash(null), 2000);
-    } catch {
-      /* ignore */
-    }
+    const ok = await copyTextToClipboard(overview);
+    if (!ok) return;
+    setCopyFlash("overview");
+    window.setTimeout(() => setCopyFlash(null), 2000);
+  }
+
+  async function copyForAdPlatform() {
+    if (!activeCh) return;
+    const text = formatAdPlatformPaste({
+      platform: activeCh.platform || undefined,
+      headline: activeCh.headline || undefined,
+      primaryText: activeCh.bodyCopy || activeCh.subheadline || undefined,
+      description: activeCh.subheadline || undefined,
+      cta: activeCh.cta || undefined,
+    });
+    const ok = await copyTextToClipboard(text);
+    if (!ok) return;
+    setCopyFlash("ads");
+    window.setTimeout(() => setCopyFlash(null), 2000);
   }
 
   const pillLabel = (ch: NormalizedPaidChannel, index: number) => {
@@ -173,7 +186,7 @@ export default function PaidMediaActivationCreatives({ strategy }: { strategy: R
           style={{
             border: `1px solid ${BORDER}`,
             borderRadius: 10,
-            borderLeft: `4px solid ${BLUE}`,
+            borderTop: `3px solid ${BLUE}`,
             padding: "14px 16px",
             background: `linear-gradient(135deg, #F0F9FF 0%, ${SUITE_BG_CARD} 70%)`,
           }}
@@ -181,30 +194,29 @@ export default function PaidMediaActivationCreatives({ strategy }: { strategy: R
           <p
             style={{
               margin: "0 0 10px",
-              fontSize: 11,
-              fontWeight: 800,
+              fontSize: 14, fontWeight: 800,
               color: BLUE,
               letterSpacing: "0.06em",
               textTransform: "uppercase",
             }}
           >
-            Conversion spine
+            Conversion focus
           </p>
           {conversionSpine.primaryMacroConversion ? (
             <p style={{ margin: "0 0 8px", fontSize: 13, color: NAVY, lineHeight: 1.55 }}>
-              <strong style={{ color: "#64748B", fontWeight: 700 }}>Macro conversion: </strong>
+              <strong style={{ color: "#64748B", fontWeight: 700 }}>Main conversion goal: </strong>
               {conversionSpine.primaryMacroConversion}
             </p>
           ) : null}
           {conversionSpine.primaryOfferAnchor ? (
             <p style={{ margin: "0 0 8px", fontSize: 13, color: NAVY, lineHeight: 1.55 }}>
-              <strong style={{ color: "#64748B", fontWeight: 700 }}>Offer anchor: </strong>
+              <strong style={{ color: "#64748B", fontWeight: 700 }}>Primary offer: </strong>
               {conversionSpine.primaryOfferAnchor}
             </p>
           ) : null}
           {conversionSpine.advancesConversion ? (
             <p style={{ margin: 0, fontSize: 13, color: "#2D3A4A", lineHeight: 1.55 }}>
-              <strong style={{ color: "#64748B", fontWeight: 700 }}>Paid media’s job: </strong>
+              <strong style={{ color: "#64748B", fontWeight: 700 }}>This channel’s job: </strong>
               {conversionSpine.advancesConversion}
             </p>
           ) : null}
@@ -225,16 +237,16 @@ export default function PaidMediaActivationCreatives({ strategy }: { strategy: R
             <p
               style={{
                 margin: 0,
-                fontSize: 11,
-                fontWeight: 800,
+                fontSize: 14, fontWeight: 800,
                 color: MID,
-                letterSpacing: "0.03em",
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
               }}
             >
               Program Overview
             </p>
-            <button type="button" onClick={copyOverview} style={BTN} disabled={!overview}>
-              {copyFlash === "overview" ? "Copied" : "Copy overview"}
+            <button type="button" onClick={copyOverview} style={BTN} disabled={!overview} title="Copies overview text to your clipboard">
+              {copyFlash === "overview" ? "Copied — ready to paste" : "Copy overview text"}
             </button>
           </div>
           <StrategyProseBody
@@ -267,7 +279,7 @@ export default function PaidMediaActivationCreatives({ strategy }: { strategy: R
             }}
           >
             <div style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 0, flex: "1 1 200px" }}>
-              <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: MID, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+              <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: MID, letterSpacing: "0.1em", textTransform: "uppercase" }}>
                 Channel creative (one at a time)
               </p>
               {platformSummary.length > 0 ? (
@@ -277,8 +289,23 @@ export default function PaidMediaActivationCreatives({ strategy }: { strategy: R
               ) : null}
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
-              <button type="button" onClick={copyActiveChannel} style={BTN} disabled={!activeCh}>
-                {copyFlash === "channel" ? "Copied" : "Copy this channel"}
+              <button
+                type="button"
+                onClick={copyForAdPlatform}
+                style={BTN}
+                disabled={!activeCh}
+                title="Copies headline and primary text to your clipboard for Meta or LinkedIn"
+              >
+                {copyFlash === "ads" ? "Copied — ready to paste" : "Copy ad text"}
+              </button>
+              <button
+                type="button"
+                onClick={copyActiveChannel}
+                style={BTN}
+                disabled={!activeCh}
+                title="Copies this channel's creative block to your clipboard"
+              >
+                {copyFlash === "channel" ? "Copied — ready to paste" : "Copy channel text"}
               </button>
               <button
                 type="button"
@@ -318,7 +345,7 @@ export default function PaidMediaActivationCreatives({ strategy }: { strategy: R
                   onClick={() => setActiveIndex(index)}
                   style={{
                     padding: "8px 14px",
-                    borderRadius: 999,
+                    borderRadius: SUITE_RADIUS_BUTTON,
                     border: `1px solid ${selected ? BLUE : BORDER}`,
                     background: selected ? SUITE_SECTION_ACTIVE_BG : SUITE_BG_CARD,
                     color: NAVY,
@@ -327,7 +354,7 @@ export default function PaidMediaActivationCreatives({ strategy }: { strategy: R
                     cursor: "pointer",
                     fontFamily: SUITE_FONT_UI,
                     maxWidth: "100%",
-                    textAlign: "left",
+                    textAlign: "center",
                   }}
                 >
                   {pillLabel(ch, index)}
@@ -419,10 +446,10 @@ export default function PaidMediaActivationCreatives({ strategy }: { strategy: R
           <p
             style={{
               margin: "0 0 8px",
-              fontSize: 11,
-              fontWeight: 800,
+              fontSize: 14, fontWeight: 800,
               color: MID,
-              letterSpacing: "0.03em",
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
             }}
           >
             Budget Scenarios

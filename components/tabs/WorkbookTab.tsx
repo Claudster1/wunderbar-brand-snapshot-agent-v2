@@ -263,7 +263,7 @@ export default function WorkbookTab({
         </div>
       </div>
       <div id="workbook-deliverable" style={WORKBOOK_CALLOUT}>
-        <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.1em]" style={{ color: BLUE }}>
+        <p className="m-0 text-[12px] font-semibold uppercase tracking-[0.1em]" style={{ color: BLUE }}>
           How this tab fits
         </p>
         <p className="m-0 text-[15px] font-semibold leading-snug" style={{ color: NAVY }}>

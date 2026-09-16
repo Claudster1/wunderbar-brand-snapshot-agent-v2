@@ -75,9 +75,10 @@ export default function DiagnosticTruthPanel({
         </svg>
         <span
           style={{
-            fontSize: 10,
+            fontSize: 12,
             fontWeight: 700,
-            letterSpacing: "0.04em",
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
             color: BLUE,
           }}
         >
@@ -116,7 +117,7 @@ export default function DiagnosticTruthPanel({
       <div style={{ marginBottom: 20 }}>
         <span
           style={{
-            fontSize: 10,
+            fontSize: 12,
             fontWeight: 700,
             textTransform: "uppercase",
             letterSpacing: "0.1em",
@@ -207,9 +208,10 @@ function Card({ label, children }: { label: string; children: ReactNode }) {
     >
       <span
         style={{
-          fontSize: 10,
+          fontSize: 12,
           fontWeight: 700,
-          letterSpacing: "0.04em",
+          letterSpacing: "0.1em",
+          textTransform: "uppercase",
           color: BLUE,
           display: "block",
           marginBottom: 6,
@@ -247,7 +249,7 @@ function SignalBadge({
         style={{
           padding: "1px 8px",
           borderRadius: 10,
-          fontSize: 11,
+          fontSize: 12,
           fontWeight: 700,
           backgroundColor: styles.bg,
           color: styles.color,

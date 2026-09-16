@@ -101,7 +101,7 @@ export function PillarPanel({
         <p className={`m-0 ${SUITE_SECTION_KICKER_CLASS}`}>Pillar Score</p>
         <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
           <span
-            className="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-bold tracking-wide"
+            className="inline-flex items-center rounded-full px-3 py-1 text-[12px] font-bold tracking-wide"
             style={{
               color: scoreVisual.headline,
               backgroundColor: scoreVisual.softBg,

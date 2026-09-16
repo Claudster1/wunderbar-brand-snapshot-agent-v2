@@ -124,7 +124,7 @@ export function VocSurveyCTA({
               type="button"
               onClick={handleCreate}
               style={{
-                padding: "12px 24px", borderRadius: 8,
+                padding: "12px 24px", borderRadius: 5,
                 border: "none", background: BLUE, color: WHITE,
                 fontSize: 15, fontWeight: 700, cursor: "pointer",
                 fontFamily: "'Lato', sans-serif",
@@ -160,7 +160,7 @@ export function VocSurveyCTA({
                   type="button"
                   onClick={handleCopy}
                   style={{
-                    padding: "6px 14px", borderRadius: 6,
+                    padding: "6px 14px", borderRadius: 5,
                     border: `1px solid ${copied ? GREEN : "rgba(255,255,255,0.3)"}`,
                     background: copied ? `${GREEN}20` : "transparent",
                     color: copied ? GREEN : WHITE,
@@ -182,7 +182,7 @@ export function VocSurveyCTA({
                     type="button"
                     onClick={handleAnalyze}
                     style={{
-                      padding: "6px 16px", borderRadius: 6,
+                      padding: "6px 16px", borderRadius: 5,
                       border: "none", background: GREEN, color: WHITE,
                       fontSize: 13, fontWeight: 700, cursor: "pointer",
                       fontFamily: "'Lato', sans-serif",

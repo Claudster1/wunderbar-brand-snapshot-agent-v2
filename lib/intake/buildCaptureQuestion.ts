@@ -211,6 +211,8 @@ export function buildCaptureQuestion(
       return "**What's your approximate monthly marketing budget today?** Ballpark is perfect.";
     case "content_creation_capacity":
       return "**How much time can your team put into content each week?** A rough range works.";
+    case "video_comfort":
+      return "**How do you feel about short videos or screen recordings for customers?** Written/slides are always fine too.";
     case "competitive_pressure_point":
       if (consumer) {
         return `**When ${who} choose a competitor over you, what reason comes up most often?**`;

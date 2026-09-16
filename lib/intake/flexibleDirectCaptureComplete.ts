@@ -29,6 +29,7 @@ export type CaptureKey =
   | "primary_acquisition_channel"
   | "monthly_marketing_budget"
   | "content_creation_capacity"
+  | "video_comfort"
   | "competitive_pressure_point"
   | "has_email_list"
   | "has_lead_magnet"
@@ -369,6 +370,10 @@ export function assistantTurnAsksAboutCapture(key: CaptureKey, la: string): bool
       return /\b(marketing budget|spend on marketing|ad spend|monthly.*budget)\b/i.test(la);
     case "content_creation_capacity":
       return /\b(content creation|hours|per week|time.*content|invest in content)\b/i.test(la);
+    case "video_comfort":
+      return /\b(short videos?|screen recordings?|camera|video (ok|okay|fine|comfort|comfortable)|prefer (writing|written|text|pdf|slides)|async video|record(ing)? (walkthroughs?|demos?)|on camera)\b/i.test(
+        la,
+      );
     case "competitive_pressure_point":
       return /\b(competitor|competition|choose (a )?competitor|over you|instead of you|why (they|people|buyers|prospects|guests|clients|customers) (pick|choose)|pressure point|lose (deals|a deal)|comes up most often)\b/i.test(
         la,
@@ -663,6 +668,18 @@ export function flexibleDirectCaptureComplete(key: CaptureKey, la: string, lu: s
         /\b\d{1,2}\s*(hours?|hrs?)\b/i.test(t) ||
         /\b\d+\s*[-–]\s*\d+\s*(hours?|hrs?)\b/i.test(t) ||
         /\b(10|under 2|2\s*[–-]\s*5|5\s*[–-]\s*10)\+?\s*(hours?|hrs?)?\b/i.test(t);
+      return asked && answered;
+    }
+    case "video_comfort": {
+      const asked =
+        /\b(short videos?|screen recordings?|camera|video (ok|okay|fine|comfort|comfortable)|prefer (writing|written|text|pdf)|async video|on camera)\b/i.test(
+          la,
+        );
+      const answered =
+        /\b(comfortable|happy to|ok with|okay with|fine with|prefer written|prefer writing|prefer text|prefer pdf|slides|no video|camera.?shy|not comfortable|mixed|sometimes|depends|unsure|not sure)\b/i.test(
+          t,
+        ) ||
+        isBareAffirmOrDeny(t);
       return asked && answered;
     }
     case "competitive_pressure_point": {

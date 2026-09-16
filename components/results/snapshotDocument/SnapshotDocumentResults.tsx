@@ -263,7 +263,7 @@ export function SnapshotDocumentResults({
             </div>
           ))}
         </div>
-        <div style={{ fontSize: 12, fontWeight: 700, color: SUB, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12, paddingBottom: 10, borderBottom: `1px solid ${BORDER}` }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: SUB, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12, paddingBottom: 10, borderBottom: `1px solid ${BORDER}` }}>
           Detailed Breakdown
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -293,7 +293,7 @@ export function SnapshotDocumentResults({
                   <InsightCard label="What's Unclear" text={detail.whatsUnclear} color={ORANGE} />
                 </div>
                 <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${BORDER}` }}>
-                  <div style={{ fontSize: 12, fontWeight: 900, color: SUB, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 5 }}>Why This Matters</div>
+                  <div style={{ fontSize: 13, fontWeight: 900, color: SUB, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 5 }}>Why This Matters</div>
                   <div style={{ fontSize: 16, color: "#1A1A2E", lineHeight: 1.6 }}>{detail.whyItMatters}</div>
                 </div>
               </div>
@@ -346,8 +346,7 @@ export function SnapshotDocumentResults({
           >
             <div
               style={{
-                fontSize: 12,
-                fontWeight: 800,
+                fontSize: 14, fontWeight: 800,
                 color: BLUE,
                 letterSpacing: "0.06em",
                 textTransform: "uppercase",
@@ -399,7 +398,7 @@ export function SnapshotDocumentResults({
       ` }} />
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 16, marginBottom: 18, flexWrap: "wrap" }}>
         <div>
-          <div style={{ fontSize: 12, fontWeight: 800, color: SUB, textTransform: "uppercase", letterSpacing: "0.08em" }}>Brand Alignment Diagnostic</div>
+          <div style={{ fontSize: 13, fontWeight: 800, color: SUB, textTransform: "uppercase", letterSpacing: "0.08em" }}>Brand Alignment Diagnostic</div>
           <div style={{ fontSize: 24, fontWeight: 800, color: BLUE, marginTop: 3 }}>{businessName}</div>
         </div>
         {reportDate ? <div style={{ fontSize: 13, color: SUB }}>{reportDate}</div> : null}
@@ -407,7 +406,7 @@ export function SnapshotDocumentResults({
       <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 20px", borderRadius: RADIUS_MD, background: `${BLUE}06`, border: `1px solid ${BLUE}15` }}>
           <span style={{ width: 22, height: 22, borderRadius: "50%", border: `2px solid ${BLUE}`, color: BLUE, display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 900, flexShrink: 0 }}>i</span>
-          <div style={{ fontSize: 14, color: SUB, lineHeight: 1.5 }}>
+          <div style={{ fontSize: 15, color: SUB, lineHeight: 1.5 }}>
             <strong style={{ color: NAVY }}>How to read this report:</strong> Each pillar is rated out of 20. Scores are <strong style={{ color: RED_S }}>Critical</strong> (0–19%), <strong style={{ color: ORANGE }}>Weak</strong> (20–39%), <strong style={{ color: YELLOW }}>Fair</strong> (40–59%), <strong style={{ color: GOOD_GREEN }}>Good</strong> (60–79%), or <strong style={{ color: GREEN }}>Strong</strong> (80–100%). The WunderBrand Score™ is the composite total out of 100.
           </div>
         </div>
@@ -419,7 +418,7 @@ export function SnapshotDocumentResults({
             <SummaryCard label="Strongest Pillar" score={strongest.score} max={20} pillar={strongest.label} icon="strongest" />
             <SummaryCard label={weakestPillarCallout((weakest.score / 20) * 100)} score={weakest.score} max={20} pillar={weakest.label} icon="opportunity" />
           </div>
-          <div style={{ padding: "16px 20px", borderRadius: RADIUS_MD, marginBottom: 16, background: `${BLUE}08`, borderLeft: `3px solid ${BLUE}`, fontSize: 18, fontWeight: 700, color: NAVY, lineHeight: 1.6, fontStyle: "italic" }}>
+          <div style={{ padding: "16px 20px", borderRadius: RADIUS_MD, marginBottom: 16, background: `${BLUE}08`, borderTop: `3px solid ${BLUE}`, fontSize: 18, fontWeight: 700, color: NAVY, lineHeight: 1.6, fontStyle: "italic" }}>
             {resolvedDiagnosis}
           </div>
           <div style={{ fontSize: 16, color: "#1A1A2E", lineHeight: 1.75 }}>{resolvedOverview}</div>
@@ -526,7 +525,7 @@ function SignalRail({ label, color, children }: { label: string; color: string; 
     <div style={{ display: "flex", gap: 12, alignItems: "flex-start", width: "100%" }}>
       <div style={{ width: 4, minHeight: 40, borderRadius: 2, background: color, flexShrink: 0, marginTop: 2 }} />
       <div style={{ minWidth: 0, flex: 1 }}>
-        <div style={{ fontSize: 12, fontWeight: 900, color: SUB, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3 }}>{label}</div>
+        <div style={{ fontSize: 13, fontWeight: 900, color: SUB, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3 }}>{label}</div>
         <div style={{ fontSize: 16, color: "#1A1A2E", lineHeight: 1.6 }}>{children}</div>
       </div>
     </div>

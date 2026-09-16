@@ -205,6 +205,7 @@ export function buildFallbackAnswersFromMessages(
     paidAdsBudgetBand: "none",
     paidAdsPrimaryObjective: null,
     contentCreationCapacity: null,
+    videoComfort: null,
     previousBrandWork: "DIY",
     userRoleContext: "founder",
     servicesInterest: "not_now",

@@ -4,6 +4,7 @@ import type { CSSProperties } from "react";
 import { useMemo } from "react";
 import Link from "next/link";
 import ActivationPlanSectionPanel from "@/components/activation/ActivationPlanSectionPanel";
+import ExportPlanDocumentButton from "@/components/activation/ExportPlanDocumentButton";
 import { filterActivationPlanSections, type ProductTier } from "@/components/results/tabConfig";
 import type { ActivationPlanSection } from "@/lib/activation/activationPlanModel";
 import { buildActivationPlanSectionsList } from "@/lib/activation/activationPlanModel";
@@ -28,7 +29,7 @@ const BORDER = SUITE_BORDER;
 
 const TOOL_BTN: CSSProperties = {
   padding: "8px 14px",
-  borderRadius: 8,
+  borderRadius: 5,
   border: `1px solid ${BORDER}`,
   background: "#FFFFFF",
   color: NAVY,
@@ -169,6 +170,12 @@ export default function ActivationPlanStandaloneClient({
         <Link href={activationHref} style={TOOL_LINK}>
           ← Back to Activation
         </Link>
+        <ExportPlanDocumentButton
+          planLabel={section.label}
+          companyName={companyName}
+          summary={section.summary}
+          body={section.body || section.summary || ""}
+        />
         {downloadPlanHref ? (
           <a href={downloadPlanHref} target="_blank" rel="noopener noreferrer" style={TOOL_LINK}>
             Download plan (PDF)
@@ -187,11 +194,12 @@ export default function ActivationPlanStandaloneClient({
       <div style={{ marginBottom: 22 }}>
         <div
           style={{
-            fontSize: 12,
+            fontSize: 13,
             fontWeight: 700,
             letterSpacing: "0.04em",
             color: BLUE,
             marginBottom: 6,
+            /* Product kicker — title case, not all-caps suite eyebrow */
           }}
         >
           Activation Plan
@@ -199,9 +207,12 @@ export default function ActivationPlanStandaloneClient({
         <h1 style={{ fontSize: 26, fontWeight: 700, color: NAVY, margin: "0 0 8px", lineHeight: 1.2 }}>
           {section.label}
         </h1>
-        <p style={{ margin: 0, fontSize: 14, color: MID_GRAY, lineHeight: 1.55 }}>
-          {companyName} — full playbook for this channel. The plan below is split into <strong style={{ color: NAVY }}>jumpable sections</strong> with clearer bullets and spacing so it is easier to scan than a single wall of text. Edit details in your
-          Workbook; print or export when you need an offline copy.
+        <p style={{ margin: 0, fontSize: 15, color: MID_GRAY, lineHeight: 1.55 }}>
+          {companyName} — full playbook for this channel.{" "}
+          <strong style={{ color: NAVY }}>Download plan (document)</strong> gives you a file to open in Google Docs,
+          Word, or Notion — then copy individual subjects, emails, or outlines into your tools. Use{" "}
+          <strong style={{ color: NAVY }}>Download plan (PDF)</strong> for a shareable file, or Edit in Workbook to
+          change the plan.
         </p>
         {campaignPlaybooksSuiteHref ? (
           <p style={{ margin: "12px 0 0", fontSize: 13, color: MID_GRAY, lineHeight: 1.55 }}>
@@ -237,6 +248,7 @@ export default function ActivationPlanStandaloneClient({
         scheduleRows={scheduleRows}
         audienceJourneyPlanLinks={audienceJourneyPlanLinks}
         promptLibraryHref={promptLibraryHref}
+        companyName={companyName}
         editAction={{ mode: "link", href: editWorkbookHref }}
         showGuidance
         onExportSchedule={

@@ -8,10 +8,10 @@ export const messagingCampaignExpansion: BlueprintPlusPromptPack = {
   prompts: [
     {
       id: "msg-camp-theme",
-      title: "Campaign Message Spine",
+      title: "Campaign Message Map",
       purpose: "Anchor campaigns to brand strategy",
       prompt: `
-Create a campaign message spine using the brand’s core messaging.
+Create a campaign message map using the brand’s core messaging.
 
 Define:
 • One unifying theme

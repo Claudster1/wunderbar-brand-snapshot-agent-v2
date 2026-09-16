@@ -58,7 +58,7 @@ export default function VersionHistory({
             <h3 style={{ fontSize: 17, fontWeight: 700, color: NAVY, margin: "0 0 2px" }}>
               Version History
             </h3>
-            <p style={{ fontSize: 12, color: MID_GRAY, margin: 0 }}>
+            <p style={{ fontSize: 13, color: MID_GRAY, margin: 0 }}>
               {versions.length} saved version{versions.length !== 1 ? "s" : ""}
             </p>
           </div>
@@ -80,7 +80,7 @@ export default function VersionHistory({
 
         <div style={{ flex: 1, overflowY: "auto", padding: "16px 24px" }}>
           {versions.length === 0 ? (
-            <p style={{ fontSize: 14, color: MID_GRAY, textAlign: "center", marginTop: 40 }}>
+            <p style={{ fontSize: 15, color: MID_GRAY, textAlign: "center", marginTop: 40 }}>
               No saved versions yet. Save your workbook to create a version checkpoint.
             </p>
           ) : (
@@ -113,7 +113,7 @@ export default function VersionHistory({
                             style={{
                               padding: "1px 7px",
                               borderRadius: 10,
-                              fontSize: 10,
+                              fontSize: 12,
                               fontWeight: 700,
                               backgroundColor: "#E8F6FE",
                               color: BLUE,
@@ -123,7 +123,7 @@ export default function VersionHistory({
                           </span>
                         )}
                       </div>
-                      <span style={{ fontSize: 12, color: MID_GRAY }}>
+                      <span style={{ fontSize: 13, color: MID_GRAY }}>
                         {savedDate.toLocaleDateString("en-US", {
                           month: "short",
                           day: "numeric",
@@ -141,7 +141,7 @@ export default function VersionHistory({
                           backgroundColor: "transparent",
                           color: NAVY,
                           border: `1.5px solid ${BORDER}`,
-                          borderRadius: 6,
+                          borderRadius: 5,
                           fontSize: 12,
                           fontWeight: 700,
                           cursor: "pointer",
@@ -163,7 +163,7 @@ export default function VersionHistory({
           style={{
             padding: "14px 24px",
             borderTop: `1px solid ${BORDER}`,
-            fontSize: 12,
+            fontSize: 13,
             color: MID_GRAY,
             lineHeight: 1.5,
           }}

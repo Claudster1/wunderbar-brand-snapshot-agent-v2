@@ -391,7 +391,7 @@ const diagnosticData = {
         "Late-funnel landing variant with proof beside the primary CTA (not buried on About).",
         "Outbound hook family that mirrors the homepage job-to-be-done.",
         "14-day pilot one-pager: who owns what, for sales to hand over.",
-        "Short Loom: three-surface story check (hero, slide 1, first outbound line).",
+        "Short annotated walkthrough (PDF or any screen recorder): three-surface story check (hero, slide 1, first outbound line).",
       ],
       priorityTactics: [
         "Week 1–2: publish one proof-led hero test vs. control; track scroll-to-proof and CTA click.",
@@ -686,7 +686,7 @@ const diagnosticData = {
         keyMessage:
           "Say: “Marketing support works best when reps use the same proof at the same stage. Would it help if we name the proof that sits beside the ask today—and who keeps the story consistent week to week?”",
         proofToUse:
-          "Show: three-bullet audit of Acme hero vs. deck vs. outbound line (print or Loom) with the broken promise highlighted.",
+          "Show: three-bullet audit of Acme hero vs. deck vs. outbound line (print or short screen recording) with the broken promise highlighted.",
       },
       {
         stage: "Close",
@@ -765,7 +765,7 @@ const diagnosticData = {
         proofPoint:
           "A who-owns-what chart plus routing map: how message updates flow into CRM stages, campaign tracking links, and live campaigns.",
         howToDeliver:
-          "Send a 4-minute Loom plus checklist: “Here’s how Acme keeps stages clean when the copy changes.”",
+          "Send a 4-minute annotated PDF or screen recording plus checklist: “Here’s how Acme keeps stages clean when the copy changes.”",
       },
       {
         persona: "Founder",
@@ -999,7 +999,7 @@ function PreviewResultsTabsClientInner({
       <div style={{ maxWidth: SUITE_CONTENT_MAX_PX, margin: "0 auto", padding: "0 min(28px, 4vw) 28px" }}>
         <p style={{ fontSize: 12, color: "#5A6B7E", margin: 0 }}>
           Preview mode with mock data. Use the top tabs (Results → Foundation → …) or deep-link with{" "}
-          <code style={{ fontSize: 11 }}>?tab=foundation</code>.{" "}
+          <code style={{ fontSize: 12 }}>?tab=foundation</code>.{" "}
           <Link href="/preview" style={{ color: "#021859", textDecoration: "underline", fontWeight: 700 }}>
             Back to all previews
           </Link>

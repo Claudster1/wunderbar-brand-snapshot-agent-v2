@@ -52,7 +52,8 @@ export const SUITE_INSIGHT_CARD_BASE: CSSProperties = {
 };
 
 export const SUITE_INSIGHT_CARD_RAIL_LEFT: CSSProperties = {
-  borderLeft: `3px solid ${SUITE_PANEL_RAIL}`,
+  /* Prefer soft background + label color over stacked vertical rails. */
+  borderTop: `2px solid ${SUITE_PANEL_RAIL}`,
 };
 
 /** Softer inset for secondary metrics / muted columns (execution guidance grid). */
@@ -136,7 +137,7 @@ export const SUITE_CHIP_CARD_STYLE: CSSProperties = {
   padding: "18px 20px",
   border: `1px solid ${SUITE_BORDER}`,
   borderRadius: SUITE_RADIUS_LG,
-  borderLeft: `3px solid ${SUITE_PANEL_RAIL}`,
+  borderTop: `2px solid ${SUITE_PANEL_RAIL}`,
   background: SUITE_BG_CARD,
   boxShadow: SUITE_SHADOW_CARD,
 };
@@ -158,10 +159,29 @@ export const SUITE_INTRO_BAND_STYLE: CSSProperties = {
   boxShadow: SUITE_SHADOW_CARD,
 };
 
+/**
+ * Suite type scale (px) — keep Results / Foundation / Strategy / Activation readable.
+ * Prefer these over ad-hoc 10–11px labels.
+ */
+export const SUITE_TYPE = {
+  /** All-caps micro labels inside cards / callouts. */
+  eyebrowMicro: 12,
+  /** Tab intro / domain kickers. */
+  eyebrow: 14,
+  /** Secondary meta under titles (timing, hints, captions). */
+  meta: 13,
+  /** Default reading body. */
+  body: 15,
+  /** Compact card / chip titles. */
+  cardTitle: 15,
+  /** Section titles inside plan panels. */
+  sectionTitle: 17,
+} as const;
+
 /** Kicker / eyebrow line above tab intro titles (Results, Foundation). */
 export const SUITE_INTRO_EYEBROW_TEXT_STYLE: CSSProperties = {
   margin: "0 0 8px",
-  fontSize: 14,
+  fontSize: SUITE_TYPE.eyebrow,
   fontWeight: 600,
   letterSpacing: "0.1em",
   textTransform: "uppercase",
@@ -175,7 +195,7 @@ export const SUITE_INTRO_EYEBROW_TEXT_STYLE: CSSProperties = {
  */
 export const SUITE_MICRO_EYEBROW_STYLE: CSSProperties = {
   margin: 0,
-  fontSize: 11,
+  fontSize: SUITE_TYPE.eyebrowMicro,
   fontWeight: 700,
   letterSpacing: "0.1em",
   textTransform: "uppercase",
@@ -187,7 +207,7 @@ export const SUITE_MICRO_EYEBROW_STYLE: CSSProperties = {
  * Bright blue in-card subheads — matches Foundation tab micro-eyebrows (all caps).
  */
 export const SUITE_FOUNDATION_SUBHEAD_STYLE: CSSProperties = {
-  fontSize: 13,
+  fontSize: SUITE_TYPE.meta,
   fontWeight: 600,
   letterSpacing: "0.1em",
   textTransform: "uppercase",
@@ -208,10 +228,30 @@ export const SUITE_INTRO_TITLE_TEXT_STYLE: CSSProperties = {
 /** Muted guidance under the intro title. */
 export const SUITE_INTRO_GUIDANCE_TEXT_STYLE: CSSProperties = {
   margin: 0,
-  fontSize: 14,
+  fontSize: SUITE_TYPE.body,
   color: SUITE_MUTED,
   lineHeight: 1.55,
   fontWeight: 400,
+};
+
+/** Secondary meta / caption line under card titles. */
+export const SUITE_META_TEXT_STYLE: CSSProperties = {
+  margin: 0,
+  fontSize: SUITE_TYPE.meta,
+  color: SUITE_MUTED,
+  lineHeight: 1.45,
+  fontWeight: 600,
+  fontFamily: SUITE_FONT_UI,
+};
+
+/** Default prose body for suite panels. */
+export const SUITE_BODY_TEXT_STYLE: CSSProperties = {
+  margin: 0,
+  fontSize: SUITE_TYPE.body,
+  color: SUITE_TEXT_PRIMARY,
+  lineHeight: 1.65,
+  fontWeight: 400,
+  fontFamily: SUITE_FONT_UI,
 };
 
 /**
@@ -236,11 +276,17 @@ export const SUITE_SECTION_KICKER_CLASS =
 
 /** Tailwind class twin of `SUITE_MICRO_EYEBROW_STYLE` for Foundation / Strategy draft chrome. */
 export const SUITE_MICRO_EYEBROW_CLASS =
-  "text-xs sm:text-sm font-semibold uppercase tracking-[0.1em] text-brand-blue";
+  "text-[12px] sm:text-[13px] font-semibold uppercase tracking-[0.1em] text-brand-blue";
 
 /** Domain-section eyebrow (Foundation / Strategy section headers). */
 export const SUITE_DOMAIN_EYEBROW_CLASS =
   "text-[14px] font-semibold uppercase tracking-[0.1em] text-brand-blue";
+
+/** Tailwind twin of `SUITE_META_TEXT_STYLE` for captions under titles. */
+export const SUITE_META_TEXT_CLASS = "text-[13px] font-semibold leading-snug text-brand-muted";
+
+/** Tailwind twin of `SUITE_BODY_TEXT_STYLE` for suite reading copy. */
+export const SUITE_BODY_TEXT_CLASS = "text-[15px] leading-relaxed text-brand-navy";
 
 export const SUITE_BACKDROP_BLUR: CSSProperties = {
   backdropFilter: "saturate(180%) blur(20px)",

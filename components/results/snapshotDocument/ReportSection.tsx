@@ -72,7 +72,7 @@ export function SectionTitle({
         </h2>
       </div>
       {description ? (
-        <p style={{ fontSize: 14, color: SUB, margin: "6px 0 0", lineHeight: 1.5 }}>
+        <p style={{ fontSize: 15, color: SUB, margin: "6px 0 0", lineHeight: 1.5 }}>
           {description}
         </p>
       ) : null}

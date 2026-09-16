@@ -9,6 +9,8 @@ import { supabaseServer } from "@/lib/supabase";
 import type { BlueprintEngineOutput } from "@/src/pdf/types/blueprintReport";
 import { normalizeBrandImageryDirection } from "@/lib/brand/brandImageryNormalize";
 import { sanitizeSalesConversationGuide } from "@/lib/strategy/labeledFieldChrome";
+import { isBlueprintLogoTier } from "@/lib/brandLogo";
+import { getPrimaryBrandLogo } from "@/lib/brandLogoServer";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -625,7 +627,12 @@ function applyWorkbookOverrides(data: BlueprintEngineOutput, workbook?: Workbook
   return next as BlueprintEngineOutput;
 }
 
-function toBrandStandardsData(d: BlueprintEngineOutput, brandName: string, workbook?: WorkbookShape | null) {
+function toBrandStandardsData(
+  d: BlueprintEngineOutput,
+  brandName: string,
+  workbook?: WorkbookShape | null,
+  logoImageUrl?: string | null,
+) {
   const bsd = (d as any).brandStandardsGuide || {};
   const wb = workbook as WorkbookShape | null | undefined;
   const csMood =
@@ -694,13 +701,17 @@ function toBrandStandardsData(d: BlueprintEngineOutput, brandName: string, workb
       color_palette: d.visualDirection?.colorPalette,
       avoid_colors: d.visualVerbalSignals?.avoidColors,
       visual_consistency_principles: d.visualDirection?.visualConsistencyPrinciples,
-      logo_guidelines: bsd.logoGuidelines ? {
-        overview: bsd.logoGuidelines.overview,
-        clear_space: bsd.logoGuidelines.clearSpace,
-        minimum_size: bsd.logoGuidelines.minimumSize,
-        placement_rules: bsd.logoGuidelines.placementRules,
-        incorrect_uses: bsd.logoGuidelines.incorrectUses,
-      } : undefined,
+      logo_guidelines:
+        bsd.logoGuidelines || logoImageUrl
+          ? {
+              overview: bsd.logoGuidelines?.overview,
+              clear_space: bsd.logoGuidelines?.clearSpace,
+              minimum_size: bsd.logoGuidelines?.minimumSize,
+              placement_rules: bsd.logoGuidelines?.placementRules,
+              incorrect_uses: bsd.logoGuidelines?.incorrectUses,
+              ...(logoImageUrl ? { logo_image_url: logoImageUrl } : {}),
+            }
+          : undefined,
       layout_guidelines: bsd.layoutGuidelines ? {
         overview: bsd.layoutGuidelines.overview,
         margins: bsd.layoutGuidelines.margins,
@@ -746,6 +757,7 @@ async function renderDocument(
   brandName: string,
   userName?: string,
   workbook?: WorkbookShape | null,
+  logoImageUrl?: string | null,
 ) {
   const { renderToBuffer } = await import("@react-pdf/renderer");
   switch (type) {
@@ -791,22 +803,22 @@ async function renderDocument(
     }
     case "standards": {
       const { BrandStandardsDocument } = await import("@/src/pdf/documents/BrandStandardsDocument");
-      const workbookData = toBrandStandardsData(data, brandName, workbook);
+      const workbookData = toBrandStandardsData(data, brandName, workbook, logoImageUrl);
       return renderToBuffer(<BrandStandardsDocument data={workbookData as any} />);
     }
     case "standards-internal": {
       const { InternalBrandMasterGuideDocument } = await import("@/src/pdf/documents/InternalBrandMasterGuideDocument");
-      const workbookData = toBrandStandardsData(data, brandName, workbook);
+      const workbookData = toBrandStandardsData(data, brandName, workbook, logoImageUrl);
       return renderToBuffer(<InternalBrandMasterGuideDocument data={workbookData as any} />);
     }
     case "standards-external": {
       const { ExternalBrandGuideDocument } = await import("@/src/pdf/documents/ExternalBrandGuideDocument");
-      const workbookData = toBrandStandardsData(data, brandName, workbook);
+      const workbookData = toBrandStandardsData(data, brandName, workbook, logoImageUrl);
       return renderToBuffer(<ExternalBrandGuideDocument data={workbookData as any} />);
     }
     case "standards-vendor": {
       const { PartnerVendorSpecSheetDocument } = await import("@/src/pdf/documents/PartnerVendorSpecSheetDocument");
-      const workbookData = toBrandStandardsData(data, brandName, workbook);
+      const workbookData = toBrandStandardsData(data, brandName, workbook, logoImageUrl);
       return renderToBuffer(<PartnerVendorSpecSheetDocument data={workbookData as any} />);
     }
     case "battle-cards": {
@@ -962,7 +974,31 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Report has no engine data" }, { status: 404 });
     }
 
-    const buffer = await renderDocument(type, engineData, brandName, userName, workbook);
+    let logoImageUrl: string | null = null;
+    const standardsTypes: DocType[] = [
+      "standards",
+      "standards-internal",
+      "standards-external",
+      "standards-vendor",
+    ];
+    if (
+      standardsTypes.includes(type) &&
+      isBlueprintLogoTier(reportTier) &&
+      typeof report.user_email === "string" &&
+      report.user_email.includes("@")
+    ) {
+      try {
+        const logo = await getPrimaryBrandLogo(report.user_email, reportTier, 3600);
+        logoImageUrl = logo?.signedUrl && logo.signedUrl.startsWith("https:") ? logo.signedUrl : null;
+      } catch (logoErr) {
+        logger.warn("[Blueprint PDF] Primary logo resolve skipped", {
+          error: logoErr instanceof Error ? logoErr.message : String(logoErr),
+          reportId,
+        });
+      }
+    }
+
+    const buffer = await renderDocument(type, engineData, brandName, userName, workbook, logoImageUrl);
     const uint8 = new Uint8Array(buffer);
 
     const tierSuffix = reportTier === "blueprint-plus" ? "Blueprint_Plus" : "Blueprint";

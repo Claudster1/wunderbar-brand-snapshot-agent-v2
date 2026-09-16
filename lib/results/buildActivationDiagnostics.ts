@@ -28,40 +28,82 @@ function joinBlocks(parts: string[], maxLen = 12000): string {
   return text.length > maxLen ? `${text.slice(0, maxLen - 1)}…` : text;
 }
 
+function formatEmailTimingLabel(timing: string, fallbackIndex: number): string {
+  const t = timing.trim();
+  if (t) return t;
+  return `Send ${fallbackIndex}`;
+}
+
+function formatOneEmailOutlineCard(
+  raw: unknown,
+  index: number,
+  opts?: { includePurpose?: boolean; includeFormat?: boolean },
+): string {
+  const e = asRecord(raw) ?? {};
+  const timing = formatEmailTimingLabel(asString(e.timing), index + 1);
+  const sub = asString(e.subject);
+  const purpose = asString(e.purpose);
+  const msg = sanitizeSpokenCustomerScript(asString(e.keyMessage));
+  const cta = asString(e.ctaButton);
+  const contentType = asString(e.contentType);
+  const titleBits = [`### Email ${index + 1} · ${timing}`];
+  if (sub) titleBits[0] += ` — ${sub.length > 72 ? `${sub.slice(0, 71)}…` : sub}`;
+
+  const lines = [
+    titleBits[0],
+    "",
+    sub ? `- **Subject:** ${sub}` : "",
+    opts?.includePurpose && purpose ? `- **Job of this send:** ${purpose}` : "",
+    msg ? `- **Core message:** ${msg}` : "",
+    cta ? `- **CTA:** ${cta}` : "",
+    opts?.includeFormat && contentType ? `- **Format:** ${contentType}` : "",
+  ].filter(Boolean);
+  return lines.join("\n");
+}
+
+/**
+ * Structured markdown for Activation email plans.
+ * Sequences first (with Day timing in headings); setup/routing last so paste work is obvious.
+ */
 function formatEmailPlan(em: Record<string, unknown> | null, companyName: string): string {
   if (!em) return "";
-  const lines: string[] = [];
+  const parts: string[] = [];
+
   const spine = extractConversionSpine(em);
-  if (spine) lines.push([...formatConversionSpinePlainLines(spine), ""].join("\n"));
   const overview = asString(em.overview);
-  if (overview) lines.push(`Email program overview\n${overview}`);
+  if (spine || overview) {
+    const head: string[] = ["## What this email program is for", ""];
+    if (spine) head.push(...formatConversionSpinePlainLines(spine), "");
+    if (overview) head.push(overview);
+    parts.push(head.join("\n").trim());
+  }
 
   const welcome = asRecord(em.welcomeSequence);
   if (welcome) {
     const desc = asString(welcome.description);
     const emails = Array.isArray(welcome.emails) ? welcome.emails : [];
-    const blocks = emails.slice(0, 8).map((raw, i) => {
-      const e = asRecord(raw) ?? {};
-      const sub = asString(e.subject);
-      const timing = asString(e.timing);
-      const purpose = asString(e.purpose);
-      const msg = sanitizeSpokenCustomerScript(asString(e.keyMessage));
-      const cta = asString(e.ctaButton);
-      return [
-        `${i + 1}. ${timing || `Step ${i + 1}`}`,
-        sub ? `Subject line: "${sub}"` : "",
-        purpose ? `Job: ${purpose}` : "",
-        msg ? `Core line: ${msg}` : "",
-        cta ? `CTA: ${cta}` : "",
-      ]
-        .filter(Boolean)
+    const cards = emails.slice(0, 8).map((raw, i) => formatOneEmailOutlineCard(raw, i, { includePurpose: true }));
+    if (desc || cards.length) {
+      const map = emails
+        .slice(0, 8)
+        .map((raw, i) => {
+          const e = asRecord(raw) ?? {};
+          const timing = formatEmailTimingLabel(asString(e.timing), i + 1);
+          const sub = asString(e.subject);
+          return `- **${timing}** — ${sub || `Email ${i + 1}`}`;
+        })
         .join("\n");
-    });
-    if (desc || blocks.length) {
-      lines.push(
-        `Welcome / onboarding sequence (${companyName})`,
-        desc,
-        blocks.join("\n\n"),
+      parts.push(
+        [
+          `## Welcome sequence — send map (${companyName})`,
+          "",
+          desc || "Build these welcome emails in your email tool. Copy each subject and body from the cards below — not this whole section at once.",
+          "",
+          "**At a glance**",
+          map,
+          "",
+          ...cards,
+        ].join("\n"),
       );
     }
   }
@@ -70,68 +112,88 @@ function formatEmailPlan(em: Record<string, unknown> | null, companyName: string
   if (nurture) {
     const desc = asString(nurture.description);
     const emails = Array.isArray(nurture.emails) ? nurture.emails : [];
-    const blocks = emails.slice(0, 6).map((raw, i) => {
-      const e = asRecord(raw) ?? {};
-      return [
-        `${i + 1}. ${asString(e.timing) || `Nurture ${i + 1}`}`,
-        asString(e.subject) ? `Subject: "${asString(e.subject)}"` : "",
-        asString(e.keyMessage) ? `Message: ${sanitizeSpokenCustomerScript(asString(e.keyMessage))}` : "",
-        asString(e.contentType) ? `Format: ${asString(e.contentType)}` : "",
-      ]
-        .filter(Boolean)
+    const cards = emails.slice(0, 6).map((raw, i) =>
+      formatOneEmailOutlineCard(raw, i, { includeFormat: true }),
+    );
+    if (cards.length) {
+      const map = emails
+        .slice(0, 6)
+        .map((raw, i) => {
+          const e = asRecord(raw) ?? {};
+          const timing = formatEmailTimingLabel(asString(e.timing), i + 1);
+          const sub = asString(e.subject);
+          return `- **${timing}** — ${sub || `Nurture ${i + 1}`}`;
+        })
         .join("\n");
-    });
-    if (blocks.length) lines.push(`Ongoing nurture\n${desc ? `${desc}\n` : ""}${blocks.join("\n\n")}`);
+      parts.push(
+        [
+          "## Follow-up sequence — send map",
+          "",
+          desc || "Follow-up emails after welcome — usually weekly, or on the cadence below.",
+          "",
+          "**At a glance**",
+          map,
+          "",
+          ...cards,
+        ].join("\n"),
+      );
+    }
   }
 
   const re = asRecord(em.reEngagementSequence);
   if (re) {
     const trigger = asString(re.trigger);
     const emails = Array.isArray(re.emails) ? re.emails : [];
-    const blocks = emails.slice(0, 4).map((raw, i) => {
-      const e = asRecord(raw) ?? {};
-      return [
-        `${i + 1}. ${asString(e.timing) || `Re-engagement ${i + 1}`}`,
-        asString(e.subject) ? `Subject: "${asString(e.subject)}"` : "",
-        asString(e.keyMessage) ? `Message: ${sanitizeSpokenCustomerScript(asString(e.keyMessage))}` : "",
-      ]
-        .filter(Boolean)
-        .join("\n");
-    });
-    if (trigger || blocks.length) {
-      lines.push(`Re-engagement (trigger: ${trigger || "see sequence"})\n${blocks.join("\n\n")}`);
+    const cards = emails.slice(0, 4).map((raw, i) => formatOneEmailOutlineCard(raw, i));
+    if (trigger || cards.length) {
+      parts.push(
+        [
+          "## Welcome-back branch",
+          "",
+          trigger ? `**When to send:** ${trigger}` : "Use when someone goes quiet.",
+          "",
+          ...cards,
+        ].join("\n"),
+      );
     }
   }
 
   const seg = asString(em.segmentationStrategy);
-  if (seg) lines.push(`Segmentation & routing\n${seg}`);
-
   const formulas = Array.isArray(em.subjectLineFormulas) ? em.subjectLineFormulas : [];
-  if (formulas.length) {
-    lines.push(
-      `Subject line patterns (paste-ready)\n${formulas
-        .slice(0, 8)
-        .map((f) => (typeof f === "string" ? `• ${f}` : ""))
-        .filter(Boolean)
-        .join("\n")}`,
-    );
-  }
-
   const cadence = asString(em.sendCadence);
-  if (cadence) lines.push(`Send cadence\n${cadence}`);
-
   const triggers = Array.isArray(em.automationTriggers) ? em.automationTriggers : [];
-  if (triggers.length) {
-    lines.push(
-      `Automation triggers\n${triggers
-        .slice(0, 8)
-        .map((t) => (typeof t === "string" ? `• ${t}` : ""))
-        .filter(Boolean)
-        .join("\n")}`,
-    );
+  if (seg || formulas.length || cadence || triggers.length) {
+    const setup: string[] = [
+      "## Setup once — lists, timing & subject patterns",
+      "",
+      "_Set these up once in your email tool. They are not email bodies — do not paste them into a send._",
+      "",
+    ];
+    if (seg) {
+      setup.push("### Segmentation & routing", "", seg, "");
+    }
+    if (formulas.length) {
+      setup.push(
+        "### Subject line patterns (templates)",
+        "",
+        ...formulas.slice(0, 8).map((f) => (typeof f === "string" ? `- ${f}` : "")).filter(Boolean),
+        "",
+      );
+    }
+    if (cadence) {
+      setup.push("### Send cadence", "", cadence, "");
+    }
+    if (triggers.length) {
+      setup.push(
+        "### Automation triggers",
+        "",
+        ...triggers.slice(0, 8).map((t) => (typeof t === "string" ? `- ${t}` : "")).filter(Boolean),
+      );
+    }
+    parts.push(setup.join("\n").trim());
   }
 
-  return joinBlocks(lines);
+  return joinBlocks(parts);
 }
 
 function formatSeoAeo(

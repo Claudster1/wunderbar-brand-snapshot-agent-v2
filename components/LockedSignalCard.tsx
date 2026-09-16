@@ -126,7 +126,7 @@ export default function LockedSignalCard({
     <div
       style={{
         border: `1px solid ${BORDER}`,
-        borderLeft: `4px solid ${BLUE}`,
+        borderTop: `3px solid ${BLUE}`,
         borderRadius: 8,
         padding: "20px 24px",
         backgroundColor: "#ffffff",

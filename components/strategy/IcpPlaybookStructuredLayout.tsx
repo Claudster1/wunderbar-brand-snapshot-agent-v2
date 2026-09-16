@@ -15,7 +15,7 @@ type Props = {
 function Subheading({ children }: { children: string }) {
   return (
     <h4
-      className="m-0 text-[10px] font-extrabold uppercase tracking-[0.1em]"
+      className="m-0 text-[12px] font-extrabold uppercase tracking-[0.1em]"
       style={{ color: "rgba(2, 24, 89, 0.55)", fontFamily: SUITE_FONT_UI }}
     >
       {children}
@@ -134,8 +134,9 @@ export default function IcpPlaybookStructuredLayout({ data, accent }: Props) {
         <div
           className="rounded-xl border border-slate-200/80 px-4 py-3.5 sm:px-5 sm:py-4"
           style={{
-            borderLeftWidth: 4,
-            borderLeftColor: accent.rail,
+            borderTopWidth: 3,
+            borderTopStyle: "solid",
+            borderTopColor: accent.rail,
             background: "rgba(255,255,255,0.65)",
           }}
         >

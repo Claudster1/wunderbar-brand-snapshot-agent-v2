@@ -157,7 +157,7 @@ export default function StrategyPlanNarrativePanels({
                       style={{
                         ...SUITE_INSIGHT_CARD_BASE,
                         background: accent.wash,
-                        borderLeft: `4px solid ${accent.rail}`,
+                        borderTop: `3px solid ${accent.rail}`,
                         padding: "20px 22px 22px",
                         boxShadow:
                           "0 2px 20px rgba(0, 0, 0, 0.055), 0 0 1px rgba(0, 0, 0, 0.06)",
@@ -166,8 +166,7 @@ export default function StrategyPlanNarrativePanels({
                       <p
                         style={{
                           margin: "0 0 10px",
-                          fontSize: 10,
-                          fontWeight: 800,
+                          fontSize: 14, fontWeight: 800,
                           letterSpacing: "0.1em",
                           textTransform: "uppercase",
                           color: accent.badgeText,
@@ -240,8 +239,7 @@ export default function StrategyPlanNarrativePanels({
                         paddingBottom: 12,
                         marginBottom: 4,
                         borderBottom: "1px solid rgba(7, 176, 242, 0.14)",
-                        fontSize: 11,
-                        fontWeight: 800,
+                        fontSize: 14, fontWeight: 800,
                         letterSpacing: "0.1em",
                         textTransform: "uppercase",
                         color: SUITE_NAVY,
@@ -279,8 +277,7 @@ export default function StrategyPlanNarrativePanels({
                     <p
                       style={{
                         margin: "0 0 8px",
-                        fontSize: 11,
-                        fontWeight: 800,
+                        fontSize: 14, fontWeight: 800,
                         letterSpacing: "0.1em",
                         textTransform: "uppercase",
                         color: SUITE_NAVY,

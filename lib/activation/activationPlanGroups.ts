@@ -1,4 +1,9 @@
 import type { ActivationPlanSection } from "@/lib/activation/activationPlanModel";
+import {
+  ACTIVATION_NAV_CHANNEL_IDS,
+  ACTIVATION_NAV_CONTEXT_IDS,
+  ACTIVATION_NAV_ROADMAP_ID,
+} from "@/lib/activation/activationNavModel";
 
 export type ActivationPlanPhaseMeta = {
   id: string;
@@ -7,51 +12,46 @@ export type ActivationPlanPhaseMeta = {
   sectionIds: readonly string[];
 };
 
-/** Groups channel playbooks so the Activation table reads as a funnel, not a flat list. */
+/**
+ * Activation table groups — mirrors nav IA:
+ * context → 90-day roadmap → channels
+ */
 export const ACTIVATION_PLAN_PHASES: readonly ActivationPlanPhaseMeta[] = [
   {
-    id: "foundation",
-    title: "Foundation — who you’re talking to",
-    hint: "Align audiences, journey stages, and competitive responses before you spend on media.",
-    sectionIds: ["audience-segments", "journey-orchestration", "competitive-motion-plan"],
+    id: "context",
+    title: "Buyer journey & context",
+    hint: "How buyers move toward a yes — plus audiences and competitive responses when your tier includes them.",
+    sectionIds: ACTIVATION_NAV_CONTEXT_IDS,
   },
   {
-    id: "demand",
-    title: "Demand — capture and convert",
-    hint: "Offers, lifecycle email, search, and paid — each row should end with one clear next step.",
-    sectionIds: ["lead-magnet-planning", "email-lifecycle", "seo-aeo", "paid-ads"],
+    id: "plan",
+    title: "90-day roadmap",
+    hint: "What to do in what order — then open channel plans for copy and setups.",
+    sectionIds: [ACTIVATION_NAV_ROADMAP_ID],
   },
   {
-    id: "authority",
-    title: "Authority — trust and visibility",
-    hint: "Your point of view in content, plus press and speaking that support everything above.",
-    sectionIds: ["thought-leadership", "pr-plan"],
-  },
-  {
-    id: "ship",
-    title: "Execution — ship it",
-    hint: "90-day sequencing, owners, and exports.",
-    sectionIds: ["execution-roadmap"],
+    id: "channels",
+    title: "Channels",
+    hint: "Channel plans with copy and setups you can run. Order follows your report priorities in Guided view.",
+    sectionIds: ACTIVATION_NAV_CHANNEL_IDS,
   },
 ] as const;
 
 export function groupActivationPlanSections(sections: ActivationPlanSection[]): Array<
   ActivationPlanPhaseMeta & { sections: ActivationPlanSection[] }
 > {
-  const byId = new Map(sections.map((s) => [s.id, s]));
+  const phaseIdSets = ACTIVATION_PLAN_PHASES.map((phase) => ({
+    phase,
+    ids: new Set(phase.sectionIds),
+  }));
   const seen = new Set<string>();
   const groups: Array<ActivationPlanPhaseMeta & { sections: ActivationPlanSection[] }> = [];
 
-  for (const phase of ACTIVATION_PLAN_PHASES) {
-    const phaseSections: ActivationPlanSection[] = [];
-    for (const id of phase.sectionIds) {
-      const s = byId.get(id);
-      if (s) {
-        phaseSections.push(s);
-        seen.add(id);
-      }
-    }
+  for (const { phase, ids } of phaseIdSets) {
+    // Preserve caller order (Guided ranking / nav sort) within each phase.
+    const phaseSections = sections.filter((s) => ids.has(s.id));
     if (phaseSections.length > 0) {
+      for (const s of phaseSections) seen.add(s.id);
       groups.push({ ...phase, sections: phaseSections });
     }
   }

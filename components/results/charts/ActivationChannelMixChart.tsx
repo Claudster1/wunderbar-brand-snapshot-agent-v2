@@ -101,7 +101,7 @@ export function ActivationChannelMixChart({ rows }: Props) {
     >
       <p className="m-0 text-xs font-semibold uppercase tracking-[0.1em] text-brand-blue">Visual</p>
       <p className="mt-1 text-sm font-semibold text-brand-navy sm:text-base">Schedule mix by channel</p>
-      <p className="mt-1 text-xs leading-relaxed text-brand-muted sm:text-[13px]">
+      <p className="mt-1 text-[13px] leading-relaxed text-brand-muted sm:text-[13px]">
         Each slice is the share of scheduled rows for that channel in your plan (not dollars or reach).
       </p>
 

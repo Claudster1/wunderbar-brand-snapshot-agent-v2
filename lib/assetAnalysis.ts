@@ -3,6 +3,9 @@
 // Triggers analysis for unanalyzed assets before returning results.
 
 import { supabaseServer } from "@/lib/supabase";
+import { analyzeBrandAssets } from "@/lib/assets/analyzeBrandAssets";
+import { isBlueprintLogoTier } from "@/lib/brandLogo";
+import { maxAssetsForTier } from "@/lib/assets/assetTierLimits";
 
 interface AssetAnalysisRecord {
   id: string;
@@ -43,6 +46,7 @@ export async function getAssetAnalyses(
   brandContext?: BrandContextForAssets
 ): Promise<AssetAnalysisSummary | null> {
   const sb = supabaseServer();
+  const limit = Math.max(maxAssetsForTier(tier), 1);
 
   const { data: assets, error } = await sb
     .from("brand_asset_uploads")
@@ -50,7 +54,7 @@ export async function getAssetAnalyses(
     .eq("user_email", email.toLowerCase())
     .eq("tier", tier)
     .order("created_at", { ascending: true })
-    .limit(50);
+    .limit(limit);
 
   if (error || !assets || assets.length === 0) return null;
 
@@ -59,12 +63,10 @@ export async function getAssetAnalyses(
 
   if (unanalyzed.length > 0) {
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://app.wunderbrand.ai";
-      await fetch(`${baseUrl}/api/assets/analyze`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, tier, brandContext }),
-      });
+      if (isBlueprintLogoTier(tier)) {
+        // Direct server call — avoids unauthenticated HTTP hop to /api/assets/analyze.
+        await analyzeBrandAssets({ email, tier, brandContext });
+      }
 
       const { data: refreshed } = await sb
         .from("brand_asset_uploads")
@@ -72,7 +74,7 @@ export async function getAssetAnalyses(
         .eq("user_email", email.toLowerCase())
         .eq("tier", tier)
         .order("created_at", { ascending: true })
-        .limit(50);
+        .limit(limit);
 
       if (refreshed) typedAssets = refreshed as AssetAnalysisRecord[];
     } catch {

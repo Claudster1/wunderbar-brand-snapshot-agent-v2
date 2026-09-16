@@ -20,6 +20,7 @@ const LABEL_TO_CAPTURE: Array<{ match: RegExp; key: CaptureKey }> = [
   { match: /transaction value|deal size|average check|ticket|booking or service value|order value/i, key: "average_transaction_value" },
   { match: /conversion|close rate|what share .{0,20} book/i, key: "conversion_rate_estimate" },
   { match: /content creation/i, key: "content_creation_capacity" },
+  { match: /video|screen record|camera/i, key: "video_comfort" },
   { match: /marketing budget/i, key: "monthly_marketing_budget" },
   { match: /email list/i, key: "has_email_list" },
   { match: /free download|lead magnet|sign-up offer|discount|tip sheet/i, key: "has_lead_magnet" },

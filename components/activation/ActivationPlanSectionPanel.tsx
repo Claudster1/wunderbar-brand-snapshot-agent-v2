@@ -21,7 +21,6 @@ import {
   SUITE_INSIGHT_CARD_RAIL_LEFT,
   SUITE_MUTED,
   SUITE_NAVY,
-  SUITE_PANEL_RAIL,
   SUITE_RADIUS_BUTTON,
   SUITE_RADIUS_LG,
   SUITE_RADIUS_MD,
@@ -39,7 +38,9 @@ import {
 import { SEMANTIC_DO, SEMANTIC_DONT } from "@/src/pdf/reportVisualTokens";
 import AudienceSegmentsActivationPanel from "@/components/activation/AudienceSegmentsActivationPanel";
 import PaidMediaActivationCreatives from "@/components/activation/PaidMediaActivationCreatives";
+import GoogleBusinessDiscoveryPanel from "@/components/activation/GoogleBusinessDiscoveryPanel";
 import ActivationPlanReadableBody from "@/components/activation/ActivationPlanReadableBody";
+import ExportPlanDocumentButton from "@/components/activation/ExportPlanDocumentButton";
 import { audienceSegmentsContextHasRenderablePanels } from "@/lib/activation/audienceSegmentsPlanView";
 import { paidStrategyHasRenderableChannels } from "@/lib/activation/paidMediaPlanFields";
 import { isActivationAudienceJourneySectionId } from "@/lib/activation/activationPlanAudienceVsCampaign";
@@ -71,6 +72,8 @@ export type ActivationPlanSectionPanelProps = {
   audienceJourneyPlanLinks?: Array<{ label: string; href: string }>;
   /** Deep-link into Activation Prompt Library for this playbook's matching pack. */
   promptLibraryHref?: string | null;
+  /** Shown in copy payload header when pasting into campaign tools. */
+  companyName?: string;
 };
 
 const BTN_STYLE: React.CSSProperties = {
@@ -100,6 +103,7 @@ export default function ActivationPlanSectionPanel({
   showGuidance = false,
   audienceJourneyPlanLinks,
   promptLibraryHref,
+  companyName,
 }: ActivationPlanSectionPanelProps) {
   const showInstructionalSidebars = showGuidance;
   const paidStrategyRaw =
@@ -141,7 +145,6 @@ export default function ActivationPlanSectionPanel({
       id={sectionDomId}
       style={{
         border: `1px solid ${BORDER}`,
-        borderLeft: `3px solid ${SUITE_PANEL_RAIL}`,
         borderRadius: SUITE_RADIUS_LG,
         background: SUITE_BG_CARD,
         padding: "22px 24px 24px",
@@ -166,7 +169,7 @@ export default function ActivationPlanSectionPanel({
             <p
               style={{
                 margin: 0,
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: 700,
                 color: BLUE,
                 letterSpacing: "0.1em",
@@ -176,12 +179,18 @@ export default function ActivationPlanSectionPanel({
               {section.label}
             </p>
           </div>
-          <p style={{ margin: "6px 0 0", fontSize: 14, color: MID_GRAY, lineHeight: 1.55, maxWidth: 720 }}>
+          <p style={{ margin: "6px 0 0", fontSize: 15, color: MID_GRAY, lineHeight: 1.55, maxWidth: 720 }}>
             {section.summary}
           </p>
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
           {extraHeaderActions}
+          <ExportPlanDocumentButton
+            planLabel={section.label}
+            companyName={companyName}
+            summary={section.summary}
+            body={section.body || section.summary || ""}
+          />
           {promptLibraryHref ? (
             <Link
               href={promptLibraryHref}
@@ -220,7 +229,18 @@ export default function ActivationPlanSectionPanel({
             gap: 10,
           }}
         >
-          <p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: NAVY, lineHeight: 1.4, flex: "1 1 200px" }}>
+          <p
+            style={{
+              margin: 0,
+              fontSize: 13,
+              fontWeight: 800,
+              color: NAVY,
+              lineHeight: 1.4,
+              flex: "1 1 200px",
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+            }}
+          >
             Built on Your Audience Foundation
           </p>
           <AudienceFoundationInfoTrigger links={audienceJourneyPlanLinks} variant="panel" />
@@ -244,8 +264,7 @@ export default function ActivationPlanSectionPanel({
           <p
             style={{
               margin: "0 0 10px",
-              fontSize: 11,
-              fontWeight: 800,
+              fontSize: 14, fontWeight: 800,
               color: BLUE,
               letterSpacing: "0.1em",
               textTransform: "uppercase",
@@ -269,7 +288,7 @@ export default function ActivationPlanSectionPanel({
           <CampaignJourneyContextVisual />
           {activationCampaignSectionChart(section.id, showPaidStructured)}
           {section.id === "paid-ads" && !showPaidStructured ? (
-            <p style={{ margin: "8px 0 0", fontSize: 12, color: MID_GRAY, lineHeight: 1.5 }}>
+            <p style={{ margin: "8px 0 0", fontSize: 13, color: MID_GRAY, lineHeight: 1.5 }}>
               Funnel diagram is a <strong style={{ color: NAVY }}>reference</strong> only — your authoritative detail is in the sections below.
             </p>
           ) : null}
@@ -289,6 +308,8 @@ export default function ActivationPlanSectionPanel({
         </div>
       ) : null}
 
+      {section.id === "seo-aeo" ? <GoogleBusinessDiscoveryPanel diagnosticData={diagnosticData} /> : null}
+
       {!showPaidStructured && !showAudienceStructured ? (
         <ActivationPlanReadableBody body={section.body} sectionId={section.id} />
       ) : null}
@@ -299,7 +320,7 @@ export default function ActivationPlanSectionPanel({
               padding: "12px 14px",
               borderRadius: SUITE_RADIUS_SM,
               background: `${BLUE}14`,
-              borderLeft: `3px solid ${BLUE}`,
+              borderTop: `2px solid ${BLUE}`,
             }}
           >
             <p
@@ -354,14 +375,13 @@ export default function ActivationPlanSectionPanel({
                 borderRadius: SUITE_RADIUS_SM,
                 background: SEMANTIC_DO.bg,
                 border: "1px solid rgba(5, 150, 105, 0.22)",
-                borderLeft: `4px solid ${SEMANTIC_DO.border}`,
+                borderTop: `3px solid ${SEMANTIC_DO.border}`,
               }}
             >
               <p
                 style={{
                   margin: 0,
-                  fontSize: 12,
-                  fontWeight: 800,
+                  fontSize: 14, fontWeight: 800,
                   letterSpacing: "0.1em",
                   textTransform: "uppercase",
                   color: SEMANTIC_DO.label,
@@ -379,14 +399,13 @@ export default function ActivationPlanSectionPanel({
                 borderRadius: SUITE_RADIUS_SM,
                 background: SEMANTIC_DONT.bg,
                 border: "1px solid rgba(239, 68, 68, 0.2)",
-                borderLeft: `4px solid ${SEMANTIC_DONT.border}`,
+                borderTop: `3px solid ${SEMANTIC_DONT.border}`,
               }}
             >
               <p
                 style={{
                   margin: 0,
-                  fontSize: 12,
-                  fontWeight: 800,
+                  fontSize: 14, fontWeight: 800,
                   letterSpacing: "0.1em",
                   textTransform: "uppercase",
                   color: SEMANTIC_DONT.label,
@@ -417,14 +436,13 @@ export default function ActivationPlanSectionPanel({
               borderRadius: SUITE_RADIUS_SM,
               background: SEMANTIC_DO.bg,
               border: "1px solid rgba(5, 150, 105, 0.22)",
-              borderLeft: `4px solid ${SEMANTIC_DO.border}`,
+              borderTop: `3px solid ${SEMANTIC_DO.border}`,
             }}
           >
             <p
               style={{
                 margin: 0,
-                fontSize: 12,
-                fontWeight: 800,
+                fontSize: 14, fontWeight: 800,
                 letterSpacing: "0.1em",
                 textTransform: "uppercase",
                 color: SEMANTIC_DO.label,
@@ -446,14 +464,13 @@ export default function ActivationPlanSectionPanel({
               borderRadius: SUITE_RADIUS_SM,
               background: SEMANTIC_DONT.bg,
               border: "1px solid rgba(239, 68, 68, 0.2)",
-              borderLeft: `4px solid ${SEMANTIC_DONT.border}`,
+              borderTop: `3px solid ${SEMANTIC_DONT.border}`,
             }}
           >
             <p
               style={{
                 margin: 0,
-                fontSize: 12,
-                fontWeight: 800,
+                fontSize: 14, fontWeight: 800,
                 letterSpacing: "0.1em",
                 textTransform: "uppercase",
                 color: SEMANTIC_DONT.label,

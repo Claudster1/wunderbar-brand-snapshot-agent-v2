@@ -3,6 +3,11 @@ import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy"
 import { aiApTitleCaseHeadingsRule } from "@/lib/copy/capitalizationPolicy";
 import { reportExecutionReadyContentRule, aiPlainLanguageCustomerOutputRule } from "@/lib/copy/reportExecutionStandard";
 import { audienceLanguageLockFragment } from "@/src/prompts/fragments/audienceLanguageLock";
+import {
+  BUYER_PERSONA_DIVERSITY_RULES,
+  IMAGERY_DIVERSITY_GUIDANCE,
+  INCLUSIVE_LANGUAGE_GUIDANCE,
+} from "@/src/prompts/fragments/personaDiversityGuidance";
 
 export const blueprintEnginePrompt = `
 You are the Wunderbar Digital WunderBrand Blueprint™ Engine.
@@ -79,6 +84,7 @@ The JSON input contains:
   "brandPersonalityWords": [],
   "keyTopicsAndThemes": "",
   "contentFormatPreferences": [],
+  "videoComfort": "",
   "archetypeSignals": {
     "decisionStyle": "",
     "authoritySource": "",
@@ -311,10 +317,12 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
     IMPORTANT: Buyer personas are DIFFERENT from ICPs. ICPs define the segment; buyer personas are individuals inside that segment.
     
     For EACH ICP you defined (primaryICP, secondaryICP, and each entry in additionalICPs), generate 1–3 buyer personas — enough to cover distinct buying roles or attitudes within that segment. Typical total count: 4–9 personas when additionalICPs is used; 4–6 when only primary + secondary.
+
+    ${BUYER_PERSONA_DIVERSITY_RULES}
     
     buyerPersonas: [
       {
-        personaName: A memorable, descriptive name preferred (e.g., "The Overwhelmed CMO", "The Budget-Conscious Startup Founder", "The Referral-Driven Mom"). If using a first+last name, keep it ethnically ambiguous (Jordan Ellis, Casey Morgan, Alex Reed) — never invent a culturally specific name that could clash with the illustrated avatar.
+        personaName: A memorable, descriptive name preferred (e.g., "The Overwhelmed CMO", "The Budget-Conscious Startup Founder", "The Referral-Driven Parent"). If using a first+last name, keep it ethnically ambiguous (Jordan Ellis, Casey Morgan, Alex Reed) — never invent a culturally specific name that could clash with the illustrated avatar.
         icpAlignment: REQUIRED — MUST be an EXACT copy of the icpLabel string from the ICP this persona belongs to (primaryICP.icpLabel, secondaryICP.icpLabel, or one additionalICPs[].icpLabel). Do not write "primary" or "secondary" alone unless that is literally the icpLabel.
         role: Their role or identity (B2B: job title, decision authority; B2C: life role, identity)
         coreFrustration: The one thing that keeps them up at night related to what [businessName] solves
@@ -832,7 +840,7 @@ YOUR OUTPUT MUST INCLUDE ALL OF THE FOLLOWING:
         lighting: "What kind of lighting to look for (e.g., 'Natural, soft lighting — avoid harsh studio strobes or overly filtered images')"
         composition: "How images should be composed (e.g., 'Subject-focused with breathing room,' 'Environmental context visible,' 'Rule of thirds')"
         colorTemperature: "How the brand palette connects to image selection (e.g., 'Warm tones that complement the coral and terracotta palette,' 'Cool, muted tones consistent with the minimal brand direction')"
-        diversity: "Guidance on representation and authenticity in imagery — calibrated to [businessName]'s audience and values"
+        diversity: "${IMAGERY_DIVERSITY_GUIDANCE}"
         authenticityMarkers: "What makes an image feel authentic vs. stock-photo-generic for this brand"
       }
       

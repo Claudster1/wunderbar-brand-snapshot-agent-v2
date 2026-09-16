@@ -51,6 +51,11 @@ import { getChatTierConfig } from "@/lib/chatTierConfig";
 import { getSuiteProgressHint } from "@/lib/copy/resultsSuiteGuidance";
 import { buildAudienceProfilesBody, buildCustomerProfilesDeepBody } from "@/lib/strategy/audienceNarrative";
 import { buildStrategyNavMenuItems } from "@/lib/strategy/strategyNavMenu";
+import {
+  filterBlueprintPlusGuidedStrategySections,
+  type BlueprintPlusViewMode,
+} from "@/lib/results/blueprintPlusGuidedMode";
+import BlueprintPlusGuidedPathBanner from "@/components/results/BlueprintPlusGuidedPathBanner";
 import { collectStrategyPlanSections, joinAsStrategyBullets } from "@/lib/strategy/strategyPlanExtract";
 import StrategicOfferPortfolioLayout from "@/components/strategy/StrategicOfferPortfolioLayout";
 import {
@@ -61,6 +66,7 @@ import {
 import { parseBuyerJourneyStages, summarizeJourneyTile } from "@/lib/strategy/parseBuyerJourneyStages";
 import { getJourneyMapTileChrome, journeyStageTitleColor } from "@/lib/strategy/journeyMapTileChrome";
 import { extractCompetitiveLandscapePlayers } from "@/lib/strategy/competitiveLandscapePlayers";
+import { renderInlineMarkdown } from "@/lib/strategy/renderInlineMarkdown";
 import type { WorkbookSectionId } from "@/lib/workbookTypes";
 import { SEMANTIC_DO, SEMANTIC_DONT } from "@/src/pdf/reportVisualTokens";
 
@@ -81,7 +87,7 @@ const STRATEGY_INSET_ACCENT: CSSProperties = {
   ...STRATEGY_INSET,
   background: "#F8F9FB",
   border: "1px solid rgba(0, 0, 0, 0.07)",
-  borderLeft: `3px solid ${BLUE}`,
+  borderTop: `2px solid ${BLUE}`,
 };
 
 /** Nested cards inside Marketing strategy — same neutral inner language as narrative panels */
@@ -103,14 +109,14 @@ const STRATEGY_CARD_HEAD: CSSProperties = {
 const STRATEGY_MSG_SUBHEAD: CSSProperties = {
   ...SUITE_FOUNDATION_SUBHEAD_STYLE,
   margin: "0 0 8px",
-  fontSize: 12,
+  fontSize: 13,
 };
 
 /** In-card micro labels (Applying this topic → success metric, do / don’t) — Foundation blue subhead scale */
 const STRATEGY_IMPL_SUBHEAD: CSSProperties = {
   ...SUITE_FOUNDATION_SUBHEAD_STYLE,
   margin: 0,
-  fontSize: 12,
+  fontSize: 13,
 };
 
 const STRATEGY_BODY_PARA: CSSProperties = {
@@ -173,7 +179,7 @@ const EXEC_DO_GUIDANCE_CARD: CSSProperties = {
   borderRadius: 10,
   background: SEMANTIC_DO.bg,
   border: "1px solid rgba(5, 150, 105, 0.22)",
-  borderLeft: `4px solid ${SEMANTIC_DO.border}`,
+  borderTop: `3px solid ${SEMANTIC_DO.border}`,
 };
 
 const EXEC_DONT_GUIDANCE_CARD: CSSProperties = {
@@ -181,7 +187,7 @@ const EXEC_DONT_GUIDANCE_CARD: CSSProperties = {
   borderRadius: 10,
   background: SEMANTIC_DONT.bg,
   border: "1px solid rgba(239, 68, 68, 0.2)",
-  borderLeft: `4px solid ${SEMANTIC_DONT.border}`,
+  borderTop: `3px solid ${SEMANTIC_DONT.border}`,
 };
 
 interface StrategyTabProps {
@@ -191,6 +197,9 @@ interface StrategyTabProps {
   /** Set when `ResultsTabsShell` renders section chips above this tab (Foundation-style). */
   shellRendersSectionChips?: boolean;
   shellActiveSectionId?: string | null;
+  /** Blueprint+ Guided shortens Strategy panels; ignored on other tiers. */
+  blueprintPlusViewMode?: BlueprintPlusViewMode;
+  onBrowseFullLibrary?: () => void;
 }
 
 function asRecordLoose(v: unknown): Record<string, unknown> | null {
@@ -273,8 +282,12 @@ export default function StrategyTab({
   onEditInWorkbook,
   shellRendersSectionChips = false,
   shellActiveSectionId = null,
+  blueprintPlusViewMode = "reference",
+  onBrowseFullLibrary,
 }: StrategyTabProps) {
   const isFree = productTier === "snapshot";
+  const guided =
+    productTier === "blueprint-plus" && blueprintPlusViewMode === "guided";
   const suiteNav = useResultsSuiteNav();
   const openFoundationSection = suiteNav?.openFoundationSection;
   const archetype = typeof diagnosticData.primaryArchetype === "string" ? diagnosticData.primaryArchetype : "";
@@ -574,15 +587,24 @@ export default function StrategyTab({
       workbookSectionId: "action-plan",
     },
   ];
-  const strategySectionsVisible = filterStrategySections(productTier, strategySections);
+  const strategySectionsVisible = filterBlueprintPlusGuidedStrategySections(
+    filterStrategySections(productTier, strategySections),
+    guided ? "guided" : "reference",
+    diagnosticData as Record<string, unknown>,
+  );
   const strategicOfferVm = parseStrategicOfferViewModel(diagnosticData as Record<string, unknown>);
   const strategicOfferUseVisualLayout =
     strategicOfferVm !== null && strategicOfferViewModelHasContent(strategicOfferVm);
-  const strategyPlanSections = showStrategyPlanNarrativePanels(productTier)
-    ? collectStrategyPlanSections(diagnosticData as Record<string, unknown>)
-    : [];
-  const strategyMenuItems = buildStrategyNavMenuItems(productTier, diagnosticData);
-  const marketingBlockCount = showMarketingStrategyHero ? 1 : 0;
+  const strategyPlanSections =
+    !guided && showStrategyPlanNarrativePanels(productTier)
+      ? collectStrategyPlanSections(diagnosticData as Record<string, unknown>)
+      : [];
+  const strategyMenuItems = buildStrategyNavMenuItems(
+    productTier,
+    diagnosticData,
+    guided ? "guided" : "reference",
+  );
+  const marketingBlockCount = !guided && showMarketingStrategyHero ? 1 : 0;
   const narrativeBlockCount = strategyPlanSections.length;
   const domainBlockCount = strategySectionsVisible.length;
   const sectionGuidance: Record<
@@ -956,6 +978,12 @@ export default function StrategyTab({
       shellRendersSectionChips={shellRendersSectionChips}
       shellActiveSectionId={shellActiveSectionId}
     >
+      {guided && onBrowseFullLibrary ? (
+        <BlueprintPlusGuidedPathBanner
+          showingLabel={`${strategySectionsVisible.length} strategy panels for your priorities`}
+          onBrowseFullLibrary={onBrowseFullLibrary}
+        />
+      ) : null}
       <div className="min-w-0 w-full max-w-full space-y-10 md:space-y-12" style={{ fontFamily: SUITE_FONT_UI }}>
       <div
         style={{
@@ -970,7 +998,7 @@ export default function StrategyTab({
             style={{
               ...SUITE_FOUNDATION_SUBHEAD_STYLE,
               margin: 0,
-              fontSize: 12,
+              fontSize: 13,
             }}
           >
             Strategic marketing plan
@@ -1064,7 +1092,7 @@ export default function StrategyTab({
         </div>
       </div>
 
-      {showMarketingStrategyHero ? (
+      {!guided && showMarketingStrategyHero ? (
         <StrategyDomainSection
           id="strategy-marketing-core"
           sectionNumber="01"
@@ -1232,7 +1260,7 @@ export default function StrategyTab({
                           .slice(0, 8)
                           .map((line) => (
                             <li key={line}>
-                              {line}
+                              {renderInlineMarkdown(line)}
                             </li>
                           ))}
                       </ul>
@@ -1246,7 +1274,7 @@ export default function StrategyTab({
               <p style={{ margin: 0, fontSize: 15, color: TEXT_BODY, lineHeight: 1.58, fontFamily: SUITE_FONT_UI }}>
                 {fallbackStrategyNarrative}
               </p>
-              <p style={{ margin: "10px 0 0", fontSize: 14, color: MID_GRAY, lineHeight: 1.55, fontFamily: SUITE_FONT_UI }}>
+              <p style={{ margin: "10px 0 0", fontSize: 15, color: MID_GRAY, lineHeight: 1.55, fontFamily: SUITE_FONT_UI }}>
                 When your product includes the full strategic narrative, executive synthesis, positioning, differentiation,
                 and a structured messaging system appear here automatically. Until then, use the topic panels below and your
                 Workbook to deepen each thread.
@@ -1438,9 +1466,6 @@ export default function StrategyTab({
                         borderTopWidth: 3,
                         borderTopStyle: "solid",
                         borderTopColor: chrome.leftRail,
-                        borderLeftWidth: 4,
-                        borderLeftStyle: "solid",
-                        borderLeftColor: chrome.leftRail,
                       }}
                     >
                       <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
@@ -1479,7 +1504,7 @@ export default function StrategyTab({
                           <p
                             style={{
                               margin: "0 0 10px",
-                              fontSize: 11,
+                              fontSize: 12,
                               fontWeight: 700,
                               letterSpacing: "0.1em",
                               textTransform: "uppercase",
@@ -1610,7 +1635,7 @@ export default function StrategyTab({
                         </div>
                         <div style={EXEC_MUTED_CARD}>
                           <p style={STRATEGY_IMPL_SUBHEAD}>Risk if ignored</p>
-                          <p style={{ margin: "6px 0 0", fontSize: 14, color: MID_GRAY, lineHeight: 1.5, fontFamily: SUITE_FONT_UI }}>
+                          <p style={{ margin: "6px 0 0", fontSize: 15, color: MID_GRAY, lineHeight: 1.5, fontFamily: SUITE_FONT_UI }}>
                             {expandedContent[section.id].risk}
                           </p>
                         </div>

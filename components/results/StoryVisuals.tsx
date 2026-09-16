@@ -21,30 +21,30 @@ const SUB = "#5A6B7E";
 /** Deeper cyan from brand system (globals / tailwind brand-blueHover) — funnel base → tip. */
 const BLUE_DEEP = "#059BD8";
 
-type FunnelStepChrome = { borderLeft: string; background: string };
+type FunnelStepChrome = { borderTop: string; background: string };
 
 function funnelChromeForIndex(index: number, total: number): FunnelStepChrome {
   if (total <= 1) {
     return {
-      borderLeft: `3px solid ${BLUE}`,
+      borderTop: `3px solid ${BLUE}`,
       background: `linear-gradient(135deg, rgba(7, 176, 242, 0.12) 0%, #FFFFFF 100%)`,
     };
   }
   const stops: FunnelStepChrome[] = [
     {
-      borderLeft: `3px solid rgba(2, 24, 89, 0.42)`,
+      borderTop: `3px solid rgba(2, 24, 89, 0.42)`,
       background: `linear-gradient(135deg, rgba(2, 24, 89, 0.08) 0%, #FFFFFF 92%)`,
     },
     {
-      borderLeft: `3px solid rgba(7, 176, 242, 0.55)`,
+      borderTop: `3px solid rgba(7, 176, 242, 0.55)`,
       background: `linear-gradient(135deg, rgba(2, 24, 89, 0.04) 0%, rgba(7, 176, 242, 0.07) 100%)`,
     },
     {
-      borderLeft: `3px solid ${BLUE}`,
+      borderTop: `3px solid ${BLUE}`,
       background: `linear-gradient(135deg, rgba(7, 176, 242, 0.11) 0%, #FFFFFF 100%)`,
     },
     {
-      borderLeft: `3px solid ${BLUE_DEEP}`,
+      borderTop: `3px solid ${BLUE_DEEP}`,
       background: `linear-gradient(135deg, rgba(7, 176, 242, 0.18) 0%, #F8FBFF 100%)`,
     },
   ];
@@ -88,7 +88,7 @@ export function SuiteVisualFrame({
         {eyebrow}
       </p>
       {description ? (
-        <div style={{ margin: "0 0 12px", fontSize: 12, color: MID_GRAY, lineHeight: 1.45 }}>{description}</div>
+        <div style={{ margin: "0 0 12px", fontSize: 13, color: MID_GRAY, lineHeight: 1.45 }}>{description}</div>
       ) : null}
       {children}
     </div>
@@ -245,7 +245,7 @@ function HubAndSpokeDiagram({
           <p
             style={{
               margin: "6px 0 0",
-              fontSize: 9,
+              fontSize: 12,
               fontWeight: 700,
               letterSpacing: "0.12em",
               textTransform: "uppercase",
@@ -273,7 +273,7 @@ function HubAndSpokeDiagram({
                   borderRadius: 10,
                   background: `linear-gradient(160deg, ${chrome.bgFrom} 0%, ${chrome.bgTo} 70%)`,
                   border: `1px solid ${chrome.border}`,
-                  borderLeft: `4px solid ${chrome.leftRail}`,
+                  borderTop: `3px solid ${chrome.leftRail}`,
                   boxSizing: "border-box",
                   boxShadow: "0 2px 10px rgba(2, 24, 89, 0.06)",
                 }}
@@ -293,7 +293,7 @@ function HubAndSpokeDiagram({
                 <p
                   style={{
                     margin: "4px 0 0",
-                    fontSize: 11,
+                    fontSize: 12,
                     color: chrome.subColor,
                     lineHeight: 1.35,
                     fontFamily: SUITE_FONT_UI,
@@ -444,9 +444,7 @@ function HubAndSpokeDiagram({
             <p
               style={{
                 margin: 0,
-                fontSize: 12,
-                fontWeight: 700,
-                color: NAVY,
+                fontSize: 14, fontWeight: 700, color: NAVY,
                 lineHeight: 1.3,
                 fontFamily: SUITE_FONT_UI,
               }}
@@ -456,7 +454,7 @@ function HubAndSpokeDiagram({
             <p
               style={{
                 margin: "3px 0 0",
-                fontSize: 10.5,
+                fontSize: 12,
                 color: chrome.subColor,
                 lineHeight: 1.3,
                 fontFamily: SUITE_FONT_UI,
@@ -482,7 +480,7 @@ function messagingSpokeKind(sub: string): MessagingSpokeKind {
   return "other";
 }
 
-/** Color roles so spine / supporting / proof read at a glance without relying on chip text alone. */
+/** Color roles so core message / supporting / proof read at a glance without relying on chip text alone. */
 function messagingSpokeChrome(kind: MessagingSpokeKind): {
   card: CSSProperties;
   chip: CSSProperties;
@@ -493,16 +491,15 @@ function messagingSpokeChrome(kind: MessagingSpokeKind): {
     borderRadius: 13,
     minWidth: 0,
     boxSizing: "border-box",
-    borderLeftWidth: 4,
-    borderLeftStyle: "solid",
+    borderTopWidth: 3,
+    borderTopStyle: "solid",
     boxShadow: "0 3px 16px rgba(2, 24, 89, 0.1)",
   };
   const baseChip: CSSProperties = {
     display: "inline-block",
     marginTop: 11,
     padding: "3px 9px",
-    fontSize: 9.5,
-    fontWeight: 800,
+    fontSize: 14, fontWeight: 800,
     letterSpacing: "0.08em",
     textTransform: "uppercase",
     borderRadius: 5,
@@ -515,7 +512,7 @@ function messagingSpokeChrome(kind: MessagingSpokeKind): {
         ...baseCard,
         background: "linear-gradient(160deg, #E7F6FD 0%, #FFFFFF 68%)",
         border: "1px solid rgba(7, 176, 242, 0.42)",
-        borderLeftColor: BLUE,
+        borderTopColor: BLUE,
         boxShadow: "0 3px 16px rgba(7, 176, 242, 0.12)",
       },
       chip: {
@@ -532,7 +529,7 @@ function messagingSpokeChrome(kind: MessagingSpokeKind): {
         ...baseCard,
         background: "linear-gradient(160deg, #EAF7F0 0%, #FFFFFF 68%)",
         border: "1px solid rgba(15, 118, 110, 0.35)",
-        borderLeftColor: "#0F766E",
+        borderTopColor: "#0F766E",
         boxShadow: "0 3px 16px rgba(15, 118, 110, 0.1)",
       },
       chip: {
@@ -549,7 +546,7 @@ function messagingSpokeChrome(kind: MessagingSpokeKind): {
         ...baseCard,
         background: "linear-gradient(160deg, #EEF0F8 0%, #FFFFFF 68%)",
         border: "1px solid rgba(2, 24, 89, 0.28)",
-        borderLeftColor: NAVY,
+        borderTopColor: NAVY,
         boxShadow: "0 3px 16px rgba(2, 24, 89, 0.12)",
       },
       chip: {
@@ -565,7 +562,7 @@ function messagingSpokeChrome(kind: MessagingSpokeKind): {
       ...baseCard,
       background: "linear-gradient(160deg, #F3F5F8 0%, #FFFFFF 68%)",
       border: "1px solid rgba(90, 107, 126, 0.28)",
-      borderLeftColor: "#5A6B7E",
+      borderTopColor: "#5A6B7E",
     },
     chip: {
       ...baseChip,
@@ -655,7 +652,7 @@ function MessagingHubFlexibleDiagram({
           <p
             style={{
               margin: "8px 0 0",
-              fontSize: 9,
+              fontSize: 12,
               fontWeight: 700,
               letterSpacing: "0.12em",
               color: "rgba(255,255,255,0.78)",
@@ -880,9 +877,6 @@ export function JourneyMapVisual({
                   borderTopWidth: 3,
                   borderTopStyle: "solid",
                   borderTopColor: chrome.leftRail,
-                  borderLeftWidth: 4,
-                  borderLeftStyle: "solid",
-                  borderLeftColor: chrome.leftRail,
                 }}
               >
                 <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
@@ -895,8 +889,7 @@ export function JourneyMapVisual({
                       width: 24,
                       height: 24,
                       borderRadius: "999px",
-                      fontSize: 11,
-                      fontWeight: 800,
+                      fontSize: 14, fontWeight: 800,
                       color: "#FFFFFF",
                       background: chrome.numberBg,
                       marginTop: 1,
@@ -909,8 +902,7 @@ export function JourneyMapVisual({
                     <p
                       style={{
                         margin: 0,
-                        fontSize: 12,
-                        fontWeight: 800,
+                        fontSize: 14, fontWeight: 800,
                         letterSpacing: "0.04em",
                         color: journeyStageTitleColor(chrome),
                       }}
@@ -920,7 +912,7 @@ export function JourneyMapVisual({
                     <p
                       style={{
                         margin: "4px 0 0",
-                        fontSize: 10,
+                        fontSize: 12,
                         fontWeight: 700,
                         letterSpacing: "0.1em",
                         textTransform: "uppercase",
@@ -930,7 +922,7 @@ export function JourneyMapVisual({
                     >
                       {chrome.cue}
                     </p>
-                    <p style={{ margin: "6px 0 0", fontSize: 12, color: SUB, lineHeight: 1.5 }}>{stage.focus}</p>
+                    <p style={{ margin: "6px 0 0", fontSize: 13, color: SUB, lineHeight: 1.5 }}>{stage.focus}</p>
                   </div>
                 </div>
               </div>
@@ -966,13 +958,13 @@ export function FunnelVisual({
                 margin: "0 auto",
                 borderRadius: 6,
                 border: `1px solid ${SUITE_BORDER}`,
-                borderLeft: chrome.borderLeft,
+                borderTop: chrome.borderTop,
                 background: chrome.background,
                 padding: "12px 14px",
               }}
             >
               <p style={{ margin: 0, fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: BLUE }}>{step.label}</p>
-              <p style={{ margin: "4px 0 0", fontSize: 12, color: SUB, lineHeight: 1.45 }}>{step.detail}</p>
+              <p style={{ margin: "4px 0 0", fontSize: 13, color: SUB, lineHeight: 1.45 }}>{step.detail}</p>
             </div>
           );
         })}
@@ -1063,11 +1055,11 @@ export function MessagingSystemHubVisual({
     <SuiteVisualFrame
       marginTop={0}
       eyebrow="Messaging system at a glance"
-      description="One spine, multiple proof-backed lines—everything below expands each block for copy and briefs."
+      description="One core message, multiple proof-backed lines—everything below expands each block for copy and briefs."
     >
       <MessagingHubFlexibleDiagram
         hubLabel={hubLabel.trim() || "Core message"}
-        hubSublabel="MESSAGE SPINE"
+        hubSublabel="CORE MESSAGE"
         nodes={trimmed}
         ariaLabel="Diagram: core message in the center with supporting lines connected around it"
       />
@@ -1108,8 +1100,7 @@ export function SwotVisual({
           <p
             style={{
               margin: "0 0 6px",
-              fontSize: 11,
-              fontWeight: 800,
+              fontSize: 14, fontWeight: 800,
               color: NAVY,
               letterSpacing: "0.1em",
               textTransform: "uppercase",
@@ -1117,7 +1108,7 @@ export function SwotVisual({
           >
             Named competitors
           </p>
-          <p style={{ margin: "0 0 10px", fontSize: 12, color: MID_GRAY, lineHeight: 1.45 }}>
+          <p style={{ margin: "0 0 10px", fontSize: 13, color: MID_GRAY, lineHeight: 1.45 }}>
             Alternatives your buyers compare you against from the competitive positioning map in your deliverable.
           </p>
           <div
@@ -1132,7 +1123,7 @@ export function SwotVisual({
                 key={`${c.name}-${index}`}
                 style={{
                   ...cardStyle,
-                  borderLeft: `3px solid ${BLUE}`,
+                  borderTop: `2px solid ${BLUE}`,
                   background: "#F8FBFF",
                   padding: "12px 14px",
                 }}
@@ -1142,7 +1133,7 @@ export function SwotVisual({
                   <p
                     style={{
                       margin: "6px 0 0",
-                      fontSize: 11,
+                      fontSize: 13,
                       color: SUB,
                       lineHeight: 1.45,
                       display: "-webkit-box",
@@ -1162,8 +1153,7 @@ export function SwotVisual({
       <p
         style={{
           margin: hasCompetitors ? "14px 0 8px" : "0 0 8px",
-          fontSize: 11,
-          fontWeight: 800,
+          fontSize: 14, fontWeight: 800,
           color: NAVY,
           letterSpacing: "0.1em",
           textTransform: "uppercase",
@@ -1172,8 +1162,8 @@ export function SwotVisual({
         SWOT snapshot
       </p>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-        <div style={{ ...cardStyle, borderLeft: "3px solid #16A34A", background: "#F0FDF4" }}>
-          <p style={{ margin: 0, fontSize: 11, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "#166534" }}>
+        <div style={{ ...cardStyle, borderTop: "3px solid #16A34A", background: "#F0FDF4" }}>
+          <p style={{ margin: 0, fontSize: 14, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "#166534" }}>
             Strengths
           </p>
           {strengths.slice(0, 2).map((item, index) => (
@@ -1182,8 +1172,8 @@ export function SwotVisual({
             </p>
           ))}
         </div>
-        <div style={{ ...cardStyle, borderLeft: "3px solid #DC2626", background: "#FEF2F2" }}>
-          <p style={{ margin: 0, fontSize: 11, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "#991B1B" }}>
+        <div style={{ ...cardStyle, borderTop: "3px solid #DC2626", background: "#FEF2F2" }}>
+          <p style={{ margin: 0, fontSize: 14, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "#991B1B" }}>
             Weaknesses
           </p>
           {weaknesses.slice(0, 2).map((item, index) => (
@@ -1192,8 +1182,8 @@ export function SwotVisual({
             </p>
           ))}
         </div>
-        <div style={{ ...cardStyle, borderLeft: "3px solid #0284C7", background: "#F0F9FF" }}>
-          <p style={{ margin: 0, fontSize: 11, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "#0369A1" }}>
+        <div style={{ ...cardStyle, borderTop: "3px solid #0284C7", background: "#F0F9FF" }}>
+          <p style={{ margin: 0, fontSize: 14, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "#0369A1" }}>
             Opportunities
           </p>
           {opportunities.slice(0, 2).map((item, index) => (
@@ -1202,8 +1192,8 @@ export function SwotVisual({
             </p>
           ))}
         </div>
-        <div style={{ ...cardStyle, borderLeft: "3px solid #B45309", background: "#FFF7ED" }}>
-          <p style={{ margin: 0, fontSize: 11, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "#9A3412" }}>
+        <div style={{ ...cardStyle, borderTop: "3px solid #B45309", background: "#FFF7ED" }}>
+          <p style={{ margin: 0, fontSize: 14, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", color: "#9A3412" }}>
             Threats
           </p>
           {threats.slice(0, 2).map((item, index) => (
@@ -1254,69 +1244,80 @@ export function CampaignJourneyContextVisual() {
                   border: `1px solid ${chrome.border}`,
                   borderRadius: 10,
                   background: `linear-gradient(145deg, ${chrome.bgFrom} 0%, ${chrome.bgTo} 100%)`,
-                  padding: "12px 12px",
+                  padding: "12px 10px",
                   minHeight: 86,
                   boxShadow: `0 4px 14px ${chrome.leftRail}22`,
                   borderTopWidth: 3,
                   borderTopStyle: "solid",
                   borderTopColor: chrome.leftRail,
-                  borderLeftWidth: 4,
-                  borderLeftStyle: "solid",
-                  borderLeftColor: chrome.leftRail,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  textAlign: "center",
+                  boxSizing: "border-box",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
-                  <span
-                    style={{
-                      flexShrink: 0,
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      width: 22,
-                      height: 22,
-                      borderRadius: "999px",
-                      fontSize: 10,
-                      fontWeight: 800,
-                      color: "#FFFFFF",
-                      background: chrome.numberBg,
-                      marginTop: 1,
-                    }}
-                    aria-hidden
-                  >
-                    {index + 1}
-                  </span>
-                  <div style={{ minWidth: 0 }}>
-                    <p
-                      style={{
-                        margin: 0,
-                        fontSize: 12,
-                        fontWeight: 800,
-                        color: journeyStageTitleColor(chrome),
-                      }}
-                    >
-                      {stage.label}
-                    </p>
-                    <p
-                      style={{
-                        margin: "3px 0 0",
-                        fontSize: 10,
-                        fontWeight: 700,
-                        letterSpacing: "0.05em",
-                        color: SUB,
-                        fontFamily: SUITE_FONT_UI,
-                      }}
-                    >
-                      {chrome.cue}
-                    </p>
-                    <p style={{ margin: "5px 0 0", fontSize: 11, color: SUB, lineHeight: 1.4 }}>{stage.hint}</p>
-                  </div>
-                </div>
+                <span
+                  style={{
+                    flexShrink: 0,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: 22,
+                    height: 22,
+                    borderRadius: "999px",
+                    fontSize: 14, fontWeight: 800,
+                    lineHeight: 1,
+                    color: "#FFFFFF",
+                    background: chrome.numberBg,
+                    marginBottom: 6,
+                  }}
+                  aria-hidden
+                >
+                  {index + 1}
+                </span>
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: 14, fontWeight: 800,
+                    color: journeyStageTitleColor(chrome),
+                    textAlign: "center",
+                  }}
+                >
+                  {stage.label}
+                </p>
+                <p
+                  style={{
+                    margin: "3px 0 0",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                    color: SUB,
+                    fontFamily: SUITE_FONT_UI,
+                    textAlign: "center",
+                  }}
+                >
+                  {chrome.cue}
+                </p>
+                <p
+                  style={{
+                    margin: "5px 0 0",
+                    fontSize: 13,
+                    color: SUB,
+                    lineHeight: 1.4,
+                    textAlign: "center",
+                  }}
+                >
+                  {stage.hint}
+                </p>
               </div>
             </div>
           );
         })}
       </div>
-      <p style={{ margin: "10px 0 0", fontSize: 11, color: SUB, lineHeight: 1.45 }}>
+      <p style={{ margin: "10px 0 0", fontSize: 13, color: SUB, lineHeight: 1.45 }}>
         Map each asset in this playbook to <strong style={{ color: NAVY }}>one primary stage</strong> so messaging and CTAs stay coherent.
       </p>
     </>,
@@ -1347,9 +1348,7 @@ export function LeadMagnetFlowVisual() {
                 background: `linear-gradient(145deg, ${chrome.bgFrom} 0%, ${chrome.bgTo} 100%)`,
                 padding: "12px 14px",
                 boxShadow: "0 2px 8px rgba(2, 24, 89, 0.06)",
-                borderLeftWidth: 4,
-                borderLeftStyle: "solid",
-                borderLeftColor: chrome.leftRail,
+
               }}
             >
               <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
@@ -1362,8 +1361,7 @@ export function LeadMagnetFlowVisual() {
                     width: 22,
                     height: 22,
                     borderRadius: "999px",
-                    fontSize: 10,
-                    fontWeight: 800,
+                    fontSize: 14, fontWeight: 800,
                     color: "#FFFFFF",
                     background: chrome.numberBg,
                     marginTop: 1,
@@ -1373,20 +1371,21 @@ export function LeadMagnetFlowVisual() {
                   {i + 1}
                 </span>
                 <div style={{ minWidth: 0 }}>
-                  <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>{step.label}</p>
+                  <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>{step.label}</p>
                   <p
                     style={{
                       margin: "3px 0 0",
-                      fontSize: 10,
+                      fontSize: 12,
                       fontWeight: 700,
-                      letterSpacing: "0.05em",
+                      letterSpacing: "0.1em",
+                      textTransform: "uppercase",
                       color: chrome.chipText,
                       fontFamily: SUITE_FONT_UI,
                     }}
                   >
                     {chrome.cue}
                   </p>
-                  <p style={{ margin: "5px 0 0", fontSize: 11, color: SUB, lineHeight: 1.4 }}>{step.detail}</p>
+                  <p style={{ margin: "5px 0 0", fontSize: 13, color: SUB, lineHeight: 1.4 }}>{step.detail}</p>
                 </div>
               </div>
             </div>
@@ -1435,10 +1434,26 @@ export function EmailLifecycleFlowVisual() {
                 padding: "12px 12px",
                 minHeight: 80,
                 boxSizing: "border-box",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                textAlign: "center",
               }}
             >
-              <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>{step.label}</p>
-              <p style={{ margin: "4px 0 0", fontSize: 11, color: chrome.subColor, lineHeight: 1.4, fontWeight: 600 }}>
+              <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY, textAlign: "center" }}>
+                {step.label}
+              </p>
+              <p
+                style={{
+                  margin: "4px 0 0",
+                  fontSize: 12,
+                  color: chrome.subColor,
+                  lineHeight: 1.4,
+                  fontWeight: 600,
+                  textAlign: "center",
+                }}
+              >
                 {step.detail}
               </p>
             </div>
@@ -1472,8 +1487,8 @@ export function SeoAeoIntentVisual() {
               boxSizing: "border-box",
             }}
           >
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>{c.label}</p>
-            <p style={{ margin: "5px 0 0", fontSize: 11, color: chrome.subColor, lineHeight: 1.45, fontWeight: 600 }}>
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>{c.label}</p>
+            <p style={{ margin: "5px 0 0", fontSize: 12, color: chrome.subColor, lineHeight: 1.45, fontWeight: 600 }}>
               {c.detail}
             </p>
           </div>
@@ -1508,8 +1523,8 @@ export function ThoughtLeadershipFlywheelVisual() {
                 boxShadow: `0 2px 8px ${chrome.leftRail}18`,
               }}
             >
-              <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>{n.label}</p>
-              <p style={{ margin: "3px 0 0", fontSize: 10, color: chrome.subColor, lineHeight: 1.35, fontWeight: 600 }}>
+              <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>{n.label}</p>
+              <p style={{ margin: "3px 0 0", fontSize: 12, color: chrome.subColor, lineHeight: 1.35, fontWeight: 600 }}>
                 {n.detail}
               </p>
             </div>
@@ -1518,7 +1533,7 @@ export function ThoughtLeadershipFlywheelVisual() {
                 ↻
               </span>
             ) : (
-              <span style={{ color: MID_GRAY, fontSize: 11, marginLeft: 4 }} aria-hidden>
+              <span style={{ color: MID_GRAY, fontSize: 13, marginLeft: 4 }} aria-hidden>
                 (repeat)
               </span>
             )}
@@ -1562,8 +1577,8 @@ export function PrSignalChainVisual() {
                 background: chrome.accent,
               }}
             />
-            <p style={{ margin: "10px 0 0", fontSize: 12, fontWeight: 800, color: NAVY }}>{s.label}</p>
-            <p style={{ margin: "6px 0 0", fontSize: 11, color: chrome.subColor, lineHeight: 1.4, fontWeight: 600 }}>
+            <p style={{ margin: "10px 0 0", fontSize: 14, fontWeight: 800, color: NAVY }}>{s.label}</p>
+            <p style={{ margin: "6px 0 0", fontSize: 12, color: chrome.subColor, lineHeight: 1.4, fontWeight: 600 }}>
               {s.detail}
             </p>
           </div>
@@ -1594,7 +1609,7 @@ export function ExecutionQuarterTimelineVisual() {
               padding: "12px 14px",
               borderRadius: 10,
               border: `1px solid ${chrome.border}`,
-              borderLeft: `4px solid ${chrome.leftRail}`,
+              borderTop: `3px solid ${chrome.leftRail}`,
               background: `linear-gradient(160deg, ${chrome.bgFrom} 0%, ${chrome.bgTo} 75%)`,
               boxSizing: "border-box",
             }}
@@ -1658,13 +1673,13 @@ export function CompetitiveMotionVisual() {
               borderRadius: 8,
               padding: "12px 14px",
               border: `1px solid ${chrome.border}`,
-              borderLeft: `4px solid ${chrome.leftRail}`,
+              borderTop: `3px solid ${chrome.leftRail}`,
               background: `linear-gradient(160deg, ${chrome.bgFrom} 0%, ${chrome.bgTo} 72%)`,
               boxSizing: "border-box",
             }}
           >
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>{lane.label}</p>
-            <p style={{ margin: "5px 0 0", fontSize: 11, color: chrome.subColor, lineHeight: 1.45, fontWeight: 600 }}>
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>{lane.label}</p>
+            <p style={{ margin: "5px 0 0", fontSize: 12, color: chrome.subColor, lineHeight: 1.45, fontWeight: 600 }}>
               {lane.detail}
             </p>
           </div>
@@ -1698,8 +1713,8 @@ export function AudienceFoundationVisual() {
               boxSizing: "border-box",
             }}
           >
-            <p style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY }}>{layer.label}</p>
-            <p style={{ margin: "5px 0 0", fontSize: 11, color: chrome.subColor, lineHeight: 1.4, fontWeight: 600 }}>
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY }}>{layer.label}</p>
+            <p style={{ margin: "5px 0 0", fontSize: 12, color: chrome.subColor, lineHeight: 1.4, fontWeight: 600 }}>
               {layer.detail}
             </p>
           </div>

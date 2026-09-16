@@ -54,7 +54,7 @@ export class ErrorBoundary extends Component<Props, State> {
             onClick={() => this.setState({ hasError: false, error: null })}
             style={{
               padding: "8px 18px",
-              borderRadius: 6,
+              borderRadius: 5,
               border: "1px solid #D6DFE8",
               background: "#fff",
               color: "#021859",

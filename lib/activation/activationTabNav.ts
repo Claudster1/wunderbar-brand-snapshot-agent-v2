@@ -4,63 +4,107 @@ import type { TabSectionMenuItem } from "@/components/results/TabSectionMenu";
 import { filterActivationPlanSections } from "@/components/results/tabConfig";
 import { buildActivationPlanSectionsList } from "@/lib/activation/activationPlanModel";
 import {
-  filterActivationSectionsByTabFocus,
-  parseActivationTabFocus,
-  splitActivationSectionsByAudienceVsCampaign,
-  type ActivationTabFocus,
-} from "@/lib/activation/activationPlanAudienceVsCampaign";
+  activationNavLabel,
+  isActivationNavChannelId,
+  sortActivationSectionsForNav,
+} from "@/lib/activation/activationNavModel";
 import {
   activationPromptLibraryDomId,
   hasActivationPromptLibrary,
 } from "@/lib/activation/activationPromptLibrary";
-
-function clampActivationFocus(
-  focus: ActivationTabFocus,
-  showToggle: boolean,
-  audienceCount: number,
-  campaignCount: number,
-): ActivationTabFocus {
-  if (!showToggle) return "campaigns";
-  if (focus === "audience-journey" && audienceCount === 0) return "campaigns";
-  if (focus === "campaigns" && campaignCount === 0) return "audience-journey";
-  return focus;
-}
+import {
+  filterBlueprintPlusGuidedActivationNavItems,
+  filterBlueprintPlusGuidedActivationSections,
+  resolveBlueprintPlusGuidedActivationSectionIds,
+  type BlueprintPlusViewMode,
+} from "@/lib/results/blueprintPlusGuidedMode";
 
 /**
  * Activation section jump targets — shared by `ResultsTabsShell` (chips) and `ActivationTab` (sidebar + body).
+ *
+ * Order: Overview → Buyer journey (+ context) → 90-day roadmap → Schedule → Channels → Prompts
  */
 export function buildActivationNavMenuItems(
   productTier: ProductTier,
   diagnosticData: Record<string, unknown>,
   scheduleRows: ScheduleRow[],
-  activationFocusSearchParam: string | null,
+  _activationFocusSearchParam: string | null,
+  blueprintPlusViewMode: BlueprintPlusViewMode = "reference",
 ): TabSectionMenuItem[] {
+  const guided =
+    productTier === "blueprint-plus" && blueprintPlusViewMode === "guided";
   const activationPlanSections = buildActivationPlanSectionsList(diagnosticData, scheduleRows.length);
-  const activationPlanSectionsVisible = filterActivationPlanSections(productTier, activationPlanSections);
-  const { audienceJourney, campaigns: campaignSections } = splitActivationSectionsByAudienceVsCampaign(
+  const activationPlanSectionsVisible = filterBlueprintPlusGuidedActivationSections(
+    filterActivationPlanSections(productTier, activationPlanSections),
+    guided ? "guided" : "reference",
+    diagnosticData,
+  );
+
+  const preferredChannelOrder = guided
+    ? resolveBlueprintPlusGuidedActivationSectionIds(diagnosticData).filter((id) =>
+        isActivationNavChannelId(id),
+      )
+    : undefined;
+
+  const ordered = sortActivationSectionsForNav(
     activationPlanSectionsVisible,
+    preferredChannelOrder,
   );
-  const showFoundationCampaignToggle = audienceJourney.length > 0 && campaignSections.length > 0;
-  const parsed = parseActivationTabFocus(activationFocusSearchParam);
-  const activationFocus = clampActivationFocus(
-    parsed,
-    showFoundationCampaignToggle,
-    audienceJourney.length,
-    campaignSections.length,
-  );
-  const sectionsForTable = !showFoundationCampaignToggle
-    ? activationPlanSectionsVisible
-    : filterActivationSectionsByTabFocus(activationPlanSectionsVisible, activationFocus);
 
   const items: TabSectionMenuItem[] = [{ id: "activation-overview", label: "Overview", icon: "OV" }];
-  for (const section of sectionsForTable) {
-    items.push({ id: `activation-${section.id}`, label: section.label });
+
+  let channelsHeadingAdded = false;
+  for (const section of ordered) {
+    if (isActivationNavChannelId(section.id) && !channelsHeadingAdded) {
+      items.push({
+        id: "activation-nav-channels",
+        label: "Channels",
+        kind: "heading",
+      });
+      channelsHeadingAdded = true;
+    }
+    items.push({
+      id: `activation-${section.id}`,
+      label: activationNavLabel(section.id, section.label),
+    });
   }
-  if ((!showFoundationCampaignToggle || activationFocus === "campaigns") && scheduleRows.length > 0) {
-    items.push({ id: "activation-spreadsheet-schedule", label: "Schedule (.xlsx)", icon: "SC" });
+
+  // Schedule sits with the roadmap family: insert after roadmap item when present, else before channels.
+  if (scheduleRows.length > 0) {
+    const scheduleItem: TabSectionMenuItem = {
+      id: "activation-spreadsheet-schedule",
+      label: "Schedule",
+      icon: "SC",
+    };
+    const roadmapIdx = items.findIndex((i) => i.id === "activation-execution-roadmap");
+    const channelsIdx = items.findIndex((i) => i.id === "activation-nav-channels");
+    if (roadmapIdx >= 0) {
+      items.splice(roadmapIdx + 1, 0, scheduleItem);
+    } else if (channelsIdx >= 0) {
+      items.splice(channelsIdx, 0, scheduleItem);
+    } else {
+      items.push(scheduleItem);
+    }
   }
+
   if (hasActivationPromptLibrary(productTier)) {
-    items.push({ id: activationPromptLibraryDomId(), label: "Prompt Library", icon: "PL" });
+    items.push({
+      id: activationPromptLibraryDomId(),
+      label: "Prompts",
+      icon: "PL",
+    });
   }
-  return items;
+
+  const filtered = filterBlueprintPlusGuidedActivationNavItems(
+    items,
+    guided ? "guided" : "reference",
+    diagnosticData,
+  );
+
+  // Drop orphaned "Channels" heading when Guided filters out every channel (shouldn't happen).
+  return filtered.filter((item, index, arr) => {
+    if (item.id !== "activation-nav-channels") return true;
+    const next = arr[index + 1];
+    return Boolean(next && next.kind !== "heading" && next.id.startsWith("activation-") && isActivationNavChannelId(next.id.slice("activation-".length)));
+  });
 }

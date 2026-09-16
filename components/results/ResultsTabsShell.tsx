@@ -14,8 +14,23 @@ import {
 } from "@/components/results/tabConfig";
 import CompactResultsHeader from "@/components/results/CompactResultsHeader";
 import HowToUseBanner from "@/components/results/HowToUseBanner";
+import BlueprintPlusStartHereHub from "@/components/results/BlueprintPlusStartHereHub";
+import BlueprintPlusViewModeToggle from "@/components/results/BlueprintPlusViewModeToggle";
 import { printTab } from "@/lib/printUtils";
 import { getSuiteTabIntro, TAB_SECTION_NAV_HINT_CHIPS_ONLY } from "@/lib/copy/resultsSuiteGuidance";
+import {
+  buildBlueprintPlusStartHereMoves,
+  markBlueprintPlusFirstAction,
+  markBlueprintPlusGuidedShown,
+  parseBlueprintPlusViewModeParam,
+  resolveInitialBlueprintPlusViewMode,
+  shouldPersistBlueprintPlusViewMode,
+  writeStoredBlueprintPlusViewMode,
+  type BlueprintPlusStartHereMove,
+  type BlueprintPlusStartHereRole,
+  type BlueprintPlusViewMode,
+} from "@/lib/results/blueprintPlusGuidedMode";
+import { trackEvent as trackAcEvent } from "@/lib/activeCampaignTracking";
 import { getPersistedEmail } from "@/lib/persistEmail";
 import {
   readResultsEmailGateUnlocked,
@@ -754,6 +769,90 @@ export default function ResultsTabsShell({
     activationFocusFromQuery ??
     (typeof activationFocusProp === "string" && activationFocusProp.trim() ? activationFocusProp.trim() : null);
 
+  const isBlueprintPlus = productTier === "blueprint-plus";
+  const viewModeFromQuery = parseBlueprintPlusViewModeParam(searchParams.get("view"));
+  const [blueprintPlusViewMode, setBlueprintPlusViewMode] = useState<BlueprintPlusViewMode>(() => {
+    if (!isBlueprintPlus) return "reference";
+    return resolveInitialBlueprintPlusViewMode(reportId, viewModeFromQuery);
+  });
+  const [startHereRole, setStartHereRole] = useState<BlueprintPlusStartHereRole>("founder");
+  const [pendingScrollSectionId, setPendingScrollSectionId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isBlueprintPlus) return;
+    if (viewModeFromQuery) {
+      setBlueprintPlusViewMode(viewModeFromQuery);
+      return;
+    }
+    if (!shouldPersistBlueprintPlusViewMode(reportId)) {
+      setBlueprintPlusViewMode("guided");
+    }
+  }, [isBlueprintPlus, reportId, viewModeFromQuery]);
+
+  useEffect(() => {
+    if (!isBlueprintPlus || blueprintPlusViewMode !== "guided") return;
+    markBlueprintPlusGuidedShown(reportId);
+  }, [isBlueprintPlus, blueprintPlusViewMode, reportId]);
+
+  const setViewMode = useCallback(
+    (mode: BlueprintPlusViewMode) => {
+      setBlueprintPlusViewMode(mode);
+      writeStoredBlueprintPlusViewMode(reportId, mode);
+      const result = markBlueprintPlusFirstAction(
+        reportId,
+        mode === "reference" ? "switch_reference" : "switch_guided",
+      );
+      if (result.recorded) {
+        trackAcEvent("blueprint_plus_first_action", {
+          kind: mode === "reference" ? "switch_reference" : "switch_guided",
+          latencyMs: result.latencyMs,
+          reportId,
+        });
+      }
+      try {
+        const params = new URLSearchParams(searchParams.toString());
+        if (mode === "guided") params.delete("view");
+        else params.set("view", mode);
+        const qs = params.toString();
+        router.replace(qs ? `?${qs}` : "?", { scroll: false });
+      } catch {
+        /* ignore */
+      }
+    },
+    [reportId, router, searchParams],
+  );
+
+  const startHereMoves = useMemo(
+    () => (isBlueprintPlus ? buildBlueprintPlusStartHereMoves(diagnosticData, startHereRole) : []),
+    [isBlueprintPlus, diagnosticData, startHereRole],
+  );
+
+  const handleStartHereRoleChange = useCallback(
+    (role: BlueprintPlusStartHereRole) => {
+      setStartHereRole(role);
+      const result = markBlueprintPlusFirstAction(reportId, "role_select", role);
+      if (result.recorded) {
+        trackAcEvent("blueprint_plus_first_action", {
+          kind: "role_select",
+          role,
+          latencyMs: result.latencyMs,
+          reportId,
+        });
+      }
+    },
+    [reportId],
+  );
+
+  useEffect(() => {
+    if (!pendingScrollSectionId) return;
+    const id = pendingScrollSectionId;
+    const timer = window.setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      setPendingScrollSectionId(null);
+    }, 160);
+    return () => window.clearTimeout(timer);
+  }, [activeTab, pendingScrollSectionId]);
+
   const selectTab = useCallback(
     (tabId: ResultsTab) => {
       setLockedTabContext(null);
@@ -771,9 +870,31 @@ export default function ResultsTabsShell({
     [router, searchParams],
   );
 
+  const handleStartHereMove = useCallback(
+    (move: BlueprintPlusStartHereMove) => {
+      const result = markBlueprintPlusFirstAction(reportId, "start_here_move", move.id);
+      if (result.recorded) {
+        trackAcEvent("blueprint_plus_first_action", {
+          kind: "start_here_move",
+          moveId: move.id,
+          latencyMs: result.latencyMs,
+          reportId,
+        });
+      }
+      selectTab(move.tab);
+      if (move.sectionId) setPendingScrollSectionId(move.sectionId);
+    },
+    [reportId, selectTab],
+  );
+
   const strategyNavItems = useMemo(
-    () => buildStrategyNavMenuItems(productTier, diagnosticData),
-    [productTier, diagnosticData],
+    () =>
+      buildStrategyNavMenuItems(
+        productTier,
+        diagnosticData,
+        isBlueprintPlus ? blueprintPlusViewMode : "reference",
+      ),
+    [productTier, diagnosticData, isBlueprintPlus, blueprintPlusViewMode],
   );
   const strategyNavKey = activeTab === "strategy" ? strategyNavItems.map((i) => i.id).join("\0") : "";
   const strategyShellActiveId = useActiveSectionInView(strategyNavKey);
@@ -789,14 +910,27 @@ export default function ResultsTabsShell({
   const workbookNavKey = activeTab === "workbook" ? workbookNavItemsForShell.map((i) => i.id).join("\0") : "";
   const workbookShellActiveId = useActiveSectionInView(workbookNavKey);
 
-  const downloadsNavForShell = useMemo(() => buildDownloadsNavModel(productTier), [productTier]);
+  const downloadsNavForShell = useMemo(
+    () =>
+      buildDownloadsNavModel(productTier, {
+        prioritizeRolePacks: isBlueprintPlus && blueprintPlusViewMode === "guided",
+      }),
+    [productTier, isBlueprintPlus, blueprintPlusViewMode],
+  );
   const downloadsNavKey =
     activeTab === "downloads" ? downloadsNavForShell.navItems.map((i) => i.id).join("\0") : "";
   const downloadsShellActiveId = useActiveSectionInView(downloadsNavKey);
 
   const activationNavItemsForShell = useMemo(
-    () => buildActivationNavMenuItems(productTier, diagnosticData, scheduleRows, activationFocusRaw),
-    [productTier, diagnosticData, scheduleRows, activationFocusRaw],
+    () =>
+      buildActivationNavMenuItems(
+        productTier,
+        diagnosticData,
+        scheduleRows,
+        activationFocusRaw,
+        isBlueprintPlus ? blueprintPlusViewMode : "reference",
+      ),
+    [productTier, diagnosticData, scheduleRows, activationFocusRaw, isBlueprintPlus, blueprintPlusViewMode],
   );
   const activationNavKey =
     activeTab === "activation" ? activationNavItemsForShell.map((i) => i.id).join("\0") : "";
@@ -1480,9 +1614,28 @@ export default function ResultsTabsShell({
           }}
         />
       ) : null}
-      {!lockedTabContext && (
+      {!lockedTabContext && !(isBlueprintPlus && blueprintPlusViewMode === "guided") ? (
         <HowToUseBanner productName={productDisplayName} productTier={productTier} />
-      )}
+      ) : null}
+      {!lockedTabContext && isBlueprintPlus ? (
+        <div
+          style={{
+            maxWidth: SUITE_CONTENT_MAX_PX,
+            margin: "12px auto 0",
+            padding: "0 min(24px, 4vw)",
+          }}
+        >
+          <div
+            style={{
+              ...SUITE_CHIP_CARD_STYLE,
+              padding: "12px 14px",
+              marginBottom: 0,
+            }}
+          >
+            <BlueprintPlusViewModeToggle mode={blueprintPlusViewMode} onChange={setViewMode} />
+          </div>
+        </div>
+      ) : null}
 
       {lockedTabContext && (
         <LockedTabPrompt
@@ -1499,19 +1652,40 @@ export default function ResultsTabsShell({
 
       {!lockedTabContext && activeTab === "results" && (
         <div className="results-tab-content" style={SUITE_TAB_BODY_SHELL}>
+          {isBlueprintPlus && blueprintPlusViewMode === "guided" ? (
+            <BlueprintPlusStartHereHub
+              businessName={suiteCompanyName}
+              role={startHereRole}
+              moves={startHereMoves}
+              onRoleChange={handleStartHereRoleChange}
+              onSelectMove={handleStartHereMove}
+              onOpenReference={() => setViewMode("reference")}
+            />
+          ) : null}
           <div style={SUITE_INTRO_BAND_STYLE}>
             <p style={SUITE_INTRO_EYEBROW_TEXT_STYLE}>
               {resultsTabIntro.eyebrow}
             </p>
             <h1 style={SUITE_INTRO_TITLE_TEXT_STYLE}>
-              {resultsTabIntro.title}
+              {isBlueprintPlus && blueprintPlusViewMode === "guided"
+                ? "Scores behind your week-one path"
+                : resultsTabIntro.title}
             </h1>
-            <TabIntroGuidanceBlock intro={resultsTabIntro} guidanceStyle={SUITE_INTRO_GUIDANCE_TEXT_STYLE} />
+            {isBlueprintPlus && blueprintPlusViewMode === "guided" ? (
+              <p style={SUITE_INTRO_GUIDANCE_TEXT_STYLE}>
+                Start Here above is your action path. Scroll this page when you want the score story, pillar detail, and
+                priority list that power those moves.
+              </p>
+            ) : (
+              <TabIntroGuidanceBlock intro={resultsTabIntro} guidanceStyle={SUITE_INTRO_GUIDANCE_TEXT_STYLE} />
+            )}
           </div>
-          <ResultsActivationRoutingCallout
-            productTier={productTier}
-            onOpenActivation={() => openOrLockTab("activation")}
-          />
+          {!(isBlueprintPlus && blueprintPlusViewMode === "guided") ? (
+            <ResultsActivationRoutingCallout
+              productTier={productTier}
+              onOpenActivation={() => openOrLockTab("activation")}
+            />
+          ) : null}
           {resultsContent}
         </div>
       )}
@@ -1559,6 +1733,8 @@ export default function ResultsTabsShell({
             onEditInWorkbook={jumpToWorkbookSection}
             shellRendersSectionChips
             shellActiveSectionId={strategyShellActiveId}
+            blueprintPlusViewMode={isBlueprintPlus ? blueprintPlusViewMode : "reference"}
+            onBrowseFullLibrary={isBlueprintPlus ? () => setViewMode("reference") : undefined}
           />
         </div>
       )}
@@ -1623,6 +1799,8 @@ export default function ResultsTabsShell({
               onAskWundy={handleAskWundy}
               shellRendersSectionChips
               shellActiveSectionId={activationShellActiveId}
+              blueprintPlusViewMode={isBlueprintPlus ? blueprintPlusViewMode : "reference"}
+              onBrowseFullLibrary={isBlueprintPlus ? () => setViewMode("reference") : undefined}
             />
           </Suspense>
         </div>
@@ -1710,6 +1888,7 @@ export default function ResultsTabsShell({
             }
             shellRendersSectionChips
             shellActiveSectionId={downloadsShellActiveId}
+            prioritizeRolePacks={isBlueprintPlus && blueprintPlusViewMode === "guided"}
           />
         </div>
       )}

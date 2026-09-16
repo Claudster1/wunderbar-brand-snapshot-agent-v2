@@ -173,8 +173,10 @@ export const previewIcpConversionIntelligenceFramework = {
     {
       icpTier: "Primary ICP",
       funnelStage: "Consideration",
-      highestConvertingContentType: "6-min Loom + one-page before/after PDF",
-      whyItConverts: "Shows how it works without a sales call; matches how they evaluate agencies.",
+      highestConvertingContentType:
+        "Annotated one-pager + optional short screen recording (any tool) — or live scope call",
+      whyItConverts:
+        "Shows how it works without requiring a sales call or camera comfort; written path first, video optional.",
       requiredContentAttributes: ["Named metric window", "Role-specific example", "Single CTA"],
       leadMessagePillar: "Credibility",
       convertingCTA: "See the 12-week message-system map",
@@ -184,7 +186,7 @@ export const previewIcpConversionIntelligenceFramework = {
       exampleImagePrompt:
         "Founder at desk, single monitor showing a simple before/after message matrix (blurred), navy UI accents, daylight, no stock-handshake clichés, subtle Acme wordmark on doc corner.",
       exampleVideoPrompt:
-        "6-min Loom-style single take: 0:00–0:20 hook + agenda; 0:20–2:30 screen share walking message map; 2:30–4:30 blurred metric overlay + voiceover on what changed; 4:30–5:45 objection handling; 5:45–6:00 CTA to reply “loom”. Lower-third: name + title; tab audio only, no background music.",
+        "Optional 6-min screen recording (any tool): 0:00–0:20 hook + agenda; 0:20–2:30 screen share walking message map; 2:30–4:30 blurred metric overlay + voiceover; 4:30–5:45 objection handling; 5:45–6:00 CTA to reply “walkthrough”. Prefer an annotated PDF if the team is camera-shy.",
     },
     {
       icpTier: "Primary ICP",
@@ -242,8 +244,8 @@ export const previewIcpConversionIntelligenceFramework = {
           conversionSignal: "Guide download",
           headlineOrSubject: "Here is the before/after you clicked for (+ the metric window)",
           primaryCopy:
-            "Hi {{first_name}},\n\nYou grabbed the message map from LinkedIn—here is the full one-pager with the metric window we used (12 weeks, pipeline-sourced convos, not vanity clicks).\n\nQuick context: the fix was not 'more content.' It was one promise repeated on the ad, landing H1, and first sales deck slide. If you want the Loom walkthrough that matches this PDF, it is 6 minutes—reply \"loom\" and I will send the link.\n\n— {{sender}}\n\nP.S. If this is not you anymore, one click unsub is at the bottom.",
-          cta: "Reply \"loom\" for the walkthrough",
+            "Hi {{first_name}},\n\nYou grabbed the message map from LinkedIn—here is the full one-pager with the metric window we used (12 weeks, pipeline-sourced conversations, not vanity clicks).\n\nThe fix was not more content. It was one promise repeated on the ad, the landing H1, and the first sales deck slide. If you want a short walkthrough that matches this PDF, reply \"walkthrough\"—we will send an annotated PDF (or a screen recording if you prefer video).\n\n— {{sender}}\n\nP.S. If this is not you anymore, one click unsub is at the bottom.",
+          cta: "Reply \"walkthrough\" for the annotated guide",
           performanceRationale: "Delivers matrix asset for Consideration; CTA matches convertingCTA family from ICP matrix.",
         },
         {
@@ -305,8 +307,8 @@ export const previewActivationContent = {
     "Founder-led B2B service firms (10–50 employees) with inconsistent demand quality and founder-owned messaging.\n\n" +
     "Content × funnel execution matrix (paste into briefs)\n" +
     "— Primary ICP × Consideration —\n" +
-    "Winning format: 6-minute Loom walkthrough + one-page before/after PDF\n" +
-    "Why it converts: Shows how it works and the timeline without a sales call.\n" +
+    "Winning format: Annotated one-pager + optional short screen recording (any tool) — or live scope call\n" +
+    "Why it converts: Shows how it works without requiring camera comfort; written path first.\n" +
     "Message pillar: Credibility\n" +
     "Required in asset: named metric window, role-specific example, single CTA\n" +
     "Use this CTA: \"See the 12-week message-system map\"\n\n" +
@@ -424,7 +426,7 @@ export const previewFullBlueprintReport: Record<string, unknown> = {
         "Nurtures consideration-stage buyers with staged proof until they book the scope workshop or download the alignment asset tied to the primary offer.",
     },
     welcomeSequence: {
-      description: "Three-email spine: leak diagnosis → how it works → bounded next step.",
+      description: "Three-email sequence: leak diagnosis → how it works → bounded next step.",
       emails: [
         {
           timing: "Day 0",
@@ -566,7 +568,7 @@ export const previewFullBlueprintReport: Record<string, unknown> = {
         stage: "Consider",
         customerMindset: "Comparing vendors; needs to see how it works",
         messagingFocus: "Proof + timeline",
-        conversionTrigger: "Guide or Loom CTA",
+        conversionTrigger: "Guide / walkthrough CTA (written first)",
         personaVariations: [],
       },
       {

@@ -3,7 +3,7 @@
 import type { CSSProperties } from "react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import ExecutionSchedule, { type ScheduleRow } from "@/components/ExecutionSchedule";
 import type { ProductTier } from "@/components/ResultsTabNav";
 import TabPageWithSidebar from "@/components/results/TabPageWithSidebar";
@@ -23,17 +23,25 @@ import {
 } from "@/components/results/suiteBrandTokens";
 import { filterActivationPlanSections } from "@/components/results/tabConfig";
 import { getSuiteProgressHint } from "@/lib/copy/resultsSuiteGuidance";
+import {
+  filterBlueprintPlusGuidedActivationSections,
+  limitBlueprintPlusGuidedPromptSections,
+  resolveBlueprintPlusGuidedActivationSectionIds,
+  type BlueprintPlusViewMode,
+} from "@/lib/results/blueprintPlusGuidedMode";
+import BlueprintPlusGuidedPathBanner from "@/components/results/BlueprintPlusGuidedPathBanner";
 import { ACTIVATION_SECTION_ICON_TOKEN, buildActivationPlanSectionsList } from "@/lib/activation/activationPlanModel";
 import { groupActivationPlanSections } from "@/lib/activation/activationPlanGroups";
 import {
-  filterActivationSectionsByTabFocus,
   isActivationAudienceJourneySectionId,
-  parseActivationTabFocus,
-  splitActivationSectionsByAudienceVsCampaign,
-  type ActivationTabFocus,
 } from "@/lib/activation/activationPlanAudienceVsCampaign";
+import {
+  isActivationNavChannelId,
+  sortActivationSectionsForNav,
+} from "@/lib/activation/activationNavModel";
 import { buildActivationNavMenuItems } from "@/lib/activation/activationTabNav";
 import { buildActivationFullPlanHref } from "@/lib/activation/activationPlanLinks";
+import ExportPlanDocumentButton from "@/components/activation/ExportPlanDocumentButton";
 import {
   activationPromptLibraryDomId,
   hasActivationPromptLibrary,
@@ -42,6 +50,7 @@ import {
   scrollToActivationPromptSection,
 } from "@/lib/activation/activationPromptLibrary";
 import { downloadActivationPackMarkdown } from "@/lib/activation/exportActivationPack";
+import { renderInlineMarkdown } from "@/lib/strategy/renderInlineMarkdown";
 import { WORKBOOK_SECTIONS, type WorkbookSectionId } from "@/lib/workbookTypes";
 import { getActivationDownloadsHint } from "@/lib/tierDeliverables";
 import { ExecutionChannelPlans } from "@/app/results/components/ExecutionChannelPlans";
@@ -65,7 +74,7 @@ const LINK_BTN: CSSProperties = {
   border: `1px solid ${BORDER}`,
   background: SUITE_BG_CARD,
   color: NAVY,
-  fontSize: 12,
+  fontSize: 13,
   fontWeight: 700,
   cursor: "pointer",
   fontFamily: SUITE_FONT_UI,
@@ -84,7 +93,7 @@ const PANEL_SURFACE: CSSProperties = {
 
 const SECTION_HEAD_KICKER: CSSProperties = {
   margin: 0,
-  fontSize: 11,
+  fontSize: 13,
   fontWeight: 800,
   letterSpacing: "0.04em",
   color: MID_GRAY,
@@ -131,18 +140,10 @@ interface ActivationTabProps {
   onAskWundy: (prompt: Prompt) => void;
   shellRendersSectionChips?: boolean;
   shellActiveSectionId?: string | null;
-}
-
-function clampActivationFocus(
-  focus: ActivationTabFocus,
-  showToggle: boolean,
-  audienceCount: number,
-  campaignCount: number,
-): ActivationTabFocus {
-  if (!showToggle) return "campaigns";
-  if (focus === "audience-journey" && audienceCount === 0) return "campaigns";
-  if (focus === "campaigns" && campaignCount === 0) return "audience-journey";
-  return focus;
+  /** Blueprint+ Guided shortens Activation plans; ignored on other tiers. */
+  blueprintPlusViewMode?: BlueprintPlusViewMode;
+  /** Switch suite to Reference (full library). */
+  onBrowseFullLibrary?: () => void;
 }
 
 /** Pull obvious CTA / subject / hook lines from the playbook for quick scanning (bullets + `**Headline**` blocks). */
@@ -204,7 +205,7 @@ function imageryAndCreativeLine(sectionId: string): string {
     "paid-ads": "Static + motion ad variants, carousel frames, and matched landing hero/above-the-fold.",
     "thought-leadership": "Carousel slides, short-form video thumbnails, quote cards, and caption hooks.",
     "pr-plan": "Press headline blocks, quote callouts, and media kit / speaker visuals.",
-    "execution-roadmap": "Week-phase timeline, owner grid, and schedule export for stakeholder reviews.",
+    "execution-roadmap": "What to run in the next 90 days — weeks, owners, and when to export the schedule.",
   };
   return map[sectionId] ?? "Channel layouts, proof blocks, and hero treatments on the dedicated plan page.";
 }
@@ -214,7 +215,7 @@ const PLAN_TABLE_TH: CSSProperties = {
   textAlign: "left",
   color: "#FFFFFF",
   fontWeight: 700,
-  fontSize: 11,
+  fontSize: 13,
   letterSpacing: "0.02em",
   whiteSpace: "nowrap",
 };
@@ -280,11 +281,13 @@ export default function ActivationTab({
   onAskWundy,
   shellRendersSectionChips = false,
   shellActiveSectionId = null,
+  blueprintPlusViewMode = "reference",
+  onBrowseFullLibrary,
 }: ActivationTabProps) {
-  const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const searchParamsKey = searchParams.toString();
+  const guided =
+    productTier === "blueprint-plus" && blueprintPlusViewMode === "guided";
 
   const [showPlanningLayers, setShowPlanningLayers] = useState(false);
   /** Compact = scannable rows + export; detailed = full playbook scroll areas. */
@@ -304,30 +307,22 @@ export default function ActivationTab({
     () => buildActivationPlanSectionsList(diagnosticData, scheduleRows.length),
     [diagnosticData, scheduleRows.length],
   );
-  const activationPlanSectionsVisible = useMemo(
-    () => filterActivationPlanSections(productTier, activationPlanSections),
-    [productTier, activationPlanSections],
-  );
-  const { audienceJourney, campaigns: campaignSections } = useMemo(
-    () => splitActivationSectionsByAudienceVsCampaign(activationPlanSectionsVisible),
-    [activationPlanSectionsVisible],
-  );
-  const showFoundationCampaignToggle = audienceJourney.length > 0 && campaignSections.length > 0;
-
-  const activationFocus = useMemo(() => {
-    const parsed = parseActivationTabFocus(searchParams.get("activationFocus"));
-    return clampActivationFocus(
-      parsed,
-      showFoundationCampaignToggle,
-      audienceJourney.length,
-      campaignSections.length,
+  const activationPlanSectionsVisible = useMemo(() => {
+    const filtered = filterBlueprintPlusGuidedActivationSections(
+      filterActivationPlanSections(productTier, activationPlanSections),
+      guided ? "guided" : "reference",
+      diagnosticData,
     );
-  }, [searchParamsKey, showFoundationCampaignToggle, audienceJourney.length, campaignSections.length]);
+    const preferredChannelOrder = guided
+      ? resolveBlueprintPlusGuidedActivationSectionIds(diagnosticData).filter((id) =>
+          isActivationNavChannelId(id),
+        )
+      : undefined;
+    return sortActivationSectionsForNav(filtered, preferredChannelOrder);
+  }, [productTier, activationPlanSections, guided, diagnosticData]);
 
-  const sectionsForTable = useMemo(() => {
-    if (!showFoundationCampaignToggle) return activationPlanSectionsVisible;
-    return filterActivationSectionsByTabFocus(activationPlanSectionsVisible, activationFocus);
-  }, [showFoundationCampaignToggle, activationPlanSectionsVisible, activationFocus]);
+  /** Unified IA: full ordered list (context → roadmap → channels) — no Audience/Campaigns split. */
+  const sectionsForTable = activationPlanSectionsVisible;
 
   /** Deep link: `/results?...&activationPlanId=paid-ads` → scroll to that playbook row (once per URL change, not every render). */
   useEffect(() => {
@@ -372,13 +367,6 @@ export default function ActivationTab({
     };
   }, [searchParamsKey]);
 
-  const setActivationFocusInUrl = (next: ActivationTabFocus) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (next === "campaigns") params.delete("activationFocus");
-    else params.set("activationFocus", "audience-journey");
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  };
-
   const groupedChannelPlans = useMemo(() => groupActivationPlanSections(sectionsForTable), [sectionsForTable]);
   const groupedPlansWithStripe = useMemo(() => {
     let row = 0;
@@ -387,8 +375,14 @@ export default function ActivationTab({
       sections: group.sections.map((section) => ({ section, stripeIdx: row++ })),
     }));
   }, [groupedChannelPlans]);
-  const promptPackSections = promptSectionsForProductTier(productTier);
+  const promptPackSectionsAll = promptSectionsForProductTier(productTier);
+  const promptPackSections = limitBlueprintPlusGuidedPromptSections(
+    promptPackSectionsAll,
+    guided ? "guided" : "reference",
+  );
   const showPromptLibrary = hasActivationPromptLibrary(productTier);
+  const guidedPromptsTruncated =
+    guided && promptPackSectionsAll.length > promptPackSections.length;
   const activationMenuItems = useMemo(
     () =>
       buildActivationNavMenuItems(
@@ -396,19 +390,16 @@ export default function ActivationTab({
         diagnosticData,
         scheduleRows,
         searchParams.get("activationFocus"),
+        guided ? "guided" : "reference",
       ),
-    [productTier, diagnosticData, scheduleRows, searchParamsKey],
+    [productTier, diagnosticData, scheduleRows, searchParamsKey, guided],
   );
 
   const activationSectionNavHint = useMemo(() => {
-    if (showFoundationCampaignToggle && activationFocus === "audience-journey") {
-      return "Audience foundation: segments, ICP framing, journey triggers, and competitive motion. Channel playbooks are on the Campaigns segment — every campaign assumes this layer.";
-    }
-    if (showFoundationCampaignToggle) {
-      return "Campaign playbooks (demand, authority, rollout) are separate from Audience & journey. Open foundation plans when copy references segments, ICPs, or funnel stages.";
-    }
-    return "Channel plans are grouped by funnel stage (who → capture → trust → ship). Use Compact to scan summaries; Full playbook to read copy in place. Download the activation pack (.md) in Step 2; Step 3 is the spreadsheet schedule export.";
-  }, [showFoundationCampaignToggle, activationFocus]);
+    return guided
+      ? "Week-one path: buyer journey and 90-day roadmap first, then your top channels. Schedule sits with the roadmap; Prompts are last."
+      : "Overview → buyer journey & context → 90-day roadmap → schedule → channels → prompts. Use Compact to scan; open a plan for the full brief.";
+  }, [guided]);
 
   const foundationPlanAnchorLinks = useMemo(() => {
     return activationPlanSectionsVisible
@@ -439,6 +430,12 @@ export default function ActivationTab({
       shellRendersSectionChips={shellRendersSectionChips}
       shellActiveSectionId={shellActiveSectionId}
     >
+      {guided && onBrowseFullLibrary ? (
+        <BlueprintPlusGuidedPathBanner
+          showingLabel={`${activationPlanSectionsVisible.length} plans matched to your priorities`}
+          onBrowseFullLibrary={onBrowseFullLibrary}
+        />
+      ) : null}
       <div
         style={{
           marginBottom: 36,
@@ -526,7 +523,7 @@ export default function ActivationTab({
             padding: "18px 20px",
             display: "grid",
             gap: 10,
-            borderLeft: `3px solid ${NAVY}`,
+            borderTop: `2px solid ${NAVY}`,
           }}
         >
           <p style={{ margin: 0, fontSize: 14, color: "#2D3A4A", lineHeight: 1.55, fontWeight: 600 }}>
@@ -554,11 +551,11 @@ export default function ActivationTab({
               ...PANEL_SURFACE,
               marginBottom: 16,
               padding: "14px 16px",
-              borderLeft: `3px solid ${BLUE}`,
+              borderTop: `2px solid ${BLUE}`,
             }}
           >
             <p style={{ margin: 0, fontSize: 13, color: NAVY, fontWeight: 700 }}>Execution-ready assets</p>
-            <p style={{ margin: "6px 0 0", fontSize: 12, color: MID_GRAY, lineHeight: 1.55 }}>
+            <p style={{ margin: "6px 0 0", fontSize: 13, color: MID_GRAY, lineHeight: 1.55 }}>
               Generated from your brand context and tier. Copy drafts here; run the full Prompt Library further down this
               tab, then refine in Workbook.
             </p>
@@ -582,65 +579,16 @@ export default function ActivationTab({
         </section>
       )}
 
-      <section style={{ marginBottom: scheduleRows.length > 0 && (!showFoundationCampaignToggle || activationFocus === "campaigns") ? 40 : 0 }}>
+      <section style={{ marginBottom: scheduleRows.length > 0 ? 40 : 0 }}>
         <ActivationSectionHeading
           kicker="Step 2"
-          title={
-            showFoundationCampaignToggle && activationFocus === "audience-journey"
-              ? "Audience, ICP & journey foundation"
-              : "Channel & campaign playbooks"
-          }
+          title="Plans & channels"
           description={
-            showFoundationCampaignToggle && activationFocus === "audience-journey"
-              ? channelPlansLayout === "compact"
-                ? "Who you are selling to, how they move through the funnel, and how you win vs alternatives. Channel plans on the Campaigns segment build on this layer."
-                : "Foundation narrative and structured panels (segments, journey map, competitive motion). Switch to Campaigns for email, paid, SEO, PR, and rollout."
-              : channelPlansLayout === "compact"
-                ? "Demand, authority, and execution playbooks — grouped by stage. Each row links to a full brief. When copy references segments or journey stages, use Audience & journey."
-                : "Full text from your report lives in the middle column. Right column surfaces creative direction and any subject/CTA lines we could parse. Open plan for diagrams or print."
+            channelPlansLayout === "compact"
+              ? "Buyer journey and 90-day roadmap first, then channel plans. Each row opens a full brief. Schedule export is Step 3."
+              : "Full text from your report lives in the middle column. Right column surfaces creative direction and any subject/CTA lines we could parse. Open plan for diagrams or print."
           }
         />
-        {showFoundationCampaignToggle ? (
-          <div
-            role="tablist"
-            aria-label="Activation plan segments"
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: 8,
-              marginBottom: 16,
-            }}
-          >
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activationFocus === "audience-journey"}
-              onClick={() => setActivationFocusInUrl("audience-journey")}
-              style={{
-                ...LINK_BTN,
-                background: activationFocus === "audience-journey" ? BLUE : "#FFFFFF",
-                color: activationFocus === "audience-journey" ? "#FFFFFF" : NAVY,
-                borderColor: activationFocus === "audience-journey" ? BLUE : BORDER,
-              }}
-            >
-              Audience &amp; journey
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activationFocus === "campaigns"}
-              onClick={() => setActivationFocusInUrl("campaigns")}
-              style={{
-                ...LINK_BTN,
-                background: activationFocus === "campaigns" ? BLUE : "#FFFFFF",
-                color: activationFocus === "campaigns" ? "#FFFFFF" : NAVY,
-                borderColor: activationFocus === "campaigns" ? BLUE : BORDER,
-              }}
-            >
-              Campaign playbooks
-            </button>
-          </div>
-        ) : null}
         <div
           style={{
             display: "flex",
@@ -650,7 +598,7 @@ export default function ActivationTab({
             marginBottom: 14,
           }}
         >
-          <span style={{ fontSize: 12, fontWeight: 700, color: MID_GRAY, marginRight: 4 }}>View:</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: MID_GRAY, marginRight: 4 }}>View:</span>
           <button
             type="button"
             onClick={() => setChannelPlansLayout("compact")}
@@ -697,17 +645,19 @@ export default function ActivationTab({
                 borderColor: BLUE,
               }}
             >
-              Download activation pack (.md)
+              Download activation pack (document)
             </button>
           ) : null}
         </div>
-        <p className="m-0 mt-[10px] max-w-[900px] text-xs leading-relaxed text-brand-muted">
-          <span className="font-semibold text-brand-midnight">Exports:</span> this button downloads every activation
-          playbook as one Markdown file (great for Notion, Docs, or handoff). Editable source of truth for channel copy
-          lives in <strong className="text-brand-midnight">Workbook</strong> (refine and version history). Run the{" "}
+        <p className="m-0 mt-[10px] max-w-[900px] text-[13px] leading-relaxed text-brand-muted">
+          <span className="font-semibold text-brand-midnight">Exports:</span> download the full activation pack
+          (document), or download one plan at a time from a row. Open the file in Docs, Word, or Notion and copy the
+          pieces you need — you are not meant to paste a whole plan into your email tool or website. Editable source of
+          truth lives in <strong className="text-brand-midnight">Workbook</strong>. Run the{" "}
           <strong className="text-brand-midnight">Prompt Library</strong> on this tab for AI drafts. Packaged{" "}
-          <strong className="text-brand-midnight">PDFs and bundles</strong> are on the <strong className="text-brand-midnight">Downloads</strong> tab;
-          opening <strong className="text-brand-midnight">Open plan</strong> for one channel also offers a single-plan PDF.
+          <strong className="text-brand-midnight">PDFs</strong> are on the{" "}
+          <strong className="text-brand-midnight">Downloads</strong> tab;{" "}
+          <strong className="text-brand-midnight">Open plan</strong> also offers a single-plan PDF.
         </p>
         <div
           style={{
@@ -756,10 +706,10 @@ export default function ActivationTab({
                           borderBottom: `1px solid ${BORDER}`,
                         }}
                       >
-                        <p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: NAVY, letterSpacing: "0.02em" }}>
+                        <p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: NAVY, letterSpacing: "0.1em", textTransform: "uppercase" }}>
                           {group.title}
                         </p>
-                        <p style={{ margin: "5px 0 0", fontSize: 12, color: MID_GRAY, lineHeight: 1.45 }}>{group.hint}</p>
+                        <p style={{ margin: "5px 0 0", fontSize: 13, color: MID_GRAY, lineHeight: 1.45 }}>{group.hint}</p>
                       </td>
                     </tr>
                     {group.sections.map(({ section, stripeIdx }) => {
@@ -822,7 +772,7 @@ export default function ActivationTab({
                       >
                         <p style={{ margin: 0 }}>{section.summary}</p>
                         {!isActivationAudienceJourneySectionId(section.id) ? (
-                          <p style={{ margin: "10px 0 0", fontSize: 11, color: MID_GRAY, lineHeight: 1.45 }}>
+                          <p style={{ margin: "10px 0 0", fontSize: 13, color: MID_GRAY, lineHeight: 1.45 }}>
                             Diagrams and journey context appear on <strong style={{ color: NAVY }}>Open plan</strong>.
                           </p>
                         ) : null}
@@ -832,7 +782,7 @@ export default function ActivationTab({
                           padding: "12px 12px",
                           verticalAlign: "top",
                           borderRight: `1px solid ${BORDER}`,
-                          fontSize: 12,
+                          fontSize: 13,
                           color: MID_GRAY,
                         }}
                       >
@@ -851,13 +801,27 @@ export default function ActivationTab({
                                 borderColor: BLUE,
                                 textAlign: "center",
                                 minWidth: 108,
-                                fontSize: 11,
+                                fontSize: 12,
                                 padding: "6px 10px",
                               }}
                             >
                               Open plan
                             </Link>
                           ) : null}
+                          <ExportPlanDocumentButton
+                            compact
+                            planLabel={section.label}
+                            companyName={
+                              typeof diagnosticData.companyName === "string"
+                                ? diagnosticData.companyName
+                                : typeof diagnosticData.businessName === "string"
+                                  ? diagnosticData.businessName
+                                  : undefined
+                            }
+                            summary={section.summary}
+                            body={section.body || section.summary || ""}
+                            style={{ minWidth: 108 }}
+                          />
                           {(() => {
                             const promptSection = promptSectionForActivationPlan(section.id, productTier);
                             if (!promptSection) return null;
@@ -869,7 +833,7 @@ export default function ActivationTab({
                                   ...LINK_BTN,
                                   minWidth: 108,
                                   textAlign: "center",
-                                  fontSize: 11,
+                                  fontSize: 12,
                                   padding: "6px 10px",
                                   borderColor: BLUE,
                                   color: BLUE,
@@ -886,7 +850,7 @@ export default function ActivationTab({
                               ...LINK_BTN,
                               minWidth: 108,
                               textAlign: "center",
-                              fontSize: 11,
+                              fontSize: 12,
                               padding: "6px 10px",
                               background: BLUE,
                               color: "#FFFFFF",
@@ -943,7 +907,7 @@ export default function ActivationTab({
                       }}
                     >
                       <p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: NAVY }}>{group.title}</p>
-                      <p style={{ margin: "5px 0 0", fontSize: 12, color: MID_GRAY, lineHeight: 1.45 }}>{group.hint}</p>
+                      <p style={{ margin: "5px 0 0", fontSize: 13, color: MID_GRAY, lineHeight: 1.45 }}>{group.hint}</p>
                     </td>
                   </tr>
                   {group.sections.map(({ section, stripeIdx }) => {
@@ -1005,11 +969,11 @@ export default function ActivationTab({
                     >
                       <p style={{ margin: 0, fontWeight: 700, color: "#2D3A4A", lineHeight: 1.5 }}>{section.summary}</p>
                       {!isActivationAudienceJourneySectionId(section.id) ? (
-                        <p style={{ margin: "8px 0 0", fontSize: 11, color: MID_GRAY, lineHeight: 1.45 }}>
+                        <p style={{ margin: "8px 0 0", fontSize: 13, color: MID_GRAY, lineHeight: 1.45 }}>
                           Flow diagrams and journey map live on <strong style={{ color: NAVY }}>Open plan</strong> for this channel.
                         </p>
                       ) : null}
-                      <p style={{ margin: "6px 0 8px", fontSize: 11, fontWeight: 700, color: MID_GRAY, letterSpacing: "0.03em" }}>
+                      <p style={{ margin: "6px 0 8px", fontSize: 13, fontWeight: 700, color: MID_GRAY, letterSpacing: "0.1em", textTransform: "uppercase" }}>
                         Full Playbook Text
                       </p>
                       <div
@@ -1041,13 +1005,13 @@ export default function ActivationTab({
                         maxWidth: 300,
                       }}
                     >
-                      <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: MID_GRAY, letterSpacing: "0.03em" }}>
+                      <p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: MID_GRAY, letterSpacing: "0.1em", textTransform: "uppercase" }}>
                         Suggested Visuals
                       </p>
                       <p style={{ margin: "6px 0 14px", fontSize: 12, color: "#2D3A4A", lineHeight: 1.5 }}>
                         {imageryAndCreativeLine(section.id)}
                       </p>
-                      <p style={{ margin: 0, fontSize: 11, fontWeight: 800, color: MID_GRAY, letterSpacing: "0.03em" }}>
+                      <p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: MID_GRAY, letterSpacing: "0.1em", textTransform: "uppercase" }}>
                         Hooks &amp; CTAs
                       </p>
                       {hookLines.length > 0 ? (
@@ -1055,19 +1019,19 @@ export default function ActivationTab({
                           style={{
                             margin: "8px 0 0",
                             paddingLeft: 18,
-                            fontSize: 12,
+                            fontSize: 13,
                             color: MID_GRAY,
                             lineHeight: 1.45,
                           }}
                         >
                           {hookLines.map((line, hookIdx) => (
                             <li key={hookIdx} style={{ marginBottom: 4 }}>
-                              {line}
+                              {renderInlineMarkdown(line)}
                             </li>
                           ))}
                         </ul>
                       ) : (
-                        <p style={{ margin: "8px 0 0", fontSize: 12, color: MID_GRAY, lineHeight: 1.45 }}>
+                        <p style={{ margin: "8px 0 0", fontSize: 13, color: MID_GRAY, lineHeight: 1.45 }}>
                           No CTA/subject lines matched our parser — the playbook column still has full copy. Open plan for
                           diagrams (funnel, journey, etc.).
                         </p>
@@ -1090,8 +1054,22 @@ export default function ActivationTab({
                             Open plan
                           </Link>
                         ) : (
-                          <span style={{ fontSize: 12, color: MID_GRAY, fontWeight: 600 }}>Add report id</span>
+                          <span style={{ fontSize: 13, color: MID_GRAY, fontWeight: 600 }}>Add report id</span>
                         )}
+                        <ExportPlanDocumentButton
+                          compact
+                          planLabel={section.label}
+                          companyName={
+                            typeof diagnosticData.companyName === "string"
+                              ? diagnosticData.companyName
+                              : typeof diagnosticData.businessName === "string"
+                                ? diagnosticData.businessName
+                                : undefined
+                          }
+                          summary={section.summary}
+                          body={section.body || section.summary || ""}
+                          style={{ minWidth: 118 }}
+                        />
                         {(() => {
                           const promptSection = promptSectionForActivationPlan(section.id, productTier);
                           if (!promptSection) return null;
@@ -1136,7 +1114,7 @@ export default function ActivationTab({
           </table>
           )}
         </div>
-        <p style={{ fontSize: 12, color: MID_GRAY, marginTop: 14, lineHeight: 1.5, maxWidth: 900 }}>
+        <p style={{ fontSize: 13, color: MID_GRAY, marginTop: 14, lineHeight: 1.5, maxWidth: 900 }}>
           <strong style={{ color: NAVY }}>Blueprint+:</strong> These playbooks pull from your generated report (email
           frameworks, SEO/AEO, paid/social/PR, journey map, competitive positioning, lead magnet / conversion strategy, and
           90-day roadmap)—not generic worksheets. If a block is empty in your export, regenerate or check the downloadable
@@ -1145,7 +1123,7 @@ export default function ActivationTab({
         </p>
       </section>
 
-      {scheduleRows.length > 0 && (!showFoundationCampaignToggle || activationFocus === "campaigns") && (
+      {scheduleRows.length > 0 && (
         <section
           id="activation-spreadsheet-schedule"
           style={{
@@ -1176,21 +1154,28 @@ export default function ActivationTab({
         >
           <ActivationSectionHeading
             kicker={scheduleRows.length > 0 ? "Step 4" : "Step 3"}
-            title="Prompt Library"
-            description="Tier-matched AI prompts by topic. Copy a prompt into ChatGPT, Claude, or Ask Wundy—then paste finished language into Workbook and save before Downloads."
+            title={guided ? "Prompts to use first" : "Prompt Library"}
+            description={
+              guided
+                ? "Start with these high-leverage prompts. Switch to Reference for the full Prompt Library."
+                : "Tier-matched AI prompts by topic. Copy a prompt into ChatGPT, Claude, or Ask Wundy—then paste finished language into Workbook and save before Downloads."
+            }
           />
           <div
             style={{
               ...PANEL_SURFACE,
               padding: "14px 16px",
               marginBottom: 8,
-              borderLeft: `3px solid ${BLUE}`,
+              borderTop: `2px solid ${BLUE}`,
             }}
           >
-            <p style={{ margin: 0, fontSize: 13, color: NAVY, fontWeight: 700 }}>One library for execution</p>
-            <p style={{ margin: "6px 0 0", fontSize: 12, color: MID_GRAY, lineHeight: 1.55 }}>
-              Channel rows above link here when a matching prompt pack exists. Workbook is for edits and versions—not a
-              second prompt catalog.
+            <p style={{ margin: 0, fontSize: 13, color: NAVY, fontWeight: 700 }}>
+              {guided ? "Guided prompt set" : "One library for execution"}
+            </p>
+            <p style={{ margin: "6px 0 0", fontSize: 13, color: MID_GRAY, lineHeight: 1.55 }}>
+              {guided
+                ? `Showing ${promptPackSections.length} of ${promptPackSectionsAll.length} prompt groups so you can ship without scrolling the whole catalog.`
+                : "Channel rows above link here when a matching prompt pack exists. Workbook is for edits and versions—not a second prompt catalog."}
             </p>
           </div>
           {promptPackSections.map((sectionId) => (
@@ -1204,6 +1189,27 @@ export default function ActivationTab({
               />
             </div>
           ))}
+          {guidedPromptsTruncated && onBrowseFullLibrary ? (
+            <div style={{ marginTop: 16 }}>
+              <button
+                type="button"
+                onClick={onBrowseFullLibrary}
+                style={{
+                  border: `1px solid ${BORDER}`,
+                  borderRadius: SUITE_RADIUS_BUTTON,
+                  padding: "10px 14px",
+                  background: "#FFFFFF",
+                  color: BLUE,
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  fontFamily: SUITE_FONT_UI,
+                }}
+              >
+                See all prompts in Reference →
+              </button>
+            </div>
+          ) : null}
         </section>
       ) : null}
     </TabPageWithSidebar>

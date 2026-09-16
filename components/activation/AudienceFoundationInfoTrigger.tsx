@@ -69,10 +69,11 @@ export default function AudienceFoundationInfoTrigger({ links, variant = "compac
       {variant === "compact" ? (
         <span
           style={{
-            fontSize: 10,
+            fontSize: 13,
             fontWeight: 800,
             color: MID_GRAY,
-            letterSpacing: "0.03em",
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
           }}
         >
           Foundation
@@ -130,20 +131,20 @@ export default function AudienceFoundationInfoTrigger({ links, variant = "compac
         >
           <p
             id={`${headingId}-title`}
-            style={{ margin: 0, fontSize: 12, fontWeight: 800, color: NAVY, fontFamily: SUITE_FONT_UI }}
+            style={{ margin: 0, fontSize: 14, fontWeight: 800, color: NAVY, fontFamily: SUITE_FONT_UI }}
           >
             Audience &amp; strategy foundation
           </p>
-          <p style={{ margin: "8px 0 0", fontSize: 12, color: MID_GRAY, lineHeight: 1.55, fontFamily: SUITE_FONT_UI }}>
+          <p style={{ margin: "8px 0 0", fontSize: 13, color: MID_GRAY, lineHeight: 1.55, fontFamily: SUITE_FONT_UI }}>
             {POPOVER_BODY}
           </p>
           <p
             style={{
               margin: "10px 0 6px",
-              fontSize: 11,
-              fontWeight: 800,
+              fontSize: 14, fontWeight: 800,
               color: NAVY,
-              letterSpacing: "0.04em",
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
               fontFamily: SUITE_FONT_UI,
             }}
           >

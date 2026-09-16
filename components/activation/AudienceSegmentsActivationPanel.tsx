@@ -48,10 +48,10 @@ function SectionKicker({ children }: { children: ReactNode }) {
     <p
       style={{
         margin: "0 0 8px",
-        fontSize: 11,
-        fontWeight: 800,
+        fontSize: 14, fontWeight: 800,
         color: MID,
-        letterSpacing: "0.03em",
+        letterSpacing: "0.1em",
+        textTransform: "uppercase",
       }}
     >
       {children}
@@ -261,7 +261,7 @@ export default function AudienceSegmentsActivationPanel({
                         textAlign: "left",
                         padding: "10px 10px",
                         fontWeight: 700,
-                        fontSize: 10,
+                        fontSize: 12,
                         letterSpacing: "0.02em",
                       }}
                     >
@@ -301,10 +301,10 @@ export default function AudienceSegmentsActivationPanel({
                       <td style={{ padding: "10px", verticalAlign: "top", whiteSpace: "pre-wrap", color: SUITE_TEXT_PRIMARY }}>
                         {asString(m.examplePrimaryCopy) || "—"}
                       </td>
-                      <td style={{ padding: "10px", verticalAlign: "top", whiteSpace: "pre-wrap", color: SUITE_MUTED, fontSize: 12 }}>
+                      <td style={{ padding: "10px", verticalAlign: "top", whiteSpace: "pre-wrap", color: SUITE_MUTED, fontSize: 13 }}>
                         {asString(m.exampleImagePrompt) || "—"}
                       </td>
-                      <td style={{ padding: "10px", verticalAlign: "top", whiteSpace: "pre-wrap", color: SUITE_MUTED, fontSize: 12 }}>
+                      <td style={{ padding: "10px", verticalAlign: "top", whiteSpace: "pre-wrap", color: SUITE_MUTED, fontSize: 13 }}>
                         {asString(m.exampleVideoPrompt) || "—"}
                       </td>
                     </tr>
@@ -374,8 +374,7 @@ export default function AudienceSegmentsActivationPanel({
                             style={{
                               padding: "8px 12px",
                               background: "#EFF6FF",
-                              fontSize: 12,
-                              fontWeight: 800,
+                              fontSize: 14, fontWeight: 800,
                               color: NAVY,
                             }}
                           >
@@ -455,7 +454,7 @@ export default function AudienceSegmentsActivationPanel({
                   <div style={{ display: "grid", gap: 10 }}>
                     {good.length > 0 ? (
                       <div>
-                        <p style={{ margin: "0 0 6px", fontSize: 12, fontWeight: 800, color: NAVY }}>Use</p>
+                        <p style={{ margin: "0 0 6px", fontSize: 14, fontWeight: 800, color: NAVY }}>Use</p>
                         <ul className="strategy-suite-ul" style={{ margin: 0, fontSize: 13, color: "#334155", lineHeight: 1.5 }}>
                           {good.slice(0, 5).map((gr, j) => {
                             const g = asRecord(gr) ?? {};
@@ -471,7 +470,7 @@ export default function AudienceSegmentsActivationPanel({
                     ) : null}
                     {bad.length > 0 ? (
                       <div>
-                        <p style={{ margin: "0 0 6px", fontSize: 12, fontWeight: 800, color: MID }}>Avoid</p>
+                        <p style={{ margin: "0 0 6px", fontSize: 14, fontWeight: 800, color: MID }}>Avoid</p>
                         <ul className="strategy-suite-ul" style={{ margin: 0, fontSize: 13, color: "#64748b", lineHeight: 1.5 }}>
                           {bad.slice(0, 4).map((br, j) => {
                             const b = asRecord(br) ?? {};

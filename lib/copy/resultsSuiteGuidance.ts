@@ -66,7 +66,7 @@ export function getHowToUseBannerSegments(
       return {
         lead: `How to use your ${productName}:`,
         path:
-          "Same path as Blueprint: Results through Brand Standards, then Activation. Blueprint+ focuses on finished pieces—copy blocks, channel plans, schedules, and prompts you can hand to marketing or sales. Roadmaps still show the order of work, but each step should name something you can publish or brief. Polish in Workbook, then use Downloads when someone needs a PDF pack.",
+          "Start in Guided view: Start Here shows this week’s moves, then a shorter Strategy and Activation path. Switch to Reference when you need the full library. Polish in Workbook, then use Downloads (role packs first in Guided) when someone needs a PDF pack.",
         habits,
       };
   }
@@ -242,24 +242,24 @@ export function getSuiteTabIntro(
           tier === "snapshot-plus"
             ? forCompany(
                 co,
-                "This tier includes channel-by-channel plans, owners, milestones, and schedules tied to your Strategy—so a team can run the plan, not just read it. Use Brand Standards first when your product includes it, so publish checks happen before you scale creative.",
+                "This is where the strategy becomes real work: channel plans, owners, timelines, and schedules your team can follow. If Brand Standards is in your product, check it before you scale creative.",
               )
             : tier === "blueprint-plus"
               ? forCompany(
                   co,
-                  "Blueprint+ Activation is built around finished pieces: ready-to-paste copy, email sequences, channel plans, schedules, and the Prompt Library grounded in your diagnostic. Roadmaps still show order, but each block should give you something you can brief or publish—not a vague to-do list. Polish in Workbook, then package from Downloads.",
+                  "Think of Activation as your “do this next” kit: emails, ads, pages, and plans written in plain language you can paste or brief. Roadmaps show order; each block should give you something usable — not a vague homework list. Polish in Workbook, then package from Downloads.",
                 )
               : tier === "blueprint"
                 ? forCompany(
                     co,
-                    "Blueprint Activation turns Strategy into structured plans, roadmaps, and schedules—clear enough to brief writers, media, and sales. Blueprint+ adds more finished copy and deeper export packs while keeping the same strategic inputs.",
+                    "Activation turns Strategy into clear plans and schedules you can hand to a writer, media buyer, or sales lead. Blueprint+ adds more ready-to-paste copy in the same places.",
                   )
-                : "After Strategy and Brand Standards, use Activation to assign owners, milestones, and channel work—then export schedules when your product includes them.",
+                : "After Strategy and Brand Standards, use Activation to assign owners, milestones, and channel work — then export schedules when your product includes them.",
         glossary: [
           {
             term: "Activation",
             definition:
-              "Where the strategy becomes channel plans, campaigns, and timelines for your company—ready work, not a second strategy document.",
+              "The “make it happen” tab — channel plans, campaigns, and timelines for your company, written so a smart operator can run them without living in marketing jargon.",
           },
           glossaryTerm("CTA"),
           glossaryTerm("KPI"),
@@ -270,7 +270,7 @@ export function getSuiteTabIntro(
                 {
                   term: "Ready to paste or brief",
                   definition:
-                    "Copy, tables, or prompts written so your team can use them with little rewriting—tied to your diagnostic, not generic filler.",
+                    "Copy and checklists written so your team can use them with little rewriting — tied to your business, not generic filler.",
                 },
               ] as const)
             : []),

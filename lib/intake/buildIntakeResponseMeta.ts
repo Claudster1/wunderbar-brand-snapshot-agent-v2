@@ -65,7 +65,9 @@ export function buildIntakeResponseMeta(params: {
   const remaining = questionsRemainingEstimate;
   const approxTotalQuestions = Math.max(
     remaining + completedCaptures + Math.round((narrativeCompletionPercent / 100) * 8),
-    denom,
+    // Denom floor only after some capture progress — otherwise one early answer
+    // looks ~50%+ complete (remaining=2 vs denom≈14 → inflated answeredApprox).
+    captureCompletionPercent > 0 ? denom : Math.max(remaining + completedCaptures, 1),
     1,
   );
   const answeredApprox = Math.max(0, approxTotalQuestions - remaining);

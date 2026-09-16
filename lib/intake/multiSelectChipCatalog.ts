@@ -409,6 +409,11 @@ const TOPIC_RULES: TopicRule[] = [
     mode: "single",
   },
   {
+    test: /\b(short videos?|screen recordings?|camera|video (ok|okay|fine|comfort|comfortable)|prefer (writing|written|text|pdf|slides)|on camera|async video)\b/i,
+    captureKey: "video_comfort",
+    mode: "single",
+  },
+  {
     test: /\b(investing in paid ads|paid ads each month|paid media|ad spend)\b/i,
     chips: PAID_ADS_BUDGET_CHIPS,
     mode: "single",

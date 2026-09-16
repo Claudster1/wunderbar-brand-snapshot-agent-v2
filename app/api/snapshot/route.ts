@@ -79,6 +79,10 @@ function normalizeAnswers(answers: Record<string, unknown>): Record<string, unkn
   if (typeof answers.contentCreationCapacity !== "string" && typeof answers.content_creation_capacity === "string") {
     normalized.contentCreationCapacity = answers.content_creation_capacity;
   }
+  if (typeof answers.videoComfort !== "string") {
+    if (typeof answers.video_comfort === "string") normalized.videoComfort = answers.video_comfort;
+    else if (typeof answers.asyncVideoComfort === "string") normalized.videoComfort = answers.asyncVideoComfort;
+  }
 
   return normalized;
 }

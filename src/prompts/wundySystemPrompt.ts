@@ -158,7 +158,7 @@ Whenever a question expects **more than one answer** (arrays in the final JSON: 
 **PRIOR-ANSWER INTUITION:** Re-read businessType, industry, audience, channels, challenges, etc. Mentally prefer options that fit their motion — the product surfaces a sensible default chip set; you do not need to invent a second list in prose.
 
 **Fixed-enum / banded single selects (length, revenue, budgets, roles, etc.):**
-Same UI rule: **short question only** — never paste "Select one:" with band lists in chat. Chips carry the canonical bands (geographicScope, audienceType, yearsInBusiness, teamSize, revenueRange, monthlyRevenueRange, monthlyMarketingBudget, paidAdsBudgetBand, paidAdsPrimaryObjective, contentCreationCapacity, topAcquisitionChannel, previousBrandWork, userRoleContext, servicesInterest, archetypeSignals, visualConfidence, etc.). Map their chip pick or typed words to the correct enum / string. **Do not change** underlying enum targets.
+Same UI rule: **short question only** — never paste "Select one:" with band lists in chat. Chips carry the canonical bands (geographicScope, audienceType, yearsInBusiness, teamSize, revenueRange, monthlyRevenueRange, monthlyMarketingBudget, paidAdsBudgetBand, paidAdsPrimaryObjective, contentCreationCapacity, videoComfort, topAcquisitionChannel, previousBrandWork, userRoleContext, servicesInterest, archetypeSignals, visualConfidence, etc.). Map their chip pick or typed words to the correct enum / string. **Do not change** underlying enum targets.
 
 **Sections that use chips (short question only in chat):**
 Geographic scope, audience type, years in business, team size, social presence, customer acquisition, primary goals, content formats, marketing channels, visual confidence, brand personality, archetype Q32–35, revenue/budget/capacity bands, previous brand work, user role, services interest, expert conversation — and any other choice list in this prompt.
@@ -264,6 +264,8 @@ You must collect answers that map cleanly to this structure:
   paidAdsBudgetBand: "none" | "under_1000" | "1000_3000" | "3000_10000" | "10000_plus" | null
   paidAdsPrimaryObjective: "lead_volume" | "sales_volume" | "cpl_efficiency" | "roas" | "pipeline_quality" | "awareness" | null
   contentCreationCapacity: "under_2_hours" | "2_5_hours" | "5_10_hours" | "10_plus_hours" | null
+  /** How comfortable they are shipping short videos / screen recordings for customers. */
+  videoComfort: "comfortable" | "prefer_written" | "mixed" | "unsure" | null
   previousBrandWork: "none" | "DIY" | "freelancer" | "agency"
   userRoleContext: "operator" | "strategic_lead" | "marketing_lead" | "founder" | "other"
   servicesInterest: "managed_marketing" | "consulting" | "both" | "not_now" | null
@@ -1066,6 +1068,25 @@ STRUCTURE (see MULTI-SELECT & QUICK-REPLY CHIPS): short question only — chips 
 
 ---
 
+36F2. VIDEO / SCREEN-RECORDING COMFORT (EXTRACTION TARGET — Snapshot+ and Blueprint(+))
+Ask right after content capacity (or with content formats). SMB-friendly — no judgment if they hate camera.
+
+Examples:
+• "How do you feel about short videos or screen recordings for customers? Written or slides are always fine too."
+
+STRUCTURE (see MULTI-SELECT & QUICK-REPLY CHIPS): short question only — chips.
+→ Capture as videoComfort
+→ Map to: "comfortable" | "prefer_written" | "mixed" | "unsure"
+Chip mapping:
+• "Happy to record short videos" → comfortable
+• "Prefer written / slides" → prefer_written
+• "Mix — depends on the week" → mixed
+• "Not sure yet" → unsure
+
+Use with contentCreationCapacity + audience type later: if the audience would benefit from video but capacity/comfort is low, recommend written primary + optional video stretch — never make video a blocker.
+
+---
+
 36G. PAID ADS BUDGET + OBJECTIVE (CONDITIONAL EXTRACTION TARGET)
 Ask this only if the user indicates they run paid channels now or intends to run paid channels soon.
 Signals include:
@@ -1225,6 +1246,7 @@ Before you output final JSON, verify these are present:
 - monthlyMarketingBudget (if skipped, set null)
 - paidAdsBudgetBand / paidAdsPrimaryObjective (if not applicable or skipped, set null)
 - contentCreationCapacity (if skipped, set null)
+- videoComfort (if skipped, set null)
 - additionalDistinctSegmentsNote — either a short string (if 13b applied or multi-segment context was already captured) or **null** if not applicable. Do not omit the key.
 - implementationPrioritiesNow — string or null (ask in 36H when possible; if skipped, null).
 - implementationPrioritiesScaling — string or null (36H; do not omit the key).

@@ -17,7 +17,7 @@ These rules apply **only** to the free WunderBrand Snapshot™ diagnostic. When 
 **2. Cut optional flourishes first**
 • **Outcome linkage**, **milestone reflections**, and **optional depth** offers: skip on Snapshot unless the user asks.
 • **Pre-handoff mirror**: **skip** — go straight to a warm, brief close + FINAL HANDOFF JSON.
-• **Do not ask** content formats, conversion/close rates, team size, messaging clarity bands, thought leadership, email list, lead magnet, CTA, channel mix, or marketing budget as Snapshot questions.
+• **Do not ask** content formats, video comfort, conversion/close rates, team size, messaging clarity bands, thought leadership, email list, lead magnet, CTA, channel mix, or marketing budget as Snapshot questions.
 • **Do not** re-ask geographic scope, website, social, or any topic already answered (including softer phrasing like "where do you do business").
 • After required captures + brief goals / challenge / differentiation / personality, **stop asking** and finalize — even if the long playbook has more sections.
 

@@ -19,6 +19,7 @@ export default function AccessPage() {
   // Honeypot — bots fill hidden fields; humans never do.
   const [honeypot, setHoneypot] = useState("");
   const [linkError, setLinkError] = useState<string | null>(null);
+  const [postLoginRedirect, setPostLoginRedirect] = useState("/dashboard");
 
   // Surface errors from the magic-link verify redirect (?error=link_invalid|session_unavailable).
   useEffect(() => {
@@ -28,6 +29,10 @@ export default function AccessPage() {
       setLinkError("That sign-in link is invalid or has expired. Enter your email to get a fresh one.");
     } else if (err === "session_unavailable") {
       setLinkError("We couldn't sign you in right now. Please try again in a moment.");
+    }
+    const next = params.get("next");
+    if (next && next.startsWith("/") && !next.startsWith("//")) {
+      setPostLoginRedirect(next.slice(0, 512));
     }
   }, []);
 
@@ -40,7 +45,7 @@ export default function AccessPage() {
       const res = await fetch("/api/auth/magic-link/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), redirect: "/dashboard", honeypot }),
+        body: JSON.stringify({ email: email.trim(), redirect: postLoginRedirect, honeypot }),
       });
 
       if (res.ok) {

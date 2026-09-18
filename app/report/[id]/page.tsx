@@ -1,13 +1,16 @@
 // app/report/[id]/page.tsx
 
 import { createClient } from "@supabase/supabase-js";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import SnapshotPlusUpsell from "@/components/SnapshotPlusUpsell";
 import { BlueprintPlusHeader } from "@/components/reports/BlueprintPlusHeader";
+import { ReportAccessDenied } from "@/components/reports/ReportAccessDenied";
 import { SectionOverviewTiles } from "@/components/reports/SectionOverviewTiles";
 import { ScoreGauge } from "@/src/components/ScoreGauge";
 import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
+import { authorizeReportPageRead } from "@/lib/reportAccess";
 import { wunderBrandScoreFromPillars } from "@/lib/wunderBrandScoreDisplay";
 
 export const dynamic = "force-dynamic";
@@ -94,7 +97,7 @@ export default async function ReportPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams?: Promise<{ section?: string }>;
+  searchParams?: Promise<{ section?: string; shareToken?: string; token?: string }>;
 }) {
   const { id: reportId } = await params;
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
@@ -143,6 +146,26 @@ export default async function ReportPage({
         <p>Please check your link or contact support.</p>
       </div>
     );
+  }
+
+  const headerList = await headers();
+  const shareToken =
+    (typeof resolvedSearchParams?.shareToken === "string" && resolvedSearchParams.shareToken) ||
+    (typeof resolvedSearchParams?.token === "string" && resolvedSearchParams.token) ||
+    null;
+  const access = await authorizeReportPageRead({
+    reportId,
+    reportOwnerEmail: (report as { user_email?: string | null }).user_email,
+    cookieHeader: headerList.get("cookie"),
+    shareToken,
+  });
+  if (!access.hasAccess) {
+    const section = typeof resolvedSearchParams?.section === "string" ? resolvedSearchParams.section : null;
+    const returnTo = section
+      ? `/report/${encodeURIComponent(reportId)}?section=${encodeURIComponent(section)}`
+      : `/report/${encodeURIComponent(reportId)}`;
+    // Remint is Snapshot email-unlock only; paid report pages use magic-link sign-in.
+    return <ReportAccessDenied reportId={reportId} returnTo={returnTo} />;
   }
 
   const {

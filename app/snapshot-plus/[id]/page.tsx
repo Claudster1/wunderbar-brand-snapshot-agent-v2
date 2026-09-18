@@ -2,15 +2,18 @@
 
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { VocSurveyCTA } from "@/components/voc/VocSurveyCTA";
 import { ShareButton } from "@/components/share/ShareButton";
 import { BlueprintPlusHeader } from "@/components/reports/BlueprintPlusHeader";
+import { ReportAccessDenied } from "@/components/reports/ReportAccessDenied";
 import { SectionOverviewTiles } from "@/components/reports/SectionOverviewTiles";
 import { ScoreGauge } from "@/src/components/ScoreGauge";
 import { getArchetypeIcon, getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
 import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
+import { authorizeReportPageRead } from "@/lib/reportAccess";
 
 export const dynamic = "force-dynamic";
 const SNAPSHOT_PLUS_SECTION_LABELS: Record<string, string> = {
@@ -241,7 +244,7 @@ export default async function SnapshotPlusPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams?: Promise<{ section?: string }>;
+  searchParams?: Promise<{ section?: string; shareToken?: string; token?: string }>;
 }) {
   const { id: reportId } = await params;
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
@@ -313,6 +316,26 @@ export default async function SnapshotPlusPage({
         </p>
       </div>
     );
+  }
+
+  const headerList = await headers();
+  const shareToken =
+    (typeof resolvedSearchParams?.shareToken === "string" && resolvedSearchParams.shareToken) ||
+    (typeof resolvedSearchParams?.token === "string" && resolvedSearchParams.token) ||
+    null;
+  const access = await authorizeReportPageRead({
+    reportId,
+    reportOwnerEmail:
+      typeof (resolvedReport as { user_email?: unknown }).user_email === "string"
+        ? (resolvedReport as { user_email: string }).user_email
+        : null,
+    cookieHeader: headerList.get("cookie"),
+    shareToken,
+  });
+  if (!access.hasAccess) {
+    const returnTo = `/snapshot-plus/${encodeURIComponent(reportId)}?section=${encodeURIComponent(requestedSection)}`;
+    // Remint is Snapshot email-unlock only; paid report pages use magic-link sign-in.
+    return <ReportAccessDenied reportId={reportId} returnTo={returnTo} />;
   }
 
   const {

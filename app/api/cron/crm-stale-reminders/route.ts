@@ -158,6 +158,12 @@ function getHoursSince(iso?: string | null): number {
   return Math.max(0, Math.floor(ms / (1000 * 60 * 60)));
 }
 
+function parsePositiveIntEnv(value: string | undefined, fallback: number): number {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
+  return Math.floor(parsed);
+}
+
 function priorityRank(priority: StaleInquiry["priority"]): number {
   if (priority === "urgent") return 4;
   if (priority === "high") return 3;
@@ -177,12 +183,22 @@ export async function GET(req: NextRequest) {
   try {
     const ownerSlackMap = parseOwnerSlackMap();
     const unassignedSlackUserId = process.env.CRM_UNASSIGNED_SLACK_USER_ID?.trim() || null;
-    const staleHours = Number(process.env.CRM_STALE_REMINDER_HOURS || 24);
-    const reminderCooldownHours = Number(
-      process.env.CRM_STALE_REMINDER_COOLDOWN_HOURS || 24,
+    const staleHours = parsePositiveIntEnv(
+      process.env.CRM_STALE_REMINDER_HOURS,
+      24,
     );
-    const escalateHighHours = Number(process.env.CRM_ESCALATE_HIGH_HOURS || 48);
-    const escalateUrgentHours = Number(process.env.CRM_ESCALATE_URGENT_HOURS || 72);
+    const reminderCooldownHours = parsePositiveIntEnv(
+      process.env.CRM_STALE_REMINDER_COOLDOWN_HOURS,
+      24,
+    );
+    const escalateHighHours = parsePositiveIntEnv(
+      process.env.CRM_ESCALATE_HIGH_HOURS,
+      48,
+    );
+    const escalateUrgentHours = parsePositiveIntEnv(
+      process.env.CRM_ESCALATE_URGENT_HOURS,
+      72,
+    );
     const staleCutoff = new Date(Date.now() - staleHours * 60 * 60 * 1000).toISOString();
     const recentReminderCutoff = new Date(
       Date.now() - reminderCooldownHours * 60 * 60 * 1000,
@@ -227,138 +243,147 @@ export async function GET(req: NextRequest) {
     let highEscalations = 0;
     let urgentEscalations = 0;
     let escalationTasksCreated = 0;
+    let itemErrors = 0;
 
     for (const inquiry of staleInquiries) {
-      const hoursStale = getHoursSince(inquiry.last_activity_at);
-      const targetPriority: StaleInquiry["priority"] | null =
-        hoursStale >= escalateUrgentHours
-          ? "urgent"
-          : hoursStale >= escalateHighHours
-            ? "high"
-            : null;
+      try {
+        const hoursStale = getHoursSince(inquiry.last_activity_at);
+        const targetPriority: StaleInquiry["priority"] | null =
+          hoursStale >= escalateUrgentHours
+            ? "urgent"
+            : hoursStale >= escalateHighHours
+              ? "high"
+              : null;
 
-      const reminderState = getReminderState({
-        status: inquiry.status,
-        owner: inquiry.owner,
-        targetPriority,
-        currentPriority: inquiry.priority,
-        hoursStale,
-      });
+        const reminderState = getReminderState({
+          status: inquiry.status,
+          owner: inquiry.owner,
+          targetPriority,
+          currentPriority: inquiry.priority,
+          hoursStale,
+        });
 
-      const { data: recentReminder } = await supabaseAdmin
-        .from("crm_activities")
-        .select("id, created_at, payload")
-        .eq("inquiry_id", inquiry.id)
-        .eq("activity_type", "stale_reminder_sent")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle<ReminderActivity>();
-
-      const recentReminderState = recentReminder?.payload?.reminder_state || "";
-      const reminderStillCoolingDown =
-        !!recentReminder?.created_at &&
-        new Date(recentReminder.created_at).getTime() >=
-          new Date(recentReminderCutoff).getTime();
-      if (reminderStillCoolingDown && recentReminderState === reminderState) {
-        continue;
-      }
-
-      await supabaseAdmin.from("crm_activities").insert({
-        inquiry_id: inquiry.id,
-        activity_type: "stale_reminder_sent",
-        body: "Stale inquiry reminder triggered by cron.",
-        payload: {
-          stale_cutoff: staleCutoff,
-          reminder_state: reminderState,
-          hours_stale: hoursStale,
-          target_priority: targetPriority,
-        },
-        created_by: "system",
-      });
-
-      const contact = getContact(inquiry);
-      const identity = contact?.full_name || contact?.email || "Unknown contact";
-      const ownerLabel = getSlackOwnerMention(
-        inquiry.owner,
-        ownerSlackMap,
-        unassignedSlackUserId,
-      );
-      let line = `• ${inquiry.subject || "Inbound inquiry"} (${inquiry.source}) — ${identity} — owner: ${
-        ownerLabel
-      } — stale: ${hoursStale}h`;
-
-      if (targetPriority && priorityRank(inquiry.priority) < priorityRank(targetPriority)) {
-        await supabaseAdmin
-          .from("crm_inquiries")
-          .update({ priority: targetPriority, updated_at: new Date().toISOString() })
-          .eq("id", inquiry.id);
-
-        const escalationType =
-          targetPriority === "urgent" ? "sla_escalated_urgent" : "sla_escalated_high";
-
-        const { data: existingEscalation } = await supabaseAdmin
+        const { data: recentReminder } = await supabaseAdmin
           .from("crm_activities")
-          .select("id")
+          .select("id, created_at, payload")
           .eq("inquiry_id", inquiry.id)
-          .eq("activity_type", escalationType)
+          .eq("activity_type", "stale_reminder_sent")
+          .order("created_at", { ascending: false })
           .limit(1)
-          .maybeSingle();
+          .maybeSingle<ReminderActivity>();
 
-        if (!existingEscalation?.id) {
-          await supabaseAdmin.from("crm_activities").insert({
-            inquiry_id: inquiry.id,
-            contact_id: inquiry.contact_id,
-            activity_type: escalationType,
-            body: `SLA escalation: priority raised to ${targetPriority}.`,
-            payload: {
-              hours_stale: hoursStale,
-              from_priority: inquiry.priority,
-              to_priority: targetPriority,
-            },
-            created_by: "system",
-          });
-
-          if (targetPriority === "urgent") urgentEscalations += 1;
-          else highEscalations += 1;
+        const recentReminderState = recentReminder?.payload?.reminder_state || "";
+        const reminderStillCoolingDown =
+          !!recentReminder?.created_at &&
+          new Date(recentReminder.created_at).getTime() >=
+            new Date(recentReminderCutoff).getTime();
+        if (reminderStillCoolingDown && recentReminderState === reminderState) {
+          continue;
         }
 
-        const taskTitle =
-          targetPriority === "urgent"
-            ? "URGENT: immediate inbound follow-up required"
-            : "High priority: stale inbound follow-up required";
-        const due = new Date();
-        due.setHours(due.getHours() + (targetPriority === "urgent" ? 1 : 4));
+        await supabaseAdmin.from("crm_activities").insert({
+          inquiry_id: inquiry.id,
+          activity_type: "stale_reminder_sent",
+          body: "Stale inquiry reminder triggered by cron.",
+          payload: {
+            stale_cutoff: staleCutoff,
+            reminder_state: reminderState,
+            hours_stale: hoursStale,
+            target_priority: targetPriority,
+          },
+          created_by: "system",
+        });
 
-        const { data: existingOpenTask } = await supabaseAdmin
-          .from("crm_tasks")
-          .select("id")
-          .eq("inquiry_id", inquiry.id)
-          .eq("status", "open")
-          .limit(1)
-          .maybeSingle();
+        const contact = getContact(inquiry);
+        const identity = contact?.full_name || contact?.email || "Unknown contact";
+        const ownerLabel = getSlackOwnerMention(
+          inquiry.owner,
+          ownerSlackMap,
+          unassignedSlackUserId,
+        );
+        let line = `• ${inquiry.subject || "Inbound inquiry"} (${inquiry.source}) — ${identity} — owner: ${
+          ownerLabel
+        } — stale: ${hoursStale}h`;
 
-        if (!existingOpenTask?.id) {
-          await createCrmTask({
-            inquiryId: inquiry.id,
-            contactId: inquiry.contact_id,
-            title: taskTitle,
-            dueAt: due.toISOString(),
-            assignedTo: inquiry.owner,
-          });
-          escalationTasksCreated += 1;
+        if (targetPriority && priorityRank(inquiry.priority) < priorityRank(targetPriority)) {
+          await supabaseAdmin
+            .from("crm_inquiries")
+            .update({ priority: targetPriority, updated_at: new Date().toISOString() })
+            .eq("id", inquiry.id);
+
+          const escalationType =
+            targetPriority === "urgent" ? "sla_escalated_urgent" : "sla_escalated_high";
+
+          const { data: existingEscalation } = await supabaseAdmin
+            .from("crm_activities")
+            .select("id")
+            .eq("inquiry_id", inquiry.id)
+            .eq("activity_type", escalationType)
+            .limit(1)
+            .maybeSingle();
+
+          if (!existingEscalation?.id) {
+            await supabaseAdmin.from("crm_activities").insert({
+              inquiry_id: inquiry.id,
+              contact_id: inquiry.contact_id,
+              activity_type: escalationType,
+              body: `SLA escalation: priority raised to ${targetPriority}.`,
+              payload: {
+                hours_stale: hoursStale,
+                from_priority: inquiry.priority,
+                to_priority: targetPriority,
+              },
+              created_by: "system",
+            });
+
+            if (targetPriority === "urgent") urgentEscalations += 1;
+            else highEscalations += 1;
+          }
+
+          const taskTitle =
+            targetPriority === "urgent"
+              ? "URGENT: immediate inbound follow-up required"
+              : "High priority: stale inbound follow-up required";
+          const due = new Date();
+          due.setHours(due.getHours() + (targetPriority === "urgent" ? 1 : 4));
+
+          const { data: existingOpenTask } = await supabaseAdmin
+            .from("crm_tasks")
+            .select("id")
+            .eq("inquiry_id", inquiry.id)
+            .eq("status", "open")
+            .limit(1)
+            .maybeSingle();
+
+          if (!existingOpenTask?.id) {
+            await createCrmTask({
+              inquiryId: inquiry.id,
+              contactId: inquiry.contact_id,
+              title: taskTitle,
+              dueAt: due.toISOString(),
+              assignedTo: inquiry.owner,
+            });
+            escalationTasksCreated += 1;
+          }
+
+          line += ` — escalated: ${targetPriority.toUpperCase()}`;
         }
 
-        line += ` — escalated: ${targetPriority.toUpperCase()}`;
+        reminderLines.push(line);
+        reminderBlocks.push({
+          inquiryId: inquiry.id,
+          text:
+            `${line.replace(/^•\s*/, "")}\n` +
+            `<${appBaseUrl}/admin/inbound?inquiry=${inquiry.id}|Open in CRM>`,
+        });
+        remindedCount += 1;
+      } catch (itemErr) {
+        itemErrors += 1;
+        logger.error("[CRM Stale Reminder] Inquiry processing failed", {
+          inquiryId: inquiry.id,
+          error: itemErr instanceof Error ? itemErr.message : String(itemErr),
+        });
       }
-
-      reminderLines.push(line);
-      reminderBlocks.push({
-        inquiryId: inquiry.id,
-        text:
-          `${line.replace(/^•\s*/, "")}\n` +
-          `<${appBaseUrl}/admin/inbound?inquiry=${inquiry.id}|Open in CRM>`,
-      });
-      remindedCount += 1;
     }
 
     if (reminderBlocks.length > 0) {
@@ -450,16 +475,28 @@ export async function GET(req: NextRequest) {
             .map((i) => `• ${i.text}`)
             .join("\n");
 
-        await fetch(slackUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            text: fallbackText,
-            blocks,
-          }),
-        });
+        try {
+          await fetch(slackUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              text: fallbackText,
+              blocks,
+            }),
+          });
+        } catch (slackErr) {
+          logger.error("[CRM Stale Reminder] Slack send failed (non-fatal)", {
+            error: slackErr instanceof Error ? slackErr.message : String(slackErr),
+          });
+        }
       } else {
-        await sendSlackReminder(reminderLines);
+        try {
+          await sendSlackReminder(reminderLines);
+        } catch (slackErr) {
+          logger.error("[CRM Stale Reminder] Fallback Slack send failed (non-fatal)", {
+            error: slackErr instanceof Error ? slackErr.message : String(slackErr),
+          });
+        }
       }
     }
 
@@ -469,6 +506,7 @@ export async function GET(req: NextRequest) {
       highEscalations,
       urgentEscalations,
       escalationTasksCreated,
+      itemErrors,
     });
 
     return NextResponse.json({
@@ -478,6 +516,7 @@ export async function GET(req: NextRequest) {
       highEscalations,
       urgentEscalations,
       escalationTasksCreated,
+      itemErrors,
       timestamp: new Date().toISOString(),
     });
   } catch (err) {

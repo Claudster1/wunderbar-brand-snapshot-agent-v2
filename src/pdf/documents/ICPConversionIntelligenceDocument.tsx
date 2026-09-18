@@ -10,6 +10,7 @@ import { PdfFooter } from "../components/PdfFooter";
 import { registerPdfFonts } from "../registerFonts";
 import { parseHexAccent } from "@/src/pdf/lib/promptPackDisplay";
 import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
+import { pdfAudienceChrome } from "@/src/pdf/lib/pdfAudienceChrome";
 
 registerPdfFonts();
 
@@ -43,6 +44,9 @@ interface Props {
 const FALLBACK_STAGES = ["Aware", "Considering", "Evaluating", "Decision"];
 
 export function ICPConversionIntelligenceDocument({ data, brandName }: Props) {
+  const chrome = pdfAudienceChrome(data);
+  const productName = chrome.conversionIntelligenceProduct;
+  const frameworkTitle = chrome.conversionIntelligenceTitle;
   const palette = data.visualDirection?.colorPalette as Array<{ hex?: string }> | undefined;
   const brandAccent = parseHexAccent(Array.isArray(palette) ? palette.map((entry) => entry?.hex).find(Boolean) : undefined) || pdfTheme.colors.blue;
   const printedDate = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
@@ -53,7 +57,7 @@ export function ICPConversionIntelligenceDocument({ data, brandName }: Props) {
     new Set([
       ...(framework?.conversionProfile?.map((row) => row.icpTier) || []),
       ...icpFromPersonas,
-      "Primary ICP",
+      chrome.primarySegmentLabel,
     ].filter(Boolean)),
   ).slice(0, 4);
 
@@ -62,10 +66,22 @@ export function ICPConversionIntelligenceDocument({ data, brandName }: Props) {
       ? framework.conversionProfile
       : icpTiers.map((tier, index) => ({
           icpTier: tier,
-          buyingCycleLength: index === 0 ? "30-60 days" : "45-90 days",
-          primaryConversionBarrier: "Unclear proof that this strategy is implementable for their team context.",
-          decisionTrigger: "Sees a role-specific roadmap plus evidence from a comparable business.",
-          conversionBehaviorPattern: "Consumes one insight asset, one proof asset, then books a strategy call.",
+          buyingCycleLength: chrome.consumer
+            ? index === 0
+              ? "Days to a couple of weeks"
+              : "When they’re ready"
+            : index === 0
+              ? "30-60 days"
+              : "45-90 days",
+          primaryConversionBarrier: chrome.consumer
+            ? "Unclear what to expect or how to take the next step."
+            : "Unclear proof that this strategy is implementable for their team context.",
+          decisionTrigger: chrome.consumer
+            ? "Sees clear reviews/proof and an easy way to book or inquire."
+            : "Sees a role-specific roadmap plus evidence from a comparable business.",
+          conversionBehaviorPattern: chrome.consumer
+            ? "Checks reviews and proof, then books or reaches out."
+            : "Consumes one insight asset, one proof asset, then books a strategy call.",
         }));
 
   const hookTypePerformance =
@@ -73,24 +89,51 @@ export function ICPConversionIntelligenceDocument({ data, brandName }: Props) {
       ? framework.hookTypePerformance
       : conversionProfiles.map((row) => ({
           icpTier: row.icpTier,
-          reliableHookTypes: [
-            { hookType: "Data-led insight", whyItConverts: "Signals strategic credibility and low-risk decision confidence." },
-            { hookType: "Peer social proof", whyItConverts: "Reduces uncertainty through relevance and comparability." },
+          reliableHookTypes: chrome.consumer
+            ? [
+                {
+                  hookType: "Local proof / review highlight",
+                  whyItConverts: "Shows real outcomes from people like them and lowers booking anxiety.",
+                },
+                {
+                  hookType: "Clear next-step offer",
+                  whyItConverts: "Makes it obvious how to book, reserve, call, or shop without friction.",
+                },
+              ]
+            : [
+                { hookType: "Data-led insight", whyItConverts: "Signals strategic credibility and low-risk decision confidence." },
+                { hookType: "Peer social proof", whyItConverts: "Reduces uncertainty through relevance and comparability." },
+              ],
+          hookTypesToAvoid: [
+            {
+              hookType: "Generic hype claim",
+              whyToAvoid: chrome.consumer
+                ? "Feels salesy and undermines local trust."
+                : "Creates skepticism and lowers trust velocity.",
+            },
           ],
-          hookTypesToAvoid: [{ hookType: "Generic hype claim", whyToAvoid: "Creates skepticism and lowers trust velocity." }],
         }));
 
   const channelMechanics =
     framework?.channelLevelConversionMechanics && framework.channelLevelConversionMechanics.length > 0
       ? framework.channelLevelConversionMechanics
       : icpTiers.flatMap((tier) =>
-          ["Email", "LinkedIn", "Search/SEO", "Sales Call"].map((channel) => ({
+          (chrome.consumer
+            ? ["Google / Maps", "Instagram", "Email", "Website"]
+            : ["Email", "LinkedIn", "Search/SEO", "Sales Call"]
+          ).map((channel) => ({
             icpTier: tier,
             channel,
-            convertingFormats: ["Proof-backed framework", "Diagnostic interpretation", "Outcome case snapshot"],
+            convertingFormats: chrome.consumer
+              ? ["Review highlight", "Before/after or outcome proof", "Simple booking CTA"]
+              : ["Proof-backed framework", "Diagnostic interpretation", "Outcome case snapshot"],
             optimalMessageLength: channel === "Email" ? "120-220 words" : "Short-form with one strong proof line",
-            conversionAction: "Book strategy activation call",
-            followUpLogic: "If no action in 72 hours, send objection-aware proof follow-up.",
+            conversionAction: chrome.consumer
+              ? "Book, reserve, call, or shop"
+              : "Book strategy activation call",
+            followUpLogic: chrome.consumer
+              ? "If no action in a few days, send a friendly reminder with one proof point and a clear next step."
+              : "If no action in 72 hours, send objection-aware proof follow-up.",
             failurePatterns: ["Too generic", "No proof point", "Too many CTAs"],
           })),
         );
@@ -100,14 +143,49 @@ export function ICPConversionIntelligenceDocument({ data, brandName }: Props) {
       ? framework.multiTouchConversionSequence
       : icpTiers.map((tier) => ({
           icpTier: tier,
-          sequence: [
-            { order: 1, channel: "LinkedIn", touchType: "Authority post", objective: "Create problem urgency", conversionSignal: "Post engagement" },
-            { order: 2, channel: "Website", touchType: "Proof-led page visit", objective: "Build trust", conversionSignal: "Case-study view" },
-            { order: 3, channel: "Email", touchType: "Nurture proof email", objective: "Resolve objections", conversionSignal: "CTA click" },
-            { order: 4, channel: "Sales", touchType: "Strategy call", objective: "Close", conversionSignal: "Proposal request" },
-          ],
-          criticalTouch: "Proof-led page visit with a role-specific CTA.",
-          salesHandoffTrigger: "Any high-intent signal after proof consumption (CTA click, pricing page revisit, schedule intent).",
+          sequence: chrome.consumer
+            ? [
+                {
+                  order: 1,
+                  channel: "Instagram / Google",
+                  touchType: "Discoverable post or listing",
+                  objective: "Show up where they already look",
+                  conversionSignal: "Profile or listing visit",
+                },
+                {
+                  order: 2,
+                  channel: "Website",
+                  touchType: "Service / menu page",
+                  objective: "Build trust with clear offer + proof",
+                  conversionSignal: "Scroll to booking or contact",
+                },
+                {
+                  order: 3,
+                  channel: "Email / SMS",
+                  touchType: "Reminder with proof",
+                  objective: "Resolve hesitation",
+                  conversionSignal: "CTA click",
+                },
+                {
+                  order: 4,
+                  channel: "Booking",
+                  touchType: "Book / reserve / inquire",
+                  objective: "Convert",
+                  conversionSignal: "Appointment or order started",
+                },
+              ]
+            : [
+                { order: 1, channel: "LinkedIn", touchType: "Authority post", objective: "Create problem urgency", conversionSignal: "Post engagement" },
+                { order: 2, channel: "Website", touchType: "Proof-led page visit", objective: "Build trust", conversionSignal: "Case-study view" },
+                { order: 3, channel: "Email", touchType: "Nurture proof email", objective: "Resolve objections", conversionSignal: "CTA click" },
+                { order: 4, channel: "Sales", touchType: "Strategy call", objective: "Close", conversionSignal: "Proposal request" },
+              ],
+          criticalTouch: chrome.consumer
+            ? "Service page with reviews and a clear next step."
+            : "Proof-led page visit with a role-specific CTA.",
+          salesHandoffTrigger: chrome.consumer
+            ? "Any high-intent signal after proof (book click, call, form, or message)."
+            : "Any high-intent signal after proof consumption (CTA click, pricing page revisit, schedule intent).",
         }));
 
   const matrix =
@@ -117,38 +195,71 @@ export function ICPConversionIntelligenceDocument({ data, brandName }: Props) {
           FALLBACK_STAGES.map((stage) => ({
             icpTier: tier,
             funnelStage: stage,
-            highestConvertingContentType: stage === "Decision" ? "Offer + case-study hybrid page" : "Insight-to-proof narrative asset",
-            whyItConverts: "Connects business pain to credible outcomes with minimal cognitive load.",
+            highestConvertingContentType: chrome.consumer
+              ? stage === "Decision"
+                ? "Offer + reviews on the booking page"
+                : "Local proof story with a clear next step"
+              : stage === "Decision"
+                ? "Offer + case-study hybrid page"
+                : "Insight-to-proof narrative asset",
+            whyItConverts: chrome.consumer
+              ? "Connects a real need to trusted local proof with one easy action."
+              : "Connects business pain to credible outcomes with minimal cognitive load.",
             requiredContentAttributes: ["One core claim", "Specific proof", "Single CTA"],
             leadMessagePillar: "Credibility",
-            convertingCTA: stage === "Decision" ? "Start Implementation Plan" : "Review My Priority Plan",
+            convertingCTA: chrome.consumer
+              ? stage === "Decision"
+                ? "Book now"
+                : "See how it works"
+              : stage === "Decision"
+                ? "Start Implementation Plan"
+                : "Review My Priority Plan",
           })),
         );
 
   const signals =
     framework?.behavioralSignalLibrary && framework.behavioralSignalLibrary.length > 0
       ? framework.behavioralSignalLibrary
-      : icpTiers.flatMap((tier) => [
-          {
-            icpTier: tier,
-            signal: "Returns to pricing/services page within 7 days",
-            indicatesStageTransition: "Consideration -> Decision",
-            triggeredAction: "Send proof + objection-response email within 24 hours",
-          },
-          {
-            icpTier: tier,
-            signal: "Downloads strategic asset + views case study",
-            indicatesStageTransition: "Aware -> Considering",
-            triggeredAction: "Trigger nurture sequence mapped to primary barrier",
-          },
-        ]);
+      : icpTiers.flatMap((tier) =>
+          chrome.consumer
+            ? [
+                {
+                  icpTier: tier,
+                  signal: "Returns to services or booking page within a week",
+                  indicatesStageTransition: "Consideration -> Decision",
+                  triggeredAction: "Send a short proof reminder with one clear next step within 24 hours",
+                },
+                {
+                  icpTier: tier,
+                  signal: "Views reviews / before-after and opens contact options",
+                  indicatesStageTransition: "Aware -> Considering",
+                  triggeredAction: "Follow up with availability and a simple booking link",
+                },
+              ]
+            : [
+                {
+                  icpTier: tier,
+                  signal: "Returns to pricing/services page within 7 days",
+                  indicatesStageTransition: "Consideration -> Decision",
+                  triggeredAction: "Send proof + objection-response email within 24 hours",
+                },
+                {
+                  icpTier: tier,
+                  signal: "Downloads strategic asset + views case study",
+                  indicatesStageTransition: "Aware -> Considering",
+                  triggeredAction: "Trigger nurture sequence mapped to primary barrier",
+                },
+              ],
+        );
 
   const scoring = framework?.scoringSignals || {
     icpConversionPathCoverage: 75,
     contentMatrixCompleteness: 72,
     behavioralSignalCoverage: 70,
     channelConversionDataPopulated: 68,
-    activeTestCoverage: "Baseline active tests defined for primary ICP; expand to secondary tiers.",
+    activeTestCoverage: chrome.consumer
+      ? "Baseline active tests defined for primary audience; expand to supporting segments."
+      : "Baseline active tests defined for primary ICP; expand to secondary tiers.",
     lastReviewedAt: new Date().toISOString(),
   };
 
@@ -166,7 +277,7 @@ export function ICPConversionIntelligenceDocument({ data, brandName }: Props) {
       <Page size="A4" style={s.cover}>
         {/* eslint-disable-next-line jsx-a11y/alt-text */}
         <Image src={PDF_WUNDERBAR_LOGO_SRC} style={s.logo} />
-        <Text style={s.coverTitle}>ICP Conversion Intelligence Framework</Text>
+        <Text style={s.coverTitle}>{frameworkTitle}</Text>
         <Text style={s.coverSub}>{brandName} — Blueprint+ Performance Backbone</Text>
         <View style={{ width: 76, height: 3, borderRadius: 999, backgroundColor: brandAccent, marginTop: 10, marginBottom: 16 }} />
         <Text style={{ ...s.coverMeta, marginTop: 26 }}>{printedDate}</Text>
@@ -177,14 +288,18 @@ export function ICPConversionIntelligenceDocument({ data, brandName }: Props) {
 
       <SectionDividerPage
         label="Section"
-        title="ICP Conversion Diagnostics"
-        subtitle="Conversion profile, hook performance, and channel-level mechanics by ICP tier."
+        title={chrome.consumer ? "Customer conversion diagnostics" : "ICP Conversion Diagnostics"}
+        subtitle={
+          chrome.consumer
+            ? "Conversion profile, hooks, and channel mechanics by audience."
+            : "Conversion profile, hook performance, and channel-level mechanics by ICP tier."
+        }
         accentHex={brandAccent}
       />
 
       <Page size="A4" style={s.page} wrap>
-        <PdfFooter businessName={brandName} productName="ICP Conversion Intelligence" showPageNumbers />
-        <PdfHeader title="ICP Conversion Intelligence Framework" businessName={brandName} date={printedDate} accentHex={brandAccent} />
+        <PdfFooter businessName={brandName} productName={productName} showPageNumbers />
+        <PdfHeader title={frameworkTitle} businessName={brandName} date={printedDate} accentHex={brandAccent} />
 
         {framework?.overview ? <View style={s.accentCard}><Text style={s.body}>{framework.overview}</Text></View> : null}
 
@@ -223,8 +338,8 @@ export function ICPConversionIntelligenceDocument({ data, brandName }: Props) {
       />
 
       <Page size="A4" style={s.page} wrap>
-        <PdfFooter businessName={brandName} productName="ICP Conversion Intelligence" showPageNumbers />
-        <PdfHeader title="ICP Conversion Intelligence Framework" businessName={brandName} date={printedDate} accentHex={brandAccent} />
+        <PdfFooter businessName={brandName} productName={productName} showPageNumbers />
+        <PdfHeader title={frameworkTitle} businessName={brandName} date={printedDate} accentHex={brandAccent} />
 
         <Text style={s.h1}>3) Channel-Level Conversion Mechanics</Text>
         {channelMechanics.slice(0, 12).map((row, i) => (
@@ -254,8 +369,8 @@ export function ICPConversionIntelligenceDocument({ data, brandName }: Props) {
       </Page>
 
       <Page size="A4" style={s.page} wrap>
-        <PdfFooter businessName={brandName} productName="ICP Conversion Intelligence" showPageNumbers />
-        <PdfHeader title="ICP Conversion Intelligence Framework" businessName={brandName} date={printedDate} accentHex={brandAccent} />
+        <PdfFooter businessName={brandName} productName={productName} showPageNumbers />
+        <PdfHeader title={frameworkTitle} businessName={brandName} date={printedDate} accentHex={brandAccent} />
 
         <Text style={s.h1}>5) Content Type × Conversion Matrix</Text>
         {matrix.slice(0, 16).map((row, i) => (
@@ -280,8 +395,8 @@ export function ICPConversionIntelligenceDocument({ data, brandName }: Props) {
       </Page>
 
       <Page size="A4" style={s.page} wrap>
-        <PdfFooter businessName={brandName} productName="ICP Conversion Intelligence" showPageNumbers />
-        <PdfHeader title="ICP Conversion Intelligence Framework" businessName={brandName} date={printedDate} accentHex={brandAccent} />
+        <PdfFooter businessName={brandName} productName={productName} showPageNumbers />
+        <PdfHeader title={frameworkTitle} businessName={brandName} date={printedDate} accentHex={brandAccent} />
 
         <Text style={s.h1}>Scoring Signals</Text>
         <View style={s.accentCard}>

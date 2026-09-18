@@ -96,7 +96,7 @@ describe("audienceFacingCopy / results B2C language", () => {
 
   it("locks scoring engine against B2C prospect jargon", () => {
     expect(scoringEnginePrompt).toContain("AUDIENCE LANGUAGE LOCK");
-    expect(scoringEnginePrompt).toContain("NEVER default to:");
+    expect(scoringEnginePrompt).toMatch(/Explicit ban list|NEVER default to:/i);
     expect(scoringEnginePrompt).toContain("prospects");
   });
 });

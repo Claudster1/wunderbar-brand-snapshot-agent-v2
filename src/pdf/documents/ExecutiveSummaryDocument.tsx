@@ -13,6 +13,7 @@ import type { BlueprintEngineOutput } from "../types/blueprintReport";
 import { parseHexAccent } from "@/src/pdf/lib/promptPackDisplay";
 import { getArchetypeIcon, getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
 import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
+import { pdfAudienceChrome } from "@/src/pdf/lib/pdfAudienceChrome";
 
 registerPdfFonts();
 
@@ -101,6 +102,7 @@ interface Props { data: BlueprintEngineOutput; brandName: string; userName?: str
 
 export function ExecutiveSummaryDocument({ data, brandName, userName }: Props) {
   const d = data;
+  const chrome = pdfAudienceChrome(d);
   const palette = d.visualDirection?.colorPalette as Array<{ hex?: string }> | undefined;
   const brandAccent = parseHexAccent(Array.isArray(palette) ? palette.map((entry) => entry?.hex).find(Boolean) : undefined) || pdfTheme.colors.blue;
   const printedDate = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
@@ -265,11 +267,11 @@ export function ExecutiveSummaryDocument({ data, brandName, userName }: Props) {
 
         <PdfHeader title="Executive Summary" businessName={brandName} date={printedDate} accentHex={brandAccent} />
 
-        <Text style={s.h2}>ICP + Persona Snapshot</Text>
+        <Text style={s.h2}>{chrome.consumer ? "Audience + Persona Snapshot" : "ICP + Persona Snapshot"}</Text>
         <View style={s.row} wrap={false}>
           <View style={s.col2}>
             <View style={s.accentCard}>
-              <Text style={s.label}>Primary ICP</Text>
+              <Text style={s.label}>{chrome.consumer ? "Primary audience" : "Primary ICP"}</Text>
               <Text style={{ fontSize: 11, fontWeight: "bold", color: pdfTheme.colors.navy, marginBottom: 4 }}>
                 {primaryIcp?.name || "Primary customer segment"}
               </Text>
@@ -278,7 +280,7 @@ export function ExecutiveSummaryDocument({ data, brandName, userName }: Props) {
           </View>
           <View style={s.col2}>
             <View style={s.card}>
-              <Text style={s.label}>Secondary ICP</Text>
+              <Text style={s.label}>{chrome.consumer ? "Secondary audience" : "Secondary ICP"}</Text>
               <Text style={{ fontSize: 11, fontWeight: "bold", color: pdfTheme.colors.navy, marginBottom: 4 }}>
                 {secondaryIcp?.name || "Secondary customer segment"}
               </Text>

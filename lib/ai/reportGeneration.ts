@@ -23,6 +23,8 @@ import { logger } from "@/lib/logger";
 import { getAssetAnalyses, formatAssetContext } from "@/lib/assetAnalysis";
 import { buildSpendRecommendationContext } from "@/lib/spendRecommendation";
 import { ensurePaidMediaChannelsMinimum } from "@/lib/activation/paidMediaPlanFields";
+import { buildLockedReportAudienceContext } from "@/lib/results/reportAudienceContext";
+import { sanitizeConsumerReportContent } from "@/lib/results/sanitizeConsumerReportLanguage";
 
 // ─── Prompt imports ──────────────────────────────────────────────
 
@@ -174,7 +176,25 @@ function formatInputForAI(input: AssessmentInput): string {
     );
   }
 
+  // Locked vertical / voice — engines must follow this, not invent B2B defaults.
+  const lockedAudienceContext = buildLockedReportAudienceContext(cleaned);
+  cleaned.lockedAudienceContext = lockedAudienceContext;
+  cleaned.consumerVertical = lockedAudienceContext.consumerVertical;
+  cleaned.toneProfile = lockedAudienceContext.toneProfile;
+  cleaned.audienceLanguageDirective = lockedAudienceContext.languageDirective;
+
   return JSON.stringify(cleaned, null, 2);
+}
+
+function finalizeReportContent(
+  content: Record<string, unknown>,
+  input: AssessmentInput,
+  tier: ReportTier,
+): Record<string, unknown> {
+  const locked = buildLockedReportAudienceContext(input as Record<string, unknown>);
+  const withCompleteness = ensureBlueprintExecutionCompleteness(tier, content, input);
+  const withSpend = attachSpendContext(withCompleteness, input);
+  return sanitizeConsumerReportContent(withSpend, locked);
 }
 
 function attachSpendContext(
@@ -199,11 +219,16 @@ function attachSpendContext(
 
   const paidMediaStrategy = patched.paidMediaStrategy;
   if (paidMediaStrategy && typeof paidMediaStrategy === "object" && !Array.isArray(paidMediaStrategy)) {
-    patched.paidMediaStrategy = ensurePaidMediaChannelsMinimum({
-      ...(paidMediaStrategy as Record<string, unknown>),
-      budgetScenarios: spendContext.growthRoadmap.scenarios,
-      allocationGuidance: spendContext.budgetConstrainedPlan.allocation,
-    });
+    const locked = buildLockedReportAudienceContext(input as Record<string, unknown>);
+    patched.paidMediaStrategy = ensurePaidMediaChannelsMinimum(
+      {
+        ...(paidMediaStrategy as Record<string, unknown>),
+        budgetScenarios: spendContext.growthRoadmap.scenarios,
+        allocationGuidance: spendContext.budgetConstrainedPlan.allocation,
+      },
+      3,
+      locked.consumerFacing ? locked.audienceVoice.paidPlatforms : undefined,
+    );
   }
 
   return patched;
@@ -527,10 +552,7 @@ async function generateSingleCall(
     throw new Error(`AI returned empty content for ${tier} report`);
   }
 
-  const content = attachSpendContext(
-    ensureBlueprintExecutionCompleteness(tier, parseAIJsonResponse(response.content), input),
-    input,
-  );
+  const content = finalizeReportContent(parseAIJsonResponse(response.content), input, tier);
 
   return {
     tier,
@@ -723,10 +745,7 @@ Do NOT include any other sections. Return ONLY valid JSON with the keys listed a
 
   return {
     tier: "blueprint_plus",
-    content: attachSpendContext(
-      ensureBlueprintExecutionCompleteness("blueprint_plus", mergedContent, input),
-      input,
-    ),
+    content: finalizeReportContent(mergedContent, input, "blueprint_plus"),
     generatedAt: new Date().toISOString(),
     model: lastModel,
     provider: lastProvider,
@@ -818,5 +837,6 @@ export async function generateReportSections(
     throw new Error("AI returned empty content for section generation");
   }
 
-  return parseAIJsonResponse(response.content);
+  const locked = buildLockedReportAudienceContext(input as Record<string, unknown>);
+  return sanitizeConsumerReportContent(parseAIJsonResponse(response.content), locked);
 }

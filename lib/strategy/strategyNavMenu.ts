@@ -5,6 +5,7 @@ import { buildAudienceProfilesBody, buildCustomerProfilesDeepBody } from "@/lib/
 import { collectStrategyPlanSections, joinAsStrategyBullets } from "@/lib/strategy/strategyPlanExtract";
 import { buildStrategicOfferPlanBody } from "@/lib/strategy/strategicOfferPlan";
 import type { WorkbookSectionId } from "@/lib/workbookTypes";
+import { resolveActivationAudienceVoice } from "@/lib/activation/activationAudienceVoice";
 
 function asRecordLoose(v: unknown): Record<string, unknown> | null {
   if (!v || typeof v !== "object" || Array.isArray(v)) return null;
@@ -51,7 +52,9 @@ export function buildStrategyNavMenuItems(
     typeof diagnosticData.topOpportunity === "string" ? diagnosticData.topOpportunity : "";
   const targetAudience =
     typeof diagnosticData.targetAudience === "string" ? diagnosticData.targetAudience : "";
-  const audienceShort = firstNWords(targetAudience, 8).toLowerCase() || "decision-makers";
+  const voice = resolveActivationAudienceVoice(diagnosticData);
+  const audienceShort =
+    firstNWords(targetAudience, 8).toLowerCase() || voice.audienceShortFallback;
   const companyName =
     typeof diagnosticData.companyName === "string" && diagnosticData.companyName
       ? diagnosticData.companyName
@@ -85,16 +88,22 @@ export function buildStrategyNavMenuItems(
   const personaAtlasSummary =
     typeof diagnosticData.personaAtlasSummary === "string" && diagnosticData.personaAtlasSummary
       ? diagnosticData.personaAtlasSummary
-      : `${companyName} should define a primary customer profile for ${audienceShort}, plus 1-2 secondary buyer roles. For each: capture jobs-to-be-done, top objections, decision criteria, and preferred channels.`;
+      : voice.consumer
+        ? `${companyName} should define a primary profile for ${audienceShort}, plus 1–2 supporting segments. For each: what they want, what stops them, and how they prefer to ${voice.primaryCta.toLowerCase()}.`
+        : `${companyName} should define a primary customer profile for ${audienceShort}, plus 1-2 secondary buyer roles. For each: capture jobs-to-be-done, top objections, decision criteria, and preferred channels.`;
   const buyerJourneySummary =
     typeof diagnosticData.buyerJourneySummary === "string" && diagnosticData.buyerJourneySummary
       ? diagnosticData.buyerJourneySummary
-      : `Map the journey from awareness to decision for ${audienceShort}. For each stage, define core question, required proof, channel touchpoint, and stage-exit next step.`;
+      : voice.consumer
+        ? `Map how ${audienceShort} discover ${companyName}, decide, and ${voice.primaryCta.toLowerCase()}. For each stage: what they need to know, what proof helps, and one clear next step.`
+        : `Map the journey from awareness to decision for ${audienceShort}. For each stage, define core question, required proof, channel touchpoint, and stage-exit next step.`;
   const competitiveMatrixSummary =
     typeof diagnosticData.competitiveMatrixSummary === "string" &&
     diagnosticData.competitiveMatrixSummary
       ? diagnosticData.competitiveMatrixSummary
-      : `Track top alternatives in ${industry}, their strongest claim, and where ${companyName} wins. Use one clear displacement narrative tied to ${primaryPillar.toLowerCase()} outcomes.`;
+      : voice.consumer
+        ? `Track the local alternatives ${audienceShort} compare you to, what they claim, and where ${companyName} wins — in plain language tied to ${primaryPillar.toLowerCase()}.`
+        : `Track top alternatives in ${industry}, their strongest claim, and where ${companyName} wins. Use one clear displacement narrative tied to ${primaryPillar.toLowerCase()} outcomes.`;
   const channelStrategySummary =
     typeof diagnosticData.channelStrategySummary === "string"
       ? diagnosticData.channelStrategySummary
@@ -243,8 +252,9 @@ export function buildStrategyNavMenuItems(
     {
       id: "icp-personas",
       label: "Audience Profiles",
-      summary:
-        "Snapshot answers plus ideal customer profile (ICP) depth from your deliverable—segments, pains, objections, and transition plan when present.",
+      summary: voice.consumer
+        ? "Who you serve—segments, pains, objections, and how people move toward booking or buying."
+        : "Snapshot answers plus ideal customer profile (ICP) depth from your deliverable—segments, pains, objections, and transition plan when present.",
       body: buildAudienceProfilesBody({
         companyName,
         industry,
@@ -257,12 +267,15 @@ export function buildStrategyNavMenuItems(
     {
       id: "persona-atlas",
       label: "Customer Profiles",
-      summary: "Role-level buyer personas—motivations, objections, channels, and sample message hooks from your report.",
+      summary: voice.consumer
+        ? "People behind the segments—motivations, objections, channels, and message hooks."
+        : "Role-level buyer personas—motivations, objections, channels, and sample message hooks from your report.",
       body: buildCustomerProfilesDeepBody({
         personaAtlasSummary,
         buyerPersonas: diagnosticData.buyerPersonas,
         companyName,
         audienceShort,
+        consumer: voice.consumer,
       }),
       workbookSectionId: "persona-atlas",
     },
@@ -289,7 +302,9 @@ export function buildStrategyNavMenuItems(
       body:
         channelStrategySummary ||
         channelDirection ||
-        `Activate ${primaryPillar.toLowerCase()} through a defined channel mix: email for follow-up, SEO/AI search for intent capture, social for authority, and site conversion pages for pipeline movement.`,
+        (voice.consumer
+          ? `Activate ${primaryPillar.toLowerCase()} where ${voice.who} already look: ${voice.channelsLine}. Make site and profile pages support a clear next step — ${voice.primaryCta}.`
+          : `Activate ${primaryPillar.toLowerCase()} through a defined channel mix: email for follow-up, SEO/AI search for intent capture, social for authority, and site conversion pages for pipeline movement.`),
       workbookSectionId: "channel-notes",
     },
     {
@@ -298,7 +313,9 @@ export function buildStrategyNavMenuItems(
       summary: "Current-budget plan plus a phased path to hit growth goals.",
       body:
         spendPlanSummary ||
-        `Allocate current spend by channel role first (demand capture, follow-up, conversion), then scale in 30/60/90-day phases tied to success check unlocks. Increase budget only when conversion efficiency and pipeline quality are stable.`,
+        (voice.consumer
+          ? `Put budget toward discovery and trust first (${voice.channelsLine}), then toward making it easy to ${voice.primaryCta.toLowerCase()}. Scale spend only when inquiries or bookings stay healthy.`
+          : `Allocate current spend by channel role first (demand capture, follow-up, conversion), then scale in 30/60/90-day phases tied to success check unlocks. Increase budget only when conversion efficiency and pipeline quality are stable.`),
       workbookSectionId: "channel-notes",
     },
     {

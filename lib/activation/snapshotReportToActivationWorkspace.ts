@@ -1,6 +1,7 @@
 import { buildActivationDiagnostics } from "@/lib/results/buildActivationDiagnostics";
 import { normalizeBrandImageryDirection } from "@/lib/brand/brandImageryNormalize";
 import { ensurePaidMediaChannelsMinimum } from "@/lib/activation/paidMediaPlanFields";
+import { resolveActivationAudienceVoice } from "@/lib/activation/activationAudienceVoice";
 import { getArchetypeIcon, getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
 import { getPrimaryPillar } from "@/lib/upgrade/primaryPillar";
 import type { ProductTier } from "@/components/results/tabConfig";
@@ -141,11 +142,26 @@ export function snapshotReportToActivationWorkspace(
         : "Your highest-fit audience segment";
 
   const industry =
-    typeof answers.industry === "string"
+    typeof answers.industry === "string" && answers.industry.trim()
       ? answers.industry
-      : typeof answers.businessType === "string"
-        ? answers.businessType
-        : "Your market category";
+      : "Your market category";
+  const businessType =
+    (typeof answers.businessType === "string" && answers.businessType) ||
+    (typeof answers.business_type === "string" && answers.business_type) ||
+    null;
+  const audienceType =
+    (typeof answers.audienceType === "string" && answers.audienceType) ||
+    (typeof answers.audience_type === "string" && answers.audience_type) ||
+    null;
+  const voicePreview = resolveActivationAudienceVoice({
+    industry,
+    businessType,
+    audienceType,
+    targetAudience,
+  });
+  const schedulePrimaryCta = voicePreview.consumer
+    ? voicePreview.primaryCta
+    : "Book Strategy Call";
 
   const strategicPriorities = recommendationsList.slice(0, 3).map((item, index) => ({
     rank: index + 1,
@@ -178,7 +194,7 @@ export function snapshotReportToActivationWorkspace(
       recommendationsList[index % Math.max(recommendationsList.length, 1)] ?? `Priority activation item ${index + 1}`,
     messagePillar: toTitleLabel(primaryPillarStr),
     funnelStage: index % 2 === 0 ? "Problem-Aware" : "Solution-Aware",
-    primaryCta: "Book Strategy Call",
+    primaryCta: schedulePrimaryCta,
     owner: "",
     status: "Not Started" as const,
     dueDate: `Week ${Math.floor(index / 3) + 1}`,
@@ -241,6 +257,8 @@ export function snapshotReportToActivationWorkspace(
     resultsDeliveredAt: (typeof r.created_at === "string" && r.created_at) || new Date().toISOString(),
     industry,
     targetAudience,
+    ...(businessType ? { businessType } : {}),
+    ...(audienceType ? { audienceType } : {}),
     primaryArchetype: likelyArchetype ?? "Archetype pending",
     archetypeMeaning: archetypeMeaning ?? "",
     archetypeIcon: archetypeIcon ?? "",
@@ -296,7 +314,11 @@ export function snapshotReportToActivationWorkspace(
 
   const paidRaw = fullReport?.paidMediaStrategy;
   if (paidRaw && typeof paidRaw === "object" && !Array.isArray(paidRaw)) {
-    diagnosticData.paidMediaStrategy = ensurePaidMediaChannelsMinimum(paidRaw as Record<string, unknown>);
+    diagnosticData.paidMediaStrategy = ensurePaidMediaChannelsMinimum(
+      paidRaw as Record<string, unknown>,
+      3,
+      voicePreview.consumer ? voicePreview.paidPlatforms : undefined,
+    );
   }
 
   const icpRaw = fullReport?.icpConversionIntelligenceFramework;

@@ -14,6 +14,7 @@ import { parseHexAccent } from "@/src/pdf/lib/promptPackDisplay";
 import { getArchetypeIcon, getArchetypeMeaning } from "@/lib/archetype/likelyArchetype";
 import { PDF_WUNDERBAR_LOGO_SRC } from "../constants/pdfLogo";
 import { sanitizeSpokenCustomerScript } from "@/lib/strategy/labeledFieldChrome";
+import { pdfAudienceChrome } from "@/src/pdf/lib/pdfAudienceChrome";
 
 registerPdfFonts();
 
@@ -56,19 +57,14 @@ const s = StyleSheet.create({
 
 interface Props { data: BlueprintEngineOutput; brandName: string }
 
-function buildNinetyDayPhases(actions: BlueprintEngineOutput["strategicActionPlan"] | undefined) {
+function buildNinetyDayPhases(
+  actions: BlueprintEngineOutput["strategicActionPlan"] | undefined,
+  fallbackActions: string[],
+) {
   const list = (actions ?? [])
     .filter((item) => typeof item?.action === "string" && item.action.trim().length > 0)
     .slice(0, 9);
-  const fallback = [
-    "Align core messaging hierarchy across homepage, service pages, and sales assets.",
-    "Front-load trust signals and proof sequence on conversion-critical pages.",
-    "Launch a recurring authority content cadence tied to brand pillars.",
-    "Map offer-specific CTA paths and reduce friction in high-intent journeys.",
-    "Operationalize voice and visual consistency checks for all outbound assets.",
-    "Activate monthly KPI review and decision rituals to prevent brand drift.",
-  ];
-  const normalized = (list.length > 0 ? list : fallback.map((action) => ({ action } as any)));
+  const normalized = (list.length > 0 ? list : fallbackActions.map((action) => ({ action } as any)));
   const chunk = Math.ceil(normalized.length / 3);
 
   return {
@@ -80,10 +76,11 @@ function buildNinetyDayPhases(actions: BlueprintEngineOutput["strategicActionPla
 
 export function ActivationPlanDocument({ data, brandName }: Props) {
   const d = data;
+  const chrome = pdfAudienceChrome(d);
   const palette = d.visualDirection?.colorPalette as Array<{ hex?: string }> | undefined;
   const brandAccent = parseHexAccent(Array.isArray(palette) ? palette.map((entry) => entry?.hex).find(Boolean) : undefined) || pdfTheme.colors.blue;
   const printedDate = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-  const phases = buildNinetyDayPhases(d.strategicActionPlan);
+  const phases = buildNinetyDayPhases(d.strategicActionPlan, chrome.activationFallbackActions);
   const primaryArchetype = d.brandArchetypeSystem?.primary;
   const archetypeIcon = getArchetypeIcon(primaryArchetype?.name || "");
   const archetypeMeaning = getArchetypeMeaning(primaryArchetype?.name || "");
@@ -116,7 +113,7 @@ export function ActivationPlanDocument({ data, brandName }: Props) {
         <View style={s.accentCard}><Text style={s.body}>{d.brandStrategyRollout?.brandStrategyOnePager}</Text></View>
         {d.icpConversionIntelligenceFramework?.overview ? (
           <View style={s.card}>
-            <Text style={s.label}>ICP Conversion Intelligence Backbone</Text>
+            <Text style={s.label}>{chrome.conversionBackboneLabel}</Text>
             <Text style={s.small}>{d.icpConversionIntelligenceFramework.overview}</Text>
           </View>
         ) : null}

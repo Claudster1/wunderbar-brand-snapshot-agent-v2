@@ -12,6 +12,11 @@ import {
   buildDevelopedSeoAeoPlan,
   buildDevelopedThoughtLeadershipPack,
 } from "@/lib/activation/activationDevelopedPlansCopy";
+import {
+  resolveActivationAudienceVoice,
+  type ActivationAudienceVoice,
+} from "@/lib/activation/activationAudienceVoice";
+import { textHasB2bAudienceDrift } from "@/lib/results/sanitizeConsumerReportLanguage";
 
 export type ActivationPlanSection = {
   id: string;
@@ -79,21 +84,20 @@ function buildSocialMediaPlan(
     audienceSummary: string;
     audienceShort: string;
     socialSeed: string;
+    voice: ActivationAudienceVoice;
   },
 ): string {
+  if (opts.voice.consumer) {
+    return buildConsumerSocialMediaPlan(diagnosticData, opts);
+  }
+
   const personaLines = extractPersonaSummaries(diagnosticData);
   const channelPlans = (diagnosticData.channelPlans as Record<string, string> | undefined) ?? {};
   const socialSignals = [channelPlans.social, channelPlans.content]
     .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
     .join("\n\n");
   const platformHint = socialSignals.toLowerCase();
-  const candidatePlatforms = [
-    { name: "LinkedIn", reason: "B2B education, authority building, and demand capture." },
-    { name: "Instagram", reason: "Storytelling, visual proof, and trust reinforcement." },
-    { name: "YouTube", reason: "Searchable long-form explainers and proof-rich walkthroughs." },
-    { name: "X / Twitter", reason: "Fast POV distribution and narrative testing." },
-    { name: "TikTok", reason: "Short-form educational reach and top-of-funnel hooks." },
-  ];
+  const candidatePlatforms = opts.voice.socialPlatforms;
   const selectedPlatforms = candidatePlatforms.filter((item) =>
     platformHint.includes(item.name.toLowerCase().replace(" / ", " ").split(" ")[0]),
   );
@@ -208,6 +212,194 @@ function buildSocialMediaPlan(
     .join("\n");
 }
 
+function buildConsumerSocialMediaPlan(
+  diagnosticData: Record<string, unknown>,
+  opts: {
+    companyName: string;
+    industry: string;
+    firstPriority: string;
+    secondPriority: string;
+    audienceSummary: string;
+    socialSeed: string;
+    voice: ActivationAudienceVoice;
+  },
+): string {
+  const channelPlans = (diagnosticData.channelPlans as Record<string, string> | undefined) ?? {};
+  const socialSignals = [channelPlans.social, channelPlans.content]
+    .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+    .join("\n\n");
+  const who = opts.voice.who;
+  const cta = opts.voice.primaryCta;
+  const platformsList = opts.voice.socialPlatforms.slice(0, 3);
+  const platformBlocks = platformsList
+    .map((item, index) => {
+      const priority = index === 0 ? "Primary" : "Secondary";
+      const cadence = index === 0 ? "3x/week" : "1–2x/week";
+      return `### ${item.name} (${priority}, ${cadence})\n\n${item.reason}\n\nKeep captions conversational. End with one clear next step — usually **${cta}**.`;
+    })
+    .join("\n\n");
+  const samples = consumerSocialSamples(opts.voice, opts.companyName, cta);
+
+  return [
+    "## Social media plan",
+    "",
+    `${opts.companyName} (${opts.industry}) — written so you can post this week. Talk the way you talk to ${who}: clear, warm, no marketing slogans.`,
+    "",
+    "### Goals (90 days)",
+    "",
+    `**More of the right ${who} finding you** — on ${opts.voice.channelsLine}.`,
+    "",
+    `**Trust** — ${opts.voice.proofLine}.`,
+    "",
+    `**A clear next step** — most posts should make it easy to **${cta.toLowerCase()}**.`,
+    "",
+    "### Who this is for",
+    "",
+    opts.audienceSummary,
+    "",
+    "### Platform focus",
+    "",
+    platformBlocks,
+    "",
+    "Skip channels you won’t actually keep up with. Consistency on two beats a thin presence on five.",
+    "",
+    "### What to post",
+    "",
+    `**~40% — useful / educational** — answer the questions ${who} already ask you.`,
+    "",
+    `**~35% — proof** — real work, real reviews, real moments (with permission).`,
+    "",
+    `**~25% — invitation** — openings, hours, how to ${cta.toLowerCase()}.`,
+    "",
+    "### Sample posts (adapt in your voice)",
+    "",
+    samples,
+    "",
+    "### Weekly rhythm",
+    "",
+    "Aim for a few solid posts per week on your primary channel. Reply to comments and reviews when you can — that often matters more than one more carousel.",
+    "",
+    "### 90 days",
+    "",
+    "**Days 1–30** — Pick primary + secondary channels. Post steadily. Collect 5–10 review asks from happy ${who}.",
+    "",
+    `**Days 31–60** — Repeat what got saves, DMs, or bookings. Light boost on posts that already worked.`,
+    "",
+    `**Days 61–90** — Drop what feels forced. Keep a simple monthly mix: education, proof, invitation.`,
+    "",
+    opts.socialSeed || socialSignals
+      ? `### Notes from your report\n\n${opts.socialSeed || socialSignals}`
+      : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+function consumerSocialSamples(voice: ActivationAudienceVoice, companyName: string, cta: string): string {
+  switch (voice.vertical) {
+    case "beauty_wellness":
+      return [
+        "**Post 1 — what to expect**",
+        "",
+        `Caption: First time with us? Here’s how appointments usually go — we confirm the time, talk through what you want, and take it from there. Questions welcome anytime.`,
+        "",
+        `CTA: ${cta}`,
+        "",
+        "**Post 2 — real work**",
+        "",
+        `Caption: Recent work (shared with permission). Every head/skin/body is different — this is one example of how we approached it.`,
+        "",
+        `CTA: ${cta}`,
+        "",
+        "**Post 3 — reviews**",
+        "",
+        `Caption: Grateful for kind words from clients. If we’ve taken care of you, a Google review helps the next person feel comfortable walking in.`,
+        "",
+        `CTA: ${cta}`,
+      ].join("\n");
+    case "hospitality":
+      return [
+        "**Post 1 — this week**",
+        "",
+        `Caption: What’s on at ${companyName} this week — specials, hours, or a dish we’re proud of. Come hungry.`,
+        "",
+        `CTA: ${cta}`,
+        "",
+        "**Post 2 — the room**",
+        "",
+        `Caption: A look at the space / a favorite plate / the team. Keep it real — phone photos are fine.`,
+        "",
+        `CTA: ${cta}`,
+        "",
+        "**Post 3 — guests**",
+        "",
+        `Caption: Thanks to everyone who visited recently. Tag us if you share a photo — we love seeing it.`,
+        "",
+        `CTA: ${cta}`,
+      ].join("\n");
+    case "home_services":
+      return [
+        "**Post 1 — how we work**",
+        "",
+        `Caption: Before we start a job, we walk it with you and explain options in plain language. No surprise scope.`,
+        "",
+        `CTA: ${cta}`,
+        "",
+        "**Post 2 — job photo**",
+        "",
+        `Caption: Recent work (with homeowner permission). Here’s what we ran into and how we fixed it.`,
+        "",
+        `CTA: ${cta}`,
+        "",
+        "**Post 3 — reviews**",
+        "",
+        `Caption: Local reviews are how most homeowners choose who to call. Grateful for the trust — and always happy to help the next neighbor.`,
+        "",
+        `CTA: ${cta}`,
+      ].join("\n");
+    case "health_clinic":
+      return [
+        "**Post 1 — first visit**",
+        "",
+        `Caption: New here? We’ll help with scheduling and paperwork, and explain next steps in everyday language.`,
+        "",
+        `CTA: ${cta}`,
+        "",
+        "**Post 2 — team / office**",
+        "",
+        `Caption: A quick look at our team and office — so walking in feels a little more familiar.`,
+        "",
+        `CTA: ${cta}`,
+        "",
+        "**Post 3 — care reminders**",
+        "",
+        `Caption: Gentle reminder that routine visits matter. When you’re ready, schedule online or call the front desk.`,
+        "",
+        `CTA: ${cta}`,
+      ].join("\n");
+    default:
+      return [
+        "**Post 1 — useful**",
+        "",
+        `Caption: Answer one question ${voice.who} ask you all the time. Keep it short.`,
+        "",
+        `CTA: ${cta}`,
+        "",
+        "**Post 2 — proof**",
+        "",
+        `Caption: Share a real review or photo (with permission).`,
+        "",
+        `CTA: ${cta}`,
+        "",
+        "**Post 3 — invitation**",
+        "",
+        `Caption: Openings, hours, or how to take the next step with ${companyName}.`,
+        "",
+        `CTA: ${cta}`,
+      ].join("\n");
+  }
+}
+
 export function extractActivationDerivatives(diagnosticData: Record<string, unknown>) {
   const companyName =
     typeof diagnosticData.companyName === "string" && diagnosticData.companyName
@@ -258,7 +450,9 @@ export function extractActivationDerivatives(diagnosticData: Record<string, unkn
     typeof diagnosticData.targetAudience === "string"
       ? diagnosticData.targetAudience
       : "Audience grouping is inferred from your diagnostic inputs.";
-  const audienceShort = firstNWords(audienceSummary, 10).toLowerCase() || "decision-makers";
+  const voice = resolveActivationAudienceVoice(diagnosticData);
+  const audienceShort =
+    firstNWords(audienceSummary, 10).toLowerCase() || voice.audienceShortFallback;
   const spendContext =
     diagnosticData.spendRecommendationContext && typeof diagnosticData.spendRecommendationContext === "object"
       ? (diagnosticData.spendRecommendationContext as {
@@ -294,6 +488,7 @@ export function extractActivationDerivatives(diagnosticData: Record<string, unkn
     thirdPriority,
     audienceSummary,
     audienceShort,
+    voice,
     socialSeed:
       (typeof channelPlans.social === "string" && channelPlans.social.trim()) ||
       (typeof channelPlans.content === "string" && channelPlans.content.trim()) ||
@@ -315,6 +510,7 @@ export function extractActivationDerivatives(diagnosticData: Record<string, unkn
     activationRoadmapPlansBody,
     audienceSummary,
     audienceShort,
+    voice,
     paidSpendSection,
     socialMediaPlan,
   };
@@ -334,15 +530,29 @@ function developedContextFromD(d: ReturnType<typeof extractActivationDerivatives
     thirdPriority: d.thirdPriority,
     audienceShort: d.audienceShort,
     audienceSummary: d.audienceSummary,
+    voice: d.voice,
   };
 }
 
 /** When report/workbook copy is already long, keep it alone; otherwise append paste-ready developed pack. */
-function appendDevelopedPack(report: string, pack: string, minCompleteChars: number): string {
+function appendDevelopedPack(
+  report: string,
+  pack: string,
+  minCompleteChars: number,
+  opts?: { consumer?: boolean },
+): string {
   const trimmed = report.trim();
-  if (trimmed.length >= minCompleteChars) return report;
   if (!pack.trim()) return report;
   const sep = "\n\n---\n\n";
+
+  // Consumer: replace only when copy is missing or still sounds B2B; otherwise keep notes + pack.
+  if (opts?.consumer) {
+    if (!trimmed.length || textHasB2bAudienceDrift(trimmed)) return pack;
+    if (trimmed.length >= minCompleteChars) return trimmed;
+    return `${trimmed}${sep}${pack}`;
+  }
+
+  if (trimmed.length >= minCompleteChars) return report;
   if (!trimmed.length) return pack;
   return `${trimmed}${sep}${pack}`;
 }
@@ -357,7 +567,19 @@ function blueprintPlusEmptyBlockMessage(companyName: string, topic: string): str
 
 const NINETY_DAY_SOCIAL_MARKER = /10\)\s*90-day|90-day rollout calendar|\bDays\s*1[–-]30\b/i;
 
-function socialThoughtLeadershipNinetyDayAddendum(): string {
+function socialThoughtLeadershipNinetyDayAddendum(opts?: { consumer?: boolean }): string {
+  if (opts?.consumer) {
+    return [
+      "",
+      "---",
+      "",
+      "90-day social rollout (add to your calendar if not already spelled out above)",
+      "- Days 1–30 — Post ~3x/week on your main channel; test 2 hook styles; track saves, profile visits, and inquiries.",
+      "- Days 31–60 — Double down on posts that drive bookings or questions; try one new format (Reels, carousel, or Stories).",
+      "- Days 61–90 — Cut weak themes; run one month-long story arc; lock a simple monthly content kit.",
+      "- Each month: mix education, proof (reviews / before-after), and one clear next-step post.",
+    ].join("\n");
+  }
   return [
     "",
     "---",
@@ -370,9 +592,9 @@ function socialThoughtLeadershipNinetyDayAddendum(): string {
   ].join("\n");
 }
 
-function withNinetyDaySocialAppendix(body: string): string {
+function withNinetyDaySocialAppendix(body: string, opts?: { consumer?: boolean }): string {
   if (!body.trim() || NINETY_DAY_SOCIAL_MARKER.test(body)) return body;
-  return body + socialThoughtLeadershipNinetyDayAddendum();
+  return body + socialThoughtLeadershipNinetyDayAddendum(opts);
 }
 
 /** Prefer real channel copy from the report; avoid generic templates when substantive content exists. */
@@ -382,6 +604,15 @@ function pickSocialThoughtLeadershipBody(
 ): string {
   const social = typeof d.channelPlans.social === "string" ? d.channelPlans.social.trim() : "";
   const content = typeof d.channelPlans.content === "string" ? d.channelPlans.content.trim() : "";
+  const candidate = social.length >= content.length ? social : content;
+
+  if (d.voice.consumer) {
+    if (candidate.length > 400 && !textHasB2bAudienceDrift(candidate)) {
+      return withNinetyDaySocialAppendix(candidate, { consumer: true });
+    }
+    return d.socialMediaPlan;
+  }
+
   if (social.length > 120) return withNinetyDaySocialAppendix(social);
   if (content.length > 120) return withNinetyDaySocialAppendix(content);
   if (isBlueprintPlusTier(diagnosticData)) {
@@ -394,6 +625,9 @@ function pickSocialThoughtLeadershipBody(
 const PAID_ADS_SUBSTANTIVE_MIN_CHARS = 320;
 
 function buildDefaultPaidAdsPlanBody(d: ReturnType<typeof extractActivationDerivatives>): string {
+  if (d.voice.consumer) {
+    return buildConsumerPaidAdsPlanBody(d);
+  }
   const p = d.primaryPillar.toLowerCase();
   const ind = d.industry.toLowerCase();
   return [
@@ -465,6 +699,65 @@ function buildDefaultPaidAdsPlanBody(d: ReturnType<typeof extractActivationDeriv
   ].join("\n");
 }
 
+function buildConsumerPaidAdsPlanBody(d: ReturnType<typeof extractActivationDerivatives>): string {
+  const who = d.voice.who;
+  const cta = d.voice.primaryCta;
+  const channels = d.voice.paidPlatforms.filter((p) => p !== "LinkedIn").join(" / ") || "Meta / Google";
+  return [
+    "## Paid media starter plan",
+    "",
+    `For **${d.companyName}** — keep ads as simple as how you’d explain the business to a neighbor.`,
+    "",
+    "### What you’re trying to do",
+    "",
+    `**Awareness** — Reach nearby ${who} who don’t know you yet.`,
+    "",
+    `**Consideration** — Show real proof (${d.voice.proofLine}) to people who already engaged.`,
+    "",
+    `**Conversion** — Make it easy to **${cta.toLowerCase()}**.`,
+    "",
+    "### Where to start",
+    "",
+    `Prefer **${channels}** first. Add LinkedIn only if you truly sell to businesses day-to-day.`,
+    "",
+    `**Who to reach**  \n${d.audienceSummary}`,
+    "",
+    "Start with two or three ad sets: people nearby, people who visited your site or profile, and a small retargeting pool. Keep frequency gentle.",
+    "",
+    "### Sample ad — awareness",
+    "",
+    `**Headline**  \n${d.companyName} — for ${who} nearby`,
+    "",
+    `**Primary text**  \nA plain line about what you do and who you help. End with how to ${cta.toLowerCase()}.`,
+    "",
+    `**CTA**  \n${cta}`,
+    "",
+    "### Sample ad — proof",
+    "",
+    `**Headline**  \nWhat ${who} say about working with us`,
+    "",
+    `**Primary text**  \nOne short review or result (real words). Then invite them to take the same next step.`,
+    "",
+    `**CTA**  \n${cta}`,
+    "",
+    "### Sample ad — conversion",
+    "",
+    `**Headline**  \nReady when you are`,
+    "",
+    `**Primary text**  \nOpenings / how scheduling works / what happens after they reach out. One ask only.`,
+    "",
+    `**CTA**  \n${cta}`,
+    "",
+    "### Landing",
+    "",
+    `Send ads to a page that repeats the same promise and the same CTA (**${cta}**). Don’t drop people on a generic homepage with five competing asks.`,
+    "",
+    "### Measurement",
+    "",
+    `Watch cost per ${cta.toLowerCase()}, and whether people who click actually complete the next step. Pause ads that spend without conversations or bookings.`,
+  ].join("\n");
+}
+
 function pickPaidAdsBody(
   diagnosticData: Record<string, unknown>,
   d: ReturnType<typeof extractActivationDerivatives>,
@@ -472,6 +765,17 @@ function pickPaidAdsBody(
   const ads = typeof d.channelPlans.ads === "string" ? d.channelPlans.ads.trim() : "";
   const campaigns = typeof d.channelPlans.campaigns === "string" ? d.channelPlans.campaigns.trim() : "";
   const merged = [ads, campaigns].filter(Boolean).join("\n\n").trim();
+
+  if (d.voice.consumer) {
+    if (merged.length >= PAID_ADS_SUBSTANTIVE_MIN_CHARS && !textHasB2bAudienceDrift(merged)) {
+      return merged;
+    }
+    const spend = d.paidSpendSection?.trim() ?? "";
+    if (spend.length >= 120) {
+      return [spend, "", buildDefaultPaidAdsPlanBody(d)].join("\n");
+    }
+    return buildDefaultPaidAdsPlanBody(d);
+  }
 
   if (merged.length >= PAID_ADS_SUBSTANTIVE_MIN_CHARS) {
     return merged;
@@ -567,7 +871,23 @@ function buildIcpEmailTouchesAppendix(diagnosticData: Record<string, unknown>): 
   ].join("\n\n");
 }
 
-function buildEmailLifecycleHowToReadMarkdown(): string {
+function buildEmailLifecycleHowToReadMarkdown(opts?: { consumer?: boolean }): string {
+  if (opts?.consumer) {
+    return [
+      "## How to read this email plan",
+      "",
+      "Up to **two layers** appear in this view (use the **On This page** chips to jump).",
+      "",
+      "1. **Report notes** — Email channel copy from your export when the engine filled `channelPlans.email`.",
+      "2. **Starter nurture sequence** — Paste-ready lifecycle emails (`## Email 1 …` onward). Each block is **one** email: **subject line** → **preheader** (the short inbox preview line; **not** a second subject) → body → image prompt → CTAs.",
+      "",
+      "### Where to edit and export",
+      "- **Update copy:** **Workbook** → Channel notes (and version history). Regenerate the report when you want a full engine rewrite from inputs.",
+      "- **All activation sections at once:** **Download activation pack (.md)** on this tab.",
+      "- **PDFs and bundles:** **Downloads** tab.",
+      "- **Single plan PDF:** open **Open plan** for a channel, then **Download plan (PDF)** on that page.",
+    ].join("\n");
+  }
   return [
     "## How to read this email plan",
     "",
@@ -592,9 +912,21 @@ function pickEmailLifecycleBody(
   const e = typeof d.channelPlans.email === "string" ? d.channelPlans.email.trim() : "";
   const developed = buildDevelopedEmailPlan(developedContextFromD(d));
   const icpAppendix = buildIcpEmailTouchesAppendix(diagnosticData);
-  const guide = buildEmailLifecycleHowToReadMarkdown();
+  const guide = buildEmailLifecycleHowToReadMarkdown({ consumer: d.voice.consumer });
   /** If the report already shipped a very long email playbook, avoid duplicating the developed pack. */
   const REPORT_EMAIL_COMPLETE_MIN = 2800;
+
+  if (d.voice.consumer) {
+    if (e.length >= REPORT_EMAIL_COMPLETE_MIN && !textHasB2bAudienceDrift(e)) {
+      return [guide, e].filter((x) => x.trim().length > 0).join("\n\n---\n\n");
+    }
+    // Skip ICP appendix chrome for consumer — developed pack is the conversion path.
+    if (!e.length || textHasB2bAudienceDrift(e) || e.length < 900) {
+      return [guide, developed].filter((x) => x.trim().length > 0).join("\n\n---\n\n");
+    }
+    return [guide, e, developed].filter((x) => x.trim().length > 0).join("\n\n---\n\n");
+  }
+
   if (e.length >= REPORT_EMAIL_COMPLETE_MIN) {
     return [guide, e, icpAppendix].filter((x) => x.trim().length > 0).join("\n\n---\n\n");
   }
@@ -641,6 +973,13 @@ function pickSeoAeoBody(
     "";
   const developed = buildDevelopedSeoAeoPlan(developedContextFromD(d));
   const SEO_COMPLETE_MIN = 2200;
+  if (d.voice.consumer) {
+    if (a.length >= SEO_COMPLETE_MIN && !textHasB2bAudienceDrift(a)) return a;
+    if (a.length > 200 && !textHasB2bAudienceDrift(a)) {
+      return appendDevelopedPack(a, developed, SEO_COMPLETE_MIN, { consumer: true });
+    }
+    return developed;
+  }
   if (a.length >= SEO_COMPLETE_MIN) return a;
   if (a.length > 0) {
     return [a, developed].join("\n\n---\n\n");
@@ -666,17 +1005,24 @@ function pickPrVisibilityBody(
     (typeof d.channelPlans.visibility === "string" && d.channelPlans.visibility.trim()) ||
     "";
   const developed = buildDevelopedPrPlan(developedContextFromD(d));
-  if (pr.length >= PR_VISIBILITY_COMPLETE_MIN_CHARS) return pr;
-  if (pr.length > 0) return appendDevelopedPack(pr, developed, PR_VISIBILITY_COMPLETE_MIN_CHARS);
+  const consumerOpts = { consumer: d.voice.consumer };
+  if (pr.length >= PR_VISIBILITY_COMPLETE_MIN_CHARS) {
+    if (d.voice.consumer && textHasB2bAudienceDrift(pr)) return developed;
+    return pr;
+  }
+  if (pr.length > 0) return appendDevelopedPack(pr, developed, PR_VISIBILITY_COMPLETE_MIN_CHARS, consumerOpts);
   if (isBlueprintPlusTier(diagnosticData)) {
     return appendDevelopedPack(
       blueprintPlusEmptyBlockMessage(d.companyName, "PR & visibility"),
       developed,
       PR_VISIBILITY_COMPLETE_MIN_CHARS,
+      consumerOpts,
     );
   }
-  const baseline = `Create quarterly PR hooks tied to measurable outcomes from ${d.thirdPriority.toLowerCase()}. Prioritize placements where ${d.audienceShort} already evaluates vendors and strategic partners.`;
-  return appendDevelopedPack(baseline, developed, PR_VISIBILITY_COMPLETE_MIN_CHARS);
+  const baseline = d.voice.consumer
+    ? `Build local visibility for ${d.companyName} where ${d.voice.who} already look — reviews, community, and neighborhood media.`
+    : `Create quarterly PR hooks tied to measurable outcomes from ${d.thirdPriority.toLowerCase()}. Prioritize placements where ${d.audienceShort} already evaluates vendors and strategic partners.`;
+  return appendDevelopedPack(baseline, developed, PR_VISIBILITY_COMPLETE_MIN_CHARS, consumerOpts);
 }
 
 function buildLeadMagnetSectionBody(
@@ -684,8 +1030,12 @@ function buildLeadMagnetSectionBody(
   d: ReturnType<typeof extractActivationDerivatives>,
 ): string {
   const lm = typeof d.channelPlans["lead-magnet"] === "string" ? d.channelPlans["lead-magnet"].trim() : "";
-  if (lm.length > 80) return lm;
   const developed = buildDevelopedLeadMagnetPlan(developedContextFromD(d));
+  if (lm.length > 80) {
+    if (d.voice.consumer && textHasB2bAudienceDrift(lm)) return developed;
+    return lm;
+  }
+  if (d.voice.consumer) return developed;
   const cn = d.companyName;
   const p1 = d.firstPriority.toLowerCase();
   const p2 = d.secondPriority.toLowerCase();
@@ -740,7 +1090,7 @@ function buildLeadMagnetSectionBody(
   const base = isBlueprintPlusTier(diagnosticData)
     ? blueprintPlusEmptyBlockMessage(d.companyName, "Lead magnet & conversion")
     : scaffold;
-  return appendDevelopedPack(base, developed, 4000);
+  return appendDevelopedPack(base, developed, 4000, { consumer: d.voice.consumer });
 }
 
 export function buildActivationPlanSectionsList(
@@ -766,15 +1116,18 @@ export function buildActivationPlanSectionsList(
 
   const tierBp = isBlueprintPlusTier(diagnosticData);
   const ctx = developedContextFromD(d);
+  const consumerOpts = { consumer: d.voice.consumer };
   const thoughtBody = appendDevelopedPack(
     pickSocialThoughtLeadershipBody(diagnosticData, d),
     buildDevelopedThoughtLeadershipPack(ctx),
     2600,
+    consumerOpts,
   );
   const paidBody = appendDevelopedPack(
     pickPaidAdsBody(diagnosticData, d),
     buildDevelopedPaidCreativesPack(ctx),
     4200,
+    consumerOpts,
   );
 
   const audienceBase =
@@ -782,12 +1135,23 @@ export function buildActivationPlanSectionsList(
     (tierBp
       ? blueprintPlusEmptyBlockMessage(companyName, "Audience segments & triggers")
       : `Primary audience: ${audienceSummary}. Build segment-level trigger points (intent signal, engagement signal, buying-stage signal) and map each trigger to one campaign objective for ${companyName}.`);
-  const audienceBody = appendDevelopedPack(audienceBase, buildDevelopedAudiencePlan(ctx), 2600);
-  const journeyBody = appendDevelopedPack(buyerJourneySummary, buildDevelopedJourneyPlan(ctx), 2400);
+  const audienceBody = appendDevelopedPack(
+    audienceBase,
+    buildDevelopedAudiencePlan(ctx),
+    2600,
+    consumerOpts,
+  );
+  const journeyBody = appendDevelopedPack(
+    buyerJourneySummary,
+    buildDevelopedJourneyPlan(ctx),
+    2400,
+    consumerOpts,
+  );
   const competitiveBody = appendDevelopedPack(
     competitiveMatrixSummary,
     buildDevelopedCompetitivePlan(ctx),
     2600,
+    consumerOpts,
   );
   const roadmapBase =
     activationRoadmapPlansBody ||
@@ -796,12 +1160,17 @@ export function buildActivationPlanSectionsList(
       : scheduleRowsCount > 0
         ? `Current schedule has ${scheduleRowsCount} planned items. Phase 1: ${firstPriority}. Phase 2: ${secondPriority}. Phase 3: ${thirdPriority}. Review owners, due windows, and bottlenecks weekly.`
         : `Define a 30/60/90 plan: (30) ${firstPriority}, (60) ${secondPriority}, (90) ${thirdPriority}, each with owner, due date, dependency, and success check.`);
-  const executionBody = appendDevelopedPack(roadmapBase, buildDevelopedExecutionRoadmap(ctx), 2200);
+  const executionBody = appendDevelopedPack(
+    roadmapBase,
+    buildDevelopedExecutionRoadmap(ctx),
+    2200,
+    consumerOpts,
+  );
 
   return [
     {
       id: "audience-segments",
-      label: "Audiences & outreach triggers",
+      label: d.voice.consumer ? "Audiences & outreach triggers" : "Audiences & outreach triggers",
       summary: activationSegmentPlansBody
         ? "Who each campaign is for—and what should start outreach—from your conversion plan."
         : "Who each campaign is for and what event should start outreach.",
@@ -810,21 +1179,27 @@ export function buildActivationPlanSectionsList(
     },
     {
       id: "journey-orchestration",
-      label: "Buyer journey plan",
+      label: d.voice.consumer ? "Customer journey plan" : "Buyer journey plan",
       summary:
         typeof diagnosticData.buyerJourneySummary === "string" && diagnosticData.buyerJourneySummary.trim()
-          ? "Stage-by-stage journey with buyer-role adaptations from your customer journey map."
-          : "Ordered steps across channels from first contact toward purchase.",
+          ? d.voice.consumer
+            ? "Stage-by-stage path from discovery to booking or purchase."
+            : "Stage-by-stage journey with buyer-role adaptations from your customer journey map."
+          : d.voice.consumer
+            ? "Ordered steps from first discovery toward booking or purchase."
+            : "Ordered steps across channels from first contact toward purchase.",
       body: journeyBody,
       workbookSectionId: "buyer-journey-map",
     },
     {
       id: "competitive-motion-plan",
-      label: "Competitive response plan",
+      label: d.voice.consumer ? "Standing out locally" : "Competitive response plan",
       summary:
         typeof diagnosticData.competitiveMatrixSummary === "string" && diagnosticData.competitiveMatrixSummary.trim()
           ? "How you differ, where competitors are weak, and how campaigns should respond."
-          : "How campaigns and sales should respond when competitors come up.",
+          : d.voice.consumer
+            ? "How to respond when customers compare you to other local options."
+            : "How campaigns and sales should respond when competitors come up.",
       body: competitiveBody,
       workbookSectionId: "competitive-landscape-matrix",
     },
@@ -876,25 +1251,31 @@ export function buildActivationPlanSectionsList(
     },
     {
       id: "thought-leadership",
-      label: "Thought Leadership Plan",
+      label: d.voice.consumer ? "Social content plan" : "Thought Leadership Plan",
       summary:
         (typeof channelPlans.social === "string" && channelPlans.social.length > 120) ||
         (typeof channelPlans.content === "string" && channelPlans.content.length > 120)
           ? "Social & content calendar from your report: platforms, example posts, and themes."
-          : "Social media plan: channel scope, content system, publishing cadence, and ownership.",
+          : d.voice.consumer
+            ? "Posts and cadence on the channels your customers already use."
+            : "Social media plan: channel scope, content system, publishing cadence, and ownership.",
       body:
         thoughtBody ||
-        `Build a social plan around ${firstPriority.toLowerCase()} and ${secondPriority.toLowerCase()}, using ICP-aware channels and one measurable CTA per post.`,
+        (d.voice.consumer
+          ? `Post useful updates for ${d.voice.who} on ${d.voice.channelsLine}, and make it easy to ${d.voice.primaryCta.toLowerCase()}.`
+          : `Build a social plan around ${firstPriority.toLowerCase()} and ${secondPriority.toLowerCase()}, using ICP-aware channels and one measurable CTA per post.`),
       workbookSectionId: "channel-notes",
     },
     {
       id: "pr-plan",
-      label: "PR & Visibility Plan",
+      label: d.voice.consumer ? "Local visibility & PR" : "PR & Visibility Plan",
       summary:
         (typeof channelPlans.pr === "string" && channelPlans.pr.length > 80) ||
         (typeof channelPlans.visibility === "string" && channelPlans.visibility.length > 80)
           ? "Media angles, hooks, and speaking lines from your thought leadership & PR plan."
-          : "Story hooks, media outreach, and credibility moments that support demand.",
+          : d.voice.consumer
+            ? "Neighborhood and community visibility that supports trust and demand."
+            : "Story hooks, media outreach, and credibility moments that support demand.",
       body: pickPrVisibilityBody(diagnosticData, d),
       workbookSectionId: "channel-notes",
     },

@@ -1,0 +1,178 @@
+@import url("https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap");
+
+.pf-section {
+  font-family: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  text-align: left;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 48px 24px 60px;
+  background: #ffffff;
+}
+
+.pf-container {
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.pf-back-link {
+  font-size: 14px;
+  font-weight: 700;
+  color: #07b0f2;
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 32px;
+  transition: 0.2s ease;
+}
+
+.pf-back-link:hover {
+  color: #021859;
+}
+
+.pf-table-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: white;
+  border-bottom: 2px solid #021859;
+  padding: 24px 0 16px;
+  gap: 4px;
+}
+
+.pf-header-cell {
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 0 16px;
+  color: #021859;
+}
+
+.pf-table-section-header {
+  background: #f8fafc;
+  padding: 14px 16px;
+  border-bottom: 1px solid #e6eaf2;
+}
+
+.pf-table-section-header span {
+  font-size: 12px;
+  font-weight: 900;
+  color: #07b0f2;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.pf-table-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  border-bottom: 1px solid #e6eaf2;
+}
+
+.pf-cell-feature {
+  font-size: 14px;
+  font-weight: 700;
+  color: #021859;
+  padding: 14px 16px;
+  line-height: 1.5;
+}
+
+.pf-cell-benefit {
+  font-size: 14px;
+  font-weight: 400;
+  color: #404040;
+  padding: 14px 16px;
+  line-height: 1.5;
+}
+
+.pf-footnote {
+  font-size: 13px;
+  font-weight: 400;
+  font-style: italic;
+  color: rgba(64, 64, 64, 0.7);
+  line-height: 1.5;
+  margin: 20px 0 0;
+}
+
+.pf-features-links {
+  text-align: center;
+  padding: 24px 0 0;
+  margin-top: 32px;
+  border-top: 1px solid #e6eaf2;
+}
+
+.pf-features-links-lead {
+  font-size: 15px;
+  font-weight: 400;
+  color: #404040;
+  margin: 0 0 12px;
+}
+
+.pf-features-link-primary {
+  font-weight: 700;
+  color: #07b0f2;
+  text-decoration: none;
+  transition: 0.2s ease;
+}
+
+.pf-features-link-primary:hover {
+  color: #021859;
+  text-decoration: underline;
+}
+
+.pf-features-links-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pf-features-link {
+  font-size: 14px;
+  font-weight: 700;
+  color: #07b0f2;
+  text-decoration: none;
+  transition: 0.2s ease;
+}
+
+.pf-features-link:hover {
+  color: #021859;
+  text-decoration: underline;
+}
+
+.pf-features-link-sep {
+  color: #c0c8d8;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .pf-table-header,
+  .pf-table-row {
+    grid-template-columns: 1fr;
+  }
+
+  .pf-header-cell:last-child {
+    display: none;
+  }
+
+  .pf-cell-feature {
+    padding-bottom: 4px;
+  }
+
+  .pf-cell-benefit {
+    padding-top: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .pf-cell-feature {
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+
+  .pf-cell-benefit {
+    font-size: 13px;
+    padding: 0 12px 10px;
+  }
+}

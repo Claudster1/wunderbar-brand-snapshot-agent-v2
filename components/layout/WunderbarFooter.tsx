@@ -45,16 +45,19 @@ export function WunderbarFooter() {
               <ul>
                 <li><a href="https://wunderbardigital.com/about?utm_source=wunderbrand_app&utm_medium=footer_nav&utm_campaign=nav_link&utm_content=footer_about" target="_blank" rel="noopener noreferrer">About</a></li>
                 <li><a href="https://wunderbardigital.com/connect?utm_source=wunderbrand_app&utm_medium=footer_nav&utm_campaign=nav_link&utm_content=footer_contact" target="_blank" rel="noopener noreferrer">Contact Us</a></li>
-                <li><a href="https://calendly.com/claudine-wunderbardigital/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=footer_nav&utm_campaign=nav_cta_secondary&utm_content=footer_talk_expert" target="_blank" rel="noopener noreferrer">Talk to an Expert</a></li>
+                <li><a href="https://wunderbardigital.com/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=footer_nav&utm_campaign=nav_cta_secondary&utm_content=footer_talk_expert" target="_blank" rel="noopener noreferrer">Talk to an Expert</a></li>
               </ul>
             </div>
 
-            {/* Products */}
+            {/* Products — in-app landings (checkout lives on each product page) */}
             <div className="nav-col">
               <h3>Products</h3>
               <ul>
-                <li><a href="https://wunderbardigital.com/wunderbrand-snapshot?utm_source=wunderbrand_app&utm_medium=footer_nav&utm_campaign=nav_link&utm_content=footer_snapshot_free" target="_blank" rel="noopener noreferrer">WunderBrand Snapshot™ (Free)</a></li>
-                <li><a href="https://wunderbardigital.com/wunderbrand-suite?utm_source=wunderbrand_app&utm_medium=footer_nav&utm_campaign=nav_link&utm_content=footer_suite_overview" target="_blank" rel="noopener noreferrer">WunderBrand Suite™</a></li>
+                <li><a href="/brand-snapshot">WunderBrand Snapshot™ (Free)</a></li>
+                <li><a href="/brand-snapshot/plus">WunderBrand Snapshot+™</a></li>
+                <li><a href="/brand-blueprint">WunderBrand Blueprint™</a></li>
+                <li><a href="/brand-blueprint-plus">WunderBrand Blueprint+™</a></li>
+                <li><a href="/brand-suite#compare">Compare All Products</a></li>
               </ul>
             </div>
 

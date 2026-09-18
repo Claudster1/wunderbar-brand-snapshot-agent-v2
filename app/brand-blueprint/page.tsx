@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
 import "./blueprint-landing.css";
 
 export const metadata: Metadata = {
@@ -16,16 +15,11 @@ export const metadata: Metadata = {
   },
 };
 
-const CHECKOUT = getTrackedCheckoutUrl({
-  product: "blueprint",
-  medium: "landing_cta",
-  content: "blueprint_product_page",
-});
+const CHECKOUT = "/checkout/blueprint";
 
 const TALK =
   "https://wunderbardigital.com/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=product_page&utm_campaign=talk_expert&utm_content=blueprint";
-const FEATURES =
-  "https://wunderbardigital.com/wunderbrand-blueprint-features?utm_source=wunderbrand_app&utm_medium=product_page&utm_campaign=blueprint_features&utm_content=see_features";
+const FEATURES = "/brand-blueprint/features";
 const SCORE =
   "https://wunderbardigital.com/wunderbrand-score?utm_source=wunderbrand_app&utm_medium=product_page&utm_campaign=blueprint_score&utm_content=wunderbrand_score";
 const FAQ =
@@ -93,9 +87,9 @@ export default function BrandBlueprintPage() {
               <a href={TALK} className="bb-btn-primary" target="_blank" rel="noopener noreferrer">
                 Talk to an Expert
               </a>
-              <a href={FEATURES} className="bb-btn-outline-white" target="_blank" rel="noopener noreferrer">
+              <Link href={FEATURES} className="bb-btn-outline-white">
                 See What&apos;s Inside
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -150,9 +144,9 @@ export default function BrandBlueprintPage() {
                 </li>
               </ul>
               <p className="bb-checklist-footer">
-                <a href={FEATURES} className="bb-inline-link" target="_blank" rel="noopener noreferrer">
+                <Link href={FEATURES} className="bb-inline-link">
                   See the complete feature breakdown →
-                </a>
+                </Link>
               </p>
             </div>
 
@@ -198,9 +192,9 @@ export default function BrandBlueprintPage() {
             <Link href={CHECKOUT} className="bb-overview-buy-btn">
               Get WunderBrand Blueprint™ — $997
             </Link>
-            <a href={FEATURES} className="bb-overview-cta-btn" target="_blank" rel="noopener noreferrer">
+            <Link href={FEATURES} className="bb-overview-cta-btn">
               See the Complete Feature Breakdown
-            </a>
+            </Link>
             <p className="bb-overview-cta-sub">
               Every deliverable explained — what it is and what it does for your business.
             </p>
@@ -230,9 +224,9 @@ export default function BrandBlueprintPage() {
                 <h3 className="bb-step-title">Your WunderBrand Blueprint™ Is Generated</h3>
                 <p className="bb-step-desc">
                   Our AI-powered diagnostic engine analyzes your inputs against proven brand strategy frameworks. Your complete results — including strategic analysis, brand platform, competitive intelligence, and brand-calibrated AI prompts — are delivered in real time.{" "}
-                  <a href={FEATURES} className="bb-inline-link" target="_blank" rel="noopener noreferrer">
+                  <Link href={FEATURES} className="bb-inline-link">
                     See the complete feature breakdown →
-                  </a>
+                  </Link>
                 </p>
               </div>
               <div className="bb-process-step">
@@ -260,9 +254,9 @@ export default function BrandBlueprintPage() {
               </Link>
             </div>
             <p style={{ marginBottom: 12 }}>
-              <a href={FEATURES} className="bb-inline-link" target="_blank" rel="noopener noreferrer">
+              <Link href={FEATURES} className="bb-inline-link">
                 See everything that&apos;s included →
-              </a>
+              </Link>
             </p>
             <p className="bb-mid-cta-lockline">
               Includes one complimentary refresh within 90 days of delivery. Applies to one brand only — one company, one Blueprint. Already purchased another Wunderbar Digital product? Your investment is credited automatically. Your responses are confidential and never shared with third parties.
@@ -301,9 +295,9 @@ export default function BrandBlueprintPage() {
               <div className="bb-faq-answer">
                 <p>
                   No — WunderBrand Blueprint™ is a complete, standalone brand strategy. It includes a full diagnostic, brand platform, competitive intelligence, buyer personas, content strategy, AI prompts, and a prioritized action plan. No prior products, no prerequisites, no prep work required.{" "}
-                  <a href={FEATURES} target="_blank" rel="noopener noreferrer">
+                  <Link href={FEATURES}>
                     See the complete feature breakdown →
-                  </a>
+                  </Link>
                 </p>
               </div>
             </details>

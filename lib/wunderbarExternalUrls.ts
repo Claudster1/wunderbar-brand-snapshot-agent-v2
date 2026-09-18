@@ -1,5 +1,6 @@
 /**
- * Outbound links to wunderbardigital.com from the WunderBrand app.
+ * Outbound links from the WunderBrand app.
+ * Product landings live on app.wunderbrand.ai; services/score stay on wunderbardigital.com.
  * UTMs use `utm_source=wunderbrand_app` plus medium / campaign / content for attribution.
  *
  * ## Named link slots (confirm path + UTMs if marketing changes)
@@ -8,16 +9,16 @@
  * |----------|------------|--------------|
  * | `WUNDERBAR_IMPLEMENTATION_OPTIONS_URL` | Results tab — compact “Implementation options →” | `/services` |
  * | `WUNDERBAR_IMPLEMENTATION_PATHS_URL` | Results tab — “Explore implementation paths” | `/services` |
- * | `WUNDERBAR_SUITE_COMPARE_URL` | SuiteCTA, BrandSnapshotResults — “Explore … Suite™” | `/wunderbrand-suite` |
- * | `WUNDERBAR_SUITE_RESULTS_FUNNEL_URL` | Results bottom funnel — primary suite education | `/wunderbrand-suite` |
+ * | `WUNDERBAR_SUITE_COMPARE_URL` | SuiteCTA, BrandSnapshotResults — “Explore … Suite™” | `/brand-suite` |
+ * | `WUNDERBAR_SUITE_RESULTS_FUNNEL_URL` | Results bottom funnel — primary suite education | `/brand-suite` |
  * | `WUNDERBAR_BLUEPRINT_GUIDED_IMPLEMENTATION_URL` | Blueprint — Guided implementation card | `/services` |
  * | `WUNDERBAR_BLUEPRINT_DFY_IMPLEMENTATION_URL` | Blueprint — Done-for-you card | `/services` |
  * | `WUNDERBAR_IMPLEMENTATION_PATHS_PDF_URL` | Snapshot+ PDF — “View implementation paths” | `/services` |
- * | `WUNDERBAR_SUITE_FROM_DIAGNOSTIC_URL` | Locked signal cards — “See what’s included” | `/wunderbrand-suite` |
- * | `WUNDERBAR_SUITE_LOCKED_TAB_URL` | Locked tab modal — suite comparison | `/wunderbrand-suite` |
- * | `WUNDERBAR_SNAPSHOT_PLUS_PDF_URL` | Snapshot PDF — Explore Snapshot+™ | `/wunderbrand-snapshot-plus` |
- * | `WUNDERBAR_BLUEPRINT_PDF_URL` | Blueprint PDF upgrade CTA | `/wunderbrand-blueprint` |
- * | `WUNDERBAR_BLUEPRINT_PLUS_PDF_URL` | Blueprint+ PDF upgrade CTA | `/wunderbrand-blueprint-plus` |
+ * | `WUNDERBAR_SUITE_FROM_DIAGNOSTIC_URL` | Locked signal cards — “See what’s included” | `/brand-suite` |
+ * | `WUNDERBAR_SUITE_LOCKED_TAB_URL` | Locked tab modal — suite comparison | `/brand-suite` |
+ * | `WUNDERBAR_SNAPSHOT_PLUS_PDF_URL` | Snapshot PDF — Explore Snapshot+™ | `/brand-snapshot/plus` |
+ * | `WUNDERBAR_BLUEPRINT_PDF_URL` | Blueprint PDF upgrade CTA | `/brand-blueprint` |
+ * | `WUNDERBAR_BLUEPRINT_PLUS_PDF_URL` | Blueprint+ PDF upgrade CTA | `/brand-blueprint-plus` |
  *
  * Other outbound URLs (header/footer, Wundy prompts, Calendly, etc.) live outside this module.
  */
@@ -31,9 +32,10 @@ function utm(medium: string, campaign: string, content: string) {
   }).toString();
 }
 
-const ORIGIN = "https://wunderbardigital.com";
+const MARKETING_ORIGIN = "https://wunderbardigital.com";
+const APP_ORIGIN = "https://app.wunderbrand.ai";
 
-const SERVICES = `${ORIGIN}/services`;
+const SERVICES = `${MARKETING_ORIGIN}/services`;
 
 /** Results tab — compact “Implementation options →” (Blueprint+ / suite results context). */
 export const WUNDERBAR_IMPLEMENTATION_OPTIONS_URL = `${SERVICES}?${utm(
@@ -49,15 +51,15 @@ export const WUNDERBAR_IMPLEMENTATION_PATHS_URL = `${SERVICES}?${utm(
   "implementation_paths",
 )}`;
 
-/** Product comparison / suite overview. */
-export const WUNDERBAR_SUITE_COMPARE_URL = `${ORIGIN}/wunderbrand-suite?${utm(
+/** Product comparison / suite overview (in-app). */
+export const WUNDERBAR_SUITE_COMPARE_URL = `${APP_ORIGIN}/brand-suite?${utm(
   "app_cta",
   "product_comparison",
   "suite_explore",
 )}`;
 
 /** Free Snapshot results bottom funnel — primary education CTA. */
-export const WUNDERBAR_SUITE_RESULTS_FUNNEL_URL = `${ORIGIN}/wunderbrand-suite?${utm(
+export const WUNDERBAR_SUITE_RESULTS_FUNNEL_URL = `${APP_ORIGIN}/brand-suite?${utm(
   "results_funnel",
   "product_comparison",
   "explore_suite_primary",
@@ -85,41 +87,41 @@ export const WUNDERBAR_IMPLEMENTATION_PATHS_PDF_URL = `${SERVICES}?${utm(
 )}`;
 
 /** Locked diagnostic signals → suite comparison. */
-export const WUNDERBAR_SUITE_FROM_DIAGNOSTIC_URL = `${ORIGIN}/wunderbrand-suite?${utm(
+export const WUNDERBAR_SUITE_FROM_DIAGNOSTIC_URL = `${APP_ORIGIN}/brand-suite?${utm(
   "diagnostic_cta",
   "product_comparison",
   "locked_signal_upgrade",
 )}`;
 
 /** Locked-tab modal — “See what’s included”. */
-export const WUNDERBAR_SUITE_LOCKED_TAB_URL = `${ORIGIN}/wunderbrand-suite?${utm(
+export const WUNDERBAR_SUITE_LOCKED_TAB_URL = `${APP_ORIGIN}/brand-suite?${utm(
   "locked_tab_modal",
   "product_comparison",
   "see_whats_included",
 )}`;
 
-/** Snapshot PDF — Explore Snapshot+™ (durable marketing purchase page). */
-export const WUNDERBAR_SNAPSHOT_PLUS_PDF_URL = `${ORIGIN}/wunderbrand-snapshot-plus?${utm(
+/** Snapshot PDF — Explore Snapshot+™. */
+export const WUNDERBAR_SNAPSHOT_PLUS_PDF_URL = `${APP_ORIGIN}/brand-snapshot/plus?${utm(
   "pdf_cta",
   "snapshot_plus_upgrade",
   "snapshot_pdf_explore",
 )}`;
 
 /** Blueprint PDF — upgrade to Blueprint. */
-export const WUNDERBAR_BLUEPRINT_PDF_URL = `${ORIGIN}/wunderbrand-blueprint?${utm(
+export const WUNDERBAR_BLUEPRINT_PDF_URL = `${APP_ORIGIN}/brand-blueprint?${utm(
   "pdf_cta",
   "blueprint_upgrade",
   "blueprint_pdf_explore",
 )}`;
 
 /** Blueprint / Snapshot+ PDF — upgrade to Blueprint+. */
-export const WUNDERBAR_BLUEPRINT_PLUS_PDF_URL = `${ORIGIN}/wunderbrand-blueprint-plus?${utm(
+export const WUNDERBAR_BLUEPRINT_PLUS_PDF_URL = `${APP_ORIGIN}/brand-blueprint-plus?${utm(
   "pdf_cta",
   "blueprint_plus_upgrade",
   "blueprint_plus_pdf_explore",
 )}`;
 
 /** Human-readable display host+path for PDF (always include https in Link src). */
-export const WUNDERBAR_SNAPSHOT_PLUS_PDF_DISPLAY = "wunderbardigital.com/wunderbrand-snapshot-plus";
-export const WUNDERBAR_BLUEPRINT_PDF_DISPLAY = "wunderbardigital.com/wunderbrand-blueprint";
-export const WUNDERBAR_BLUEPRINT_PLUS_PDF_DISPLAY = "wunderbardigital.com/wunderbrand-blueprint-plus";
+export const WUNDERBAR_SNAPSHOT_PLUS_PDF_DISPLAY = "app.wunderbrand.ai/brand-snapshot/plus";
+export const WUNDERBAR_BLUEPRINT_PDF_DISPLAY = "app.wunderbrand.ai/brand-blueprint";
+export const WUNDERBAR_BLUEPRINT_PLUS_PDF_DISPLAY = "app.wunderbrand.ai/brand-blueprint-plus";

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const BRAND_LOGO_SRC =
@@ -14,6 +15,16 @@ const HIDDEN_HEADER_ROUTES = [
   "/report/",
   "/brand-snapshot/results",
 ];
+
+/** In-app product landings (not checkout — buy CTAs live on each product page). */
+const SUITE_NAV = {
+  suite: "/brand-suite",
+  snapshot: "/brand-snapshot",
+  snapshotPlus: "/brand-snapshot/plus",
+  blueprint: "/brand-blueprint",
+  blueprintPlus: "/brand-blueprint-plus",
+  compare: "/brand-suite#compare",
+} as const;
 
 export function WunderbarHeader() {
   const pathname = usePathname();
@@ -49,6 +60,16 @@ export function WunderbarHeader() {
     setActiveDropdown(null);
   };
 
+  // On Snapshot landing: go straight to diagnostic (matches marketing on-page rewrite).
+  const onSnapshotLanding =
+    pathname === "/brand-snapshot" || pathname === "/brand-snapshot/";
+  const startFreeDesktopHref = onSnapshotLanding
+    ? "/?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=free_snapshot&utm_content=header_cta_snapshot_onpage"
+    : "/brand-snapshot?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=free_snapshot&utm_content=header_cta_start_free";
+  const startFreeMobileHref = onSnapshotLanding
+    ? "/?utm_source=wunderbrand_app&utm_medium=header_nav_mobile&utm_campaign=free_snapshot&utm_content=mobile_cta_snapshot_onpage"
+    : "/brand-snapshot?utm_source=wunderbrand_app&utm_medium=header_nav_mobile&utm_campaign=free_snapshot&utm_content=mobile_cta_start_free";
+
   return (
     <>
       <header className="wunder-header-final">
@@ -70,22 +91,17 @@ export function WunderbarHeader() {
         {/* Desktop Navigation */}
         <nav className="wunder-nav-group">
           <div className="wunder-nav-item">
-            <a
-              href="https://wunderbardigital.com/wunderbrand-suite?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=nav_dropdown_parent&utm_content=app_suite_overview"
-              className="wunder-nav-link"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <Link href={SUITE_NAV.suite} className="wunder-nav-link">
               WunderBrand Suite™
-            </a>
+            </Link>
             <div className="wunder-dropdown">
-              <a href="https://wunderbardigital.com/wunderbrand-snapshot?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=nav_dropdown_item&utm_content=app_snapshot_free" target="_blank" rel="noopener noreferrer">WunderBrand Snapshot™ (Free)</a>
-              <a href="/checkout/snapshot-plus?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=nav_dropdown_item&utm_content=app_snapshot_plus">WunderBrand Snapshot+™</a>
-              <a href="/checkout/blueprint?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=nav_dropdown_item&utm_content=app_blueprint">WunderBrand Blueprint™</a>
-              <a href="/checkout/blueprint-plus?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=nav_dropdown_item&utm_content=app_blueprint_plus">WunderBrand Blueprint+™</a>
-              <a href="https://wunderbardigital.com/wunderbrand-suite?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=nav_dropdown_item&utm_content=app_compare_products" className="wunder-dropdown-divider" target="_blank" rel="noopener noreferrer">
+              <Link href={SUITE_NAV.snapshot}>WunderBrand Snapshot™ (Free)</Link>
+              <Link href={SUITE_NAV.snapshotPlus}>WunderBrand Snapshot+™</Link>
+              <Link href={SUITE_NAV.blueprint}>WunderBrand Blueprint™</Link>
+              <Link href={SUITE_NAV.blueprintPlus}>WunderBrand Blueprint+™</Link>
+              <Link href={SUITE_NAV.compare} className="wunder-dropdown-divider">
                 Compare All Products
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -107,11 +123,17 @@ export function WunderbarHeader() {
           </a>
         </nav>
 
-        {/* Desktop CTAs */}
+        {/* Desktop CTAs — match marketing: Start Free (primary) + Talk (outline) */}
         <div className="wunder-btn-container">
-          <a
-            href="https://calendly.com/claudine-wunderbardigital/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=nav_cta_secondary&utm_content=app_cta_talk_expert"
+          <Link
+            href={startFreeDesktopHref}
             className="btn-base btn-solid"
+          >
+            Start Your Free WunderBrand Snapshot™
+          </Link>
+          <a
+            href="https://wunderbardigital.com/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=header_nav&utm_campaign=talk_to_expert&utm_content=app_cta_talk_expert"
+            className="btn-base btn-outline"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -165,13 +187,13 @@ export function WunderbarHeader() {
               <span className="wunder-mobile-arrow">▾</span>
             </button>
             <div className={`wunder-mobile-dropdown-content ${activeDropdown === "suite" ? "active" : ""}`}>
-              <a href="https://wunderbardigital.com/wunderbrand-snapshot?utm_source=wunderbrand_app&utm_medium=header_nav_mobile&utm_campaign=nav_dropdown_item&utm_content=app_snapshot_free" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>WunderBrand Snapshot™ (Free)</a>
-              <a href="/checkout/snapshot-plus?utm_source=wunderbrand_app&utm_medium=header_nav_mobile&utm_campaign=nav_dropdown_item&utm_content=app_snapshot_plus" onClick={closeMenu}>WunderBrand Snapshot+™</a>
-              <a href="/checkout/blueprint?utm_source=wunderbrand_app&utm_medium=header_nav_mobile&utm_campaign=nav_dropdown_item&utm_content=app_blueprint" onClick={closeMenu}>WunderBrand Blueprint™</a>
-              <a href="/checkout/blueprint-plus?utm_source=wunderbrand_app&utm_medium=header_nav_mobile&utm_campaign=nav_dropdown_item&utm_content=app_blueprint_plus" onClick={closeMenu}>WunderBrand Blueprint+™</a>
-              <a href="https://wunderbardigital.com/wunderbrand-suite?utm_source=wunderbrand_app&utm_medium=header_nav_mobile&utm_campaign=nav_dropdown_item&utm_content=app_compare_products" className="wunder-mobile-divider" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
+              <Link href={SUITE_NAV.snapshot} onClick={closeMenu}>WunderBrand Snapshot™ (Free)</Link>
+              <Link href={SUITE_NAV.snapshotPlus} onClick={closeMenu}>WunderBrand Snapshot+™</Link>
+              <Link href={SUITE_NAV.blueprint} onClick={closeMenu}>WunderBrand Blueprint™</Link>
+              <Link href={SUITE_NAV.blueprintPlus} onClick={closeMenu}>WunderBrand Blueprint+™</Link>
+              <Link href={SUITE_NAV.compare} className="wunder-mobile-divider" onClick={closeMenu}>
                 Compare All Products
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -199,11 +221,18 @@ export function WunderbarHeader() {
             Insights
           </a>
 
-          {/* Mobile CTAs */}
+          {/* Mobile CTAs — match marketing */}
           <div className="wunder-mobile-ctas">
-            <a
-              href="https://calendly.com/claudine-wunderbardigital/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=header_nav_mobile&utm_campaign=nav_cta_secondary&utm_content=app_cta_talk_expert"
+            <Link
+              href={startFreeMobileHref}
               className="btn-base btn-solid"
+              onClick={closeMenu}
+            >
+              Start Your Free WunderBrand Snapshot™
+            </Link>
+            <a
+              href="https://wunderbardigital.com/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=header_nav_mobile&utm_campaign=talk_to_expert&utm_content=app_cta_talk_expert"
+              className="btn-base btn-outline"
               target="_blank"
               rel="noopener noreferrer"
               onClick={closeMenu}

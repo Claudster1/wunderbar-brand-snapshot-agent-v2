@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
 import "./snapshot-plus-landing.css";
 
 export const metadata: Metadata = {
@@ -16,15 +15,11 @@ export const metadata: Metadata = {
   },
 };
 
-const CHECKOUT = getTrackedCheckoutUrl({
-  product: "snapshot-plus",
-  medium: "landing_cta",
-  content: "snapshot_plus_product_page",
-});
+const CHECKOUT = "/checkout/snapshot-plus";
 
 const TALK =
   "https://wunderbardigital.com/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=product_page&utm_campaign=talk_expert&utm_content=snapshot_plus";
-const FEATURES = "https://wunderbardigital.com/wunderbrand-snapshot-plus-features?utm_source=wunderbrand_app&utm_medium=product_page&utm_campaign=snapshot_plus_features&utm_content=see_features";
+const FEATURES = "/brand-snapshot/plus/features";
 const SCORE =
   "https://wunderbardigital.com/wunderbrand-score?utm_source=wunderbrand_app&utm_medium=product_page&utm_campaign=snapshot_plus_score&utm_content=wunderbrand_score";
 const FAQ =
@@ -85,9 +80,9 @@ export default function BrandSnapshotPlusPage() {
               <a href={TALK} className="sp-btn-primary" target="_blank" rel="noopener noreferrer">
                 Talk to an Expert
               </a>
-              <a href={FEATURES} className="sp-btn-outline-white" target="_blank" rel="noopener noreferrer">
+              <Link href={FEATURES} className="sp-btn-outline-white">
                 See What&apos;s Inside
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -138,9 +133,9 @@ export default function BrandSnapshotPlusPage() {
                 </li>
               </ul>
               <p className="sp-checklist-footer">
-                <a href={FEATURES} className="sp-inline-link" target="_blank" rel="noopener noreferrer">
+                <Link href={FEATURES} className="sp-inline-link">
                   See the complete feature breakdown →
-                </a>
+                </Link>
               </p>
             </div>
 
@@ -184,9 +179,9 @@ export default function BrandSnapshotPlusPage() {
             <Link href={CHECKOUT} className="sp-overview-buy-btn">
               Get WunderBrand Snapshot+™ — $497
             </Link>
-            <a href={FEATURES} className="sp-overview-cta-btn" target="_blank" rel="noopener noreferrer">
+            <Link href={FEATURES} className="sp-overview-cta-btn">
               See the Complete Feature Breakdown
-            </a>
+            </Link>
             <p className="sp-overview-cta-sub">
               Every deliverable explained — what it is and what it does for your business.
             </p>
@@ -249,9 +244,9 @@ export default function BrandSnapshotPlusPage() {
               </Link>
             </div>
             <p className="sp-cta-features-link" style={{ marginBottom: 12 }}>
-              <a href={FEATURES} className="sp-inline-link" target="_blank" rel="noopener noreferrer">
+              <Link href={FEATURES} className="sp-inline-link">
                 See everything that&apos;s included →
-              </a>
+              </Link>
             </p>
             <p className="sp-mid-cta-lockline">
               Already purchased another Wunderbar Digital product? Your investment is credited automatically. Your responses are confidential and never shared with third parties.
@@ -291,9 +286,9 @@ export default function BrandSnapshotPlusPage() {
               <div className="sp-faq-answer">
                 <p>
                   No — WunderBrand Snapshot+™ is a complete, standalone diagnostic. It includes a WunderBrand Score™, five-pillar analysis, pillar-by-pillar deep dive, a voice and tone guide, communication guidelines, ideal customer profile, visual direction, AI prompts, and a prioritized action plan. No prior products, no prerequisites, no prep work required.{" "}
-                  <a href={FEATURES} target="_blank" rel="noopener noreferrer">
+                  <Link href={FEATURES}>
                     See the complete feature breakdown →
-                  </a>
+                  </Link>
                 </p>
               </div>
             </details>
@@ -422,9 +417,9 @@ export default function BrandSnapshotPlusPage() {
             </Link>
           </div>
           <p className="sp-cta-features-link">
-            <a href={FEATURES} target="_blank" rel="noopener noreferrer">
+            <Link href={FEATURES}>
               See everything that&apos;s included →
-            </a>
+            </Link>
           </p>
           <p className="sp-cta-lockline">
             Already purchased another Wunderbar Digital product? Your investment is credited automatically. Your responses are confidential and never shared with third parties.

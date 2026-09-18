@@ -1490,7 +1490,7 @@ export default function ResultsTabsShell({
           availableFrom={lockedTabContext.availableFrom}
           featuresPreview={LOCKED_TAB_FEATURES[lockedTabContext.tabId]?.features ?? []}
           seeWhatsIncludedUrl={WUNDERBAR_SUITE_LOCKED_TAB_URL}
-          talkToExpertUrl="https://calendly.com/claudine-wunderbardigital/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=locked_tab&utm_campaign=nav_cta_secondary&utm_content=talk_expert"
+          talkToExpertUrl="https://wunderbardigital.com/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=locked_tab&utm_campaign=nav_cta_secondary&utm_content=talk_expert"
           onDismiss={() => {
             selectTab("results");
           }}

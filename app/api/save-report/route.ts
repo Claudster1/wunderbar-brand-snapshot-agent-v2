@@ -161,7 +161,7 @@ export async function POST(req: Request) {
             brand_alignment_score: String(engineResults.brandAlignmentScore),
             weakest_pillar: engineResults.weakestPillar.pillar,
             upgrade_product_name: "WunderBrand Snapshot+\u2122",
-            upgrade_product_url: "https://wunderbardigital.com/wunderbrand-snapshot-plus?utm_source=wunderbrand_app&utm_medium=email&utm_campaign=free_report_nurture",
+            upgrade_product_url: "https://app.wunderbrand.ai/brand-snapshot/plus?utm_source=wunderbrand_app&utm_medium=email&utm_campaign=free_report_nurture",
             upgrade_price: "$497",
             services_url: "https://wunderbardigital.com/talk-to-an-expert?utm_source=wunderbrand_app&utm_medium=email&utm_campaign=free_report_nurture",
             ...(firstName ? { first_name_custom: firstName } : {}),
@@ -183,7 +183,7 @@ export async function POST(req: Request) {
             experience_survey_link: experienceSurveyLink,
             dashboard_link: `${baseUrl}/dashboard`,
             upgrade_product_name: "WunderBrand Snapshot+\u2122",
-            upgrade_product_url: "https://wunderbardigital.com/wunderbrand-snapshot-plus?utm_source=wunderbrand_app&utm_medium=email&utm_campaign=free_report_nurture",
+            upgrade_product_url: "https://app.wunderbrand.ai/brand-snapshot/plus?utm_source=wunderbrand_app&utm_medium=email&utm_campaign=free_report_nurture",
             upgrade_price: "$497",
           },
         });

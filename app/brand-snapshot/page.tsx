@@ -22,8 +22,7 @@ export const metadata: Metadata = {
   },
 };
 
-const START_CHAT = (campaign: string) =>
-  `/?utm_source=wunderbrand_app&utm_medium=product_page&utm_campaign=${campaign}&utm_content=snapshot_start_diagnostic`;
+const START_CHAT = "/";
 
 const SNAPSHOT_PLUS_PAGE = "/brand-snapshot/plus";
 
@@ -75,7 +74,7 @@ export default function BrandSnapshotPage() {
             <p className="wd-p">
               A structured, AI-powered brand diagnostic that shows you exactly where your brand stands today — and which pillar is holding everything else back!
             </p>
-            <Link href={START_CHAT("hero_cta_primary")} className="wd-btn">
+            <Link href={START_CHAT} className="wd-btn">
               Start Your Free WunderBrand Snapshot™
             </Link>
           </div>
@@ -140,7 +139,7 @@ export default function BrandSnapshotPage() {
           </div>
 
           <div className="bs-cta-block">
-            <Link href={START_CHAT("body_cta_top")} className="bs-cta-btn">
+            <Link href={START_CHAT} className="bs-cta-btn">
               Start Your Free WunderBrand Snapshot™
             </Link>
           </div>
@@ -251,7 +250,7 @@ export default function BrandSnapshotPage() {
 
           <div className="bs-cta-block bs-cta-bottom">
             <p className="bs-cta-lead">10–15 minutes. No credit card. Instant results.</p>
-            <Link href={START_CHAT("body_cta_bottom")} className="bs-cta-btn">
+            <Link href={START_CHAT} className="bs-cta-btn">
               Start Your Free WunderBrand Snapshot™
             </Link>
           </div>
@@ -471,7 +470,7 @@ export default function BrandSnapshotPage() {
             Find out where your brand stands today — and exactly which pillar to focus on first.
           </p>
           <div className="wd-bottom-cta-btns">
-            <Link href={START_CHAT("bottom_cta_primary")} className="wd-btn-primary">
+            <Link href={START_CHAT} className="wd-btn-primary">
               Start Your Free WunderBrand Snapshot™
             </Link>
             <a href={TALK_EXPERT} className="wd-btn-outline-white" target="_blank" rel="noopener noreferrer">

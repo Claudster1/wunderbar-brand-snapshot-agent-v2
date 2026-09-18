@@ -102,7 +102,7 @@ PRODUCT SUITE (for recommendations — use exact names and pricing):
 • AI Consulting — Strategic AI implementation for marketing teams (custom pricing)
 
 PRODUCT URLS:
-• Snapshot: https://wunderbardigital.com/wunderbrand-snapshot?utm_source=wunderbrand_app&utm_medium=session_followup&utm_campaign=product_purchase&utm_content=buy_snapshot
+• Snapshot: https://app.wunderbrand.ai/brand-snapshot?utm_source=wunderbrand_app&utm_medium=session_followup&utm_campaign=product_purchase&utm_content=buy_snapshot
 • Snapshot+: /checkout/snapshot-plus?utm_source=wunderbar_app&utm_medium=session_followup&utm_campaign=product_purchase&utm_content=buy_snapshot_plus
 • Blueprint: /checkout/blueprint?utm_source=wunderbar_app&utm_medium=session_followup&utm_campaign=product_purchase&utm_content=buy_blueprint
 • Blueprint+: /checkout/blueprint-plus?utm_source=wunderbar_app&utm_medium=session_followup&utm_campaign=product_purchase&utm_content=buy_blueprint_plus

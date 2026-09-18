@@ -39,6 +39,9 @@ const EVENT_TYPE_MAP: Record<string, SessionType> = {
   // AI consulting SALES call
   "free ai consultation": "ai_consulting_consult",
   "free-ai-consultation": "ai_consulting_consult",
+  "free-ai-consultation-clone": "ai_consulting_consult",
+  "wunderbar-digital-free-consultation": "ai_consulting_consult",
+  "wunderbar digital free consultation": "ai_consulting_consult",
   "ai consultation": "ai_consulting_consult",
 };
 
@@ -49,7 +52,12 @@ function detectSessionType(eventTypeName: string): SessionType {
   // "expert"/"consultation" keywords, so they must be matched before them.
   if (lower.includes("managed marketing") || lower.includes("managed-marketing"))
     return "managed_services_consult";
-  if (lower.includes("ai consult") || lower.includes("ai-consult")) return "ai_consulting_consult";
+  if (
+    lower.includes("ai consult") ||
+    lower.includes("ai-consult") ||
+    (lower.includes("free") && lower.includes("consult"))
+  )
+    return "ai_consulting_consult";
   if (lower.includes("activation") || lower.includes("blueprint")) return "activation_session";
   if (lower.includes("expert") || lower.includes("consultation")) return "talk_to_expert";
   return "general_session";

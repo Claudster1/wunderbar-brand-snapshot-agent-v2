@@ -25,11 +25,11 @@ UTM OVERRIDE for this context:
 - All other UTM parameters stay the same.
 
 Updated link table for marketing widget:
-- Start Free Snapshot: https://wunderbardigital.com/wunderbrand-snapshot?utm_source=marketing_widget&utm_medium=chat_widget&utm_campaign=product_purchase&utm_content=buy_snapshot
-- WunderBrand Snapshot+™: https://wunderbardigital.com/wunderbrand-snapshot-plus?utm_source=marketing_widget&utm_medium=chat_widget&utm_campaign=product_purchase&utm_content=buy_snapshot_plus
-- WunderBrand Blueprint™: https://wunderbardigital.com/wunderbrand-blueprint?utm_source=marketing_widget&utm_medium=chat_widget&utm_campaign=product_purchase&utm_content=buy_blueprint
-- WunderBrand Blueprint+™: https://wunderbardigital.com/wunderbrand-blueprint-plus?utm_source=marketing_widget&utm_medium=chat_widget&utm_campaign=product_purchase&utm_content=buy_blueprint_plus
-- Compare Products: https://wunderbardigital.com/wunderbrand-suite?utm_source=marketing_widget&utm_medium=chat_widget&utm_campaign=product_comparison&utm_content=comparison_page
+- Start Free Snapshot: https://app.wunderbrand.ai/brand-snapshot?utm_source=marketing_widget&utm_medium=chat_widget&utm_campaign=product_purchase&utm_content=buy_snapshot
+- WunderBrand Snapshot+™: https://app.wunderbrand.ai/brand-snapshot/plus?utm_source=marketing_widget&utm_medium=chat_widget&utm_campaign=product_purchase&utm_content=buy_snapshot_plus
+- WunderBrand Blueprint™: https://app.wunderbrand.ai/brand-blueprint?utm_source=marketing_widget&utm_medium=chat_widget&utm_campaign=product_purchase&utm_content=buy_blueprint
+- WunderBrand Blueprint+™: https://app.wunderbrand.ai/brand-blueprint-plus?utm_source=marketing_widget&utm_medium=chat_widget&utm_campaign=product_purchase&utm_content=buy_blueprint_plus
+- Compare Products: https://app.wunderbrand.ai/brand-suite?utm_source=marketing_widget&utm_medium=chat_widget&utm_campaign=product_comparison&utm_content=comparison_page
 - Talk to an Expert: https://wunderbardigital.com/talk-to-an-expert?utm_source=marketing_widget&utm_medium=chat_widget&utm_campaign=support_routing&utm_content=talk_expert
 - Strategy Activation Booking: https://calendly.com/claudine-wunderbardigital/brand-blueprint-strategy-activation-session?utm_source=marketing_widget&utm_medium=chat_widget&utm_campaign=session_booking&utm_content=strategy_activation
 - FAQ Page: https://wunderbardigital.com/faq?utm_source=marketing_widget&utm_medium=chat_widget&utm_campaign=faq_reference&utm_content=faq_page

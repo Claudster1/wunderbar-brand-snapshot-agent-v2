@@ -2,16 +2,28 @@ import Link from "next/link";
 import type { ProductTier } from "@/components/results/tabConfig";
 import { getTrackedCheckoutUrl } from "@/lib/checkoutUrls";
 
-const SUITE_COMPARE = "https://wunderbardigital.com/wunderbrand-suite";
+const SUITE_COMPARE_PATH = "/brand-suite#compare";
 
 function marketingUrl(path: string, utmSource: string, utmContent: string): string {
-  const base = path.startsWith("http") ? path : `https://wunderbardigital.com${path.startsWith("/") ? path : `/${path}`}`;
+  const base = path.startsWith("http")
+    ? path
+    : `https://wunderbardigital.com${path.startsWith("/") ? path : `/${path}`}`;
   const u = new URL(base);
   u.searchParams.set("utm_source", utmSource);
   u.searchParams.set("utm_medium", "report_cta");
   u.searchParams.set("utm_campaign", "tier_upgrade");
   u.searchParams.set("utm_content", utmContent);
   return u.toString();
+}
+
+function suiteCompareHref(utmSource: string, utmContent: string): string {
+  const u = new URL(SUITE_COMPARE_PATH, "https://app.wunderbrand.ai");
+  u.searchParams.set("utm_source", utmSource);
+  u.searchParams.set("utm_medium", "report_cta");
+  u.searchParams.set("utm_campaign", "tier_upgrade");
+  u.searchParams.set("utm_content", utmContent);
+  // Keep hash for #compare (URL API may drop it depending on input — re-attach)
+  return `/brand-suite?${u.searchParams.toString()}#compare`;
 }
 
 function checkoutHref(
@@ -166,14 +178,12 @@ export function ReportTierUpgradeCTAs({
                 Upgrade to Blueprint+™
               </Link>
             ) : null}
-            <a
-              href={marketingUrl(SUITE_COMPARE, utmSource, "compare_suite")}
+            <Link
+              href={suiteCompareHref(utmSource, "compare_suite")}
               className={tier === "blueprint" ? secondaryBtn : ghostBtn}
-              target="_blank"
-              rel="noopener noreferrer"
             >
               Compare WunderBrand Suite™
-            </a>
+            </Link>
             <a href={talkExpert} className={ghostBtn} target="_blank" rel="noopener noreferrer">
               Talk to an expert
             </a>

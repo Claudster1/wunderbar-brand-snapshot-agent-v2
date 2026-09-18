@@ -6,7 +6,7 @@ import "./suite-landing.css";
 export const metadata: Metadata = {
   title: "WunderBrand Suite™ | Compare Products",
   description:
-    "Compare WunderBrand Snapshot™, Snapshot+™, Blueprint™, and Blueprint+™ — choose the right brand strategy product and start in the app.",
+    "Compare WunderBrand Snapshot™, Snapshot+™, Blueprint™, and Blueprint+™ — choose the right brand strategy product for your stage.",
   openGraph: {
     title: "WunderBrand Suite™ | Compare Products",
     description: "Feature comparison and product matcher for the WunderBrand Suite™.",
@@ -64,10 +64,10 @@ export default function BrandSuitePage() {
         <div className="ws-hero-container">
           <div className="ws-hero-panel">
             <span className="ws-eyebrow">WunderBrand Suite™</span>
-            <h1 className="ws-h1">Choose the right product — then start in the app</h1>
+            <h1 className="ws-h1">Find the right depth for your brand</h1>
             <p className="ws-lead">
-              Compare Snapshot™, Snapshot+™, Blueprint™, and Blueprint+™ side by side. Every paid product checks out
-              here so upgrade credits apply automatically.
+              Start free with Snapshot™ — or go deeper with Snapshot+™, Blueprint™, or Blueprint+™.
+              Compare what&apos;s included, then pick the path that fits.
             </p>
             <div className="ws-hero-cta-group">
               <Link href="/brand-snapshot" className="ws-btn-primary">
@@ -276,7 +276,7 @@ export default function BrandSuitePage() {
         <div className="ws-final-cta-inner">
           <h2 className="ws-final-heading">Start with clarity. Grow with confidence.</h2>
           <p className="ws-final-copy">
-            Begin free — or open a product page and check out with upgrade credit applied automatically.
+            Begin free with Snapshot™ — or open a product page when you&apos;re ready to go deeper.
           </p>
           <Link href="/brand-snapshot" className="ws-btn-primary">
             Start Free WunderBrand Snapshot™

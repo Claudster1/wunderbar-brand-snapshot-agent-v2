@@ -84,6 +84,7 @@ You will receive the following JSON:
   "brandPersonalityWords": [],
   "keyTopicsAndThemes": "",
   "contentFormatPreferences": [],
+  "videoComfort": "",
   "archetypeSignals": {
     "decisionStyle": "",
     "authoritySource": "",

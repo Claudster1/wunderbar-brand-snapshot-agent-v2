@@ -126,6 +126,10 @@ export function getPriorSatisfiedCaptureKeys(
     done.add("content_creation_capacity");
   }
 
+  if (str(prior.videoComfort) || str(prior.video_comfort) || str(prior.asyncVideoComfort)) {
+    done.add("video_comfort");
+  }
+
   // Competitive pressure = why buyers choose others. Competitor names / differentiation / challenge
   // are related narrative topics but must not skip the win-loss pressure capture on upgrade.
   if (

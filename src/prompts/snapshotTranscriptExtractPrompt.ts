@@ -66,6 +66,7 @@ Required shape (fill every key; use null only where the type allows null):
   "paidAdsBudgetBand": "none" | "under_1000" | "1000_3000" | "3000_10000" | "10000_plus" | null,
   "paidAdsPrimaryObjective": "lead_volume" | "sales_volume" | "cpl_efficiency" | "roas" | "pipeline_quality" | "awareness" | null,
   "contentCreationCapacity": "under_2_hours" | "2_5_hours" | "5_10_hours" | "10_plus_hours" | null,
+  "videoComfort": "comfortable" | "prefer_written" | "mixed" | "unsure" | null,
   "previousBrandWork": "none" | "DIY" | "freelancer" | "agency",
   "userRoleContext": "operator" | "strategic_lead" | "marketing_lead" | "founder" | "other",
   "servicesInterest": "managed_marketing" | "consulting" | "both" | "not_now" | null,

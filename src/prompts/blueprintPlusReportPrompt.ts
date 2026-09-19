@@ -3,7 +3,13 @@
 import { aiAbbreviationFirstReferenceRule } from "@/lib/copy/abbreviationPolicy";
 import { aiApTitleCaseHeadingsRule } from "@/lib/copy/capitalizationPolicy";
 import { reportExecutionReadyContentRule, aiPlainLanguageCustomerOutputRule } from "@/lib/copy/reportExecutionStandard";
+import { PLATFORM_AGNOSTIC_TOOLS_PROMPT_RULE } from "@/lib/activation/formatAgnosticRecommendations";
 import { audienceLanguageLockFragment } from "@/src/prompts/fragments/audienceLanguageLock";
+import {
+  BUYER_PERSONA_DIVERSITY_RULES,
+  IMAGERY_DIVERSITY_GUIDANCE,
+  INCLUSIVE_LANGUAGE_GUIDANCE,
+} from "@/src/prompts/fragments/personaDiversityGuidance";
 
 export const blueprintPlusReportPrompt = `
 You are generating the WunderBrand Blueprint+™ for Wunderbar Digital.
@@ -18,13 +24,14 @@ ABSOLUTE RULES:
 - Prefer plain language; define useful terms once, then use them. Do not thin out the strategy.
 - Everything must connect back to growth outcomes the business can measure.
 - Every recommendation must include HOW to implement it, not just WHAT to do.
+${PLATFORM_AGNOSTIC_TOOLS_PROMPT_RULE}
 - Include ready-to-use templates and copy wherever possible.
 - **Not a to-do memo:** depth means **filled-in deliverables** (templates with brackets only where the user must substitute a proper noun), not lists of initiatives without copy.
 - **measurementFramework.trackingRecommendations:** every row must include readerFriendlyOneLiner—one sentence a founder or finance partner can skim. It parallels howToSetUp (define UTM, SQL, CRM, etc. in plain words when used above); howToSetUp remains the operator-grade source of truth for experienced marketers.
 
 ACTIVATION SURFACE (IN-APP): The product UI surfaces **emailMarketingFramework**, **socialMediaStrategy**, **seoStrategy**, **aeoStrategy**, **customerJourneyMap**, **thoughtLeadershipStrategy**, **paidMediaStrategy**, **competitivePositioning** (movementPlan / differentiationSummary), **icpConversionIntelligenceFramework**, **personaDrivenSegmentation**, **icpGoToMarketPlans** (one per ICP: strategy ladder, campaign content needs, 90-day tactics, ICI matrix anchor, competitive talk-track cues for sales + marketing), and **ninetyDayRoadmap** as **live channel plans** for $2K buyers. In those sections, write **deployable assets** — named ICP tiers and buyer personas, real subject lines, hooks, stage copy, and budget/channel lines — not bulk imperatives like "build a nurture" or "optimize SEO" without the actual sequence or page targets. The **primary free offer** in **conversionStrategy.leadCaptureRecommendations** (whether **optimize_existing** or **create_new**) must show up **by name or clear paraphrase** in email + social + calendar sections, not only in conversionStrategy — and must stay **aligned with strategicOfferContext.primaryOffer** and **strategicOfferContext.channelExecutionAlignment** (same offer name, no promises that contradict **scopeOut**). **emailMarketingFramework** must spell out a **full-funnel nurture** (awareness → consideration → decision → retention/re-engagement) with **concrete sequence steps** (subject + purpose + key message per email or per batch). **socialMediaStrategy** must include an explicit **90-day phased calendar** (e.g. days 1–30, 31–60, 61–90) describing what shifts in themes, cadence, and tests each month. **contentCalendarFramework.monthlyThemes** must include a full-year sequence (**Q1, Q2, Q3, Q4**) with no missing quarters.
 
-**CONVERSION SPINE (REQUIRED on channel plans):** On **paidMediaStrategy**, **emailMarketingFramework**, **socialMediaStrategy**, **seoStrategy**, **aeoStrategy**, and **thoughtLeadershipStrategy**, you MUST include a **conversionSpine** object (sibling to **overview**) with exactly these string fields — all filled, no placeholders:
+**CONVERSION FOCUS (REQUIRED on channel plans):** On **paidMediaStrategy**, **emailMarketingFramework**, **socialMediaStrategy**, **seoStrategy**, **aeoStrategy**, and **thoughtLeadershipStrategy**, you MUST include a **conversionSpine** object (sibling to **overview**) with exactly these string fields — all filled, no placeholders:
 - **primaryMacroConversion** — The one business outcome this program optimizes for (e.g. "Qualified demo booked with budget + timeline," "Self-serve signup + activation," "Pipeline opportunity created in CRM"). Use the **same** macro across all six sections for this brand.
 - **primaryOfferAnchor** — The **same** named offer or lead magnet readers will see (must match **strategicOfferContext.primaryOffer.name** or **conversionStrategy.leadCaptureRecommendations.primaryPickTitle** / optimized title — same vocabulary everywhere).
 - **advancesConversion** — One sentence: **this section’s job** on that path (e.g. paid: "Captures in-market clicks and retargets engagers toward the landing path for {offer}"; email: "Nurtures proof and timing until the reader takes the macro CTA"; SEO: "Earns intent-mapped visits that feed the same landing and CTA as paid"; social: "Builds trust and soft CTAs that feed the magnet or demo path"; AEO: "Surfaces direct answers that route to the same conversion pages"; thought leadership: "Earns authority touchpoints that make the macro CTA credible"). Do not contradict **primaryMacroConversion** or promise a different end state.
@@ -133,7 +140,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
    - implementationGuide: Array of 3–4 steps, each with:
      - step: Deliverable-oriented title (what exists when done)
      - detail: **Filled-in** instructions — sample copy, checklist text, or template bones for [businessName], not "review strategy"
-   - toolsAndResources: String listing recommended tools and platforms for this pillar
+   - toolsAndResources: String listing recommended **formats and tools** for this pillar. Give 2–4 options (not one vendor). Lead with the job (e.g. “async walkthrough,” “written proof”). Include a non-video path. Loom-class tools are B2B-skewed—prefer lists like “annotated PDF; slides; any screen recorder (Zoom / Loom / native); live call” and tailor to audience type.
 
 4. Context Coverage
    overallPercent, areas [{ name, percent, status }], contextGaps []
@@ -272,19 +279,21 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
     IMPORTANT: ICPs (section 17) define segments; buyer personas are people inside those segments.
     
     For EACH ICP (primary, secondary, and each additionalICPs entry), generate 2–3 distinct buyer personas when the segment warrants it; minimum 1 persona per ICP. Total personas often 6–10 when additionalICPs is populated.
+
+    ${BUYER_PERSONA_DIVERSITY_RULES}
     
     buyerPersonas: [
       {
-        personaName: A vivid, memorable name preferred (e.g., "The Overwhelmed CMO", "The Side-Hustle Mom", "The Risk-Averse CFO"). If using a first+last name, keep it ethnically ambiguous (Jordan Ellis, Casey Morgan, Alex Reed) — never invent a culturally specific name that could clash with the illustrated avatar.
+        personaName: A vivid, memorable name preferred (e.g., "The Overwhelmed CMO", "The Side-Hustle Parent", "The Risk-Averse CFO"). If using a first+last name, keep it ethnically ambiguous (Jordan Ellis, Casey Morgan, Alex Reed) — never invent a culturally specific name that could clash with the illustrated avatar.
         icpAlignment: REQUIRED — exact string match to the icpLabel of primaryICP, secondaryICP, or one additionalICPs[] item
-        narrativeSnapshot: A 3–4 sentence story that brings this persona to life — who they are, what their day looks like, what frustrates them. Written in third person.
+        narrativeSnapshot: A 3–4 sentence story that brings this persona to life — who they are, what their day looks like, what frustrates them. Written in third person. Follow PERSONA DIVERSITY rules for ethnicity, gender, and relationship/orientation language.
         role: Their role or identity (B2B: job title, seniority, decision authority; B2C: life role, identity, values)
         age range and context (approximate, for messaging calibration)
         coreFrustration: The one problem that drives them to look for a solution
         primaryMotivation: What they're ultimately trying to achieve
         secondaryMotivation: A supporting goal or desire
         decisionStyle: How they evaluate and choose (data-driven, peer-influenced, impulse, committee, values-driven)
-        decisionInfluencers: Who else is involved or whose opinion matters (B2B: boss, board, team; B2C: partner, friends, online reviews)
+        decisionInfluencers: Who else is involved or whose opinion matters (B2B: boss, board, team; B2C: partner, household, friends, online reviews — do not default to husband/wife)
         informationSources: Specific publications, podcasts, communities, influencers, platforms they trust
         
         messagingGuide: {
@@ -833,9 +842,10 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
     **BLUEPRINT+ EXCLUSIVE** — The performance optimization backbone between Master Messaging and channel activation documents.
     
     **IN-APP AUDIENCE SEGMENTS PLAN:** The product renders **icpConversionIntelligenceFramework** (plus **personaDrivenSegmentation** and **audiencePersonaDefinition**) as the **Audience Segments & Journey Triggers** activation playbook. This is a **$2K execution deliverable**, not strategy-only notes.
-    - **contentTypeConversionMatrix**: Every row must include **paste-ready** **convertingCTA**, concrete **highestConvertingContentType**, plus **exampleHeadline** (hero or subject), **examplePrimaryCopy** (full draft body sized to the format: e.g. email 120–220 words, LinkedIn ad primary text within platform limits, landing hero + first section for web), **exampleImagePrompt** when the winning format uses static or feed visuals, and **exampleVideoPrompt** when the winning format is short-form video, Reels, Stories, YouTube, or in-stream (shot list / motion brief; use "" if not video). Copy must align with **hookTypePerformance** and **leadMessagePillar** for that ICP.
+    - **contentTypeConversionMatrix**: Every row must include **paste-ready** **convertingCTA**, concrete **highestConvertingContentType** (format-first, not a single vendor; always name a non-video option when the format could be video), plus **exampleHeadline** (hero or subject), **examplePrimaryCopy** (full draft body sized to the format: e.g. email 120–220 words, LinkedIn ad primary text within platform limits, landing hero + first section for web), **exampleImagePrompt** when the winning format uses static or feed visuals, and **exampleVideoPrompt** when video is an *optional* alternate (shot list / motion brief; use "" if the winning format is written-only). Copy must align with **hookTypePerformance** and **leadMessagePillar** for that ICP. Do not make Loom (or any one recorder) the default CTA keyword.
     - **channelLevelConversionMechanics**: **conversionAction** and **followUpLogic** must read like deployment instructions (who does what, on which channel, with what CTA)—not "optimize messaging."
-    - **multiTouchConversionSequence**: Each **sequence** step must use **real channel names** and specific **touchType**. Additionally populate **headlineOrSubject**, **subhead** (if placement uses one), **primaryCopy** (full deployable copy for that touch—not a summary), **cta**, **imagePrompt** for static/display/social feed steps, **videoPrompt** for video/Reels/YouTube/in-stream steps (use "" if not applicable), and **performanceRationale** (one line: which matrix cell or hook type this touch is designed to satisfy). Steps that are Email should read like real emails someone could paste into ESP; LinkedIn like ad or InMail primary text.
+    - **multiTouchConversionSequence**: Each **sequence** step must use **real channel names** and specific **touchType**. Additionally populate **headlineOrSubject**, **subhead** (if placement uses one), **primaryCopy** (full deployable copy for that touch—not a summary), **cta**, **imagePrompt** for static/display/social feed steps, **videoPrompt** for video/Reels/YouTube/in-stream steps (use "" if not applicable), and **performanceRationale** (one line: which matrix cell or hook type this touch is designed to satisfy — **operator-only**, never inside primaryCopy). Steps that are Email should read like real emails someone could paste into ESP; LinkedIn like ad or InMail primary text.
+    - **primaryCopy / email body rules:** Write only what the **recipient** should read. Do **not** put labels like “Quick context:”, “Why it works:”, “Team note:”, matrix jargon, or internal strategy asides inside the body. Bridge paragraphs are fine as normal prose (“The fix was not more content…”) without meta labels.
     - **behavioralSignalLibrary**: Full **executable play**: **recommendedChannels**, **primaryHeadline**, **subhead** where used, **primaryBody** as complete first-send copy when email/InMail (not a teaser—enough to ship), **cta**, **imagePrompt** for static paid/social, **videoPrompt** when the play includes motion (Reels, in-stream, YouTube, CTV; "" if static-only), **performanceRationale** (matrix/hook alignment), plus **triggeredAction** as automation/ops summary. No vague verbs alone ("nurture", "retarget").
     - **Performance discipline:** You cannot claim measured lift without client data; optimize **on-brief** by enforcing consistency with **contentTypeConversionMatrix**, **hookTypePerformance**, and **channelLevelConversionMechanics** so every asset is internally coherent and test-ready.
     
@@ -1277,7 +1287,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
         lighting: "What kind of lighting to look for"
         composition: "How images should be composed"
         colorTemperature: "How the brand palette connects to image selection"
-        diversity: "Guidance on representation and authenticity"
+        diversity: "${IMAGERY_DIVERSITY_GUIDANCE}"
         authenticityMarkers: "What makes an image feel authentic vs. stock-generic"
       }
       
@@ -1398,7 +1408,16 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
         overview: "A 2–3 sentence explanation of how the logo represents the brand and why consistent usage matters. NOTE: We are providing usage guidance — the brand is responsible for providing their actual logo files."
         clearSpace: "How much clear space should surround the logo — express as a proportion (e.g., 'Maintain clear space equal to the height of the logo mark on all sides')"
         minimumSize: "Minimum display size for print and digital to ensure legibility (e.g., 'No smaller than 1 inch / 72px wide')"
+        approvedBackgrounds: "Which backgrounds are approved (solid brand colors, white, high-contrast fields) and which to avoid (busy photos, low contrast, harsh gradients)"
         placementRules: ["4–5 rules for logo placement across different formats — website headers, social profiles, print materials, email signatures, presentations"]
+        coBranding: "How partner or event marks may appear with [businessName]'s logo — relative size, hierarchy, and forbidden equal-weight hero treatments"
+        usageExamples: [
+          {
+            surface: "The surface (e.g., 'Website header', 'Social avatar', 'Email header', 'Presentation title slide', 'Paid ad', 'Partner deck')"
+            correct: "What correct logo usage looks like on this surface — lockup, size, field, clear space"
+            incorrect: "A concrete misuse on the same surface (stretching, crop, busy field, effects, equal co-brand, etc.)"
+          }
+        ] (5–6 surfaces — required for a usable style guide; do not skip)
         incorrectUses: ["5–6 common logo misuses to avoid — stretching, recoloring outside palette, placing on busy backgrounds, adding effects, rotating, low-resolution usage"]
       }
       
@@ -1416,7 +1435,7 @@ The output includes ALL sections from Snapshot+™ and Blueprint™ (enhanced fo
         grammarPreferences: ["5–7 specific grammar and punctuation preferences. IMPORTANT: If writingPreferences was provided by the user (e.g., 'we use Oxford comma,' 'always first person plural'), incorporate those FIRST, then supplement with additional recommendations. The user's stated preferences always take priority."]
         jargonRules: "How [businessName] handles industry jargon — when to use it, when to avoid it, and how to explain technical terms. If writingPreferences mentioned jargon rules, honor those."
         pointOfView: "Default point of view for brand communications. If writingPreferences specified POV (e.g., 'we write as we'), use that. Otherwise recommend based on audienceType and brand persona."
-        inclusiveLanguage: "Guidelines for inclusive, accessible language — gender-neutral terms, avoiding ableist language, cultural sensitivity relevant to [businessName]'s audience"
+        inclusiveLanguage: "${INCLUSIVE_LANGUAGE_GUIDANCE}"
         stylePreferences: ["4–6 writing style preferences. Incorporate any user-provided writingPreferences first, then supplement with strategic recommendations based on brand voice and archetype."]
       }
       
@@ -1945,7 +1964,10 @@ Return valid JSON with ALL these keys:
       "overview": "",
       "clearSpace": "",
       "minimumSize": "",
+      "approvedBackgrounds": "",
       "placementRules": [],
+      "coBranding": "",
+      "usageExamples": [{ "surface": "", "correct": "", "incorrect": "" }],
       "incorrectUses": []
     },
     "layoutGuidelines": {

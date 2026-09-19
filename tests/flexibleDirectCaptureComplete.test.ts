@@ -330,6 +330,10 @@ describe("flexibleDirectCaptureComplete", () => {
       primary_acquisition_channel: { la: LA.channel, lu: "google" },
       monthly_marketing_budget: { la: LA.budget, lu: "500/mo" },
       content_creation_capacity: { la: LA.content, lu: "5 hours" },
+      video_comfort: {
+        la: "**How do you feel about short videos or screen recordings for customers?** Written/slides are always fine too.",
+        lu: "Prefer written / slides",
+      },
       competitive_pressure_point: { la: LA.competitive, lu: "fit" },
       has_email_list: { la: LA.emailList, lu: "yep" },
       has_lead_magnet: { la: LA.leadMagnet, lu: "not yet" },
